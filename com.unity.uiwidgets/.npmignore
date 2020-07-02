@@ -7,17 +7,17 @@ Documentation~/ApiDocs/**
 .DS_Store
 .npmrc
 .npmignore
-.gitignore
-CONTRIBUTING.md
-CONTRIBUTING.md.meta
+.editorconfig
 QAReport.md
 QAReport.md.meta
-.gitlab-ci.yml
 build.sh
 build.sh.meta
 build.bat
 build.bat.meta
+UIWidgetCleanupPlugin.DotSettings
+UIWidgetCleanupPlugin.DotSettings.meta
 
+Scripts/**
 automation/**
 utr_output/**
 .Editor/**
