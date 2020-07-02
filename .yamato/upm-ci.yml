@@ -19,7 +19,7 @@ pack:
     image: package-ci/ubuntu:stable
     flavor: b1.small
   commands:
-    ./prepare_package.sh
+    - ./prepare_package.sh
     - npm install upm-ci-utils@stable -g --registry https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-npm
     - upm-ci package pack --package-path ./com.unity.uiwidgets
   artifacts:
