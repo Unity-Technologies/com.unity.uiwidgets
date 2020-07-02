@@ -4,14 +4,7 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.0.0-preview] - 2019-03-01
-
-### This is the first release of *Unity Package UIWidgets*.
-
-*just the first release*
-
-
-## [1.5.4-release] - 2019-08-30
+## [1.5.4-preview.1] - 2019-08-30
 
 #### In this release we mainly focus on the optimization and stabilization of the framework. 
 #### We also upgrade UIWidgets to version 1.5.4, mainly derived from flutter 1.5.4.
@@ -26,3 +19,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Optimize paragraph layout [\#254](https://github.com/UnityTech/UIWidgets/pull/254)
 - Support emoji display and edit [\#231](https://github.com/UnityTech/UIWidgets/pull/231)
 
+## [1.0.0-preview] - 2019-03-01
+
+### This is the first release of *Unity Package UIWidgets*.
+
+*just the first release*
