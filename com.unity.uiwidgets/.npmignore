@@ -18,6 +18,8 @@ UIWidgetCleanupPlugin.DotSettings
 UIWidgetCleanupPlugin.DotSettings.meta
 
 Scripts/**
+Scripts.meta
+
 automation/**
 utr_output/**
 .Editor/**
