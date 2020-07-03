@@ -1,4 +1,5 @@
 test_editors:
+  - version: 2018.4
   - version: 2019.1
   - version: 2019.2
   - version: 2019.4
@@ -21,6 +22,8 @@ pack:
   commands:
     - chmod +x ./prepare_package.sh
     - ./prepare_package.sh
+    - chmod +x ./add_sample.sh
+    - ./add_sample.sh
     - npm install upm-ci-utils@stable -g --registry https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-npm
     - upm-ci package pack --package-path ./com.unity.uiwidgets
   artifacts:
