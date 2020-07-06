@@ -17,7 +17,7 @@ namespace UIWidgetsSample {
         }
 
         protected override void OnEnable() {
-            FontManager.instance.addFont(Resources.Load<Font>("CupertinoIcons"), "CupertinoIcons");
+            FontManager.instance.addFont(Resources.Load<Font>("fonts/CupertinoIcons"), "CupertinoIcons");
             base.OnEnable();
         }
 
