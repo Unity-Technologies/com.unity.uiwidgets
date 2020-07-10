@@ -134,7 +134,7 @@ namespace Unity.UIWidgets.engine {
         const int mouseButtonNum = 3;
 
         void _handleViewMetricsChanged(string method, List<JSONNode> args) {
-            this._windowAdapte?.onViewMetricsChanged();
+            this._windowAdapter?.onViewMetricsChanged();
             this._displayMetrics?.onViewMetricsChanged();
         }
 
