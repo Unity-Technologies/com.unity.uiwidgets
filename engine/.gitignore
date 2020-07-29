@@ -1,0 +1,6 @@
+.idea
+.vs
+artifacts
+build
+obj
+*.gen.*

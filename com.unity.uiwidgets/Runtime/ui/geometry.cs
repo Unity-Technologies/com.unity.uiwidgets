@@ -66,7 +66,7 @@ namespace Unity.UIWidgets.ui {
             tolerance = tolerance ?? _valueNearlyZero;
             return Mathf.Abs(x) <= tolerance;
         }
-        
+
         public static float clamp(this float value, float min, float max) {
             if (value < min) {
                 value = min;
@@ -541,6 +541,8 @@ namespace Unity.UIWidgets.ui {
             get { return new Size(this.width, this.height); }
         }
 
+        public bool hasNaN => this.left.isNaN() || this.top.isNaN() || this.right.isNaN() || this.bottom.isNaN();
+
         public float area {
             get { return this.width * this.height; }
         }
@@ -594,7 +596,7 @@ namespace Unity.UIWidgets.ui {
                 this.left * scaleX, this.top * scaleY.Value,
                 this.right * scaleX, this.bottom * scaleY.Value);
         }
-        
+
         public Rect outset(float dx, float dy) {
             return new Rect(this.left - dx, this.top - dy, this.right + dx, this.bottom + dy);
         }
@@ -726,17 +728,17 @@ namespace Unity.UIWidgets.ui {
 
         public Rect roundOutScale(float scale) {
             return fromLTRB(
-                Mathf.Floor(this.left * scale), 
+                Mathf.Floor(this.left * scale),
                 Mathf.Floor(this.top * scale),
-                Mathf.Ceil(this.right * scale), 
+                Mathf.Ceil(this.right * scale),
                 Mathf.Ceil(this.bottom * scale));
         }
-        
+
         public Rect withDevicePixelRatio(float devicePixelRatio) {
             return fromLTRB(
-                Mathf.Floor(this.left * devicePixelRatio) / devicePixelRatio, 
+                Mathf.Floor(this.left * devicePixelRatio) / devicePixelRatio,
                 Mathf.Floor(this.top * devicePixelRatio) / devicePixelRatio,
-                Mathf.Ceil(this.right * devicePixelRatio) / devicePixelRatio, 
+                Mathf.Ceil(this.right * devicePixelRatio) / devicePixelRatio,
                 Mathf.Ceil(this.bottom * devicePixelRatio) / devicePixelRatio);
         }
 
