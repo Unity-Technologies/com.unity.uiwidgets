@@ -2,8 +2,6 @@
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
-using UnityEngine;
-using ZXing.QrCode.Internal;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
