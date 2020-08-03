@@ -263,7 +263,7 @@ namespace Unity.UIWidgets.rendering {
             return this.beforePadding;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             D.assert(child != null);
             D.assert(child == this.child);
 

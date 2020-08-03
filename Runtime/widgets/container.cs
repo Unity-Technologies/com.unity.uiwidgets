@@ -70,7 +70,7 @@ namespace Unity.UIWidgets.widgets {
             float? height = null,
             BoxConstraints constraints = null,
             EdgeInsets margin = null,
-            Matrix3 transfrom = null,
+            Matrix4 transfrom = null,
             Widget child = null
         ) : base(key) {
             D.assert(margin == null || margin.isNonNegative);
@@ -102,7 +102,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly Decoration foregroundDecoration;
         public readonly BoxConstraints constraints;
         public readonly EdgeInsets margin;
-        public readonly Matrix3 transform;
+        public readonly Matrix4 transform;
 
         EdgeInsets _paddingIncludingDecoration {
             get {
@@ -160,7 +160,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (this.transform != null) {
-                current = new Transform(transform: new Matrix3(this.transform), child: current);
+                current = new Transform(transform: new Matrix4(this.transform), child: current);
             }
 
             return current;
@@ -180,7 +180,7 @@ namespace Unity.UIWidgets.widgets {
                 this.constraints, defaultValue: Diagnostics.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<EdgeInsets>("margin",
                 this.margin, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(ObjectFlagProperty<Matrix3>.has("transform",
+            properties.add(ObjectFlagProperty<Matrix4>.has("transform",
                 this.transform));
         }
     }

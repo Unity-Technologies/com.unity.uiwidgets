@@ -115,13 +115,13 @@ namespace Unity.UIWidgets.material {
             canvas.restore();
         }
 
-        protected override void paintFeature(Canvas canvas, Matrix3 transform) {
+        protected override void paintFeature(Canvas canvas, Matrix4 transform) {
             Paint paint = new Paint {color = this.color.withAlpha(this._alpha.value)};
             Offset originOffset = transform.getAsTranslation();
             Rect rect = this._rectCallback != null ? this._rectCallback() : Offset.zero & this.referenceBox.size;
             if (originOffset == null) {
                 canvas.save();
-                canvas.concat(transform);
+                canvas.concat(transform.toMatrix3());
                 this._paintHighlight(canvas, rect, paint);
                 canvas.restore();
             }

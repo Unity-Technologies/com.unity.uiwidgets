@@ -1187,7 +1187,7 @@ namespace Unity.UIWidgets.widgets {
                 childLayoutGeometry.maxScrollObstructionExtent);
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
         }
 
         protected override bool hitTestChildren(

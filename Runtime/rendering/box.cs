@@ -1210,7 +1210,7 @@ namespace Unity.UIWidgets.rendering {
             return false;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             D.assert(child != null);
             D.assert(child.parent == this);
             D.assert(() => {
@@ -1236,19 +1236,25 @@ namespace Unity.UIWidgets.rendering {
 
             var childParentData = (BoxParentData) child.parentData;
             var offset = childParentData.offset;
-            transform.preTranslate(offset.dx, offset.dy);
+            transform.translate(offset.dx, offset.dy);
         }
 
         public Offset globalToLocal(Offset point, RenderObject ancestor = null) {
             var transform = this.getTransformTo(ancestor);
-
-            var inverse = Matrix3.I();
-            var invertible = transform.invert(inverse);
-            return invertible ? inverse.mapPoint(point) : Offset.zero;
+            float det = transform.invert();
+            if (det == 0) {
+                return Offset.zero;
+            }
+            Vector3 n = new Vector3(0, 0, 1);
+            Vector3 i = transform.perspectiveTransform(new Vector3(0, 0, 0));
+            Vector3 d = transform.perspectiveTransform(new Vector3(0, 0, 1)) - i;
+            Vector3 s = transform.perspectiveTransform(new Vector3(point.dx, point.dy, 0));
+            Vector3 p = s - d * (n.dot(s) / n.dot(d));
+            return new Offset(p.x, p.y);
         }
 
         public Offset localToGlobal(Offset point, RenderObject ancestor = null) {
-            return this.getTransformTo(ancestor).mapPoint(point);
+            return MatrixUtils.transformPoint(this.getTransformTo(ancestor), point);
         }
 
         public override Rect paintBounds {

@@ -359,9 +359,9 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             Offset paintOffset = this._paintOffset;
-            transform.preTranslate(paintOffset.dx, paintOffset.dy);
+            transform.translate(paintOffset.dx, paintOffset.dy);
         }
 
         public override Rect describeApproximatePaintClip(RenderObject child) {
@@ -389,8 +389,8 @@ namespace Unity.UIWidgets.widgets {
             }
 
             RenderBox targetBox = (RenderBox) target;
-            Matrix3 transform = targetBox.getTransformTo(this);
-            Rect bounds = transform.mapRect(rect);
+            Matrix4 transform = targetBox.getTransformTo(this);
+            Rect bounds = MatrixUtils.transformRect(transform, rect);
             Size contentSize = this.child.size;
 
             float leadingScrollOffset = 0.0f;

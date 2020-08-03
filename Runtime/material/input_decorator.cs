@@ -271,7 +271,7 @@ namespace Unity.UIWidgets.material {
 
         protected internal override Widget build(BuildContext context) {
             return new Transform(
-                transform: Matrix3.makeTrans(this.translateX, 0.0f),
+                transform: new Matrix4().translationValues(this.translateX, 0, 0),
                 child: this.child
             );
         }
@@ -1174,7 +1174,7 @@ namespace Unity.UIWidgets.material {
             return _boxParentData(this.input).offset.dy + this.input.getDistanceToActualBaseline(baseline);
         }
 
-        Matrix3 _labelTransform;
+        Matrix4 _labelTransform;
 
         protected override void performLayout() {
             this._labelTransform = null;
@@ -1309,9 +1309,9 @@ namespace Unity.UIWidgets.material {
                 float scale = MathUtils.lerpFloat(1.0f, 0.75f, t);
                 float dx = labelOffset.dx;
                 float dy = MathUtils.lerpFloat(0.0f, floatingY - labelOffset.dy, t);
-                this._labelTransform = Matrix3.I();
-                this._labelTransform.preTranslate(dx, labelOffset.dy + dy);
-                this._labelTransform.preScale(scale, scale);
+                this._labelTransform = new Matrix4().identity();
+                this._labelTransform.translate(dx, labelOffset.dy + dy);
+                this._labelTransform.scale(scale, scale, 1);
                 context.pushTransform(this.needsCompositing, offset, this._labelTransform, this._paintLabel);
             }
 
@@ -1341,11 +1341,11 @@ namespace Unity.UIWidgets.material {
             return false;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             if (child == this.label && this._labelTransform != null) {
                 Offset labelOffset = _boxParentData(this.label).offset;
-                transform.preConcat(this._labelTransform);
-                transform.preTranslate(-labelOffset.dx, -labelOffset.dy);
+                transform.multiply(this._labelTransform);
+                transform.translate(-labelOffset.dx, -labelOffset.dy);
             }
 
             base.applyPaintTransform(child, transform);

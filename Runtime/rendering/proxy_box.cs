@@ -1484,7 +1484,7 @@ namespace Unity.UIWidgets.rendering {
 
     public class RenderTransform : RenderProxyBox {
         public RenderTransform(
-            Matrix3 transform,
+            Matrix4 transform,
             Offset origin = null,
             Alignment alignment = null,
             bool transformHitTests = true,
@@ -1526,7 +1526,7 @@ namespace Unity.UIWidgets.rendering {
 
         public bool transformHitTests;
 
-        public Matrix3 transform {
+        public Matrix4 transform {
             set {
                 if (this._transform == value) {
                     return;
@@ -1537,10 +1537,10 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        Matrix3 _transform;
+        Matrix4 _transform;
 
         public void setIdentity() {
-            this._transform = Matrix3.I();
+            this._transform = new Matrix4().identity();
             this.markNeedsPaint();
         }
 
@@ -1553,46 +1553,46 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void rotateZ(float degrees) {
-            this._transform.preRotate(degrees);
+            this._transform.rotateZ(degrees);
             this.markNeedsPaint();
         }
 
         public void translate(float x, float y = 0.0f, float z = 0.0f) {
-            this._transform.preTranslate(x, y);
+            this._transform.translationValues(x, y, 0);
             this.markNeedsPaint();
         }
 
         public void scale(float x, float y, float z) {
-            this._transform.preScale(x, y);
+            this._transform.scale(x, y, 1);
             this.markNeedsPaint();
         }
 
-        Matrix3 _effectiveTransform {
+        Matrix4 _effectiveTransform {
             get {
                 Alignment resolvedAlignment = this.alignment;
                 if (this._origin == null && resolvedAlignment == null) {
                     return this._transform;
                 }
 
-                var result = Matrix3.I();
+                var result = new Matrix4().identity();
                 if (this._origin != null) {
-                    result.preTranslate(this._origin.dx, this._origin.dy);
+                    result.translate(this._origin.dx, this._origin.dy);
                 }
 
                 Offset translation = null;
                 if (resolvedAlignment != null) {
                     translation = resolvedAlignment.alongSize(this.size);
-                    result.preTranslate(translation.dx, translation.dy);
+                    result.translate(translation.dx, translation.dy);
                 }
 
-                result.preConcat(this._transform);
+                result.multiply(this._transform);
 
                 if (resolvedAlignment != null) {
-                    result.preTranslate(-translation.dx, -translation.dy);
+                    result.translate(-translation.dx, -translation.dy);
                 }
 
                 if (this._origin != null) {
-                    result.preTranslate(-this._origin.dx, -this._origin.dy);
+                    result.translate(-this._origin.dx, -this._origin.dy);
                 }
 
                 return result;
@@ -1606,14 +1606,13 @@ namespace Unity.UIWidgets.rendering {
         protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
             if (this.transformHitTests) {
                 var transform = this._effectiveTransform;
-                var inverse = Matrix3.I();
-                var invertible = transform.invert(inverse);
+                var inverse = Matrix4.tryInvert(transform);
 
-                if (!invertible) {
+                if (inverse == null) {
                     return false;
                 }
 
-                position = inverse.mapPoint(position);
+                position = MatrixUtils.transformPoint(inverse, position);
             }
 
             return base.hitTestChildren(result, position: position);
@@ -1633,13 +1632,13 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            transform.preConcat(this._effectiveTransform);
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
+            transform.multiply(this._effectiveTransform);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Matrix3>("transform matrix", this._transform));
+            properties.add(new DiagnosticsProperty<Matrix4>("transform matrix", this._transform));
             properties.add(new DiagnosticsProperty<Offset>("origin", this.origin));
             properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment));
             properties.add(new DiagnosticsProperty<bool>("transformHitTests", this.transformHitTests));
@@ -1714,7 +1713,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         bool? _hasVisualOverflow;
-        Matrix3 _transform;
+        Matrix4 _transform;
 
         void _clearPaintData() {
             this._hasVisualOverflow = null;
@@ -1728,7 +1727,7 @@ namespace Unity.UIWidgets.rendering {
 
             if (this.child == null) {
                 this._hasVisualOverflow = false;
-                this._transform = Matrix3.I();
+                this._transform = new Matrix4().identity();
             }
             else {
                 this._resolve();
@@ -1739,9 +1738,9 @@ namespace Unity.UIWidgets.rendering {
                 Rect sourceRect = this._resolvedAlignment.inscribe(sizes.source, Offset.zero & childSize);
                 Rect destinationRect = this._resolvedAlignment.inscribe(sizes.destination, Offset.zero & this.size);
                 this._hasVisualOverflow = sourceRect.width < childSize.width || sourceRect.height < childSize.height;
-                this._transform = Matrix3.makeTrans(destinationRect.left, destinationRect.top);
-                this._transform.postScale(scaleX, scaleY);
-                this._transform.postTranslate(-sourceRect.left, -sourceRect.top);
+                this._transform = new Matrix4().translationValues(destinationRect.left, destinationRect.top, 0);
+                this._transform.scale(scaleX, scaleY, 1);
+                this._transform.translate(-sourceRect.left, -sourceRect.top);
             }
         }
 
@@ -1778,22 +1777,23 @@ namespace Unity.UIWidgets.rendering {
             }
 
             this._updatePaintData();
-            Matrix3 inverse = Matrix3.I();
-            if (!this._transform.invert(inverse)) {
+            Matrix4 inverse = Matrix4.tryInvert(this._transform);
+            
+            if (inverse == null) {
                 return false;
             }
 
-            position = inverse.mapPoint(position);
+            position = MatrixUtils.transformPoint(inverse, position);
             return base.hitTestChildren(result, position: position);
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             if (this.size.isEmpty) {
-                transform.setAll(0, 0, 0, 0, 0, 0, 0, 0, 0);
+                transform.setZero();
             }
             else {
                 this._updatePaintData();
-                transform.postConcat(this._transform);
+                transform.multiply(this._transform);
             }
         }
 
@@ -1859,8 +1859,8 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            transform.preTranslate(this.translation.dx * this.size.width,
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
+            transform.translate(this.translation.dx * this.size.width,
                 this.translation.dy * this.size.height);
         }
 
@@ -2582,8 +2582,8 @@ namespace Unity.UIWidgets.rendering {
 
         new FollowerLayer _layer;
 
-        Matrix3 getCurrentTransform() {
-            return this._layer?.getLastTransform() ?? Matrix3.I();
+        Matrix4 getCurrentTransform() {
+            return this._layer?.getLastTransform() ?? new Matrix4().identity();
         }
 
         public override bool hitTest(HitTestResult result, Offset position) {
@@ -2591,12 +2591,12 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestChildren(HitTestResult result, Offset position) {
-            Matrix3 inverse = Matrix3.I();
-            if (!this.getCurrentTransform().invert(inverse)) {
+            Matrix4 inverse = Matrix4.tryInvert(this.getCurrentTransform());
+            if (inverse == null) {
                 return false;
             }
 
-            position = inverse.mapPoint(position);
+            position = MatrixUtils.transformPoint(inverse, position);
             return base.hitTestChildren(result, position: position);
         }
 
@@ -2619,8 +2619,8 @@ namespace Unity.UIWidgets.rendering {
             );
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            transform.preConcat(this.getCurrentTransform());
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
+            transform.multiply(this.getCurrentTransform());
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
