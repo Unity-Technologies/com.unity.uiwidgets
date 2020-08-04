@@ -159,7 +159,7 @@ namespace Unity.UIWidgets.material {
                         bottom: 16.0f
                     );
                 float scaleValue = new FloatTween(begin: 1.5f, end: 1.0f).lerp(t);
-                Matrix3 scaleTransform = Matrix3.makeScale(scaleValue, scaleValue);
+                Matrix4 scaleTransform = new Matrix4().diagonal3Values(scaleValue, scaleValue, 1);
                 Alignment titleAlignment = this._getTitleAlignment(effectiveCenterTitle);
 
                 children.Add(new Container(

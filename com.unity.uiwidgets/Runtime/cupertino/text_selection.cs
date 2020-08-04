@@ -289,8 +289,8 @@ namespace Unity.UIWidgets.cupertino {
 
             switch (type) {
                 case TextSelectionHandleType.left:
-                    Matrix3 matrix = Matrix3.makeRotate(Mathf.PI);
-                    matrix.preTranslate(-CupertinoTextSelectionUtils._kHandlesPadding,
+                    Matrix4 matrix = new Matrix4().rotationZ(Mathf.PI);
+                    matrix.translate(-CupertinoTextSelectionUtils._kHandlesPadding,
                         -CupertinoTextSelectionUtils._kHandlesPadding);
 
                     return new Transform(
@@ -299,9 +299,10 @@ namespace Unity.UIWidgets.cupertino {
                     );
                 case TextSelectionHandleType.right:
                     return new Transform(
-                        transform: Matrix3.makeTrans(
+                        transform:new Matrix4().translationValues(
                             -CupertinoTextSelectionUtils._kHandlesPadding,
-                            -(textLineHeight + CupertinoTextSelectionUtils._kHandlesPadding)
+                            -(textLineHeight + CupertinoTextSelectionUtils._kHandlesPadding), 
+                            0
                         ),
                         child: handle
                     );

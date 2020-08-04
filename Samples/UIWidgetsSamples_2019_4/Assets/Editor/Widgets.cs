@@ -553,13 +553,12 @@ namespace UIWidgets.Tests {
             var mediaQueryData = MediaQuery.of(context);
             var px = mediaQueryData.size.width / 2;
             var py = mediaQueryData.size.width / 2;
-
             var container = new Container(
                 color: CLColors.background3,
                 child: new Container(
                     color: CLColors.background3,
                     child: new Transform(
-                        transform: Matrix3.makeRotate(Mathf.PI / 180 * 5, px, py),
+                        transform: new Matrix4().rotationZ(Mathf.PI / 180 * 5, px, py),
                         child:
                         new Column(
                             children: new List<Widget> {

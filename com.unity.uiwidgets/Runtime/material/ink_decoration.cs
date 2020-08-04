@@ -217,7 +217,7 @@ namespace Unity.UIWidgets.material {
             base.dispose();
         }
 
-        protected override void paintFeature(Canvas canvas, Matrix3 transform) {
+        protected override void paintFeature(Canvas canvas, Matrix4 transform) {
             if (this._painter == null) {
                 return;
             }
@@ -228,7 +228,7 @@ namespace Unity.UIWidgets.material {
 
             if (originOffset == null) {
                 canvas.save();
-                canvas.concat(transform);
+                canvas.concat(transform.toMatrix3());
                 this._painter.paint(canvas, Offset.zero, sizedConfiguration);
                 canvas.restore();
             }

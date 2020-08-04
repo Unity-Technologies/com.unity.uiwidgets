@@ -1,6 +1,8 @@
 ﻿using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
     public class ViewConfiguration {
@@ -16,8 +18,9 @@ namespace Unity.UIWidgets.rendering {
 
         public readonly float devicePixelRatio;
 
-        public Matrix3 toMatrix() {
-            return Matrix3.I();
+        public Matrix4 toMatrix() {
+            // return new Matrix4().diagonal3Values(this.devicePixelRatio, this.devicePixelRatio, 0);
+            return new Matrix4().identity();
         }
 
         public override string ToString() {
@@ -64,7 +67,7 @@ namespace Unity.UIWidgets.rendering {
             this.owner.requestVisualUpdate();
         }
 
-        Matrix3 _rootTransform;
+        Matrix4 _rootTransform;
 
         public Layer _updateMatricesAndCreateNewRootLayer() {
             this._rootTransform = this.configuration.toMatrix();
@@ -109,8 +112,8 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            transform.preConcat(this._rootTransform);
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
+            transform.multiply(this._rootTransform);
             base.applyPaintTransform(child, transform);
         }
 
@@ -136,7 +139,7 @@ namespace Unity.UIWidgets.rendering {
         public override Rect semanticBounds {
             get {
                 D.assert(this._rootTransform != null);
-                return this._rootTransform.mapRect(Offset.zero & this.size);
+                return MatrixUtils.transformRect(this._rootTransform, Offset.zero & this.size);
             }
         }
 

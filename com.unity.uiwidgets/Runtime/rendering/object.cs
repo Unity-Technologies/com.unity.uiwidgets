@@ -284,22 +284,19 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public void pushTransform(bool needsCompositing, Offset offset, Matrix3 transform,
+        public void pushTransform(bool needsCompositing, Offset offset, Matrix4 transform,
             PaintingContextCallback painter) {
-            Matrix3 effectiveTransform;
+            Matrix4 effectiveTransform;
             if (offset == null || offset == Offset.zero) {
                 effectiveTransform = transform;
             }
             else {
-                effectiveTransform = Matrix3.makeTrans(offset.dx, offset.dy);
-                effectiveTransform.preConcat(transform);
-                effectiveTransform.preTranslate(-offset.dx, -offset.dy);
+                effectiveTransform = new Matrix4().translationValues(offset.dx, offset.dy, 0);
+                effectiveTransform.multiply(transform);
+                effectiveTransform.translate(-offset.dx, -offset.dy);
             }
 
             if (needsCompositing) {
-                var inverse = Matrix3.I();
-                var invertible = effectiveTransform.invert(inverse);
-
                 // it could just be "scale == 0", ignore the assertion.
                 // D.assert(invertible);
 
@@ -307,12 +304,12 @@ namespace Unity.UIWidgets.rendering {
                     new TransformLayer(effectiveTransform),
                     painter,
                     offset,
-                    childPaintBounds: inverse.mapRect(this.estimatedBounds)
+                    childPaintBounds:  MatrixUtils.inverseTransformRect(effectiveTransform, this.estimatedBounds)
                 );
             }
             else {
                 this.canvas.save();
-                this.canvas.concat(effectiveTransform);
+                this.canvas.concat(effectiveTransform.toMatrix3());
                 painter(this, offset);
                 this.canvas.restore();
             }
@@ -1268,11 +1265,11 @@ namespace Unity.UIWidgets.rendering {
         public virtual void paint(PaintingContext context, Offset offset) {
         }
 
-        public virtual void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public virtual void applyPaintTransform(RenderObject child, Matrix4 transform) {
             D.assert(child.parent == this);
         }
 
-        public Matrix3 getTransformTo(RenderObject ancestor) {
+        public Matrix4 getTransformTo(RenderObject ancestor) {
             D.assert(this.attached);
 
             if (ancestor == null) {
@@ -1288,7 +1285,7 @@ namespace Unity.UIWidgets.rendering {
                 renderers.Add(renderer);
             }
 
-            var transform = Matrix3.I();
+            var transform = new Matrix4().identity();
             for (int index = renderers.Count - 1; index > 0; index -= 1) {
                 renderers[index].applyPaintTransform(renderers[index - 1], transform);
             }

@@ -531,7 +531,7 @@ namespace Unity.UIWidgets.rendering {
             var radius = this.size.height * this._diameterRatio / 2.0f;
             var deltaY = radius * Mathf.Sin(angle);
 
-            Matrix3 transform = Matrix3.I();
+            Matrix4 transform = new Matrix4().identity();
             // Matrix4x4 transform2 = MatrixUtils.createCylindricalProjectionTransform(
             //     radius: this.size.height * this._diameterRatio / 2.0f,
             //     angle: angle,
@@ -563,7 +563,7 @@ namespace Unity.UIWidgets.rendering {
             Offset offset,
             RenderBox child,
             // Matrix4x4 cylindricalTransform,
-            Matrix3 cylindricalTransform,
+            Matrix4 cylindricalTransform,
             Offset offsetToCenter,
             Offset untransformedPaintingCoordinates
         ) {
@@ -638,7 +638,7 @@ namespace Unity.UIWidgets.rendering {
             Offset offset,
             RenderBox child,
             // Matrix4x4 cylindricalTransform,
-            Matrix3 cylindricalTransform,
+            Matrix4 cylindricalTransform,
             Offset offsetToCenter
         ) {
             context.pushTransform(
@@ -675,7 +675,7 @@ namespace Unity.UIWidgets.rendering {
 
             ListWheelParentData parentData = (ListWheelParentData) child.parentData;
             float targetOffset = parentData.offset.dy;
-            Matrix4x4 transform = target.getTransformTo(this).toMatrix4x4();
+            Matrix4 transform = target.getTransformTo(this);
             Rect bounds = MatrixUtils.transformRect(transform, rect);
             Rect targetRect = bounds.translate(0.0f, (this.size.height - this.itemExtent) / 2);
 

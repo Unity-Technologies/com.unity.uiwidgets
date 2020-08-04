@@ -186,14 +186,14 @@ namespace Unity.UIWidgets.material {
             switch (type) {
                 case TextSelectionHandleType.left: // points up-right
                     return new Transform(
-                        transform: Matrix3.makeRotate(Mathf.PI / 2),
+                        transform: new Matrix4().rotationZ(Mathf.PI / 2),
                         child: handle
                     );
                 case TextSelectionHandleType.right: // points up-left
                     return handle;
                 case TextSelectionHandleType.collapsed: // points up
                     return new Transform(
-                        transform: Matrix3.makeRotate(Mathf.PI / 4),
+                        transform: new Matrix4().rotationZ(Mathf.PI / 4),
                         child: handle
                     );
             }

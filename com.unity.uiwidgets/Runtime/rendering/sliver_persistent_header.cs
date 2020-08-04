@@ -93,7 +93,7 @@ namespace Unity.UIWidgets.rendering {
             return false;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             D.assert(child != null);
             D.assert(child == this.child);
             RenderSliverHelpers.applyPaintTransformForBoxChild(this, this.child, transform);
