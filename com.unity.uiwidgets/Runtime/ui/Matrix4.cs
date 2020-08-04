@@ -427,6 +427,12 @@ namespace Unity.UIWidgets.ui {
             this.setRotationZ(radians);
             return this;
         }
+        
+        public Matrix4 rotationZ(float radians, float px, float py) {
+            this._m4storage[15] = 1.0f;
+            this.setRotationZ(radians, px, py);
+            return this;
+        }
 
         public Matrix4 diagonal3Values(float x, float y, float z) {
             this._m4storage[15] = 1;
@@ -702,6 +708,25 @@ namespace Unity.UIWidgets.ui {
             this._m4storage[3] = 0;
             this._m4storage[7] = 0;
             this._m4storage[11] = 0;
+        }
+        
+        void setRotationZ(float radians, float px, float py) {
+            float c = Mathf.Cos(radians);
+            float s = Mathf.Sin(radians);
+            this._m4storage[0] = c;
+            this._m4storage[1] = s;
+            this._m4storage[2] = 0;
+            this._m4storage[4] = -s;
+            this._m4storage[5] = c;
+            this._m4storage[6] = 0;
+            this._m4storage[8] = 0;
+            this._m4storage[9] = 0;
+            this._m4storage[10] = 1.0f;
+            this._m4storage[3] = 0;
+            this._m4storage[7] = 0;
+            this._m4storage[11] = 0;
+            this._m4storage[12] = s * py + (1 - c) * px;
+            this._m4storage[13] = -s * px + (1 - c) * py;
         }
 
         public float invert() => this.copyInverse(this);
