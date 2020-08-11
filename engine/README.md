@@ -92,7 +92,7 @@ ninja -C .\out\host_debug_unopt\ flutter/fml:fml_lib
 ### Create symbolic
 ```
 cd <uiwidigets_dir>\engine
-cd src\include\link\third_party   \\ create the directory if not exists
+cd third_party   \\ create the directory if not exists
 mklink /D skia <SKIA_ROOT>
 ```
 Flutter engine txt include skia header in this pattern 'third_party/skia/*', so without symbolic, the txt lib will include skia
