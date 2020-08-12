@@ -1,6 +1,11 @@
 #pragma once
 
+#include <Unity/IUnityInterface.h>
+
 #include <memory>
+
+#define UIWIDGETS_API(RETURN) \
+  extern "C" UNITY_INTERFACE_EXPORT RETURN UNITY_INTERFACE_API
 
 namespace uiwidgets {
 
@@ -29,5 +34,6 @@ void* Mono_IsolateData(Mono_Isolate isolate);
 void* Mono_CurrentIsolateData();
 
 void Mono_ThrowException(const char* exception);
-	
+int64_t Mono_TimelineGetMicros();
+
 }  // namespace uiwidgets

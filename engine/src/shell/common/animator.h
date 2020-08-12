@@ -13,10 +13,6 @@
 
 namespace uiwidgets {
 
-/// Executor of animations.
-///
-/// In conjunction with the |VsyncWaiter| it allows callers (typically Dart
-/// code) to schedule work that ends up generating a |LayerTree|.
 class Animator final {
  public:
   class Delegate {
@@ -72,7 +68,7 @@ class Animator final {
 
   fml::TimePoint last_frame_begin_time_;
   fml::TimePoint last_frame_target_time_;
-  int64_t dart_frame_deadline_;
+  int64_t mono_frame_deadline_;
   fml::RefPtr<LayerTreePipeline> layer_tree_pipeline_;
   fml::Semaphore pending_frame_semaphore_;
   LayerTreePipeline::ProducerContinuation producer_continuation_;

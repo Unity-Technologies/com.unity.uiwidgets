@@ -47,6 +47,27 @@ void* Mono_CurrentIsolateData() {
   return Mono_IsolateData(Mono_CurrentIsolate());
 }
 
-void Mono_ThrowException(const char* exception) {}
+typedef void (*Mono_ThrowExceptionCallback)(const char* exception);
+
+static Mono_ThrowExceptionCallback Mono_ThrowExceptionCallback_;
+
+void Mono_ThrowException(const char* exception) {
+  Mono_ThrowExceptionCallback_(exception);
+}
+
+typedef int64_t (*Mono_TimelineGetMicrosCallback)();
+
+static Mono_TimelineGetMicrosCallback Mono_TimelineGetMicrosCallback_;
+
+int64_t Mono_TimelineGetMicros() { return Mono_TimelineGetMicrosCallback_(); }
+
+UIWIDGETS_API(void)
+Mono_hook(Mono_ThrowExceptionCallback throwException,
+          Mono_TimelineGetMicrosCallback timelineGetMicros) {
+  Mono_ThrowExceptionCallback_ = throwException;
+  Mono_TimelineGetMicrosCallback_ = timelineGetMicros;
+}
 
 }  // namespace uiwidgets
+
+extern "C" int64_t Dart_TimelineGetMicros() { return uiwidgets::Mono_TimelineGetMicros(); }

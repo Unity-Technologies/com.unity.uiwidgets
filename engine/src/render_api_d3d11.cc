@@ -38,8 +38,6 @@ void Dart_TimelineEvent(const char* label, int64_t timestamp0,
                         const char** argument_names,
                         const char** argument_values) {}
 
-int64_t Dart_TimelineGetMicros() { return 0; }
-
 class RenderAPI_D3D11 : public RenderAPI {
  public:
   RenderAPI_D3D11();

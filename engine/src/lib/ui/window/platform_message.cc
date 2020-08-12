@@ -1,15 +1,10 @@
-// Copyright 2013 The Flutter Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-#include "flutter/lib/ui/window/platform_message.h"
+#include "platform_message.h"
 
 #include <utility>
 
-namespace flutter {
+namespace uiwidgets {
 
-PlatformMessage::PlatformMessage(std::string channel,
-                                 std::vector<uint8_t> data,
+PlatformMessage::PlatformMessage(std::string channel, std::vector<uint8_t> data,
                                  fml::RefPtr<PlatformMessageResponse> response)
     : channel_(std::move(channel)),
       data_(std::move(data)),
@@ -24,4 +19,4 @@ PlatformMessage::PlatformMessage(std::string channel,
 
 PlatformMessage::~PlatformMessage() = default;
 
-}  // namespace flutter
+}  // namespace uiwidgets

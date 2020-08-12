@@ -1,6 +1,7 @@
 #include "animator.h"
 
 #include "flutter/fml/trace_event.h"
+#include "runtime/mono_api.h"
 
 namespace uiwidgets {
 
@@ -21,7 +22,7 @@ Animator::Animator(Delegate& delegate, TaskRunners task_runners,
       waiter_(std::move(waiter)),
       last_frame_begin_time_(),
       last_frame_target_time_(),
-      dart_frame_deadline_(0),
+      mono_frame_deadline_(0),
       layer_tree_pipeline_(fml::MakeRefCounted<LayerTreePipeline>(
           task_runners.GetPlatformTaskRunner() ==
                   task_runners.GetRasterTaskRunner()
@@ -74,20 +75,20 @@ const char* Animator::FrameParity() {
   return (frame_number_ % 2) ? "even" : "odd";
 }
 
-static int64_t FxlToDartOrEarlier(fml::TimePoint time) {
-  int64_t dart_now = Dart_TimelineGetMicros();
+static int64_t FxlToMonoOrEarlier(fml::TimePoint time) {
+  int64_t mono_now = Mono_TimelineGetMicros();
   fml::TimePoint fxl_now = fml::TimePoint::Now();
-  return (time - fxl_now).ToMicroseconds() + dart_now;
+  return (time - fxl_now).ToMicroseconds() + mono_now;
 }
 
 void Animator::BeginFrame(fml::TimePoint frame_start_time,
                           fml::TimePoint frame_target_time) {
-  TRACE_EVENT_ASYNC_END0("flutter", "Frame Request Pending", frame_number_++);
+  TRACE_EVENT_ASYNC_END0("uiwidgets", "Frame Request Pending", frame_number_++);
 
-  TRACE_EVENT0("flutter", "Animator::BeginFrame");
+  TRACE_EVENT0("uiwidgets", "Animator::BeginFrame");
   while (!trace_flow_ids_.empty()) {
     uint64_t trace_flow_id = trace_flow_ids_.front();
-    TRACE_FLOW_END("flutter", "PointerEvent", trace_flow_id);
+    TRACE_FLOW_END("uiwidgets", "PointerEvent", trace_flow_id);
     trace_flow_ids_.pop_front();
   }
 
@@ -117,9 +118,9 @@ void Animator::BeginFrame(fml::TimePoint frame_start_time,
 
   last_frame_begin_time_ = frame_start_time;
   last_frame_target_time_ = frame_target_time;
-  dart_frame_deadline_ = FxlToDartOrEarlier(frame_target_time);
+  mono_frame_deadline_ = FxlToMonoOrEarlier(frame_target_time);
   {
-    TRACE_EVENT2("flutter", "Framework Workload", "mode", "basic", "frame",
+    TRACE_EVENT2("uiwidgets", "Framework Workload", "mode", "basic", "frame",
                  FrameParity());
     delegate_.OnAnimatorBeginFrame(frame_target_time);
   }
@@ -144,8 +145,8 @@ void Animator::BeginFrame(fml::TimePoint frame_start_time,
           // assume that we are idle, and notify the engine of this.
           if (notify_idle_task_id == self->notify_idle_task_id_ &&
               !self->frame_scheduled_) {
-            TRACE_EVENT0("flutter", "BeginFrame idle callback");
-            self->delegate_.OnAnimatorNotifyIdle(Dart_TimelineGetMicros() +
+            TRACE_EVENT0("uiwidgets", "BeginFrame idle callback");
+            self->delegate_.OnAnimatorNotifyIdle(Mono_TimelineGetMicros() +
                                                  100000);
           }
         },
@@ -200,14 +201,15 @@ void Animator::RequestFrame(bool regenerate_layer_tree) {
   // started an expensive operation right after posting this message however.
   // To support that, we need edge triggered wakes on VSync.
 
-  task_runners_.GetUITaskRunner()->PostTask([self = weak_factory_.GetWeakPtr(),
-                                             frame_number = frame_number_]() {
-    if (!self.get()) {
-      return;
-    }
-    TRACE_EVENT_ASYNC_BEGIN0("flutter", "Frame Request Pending", frame_number);
-    self->AwaitVSync();
-  });
+  task_runners_.GetUITaskRunner()->PostTask(
+      [self = weak_factory_.GetWeakPtr(), frame_number = frame_number_]() {
+        if (!self.get()) {
+          return;
+        }
+        TRACE_EVENT_ASYNC_BEGIN0("uiwidgets", "Frame Request Pending",
+                                 frame_number);
+        self->AwaitVSync();
+      });
   frame_scheduled_ = true;
 }
 
@@ -224,7 +226,7 @@ void Animator::AwaitVSync() {
         }
       });
 
-  delegate_.OnAnimatorNotifyIdle(dart_frame_deadline_);
+  delegate_.OnAnimatorNotifyIdle(mono_frame_deadline_);
 }
 
 void Animator::ScheduleSecondaryVsyncCallback(const fml::closure& callback) {

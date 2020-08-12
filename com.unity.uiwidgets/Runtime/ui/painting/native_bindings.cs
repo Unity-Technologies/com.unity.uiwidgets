@@ -2,22 +2,13 @@
 using System.Runtime.InteropServices;
 using Unity.UIWidgets.foundation;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     class NativeBindings {
 #if (UNITY_IOS || UNITY_TVOS || UNITY_WEBGL) && !UNITY_EDITOR
         const string dllName = "__Internal";
 #else
         const string dllName = "libUIWidgets_d";
 #endif
-
-        [DllImport(dllName)]
-        public static extern IntPtr Isolate_current();
-            
-        [DllImport(dllName)]
-        public static extern void Isolate_enter(IntPtr isolate);
-
-        [DllImport(dllName)]
-        public static extern void Isolate_exit();
 
         [DllImport(dllName)]
         public static extern IntPtr ImageShader_constructor();
@@ -122,7 +113,7 @@ namespace Unity.UIWidgets.ui2 {
         public delegate void Image_toByteDataCallback(IntPtr callbackHandle, IntPtr data, int length);
 
         [DllImport(dllName)]
-        public static extern IntPtr Image_toByteData(IntPtr ptr, int format, Image_toByteDataCallback callback,
+        public static extern string Image_toByteData(IntPtr ptr, int format, Image_toByteDataCallback callback,
             IntPtr callbackHandle);
 
         [DllImport(dllName)]
@@ -134,7 +125,7 @@ namespace Unity.UIWidgets.ui2 {
         public delegate void Picture_toImageCallback(IntPtr callbackHandle, IntPtr result);
 
         [DllImport(dllName)]
-        public static extern IntPtr Picture_toImage(IntPtr ptr, int width, int height, Picture_toImageCallback callback,
+        public static extern string Picture_toImage(IntPtr ptr, int width, int height, Picture_toImageCallback callback,
             IntPtr callbackHandle);
 
         [DllImport(dllName)]
@@ -157,14 +148,14 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         protected NativeWrapper(IntPtr ptr) {
-            D.assert(_ptr != IntPtr.Zero);
-            _ptr = ptr;
+            D.assert(this._ptr != IntPtr.Zero);
+            this._ptr = ptr;
         }
 
         ~NativeWrapper() {
-            if (_ptr != IntPtr.Zero) {
-                DisposePtr(_ptr);
-                _ptr = IntPtr.Zero;
+            if (this._ptr != IntPtr.Zero) {
+                this.DisposePtr(this._ptr);
+                this._ptr = IntPtr.Zero;
             }
         }
 
@@ -178,23 +169,23 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         protected NativeWrapperDisposable(IntPtr ptr) {
-            D.assert(_ptr != IntPtr.Zero);
-            _ptr = ptr;
+            D.assert(this._ptr != IntPtr.Zero);
+            this._ptr = ptr;
         }
 
         ~NativeWrapperDisposable() {
-            if (_ptr != IntPtr.Zero) {
-                DisposePtr(_ptr);
-                _ptr = IntPtr.Zero;
+            if (this._ptr != IntPtr.Zero) {
+                this.DisposePtr(this._ptr);
+                this._ptr = IntPtr.Zero;
             }
         }
 
         protected abstract void DisposePtr(IntPtr ptr);
 
         public void Dispose() {
-            if (_ptr != IntPtr.Zero) {
-                DisposePtr(_ptr);
-                _ptr = IntPtr.Zero;
+            if (this._ptr != IntPtr.Zero) {
+                this.DisposePtr(this._ptr);
+                this._ptr = IntPtr.Zero;
             }
 
             GC.SuppressFinalize(this);

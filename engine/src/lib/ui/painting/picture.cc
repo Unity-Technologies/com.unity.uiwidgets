@@ -30,6 +30,14 @@ const char* Picture::toImage(uint32_t width, uint32_t height,
 
 void Picture::dispose() {}
 
+size_t Picture::GetAllocationSize() {
+  if (auto picture = picture_.get()) {
+    return picture->approximateBytesUsed();
+  } else {
+    return sizeof(Picture);
+  }
+}
+
 const char* Picture::RasterizeToImage(sk_sp<SkPicture> picture, uint32_t width,
                                       uint32_t height,
                                       RawImageCallback raw_image_callback,
@@ -42,13 +50,13 @@ const char* Picture::RasterizeToImage(sk_sp<SkPicture> picture, uint32_t width,
     return "Image dimensions for scene were invalid.";
   }
 
-  auto* dart_state = UIMonoState::Current();
-  auto dart_state_weak = dart_state->GetWeakPtr();
+  auto* mono_state = UIMonoState::Current();
+  auto mono_state_weak = mono_state->GetWeakPtr();
 
-  auto unref_queue = dart_state->GetSkiaUnrefQueue();
-  auto ui_task_runner = dart_state->GetTaskRunners().GetUITaskRunner();
-  auto raster_task_runner = dart_state->GetTaskRunners().GetRasterTaskRunner();
-  auto snapshot_delegate = dart_state->GetSnapshotDelegate();
+  auto unref_queue = mono_state->GetSkiaUnrefQueue();
+  auto ui_task_runner = mono_state->GetTaskRunners().GetUITaskRunner();
+  auto raster_task_runner = mono_state->GetTaskRunners().GetRasterTaskRunner();
+  auto snapshot_delegate = mono_state->GetSnapshotDelegate();
 
   // We can't create an image on this task runner because we don't have a
   // graphics context. Even if we did, it would be slow anyway. Also, this
@@ -57,27 +65,27 @@ const char* Picture::RasterizeToImage(sk_sp<SkPicture> picture, uint32_t width,
 
   auto picture_bounds = SkISize::Make(width, height);
 
-  auto ui_task = fml::MakeCopyable([dart_state_weak, raw_image_callback,
+  auto ui_task = fml::MakeCopyable([mono_state_weak, raw_image_callback,
                                     callback_handle, unref_queue](
                                        sk_sp<SkImage> raster_image) mutable {
-    auto dart_state = dart_state_weak.lock();
-    if (!dart_state) {
+    auto mono_state = mono_state_weak.lock();
+    if (!mono_state) {
       // The root isolate could have died in the meantime.
       return;
     }
-    MonoState::Scope scope(dart_state);
+    MonoState::Scope scope(mono_state);
 
     if (!raster_image) {
       raw_image_callback(callback_handle, nullptr);
       return;
     }
 
-    auto dart_image = CanvasImage::Create();
-    dart_image->set_image({std::move(raster_image), std::move(unref_queue)});
-    auto* raw_dart_image = dart_image.get();
+    auto mono_image = CanvasImage::Create();
+    mono_image->set_image({std::move(raster_image), std::move(unref_queue)});
+    auto* raw_mono_image = mono_image.get();
 
     // All done!
-    raw_image_callback(callback_handle, raw_dart_image);
+    raw_image_callback(callback_handle, raw_mono_image);
   });
 
   // Kick things off on the raster rask runner.
@@ -93,6 +101,19 @@ const char* Picture::RasterizeToImage(sk_sp<SkPicture> picture, uint32_t width,
       });
 
   return nullptr;
+}
+
+UIWIDGETS_API(void) Picture_dispose(Picture* ptr) { ptr->Release(); }
+
+UIWIDGETS_API(bool) Picture_GetAllocationSize(Picture* ptr) {
+  return ptr->GetAllocationSize();
+}
+
+UIWIDGETS_API(const char*)
+Picture_toImage(Picture* ptr, uint32_t width, uint32_t height,
+                Picture::RawImageCallback raw_image_callback,
+                Mono_Handle callback_handle) {
+  return ptr->toImage(width, height, raw_image_callback, callback_handle);
 }
 
 }  // namespace uiwidgets

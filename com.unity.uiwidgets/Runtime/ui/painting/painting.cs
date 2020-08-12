@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
@@ -18,6 +19,13 @@ namespace Unity.UIWidgets.ui {
 
         internal static Color _scaleAlpha(Color a, float factor) {
             return a.withAlpha((a.alpha * factor).round().clamp(0, 255));
+        }
+        
+        internal static bool _matrix4IsValid(float[] matrix4) {
+            D.assert(matrix4 != null, () => "Matrix4 argument was null.");
+            D.assert(matrix4.Length == 16, () => "Matrix4 must have 16 entries.");
+            D.assert(matrix4.All((float value) => value.isFinite()), () => "Matrix4 entries must be finite.");
+            return true;
         }
     }
 

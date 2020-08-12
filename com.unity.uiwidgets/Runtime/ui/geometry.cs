@@ -524,6 +524,8 @@ namespace Unity.UIWidgets.ui {
             );
         }
 
+        internal float[] _value32 => new[] {left, top, right, bottom};
+
         public readonly float left;
         public readonly float top;
         public readonly float right;
@@ -1065,6 +1067,21 @@ namespace Unity.UIWidgets.ui {
                 topLeft, topRight, bottomRight, bottomLeft);
         }
 
+        internal float[] _value32 => new[] {
+            left,
+            top,
+            right,
+            bottom,
+            tlRadiusX,
+            tlRadiusY,
+            trRadiusX,
+            trRadiusY,
+            brRadiusX,
+            brRadiusY,
+            blRadiusX,
+            blRadiusY,
+        };
+
         public readonly float left;
         public readonly float top;
         public readonly float right;
@@ -1268,6 +1285,11 @@ namespace Unity.UIWidgets.ui {
         public float longestSide {
             get { return Mathf.Max(this.width.abs(), this.height.abs()); }
         }
+
+        public bool hasNaN => left.isNaN() || top.isNaN() || right.isNaN() || bottom.isNaN() ||
+                              trRadiusX.isNaN() || trRadiusY.isNaN() || tlRadiusX.isNaN() || tlRadiusY.isNaN() ||
+                              brRadiusX.isNaN() || brRadiusY.isNaN() || blRadiusX.isNaN() || blRadiusY.isNaN();
+
 
         public Offset center {
             get { return new Offset(this.left + this.width / 2.0f, this.top + this.height / 2.0f); }
@@ -1496,5 +1518,39 @@ namespace Unity.UIWidgets.ui {
                    $"bottomLeft: {this.blRadius}" +
                    ")";
         }
+    }
+
+    public class RSTransform {
+        RSTransform(float scos, float ssin, float tx, float ty) {
+            _value[0] = scos;
+            _value[1] = ssin;
+            _value[2] = tx;
+            _value[3] = ty;
+        }
+
+        public static RSTransform fromComponents(
+            float rotation,
+            float scale,
+            float anchorX,
+            float anchorY,
+            float translateX,
+            float translateY
+        ) {
+            float scos = Mathf.Cos(rotation) * scale;
+            float ssin = Mathf.Sin(rotation) * scale;
+            float tx = translateX + -scos * anchorX + ssin * anchorY;
+            float ty = translateY + -ssin * anchorX - scos * anchorY;
+            return new RSTransform(scos, ssin, tx, ty);
+        }
+
+        float[] _value = new float[4];
+
+        public float scos => _value[0];
+
+        public float ssin => _value[1];
+
+        public float tx => _value[2];
+
+        public float ty => _value[3];
     }
 }

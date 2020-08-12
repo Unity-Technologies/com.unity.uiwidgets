@@ -147,7 +147,7 @@ sk_sp<SkData> CopyImageByteData(sk_sp<SkImage> raster_image,
 }
 
 sk_sp<SkData> EncodeImage(sk_sp<SkImage> raster_image, ImageByteFormat format) {
-  TRACE_EVENT0("flutter", __FUNCTION__);
+  TRACE_EVENT0("uiwidgets", __FUNCTION__);
 
   if (!raster_image) {
     return nullptr;

@@ -25,10 +25,12 @@ class Picture : public fml::RefCountedThreadSafe<Picture> {
 
   void dispose();
 
+  size_t GetAllocationSize();
+
   static const char* RasterizeToImage(sk_sp<SkPicture> picture, uint32_t width,
-                                uint32_t height,
-                                RawImageCallback raw_image_callback,
-                                Mono_Handle callback_handle);
+                                      uint32_t height,
+                                      RawImageCallback raw_image_callback,
+                                      Mono_Handle callback_handle);
 
  private:
   explicit Picture(SkiaGPUObject<SkPicture> picture);

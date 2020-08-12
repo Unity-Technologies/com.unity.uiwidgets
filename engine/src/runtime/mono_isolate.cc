@@ -72,20 +72,22 @@ void MonoIsolate::AddIsolateShutdownCallback(const fml::closure& closure) {
   shutdown_callbacks_.emplace_back(std::make_unique<AutoFireClosure>(closure));
 }
 
-void MonoIsolate::Shutdown() {
-  TRACE_EVENT0("uiwidgets", "DartIsolate::Shutdown");
+bool MonoIsolate::Shutdown() {
+  TRACE_EVENT0("uiwidgets", "MonoIsolate::Shutdown");
 
   Mono_Isolate mono_isolate = isolate();
   // The isolate can be nullptr if this instance is the stub isolate data used
   // during root isolate creation.
   if (mono_isolate != nullptr) {
-    // We need to enter the isolate because Dart_ShutdownIsolate does not take
+    // We need to enter the isolate because Mono_ShutdownIsolate does not take
     // the isolate to shutdown as a parameter.
     FML_DCHECK(Mono_CurrentIsolate() == nullptr);
     Mono_EnterIsolate(mono_isolate);
     Mono_ShutdownIsolate();
     FML_DCHECK(Mono_CurrentIsolate() == nullptr);
   }
+
+	return true;
 }
 
 MonoIsolate::AutoFireClosure::AutoFireClosure(const fml::closure& closure)

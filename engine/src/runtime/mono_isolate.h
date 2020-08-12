@@ -26,7 +26,7 @@ class MonoIsolate : public UIMonoState {
 
   ~MonoIsolate() override;
 
-  void Shutdown();
+  bool Shutdown();
 
   void AddIsolateShutdownCallback(const fml::closure& closure);
 

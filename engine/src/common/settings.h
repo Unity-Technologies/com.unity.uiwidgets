@@ -164,7 +164,7 @@ struct Settings {
   bool enable_software_rendering = false;
   bool skia_deterministic_rendering_on_cpu = false;
   bool verbose_logging = false;
-  std::string log_tag = "flutter";
+  std::string log_tag = "uiwidgets";
 
   // The icu_initialization_required setting does not have a corresponding
   // switch because it is intended to be decided during build time, not runtime.
