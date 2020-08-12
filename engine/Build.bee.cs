@@ -6,11 +6,27 @@ using Bee.ProjectGeneration.VisualStudio;
 using Bee.VisualStudioSolution;
 using static Bee.NativeProgramSupport.NativeProgramConfiguration;
 using Bee.NativeProgramSupport;
+using Bee.Tools;
+using NiceIO;
+using System.Collections.Generic;
 
 class Build
 {
     static void Main()
     {
+        skiaRoot = Environment.GetEnvironmentVariable("SKIA_ROOT");
+        if (string.IsNullOrEmpty(skiaRoot))
+        {
+            skiaRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/skia_repo/skia";
+        }
+
+        flutterRoot = Environment.GetEnvironmentVariable("FLUTTER_ROOT");
+        if (string.IsNullOrEmpty(flutterRoot))
+        {
+            flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
+        }
+
+
         var libUIWidgets = SetupLibUIWidgets();
 
         var builder = new VisualStudioNativeProjectFileBuilder(libUIWidgets);
@@ -23,6 +39,9 @@ class Build
         sln.Projects.Add(builder.DeployTo("libUIWidgets.gen.vcxproj"));
         Backend.Current.AddAliasDependency("ProjectFiles", sln.Setup());
     }
+
+    private static string skiaRoot;
+    private static string flutterRoot;
 
     static NativeProgram SetupLibUIWidgets()
     {
@@ -202,6 +221,8 @@ class Build
                 "src/render_api.cc",
                 "src/render_api.h",
                 "src/render_api_d3d11.cc",
+
+                "src/TestLoadICU.cpp", // load icu temp solution
                 //"src/render_api_vulkan.cc",
                 //"src/render_api_opengles.cc",
             },
@@ -224,6 +245,7 @@ class Build
 
         SetupFml(np);
         SetupSkia(np);
+        SetupTxt(np);
 
         var toolchain = ToolChain.Store.Windows().VS2019().Sdk_17134().x64();
 
@@ -238,6 +260,7 @@ class Build
             builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64");
         }
 
+        //CopyTool.Instance().Setup(new NPath("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64").Combine("icudtl.dat"), new NPath("").Combine(skiaRoot, "third_party/externals/icu/common/icudtl.dat"));
         //
         // var npAndroid = new NativeProgram("libUIWidgets")
         // {
@@ -277,12 +300,7 @@ class Build
 
     static void SetupFml(NativeProgram np)
     {
-        var flutterRoot = Environment.GetEnvironmentVariable("FLUTTER_ROOT");
-        if (string.IsNullOrEmpty(flutterRoot))
-        {
-            flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
-        }
-
+        
         np.Defines.Add(new[]
         {
             // gn desc out\host_debug_unopt\ //flutter/fml:fml_lib defines
@@ -332,12 +350,6 @@ class Build
 
     static void SetupSkia(NativeProgram np)
     {
-        var skiaRoot = Environment.GetEnvironmentVariable("SKIA_ROOT");
-        if (string.IsNullOrEmpty(skiaRoot))
-        {
-            skiaRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/skia_repo/skia";
-        }
-
         np.Defines.Add(new[]
         {
             // bin\gn desc out\Debug\ //:skia defines
@@ -398,6 +410,8 @@ class Build
                 new StaticLibrary(basePath + "/skottie.lib"),
                 new StaticLibrary(basePath + "/sksg.lib"),
                 new StaticLibrary(basePath + "/skshaper.lib"),
+                new StaticLibrary(basePath + "/icu.lib"),
+                new StaticLibrary(basePath + "/harfbuzz.lib"),
                 new StaticLibrary(basePath + "/libEGL.dll.lib"),
                 new StaticLibrary(basePath + "/libGLESv2.dll.lib"),
                 // new SystemLibrary("Opengl32.lib"), 
@@ -420,6 +434,147 @@ class Build
             new DeployableFile(basePath + "/libGLESv2.dll.pdb")
         );
     }
+
+    static void SetupTxtDependency(NativeProgram np)
+    {
+        np.Defines.Add(new[] { "SK_USING_THIRD_PARTY_ICU", "U_USING_ICU_NAMESPACE=0", "U_DISABLE_RENAMING",
+            "U_ENABLE_DYLOAD=0", "USE_CHROMIUM_ICU=1", "U_STATIC_IMPLEMENTATION",
+            "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_STATIC"
+        });
+
+        np.IncludeDirectories.Add(flutterRoot + "/flutter/third_party/txt/src");
+        np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/harfbuzz/src");
+        np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/icu/source/common");
+    }
+
+    static void SetupTxt(NativeProgram np)
+    {
+        // gn desc .\out\host_debug_unopt\ //flutter/third_party/txt:txt
+        IEnumerable<NPath> sources = new List<NPath> {
+            "src/log/log.cc",
+            "src/log/log.h",
+            "src/minikin/CmapCoverage.cpp",
+            "src/minikin/CmapCoverage.h",
+            "src/minikin/Emoji.cpp",
+            "src/minikin/Emoji.h",
+            "src/minikin/FontCollection.cpp",
+            "src/minikin/FontCollection.h",
+            "src/minikin/FontFamily.cpp",
+            "src/minikin/FontFamily.h",
+            "src/minikin/FontLanguage.cpp",
+            "src/minikin/FontLanguage.h",
+            "src/minikin/FontLanguageListCache.cpp",
+            "src/minikin/FontLanguageListCache.h",
+            "src/minikin/FontUtils.cpp",
+            "src/minikin/FontUtils.h",
+            "src/minikin/GraphemeBreak.cpp",
+            "src/minikin/GraphemeBreak.h",
+            "src/minikin/HbFontCache.cpp",
+            "src/minikin/HbFontCache.h",
+            "src/minikin/Hyphenator.cpp",
+            "src/minikin/Hyphenator.h",
+            "src/minikin/Layout.cpp",
+            "src/minikin/Layout.h",
+            "src/minikin/LayoutUtils.cpp",
+            "src/minikin/LayoutUtils.h",
+            "src/minikin/LineBreaker.cpp",
+            "src/minikin/LineBreaker.h",
+            "src/minikin/Measurement.cpp",
+            "src/minikin/Measurement.h",
+            "src/minikin/MinikinFont.cpp",
+            "src/minikin/MinikinFont.h",
+            "src/minikin/MinikinInternal.cpp",
+            "src/minikin/MinikinInternal.h",
+            "src/minikin/SparseBitSet.cpp",
+            "src/minikin/SparseBitSet.h",
+            "src/minikin/WordBreaker.cpp",
+            "src/minikin/WordBreaker.h",
+            "src/txt/asset_font_manager.cc",
+            "src/txt/asset_font_manager.h",
+            "src/txt/font_asset_provider.cc",
+            "src/txt/font_asset_provider.h",
+            "src/txt/font_collection.cc",
+            "src/txt/font_collection.h",
+            "src/txt/font_features.cc",
+            "src/txt/font_features.h",
+            "src/txt/font_skia.cc",
+            "src/txt/font_skia.h",
+            "src/txt/font_style.h",
+            "src/txt/font_weight.h",
+            "src/txt/line_metrics.h",
+            "src/txt/paint_record.cc",
+            "src/txt/paint_record.h",
+            "src/txt/paragraph.h",
+            "src/txt/paragraph_builder.cc",
+            "src/txt/paragraph_builder.h",
+            "src/txt/paragraph_builder_txt.cc",
+            "src/txt/paragraph_builder_txt.h",
+            "src/txt/paragraph_style.cc",
+            "src/txt/paragraph_style.h",
+            "src/txt/paragraph_txt.cc",
+            "src/txt/paragraph_txt.h",
+            "src/txt/placeholder_run.cc",
+            "src/txt/placeholder_run.h",
+            "src/txt/platform.h",
+            "src/txt/run_metrics.h",
+            "src/txt/styled_runs.cc",
+            "src/txt/styled_runs.h",
+            "src/txt/test_font_manager.cc",
+            "src/txt/test_font_manager.h",
+            "src/txt/text_baseline.h",
+            "src/txt/text_decoration.cc",
+            "src/txt/text_decoration.h",
+            "src/txt/text_shadow.cc",
+            "src/txt/text_shadow.h",
+            "src/txt/text_style.cc",
+            "src/txt/text_style.h",
+            "src/txt/typeface_font_asset_provider.cc",
+            "src/txt/typeface_font_asset_provider.h",
+            "src/utils/JenkinsHash.cpp",
+            "src/utils/JenkinsHash.h",
+            "src/utils/LinuxUtils.h",
+            "src/utils/LruCache.h",
+            "src/utils/MacUtils.h",
+            "src/utils/TypeHelpers.h",
+            "src/utils/WindowsUtils.h",
+        };
+
+        var txtLib = new NativeProgram("txt_lib")
+        {
+            IncludeDirectories = {
+                "third_party",
+                flutterRoot,
+                skiaRoot,
+            },
+        };
+        
+        SetupTxtDependency(txtLib);
+
+        var ignoreWarnigs = new string[] { "4091", "4722", "4312", "4838", "4172", "4005", "4311", "4477"}; // todo comparing the list with engine
+
+        txtLib.CompilerSettings().Add(s => s.WithWarningPolicies(ignoreWarnigs.Select((code) => new WarningAndPolicy(code, WarningPolicy.Silent)).ToArray())) ;
+
+        txtLib.Defines.Add(c => c.CodeGen == CodeGen.Debug,
+            new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });
+        txtLib.Defines.Add(c => IsWindows(c),
+            new[] { "UCHAR_TYPE=wchar_t" });
+        txtLib.Defines.Add(c => !IsWindows(c),
+                    new[] { "UCHAR_TYPE=uint16_t" });
+        txtLib.Defines.Add(c => c.CodeGen == CodeGen.Release,
+            new[] { "UIWidgets_RELEASE=1" });
+
+
+        var txtPath = new NPath(flutterRoot + "/flutter/third_party/txt");
+        sources = sources.Select(p => txtPath.Combine(p));
+        txtLib.Sources.Add(sources);
+        txtLib.Sources.Add(c => IsWindows(c), txtPath.Combine(new NPath("src/txt/platform_windows.cc")));
+        txtLib.NonLumpableFiles.Add(sources);
+
+        np.Libraries.Add(txtLib);
+        SetupTxtDependency(np);
+
+    }
+
 
     // static void SetupSkiaAndroid(NativeProgram np)
     // {

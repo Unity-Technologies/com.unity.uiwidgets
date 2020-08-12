@@ -1,4 +1,4 @@
-#include <cassert>
+﻿#include <cassert>
 
 #include "platform_base.h"
 #include "render_api.h"
@@ -19,6 +19,10 @@
 
 #include "Unity/IUnityGraphicsD3D11.h"
 #include "flutter/fml/message_loop.h"
+#include "flutter/third_party/txt/src/txt/paragraph.h"
+#include "flutter/third_party/txt/src/txt/paragraph_builder.h"
+#include "flutter/third_party/txt/src/txt/font_collection.h"
+
 #include "flutter/fml/synchronization/waitable_event.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
@@ -30,8 +34,10 @@
 #include "modules/skottie/include/Skottie.h"
 #include "src/gpu/gl/GrGLDefines.h"
 #include "third_party/dart/runtime/include/dart_tools_api.h"
+#include "third_party/icu/SkLoadICU.h"
+#include "TestLoadICU.h"
 
-
+static std::shared_ptr<txt::FontCollection> _fontCollection;
 void Dart_TimelineEvent(const char* label, int64_t timestamp0,
                         int64_t timestamp1_or_async_id,
                         Dart_Timeline_Event_Type type, intptr_t argument_count,
@@ -363,6 +369,8 @@ void RenderAPI_D3D11::SetImageTexture(void* ptr) {
       kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr);
 }
 
+std::shared_ptr<txt::FontCollection> GetTestFontCollection();
+std::unique_ptr<txt::Paragraph> testParagraph;
 void RenderAPI_D3D11::draw(SkCanvas* canvas) {
   canvas->drawColor(SK_ColorWHITE);
 
@@ -400,6 +408,34 @@ void RenderAPI_D3D11::draw(SkCanvas* canvas) {
   SkPaint paint2;
   auto text = SkTextBlob::MakeFromString("Hello, Skia!", SkFont(nullptr, 18));
   canvas->drawTextBlob(text.get(), 50, 25, paint2);
+
+  if (testParagraph == NULL) {
+    TestLoadICU();
+    _fontCollection = GetTestFontCollection();
+
+    txt::ParagraphStyle style;
+    txt::FontCollection tf;
+    txt::TextStyle ts;
+    //style.
+    style.font_family = "Arial";
+    ts.font_size = 28;
+    ts.height = 4.0;
+
+    std::unique_ptr<txt::ParagraphBuilder> pb = txt::ParagraphBuilder::CreateTxtBuilder(style, _fontCollection);
+    ts.font_families.clear();
+    ts.font_families.push_back("Arial");
+    ts.color = SK_ColorBLACK;
+    
+    
+    pb->PushStyle(ts);
+    std::u16string s16 = u"Hello, some text.你好！";
+    pb->AddText(s16);
+    testParagraph = pb->Build();
+    testParagraph->Layout(500);
+  }
+  
+    // canvas->drawColor(SK_ColorWHITE);
+    testParagraph->Paint(canvas, 10, 200);
 }
 
 void draw1(SkCanvas* canvas) {
@@ -412,11 +448,17 @@ void draw1(SkCanvas* canvas) {
 
 double t = 0;
 
+
+
 void RenderAPI_D3D11::Draw() {
   // mutex_skia->AcquireSync(0, 5000);
 
+
+
   SkCanvas* canvas = m_SkSurface->getCanvas();
   draw(canvas);
+
+
 
   /* canvas->clear(SK_ColorWHITE);
 
@@ -428,8 +470,8 @@ void RenderAPI_D3D11::Draw() {
    animation_->seekFrameTime(t);
    animation_->render(canvas);*/
 
-  SkRect rect = SkRect::MakeLTRB(100, 100, 200, 200);
-  canvas->drawImageRect(image_, rect, nullptr);
+  //SkRect rect = SkRect::MakeLTRB(100, 100, 200, 200);
+  //canvas->drawImageRect(image_, rect, nullptr);
 
   // mutex_skia->ReleaseSync(0);
   canvas->flush();
@@ -444,6 +486,15 @@ void RenderAPI_D3D11::PreDraw() {
 
 void RenderAPI_D3D11::PostDraw() {
   // mutex_unity->ReleaseSync(0);
+}
+
+using namespace txt;
+
+std::shared_ptr<txt::FontCollection> GetTestFontCollection() {
+    std::shared_ptr<txt::FontCollection> collection =
+        std::make_shared<txt::FontCollection>();
+        collection->SetupDefaultFontManager();
+    return collection;
 }
 
 #endif  // #if SUPPORT_D3D11
