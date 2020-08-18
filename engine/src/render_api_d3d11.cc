@@ -57,6 +57,7 @@ class RenderAPI_D3D11 : public RenderAPI {
   void SetImageTexture(void* ptr) override;
 
   void Draw() override;
+  void Draw2(uiwidgets::Paragraph* paragraph) override;
   void PreDraw() override;
   void PostDraw() override;
 
@@ -64,6 +65,7 @@ class RenderAPI_D3D11 : public RenderAPI {
   void CreateResources();
   void ReleaseResources();
   void draw(SkCanvas* canvas);
+  void draw2(SkCanvas* canvas, uiwidgets::Paragraph* paragraph);
 
  private:
   ID3D11Device* m_Device;
@@ -438,6 +440,10 @@ void RenderAPI_D3D11::draw(SkCanvas* canvas) {
     testParagraph->Paint(canvas, 10, 200);
 }
 
+void RenderAPI_D3D11::draw2(SkCanvas* canvas, uiwidgets::Paragraph* paragraph) {
+    paragraph->m_paragraph->Paint(canvas, 10, 150);
+}
+
 void draw1(SkCanvas* canvas) {
   canvas->clear(SK_ColorWHITE);
   SkPaint paint;
@@ -478,6 +484,15 @@ void RenderAPI_D3D11::Draw() {
   canvas->getGrContext()->submit(true);
 
   // if (rdoc_api) rdoc_api->EndFrameCapture(m_DeviceSkia, NULL);
+}
+
+void RenderAPI_D3D11::Draw2(uiwidgets::Paragraph* paragraph) {
+    SkCanvas* canvas = m_SkSurface->getCanvas();
+    draw(canvas);
+    draw2(canvas, paragraph);
+
+    canvas->flush();
+    canvas->getGrContext()->submit(true);
 }
 
 void RenderAPI_D3D11::PreDraw() {

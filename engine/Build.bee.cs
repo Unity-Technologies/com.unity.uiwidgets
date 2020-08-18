@@ -113,6 +113,12 @@ class Build
                 "src/lib/ui/compositing/scene.h",
                 "src/lib/ui/compositing/scene_builder.cc",
                 "src/lib/ui/compositing/scene_builder.h",
+                
+                "src/lib/ui/txt/utils.h",
+                "src/lib/ui/txt/paragraph_builder.cc",
+                "src/lib/ui/txt/paragraph_builder.h",
+                "src/lib/ui/txt/paragraph.cc",
+                "src/lib/ui/txt/paragraph.h",
 
                 "src/lib/ui/painting/canvas.cc",
                 "src/lib/ui/painting/canvas.h",
@@ -229,9 +235,9 @@ class Build
             OutputName = {c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}"},
         };
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
-
-        np.IncludeDirectories.Add("src");
+        
         np.IncludeDirectories.Add("third_party");
+        np.IncludeDirectories.Add("src");
 
         np.Defines.Add("UIWIDGETS_ENGINE_VERSION=\\\"0.0\\\"", "SKIA_VERSION=\\\"0.0\\\"");
         

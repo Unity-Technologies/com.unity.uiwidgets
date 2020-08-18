@@ -70,4 +70,7 @@ Mono_hook(Mono_ThrowExceptionCallback throwException,
 
 }  // namespace uiwidgets
 
-extern "C" int64_t Dart_TimelineGetMicros() { return uiwidgets::Mono_TimelineGetMicros(); }
+// TODO: This is temp solution 
+// extern "C" int64_t Dart_TimelineGetMicros() { return uiwidgets::Mono_TimelineGetMicros(); }
+
+extern "C" int64_t Dart_TimelineGetMicros() { return 0; }

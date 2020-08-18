@@ -80,20 +80,33 @@ index 9b5626e78..da1322ce5 100644
 +  ]
 +}
 ```
-
+cmd
 ```
 set GYP_MSVS_OVERRIDE_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community
 cd engine/src
 python ./flutter/tools/gn --unoptimized
 ninja -C .\out\host_debug_unopt\ flutter/fml:fml_lib
 ```
-
-
-### Create symbolic
+powershell 
 ```
-cd <uiwidigets_dir>\engine
-cd third_party   \\ create the directory if not exists
-mklink /D skia <SKIA_ROOT>
+$env:GYP_MSVS_OVERRIDE_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community"
+$env:FLUTTER_ROOT="E:\c\src" # target to flutter
+$env:SKIA_ROOT="C:\Users\siyao\skia_repo\skia\" # target to skia
+```
+
+## Create symbolic
+
+cmd
+```
+cd <uiwidigets_dir>\engine
+cd third_party   \\ create the directory if not exists
+mklink /D skia <SKIA_ROOT>
+```
+powershell (run as administrator)
+```
+cd <uiwidigets_dir>\engine
+cd third_party   # create the directory if not exists
+New-Item -Path skia -ItemType SymbolicLink -Value C:\Users\siyao\skia_repo\skia\ 
 ```
 Flutter engine txt include skia header in this pattern 'third_party/skia/*', so without symbolic, the txt lib will include skia
 header file in flutter engine, instead of headers in skia repo.
@@ -104,7 +117,12 @@ bee
 ```
 
 ## Set ICU Data Enviroment Varaible
+cmd
 ```
 set UIWIDGETS_ICUDATA=<SKIA_ROOT>/out/Debug/icudtl.dat
+```
+powershell
+```
+$env:UIWIDGETS_ICUDATA="$env:SKIA_ROOT/out/Debug/icudtl.dat"
 ```
 Unity Editor need to run with those environment variables set.

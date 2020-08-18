@@ -149,7 +149,7 @@ namespace Unity.UIWidgets.ui2 {
         public static readonly Color black = new Color(0xFF000000);
 
         public static readonly Color white = new Color(0xFFFFFFFF);
-
+        
         public static Color fromARGB(int a, int r, int g, int b) {
             return new Color(
                 (uint) (((a & 0xff) << 24) |
@@ -428,7 +428,7 @@ namespace Unity.UIWidgets.ui2 {
         // If you add more fields, remember to update _kDataByteCount.
         const int _kDataByteCount = 56;
 
-        object[] _objects;
+        public object[] _objects;
         internal IntPtr[] _objectPtrs;
         const int _kShaderIndex = 0;
         const int _kColorFilterIndex = 1;
@@ -2485,7 +2485,135 @@ namespace Unity.UIWidgets.ui2 {
         static extern IntPtr PictureRecorder_endRecording(IntPtr ptr);
     }
 
-    // TODO: for text.
     public class Shadow {
+        public Shadow(
+            Color color,
+            Offset offset,
+            float blurRadius = 0) {
+            D.assert(color != null);
+            D.assert(offset != null);
+            D.assert(blurRadius >= 0.0);
+            this.color = color ?? new Color(_kColorDefault);
+            this.offset = offset ?? Offset.zero;
+            this.blurRadius = blurRadius;
+        }
+
+        public static readonly uint _kColorDefault = 0xFF000000;
+
+        // Constants for shadow encoding.
+        static readonly int _kBytesPerShadow = 16;
+        static readonly int _kColorOffset = 0 << 2;
+        static readonly int _kXOffset = 1 << 2;
+        static readonly int _kYOffset = 2 << 2;
+        static readonly int _kBlurOffset = 3 << 2;
+
+        readonly Color color;
+
+        readonly Offset offset;
+
+        readonly float blurRadius;
+
+        static float convertRadiusToSigma(float radius) {
+            return radius * 0.57735f + 0.5f;
+        }
+
+        public float blurSigma {
+            get { return convertRadiusToSigma(blurRadius); }
+        }
+
+        public Paint toPaint() {
+            return new Paint() {
+                color = color,
+                maskFilter = MaskFilter.blur(BlurStyle.normal, blurSigma)
+            };
+        }
+
+        public Shadow scale(float factor) {
+            return new Shadow(
+                color: color,
+                offset: offset * factor,
+                blurRadius: blurRadius * factor
+            );
+        }
+
+        public static Shadow lerp(Shadow a, Shadow b, float t) {
+            D.assert(t != null);
+            if (a == null && b == null)
+                return null;
+            if (a == null)
+                return b.scale(t);
+            if (b == null)
+                return a.scale(1.0f - t);
+            return new Shadow(
+                color: Color.lerp(a.color, b.color, t),
+                offset: Offset.lerp(a.offset, b.offset, t),
+                blurRadius: Mathf.Lerp(a.blurRadius, b.blurRadius, t)
+            );
+        }
+
+        public static List<Shadow> lerpList(List<Shadow> a, List<Shadow> b, float t) {
+            D.assert(t != null);
+            if (a == null && b == null)
+                return null;
+            a ??= new List<Shadow>();
+            b ??= new List<Shadow>();
+            List<Shadow> result = new List<Shadow>();
+            int commonLength = Math.Min(a.Count, b.Count);
+            for (int i = 0; i < commonLength; i += 1)
+                result.Add(Shadow.lerp(a[i], b[i], t));
+            for (int i = commonLength; i < a.Count; i += 1)
+                result.Add(a[i].scale(1.0f - t));
+            for (int i = commonLength; i < b.Count; i += 1)
+                result.Add(b[i].scale(t));
+            return result;
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(this, obj))
+                return true;
+            return obj is Shadow other
+                   && other.color == color
+                   && other.offset == offset
+                   && other.blurRadius == blurRadius;
+        }
+
+        public override int GetHashCode() {
+            int hashcode = color.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ offset.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ blurRadius.GetHashCode();
+            return hashcode;
+        }
+
+        public static byte[] _encodeShadows(List<Shadow> shadows) {
+            if (shadows == null)
+                return new byte[0];
+
+            int byteCount = shadows.Count * _kBytesPerShadow;
+            byte[] shadowsData = new byte[byteCount];
+
+            int shadowOffset = 0;
+            for (int shadowIndex = 0; shadowIndex < shadows.Count; ++shadowIndex) {
+                Shadow shadow = shadows[shadowIndex];
+                if (shadow == null)
+                    continue;
+                shadowOffset = shadowIndex * _kBytesPerShadow;
+
+                shadowsData.setInt32(_kColorOffset + shadowOffset,
+                    (int) (shadow.color.value ^ Shadow._kColorDefault));
+
+                shadowsData.setFloat32(_kXOffset + shadowOffset,
+                    shadow.offset.dx);
+
+                shadowsData.setFloat32(_kYOffset + shadowOffset,
+                    shadow.offset.dy);
+
+                shadowsData.setFloat32(_kBlurOffset + shadowOffset,
+                    shadow.blurRadius);
+            }
+
+            return shadowsData;
+        }
+
+        public override string ToString() => $"TextShadow({color}, {offset}, {blurRadius})";
     }
 }
