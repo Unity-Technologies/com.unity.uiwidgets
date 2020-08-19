@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using AOT;
@@ -160,7 +159,7 @@ namespace Unity.UIWidgets.ui2 {
             hashcode = (hashcode ^ 397) ^ this.feature.GetHashCode();
             return hashcode;
         }
-        
+
         public override string ToString() {
             return $"FontFeature({this.feature}, {this.value})";
         }
@@ -319,7 +318,7 @@ namespace Unity.UIWidgets.ui2 {
 
             return true;
         }
-        
+
         public static List<int> _encodeTextStyle(
             Color color,
             TextDecoration decoration,
@@ -448,7 +447,6 @@ namespace Unity.UIWidgets.ui2 {
             String ellipsis,
             Locale locale
         ) {
-            
             List<int> result = new List<int>(new int[7]);
             if (textAlign != null) {
                 result[0] |= 1 << 1;
@@ -614,7 +612,7 @@ namespace Unity.UIWidgets.ui2 {
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr loadFontFromList(int[] list, _loadFontFromListCallback callback, IntPtr callbackHandle,
             string fontFamily);
-        
+
         public struct Float32List {
             public unsafe float* data;
             public int Length;
@@ -622,7 +620,6 @@ namespace Unity.UIWidgets.ui2 {
     }
 
     public class TextStyle {
-        
         public TextStyle(
             Color color,
             TextDecoration decoration = null,
@@ -1269,7 +1266,7 @@ namespace Unity.UIWidgets.ui2 {
                    $"lineNumber: {this.lineNumber})";
         }
     }
-    
+
     public class Paragraph : NativeWrapper {
         internal Paragraph(IntPtr ptr) {
             this._ptr = ptr;
@@ -1347,6 +1344,38 @@ namespace Unity.UIWidgets.ui2 {
             }
 
             return boxes;
+        }
+
+        public double width() {
+            return Paragraph_width(this._ptr);
+        }
+
+        public double height() {
+            return Paragraph_height(this._ptr);
+        }
+
+        public double longestLine() {
+            return Paragraph_longestLine(this._ptr);
+        }
+
+        public double minIntrinsicWidth() {
+            return Paragraph_minIntrinsicWidth(this._ptr);
+        }
+
+        public double maxIntrinsicWidth() {
+            return Paragraph_maxIntrinsicWidth(this._ptr);
+        }
+
+        public double alphabeticBaseline() {
+            return Paragraph_alphabeticBaseline(this._ptr);
+        }
+
+        public double ideographicBaseline() {
+            return Paragraph_ideographicBaseline(this._ptr);
+        }
+
+        public bool didExceedMaxLines() {
+            return Paragraph_didExceedMaxLines(this._ptr);
         }
 
         public List<TextBox> getBoxesForRange(int start, int end, BoxHeightStyle boxHeightStyle = BoxHeightStyle.tight,
@@ -1464,11 +1493,11 @@ namespace Unity.UIWidgets.ui2 {
         static extern IntPtr ParagraphBuilder_addText(IntPtr ptr, [MarshalAs(UnmanagedType.LPWStr)] string text);
 
         [DllImport(NativeBindings.dllName)]
-        static extern string ParagraphBuilder_addPlaceholder(IntPtr ptr, float width, float height, int alignment,
+        static extern IntPtr ParagraphBuilder_addPlaceholder(IntPtr ptr, float width, float height, int alignment,
             float baselineOffset, int baseline);
 
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr ParagraphBuilder_build(IntPtr ptr/*, IntPtr outParagraph*/);
+        static extern IntPtr ParagraphBuilder_build(IntPtr ptr /*, IntPtr outParagraph*/);
 
         [DllImport(NativeBindings.dllName)]
         static extern void ParagraphBuilder_dispose(IntPtr ptr);
@@ -1508,12 +1537,12 @@ namespace Unity.UIWidgets.ui2 {
             string locale
         ) => ParagraphBuilder_constructor(
             encoded,
-            encoded == null? 0: encoded.Length,
+            encoded == null ? 0 : encoded.Length,
             structData,
-            structData == null ? 0: structData.Length,
+            structData == null ? 0 : structData.Length,
             fontFamily,
             structFontFamily,
-            structFontFamily == null? 0: structFontFamily.Length,
+            structFontFamily == null ? 0 : structFontFamily.Length,
             fontSize,
             height,
             ellipsis,
@@ -1588,26 +1617,26 @@ namespace Unity.UIWidgets.ui2 {
         ) {
             fixed (IntPtr* backgroundObjectsPtr = backgroundObjects)
             fixed (IntPtr* foregroundObjectsPtr = foregroundObjects)
-            ParagraphBuilder_pushStyle(_ptr,
-                encoded,
-                encoded.Length,
-                fontFamilies,
-                fontFamilies.Length,
-                fontSize,
-                letterSpacing,
-                wordSpacing,
-                height,
-                decorationThickness,
-                locale,
-                backgroundObjectsPtr,
-                backgroundData,
-                foregroundObjectsPtr,
-                foregroundData,
-                shadowsData,
-                shadowsData?.Length ?? 0,
-                fontFeaturesData,
-                fontFeaturesData?.Length ?? 0
-            );
+                ParagraphBuilder_pushStyle(_ptr,
+                    encoded,
+                    encoded.Length,
+                    fontFamilies,
+                    fontFamilies.Length,
+                    fontSize,
+                    letterSpacing,
+                    wordSpacing,
+                    height,
+                    decorationThickness,
+                    locale,
+                    backgroundObjectsPtr,
+                    backgroundData,
+                    foregroundObjectsPtr,
+                    foregroundData,
+                    shadowsData,
+                    shadowsData?.Length ?? 0,
+                    fontFeaturesData,
+                    fontFeaturesData?.Length ?? 0
+                );
         }
 
         static string _encodeLocale(Locale? locale) => locale?.ToString() ?? "";
@@ -1643,7 +1672,7 @@ namespace Unity.UIWidgets.ui2 {
             _placeholderScales.Add(scale);
         }
 
-        String _addPlaceholder(float width, float height, int alignment, float baselineOffset,
+        IntPtr _addPlaceholder(float width, float height, int alignment, float baselineOffset,
             int baseline) => ParagraphBuilder_addPlaceholder(_ptr, width, height, alignment, baselineOffset, baseline);
 
         public Paragraph build() {
@@ -1651,7 +1680,7 @@ namespace Unity.UIWidgets.ui2 {
             return paragraph;
         }
 
-        IntPtr _build(/*IntPtr outParagraph*/) => ParagraphBuilder_build(_ptr/*, outParagraph*/);
+        IntPtr _build( /*IntPtr outParagraph*/) => ParagraphBuilder_build(_ptr /*, outParagraph*/);
 
         protected override void DisposePtr(IntPtr ptr) {
             ParagraphBuilder_dispose(ptr);

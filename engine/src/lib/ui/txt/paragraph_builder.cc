@@ -1,6 +1,7 @@
 #include "lib/ui/ui_mono_state.h"
 #include "paragraph_builder.h"
 #include "third_party/icu/source/common/unicode/ustring.h"
+#include "TestLoadICU.h"
 
 namespace uiwidgets {
 	namespace {
@@ -212,6 +213,8 @@ namespace uiwidgets {
 		double height,
 		const std::u16string& ellipsis,
 		const std::string& locale) {
+		TestLoadICU();
+
 		int32_t mask = encoded[0];
 		txt::ParagraphStyle style;
 

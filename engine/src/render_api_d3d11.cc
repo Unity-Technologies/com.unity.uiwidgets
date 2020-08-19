@@ -440,10 +440,6 @@ void RenderAPI_D3D11::draw(SkCanvas* canvas) {
     testParagraph->Paint(canvas, 10, 200);
 }
 
-void RenderAPI_D3D11::draw2(SkCanvas* canvas, uiwidgets::Paragraph* paragraph) {
-    paragraph->m_paragraph->Paint(canvas, 10, 150);
-}
-
 void draw1(SkCanvas* canvas) {
   canvas->clear(SK_ColorWHITE);
   SkPaint paint;
@@ -488,9 +484,8 @@ void RenderAPI_D3D11::Draw() {
 
 void RenderAPI_D3D11::Draw2(uiwidgets::Paragraph* paragraph) {
     SkCanvas* canvas = m_SkSurface->getCanvas();
-    draw(canvas);
-    draw2(canvas, paragraph);
-
+    canvas->drawColor(SK_ColorWHITE);
+    paragraph->m_paragraph->Paint(canvas, 10, 150);
     canvas->flush();
     canvas->getGrContext()->submit(true);
 }
