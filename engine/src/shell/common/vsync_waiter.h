@@ -32,6 +32,8 @@ class VsyncWaiter : public std::enable_shared_from_this<VsyncWaiter> {
   virtual float GetDisplayRefreshRate() const;
 
  protected:
+  friend class VsyncWaiterEmbedder;
+	
   // On some backends, the |FireCallback| needs to be made from a static C
   // method.
   // TODO(kg):

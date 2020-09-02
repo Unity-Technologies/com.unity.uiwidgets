@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using AOT;
 using RSG;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.ui2 {
     public class Scene : NativeWrapperDisposable {
@@ -182,7 +183,7 @@ namespace Unity.UIWidgets.ui2 {
             D.assert(() => {
                 if (_layerStack.isNotEmpty()) {
                     _EngineLayerWrapper currentLayer = _layerStack.last();
-                    currentLayer._debugChildren ??= new List<_EngineLayerWrapper>();
+                    currentLayer._debugChildren = currentLayer._debugChildren ?? new List<_EngineLayerWrapper>();
                     currentLayer._debugChildren.Add(newLayer);
                 }
 
@@ -252,6 +253,16 @@ namespace Unity.UIWidgets.ui2 {
             _EngineLayerWrapper wrapper = retainedLayer as _EngineLayerWrapper;
             SceneBuilder_addRetained(_ptr, wrapper._ptr);
         }
+        
+        public void addPicture(
+            Offset offset,
+            Picture picture, 
+            bool isComplexHint = false,
+            bool willChangeHint = false
+        ) {
+            int hints = (isComplexHint ? 1 : 0) | (willChangeHint ? 2 : 0);
+            SceneBuilder_addPicture(_ptr, offset.dx, offset.dy, picture._ptr, hints);
+        }
 
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_constructor();
@@ -271,6 +282,9 @@ namespace Unity.UIWidgets.ui2 {
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_build(IntPtr ptr);
         
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_addPicture(IntPtr ptr, float dx, float dy, IntPtr picture, int hints);
+
         [DllImport(NativeBindings.dllName)]
         static extern void SceneBuilder_addRetained(IntPtr ptr, IntPtr retainedLayer);
     }

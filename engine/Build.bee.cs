@@ -49,6 +49,12 @@ class Build
         {
             Sources =
             {
+                "src/assets/asset_manager.cc",
+                "src/assets/asset_manager.h",
+                "src/assets/asset_resolver.h",
+                "src/assets/directory_asset_bundle.cc",
+                "src/assets/directory_asset_bundle.h",
+
                 "src/common/settings.cc",
                 "src/common/settings.h",
                 "src/common/task_runners.cc",
@@ -179,17 +185,21 @@ class Build
                 "src/runtime/mono_microtask_queue.h",
                 "src/runtime/mono_state.cc",
                 "src/runtime/mono_state.h",
-                //"src/runtime/runtime_controller.cc",
-                //"src/runtime/runtime_controller.h",
+                "src/runtime/runtime_controller.cc",
+                "src/runtime/runtime_controller.h",
                 "src/runtime/runtime_delegate.cc",
                 "src/runtime/runtime_delegate.h",
+                "src/runtime/start_up.cc",
+                "src/runtime/start_up.h",
                 "src/runtime/window_data.cc",
                 "src/runtime/window_data.h",
 
                 "src/shell/common/animator.cc",
                 "src/shell/common/animator.h",
-                //"src/shell/common/engine.cc",
-                //"src/shell/common/engine.h",
+                "src/shell/common/canvas_spy.cc",
+                "src/shell/common/canvas_spy.h",
+                "src/shell/common/engine.cc",
+                "src/shell/common/engine.h",
                 "src/shell/common/persistent_cache.cc",
                 "src/shell/common/persistent_cache.h",
                 "src/shell/common/pipeline.cc",
@@ -200,8 +210,10 @@ class Build
                 "src/shell/common/pointer_data_dispatcher.h",
                 "src/shell/common/rasterizer.cc",
                 "src/shell/common/rasterizer.h",
-                //"src/shell/common/shell.cc",
-                //"src/shell/common/shell.h",
+                "src/shell/common/run_configuration.cc",
+                "src/shell/common/run_configuration.h",
+                "src/shell/common/shell.cc",
+                "src/shell/common/shell.h",
                 "src/shell/common/shell_io_manager.cc",
                 "src/shell/common/shell_io_manager.h",
                 "src/shell/common/surface.cc",
@@ -212,6 +224,60 @@ class Build
                 "src/shell/common/vsync_waiter.h",
                 "src/shell/common/vsync_waiter_fallback.cc",
                 "src/shell/common/vsync_waiter_fallback.h",
+
+                "src/shell/gpu/gpu_surface_delegate.h",
+                "src/shell/gpu/gpu_surface_gl.cc",
+                "src/shell/gpu/gpu_surface_gl.h",
+                "src/shell/gpu/gpu_surface_gl_delegate.cc",
+                "src/shell/gpu/gpu_surface_gl_delegate.h",
+                "src/shell/gpu/gpu_surface_software.cc",
+                "src/shell/gpu/gpu_surface_software.h",
+                "src/shell/gpu/gpu_surface_software_delegate.cc",
+                "src/shell/gpu/gpu_surface_software_delegate.h",
+
+                "src/shell/platform/embedder/embedder.cc",
+                "src/shell/platform/embedder/embedder.h",
+                "src/shell/platform/embedder/embedder_engine.cc",
+                "src/shell/platform/embedder/embedder_engine.h",
+                "src/shell/platform/embedder/embedder_external_texture_gl.cc",
+                "src/shell/platform/embedder/embedder_external_texture_gl.h",
+                "src/shell/platform/embedder/embedder_external_view.cc",
+                "src/shell/platform/embedder/embedder_external_view.h",
+                "src/shell/platform/embedder/embedder_external_view_embedder.cc",
+                "src/shell/platform/embedder/embedder_external_view_embedder.h",
+                "src/shell/platform/embedder/embedder_layers.cc",
+                "src/shell/platform/embedder/embedder_layers.h",
+                "src/shell/platform/embedder/embedder_platform_message_response.cc",
+                "src/shell/platform/embedder/embedder_platform_message_response.h",
+                "src/shell/platform/embedder/embedder_render_target.cc",
+                "src/shell/platform/embedder/embedder_render_target.h",
+                "src/shell/platform/embedder/embedder_render_target_cache.cc",
+                "src/shell/platform/embedder/embedder_render_target_cache.h",
+                "src/shell/platform/embedder/embedder_surface.cc",
+                "src/shell/platform/embedder/embedder_surface.h",
+                "src/shell/platform/embedder/embedder_surface_gl.cc",
+                "src/shell/platform/embedder/embedder_surface_gl.h",
+                "src/shell/platform/embedder/embedder_surface_software.cc",
+                "src/shell/platform/embedder/embedder_surface_software.h",
+                "src/shell/platform/embedder/embedder_task_runner.cc",
+                "src/shell/platform/embedder/embedder_task_runner.h",
+                "src/shell/platform/embedder/embedder_thread_host.cc",
+                "src/shell/platform/embedder/embedder_thread_host.h",
+                "src/shell/platform/embedder/platform_view_embedder.cc",
+                "src/shell/platform/embedder/platform_view_embedder.h",
+                "src/shell/platform/embedder/vsync_waiter_embedder.cc",
+                "src/shell/platform/embedder/vsync_waiter_embedder.h",
+
+                "src/shell/platform/unity/gfx_worker_task_runner.cc",
+                "src/shell/platform/unity/gfx_worker_task_runner.h",
+                "src/shell/platform/unity/unity_surface_manager.cc",
+                "src/shell/platform/unity/unity_surface_manager.h",
+                "src/shell/platform/unity/uiwidgets_panel.cc",
+                "src/shell/platform/unity/uiwidgets_panel.h",
+                "src/shell/platform/unity/uiwidgets_system.cc",
+                "src/shell/platform/unity/uiwidgets_system.h",
+                "src/shell/platform/unity/win32_task_runner.cc",
+                "src/shell/platform/unity/win32_task_runner.h",
 
                 "src/shell/version/version.cc",
                 "src/shell/version/version.h",
@@ -244,6 +310,7 @@ class Build
         np.LinkerSettings().Add(l => l.WithCustomFlags_workaround(new[] {"/DEBUG:FULL"}));
 
         SetupFml(np);
+        SetupRadidJson(np);
         SetupSkia(np);
         SetupTxt(np);
 
@@ -575,6 +642,20 @@ class Build
 
     }
 
+    static void SetupRadidJson(NativeProgram np)
+    {
+        // gn desc .\out\host_debug_unopt\ //third_party/rapidjson:rapidjson
+        np.Defines.Add(new[]
+        {
+            "RAPIDJSON_HAS_STDSTRING",
+            "RAPIDJSON_HAS_CXX11_RANGE_FOR",
+            "RAPIDJSON_HAS_CXX11_RVALUE_REFS",
+            "RAPIDJSON_HAS_CXX11_TYPETRAITS",
+            "RAPIDJSON_HAS_CXX11_NOEXCEPT"
+        });
+
+        np.IncludeDirectories.Add(flutterRoot + "/third_party/rapidjson/include");
+    }
 
     // static void SetupSkiaAndroid(NativeProgram np)
     // {

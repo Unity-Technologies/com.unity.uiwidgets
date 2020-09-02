@@ -13,7 +13,11 @@ SkiaUnrefQueue::SkiaUnrefQueue(fml::RefPtr<fml::TaskRunner> task_runner,
       drain_pending_(false),
       context_(context) {}
 
-SkiaUnrefQueue::~SkiaUnrefQueue() { FML_DCHECK(objects_.empty()); }
+SkiaUnrefQueue::~SkiaUnrefQueue() {
+  if (!objects_.empty()) {
+    Drain(false);
+  }
+}
 
 void SkiaUnrefQueue::Unref(SkRefCnt* object) {
   std::scoped_lock lock(mutex_);
@@ -25,7 +29,7 @@ void SkiaUnrefQueue::Unref(SkRefCnt* object) {
   }
 }
 
-void SkiaUnrefQueue::Drain() {
+void SkiaUnrefQueue::Drain(bool performDeferredCleanup) {
   TRACE_EVENT0("uiwidgets", "SkiaUnrefQueue::Drain");
   std::deque<SkRefCnt*> skia_objects;
   {
@@ -38,8 +42,10 @@ void SkiaUnrefQueue::Drain() {
     skia_object->unref();
   }
 
-  if (context_ && skia_objects.size() > 0) {
-    context_->performDeferredCleanup(std::chrono::milliseconds(0));
+  if (performDeferredCleanup) {
+    if (context_ && skia_objects.size() > 0) {
+      context_->performDeferredCleanup(std::chrono::milliseconds(0));
+    }
   }
 }
 

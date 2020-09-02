@@ -12,14 +12,13 @@
 #include "flutter/fml/paths.h"
 #include "flutter/fml/trace_event.h"
 #include "flutter/fml/unique_fd.h"
-//#include "lib/snapshot/snapshot.h"
 //#include "lib/ui/text/font_collection.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPictureRecorder.h"
+#include "rapidjson/document.h"
 #include "shell/common/animator.h"
 #include "shell/common/platform_view.h"
 #include "shell/common/shell.h"
-#include "rapidjson/document.h"
-#include "include/core/SkCanvas.h"
-#include "include/core/SkPictureRecorder.h"
 
 namespace uiwidgets {
 
@@ -28,24 +27,21 @@ static constexpr char kLifecycleChannel[] = "uiwidgets/lifecycle";
 static constexpr char kNavigationChannel[] = "uiwidgets/navigation";
 static constexpr char kLocalizationChannel[] = "uiwidgets/localization";
 static constexpr char kSettingsChannel[] = "uiwidgets/settings";
-static constexpr char kIsolateChannel[] = "uiwidgets/isolate";
 
 Engine::Engine(Delegate& delegate,
                const PointerDataDispatcherMaker& dispatcher_maker,
-               TaskRunners task_runners,
-               const WindowData window_data,
-               Settings settings,
-               std::unique_ptr<Animator> animator,
+               TaskRunners task_runners, const WindowData window_data,
+               Settings settings, std::unique_ptr<Animator> animator,
                fml::WeakPtr<IOManager> io_manager,
                fml::RefPtr<SkiaUnrefQueue> unref_queue,
                fml::WeakPtr<SnapshotDelegate> snapshot_delegate)
     : delegate_(delegate),
       settings_(std::move(settings)),
+      concurrent_message_loop_(fml::ConcurrentMessageLoop::Create()),
       animator_(std::move(animator)),
       activity_running_(true),
       have_surface_(false),
-      image_decoder_(task_runners,
-                     vm.GetConcurrentWorkerTaskRunner(),
+      image_decoder_(task_runners, concurrent_message_loop_->GetTaskRunner(),
                      io_manager),
       task_runners_(std::move(task_runners)),
       weak_factory_(this) {
@@ -53,21 +49,14 @@ Engine::Engine(Delegate& delegate,
   // object as its delegate. The delegate may be called in the constructor and
   // we want to be fully initilazed by that point.
   runtime_controller_ = std::make_unique<RuntimeController>(
-      *this,                        // runtime delegate
-      &vm,                          // VM
-      std::move(isolate_snapshot),  // isolate snapshot
-      task_runners_,                // task runners
+      *this,          // runtime delegate
+      settings_,      // settings
+      task_runners_,  // task runners
       std::move(snapshot_delegate),
-      std::move(io_manager),                 // io manager
-      std::move(unref_queue),                // Skia unref queue
-      image_decoder_.GetWeakPtr(),           // image decoder
-      settings_.advisory_script_uri,         // advisory script uri
-      settings_.advisory_script_entrypoint,  // advisory script entrypoint
-      settings_.idle_notification_callback,  // idle notification callback
-      window_data,                           // window data
-      settings_.isolate_create_callback,     // isolate create callback
-      settings_.isolate_shutdown_callback,   // isolate shutdown callback
-      settings_.persistent_isolate_data      // persistent isolate data
+      std::move(io_manager),        // io manager
+      std::move(unref_queue),       // Skia unref queue
+      image_decoder_.GetWeakPtr(),  // image decoder
+      window_data                   // window data
   );
 
   pointer_data_dispatcher_ = dispatcher_maker(*this);
@@ -95,18 +84,14 @@ bool Engine::UpdateAssetManager(
     return false;
   }
 
-  // Using libTXT as the text engine.
-  font_collection_.RegisterFonts(asset_manager_);
-
-  if (settings_.use_test_fonts) {
-    font_collection_.RegisterTestFonts();
-  }
+  //// Using libTXT as the text engine.
+  // font_collection_.RegisterFonts(asset_manager_);
 
   return true;
 }
 
 bool Engine::Restart(RunConfiguration configuration) {
-  TRACE_EVENT0("flutter", "Engine::Restart");
+  TRACE_EVENT0("uiwidgets", "Engine::Restart");
   if (!configuration.IsValid()) {
     FML_LOG(ERROR) << "Engine run configuration was invalid.";
     return false;
@@ -114,7 +99,7 @@ bool Engine::Restart(RunConfiguration configuration) {
   delegate_.OnPreEngineRestart();
   runtime_controller_ = runtime_controller_->Clone();
   UpdateAssetManager(nullptr);
-  return Run(std::move(configuration)) == Engine::RunStatus::Success;
+  return Run(std::move(configuration)) == RunStatus::Success;
 }
 
 Engine::RunStatus Engine::Run(RunConfiguration configuration) {
@@ -123,12 +108,9 @@ Engine::RunStatus Engine::Run(RunConfiguration configuration) {
     return RunStatus::Failure;
   }
 
-  last_entry_point_ = configuration.GetEntrypoint();
-  last_entry_point_library_ = configuration.GetEntrypointLibrary();
-
   auto isolate_launch_status =
       PrepareAndLaunchIsolate(std::move(configuration));
-  if (isolate_launch_status == Engine::RunStatus::Failure) {
+  if (isolate_launch_status == RunStatus::Failure) {
     FML_LOG(ERROR) << "Engine not prepare and launch isolate.";
     return isolate_launch_status;
   } else if (isolate_launch_status ==
@@ -136,117 +118,45 @@ Engine::RunStatus Engine::Run(RunConfiguration configuration) {
     return isolate_launch_status;
   }
 
-  std::shared_ptr<DartIsolate> isolate =
-      runtime_controller_->GetRootIsolate().lock();
-
-  bool isolate_running =
-      isolate && isolate->GetPhase() == DartIsolate::Phase::Running;
-
-  if (isolate_running) {
-    tonic::DartState::Scope scope(isolate.get());
-
-    if (settings_.root_isolate_create_callback) {
-      settings_.root_isolate_create_callback();
-    }
-
-    if (settings_.root_isolate_shutdown_callback) {
-      isolate->AddIsolateShutdownCallback(
-          settings_.root_isolate_shutdown_callback);
-    }
-
-    std::string service_id = isolate->GetServiceId();
-    fml::RefPtr<PlatformMessage> service_id_message =
-        fml::MakeRefCounted<flutter::PlatformMessage>(
-            kIsolateChannel,
-            std::vector<uint8_t>(service_id.begin(), service_id.end()),
-            nullptr);
-    HandlePlatformMessage(service_id_message);
-  }
-
-  return isolate_running ? Engine::RunStatus::Success
-                         : Engine::RunStatus::Failure;
+  return RunStatus::Success;
 }
 
 Engine::RunStatus Engine::PrepareAndLaunchIsolate(
     RunConfiguration configuration) {
-  TRACE_EVENT0("flutter", "Engine::PrepareAndLaunchIsolate");
+  TRACE_EVENT0("uiwidgets", "Engine::PrepareAndLaunchIsolate");
 
   UpdateAssetManager(configuration.GetAssetManager());
 
-  auto isolate_configuration = configuration.TakeIsolateConfiguration();
-
-  std::shared_ptr<DartIsolate> isolate =
+  std::shared_ptr<MonoIsolate> isolate =
       runtime_controller_->GetRootIsolate().lock();
 
   if (!isolate) {
     return RunStatus::Failure;
   }
 
-  // This can happen on iOS after a plugin shows a native window and returns to
-  // the Flutter ViewController.
-  if (isolate->GetPhase() == DartIsolate::Phase::Running) {
-    FML_DLOG(WARNING) << "Isolate was already running!";
-    return RunStatus::FailureAlreadyRunning;
-  }
-
-  if (!isolate_configuration->PrepareIsolate(*isolate)) {
-    FML_LOG(ERROR) << "Could not prepare to run the isolate.";
-    return RunStatus::Failure;
-  }
-
-  if (configuration.GetEntrypointLibrary().empty()) {
-    if (!isolate->Run(configuration.GetEntrypoint(),
-                      settings_.dart_entrypoint_args)) {
-      FML_LOG(ERROR) << "Could not run the isolate.";
-      return RunStatus::Failure;
-    }
-  } else {
-    if (!isolate->RunFromLibrary(configuration.GetEntrypointLibrary(),
-                                 configuration.GetEntrypoint(),
-                                 settings_.dart_entrypoint_args)) {
-      FML_LOG(ERROR) << "Could not run the isolate.";
-      return RunStatus::Failure;
-    }
-  }
+  MonoState::Scope scope(isolate);
+  const fml::closure entrypoint_callback =
+      configuration.GetMonoEntrypointCallback();
+  entrypoint_callback();
 
   return RunStatus::Success;
 }
 
 void Engine::BeginFrame(fml::TimePoint frame_time) {
-  TRACE_EVENT0("flutter", "Engine::BeginFrame");
+  TRACE_EVENT0("uiwidgets", "Engine::BeginFrame");
   runtime_controller_->BeginFrame(frame_time);
 }
 
 void Engine::ReportTimings(std::vector<int64_t> timings) {
-  TRACE_EVENT0("flutter", "Engine::ReportTimings");
+  TRACE_EVENT0("uiwidgets", "Engine::ReportTimings");
   runtime_controller_->ReportTimings(std::move(timings));
 }
 
 void Engine::NotifyIdle(int64_t deadline) {
-  auto trace_event = std::to_string(deadline - Dart_TimelineGetMicros());
-  TRACE_EVENT1("flutter", "Engine::NotifyIdle", "deadline_now_delta",
+  auto trace_event = std::to_string(deadline - Mono_TimelineGetMicros());
+  TRACE_EVENT1("uiwidgets", "Engine::NotifyIdle", "deadline_now_delta",
                trace_event.c_str());
   runtime_controller_->NotifyIdle(deadline);
-}
-
-std::pair<bool, uint32_t> Engine::GetUIIsolateReturnCode() {
-  return runtime_controller_->GetRootIsolateReturnCode();
-}
-
-Dart_Port Engine::GetUIIsolateMainPort() {
-  return runtime_controller_->GetMainPort();
-}
-
-std::string Engine::GetUIIsolateName() {
-  return runtime_controller_->GetIsolateName();
-}
-
-bool Engine::UIIsolateHasLivePorts() {
-  return runtime_controller_->HasLivePorts();
-}
-
-tonic::DartErrorHandleType Engine::GetUIIsolateLastError() {
-  return runtime_controller_->GetLastError();
 }
 
 void Engine::OnOutputSurfaceCreated() {
@@ -268,27 +178,22 @@ void Engine::SetViewportMetrics(const ViewportMetrics& metrics) {
   viewport_metrics_ = metrics;
   runtime_controller_->SetViewportMetrics(viewport_metrics_);
   if (animator_) {
-    if (dimensions_changed)
-      animator_->SetDimensionChangePending();
-    if (have_surface_)
-      ScheduleFrame();
+    if (dimensions_changed) animator_->SetDimensionChangePending();
+    if (have_surface_) ScheduleFrame();
   }
 }
 
 void Engine::DispatchPlatformMessage(fml::RefPtr<PlatformMessage> message) {
   if (message->channel() == kLifecycleChannel) {
-    if (HandleLifecyclePlatformMessage(message.get()))
-      return;
+    if (HandleLifecyclePlatformMessage(message.get())) return;
   } else if (message->channel() == kLocalizationChannel) {
-    if (HandleLocalizationPlatformMessage(message.get()))
-      return;
+    if (HandleLocalizationPlatformMessage(message.get())) return;
   } else if (message->channel() == kSettingsChannel) {
     HandleSettingsPlatformMessage(message.get());
     return;
   }
 
-  if (runtime_controller_->IsRootIsolateRunning() &&
-      runtime_controller_->DispatchPlatformMessage(std::move(message))) {
+  if (runtime_controller_->DispatchPlatformMessage(std::move(message))) {
     return;
   }
 
@@ -332,12 +237,10 @@ bool Engine::HandleNavigationPlatformMessage(
 
   rapidjson::Document document;
   document.Parse(reinterpret_cast<const char*>(data.data()), data.size());
-  if (document.HasParseError() || !document.IsObject())
-    return false;
+  if (document.HasParseError() || !document.IsObject()) return false;
   auto root = document.GetObject();
   auto method = root.FindMember("method");
-  if (method->value != "setInitialRoute")
-    return false;
+  if (method->value != "setInitialRoute") return false;
   auto route = root.FindMember("args");
   initial_route_ = std::move(route->value.GetString());
   return true;
@@ -348,20 +251,16 @@ bool Engine::HandleLocalizationPlatformMessage(PlatformMessage* message) {
 
   rapidjson::Document document;
   document.Parse(reinterpret_cast<const char*>(data.data()), data.size());
-  if (document.HasParseError() || !document.IsObject())
-    return false;
+  if (document.HasParseError() || !document.IsObject()) return false;
   auto root = document.GetObject();
   auto method = root.FindMember("method");
-  if (method == root.MemberEnd() || method->value != "setLocale")
-    return false;
+  if (method == root.MemberEnd() || method->value != "setLocale") return false;
 
   auto args = root.FindMember("args");
-  if (args == root.MemberEnd() || !args->value.IsArray())
-    return false;
+  if (args == root.MemberEnd() || !args->value.IsArray()) return false;
 
   const size_t strings_per_locale = 4;
-  if (args->value.Size() % strings_per_locale != 0)
-    return false;
+  if (args->value.Size() % strings_per_locale != 0) return false;
   std::vector<std::string> locale_data;
   for (size_t locale_index = 0; locale_index < args->value.Size();
        locale_index += strings_per_locale) {
@@ -387,25 +286,20 @@ void Engine::HandleSettingsPlatformMessage(PlatformMessage* message) {
 }
 
 void Engine::DispatchPointerDataPacket(
-    std::unique_ptr<PointerDataPacket> packet,
-    uint64_t trace_flow_id) {
-  TRACE_EVENT0("flutter", "Engine::DispatchPointerDataPacket");
-  TRACE_FLOW_STEP("flutter", "PointerEvent", trace_flow_id);
+    std::unique_ptr<PointerDataPacket> packet, uint64_t trace_flow_id) {
+  TRACE_EVENT0("uiwidgets", "Engine::DispatchPointerDataPacket");
+  TRACE_FLOW_STEP("uiwidgets", "PointerEvent", trace_flow_id);
   pointer_data_dispatcher_->DispatchPacket(std::move(packet), trace_flow_id);
 }
-
 
 void Engine::SetAccessibilityFeatures(int32_t flags) {
   runtime_controller_->SetAccessibilityFeatures(flags);
 }
 
-void Engine::StopAnimator() {
-  animator_->Stop();
-}
+void Engine::StopAnimator() { animator_->Stop(); }
 
 void Engine::StartAnimatorIfPossible() {
-  if (activity_running_ && have_surface_)
-    animator_->Start();
+  if (activity_running_ && have_surface_) animator_->Start();
 }
 
 std::string Engine::DefaultRouteName() {
@@ -420,8 +314,7 @@ void Engine::ScheduleFrame(bool regenerate_layer_tree) {
 }
 
 void Engine::Render(std::unique_ptr<uiwidgets::LayerTree> layer_tree) {
-  if (!layer_tree)
-    return;
+  if (!layer_tree) return;
 
   // Ensure frame dimensions are sane.
   if (layer_tree->frame_size().isEmpty() ||
@@ -432,11 +325,6 @@ void Engine::Render(std::unique_ptr<uiwidgets::LayerTree> layer_tree) {
   animator_->Render(std::move(layer_tree));
 }
 
-void Engine::UpdateSemantics(SemanticsNodeUpdates update,
-                             CustomAccessibilityActionUpdates actions) {
-  delegate_.OnEngineUpdateSemantics(std::move(update), std::move(actions));
-}
-
 void Engine::HandlePlatformMessage(fml::RefPtr<PlatformMessage> message) {
   if (message->channel() == kAssetChannel) {
     HandleAssetPlatformMessage(std::move(message));
@@ -445,18 +333,11 @@ void Engine::HandlePlatformMessage(fml::RefPtr<PlatformMessage> message) {
   }
 }
 
-void Engine::UpdateIsolateDescription(const std::string isolate_name,
-                                      int64_t isolate_port) {
-  delegate_.UpdateIsolateDescription(isolate_name, isolate_port);
-}
-
 void Engine::SetNeedsReportTimings(bool needs_reporting) {
   delegate_.SetNeedsReportTimings(needs_reporting);
 }
 
-FontCollection& Engine::GetFontCollection() {
-  return font_collection_;
-}
+// FontCollection& Engine::GetFontCollection() { return font_collection_; }
 
 void Engine::DoDispatchPacket(std::unique_ptr<PointerDataPacket> packet,
                               uint64_t trace_flow_id) {
@@ -468,6 +349,10 @@ void Engine::DoDispatchPacket(std::unique_ptr<PointerDataPacket> packet,
 
 void Engine::ScheduleSecondaryVsyncCallback(const fml::closure& callback) {
   animator_->ScheduleSecondaryVsyncCallback(callback);
+}
+
+std::shared_ptr<fml::ConcurrentMessageLoop> Engine::GetConcurrentMessageLoop() {
+  return concurrent_message_loop_;
 }
 
 void Engine::HandleAssetPlatformMessage(fml::RefPtr<PlatformMessage> message) {
@@ -491,12 +376,4 @@ void Engine::HandleAssetPlatformMessage(fml::RefPtr<PlatformMessage> message) {
   response->CompleteEmpty();
 }
 
-const std::string& Engine::GetLastEntrypoint() const {
-  return last_entry_point_;
-}
-
-const std::string& Engine::GetLastEntrypointLibrary() const {
-  return last_entry_point_library_;
-}
-
-}  // namespace flutter
+}  // namespace uiwidgets

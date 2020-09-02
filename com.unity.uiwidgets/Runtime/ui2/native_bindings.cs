@@ -39,7 +39,7 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         protected NativeWrapperDisposable(IntPtr ptr) {
-            D.assert(_ptr != IntPtr.Zero);
+            D.assert(ptr != IntPtr.Zero);
             _ptr = ptr;
         }
 

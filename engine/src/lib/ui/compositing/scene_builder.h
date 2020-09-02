@@ -26,7 +26,7 @@ class SceneBuilder : public fml::RefCountedThreadSafe<SceneBuilder> {
   }
   ~SceneBuilder();
 
-  fml::RefPtr<EngineLayer> pushTransform(float* matrix4);
+  fml::RefPtr<EngineLayer> pushTransform(const float* matrix4);
 
   fml::RefPtr<EngineLayer> pushOffset(float dx, float dy);
   fml::RefPtr<EngineLayer> pushClipRect(float left, float right, float top,

@@ -1,0 +1,252 @@
+#include "embedder_engine.h"
+
+#include <utility>
+
+#include "flutter/fml/make_copyable.h"
+#include "shell/platform/embedder/vsync_waiter_embedder.h"
+
+namespace uiwidgets {
+
+struct ShellArgs {
+  WindowData window_data;
+  Settings settings;
+  Shell::CreateCallback<PlatformView> on_create_platform_view;
+  Shell::CreateCallback<Rasterizer> on_create_rasterizer;
+  ShellArgs(const WindowData& p_window_data, const Settings& p_settings,
+            Shell::CreateCallback<PlatformView> p_on_create_platform_view,
+            Shell::CreateCallback<Rasterizer> p_on_create_rasterizer)
+      : window_data(p_window_data),
+        settings(p_settings),
+        on_create_platform_view(std::move(p_on_create_platform_view)),
+        on_create_rasterizer(std::move(p_on_create_rasterizer)) {}
+};
+
+EmbedderEngine::EmbedderEngine(
+    std::unique_ptr<EmbedderThreadHost> thread_host,
+    const TaskRunners& task_runners, const WindowData& window_data,
+    const Settings& settings, RunConfiguration run_configuration,
+    Shell::CreateCallback<PlatformView> on_create_platform_view,
+    Shell::CreateCallback<Rasterizer> on_create_rasterizer,
+    EmbedderExternalTextureGL::ExternalTextureCallback
+        external_texture_callback)
+    : thread_host_(std::move(thread_host)),
+      task_runners_(task_runners),
+      run_configuration_(std::move(run_configuration)),
+      shell_args_(std::make_unique<ShellArgs>(
+          window_data, settings, std::move(on_create_platform_view),
+          std::move(on_create_rasterizer))),
+      external_texture_callback_(std::move(external_texture_callback)) {}
+
+EmbedderEngine::~EmbedderEngine() = default;
+
+bool EmbedderEngine::LaunchShell() {
+  if (!shell_args_) {
+    FML_DLOG(ERROR) << "Invalid shell arguments.";
+    return false;
+  }
+
+  if (shell_) {
+    FML_DLOG(ERROR) << "Shell already initialized";
+  }
+
+  shell_ = Shell::Create(
+      task_runners_, shell_args_->window_data, shell_args_->settings,
+      shell_args_->on_create_platform_view, shell_args_->on_create_rasterizer);
+
+  // Reset the args no matter what. They will never be used to initialize a
+  // shell again.
+  shell_args_.reset();
+
+  return IsValid();
+}
+
+bool EmbedderEngine::CollectShell() {
+  shell_.reset();
+  return IsValid();
+}
+
+bool EmbedderEngine::RunRootIsolate() {
+  if (!IsValid() || !run_configuration_.IsValid()) {
+    return false;
+  }
+  shell_->RunEngine(std::move(run_configuration_));
+  return true;
+}
+
+bool EmbedderEngine::IsValid() const { return static_cast<bool>(shell_); }
+
+const TaskRunners& EmbedderEngine::GetTaskRunners() const {
+  return task_runners_;
+}
+
+bool EmbedderEngine::NotifyCreated() {
+  if (!IsValid()) {
+    return false;
+  }
+
+  shell_->GetPlatformView()->NotifyCreated();
+  return true;
+}
+
+bool EmbedderEngine::NotifyDestroyed() {
+  if (!IsValid()) {
+    return false;
+  }
+
+  shell_->GetPlatformView()->NotifyDestroyed();
+  return true;
+}
+
+bool EmbedderEngine::SetViewportMetrics(ViewportMetrics metrics) {
+  if (!IsValid()) {
+    return false;
+  }
+
+  auto platform_view = shell_->GetPlatformView();
+  if (!platform_view) {
+    return false;
+  }
+  platform_view->SetViewportMetrics(std::move(metrics));
+  return true;
+}
+
+bool EmbedderEngine::DispatchPointerDataPacket(
+    std::unique_ptr<PointerDataPacket> packet) {
+  if (!IsValid() || !packet) {
+    return false;
+  }
+
+  auto platform_view = shell_->GetPlatformView();
+  if (!platform_view) {
+    return false;
+  }
+
+  platform_view->DispatchPointerDataPacket(std::move(packet));
+  return true;
+}
+
+bool EmbedderEngine::SendPlatformMessage(fml::RefPtr<PlatformMessage> message) {
+  if (!IsValid() || !message) {
+    return false;
+  }
+
+  auto platform_view = shell_->GetPlatformView();
+  if (!platform_view) {
+    return false;
+  }
+
+  platform_view->DispatchPlatformMessage(message);
+  return true;
+}
+
+bool EmbedderEngine::RegisterTexture(int64_t texture) {
+  if (!IsValid() || !external_texture_callback_) {
+    return false;
+  }
+  shell_->GetPlatformView()->RegisterTexture(
+      std::make_unique<EmbedderExternalTextureGL>(texture,
+                                                  external_texture_callback_));
+  return true;
+}
+
+bool EmbedderEngine::UnregisterTexture(int64_t texture) {
+  if (!IsValid() || !external_texture_callback_) {
+    return false;
+  }
+  shell_->GetPlatformView()->UnregisterTexture(texture);
+  return true;
+}
+
+bool EmbedderEngine::MarkTextureFrameAvailable(int64_t texture) {
+  if (!IsValid() || !external_texture_callback_) {
+    return false;
+  }
+  shell_->GetPlatformView()->MarkTextureFrameAvailable(texture);
+  return true;
+}
+
+bool EmbedderEngine::SetAccessibilityFeatures(int32_t flags) {
+  if (!IsValid()) {
+    return false;
+  }
+  auto platform_view = shell_->GetPlatformView();
+  if (!platform_view) {
+    return false;
+  }
+  platform_view->SetAccessibilityFeatures(flags);
+  return true;
+}
+
+bool EmbedderEngine::OnVsyncEvent(intptr_t baton,
+                                  fml::TimePoint frame_start_time,
+                                  fml::TimePoint frame_target_time) {
+  if (!IsValid()) {
+    return false;
+  }
+
+  return VsyncWaiterEmbedder::OnEmbedderVsync(baton, frame_start_time,
+                                              frame_target_time);
+}
+
+bool EmbedderEngine::ReloadSystemFonts() {
+  if (!IsValid()) {
+    return false;
+  }
+
+  return shell_->ReloadSystemFonts();
+}
+
+bool EmbedderEngine::PostRenderThreadTask(const fml::closure& task) {
+  if (!IsValid()) {
+    return false;
+  }
+
+  shell_->GetTaskRunners().GetRasterTaskRunner()->PostTask(task);
+  return true;
+}
+
+bool EmbedderEngine::RunTask(const UIWidgetsTask* task) {
+  // The shell doesn't need to be running or valid for access to the thread
+  // host. This is why there is no `IsValid` check here. This allows embedders
+  // to perform custom task runner interop before the shell is running.
+  if (task == nullptr) {
+    return false;
+  }
+  return thread_host_->PostTask(reinterpret_cast<int64_t>(task->runner),
+                                task->task);
+}
+
+bool EmbedderEngine::PostTaskOnEngineManagedNativeThreads(
+    std::function<void(UIWidgetsNativeThreadType)> closure) const {
+  if (!IsValid() || closure == nullptr) {
+    return false;
+  }
+
+  const auto trampoline = [closure](UIWidgetsNativeThreadType type,
+                                    fml::RefPtr<fml::TaskRunner> runner) {
+    runner->PostTask([closure, type] { closure(type); });
+  };
+
+  // Post the task to all thread host threads.
+  const auto& task_runners = shell_->GetTaskRunners();
+  trampoline(kUIWidgetsNativeThreadTypeRender,
+             task_runners.GetRasterTaskRunner());
+  trampoline(kUIWidgetsNativeThreadTypeWorker, task_runners.GetIOTaskRunner());
+  trampoline(kUIWidgetsNativeThreadTypeUI, task_runners.GetUITaskRunner());
+  trampoline(kUIWidgetsNativeThreadTypePlatform,
+             task_runners.GetPlatformTaskRunner());
+
+  // Post the task to all worker threads.
+  auto engine = shell_->GetEngine();
+  engine->GetConcurrentMessageLoop()->PostTaskToAllWorkers(
+      [closure]() { closure(kUIWidgetsNativeThreadTypeWorker); });
+
+  return true;
+}
+
+Shell& EmbedderEngine::GetShell() {
+  FML_DCHECK(shell_);
+  return *shell_.get();
+}
+
+}  // namespace uiwidgets

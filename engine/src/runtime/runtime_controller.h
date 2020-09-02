@@ -26,18 +26,13 @@ class Window;
 
 class RuntimeController final : public WindowClient {
  public:
-  RuntimeController(
-      RuntimeDelegate& client,
-    Settings& settings,
-    TaskRunners task_runners,
-      fml::WeakPtr<SnapshotDelegate> snapshot_delegate,
-      fml::WeakPtr<IOManager> io_manager,
-      fml::RefPtr<SkiaUnrefQueue> unref_queue,
-      fml::WeakPtr<ImageDecoder> image_decoder,
-      const std::function<void(int64_t)>& idle_notification_callback,
-      const WindowData& window_data,
-      const fml::closure& isolate_create_callback,
-      const fml::closure& isolate_shutdown_callback);
+  RuntimeController(RuntimeDelegate& client, const Settings& settings,
+                    TaskRunners task_runners,
+                    fml::WeakPtr<SnapshotDelegate> snapshot_delegate,
+                    fml::WeakPtr<IOManager> io_manager,
+                    fml::RefPtr<SkiaUnrefQueue> unref_queue,
+                    fml::WeakPtr<ImageDecoder> image_decoder,
+                    const WindowData& window_data);
 
   ~RuntimeController() override;
 
@@ -59,8 +54,6 @@ class RuntimeController final : public WindowClient {
 
   bool NotifyIdle(int64_t deadline);
 
-  bool IsRootIsolateRunning() const;
-
   bool DispatchPlatformMessage(fml::RefPtr<PlatformMessage> message);
 
   bool DispatchPointerDataPacket(const PointerDataPacket& packet);
@@ -81,19 +74,14 @@ class RuntimeController final : public WindowClient {
   };
 
   RuntimeDelegate& client_;
-  Settings& settings_;
+  const Settings& settings_;
   TaskRunners task_runners_;
   fml::WeakPtr<SnapshotDelegate> snapshot_delegate_;
   fml::WeakPtr<IOManager> io_manager_;
   fml::RefPtr<SkiaUnrefQueue> unref_queue_;
   fml::WeakPtr<ImageDecoder> image_decoder_;
-  std::function<void(int64_t)> idle_notification_callback_;
   WindowData window_data_;
   std::weak_ptr<MonoIsolate> root_isolate_;
-  std::pair<bool, uint32_t> root_isolate_return_code_ = {false, 0};
-  const fml::closure isolate_create_callback_;
-  const fml::closure isolate_shutdown_callback_;
-  std::shared_ptr<const fml::Mapping> persistent_isolate_data_;
 
   Window* GetWindowIfAvailable();
 
@@ -112,7 +100,7 @@ class RuntimeController final : public WindowClient {
   void HandlePlatformMessage(fml::RefPtr<PlatformMessage> message) override;
 
   // |WindowClient|
-  FontCollection& GetFontCollection() override;
+  // FontCollection& GetFontCollection() override;
 
   // |WindowClient|
   void SetNeedsReportTimings(bool value) override;

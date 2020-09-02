@@ -8,11 +8,11 @@ namespace {
 
 typedef Mono_Handle (*Window_constructorCallback)(Window* window);
 
-static Window_constructorCallback Window_constructor_;
+Window_constructorCallback Window_constructor_;
 
 typedef void (*Window_disposeCallback)(Mono_Handle handle);
 
-static Window_disposeCallback Window_dispose_;
+Window_disposeCallback Window_dispose_;
 
 typedef void (*Window_updateWindowMetricsCallback)(
     float devicePixelRatio, float width, float height, float depth,
@@ -22,13 +22,13 @@ typedef void (*Window_updateWindowMetricsCallback)(
     float systemGestureInsetRight, float systemGestureInsetBottom,
     float systemGestureInsetLeft);
 
-static Window_updateWindowMetricsCallback Window_updateWindowMetrics_;
+Window_updateWindowMetricsCallback Window_updateWindowMetrics_;
 
 typedef void (*Window_beginFrameCallback)(long microseconds);
-static Window_beginFrameCallback Window_beginFrame_;
+Window_beginFrameCallback Window_beginFrame_;
 
 typedef void (*Window_drawFrameCallback)();
-static Window_drawFrameCallback Window_drawFrame_;
+Window_drawFrameCallback Window_drawFrame_;
 
 UIWIDGETS_API(void)
 Window_hook(Window_constructorCallback Window_constructor,

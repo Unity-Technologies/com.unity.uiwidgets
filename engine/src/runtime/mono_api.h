@@ -7,6 +7,8 @@
 #define UIWIDGETS_API(RETURN) \
   extern "C" UNITY_INTERFACE_EXPORT RETURN UNITY_INTERFACE_API
 
+#define UIWIDGETS_CALLBACK(RETURN) static RETURN UNITY_INTERFACE_API
+
 namespace uiwidgets {
 
 typedef void* Mono_Handle;
@@ -35,5 +37,7 @@ void* Mono_CurrentIsolateData();
 
 void Mono_ThrowException(const char* exception);
 int64_t Mono_TimelineGetMicros();
+
+void Mono_NotifyIdle(int64_t deadline);
 
 }  // namespace uiwidgets
