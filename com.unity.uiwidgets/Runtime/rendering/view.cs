@@ -95,7 +95,7 @@ namespace Unity.UIWidgets.rendering {
 
         public bool hitTest(HitTestResult result, Offset position = null) {
             if (this.child != null) {
-                this.child.hitTest(result, position: position);
+                this.child.hitTest(new BoxHitTestResult(result), position: position);
             }
 
             result.add(new HitTestEntry(this));

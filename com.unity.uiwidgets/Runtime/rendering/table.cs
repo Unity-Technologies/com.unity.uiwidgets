@@ -1039,7 +1039,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(this._rowTops.Count == rows + 1);
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             D.assert(this._children.Count == this.rows * this.columns);
             for (int index = this._children.Count - 1; index >= 0; index--) {
                 RenderBox child = this._children[index];

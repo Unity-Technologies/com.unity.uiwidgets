@@ -30,7 +30,7 @@ namespace Unity.UIWidgets.rendering {
 
         public HitTestBehavior behavior;
 
-        public override bool hitTest(HitTestResult result, Offset position = null) {
+        public override bool hitTest(BoxHitTestResult result, Offset position = null) {
             bool hitTarget = false;
             if (this.size.contains(position)) {
                 hitTarget = this.hitTestChildren(result, position: position) || this.hitTestSelf(position);
@@ -881,7 +881,7 @@ namespace Unity.UIWidgets.rendering {
             get { return Offset.zero & this.size; }
         }
 
-        public override bool hitTest(HitTestResult result, Offset position = null) {
+        public override bool hitTest(BoxHitTestResult result, Offset position = null) {
             if (this._clipper != null) {
                 this._updateClip();
                 D.assert(this._clip != null);
@@ -948,7 +948,7 @@ namespace Unity.UIWidgets.rendering {
             get { return this._borderRadius.toRRect(Offset.zero & this.size); }
         }
 
-        public override bool hitTest(HitTestResult result, Offset position = null) {
+        public override bool hitTest(BoxHitTestResult result, Offset position = null) {
             if (this._clipper != null) {
                 this._updateClip();
                 D.assert(this._clip != null);
@@ -1009,7 +1009,7 @@ namespace Unity.UIWidgets.rendering {
             get { return Offset.zero & this.size; }
         }
 
-        public override bool hitTest(HitTestResult result,
+        public override bool hitTest(BoxHitTestResult result,
             Offset position = null
         ) {
             this._updateClip();
@@ -1064,7 +1064,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public override bool hitTest(HitTestResult result, Offset position = null) {
+        public override bool hitTest(BoxHitTestResult result, Offset position = null) {
             D.assert(position != null);
 
             if (this._clipper != null) {
@@ -1241,7 +1241,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public override bool hitTest(HitTestResult result, Offset position = null) {
+        public override bool hitTest(BoxHitTestResult result, Offset position = null) {
             if (this._clipper != null) {
                 this._updateClip();
                 D.assert(this._clip != null);
@@ -1310,7 +1310,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public override bool hitTest(HitTestResult result, Offset position = null) {
+        public override bool hitTest(BoxHitTestResult result, Offset position = null) {
             if (this._clipper != null) {
                 this._updateClip();
                 D.assert(this._clip != null);
@@ -1599,11 +1599,11 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public override bool hitTest(HitTestResult result, Offset position = null) {
+        public override bool hitTest(BoxHitTestResult result, Offset position = null) {
             return this.hitTestChildren(result, position: position);
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             if (this.transformHitTests) {
                 var transform = this._effectiveTransform;
                 var inverse = Matrix4.tryInvert(transform);
@@ -1771,7 +1771,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             if (this.size.isEmpty) {
                 return false;
             }
@@ -1831,13 +1831,13 @@ namespace Unity.UIWidgets.rendering {
 
         Offset _translation;
 
-        public override bool hitTest(HitTestResult result, Offset position) {
+        public override bool hitTest(BoxHitTestResult result, Offset position) {
             return this.hitTestChildren(result, position: position);
         }
 
         public bool transformHitTests;
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
             D.assert(!this.debugNeedsLayout);
             if (this.transformHitTests) {
                 position = new Offset(
@@ -2308,7 +2308,7 @@ namespace Unity.UIWidgets.rendering {
 
         bool _ignoring;
 
-        public override bool hitTest(HitTestResult result, Offset position = null) {
+        public override bool hitTest(BoxHitTestResult result, Offset position = null) {
             return this.ignoring ? false : base.hitTest(result, position: position);
         }
 
@@ -2398,7 +2398,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public override bool hitTest(HitTestResult result, Offset position) {
+        public override bool hitTest(BoxHitTestResult result, Offset position) {
             return !this.offstage && base.hitTest(result, position: position);
         }
 
@@ -2447,7 +2447,7 @@ namespace Unity.UIWidgets.rendering {
 
         bool _absorbing;
 
-        public override bool hitTest(HitTestResult result, Offset position) {
+        public override bool hitTest(BoxHitTestResult result, Offset position) {
             return this.absorbing
                 ? this.size.contains(position)
                 : base.hitTest(result, position: position);
@@ -2586,11 +2586,11 @@ namespace Unity.UIWidgets.rendering {
             return this._layer?.getLastTransform() ?? new Matrix4().identity();
         }
 
-        public override bool hitTest(HitTestResult result, Offset position) {
+        public override bool hitTest(BoxHitTestResult result, Offset position) {
             return this.hitTestChildren(result, position: position);
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
             Matrix4 inverse = Matrix4.tryInvert(this.getCurrentTransform());
             if (inverse == null) {
                 return false;

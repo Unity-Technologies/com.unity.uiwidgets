@@ -22,6 +22,7 @@ namespace Unity.UIWidgets.foundation {
         transition,
         whitespace,
         singleLine,
+        errorProperty,
     }
 
     public class TextTreeConfiguration {

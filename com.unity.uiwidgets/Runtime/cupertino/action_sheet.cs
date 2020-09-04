@@ -606,7 +606,7 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             bool isHit = false;
             MultiChildLayoutParentData contentSectionParentData =
                 this.contentSection.parentData as MultiChildLayoutParentData;
@@ -1091,7 +1091,7 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             return this.defaultHitTestChildren(result, position: position);
         }
     }

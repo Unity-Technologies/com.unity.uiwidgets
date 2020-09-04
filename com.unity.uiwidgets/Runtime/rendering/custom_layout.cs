@@ -251,7 +251,7 @@ namespace Unity.UIWidgets.rendering {
             this.defaultPaint(context, offset);
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
             return this.defaultHitTestChildren(result, position: position);
         }
     }

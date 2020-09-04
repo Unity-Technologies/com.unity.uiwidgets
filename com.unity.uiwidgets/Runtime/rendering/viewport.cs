@@ -365,7 +365,7 @@ namespace Unity.UIWidgets.rendering {
             });
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             D.assert(position != null);
 
             float mainAxisPosition = 0, crossAxisPosition = 0;
@@ -380,12 +380,25 @@ namespace Unity.UIWidgets.rendering {
                     break;
             }
 
+            SliverHitTestResult sliverResult = new SliverHitTestResult(result);
             foreach (RenderSliver child in this.childrenInHitTestOrder) {
-                if (child.geometry.visible && child.hitTest(
-                        result,
-                        mainAxisPosition: this.computeChildMainAxisPosition(child, mainAxisPosition),
-                        crossAxisPosition: crossAxisPosition
-                    )) {
+                if (!child.geometry.visible) {
+                    continue;
+                }
+                Matrix4 transform = new Matrix4().identity();
+                this.applyPaintTransform(child, transform);
+                bool isHit = result.addWithPaintTransform(
+                    transform: transform,
+                    position: null, // Manually adapting from box to sliver position below.
+                    hitTest: (BoxHitTestResult result, Offset _) => {
+                        return child.hitTest(
+                            sliverResult,
+                            mainAxisPosition: this.computeChildMainAxisPosition(child, mainAxisPosition),
+                            crossAxisPosition: crossAxisPosition
+                        );
+                    }
+                );
+                if (isHit) {
                     return true;
                 }
             }

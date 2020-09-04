@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.UIWidgets.foundation;
 using UnityEngine;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.ui;
@@ -58,18 +59,34 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-       public bool defaultHitTestChildren(HitTestResult result, Offset position) {
-            // the x, y parameters have the top left of the node's box as the origin
+       public bool defaultHitTestChildren(BoxHitTestResult result, Offset position) {
+            // the x, y parameters have the top left of the node's box as the origin4
             ChildType child = this.lastChild;
-            while (child != null)
-            {
-                ParentDataType childParentData = (ParentDataType) child.parentData;
-                if (child.hitTest(result, position: position - childParentData.offset)) {
-                    return true;
+            while (child != null) {
+                ParentDataType childParentData = child.parentData as ParentDataType;
+                bool isHit = result.addWithPaintOffset(
+                    offset: childParentData.offset,
+                    position: position,
+                    hitTest: (BoxHitTestResult boxHitTestResult, Offset transformed) => {
+                    D.assert(transformed == position - childParentData.offset);
+                    return child.hitTest(boxHitTestResult, position: transformed);
                 }
+                );
+                if (isHit)
+                    return true;
                 child = childParentData.previousSibling;
             }
             return false;
+            // ChildType child = this.lastChild;
+            // while (child != null)
+            // {
+            //     ParentDataType childParentData = (ParentDataType) child.parentData;
+            //     if (child.hitTest(result, position: position - childParentData.offset)) {
+            //         return true;
+            //     }
+            //     child = childParentData.previousSibling;
+            // }
+            // return false;
         }
 
         public List<ChildType> getChildrenAsList() {

@@ -1,22 +1,26 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.gestures {
     public delegate void PointerRoute(PointerEvent evt);
 
     public class PointerRouter {
-        readonly Dictionary<int, HashSet<PointerRoute>> _routeMap = new Dictionary<int, HashSet<PointerRoute>>();
+        readonly Dictionary<int, Dictionary<PointerRoute, Matrix4>> _routeMap = new Dictionary<int, Dictionary<PointerRoute, Matrix4>>();
 
-        readonly HashSet<PointerRoute> _globalRoutes = new HashSet<PointerRoute>();
+        readonly Dictionary<PointerRoute, Matrix4> _globalRoutes = new Dictionary<PointerRoute, Matrix4>();
 
-        public void addRoute(int pointer, PointerRoute route) {
-            var routes = this._routeMap.putIfAbsent(pointer, () => new HashSet<PointerRoute>());
-            D.assert(!routes.Contains(route));
-            routes.Add(route);
+        public void addRoute(int pointer, PointerRoute route, Matrix4 transform = null) {
+            var routes = this._routeMap.putIfAbsent(
+                pointer, 
+                () => new Dictionary<PointerRoute, Matrix4>()
+            );
+            D.assert(!routes.ContainsKey(route));
+            routes[route] = transform;
         }
-
+        
         public void removeRoute(int pointer, PointerRoute route) {
             D.assert(this._routeMap.ContainsKey(pointer));
             var routes = this._routeMap[pointer];
@@ -25,7 +29,17 @@ namespace Unity.UIWidgets.gestures {
                 this._routeMap.Remove(pointer);
             }
         }
-                
+        
+        public void addGlobalRoute(PointerRoute route, Matrix4 transform = null) {
+            D.assert(!this._globalRoutes.ContainsKey(route));
+            this._globalRoutes[route] = transform;
+        }
+        
+        public void removeGlobalRoute(PointerRoute route) {
+            D.assert(this._globalRoutes.ContainsKey(route));
+            this._globalRoutes.Remove(route);
+        }
+
         public bool acceptScroll() {
             return this._routeMap.Count == 0;
         }
@@ -36,18 +50,10 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        public void addGlobalRoute(PointerRoute route) {
-            D.assert(!this._globalRoutes.Contains(route));
-            this._globalRoutes.Add(route);
-        }
 
-        public void removeGlobalRoute(PointerRoute route) {
-            D.assert(this._globalRoutes.Contains(route));
-            this._globalRoutes.Remove(route);
-        }
-
-        void _dispatch(PointerEvent evt, PointerRoute route) {
+        void _dispatch(PointerEvent evt, PointerRoute route, Matrix4 transform) {
             try {
+                evt = evt.transformed(transform);
                 route(evt);
             }
             catch (Exception ex) {
@@ -56,21 +62,36 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public void route(PointerEvent evt) {
-            HashSet<PointerRoute> routes;
+            // TODO: update this to latest version
+            Dictionary<PointerRoute, Matrix4> routes;
             this._routeMap.TryGetValue(evt.pointer, out routes);
-            if (routes != null) {
-                foreach (PointerRoute route in new List<PointerRoute>(routes)) {
-                    if (routes.Contains(route)) {
-                        this._dispatch(evt, route);
-                    }
-                }
-            }
 
-            foreach (PointerRoute route in new List<PointerRoute>(this._globalRoutes)) {
-                if (this._globalRoutes.Contains(route)) {
-                    this._dispatch(evt, route);
+            Dictionary<PointerRoute, Matrix4> copiedGlobalRoutes = new Dictionary<PointerRoute, Matrix4>(this._globalRoutes);
+
+            if (routes != null) {
+                this._dispatchEventToRoutes(
+                    evt,
+                    routes,
+                    new Dictionary<PointerRoute, Matrix4>(routes)
+                );
+            }
+            this._dispatchEventToRoutes(evt, this._globalRoutes, copiedGlobalRoutes);
+        }
+        
+        public void _dispatchEventToRoutes(
+            PointerEvent evt,
+            Dictionary<PointerRoute, Matrix4> referenceRoutes,
+            Dictionary<PointerRoute, Matrix4> copiedRoutes
+        ) {
+            foreach (var item in copiedRoutes) {
+                var route = item.Key;
+                var transform = item.Value;
+                if (referenceRoutes.ContainsKey(route)) {
+                    this._dispatch(evt, route, transform);
                 }
             }
         }
     }
 }
+
+// TODO: FlutterErrorDetailsForPointerRouter

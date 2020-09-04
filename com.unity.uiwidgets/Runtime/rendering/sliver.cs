@@ -437,6 +437,44 @@ namespace Unity.UIWidgets.rendering {
         }
     }
 
+
+    public class SliverHitTestResult : HitTestResult {
+        public delegate bool SliverHitTest(SliverHitTestResult result, float mainAxisPosition, float crossAxisPosition);
+
+        public SliverHitTestResult() : base() {
+        }
+
+        public SliverHitTestResult(HitTestResult result) : base(result) {
+        }
+
+        public bool addWithAxisOffset(
+            Offset paintOffset,
+            float mainAxisOffset,
+            float crossAxisOffset,
+            float mainAxisPosition,
+            float crossAxisPosition,
+            SliverHitTest hitTest
+        ) {
+            D.assert(mainAxisOffset != null);
+            D.assert(crossAxisOffset != null);
+            D.assert(mainAxisPosition != null);
+            D.assert(crossAxisPosition != null);
+            D.assert(hitTest != null);
+            if (paintOffset != null) {
+                this.pushTransform(new Matrix4().translationValues(-paintOffset.dx, -paintOffset.dy, 0));
+            }
+            bool isHit = hitTest(
+                this,
+                mainAxisPosition: mainAxisPosition - mainAxisOffset,
+                crossAxisPosition: crossAxisPosition - crossAxisOffset
+            );
+            if (paintOffset != null) {
+                this.popTransform();
+            }
+            return isHit;
+        }
+    }
+
     public class SliverHitTestEntry : HitTestEntry {
         public SliverHitTestEntry(RenderSliver target,
             float mainAxisPosition = 0.0f,
@@ -445,8 +483,7 @@ namespace Unity.UIWidgets.rendering {
             this.mainAxisPosition = mainAxisPosition;
             this.crossAxisPosition = crossAxisPosition;
         }
-
-
+        
         public new RenderSliver target {
             get { return (RenderSliver) base.target; }
         }
@@ -605,7 +642,7 @@ namespace Unity.UIWidgets.rendering {
             get { return 0.0f; }
         }
 
-        public bool hitTest(HitTestResult result, float mainAxisPosition = 0, float crossAxisPosition = 0) {
+        public bool hitTest(SliverHitTestResult result, float mainAxisPosition = 0, float crossAxisPosition = 0) {
             if (mainAxisPosition >= 0.0f && mainAxisPosition < this.geometry.hitTestExtent &&
                 crossAxisPosition >= 0.0f && crossAxisPosition < this.constraints.crossAxisExtent) {
                 if (this.hitTestChildren(result, mainAxisPosition: mainAxisPosition,
@@ -627,7 +664,7 @@ namespace Unity.UIWidgets.rendering {
             return false;
         }
 
-        protected virtual bool hitTestChildren(HitTestResult result, float mainAxisPosition = 0,
+        protected virtual bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0,
             float crossAxisPosition = 0) {
             return false;
         }
@@ -685,6 +722,20 @@ namespace Unity.UIWidgets.rendering {
             return null;
         }
 
+        protected Size getAbsoluteSize() {
+            D.assert(this.geometry != null);
+            D.assert(!this.debugNeedsLayout);
+            switch (this.constraints.axisDirection) {
+                case AxisDirection.up:
+                case AxisDirection.down:
+                    return new Size(this.constraints.crossAxisExtent, this.geometry.paintExtent);
+                case AxisDirection.right:
+                case AxisDirection.left:
+                    return new Size(this.geometry.paintExtent, this.constraints.crossAxisExtent);
+            }
+            return null;
+        }
+        
         void _debugDrawArrow(Canvas canvas, Paint paint, Offset p0, Offset p1, GrowthDirection direction) {
             D.assert(() => {
                 if (p0 == p1) {
@@ -832,29 +883,43 @@ namespace Unity.UIWidgets.rendering {
             return rightWayUp;
         }
 
-        public static bool hitTestBoxChild(this RenderSliver it, HitTestResult result, RenderBox child,
+        public static bool hitTestBoxChild(this RenderSliver it, BoxHitTestResult result, RenderBox child,
             float mainAxisPosition = 0.0f, float crossAxisPosition = 0.0f) {
             bool rightWayUp = _getRightWayUp(it.constraints);
-            float absolutePosition = mainAxisPosition - it.childMainAxisPosition(child);
-            float absoluteCrossAxisPosition = crossAxisPosition - it.childCrossAxisPosition(child);
+            float delta = it.childMainAxisPosition(child);
+            float crossAxisDelta = it.childCrossAxisPosition(child);
+            float absolutePosition = mainAxisPosition - delta;
+            float absoluteCrossAxisPosition = crossAxisPosition - crossAxisDelta;
+            Offset paintOffset = null;
+            Offset transformedPosition = null;
+            D.assert(it.constraints.axis != null);
             switch (it.constraints.axis) {
-                case Axis.horizontal:
-                    if (!rightWayUp) {
-                        absolutePosition = child.size.width - absolutePosition;
-                    }
-
-                    return child.hitTest(result,
-                        position: new Offset(absolutePosition, absoluteCrossAxisPosition));
-                case Axis.vertical:
-                    if (!rightWayUp) {
-                        absolutePosition = child.size.height - absolutePosition;
-                    }
-
-                    return child.hitTest(result,
-                        position: new Offset(absoluteCrossAxisPosition, absolutePosition));
+            case Axis.horizontal:
+                if (!rightWayUp) {
+                    absolutePosition = child.size.width - absolutePosition;
+                    delta = it.geometry.paintExtent - child.size.width - delta;
+                }
+                paintOffset = new Offset(delta, crossAxisDelta);
+                transformedPosition = new Offset(absolutePosition, absoluteCrossAxisPosition);
+                break;
+            case Axis.vertical:
+                if (!rightWayUp) {
+                absolutePosition = child.size.height - absolutePosition;
+                delta = it.geometry.paintExtent - child.size.height - delta;
+                }
+                paintOffset = new Offset(crossAxisDelta, delta);
+                transformedPosition = new Offset(absoluteCrossAxisPosition, absolutePosition);
+                break;
             }
-
-            return false;
+            D.assert(paintOffset != null);
+            D.assert(transformedPosition != null);
+            return result.addWithPaintOffset(
+                offset: paintOffset,
+                position: null, // Manually adapting from sliver to box position above.
+                hitTest: (BoxHitTestResult boxHitTestResult, Offset _) => {
+                    return child.hitTest(boxHitTestResult, position: transformedPosition);
+                }
+            );
         }
 
         public static void applyPaintTransformForBoxChild(this RenderSliver it, RenderBox child,
@@ -916,11 +981,11 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        protected override bool hitTestChildren(HitTestResult result, float mainAxisPosition = 0.0f,
+        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f,
             float crossAxisPosition = 0.0f) {
             D.assert(this.geometry.hitTestExtent > 0.0f);
             if (this.child != null) {
-                return this.hitTestBoxChild(result, this.child, mainAxisPosition: mainAxisPosition,
+                return this.hitTestBoxChild(new BoxHitTestResult(result), this.child, mainAxisPosition: mainAxisPosition,
                     crossAxisPosition: crossAxisPosition);
             }
 

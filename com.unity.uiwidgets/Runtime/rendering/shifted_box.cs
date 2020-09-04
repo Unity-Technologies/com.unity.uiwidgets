@@ -70,7 +70,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             if (this.child != null) {
                 var childParentData = (BoxParentData) this.child.parentData;
                 return this.child.hitTest(result, position - childParentData.offset);

@@ -93,7 +93,7 @@ namespace UIWidgets.Runtime.rendering {
         }
 
         protected override bool hitTestChildren(
-            HitTestResult result,
+            BoxHitTestResult result,
             Offset position = null
         ) {
             D.assert(this._paintTransform != null || this.debugNeedsLayout || this.child == null);

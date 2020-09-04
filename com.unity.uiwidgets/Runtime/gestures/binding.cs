@@ -152,7 +152,7 @@ namespace Unity.UIWidgets.gestures {
 
             foreach (HitTestEntry entry in hitTestResult.path) {
                 try {
-                    entry.target.handleEvent(evt, entry);
+                    entry.target.handleEvent(evt.transformed(entry.transform), entry);
                 }
                 catch (Exception ex) {
                     D.logError("Error while dispatching a pointer event: ", ex);

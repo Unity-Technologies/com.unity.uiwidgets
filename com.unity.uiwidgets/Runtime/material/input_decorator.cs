@@ -1330,7 +1330,7 @@ namespace Unity.UIWidgets.material {
             return true;
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
             D.assert(position != null);
             foreach (RenderBox child in this._children) {
                 if (child.hitTest(result, position: position - _boxParentData(child).offset)) {

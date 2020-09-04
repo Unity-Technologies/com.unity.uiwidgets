@@ -1191,7 +1191,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override bool hitTestChildren(
-            HitTestResult result,
+            SliverHitTestResult result,
             float mainAxisPosition = 0,
             float crossAxisPosition = 0
         ) {

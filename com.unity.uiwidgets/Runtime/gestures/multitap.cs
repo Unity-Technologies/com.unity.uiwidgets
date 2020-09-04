@@ -48,22 +48,22 @@ namespace Unity.UIWidgets.gestures {
             GestureArenaEntry entry = null
         ) {
             this.pointer = evt.pointer;
-            this._initialPosition = evt.position;
+            this._initialGlobalPosition = evt.position;
             this._doubleTapMinTimeCountdown = new _CountdownZoned(duration: doubleTapMinTime);
             this.entry = entry;
         }
 
         public readonly int pointer;
         public readonly GestureArenaEntry entry;
-        internal readonly Offset _initialPosition;
+        internal readonly Offset _initialGlobalPosition;
         internal readonly _CountdownZoned _doubleTapMinTimeCountdown;
 
         bool _isTrackingPointer = false;
 
-        public void startTrackingPointer(PointerRoute route) {
+        public void startTrackingPointer(PointerRoute route, Matrix4 transfor) {
             if (!this._isTrackingPointer) {
                 this._isTrackingPointer = true;
-                GestureBinding.instance.pointerRouter.addRoute(this.pointer, route);
+                GestureBinding.instance.pointerRouter.addRoute(this.pointer, route, transfor);
             }
         }
 
@@ -74,8 +74,8 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        public bool isWithinTolerance(PointerEvent evt, float tolerance) {
-            Offset offset = evt.position - this._initialPosition;
+        public bool isWithinGlobalTolerance(PointerEvent evt, float tolerance) {
+            Offset offset = evt.position - this._initialGlobalPosition;
             return offset.distance <= tolerance;
         }
 
@@ -87,7 +87,8 @@ namespace Unity.UIWidgets.gestures {
 
     public class DoubleTapGestureRecognizer : GestureRecognizer {
         public DoubleTapGestureRecognizer(object debugOwner = null, PointerDeviceKind? kind = null)
-            : base(debugOwner: debugOwner, kind: kind) { }
+            : base(debugOwner: debugOwner, kind: kind) {
+        }
 
         public GestureDoubleTapCallback onDoubleTap;
 
@@ -97,7 +98,7 @@ namespace Unity.UIWidgets.gestures {
 
         public override void addAllowedPointer(PointerDownEvent evt) {
             if (this._firstTap != null &&
-                !this._firstTap.isWithinTolerance(evt, Constants.kDoubleTapSlop)) {
+                !this._firstTap.isWithinGlobalTolerance(evt, Constants.kDoubleTapSlop)) {
                 return;
             }
 
@@ -108,7 +109,7 @@ namespace Unity.UIWidgets.gestures {
                 doubleTapMinTime: Constants.kDoubleTapMinTime
             );
             this._trackers[evt.pointer] = tracker;
-            tracker.startTrackingPointer(this._handleEvent);
+            tracker.startTrackingPointer(this._handleEvent, evt.transform);
         }
 
         void _handleEvent(PointerEvent evt) {
@@ -123,7 +124,7 @@ namespace Unity.UIWidgets.gestures {
                 }
             }
             else if (evt is PointerMoveEvent) {
-                if (!tracker.isWithinTolerance(evt, Constants.kDoubleTapTouchSlop)) {
+                if (!tracker.isWithinGlobalTolerance(evt, Constants.kDoubleTapTouchSlop)) {
                     this._reject(tracker);
                 }
             }
@@ -132,7 +133,8 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        public override void acceptGesture(int pointer) { }
+        public override void acceptGesture(int pointer) {
+        }
 
         public override void rejectGesture(int pointer) {
             _TapTracker tracker;
@@ -186,7 +188,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         void _registerSecondTap(_TapTracker tracker) {
-            var initialPosition = tracker._initialPosition;
+            var initialPosition = tracker._initialGlobalPosition;
             this._firstTap.entry.resolve(GestureDisposition.accepted);
             tracker.entry.resolve(GestureDisposition.accepted);
             this._freezeTracker(tracker);
@@ -242,8 +244,8 @@ namespace Unity.UIWidgets.gestures {
             doubleTapMinTime: Constants.kDoubleTapMinTime
         ) {
             this.gestureRecognizer = gestureRecognizer;
-            this._lastPosition = evt.position;
-            this.startTrackingPointer(this.handleEvent);
+            this._lastPosition = OffsetPair.fromEventPosition(evt);
+            this.startTrackingPointer(this.handleEvent, evt.transform);
             if (longTapDelay > TimeSpan.Zero) {
                 this._timer = Window.instance.run(longTapDelay, () => {
                     this._timer = null;
@@ -257,17 +259,17 @@ namespace Unity.UIWidgets.gestures {
         bool _wonArena = false;
         Timer _timer;
 
-        Offset _lastPosition;
-        Offset _finalPosition;
+        OffsetPair _lastPosition;
+        OffsetPair _finalPosition;
 
         void handleEvent(PointerEvent evt) {
             D.assert(evt.pointer == this.pointer);
             if (evt is PointerMoveEvent) {
-                if (!this.isWithinTolerance(evt, Constants.kTouchSlop)) {
+                if (!this.isWithinGlobalTolerance(evt, Constants.kTouchSlop)) {
                     this.cancel();
                 }
                 else {
-                    this._lastPosition = evt.position;
+                    this._lastPosition = OffsetPair.fromEventPosition(evt);
                 }
             }
             else if (evt is PointerCancelEvent) {
@@ -275,7 +277,7 @@ namespace Unity.UIWidgets.gestures {
             }
             else if (evt is PointerUpEvent) {
                 this.stopTrackingPointer(this.handleEvent);
-                this._finalPosition = evt.position;
+                this._finalPosition = OffsetPair.fromEventPosition(evt);
                 this._check();
             }
         }
@@ -344,7 +346,10 @@ namespace Unity.UIWidgets.gestures {
             );
             if (this.onTapDown != null) {
                 this.invokeCallback<object>("onTapDown", () => {
-                    this.onTapDown(evt.pointer, new TapDownDetails(globalPosition: evt.position));
+                    this.onTapDown(evt.pointer, new TapDownDetails(
+                        globalPosition: evt.position,
+                        localPosition: evt.localPosition,
+                        kind: evt.kind));
                     return null;
                 });
             }
@@ -372,13 +377,13 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        public void _dispatchTap(int pointer, Offset globalPosition) {
+        public void _dispatchTap(int pointer, OffsetPair position) {
             D.assert(this._gestureMap.ContainsKey(pointer));
             this._gestureMap.Remove(pointer);
             if (this.onTapUp != null) {
                 this.invokeCallback<object>("onTapUp",
                     () => {
-                        this.onTapUp(pointer, new TapUpDetails(globalPosition: globalPosition));
+                        this.onTapUp(pointer, new TapUpDetails(globalPosition: position.global, localPosition: position.local));
                         return null;
                     });
             }
@@ -391,12 +396,14 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        public void _dispatchLongTap(int pointer, Offset lastPosition) {
+        public void _dispatchLongTap(int pointer, OffsetPair lastPosition) {
             D.assert(this._gestureMap.ContainsKey(pointer));
             if (this.onLongTapDown != null) {
                 this.invokeCallback<object>("onLongTapDown",
                     () => {
-                        this.onLongTapDown(pointer, new TapDownDetails(globalPosition: lastPosition));
+                        this.onLongTapDown(pointer, new TapDownDetails(
+                            globalPosition: lastPosition.global,
+                            localPosition: lastPosition.local));
                         return null;
                     });
             }

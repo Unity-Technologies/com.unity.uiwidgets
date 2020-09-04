@@ -1,6 +1,7 @@
 using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Unity.UIWidgets.gestures {
@@ -11,7 +12,9 @@ namespace Unity.UIWidgets.gestures {
             PointerDeviceKind kind = PointerDeviceKind.touch,
             int device = 0,
             Offset position = null,
+            Offset localPosition = null,
             Offset delta = null,
+            Offset localDelta = null,
             int buttons = 0,
             bool down = false,
             bool obscured = false,
@@ -28,14 +31,18 @@ namespace Unity.UIWidgets.gestures {
             float orientation = 0.0f,
             float tilt = 0.0f,
             int platformData = 0,
-            bool synthesized = false
+            bool synthesized = false,
+            Matrix4 transform = null,
+            PointerEvent original = null
         ) {
             this.timeStamp = timeStamp;
             this.pointer = pointer;
             this.kind = kind;
             this.device = device;
             this.position = position ?? Offset.zero;
+            this.localPosition = localPosition ?? this.position;
             this.delta = delta ?? Offset.zero;
+            this.localDelta = delta ?? this.delta;
             this.buttons = buttons;
             this.down = down;
             this.obscured = obscured;
@@ -53,6 +60,8 @@ namespace Unity.UIWidgets.gestures {
             this.tilt = tilt;
             this.platformData = platformData;
             this.synthesized = synthesized;
+            this.transform = transform;
+            this.original = original;
         }
 
         public readonly TimeSpan timeStamp;
@@ -65,7 +74,11 @@ namespace Unity.UIWidgets.gestures {
 
         public readonly Offset position;
 
+        public readonly Offset localPosition;
+
         public readonly Offset delta;
+
+        public readonly Offset localDelta;
 
         public readonly int buttons;
 
@@ -105,10 +118,19 @@ namespace Unity.UIWidgets.gestures {
 
         public readonly bool synthesized;
 
+        public readonly Matrix4 transform;
+
+        public readonly PointerEvent original;
+
+        public abstract PointerEvent transformed(Matrix4 transform);
+
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Offset>("position", this.position));
+            properties.add(new DiagnosticsProperty<Offset>("localPosition", this.localPosition));
             properties.add(new DiagnosticsProperty<Offset>("delta", this.delta, defaultValue: Offset.zero,
+                level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<Offset>("localDelta", this.localDelta, defaultValue: Offset.zero,
                 level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<TimeSpan>("timeStamp", this.timeStamp, defaultValue: TimeSpan.Zero,
                 level: DiagnosticLevel.debug));
@@ -148,6 +170,40 @@ namespace Unity.UIWidgets.gestures {
             properties.add(new FlagProperty("synthesized", value: this.synthesized, ifTrue: "synthesized",
                 level: DiagnosticLevel.debug));
         }
+
+        public static Offset transformPosition(Matrix4 transform, Offset position) {
+            if (transform == null) {
+                return position;
+            }
+
+            Vector3 position3 = new Vector3(position.dx, position.dy, 0.0f);
+            Vector3 transformed3 = transform.perspectiveTransform(position3);
+            return new Offset(transformed3.x, transformed3.y);
+        }
+
+        public static Offset transformDeltaViaPositions(
+            Offset untransformedEndPosition,
+            Offset untransformedDelta,
+            Matrix4 transform,
+            Offset transformedEndPosition = null
+        ) {
+            if (transform == null) {
+                return untransformedDelta;
+            }
+
+            transformedEndPosition ??= transformPosition(transform, untransformedEndPosition);
+            Offset transformedStartPosition =
+                transformPosition(transform, untransformedEndPosition - untransformedDelta);
+            return transformedEndPosition - transformedStartPosition;
+        }
+
+        public static Matrix4 removePerspectiveTransform(Matrix4 transform) {
+            Vector4 vector = new Vector4(0, 0, 1, 0);
+            var result = transform.clone();
+            result.setColumn(2, vector);
+            result.setRow(2, vector);
+            return result;
+        }
     }
 
     public class PointerAddedEvent : PointerEvent {
@@ -156,6 +212,7 @@ namespace Unity.UIWidgets.gestures {
             PointerDeviceKind kind = PointerDeviceKind.touch,
             int device = 0,
             Offset position = null,
+            Offset localPosition = null,
             bool obscured = false,
             float pressure = 0.0f,
             float pressureMin = 1.0f,
@@ -165,12 +222,15 @@ namespace Unity.UIWidgets.gestures {
             float radiusMin = 0.0f,
             float radiusMax = 0.0f,
             float orientation = 0.0f,
-            float tilt = 0.0f
+            float tilt = 0.0f,
+            Matrix4 transform = null,
+            PointerAddedEvent original = null
         ) : base(
             timeStamp: timeStamp,
             kind: kind,
             device: device,
             position: position,
+            localPosition: localPosition,
             obscured: obscured,
             pressure: pressure,
             pressureMin: pressureMin,
@@ -180,8 +240,35 @@ namespace Unity.UIWidgets.gestures {
             radiusMin: radiusMin,
             radiusMax: radiusMax,
             orientation: orientation,
-            tilt: tilt
+            tilt: tilt,
+            transform: transform,
+            original: original
         ) {
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+
+            return new PointerAddedEvent(
+                timeStamp: this.timeStamp,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: PointerEvent.transformPosition(transform, this.position),
+                obscured: this.obscured,
+                pressureMin: this.pressureMin,
+                pressureMax: this.pressureMax,
+                distance: this.distance,
+                distanceMax: this.distanceMax,
+                radiusMin: this.radiusMin,
+                radiusMax: this.radiusMax,
+                orientation: this.orientation,
+                tilt: this.tilt,
+                transform: this.transform,
+                original: this.original as PointerAddedEvent ?? this
+            );
         }
     }
 
@@ -190,16 +277,22 @@ namespace Unity.UIWidgets.gestures {
             TimeSpan timeStamp,
             PointerDeviceKind kind = PointerDeviceKind.touch,
             int device = 0,
+            Offset position = null,
+            Offset localPosition = null,
             bool obscured = false,
             float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distanceMax = 0.0f,
             float radiusMin = 0.0f,
-            float radiusMax = 0.0f
+            float radiusMax = 0.0f,
+            Matrix4 transform = null,
+            PointerRemovedEvent original = null
         ) : base(
             timeStamp: timeStamp,
             kind: kind,
+            position: position,
+            localPosition: localPosition,
             device: device,
             obscured: obscured,
             pressure: pressure,
@@ -207,8 +300,32 @@ namespace Unity.UIWidgets.gestures {
             pressureMax: pressureMax,
             distanceMax: distanceMax,
             radiusMin: radiusMin,
-            radiusMax: radiusMax
+            radiusMax: radiusMax,
+            transform: transform,
+            original: original
         ) {
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+
+            return new PointerRemovedEvent(
+                timeStamp: this.timeStamp,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: PointerEvent.transformPosition(transform, this.position),
+                obscured: this.obscured,
+                pressureMin: this.pressureMin,
+                pressureMax: this.pressureMax,
+                distanceMax: this.distanceMax,
+                radiusMin: this.radiusMin,
+                radiusMax: this.radiusMax,
+                transform: transform,
+                original: this.original as PointerRemovedEvent ?? this
+            );
         }
     }
 
@@ -218,52 +335,9 @@ namespace Unity.UIWidgets.gestures {
             PointerDeviceKind kind = PointerDeviceKind.touch,
             int device = 0,
             Offset position = null,
+            Offset localPosition = null,
             Offset delta = null,
-            int buttons = 0,
-            bool obscured = false,
-            float pressure = 0.0f,
-            float pressureMin = 1.0f,
-            float pressureMax = 1.0f,
-            float distance = 0.0f,
-            float distanceMax = 0.0f,
-            float size = 0.0f,
-            float radiusMajor = 0.0f,
-            float radiusMinor = 0.0f,
-            float radiusMin = 0.0f,
-            float radiusMax = 0.0f,
-            float orientation = 0.0f,
-            float tilt = 0.0f,
-            bool synthesized = false) : base(
-            timeStamp: timeStamp,
-            kind: kind,
-            device: device,
-            position: position,
-            delta: delta,
-            buttons: buttons,
-            obscured: obscured,
-            pressure: pressure,
-            pressureMin: pressureMin,
-            pressureMax: pressureMax,
-            size: size,
-            radiusMajor: radiusMajor,
-            radiusMinor: radiusMinor,
-            distance: distance,
-            distanceMax: distanceMax,
-            radiusMin: radiusMin,
-            radiusMax: radiusMax,
-            orientation: orientation,
-            tilt: tilt,
-            synthesized: synthesized) {
-        }
-    }
-
-    public class PointerEnterEvent : PointerEvent {
-        public PointerEnterEvent(
-            TimeSpan timeStamp,
-            PointerDeviceKind kind = PointerDeviceKind.touch,
-            int device = 0,
-            Offset position = null,
-            Offset delta = null,
+            Offset localDelta = null,
             int buttons = 0,
             bool obscured = false,
             float pressure = 0.0f,
@@ -279,12 +353,106 @@ namespace Unity.UIWidgets.gestures {
             float orientation = 0.0f,
             float tilt = 0.0f,
             bool synthesized = false,
-            bool down = false) : base(
+            Matrix4 transform = null,
+            PointerHoverEvent original = null) : base(
             timeStamp: timeStamp,
             kind: kind,
             device: device,
             position: position,
+            localPosition: localDelta,
             delta: delta,
+            localDelta: localDelta,
+            buttons: buttons,
+            obscured: obscured,
+            pressure: pressure,
+            pressureMin: pressureMin,
+            pressureMax: pressureMax,
+            size: size,
+            radiusMajor: radiusMajor,
+            radiusMinor: radiusMinor,
+            distance: distance,
+            distanceMax: distanceMax,
+            radiusMin: radiusMin,
+            radiusMax: radiusMax,
+            orientation: orientation,
+            tilt: tilt,
+            synthesized: synthesized,
+            transform: transform,
+            original: original) {
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+
+            Offset transformedPosition = PointerEvent.transformPosition(transform, this.position);
+            return new PointerHoverEvent(
+                timeStamp: this.timeStamp,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: transformedPosition,
+                delta: this.delta,
+                localDelta: PointerEvent.transformDeltaViaPositions(
+                    transform: transform,
+                    untransformedDelta: this.delta,
+                    untransformedEndPosition: this.position,
+                    transformedEndPosition: transformedPosition
+                ),
+                buttons: this.buttons,
+                obscured: this.obscured,
+                pressureMin: this.pressureMin,
+                pressureMax: this.pressureMax,
+                distance: this.distance,
+                distanceMax: this.distanceMax,
+                size: this.size,
+                radiusMajor: this.radiusMajor,
+                radiusMinor: this.radiusMinor,
+                radiusMin: this.radiusMin,
+                radiusMax: this.radiusMax,
+                orientation: this.orientation,
+                tilt: this.tilt,
+                synthesized: this.synthesized,
+                transform: transform,
+                original: this.original as PointerHoverEvent ?? this);
+        }
+    }
+
+    public class PointerEnterEvent : PointerEvent {
+        public PointerEnterEvent(
+            TimeSpan timeStamp,
+            PointerDeviceKind kind = PointerDeviceKind.touch,
+            int device = 0,
+            Offset position = null,
+            Offset localPosition = null,
+            Offset delta = null,
+            Offset localDelta = null,
+            int buttons = 0,
+            bool obscured = false,
+            float pressure = 0.0f,
+            float pressureMin = 1.0f,
+            float pressureMax = 1.0f,
+            float distance = 0.0f,
+            float distanceMax = 0.0f,
+            float size = 0.0f,
+            float radiusMajor = 0.0f,
+            float radiusMinor = 0.0f,
+            float radiusMin = 0.0f,
+            float radiusMax = 0.0f,
+            float orientation = 0.0f,
+            float tilt = 0.0f,
+            bool synthesized = false,
+            bool down = false,
+            Matrix4 transform = null,
+            PointerEnterEvent original = null) : base(
+            timeStamp: timeStamp,
+            kind: kind,
+            device: device,
+            position: position,
+            localPosition: localPosition,
+            delta: delta,
+            localDelta: localDelta,
             buttons: buttons,
             down: down,
             obscured: obscured,
@@ -300,7 +468,9 @@ namespace Unity.UIWidgets.gestures {
             radiusMax: radiusMax,
             orientation: orientation,
             tilt: tilt,
-            synthesized: synthesized) {
+            synthesized: synthesized,
+            transform: transform,
+            original: original) {
         }
 
         public static PointerEnterEvent fromHoverEvent(PointerHoverEvent e) {
@@ -313,7 +483,9 @@ namespace Unity.UIWidgets.gestures {
                 kind: hover?.kind ?? PointerDeviceKind.touch,
                 device: hover?.device ?? 0,
                 position: hover?.position,
+                localPosition: hover?.localPosition,
                 delta: hover?.delta,
+                localDelta: hover?.localDelta,
                 buttons: hover?.buttons ?? 0,
                 down: hover?.down ?? false,
                 obscured: hover?.obscured ?? false,
@@ -329,7 +501,48 @@ namespace Unity.UIWidgets.gestures {
                 radiusMax: hover?.radiusMax ?? 0.0f,
                 orientation: hover?.orientation ?? 0.0f,
                 tilt: hover?.tilt ?? 0.0f,
-                synthesized: hover?.synthesized ?? false
+                synthesized: hover?.synthesized ?? false,
+                transform: hover?.transform,
+                original: hover?.original as PointerEnterEvent
+            );
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+
+            Offset transformedPosition = PointerEvent.transformPosition(transform, this.position);
+            return new PointerEnterEvent(
+                timeStamp: this.timeStamp,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: transformedPosition,
+                delta: this.delta,
+                localDelta: PointerEvent.transformDeltaViaPositions(
+                    transform: transform,
+                    untransformedDelta: this.delta,
+                    untransformedEndPosition: this.position,
+                    transformedEndPosition: transformedPosition
+                ),
+                buttons: this.buttons,
+                obscured: this.obscured,
+                pressureMin: this.pressureMin,
+                pressureMax: this.pressureMax,
+                distance: this.distance,
+                distanceMax: this.distanceMax,
+                size: this.size,
+                radiusMajor: this.radiusMajor,
+                radiusMinor: this.radiusMinor,
+                radiusMin: this.radiusMin,
+                radiusMax: this.radiusMax,
+                orientation: this.orientation,
+                tilt: this.tilt,
+                down: this.down,
+                synthesized: this.synthesized,
+                transform: transform,
+                original: this.original as PointerEnterEvent ?? this
             );
         }
     }
@@ -340,7 +553,9 @@ namespace Unity.UIWidgets.gestures {
             PointerDeviceKind kind = PointerDeviceKind.touch,
             int device = 0,
             Offset position = null,
+            Offset localPosition = null,
             Offset delta = null,
+            Offset localDelta = null,
             int buttons = 0,
             bool obscured = false,
             float pressure = 0.0f,
@@ -356,12 +571,16 @@ namespace Unity.UIWidgets.gestures {
             float orientation = 0.0f,
             float tilt = 0.0f,
             bool synthesized = false,
-            bool down = false) : base(
+            bool down = false,
+            Matrix4 transform = null,
+            PointerExitEvent original = null) : base(
             timeStamp: timeStamp,
             kind: kind,
             device: device,
             position: position,
+            localPosition: localPosition,
             delta: delta,
+            localDelta: localDelta,
             buttons: buttons,
             down: down,
             obscured: obscured,
@@ -377,8 +596,11 @@ namespace Unity.UIWidgets.gestures {
             radiusMax: radiusMax,
             orientation: orientation,
             tilt: tilt,
-            synthesized: synthesized) {
+            synthesized: synthesized,
+            transform: transform,
+            original: original) {
         }
+
 
         public static PointerExitEvent fromHoverEvent(PointerHoverEvent e) {
             return fromMouseEvent(e);
@@ -390,7 +612,9 @@ namespace Unity.UIWidgets.gestures {
                 kind: hover?.kind ?? PointerDeviceKind.touch,
                 device: hover?.device ?? 0,
                 position: hover?.position,
+                localPosition: hover?.localPosition,
                 delta: hover?.delta,
+                localDelta: hover?.localDelta,
                 buttons: hover?.buttons ?? 0,
                 down: hover?.down ?? false,
                 obscured: hover?.obscured ?? false,
@@ -406,7 +630,48 @@ namespace Unity.UIWidgets.gestures {
                 radiusMax: hover?.radiusMax ?? 0.0f,
                 orientation: hover?.orientation ?? 0.0f,
                 tilt: hover?.tilt ?? 0.0f,
-                synthesized: hover?.synthesized ?? false
+                synthesized: hover?.synthesized ?? false,
+                transform: hover?.transform,
+                original: hover?.original as PointerExitEvent
+            );
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+
+            Offset transformedPosition = PointerEvent.transformPosition(transform, this.position);
+            return new PointerExitEvent(
+                timeStamp: this.timeStamp,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: transformedPosition,
+                delta: this.delta,
+                localDelta: PointerEvent.transformDeltaViaPositions(
+                    transform: transform,
+                    untransformedDelta: this.delta,
+                    untransformedEndPosition: this.position,
+                    transformedEndPosition: transformedPosition
+                ),
+                buttons: this.buttons,
+                obscured: this.obscured,
+                pressureMin: this.pressureMin,
+                pressureMax: this.pressureMax,
+                distance: this.distance,
+                distanceMax: this.distanceMax,
+                size: this.size,
+                radiusMajor: this.radiusMajor,
+                radiusMinor: this.radiusMinor,
+                radiusMin: this.radiusMin,
+                radiusMax: this.radiusMax,
+                orientation: this.orientation,
+                tilt: this.tilt,
+                down: this.down,
+                synthesized: this.synthesized,
+                transform: transform,
+                original: this.original as PointerExitEvent ?? this
             );
         }
     }
@@ -418,6 +683,7 @@ namespace Unity.UIWidgets.gestures {
             PointerDeviceKind kind = PointerDeviceKind.touch,
             int device = 0,
             Offset position = null,
+            Offset localPosition = null,
             int buttons = 0,
             bool obscured = false,
             float pressure = 0.0f,
@@ -431,13 +697,16 @@ namespace Unity.UIWidgets.gestures {
             float radiusMin = 0.0f,
             float radiusMax = 0.0f,
             float orientation = 0.0f,
-            float tilt = 0.0f
+            float tilt = 0.0f,
+            Matrix4 transform = null,
+            PointerDownEvent original = null
         ) : base(
             timeStamp: timeStamp,
             pointer: pointer,
             kind: kind,
             device: device,
             position: position,
+            localPosition: localPosition,
             buttons: buttons,
             down: true,
             obscured: obscured,
@@ -452,7 +721,39 @@ namespace Unity.UIWidgets.gestures {
             radiusMin: radiusMin,
             radiusMax: radiusMax,
             orientation: orientation,
-            tilt: tilt) {
+            tilt: tilt,
+            transform: transform,
+            original: original) {
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+
+            return new PointerDownEvent(
+                timeStamp: this.timeStamp,
+                pointer: this.pointer,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: PointerEvent.transformPosition(transform, this.position),
+                buttons: this.buttons,
+                obscured: this.obscured,
+                pressure: this.pressure,
+                pressureMin: this.pressureMin,
+                pressureMax: this.pressureMax,
+                distanceMax: this.distanceMax,
+                size: this.size,
+                radiusMajor: this.radiusMajor,
+                radiusMinor: this.radiusMinor,
+                radiusMin: this.radiusMin,
+                radiusMax: this.radiusMax,
+                orientation: this.orientation,
+                tilt: this.tilt,
+                transform: transform,
+                original: this.original as PointerDownEvent ?? this
+            );
         }
     }
 
@@ -463,7 +764,9 @@ namespace Unity.UIWidgets.gestures {
             PointerDeviceKind kind = PointerDeviceKind.touch,
             int device = 0,
             Offset position = null,
+            Offset localPosition = null,
             Offset delta = null,
+            Offset localDelta = null,
             int buttons = 0,
             bool obscured = false,
             float pressure = 0.0f,
@@ -479,14 +782,18 @@ namespace Unity.UIWidgets.gestures {
             float orientation = 0.0f,
             float tilt = 0.0f,
             int platformdData = 0,
-            bool synthesized = false
+            bool synthesized = false,
+            Matrix4 transform = null,
+            PointerMoveEvent original = null
         ) : base(
             timeStamp: timeStamp,
             pointer: pointer,
             kind: kind,
             device: device,
             position: position,
+            localPosition: localPosition,
             delta: delta,
+            localDelta: localDelta,
             buttons: buttons,
             down: true,
             obscured: obscured,
@@ -503,7 +810,49 @@ namespace Unity.UIWidgets.gestures {
             orientation: orientation,
             tilt: tilt,
             platformData: platformdData,
-            synthesized: synthesized) {
+            synthesized: synthesized,
+            transform: transform,
+            original: original) {
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+            Offset transformedPosition = PointerEvent.transformPosition(transform, this.position);
+
+            return new PointerMoveEvent(
+                timeStamp: this.timeStamp,
+                pointer: this.pointer,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: transformedPosition,
+                delta: this.delta,
+                localDelta: PointerEvent.transformDeltaViaPositions(
+                    transform: transform,
+                    untransformedDelta: this.delta,
+                    untransformedEndPosition: this.position,
+                    transformedEndPosition: transformedPosition
+                ),
+                buttons: this.buttons,
+                obscured: this.obscured,
+                pressure: this.pressure,
+                pressureMin: this.pressureMin,
+                pressureMax: this.pressureMax,
+                distanceMax: this.distanceMax,
+                size: this.size,
+                radiusMajor: this.radiusMajor,
+                radiusMinor: this.radiusMinor,
+                radiusMin: this.radiusMin,
+                radiusMax: this.radiusMax,
+                orientation: this.orientation,
+                tilt: this.tilt,
+                // platformData: platformData,
+                synthesized: this.synthesized,
+                transform: transform,
+                original: this.original as PointerMoveEvent ?? this
+            );
         }
     }
 
@@ -514,6 +863,7 @@ namespace Unity.UIWidgets.gestures {
             PointerDeviceKind kind = PointerDeviceKind.touch,
             int device = 0,
             Offset position = null,
+            Offset localPosition = null,
             int buttons = 0,
             bool obscured = false,
             float pressure = 0.0f,
@@ -527,13 +877,16 @@ namespace Unity.UIWidgets.gestures {
             float radiusMin = 0.0f,
             float radiusMax = 0.0f,
             float orientation = 0.0f,
-            float tilt = 0.0f
+            float tilt = 0.0f,
+            Matrix4 transform = null,
+            PointerUpEvent original = null
         ) : base(
             timeStamp: timeStamp,
             pointer: pointer,
             kind: kind,
             device: device,
             position: position,
+            localPosition: localPosition,
             buttons: buttons,
             down: false,
             obscured: obscured,
@@ -548,23 +901,61 @@ namespace Unity.UIWidgets.gestures {
             radiusMin: radiusMin,
             radiusMax: radiusMax,
             orientation: orientation,
-            tilt: tilt) {
+            tilt: tilt,
+            transform: transform,
+            original: original) {
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+            return new PointerUpEvent(
+                timeStamp: this.timeStamp,
+                pointer: this.pointer,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: PointerEvent.transformPosition(transform, this.position),
+                buttons: this.buttons,
+                obscured: this.obscured,
+                pressure: this.pressure,
+                pressureMin: this.pressureMin,
+                pressureMax: this.pressureMax,
+                distance: this.distance,
+                distanceMax: this.distanceMax,
+                size: this.size,
+                radiusMajor: this.radiusMajor,
+                radiusMinor: this.radiusMinor,
+                radiusMin: this.radiusMin,
+                radiusMax: this.radiusMax,
+                orientation: this.orientation,
+                tilt: this.tilt,
+                transform: transform,
+                original: this.original as PointerUpEvent ?? this
+            );
         }
     }
 
-    public class PointerSignalEvent : PointerEvent {
+    public abstract class PointerSignalEvent : PointerEvent {
         public PointerSignalEvent(
             TimeSpan timeStamp,
             int pointer = 0,
             PointerDeviceKind kind = PointerDeviceKind.mouse,
             int device = 0,
-            Offset position = null
+            Offset position = null,
+            Offset localPosition = null,
+            Matrix4 transform = null,
+            PointerSignalEvent original = null
         ) : base(
             timeStamp,
             pointer: pointer,
             kind: kind,
             device: device,
-            position: position
+            position: position,
+            localPosition: localPosition,
+            transform: transform,
+            original: original
         ) {
         }
     }
@@ -576,19 +967,42 @@ namespace Unity.UIWidgets.gestures {
             PointerDeviceKind kind = PointerDeviceKind.mouse,
             int device = 0,
             Offset position = null,
-            Offset scrollDelta = null)
+            Offset localPosition = null,
+            Offset scrollDelta = null,
+            Matrix4 transform = null,
+            PointerScrollEvent original = null)
             : base(
                 timeStamp,
                 kind: kind,
                 pointer: pointer,
                 device: device,
-                position: position) {
+                position: position,
+                localPosition: localPosition,
+                transform: transform,
+                original: original) {
             D.assert(position != null);
             D.assert(scrollDelta != null);
             this.scrollDelta = scrollDelta;
         }
 
         public readonly Offset scrollDelta;
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+            return new PointerScrollEvent(
+                timeStamp: this.timeStamp,
+                pointer: this.pointer,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: PointerEvent.transformPosition(transform, this.position),
+                scrollDelta: this.scrollDelta,
+                transform: transform,
+                original: this.original as PointerScrollEvent ?? this
+            );
+        }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
@@ -603,6 +1017,7 @@ namespace Unity.UIWidgets.gestures {
             PointerDeviceKind kind = PointerDeviceKind.touch,
             int device = 0,
             Offset position = null,
+            Offset localPosition = null,
             int buttons = 0,
             bool obscured = false,
             float pressure = 0.0f,
@@ -616,13 +1031,16 @@ namespace Unity.UIWidgets.gestures {
             float radiusMin = 0.0f,
             float radiusMax = 0.0f,
             float orientation = 0.0f,
-            float tilt = 0.0f
+            float tilt = 0.0f,
+            Matrix4 transform = null,
+            PointerCancelEvent original = null
         ) : base(
             timeStamp: timeStamp,
             pointer: pointer,
             kind: kind,
             device: device,
             position: position,
+            localPosition: localPosition,
             buttons: buttons,
             down: false,
             obscured: obscured,
@@ -637,7 +1055,38 @@ namespace Unity.UIWidgets.gestures {
             radiusMin: radiusMin,
             radiusMax: radiusMax,
             orientation: orientation,
-            tilt: tilt) {
+            tilt: tilt,
+            transform: transform,
+            original: original) {
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+            return new PointerCancelEvent(
+                timeStamp: this.timeStamp,
+                pointer: this.pointer,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: PointerEvent.transformPosition(transform, this.position),
+                buttons: this.buttons,
+                obscured: this.obscured,
+                pressureMin: this.pressureMin,
+                pressureMax: this.pressureMax,
+                distance: this.distance,
+                distanceMax: this.distanceMax,
+                size: this.size,
+                radiusMajor: this.radiusMajor,
+                radiusMinor: this.radiusMinor,
+                radiusMin: this.radiusMin,
+                radiusMax: this.radiusMax,
+                orientation: this.orientation,
+                tilt: this.tilt,
+                transform: transform,
+                original: this.original as PointerCancelEvent ?? this
+            );
         }
     }
 
@@ -647,13 +1096,19 @@ namespace Unity.UIWidgets.gestures {
             int pointer = 0,
             PointerDeviceKind kind = PointerDeviceKind.mouse,
             int device = 0,
-            Offset position = null
+            Offset position = null,
+            Offset localPosition = null,
+            Matrix4 transform = null,
+            PointerDragFromEditorEnterEvent original = null
         ) : base(
             timeStamp,
             pointer: pointer,
             kind: kind,
             device: device,
-            position: position
+            position: position,
+            localPosition: localPosition,
+            transform: transform,
+            original: original
         ) {
         }
 
@@ -663,7 +1118,26 @@ namespace Unity.UIWidgets.gestures {
                 pointer: evt.pointer,
                 kind: evt.kind,
                 device: evt.device,
-                position: evt.position
+                position: evt.position,
+                localPosition: evt.localPosition,
+                transform: evt.transform,
+                original: evt.original as PointerDragFromEditorEnterEvent
+            );
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+            return new PointerDragFromEditorEnterEvent(
+                timeStamp: this.timeStamp,
+                pointer: this.pointer,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: PointerEvent.transformPosition(transform, this.position),
+                transform: transform,
+                original: this.original as PointerDragFromEditorEnterEvent ?? this
             );
         }
     }
@@ -674,13 +1148,19 @@ namespace Unity.UIWidgets.gestures {
             int pointer = 0,
             PointerDeviceKind kind = PointerDeviceKind.mouse,
             int device = 0,
-            Offset position = null
+            Offset position = null,
+            Offset localPosition = null,
+            Matrix4 transform = null,
+            PointerDragFromEditorExitEvent original = null
         ) : base(
             timeStamp,
             pointer: pointer,
             kind: kind,
             device: device,
-            position: position
+            position: position,
+            localPosition: localPosition,
+            transform: transform,
+            original: original
         ) {
         }
 
@@ -690,7 +1170,26 @@ namespace Unity.UIWidgets.gestures {
                 pointer: evt.pointer,
                 kind: evt.kind,
                 device: evt.device,
-                position: evt.position
+                position: evt.position,
+                localPosition: evt.localPosition,
+                transform: evt.transform,
+                original: evt.original as PointerDragFromEditorExitEvent
+            );
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+            return new PointerDragFromEditorExitEvent(
+                timeStamp: this.timeStamp,
+                pointer: this.pointer,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: PointerEvent.transformPosition(transform, this.position),
+                transform: transform,
+                original: this.original as PointerDragFromEditorExitEvent ?? this
             );
         }
     }
@@ -701,13 +1200,19 @@ namespace Unity.UIWidgets.gestures {
             int pointer = 0,
             PointerDeviceKind kind = PointerDeviceKind.mouse,
             int device = 0,
-            Offset position = null
+            Offset position = null,
+            Offset localPosition = null,
+            Matrix4 transform = null,
+            PointerDragFromEditorHoverEvent original = null
         ) : base(
             timeStamp,
             pointer: pointer,
             kind: kind,
             device: device,
-            position: position
+            position: position,
+            localPosition: localPosition,
+            transform: transform,
+            original: original
         ) {
         }
 
@@ -717,7 +1222,26 @@ namespace Unity.UIWidgets.gestures {
                 pointer: evt.pointer,
                 kind: evt.kind,
                 device: evt.device,
-                position: evt.position
+                position: evt.position,
+                localPosition: evt.localPosition,
+                transform: evt.transform,
+                original: evt.original as PointerDragFromEditorHoverEvent
+            );
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+            return new PointerDragFromEditorHoverEvent(
+                timeStamp: this.timeStamp,
+                pointer: this.pointer,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: PointerEvent.transformPosition(transform, this.position),
+                transform: this.transform,
+                original: this.original as PointerDragFromEditorHoverEvent ?? this
             );
         }
     }
@@ -729,13 +1253,19 @@ namespace Unity.UIWidgets.gestures {
             PointerDeviceKind kind = PointerDeviceKind.mouse,
             int device = 0,
             Offset position = null,
-            Object[] objectReferences = null
+            Offset localPosition = null,
+            Object[] objectReferences = null, 
+            Matrix4 transform = null,
+            PointerDragFromEditorReleaseEvent original = null
         ) : base(
             timeStamp,
             pointer: pointer,
             kind: kind,
             device: device,
-            position: position
+            position: position,
+            localPosition: localPosition,
+            transform: transform,
+            original: original
         ) {
             this.objectReferences = objectReferences;
         }
@@ -750,7 +1280,27 @@ namespace Unity.UIWidgets.gestures {
                 kind: evt.kind,
                 device: evt.device,
                 position: evt.position,
-                objectReferences: objectReferences
+                localPosition: evt.localPosition,
+                objectReferences: objectReferences,
+                transform: evt.transform,
+                original: evt.original as PointerDragFromEditorReleaseEvent
+            );
+        }
+
+        public override PointerEvent transformed(Matrix4 transform) {
+            if (transform == null || transform == this.transform) {
+                return this;
+            }
+            return new PointerDragFromEditorReleaseEvent(
+                timeStamp: this.timeStamp,
+                pointer: this.pointer,
+                kind: this.kind,
+                device: this.device,
+                position: this.position,
+                localPosition: PointerEvent.transformPosition(transform, this.position),
+                objectReferences: this.objectReferences,
+                transform: this.transform,
+                original: this.original as PointerDragFromEditorReleaseEvent ?? this
             );
         }
     }
