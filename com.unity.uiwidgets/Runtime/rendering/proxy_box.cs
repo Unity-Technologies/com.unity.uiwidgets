@@ -1604,18 +1604,14 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            if (this.transformHitTests) {
-                var transform = this._effectiveTransform;
-                var inverse = Matrix4.tryInvert(transform);
-
-                if (inverse == null) {
-                    return false;
+            D.assert(!this.transformHitTests || this._effectiveTransform != null);
+            return result.addWithPaintTransform(
+                transform: this.transformHitTests ? this._effectiveTransform : null,
+                position: position,
+                hitTest: (BoxHitTestResult resultIn, Offset positionIn) => {
+                    return base.hitTestChildren(resultIn, position: positionIn);
                 }
-
-                position = MatrixUtils.transformPoint(inverse, position);
-            }
-
-            return base.hitTestChildren(result, position: position);
+            );
         }
 
         public override void paint(PaintingContext context, Offset offset) {
@@ -1772,19 +1768,16 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            if (this.size.isEmpty) {
+            if (this.size.isEmpty || this.child?.size?.isEmpty == true)
                 return false;
-            }
-
             this._updatePaintData();
-            Matrix4 inverse = Matrix4.tryInvert(this._transform);
-            
-            if (inverse == null) {
-                return false;
-            }
-
-            position = MatrixUtils.transformPoint(inverse, position);
-            return base.hitTestChildren(result, position: position);
+            return result.addWithPaintTransform(
+                transform: this._transform,
+                position: position,
+                hitTest: (BoxHitTestResult resultIn, Offset positionIn) => {
+                    return base.hitTestChildren(resultIn, position: positionIn);
+                }
+            );
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
@@ -1839,14 +1832,15 @@ namespace Unity.UIWidgets.rendering {
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
             D.assert(!this.debugNeedsLayout);
-            if (this.transformHitTests) {
-                position = new Offset(
-                    position.dx - this.translation.dx * this.size.width,
-                    position.dy - this.translation.dy * this.size.height
-                );
-            }
-
-            return base.hitTestChildren(result, position: position);
+            return result.addWithPaintOffset(
+                offset: this.transformHitTests
+                    ? new Offset(this.translation.dx * this.size.width, this.translation.dy * this.size.height)
+                    : null,
+                position: position,
+                hitTest: (BoxHitTestResult resultIn, Offset positionIn) => {
+                    return base.hitTestChildren(resultIn, position: positionIn);
+                }
+            );
         }
 
         public override void paint(PaintingContext context, Offset offset) {
@@ -2145,7 +2139,7 @@ namespace Unity.UIWidgets.rendering {
                 this.onPointerSignal((PointerSignalEvent) evt);
                 return;
             }
-            
+
             if (this.onPointerScroll != null && evt is PointerScrollEvent) {
                 this.onPointerScroll((PointerScrollEvent) evt);
             }
@@ -2591,13 +2585,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
-            Matrix4 inverse = Matrix4.tryInvert(this.getCurrentTransform());
-            if (inverse == null) {
-                return false;
-            }
-
-            position = MatrixUtils.transformPoint(inverse, position);
-            return base.hitTestChildren(result, position: position);
+            return result.addWithPaintTransform(
+                transform: this.getCurrentTransform(),
+                position: position,
+                hitTest: (BoxHitTestResult resultIn, Offset positionIn) => {
+                    return base.hitTestChildren(resultIn, position: positionIn);
+                }
+            );
         }
 
         public override void paint(PaintingContext context, Offset offset) {

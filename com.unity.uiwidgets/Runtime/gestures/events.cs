@@ -191,7 +191,7 @@ namespace Unity.UIWidgets.gestures {
                 return untransformedDelta;
             }
 
-            transformedEndPosition ??= transformPosition(transform, untransformedEndPosition);
+            transformedEndPosition = transformedEndPosition ?? transformPosition(transform, untransformedEndPosition);
             Offset transformedStartPosition =
                 transformPosition(transform, untransformedEndPosition - untransformedDelta);
             return transformedEndPosition - transformedStartPosition;

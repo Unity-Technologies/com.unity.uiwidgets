@@ -390,7 +390,7 @@ namespace Unity.UIWidgets.rendering {
                 bool isHit = result.addWithPaintTransform(
                     transform: transform,
                     position: null, // Manually adapting from box to sliver position below.
-                    hitTest: (BoxHitTestResult result, Offset _) => {
+                    hitTest: (BoxHitTestResult resultIn, Offset _) => {
                         return child.hitTest(
                             sliverResult,
                             mainAxisPosition: this.computeChildMainAxisPosition(child, mainAxisPosition),

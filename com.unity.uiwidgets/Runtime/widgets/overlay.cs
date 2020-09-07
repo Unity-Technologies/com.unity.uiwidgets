@@ -299,10 +299,11 @@ namespace Unity.UIWidgets.widgets {
         internal _Theatre(Key key = null,
             int skipCount = 0,
             List<Widget> children = null) : base(key, children) {
-            D.assert(offstage != null);
-            D.assert(!offstage.Any((child) => child == null));
-            this.onstage = onstage;
-            this.offstage = offstage;
+            D.assert(skipCount != null);
+            D.assert(skipCount >= 0);
+            D.assert(children != null);
+            D.assert(children.Count() >= skipCount);
+            this.skipCount = skipCount;
         }
 
         public readonly int skipCount;
@@ -329,7 +330,6 @@ namespace Unity.UIWidgets.widgets {
 
     class _TheatreElement : MultiChildRenderObjectElement {
         public _TheatreElement(_Theatre widget) : base(widget) {
-            D.assert(!WidgetsD.debugChildrenHaveDuplicateKeys(widget, ((_Theatre) widget).offstage));
         }
 
         public new _Theatre widget {
@@ -600,7 +600,7 @@ namespace Unity.UIWidgets.widgets {
             return RenderStack.getIntrinsicDimension(this._firstOnstageChild,
                 (RenderBox child) => child.getMinIntrinsicWidth(height));
         }
-        
+
         protected override float computeMaxIntrinsicWidth(float height) {
             return RenderStack.getIntrinsicDimension(this._firstOnstageChild,
                 (RenderBox child) => child.getMaxIntrinsicWidth(height));
@@ -628,12 +628,15 @@ namespace Unity.UIWidgets.widgets {
                     candidate += childParentData.offset.dy;
                     if (result != null) {
                         result = Math.Min(result.Value, candidate.Value);
-                    } else {
+                    }
+                    else {
                         result = candidate;
                     }
                 }
+
                 child = childParentData.nextSibling;
             }
+
             return result;
         }
 
@@ -666,8 +669,11 @@ namespace Unity.UIWidgets.widgets {
                 if (!childParentData.isPositioned) {
                     child.layout(nonPositionedConstraints, parentUsesSize: true);
                     childParentData.offset = this._resolvedAlignment.alongOffset(this.size - child.size as Offset);
-                } else {
-                    this._hasVisualOverflow = RenderStack.layoutPositionedChild(child, childParentData, this.size, this._resolvedAlignment) || _hasVisualOverflow;
+                }
+                else {
+                    this._hasVisualOverflow =
+                        RenderStack.layoutPositionedChild(child, childParentData, this.size, this._resolvedAlignment) ||
+                        _hasVisualOverflow;
                 }
 
                 D.assert(child.parentData == childParentData);
@@ -684,6 +690,7 @@ namespace Unity.UIWidgets.widgets {
                 if (childParentData.offset.dx != 0 || childParentData.offset.dy != 0) {
                     i = i;
                 }
+
                 bool isHit = result.addWithPaintOffset(
                     offset: childParentData.offset,
                     position: position,
@@ -708,11 +715,12 @@ namespace Unity.UIWidgets.widgets {
                 child = childParentData.nextSibling;
             }
         }
-        
+
         public override void paint(PaintingContext context, Offset offset) {
             if (this._hasVisualOverflow) {
                 context.pushClipRect(this.needsCompositing, offset, Offset.zero & this.size, this.paintStack);
-            } else {
+            }
+            else {
                 this.paintStack(context, offset);
             }
         }
@@ -726,32 +734,13 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public override Rect describeApproximatePaintClip(RenderObject child)  => this._hasVisualOverflow ? Offset.zero & this.size : null;
+        public override Rect describeApproximatePaintClip(RenderObject child) =>
+            this._hasVisualOverflow ? Offset.zero & this.size : null;
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-                base.debugFillProperties(properties);
-                properties.add(new IntProperty("skipCount", this.skipCount));
-                properties.add(new EnumProperty<TextDirection>("textDirection", this.textDirection));
+            base.debugFillProperties(properties);
+            properties.add(new IntProperty("skipCount", this.skipCount));
+            properties.add(new EnumProperty<TextDirection>("textDirection", this.textDirection));
         }
-        
-        // bool hitTestChildren(BoxHitTestResult result, { Offset position }) {
-        //     RenderBox child = _lastOnstageChild;
-        //     for (int i = 0; i < _onstageChildCount; i++) {
-        //         assert(child != null);
-        //         final StackParentData childParentData = child.parentData as StackParentData;
-        //         final bool isHit = result.addWithPaintOffset(
-        //             offset: childParentData.offset,
-        //             position: position,
-        //             hitTest: (BoxHitTestResult result, Offset transformed) {
-        //             assert(transformed == position - childParentData.offset);
-        //             return child.hitTest(result, position: transformed);
-        //         },
-        //         );
-        //         if (isHit)
-        //             return true;
-        //         child = childParentData.previousSibling;
-        //     }
-        //     return false;
-        // }
     }
 }

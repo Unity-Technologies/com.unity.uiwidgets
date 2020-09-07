@@ -233,9 +233,6 @@ namespace Unity.UIWidgets.rendering {
                     paintOffset: childParentData.paintOffset,
                     hitTest: this.child.hitTest
                 );
-                return this.child.hitTest(result,
-                    mainAxisPosition: mainAxisPosition - this.childMainAxisPosition(this.child),
-                    crossAxisPosition: crossAxisPosition - this.childCrossAxisPosition(this.child));
             }
 
             return false;

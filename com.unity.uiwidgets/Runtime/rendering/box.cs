@@ -1001,7 +1001,8 @@ namespace Unity.UIWidgets.rendering {
 
         public float? getDistanceToBaseline(TextBaseline baseline, bool onlyReal = false) {
             D.assert(!_debugDoingBaseline,
-                () => "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
+                () =>
+                    "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
             D.assert(!this.debugNeedsLayout);
             D.assert(() => {
                 RenderObject parent = (RenderObject) this.parent;
@@ -1031,7 +1032,8 @@ namespace Unity.UIWidgets.rendering {
 
         public virtual float? getDistanceToActualBaseline(TextBaseline baseline) {
             D.assert(_debugDoingBaseline,
-                () => "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
+                () =>
+                    "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
 
             this._cachedBaselines = this._cachedBaselines ?? new Dictionary<TextBaseline, float?>();
             return this._cachedBaselines.putIfAbsent(baseline, () => this.computeDistanceToActualBaseline(baseline));
@@ -1039,7 +1041,8 @@ namespace Unity.UIWidgets.rendering {
 
         protected virtual float? computeDistanceToActualBaseline(TextBaseline baseline) {
             D.assert(_debugDoingBaseline,
-                () => "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
+                () =>
+                    "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
 
             return null;
         }
@@ -1315,6 +1318,7 @@ namespace Unity.UIWidgets.rendering {
             if (det == 0) {
                 return Offset.zero;
             }
+
             Vector3 n = new Vector3(0, 0, 1);
             Vector3 i = transform.perspectiveTransform(new Vector3(0, 0, 0));
             Vector3 d = transform.perspectiveTransform(new Vector3(0, 0, 1)) - i;
@@ -1485,8 +1489,16 @@ namespace Unity.UIWidgets.rendering {
         public bool defaultHitTestChildren(BoxHitTestResult result, Offset position = null) {
             ChildType child = this.lastChild;
             while (child != null) {
-                ParentDataType childParentData = (ParentDataType) child.parentData;
-                if (child.hitTest(result, position: position - childParentData.offset)) {
+                ParentDataType childParentData = child.parentData as ParentDataType;
+                bool isHit = result.addWithPaintOffset(
+                    offset: childParentData.offset,
+                    position: position,
+                    hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                        D.assert(transformed == position - childParentData.offset);
+                        return child.hitTest(resultIn, position: transformed);
+                    }
+                );
+                if (isHit) {
                     return true;
                 }
 

@@ -73,7 +73,14 @@ namespace Unity.UIWidgets.rendering {
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             if (this.child != null) {
                 var childParentData = (BoxParentData) this.child.parentData;
-                return this.child.hitTest(result, position - childParentData.offset);
+                return result.addWithPaintOffset(
+                    offset: childParentData.offset,
+                    position: position,
+                    hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                        D.assert(transformed == position - childParentData.offset);
+                        return this.child.hitTest(resultIn, position: transformed);
+                    }
+                );
             }
 
             return false;
@@ -276,7 +283,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {
-           base.debugPaintSize(context, offset);
+            base.debugPaintSize(context, offset);
             D.assert(() => {
                 Paint paint;
                 if (this.child != null && !this.child.size.isEmpty) {
@@ -313,7 +320,6 @@ namespace Unity.UIWidgets.rendering {
                     }
 
                     if (childParentData.offset.dx > 0.0) {
-
                         float headSize = Mathf.Min(childParentData.offset.dx * 0.2f, 10.0f);
                         float x = offset.dx;
                         float y = offset.dy + this.size.height / 2.0f;
@@ -324,7 +330,7 @@ namespace Unity.UIWidgets.rendering {
                         path.lineTo(x += headSize, y += -headSize);
                         path.lineTo(x += -headSize, y += -headSize);
                         path.lineTo(x += 0.0f, y += headSize);
-                        
+
                         path.moveTo(x = offset.dx + this.size.width, y = offset.dy + this.size.height / 2.0f);
                         path.lineTo(x += -childParentData.offset.dx + headSize, y += 0.0f);
                         path.lineTo(x += 0.0f, y += headSize);
@@ -334,7 +340,8 @@ namespace Unity.UIWidgets.rendering {
                         path.close();
                         context.canvas.drawPath(path, paint);
                     }
-                } else {
+                }
+                else {
                     paint = new Paint {
                         color = new ui.Color(0x90909090),
                     };
@@ -525,7 +532,8 @@ namespace Unity.UIWidgets.rendering {
 
             context.pushClipRect(this.needsCompositing, offset, Offset.zero & this.size, base.paint);
             D.assert(() => {
-                DebugOverflowIndicatorMixin.paintOverflowIndicator(this, context, offset, this._overflowContainerRect, this._overflowChildRect);
+                DebugOverflowIndicatorMixin.paintOverflowIndicator(this, context, offset, this._overflowContainerRect,
+                    this._overflowChildRect);
                 return true;
             });
         }

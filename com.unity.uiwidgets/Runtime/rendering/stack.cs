@@ -278,9 +278,10 @@ namespace Unity.UIWidgets.rendering {
                 D.assert(child.parentData == childParentData);
                 child = childParentData.nextSibling;
             }
+
             return extent;
         }
-        
+
         public delegate float mainChildSizeGetter(RenderBox child);
 
         float _getIntrinsicDimension(mainChildSizeGetter getter) {
@@ -320,8 +321,9 @@ namespace Unity.UIWidgets.rendering {
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             return this.defaultComputeDistanceToHighestActualBaseline(baseline);
         }
-        
-        public static bool layoutPositionedChild(RenderBox child, StackParentData childParentData, Size size, Alignment alignment) {
+
+        public static bool layoutPositionedChild(RenderBox child, StackParentData childParentData, Size size,
+            Alignment alignment) {
             D.assert(childParentData.isPositioned);
             D.assert(child.parentData == childParentData);
 
@@ -329,12 +331,14 @@ namespace Unity.UIWidgets.rendering {
             BoxConstraints childConstraints = new BoxConstraints();
 
             if (childParentData.left != null && childParentData.right != null)
-                childConstraints = childConstraints.tighten(width: size.width - childParentData.right - childParentData.left);
+                childConstraints =
+                    childConstraints.tighten(width: size.width - childParentData.right - childParentData.left);
             else if (childParentData.width != null)
                 childConstraints = childConstraints.tighten(width: childParentData.width);
 
             if (childParentData.top != null && childParentData.bottom != null)
-                childConstraints = childConstraints.tighten(height: size.height - childParentData.bottom - childParentData.top);
+                childConstraints =
+                    childConstraints.tighten(height: size.height - childParentData.bottom - childParentData.top);
             else if (childParentData.height != null)
                 childConstraints = childConstraints.tighten(height: childParentData.height);
 
@@ -343,9 +347,11 @@ namespace Unity.UIWidgets.rendering {
             float? x;
             if (childParentData.left != null) {
                 x = childParentData.left;
-            } else if (childParentData.right != null) {
+            }
+            else if (childParentData.right != null) {
                 x = size.width - childParentData.right - child.size.width;
-            } else {
+            }
+            else {
                 x = alignment.alongOffset(size - child.size as Offset).dx;
             }
 
@@ -355,9 +361,11 @@ namespace Unity.UIWidgets.rendering {
             float? y;
             if (childParentData.top != null) {
                 y = childParentData.top;
-            } else if (childParentData.bottom != null) {
+            }
+            else if (childParentData.bottom != null) {
                 y = size.height - childParentData.bottom - child.size.height;
-            } else {
+            }
+            else {
                 y = alignment.alongOffset(size - child.size as Offset).dy;
             }
 
@@ -561,7 +569,14 @@ namespace Unity.UIWidgets.rendering {
             D.assert(position != null);
             RenderBox child = this._childAtIndex();
             StackParentData childParentData = (StackParentData) child.parentData;
-            return child.hitTest(result, position: position - childParentData.offset);
+            return result.addWithPaintOffset(
+                offset: childParentData.offset,
+                position: position,
+                hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                    D.assert(transformed == position - childParentData.offset);
+                    return child.hitTest(resultIn, position: transformed);
+                }
+            );
         }
 
         public override void paintStack(PaintingContext context, Offset offset) {

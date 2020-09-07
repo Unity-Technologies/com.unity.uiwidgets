@@ -205,7 +205,7 @@ namespace Unity.UIWidgets.gestures {
             if (this.onTapDown != null) {
                 TapDownDetails details = new TapDownDetails(
                     globalPosition: down.position,
-                    localPosition: down.localDelta,
+                    localPosition: down.localPosition,
                     kind: down.kind,
                     device: down.device
                 );
