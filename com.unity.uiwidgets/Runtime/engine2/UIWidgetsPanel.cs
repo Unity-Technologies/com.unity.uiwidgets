@@ -51,6 +51,7 @@ namespace Unity.UIWidgets.engine2 {
         }
 
         protected virtual void main() {
+            Debug.Log(Debug.isDebugBuild);
         }
 
         public void entryPoint() {

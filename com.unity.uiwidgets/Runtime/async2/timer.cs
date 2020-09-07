@@ -1,0 +1,142 @@
+using System;
+using System.Runtime.InteropServices;
+using AOT;
+using Unity.UIWidgets.ui2;
+
+namespace Unity.UIWidgets.async2 {
+    public abstract class Timer : IDisposable {
+        public static Timer create(TimeSpan duration, ZoneCallback callback) {
+            if (Zone.current == Zone.root) {
+                return Zone.current.createTimer(duration, callback);
+            }
+
+            return Zone.current
+                .createTimer(duration, Zone.current.bindCallbackGuarded(callback));
+        }
+
+        public static Timer periodic(TimeSpan duration, ZoneUnaryCallback callback) {
+            if (Zone.current == Zone.root) {
+                return Zone.current.createPeriodicTimer(duration, callback);
+            }
+
+            var boundCallback = Zone.current.bindUnaryCallbackGuarded(callback);
+            return Zone.current.createPeriodicTimer(duration, boundCallback);
+        }
+
+        public static void run(ZoneCallback callback) {
+            Timer.create(TimeSpan.Zero, callback);
+        }
+
+        public abstract void cancel();
+
+        public void Dispose() {
+            cancel();
+        }
+
+        public abstract int tick { get; }
+
+        public abstract bool isActive { get; }
+
+        internal static Timer _createTimer(TimeSpan duration, ZoneCallback callback) {
+            return _Timer._createTimer(_ => callback(), (int) duration.TotalMilliseconds, false);
+        }
+
+        internal static Timer _createPeriodicTimer(
+            TimeSpan duration, ZoneUnaryCallback callback) {
+            return _Timer._createTimer(callback, (int) duration.TotalMilliseconds, true);
+        }
+    }
+
+    class _Timer : Timer {
+        int _tick = 0;
+
+        ZoneUnaryCallback _callback;
+        int _wakeupTime;
+        readonly int _milliSeconds;
+        readonly bool _repeating;
+
+        _Timer(ZoneUnaryCallback callback, int wakeupTime, int milliSeconds, bool repeating) {
+            _callback = callback;
+            _wakeupTime = wakeupTime;
+            _milliSeconds = milliSeconds;
+            _repeating = repeating;
+        }
+
+        internal static _Timer _createTimer(ZoneUnaryCallback callback, int milliSeconds, bool repeating) {
+            if (milliSeconds < 0) {
+                milliSeconds = 0;
+            }
+
+            int now = UIMonoState_timerMillisecondClock();
+            int wakeupTime = (milliSeconds == 0) ? now : (now + 1 + milliSeconds);
+
+            _Timer timer = new _Timer(callback, wakeupTime, milliSeconds, repeating);
+            timer._enqueue();
+
+            return timer;
+        }
+
+        public override void cancel() {
+            _callback = null;
+        }
+
+        public override bool isActive => _callback != null;
+
+        public override int tick => _tick;
+
+        void _advanceWakeupTime() {
+            if (_milliSeconds > 0) {
+                _wakeupTime += _milliSeconds;
+            }
+            else {
+                _wakeupTime = UIMonoState_timerMillisecondClock();
+            }
+        }
+
+        void _enqueue() {
+            GCHandle callabackHandle = GCHandle.Alloc(this);
+            UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callabackHandle, _wakeupTime * 1000L);
+        }
+
+        [MonoPInvokeCallback(typeof(UIMonoState_postTaskForTimeCallback))]
+        static void _postTaskForTime(IntPtr callbackHandle) {
+            GCHandle timerHandle = (GCHandle) callbackHandle;
+            var timer = (_Timer) timerHandle.Target;
+            timerHandle.Free();
+
+            if (timer._callback != null) {
+                var callback = timer._callback;
+                if (!timer._repeating) {
+                    timer._callback = null;
+                }
+                else if (timer._milliSeconds > 0) {
+                    var ms = timer._milliSeconds;
+                    int overdue = UIMonoState_timerMillisecondClock() - timer._wakeupTime;
+                    if (overdue > ms) {
+                        int missedTicks = overdue / ms;
+                        timer._wakeupTime += missedTicks * ms;
+                        timer._tick += missedTicks;
+                    }
+                }
+
+                timer._tick += 1;
+
+                callback(timer);
+
+                if (timer._repeating && (timer._callback != null)) {
+                    timer._advanceWakeupTime();
+                    timer._enqueue();
+                }
+            }
+        }
+
+        [DllImport(NativeBindings.dllName)]
+        static extern int UIMonoState_timerMillisecondClock();
+
+        delegate void UIMonoState_postTaskForTimeCallback(IntPtr callbackHandle);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIMonoState_postTaskForTime(UIMonoState_postTaskForTimeCallback callback,
+            IntPtr callbackHandle, long targetTimeNanos);
+    }
+}

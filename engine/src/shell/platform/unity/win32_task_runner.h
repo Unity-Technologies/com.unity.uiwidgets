@@ -67,7 +67,7 @@ class Win32TaskRunner {
   TaskObservers task_observers_;
 
   static TaskTimePoint TimePointFromUIWidgetsTime(
-      uint64_t flutter_target_time_nanos);
+      uint64_t uiwidgets_target_time_nanos);
 };
 
 }  // namespace uiwidgets

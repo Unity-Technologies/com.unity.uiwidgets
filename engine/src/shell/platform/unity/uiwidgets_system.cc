@@ -21,6 +21,8 @@ void UIWidgetsSystem::UnregisterPanel(UIWidgetsPanel* panel) {
 }
 
 void UIWidgetsSystem::Wait(std::chrono::nanoseconds max_duration) {
+  Update();
+	
   std::chrono::nanoseconds wait_duration =
       std::max(std::chrono::nanoseconds(0),
                next_uiwidgets_event_time_ - TimePoint::clock::now());
@@ -48,8 +50,6 @@ void UIWidgetsSystem::VSync() {
   for (auto* uiwidgets_panel : uiwidgets_panels_) {
     uiwidgets_panel->ProcessVSync();
   }
-
-	Update();
 }
 
 void UIWidgetsSystem::WakeUp() {}

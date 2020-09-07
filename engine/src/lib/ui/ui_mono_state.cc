@@ -80,4 +80,22 @@ fml::WeakPtr<ImageDecoder> UIMonoState::GetImageDecoder() const {
   return image_decoder_;
 }
 
+UIWIDGETS_API(void)
+UIMonoState_scheduleMicrotask(MonoMicrotaskQueue::CallbackFunc callback,
+                              Mono_Handle handle) {
+  UIMonoState::Current()->ScheduleMicrotask(callback, handle);
+}
+
+UIWIDGETS_API(void)
+UIMonoState_postTaskForTime(MonoMicrotaskQueue::CallbackFunc callback,
+                            Mono_Handle handle, int64_t target_time_nanos) {
+  UIMonoState::Current()->GetTaskRunners().GetUITaskRunner()->PostTaskForTime(
+      [callback, handle]() -> void { callback(handle); },
+      fml::TimePoint::FromEpochDelta(
+          fml::TimeDelta::FromNanoseconds(target_time_nanos)));
+}
+
+UIWIDGETS_API(int)
+UIMonoState_timerMillisecondClock() { return Mono_TimelineGetMicros() / 1000; }
+
 }  // namespace uiwidgets
