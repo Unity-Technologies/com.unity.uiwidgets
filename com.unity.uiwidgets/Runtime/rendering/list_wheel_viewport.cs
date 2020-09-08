@@ -658,7 +658,7 @@ namespace Unity.UIWidgets.rendering {
             return null;
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null
         ) {
             return false;
         }

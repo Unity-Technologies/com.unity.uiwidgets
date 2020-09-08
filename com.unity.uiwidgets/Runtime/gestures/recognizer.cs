@@ -16,14 +16,17 @@ namespace Unity.UIWidgets.gestures {
     public abstract class GestureRecognizer : DiagnosticableTree, GestureArenaMember {
         protected GestureRecognizer(object debugOwner = null, PointerDeviceKind? kind = null) {
             this.debugOwner = debugOwner;
-            this._kind = kind;
+            this._kindFilter = kind;
         }
 
         public readonly object debugOwner;
 
-        readonly PointerDeviceKind? _kind;
+        readonly PointerDeviceKind? _kindFilter;
+
+        readonly Dictionary<int, PointerDeviceKind> _pointerToKind = new Dictionary<int, PointerDeviceKind>{};
 
         public void addPointer(PointerDownEvent evt) {
+            this._pointerToKind[evt.pointer] = evt.kind;
             if (this.isPointerAllowed(evt)) {
                 this.addAllowedPointer(evt);
             }
@@ -38,7 +41,12 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected virtual bool isPointerAllowed(PointerDownEvent evt) {
-            return this._kind == null || this._kind == evt.kind;
+            return this._kindFilter == null || this._kindFilter == evt.kind;
+        }
+
+        protected virtual PointerDeviceKind getKindForPointer(int pointer) {
+            D.assert(this._pointerToKind.ContainsKey(pointer));
+            return this._pointerToKind[pointer];
         }
 
         public virtual void addScrollPointer(PointerScrollEvent evt) {
@@ -125,6 +133,14 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
+        protected virtual void resolvePointer(int pointer, GestureDisposition disposition) {
+            GestureArenaEntry entry = _entries[pointer];
+            if (entry != null) {
+            entry.resolve(disposition);
+            _entries.Remove(pointer);
+            }
+        }
+
         public override void dispose() {
             this.resolve(GestureDisposition.rejected);
             foreach (int pointer in this._trackedPointers) {
@@ -167,8 +183,8 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        protected void startTrackingPointer(int pointer) {
-            GestureBinding.instance.pointerRouter.addRoute(pointer, this.handleEvent);
+        protected void startTrackingPointer(int pointer, Matrix4 transform = null) {
+            GestureBinding.instance.pointerRouter.addRoute(pointer, this.handleEvent, transform);
             this._trackedPointers.Add(pointer);
             D.assert(!this._entries.ContainsKey(pointer));
             this._entries[pointer] = this._addPointerToArena(pointer);
@@ -227,18 +243,18 @@ namespace Unity.UIWidgets.gestures {
 
         public int primaryPointer;
 
-        public Offset initialPosition;
+        public OffsetPair initialPosition;
 
         Timer _timer;
 
         public override void addAllowedPointer(PointerDownEvent evt) {
-            this.startTrackingPointer(evt.pointer);
+            this.startTrackingPointer(evt.pointer, evt.transform);
             if (this.state == GestureRecognizerState.ready) {
                 this.state = GestureRecognizerState.possible;
                 this.primaryPointer = evt.pointer;
-                this.initialPosition = evt.position;
+                this.initialPosition = new OffsetPair(local: evt.localPosition, global: evt.position);
                 if (this.deadline != null) {
-                    this._timer = Window.instance.run(this.deadline.Value, this.didExceedDeadline);
+                    this._timer = Window.instance.run(this.deadline.Value, () => didExceedDeadlineWithEvent(evt));
                 }
             }
         }
@@ -249,10 +265,10 @@ namespace Unity.UIWidgets.gestures {
             if (evt.pointer == this.primaryPointer) {
                 bool isPreAcceptSlopPastTolerance = this.state == GestureRecognizerState.possible &&
                                                     this.preAcceptSlopTolerance != null &&
-                                                    this._getDistance(evt) > this.preAcceptSlopTolerance;
+                                                    this._getGlobalDistance(evt) > this.preAcceptSlopTolerance;
                 bool isPostAcceptSlopPastTolerance = this.state == GestureRecognizerState.accepted &&
                                                      this.postAcceptSlopTolerance != null &&
-                                                     this._getDistance(evt) > this.postAcceptSlopTolerance;
+                                                     this._getGlobalDistance(evt) > this.postAcceptSlopTolerance;
 
                 if (evt is PointerMoveEvent && (isPreAcceptSlopPastTolerance || isPostAcceptSlopPastTolerance)) {
                     this.resolve(GestureDisposition.rejected);
@@ -272,8 +288,13 @@ namespace Unity.UIWidgets.gestures {
             D.assert(this.deadline == null);
         }
 
+        protected virtual void didExceedDeadlineWithEvent(PointerDownEvent evt) {
+            this.didExceedDeadline();
+        }
+
         public override void acceptGesture(int pointer) {
             if (pointer == this.primaryPointer && this.state == GestureRecognizerState.possible) {
+                this._stopTimer();
                 this.state = GestureRecognizerState.accepted;
             }
         }
@@ -303,14 +324,67 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        float _getDistance(PointerEvent evt) {
-            Offset offset = evt.position - this.initialPosition;
+        float _getGlobalDistance(PointerEvent evt) {
+            Offset offset = evt.position - this.initialPosition.global;
             return offset.distance;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new EnumProperty<GestureRecognizerState>("state", this.state));
+        }
+    }
+
+    public class OffsetPair {
+        /// Creates a [OffsetPair] combining a [local] and [global] [Offset].
+        public OffsetPair(
+            Offset local = null,
+            Offset global = null
+        ) {
+            this.local = local;
+            this.global = global;
+        }
+
+        /// Creates a [OffsetPair] from [PointerEvent.localPosition] and
+        /// [PointerEvent.position].
+        public static OffsetPair fromEventPosition(PointerEvent evt) {
+            return new OffsetPair(local: evt.localPosition, global: evt.position);
+        }
+
+        /// Creates a [OffsetPair] from [PointerEvent.localDelta] and
+        /// [PointerEvent.delta].
+        public static OffsetPair fromEventDelta(PointerEvent evt) {
+            return new OffsetPair(local: evt.localDelta, global: evt.delta);
+        }
+
+        /// A [OffsetPair] where both [Offset]s are [Offset.zero].
+        public readonly static OffsetPair zero = new OffsetPair(local: Offset.zero, global: Offset.zero);
+
+        /// The [Offset] in the local coordinate space.
+        public readonly Offset local;
+
+        /// The [Offset] in the global coordinate space after conversion to logical
+        /// pixels.
+        public readonly Offset global;
+
+        /// Adds the `other.global` to [global] and `other.local` to [local].
+        public static OffsetPair operator +(OffsetPair current, OffsetPair other) {
+            return new OffsetPair(
+                local: current.local + other.local,
+                global: current.global + other.global
+            );
+        }
+
+        /// Subtracts the `other.global` from [global] and `other.local` from [local].
+        public static OffsetPair operator -(OffsetPair current, OffsetPair other) {
+            return new OffsetPair(
+                local: current.local - other.local,
+                global: current.global - other.global
+            );
+        }
+
+        public override string ToString() {
+            return $"runtimeType(local: ${this.local}, global: ${this.global})";
         }
     }
 }

@@ -841,7 +841,7 @@ namespace Unity.UIWidgets.rendering {
                 float deficit = tableWidth - maxWidthConstraint;
 
                 int availableColumns = this.columns;
-                
+
                 //(Xingwei Zhu) this deficit is double and set to be 0.00000001f in flutter.
                 //since we use float by default, making it larger should make sense in most cases
                 float minimumDeficit = 0.0001f;
@@ -851,7 +851,8 @@ namespace Unity.UIWidgets.rendering {
                         if (flexes[x] != null) {
                             //(Xingwei Zhu) in case deficit * flexes[x].Value / totalFlex => 0 if deficit is really small, leading to dead loop,
                             //we amend it with a default larger value to ensure that this loop will eventually end
-                            float newWidth = widths[x] - Mathf.Max(minimumDeficit, deficit * flexes[x].Value / totalFlex);
+                            float newWidth =
+                                widths[x] - Mathf.Max(minimumDeficit, deficit * flexes[x].Value / totalFlex);
                             D.assert(newWidth.isFinite());
                             if (newWidth <= minWidths[x]) {
                                 deficit -= widths[x] - minWidths[x];
@@ -1039,13 +1040,21 @@ namespace Unity.UIWidgets.rendering {
             D.assert(this._rowTops.Count == rows + 1);
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             D.assert(this._children.Count == this.rows * this.columns);
             for (int index = this._children.Count - 1; index >= 0; index--) {
                 RenderBox child = this._children[index];
                 if (child != null) {
                     BoxParentData childParentData = (BoxParentData) child.parentData;
-                    if (child.hitTest(result, position: position - childParentData.offset)) {
+                    bool isHit = result.addWithPaintOffset(
+                        offset: childParentData.offset,
+                        position: position,
+                        hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                            D.assert(transformed == position - childParentData.offset);
+                            return child.hitTest(resultIn, position: transformed);
+                        }
+                    );
+                    if (isHit) {
                         return true;
                     }
                 }
@@ -1098,7 +1107,8 @@ namespace Unity.UIWidgets.rendering {
             D.assert(this._rows == this._rowTops.Count - 1);
             D.assert(this._columns == this._columnLefts.Count);
             if (this.border != null) {
-                Rect borderRect = Rect.fromLTWH(offset.dx, offset.dy, this.size.width, this._rowTops[this._rowTops.Count - 1]);
+                Rect borderRect = Rect.fromLTWH(offset.dx, offset.dy, this.size.width,
+                    this._rowTops[this._rowTops.Count - 1]);
                 List<float> rows = this._rowTops.GetRange(1, this._rowTops.Count - 2);
                 List<float> columns = this._columnLefts.GetRange(1, this._columnLefts.Count - 1);
                 this.border.paint(context.canvas, borderRect, rows: rows, columns: columns);

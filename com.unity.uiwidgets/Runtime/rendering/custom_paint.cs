@@ -135,7 +135,7 @@ namespace Unity.UIWidgets.widgets {
             base.detach();
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
             if (this._foregroundPainter != null && ((this._foregroundPainter.hitTest(position)) ?? false)) {
                 return true;
             }

@@ -99,6 +99,40 @@ namespace Unity.UIWidgets.ui {
             return this;
         }
 
+        public void setColumn(int column, Vector4 arg) {
+            int entry = column * 4;
+            this._m4storage[entry + 3] = arg[3];
+            this._m4storage[entry + 2] = arg[2];
+            this._m4storage[entry + 1] = arg[1];
+            this._m4storage[entry + 0] = arg[0];
+        }
+        
+        public Vector4 getColumn(int column) {
+            Vector4 r = new Vector4();
+            int entry = column * 4;
+            r[3] = this._m4storage[entry + 3];
+            r[2] = this._m4storage[entry + 2];
+            r[1] = this._m4storage[entry + 1];
+            r[0] = this._m4storage[entry + 0];
+            return r;
+        }
+        
+        public void setRow(int row, Vector4 arg) {
+            this._m4storage[this.index(row, 0)] = arg[0];
+            this._m4storage[this.index(row, 1)] = arg[1];
+            this._m4storage[this.index(row, 2)] = arg[2];
+            this._m4storage[this.index(row, 3)] = arg[3];
+        }
+        
+        public Vector4 getRow(int row) {
+            Vector4 r = new Vector4();
+            r[0] = this._m4storage[this.index(row, 0)];
+            r[1] = this._m4storage[this.index(row, 1)];
+            r[2] = this._m4storage[this.index(row, 2)];
+            r[3] = this._m4storage[this.index(row, 3)];
+            return r;
+        }
+        
         public Matrix4 clone() => new Matrix4().copy(this);
 
         public static Matrix4 operator *(Matrix4 a, Matrix4 b) {

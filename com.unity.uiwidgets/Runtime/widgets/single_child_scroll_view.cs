@@ -22,8 +22,9 @@ namespace Unity.UIWidgets.widgets {
             DragStartBehavior dragStartBehavior = DragStartBehavior.start
         ) : base(key: key) {
             D.assert(!(controller != null && primary == true),
-                () => "Primary ScrollViews obtain their ScrollController via inheritance from a PrimaryScrollController widget. " +
-                "You cannot both set primary to true and pass an explicit controller.");
+                () =>
+                    "Primary ScrollViews obtain their ScrollController via inheritance from a PrimaryScrollController widget. " +
+                    "You cannot both set primary to true and pass an explicit controller.");
             this.scrollDirection = scrollDirection;
             this.reverse = reverse;
             this.padding = padding;
@@ -52,7 +53,7 @@ namespace Unity.UIWidgets.widgets {
 
         AxisDirection _getDirection(BuildContext context) {
             return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, this.scrollDirection,
-                       this.reverse) ?? AxisDirection.down;
+                this.reverse) ?? AxisDirection.down;
         }
 
         public override Widget build(BuildContext context) {
@@ -372,10 +373,16 @@ namespace Unity.UIWidgets.widgets {
             return null;
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             if (this.child != null) {
-                Offset transformed = position + (-this._paintOffset);
-                return this.child.hitTest(result, position: transformed);
+                return result.addWithPaintOffset(
+                    offset: this._paintOffset,
+                    position: position,
+                    hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                        D.assert(transformed == position + (-this._paintOffset));
+                        return this.child.hitTest(result, position: transformed);
+                    }
+                );
             }
 
             return false;

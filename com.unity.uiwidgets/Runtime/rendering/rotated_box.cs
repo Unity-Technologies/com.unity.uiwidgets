@@ -93,16 +93,21 @@ namespace UIWidgets.Runtime.rendering {
         }
 
         protected override bool hitTestChildren(
-            HitTestResult result,
+            BoxHitTestResult result,
             Offset position = null
         ) {
             D.assert(this._paintTransform != null || this.debugNeedsLayout || this.child == null);
             if (this.child == null || this._paintTransform == null) {
                 return false;
             }
-            
-            var inverse = new Matrix4().inverted(this._paintTransform);
-            return this.child.hitTest(result, position:MatrixUtils.transformPoint(inverse, position));
+
+            return result.addWithPaintTransform(
+                transform: this._paintTransform,
+                position: position,
+                hitTest: (BoxHitTestResult resultIn, Offset positionIn) => {
+                    return this.child.hitTest(resultIn, position: positionIn);
+                }
+            );
         }
 
         void _paintChild(PaintingContext context, Offset offset) {

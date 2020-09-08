@@ -175,7 +175,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             return this.child?.hitTest(result, position: position) ?? false;
         }
 

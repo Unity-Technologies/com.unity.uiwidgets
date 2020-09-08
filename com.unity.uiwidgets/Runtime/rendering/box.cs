@@ -586,8 +586,78 @@ namespace Unity.UIWidgets.rendering {
         }
     }
 
+    public delegate bool BoxHitTest(BoxHitTestResult result, Offset position);
+
+    public class BoxHitTestResult : HitTestResult {
+        public BoxHitTestResult() : base() {
+        }
+
+        public BoxHitTestResult(HitTestResult result) : base(result) {
+        }
+
+        public bool addWithPaintTransform(
+            Matrix4 transform,
+            Offset position,
+            BoxHitTest hitTest
+        ) {
+            D.assert(hitTest != null);
+            if (transform != null) {
+                transform = Matrix4.tryInvert(PointerEvent.removePerspectiveTransform(transform));
+                if (transform == null) {
+                    // Objects are not visible on screen and cannot be hit-tested.
+                    return false;
+                }
+            }
+
+            return this.addWithRawTransform(
+                transform: transform,
+                position: position,
+                hitTest: hitTest
+            );
+        }
+
+        public bool addWithPaintOffset(
+            Offset offset,
+            Offset position,
+            BoxHitTest hitTest
+        ) {
+            D.assert(hitTest != null);
+            return this.addWithRawTransform(
+                transform: offset != null ? new Matrix4().translationValues(-offset.dx, -offset.dy, 0) : null,
+                position: position,
+                hitTest: hitTest
+            );
+        }
+
+        public bool addWithRawTransform(
+            Matrix4 transform,
+            Offset position,
+            BoxHitTest hitTest
+        ) {
+            D.assert(hitTest != null);
+            Offset transformedPosition = position == null || transform == null
+                ? position
+                : MatrixUtils.transformPoint(transform, position);
+            if (transform != null) {
+                this.pushTransform(transform);
+            }
+
+            bool isHit = hitTest(this, transformedPosition);
+            if (transform != null) {
+                this.popTransform();
+            }
+
+            return isHit;
+        }
+    }
+
     public class BoxParentData : ParentData {
-        public Offset offset = Offset.zero;
+        public Offset offset {
+            get { return this._offset; }
+            set { this._offset = value; }
+        }
+
+        Offset _offset = Offset.zero;
 
         public override string ToString() {
             return "offset=" + this.offset;
@@ -931,7 +1001,8 @@ namespace Unity.UIWidgets.rendering {
 
         public float? getDistanceToBaseline(TextBaseline baseline, bool onlyReal = false) {
             D.assert(!_debugDoingBaseline,
-                () => "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
+                () =>
+                    "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
             D.assert(!this.debugNeedsLayout);
             D.assert(() => {
                 RenderObject parent = (RenderObject) this.parent;
@@ -961,7 +1032,8 @@ namespace Unity.UIWidgets.rendering {
 
         public virtual float? getDistanceToActualBaseline(TextBaseline baseline) {
             D.assert(_debugDoingBaseline,
-                () => "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
+                () =>
+                    "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
 
             this._cachedBaselines = this._cachedBaselines ?? new Dictionary<TextBaseline, float?>();
             return this._cachedBaselines.putIfAbsent(baseline, () => this.computeDistanceToActualBaseline(baseline));
@@ -969,7 +1041,8 @@ namespace Unity.UIWidgets.rendering {
 
         protected virtual float? computeDistanceToActualBaseline(TextBaseline baseline) {
             D.assert(_debugDoingBaseline,
-                () => "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
+                () =>
+                    "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
 
             return null;
         }
@@ -1160,7 +1233,7 @@ namespace Unity.UIWidgets.rendering {
             });
         }
 
-        public virtual bool hitTest(HitTestResult result, Offset position = null) {
+        public virtual bool hitTest(BoxHitTestResult result, Offset position = null) {
             D.assert(position != null);
             D.assert(() => {
                 if (!this.hasSize) {
@@ -1206,7 +1279,7 @@ namespace Unity.UIWidgets.rendering {
             return false;
         }
 
-        protected virtual bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected virtual bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             return false;
         }
 
@@ -1245,6 +1318,7 @@ namespace Unity.UIWidgets.rendering {
             if (det == 0) {
                 return Offset.zero;
             }
+
             Vector3 n = new Vector3(0, 0, 1);
             Vector3 i = transform.perspectiveTransform(new Vector3(0, 0, 0));
             Vector3 d = transform.perspectiveTransform(new Vector3(0, 0, 1)) - i;
@@ -1412,11 +1486,19 @@ namespace Unity.UIWidgets.rendering {
             return result;
         }
 
-        public bool defaultHitTestChildren(HitTestResult result, Offset position = null) {
+        public bool defaultHitTestChildren(BoxHitTestResult result, Offset position = null) {
             ChildType child = this.lastChild;
             while (child != null) {
-                ParentDataType childParentData = (ParentDataType) child.parentData;
-                if (child.hitTest(result, position: position - childParentData.offset)) {
+                ParentDataType childParentData = child.parentData as ParentDataType;
+                bool isHit = result.addWithPaintOffset(
+                    offset: childParentData.offset,
+                    position: position,
+                    hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                        D.assert(transformed == position - childParentData.offset);
+                        return child.hitTest(resultIn, position: transformed);
+                    }
+                );
+                if (isHit) {
                     return true;
                 }
 

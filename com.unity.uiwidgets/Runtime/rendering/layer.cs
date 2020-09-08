@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -846,7 +847,9 @@ namespace Unity.UIWidgets.rendering {
 
         internal override S find<S>(Offset regionOffset) {
             if (this._inverseDirty) {
-                this._invertedTransform = Matrix4.tryInvert(this.transform);
+                this._invertedTransform = Matrix4.tryInvert(
+                    PointerEvent.removePerspectiveTransform(this.transform)
+                );
                 this._inverseDirty = false;
             }
 

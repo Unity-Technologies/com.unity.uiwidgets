@@ -221,12 +221,18 @@ namespace Unity.UIWidgets.rendering {
             D.assert(crossAxisPadding == this.crossAxisPadding);
         }
 
-        protected override bool hitTestChildren(HitTestResult result, float mainAxisPosition = 0.0f,
+        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f,
             float crossAxisPosition = 0.0f) {
             if (this.child != null && this.child.geometry.hitTestExtent > 0.0) {
-                return this.child.hitTest(result,
-                    mainAxisPosition: mainAxisPosition - this.childMainAxisPosition(this.child),
-                    crossAxisPosition: crossAxisPosition - this.childCrossAxisPosition(this.child));
+                SliverPhysicalParentData childParentData = this.child.parentData as SliverPhysicalParentData;
+                result.addWithAxisOffset(
+                    mainAxisPosition: mainAxisPosition,
+                    crossAxisPosition: crossAxisPosition,
+                    mainAxisOffset: this.childMainAxisPosition(this.child),
+                    crossAxisOffset: this.childCrossAxisPosition(this.child),
+                    paintOffset: childParentData.paintOffset,
+                    hitTest: this.child.hitTest
+                );
             }
 
             return false;
