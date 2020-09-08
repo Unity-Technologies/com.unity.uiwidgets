@@ -60,10 +60,10 @@ namespace Unity.UIWidgets.gestures {
 
         bool _isTrackingPointer = false;
 
-        public void startTrackingPointer(PointerRoute route, Matrix4 transfor) {
+        public void startTrackingPointer(PointerRoute route, Matrix4 transform) {
             if (!this._isTrackingPointer) {
                 this._isTrackingPointer = true;
-                GestureBinding.instance.pointerRouter.addRoute(this.pointer, route, transfor);
+                GestureBinding.instance.pointerRouter.addRoute(this.pointer, route, transform);
             }
         }
 

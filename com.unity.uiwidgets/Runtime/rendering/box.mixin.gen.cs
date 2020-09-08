@@ -77,16 +77,6 @@ namespace Unity.UIWidgets.rendering {
                 child = childParentData.previousSibling;
             }
             return false;
-            // ChildType child = this.lastChild;
-            // while (child != null)
-            // {
-            //     ParentDataType childParentData = (ParentDataType) child.parentData;
-            //     if (child.hitTest(result, position: position - childParentData.offset)) {
-            //         return true;
-            //     }
-            //     child = childParentData.previousSibling;
-            // }
-            // return false;
         }
 
         public List<ChildType> getChildrenAsList() {
