@@ -3,38 +3,55 @@
 #include <flutter/fml/logging.h>
 #include <flutter/fml/thread_local.h>
 
+#include "mono_isolate.h"
 #include "mono_state.h"
 
 namespace uiwidgets {
 
-FML_THREAD_LOCAL fml::ThreadLocalUniquePtr<_Mono_Isolate> tls_isolate;
+FML_THREAD_LOCAL fml::ThreadLocalUniquePtr<Mono_Isolate> tls_isolate;
 
 Mono_Isolate Mono_CreateIsolate(void* isolate_data) {
-  return new _Mono_Isolate{isolate_data};
+  return new _Mono_Isolate(isolate_data);
 }
 
 _Mono_Isolate::~_Mono_Isolate() {
   if (data_) {
-    delete static_cast<MonoState*>(data_);
+    delete static_cast<std::shared_ptr<MonoIsolate>*>(data_);
   }
 }
 
-Mono_Isolate Mono_CurrentIsolate() { return tls_isolate.get(); }
+Mono_Isolate Mono_CurrentIsolate() {
+  Mono_Isolate* ptr = tls_isolate.get();
+  if (!ptr) {
+    return nullptr;
+  }
+  return *ptr;
+}
 
 void Mono_EnterIsolate(Mono_Isolate isolate) {
-  FML_DCHECK(tls_isolate.get() == nullptr);
-  tls_isolate.reset(isolate);
+  Mono_Isolate* ptr = tls_isolate.get();
+  FML_DCHECK(ptr == nullptr || *ptr == nullptr);
+  if (!ptr) {
+    ptr = new Mono_Isolate();
+    tls_isolate.reset(ptr);
+  }
+  *ptr = isolate;
 }
 
 void Mono_ExitIsolate() {
-  FML_DCHECK(tls_isolate.get() != nullptr);
-  tls_isolate.reset(nullptr);
+  Mono_Isolate* ptr = tls_isolate.get();
+  FML_DCHECK(ptr != nullptr && *ptr != nullptr);
+  *ptr = nullptr;
 }
 
 void Mono_ShutdownIsolate() {
-  Mono_Isolate current = tls_isolate.get();
+  Mono_Isolate* ptr = tls_isolate.get();
+  FML_DCHECK(ptr != nullptr);
+
+  const Mono_Isolate current = *ptr;
   FML_DCHECK(current != nullptr);
-  tls_isolate.reset(nullptr);
+
+  *ptr = nullptr;
   delete current;
 }
 
@@ -55,22 +72,28 @@ void Mono_ThrowException(const char* exception) {
   Mono_ThrowExceptionCallback_(exception);
 }
 
-typedef int64_t (*Mono_TimelineGetMicrosCallback)();
+int64_t Mono_TimelineGetMicros() {
+  return fml::TimePoint::Now().ToEpochDelta().ToMicroseconds();
+}
 
-static Mono_TimelineGetMicrosCallback Mono_TimelineGetMicrosCallback_;
-
-int64_t Mono_TimelineGetMicros() { return Mono_TimelineGetMicrosCallback_(); }
+void Mono_NotifyIdle(int64_t deadline) {}
 
 UIWIDGETS_API(void)
-Mono_hook(Mono_ThrowExceptionCallback throwException,
-          Mono_TimelineGetMicrosCallback timelineGetMicros) {
+Mono_hook(Mono_ThrowExceptionCallback throwException) {
   Mono_ThrowExceptionCallback_ = throwException;
-  Mono_TimelineGetMicrosCallback_ = timelineGetMicros;
 }
+
+UIWIDGETS_API(Mono_Isolate)
+Isolate_current() { return Mono_CurrentIsolate(); }
+
+UIWIDGETS_API(void)
+Isolate_enter(Mono_Isolate isolate) { return Mono_EnterIsolate(isolate); }
+
+UIWIDGETS_API(void)
+Isolate_exit() { Mono_ExitIsolate(); }
 
 }  // namespace uiwidgets
 
-// TODO: This is temp solution 
-// extern "C" int64_t Dart_TimelineGetMicros() { return uiwidgets::Mono_TimelineGetMicros(); }
-
-extern "C" int64_t Dart_TimelineGetMicros() { return 0; }
+extern "C" int64_t Dart_TimelineGetMicros() {
+  return uiwidgets::Mono_TimelineGetMicros();
+}

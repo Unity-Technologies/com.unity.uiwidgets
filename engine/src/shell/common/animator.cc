@@ -75,10 +75,10 @@ const char* Animator::FrameParity() {
   return (frame_number_ % 2) ? "even" : "odd";
 }
 
-static int64_t FxlToMonoOrEarlier(fml::TimePoint time) {
+static int64_t FmlToMonoOrEarlier(fml::TimePoint time) {
   int64_t mono_now = Mono_TimelineGetMicros();
-  fml::TimePoint fxl_now = fml::TimePoint::Now();
-  return (time - fxl_now).ToMicroseconds() + mono_now;
+  fml::TimePoint fml_now = fml::TimePoint::Now();
+  return (time - fml_now).ToMicroseconds() + mono_now;
 }
 
 void Animator::BeginFrame(fml::TimePoint frame_start_time,
@@ -118,7 +118,7 @@ void Animator::BeginFrame(fml::TimePoint frame_start_time,
 
   last_frame_begin_time_ = frame_start_time;
   last_frame_target_time_ = frame_target_time;
-  mono_frame_deadline_ = FxlToMonoOrEarlier(frame_target_time);
+  mono_frame_deadline_ = FmlToMonoOrEarlier(frame_target_time);
   {
     TRACE_EVENT2("uiwidgets", "Framework Workload", "mode", "basic", "frame",
                  FrameParity());

@@ -22,7 +22,7 @@ class SkiaUnrefQueue : public fml::RefCountedThreadSafe<SkiaUnrefQueue> {
   // to go away), we may need to pre-emptively drain the unref queue. It is the
   // responsibility of the caller to ensure that no further unrefs are queued
   // after this call.
-  void Drain();
+  void Drain(bool performDeferredCleanup = true);
 
  private:
   const fml::RefPtr<fml::TaskRunner> task_runner_;

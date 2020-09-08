@@ -1,5 +1,7 @@
 #include "runtime_controller.h"
 
+#include <utility>
+
 #include "flutter/fml/message_loop.h"
 #include "flutter/fml/trace_event.h"
 #include "lib/ui/compositing/scene.h"
@@ -10,35 +12,25 @@
 namespace uiwidgets {
 
 RuntimeController::RuntimeController(
-    RuntimeDelegate& p_client, Settings& p_settings,
-    TaskRunners p_task_runners,
-    fml::WeakPtr<SnapshotDelegate> p_snapshot_delegate,
-    fml::WeakPtr<IOManager> p_io_manager,
-    fml::RefPtr<SkiaUnrefQueue> p_unref_queue,
-    fml::WeakPtr<ImageDecoder> p_image_decoder,
-    const std::function<void(int64_t)>& idle_notification_callback,
-    const WindowData& p_window_data,
-    const fml::closure& p_isolate_create_callback,
-    const fml::closure& p_isolate_shutdown_callback)
-    : client_(p_client),
-			settings_(p_settings),
-      task_runners_(p_task_runners),
-      snapshot_delegate_(p_snapshot_delegate),
-      io_manager_(p_io_manager),
-      unref_queue_(p_unref_queue),
-      image_decoder_(p_image_decoder),
-      idle_notification_callback_(idle_notification_callback),
-      window_data_(std::move(p_window_data)),
-      isolate_create_callback_(p_isolate_create_callback),
-      isolate_shutdown_callback_(p_isolate_shutdown_callback) {
-
-	auto strong_root_isolate =
-      MonoIsolate::CreateRootIsolate(settings_,                      //
-                                     task_runners_,                    //
-                                     std::make_unique<Window>(this),   //
-                                     snapshot_delegate_,               //
-                                     io_manager_,                      //
-                                     unref_queue_,                     //
+    RuntimeDelegate& client, const Settings& settings, TaskRunners task_runners,
+    fml::WeakPtr<SnapshotDelegate> snapshot_delegate,
+    fml::WeakPtr<IOManager> io_manager, fml::RefPtr<SkiaUnrefQueue> unref_queue,
+    fml::WeakPtr<ImageDecoder> image_decoder, const WindowData& window_data)
+    : client_(client),
+      settings_(settings),
+      task_runners_(task_runners),
+      snapshot_delegate_(std::move(snapshot_delegate)),
+      io_manager_(std::move(io_manager)),
+      unref_queue_(std::move(unref_queue)),
+      image_decoder_(std::move(image_decoder)),
+      window_data_(window_data) {
+  auto strong_root_isolate =
+      MonoIsolate::CreateRootIsolate(settings_,                       //
+                                     task_runners_,                   //
+                                     std::make_unique<Window>(this),  //
+                                     snapshot_delegate_,              //
+                                     io_manager_,                     //
+                                     unref_queue_,                    //
                                      image_decoder_                   //
                                      )
           .lock();
@@ -73,29 +65,16 @@ RuntimeController::~RuntimeController() {
   }
 }
 
-bool RuntimeController::IsRootIsolateRunning() const {
-  //std::shared_ptr<MonoIsolate> root_isolate = root_isolate_.lock();
-  //if (root_isolate) {
-  //  return root_isolate->GetPhase() == DartIsolate::Phase::Running;
-  //}
-  //return false;
-  return true;
-}
-
 std::unique_ptr<RuntimeController> RuntimeController::Clone() const {
-  return std::unique_ptr<RuntimeController>(new RuntimeController(
-      client_,                      //
-      settings_,                          //
-      task_runners_,                //
-      snapshot_delegate_,           //
-      io_manager_,                  //
-      unref_queue_,                 //
-      image_decoder_,               //
-      idle_notification_callback_,  //
-      window_data_,                 //
-      isolate_create_callback_,     //
-      isolate_shutdown_callback_   //
-      ));
+  return std::make_unique<RuntimeController>(client_,             //
+                                             settings_,           //
+                                             task_runners_,       //
+                                             snapshot_delegate_,  //
+                                             io_manager_,         //
+                                             unref_queue_,        //
+                                             image_decoder_,      //
+                                             window_data_         //
+  );
 }
 
 bool RuntimeController::FlushRuntimeStateToIsolate() {
@@ -184,21 +163,15 @@ bool RuntimeController::NotifyIdle(int64_t deadline) {
   }
 
   MonoState::Scope scope(root_isolate);
-
   Mono_NotifyIdle(deadline);
 
-  // Idle notifications being in isolate scope are part of the contract.
-  if (idle_notification_callback_) {
-    TRACE_EVENT0("flutter", "EmbedderIdleNotification");
-    idle_notification_callback_(deadline);
-  }
   return true;
 }
 
 bool RuntimeController::DispatchPlatformMessage(
     fml::RefPtr<PlatformMessage> message) {
   if (auto* window = GetWindowIfAvailable()) {
-    TRACE_EVENT1("flutter", "RuntimeController::DispatchPlatformMessage",
+    TRACE_EVENT1("uiwidgets", "RuntimeController::DispatchPlatformMessage",
                  "mode", "basic");
     window->DispatchPlatformMessage(std::move(message));
     return true;
@@ -209,14 +182,13 @@ bool RuntimeController::DispatchPlatformMessage(
 bool RuntimeController::DispatchPointerDataPacket(
     const PointerDataPacket& packet) {
   if (auto* window = GetWindowIfAvailable()) {
-    TRACE_EVENT1("flutter", "RuntimeController::DispatchPointerDataPacket",
+    TRACE_EVENT1("uiwidgets", "RuntimeController::DispatchPointerDataPacket",
                  "mode", "basic");
     window->DispatchPointerDataPacket(packet);
     return true;
   }
   return false;
 }
-
 
 Window* RuntimeController::GetWindowIfAvailable() {
   std::shared_ptr<MonoIsolate> root_isolate = root_isolate_.lock();
@@ -229,9 +201,7 @@ std::string RuntimeController::DefaultRouteName() {
 }
 
 // |WindowClient|
-void RuntimeController::ScheduleFrame() {
-  client_.ScheduleFrame();
-}
+void RuntimeController::ScheduleFrame() { client_.ScheduleFrame(); }
 
 // |WindowClient|
 void RuntimeController::Render(Scene* scene) {
@@ -245,16 +215,18 @@ void RuntimeController::HandlePlatformMessage(
 }
 
 // |WindowClient|
-FontCollection& RuntimeController::GetFontCollection() {
-  // return client_.GetFontCollection();
-  //return nullptr;
-}
+// FontCollection& RuntimeController::GetFontCollection() {
+//   return client_.GetFontCollection();
+//}
 
 // |WindowClient|
 void RuntimeController::SetNeedsReportTimings(bool value) {
   client_.SetNeedsReportTimings(value);
 }
 
+std::weak_ptr<MonoIsolate> RuntimeController::GetRootIsolate() {
+  return root_isolate_;
+}
 
 RuntimeController::Locale::Locale(std::string language_code_,
                                   std::string country_code_,
@@ -267,4 +239,4 @@ RuntimeController::Locale::Locale(std::string language_code_,
 
 RuntimeController::Locale::~Locale() = default;
 
-}  // namespace flutter
+}  // namespace uiwidgets

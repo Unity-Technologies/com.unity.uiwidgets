@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using RSG.Promises;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using Debug = UnityEngine.Debug;
+using FrameCallback = Unity.UIWidgets.ui.FrameCallback;
 
 namespace Unity.UIWidgets.scheduler {
     class _FrameCallbackEntry {
@@ -173,7 +175,7 @@ namespace Unity.UIWidgets.scheduler {
             }
 
             D.assert(() => {
-                if (D.debugPrintScheduleFrameStacks) {
+                if (scheduler_.debugPrintScheduleFrameStacks) {
                     Debug.LogFormat("scheduleFrame() called. Current phase is {0}.", this.schedulerPhase);
                 }
 
@@ -190,7 +192,7 @@ namespace Unity.UIWidgets.scheduler {
             }
 
             D.assert(() => {
-                if (D.debugPrintScheduleFrameStacks) {
+                if (scheduler_.debugPrintScheduleFrameStacks) {
                     Debug.LogFormat("scheduleForcedFrame() called. Current phase is {0}.", this.schedulerPhase);
                 }
 
@@ -248,7 +250,7 @@ namespace Unity.UIWidgets.scheduler {
             });
 
             D.assert(() => {
-                if (D.debugPrintBeginFrameBanner || D.debugPrintEndFrameBanner) {
+                if (scheduler_.debugPrintBeginFrameBanner || scheduler_.debugPrintEndFrameBanner) {
                     var frameTimeStampDescription = new StringBuilder();
                     if (rawTimeStamp != null) {
                         _debugDescribeTimeStamp(
@@ -259,7 +261,7 @@ namespace Unity.UIWidgets.scheduler {
 
                     this._debugBanner =
                         $"▄▄▄▄▄▄▄▄ Frame {this._profileFrameNumber.ToString().PadRight(7)}   {frameTimeStampDescription.ToString().PadLeft(18)} ▄▄▄▄▄▄▄▄";
-                    if (D.debugPrintBeginFrameBanner) {
+                    if (scheduler_.debugPrintBeginFrameBanner) {
                         Debug.Log(this._debugBanner);
                     }
                 }
@@ -306,7 +308,7 @@ namespace Unity.UIWidgets.scheduler {
             } finally {
                 this._schedulerPhase = SchedulerPhase.idle;
                 D.assert(() => {
-                    if (D.debugPrintEndFrameBanner) {
+                    if (scheduler_.debugPrintEndFrameBanner) {
                         Debug.Log(new string('▀', this._debugBanner.Length));
                     }
 

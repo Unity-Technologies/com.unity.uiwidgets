@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.debugger {
         }
 
         public bool debugEnabled {
-            get { return D.debugEnabled; }
+            get { return foundation_.kDebugMode; }
         }
 
         public void close() {

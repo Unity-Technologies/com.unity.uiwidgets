@@ -28,7 +28,7 @@ SceneBuilder::SceneBuilder() { PushLayer(std::make_shared<ContainerLayer>()); }
 
 SceneBuilder::~SceneBuilder() = default;
 
-fml::RefPtr<EngineLayer> SceneBuilder::pushTransform(float* matrix4) {
+fml::RefPtr<EngineLayer> SceneBuilder::pushTransform(const float* matrix4) {
   SkMatrix sk_matrix = ToSkMatrix(matrix4);
   auto layer = std::make_shared<TransformLayer>(sk_matrix);
   PushLayer(layer);
@@ -197,6 +197,39 @@ void SceneBuilder::PopLayer() {
   if (layer_stack_.size() > 1) {
     layer_stack_.pop_back();
   }
+}
+
+UIWIDGETS_API(SceneBuilder*) SceneBuilder_constructor() {
+  const auto builder = fml::MakeRefCounted<SceneBuilder>();
+  builder->AddRef();
+  return builder.get();
+}
+
+UIWIDGETS_API(void) SceneBuilder_dispose(SceneBuilder* ptr) { ptr->Release(); }
+
+UIWIDGETS_API(void)
+SceneBuilder_pushTransform(SceneBuilder* ptr, const float* matrix4) {
+  ptr->pushTransform(matrix4);
+}
+
+UIWIDGETS_API(void)
+SceneBuilder_pushOffset(SceneBuilder* ptr, float dx, float dy) {
+  ptr->pushOffset(dx, dy);
+}
+
+UIWIDGETS_API(void)
+SceneBuilder_pop(SceneBuilder* ptr) { ptr->pop(); }
+
+UIWIDGETS_API(Scene*) SceneBuilder_build(SceneBuilder* ptr) {
+  const auto scene = ptr->build();
+  scene->AddRef();
+  return scene.get();
+}
+
+UIWIDGETS_API(void)
+SceneBuilder_addPicture(SceneBuilder* ptr, float dx, float dy, Picture* picture,
+                        int hints) {
+  ptr->addPicture(dx, dy, picture, hints);
 }
 
 }  // namespace uiwidgets

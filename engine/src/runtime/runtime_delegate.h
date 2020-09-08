@@ -19,7 +19,7 @@ class RuntimeDelegate {
 
   virtual void HandlePlatformMessage(fml::RefPtr<PlatformMessage> message) = 0;
 
-  //  virtual FontCollection& GetFontCollection() = 0;
+  //virtual FontCollection& GetFontCollection() = 0;
 
   virtual void SetNeedsReportTimings(bool value) = 0;
 

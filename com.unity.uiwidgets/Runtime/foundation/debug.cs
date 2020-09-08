@@ -15,24 +15,14 @@ namespace Unity.UIWidgets.foundation {
             Debug.LogException(new AssertionError(message, ex));
         }
 
-        public static bool debugEnabled {
-            get {
-#if UIWidgets_DEBUG
-                return true;
-#else
-                return false;
-#endif
-            }
-        }
-
-        [Conditional("UIWidgets_DEBUG")]
+        [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
             if (!result()) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
 
-        [Conditional("UIWidgets_DEBUG")]
+        [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
             if (!result) {
                 throw new AssertionError(message != null ? message() : "");
@@ -48,12 +38,6 @@ namespace Unity.UIWidgets.foundation {
         public static bool debugPaintBaselinesEnabled = false;
 
         public static bool debugPrintRecognizerCallbacksTrace = false;
-
-        public static bool debugPrintBeginFrameBanner = false;
-
-        public static bool debugPrintEndFrameBanner = false;
-
-        public static bool debugPrintScheduleFrameStacks = false;
 
         public static bool debugPaintSizeEnabled = false;
 

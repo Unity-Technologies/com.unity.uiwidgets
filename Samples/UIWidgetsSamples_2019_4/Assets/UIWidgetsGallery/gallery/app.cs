@@ -6,6 +6,7 @@ using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -63,7 +64,7 @@ namespace UIWidgetsGallery.gallery {
             this._options = new GalleryOptions(
                 theme: GalleryTheme.kLightGalleryTheme,
                 textScaleFactor: GalleryTextScaleValue.kAllGalleryTextScaleValues[0],
-                timeDilation: SchedulerBinding.instance.timeDilation,
+                timeDilation: scheduler_.timeDilation,
                 platform: Application.platform,
                 showPerformanceOverlay: this.widget.enablePerformanceOverlay
             );
@@ -82,9 +83,9 @@ namespace UIWidgetsGallery.gallery {
                     this._timeDilationTimer = null;
                     if (newOptions.timeDilation > 1.0f) {
                         this._timeDilationTimer = Window.instance.run(new TimeSpan(0, 0, 0, 0, 150),
-                            () => { SchedulerBinding.instance.timeDilation = newOptions.timeDilation; });
+                            () => { scheduler_.timeDilation = newOptions.timeDilation; });
                     } else {
-                        SchedulerBinding.instance.timeDilation = newOptions.timeDilation;
+                        scheduler_.timeDilation = newOptions.timeDilation;
                     }
                 }
 

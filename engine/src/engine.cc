@@ -1,9 +1,11 @@
 #include <assert.h>
 
 #include "Unity/IUnityGraphics.h"
+#include "Unity/IUnityUIWidgets.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "render_api.h"
+#include "shell/platform/unity/uiwidgets_system.h"
 
 static IUnityInterfaces* s_UnityInterfaces = NULL;
 static IUnityGraphics* s_Graphics = NULL;
@@ -31,15 +33,11 @@ OnGraphicsDeviceEvent(UnityGfxDeviceEventType eventType) {
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
 UnityPluginLoad(IUnityInterfaces* unityInterfaces) {
-  s_UnityInterfaces = unityInterfaces;
-  s_Graphics = s_UnityInterfaces->Get<IUnityGraphics>();
-  s_Graphics->RegisterDeviceEventCallback(OnGraphicsDeviceEvent);
-
-  OnGraphicsDeviceEvent(kUnityGfxDeviceEventInitialize);
+	uiwidgets::UIWidgetsSystem::GetInstancePtr()->BindUnityInterfaces(unityInterfaces);
 }
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginUnload() {
-  s_Graphics->UnregisterDeviceEventCallback(OnGraphicsDeviceEvent);
+  uiwidgets::UIWidgetsSystem::GetInstancePtr()->UnBindUnityInterfaces();
 }
 
 // --------------------------------------------------------------------------

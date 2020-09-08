@@ -33,9 +33,9 @@ class FrameTiming {
 using TaskObserverAdd =
     std::function<void(intptr_t /* key */, fml::closure /* callback */)>;
 using TaskObserverRemove = std::function<void(intptr_t /* key */)>;
-using UnhandledExceptionCallback =
-    std::function<bool(const std::string& /* error */,
-                       const std::string& /* stack trace */)>;
+
+using UnhandledExceptionCallback = std::function<bool(
+    const std::string& /* error */, const std::string& /* stack trace */)>;
 
 // TODO(chinmaygarde): Deprecate all the "path" struct members in favor of the
 // callback that generates the mapping from these paths.
@@ -142,6 +142,7 @@ struct Settings {
   // Engine settings
   TaskObserverAdd task_observer_add;
   TaskObserverRemove task_observer_remove;
+  fml::closure mono_entrypoint_callback;
   // The main isolate is current when this callback is made. This is a good spot
   // to perform native Dart bindings for libraries not built in.
   fml::closure root_isolate_create_callback;

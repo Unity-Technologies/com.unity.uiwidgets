@@ -568,8 +568,8 @@ namespace Unity.UIWidgets.ui2 {
                     }
                 }
                 else {
-                    _objects ??= new object[_kObjectCount];
-                    _objectPtrs ??= new IntPtr[_kObjectCount];
+                    _objects = _objects ?? new object[_kObjectCount];
+                    _objectPtrs = _objectPtrs ?? new IntPtr[_kObjectCount];
 
                     _objects[_kShaderIndex] = value;
                     _objectPtrs[_kShaderIndex] = value._ptr;
@@ -589,8 +589,8 @@ namespace Unity.UIWidgets.ui2 {
                     }
                 }
                 else {
-                    _objects ??= new object[_kObjectCount];
-                    _objectPtrs ??= new IntPtr[_kObjectCount];
+                    _objects = _objects ?? new object[_kObjectCount];
+                    _objectPtrs = _objectPtrs ?? new IntPtr[_kObjectCount];
 
                     if (((_ColorFilter) _objects[_kColorFilterIndex])?.creator != value) {
                         _objects[_kColorFilterIndex] = nativeFilter;
@@ -611,8 +611,8 @@ namespace Unity.UIWidgets.ui2 {
                     }
                 }
                 else {
-                    _objects ??= new object[_kObjectCount];
-                    _objectPtrs ??= new IntPtr[_kObjectCount];
+                    _objects = _objects ?? new object[_kObjectCount];
+                    _objectPtrs = _objectPtrs ?? new IntPtr[_kObjectCount];
 
                     if (((_ImageFilter) _objects[_kImageFilterIndex])?.creator != value) {
                         _objects[_kImageFilterIndex] = nativeFilter;
@@ -899,7 +899,7 @@ namespace Unity.UIWidgets.ui2 {
             float rotation = 0.0f,
             bool largeArc = false,
             bool clockwise = true) {
-            radius ??= Radius.zero;
+            radius = radius ?? Radius.zero;
 
             D.assert(PaintingUtils._offsetIsValid(arcEnd));
             D.assert(PaintingUtils._radiusIsValid(radius));
@@ -913,7 +913,7 @@ namespace Unity.UIWidgets.ui2 {
             float rotation = 0.0f,
             bool largeArc = false,
             bool clockwise = true) {
-            radius ??= Radius.zero;
+            radius = radius ?? Radius.zero;
 
             D.assert(PaintingUtils._offsetIsValid(arcEndDelta));
             D.assert(PaintingUtils._radiusIsValid(radius));
@@ -1438,7 +1438,7 @@ namespace Unity.UIWidgets.ui2 {
         internal const int _kTypeBlur = 0;
         internal const int _kTypeMatrix = 1;
 
-        internal _ImageFilter _toNativeImageFilter() => _nativeFilter ??= _makeNativeImageFilter();
+        internal _ImageFilter _toNativeImageFilter() => _nativeFilter = _nativeFilter ?? _makeNativeImageFilter();
 
         _ImageFilter _makeNativeImageFilter() {
             if (_data == null) {
@@ -1602,10 +1602,10 @@ namespace Unity.UIWidgets.ui2 {
             var colorsArray = PaintingUtils._encodeColorList(colors);
             var colorStopsArray = colorStops?.ToArray() ?? new float[] { };
 
-            fixed (float* endPointsBuffer = &endPointsArray[0])
-            fixed (uint* colorsBuffer = &colorsArray[0])
-            fixed (float* colorStopsBuffer = &colorStopsArray[0])
-            fixed (float* matrix4Buffer = &matrix4[0]) {
+            fixed (float* endPointsBuffer = endPointsArray)
+            fixed (uint* colorsBuffer = colorsArray)
+            fixed (float* colorStopsBuffer = colorStopsArray)
+            fixed (float* matrix4Buffer = matrix4) {
                 var gradient = new Gradient(Gradient_constructor());
                 Gradient_initLinear(
                     gradient._ptr, endPointsBuffer, endPointsArray.Length,
@@ -1635,9 +1635,9 @@ namespace Unity.UIWidgets.ui2 {
             var colorsArray = PaintingUtils._encodeColorList(colors);
             var colorStopsArray = colorStops?.ToArray() ?? new float[] { };
 
-            fixed (uint* colorsBuffer = &colorsArray[0])
-            fixed (float* colorStopsBuffer = &colorStopsArray[0])
-            fixed (float* matrix4Buffer = &matrix4[0]) {
+            fixed (uint* colorsBuffer = colorsArray)
+            fixed (float* colorStopsBuffer = colorStopsArray)
+            fixed (float* matrix4Buffer = matrix4) {
                 var gradient = new Gradient(Gradient_constructor());
 
                 if (focal == null || (focal == center && focalRadius == 0.0f)) {
@@ -1680,9 +1680,9 @@ namespace Unity.UIWidgets.ui2 {
             var colorsArray = PaintingUtils._encodeColorList(colors);
             var colorStopsArray = colorStops?.ToArray() ?? new float[] { };
 
-            fixed (uint* colorsBuffer = &colorsArray[0])
-            fixed (float* colorStopsBuffer = &colorStopsArray[0])
-            fixed (float* matrix4Buffer = &matrix4[0]) {
+            fixed (uint* colorsBuffer = colorsArray)
+            fixed (float* colorStopsBuffer = colorStopsArray)
+            fixed (float* matrix4Buffer = matrix4) {
                 var gradient = new Gradient(Gradient_constructor());
                 Gradient_initSweep(gradient._ptr,
                     center.dx, center.dy,
@@ -1751,7 +1751,7 @@ namespace Unity.UIWidgets.ui2 {
                 throw new ArgumentException("\"matrix4\" must have 16 entries.");
             }
 
-            fixed (float* matrix4Buffer = &matrix4[0]) {
+            fixed (float* matrix4Buffer = matrix4) {
                 ImageShader_initWithImage(_ptr, image._ptr, (int) tmx, (int) tmy, matrix4Buffer);
             }
         }
@@ -1895,7 +1895,7 @@ namespace Unity.UIWidgets.ui2 {
                 throw new ArgumentException("\"recorder\" must not already be associated with another Canvas.");
             }
 
-            cullRect ??= Rect.largest;
+            cullRect = cullRect ?? Rect.largest;
             _ptr = Canvas_constructor(recorder._ptr, cullRect.left, cullRect.top,
                 cullRect.right,
                 cullRect.bottom);
@@ -1975,7 +1975,6 @@ namespace Unity.UIWidgets.ui2 {
 
         public void drawColor(Color color, BlendMode blendMode) {
             D.assert(color != null);
-            D.assert(blendMode != null);
 
             Canvas_drawColor(_ptr, color.value, (int) blendMode);
         }

@@ -68,6 +68,24 @@ namespace Unity.UIWidgets.async {
             get { return this._data.Count; }
         }
 
+        public bool isEmpty {
+            get { return count == 0; }
+        }
+
+        public bool isNotEmpty {
+            get { return count != 0; }
+        }
+
+        public T first {
+            get {
+                return peek();
+            }
+        }
+
+        public T removeFirst() {
+            return dequeue();
+        }
+
         public override string ToString() {
             string s = "";
             for (int i = 0; i < this._data.Count; ++i) {

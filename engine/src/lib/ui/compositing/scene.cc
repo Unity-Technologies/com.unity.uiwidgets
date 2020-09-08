@@ -61,4 +61,6 @@ std::unique_ptr<LayerTree> Scene::takeLayerTree() {
   return std::move(layer_tree_);
 }
 
+UIWIDGETS_API(void) Scene_dispose(Scene* ptr) { ptr->Release(); }
+
 }  // namespace uiwidgets

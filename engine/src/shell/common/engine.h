@@ -10,6 +10,8 @@
 #include "lib/ui/painting/image_decoder.h"
 #include "lib/ui/snapshot_delegate.h"
 //#include "lib/ui/text/font_collection.h"
+#include <flutter/fml/concurrent_message_loop.h>
+
 #include "include/core/SkPicture.h"
 #include "lib/ui/window/platform_message.h"
 #include "lib/ui/window/viewport_metrics.h"
@@ -37,8 +39,6 @@ class Engine final : public RuntimeDelegate, PointerDataDispatcher::Delegate {
     virtual void OnEngineHandlePlatformMessage(
         fml::RefPtr<PlatformMessage> message) = 0;
     virtual void OnPreEngineRestart() = 0;
-    virtual void UpdateIsolateDescription(const std::string isolate_name,
-                                          int64_t isolate_port) = 0;
     virtual void SetNeedsReportTimings(bool needs_reporting) = 0;
   };
 
@@ -91,9 +91,12 @@ class Engine final : public RuntimeDelegate, PointerDataDispatcher::Delegate {
   // |PointerDataDispatcher::Delegate|
   void ScheduleSecondaryVsyncCallback(const fml::closure& callback) override;
 
+	std::shared_ptr<fml::ConcurrentMessageLoop> GetConcurrentMessageLoop();
+
  private:
-  Engine::Delegate& delegate_;
+  Delegate& delegate_;
   const Settings settings_;
+  std::shared_ptr<fml::ConcurrentMessageLoop> concurrent_message_loop_;
   std::unique_ptr<Animator> animator_;
   std::unique_ptr<RuntimeController> runtime_controller_;
 
@@ -102,14 +105,12 @@ class Engine final : public RuntimeDelegate, PointerDataDispatcher::Delegate {
   // is destructed first.
   std::unique_ptr<PointerDataDispatcher> pointer_data_dispatcher_;
 
-  std::string last_entry_point_;
-  std::string last_entry_point_library_;
   std::string initial_route_;
   ViewportMetrics viewport_metrics_;
-  // std::shared_ptr<AssetManager> asset_manager_;
+  std::shared_ptr<AssetManager> asset_manager_;
   bool activity_running_;
   bool have_surface_;
-  FontCollection font_collection_;
+  // FontCollection font_collection_;
   ImageDecoder image_decoder_;
   TaskRunners task_runners_;
   fml::WeakPtrFactory<Engine> weak_factory_;

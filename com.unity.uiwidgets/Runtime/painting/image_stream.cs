@@ -4,8 +4,9 @@ using System.Linq;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
+using SchedulerBinding = Unity.UIWidgets.scheduler.SchedulerBinding;
 
 namespace Unity.UIWidgets.painting {
     public class ImageInfo : IEquatable<ImageInfo> {
@@ -350,7 +351,7 @@ namespace Unity.UIWidgets.painting {
             }
 
             TimeSpan delay = this._frameDuration.Value - (timestamp - this._shownTimestamp.Value);
-            delay = new TimeSpan((long) (delay.Ticks * SchedulerBinding.instance.timeDilation));
+            delay = new TimeSpan((long) (delay.Ticks * scheduler_.timeDilation));
             this._timer = Window.instance.run(delay, this._scheduleAppFrame);
         }
 

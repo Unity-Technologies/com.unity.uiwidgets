@@ -6,7 +6,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -621,7 +621,7 @@ namespace Unity.UIWidgets.material {
                     this._state.interactionTimer?.cancel();
                     this._state.interactionTimer = Window.instance.run(
                         new TimeSpan(0, 0, 0, 0,
-                            (int) (_minimumInteractionTimeMilliSeconds * SchedulerBinding.instance.timeDilation)),
+                            (int) (_minimumInteractionTimeMilliSeconds * scheduler_.timeDilation)),
                         () => {
                             this._state.interactionTimer = null;
                             if (!this._active &&

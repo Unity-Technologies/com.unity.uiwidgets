@@ -86,6 +86,7 @@ namespace Unity.UIWidgets.ui2 {
 
     public class Window {
         internal IntPtr _ptr;
+        internal object _binding;
 
         internal Window() {
             _setNeedsReportTimings = Window_setNeedsReportTimings;

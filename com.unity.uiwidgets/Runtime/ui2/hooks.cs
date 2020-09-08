@@ -6,10 +6,14 @@ using UnityEngine;
 
 namespace Unity.UIWidgets.ui2 {
     public static class Hooks {
-        public static void hook() {
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod]
+#endif
+        static void hook() {
             Mono_hook(
-                Mono_throwException,
-                Mono_timelineGetMicros);
+                Mono_throwException);
 
             Window_hook(
                 Window_constructor,
@@ -26,17 +30,8 @@ namespace Unity.UIWidgets.ui2 {
             throw new Exception(Marshal.PtrToStringAnsi(exception));
         }
 
-        delegate long Mono_TimelineGetMicrosCallback();
-
-        [MonoPInvokeCallback(typeof(Mono_TimelineGetMicrosCallback))]
-        static long Mono_timelineGetMicros() {
-            return Environment.TickCount * 1000L;
-        }
-
         [DllImport(NativeBindings.dllName)]
-        static extern void Mono_hook(Mono_ThrowExceptionCallback throwException,
-            Mono_TimelineGetMicrosCallback timelineGetMicros);
-
+        static extern void Mono_hook(Mono_ThrowExceptionCallback throwException);
 
         delegate IntPtr Window_constructorCallback(IntPtr ptr);
 
