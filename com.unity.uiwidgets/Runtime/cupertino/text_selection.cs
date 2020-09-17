@@ -93,32 +93,32 @@ namespace Unity.UIWidgets.cupertino {
                 new SizedBox(width: 1.0f / MediaQuery.of(context).devicePixelRatio);
             CupertinoLocalizations localizations = CupertinoLocalizations.of(context);
 
-            if (this.handleCut != null) {
-                items.Add(this._buildToolbarButton(localizations.cutButtonLabel, this.handleCut));
+            if (handleCut != null) {
+                items.Add(_buildToolbarButton(localizations.cutButtonLabel, handleCut));
             }
 
-            if (this.handleCopy != null) {
+            if (handleCopy != null) {
                 if (items.isNotEmpty()) {
                     items.Add(onePhysicalPixelVerticalDivider);
                 }
 
-                items.Add(this._buildToolbarButton(localizations.copyButtonLabel, this.handleCopy));
+                items.Add(_buildToolbarButton(localizations.copyButtonLabel, handleCopy));
             }
 
-            if (this.handlePaste != null) {
+            if (handlePaste != null) {
                 if (items.isNotEmpty()) {
                     items.Add(onePhysicalPixelVerticalDivider);
                 }
 
-                items.Add(this._buildToolbarButton(localizations.pasteButtonLabel, this.handlePaste));
+                items.Add(_buildToolbarButton(localizations.pasteButtonLabel, handlePaste));
             }
 
-            if (this.handleSelectAll != null) {
+            if (handleSelectAll != null) {
                 if (items.isNotEmpty()) {
                     items.Add(onePhysicalPixelVerticalDivider);
                 }
 
-                items.Add(this._buildToolbarButton(localizations.selectAllButtonLabel, this.handleSelectAll));
+                items.Add(_buildToolbarButton(localizations.selectAllButtonLabel, handleSelectAll));
             }
 
             Widget triangle = SizedBox.fromSize(
@@ -183,7 +183,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override Offset getPositionForChild(Size size, Size childSize) {
-            Offset globalPosition = this.globalEditableRegion.topLeft + this.position;
+            Offset globalPosition = globalEditableRegion.topLeft + position;
 
             float x = globalPosition.dx - childSize.width / 2.0f;
             float y = globalPosition.dy - childSize.height;
@@ -191,16 +191,16 @@ namespace Unity.UIWidgets.cupertino {
             if (x < CupertinoTextSelectionUtils._kToolbarScreenPadding) {
                 x = CupertinoTextSelectionUtils._kToolbarScreenPadding;
             }
-            else if (x + childSize.width > this.screenSize.width - CupertinoTextSelectionUtils._kToolbarScreenPadding) {
-                x = this.screenSize.width - childSize.width - CupertinoTextSelectionUtils._kToolbarScreenPadding;
+            else if (x + childSize.width > screenSize.width - CupertinoTextSelectionUtils._kToolbarScreenPadding) {
+                x = screenSize.width - childSize.width - CupertinoTextSelectionUtils._kToolbarScreenPadding;
             }
 
             if (y < CupertinoTextSelectionUtils._kToolbarScreenPadding) {
                 y = CupertinoTextSelectionUtils._kToolbarScreenPadding;
             }
             else if (y + childSize.height >
-                     this.screenSize.height - CupertinoTextSelectionUtils._kToolbarScreenPadding) {
-                y = this.screenSize.height - childSize.height - CupertinoTextSelectionUtils._kToolbarScreenPadding;
+                     screenSize.height - CupertinoTextSelectionUtils._kToolbarScreenPadding) {
+                y = screenSize.height - childSize.height - CupertinoTextSelectionUtils._kToolbarScreenPadding;
             }
 
             return new Offset(x, y);
@@ -208,9 +208,9 @@ namespace Unity.UIWidgets.cupertino {
 
         public override bool shouldRelayout(SingleChildLayoutDelegate oldDelegate) {
             _TextSelectionToolbarLayout _oldDelegate = (_TextSelectionToolbarLayout) oldDelegate;
-            return this.screenSize != _oldDelegate.screenSize
-                   || this.globalEditableRegion != _oldDelegate.globalEditableRegion
-                   || this.position != _oldDelegate.position;
+            return screenSize != _oldDelegate.screenSize
+                   || globalEditableRegion != _oldDelegate.globalEditableRegion
+                   || position != _oldDelegate.position;
         }
     }
 
@@ -227,10 +227,10 @@ namespace Unity.UIWidgets.cupertino {
             paint.color = CupertinoTextSelectionUtils._kHandlesColor;
             paint.strokeWidth = 2.0f;
 
-            canvas.drawCircle(this.origin.translate(0.0f, 4.0f), 5.5f, paint);
+            canvas.drawCircle(origin.translate(0.0f, 4.0f), 5.5f, paint);
             canvas.drawLine(
-                this.origin,
-                this.origin.translate(
+                origin,
+                origin.translate(
                     0.0f,
                     -(size.height - 2.0f * CupertinoTextSelectionUtils._kHandlesPadding)
                 ),
@@ -240,7 +240,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public override bool shouldRepaint(CustomPainter oldPainter) {
             _TextSelectionHandlePainter _oldPainter = (_TextSelectionHandlePainter) oldPainter;
-            return this.origin != _oldPainter.origin;
+            return origin != _oldPainter.origin;
         }
     }
 
@@ -261,10 +261,10 @@ namespace Unity.UIWidgets.cupertino {
                         position
                     ),
                     child: new _TextSelectionToolbar(
-                        handleCut: this.canCut(del) ? () => this.handleCut(del) : (VoidCallback) null,
-                        handleCopy: this.canCopy(del) ? () => this.handleCopy(del) : (VoidCallback) null,
-                        handlePaste: this.canPaste(del) ? () => this.handlePaste(del) : (VoidCallback) null,
-                        handleSelectAll: this.canSelectAll(del) ? () => this.handleSelectAll(del) : (VoidCallback) null
+                        handleCut: canCut(del) ? () => handleCut(del) : (VoidCallback) null,
+                        handleCopy: canCopy(del) ? () => handleCopy(del) : (VoidCallback) null,
+                        handlePaste: canPaste(del) ? () => handlePaste(del) : (VoidCallback) null,
+                        handleSelectAll: canSelectAll(del) ? () => handleSelectAll(del) : (VoidCallback) null
                     )
                 )
             );

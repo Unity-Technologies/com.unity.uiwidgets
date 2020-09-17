@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key) {
             routes = routes ?? new Dictionary<string, WidgetBuilder>();
             supportedLocales = supportedLocales ?? new List<Locale> {new Locale("en", "US")};
-            this.window = Window.instance;
+            window = Window.instance;
             this.home = home;
             this.navigatorKey = navigatorKey;
             this.onGenerateRoute = onGenerateRoute;
@@ -159,7 +159,7 @@ namespace Unity.UIWidgets.widgets {
 #endif
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            D.assert(this.window == ((WindowProvider) oldWidget).window);
+            D.assert(window == ((WindowProvider) oldWidget).window);
             return false;
         }
     }
@@ -168,8 +168,8 @@ namespace Unity.UIWidgets.widgets {
         GlobalKey<NavigatorState> _navigator;
 
         public IPromise<bool> didPopRoute() {
-            D.assert(this.mounted);
-            var navigator = this._navigator?.currentState;
+            D.assert(mounted);
+            var navigator = _navigator?.currentState;
             if (navigator == null) {
                 return Promise<bool>.Resolved(false);
             }
@@ -178,8 +178,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public IPromise<bool> didPushRoute(string route) {
-            D.assert(this.mounted);
-            var navigator = this._navigator?.currentState;
+            D.assert(mounted);
+            var navigator = _navigator?.currentState;
             if (navigator == null) {
                 return Promise<bool>.Resolved(false);
             }
@@ -189,29 +189,29 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void didChangeMetrics() {
-            this.setState();
+            setState();
         }
 
         public void didChangeTextScaleFactor() {
-            this.setState();
+            setState();
         }
 
         public void didChangePlatformBrightness() {
-            this.setState(() => { });
+            setState(() => { });
         }
 
         public void didChangeLocales(List<Locale> locale) {
-            Locale newLocale = this._resolveLocales(locale, this.widget.supportedLocales);
-            if (newLocale != this._locale) {
-                this.setState(() => { this._locale = newLocale; });
+            Locale newLocale = _resolveLocales(locale, widget.supportedLocales);
+            if (newLocale != _locale) {
+                setState(() => { _locale = newLocale; });
             }
         }
 
         List<LocalizationsDelegate> _localizationsDelegates {
             get {
                 List<LocalizationsDelegate> _delegates = new List<LocalizationsDelegate>();
-                if (this.widget.localizationsDelegates != null) {
-                    _delegates.AddRange(this.widget.localizationsDelegates);
+                if (widget.localizationsDelegates != null) {
+                    _delegates.AddRange(widget.localizationsDelegates);
                 }
 
                 _delegates.Add(DefaultWidgetsLocalizations.del);
@@ -221,14 +221,14 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            this._updateNavigator();
+            _updateNavigator();
 
             //todo: xingwei.zhu: change the default locale to ui.Window.locale
-            this._locale =
-                this._resolveLocales(new List<Locale> {new Locale("en", "US")}, this.widget.supportedLocales);
+            _locale =
+                _resolveLocales(new List<Locale> {new Locale("en", "US")}, widget.supportedLocales);
 
             D.assert(() => {
-                WidgetInspectorService.instance.inspectorShowCallback += this.inspectorShowChanged;
+                WidgetInspectorService.instance.inspectorShowCallback += inspectorShowChanged;
                 return true;
             });
 
@@ -237,8 +237,8 @@ namespace Unity.UIWidgets.widgets {
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.navigatorKey != ((WidgetsApp) oldWidget).navigatorKey) {
-                this._updateNavigator();
+            if (widget.navigatorKey != ((WidgetsApp) oldWidget).navigatorKey) {
+                _updateNavigator();
             }
         }
 
@@ -246,27 +246,27 @@ namespace Unity.UIWidgets.widgets {
             WidgetsBinding.instance.removeObserver(this);
 
             D.assert(() => {
-                WidgetInspectorService.instance.inspectorShowCallback -= this.inspectorShowChanged;
+                WidgetInspectorService.instance.inspectorShowCallback -= inspectorShowChanged;
                 return true;
             });
             base.dispose();
         }
 
         void _updateNavigator() {
-            this._navigator = this.widget.navigatorKey ?? new GlobalObjectKey<NavigatorState>(this);
+            _navigator = widget.navigatorKey ?? new GlobalObjectKey<NavigatorState>(this);
         }
 
         Route _onGenerateRoute(RouteSettings settings) {
             var name = settings.name;
-            var pageContentBuilder = name == Navigator.defaultRouteName && this.widget.home != null
-                ? context => this.widget.home
-                : this.widget.routes.getOrDefault(name);
+            var pageContentBuilder = name == Navigator.defaultRouteName && widget.home != null
+                ? context => widget.home
+                : widget.routes.getOrDefault(name);
 
             if (pageContentBuilder != null) {
-                D.assert(this.widget.pageRouteBuilder != null,
+                D.assert(widget.pageRouteBuilder != null,
                     () => "The default onGenerateRoute handler for WidgetsApp must have a " +
                           "pageRouteBuilder set if the home or routes properties are set.");
-                var route = this.widget.pageRouteBuilder(
+                var route = widget.pageRouteBuilder(
                     settings,
                     pageContentBuilder
                 );
@@ -275,8 +275,8 @@ namespace Unity.UIWidgets.widgets {
                 return route;
             }
 
-            if (this.widget.onGenerateRoute != null) {
-                return this.widget.onGenerateRoute(settings);
+            if (widget.onGenerateRoute != null) {
+                return widget.onGenerateRoute(settings);
             }
 
             return null;
@@ -284,9 +284,9 @@ namespace Unity.UIWidgets.widgets {
 
         Route _onUnknownRoute(RouteSettings settings) {
             D.assert(() => {
-                if (this.widget.onUnknownRoute == null) {
+                if (widget.onUnknownRoute == null) {
                     throw new UIWidgetsError(
-                        $"Could not find a generator for route {settings} in the {this.GetType()}.\n" +
+                        $"Could not find a generator for route {settings} in the {GetType()}.\n" +
                         $"Generators for routes are searched for in the following order:\n" +
                         " 1. For the \"/\" route, the \"home\" property, if non-null, is used.\n" +
                         " 2. Otherwise, the \"routes\" table is used, if it has an entry for " +
@@ -300,7 +300,7 @@ namespace Unity.UIWidgets.widgets {
 
                 return true;
             });
-            var result = this.widget.onUnknownRoute(settings);
+            var result = widget.onUnknownRoute(settings);
             D.assert(() => {
                 if (result == null) {
                     throw new UIWidgetsError(
@@ -319,18 +319,18 @@ namespace Unity.UIWidgets.widgets {
         Locale _locale;
 
         Locale _resolveLocales(List<Locale> preferredLocales, List<Locale> supportedLocales) {
-            if (this.widget.localeListResolutionCallback != null) {
+            if (widget.localeListResolutionCallback != null) {
                 Locale locale =
-                    this.widget.localeListResolutionCallback(preferredLocales, this.widget.supportedLocales);
+                    widget.localeListResolutionCallback(preferredLocales, widget.supportedLocales);
                 if (locale != null) {
                     return locale;
                 }
             }
 
-            if (this.widget.localeResolutionCallback != null) {
-                Locale locale = this.widget.localeResolutionCallback(
+            if (widget.localeResolutionCallback != null) {
+                Locale locale = widget.localeResolutionCallback(
                     preferredLocales != null && preferredLocales.isNotEmpty() ? preferredLocales.first() : null,
-                    this.widget.supportedLocales
+                    widget.supportedLocales
                 );
                 if (locale != null) {
                     return locale;
@@ -392,26 +392,26 @@ namespace Unity.UIWidgets.widgets {
 
 
         void inspectorShowChanged() {
-            this.setState();
+            setState();
         }
 
         public override Widget build(BuildContext context) {
             Widget navigator = null;
-            if (this._navigator != null) {
+            if (_navigator != null) {
                 navigator = new Navigator(
-                    key: this._navigator,
-                    initialRoute: this.widget.initialRoute ?? Navigator.defaultRouteName,
-                    onGenerateRoute: this._onGenerateRoute,
-                    onUnknownRoute: this._onUnknownRoute,
-                    observers: this.widget.navigatorObservers
+                    key: _navigator,
+                    initialRoute: widget.initialRoute ?? Navigator.defaultRouteName,
+                    onGenerateRoute: _onGenerateRoute,
+                    onUnknownRoute: _onUnknownRoute,
+                    observers: widget.navigatorObservers
                 );
             }
 
 
             Widget result;
-            if (this.widget.builder != null) {
+            if (widget.builder != null) {
                 result = new Builder(
-                    builder: _context => { return this.widget.builder(_context, navigator); }
+                    builder: _context => { return widget.builder(_context, navigator); }
                 );
             }
             else {
@@ -419,15 +419,15 @@ namespace Unity.UIWidgets.widgets {
                 result = navigator;
             }
 
-            if (this.widget.textStyle != null) {
+            if (widget.textStyle != null) {
                 result = new DefaultTextStyle(
-                    style: this.widget.textStyle,
+                    style: widget.textStyle,
                     child: result
                 );
             }
 
             PerformanceOverlay performanceOverlay = null;
-            if (this.widget.showPerformanceOverlay) {
+            if (widget.showPerformanceOverlay) {
                 performanceOverlay = PerformanceOverlay.allEnabled();
             }
 
@@ -444,7 +444,7 @@ namespace Unity.UIWidgets.widgets {
 
             D.assert(() => {
                 if (WidgetInspectorService.instance.debugShowInspector) {
-                    result = new WidgetInspector(null, result, this._InspectorSelectButtonBuilder);
+                    result = new WidgetInspector(null, result, _InspectorSelectButtonBuilder);
                 }
 
                 return true;
@@ -452,19 +452,19 @@ namespace Unity.UIWidgets.widgets {
 
             result = new Directionality(child: result, TextDirection.ltr);
             result = new WindowProvider(
-                window: this.widget.window,
+                window: widget.window,
                 child: result
             );
 
-            Locale appLocale = this.widget.locale != null
-                ? this._resolveLocales(new List<Locale> {this.widget.locale}, this.widget.supportedLocales)
-                : this._locale;
+            Locale appLocale = widget.locale != null
+                ? _resolveLocales(new List<Locale> {widget.locale}, widget.supportedLocales)
+                : _locale;
 
             result = new MediaQuery(
-                data: MediaQueryData.fromWindow(this.widget.window),
+                data: MediaQueryData.fromWindow(widget.window),
                 child: new Localizations(
                     locale: appLocale,
-                    delegates: this._localizationsDelegates,
+                    delegates: _localizationsDelegates,
                     child: result)
             );
 
@@ -488,7 +488,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             return new GestureDetector(
-                onTap: this.onPressed,
+                onTap: onPressed,
                 child: new Container(
                     color: Color.fromARGB(255, 0, 0, 255),
                     padding: EdgeInsets.all(10),

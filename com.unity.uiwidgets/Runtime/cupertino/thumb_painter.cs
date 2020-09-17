@@ -7,7 +7,7 @@ namespace Unity.UIWidgets.cupertino {
             Color color = null,
             Color shadowColor = null
         ) {
-            this._shadowPaint = new BoxShadow(
+            _shadowPaint = new BoxShadow(
                 color: shadowColor,
                 blurRadius: 1.0f
             ).toPaint();
@@ -32,10 +32,10 @@ namespace Unity.UIWidgets.cupertino {
                 Radius.circular(rect.shortestSide / 2.0f)
             );
 
-            canvas.drawRRect(rrect, this._shadowPaint);
-            canvas.drawRRect(rrect.shift(new Offset(0.0f, 3.0f)), this._shadowPaint);
+            canvas.drawRRect(rrect, _shadowPaint);
+            canvas.drawRRect(rrect.shift(new Offset(0.0f, 3.0f)), _shadowPaint);
             var _paint = new Paint();
-            _paint.color = this.color;
+            _paint.color = color;
             canvas.drawRRect(rrect, _paint);
         }
     }

@@ -85,48 +85,48 @@ namespace Unity.UIWidgets.ui {
         }
 
         public int frameWidth {
-            get { return this._width; }
+            get { return _width; }
         }
 
         public int frameHeight {
-            get { return this._height; }
+            get { return _height; }
         }
 
         public GifFrame currentFrame {
-            get { return this._currentFrame; }
+            get { return _currentFrame; }
         }
 
         public int frameCount {
-            get { return this._frameCount; }
+            get { return _frameCount; }
         }
 
         public int loopCount {
-            get { return this._loopCount; }
+            get { return _loopCount; }
         }
 
         public bool done {
-            get { return this._done; }
+            get { return _done; }
         }
 
         void _setPixels() {
             // fill in starting image contents based on last image's dispose code
-            if (this._lastDispose > 0) {
-                var n = this._frameCount - 1;
+            if (_lastDispose > 0) {
+                var n = _frameCount - 1;
                 if (n > 0) {
-                    if (this._lastDispose == 2) {
+                    if (_lastDispose == 2) {
                         // fill last image rect area with background color 
-                        var fillcolor = this._transparency ? 0 : this._lastBgColor;
-                        for (var i = 0; i < this._lih; i++) {
-                            var line = i + this._liy;
-                            if (line >= this._height) {
+                        var fillcolor = _transparency ? 0 : _lastBgColor;
+                        for (var i = 0; i < _lih; i++) {
+                            var line = i + _liy;
+                            if (line >= _height) {
                                 continue;
                             }
 
-                            line = this._height - line - 1;
-                            var dx = line * this._width + this._lix;
-                            var endx = dx + this._liw;
+                            line = _height - line - 1;
+                            var dx = line * _width + _lix;
+                            var endx = dx + _liw;
                             while (dx < endx) {
-                                this._image[dx++] = fillcolor;
+                                _image[dx++] = fillcolor;
                             }
                         }
                     }
@@ -137,10 +137,10 @@ namespace Unity.UIWidgets.ui {
             int pass = 1;
             int inc = 8;
             int iline = 0;
-            for (int i = 0; i < this._ih; i++) {
+            for (int i = 0; i < _ih; i++) {
                 int line = i;
-                if (this._interlace) {
-                    if (iline >= this._ih) {
+                if (_interlace) {
+                    if (iline >= _ih) {
                         pass++;
                         switch (pass) {
                             case 2:
@@ -161,20 +161,20 @@ namespace Unity.UIWidgets.ui {
                     iline += inc;
                 }
 
-                line += this._iy;
-                if (line >= this._height) {
+                line += _iy;
+                if (line >= _height) {
                     continue;
                 }
 
-                var sx = i * this._iw;
-                line = this._height - line - 1;
-                var dx = line * this._width + this._ix;
-                var endx = dx + this._iw;
+                var sx = i * _iw;
+                line = _height - line - 1;
+                var dx = line * _width + _ix;
+                var endx = dx + _iw;
 
                 for (; dx < endx; dx++) {
-                    var c = this._act[this._pixels[sx++] & 0xff];
+                    var c = _act[_pixels[sx++] & 0xff];
                     if (c != 0) {
-                        this._image[dx] = c;
+                        _image[dx] = c;
                     }
                 }
             }
@@ -187,22 +187,22 @@ namespace Unity.UIWidgets.ui {
          * @return read status code (0 = no errors)
          */
         public int read(Stream inStream) {
-            this._init();
+            _init();
             if (inStream != null) {
-                this._inStream = inStream;
-                this._readHeader();
+                _inStream = inStream;
+                _readHeader();
             }
             else {
-                this._status = STATUS_OPEN_ERROR;
+                _status = STATUS_OPEN_ERROR;
             }
 
-            return this._status;
+            return _status;
         }
 
         public void Dispose() {
-            if (this._inStream != null) {
-                this._inStream.Dispose();
-                this._inStream = null;
+            if (_inStream != null) {
+                _inStream.Dispose();
+                _inStream = null;
             }
         }
 
@@ -212,7 +212,7 @@ namespace Unity.UIWidgets.ui {
          */
         void _decodeImageData() {
             const int NullCode = -1;
-            int npix = this._iw * this._ih;
+            int npix = _iw * _ih;
             int available,
                 clear,
                 code_mask,
@@ -231,25 +231,25 @@ namespace Unity.UIWidgets.ui {
                 bi,
                 pi;
 
-            if ((this._pixels == null) || (this._pixels.Length < npix)) {
-                this._pixels = new byte[npix]; // allocate new pixel array
+            if ((_pixels == null) || (_pixels.Length < npix)) {
+                _pixels = new byte[npix]; // allocate new pixel array
             }
 
-            if (this._prefix == null) {
-                this._prefix = new short[MAX_STACK_SIZE];
+            if (_prefix == null) {
+                _prefix = new short[MAX_STACK_SIZE];
             }
 
-            if (this._suffix == null) {
-                this._suffix = new byte[MAX_STACK_SIZE];
+            if (_suffix == null) {
+                _suffix = new byte[MAX_STACK_SIZE];
             }
 
-            if (this._pixelStack == null) {
-                this._pixelStack = new byte[MAX_STACK_SIZE + 1];
+            if (_pixelStack == null) {
+                _pixelStack = new byte[MAX_STACK_SIZE + 1];
             }
 
             //  Initialize GIF data stream decoder.
 
-            data_size = this._read();
+            data_size = _read();
             clear = 1 << data_size;
             end_of_information = clear + 1;
             available = clear + 2;
@@ -257,8 +257,8 @@ namespace Unity.UIWidgets.ui {
             code_size = data_size + 1;
             code_mask = (1 << code_size) - 1;
             for (code = 0; code < clear; code++) {
-                this._prefix[code] = 0;
-                this._suffix[code] = (byte) code;
+                _prefix[code] = 0;
+                _suffix[code] = (byte) code;
             }
 
             //  Decode GIF pixel stream.
@@ -271,7 +271,7 @@ namespace Unity.UIWidgets.ui {
                         //  Load bytes until there are enough bits for a code.
                         if (count == 0) {
                             // Read a new data block.
-                            count = this._readBlock();
+                            count = _readBlock();
                             if (count <= 0) {
                                 break;
                             }
@@ -279,7 +279,7 @@ namespace Unity.UIWidgets.ui {
                             bi = 0;
                         }
 
-                        datum += (this._block[bi] & 0xff) << bits;
+                        datum += (_block[bi] & 0xff) << bits;
                         bits += 8;
                         bi++;
                         count--;
@@ -308,7 +308,7 @@ namespace Unity.UIWidgets.ui {
                     }
 
                     if (old_code == NullCode) {
-                        this._pixelStack[top++] = this._suffix[code];
+                        _pixelStack[top++] = _suffix[code];
                         old_code = code;
                         first = code;
                         continue;
@@ -316,16 +316,16 @@ namespace Unity.UIWidgets.ui {
 
                     in_code = code;
                     if (code == available) {
-                        this._pixelStack[top++] = (byte) first;
+                        _pixelStack[top++] = (byte) first;
                         code = old_code;
                     }
 
                     while (code > clear) {
-                        this._pixelStack[top++] = this._suffix[code];
-                        code = this._prefix[code];
+                        _pixelStack[top++] = _suffix[code];
+                        code = _prefix[code];
                     }
 
-                    first = this._suffix[code] & 0xff;
+                    first = _suffix[code] & 0xff;
 
                     //  Add a new string to the string table,
 
@@ -333,9 +333,9 @@ namespace Unity.UIWidgets.ui {
                         break;
                     }
 
-                    this._pixelStack[top++] = (byte) first;
-                    this._prefix[available] = (short) old_code;
-                    this._suffix[available] = (byte) first;
+                    _pixelStack[top++] = (byte) first;
+                    _prefix[available] = (short) old_code;
+                    _suffix[available] = (byte) first;
                     available++;
                     if (((available & code_mask) == 0)
                         && (available < MAX_STACK_SIZE)) {
@@ -349,12 +349,12 @@ namespace Unity.UIWidgets.ui {
                 //  Pop a pixel off the pixel stack.
 
                 top--;
-                this._pixels[pi++] = this._pixelStack[top];
+                _pixels[pi++] = _pixelStack[top];
                 i++;
             }
 
             for (i = pi; i < npix; i++) {
-                this._pixels[i] = 0; // clear missing pixels
+                _pixels[i] = 0; // clear missing pixels
             }
         }
 
@@ -362,19 +362,19 @@ namespace Unity.UIWidgets.ui {
          * Returns true if an error was encountered during reading/decoding
          */
         bool _error() {
-            return this._status != STATUS_OK;
+            return _status != STATUS_OK;
         }
 
         /**
          * Initializes or re-initializes reader
          */
         void _init() {
-            this._status = STATUS_OK;
-            this._currentFrame = null;
-            this._frameCount = 0;
-            this._done = false;
-            this._gct = null;
-            this._lct = null;
+            _status = STATUS_OK;
+            _currentFrame = null;
+            _frameCount = 0;
+            _done = false;
+            _gct = null;
+            _lct = null;
         }
 
         /**
@@ -383,10 +383,10 @@ namespace Unity.UIWidgets.ui {
         int _read() {
             int curByte = 0;
             try {
-                curByte = this._inStream.ReadByte();
+                curByte = _inStream.ReadByte();
             }
             catch (IOException) {
-                this._status = STATUS_FORMAT_ERROR;
+                _status = STATUS_FORMAT_ERROR;
             }
 
             return curByte;
@@ -398,13 +398,13 @@ namespace Unity.UIWidgets.ui {
          * @return number of bytes stored in "buffer"
          */
         int _readBlock() {
-            this._blockSize = this._read();
+            _blockSize = _read();
             int n = 0;
-            if (this._blockSize > 0) {
+            if (_blockSize > 0) {
                 try {
                     int count = 0;
-                    while (n < this._blockSize) {
-                        count = this._inStream.Read(this._block, n, this._blockSize - n);
+                    while (n < _blockSize) {
+                        count = _inStream.Read(_block, n, _blockSize - n);
                         if (count == -1) {
                             break;
                         }
@@ -415,8 +415,8 @@ namespace Unity.UIWidgets.ui {
                 catch (IOException) {
                 }
 
-                if (n < this._blockSize) {
-                    this._status = STATUS_FORMAT_ERROR;
+                if (n < _blockSize) {
+                    _status = STATUS_FORMAT_ERROR;
                 }
             }
 
@@ -435,13 +435,13 @@ namespace Unity.UIWidgets.ui {
             byte[] c = new byte[nbytes];
             int n = 0;
             try {
-                n = this._inStream.Read(c, 0, c.Length);
+                n = _inStream.Read(c, 0, c.Length);
             }
             catch (IOException) {
             }
 
             if (n < nbytes) {
-                this._status = STATUS_FORMAT_ERROR;
+                _status = STATUS_FORMAT_ERROR;
             }
             else {
                 tab = new int[256]; // max size to avoid bounds checks
@@ -464,48 +464,48 @@ namespace Unity.UIWidgets.ui {
         public int nextFrame() {
             // read GIF file content blocks
             bool done = false;
-            while (!(done || this._error())) {
-                int code = this._read();
+            while (!(done || _error())) {
+                int code = _read();
                 switch (code) {
                     case 0x2C: // image separator
-                        this._readImage();
+                        _readImage();
                         done = true;
                         break;
 
                     case 0x21: // extension
-                        code = this._read();
+                        code = _read();
                         switch (code) {
                             case 0xf9: // graphics control extension
-                                this._readGraphicControlExt();
+                                _readGraphicControlExt();
                                 break;
 
                             case 0xff: // application extension
-                                this._readBlock();
+                                _readBlock();
 
                                 var appBuilder = new StringBuilder();
                                 for (int i = 0; i < 11; i++) {
-                                    appBuilder.Append((char) this._block[i]);
+                                    appBuilder.Append((char) _block[i]);
                                 }
 
                                 string app = appBuilder.ToString();
                                 if (app.Equals("NETSCAPE2.0")) {
-                                    this._readNetscapeExt();
+                                    _readNetscapeExt();
                                 }
                                 else {
-                                    this._skip(); // don't care
+                                    _skip(); // don't care
                                 }
 
                                 break;
 
                             default: // uninteresting extension
-                                this._skip();
+                                _skip();
                                 break;
                         }
 
                         break;
 
                     case 0x3b: // terminator
-                        this._done = true;
+                        _done = true;
                         done = true;
                         break;
 
@@ -513,29 +513,29 @@ namespace Unity.UIWidgets.ui {
                         break;
 
                     default:
-                        this._status = STATUS_FORMAT_ERROR;
+                        _status = STATUS_FORMAT_ERROR;
                         break;
                 }
             }
 
-            return this._status;
+            return _status;
         }
 
         /**
          * Reads Graphics Control Extension values
          */
         void _readGraphicControlExt() {
-            this._read(); // block size
-            int packed = this._read(); // packed fields
-            this._dispose = (packed & 0x1c) >> 2; // disposal method
-            if (this._dispose == 0) {
-                this._dispose = 1; // elect to keep old image if discretionary
+            _read(); // block size
+            int packed = _read(); // packed fields
+            _dispose = (packed & 0x1c) >> 2; // disposal method
+            if (_dispose == 0) {
+                _dispose = 1; // elect to keep old image if discretionary
             }
 
-            this._transparency = (packed & 1) != 0;
-            this._delay = this._readShort() * 10; // delay in milliseconds
-            this._transIndex = this._read(); // transparent color index
-            this._read(); // block terminator
+            _transparency = (packed & 1) != 0;
+            _delay = _readShort() * 10; // delay in milliseconds
+            _transIndex = _read(); // transparent color index
+            _read(); // block terminator
         }
 
         /**
@@ -544,23 +544,23 @@ namespace Unity.UIWidgets.ui {
         void _readHeader() {
             var idBuilder = new StringBuilder();
             for (int i = 0; i < 6; i++) {
-                idBuilder.Append((char) this._read());
+                idBuilder.Append((char) _read());
             }
 
             var id = idBuilder.ToString();
             if (!id.StartsWith("GIF")) {
-                this._status = STATUS_FORMAT_ERROR;
+                _status = STATUS_FORMAT_ERROR;
                 return;
             }
 
-            this._readLSD();
-            if (this._gctFlag && !this._error()) {
-                this._gct = this._readColorTable(this._gctSize);
-                this._bgColor = this._gct[this._bgIndex];
+            _readLSD();
+            if (_gctFlag && !_error()) {
+                _gct = _readColorTable(_gctSize);
+                _bgColor = _gct[_bgIndex];
             }
 
-            this._currentFrame = new GifFrame {
-                bytes = new byte[this._width * this._height * sizeof(int)],
+            _currentFrame = new GifFrame {
+                bytes = new byte[_width * _height * sizeof(int)],
                 delay = 0
             };
         }
@@ -569,47 +569,47 @@ namespace Unity.UIWidgets.ui {
          * Reads next frame image
          */
         void _readImage() {
-            this._ix = this._readShort(); // (sub)image position & size
-            this._iy = this._readShort();
-            this._iw = this._readShort();
-            this._ih = this._readShort();
+            _ix = _readShort(); // (sub)image position & size
+            _iy = _readShort();
+            _iw = _readShort();
+            _ih = _readShort();
 
-            int packed = this._read();
-            this._lctFlag = (packed & 0x80) != 0; // 1 - local color table flag
-            this._interlace = (packed & 0x40) != 0; // 2 - interlace flag
+            int packed = _read();
+            _lctFlag = (packed & 0x80) != 0; // 1 - local color table flag
+            _interlace = (packed & 0x40) != 0; // 2 - interlace flag
             // 3 - sort flag
             // 4-5 - reserved
-            this._lctSize = 2 << (packed & 7); // 6-8 - local color table size
+            _lctSize = 2 << (packed & 7); // 6-8 - local color table size
 
-            if (this._lctFlag) {
-                this._lct = this._readColorTable(this._lctSize); // read table
-                this._act = this._lct; // make local table active
+            if (_lctFlag) {
+                _lct = _readColorTable(_lctSize); // read table
+                _act = _lct; // make local table active
             }
             else {
-                this._act = this._gct; // make global table active
-                if (this._bgIndex == this._transIndex) {
-                    this._bgColor = 0;
+                _act = _gct; // make global table active
+                if (_bgIndex == _transIndex) {
+                    _bgColor = 0;
                 }
             }
 
             int save = 0;
-            if (this._transparency) {
-                save = this._act[this._transIndex];
-                this._act[this._transIndex] = 0; // set transparent color if specified
+            if (_transparency) {
+                save = _act[_transIndex];
+                _act[_transIndex] = 0; // set transparent color if specified
             }
 
-            if (this._act == null) {
-                this._status = STATUS_FORMAT_ERROR; // no color table defined
+            if (_act == null) {
+                _status = STATUS_FORMAT_ERROR; // no color table defined
             }
 
-            if (this._error()) {
+            if (_error()) {
                 return;
             }
 
-            this._decodeImageData(); // decode pixel data
-            this._skip();
+            _decodeImageData(); // decode pixel data
+            _skip();
 
-            if (this._error()) {
+            if (_error()) {
                 return;
             }
 
@@ -617,19 +617,19 @@ namespace Unity.UIWidgets.ui {
             //		image =
             //			new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
 
-            this._image = this._image ?? new int[this._width * this._height];
+            _image = _image ?? new int[_width * _height];
 
-            this._setPixels(); // transfer pixel data to image
+            _setPixels(); // transfer pixel data to image
 
-            Buffer.BlockCopy(this._image, 0, this._currentFrame.bytes, 0, this._currentFrame.bytes.Length);
-            this._currentFrame.delay = this._delay;
-            this._frameCount++;
+            Buffer.BlockCopy(_image, 0, _currentFrame.bytes, 0, _currentFrame.bytes.Length);
+            _currentFrame.delay = _delay;
+            _frameCount++;
 
-            if (this._transparency) {
-                this._act[this._transIndex] = save;
+            if (_transparency) {
+                _act[_transIndex] = save;
             }
 
-            this._resetFrame();
+            _resetFrame();
         }
 
         /**
@@ -637,18 +637,18 @@ namespace Unity.UIWidgets.ui {
          */
         void _readLSD() {
             // logical screen size
-            this._width = this._readShort();
-            this._height = this._readShort();
+            _width = _readShort();
+            _height = _readShort();
 
             // packed fields
-            int packed = this._read();
-            this._gctFlag = (packed & 0x80) != 0; // 1   : global color table flag
+            int packed = _read();
+            _gctFlag = (packed & 0x80) != 0; // 1   : global color table flag
             // 2-4 : color resolution
             // 5   : gct sort flag
-            this._gctSize = 2 << (packed & 7); // 6-8 : gct size
+            _gctSize = 2 << (packed & 7); // 6-8 : gct size
 
-            this._bgIndex = this._read(); // background color index
-            this._pixelAspect = this._read(); // pixel aspect ratio
+            _bgIndex = _read(); // background color index
+            _pixelAspect = _read(); // pixel aspect ratio
         }
 
         /**
@@ -656,14 +656,14 @@ namespace Unity.UIWidgets.ui {
          */
         void _readNetscapeExt() {
             do {
-                this._readBlock();
-                if (this._block[0] == 1) {
+                _readBlock();
+                if (_block[0] == 1) {
                     // loop count sub-block
-                    int b1 = this._block[1] & 0xff;
-                    int b2 = this._block[2] & 0xff;
-                    this._loopCount = (b2 << 8) | b1;
+                    int b1 = _block[1] & 0xff;
+                    int b2 = _block[2] & 0xff;
+                    _loopCount = (b2 << 8) | b1;
                 }
-            } while (this._blockSize > 0 && !this._error());
+            } while (_blockSize > 0 && !_error());
         }
 
         /**
@@ -671,20 +671,20 @@ namespace Unity.UIWidgets.ui {
          */
         int _readShort() {
             // read 16-bit value, LSB first
-            return this._read() | (this._read() << 8);
+            return _read() | (_read() << 8);
         }
 
         /**
          * Resets frame state for reading next image.
          */
         void _resetFrame() {
-            this._lastDispose = this._dispose;
-            this._lix = this._ix;
-            this._liy = this._iy;
-            this._liw = this._iw;
-            this._lih = this._ih;
-            this._lastBgColor = this._bgColor;
-            this._lct = null;
+            _lastDispose = _dispose;
+            _lix = _ix;
+            _liy = _iy;
+            _liw = _iw;
+            _lih = _ih;
+            _lastBgColor = _bgColor;
+            _lct = null;
         }
 
         /**
@@ -693,8 +693,8 @@ namespace Unity.UIWidgets.ui {
          */
         void _skip() {
             do {
-                this._readBlock();
-            } while ((this._blockSize > 0) && !this._error());
+                _readBlock();
+            } while ((_blockSize > 0) && !_error());
         }
     }
 }

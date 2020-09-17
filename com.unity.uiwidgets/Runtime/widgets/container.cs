@@ -22,23 +22,23 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderDecoratedBox(
-                decoration: this.decoration,
-                position: this.position,
+                decoration: decoration,
+                position: position,
                 configuration: ImageUtils.createLocalImageConfiguration(context)
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderDecoratedBox) renderObjectRaw;
-            renderObject.decoration = this.decoration;
+            renderObject.decoration = decoration;
             renderObject.configuration = ImageUtils.createLocalImageConfiguration(context);
-            renderObject.position = this.position;
+            renderObject.position = position;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             string label = "decoration";
-            switch (this.position) {
+            switch (position) {
                 case DecorationPosition.background:
                     label = "bg";
                     break;
@@ -48,12 +48,12 @@ namespace Unity.UIWidgets.widgets {
             }
 
             properties.add(new EnumProperty<DecorationPosition>(
-                "position", this.position, level: DiagnosticLevel.hidden));
+                "position", position, level: DiagnosticLevel.hidden));
             properties.add(new DiagnosticsProperty<Decoration>(
                 label,
-                this.decoration,
+                decoration,
                 ifNull: "no decoration",
-                showName: this.decoration != null
+                showName: decoration != null
             ));
         }
     }
@@ -84,9 +84,9 @@ namespace Unity.UIWidgets.widgets {
 
             this.alignment = alignment;
             this.padding = padding;
-            this.foregroundDecoration = forgroundDecoration;
+            foregroundDecoration = forgroundDecoration;
             this.margin = margin;
-            this.transform = transfrom;
+            transform = transfrom;
             this.child = child;
 
             this.decoration = decoration ?? (color != null ? new BoxDecoration(color) : null);
@@ -106,23 +106,23 @@ namespace Unity.UIWidgets.widgets {
 
         EdgeInsets _paddingIncludingDecoration {
             get {
-                if (this.decoration == null || this.decoration.padding == null) {
-                    return this.padding;
+                if (decoration == null || decoration.padding == null) {
+                    return padding;
                 }
 
-                EdgeInsets decorationPadding = this.decoration.padding;
-                if (this.padding == null) {
+                EdgeInsets decorationPadding = decoration.padding;
+                if (padding == null) {
                     return decorationPadding;
                 }
 
-                return this.padding.add(decorationPadding);
+                return padding.add(decorationPadding);
             }
         }
 
         public override Widget build(BuildContext context) {
-            Widget current = this.child;
+            Widget current = child;
 
-            if (this.child == null && (this.constraints == null || !this.constraints.isTight)) {
+            if (child == null && (constraints == null || !constraints.isTight)) {
                 current = new LimitedBox(
                     maxWidth: 0.0f,
                     maxHeight: 0.0f,
@@ -130,37 +130,37 @@ namespace Unity.UIWidgets.widgets {
                 );
             }
 
-            if (this.alignment != null) {
-                current = new Align(alignment: this.alignment, child: current);
+            if (alignment != null) {
+                current = new Align(alignment: alignment, child: current);
             }
 
-            EdgeInsets effetivePadding = this._paddingIncludingDecoration;
+            EdgeInsets effetivePadding = _paddingIncludingDecoration;
             if (effetivePadding != null) {
                 current = new Padding(padding: effetivePadding, child: current);
             }
 
-            if (this.decoration != null) {
-                current = new DecoratedBox(decoration: this.decoration, child: current);
+            if (decoration != null) {
+                current = new DecoratedBox(decoration: decoration, child: current);
             }
 
-            if (this.foregroundDecoration != null) {
+            if (foregroundDecoration != null) {
                 current = new DecoratedBox(
-                    decoration: this.foregroundDecoration,
+                    decoration: foregroundDecoration,
                     position: DecorationPosition.foreground,
                     child: current
                 );
             }
 
-            if (this.constraints != null) {
-                current = new ConstrainedBox(constraints: this.constraints, child: current);
+            if (constraints != null) {
+                current = new ConstrainedBox(constraints: constraints, child: current);
             }
 
-            if (this.margin != null) {
-                current = new Padding(padding: this.margin, child: current);
+            if (margin != null) {
+                current = new Padding(padding: margin, child: current);
             }
 
-            if (this.transform != null) {
-                current = new Transform(transform: new Matrix3(this.transform), child: current);
+            if (transform != null) {
+                current = new Transform(transform: new Matrix3(transform), child: current);
             }
 
             return current;
@@ -169,19 +169,19 @@ namespace Unity.UIWidgets.widgets {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Alignment>("alignment",
-                this.alignment, showName: false, defaultValue: Diagnostics.kNullDefaultValue));
+                alignment, showName: false, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<EdgeInsets>("padding",
-                this.padding, defaultValue: Diagnostics.kNullDefaultValue));
+                padding, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<Decoration>("bg",
-                this.decoration, defaultValue: Diagnostics.kNullDefaultValue));
+                decoration, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<Decoration>("fg",
-                this.foregroundDecoration, defaultValue: Diagnostics.kNullDefaultValue));
+                foregroundDecoration, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<BoxConstraints>("constraints",
-                this.constraints, defaultValue: Diagnostics.kNullDefaultValue));
+                constraints, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<EdgeInsets>("margin",
-                this.margin, defaultValue: Diagnostics.kNullDefaultValue));
+                margin, defaultValue: foundation_.kNullDefaultValue));
             properties.add(ObjectFlagProperty<Matrix3>.has("transform",
-                this.transform));
+                transform));
         }
     }
 }

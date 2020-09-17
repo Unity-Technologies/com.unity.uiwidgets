@@ -62,9 +62,9 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.bundle, other.bundle) && this.devicePixelRatio.Equals(other.devicePixelRatio) &&
-                   Equals(this.locale, other.locale) && Equals(this.size, other.size) &&
-                   this.platform == other.platform;
+            return Equals(bundle, other.bundle) && devicePixelRatio.Equals(other.devicePixelRatio) &&
+                   Equals(locale, other.locale) && Equals(size, other.size) &&
+                   platform == other.platform;
         }
 
         public override bool Equals(object obj) {
@@ -76,20 +76,20 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ImageConfiguration) obj);
+            return Equals((ImageConfiguration) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.bundle != null ? this.bundle.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.devicePixelRatio.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.locale != null ? this.locale.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.size != null ? this.size.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.platform.GetHashCode();
+                var hashCode = (bundle != null ? bundle.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ devicePixelRatio.GetHashCode();
+                hashCode = (hashCode * 397) ^ (locale != null ? locale.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (size != null ? size.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ platform.GetHashCode();
                 return hashCode;
             }
         }
@@ -106,48 +106,48 @@ namespace Unity.UIWidgets.painting {
             var result = new StringBuilder();
             result.Append("ImageConfiguration(");
             bool hasArguments = false;
-            if (this.bundle != null) {
+            if (bundle != null) {
                 if (hasArguments) {
                     result.Append(", ");
                 }
 
-                result.Append($"bundle: {this.bundle}");
+                result.Append($"bundle: {bundle}");
                 hasArguments = true;
             }
 
-            if (this.devicePixelRatio != null) {
+            if (devicePixelRatio != null) {
                 if (hasArguments) {
                     result.Append(", ");
                 }
 
-                result.Append($"devicePixelRatio: {this.devicePixelRatio:F1}");
+                result.Append($"devicePixelRatio: {devicePixelRatio:F1}");
                 hasArguments = true;
             }
 
-            if (this.locale != null) {
+            if (locale != null) {
                 if (hasArguments) {
                     result.Append(", ");
                 }
 
-                result.Append($"locale: {this.locale}");
+                result.Append($"locale: {locale}");
                 hasArguments = true;
             }
 
-            if (this.size != null) {
+            if (size != null) {
                 if (hasArguments) {
                     result.Append(", ");
                 }
 
-                result.Append($"size: {this.size}");
+                result.Append($"size: {size}");
                 hasArguments = true;
             }
 
-            if (this.platform != null) {
+            if (platform != null) {
                 if (hasArguments) {
                     result.Append(", ");
                 }
 
-                result.Append($"platform: {this.platform}");
+                result.Append($"platform: {platform}");
                 hasArguments = true;
             }
 
@@ -167,9 +167,9 @@ namespace Unity.UIWidgets.painting {
             ImageStream stream = new ImageStream();
             T obtainedKey = default;
 
-            this.obtainKey(configuration).Then(key => {
+            obtainKey(configuration).Then(key => {
                 obtainedKey = key;
-                stream.setCompleter(PaintingBinding.instance.imageCache.putIfAbsent(key, () => this.load(key)));
+                stream.setCompleter(PaintingBinding.instance.imageCache.putIfAbsent(key, () => load(key)));
             }).Catch(ex => {
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                     exception: ex,
@@ -193,7 +193,7 @@ namespace Unity.UIWidgets.painting {
             configuration = configuration ?? ImageConfiguration.empty;
             cache = cache ?? PaintingBinding.instance.imageCache;
 
-            return this.obtainKey(configuration).Then(key => cache.evict(key));
+            return obtainKey(configuration).Then(key => cache.evict(key));
         }
 
         protected abstract ImageStreamCompleter load(T key);
@@ -230,8 +230,8 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.bundle, other.bundle) && string.Equals(this.name, other.name) &&
-                   this.scale.Equals(other.scale);
+            return Equals(bundle, other.bundle) && string.Equals(name, other.name) &&
+                   scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
@@ -243,18 +243,18 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((AssetBundleImageKey) obj);
+            return Equals((AssetBundleImageKey) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.bundle != null ? this.bundle.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.name != null ? this.name.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.scale.GetHashCode();
+                var hashCode = (bundle != null ? bundle.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (name != null ? name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ scale.GetHashCode();
                 return hashCode;
             }
         }
@@ -268,7 +268,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(bundle: {this.bundle}, name: \"{this.name}\", scale: {this.scale})";
+            return $"{GetType()}(bundle: {bundle}, name: \"{name}\", scale: {scale})";
         }
     }
 
@@ -278,7 +278,7 @@ namespace Unity.UIWidgets.painting {
 
         protected override ImageStreamCompleter load(AssetBundleImageKey key) {
             return new MultiFrameImageStreamCompleter(
-                codec: this._loadAsync(key),
+                codec: _loadAsync(key),
                 scale: key.scale,
                 informationCollector: information => {
                     information.AppendLine($"Image provider: {this}");
@@ -288,7 +288,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         IPromise<Codec> _loadAsync(AssetBundleImageKey key) {
-            var coroutine = Window.instance.startCoroutine(this._loadAssetAsync(key));
+            var coroutine = Window.instance.startCoroutine(_loadAssetAsync(key));
             return coroutine.promise.Then(result => {
                 if (result == null) {
                     if (key.bundle == null) {
@@ -361,7 +361,7 @@ namespace Unity.UIWidgets.painting {
 
         protected override ImageStreamCompleter load(NetworkImage key) {
             return new MultiFrameImageStreamCompleter(
-                codec: this._loadAsync(key),
+                codec: _loadAsync(key),
                 scale: key.scale,
                 informationCollector: information => {
                     information.AppendLine($"Image provider: {this}");
@@ -371,7 +371,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         IPromise<Codec> _loadAsync(NetworkImage key) {
-            var coroutine = Window.instance.startCoroutine(this._loadBytes(key));
+            var coroutine = Window.instance.startCoroutine(_loadBytes(key));
             return coroutine.promise.Then(obj => {
                 if (obj is byte[] bytes) {
                     return CodecUtils.getCodec(bytes);
@@ -387,8 +387,8 @@ namespace Unity.UIWidgets.painting {
 
             if (uri.LocalPath.EndsWith(".gif")) {
                 using (var www = UnityWebRequest.Get(uri)) {
-                    if (this.headers != null) {
-                        foreach (var header in this.headers) {
+                    if (headers != null) {
+                        foreach (var header in headers) {
                             www.SetRequestHeader(header.Key, header.Value);
                         }
                     }
@@ -407,8 +407,8 @@ namespace Unity.UIWidgets.painting {
             }
 
             using (var www = UnityWebRequestTexture.GetTexture(uri)) {
-                if (this.headers != null) {
-                    foreach (var header in this.headers) {
+                if (headers != null) {
+                    foreach (var header in headers) {
                         www.SetRequestHeader(header.Key, header.Value);
                     }
                 }
@@ -433,7 +433,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return string.Equals(this.url, other.url) && this.scale.Equals(other.scale);
+            return string.Equals(url, other.url) && scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
@@ -445,16 +445,16 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((NetworkImage) obj);
+            return Equals((NetworkImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.url != null ? this.url.GetHashCode() : 0) * 397) ^ this.scale.GetHashCode();
+                return ((url != null ? url.GetHashCode() : 0) * 397) ^ scale.GetHashCode();
             }
         }
 
@@ -467,7 +467,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"runtimeType(\"{this.url}\", scale: {this.scale})";
+            return $"runtimeType(\"{url}\", scale: {scale})";
         }
     }
 
@@ -487,13 +487,13 @@ namespace Unity.UIWidgets.painting {
         }
 
         protected override ImageStreamCompleter load(FileImage key) {
-            return new MultiFrameImageStreamCompleter(this._loadAsync(key),
+            return new MultiFrameImageStreamCompleter(_loadAsync(key),
                 scale: key.scale,
-                informationCollector: information => { information.AppendLine($"Path: {this.file}"); });
+                informationCollector: information => { information.AppendLine($"Path: {file}"); });
         }
 
         IPromise<Codec> _loadAsync(FileImage key) {
-            var coroutine = Window.instance.startCoroutine(this._loadBytes(key));
+            var coroutine = Window.instance.startCoroutine(_loadBytes(key));
             return coroutine.promise.Then(obj => {
                 if (obj is byte[] bytes) {
                     return CodecUtils.getCodec(bytes);
@@ -543,7 +543,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return string.Equals(this.file, other.file) && this.scale.Equals(other.scale);
+            return string.Equals(file, other.file) && scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
@@ -555,16 +555,16 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((FileImage) obj);
+            return Equals((FileImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.file != null ? this.file.GetHashCode() : 0) * 397) ^ this.scale.GetHashCode();
+                return ((file != null ? file.GetHashCode() : 0) * 397) ^ scale.GetHashCode();
             }
         }
 
@@ -577,7 +577,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(\"{this.file}\", scale: {this.scale})";
+            return $"{GetType()}(\"{file}\", scale: {scale})";
         }
     }
 
@@ -598,14 +598,14 @@ namespace Unity.UIWidgets.painting {
 
         protected override ImageStreamCompleter load(MemoryImage key) {
             return new MultiFrameImageStreamCompleter(
-                this._loadAsync(key),
+                _loadAsync(key),
                 scale: key.scale);
         }
 
         IPromise<Codec> _loadAsync(MemoryImage key) {
             D.assert(key == this);
 
-            return CodecUtils.getCodec(this.bytes);
+            return CodecUtils.getCodec(bytes);
         }
 
         public bool Equals(MemoryImage other) {
@@ -617,7 +617,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.bytes, other.bytes) && this.scale.Equals(other.scale);
+            return Equals(bytes, other.bytes) && scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
@@ -629,16 +629,16 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((MemoryImage) obj);
+            return Equals((MemoryImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.bytes != null ? this.bytes.GetHashCode() : 0) * 397) ^ this.scale.GetHashCode();
+                return ((bytes != null ? bytes.GetHashCode() : 0) * 397) ^ scale.GetHashCode();
             }
         }
 
@@ -651,7 +651,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({Diagnostics.describeIdentity(this.bytes)}), scale: {this.scale}";
+            return $"{GetType()}({foundation_.describeIdentity(bytes)}), scale: {scale}";
         }
     }
 
@@ -675,9 +675,9 @@ namespace Unity.UIWidgets.painting {
 
         protected override IPromise<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
             return Promise<AssetBundleImageKey>.Resolved(new AssetBundleImageKey(
-                bundle: this.bundle ? this.bundle : configuration.bundle,
-                name: this.assetName,
-                scale: this.scale
+                bundle: bundle ? bundle : configuration.bundle,
+                name: assetName,
+                scale: scale
             ));
         }
 
@@ -690,8 +690,8 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return string.Equals(this.assetName, other.assetName) && this.scale.Equals(other.scale) &&
-                   Equals(this.bundle, other.bundle);
+            return string.Equals(assetName, other.assetName) && scale.Equals(other.scale) &&
+                   Equals(bundle, other.bundle);
         }
 
         public override bool Equals(object obj) {
@@ -703,18 +703,18 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ExactAssetImage) obj);
+            return Equals((ExactAssetImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.assetName != null ? this.assetName.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.scale.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.bundle != null ? this.bundle.GetHashCode() : 0);
+                var hashCode = (assetName != null ? assetName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ scale.GetHashCode();
+                hashCode = (hashCode * 397) ^ (bundle != null ? bundle.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -728,7 +728,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(name: \"{this.assetName}\", scale: {this.scale}, bundle: {this.bundle})";
+            return $"{GetType()}(name: \"{assetName}\", scale: {scale}, bundle: {bundle})";
         }
     }
 }

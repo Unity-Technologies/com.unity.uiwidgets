@@ -11,15 +11,15 @@ namespace Unity.UIWidgets.rendering {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
-                        "A " + this.GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
+                        "A " + GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
                         "child of type " + child.GetType() + ".\n" +
                         "RenderObjects expect specific types of children because they " +
                         "coordinate with their children during layout and paint. For " +
                         "example, a RenderSliver cannot be the child of a RenderBox because " +
                         "a RenderSliver does not understand the RenderBox layout protocol.\n" +
                         "\n" +
-                        "The " + this.GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
-                        "  " + this.debugCreator + "\n" +
+                        "The " + GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
+                        "  " + debugCreator + "\n" +
                         "\n" +
                         "The " + child.GetType() + " that did not match the expected child type " +
                         "was created by:\n" +
@@ -35,53 +35,53 @@ namespace Unity.UIWidgets.rendering {
         internal ChildType _child;
 
         public ChildType child {
-            get { return this._child; }
+            get { return _child; }
             set {
-                if (this._child != null) {
-                    this.dropChild(this._child);
+                if (_child != null) {
+                    dropChild(_child);
                 }
 
-                this._child = value;
-                if (this._child != null) {
-                    this.adoptChild(this._child);
+                _child = value;
+                if (_child != null) {
+                    adoptChild(_child);
                 }
             }
         }
 
         RenderObject RenderObjectWithChildMixin.child {
-            get { return this.child; }
-            set { this.child = (ChildType) value; }
+            get { return child; }
+            set { child = (ChildType) value; }
         }
 
         public override void attach(object owner) {
             base.attach(owner);
-            if (this._child != null) {
-                this._child.attach(owner);
+            if (_child != null) {
+                _child.attach(owner);
             }
         }
 
         public override void detach() {
             base.detach();
-            if (this._child != null) {
-                this._child.detach();
+            if (_child != null) {
+                _child.detach();
             }
         }
 
         public override void redepthChildren() {
-            if (this._child != null) {
-                this.redepthChild(this._child);
+            if (_child != null) {
+                redepthChild(_child);
             }
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            if (this._child != null) {
-                visitor(this._child);
+            if (_child != null) {
+                visitor(_child);
             }
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
-            return this.child != null
-                ? new List<DiagnosticsNode>{this.child.toDiagnosticsNode(name: "child")}
+            return child != null
+                ? new List<DiagnosticsNode>{child.toDiagnosticsNode(name: "child")}
                 : new List<DiagnosticsNode>();
         }
     }
@@ -92,15 +92,15 @@ namespace Unity.UIWidgets.rendering {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
-                        "A " + this.GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
+                        "A " + GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
                         "child of type " + child.GetType() + ".\n" +
                         "RenderObjects expect specific types of children because they " +
                         "coordinate with their children during layout and paint. For " +
                         "example, a RenderSliver cannot be the child of a RenderBox because " +
                         "a RenderSliver does not understand the RenderBox layout protocol.\n" +
                         "\n" +
-                        "The " + this.GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
-                        "  " + this.debugCreator + "\n" +
+                        "The " + GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
+                        "  " + debugCreator + "\n" +
                         "\n" +
                         "The " + child.GetType() + " that did not match the expected child type " +
                         "was created by:\n" +
@@ -116,53 +116,53 @@ namespace Unity.UIWidgets.rendering {
         internal ChildType _child;
 
         public ChildType child {
-            get { return this._child; }
+            get { return _child; }
             set {
-                if (this._child != null) {
-                    this.dropChild(this._child);
+                if (_child != null) {
+                    dropChild(_child);
                 }
 
-                this._child = value;
-                if (this._child != null) {
-                    this.adoptChild(this._child);
+                _child = value;
+                if (_child != null) {
+                    adoptChild(_child);
                 }
             }
         }
 
         RenderObject RenderObjectWithChildMixin.child {
-            get { return this.child; }
-            set { this.child = (ChildType) value; }
+            get { return child; }
+            set { child = (ChildType) value; }
         }
 
         public override void attach(object owner) {
             base.attach(owner);
-            if (this._child != null) {
-                this._child.attach(owner);
+            if (_child != null) {
+                _child.attach(owner);
             }
         }
 
         public override void detach() {
             base.detach();
-            if (this._child != null) {
-                this._child.detach();
+            if (_child != null) {
+                _child.detach();
             }
         }
 
         public override void redepthChildren() {
-            if (this._child != null) {
-                this.redepthChild(this._child);
+            if (_child != null) {
+                redepthChild(_child);
             }
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            if (this._child != null) {
-                visitor(this._child);
+            if (_child != null) {
+                visitor(_child);
             }
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
-            return this.child != null
-                ? new List<DiagnosticsNode>{this.child.toDiagnosticsNode(name: "child")}
+            return child != null
+                ? new List<DiagnosticsNode>{child.toDiagnosticsNode(name: "child")}
                 : new List<DiagnosticsNode>();
         }
     }
@@ -173,15 +173,15 @@ namespace Unity.UIWidgets.rendering {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
-                        "A " + this.GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
+                        "A " + GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
                         "child of type " + child.GetType() + ".\n" +
                         "RenderObjects expect specific types of children because they " +
                         "coordinate with their children during layout and paint. For " +
                         "example, a RenderSliver cannot be the child of a RenderBox because " +
                         "a RenderSliver does not understand the RenderBox layout protocol.\n" +
                         "\n" +
-                        "The " + this.GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
-                        "  " + this.debugCreator + "\n" +
+                        "The " + GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
+                        "  " + debugCreator + "\n" +
                         "\n" +
                         "The " + child.GetType() + " that did not match the expected child type " +
                         "was created by:\n" +
@@ -197,53 +197,53 @@ namespace Unity.UIWidgets.rendering {
         internal ChildType _child;
 
         public ChildType child {
-            get { return this._child; }
+            get { return _child; }
             set {
-                if (this._child != null) {
-                    this.dropChild(this._child);
+                if (_child != null) {
+                    dropChild(_child);
                 }
 
-                this._child = value;
-                if (this._child != null) {
-                    this.adoptChild(this._child);
+                _child = value;
+                if (_child != null) {
+                    adoptChild(_child);
                 }
             }
         }
 
         RenderObject RenderObjectWithChildMixin.child {
-            get { return this.child; }
-            set { this.child = (ChildType) value; }
+            get { return child; }
+            set { child = (ChildType) value; }
         }
 
         public override void attach(object owner) {
             base.attach(owner);
-            if (this._child != null) {
-                this._child.attach(owner);
+            if (_child != null) {
+                _child.attach(owner);
             }
         }
 
         public override void detach() {
             base.detach();
-            if (this._child != null) {
-                this._child.detach();
+            if (_child != null) {
+                _child.detach();
             }
         }
 
         public override void redepthChildren() {
-            if (this._child != null) {
-                this.redepthChild(this._child);
+            if (_child != null) {
+                redepthChild(_child);
             }
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            if (this._child != null) {
-                visitor(this._child);
+            if (_child != null) {
+                visitor(_child);
             }
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
-            return this.child != null
-                ? new List<DiagnosticsNode>{this.child.toDiagnosticsNode(name: "child")}
+            return child != null
+                ? new List<DiagnosticsNode>{child.toDiagnosticsNode(name: "child")}
                 : new List<DiagnosticsNode>();
         }
     }
@@ -258,8 +258,8 @@ namespace Unity.UIWidgets.rendering {
         public override void detach() {
             base.detach();
 
-            D.assert(this.previousSibling == null);
-            D.assert(this.nextSibling == null);
+            D.assert(previousSibling == null);
+            D.assert(nextSibling == null);
 
             // if (this.previousSibling != null) {
             //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) this.previousSibling.parentData;
@@ -286,8 +286,8 @@ namespace Unity.UIWidgets.rendering {
         public override void detach() {
             base.detach();
 
-            D.assert(this.previousSibling == null);
-            D.assert(this.nextSibling == null);
+            D.assert(previousSibling == null);
+            D.assert(nextSibling == null);
 
             // if (this.previousSibling != null) {
             //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) this.previousSibling.parentData;
@@ -314,8 +314,8 @@ namespace Unity.UIWidgets.rendering {
         public override void detach() {
             base.detach();
 
-            D.assert(this.previousSibling == null);
-            D.assert(this.nextSibling == null);
+            D.assert(previousSibling == null);
+            D.assert(nextSibling == null);
 
             // if (this.previousSibling != null) {
             //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) this.previousSibling.parentData;
@@ -342,8 +342,8 @@ namespace Unity.UIWidgets.rendering {
         public override void detach() {
             base.detach();
 
-            D.assert(this.previousSibling == null);
-            D.assert(this.nextSibling == null);
+            D.assert(previousSibling == null);
+            D.assert(nextSibling == null);
 
             // if (this.previousSibling != null) {
             //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) this.previousSibling.parentData;
@@ -393,22 +393,22 @@ namespace Unity.UIWidgets.rendering {
         int _childCount = 0;
 
         public int childCount {
-            get { return this._childCount; }
+            get { return _childCount; }
         }
 
         public bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
-                        "A " + this.GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
+                        "A " + GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
                         "child of type " + child.GetType() + ".\n" +
                         "RenderObjects expect specific types of children because they " +
                         "coordinate with their children during layout and paint. For " +
                         "example, a RenderSliver cannot be the child of a RenderBox because " +
                         "a RenderSliver does not understand the RenderBox layout protocol.\n" +
                         "\n" +
-                        "The " + this.GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
-                        "  " + this.debugCreator + "\n" +
+                        "The " + GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
+                        "  " + debugCreator + "\n" +
                         "\n" +
                         "The " + child.GetType() + " that did not match the expected child type " +
                         "was created by:\n" +
@@ -430,29 +430,29 @@ namespace Unity.UIWidgets.rendering {
             D.assert(childParentData.nextSibling == null);
             D.assert(childParentData.previousSibling == null);
 
-            this._childCount++;
-            D.assert(this._childCount > 0);
+            _childCount++;
+            D.assert(_childCount > 0);
 
             if (after == null) {
-                childParentData.nextSibling = this._firstChild;
-                if (this._firstChild != null) {
-                    var firstChildParentData = (ParentDataType) this._firstChild.parentData;
+                childParentData.nextSibling = _firstChild;
+                if (_firstChild != null) {
+                    var firstChildParentData = (ParentDataType) _firstChild.parentData;
                     firstChildParentData.previousSibling = child;
                 }
 
-                this._firstChild = child;
-                this._lastChild = this._lastChild ?? child;
+                _firstChild = child;
+                _lastChild = _lastChild ?? child;
             } else {
-                D.assert(this._firstChild != null);
-                D.assert(this._lastChild != null);
-                D.assert(this._debugUltimatePreviousSiblingOf(after, equals: this._firstChild));
-                D.assert(this._debugUltimateNextSiblingOf(after, equals: this._lastChild));
+                D.assert(_firstChild != null);
+                D.assert(_lastChild != null);
+                D.assert(_debugUltimatePreviousSiblingOf(after, equals: _firstChild));
+                D.assert(_debugUltimateNextSiblingOf(after, equals: _lastChild));
                 var afterParentData = (ParentDataType) after.parentData;
                 if (afterParentData.nextSibling == null) {
-                    D.assert(after == this._lastChild);
+                    D.assert(after == _lastChild);
                     childParentData.previousSibling = after;
                     afterParentData.nextSibling = child;
-                    this._lastChild = child;
+                    _lastChild = child;
                 } else {
                     childParentData.nextSibling = afterParentData.nextSibling;
                     childParentData.previousSibling = after;
@@ -470,40 +470,40 @@ namespace Unity.UIWidgets.rendering {
             D.assert(after != this,
                 () => "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
             D.assert(child != after, () => "A RenderObject cannot be inserted after itself.");
-            D.assert(child != this._firstChild);
-            D.assert(child != this._lastChild);
+            D.assert(child != _firstChild);
+            D.assert(child != _lastChild);
 
-            this.adoptChild(child);
-            this._insertIntoChildList(child, after);
+            adoptChild(child);
+            _insertIntoChildList(child, after);
         }
 
         public virtual void add(ChildType child) {
-            this.insert(child, this._lastChild);
+            insert(child, _lastChild);
         }
 
         public virtual void addAll(List<ChildType> children) {
             if (children != null) {
-                children.ForEach(this.add);
+                children.ForEach(add);
             }
         }
 
         public void _removeFromChildList(ChildType child) {
             var childParentData = (ParentDataType) child.parentData;
-            D.assert(this._debugUltimatePreviousSiblingOf(child, equals: this._firstChild));
-            D.assert(this._debugUltimateNextSiblingOf(child, equals: this._lastChild));
-            D.assert(this._childCount >= 0);
+            D.assert(_debugUltimatePreviousSiblingOf(child, equals: _firstChild));
+            D.assert(_debugUltimateNextSiblingOf(child, equals: _lastChild));
+            D.assert(_childCount >= 0);
 
             if (childParentData.previousSibling == null) {
-                D.assert(this._firstChild == child);
-                this._firstChild = childParentData.nextSibling;
+                D.assert(_firstChild == child);
+                _firstChild = childParentData.nextSibling;
             } else {
                 var childPreviousSiblingParentData = (ParentDataType) childParentData.previousSibling.parentData;
                 childPreviousSiblingParentData.nextSibling = childParentData.nextSibling;
             }
 
             if (childParentData.nextSibling == null) {
-                D.assert(this._lastChild == child);
-                this._lastChild = childParentData.previousSibling;
+                D.assert(_lastChild == child);
+                _lastChild = childParentData.previousSibling;
             } else {
                 var childNextSiblingParentData = (ParentDataType) childParentData.nextSibling.parentData;
                 childNextSiblingParentData.previousSibling = childParentData.previousSibling;
@@ -511,28 +511,28 @@ namespace Unity.UIWidgets.rendering {
 
             childParentData.previousSibling = null;
             childParentData.nextSibling = null;
-            this._childCount--;
+            _childCount--;
         }
 
         public virtual void remove(ChildType child) {
-            this._removeFromChildList(child);
-            this.dropChild(child);
+            _removeFromChildList(child);
+            dropChild(child);
         }
 
         public virtual void removeAll() {
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 var next = childParentData.nextSibling;
                 childParentData.previousSibling = null;
                 childParentData.nextSibling = null;
-                this.dropChild(child);
+                dropChild(child);
                 child = next;
             }
 
-            this._firstChild = null;
-            this._lastChild = null;
-            this._childCount = 0;
+            _firstChild = null;
+            _lastChild = null;
+            _childCount = 0;
         }
 
         public void move(ChildType child, ChildType after = null) {
@@ -546,14 +546,14 @@ namespace Unity.UIWidgets.rendering {
                 return;
             }
 
-            this._removeFromChildList(child);
-            this._insertIntoChildList(child, after);
-            this.markNeedsLayout();
+            _removeFromChildList(child);
+            _insertIntoChildList(child, after);
+            markNeedsLayout();
         }
 
         public override void attach(object owner) {
             base.attach(owner);
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 child.attach(owner);
                 var childParentData = (ParentDataType) child.parentData;
@@ -563,7 +563,7 @@ namespace Unity.UIWidgets.rendering {
 
         public override void detach() {
             base.detach();
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 child.detach();
                 var childParentData = (ParentDataType) child.parentData;
@@ -572,16 +572,16 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void redepthChildren() {
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
-                this.redepthChild(child);
+                redepthChild(child);
                 var childParentData = (ParentDataType) child.parentData;
                 child = childParentData.nextSibling;
             }
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 visitor(child);
                 var childParentData = (ParentDataType) child.parentData;
@@ -590,11 +590,11 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public ChildType firstChild {
-            get { return this._firstChild; }
+            get { return _firstChild; }
         }
 
         public ChildType lastChild {
-            get { return this._lastChild; }
+            get { return _lastChild; }
         }
 
         public ChildType childBefore(ChildType child) {
@@ -615,12 +615,12 @@ namespace Unity.UIWidgets.rendering {
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
             var children = new List<DiagnosticsNode>();
-            if (this.firstChild != null) {
-                ChildType child = this.firstChild;
+            if (firstChild != null) {
+                ChildType child = firstChild;
                 int count = 1;
                 while (true) {
                     children.Add(child.toDiagnosticsNode(name: "child " + count));
-                    if (child == this.lastChild) {
+                    if (child == lastChild) {
                         break;
                     }
 
@@ -634,31 +634,31 @@ namespace Unity.UIWidgets.rendering {
         }
 
         void ContainerRenderObjectMixin.insert(RenderObject child, RenderObject after) {
-            this.insert((ChildType) child, (ChildType) after);
+            insert((ChildType) child, (ChildType) after);
         }
 
         void ContainerRenderObjectMixin.remove(RenderObject child) {
-            this.remove((ChildType) child);
+            remove((ChildType) child);
         }
 
         void ContainerRenderObjectMixin.move(RenderObject child, RenderObject after) {
-            this.move((ChildType) child, (ChildType) after);
+            move((ChildType) child, (ChildType) after);
         }
 
         RenderObject ContainerRenderObjectMixin.firstChild {
-            get { return this.firstChild; }
+            get { return firstChild; }
         }
 
         RenderObject ContainerRenderObjectMixin.lastChild {
-            get { return this.lastChild; }
+            get { return lastChild; }
         }
 
         RenderObject ContainerRenderObjectMixin.childBefore(RenderObject child) {
-            return this.childBefore((ChildType) child);
+            return childBefore((ChildType) child);
         }
 
         RenderObject ContainerRenderObjectMixin.childAfter(RenderObject child) {
-            return this.childAfter((ChildType) child);
+            return childAfter((ChildType) child);
         }
     }
 
@@ -692,22 +692,22 @@ namespace Unity.UIWidgets.rendering {
         int _childCount = 0;
 
         public int childCount {
-            get { return this._childCount; }
+            get { return _childCount; }
         }
 
         public bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
-                        "A " + this.GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
+                        "A " + GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
                         "child of type " + child.GetType() + ".\n" +
                         "RenderObjects expect specific types of children because they " +
                         "coordinate with their children during layout and paint. For " +
                         "example, a RenderSliver cannot be the child of a RenderBox because " +
                         "a RenderSliver does not understand the RenderBox layout protocol.\n" +
                         "\n" +
-                        "The " + this.GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
-                        "  " + this.debugCreator + "\n" +
+                        "The " + GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
+                        "  " + debugCreator + "\n" +
                         "\n" +
                         "The " + child.GetType() + " that did not match the expected child type " +
                         "was created by:\n" +
@@ -729,29 +729,29 @@ namespace Unity.UIWidgets.rendering {
             D.assert(childParentData.nextSibling == null);
             D.assert(childParentData.previousSibling == null);
 
-            this._childCount++;
-            D.assert(this._childCount > 0);
+            _childCount++;
+            D.assert(_childCount > 0);
 
             if (after == null) {
-                childParentData.nextSibling = this._firstChild;
-                if (this._firstChild != null) {
-                    var firstChildParentData = (ParentDataType) this._firstChild.parentData;
+                childParentData.nextSibling = _firstChild;
+                if (_firstChild != null) {
+                    var firstChildParentData = (ParentDataType) _firstChild.parentData;
                     firstChildParentData.previousSibling = child;
                 }
 
-                this._firstChild = child;
-                this._lastChild = this._lastChild ?? child;
+                _firstChild = child;
+                _lastChild = _lastChild ?? child;
             } else {
-                D.assert(this._firstChild != null);
-                D.assert(this._lastChild != null);
-                D.assert(this._debugUltimatePreviousSiblingOf(after, equals: this._firstChild));
-                D.assert(this._debugUltimateNextSiblingOf(after, equals: this._lastChild));
+                D.assert(_firstChild != null);
+                D.assert(_lastChild != null);
+                D.assert(_debugUltimatePreviousSiblingOf(after, equals: _firstChild));
+                D.assert(_debugUltimateNextSiblingOf(after, equals: _lastChild));
                 var afterParentData = (ParentDataType) after.parentData;
                 if (afterParentData.nextSibling == null) {
-                    D.assert(after == this._lastChild);
+                    D.assert(after == _lastChild);
                     childParentData.previousSibling = after;
                     afterParentData.nextSibling = child;
-                    this._lastChild = child;
+                    _lastChild = child;
                 } else {
                     childParentData.nextSibling = afterParentData.nextSibling;
                     childParentData.previousSibling = after;
@@ -769,40 +769,40 @@ namespace Unity.UIWidgets.rendering {
             D.assert(after != this,
                 () => "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
             D.assert(child != after, () => "A RenderObject cannot be inserted after itself.");
-            D.assert(child != this._firstChild);
-            D.assert(child != this._lastChild);
+            D.assert(child != _firstChild);
+            D.assert(child != _lastChild);
 
-            this.adoptChild(child);
-            this._insertIntoChildList(child, after);
+            adoptChild(child);
+            _insertIntoChildList(child, after);
         }
 
         public virtual void add(ChildType child) {
-            this.insert(child, this._lastChild);
+            insert(child, _lastChild);
         }
 
         public virtual void addAll(List<ChildType> children) {
             if (children != null) {
-                children.ForEach(this.add);
+                children.ForEach(add);
             }
         }
 
         public void _removeFromChildList(ChildType child) {
             var childParentData = (ParentDataType) child.parentData;
-            D.assert(this._debugUltimatePreviousSiblingOf(child, equals: this._firstChild));
-            D.assert(this._debugUltimateNextSiblingOf(child, equals: this._lastChild));
-            D.assert(this._childCount >= 0);
+            D.assert(_debugUltimatePreviousSiblingOf(child, equals: _firstChild));
+            D.assert(_debugUltimateNextSiblingOf(child, equals: _lastChild));
+            D.assert(_childCount >= 0);
 
             if (childParentData.previousSibling == null) {
-                D.assert(this._firstChild == child);
-                this._firstChild = childParentData.nextSibling;
+                D.assert(_firstChild == child);
+                _firstChild = childParentData.nextSibling;
             } else {
                 var childPreviousSiblingParentData = (ParentDataType) childParentData.previousSibling.parentData;
                 childPreviousSiblingParentData.nextSibling = childParentData.nextSibling;
             }
 
             if (childParentData.nextSibling == null) {
-                D.assert(this._lastChild == child);
-                this._lastChild = childParentData.previousSibling;
+                D.assert(_lastChild == child);
+                _lastChild = childParentData.previousSibling;
             } else {
                 var childNextSiblingParentData = (ParentDataType) childParentData.nextSibling.parentData;
                 childNextSiblingParentData.previousSibling = childParentData.previousSibling;
@@ -810,28 +810,28 @@ namespace Unity.UIWidgets.rendering {
 
             childParentData.previousSibling = null;
             childParentData.nextSibling = null;
-            this._childCount--;
+            _childCount--;
         }
 
         public virtual void remove(ChildType child) {
-            this._removeFromChildList(child);
-            this.dropChild(child);
+            _removeFromChildList(child);
+            dropChild(child);
         }
 
         public virtual void removeAll() {
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 var next = childParentData.nextSibling;
                 childParentData.previousSibling = null;
                 childParentData.nextSibling = null;
-                this.dropChild(child);
+                dropChild(child);
                 child = next;
             }
 
-            this._firstChild = null;
-            this._lastChild = null;
-            this._childCount = 0;
+            _firstChild = null;
+            _lastChild = null;
+            _childCount = 0;
         }
 
         public void move(ChildType child, ChildType after = null) {
@@ -845,14 +845,14 @@ namespace Unity.UIWidgets.rendering {
                 return;
             }
 
-            this._removeFromChildList(child);
-            this._insertIntoChildList(child, after);
-            this.markNeedsLayout();
+            _removeFromChildList(child);
+            _insertIntoChildList(child, after);
+            markNeedsLayout();
         }
 
         public override void attach(object owner) {
             base.attach(owner);
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 child.attach(owner);
                 var childParentData = (ParentDataType) child.parentData;
@@ -862,7 +862,7 @@ namespace Unity.UIWidgets.rendering {
 
         public override void detach() {
             base.detach();
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 child.detach();
                 var childParentData = (ParentDataType) child.parentData;
@@ -871,16 +871,16 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void redepthChildren() {
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
-                this.redepthChild(child);
+                redepthChild(child);
                 var childParentData = (ParentDataType) child.parentData;
                 child = childParentData.nextSibling;
             }
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 visitor(child);
                 var childParentData = (ParentDataType) child.parentData;
@@ -889,11 +889,11 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public ChildType firstChild {
-            get { return this._firstChild; }
+            get { return _firstChild; }
         }
 
         public ChildType lastChild {
-            get { return this._lastChild; }
+            get { return _lastChild; }
         }
 
         public ChildType childBefore(ChildType child) {
@@ -914,12 +914,12 @@ namespace Unity.UIWidgets.rendering {
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
             var children = new List<DiagnosticsNode>();
-            if (this.firstChild != null) {
-                ChildType child = this.firstChild;
+            if (firstChild != null) {
+                ChildType child = firstChild;
                 int count = 1;
                 while (true) {
                     children.Add(child.toDiagnosticsNode(name: "child " + count));
-                    if (child == this.lastChild) {
+                    if (child == lastChild) {
                         break;
                     }
 
@@ -933,31 +933,31 @@ namespace Unity.UIWidgets.rendering {
         }
 
         void ContainerRenderObjectMixin.insert(RenderObject child, RenderObject after) {
-            this.insert((ChildType) child, (ChildType) after);
+            insert((ChildType) child, (ChildType) after);
         }
 
         void ContainerRenderObjectMixin.remove(RenderObject child) {
-            this.remove((ChildType) child);
+            remove((ChildType) child);
         }
 
         void ContainerRenderObjectMixin.move(RenderObject child, RenderObject after) {
-            this.move((ChildType) child, (ChildType) after);
+            move((ChildType) child, (ChildType) after);
         }
 
         RenderObject ContainerRenderObjectMixin.firstChild {
-            get { return this.firstChild; }
+            get { return firstChild; }
         }
 
         RenderObject ContainerRenderObjectMixin.lastChild {
-            get { return this.lastChild; }
+            get { return lastChild; }
         }
 
         RenderObject ContainerRenderObjectMixin.childBefore(RenderObject child) {
-            return this.childBefore((ChildType) child);
+            return childBefore((ChildType) child);
         }
 
         RenderObject ContainerRenderObjectMixin.childAfter(RenderObject child) {
-            return this.childAfter((ChildType) child);
+            return childAfter((ChildType) child);
         }
     }
 
@@ -991,22 +991,22 @@ namespace Unity.UIWidgets.rendering {
         int _childCount = 0;
 
         public int childCount {
-            get { return this._childCount; }
+            get { return _childCount; }
         }
 
         public override bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
-                        "A " + this.GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
+                        "A " + GetType() + " expected a child of type " + typeof(ChildType) + " but received a " +
                         "child of type " + child.GetType() + ".\n" +
                         "RenderObjects expect specific types of children because they " +
                         "coordinate with their children during layout and paint. For " +
                         "example, a RenderSliver cannot be the child of a RenderBox because " +
                         "a RenderSliver does not understand the RenderBox layout protocol.\n" +
                         "\n" +
-                        "The " + this.GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
-                        "  " + this.debugCreator + "\n" +
+                        "The " + GetType() + " that expected a " + typeof(ChildType) + " child was created by:\n" +
+                        "  " + debugCreator + "\n" +
                         "\n" +
                         "The " + child.GetType() + " that did not match the expected child type " +
                         "was created by:\n" +
@@ -1028,29 +1028,29 @@ namespace Unity.UIWidgets.rendering {
             D.assert(childParentData.nextSibling == null);
             D.assert(childParentData.previousSibling == null);
 
-            this._childCount++;
-            D.assert(this._childCount > 0);
+            _childCount++;
+            D.assert(_childCount > 0);
 
             if (after == null) {
-                childParentData.nextSibling = this._firstChild;
-                if (this._firstChild != null) {
-                    var firstChildParentData = (ParentDataType) this._firstChild.parentData;
+                childParentData.nextSibling = _firstChild;
+                if (_firstChild != null) {
+                    var firstChildParentData = (ParentDataType) _firstChild.parentData;
                     firstChildParentData.previousSibling = child;
                 }
 
-                this._firstChild = child;
-                this._lastChild = this._lastChild ?? child;
+                _firstChild = child;
+                _lastChild = _lastChild ?? child;
             } else {
-                D.assert(this._firstChild != null);
-                D.assert(this._lastChild != null);
-                D.assert(this._debugUltimatePreviousSiblingOf(after, equals: this._firstChild));
-                D.assert(this._debugUltimateNextSiblingOf(after, equals: this._lastChild));
+                D.assert(_firstChild != null);
+                D.assert(_lastChild != null);
+                D.assert(_debugUltimatePreviousSiblingOf(after, equals: _firstChild));
+                D.assert(_debugUltimateNextSiblingOf(after, equals: _lastChild));
                 var afterParentData = (ParentDataType) after.parentData;
                 if (afterParentData.nextSibling == null) {
-                    D.assert(after == this._lastChild);
+                    D.assert(after == _lastChild);
                     childParentData.previousSibling = after;
                     afterParentData.nextSibling = child;
-                    this._lastChild = child;
+                    _lastChild = child;
                 } else {
                     childParentData.nextSibling = afterParentData.nextSibling;
                     childParentData.previousSibling = after;
@@ -1068,40 +1068,40 @@ namespace Unity.UIWidgets.rendering {
             D.assert(after != this,
                 () => "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
             D.assert(child != after, () => "A RenderObject cannot be inserted after itself.");
-            D.assert(child != this._firstChild);
-            D.assert(child != this._lastChild);
+            D.assert(child != _firstChild);
+            D.assert(child != _lastChild);
 
-            this.adoptChild(child);
-            this._insertIntoChildList(child, after);
+            adoptChild(child);
+            _insertIntoChildList(child, after);
         }
 
         public virtual void add(ChildType child) {
-            this.insert(child, this._lastChild);
+            insert(child, _lastChild);
         }
 
         public virtual void addAll(List<ChildType> children) {
             if (children != null) {
-                children.ForEach(this.add);
+                children.ForEach(add);
             }
         }
 
         public void _removeFromChildList(ChildType child) {
             var childParentData = (ParentDataType) child.parentData;
-            D.assert(this._debugUltimatePreviousSiblingOf(child, equals: this._firstChild));
-            D.assert(this._debugUltimateNextSiblingOf(child, equals: this._lastChild));
-            D.assert(this._childCount >= 0);
+            D.assert(_debugUltimatePreviousSiblingOf(child, equals: _firstChild));
+            D.assert(_debugUltimateNextSiblingOf(child, equals: _lastChild));
+            D.assert(_childCount >= 0);
 
             if (childParentData.previousSibling == null) {
-                D.assert(this._firstChild == child);
-                this._firstChild = childParentData.nextSibling;
+                D.assert(_firstChild == child);
+                _firstChild = childParentData.nextSibling;
             } else {
                 var childPreviousSiblingParentData = (ParentDataType) childParentData.previousSibling.parentData;
                 childPreviousSiblingParentData.nextSibling = childParentData.nextSibling;
             }
 
             if (childParentData.nextSibling == null) {
-                D.assert(this._lastChild == child);
-                this._lastChild = childParentData.previousSibling;
+                D.assert(_lastChild == child);
+                _lastChild = childParentData.previousSibling;
             } else {
                 var childNextSiblingParentData = (ParentDataType) childParentData.nextSibling.parentData;
                 childNextSiblingParentData.previousSibling = childParentData.previousSibling;
@@ -1109,28 +1109,28 @@ namespace Unity.UIWidgets.rendering {
 
             childParentData.previousSibling = null;
             childParentData.nextSibling = null;
-            this._childCount--;
+            _childCount--;
         }
 
         public virtual void remove(ChildType child) {
-            this._removeFromChildList(child);
-            this.dropChild(child);
+            _removeFromChildList(child);
+            dropChild(child);
         }
 
         public virtual void removeAll() {
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 var next = childParentData.nextSibling;
                 childParentData.previousSibling = null;
                 childParentData.nextSibling = null;
-                this.dropChild(child);
+                dropChild(child);
                 child = next;
             }
 
-            this._firstChild = null;
-            this._lastChild = null;
-            this._childCount = 0;
+            _firstChild = null;
+            _lastChild = null;
+            _childCount = 0;
         }
 
         public void move(ChildType child, ChildType after = null) {
@@ -1144,14 +1144,14 @@ namespace Unity.UIWidgets.rendering {
                 return;
             }
 
-            this._removeFromChildList(child);
-            this._insertIntoChildList(child, after);
-            this.markNeedsLayout();
+            _removeFromChildList(child);
+            _insertIntoChildList(child, after);
+            markNeedsLayout();
         }
 
         public override void attach(object owner) {
             base.attach(owner);
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 child.attach(owner);
                 var childParentData = (ParentDataType) child.parentData;
@@ -1161,7 +1161,7 @@ namespace Unity.UIWidgets.rendering {
 
         public override void detach() {
             base.detach();
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 child.detach();
                 var childParentData = (ParentDataType) child.parentData;
@@ -1170,16 +1170,16 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void redepthChildren() {
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
-                this.redepthChild(child);
+                redepthChild(child);
                 var childParentData = (ParentDataType) child.parentData;
                 child = childParentData.nextSibling;
             }
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            ChildType child = this._firstChild;
+            ChildType child = _firstChild;
             while (child != null) {
                 visitor(child);
                 var childParentData = (ParentDataType) child.parentData;
@@ -1188,11 +1188,11 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public ChildType firstChild {
-            get { return this._firstChild; }
+            get { return _firstChild; }
         }
 
         public ChildType lastChild {
-            get { return this._lastChild; }
+            get { return _lastChild; }
         }
 
         public ChildType childBefore(ChildType child) {
@@ -1213,12 +1213,12 @@ namespace Unity.UIWidgets.rendering {
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
             var children = new List<DiagnosticsNode>();
-            if (this.firstChild != null) {
-                ChildType child = this.firstChild;
+            if (firstChild != null) {
+                ChildType child = firstChild;
                 int count = 1;
                 while (true) {
                     children.Add(child.toDiagnosticsNode(name: "child " + count));
-                    if (child == this.lastChild) {
+                    if (child == lastChild) {
                         break;
                     }
 
@@ -1232,31 +1232,31 @@ namespace Unity.UIWidgets.rendering {
         }
 
         void ContainerRenderObjectMixin.insert(RenderObject child, RenderObject after) {
-            this.insert((ChildType) child, (ChildType) after);
+            insert((ChildType) child, (ChildType) after);
         }
 
         void ContainerRenderObjectMixin.remove(RenderObject child) {
-            this.remove((ChildType) child);
+            remove((ChildType) child);
         }
 
         void ContainerRenderObjectMixin.move(RenderObject child, RenderObject after) {
-            this.move((ChildType) child, (ChildType) after);
+            move((ChildType) child, (ChildType) after);
         }
 
         RenderObject ContainerRenderObjectMixin.firstChild {
-            get { return this.firstChild; }
+            get { return firstChild; }
         }
 
         RenderObject ContainerRenderObjectMixin.lastChild {
-            get { return this.lastChild; }
+            get { return lastChild; }
         }
 
         RenderObject ContainerRenderObjectMixin.childBefore(RenderObject child) {
-            return this.childBefore((ChildType) child);
+            return childBefore((ChildType) child);
         }
 
         RenderObject ContainerRenderObjectMixin.childAfter(RenderObject child) {
-            return this.childAfter((ChildType) child);
+            return childAfter((ChildType) child);
         }
     }
 

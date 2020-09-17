@@ -17,14 +17,14 @@ namespace Unity.UIWidgets.widgets {
         public override Widget build(BuildContext context) {
             return new GestureDetector(
                 onTapDown: details => {
-                    if (this.dismissible) {
+                    if (dismissible) {
                         Navigator.maybePop(context);
                     }
                 },
                 behavior: HitTestBehavior.opaque,
                 child: new ConstrainedBox(
                     constraints: BoxConstraints.expand(),
-                    child: this.color == null ? null : new DecoratedBox(decoration: new BoxDecoration(this.color))
+                    child: color == null ? null : new DecoratedBox(decoration: new BoxDecoration(color))
                 )
             );
         }
@@ -39,11 +39,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public Animation<Color> color {
-            get { return (Animation<Color>) this.listenable; }
+            get { return (Animation<Color>) listenable; }
         }
 
         protected internal override Widget build(BuildContext context) {
-            return new ModalBarrier(color: this.color?.value, dismissible: this.dismissible);
+            return new ModalBarrier(color: color?.value, dismissible: dismissible);
         }
     }
 }

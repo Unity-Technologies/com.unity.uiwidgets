@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.widgets {
 
     class _PreferredSizeState : State<PreferredSize> {
         public override Widget build(BuildContext context) {
-            return this.widget.child;
+            return widget.child;
         }
     }
 }

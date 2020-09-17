@@ -6,16 +6,16 @@ namespace Unity.UIWidgets.flow {
         Matrix3 _transform;
 
         public Matrix3 transform {
-            set { this._transform = value; }
+            set { _transform = value; }
         }
 
         public override void preroll(PrerollContext context, Matrix3 matrix) {
-            var childMatrix = Matrix3.concat(matrix, this._transform);
+            var childMatrix = Matrix3.concat(matrix, _transform);
 
             var previousCullRect = context.cullRect;
 
             Matrix3 inverseTransform = Matrix3.I();
-            if (this._transform.invert(inverseTransform)) {
+            if (_transform.invert(inverseTransform)) {
                 context.cullRect = inverseTransform.mapRect(context.cullRect);
             }
             else {
@@ -23,23 +23,23 @@ namespace Unity.UIWidgets.flow {
             }
 
             Rect childPaintBounds = Rect.zero;
-            this.prerollChildren(context, childMatrix, ref childPaintBounds);
+            prerollChildren(context, childMatrix, ref childPaintBounds);
 
-            childPaintBounds = this._transform.mapRect(childPaintBounds);
-            this.paintBounds = childPaintBounds;
+            childPaintBounds = _transform.mapRect(childPaintBounds);
+            paintBounds = childPaintBounds;
 
             context.cullRect = previousCullRect;
         }
 
         public override void paint(PaintContext context) {
-            D.assert(this.needsPainting);
+            D.assert(needsPainting);
 
             var canvas = context.canvas;
 
             canvas.save();
             try {
-                canvas.concat(this._transform);
-                this.paintChildren(context);
+                canvas.concat(_transform);
+                paintChildren(context);
             }
             finally {
                 canvas.restore();

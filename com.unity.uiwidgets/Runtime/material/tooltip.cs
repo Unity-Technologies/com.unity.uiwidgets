@@ -54,9 +54,9 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new StringProperty("message", this.message, showName: false));
-            properties.add(new FloatProperty("vertical offset", this.verticalOffset));
-            properties.add(new FlagProperty("position", value: this.preferBelow, ifTrue: "below", ifFalse: "above",
+            properties.add(new StringProperty("message", message, showName: false));
+            properties.add(new FloatProperty("vertical offset", verticalOffset));
+            properties.add(new FlagProperty("position", value: preferBelow, ifTrue: "below", ifFalse: "above",
                 showName: true));
         }
     }
@@ -69,21 +69,21 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._controller = new AnimationController(duration: TooltipUtils._kFadeDuration, vsync: this);
-            this._controller.addStatusListener(this._handleStatusChanged);
+            _controller = new AnimationController(duration: TooltipUtils._kFadeDuration, vsync: this);
+            _controller.addStatusListener(_handleStatusChanged);
         }
 
         void _handleStatusChanged(AnimationStatus status) {
             if (status == AnimationStatus.dismissed) {
-                this._removeEntry();
+                _removeEntry();
             }
         }
 
         bool ensureTooltipVisible() {
-            if (this._entry != null) {
-                this._timer?.cancel();
-                this._timer = null;
-                this._controller.forward();
+            if (_entry != null) {
+                _timer?.cancel();
+                _timer = null;
+                _controller.forward();
                 return false;
             }
 
@@ -91,75 +91,75 @@ namespace Unity.UIWidgets.material {
             Offset target = box.localToGlobal(box.size.center(Offset.zero));
 
             Widget overlay = new _TooltipOverlay(
-                message: this.widget.message,
-                height: this.widget.height,
-                padding: this.widget.padding,
+                message: widget.message,
+                height: widget.height,
+                padding: widget.padding,
                 animation: new CurvedAnimation(
-                    parent: this._controller,
+                    parent: _controller,
                     curve: Curves.fastOutSlowIn),
                 target: target,
-                verticalOffset: this.widget.verticalOffset,
-                preferBelow: this.widget.preferBelow
+                verticalOffset: widget.verticalOffset,
+                preferBelow: widget.preferBelow
             );
 
-            this._entry = new OverlayEntry(builder: (BuildContext context) => overlay);
-            Overlay.of(this.context, debugRequiredFor: this.widget).insert(this._entry);
-            GestureBinding.instance.pointerRouter.addGlobalRoute(this._handlePointerEvent);
-            this._controller.forward();
+            _entry = new OverlayEntry(builder: (BuildContext context) => overlay);
+            Overlay.of(this.context, debugRequiredFor: widget).insert(_entry);
+            GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
+            _controller.forward();
             return true;
         }
 
         void _removeEntry() {
-            D.assert(this._entry != null);
-            this._timer?.cancel();
-            this._timer = null;
-            this._entry.remove();
-            this._entry = null;
-            GestureBinding.instance.pointerRouter.removeGlobalRoute(this._handlePointerEvent);
+            D.assert(_entry != null);
+            _timer?.cancel();
+            _timer = null;
+            _entry.remove();
+            _entry = null;
+            GestureBinding.instance.pointerRouter.removeGlobalRoute(_handlePointerEvent);
         }
 
         void _handlePointerEvent(PointerEvent pEvent) {
-            D.assert(this._entry != null);
+            D.assert(_entry != null);
             if (pEvent is PointerUpEvent || pEvent is PointerCancelEvent) {
-                this._timer = this._timer ?? Window.instance.run(TooltipUtils._kShowDuration,
-                                  () => this._controller.reverse());
+                _timer = _timer ?? Window.instance.run(TooltipUtils._kShowDuration,
+                                  () => _controller.reverse());
             }
             else if (pEvent is PointerDownEvent) {
-                this._controller.reverse();
+                _controller.reverse();
             }
         }
 
         public override void deactivate() {
-            if (this._entry != null) {
-                this._controller.reverse();
+            if (_entry != null) {
+                _controller.reverse();
             }
 
             base.deactivate();
         }
 
         public override void dispose() {
-            if (this._entry != null) {
-                this._removeEntry();
+            if (_entry != null) {
+                _removeEntry();
             }
 
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
         void _handleLongPress() {
-            bool tooltipCreated = this.ensureTooltipVisible();
+            bool tooltipCreated = ensureTooltipVisible();
             if (tooltipCreated) {
-                Feedback.forLongPress(this.context);
+                Feedback.forLongPress(context);
             }
         }
 
 
         public override Widget build(BuildContext context) {
-            D.assert(Overlay.of(context, debugRequiredFor: this.widget) != null);
+            D.assert(Overlay.of(context, debugRequiredFor: widget) != null);
             return new GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onLongPress: this._handleLongPress,
-                child: this.widget.child
+                onLongPress: _handleLongPress,
+                child: widget.child
             );
         }
     }
@@ -192,16 +192,16 @@ namespace Unity.UIWidgets.material {
             return Geometry.positionDependentBox(
                 size: size,
                 childSize: childSize,
-                target: this.target,
-                verticalOffset: this.verticalOffset,
-                preferBelow: this.preferBelow);
+                target: target,
+                verticalOffset: verticalOffset,
+                preferBelow: preferBelow);
         }
 
         public override bool shouldRelayout(SingleChildLayoutDelegate oldDelegate) {
             _TooltipPositionDelegate _oldDelegate = (_TooltipPositionDelegate) oldDelegate;
-            return this.target != _oldDelegate.target ||
-                   this.verticalOffset != _oldDelegate.verticalOffset ||
-                   this.preferBelow != _oldDelegate.preferBelow;
+            return target != _oldDelegate.target ||
+                   verticalOffset != _oldDelegate.verticalOffset ||
+                   preferBelow != _oldDelegate.preferBelow;
         }
     }
 
@@ -251,24 +251,24 @@ namespace Unity.UIWidgets.material {
                 child: new IgnorePointer(
                     child: new CustomSingleChildLayout(
                         layoutDelegate: new _TooltipPositionDelegate(
-                            target: this.target,
-                            verticalOffset: this.verticalOffset,
-                            preferBelow: this.preferBelow),
+                            target: target,
+                            verticalOffset: verticalOffset,
+                            preferBelow: preferBelow),
                         child: new FadeTransition(
-                            opacity: this.animation,
+                            opacity: animation,
                             child: new Opacity(
                                 opacity: 0.9f,
                                 child: new ConstrainedBox(
-                                    constraints: new BoxConstraints(minHeight: this.height ?? 0.0f),
+                                    constraints: new BoxConstraints(minHeight: height ?? 0.0f),
                                     child: new Container(
                                         decoration: new BoxDecoration(
                                             color: darkTheme.backgroundColor,
                                             borderRadius: BorderRadius.circular(2.0f)),
-                                        padding: this.padding,
+                                        padding: padding,
                                         child: new Center(
                                             widthFactor: 1.0f,
                                             heightFactor: 1.0f,
-                                            child: new Text(this.message, style: darkTheme.textTheme.body1)
+                                            child: new Text(message, style: darkTheme.textTheme.body1)
                                         )
                                     )
                                 )

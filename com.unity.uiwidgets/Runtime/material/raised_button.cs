@@ -110,9 +110,9 @@ namespace Unity.UIWidgets.material {
             ButtonThemeData buttonTheme = ButtonTheme.of(context);
 
             return new RawMaterialButton(
-                onPressed: this.onPressed,
-                onHighlightChanged: this.onHighlightChanged,
-                clipBehavior: this.clipBehavior ?? Clip.none,
+                onPressed: onPressed,
+                onHighlightChanged: onHighlightChanged,
+                clipBehavior: clipBehavior ?? Clip.none,
                 fillColor: buttonTheme.getFillColor(this),
                 textStyle: theme.textTheme.button.copyWith(color: buttonTheme.getTextColor(this)),
                 highlightColor: buttonTheme.getHighlightColor(this),
@@ -125,32 +125,32 @@ namespace Unity.UIWidgets.material {
                 shape: buttonTheme.getShape(this),
                 animationDuration: buttonTheme.getAnimationDuration(this),
                 materialTapTargetSize: buttonTheme.getMaterialTapTargetSize(this),
-                child: this.child
+                child: child
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new ObjectFlagProperty<VoidCallback>("onPressed", this.onPressed, ifNull: "disabled"));
-            properties.add(new DiagnosticsProperty<ButtonTextTheme?>("textTheme", this.textTheme, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("textColor", this.textColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("disabledTextColor", this.disabledTextColor,
+            properties.add(new ObjectFlagProperty<VoidCallback>("onPressed", onPressed, ifNull: "disabled"));
+            properties.add(new DiagnosticsProperty<ButtonTextTheme?>("textTheme", textTheme, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("textColor", textColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("disabledTextColor", disabledTextColor,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("disabledColor", this.disabledColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("highlightColor", this.highlightColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("splashColor", this.splashColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Brightness?>("colorBrightness", this.colorBrightness,
+            properties.add(new DiagnosticsProperty<Color>("color", color, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("disabledColor", disabledColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("highlightColor", highlightColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("splashColor", splashColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Brightness?>("colorBrightness", colorBrightness,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<float?>("elevation", this.elevation, defaultValue: null));
-            properties.add(new DiagnosticsProperty<float?>("highlightElevation", this.highlightElevation,
+            properties.add(new DiagnosticsProperty<float?>("elevation", elevation, defaultValue: null));
+            properties.add(new DiagnosticsProperty<float?>("highlightElevation", highlightElevation,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<float?>("disabledElevation", this.disabledElevation,
+            properties.add(new DiagnosticsProperty<float?>("disabledElevation", disabledElevation,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding, defaultValue: null));
-            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", this.shape, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: null));
+            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: null));
             properties.add(new DiagnosticsProperty<MaterialTapTargetSize?>("materialTapTargetSize",
-                this.materialTapTargetSize, defaultValue: null));
+                materialTapTargetSize, defaultValue: null));
         }
     }
 

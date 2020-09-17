@@ -12,7 +12,7 @@ namespace Unity.UIWidgets.gestures {
         readonly GestureArenaMember _member;
 
         public override void resolve(GestureDisposition disposition) {
-            this._combiner._resolve(this._member, disposition);
+            _combiner._resolve(_member, disposition);
         }
     }
 
@@ -31,65 +31,65 @@ namespace Unity.UIWidgets.gestures {
         GestureArenaEntry _entry;
 
         public void acceptGesture(int pointer) {
-            D.assert(this._pointer == pointer);
-            D.assert(this._winner != null || this._members.isNotEmpty());
+            D.assert(_pointer == pointer);
+            D.assert(_winner != null || _members.isNotEmpty());
 
-            this._close();
-            this._winner = this._winner ?? this._owner.captain ?? this._members[0];
+            _close();
+            _winner = _winner ?? _owner.captain ?? _members[0];
 
-            foreach (GestureArenaMember member in this._members) {
-                if (member != this._winner) {
+            foreach (GestureArenaMember member in _members) {
+                if (member != _winner) {
                     member.rejectGesture(pointer);
                 }
             }
 
-            this._winner.acceptGesture(pointer);
+            _winner.acceptGesture(pointer);
         }
 
         public void rejectGesture(int pointer) {
-            D.assert(this._pointer == pointer);
+            D.assert(_pointer == pointer);
 
-            this._close();
-            foreach (GestureArenaMember member in this._members) {
+            _close();
+            foreach (GestureArenaMember member in _members) {
                 member.rejectGesture(pointer);
             }
         }
 
         void _close() {
-            D.assert(!this._resolved);
-            this._resolved = true;
+            D.assert(!_resolved);
+            _resolved = true;
 
-            var combiner = this._owner._combiners[this._pointer];
+            var combiner = _owner._combiners[_pointer];
             D.assert(combiner == this);
 
-            this._owner._combiners.Remove(this._pointer);
+            _owner._combiners.Remove(_pointer);
         }
 
         internal GestureArenaEntry _add(int pointer, GestureArenaMember member) {
-            D.assert(!this._resolved);
-            D.assert(this._pointer == pointer);
+            D.assert(!_resolved);
+            D.assert(_pointer == pointer);
 
-            this._members.Add(member);
-            this._entry = this._entry ?? GestureBinding.instance.gestureArena.add(pointer, this);
+            _members.Add(member);
+            _entry = _entry ?? GestureBinding.instance.gestureArena.add(pointer, this);
             return new _CombiningGestureArenaEntry(this, member);
         }
 
         internal void _resolve(GestureArenaMember member, GestureDisposition disposition) {
-            if (this._resolved) {
+            if (_resolved) {
                 return;
             }
 
             if (disposition == GestureDisposition.rejected) {
-                this._members.Remove(member);
-                member.rejectGesture(this._pointer);
-                if (this._members.isEmpty()) {
-                    this._entry.resolve(disposition);
+                _members.Remove(member);
+                member.rejectGesture(_pointer);
+                if (_members.isEmpty()) {
+                    _entry.resolve(disposition);
                 }
             }
             else {
                 D.assert(disposition == GestureDisposition.accepted);
-                this._winner = this._winner ?? this._owner.captain ?? member;
-                this._entry.resolve(disposition);
+                _winner = _winner ?? _owner.captain ?? member;
+                _entry.resolve(disposition);
             }
         }
     }
@@ -103,9 +103,9 @@ namespace Unity.UIWidgets.gestures {
         public GestureArenaEntry add(int pointer, GestureArenaMember member) {
             _CombiningGestureArenaMember combiner;
 
-            if (!this._combiners.TryGetValue(pointer, out combiner)) {
+            if (!_combiners.TryGetValue(pointer, out combiner)) {
                 combiner = new _CombiningGestureArenaMember(this, pointer);
-                this._combiners[pointer] = combiner;
+                _combiners[pointer] = combiner;
             }
 
             return combiner._add(pointer, member);

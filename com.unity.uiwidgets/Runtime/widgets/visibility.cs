@@ -43,48 +43,48 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool maintainInteractivity;
 
         public override Widget build(BuildContext context) {
-            if (this.maintainSize) {
-                Widget result = this.child;
-                if (!this.maintainInteractivity) {
+            if (maintainSize) {
+                Widget result = child;
+                if (!maintainInteractivity) {
                     result = new IgnorePointer(
-                        child: this.child,
-                        ignoring: !this.visible
+                        child: child,
+                        ignoring: !visible
                     );
                 }
 
                 return new Opacity(
-                    opacity: this.visible ? 1.0f : 0.0f,
+                    opacity: visible ? 1.0f : 0.0f,
                     child: result
                 );
             }
 
-            D.assert(!this.maintainInteractivity);
-            D.assert(!this.maintainSize);
-            if (this.maintainState) {
-                Widget result = this.child;
-                if (!this.maintainAnimation) {
-                    result = new TickerMode(child: this.child, enabled: this.visible);
+            D.assert(!maintainInteractivity);
+            D.assert(!maintainSize);
+            if (maintainState) {
+                Widget result = child;
+                if (!maintainAnimation) {
+                    result = new TickerMode(child: child, enabled: visible);
                 }
 
                 return new Offstage(
                     child: result,
-                    offstage: !this.visible
+                    offstage: !visible
                 );
             }
 
-            D.assert(!this.maintainAnimation);
-            D.assert(!this.maintainState);
-            return this.visible ? this.child : this.replacement;
+            D.assert(!maintainAnimation);
+            D.assert(!maintainState);
+            return visible ? child : replacement;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FlagProperty("visible", value: this.visible, ifFalse: "hidden", ifTrue: "visible"));
-            properties.add(new FlagProperty("maintainState", value: this.maintainState, ifFalse: "maintainState"));
-            properties.add(new FlagProperty("maintainAnimation", value: this.maintainAnimation,
+            properties.add(new FlagProperty("visible", value: visible, ifFalse: "hidden", ifTrue: "visible"));
+            properties.add(new FlagProperty("maintainState", value: maintainState, ifFalse: "maintainState"));
+            properties.add(new FlagProperty("maintainAnimation", value: maintainAnimation,
                 ifFalse: "maintainAnimation"));
-            properties.add(new FlagProperty("maintainSize", value: this.maintainSize, ifFalse: "maintainSize"));
-            properties.add(new FlagProperty("maintainInteractivity", value: this.maintainInteractivity,
+            properties.add(new FlagProperty("maintainSize", value: maintainSize, ifFalse: "maintainSize"));
+            properties.add(new FlagProperty("maintainInteractivity", value: maintainInteractivity,
                 ifFalse: "maintainInteractivity"));
         }
     }

@@ -285,7 +285,7 @@ namespace Unity.UIWidgets.scheduler2 {
         }
 
         public override string ToString() =>
-            $"{Diagnostics.describeIdentity(this)}({(_completed == null ? "active" : (_completed.Value ? "complete" : "canceled"))})";
+            $"{foundation_.describeIdentity(this)}({(_completed == null ? "active" : (_completed.Value ? "complete" : "canceled"))})";
     }
 
 

@@ -14,47 +14,47 @@ namespace Unity.UIWidgets.widgets {
         public readonly ScrollPhysics parent;
 
         protected ScrollPhysics buildParent(ScrollPhysics ancestor) {
-            if (this.parent == null) {
+            if (parent == null) {
                 return ancestor;
             }
 
-            return this.parent.applyTo(ancestor) ?? ancestor;
+            return parent.applyTo(ancestor) ?? ancestor;
         }
 
         public virtual ScrollPhysics applyTo(ScrollPhysics ancestor) {
-            return new ScrollPhysics(parent: this.buildParent(ancestor));
+            return new ScrollPhysics(parent: buildParent(ancestor));
         }
 
         public virtual float applyPhysicsToUserOffset(ScrollMetrics position, float offset) {
-            if (this.parent == null) {
+            if (parent == null) {
                 return offset;
             }
 
-            return this.parent.applyPhysicsToUserOffset(position, offset);
+            return parent.applyPhysicsToUserOffset(position, offset);
         }
 
         public virtual bool shouldAcceptUserOffset(ScrollMetrics position) {
-            if (this.parent == null) {
+            if (parent == null) {
                 return position.pixels != 0.0 || position.minScrollExtent != position.maxScrollExtent;
             }
 
-            return this.parent.shouldAcceptUserOffset(position);
+            return parent.shouldAcceptUserOffset(position);
         }
 
         public virtual float applyBoundaryConditions(ScrollMetrics position, float value) {
-            if (this.parent == null) {
+            if (parent == null) {
                 return 0.0f;
             }
 
-            return this.parent.applyBoundaryConditions(position, value);
+            return parent.applyBoundaryConditions(position, value);
         }
 
         public virtual Simulation createBallisticSimulation(ScrollMetrics position, float velocity) {
-            if (this.parent == null) {
+            if (parent == null) {
                 return null;
             }
 
-            return this.parent.createBallisticSimulation(position, velocity);
+            return parent.createBallisticSimulation(position, velocity);
         }
 
         static readonly SpringDescription _kDefaultSpring = SpringDescription.withDampingRatio(
@@ -65,11 +65,11 @@ namespace Unity.UIWidgets.widgets {
 
         public virtual SpringDescription spring {
             get {
-                if (this.parent == null) {
+                if (parent == null) {
                     return _kDefaultSpring;
                 }
 
-                return this.parent.spring ?? _kDefaultSpring;
+                return parent.spring ?? _kDefaultSpring;
             }
         }
 
@@ -80,55 +80,55 @@ namespace Unity.UIWidgets.widgets {
 
         public virtual Tolerance tolerance {
             get {
-                if (this.parent == null) {
+                if (parent == null) {
                     return _kDefaultTolerance;
                 }
 
-                return this.parent.tolerance ?? _kDefaultTolerance;
+                return parent.tolerance ?? _kDefaultTolerance;
             }
         }
 
         public virtual float minFlingDistance {
             get {
-                if (this.parent == null) {
+                if (parent == null) {
                     return Constants.kTouchSlop;
                 }
 
-                return this.parent.minFlingDistance;
+                return parent.minFlingDistance;
             }
         }
 
         public virtual float carriedMomentum(float existingVelocity) {
-            if (this.parent == null) {
+            if (parent == null) {
                 return 0.0f;
             }
 
-            return this.parent.carriedMomentum(existingVelocity);
+            return parent.carriedMomentum(existingVelocity);
         }
 
         public virtual float minFlingVelocity {
             get {
-                if (this.parent == null) {
+                if (parent == null) {
                     return Constants.kMinFlingVelocity;
                 }
 
-                return this.parent.minFlingVelocity;
+                return parent.minFlingVelocity;
             }
         }
 
         public virtual float maxFlingVelocity {
             get {
-                if (this.parent == null) {
+                if (parent == null) {
                     return Constants.kMaxFlingVelocity;
                 }
 
-                return this.parent.maxFlingVelocity;
+                return parent.maxFlingVelocity;
             }
         }
 
         public virtual float? dragStartDistanceMotionThreshold {
             get {
-                return this.parent?.dragStartDistanceMotionThreshold;
+                return parent?.dragStartDistanceMotionThreshold;
             }
         }
 
@@ -137,11 +137,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string ToString() {
-            if (this.parent == null) {
-                return $"{this.GetType()}";
+            if (parent == null) {
+                return $"{GetType()}";
             }
 
-            return $"{this.GetType()} -> {this.parent}";
+            return $"{GetType()} -> {parent}";
         }
     }
 
@@ -151,7 +151,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override ScrollPhysics applyTo(ScrollPhysics ancestor) {
-            return new BouncingScrollPhysics(parent: this.buildParent(ancestor));
+            return new BouncingScrollPhysics(parent: buildParent(ancestor));
         }
 
         public float frictionFactor(float overscrollFraction) {
@@ -171,8 +171,8 @@ namespace Unity.UIWidgets.widgets {
             bool easing = (overscrollPastStart > 0.0f && offset < 0.0f) || (overscrollPastEnd > 0.0f && offset > 0.0f);
 
             float friction = easing
-                ? this.frictionFactor((overscrollPast - offset.abs()) / position.viewportDimension)
-                : this.frictionFactor(overscrollPast / position.viewportDimension);
+                ? frictionFactor((overscrollPast - offset.abs()) / position.viewportDimension)
+                : frictionFactor(overscrollPast / position.viewportDimension);
             float direction = offset.sign();
 
             return direction * _applyFriction(overscrollPast, offset.abs(), friction);
@@ -202,7 +202,7 @@ namespace Unity.UIWidgets.widgets {
             Tolerance tolerance = this.tolerance;
             if (velocity.abs() >= tolerance.velocity || position.outOfRange()) {
                 return new BouncingScrollSimulation(
-                    spring: this.spring,
+                    spring: spring,
                     position: position.pixels,
                     velocity: velocity * 0.91f,
                     leadingExtent: position.minScrollExtent,
@@ -234,14 +234,14 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override ScrollPhysics applyTo(ScrollPhysics ancestor) {
-            return new ClampingScrollPhysics(parent: this.buildParent(ancestor));
+            return new ClampingScrollPhysics(parent: buildParent(ancestor));
         }
 
         public override float applyBoundaryConditions(ScrollMetrics position, float value) {
             D.assert(() => {
                 if (value == position.pixels) {
                     throw new UIWidgetsError(
-                        $"{this.GetType()}.applyBoundaryConditions() was called redundantly.\n" +
+                        $"{GetType()}.applyBoundaryConditions() was called redundantly.\n" +
                         $"The proposed new position, {value}, is exactly equal to the current position of the " +
                         $"given {position.GetType()}, {position.pixels}.\n" +
                         "The applyBoundaryConditions method should only be called when the value is " +
@@ -285,7 +285,7 @@ namespace Unity.UIWidgets.widgets {
 
                 D.assert(end != null);
                 return new ScrollSpringSimulation(
-                    this.spring,
+                    spring,
                     position.pixels,
                     position.maxScrollExtent,
                     Mathf.Min(0.0f, velocity),
@@ -318,7 +318,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override ScrollPhysics applyTo(ScrollPhysics ancestor) {
-            return new AlwaysScrollableScrollPhysics(parent: this.buildParent(ancestor));
+            return new AlwaysScrollableScrollPhysics(parent: buildParent(ancestor));
         }
 
         public override bool shouldAcceptUserOffset(ScrollMetrics position) {
@@ -331,7 +331,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override ScrollPhysics applyTo(ScrollPhysics ancestor) {
-            return new NeverScrollableScrollPhysics(parent: this.buildParent(ancestor));
+            return new NeverScrollableScrollPhysics(parent: buildParent(ancestor));
         }
 
         public override bool shouldAcceptUserOffset(ScrollMetrics position) {

@@ -145,8 +145,8 @@ namespace Unity.UIWidgets.foundation {
 
         public override string StackTrace {
             get {
-                if (this.innerException != null) {
-                    return this.innerException.StackTrace;
+                if (innerException != null) {
+                    return innerException.StackTrace;
                 }
 
                 var stackTrace = base.StackTrace;

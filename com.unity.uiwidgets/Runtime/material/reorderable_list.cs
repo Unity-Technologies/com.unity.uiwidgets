@@ -60,16 +60,16 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._listOverlayEntry = new OverlayEntry(
+            _listOverlayEntry = new OverlayEntry(
                 opaque: true,
                 builder: (BuildContext context) => {
                     return new _ReorderableListContent(
-                        header: this.widget.header,
-                        children: this.widget.children,
-                        scrollDirection: this.widget.scrollDirection,
-                        onReorder: this.widget.onReorder,
-                        padding: this.widget.padding,
-                        reverse: this.widget.reverse
+                        header: widget.header,
+                        children: widget.children,
+                        scrollDirection: widget.scrollDirection,
+                        onReorder: widget.onReorder,
+                        padding: widget.padding,
+                        reverse: widget.reverse
                     );
                 }
             );
@@ -77,9 +77,9 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             return new Overlay(
-                key: this._overlayKey,
+                key: _overlayKey,
                 initialEntries: new List<OverlayEntry> {
-                    this._listOverlayEntry
+                    _listOverlayEntry
                 });
         }
     }
@@ -144,18 +144,18 @@ namespace Unity.UIWidgets.material {
 
         float _dropAreaExtent {
             get {
-                if (this._draggingFeedbackSize == null) {
+                if (_draggingFeedbackSize == null) {
                     return _defaultDropAreaExtent;
                 }
 
                 float dropAreaWithoutMargin;
-                switch (this.widget.scrollDirection) {
+                switch (widget.scrollDirection) {
                     case Axis.horizontal:
-                        dropAreaWithoutMargin = this._draggingFeedbackSize.width;
+                        dropAreaWithoutMargin = _draggingFeedbackSize.width;
                         break;
                     case Axis.vertical:
                     default:
-                        dropAreaWithoutMargin = this._draggingFeedbackSize.height;
+                        dropAreaWithoutMargin = _draggingFeedbackSize.height;
                         break;
                 }
 
@@ -165,71 +165,71 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._entranceController = new AnimationController(vsync: this, duration: this._reorderAnimationDuration);
-            this._ghostController = new AnimationController(vsync: this, duration: this._reorderAnimationDuration);
-            this._entranceController.addStatusListener(this._onEntranceStatusChanged);
+            _entranceController = new AnimationController(vsync: this, duration: _reorderAnimationDuration);
+            _ghostController = new AnimationController(vsync: this, duration: _reorderAnimationDuration);
+            _entranceController.addStatusListener(_onEntranceStatusChanged);
         }
 
         public override void didChangeDependencies() {
-            this._scrollController = PrimaryScrollController.of(this.context) ?? new ScrollController();
+            _scrollController = PrimaryScrollController.of(context) ?? new ScrollController();
             base.didChangeDependencies();
         }
 
         public override void dispose() {
-            this._entranceController.dispose();
-            this._ghostController.dispose();
+            _entranceController.dispose();
+            _ghostController.dispose();
             base.dispose();
         }
 
         void _requestAnimationToNextIndex() {
-            if (this._entranceController.isCompleted) {
-                this._ghostIndex = this._currentIndex;
-                if (this._nextIndex == this._currentIndex) {
+            if (_entranceController.isCompleted) {
+                _ghostIndex = _currentIndex;
+                if (_nextIndex == _currentIndex) {
                     return;
                 }
 
-                this._currentIndex = this._nextIndex;
-                this._ghostController.reverse(from: 1.0f);
-                this._entranceController.forward(from: 0.0f);
+                _currentIndex = _nextIndex;
+                _ghostController.reverse(from: 1.0f);
+                _entranceController.forward(from: 0.0f);
             }
         }
 
         void _onEntranceStatusChanged(AnimationStatus status) {
             if (status == AnimationStatus.completed) {
-                this.setState(() => { this._requestAnimationToNextIndex(); });
+                setState(() => { _requestAnimationToNextIndex(); });
             }
         }
 
         void _scrollTo(BuildContext context) {
-            if (this._scrolling) {
+            if (_scrolling) {
                 return;
             }
 
             RenderObject contextObject = context.findRenderObject();
             RenderAbstractViewport viewport = RenderViewportUtils.of(contextObject);
             D.assert(viewport != null);
-            float margin = this._dropAreaExtent;
-            float scrollOffset = this._scrollController.offset;
-            float topOffset = Mathf.Max(this._scrollController.position.minScrollExtent,
+            float margin = _dropAreaExtent;
+            float scrollOffset = _scrollController.offset;
+            float topOffset = Mathf.Max(_scrollController.position.minScrollExtent,
                 viewport.getOffsetToReveal(contextObject, 0.0f).offset - margin
             );
-            float bottomOffset = Mathf.Min(this._scrollController.position.maxScrollExtent,
+            float bottomOffset = Mathf.Min(_scrollController.position.maxScrollExtent,
                 viewport.getOffsetToReveal(contextObject, 1.0f).offset + margin
             );
             bool onScreen = scrollOffset <= topOffset && scrollOffset >= bottomOffset;
 
             if (!onScreen) {
-                this._scrolling = true;
-                this._scrollController.position.animateTo(
+                _scrolling = true;
+                _scrollController.position.animateTo(
                     scrollOffset < bottomOffset ? bottomOffset : topOffset,
-                    duration: this._scrollAnimationDuration,
+                    duration: _scrollAnimationDuration,
                     curve: Curves.easeInOut
-                ).Then(() => { this.setState(() => { this._scrolling = false; }); });
+                ).Then(() => { setState(() => { _scrolling = false; }); });
             }
         }
 
         Widget _buildContainerForScrollDirection(List<Widget> children = null) {
-            switch (this.widget.scrollDirection) {
+            switch (widget.scrollDirection) {
                 case Axis.horizontal:
                     return new Row(children: children);
                 case Axis.vertical:
@@ -244,30 +244,30 @@ namespace Unity.UIWidgets.material {
                 new GlobalObjectKey<State<_ReorderableListContent>>(toWrap.key);
 
             void onDragStarted() {
-                this.setState(() => {
-                    this._dragging = toWrap.key;
-                    this._dragStartIndex = index;
-                    this._ghostIndex = index;
-                    this._currentIndex = index;
-                    this._entranceController.setValue(1.0f);
-                    this._draggingFeedbackSize = keyIndexGlobalKey.currentContext.size;
+                setState(() => {
+                    _dragging = toWrap.key;
+                    _dragStartIndex = index;
+                    _ghostIndex = index;
+                    _currentIndex = index;
+                    _entranceController.setValue(1.0f);
+                    _draggingFeedbackSize = keyIndexGlobalKey.currentContext.size;
                 });
             }
 
             void reorder(int startIndex, int endIndex) {
-                this.setState(() => {
+                setState(() => {
                     if (startIndex != endIndex) {
-                        this.widget.onReorder(startIndex, endIndex);
+                        widget.onReorder(startIndex, endIndex);
                     }
 
-                    this._ghostController.reverse(from: 0.1f);
-                    this._entranceController.reverse(from: 0.1f);
-                    this._dragging = null;
+                    _ghostController.reverse(from: 0.1f);
+                    _entranceController.reverse(from: 0.1f);
+                    _dragging = null;
                 });
             }
 
             void onDragEnded() {
-                reorder(this._dragStartIndex, this._currentIndex);
+                reorder(_dragStartIndex, _currentIndex);
             }
 
 
@@ -282,7 +282,7 @@ namespace Unity.UIWidgets.material {
                 Widget toWrapWithKeyedSubtree = wrapWithKeyedSubtree();
                 Widget child = new LongPressDraggable<Key>(
                     maxSimultaneousDrags: 1,
-                    axis: this.widget.scrollDirection,
+                    axis: widget.scrollDirection,
                     data: toWrap.key,
                     feedback: new Container(
                         alignment: Alignment.topLeft,
@@ -293,7 +293,7 @@ namespace Unity.UIWidgets.material {
                             child: toWrapWithKeyedSubtree
                         )
                     ),
-                    child: this._dragging == toWrap.key ? new SizedBox() : toWrapWithKeyedSubtree,
+                    child: _dragging == toWrap.key ? new SizedBox() : toWrapWithKeyedSubtree,
                     childWhenDragging: new SizedBox(),
                     dragAnchor: DragAnchor.child,
                     onDragStarted: onDragStarted,
@@ -301,37 +301,37 @@ namespace Unity.UIWidgets.material {
                     onDraggableCanceled: (Velocity velocity, Offset offset) => { onDragEnded(); }
                 );
 
-                if (index >= this.widget.children.Count) {
+                if (index >= widget.children.Count) {
                     child = toWrap;
                 }
 
                 Widget spacing;
-                switch (this.widget.scrollDirection) {
+                switch (widget.scrollDirection) {
                     case Axis.horizontal:
-                        spacing = new SizedBox(width: this._dropAreaExtent);
+                        spacing = new SizedBox(width: _dropAreaExtent);
                         break;
                     case Axis.vertical:
                     default:
-                        spacing = new SizedBox(height: this._dropAreaExtent);
+                        spacing = new SizedBox(height: _dropAreaExtent);
                         break;
                 }
 
-                if (this._currentIndex == index) {
-                    return this._buildContainerForScrollDirection(children: new List<Widget> {
+                if (_currentIndex == index) {
+                    return _buildContainerForScrollDirection(children: new List<Widget> {
                         new SizeTransition(
-                            sizeFactor: this._entranceController,
-                            axis: this.widget.scrollDirection,
+                            sizeFactor: _entranceController,
+                            axis: widget.scrollDirection,
                             child: spacing
                         ),
                         child
                     });
                 }
 
-                if (this._ghostIndex == index) {
-                    return this._buildContainerForScrollDirection(children: new List<Widget> {
+                if (_ghostIndex == index) {
+                    return _buildContainerForScrollDirection(children: new List<Widget> {
                         new SizeTransition(
-                            sizeFactor: this._ghostController,
-                            axis: this.widget.scrollDirection,
+                            sizeFactor: _ghostController,
+                            axis: widget.scrollDirection,
                             child: spacing
                         ),
                         child
@@ -345,12 +345,12 @@ namespace Unity.UIWidgets.material {
                 return new DragTarget<Key>(
                     builder: buildDragTarget,
                     onWillAccept: (Key toAccept) => {
-                        this.setState(() => {
-                            this._nextIndex = index;
-                            this._requestAnimationToNextIndex();
+                        setState(() => {
+                            _nextIndex = index;
+                            _requestAnimationToNextIndex();
                         });
-                        this._scrollTo(context);
-                        return this._dragging == toAccept && toAccept != toWrap.key;
+                        _scrollTo(context);
+                        return _dragging == toAccept && toAccept != toWrap.key;
                     },
                     onAccept: (Key accepted) => { },
                     onLeave: (Key leaving) => { }
@@ -362,17 +362,17 @@ namespace Unity.UIWidgets.material {
             D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
             return new LayoutBuilder(builder: (BuildContext _, BoxConstraints constraints) => {
                 List<Widget> wrappedChildren = new List<Widget> { };
-                if (this.widget.header != null) {
-                    wrappedChildren.Add(this.widget.header);
+                if (widget.header != null) {
+                    wrappedChildren.Add(widget.header);
                 }
 
-                for (int i = 0; i < this.widget.children.Count; i += 1) {
-                    wrappedChildren.Add(this._wrap(this.widget.children[i], i, constraints));
+                for (int i = 0; i < widget.children.Count; i += 1) {
+                    wrappedChildren.Add(_wrap(widget.children[i], i, constraints));
                 }
 
                 Key endWidgetKey = Key.key("DraggableList - End Widget");
                 Widget finalDropArea;
-                switch (this.widget.scrollDirection) {
+                switch (widget.scrollDirection) {
                     case Axis.horizontal:
                         finalDropArea = new SizedBox(
                             key: endWidgetKey,
@@ -390,26 +390,26 @@ namespace Unity.UIWidgets.material {
                         break;
                 }
 
-                if (this.widget.reverse == true) {
-                    wrappedChildren.Insert(0, this._wrap(
+                if (widget.reverse == true) {
+                    wrappedChildren.Insert(0, _wrap(
                         finalDropArea,
-                        this.widget.children.Count,
+                        widget.children.Count,
                         constraints)
                     );
                 }
                 else {
-                    wrappedChildren.Add(this._wrap(
-                        finalDropArea, this.widget.children.Count,
+                    wrappedChildren.Add(_wrap(
+                        finalDropArea, widget.children.Count,
                         constraints)
                     );
                 }
 
                 return new SingleChildScrollView(
-                    scrollDirection: this.widget.scrollDirection,
-                    child: this._buildContainerForScrollDirection(children: wrappedChildren),
-                    padding: this.widget.padding,
-                    controller: this._scrollController,
-                    reverse: this.widget.reverse == true
+                    scrollDirection: widget.scrollDirection,
+                    child: _buildContainerForScrollDirection(children: wrappedChildren),
+                    padding: widget.padding,
+                    controller: _scrollController,
+                    reverse: widget.reverse == true
                 );
             });
         }

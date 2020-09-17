@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.debugger {
         DiagnosticsNode _parent;
 
         public DiagnosticsNode(Dictionary<string, object> json, bool isProperty) {
-            this._json = json;
+            _json = json;
             this.isProperty = isProperty;
         }
 
@@ -27,7 +27,7 @@ namespace Unity.UIWidgets.debugger {
                 return true;
             }
 
-            return Equals(this.diagnosticRef, other.diagnosticRef);
+            return Equals(diagnosticRef, other.diagnosticRef);
         }
 
         public override bool Equals(object obj) {
@@ -39,11 +39,11 @@ namespace Unity.UIWidgets.debugger {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((DiagnosticsNode) obj);
+            return Equals((DiagnosticsNode) obj);
         }
 
         public static bool operator ==(DiagnosticsNode left, DiagnosticsNode right) {
@@ -55,96 +55,96 @@ namespace Unity.UIWidgets.debugger {
         }
 
         public DiagnosticsNode parent {
-            get { return this._parent; }
-            set { this._parent = value; }
+            get { return _parent; }
+            set { _parent = value; }
         }
 
         public string getStringMember(string memberName) {
             object ret;
-            this._json.TryGetValue(memberName, out ret);
+            _json.TryGetValue(memberName, out ret);
             return ret == null ? null : ret.ToString();
         }
 
         public string separator {
-            get { return this.showSeparator ? ":" : ""; }
+            get { return showSeparator ? ":" : ""; }
         }
 
         public string name {
-            get { return this.getStringMember("name"); }
+            get { return getStringMember("name"); }
         }
 
         public bool showSeparator {
-            get { return this.getBoolMember("showSeparator", true); }
+            get { return getBoolMember("showSeparator", true); }
         }
 
         public string description {
-            get { return this.getStringMember("description"); }
+            get { return getStringMember("description"); }
         }
 
         public DiagnosticLevel level {
-            get { return this.getLevelMember("level", DiagnosticLevel.info); }
+            get { return getLevelMember("level", DiagnosticLevel.info); }
         }
 
         public bool showName {
-            get { return this.getBoolMember("showName", true); }
+            get { return getBoolMember("showName", true); }
         }
 
         public string emptyBodyDescription {
-            get { return this.getStringMember("emptyBodyDescription"); }
+            get { return getStringMember("emptyBodyDescription"); }
         }
 
         public DiagnosticsTreeStyle style {
-            get { return this.getStyleMember("style", DiagnosticsTreeStyle.sparse); }
+            get { return getStyleMember("style", DiagnosticsTreeStyle.sparse); }
         }
 
         public string type {
-            get { return this.getStringMember("type"); }
+            get { return getStringMember("type"); }
         }
 
         public bool isQuoted {
-            get { return this.getBoolMember("quoted", false); }
+            get { return getBoolMember("quoted", false); }
         }
 
         public bool hasIsQuoted {
-            get { return this._json.ContainsKey("quoted"); }
+            get { return _json.ContainsKey("quoted"); }
         }
 
         public string unit {
-            get { return this.getStringMember("unit"); }
+            get { return getStringMember("unit"); }
         }
 
         public bool hasUnit {
-            get { return this._json.ContainsKey("unit"); }
+            get { return _json.ContainsKey("unit"); }
         }
 
         public string numberToString {
-            get { return this.getStringMember("numberToString"); }
+            get { return getStringMember("numberToString"); }
         }
 
         public bool hasNumberToString {
-            get { return this._json.ContainsKey("numberToString"); }
+            get { return _json.ContainsKey("numberToString"); }
         }
 
         public string ifTrue {
-            get { return this.getStringMember("ifTrue"); }
+            get { return getStringMember("ifTrue"); }
         }
 
         public bool hasIfTrue {
-            get { return this._json.ContainsKey("ifTrue"); }
+            get { return _json.ContainsKey("ifTrue"); }
         }
 
         public string ifFalse {
-            get { return this.getStringMember("ifFalse"); }
+            get { return getStringMember("ifFalse"); }
         }
 
         public bool hasIfFalse {
-            get { return this._json.ContainsKey("ifFalse"); }
+            get { return _json.ContainsKey("ifFalse"); }
         }
 
         public List<string> values {
             get {
                 object value;
-                this._json.TryGetValue("values", out value);
+                _json.TryGetValue("values", out value);
                 if (value == null) {
                     return null;
                 }
@@ -154,68 +154,68 @@ namespace Unity.UIWidgets.debugger {
         }
 
         public bool hasValues {
-            get { return this._json.ContainsKey("values"); }
+            get { return _json.ContainsKey("values"); }
         }
 
         public string ifPresent {
-            get { return this.getStringMember("ifPresent"); }
+            get { return getStringMember("ifPresent"); }
         }
 
         public bool hasIfPresent {
-            get { return this._json.ContainsKey("ifPresent"); }
+            get { return _json.ContainsKey("ifPresent"); }
         }
 
         public string defaultValue {
-            get { return this.getStringMember("defaultValue"); }
+            get { return getStringMember("defaultValue"); }
         }
 
         public bool hasDefaultValue {
-            get { return this._json.ContainsKey("defaultValue"); }
+            get { return _json.ContainsKey("defaultValue"); }
         }
 
         public string ifEmpty {
-            get { return this.getStringMember("ifEmpty"); }
+            get { return getStringMember("ifEmpty"); }
         }
 
         public string ifNull {
-            get { return this.getStringMember("ifNull"); }
+            get { return getStringMember("ifNull"); }
         }
 
         public string tooltip {
-            get { return this.getStringMember("tooltip"); }
+            get { return getStringMember("tooltip"); }
         }
 
         public bool hasTooltip {
-            get { return this._json.ContainsKey("tooltip"); }
+            get { return _json.ContainsKey("tooltip"); }
         }
 
         public bool missingIfNull {
-            get { return this.getBoolMember("missingIfNull", false); }
+            get { return getBoolMember("missingIfNull", false); }
         }
 
         public string exception {
-            get { return this.getStringMember("exception"); }
+            get { return getStringMember("exception"); }
         }
 
         public bool hasException {
-            get { return this._json.ContainsKey("exception"); }
+            get { return _json.ContainsKey("exception"); }
         }
 
         public string propertyType {
-            get { return this.getStringMember("propertyType"); }
+            get { return getStringMember("propertyType"); }
         }
 
         public DiagnosticLevel defaultLevel {
-            get { return this.getLevelMember("defaultLevel", DiagnosticLevel.info); }
+            get { return getLevelMember("defaultLevel", DiagnosticLevel.info); }
         }
 
         public bool isDiagnosticableValue {
-            get { return this.getBoolMember("isDiagnosticableValue", false); }
+            get { return getBoolMember("isDiagnosticableValue", false); }
         }
 
         public InspectorInstanceRef valueRef {
             get {
-                var id = this.getStringMember("valueId");
+                var id = getStringMember("valueId");
                 return new InspectorInstanceRef(id);
             }
         }
@@ -223,7 +223,7 @@ namespace Unity.UIWidgets.debugger {
         public List<DiagnosticsNode> children {
             get {
                 object value;
-                this._json.TryGetValue("children", out value);
+                _json.TryGetValue("children", out value);
                 if (value == null) {
                     return new List<DiagnosticsNode>();
                 }
@@ -237,13 +237,13 @@ namespace Unity.UIWidgets.debugger {
         public Dictionary<string, object> valuePropertiesJson {
             get {
                 object value;
-                this._json.TryGetValue("valueProperties", out value);
+                _json.TryGetValue("valueProperties", out value);
                 return (Dictionary<string, object>) value;
             }
         }
 
         public bool isColorProperty {
-            get { return this.isProperty && (this.propertyType == typeof(Color).ToString()); }
+            get { return isProperty && (propertyType == typeof(Color).ToString()); }
         }
 
 //
@@ -260,7 +260,7 @@ namespace Unity.UIWidgets.debugger {
 
         bool getBoolMember(string memberName, bool defaultValue = false) {
             object value;
-            if (!this._json.TryGetValue(memberName, out value)) {
+            if (!_json.TryGetValue(memberName, out value)) {
                 return defaultValue;
             }
 
@@ -272,16 +272,16 @@ namespace Unity.UIWidgets.debugger {
         }
 
         DiagnosticLevel getLevelMember(string memberName, DiagnosticLevel defaultValue) {
-            return this.getEnumMember(memberName, defaultValue);
+            return getEnumMember(memberName, defaultValue);
         }
 
         DiagnosticsTreeStyle getStyleMember(string memberName, DiagnosticsTreeStyle defaultValue) {
-            return this.getEnumMember(memberName, defaultValue);
+            return getEnumMember(memberName, defaultValue);
         }
 
         T getEnumMember<T>(string memberName, T defaultValue) {
             object value;
-            if (!this._json.TryGetValue(memberName, out value)) {
+            if (!_json.TryGetValue(memberName, out value)) {
                 return defaultValue;
             }
 
@@ -294,14 +294,14 @@ namespace Unity.UIWidgets.debugger {
         }
 
         public InspectorInstanceRef diagnosticRef {
-            get { return new InspectorInstanceRef(this._json["objectId"].ToString()); }
+            get { return new InspectorInstanceRef(_json["objectId"].ToString()); }
         }
 
         public List<DiagnosticsNode> inlineProperties {
             get {
                 var properties = new List<DiagnosticsNode>();
                 object value;
-                this._json.TryGetValue("properties", out value);
+                _json.TryGetValue("properties", out value);
                 if (value != null) {
                     foreach (var v in (IEnumerable<Dictionary<string, object>>) value) {
                         properties.Add(new DiagnosticsNode(v, true));
@@ -331,7 +331,7 @@ namespace Unity.UIWidgets.debugger {
                 return true;
             }
 
-            return string.Equals(this.id, other.id);
+            return string.Equals(id, other.id);
         }
 
         public override bool Equals(object obj) {
@@ -343,15 +343,15 @@ namespace Unity.UIWidgets.debugger {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((InspectorInstanceRef) obj);
+            return Equals((InspectorInstanceRef) obj);
         }
 
         public override int GetHashCode() {
-            return (this.id != null ? this.id.GetHashCode() : 0);
+            return (id != null ? id.GetHashCode() : 0);
         }
 
         public static bool operator ==(InspectorInstanceRef left, InspectorInstanceRef right) {
@@ -363,7 +363,7 @@ namespace Unity.UIWidgets.debugger {
         }
 
         public override string ToString() {
-            return $"Id: {this.id}";
+            return $"Id: {id}";
         }
     }
 }

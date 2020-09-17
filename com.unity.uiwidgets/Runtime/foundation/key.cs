@@ -45,7 +45,7 @@ namespace Unity.UIWidgets.foundation {
                 return true;
             }
 
-            return EqualityComparer<T>.Default.Equals(this.value, other.value);
+            return EqualityComparer<T>.Default.Equals(value, other.value);
         }
 
         public override bool Equals(object obj) {
@@ -57,15 +57,15 @@ namespace Unity.UIWidgets.foundation {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ValueKey<T>) obj);
+            return Equals((ValueKey<T>) obj);
         }
 
         public override int GetHashCode() {
-            return EqualityComparer<T>.Default.GetHashCode(this.value);
+            return EqualityComparer<T>.Default.GetHashCode(value);
         }
 
         public static bool operator ==(ValueKey<T> left, ValueKey<T> right) {
@@ -77,13 +77,13 @@ namespace Unity.UIWidgets.foundation {
         }
 
         public override string ToString() {
-            string valueString = typeof(T) == typeof(string) ? "<\'" + this.value + "\'>" : "<" + this.value + ">";
+            string valueString = typeof(T) == typeof(string) ? "<\'" + value + "\'>" : "<" + value + ">";
 
-            if (this.GetType() == typeof(ValueKey<T>)) {
+            if (GetType() == typeof(ValueKey<T>)) {
                 return $"[{valueString}]";
             }
 
-            return $"[{this.GetType()} {valueString}]";
+            return $"[{GetType()} {valueString}]";
         }
     }
 }

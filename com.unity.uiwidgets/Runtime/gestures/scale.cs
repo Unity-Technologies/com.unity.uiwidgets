@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly Offset focalPoint;
 
         public override string ToString() {
-            return $"ScaleStartDetails(focalPoint: {this.focalPoint}";
+            return $"ScaleStartDetails(focalPoint: {focalPoint}";
         }
     }
 
@@ -57,7 +57,7 @@ namespace Unity.UIWidgets.gestures {
 
         public override string ToString() {
             return
-                $"ScaleUpdateDetails(focalPoint: {this.focalPoint}, scale: {this.scale}, horizontalScale: {this.horizontalScale}, verticalScale: {this.verticalScale}, rotation: {this.rotation}";
+                $"ScaleUpdateDetails(focalPoint: {focalPoint}, scale: {scale}, horizontalScale: {horizontalScale}, verticalScale: {verticalScale}, rotation: {rotation}";
         }
     }
 
@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly Velocity velocity;
 
         public override string ToString() {
-            return $"ScaleEndDetails(velocity: {this.velocity}";
+            return $"ScaleEndDetails(velocity: {velocity}";
         }
     }
 
@@ -141,37 +141,37 @@ namespace Unity.UIWidgets.gestures {
         readonly Dictionary<int, VelocityTracker> _velocityTrackers = new Dictionary<int, VelocityTracker>();
 
         float _scaleFactor {
-            get { return this._initialSpan > 0.0f ? this._currentSpan / this._initialSpan : 1.0f; }
+            get { return _initialSpan > 0.0f ? _currentSpan / _initialSpan : 1.0f; }
         }
 
         float _horizontalScaleFactor {
             get {
-                return this._initialHorizontalSpan > 0.0f
-                    ? this._currentHorizontalSpan / this._initialHorizontalSpan
+                return _initialHorizontalSpan > 0.0f
+                    ? _currentHorizontalSpan / _initialHorizontalSpan
                     : 1.0f;
             }
         }
 
         float _verticalScaleFactor {
             get {
-                return this._initialVerticalSpan > 0.0f ? this._currentVerticalSpan / this._initialVerticalSpan : 1.0f;
+                return _initialVerticalSpan > 0.0f ? _currentVerticalSpan / _initialVerticalSpan : 1.0f;
             }
         }
 
         float _computeRotationFactor() {
-            if (this._initialLine == null || this._currentLine == null) {
+            if (_initialLine == null || _currentLine == null) {
                 return 0.0f;
             }
 
-            float fx = this._initialLine.pointerStartLocation.dx;
-            float fy = this._initialLine.pointerStartLocation.dy;
-            float sx = this._initialLine.pointerEndLocation.dx;
-            float sy = this._initialLine.pointerEndLocation.dy;
+            float fx = _initialLine.pointerStartLocation.dx;
+            float fy = _initialLine.pointerStartLocation.dy;
+            float sx = _initialLine.pointerEndLocation.dx;
+            float sy = _initialLine.pointerEndLocation.dy;
 
-            float nfx = this._currentLine.pointerStartLocation.dx;
-            float nfy = this._currentLine.pointerStartLocation.dy;
-            float nsx = this._currentLine.pointerEndLocation.dx;
-            float nsy = this._currentLine.pointerEndLocation.dy;
+            float nfx = _currentLine.pointerStartLocation.dx;
+            float nfy = _currentLine.pointerStartLocation.dy;
+            float nsx = _currentLine.pointerEndLocation.dx;
+            float nsy = _currentLine.pointerEndLocation.dy;
 
             float angle1 = Mathf.Atan2(fy - sy, fx - sx);
             float angle2 = Mathf.Atan2(nfy - nsy, nfx - nsx);
@@ -180,120 +180,120 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override void addAllowedPointer(PointerDownEvent evt) {
-            this.startTrackingPointer(evt.pointer);
-            this._velocityTrackers[evt.pointer] = new VelocityTracker();
-            if (this._state == _ScaleState.ready) {
-                this._state = _ScaleState.possible;
-                this._initialSpan = 0.0f;
-                this._currentSpan = 0.0f;
-                this._initialHorizontalSpan = 0.0f;
-                this._currentHorizontalSpan = 0.0f;
-                this._initialVerticalSpan = 0.0f;
-                this._currentVerticalSpan = 0.0f;
-                this._pointerLocations = new Dictionary<int, Offset>();
-                this._pointerQueue = new List<int>();
+            startTrackingPointer(evt.pointer);
+            _velocityTrackers[evt.pointer] = new VelocityTracker();
+            if (_state == _ScaleState.ready) {
+                _state = _ScaleState.possible;
+                _initialSpan = 0.0f;
+                _currentSpan = 0.0f;
+                _initialHorizontalSpan = 0.0f;
+                _currentHorizontalSpan = 0.0f;
+                _initialVerticalSpan = 0.0f;
+                _currentVerticalSpan = 0.0f;
+                _pointerLocations = new Dictionary<int, Offset>();
+                _pointerQueue = new List<int>();
             }
         }
 
         protected override void handleEvent(PointerEvent evt) {
-            D.assert(this._state != _ScaleState.ready);
+            D.assert(_state != _ScaleState.ready);
             bool didChangeConfiguration = false;
             bool shouldStartIfAccepted = false;
 
             if (evt is PointerMoveEvent) {
-                VelocityTracker tracker = this._velocityTrackers[evt.pointer];
+                VelocityTracker tracker = _velocityTrackers[evt.pointer];
                 D.assert(tracker != null);
                 if (!evt.synthesized) {
                     tracker.addPosition(evt.timeStamp, evt.position);
                 }
 
-                this._pointerLocations[evt.pointer] = evt.position;
+                _pointerLocations[evt.pointer] = evt.position;
                 shouldStartIfAccepted = true;
             }
             else if (evt is PointerDownEvent) {
-                this._pointerLocations[evt.pointer] = evt.position;
-                this._pointerQueue.Add(evt.pointer);
+                _pointerLocations[evt.pointer] = evt.position;
+                _pointerQueue.Add(evt.pointer);
                 didChangeConfiguration = true;
                 shouldStartIfAccepted = true;
             }
             else if (evt is PointerUpEvent || evt is PointerCancelEvent) {
-                this._pointerLocations.Remove(evt.pointer);
-                this._pointerQueue.Remove(evt.pointer);
+                _pointerLocations.Remove(evt.pointer);
+                _pointerQueue.Remove(evt.pointer);
                 didChangeConfiguration = true;
             }
 
-            this._updateLines();
-            this._update();
+            _updateLines();
+            _update();
 
-            if (!didChangeConfiguration || this._reconfigure(evt.pointer)) {
-                this._advanceStateMachine(shouldStartIfAccepted);
+            if (!didChangeConfiguration || _reconfigure(evt.pointer)) {
+                _advanceStateMachine(shouldStartIfAccepted);
             }
 
-            this.stopTrackingIfPointerNoLongerDown(evt);
+            stopTrackingIfPointerNoLongerDown(evt);
         }
 
         void _update() {
-            int count = this._pointerLocations.Keys.Count;
+            int count = _pointerLocations.Keys.Count;
 
             Offset focalPoint = Offset.zero;
-            foreach (int pointer in this._pointerLocations.Keys) {
-                focalPoint += this._pointerLocations[pointer];
+            foreach (int pointer in _pointerLocations.Keys) {
+                focalPoint += _pointerLocations[pointer];
             }
 
-            this._currentFocalPoint = count > 0 ? focalPoint / count : Offset.zero;
+            _currentFocalPoint = count > 0 ? focalPoint / count : Offset.zero;
 
             float totalDeviation = 0.0f;
             float totalHorizontalDeviation = 0.0f;
             float totalVerticalDeviation = 0.0f;
 
-            foreach (int pointer in this._pointerLocations.Keys) {
-                totalDeviation += (this._currentFocalPoint - this._pointerLocations[pointer]).distance;
-                totalHorizontalDeviation += (this._currentFocalPoint.dx - this._pointerLocations[pointer].dx).abs();
-                totalVerticalDeviation += (this._currentFocalPoint.dy - this._pointerLocations[pointer].dy).abs();
+            foreach (int pointer in _pointerLocations.Keys) {
+                totalDeviation += (_currentFocalPoint - _pointerLocations[pointer]).distance;
+                totalHorizontalDeviation += (_currentFocalPoint.dx - _pointerLocations[pointer].dx).abs();
+                totalVerticalDeviation += (_currentFocalPoint.dy - _pointerLocations[pointer].dy).abs();
             }
 
-            this._currentSpan = count > 0 ? totalDeviation / count : 0.0f;
-            this._currentHorizontalSpan = count > 0 ? totalHorizontalDeviation / count : 0.0f;
-            this._currentVerticalSpan = count > 0 ? totalVerticalDeviation / count : 0.0f;
+            _currentSpan = count > 0 ? totalDeviation / count : 0.0f;
+            _currentHorizontalSpan = count > 0 ? totalHorizontalDeviation / count : 0.0f;
+            _currentVerticalSpan = count > 0 ? totalVerticalDeviation / count : 0.0f;
         }
 
         void _updateLines() {
-            int count = this._pointerLocations.Keys.Count;
-            D.assert(this._pointerQueue.Count >= count);
+            int count = _pointerLocations.Keys.Count;
+            D.assert(_pointerQueue.Count >= count);
 
             if (count < 2) {
-                this._initialLine = this._currentLine;
+                _initialLine = _currentLine;
             }
-            else if (this._initialLine != null &&
-                     this._initialLine.pointerStartId == this._pointerQueue[0] &&
-                     this._initialLine.pointerEndId == this._pointerQueue[1]) {
-                this._currentLine = new _LineBetweenPointers(
-                    pointerStartId: this._pointerQueue[0],
-                    pointerStartLocation: this._pointerLocations[this._pointerQueue[0]],
-                    pointerEndId: this._pointerQueue[1],
-                    pointerEndLocation: this._pointerLocations[this._pointerQueue[1]]
+            else if (_initialLine != null &&
+                     _initialLine.pointerStartId == _pointerQueue[0] &&
+                     _initialLine.pointerEndId == _pointerQueue[1]) {
+                _currentLine = new _LineBetweenPointers(
+                    pointerStartId: _pointerQueue[0],
+                    pointerStartLocation: _pointerLocations[_pointerQueue[0]],
+                    pointerEndId: _pointerQueue[1],
+                    pointerEndLocation: _pointerLocations[_pointerQueue[1]]
                 );
             }
             else {
-                this._initialLine = new _LineBetweenPointers(
-                    pointerStartId: this._pointerQueue[0],
-                    pointerStartLocation: this._pointerLocations[this._pointerQueue[0]],
-                    pointerEndId: this._pointerQueue[1],
-                    pointerEndLocation: this._pointerLocations[this._pointerQueue[1]]
+                _initialLine = new _LineBetweenPointers(
+                    pointerStartId: _pointerQueue[0],
+                    pointerStartLocation: _pointerLocations[_pointerQueue[0]],
+                    pointerEndId: _pointerQueue[1],
+                    pointerEndLocation: _pointerLocations[_pointerQueue[1]]
                 );
-                this._currentLine = null;
+                _currentLine = null;
             }
         }
 
         bool _reconfigure(int pointer) {
-            this._initialFocalPoint = this._currentFocalPoint;
-            this._initialSpan = this._currentSpan;
-            this._initialLine = this._currentLine;
-            this._initialHorizontalSpan = this._currentHorizontalSpan;
-            this._initialVerticalSpan = this._currentVerticalSpan;
-            if (this._state == _ScaleState.started) {
-                if (this.onEnd != null) {
-                    VelocityTracker tracker = this._velocityTrackers[pointer];
+            _initialFocalPoint = _currentFocalPoint;
+            _initialSpan = _currentSpan;
+            _initialLine = _currentLine;
+            _initialHorizontalSpan = _currentHorizontalSpan;
+            _initialVerticalSpan = _currentVerticalSpan;
+            if (_state == _ScaleState.started) {
+                if (onEnd != null) {
+                    VelocityTracker tracker = _velocityTrackers[pointer];
                     D.assert(tracker != null);
 
                     Velocity velocity = tracker.getVelocity();
@@ -306,20 +306,20 @@ namespace Unity.UIWidgets.gestures {
                                                  Constants.kMaxFlingVelocity);
                         }
 
-                        this.invokeCallback<object>("onEnd", () => {
-                            this.onEnd(new ScaleEndDetails(velocity: velocity));
+                        invokeCallback<object>("onEnd", () => {
+                            onEnd(new ScaleEndDetails(velocity: velocity));
                             return null;
                         });
                     }
                     else {
-                        this.invokeCallback<object>("onEnd", () => {
-                            this.onEnd(new ScaleEndDetails(velocity: Velocity.zero));
+                        invokeCallback<object>("onEnd", () => {
+                            onEnd(new ScaleEndDetails(velocity: Velocity.zero));
                             return null;
                         });
                     }
                 }
 
-                this._state = _ScaleState.accepted;
+                _state = _ScaleState.accepted;
                 return false;
             }
 
@@ -327,34 +327,34 @@ namespace Unity.UIWidgets.gestures {
         }
 
         void _advanceStateMachine(bool shouldStartIfAccepted) {
-            if (this._state == _ScaleState.ready) {
-                this._state = _ScaleState.possible;
+            if (_state == _ScaleState.ready) {
+                _state = _ScaleState.possible;
             }
 
-            if (this._state == _ScaleState.possible) {
-                float spanDelta = (this._currentSpan - this._initialSpan).abs();
-                float focalPointDelta = (this._currentFocalPoint - this._initialFocalPoint).distance;
+            if (_state == _ScaleState.possible) {
+                float spanDelta = (_currentSpan - _initialSpan).abs();
+                float focalPointDelta = (_currentFocalPoint - _initialFocalPoint).distance;
                 if (spanDelta > Constants.kScaleSlop || focalPointDelta > Constants.kPanSlop) {
-                    this.resolve(GestureDisposition.accepted);
+                    resolve(GestureDisposition.accepted);
                 }
             }
-            else if (this._state >= _ScaleState.accepted) {
-                this.resolve(GestureDisposition.accepted);
+            else if (_state >= _ScaleState.accepted) {
+                resolve(GestureDisposition.accepted);
             }
 
-            if (this._state == _ScaleState.accepted && shouldStartIfAccepted) {
-                this._state = _ScaleState.started;
-                this._dispatchOnStartCallbackIfNeeded();
+            if (_state == _ScaleState.accepted && shouldStartIfAccepted) {
+                _state = _ScaleState.started;
+                _dispatchOnStartCallbackIfNeeded();
             }
 
-            if (this._state == _ScaleState.started && this.onUpdate != null) {
-                this.invokeCallback<object>("onUpdate", () => {
-                    this.onUpdate(new ScaleUpdateDetails(
-                        scale: this._scaleFactor,
-                        horizontalScale: this._horizontalScaleFactor,
-                        verticalScale: this._verticalScaleFactor,
-                        focalPoint: this._currentFocalPoint,
-                        rotation: this._computeRotationFactor()
+            if (_state == _ScaleState.started && onUpdate != null) {
+                invokeCallback<object>("onUpdate", () => {
+                    onUpdate(new ScaleUpdateDetails(
+                        scale: _scaleFactor,
+                        horizontalScale: _horizontalScaleFactor,
+                        verticalScale: _verticalScaleFactor,
+                        focalPoint: _currentFocalPoint,
+                        rotation: _computeRotationFactor()
                     ));
                     return null;
                 });
@@ -362,30 +362,30 @@ namespace Unity.UIWidgets.gestures {
         }
 
         void _dispatchOnStartCallbackIfNeeded() {
-            D.assert(this._state == _ScaleState.started);
-            if (this.onStart != null) {
-                this.invokeCallback<object>("onStart", () => {
-                    this.onStart(new ScaleStartDetails(focalPoint: this._currentFocalPoint));
+            D.assert(_state == _ScaleState.started);
+            if (onStart != null) {
+                invokeCallback<object>("onStart", () => {
+                    onStart(new ScaleStartDetails(focalPoint: _currentFocalPoint));
                     return null;
                 });
             }
         }
 
         public override void acceptGesture(int pointer) {
-            if (this._state == _ScaleState.possible) {
-                this._state = _ScaleState.started;
-                this._dispatchOnStartCallbackIfNeeded();
+            if (_state == _ScaleState.possible) {
+                _state = _ScaleState.started;
+                _dispatchOnStartCallbackIfNeeded();
             }
         }
 
         public override void rejectGesture(int pointer) {
-            this.stopTrackingPointer(pointer);
+            stopTrackingPointer(pointer);
         }
 
         protected override void didStopTrackingLastPointer(int pointer) {
-            switch (this._state) {
+            switch (_state) {
                 case _ScaleState.possible:
-                    this.resolve(GestureDisposition.rejected);
+                    resolve(GestureDisposition.rejected);
                     break;
                 case _ScaleState.ready:
                     D.assert(false);
@@ -397,11 +397,11 @@ namespace Unity.UIWidgets.gestures {
                     break;
             }
 
-            this._state = _ScaleState.ready;
+            _state = _ScaleState.ready;
         }
 
         public override void dispose() {
-            this._velocityTrackers.Clear();
+            _velocityTrackers.Clear();
             base.dispose();
         }
 

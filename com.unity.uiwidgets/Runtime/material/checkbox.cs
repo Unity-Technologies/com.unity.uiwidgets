@@ -60,7 +60,7 @@ namespace Unity.UIWidgets.material {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             ThemeData themeData = Theme.of(context);
             Size size;
-            switch (this.widget.materialTapTargetSize ?? themeData.materialTapTargetSize) {
+            switch (widget.materialTapTargetSize ?? themeData.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
                     size = new Size(2 * Constants.kRadialReactionRadius + 8.0f,
                         2 * Constants.kRadialReactionRadius + 8.0f);
@@ -69,19 +69,19 @@ namespace Unity.UIWidgets.material {
                     size = new Size(2 * Constants.kRadialReactionRadius, 2 * Constants.kRadialReactionRadius);
                     break;
                 default:
-                    throw new Exception("Unknown target size: " + this.widget.materialTapTargetSize);
+                    throw new Exception("Unknown target size: " + widget.materialTapTargetSize);
             }
 
             BoxConstraints additionalConstraints = BoxConstraints.tight(size);
             return new _CheckboxRenderObjectWidget(
-                value: this.widget.value,
-                tristate: this.widget.tristate,
-                activeColor: this.widget.activeColor ?? themeData.toggleableActiveColor,
-                checkColor: this.widget.checkColor ?? new Color(0xFFFFFFFF),
-                inactiveColor: this.widget.onChanged != null
+                value: widget.value,
+                tristate: widget.tristate,
+                activeColor: widget.activeColor ?? themeData.toggleableActiveColor,
+                checkColor: widget.checkColor ?? new Color(0xFFFFFFFF),
+                inactiveColor: widget.onChanged != null
                     ? themeData.unselectedWidgetColor
                     : themeData.disabledColor,
-                onChanged: this.widget.onChanged,
+                onChanged: widget.onChanged,
                 additionalConstraints: additionalConstraints,
                 vsync: this
             );
@@ -125,27 +125,27 @@ namespace Unity.UIWidgets.material {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderCheckbox(
-                value: this.value,
-                tristate: this.tristate,
-                activeColor: this.activeColor,
-                checkColor: this.checkColor,
-                inactiveColor: this.inactiveColor,
-                onChanged: this.onChanged,
-                vsync: this.vsync,
-                additionalConstraints: this.additionalConstraints
+                value: value,
+                tristate: tristate,
+                activeColor: activeColor,
+                checkColor: checkColor,
+                inactiveColor: inactiveColor,
+                onChanged: onChanged,
+                vsync: vsync,
+                additionalConstraints: additionalConstraints
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             _RenderCheckbox renderObject = _renderObject as _RenderCheckbox;
-            renderObject.value = this.value;
-            renderObject.tristate = this.tristate;
-            renderObject.activeColor = this.activeColor;
-            renderObject.checkColor = this.checkColor;
-            renderObject.inactiveColor = this.inactiveColor;
-            renderObject.onChanged = this.onChanged;
-            renderObject.additionalConstraints = this.additionalConstraints;
-            renderObject.vsync = this.vsync;
+            renderObject.value = value;
+            renderObject.tristate = tristate;
+            renderObject.activeColor = activeColor;
+            renderObject.checkColor = checkColor;
+            renderObject.inactiveColor = inactiveColor;
+            renderObject.onChanged = onChanged;
+            renderObject.additionalConstraints = additionalConstraints;
+            renderObject.vsync = vsync;
         }
     }
 
@@ -169,7 +169,7 @@ namespace Unity.UIWidgets.material {
                 additionalConstraints: additionalConstraints,
                 vsync: vsync
             ) {
-            this._oldValue = value;
+            _oldValue = value;
             this.checkColor = checkColor;
         }
 
@@ -182,7 +182,7 @@ namespace Unity.UIWidgets.material {
                     return;
                 }
 
-                this._oldValue = this.value;
+                _oldValue = this.value;
                 base.value = value;
             }
         }
@@ -195,13 +195,13 @@ namespace Unity.UIWidgets.material {
         }
 
         Color _colorAt(float t) {
-            return this.onChanged == null
-                ? this.inactiveColor
-                : (t >= 0.25f ? this.activeColor : Color.lerp(this.inactiveColor, this.activeColor, t * 4.0f));
+            return onChanged == null
+                ? inactiveColor
+                : (t >= 0.25f ? activeColor : Color.lerp(inactiveColor, activeColor, t * 4.0f));
         }
 
         void _initStrokePaint(Paint paint) {
-            paint.color = this.checkColor;
+            paint.color = checkColor;
             paint.style = PaintingStyle.stroke;
             paint.strokeWidth = CheckboxUtils._kStrokeWidth;
         }
@@ -248,60 +248,60 @@ namespace Unity.UIWidgets.material {
 
         public override void paint(PaintingContext context, Offset offset) {
             Canvas canvas = context.canvas;
-            this.paintRadialReaction(canvas, offset, this.size.center(Offset.zero));
+            paintRadialReaction(canvas, offset, size.center(Offset.zero));
 
-            Offset origin = offset + (this.size / 2.0f - Size.square(CheckboxUtils._kEdgeSize) / 2.0f);
-            AnimationStatus status = this.position.status;
+            Offset origin = offset + (size / 2.0f - Size.square(CheckboxUtils._kEdgeSize) / 2.0f);
+            AnimationStatus status = position.status;
             float tNormalized = status == AnimationStatus.forward || status == AnimationStatus.completed
-                ? this.position.value
-                : 1.0f - this.position.value;
+                ? position.value
+                : 1.0f - position.value;
 
-            if (this._oldValue == false || this.value == false) {
-                float t = this.value == false ? 1.0f - tNormalized : tNormalized;
-                RRect outer = this._outerRectAt(origin, t);
+            if (_oldValue == false || value == false) {
+                float t = value == false ? 1.0f - tNormalized : tNormalized;
+                RRect outer = _outerRectAt(origin, t);
                 Paint paint = new Paint();
-                paint.color = this._colorAt(t);
+                paint.color = _colorAt(t);
 
                 if (t <= 0.5f) {
-                    this._drawBorder(canvas, outer, t, paint);
+                    _drawBorder(canvas, outer, t, paint);
                 }
                 else {
                     canvas.drawRRect(outer, paint);
 
-                    this._initStrokePaint(paint);
+                    _initStrokePaint(paint);
                     float tShrink = (t - 0.5f) * 2.0f;
-                    if (this._oldValue == null || this.value == null) {
-                        this._drawDash(canvas, origin, tShrink, paint);
+                    if (_oldValue == null || value == null) {
+                        _drawDash(canvas, origin, tShrink, paint);
                     }
                     else {
-                        this._drawCheck(canvas, origin, tShrink, paint);
+                        _drawCheck(canvas, origin, tShrink, paint);
                     }
                 }
             }
             else {
                 // Two cases: null to true, true to null
-                RRect outer = this._outerRectAt(origin, 1.0f);
+                RRect outer = _outerRectAt(origin, 1.0f);
                 Paint paint = new Paint();
-                paint.color = this._colorAt(1.0f);
+                paint.color = _colorAt(1.0f);
                 canvas.drawRRect(outer, paint);
 
-                this._initStrokePaint(paint);
+                _initStrokePaint(paint);
                 if (tNormalized <= 0.5f) {
                     float tShrink = 1.0f - tNormalized * 2.0f;
-                    if (this._oldValue == true) {
-                        this._drawCheck(canvas, origin, tShrink, paint);
+                    if (_oldValue == true) {
+                        _drawCheck(canvas, origin, tShrink, paint);
                     }
                     else {
-                        this._drawDash(canvas, origin, tShrink, paint);
+                        _drawDash(canvas, origin, tShrink, paint);
                     }
                 }
                 else {
                     float tExpand = (tNormalized - 0.5f) * 2.0f;
-                    if (this.value == true) {
-                        this._drawCheck(canvas, origin, tExpand, paint);
+                    if (value == true) {
+                        _drawCheck(canvas, origin, tExpand, paint);
                     }
                     else {
-                        this._drawDash(canvas, origin, tExpand, paint);
+                        _drawDash(canvas, origin, tExpand, paint);
                     }
                 }
             }

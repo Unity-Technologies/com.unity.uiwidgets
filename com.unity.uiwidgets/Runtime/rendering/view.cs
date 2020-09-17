@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override string ToString() {
-            return $"${this.size} at ${this.devicePixelRatio}x";
+            return $"${size} at ${devicePixelRatio}x";
         }
     }
 
@@ -32,43 +32,43 @@ namespace Unity.UIWidgets.rendering {
             D.assert(configuration != null);
 
             this.child = child;
-            this._configuration = configuration;
+            _configuration = configuration;
         }
 
         public Size size {
-            get { return this._size; }
+            get { return _size; }
         }
 
         Size _size = Size.zero;
 
         public ViewConfiguration configuration {
-            get { return this._configuration; }
+            get { return _configuration; }
             set {
                 D.assert(value != null);
-                if (value == this._configuration) {
+                if (value == _configuration) {
                     return;
                 }
 
-                this._configuration = value;
-                this.replaceRootLayer((OffsetLayer) this._updateMatricesAndCreateNewRootLayer());
-                this.markNeedsLayout();
+                _configuration = value;
+                replaceRootLayer((OffsetLayer) _updateMatricesAndCreateNewRootLayer());
+                markNeedsLayout();
             }
         }
 
         ViewConfiguration _configuration;
 
         public void scheduleInitialFrame() {
-            D.assert(this.owner != null);
-            this.scheduleInitialLayout();
-            this.scheduleInitialPaint((OffsetLayer) this._updateMatricesAndCreateNewRootLayer());
-            this.owner.requestVisualUpdate();
+            D.assert(owner != null);
+            scheduleInitialLayout();
+            scheduleInitialPaint((OffsetLayer) _updateMatricesAndCreateNewRootLayer());
+            owner.requestVisualUpdate();
         }
 
         Matrix3 _rootTransform;
 
         public Layer _updateMatricesAndCreateNewRootLayer() {
-            this._rootTransform = this.configuration.toMatrix();
-            ContainerLayer rootLayer = new TransformLayer(transform: this._rootTransform);
+            _rootTransform = configuration.toMatrix();
+            ContainerLayer rootLayer = new TransformLayer(transform: _rootTransform);
             rootLayer.attach(this);
             return rootLayer;
         }
@@ -82,17 +82,17 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
-            this._size = this.configuration.size;
-            D.assert(this._size.isFinite);
+            _size = configuration.size;
+            D.assert(_size.isFinite);
 
-            if (this.child != null) {
-                this.child.layout(BoxConstraints.tight(this._size));
+            if (child != null) {
+                child.layout(BoxConstraints.tight(_size));
             }
         }
 
         public bool hitTest(HitTestResult result, Offset position = null) {
-            if (this.child != null) {
-                this.child.hitTest(result, position: position);
+            if (child != null) {
+                child.hitTest(result, position: position);
             }
 
             result.add(new HitTestEntry(this));
@@ -104,19 +104,19 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                context.paintChild(this.child, offset);
+            if (child != null) {
+                context.paintChild(child, offset);
             }
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            transform.preConcat(this._rootTransform);
+            transform.preConcat(_rootTransform);
             base.applyPaintTransform(child, transform);
         }
 
         public void compositeFrame() {
             var builder = new SceneBuilder();
-            using (var scene = this.layer.buildScene(builder)) {
+            using (var scene = layer.buildScene(builder)) {
                 Window.instance.render(scene);
             }
 
@@ -130,13 +130,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override Rect paintBounds {
-            get { return Offset.zero & (this.size * this.configuration.devicePixelRatio); }
+            get { return Offset.zero & (size * configuration.devicePixelRatio); }
         }
 
         public override Rect semanticBounds {
             get {
-                D.assert(this._rootTransform != null);
-                return this._rootTransform.mapRect(Offset.zero & this.size);
+                D.assert(_rootTransform != null);
+                return _rootTransform.mapRect(Offset.zero & size);
             }
         }
 
@@ -149,7 +149,7 @@ namespace Unity.UIWidgets.rendering {
                 tooltip: "in physical pixels"));
             properties.add(new FloatProperty("device pixel ratio", Window.instance.devicePixelRatio,
                 tooltip: "physical pixels per logical pixel"));
-            properties.add(new DiagnosticsProperty<ViewConfiguration>("configuration", this.configuration,
+            properties.add(new DiagnosticsProperty<ViewConfiguration>("configuration", configuration,
                 tooltip: "in logical pixels"));
         }
     }

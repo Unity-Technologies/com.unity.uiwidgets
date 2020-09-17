@@ -53,9 +53,9 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.image, other.image) && Equals(this.colorFilter, other.colorFilter) &&
-                   this.fit == other.fit && Equals(this.alignment, other.alignment) &&
-                   Equals(this.centerSlice, other.centerSlice) && this.repeat == other.repeat;
+            return Equals(image, other.image) && Equals(colorFilter, other.colorFilter) &&
+                   fit == other.fit && Equals(alignment, other.alignment) &&
+                   Equals(centerSlice, other.centerSlice) && repeat == other.repeat;
         }
 
         public override bool Equals(object obj) {
@@ -67,21 +67,21 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((DecorationImage) obj);
+            return Equals((DecorationImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.image != null ? this.image.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.colorFilter != null ? this.colorFilter.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.fit.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.alignment != null ? this.alignment.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.centerSlice != null ? this.centerSlice.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int) this.repeat;
+                var hashCode = (image != null ? image.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (colorFilter != null ? colorFilter.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ fit.GetHashCode();
+                hashCode = (hashCode * 397) ^ (alignment != null ? alignment.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (centerSlice != null ? centerSlice.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (int) repeat;
                 return hashCode;
             }
         }
@@ -96,37 +96,37 @@ namespace Unity.UIWidgets.painting {
 
         public override string ToString() {
             var properties = new List<string>();
-            properties.Add($"{this.image}");
+            properties.Add($"{image}");
 
-            if (this.colorFilter != null) {
-                properties.Add($"{this.colorFilter}");
+            if (colorFilter != null) {
+                properties.Add($"{colorFilter}");
             }
 
-            if (this.fit != null &&
-                !(this.fit == BoxFit.fill && this.centerSlice != null) &&
-                !(this.fit == BoxFit.scaleDown && this.centerSlice == null)) {
-                properties.Add($"{this.fit}");
+            if (fit != null &&
+                !(fit == BoxFit.fill && centerSlice != null) &&
+                !(fit == BoxFit.scaleDown && centerSlice == null)) {
+                properties.Add($"{fit}");
             }
 
-            properties.Add($"{this.alignment}");
+            properties.Add($"{alignment}");
 
-            if (this.centerSlice != null) {
-                properties.Add($"centerSlice: {this.centerSlice}");
+            if (centerSlice != null) {
+                properties.Add($"centerSlice: {centerSlice}");
             }
 
-            if (this.repeat != ImageRepeat.noRepeat) {
-                properties.Add($"{this.repeat}");
+            if (repeat != ImageRepeat.noRepeat) {
+                properties.Add($"{repeat}");
             }
 
-            return $"{this.GetType()}({string.Join(", ", properties)})";
+            return $"{GetType()}({string.Join(", ", properties)})";
         }
     }
 
     public class DecorationImagePainter : IDisposable {
         internal DecorationImagePainter(DecorationImage details, VoidCallback onChanged) {
             D.assert(details != null);
-            this._details = details;
-            this._onChanged = onChanged;
+            _details = details;
+            _onChanged = onChanged;
         }
 
         readonly DecorationImage _details;
@@ -142,14 +142,14 @@ namespace Unity.UIWidgets.painting {
             D.assert(rect != null);
             D.assert(configuration != null);
 
-            ImageStream newImageStream = this._details.image.resolve(configuration);
-            if (newImageStream.key != this._imageStream?.key) {
-                this._imageStream?.removeListener(this._imageListener);
-                this._imageStream = newImageStream;
-                this._imageStream.addListener(this._imageListener);
+            ImageStream newImageStream = _details.image.resolve(configuration);
+            if (newImageStream.key != _imageStream?.key) {
+                _imageStream?.removeListener(_imageListener);
+                _imageStream = newImageStream;
+                _imageStream.addListener(_imageListener);
             }
 
-            if (this._image == null) {
+            if (_image == null) {
                 return;
             }
 
@@ -161,13 +161,13 @@ namespace Unity.UIWidgets.painting {
             ImageUtils.paintImage(
                 canvas: canvas,
                 rect: rect,
-                image: this._image.image,
-                scale: this._image.scale,
-                colorFilter: this._details.colorFilter,
-                fit: this._details.fit,
-                alignment: this._details.alignment,
-                centerSlice: this._details.centerSlice,
-                repeat: this._details.repeat
+                image: _image.image,
+                scale: _image.scale,
+                colorFilter: _details.colorFilter,
+                fit: _details.fit,
+                alignment: _details.alignment,
+                centerSlice: _details.centerSlice,
+                repeat: _details.repeat
             );
 
             if (clipPath != null) {
@@ -176,24 +176,24 @@ namespace Unity.UIWidgets.painting {
         }
 
         void _imageListener(ImageInfo value, bool synchronousCall) {
-            if (this._image == value) {
+            if (_image == value) {
                 return;
             }
 
-            this._image = value;
+            _image = value;
 
-            D.assert(this._onChanged != null);
+            D.assert(_onChanged != null);
             if (!synchronousCall) {
-                this._onChanged();
+                _onChanged();
             }
         }
 
         public void Dispose() {
-            this._imageStream?.removeListener(this._imageListener);
+            _imageStream?.removeListener(_imageListener);
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(stream: {this._imageStream}, image: {this._image}) for {this._details}";
+            return $"{GetType()}(stream: {_imageStream}, image: {_image}) for {_details}";
         }
     }
 

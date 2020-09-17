@@ -14,15 +14,15 @@ namespace Unity.UIWidgets.service {
         readonly List<ValueChanged<RawKeyEvent>> _listeners = new List<ValueChanged<RawKeyEvent>>();
         
         public void addListener(ValueChanged<RawKeyEvent> listener) {
-            this._listeners.Add(listener);
+            _listeners.Add(listener);
         }
         
         public void removeListener(ValueChanged<RawKeyEvent> listener) {
-            this._listeners.Remove(listener);
+            _listeners.Remove(listener);
         }
 
         internal void _handleKeyEvent(Event evt) {
-            if (this._listeners.isEmpty()) {
+            if (_listeners.isEmpty()) {
                 return;
             }
 
@@ -31,8 +31,8 @@ namespace Unity.UIWidgets.service {
                 return;
             }
             
-            foreach (var listener in new List<ValueChanged<RawKeyEvent>>(this._listeners)) {
-                if (this._listeners.Contains(listener)) {
+            foreach (var listener in new List<ValueChanged<RawKeyEvent>>(_listeners)) {
+                if (_listeners.Contains(listener)) {
                     listener(keyboardEvent);
                 }    
             }

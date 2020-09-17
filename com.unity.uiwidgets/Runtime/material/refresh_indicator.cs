@@ -93,22 +93,22 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._positionController = new AnimationController(vsync: this);
-            this._positionFactor = this._positionController.drive(_kDragSizeFactorLimitTween);
-            this._value =
-                this._positionController
+            _positionController = new AnimationController(vsync: this);
+            _positionFactor = _positionController.drive(_kDragSizeFactorLimitTween);
+            _value =
+                _positionController
                     .drive(_threeQuarterTween); // The "value" of the circular progress indicator during a drag.
 
-            this._scaleController = new AnimationController(vsync: this);
-            this._scaleFactor = this._scaleController.drive(_oneToZeroTween);
+            _scaleController = new AnimationController(vsync: this);
+            _scaleFactor = _scaleController.drive(_oneToZeroTween);
         }
 
         public override void didChangeDependencies() {
-            ThemeData theme = Theme.of(this.context);
-            this._valueColor = this._positionController.drive(
+            ThemeData theme = Theme.of(context);
+            _valueColor = _positionController.drive(
                 new ColorTween(
-                    begin: (this.widget.color ?? theme.accentColor).withOpacity(0.0f),
-                    end: (this.widget.color ?? theme.accentColor).withOpacity(1.0f)
+                    begin: (widget.color ?? theme.accentColor).withOpacity(0.0f),
+                    end: (widget.color ?? theme.accentColor).withOpacity(1.0f)
                 ).chain(new CurveTween(
                     curve: new Interval(0.0f, 1.0f / RefreshIndicatorUtils._kDragSizeFactorLimit)
                 ))
@@ -117,19 +117,19 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void dispose() {
-            this._positionController.dispose();
-            this._scaleController.dispose();
+            _positionController.dispose();
+            _scaleController.dispose();
             base.dispose();
         }
 
         bool _handleScrollNotification(ScrollNotification notification) {
-            if (!this.widget.notificationPredicate(notification)) {
+            if (!widget.notificationPredicate(notification)) {
                 return false;
             }
 
             if (notification is ScrollStartNotification && notification.metrics.extentBefore() == 0.0f &&
-                this._mode == null && this._start(notification.metrics.axisDirection)) {
-                this.setState(() => { this._mode = _RefreshIndicatorMode.drag; });
+                _mode == null && _start(notification.metrics.axisDirection)) {
+                setState(() => { _mode = _RefreshIndicatorMode.drag; });
                 return false;
             }
 
@@ -147,40 +147,40 @@ namespace Unity.UIWidgets.material {
                     break;
             }
 
-            if (indicatorAtTopNow != this._isIndicatorAtTop) {
-                if (this._mode == _RefreshIndicatorMode.drag || this._mode == _RefreshIndicatorMode.armed) {
-                    this._dismiss(_RefreshIndicatorMode.canceled);
+            if (indicatorAtTopNow != _isIndicatorAtTop) {
+                if (_mode == _RefreshIndicatorMode.drag || _mode == _RefreshIndicatorMode.armed) {
+                    _dismiss(_RefreshIndicatorMode.canceled);
                 }
             }
             else if (notification is ScrollUpdateNotification) {
-                if (this._mode == _RefreshIndicatorMode.drag || this._mode == _RefreshIndicatorMode.armed) {
+                if (_mode == _RefreshIndicatorMode.drag || _mode == _RefreshIndicatorMode.armed) {
                     if (notification.metrics.extentBefore() > 0.0f) {
-                        this._dismiss(_RefreshIndicatorMode.canceled);
+                        _dismiss(_RefreshIndicatorMode.canceled);
                     }
                     else {
-                        this._dragOffset -= (notification as ScrollUpdateNotification).scrollDelta;
-                        this._checkDragOffset(notification.metrics.viewportDimension);
+                        _dragOffset -= (notification as ScrollUpdateNotification).scrollDelta;
+                        _checkDragOffset(notification.metrics.viewportDimension);
                     }
                 }
 
-                if (this._mode == _RefreshIndicatorMode.armed &&
+                if (_mode == _RefreshIndicatorMode.armed &&
                     (notification as ScrollUpdateNotification).dragDetails == null) {
-                    this._show();
+                    _show();
                 }
             }
             else if (notification is OverscrollNotification) {
-                if (this._mode == _RefreshIndicatorMode.drag || this._mode == _RefreshIndicatorMode.armed) {
-                    this._dragOffset -= (notification as OverscrollNotification).overscroll / 2.0f;
-                    this._checkDragOffset(notification.metrics.viewportDimension);
+                if (_mode == _RefreshIndicatorMode.drag || _mode == _RefreshIndicatorMode.armed) {
+                    _dragOffset -= (notification as OverscrollNotification).overscroll / 2.0f;
+                    _checkDragOffset(notification.metrics.viewportDimension);
                 }
             }
             else if (notification is ScrollEndNotification) {
-                switch (this._mode) {
+                switch (_mode) {
                     case _RefreshIndicatorMode.armed:
-                        this._show();
+                        _show();
                         break;
                     case _RefreshIndicatorMode.drag:
-                        this._dismiss(_RefreshIndicatorMode.canceled);
+                        _dismiss(_RefreshIndicatorMode.canceled);
                         break;
                     default:
                         break;
@@ -195,7 +195,7 @@ namespace Unity.UIWidgets.material {
                 return false;
             }
 
-            if (this._mode == _RefreshIndicatorMode.drag) {
+            if (_mode == _RefreshIndicatorMode.drag) {
                 notification.disallowGlow();
                 return true;
             }
@@ -204,84 +204,84 @@ namespace Unity.UIWidgets.material {
         }
 
         bool _start(AxisDirection direction) {
-            D.assert(this._mode == null);
-            D.assert(this._isIndicatorAtTop == null);
-            D.assert(this._dragOffset == null);
+            D.assert(_mode == null);
+            D.assert(_isIndicatorAtTop == null);
+            D.assert(_dragOffset == null);
             switch (direction) {
                 case AxisDirection.down:
-                    this._isIndicatorAtTop = true;
+                    _isIndicatorAtTop = true;
                     break;
                 case AxisDirection.up:
-                    this._isIndicatorAtTop = false;
+                    _isIndicatorAtTop = false;
                     break;
                 case AxisDirection.left:
                 case AxisDirection.right:
-                    this._isIndicatorAtTop = null;
+                    _isIndicatorAtTop = null;
                     return false;
             }
 
-            this._dragOffset = 0.0f;
-            this._scaleController.setValue(0.0f);
-            this._positionController.setValue(0.0f);
+            _dragOffset = 0.0f;
+            _scaleController.setValue(0.0f);
+            _positionController.setValue(0.0f);
             return true;
         }
 
         void _checkDragOffset(float containerExtent) {
-            D.assert(this._mode == _RefreshIndicatorMode.drag || this._mode == _RefreshIndicatorMode.armed);
-            float? newValue = this._dragOffset /
+            D.assert(_mode == _RefreshIndicatorMode.drag || _mode == _RefreshIndicatorMode.armed);
+            float? newValue = _dragOffset /
                               (containerExtent * RefreshIndicatorUtils._kDragContainerExtentPercentage);
-            if (this._mode == _RefreshIndicatorMode.armed) {
+            if (_mode == _RefreshIndicatorMode.armed) {
                 newValue = Mathf.Max(newValue ?? 0.0f, 1.0f / RefreshIndicatorUtils._kDragSizeFactorLimit);
             }
 
-            this._positionController.setValue(newValue?.clamp(0.0f, 1.0f) ?? 0.0f); // this triggers various rebuilds
-            if (this._mode == _RefreshIndicatorMode.drag && this._valueColor.value.alpha == 0xFF) {
-                this._mode = _RefreshIndicatorMode.armed;
+            _positionController.setValue(newValue?.clamp(0.0f, 1.0f) ?? 0.0f); // this triggers various rebuilds
+            if (_mode == _RefreshIndicatorMode.drag && _valueColor.value.alpha == 0xFF) {
+                _mode = _RefreshIndicatorMode.armed;
             }
         }
 
         IPromise _dismiss(_RefreshIndicatorMode newMode) {
             D.assert(newMode == _RefreshIndicatorMode.canceled || newMode == _RefreshIndicatorMode.done);
-            this.setState(() => { this._mode = newMode; });
-            switch (this._mode) {
+            setState(() => { _mode = newMode; });
+            switch (_mode) {
                 case _RefreshIndicatorMode.done:
-                    return this._scaleController
+                    return _scaleController
                         .animateTo(1.0f, duration: RefreshIndicatorUtils._kIndicatorScaleDuration).Then(() => {
-                            if (this.mounted && this._mode == newMode) {
-                                this._dragOffset = null;
-                                this._isIndicatorAtTop = null;
-                                this.setState(() => { this._mode = null; });
+                            if (mounted && _mode == newMode) {
+                                _dragOffset = null;
+                                _isIndicatorAtTop = null;
+                                setState(() => { _mode = null; });
                             }
                         });
                 case _RefreshIndicatorMode.canceled:
-                    return this._positionController
+                    return _positionController
                         .animateTo(0.0f, duration: RefreshIndicatorUtils._kIndicatorScaleDuration).Then(() => {
-                            if (this.mounted && this._mode == newMode) {
-                                this._dragOffset = null;
-                                this._isIndicatorAtTop = null;
-                                this.setState(() => { this._mode = null; });
+                            if (mounted && _mode == newMode) {
+                                _dragOffset = null;
+                                _isIndicatorAtTop = null;
+                                setState(() => { _mode = null; });
                             }
                         });
                 default:
-                    throw new Exception("Unknown refresh indicator mode: " + this._mode);
+                    throw new Exception("Unknown refresh indicator mode: " + _mode);
             }
         }
 
         void _show() {
-            D.assert(this._mode != _RefreshIndicatorMode.refresh);
-            D.assert(this._mode != _RefreshIndicatorMode.snap);
+            D.assert(_mode != _RefreshIndicatorMode.refresh);
+            D.assert(_mode != _RefreshIndicatorMode.snap);
             Promise completer = new Promise();
-            this._pendingRefreshFuture = completer;
-            this._mode = _RefreshIndicatorMode.snap;
-            this._positionController
+            _pendingRefreshFuture = completer;
+            _mode = _RefreshIndicatorMode.snap;
+            _positionController
                 .animateTo(1.0f / RefreshIndicatorUtils._kDragSizeFactorLimit,
                     duration: RefreshIndicatorUtils._kIndicatorSnapDuration)
                 .Then(() => {
-                    if (this.mounted && this._mode == _RefreshIndicatorMode.snap) {
-                        D.assert(this.widget.onRefresh != null);
-                        this.setState(() => { this._mode = _RefreshIndicatorMode.refresh; });
+                    if (mounted && _mode == _RefreshIndicatorMode.snap) {
+                        D.assert(widget.onRefresh != null);
+                        setState(() => { _mode = _RefreshIndicatorMode.refresh; });
 
-                        Promise refreshResult = this.widget.onRefresh();
+                        Promise refreshResult = widget.onRefresh();
                         D.assert(() => {
                             if (refreshResult == null) {
                                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
@@ -301,9 +301,9 @@ namespace Unity.UIWidgets.material {
                         }
 
                         refreshResult.Finally(() => {
-                            if (this.mounted && this._mode == _RefreshIndicatorMode.refresh) {
+                            if (mounted && _mode == _RefreshIndicatorMode.refresh) {
                                 completer.Resolve();
-                                this._dismiss(_RefreshIndicatorMode.done);
+                                _dismiss(_RefreshIndicatorMode.done);
                             }
                         });
                     }
@@ -311,15 +311,15 @@ namespace Unity.UIWidgets.material {
         }
 
         Promise show(bool atTop = true) {
-            if (this._mode != _RefreshIndicatorMode.refresh && this._mode != _RefreshIndicatorMode.snap) {
-                if (this._mode == null) {
-                    this._start(atTop ? AxisDirection.down : AxisDirection.up);
+            if (_mode != _RefreshIndicatorMode.refresh && _mode != _RefreshIndicatorMode.snap) {
+                if (_mode == null) {
+                    _start(atTop ? AxisDirection.down : AxisDirection.up);
                 }
 
-                this._show();
+                _show();
             }
 
-            return this._pendingRefreshFuture;
+            return _pendingRefreshFuture;
         }
 
         GlobalKey _key = GlobalKey.key();
@@ -327,52 +327,52 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
             Widget child = new NotificationListener<ScrollNotification>(
-                key: this._key,
-                onNotification: this._handleScrollNotification,
+                key: _key,
+                onNotification: _handleScrollNotification,
                 child: new NotificationListener<OverscrollIndicatorNotification>(
-                    onNotification: this._handleGlowNotification,
-                    child: this.widget.child
+                    onNotification: _handleGlowNotification,
+                    child: widget.child
                 )
             );
-            if (this._mode == null) {
-                D.assert(this._dragOffset == null);
-                D.assert(this._isIndicatorAtTop == null);
+            if (_mode == null) {
+                D.assert(_dragOffset == null);
+                D.assert(_isIndicatorAtTop == null);
                 return child;
             }
 
-            D.assert(this._dragOffset != null);
-            D.assert(this._isIndicatorAtTop != null);
+            D.assert(_dragOffset != null);
+            D.assert(_isIndicatorAtTop != null);
 
             bool showIndeterminateIndicator =
-                this._mode == _RefreshIndicatorMode.refresh || this._mode == _RefreshIndicatorMode.done;
+                _mode == _RefreshIndicatorMode.refresh || _mode == _RefreshIndicatorMode.done;
 
             return new Stack(
                 children: new List<Widget> {
                     child,
                     new Positioned(
-                        top: this._isIndicatorAtTop == true ? 0.0f : (float?) null,
-                        bottom: this._isIndicatorAtTop != true ? 0.0f : (float?) null,
+                        top: _isIndicatorAtTop == true ? 0.0f : (float?) null,
+                        bottom: _isIndicatorAtTop != true ? 0.0f : (float?) null,
                         left: 0.0f,
                         right: 0.0f,
                         child: new SizeTransition(
-                            axisAlignment: this._isIndicatorAtTop == true ? 1.0f : -1.0f,
-                            sizeFactor: this._positionFactor, // this is what brings it down
+                            axisAlignment: _isIndicatorAtTop == true ? 1.0f : -1.0f,
+                            sizeFactor: _positionFactor, // this is what brings it down
                             child: new Container(
-                                padding: this._isIndicatorAtTop == true
-                                    ? EdgeInsets.only(top: this.widget.displacement)
-                                    : EdgeInsets.only(bottom: this.widget.displacement),
-                                alignment: this._isIndicatorAtTop == true
+                                padding: _isIndicatorAtTop == true
+                                    ? EdgeInsets.only(top: widget.displacement)
+                                    : EdgeInsets.only(bottom: widget.displacement),
+                                alignment: _isIndicatorAtTop == true
                                     ? Alignment.topCenter
                                     : Alignment.bottomCenter,
                                 child: new ScaleTransition(
-                                    scale: this._scaleFactor,
+                                    scale: _scaleFactor,
                                     child: new AnimatedBuilder(
-                                        animation: this._positionController,
+                                        animation: _positionController,
                                         builder: (BuildContext _context, Widget _child) => {
                                             return new RefreshProgressIndicator(
-                                                value: showIndeterminateIndicator ? (float?) null : this._value.value,
-                                                valueColor: this._valueColor,
-                                                backgroundColor: this.widget.backgroundColor
+                                                value: showIndeterminateIndicator ? (float?) null : _value.value,
+                                                valueColor: _valueColor,
+                                                backgroundColor: widget.backgroundColor
                                             );
                                         }
                                     )

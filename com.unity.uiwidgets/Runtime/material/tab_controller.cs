@@ -15,9 +15,9 @@ namespace Unity.UIWidgets.material {
             D.assert(vsync != null);
             this.length = length.Value;
 
-            this._index = initialIndex;
-            this._previousIndex = initialIndex;
-            this._animationController = length < 2
+            _index = initialIndex;
+            _previousIndex = initialIndex;
+            _animationController = length < 2
                 ? null
                 : new AnimationController(
                     value: initialIndex,
@@ -26,7 +26,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public Animation<float> animation {
-            get { return this._animationController?.view ?? Animations.kAlwaysCompleteAnimation; }
+            get { return _animationController?.view ?? Animations.kAlwaysCompleteAnimation; }
         }
 
         readonly AnimationController _animationController;
@@ -34,48 +34,48 @@ namespace Unity.UIWidgets.material {
         public readonly int length;
 
         void _changeIndex(int value, TimeSpan? duration = null, Curve curve = null) {
-            D.assert(value >= 0 && (value < this.length || this.length == 0));
+            D.assert(value >= 0 && (value < length || length == 0));
             D.assert(duration == null ? curve == null : true);
-            D.assert(this._indexIsChangingCount >= 0);
+            D.assert(_indexIsChangingCount >= 0);
 
-            if (value == this._index || this.length < 2) {
+            if (value == _index || length < 2) {
                 return;
             }
 
-            this._previousIndex = this.index;
-            this._index = value;
+            _previousIndex = index;
+            _index = value;
             if (duration != null) {
-                this._indexIsChangingCount++;
-                this.notifyListeners();
-                this._animationController.animateTo(
-                    this._index, duration: duration, curve: curve).whenCompleteOrCancel(() => {
-                    this._indexIsChangingCount--;
-                    this.notifyListeners();
+                _indexIsChangingCount++;
+                notifyListeners();
+                _animationController.animateTo(
+                    _index, duration: duration, curve: curve).whenCompleteOrCancel(() => {
+                    _indexIsChangingCount--;
+                    notifyListeners();
                 });
             }
             else {
-                this._indexIsChangingCount++;
-                this._animationController.setValue(this._index);
-                this._indexIsChangingCount--;
-                this.notifyListeners();
+                _indexIsChangingCount++;
+                _animationController.setValue(_index);
+                _indexIsChangingCount--;
+                notifyListeners();
             }
         }
 
         public int index {
-            get { return this._index; }
-            set { this._changeIndex(value); }
+            get { return _index; }
+            set { _changeIndex(value); }
         }
 
         int _index;
 
         public int previousIndex {
-            get { return this._previousIndex; }
+            get { return _previousIndex; }
         }
 
         int _previousIndex;
 
         public bool indexIsChanging {
-            get { return this._indexIsChangingCount != 0; }
+            get { return _indexIsChangingCount != 0; }
         }
 
         int _indexIsChangingCount = 0;
@@ -83,25 +83,25 @@ namespace Unity.UIWidgets.material {
         public void animateTo(int value, TimeSpan? duration = null, Curve curve = null) {
             duration = duration ?? Constants.kTabScrollDuration;
             curve = curve ?? Curves.ease;
-            this._changeIndex(value, duration: duration, curve: curve);
+            _changeIndex(value, duration: duration, curve: curve);
         }
 
         public float offset {
-            get { return this.length > 1 ? this._animationController.value - this._index : 0.0f; }
+            get { return length > 1 ? _animationController.value - _index : 0.0f; }
             set {
-                D.assert(this.length > 1);
+                D.assert(length > 1);
                 D.assert(value >= -1.0f && value <= 1.0f);
-                D.assert(!this.indexIsChanging);
-                if (value == this.offset) {
+                D.assert(!indexIsChanging);
+                if (value == offset) {
                     return;
                 }
 
-                this._animationController.setValue(value + this._index);
+                _animationController.setValue(value + _index);
             }
         }
 
         public override void dispose() {
-            this._animationController?.dispose();
+            _animationController?.dispose();
             base.dispose();
         }
     }
@@ -123,8 +123,8 @@ namespace Unity.UIWidgets.material {
 
         public override bool updateShouldNotify(InheritedWidget old) {
             _TabControllerScope _old = (_TabControllerScope) old;
-            return this.enabled != _old.enabled
-                   || this.controller != _old.controller;
+            return enabled != _old.enabled
+                   || controller != _old.controller;
         }
     }
 
@@ -164,23 +164,23 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._controller = new TabController(
+            _controller = new TabController(
                 vsync: this,
-                length: this.widget.length,
-                initialIndex: this.widget.initialIndex
+                length: widget.length,
+                initialIndex: widget.initialIndex
             );
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
             return new _TabControllerScope(
-                controller: this._controller,
+                controller: _controller,
                 enabled: TickerMode.of(context),
-                child: this.widget.child
+                child: widget.child
             );
         }
     }

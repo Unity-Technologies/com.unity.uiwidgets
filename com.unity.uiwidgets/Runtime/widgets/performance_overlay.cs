@@ -23,12 +23,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderPerformanceOverlay(
-                optionsMask: this.optionsMask);
+                optionsMask: optionsMask);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderPerformanceOverlay _renderObject = (RenderPerformanceOverlay) renderObject;
-            _renderObject.optionsMask = this.optionsMask;
+            _renderObject.optionsMask = optionsMask;
         }
     }
 }

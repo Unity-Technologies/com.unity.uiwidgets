@@ -28,7 +28,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            return this.textDirection != ((Directionality) oldWidget).textDirection;
+            return textDirection != ((Directionality) oldWidget).textDirection;
         }
     }
 
@@ -45,11 +45,11 @@ namespace Unity.UIWidgets.widgets {
         public readonly ImageFilter filter;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderBackdropFilter(filter: this.filter);
+            return new RenderBackdropFilter(filter: filter);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderBackdropFilter) renderObject).filter = this.filter;
+            ((RenderBackdropFilter) renderObject).filter = filter;
         }
     }
 
@@ -61,11 +61,11 @@ namespace Unity.UIWidgets.widgets {
         public readonly float opacity;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderOpacity(opacity: this.opacity);
+            return new RenderOpacity(opacity: opacity);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderOpacity) renderObject).opacity = this.opacity;
+            ((RenderOpacity) renderObject).opacity = opacity;
         }
     }
 
@@ -95,20 +95,20 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderCustomPaint(
-                painter: this.painter,
-                foregroundPainter: this.foregroundPainter,
-                preferredSize: this.size,
-                isComplex: this.isComplex,
-                willChange: this.willChange
+                painter: painter,
+                foregroundPainter: foregroundPainter,
+                preferredSize: size,
+                isComplex: isComplex,
+                willChange: willChange
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderCustomPaint) renderObject).painter = this.painter;
-            ((RenderCustomPaint) renderObject).foregroundPainter = this.foregroundPainter;
-            ((RenderCustomPaint) renderObject).preferredSize = this.size;
-            ((RenderCustomPaint) renderObject).isComplex = this.isComplex;
-            ((RenderCustomPaint) renderObject).willChange = this.willChange;
+            ((RenderCustomPaint) renderObject).painter = painter;
+            ((RenderCustomPaint) renderObject).foregroundPainter = foregroundPainter;
+            ((RenderCustomPaint) renderObject).preferredSize = size;
+            ((RenderCustomPaint) renderObject).isComplex = isComplex;
+            ((RenderCustomPaint) renderObject).willChange = willChange;
         }
 
         public override void didUnmountRenderObject(RenderObject renderObject) {
@@ -134,13 +134,13 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderClipRect(
-                clipper: this.clipper,
-                clipBehavior: this.clipBehavior);
+                clipper: clipper,
+                clipBehavior: clipBehavior);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderClipRect _renderObject = (RenderClipRect) renderObject;
-            _renderObject.clipper = this.clipper;
+            _renderObject.clipper = clipper;
         }
 
         public override void didUnmountRenderObject(RenderObject renderObject) {
@@ -151,7 +151,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<CustomClipper<Rect>>("clipper", this.clipper, defaultValue: null));
+            properties.add(new DiagnosticsProperty<CustomClipper<Rect>>("clipper", clipper, defaultValue: null));
         }
     }
 
@@ -176,21 +176,21 @@ namespace Unity.UIWidgets.widgets {
         public readonly Clip clipBehavior;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderClipRRect(borderRadius: this.borderRadius, clipper: this.clipper,
-                clipBehavior: this.clipBehavior);
+            return new RenderClipRRect(borderRadius: borderRadius, clipper: clipper,
+                clipBehavior: clipBehavior);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderClipRRect _renderObject = (RenderClipRRect) renderObject;
-            _renderObject.borderRadius = this.borderRadius;
-            _renderObject.clipper = this.clipper;
+            _renderObject.borderRadius = borderRadius;
+            _renderObject.clipper = clipper;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", this.borderRadius, showName: false,
+            properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", borderRadius, showName: false,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<CustomClipper<RRect>>("clipper", this.clipper, defaultValue: null));
+            properties.add(new DiagnosticsProperty<CustomClipper<RRect>>("clipper", clipper, defaultValue: null));
         }
     }
 
@@ -210,12 +210,12 @@ namespace Unity.UIWidgets.widgets {
         public readonly Clip clipBehavior;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderClipOval(clipper: this.clipper, clipBehavior: this.clipBehavior);
+            return new RenderClipOval(clipper: clipper, clipBehavior: clipBehavior);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             RenderClipOval renderObject = _renderObject as RenderClipOval;
-            renderObject.clipper = this.clipper;
+            renderObject.clipper = clipper;
         }
 
         public override void didUnmountRenderObject(RenderObject _renderObject) {
@@ -225,7 +225,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<CustomClipper<Rect>>("clipper", this.clipper, defaultValue: null));
+            properties.add(new DiagnosticsProperty<CustomClipper<Rect>>("clipper", clipper, defaultValue: null));
         }
     }
 
@@ -267,13 +267,13 @@ namespace Unity.UIWidgets.widgets {
 
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderClipPath(clipper: this.clipper, clipBehavior: this.clipBehavior);
+            return new RenderClipPath(clipper: clipper, clipBehavior: clipBehavior);
         }
 
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderClipPath _renderObject = (RenderClipPath) renderObject;
-            _renderObject.clipper = this.clipper;
+            _renderObject.clipper = clipper;
         }
 
 
@@ -285,7 +285,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<CustomClipper<Path>>("clipper", this.clipper, defaultValue: null));
+            properties.add(new DiagnosticsProperty<CustomClipper<Path>>("clipper", clipper, defaultValue: null));
         }
     }
 
@@ -308,21 +308,21 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderLimitedBox(
-                maxWidth: this.maxWidth,
-                maxHeight: this.maxHeight
+                maxWidth: maxWidth,
+                maxHeight: maxHeight
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderLimitedBox) renderObjectRaw;
-            renderObject.maxWidth = this.maxWidth;
-            renderObject.maxHeight = this.maxHeight;
+            renderObject.maxWidth = maxWidth;
+            renderObject.maxHeight = maxHeight;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("maxWidth", this.maxWidth, defaultValue: float.PositiveInfinity));
-            properties.add(new FloatProperty("maxHeight", this.maxHeight, defaultValue: float.PositiveInfinity));
+            properties.add(new FloatProperty("maxWidth", maxWidth, defaultValue: float.PositiveInfinity));
+            properties.add(new FloatProperty("maxHeight", maxHeight, defaultValue: float.PositiveInfinity));
         }
     }
 
@@ -355,30 +355,30 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderConstrainedOverflowBox(
-                alignment: this.alignment,
-                minWidth: this.minWidth,
-                maxWidth: this.maxWidth,
-                minHeight: this.minHeight,
-                maxHeight: this.maxHeight
+                alignment: alignment,
+                minWidth: minWidth,
+                maxWidth: maxWidth,
+                minHeight: minHeight,
+                maxHeight: maxHeight
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             RenderConstrainedOverflowBox renderObject = _renderObject as RenderConstrainedOverflowBox;
-            renderObject.alignment = this.alignment;
-            renderObject.minWidth = this.minWidth;
-            renderObject.maxWidth = this.maxWidth;
-            renderObject.minHeight = this.minHeight;
-            renderObject.maxHeight = this.maxHeight;
+            renderObject.alignment = alignment;
+            renderObject.minWidth = minWidth;
+            renderObject.maxWidth = maxWidth;
+            renderObject.minHeight = minHeight;
+            renderObject.maxHeight = maxHeight;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment));
-            properties.add(new FloatProperty("minWidth", this.minWidth, defaultValue: null));
-            properties.add(new FloatProperty("maxWidth", this.maxWidth, defaultValue: null));
-            properties.add(new FloatProperty("minHeight", this.minHeight, defaultValue: null));
-            properties.add(new FloatProperty("maxHeight", this.maxHeight, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new FloatProperty("minWidth", minWidth, defaultValue: null));
+            properties.add(new FloatProperty("maxWidth", maxWidth, defaultValue: null));
+            properties.add(new FloatProperty("minHeight", minHeight, defaultValue: null));
+            properties.add(new FloatProperty("maxHeight", maxHeight, defaultValue: null));
         }
     }
 
@@ -409,50 +409,50 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderConstrainedBox(
-                additionalConstraints: this._additionalConstraints
+                additionalConstraints: _additionalConstraints
             );
         }
 
         BoxConstraints _additionalConstraints {
-            get { return BoxConstraints.tightFor(width: this.width, height: this.height); }
+            get { return BoxConstraints.tightFor(width: width, height: height); }
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderConstrainedBox) renderObjectRaw;
-            renderObject.additionalConstraints = this._additionalConstraints;
+            renderObject.additionalConstraints = _additionalConstraints;
         }
 
         public override string toStringShort() {
             string type;
-            if (this.width == float.PositiveInfinity && this.height == float.PositiveInfinity) {
-                type = this.GetType() + "expand";
+            if (width == float.PositiveInfinity && height == float.PositiveInfinity) {
+                type = GetType() + "expand";
             }
-            else if (this.width == 0.0 && this.height == 0.0) {
-                type = this.GetType() + "shrink";
+            else if (width == 0.0 && height == 0.0) {
+                type = GetType() + "shrink";
             }
             else {
-                type = this.GetType() + "";
+                type = GetType() + "";
             }
 
-            return this.key == null ? type : type + "-" + this.key;
+            return key == null ? type : type + "-" + key;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             DiagnosticLevel level;
-            if ((this.width == float.PositiveInfinity && this.height == float.PositiveInfinity) ||
-                (this.width == 0.0 && this.height == 0.0)) {
+            if ((width == float.PositiveInfinity && height == float.PositiveInfinity) ||
+                (width == 0.0 && height == 0.0)) {
                 level = DiagnosticLevel.hidden;
             }
             else {
                 level = DiagnosticLevel.info;
             }
 
-            properties.add(new FloatProperty("width", this.width,
-                defaultValue: Diagnostics.kNullDefaultValue,
+            properties.add(new FloatProperty("width", width,
+                defaultValue: foundation_.kNullDefaultValue,
                 level: level));
-            properties.add(new FloatProperty("height", this.height,
-                defaultValue: Diagnostics.kNullDefaultValue,
+            properties.add(new FloatProperty("height", height,
+                defaultValue: foundation_.kNullDefaultValue,
                 level: level));
         }
     }
@@ -473,18 +473,18 @@ namespace Unity.UIWidgets.widgets {
         public readonly BoxConstraints constraints;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderConstrainedBox(additionalConstraints: this.constraints);
+            return new RenderConstrainedBox(additionalConstraints: constraints);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderConstrainedBox) renderObjectRaw;
-            renderObject.additionalConstraints = this.constraints;
+            renderObject.additionalConstraints = constraints;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<BoxConstraints>("constraints",
-                this.constraints, showName: false));
+                constraints, showName: false));
         }
     }
 
@@ -505,20 +505,20 @@ namespace Unity.UIWidgets.widgets {
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             RenderUnconstrainedBox renderObject = _renderObject as RenderUnconstrainedBox;
-            renderObject.alignment = this.alignment;
-            renderObject.constrainedAxis = this.constrainedAxis;
+            renderObject.alignment = alignment;
+            renderObject.constrainedAxis = constrainedAxis;
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderUnconstrainedBox(
-                alignment: this.alignment,
-                constrainedAxis: this.constrainedAxis
+                alignment: alignment,
+                constrainedAxis: constrainedAxis
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
             properties.add(new EnumProperty<Axis?>("constrainedAxis", null));
         }
     }
@@ -546,24 +546,24 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderFractionallySizedOverflowBox(
-                alignment: this.alignment,
-                widthFactor: this.widthFactor,
-                heightFactor: this.heightFactor
+                alignment: alignment,
+                widthFactor: widthFactor,
+                heightFactor: heightFactor
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             RenderFractionallySizedOverflowBox renderObject = _renderObject as RenderFractionallySizedOverflowBox;
-            renderObject.alignment = this.alignment;
-            renderObject.widthFactor = this.widthFactor;
-            renderObject.heightFactor = this.heightFactor;
+            renderObject.alignment = alignment;
+            renderObject.widthFactor = widthFactor;
+            renderObject.heightFactor = heightFactor;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment));
-            properties.add(new FloatProperty("widthFactor", this.widthFactor, defaultValue: null));
-            properties.add(new FloatProperty("heightFactor", this.heightFactor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new FloatProperty("widthFactor", widthFactor, defaultValue: null));
+            properties.add(new FloatProperty("heightFactor", heightFactor, defaultValue: null));
         }
     }
 
@@ -610,12 +610,12 @@ namespace Unity.UIWidgets.widgets {
 
         bool _needTextDirection {
             get {
-                switch (this.direction) {
+                switch (direction) {
                     case Axis.horizontal:
                         return true;
                     case Axis.vertical:
-                        return (this.crossAxisAlignment == CrossAxisAlignment.start ||
-                                this.crossAxisAlignment == CrossAxisAlignment.end);
+                        return (crossAxisAlignment == CrossAxisAlignment.start ||
+                                crossAxisAlignment == CrossAxisAlignment.end);
                 }
 
                 return false;
@@ -623,42 +623,42 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public TextDirection getEffectiveTextDirection(BuildContext context) {
-            return this.textDirection ?? (this._needTextDirection ? Directionality.of(context) : TextDirection.ltr);
+            return textDirection ?? (_needTextDirection ? Directionality.of(context) : TextDirection.ltr);
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderFlex(
-                direction: this.direction,
-                mainAxisAlignment: this.mainAxisAlignment,
-                mainAxisSize: this.mainAxisSize,
-                crossAxisAlignment: this.crossAxisAlignment,
-                textDirection: this.getEffectiveTextDirection(context),
-                verticalDirection: this.verticalDirection,
-                textBaseline: this.textBaseline ?? TextBaseline.alphabetic
+                direction: direction,
+                mainAxisAlignment: mainAxisAlignment,
+                mainAxisSize: mainAxisSize,
+                crossAxisAlignment: crossAxisAlignment,
+                textDirection: getEffectiveTextDirection(context),
+                verticalDirection: verticalDirection,
+                textBaseline: textBaseline ?? TextBaseline.alphabetic
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderFlex) renderObject).direction = this.direction;
-            ((RenderFlex) renderObject).mainAxisAlignment = this.mainAxisAlignment;
-            ((RenderFlex) renderObject).mainAxisSize = this.mainAxisSize;
-            ((RenderFlex) renderObject).crossAxisAlignment = this.crossAxisAlignment;
-            ((RenderFlex) renderObject).textDirection = this.textDirection ?? TextDirection.ltr;
-            ((RenderFlex) renderObject).verticalDirection = this.verticalDirection;
-            ((RenderFlex) renderObject).textBaseline = this.textBaseline ?? TextBaseline.alphabetic;
+            ((RenderFlex) renderObject).direction = direction;
+            ((RenderFlex) renderObject).mainAxisAlignment = mainAxisAlignment;
+            ((RenderFlex) renderObject).mainAxisSize = mainAxisSize;
+            ((RenderFlex) renderObject).crossAxisAlignment = crossAxisAlignment;
+            ((RenderFlex) renderObject).textDirection = textDirection ?? TextDirection.ltr;
+            ((RenderFlex) renderObject).verticalDirection = verticalDirection;
+            ((RenderFlex) renderObject).textBaseline = textBaseline ?? TextBaseline.alphabetic;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<Axis>("direction", this.direction));
-            properties.add(new EnumProperty<MainAxisAlignment>("mainAxisAlignment", this.mainAxisAlignment));
-            properties.add(new EnumProperty<MainAxisSize>("mainAxisSize", this.mainAxisSize,
+            properties.add(new EnumProperty<Axis>("direction", direction));
+            properties.add(new EnumProperty<MainAxisAlignment>("mainAxisAlignment", mainAxisAlignment));
+            properties.add(new EnumProperty<MainAxisSize>("mainAxisSize", mainAxisSize,
                 defaultValue: MainAxisSize.max));
-            properties.add(new EnumProperty<CrossAxisAlignment>("crossAxisAlignment", this.crossAxisAlignment));
-            properties.add(new EnumProperty<TextDirection?>("textDirection", this.textDirection, defaultValue: null));
-            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", this.verticalDirection,
+            properties.add(new EnumProperty<CrossAxisAlignment>("crossAxisAlignment", crossAxisAlignment));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
+            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", verticalDirection,
                 defaultValue: VerticalDirection.down));
-            properties.add(new EnumProperty<TextBaseline?>("textBaseline", this.textBaseline, defaultValue: null));
+            properties.add(new EnumProperty<TextBaseline?>("textBaseline", textBaseline, defaultValue: null));
         }
     }
 
@@ -670,16 +670,16 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool offstage;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderOffstage(offstage: this.offstage);
+            return new RenderOffstage(offstage: offstage);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderOffstage) renderObject).offstage = this.offstage;
+            ((RenderOffstage) renderObject).offstage = offstage;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<bool>("offstage", this.offstage));
+            properties.add(new DiagnosticsProperty<bool>("offstage", offstage));
         }
 
         public override Element createElement() {
@@ -696,7 +696,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            if (!this.widget.offstage) {
+            if (!widget.offstage) {
                 base.debugVisitOnstageChildren(visitor);
             }
         }
@@ -714,16 +714,16 @@ namespace Unity.UIWidgets.widgets {
         public readonly float aspectRatio;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderAspectRatio(aspectRatio: this.aspectRatio);
+            return new RenderAspectRatio(aspectRatio: aspectRatio);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderAspectRatio) renderObject).aspectRatio = this.aspectRatio;
+            ((RenderAspectRatio) renderObject).aspectRatio = aspectRatio;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("aspectRatio", this.aspectRatio));
+            properties.add(new FloatProperty("aspectRatio", aspectRatio));
         }
     }
 
@@ -741,21 +741,21 @@ namespace Unity.UIWidgets.widgets {
         public readonly float? stepHeight;
 
         float? _stepWidth {
-            get { return this.stepWidth == 0.0f ? null : this.stepWidth; }
+            get { return stepWidth == 0.0f ? null : stepWidth; }
         }
 
         float? _stepHeight {
-            get { return this.stepHeight == 0.0f ? null : this.stepHeight; }
+            get { return stepHeight == 0.0f ? null : stepHeight; }
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderIntrinsicWidth(stepWidth: this._stepWidth, stepHeight: this._stepHeight);
+            return new RenderIntrinsicWidth(stepWidth: _stepWidth, stepHeight: _stepHeight);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderIntrinsicWidth) renderObjectRaw;
-            renderObject.stepWidth = this._stepWidth;
-            renderObject.stepHeight = this._stepHeight;
+            renderObject.stepWidth = _stepWidth;
+            renderObject.stepHeight = _stepHeight;
         }
     }
 
@@ -787,13 +787,13 @@ namespace Unity.UIWidgets.widgets {
         public readonly TextBaseline baselineType;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderBaseline(baseline: this.baseline, baselineType: this.baselineType);
+            return new RenderBaseline(baseline: baseline, baselineType: baselineType);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             RenderBaseline renderObject = (RenderBaseline) renderObjectRaw;
-            renderObject.baseline = this.baseline;
-            renderObject.baselineType = this.baselineType;
+            renderObject.baseline = baseline;
+            renderObject.baselineType = baselineType;
         }
     }
 
@@ -814,18 +814,18 @@ namespace Unity.UIWidgets.widgets {
 
 
         AxisDirection _getDirection(BuildContext context) {
-            return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, this.mainAxis,
-                       this.reverse) ?? AxisDirection.right;
+            return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, mainAxis,
+                       reverse) ?? AxisDirection.right;
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderListBody(
-                axisDirection: this._getDirection(context));
+                axisDirection: _getDirection(context));
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderListBody _renderObject = (RenderListBody) renderObject;
-            _renderObject.axisDirection = this._getDirection(context);
+            _renderObject.axisDirection = _getDirection(context);
         }
     }
 
@@ -849,24 +849,24 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderStack(
-                alignment: this.alignment,
-                fit: this.fit,
-                overflow: this.overflow
+                alignment: alignment,
+                fit: fit,
+                overflow: overflow
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderStack) renderObjectRaw;
-            renderObject.alignment = this.alignment;
-            renderObject.fit = this.fit;
-            renderObject.overflow = this.overflow;
+            renderObject.alignment = alignment;
+            renderObject.fit = fit;
+            renderObject.overflow = overflow;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment));
-            properties.add(new EnumProperty<StackFit>("fit", this.fit));
-            properties.add(new EnumProperty<Overflow>("overflow", this.overflow));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new EnumProperty<StackFit>("fit", fit));
+            properties.add(new EnumProperty<Overflow>("overflow", overflow));
         }
     }
 
@@ -885,15 +885,15 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderIndexedStack(
-                index: this.index,
-                alignment: this.alignment
+                index: index,
+                alignment: alignment
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderIndexedStack renderIndexedStack = renderObject as RenderIndexedStack;
-            renderIndexedStack.index = this.index;
-            renderIndexedStack.alignment = this.alignment;
+            renderIndexedStack.index = index;
+            renderIndexedStack.alignment = alignment;
         }
     }
 
@@ -963,33 +963,33 @@ namespace Unity.UIWidgets.widgets {
             StackParentData parentData = (StackParentData) renderObject.parentData;
             bool needsLayout = false;
 
-            if (parentData.left != this.left) {
-                parentData.left = this.left;
+            if (parentData.left != left) {
+                parentData.left = left;
                 needsLayout = true;
             }
 
-            if (parentData.top != this.top) {
-                parentData.top = this.top;
+            if (parentData.top != top) {
+                parentData.top = top;
                 needsLayout = true;
             }
 
-            if (parentData.right != this.right) {
-                parentData.right = this.right;
+            if (parentData.right != right) {
+                parentData.right = right;
                 needsLayout = true;
             }
 
-            if (parentData.bottom != this.bottom) {
-                parentData.bottom = this.bottom;
+            if (parentData.bottom != bottom) {
+                parentData.bottom = bottom;
                 needsLayout = true;
             }
 
-            if (parentData.width != this.width) {
-                parentData.width = this.width;
+            if (parentData.width != width) {
+                parentData.width = width;
                 needsLayout = true;
             }
 
-            if (parentData.height != this.height) {
-                parentData.height = this.height;
+            if (parentData.height != height) {
+                parentData.height = height;
                 needsLayout = true;
             }
 
@@ -1003,12 +1003,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("left", this.left, defaultValue: null));
-            properties.add(new FloatProperty("top", this.top, defaultValue: null));
-            properties.add(new FloatProperty("right", this.right, defaultValue: null));
-            properties.add(new FloatProperty("bottom", this.bottom, defaultValue: null));
-            properties.add(new FloatProperty("width", this.width, defaultValue: null));
-            properties.add(new FloatProperty("height", this.height, defaultValue: null));
+            properties.add(new FloatProperty("left", left, defaultValue: null));
+            properties.add(new FloatProperty("top", top, defaultValue: null));
+            properties.add(new FloatProperty("right", right, defaultValue: null));
+            properties.add(new FloatProperty("bottom", bottom, defaultValue: null));
+            properties.add(new FloatProperty("width", width, defaultValue: null));
+            properties.add(new FloatProperty("height", height, defaultValue: null));
         }
     }
 
@@ -1080,13 +1080,13 @@ namespace Unity.UIWidgets.widgets {
             FlexParentData parentData = (FlexParentData) renderObject.parentData;
             bool needsLayout = false;
 
-            if (parentData.flex != this.flex) {
-                parentData.flex = this.flex;
+            if (parentData.flex != flex) {
+                parentData.flex = flex;
                 needsLayout = true;
             }
 
-            if (parentData.fit != this.fit) {
-                parentData.fit = this.fit;
+            if (parentData.fit != fit) {
+                parentData.fit = fit;
                 needsLayout = true;
             }
 
@@ -1100,7 +1100,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new IntProperty("flex", this.flex));
+            properties.add(new IntProperty("flex", flex));
         }
     }
 
@@ -1156,40 +1156,40 @@ namespace Unity.UIWidgets.widgets {
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderWrap(
                 children: null,
-                direction: this.direction,
-                alignment: this.alignment,
-                spacing: this.spacing,
-                runAlignment: this.runAlignment,
-                runSpacing: this.runSpacing,
-                crossAxisAlignment: this.crossAxisAlignment,
-                textDirection: this.textDirection ?? Directionality.of(context),
-                verticalDirection: this.verticalDirection
+                direction: direction,
+                alignment: alignment,
+                spacing: spacing,
+                runAlignment: runAlignment,
+                runSpacing: runSpacing,
+                crossAxisAlignment: crossAxisAlignment,
+                textDirection: textDirection ?? Directionality.of(context),
+                verticalDirection: verticalDirection
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             D.assert(renderObject is RenderWrap);
             RenderWrap renderWrap = renderObject as RenderWrap;
-            renderWrap.direction = this.direction;
-            renderWrap.alignment = this.alignment;
-            renderWrap.spacing = this.spacing;
-            renderWrap.runAlignment = this.runAlignment;
-            renderWrap.runSpacing = this.runSpacing;
-            renderWrap.crossAxisAlignment = this.crossAxisAlignment;
-            renderWrap.textDirection = this.textDirection ?? Directionality.of(context);
-            renderWrap.verticalDirection = this.verticalDirection;
+            renderWrap.direction = direction;
+            renderWrap.alignment = alignment;
+            renderWrap.spacing = spacing;
+            renderWrap.runAlignment = runAlignment;
+            renderWrap.runSpacing = runSpacing;
+            renderWrap.crossAxisAlignment = crossAxisAlignment;
+            renderWrap.textDirection = textDirection ?? Directionality.of(context);
+            renderWrap.verticalDirection = verticalDirection;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<Axis>("direction", this.direction));
-            properties.add(new EnumProperty<WrapAlignment>("alignment", this.alignment));
-            properties.add(new FloatProperty("spacing", this.spacing));
-            properties.add(new EnumProperty<WrapAlignment>("runAlignment", this.runAlignment));
-            properties.add(new FloatProperty("runSpacing", this.runSpacing));
-            properties.add(new FloatProperty("crossAxisAlignment", this.runSpacing));
-            properties.add(new EnumProperty<TextDirection?>("textDirection", this.textDirection, defaultValue: null));
-            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", this.verticalDirection,
+            properties.add(new EnumProperty<Axis>("direction", direction));
+            properties.add(new EnumProperty<WrapAlignment>("alignment", alignment));
+            properties.add(new FloatProperty("spacing", spacing));
+            properties.add(new EnumProperty<WrapAlignment>("runAlignment", runAlignment));
+            properties.add(new FloatProperty("runSpacing", runSpacing));
+            properties.add(new FloatProperty("crossAxisAlignment", runSpacing));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
+            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", verticalDirection,
                 defaultValue: VerticalDirection.down));
         }
     }
@@ -1229,31 +1229,31 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderPhysicalModel(
-                shape: this.shape,
-                clipBehavior: this.clipBehavior,
-                borderRadius: this.borderRadius,
-                elevation: this.elevation,
-                color: this.color,
-                shadowColor: this.shadowColor);
+                shape: shape,
+                clipBehavior: clipBehavior,
+                borderRadius: borderRadius,
+                elevation: elevation,
+                color: color,
+                shadowColor: shadowColor);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderPhysicalModel _renderObject = (RenderPhysicalModel) renderObject;
-            _renderObject.shape = this.shape;
-            _renderObject.borderRadius = this.borderRadius;
-            _renderObject.elevation = this.elevation;
-            _renderObject.color = this.color;
-            _renderObject.shadowColor = this.shadowColor;
+            _renderObject.shape = shape;
+            _renderObject.borderRadius = borderRadius;
+            _renderObject.elevation = elevation;
+            _renderObject.color = color;
+            _renderObject.shadowColor = shadowColor;
         }
 
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<BoxShape>("shape", this.shape));
-            properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", this.borderRadius));
-            properties.add(new FloatProperty("elevation", this.elevation));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color));
-            properties.add(new DiagnosticsProperty<Color>("shadowColor", this.shadowColor));
+            properties.add(new EnumProperty<BoxShape>("shape", shape));
+            properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", borderRadius));
+            properties.add(new FloatProperty("elevation", elevation));
+            properties.add(new DiagnosticsProperty<Color>("color", color));
+            properties.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor));
         }
     }
 
@@ -1289,27 +1289,27 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderPhysicalShape(
-                clipper: this.clipper,
-                clipBehavior: this.clipBehavior,
-                elevation: this.elevation,
-                color: this.color,
-                shadowColor: this.shadowColor);
+                clipper: clipper,
+                clipBehavior: clipBehavior,
+                elevation: elevation,
+                color: color,
+                shadowColor: shadowColor);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderPhysicalShape _renderObject = (RenderPhysicalShape) renderObject;
-            _renderObject.clipper = this.clipper;
-            _renderObject.elevation = this.elevation;
-            _renderObject.color = this.color;
-            _renderObject.shadowColor = this.shadowColor;
+            _renderObject.clipper = clipper;
+            _renderObject.elevation = elevation;
+            _renderObject.color = color;
+            _renderObject.shadowColor = shadowColor;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<CustomClipper<Path>>("clipper", this.clipper));
-            properties.add(new FloatProperty("elevation", this.elevation));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color));
-            properties.add(new DiagnosticsProperty<Color>("shadowColor", this.shadowColor));
+            properties.add(new DiagnosticsProperty<CustomClipper<Path>>("clipper", clipper));
+            properties.add(new FloatProperty("elevation", elevation));
+            properties.add(new DiagnosticsProperty<Color>("color", color));
+            properties.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor));
         }
     }
 
@@ -1327,11 +1327,11 @@ namespace Unity.UIWidgets.widgets {
         public readonly int? quarterTurns;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderRotatedBox(this.quarterTurns ?? 0);
+            return new RenderRotatedBox(quarterTurns ?? 0);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            (renderObject as RenderRotatedBox).quarterTurns = this.quarterTurns ?? 0;
+            (renderObject as RenderRotatedBox).quarterTurns = quarterTurns ?? 0;
         }
     }
 
@@ -1350,18 +1350,18 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderPadding(
-                padding: this.padding
+                padding: padding
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderPadding) renderObjectRaw;
-            renderObject.padding = this.padding;
+            renderObject.padding = padding;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
         }
     }
 
@@ -1389,7 +1389,7 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null,
             float degree = 0.0f
         ) : base(key: key, child: child) {
-            this.transform = Matrix3.makeRotate(degree);
+            transform = Matrix3.makeRotate(degree);
             this.origin = origin;
             this.alignment = alignment;
             this.transformHitTests = transformHitTests;
@@ -1413,9 +1413,9 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) : base(key: key, child: child) {
             D.assert(offset != null);
-            this.transform = Matrix3.makeTrans(offset.dx, offset.dy);
-            this.origin = null;
-            this.alignment = null;
+            transform = Matrix3.makeTrans(offset.dx, offset.dy);
+            origin = null;
+            alignment = null;
             this.transformHitTests = transformHitTests;
         }
 
@@ -1436,7 +1436,7 @@ namespace Unity.UIWidgets.widgets {
             bool transformHitTests = true,
             Widget child = null
         ) : base(key: key, child: child) {
-            this.transform = Matrix3.makeScale(scale, scale);
+            transform = Matrix3.makeScale(scale, scale);
             this.origin = origin;
             this.alignment = alignment;
             this.transformHitTests = transformHitTests;
@@ -1460,19 +1460,19 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderTransform(
-                transform: this.transform,
-                origin: this.origin,
-                alignment: this.alignment,
-                transformHitTests: this.transformHitTests
+                transform: transform,
+                origin: origin,
+                alignment: alignment,
+                transformHitTests: transformHitTests
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderTransform) renderObjectRaw;
-            renderObject.transform = this.transform;
-            renderObject.origin = this.origin;
-            renderObject.alignment = this.alignment;
-            renderObject.transformHitTests = this.transformHitTests;
+            renderObject.transform = transform;
+            renderObject.origin = origin;
+            renderObject.alignment = alignment;
+            renderObject.transformHitTests = transformHitTests;
         }
     }
 
@@ -1490,12 +1490,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderLeaderLayer(
-                link: this.link
+                link: link
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderLeaderLayer) renderObject).link = this.link;
+            ((RenderLeaderLayer) renderObject).link = link;
         }
     }
 
@@ -1519,16 +1519,16 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderFollowerLayer(
-                link: this.link,
-                showWhenUnlinked: this.showWhenUnlinked,
-                offset: this.offset
+                link: link,
+                showWhenUnlinked: showWhenUnlinked,
+                offset: offset
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderFollowerLayer) renderObject).link = this.link;
-            ((RenderFollowerLayer) renderObject).showWhenUnlinked = this.showWhenUnlinked;
-            ((RenderFollowerLayer) renderObject).offset = this.offset;
+            ((RenderFollowerLayer) renderObject).link = link;
+            ((RenderFollowerLayer) renderObject).showWhenUnlinked = showWhenUnlinked;
+            ((RenderFollowerLayer) renderObject).offset = offset;
         }
     }
 
@@ -1549,21 +1549,21 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderFittedBox(
-                fit: this.fit,
-                alignment: this.alignment
+                fit: fit,
+                alignment: alignment
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             RenderFittedBox renderObject = _renderObject as RenderFittedBox;
-            renderObject.fit = this.fit;
-            renderObject.alignment = this.alignment;
+            renderObject.fit = fit;
+            renderObject.alignment = alignment;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<BoxFit>("fit", this.fit));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment));
+            properties.add(new EnumProperty<BoxFit>("fit", fit));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
         }
     }
 
@@ -1579,14 +1579,14 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderFractionalTranslation(
-                translation: this.translation,
-                transformHitTests: this.transformHitTests
+                translation: translation,
+                transformHitTests: transformHitTests
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderFractionalTranslation) renderObject).translation = this.translation;
-            ((RenderFractionalTranslation) renderObject).transformHitTests = this.transformHitTests;
+            ((RenderFractionalTranslation) renderObject).translation = translation;
+            ((RenderFractionalTranslation) renderObject).transformHitTests = transformHitTests;
         }
     }
 
@@ -1614,26 +1614,26 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderPositionedBox(
-                alignment: this.alignment,
-                widthFactor: this.widthFactor,
-                heightFactor: this.heightFactor
+                alignment: alignment,
+                widthFactor: widthFactor,
+                heightFactor: heightFactor
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderPositionedBox) renderObjectRaw;
-            renderObject.alignment = this.alignment;
-            renderObject.widthFactor = this.widthFactor;
-            renderObject.heightFactor = this.heightFactor;
+            renderObject.alignment = alignment;
+            renderObject.widthFactor = widthFactor;
+            renderObject.heightFactor = heightFactor;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
             properties.add(new FloatProperty("widthFactor",
-                this.widthFactor, defaultValue: Diagnostics.kNullDefaultValue));
+                widthFactor, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("heightFactor",
-                this.heightFactor, defaultValue: Diagnostics.kNullDefaultValue));
+                heightFactor, defaultValue: foundation_.kNullDefaultValue));
         }
     }
 
@@ -1661,11 +1661,11 @@ namespace Unity.UIWidgets.widgets {
         public readonly SingleChildLayoutDelegate layoutDelegate;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderCustomSingleChildLayoutBox(layoutDelegate: this.layoutDelegate);
+            return new RenderCustomSingleChildLayoutBox(layoutDelegate: layoutDelegate);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderCustomSingleChildLayoutBox) renderObject).layoutDelegate = this.layoutDelegate;
+            ((RenderCustomSingleChildLayoutBox) renderObject).layoutDelegate = layoutDelegate;
         }
     }
 
@@ -1685,8 +1685,8 @@ namespace Unity.UIWidgets.widgets {
         public override void applyParentData(RenderObject renderObject) {
             D.assert(renderObject.parentData is MultiChildLayoutParentData);
             MultiChildLayoutParentData parentData = (MultiChildLayoutParentData) renderObject.parentData;
-            if (parentData.id != this.id) {
-                parentData.id = this.id;
+            if (parentData.id != id) {
+                parentData.id = id;
                 var targetParent = renderObject.parent;
                 if (targetParent is RenderObject) {
                     ((RenderObject) targetParent).markNeedsLayout();
@@ -1696,7 +1696,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<object>("id", this.id));
+            properties.add(new DiagnosticsProperty<object>("id", id));
         }
     }
 
@@ -1713,11 +1713,11 @@ namespace Unity.UIWidgets.widgets {
         public readonly MultiChildLayoutDelegate layoutDelegate;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderCustomMultiChildLayoutBox(layoutDelegate: this.layoutDelegate);
+            return new RenderCustomMultiChildLayoutBox(layoutDelegate: layoutDelegate);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderCustomMultiChildLayoutBox) renderObject).layoutDelegate = this.layoutDelegate;
+            ((RenderCustomMultiChildLayoutBox) renderObject).layoutDelegate = layoutDelegate;
         }
     }
 
@@ -1755,18 +1755,18 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderSliverPadding(
-                padding: this.padding
+                padding: padding
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderSliverPadding) renderObjectRaw;
-            renderObject.padding = this.padding;
+            renderObject.padding = padding;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
         }
     }
 
@@ -1809,39 +1809,39 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderParagraph(
-                this.text,
-                textAlign: this.textAlign,
-                softWrap: this.softWrap,
-                overflow: this.overflow,
-                textScaleFactor: this.textScaleFactor,
-                maxLines: this.maxLines,
-                onSelectionChanged: this.onSelectionChanged,
-                selectionColor: this.selectionColor
+                text,
+                textAlign: textAlign,
+                softWrap: softWrap,
+                overflow: overflow,
+                textScaleFactor: textScaleFactor,
+                maxLines: maxLines,
+                onSelectionChanged: onSelectionChanged,
+                selectionColor: selectionColor
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderParagraph) renderObjectRaw;
-            renderObject.text = this.text;
-            renderObject.textAlign = this.textAlign;
-            renderObject.softWrap = this.softWrap;
-            renderObject.overflow = this.overflow;
-            renderObject.textScaleFactor = this.textScaleFactor;
-            renderObject.maxLines = this.maxLines;
-            renderObject.onSelectionChanged = this.onSelectionChanged;
-            renderObject.selectionColor = this.selectionColor;
-            renderObject.strutStyle = this.strutStyle;
+            renderObject.text = text;
+            renderObject.textAlign = textAlign;
+            renderObject.softWrap = softWrap;
+            renderObject.overflow = overflow;
+            renderObject.textScaleFactor = textScaleFactor;
+            renderObject.maxLines = maxLines;
+            renderObject.onSelectionChanged = onSelectionChanged;
+            renderObject.selectionColor = selectionColor;
+            renderObject.strutStyle = strutStyle;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<TextAlign>("textAlign", this.textAlign, defaultValue: TextAlign.left));
-            properties.add(new FlagProperty("softWrap", value: this.softWrap, ifTrue: "wrapping at box width",
+            properties.add(new EnumProperty<TextAlign>("textAlign", textAlign, defaultValue: TextAlign.left));
+            properties.add(new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width",
                 ifFalse: "no wrapping except at line break characters", showName: true));
-            properties.add(new EnumProperty<TextOverflow>("overflow", this.overflow, defaultValue: TextOverflow.clip));
-            properties.add(new FloatProperty("textScaleFactor", this.textScaleFactor, defaultValue: 1.0f));
-            properties.add(new IntProperty("maxLines", this.maxLines, ifNull: "unlimited"));
-            properties.add(new StringProperty("text", this.text.toPlainText()));
+            properties.add(new EnumProperty<TextOverflow>("overflow", overflow, defaultValue: TextOverflow.clip));
+            properties.add(new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: 1.0f));
+            properties.add(new IntProperty("maxLines", maxLines, ifNull: "unlimited"));
+            properties.add(new StringProperty("text", text.toPlainText()));
         }
     }
 
@@ -1890,56 +1890,56 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderImage(
-                image: this.image,
-                width: this.width,
-                height: this.height,
-                scale: this.scale,
-                color: this.color,
-                colorBlendMode: this.colorBlendMode,
-                fit: this.fit,
-                alignment: this.alignment,
-                repeat: this.repeat,
-                centerSlice: this.centerSlice,
-                invertColors: this.invertColors,
-                filterMode: this.filterMode
+                image: image,
+                width: width,
+                height: height,
+                scale: scale,
+                color: color,
+                colorBlendMode: colorBlendMode,
+                fit: fit,
+                alignment: alignment,
+                repeat: repeat,
+                centerSlice: centerSlice,
+                invertColors: invertColors,
+                filterMode: filterMode
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             var renderImage = (RenderImage) renderObject;
 
-            renderImage.image = this.image;
-            renderImage.width = this.width;
-            renderImage.height = this.height;
-            renderImage.scale = this.scale;
-            renderImage.color = this.color;
-            renderImage.colorBlendMode = this.colorBlendMode;
-            renderImage.alignment = this.alignment;
-            renderImage.fit = this.fit;
-            renderImage.repeat = this.repeat;
-            renderImage.centerSlice = this.centerSlice;
-            renderImage.invertColors = this.invertColors;
-            renderImage.filterMode = this.filterMode;
+            renderImage.image = image;
+            renderImage.width = width;
+            renderImage.height = height;
+            renderImage.scale = scale;
+            renderImage.color = color;
+            renderImage.colorBlendMode = colorBlendMode;
+            renderImage.alignment = alignment;
+            renderImage.fit = fit;
+            renderImage.repeat = repeat;
+            renderImage.centerSlice = centerSlice;
+            renderImage.invertColors = invertColors;
+            renderImage.filterMode = filterMode;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<ui.Image>("image", this.image));
-            properties.add(new FloatProperty("width", this.width, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FloatProperty("height", this.height, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FloatProperty("scale", this.scale, defaultValue: 1.0f));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumProperty<BlendMode>("colorBlendMode", this.colorBlendMode,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumProperty<BoxFit?>("fit", this.fit, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumProperty<ImageRepeat>("repeat", this.repeat, defaultValue: ImageRepeat.noRepeat));
-            properties.add(new DiagnosticsProperty<Rect>("centerSlice", this.centerSlice,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<bool>("invertColors", this.invertColors));
-            properties.add(new EnumProperty<FilterMode>("filterMode", this.filterMode));
+            properties.add(new DiagnosticsProperty<ui.Image>("image", image));
+            properties.add(new FloatProperty("width", width, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FloatProperty("height", height, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FloatProperty("scale", scale, defaultValue: 1.0f));
+            properties.add(new DiagnosticsProperty<Color>("color", color,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<BoxFit?>("fit", fit, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<ImageRepeat>("repeat", repeat, defaultValue: ImageRepeat.noRepeat));
+            properties.add(new DiagnosticsProperty<Rect>("centerSlice", centerSlice,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<bool>("invertColors", invertColors));
+            properties.add(new EnumProperty<FilterMode>("filterMode", filterMode));
         }
     }
 
@@ -1963,7 +1963,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            return this.bundle != ((DefaultAssetBundle) oldWidget).bundle;
+            return bundle != ((DefaultAssetBundle) oldWidget).bundle;
         }
     }
 
@@ -2033,103 +2033,103 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderPointerListener(
-                onPointerDown: this.onPointerDown,
-                onPointerMove: this.onPointerMove,
-                onPointerUp: this.onPointerUp,
-                onPointerCancel: this.onPointerCancel,
-                onPointerSignal: this.onPointerSignal,
-                onPointerEnter: this.onPointerEnter,
-                onPointerExit: this.onPointerExit,
-                onPointerHover: this.onPointerHover,
-                onPointerScroll: this.onPointerScroll,
-                onPointerDragFromEditorEnter: this.onPointerDragFromEditorEnter,
-                onPointerDragFromEditorHover: this.onPointerDragFromEditorHover,
-                onPointerDragFromEditorExit: this.onPointerDragFromEditorExit,
-                onPointerDragFromEditorRelease: this.onPointerDragFromEditorRelease,
-                behavior: this.behavior
+                onPointerDown: onPointerDown,
+                onPointerMove: onPointerMove,
+                onPointerUp: onPointerUp,
+                onPointerCancel: onPointerCancel,
+                onPointerSignal: onPointerSignal,
+                onPointerEnter: onPointerEnter,
+                onPointerExit: onPointerExit,
+                onPointerHover: onPointerHover,
+                onPointerScroll: onPointerScroll,
+                onPointerDragFromEditorEnter: onPointerDragFromEditorEnter,
+                onPointerDragFromEditorHover: onPointerDragFromEditorHover,
+                onPointerDragFromEditorExit: onPointerDragFromEditorExit,
+                onPointerDragFromEditorRelease: onPointerDragFromEditorRelease,
+                behavior: behavior
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderPointerListener) renderObjectRaw;
-            renderObject.onPointerDown = this.onPointerDown;
-            renderObject.onPointerMove = this.onPointerMove;
-            renderObject.onPointerUp = this.onPointerUp;
-            renderObject.onPointerCancel = this.onPointerCancel;
-            renderObject.onPointerSignal = this.onPointerSignal;
-            renderObject.onPointerEnter = this.onPointerEnter;
-            renderObject.onPointerHover = this.onPointerHover;
-            renderObject.onPointerExit = this.onPointerExit;
-            renderObject.onPointerScroll = this.onPointerScroll;
-            renderObject.behavior = this.behavior;
+            renderObject.onPointerDown = onPointerDown;
+            renderObject.onPointerMove = onPointerMove;
+            renderObject.onPointerUp = onPointerUp;
+            renderObject.onPointerCancel = onPointerCancel;
+            renderObject.onPointerSignal = onPointerSignal;
+            renderObject.onPointerEnter = onPointerEnter;
+            renderObject.onPointerHover = onPointerHover;
+            renderObject.onPointerExit = onPointerExit;
+            renderObject.onPointerScroll = onPointerScroll;
+            renderObject.behavior = behavior;
 
 #if UNITY_EDITOR
-            renderObject.onPointerDragFromEditorEnter = this.onPointerDragFromEditorEnter;
-            renderObject.onPointerDragFromEditorHover = this.onPointerDragFromEditorHover;
-            renderObject.onPointerDragFromEditorExit = this.onPointerDragFromEditorExit;
-            renderObject.onPointerDragFromEditorRelease = this.onPointerDragFromEditorRelease;
+            renderObject.onPointerDragFromEditorEnter = onPointerDragFromEditorEnter;
+            renderObject.onPointerDragFromEditorHover = onPointerDragFromEditorHover;
+            renderObject.onPointerDragFromEditorExit = onPointerDragFromEditorExit;
+            renderObject.onPointerDragFromEditorRelease = onPointerDragFromEditorRelease;
 #endif
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             List<string> listeners = new List<string>();
-            if (this.onPointerDown != null) {
+            if (onPointerDown != null) {
                 listeners.Add("down");
             }
 
-            if (this.onPointerMove != null) {
+            if (onPointerMove != null) {
                 listeners.Add("move");
             }
 
-            if (this.onPointerUp != null) {
+            if (onPointerUp != null) {
                 listeners.Add("up");
             }
 
-            if (this.onPointerCancel != null) {
+            if (onPointerCancel != null) {
                 listeners.Add("cancel");
             }
 
-            if (this.onPointerSignal != null) {
+            if (onPointerSignal != null) {
                 listeners.Add("signal");
             }
 
-            if (this.onPointerEnter != null) {
+            if (onPointerEnter != null) {
                 listeners.Add("enter");
             }
 
-            if (this.onPointerHover != null) {
+            if (onPointerHover != null) {
                 listeners.Add("hover");
             }
 
-            if (this.onPointerExit != null) {
+            if (onPointerExit != null) {
                 listeners.Add("exit");
             }
 
-            if (this.onPointerScroll != null) {
+            if (onPointerScroll != null) {
                 listeners.Add("scroll");
             }
 
 #if UNITY_EDITOR
-            if (this.onPointerDragFromEditorEnter != null) {
+            if (onPointerDragFromEditorEnter != null) {
                 listeners.Add("dragFromEditorEnter");
             }
 
-            if (this.onPointerDragFromEditorHover != null) {
+            if (onPointerDragFromEditorHover != null) {
                 listeners.Add("dragFromEditorHover");
             }
 
-            if (this.onPointerDragFromEditorExit != null) {
+            if (onPointerDragFromEditorExit != null) {
                 listeners.Add("dragFromEditorExit");
             }
 
-            if (this.onPointerDragFromEditorRelease != null) {
+            if (onPointerDragFromEditorRelease != null) {
                 listeners.Add("dragFromEditorRelease");
             }
 #endif
 
             properties.add(new EnumerableProperty<string>("listeners", listeners, ifEmpty: "<none>"));
-            properties.add(new EnumProperty<HitTestBehavior>("behavior", this.behavior));
+            properties.add(new EnumProperty<HitTestBehavior>("behavior", behavior));
         }
     }
 
@@ -2170,19 +2170,19 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderIgnorePointer(
-                ignoring: this.ignoring
+                ignoring: ignoring
             );
         }
 
         public override
             void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderIgnorePointer) renderObjectRaw;
-            renderObject.ignoring = this.ignoring;
+            renderObject.ignoring = ignoring;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<bool>("ignoring", this.ignoring));
+            properties.add(new DiagnosticsProperty<bool>("ignoring", ignoring));
         }
     }
 
@@ -2199,17 +2199,17 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderAbsorbPointer(
-                absorbing: this.absorbing
+                absorbing: absorbing
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderAbsorbPointer) renderObject).absorbing = this.absorbing;
+            ((RenderAbsorbPointer) renderObject).absorbing = absorbing;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<bool>("absorbing", this.absorbing));
+            properties.add(new DiagnosticsProperty<bool>("absorbing", absorbing));
         }
     }
 
@@ -2229,20 +2229,20 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderMetaData(
-                metaData: this.metaData,
-                behavior: this.behavior);
+                metaData: metaData,
+                behavior: behavior);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             var renderObj = (RenderMetaData) renderObject;
-            renderObj.metaData = this.metaData;
-            renderObj.behavior = this.behavior;
+            renderObj.metaData = metaData;
+            renderObj.behavior = behavior;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<HitTestBehavior>("behavior", this.behavior));
-            properties.add(new DiagnosticsProperty<object>("metaData", this.metaData));
+            properties.add(new EnumProperty<HitTestBehavior>("behavior", behavior));
+            properties.add(new DiagnosticsProperty<object>("metaData", metaData));
         }
     }
 
@@ -2280,7 +2280,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            return this.child;
+            return child;
         }
     }
 
@@ -2297,7 +2297,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly WidgetBuilder builder;
 
         public override Widget build(BuildContext context) {
-            return this.builder(context);
+            return builder(context);
         }
     }
 }

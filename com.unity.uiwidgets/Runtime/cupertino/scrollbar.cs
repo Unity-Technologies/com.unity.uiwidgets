@@ -42,12 +42,12 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this._fadeoutAnimationController = new AnimationController(
+            _fadeoutAnimationController = new AnimationController(
                 vsync: this,
                 duration: CupertinoScrollbarUtils._kScrollbarFadeDuration
             );
-            this._fadeoutOpacityAnimation = new CurvedAnimation(
-                parent: this._fadeoutAnimationController,
+            _fadeoutOpacityAnimation = new CurvedAnimation(
+                parent: _fadeoutAnimationController,
                 curve: Curves.fastOutSlowIn
             );
         }
@@ -55,16 +55,16 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this._textDirection = Directionality.of(this.context);
-            this._painter = this._buildCupertinoScrollbarPainter();
+            _textDirection = Directionality.of(context);
+            _painter = _buildCupertinoScrollbarPainter();
         }
 
         ScrollbarPainter _buildCupertinoScrollbarPainter() {
             return new ScrollbarPainter(
                 color: CupertinoScrollbarUtils._kScrollbarColor,
-                textDirection: this._textDirection,
+                textDirection: _textDirection,
                 thickness: CupertinoScrollbarUtils._kScrollbarThickness,
-                fadeoutOpacityAnimation: this._fadeoutOpacityAnimation,
+                fadeoutOpacityAnimation: _fadeoutOpacityAnimation,
                 mainAxisMargin: CupertinoScrollbarUtils._kScrollbarMainAxisMargin,
                 crossAxisMargin: CupertinoScrollbarUtils._kScrollbarCrossAxisMargin,
                 radius: CupertinoScrollbarUtils._kScrollbarRadius,
@@ -76,18 +76,18 @@ namespace Unity.UIWidgets.cupertino {
         bool _handleScrollNotification(ScrollNotification notification) {
             if (notification is ScrollUpdateNotification ||
                 notification is OverscrollNotification) {
-                if (this._fadeoutAnimationController.status != AnimationStatus.forward) {
-                    this._fadeoutAnimationController.forward();
+                if (_fadeoutAnimationController.status != AnimationStatus.forward) {
+                    _fadeoutAnimationController.forward();
                 }
 
-                this._fadeoutTimer?.cancel();
-                this._painter.update(notification.metrics, notification.metrics.axisDirection);
+                _fadeoutTimer?.cancel();
+                _painter.update(notification.metrics, notification.metrics.axisDirection);
             }
             else if (notification is ScrollEndNotification) {
-                this._fadeoutTimer?.cancel();
-                this._fadeoutTimer = Window.instance.run(CupertinoScrollbarUtils._kScrollbarTimeToFade, () => {
-                    this._fadeoutAnimationController.reverse();
-                    this._fadeoutTimer = null;
+                _fadeoutTimer?.cancel();
+                _fadeoutTimer = Window.instance.run(CupertinoScrollbarUtils._kScrollbarTimeToFade, () => {
+                    _fadeoutAnimationController.reverse();
+                    _fadeoutTimer = null;
                 });
             }
 
@@ -96,21 +96,21 @@ namespace Unity.UIWidgets.cupertino {
 
 
         public override void dispose() {
-            this._fadeoutAnimationController.dispose();
-            this._fadeoutTimer?.cancel();
-            this._painter.dispose();
+            _fadeoutAnimationController.dispose();
+            _fadeoutTimer?.cancel();
+            _painter.dispose();
             base.dispose();
         }
 
 
         public override Widget build(BuildContext context) {
             return new NotificationListener<ScrollNotification>(
-                onNotification: this._handleScrollNotification,
+                onNotification: _handleScrollNotification,
                 child: new RepaintBoundary(
                     child: new CustomPaint(
-                        foregroundPainter: this._painter,
+                        foregroundPainter: _painter,
                         child: new RepaintBoundary(
-                            child: this.widget.child
+                            child: widget.child
                         )
                     )
                 )

@@ -67,19 +67,19 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override EdgeInsets padding {
-            get { return this.shape.dimensions; }
+            get { return shape.dimensions; }
         }
 
         public override bool isComplex {
-            get { return this.shadows != null; }
+            get { return shadows != null; }
         }
 
         public override Decoration lerpFrom(Decoration a, float t) {
             if (a is BoxDecoration decoration) {
-                return ShapeDecoration.lerp(ShapeDecoration.fromBoxDecoration(decoration), this, t);
+                return lerp(fromBoxDecoration(decoration), this, t);
             }
             else if (a == null || a is ShapeDecoration) {
-                return ShapeDecoration.lerp(a, this, t);
+                return lerp(a, this, t);
             }
 
             return base.lerpFrom(a, t);
@@ -87,10 +87,10 @@ namespace Unity.UIWidgets.painting {
 
         public override Decoration lerpTo(Decoration b, float t) {
             if (b is BoxDecoration decoration) {
-                return ShapeDecoration.lerp(this, fromBoxDecoration(decoration), t);
+                return lerp(this, fromBoxDecoration(decoration), t);
             }
             else if (b == null || b is ShapeDecoration) {
-                return ShapeDecoration.lerp(this, b, t);
+                return lerp(this, b, t);
             }
 
             return base.lerpTo(b, t);
@@ -129,9 +129,9 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.color, other.color) && Equals(this.image, other.image) &&
-                   Equals(this.gradient, other.gradient) && Equals(this.shadows, other.shadows) &&
-                   Equals(this.shape, other.shape);
+            return Equals(color, other.color) && Equals(image, other.image) &&
+                   Equals(gradient, other.gradient) && Equals(shadows, other.shadows) &&
+                   Equals(shape, other.shape);
         }
 
         public override bool Equals(object obj) {
@@ -143,20 +143,20 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ShapeDecoration) obj);
+            return Equals((ShapeDecoration) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.color != null ? this.color.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.image != null ? this.image.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.gradient != null ? this.gradient.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.shadows != null ? this.shadows.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.shape != null ? this.shape.GetHashCode() : 0);
+                var hashCode = (color != null ? color.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (image != null ? image.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (gradient != null ? gradient.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (shadows != null ? shadows.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (shape != null ? shape.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -172,23 +172,23 @@ namespace Unity.UIWidgets.painting {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.whitespace;
-            properties.add(new DiagnosticsProperty<Color>("color", this.color,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Gradient>("gradient", this.gradient,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<DecorationImage>("image", this.image,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumerableProperty<BoxShadow>("shadows", this.shadows,
-                defaultValue: Diagnostics.kNullDefaultValue, style: DiagnosticsTreeStyle.whitespace));
-            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", this.shape));
+            properties.add(new DiagnosticsProperty<Color>("color", color,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<Gradient>("gradient", gradient,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<DecorationImage>("image", image,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumerableProperty<BoxShadow>("shadows", shadows,
+                defaultValue: foundation_.kNullDefaultValue, style: DiagnosticsTreeStyle.whitespace));
+            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape));
         }
 
         public override bool hitTest(Size size, Offset position) {
-            return this.shape.getOuterPath(Offset.zero & size).contains(position);
+            return shape.getOuterPath(Offset.zero & size).contains(position);
         }
 
         public override BoxPainter createBoxPainter(VoidCallback onChanged = null) {
-            D.assert(onChanged != null || this.image == null);
+            D.assert(onChanged != null || image == null);
             return new _ShapeDecorationPainter(this, onChanged);
         }
     }
@@ -197,7 +197,7 @@ namespace Unity.UIWidgets.painting {
         public _ShapeDecorationPainter(ShapeDecoration decoration, VoidCallback onChanged)
             : base(onChanged) {
             D.assert(decoration != null);
-            this._decoration = decoration;
+            _decoration = decoration;
         }
 
         readonly ShapeDecoration _decoration;
@@ -212,76 +212,76 @@ namespace Unity.UIWidgets.painting {
 
         void _precache(Rect rect) {
             D.assert(rect != null);
-            if (rect == this._lastRect) {
+            if (rect == _lastRect) {
                 return;
             }
 
-            if (this._interiorPaint == null && (this._decoration.color != null || this._decoration.gradient != null)) {
-                this._interiorPaint = new Paint();
-                if (this._decoration.color != null) {
-                    this._interiorPaint.color = this._decoration.color;
+            if (_interiorPaint == null && (_decoration.color != null || _decoration.gradient != null)) {
+                _interiorPaint = new Paint();
+                if (_decoration.color != null) {
+                    _interiorPaint.color = _decoration.color;
                 }
             }
 
-            if (this._decoration.gradient != null) {
+            if (_decoration.gradient != null) {
                 // this._interiorPaint.shader = this._decoration.gradient.createShader(rect);
             }
 
-            if (this._decoration.shadows != null) {
-                if (this._shadowCount == null) {
-                    this._shadowCount = this._decoration.shadows.Count;
-                    this._shadowPaths = new Path[this._shadowCount.Value];
-                    this._shadowPaints = new Paint[this._shadowCount.Value];
-                    for (int index = 0; index < this._shadowCount.Value; index += 1) {
-                        this._shadowPaints[index] = this._decoration.shadows[index].toPaint();
+            if (_decoration.shadows != null) {
+                if (_shadowCount == null) {
+                    _shadowCount = _decoration.shadows.Count;
+                    _shadowPaths = new Path[_shadowCount.Value];
+                    _shadowPaints = new Paint[_shadowCount.Value];
+                    for (int index = 0; index < _shadowCount.Value; index += 1) {
+                        _shadowPaints[index] = _decoration.shadows[index].toPaint();
                     }
                 }
 
-                for (int index = 0; index < this._shadowCount; index += 1) {
-                    BoxShadow shadow = this._decoration.shadows[index];
-                    this._shadowPaths[index] = this._decoration.shape.getOuterPath(
+                for (int index = 0; index < _shadowCount; index += 1) {
+                    BoxShadow shadow = _decoration.shadows[index];
+                    _shadowPaths[index] = _decoration.shape.getOuterPath(
                         rect.shift(shadow.offset).inflate(shadow.spreadRadius));
                 }
             }
 
-            if (this._interiorPaint != null || this._shadowCount != null) {
-                this._outerPath = this._decoration.shape.getOuterPath(rect);
+            if (_interiorPaint != null || _shadowCount != null) {
+                _outerPath = _decoration.shape.getOuterPath(rect);
             }
 
-            if (this._decoration.image != null) {
-                this._innerPath = this._decoration.shape.getInnerPath(rect);
+            if (_decoration.image != null) {
+                _innerPath = _decoration.shape.getInnerPath(rect);
             }
 
-            this._lastRect = rect;
+            _lastRect = rect;
         }
 
         void _paintShadows(Canvas canvas) {
-            if (this._shadowCount != null) {
-                for (int index = 0; index < this._shadowCount.Value; index += 1) {
-                    canvas.drawPath(this._shadowPaths[index], this._shadowPaints[index]);
+            if (_shadowCount != null) {
+                for (int index = 0; index < _shadowCount.Value; index += 1) {
+                    canvas.drawPath(_shadowPaths[index], _shadowPaints[index]);
                 }
             }
         }
 
         void _paintInterior(Canvas canvas) {
-            if (this._interiorPaint != null) {
-                canvas.drawPath(this._outerPath, this._interiorPaint);
+            if (_interiorPaint != null) {
+                canvas.drawPath(_outerPath, _interiorPaint);
             }
         }
 
         DecorationImagePainter _imagePainter;
 
         void _paintImage(Canvas canvas, ImageConfiguration configuration) {
-            if (this._decoration.image == null) {
+            if (_decoration.image == null) {
                 return;
             }
 
-            this._imagePainter = this._imagePainter ?? this._decoration.image.createPainter(this.onChanged);
-            this._imagePainter.paint(canvas, this._lastRect, this._innerPath, configuration);
+            _imagePainter = _imagePainter ?? _decoration.image.createPainter(onChanged);
+            _imagePainter.paint(canvas, _lastRect, _innerPath, configuration);
         }
 
         public override void Dispose() {
-            this._imagePainter?.Dispose();
+            _imagePainter?.Dispose();
             base.Dispose();
         }
 
@@ -289,11 +289,11 @@ namespace Unity.UIWidgets.painting {
             D.assert(configuration != null);
             D.assert(configuration.size != null);
             Rect rect = offset & configuration.size;
-            this._precache(rect);
-            this._paintShadows(canvas);
-            this._paintInterior(canvas);
-            this._paintImage(canvas, configuration);
-            this._decoration.shape.paint(canvas, rect);
+            _precache(rect);
+            _paintShadows(canvas);
+            _paintInterior(canvas);
+            _paintImage(canvas, configuration);
+            _decoration.shape.paint(canvas, rect);
         }
     }
 }

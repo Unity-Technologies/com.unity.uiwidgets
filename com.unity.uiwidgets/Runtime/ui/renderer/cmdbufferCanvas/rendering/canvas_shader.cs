@@ -79,7 +79,7 @@ namespace Unity.UIWidgets.ui {
 
     class MaterialByBlendMode {
         public MaterialByBlendMode(Shader shader) {
-            this._shader = shader;
+            _shader = shader;
         }
 
         readonly Shader _shader;
@@ -87,22 +87,22 @@ namespace Unity.UIWidgets.ui {
 
         public Material getMaterial(BlendMode op) {
             var key = (int) op;
-            var mat = this._materials[key];
+            var mat = _materials[key];
             if (mat) {
                 return mat;
             }
 
-            mat = new Material(this._shader) {hideFlags = HideFlags.HideAndDontSave};
+            mat = new Material(_shader) {hideFlags = HideFlags.HideAndDontSave};
             MaterialProps.set(mat, op);
 
-            this._materials[key] = mat;
+            _materials[key] = mat;
             return mat;
         }
     }
 
     class MaterialByStencilComp {
         public MaterialByStencilComp(Shader shader) {
-            this._shader = shader;
+            _shader = shader;
         }
 
         readonly Shader _shader;
@@ -110,22 +110,22 @@ namespace Unity.UIWidgets.ui {
 
         public Material getMaterial(bool ignoreClip) {
             var key = ignoreClip ? 1 : 0;
-            var mat = this._materials[key];
+            var mat = _materials[key];
             if (mat) {
                 return mat;
             }
 
-            mat = new Material(this._shader) {hideFlags = HideFlags.HideAndDontSave};
+            mat = new Material(_shader) {hideFlags = HideFlags.HideAndDontSave};
             MaterialProps.set(mat, ignoreClip ? CompareFunction.Always : CompareFunction.Equal);
 
-            this._materials[key] = mat;
+            _materials[key] = mat;
             return mat;
         }
     }
 
     class MaterialByBlendModeStencilComp {
         public MaterialByBlendModeStencilComp(Shader shader) {
-            this._shader = shader;
+            _shader = shader;
         }
 
         readonly Shader _shader;
@@ -133,16 +133,16 @@ namespace Unity.UIWidgets.ui {
 
         public Material getMaterial(BlendMode blend, bool ignoreClip) {
             var key = (int) blend * 2 + (ignoreClip ? 1 : 0);
-            var mat = this._materials[key];
+            var mat = _materials[key];
             if (mat) {
                 return mat;
             }
 
-            mat = new Material(this._shader) {hideFlags = HideFlags.HideAndDontSave};
+            mat = new Material(_shader) {hideFlags = HideFlags.HideAndDontSave};
             MaterialProps.set(mat, blend);
             MaterialProps.set(mat, ignoreClip ? CompareFunction.Always : CompareFunction.Equal);
 
-            this._materials[key] = mat;
+            _materials[key] = mat;
             return mat;
         }
     }

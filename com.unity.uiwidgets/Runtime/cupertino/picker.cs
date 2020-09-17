@@ -101,40 +101,40 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            if (this.widget.scrollController == null) {
-                this._controller = new FixedExtentScrollController();
+            if (widget.scrollController == null) {
+                _controller = new FixedExtentScrollController();
             }
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
-            if (this.widget.scrollController != null && ((CupertinoPicker) oldWidget).scrollController == null) {
-                this._controller = null;
+            if (widget.scrollController != null && ((CupertinoPicker) oldWidget).scrollController == null) {
+                _controller = null;
             }
-            else if (this.widget.scrollController == null && ((CupertinoPicker) oldWidget).scrollController != null) {
-                D.assert(this._controller == null);
-                this._controller = new FixedExtentScrollController();
+            else if (widget.scrollController == null && ((CupertinoPicker) oldWidget).scrollController != null) {
+                D.assert(_controller == null);
+                _controller = new FixedExtentScrollController();
             }
 
             base.didUpdateWidget(oldWidget);
         }
 
         public override void dispose() {
-            this._controller?.dispose();
+            _controller?.dispose();
             base.dispose();
         }
 
         void _handleSelectedItemChanged(int index) {
-            if (this.widget.onSelectedItemChanged != null) {
-                this.widget.onSelectedItemChanged(index);
+            if (widget.onSelectedItemChanged != null) {
+                widget.onSelectedItemChanged(index);
             }
         }
 
         Widget _buildGradientScreen() {
-            if (this.widget.backgroundColor != null && this.widget.backgroundColor.alpha < 255) {
+            if (widget.backgroundColor != null && widget.backgroundColor.alpha < 255) {
                 return new Container();
             }
 
-            Color widgetBackgroundColor = this.widget.backgroundColor ?? new Color(0xFFFFFFFF);
+            Color widgetBackgroundColor = widget.backgroundColor ?? new Color(0xFFFFFFFF);
             return Positioned.fill(
                 child: new IgnorePointer(
                     child: new Container(
@@ -163,8 +163,8 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         Widget _buildMagnifierScreen() {
-            Color foreground = this.widget.backgroundColor?.withAlpha(
-                (int) (this.widget.backgroundColor.alpha * CupertinoPickerUtils._kForegroundScreenOpacityFraction)
+            Color foreground = widget.backgroundColor?.withAlpha(
+                (int) (widget.backgroundColor.alpha * CupertinoPickerUtils._kForegroundScreenOpacityFraction)
             );
 
             return new IgnorePointer(
@@ -183,7 +183,7 @@ namespace Unity.UIWidgets.cupertino {
                                 )
                             ),
                             constraints: BoxConstraints.expand(
-                                height: this.widget.itemExtent * this.widget.magnification
+                                height: widget.itemExtent * widget.magnification
                             )
                         ),
                         new Expanded(
@@ -197,8 +197,8 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         Widget _buildUnderMagnifierScreen() {
-            Color foreground = this.widget.backgroundColor?.withAlpha(
-                (int) (this.widget.backgroundColor.alpha * CupertinoPickerUtils._kForegroundScreenOpacityFraction)
+            Color foreground = widget.backgroundColor?.withAlpha(
+                (int) (widget.backgroundColor.alpha * CupertinoPickerUtils._kForegroundScreenOpacityFraction)
             );
 
             return new Column(
@@ -207,7 +207,7 @@ namespace Unity.UIWidgets.cupertino {
                     new Container(
                         color: foreground,
                         constraints: BoxConstraints.expand(
-                            height: this.widget.itemExtent * this.widget.magnification
+                            height: widget.itemExtent * widget.magnification
                         )
                     ),
                     new Expanded(child: new Container())
@@ -218,7 +218,7 @@ namespace Unity.UIWidgets.cupertino {
         Widget _addBackgroundToChild(Widget child) {
             return new DecoratedBox(
                 decoration: new BoxDecoration(
-                    color: this.widget.backgroundColor
+                    color: widget.backgroundColor
                 ),
                 child: child
             );
@@ -229,31 +229,31 @@ namespace Unity.UIWidgets.cupertino {
                 children: new List<Widget> {
                     Positioned.fill(
                         child: ListWheelScrollView.useDelegate(
-                            controller: this.widget.scrollController ?? this._controller,
+                            controller: widget.scrollController ?? _controller,
                             physics: new FixedExtentScrollPhysics(),
-                            diameterRatio: this.widget.diameterRatio,
+                            diameterRatio: widget.diameterRatio,
                             perspective: CupertinoPickerUtils._kDefaultPerspective,
-                            offAxisFraction: this.widget.offAxisFraction,
-                            useMagnifier: this.widget.useMagnifier,
-                            magnification: this.widget.magnification,
-                            itemExtent: this.widget.itemExtent,
-                            onSelectedItemChanged: this._handleSelectedItemChanged,
-                            childDelegate: this.widget.childDelegate
+                            offAxisFraction: widget.offAxisFraction,
+                            useMagnifier: widget.useMagnifier,
+                            magnification: widget.magnification,
+                            itemExtent: widget.itemExtent,
+                            onSelectedItemChanged: _handleSelectedItemChanged,
+                            childDelegate: widget.childDelegate
                         )
                     ),
-                    this._buildGradientScreen(),
-                    this._buildMagnifierScreen()
+                    _buildGradientScreen(),
+                    _buildMagnifierScreen()
                 }
             );
-            if (this.widget.backgroundColor != null && this.widget.backgroundColor.alpha < 255) {
+            if (widget.backgroundColor != null && widget.backgroundColor.alpha < 255) {
                 result = new Stack(
                     children: new List<Widget> {
-                        this._buildUnderMagnifierScreen(), this._addBackgroundToChild(result),
+                        _buildUnderMagnifierScreen(), _addBackgroundToChild(result),
                     }
                 );
             }
             else {
-                result = this._addBackgroundToChild(result);
+                result = _addBackgroundToChild(result);
             }
 
             return result;

@@ -89,28 +89,28 @@ namespace Unity.UIWidgets.cupertino {
             TextStyle navLargeTitleTextStyle = null,
             TextStyle navActionTextStyle = null
         ) {
-            this._primaryColor = primaryColor ?? CupertinoColors.activeBlue;
-            this._brightness = brightness;
-            this._textStyle = textStyle;
-            this._actionTextStyle = actionTextStyle;
-            this._tabLabelTextStyle = tabLabelTextStyle;
-            this._navTitleTextStyle = navTitleTextStyle;
-            this._navLargeTitleTextStyle = navLargeTitleTextStyle;
-            this._navActionTextStyle = navActionTextStyle;
+            _primaryColor = primaryColor ?? CupertinoColors.activeBlue;
+            _brightness = brightness;
+            _textStyle = textStyle;
+            _actionTextStyle = actionTextStyle;
+            _tabLabelTextStyle = tabLabelTextStyle;
+            _navTitleTextStyle = navTitleTextStyle;
+            _navLargeTitleTextStyle = navLargeTitleTextStyle;
+            _navActionTextStyle = navActionTextStyle;
         }
 
         readonly Color _primaryColor;
         readonly Brightness? _brightness;
 
         bool _isLight {
-            get { return this._brightness != Brightness.dark; }
+            get { return _brightness != Brightness.dark; }
         }
 
         readonly TextStyle _textStyle;
 
         public TextStyle textStyle {
             get {
-                return this._textStyle ?? (this._isLight
+                return _textStyle ?? (_isLight
                            ? CupertinoTextThemeDataUtils._kDefaultLightTextStyle
                            : CupertinoTextThemeDataUtils._kDefaultDarkTextStyle);
             }
@@ -120,8 +120,8 @@ namespace Unity.UIWidgets.cupertino {
 
         public TextStyle actionTextStyle {
             get {
-                return this._actionTextStyle ?? CupertinoTextThemeDataUtils._kDefaultActionTextStyle.copyWith(
-                           color: this._primaryColor
+                return _actionTextStyle ?? CupertinoTextThemeDataUtils._kDefaultActionTextStyle.copyWith(
+                           color: _primaryColor
                        );
             }
         }
@@ -129,15 +129,15 @@ namespace Unity.UIWidgets.cupertino {
         readonly TextStyle _tabLabelTextStyle;
 
         public TextStyle tabLabelTextStyle {
-            get { return this._tabLabelTextStyle ?? CupertinoTextThemeDataUtils._kDefaultTabLabelTextStyle; }
+            get { return _tabLabelTextStyle ?? CupertinoTextThemeDataUtils._kDefaultTabLabelTextStyle; }
         }
 
         readonly TextStyle _navTitleTextStyle;
 
         public TextStyle navTitleTextStyle {
             get {
-                return this._navTitleTextStyle ??
-                       (this._isLight
+                return _navTitleTextStyle ??
+                       (_isLight
                            ? CupertinoTextThemeDataUtils._kDefaultMiddleTitleLightTextStyle
                            : CupertinoTextThemeDataUtils._kDefaultMiddleTitleDarkTextStyle);
             }
@@ -148,8 +148,8 @@ namespace Unity.UIWidgets.cupertino {
         /// Typography of large titles in sliver navigation bars.
         public TextStyle navLargeTitleTextStyle {
             get {
-                return this._navLargeTitleTextStyle ??
-                       (this._isLight
+                return _navLargeTitleTextStyle ??
+                       (_isLight
                            ? CupertinoTextThemeDataUtils._kDefaultLargeTitleLightTextStyle
                            : CupertinoTextThemeDataUtils._kDefaultLargeTitleDarkTextStyle);
             }
@@ -159,8 +159,8 @@ namespace Unity.UIWidgets.cupertino {
 
         public TextStyle navActionTextStyle {
             get {
-                return this._navActionTextStyle ?? CupertinoTextThemeDataUtils._kDefaultActionTextStyle.copyWith(
-                           color: this._primaryColor
+                return _navActionTextStyle ?? CupertinoTextThemeDataUtils._kDefaultActionTextStyle.copyWith(
+                           color: _primaryColor
                        );
             }
         }
@@ -176,14 +176,14 @@ namespace Unity.UIWidgets.cupertino {
             TextStyle navActionTextStyle
         ) {
             return new CupertinoTextThemeData(
-                primaryColor: primaryColor ?? this._primaryColor,
-                brightness: brightness ?? this._brightness,
-                textStyle: textStyle ?? this._textStyle,
-                actionTextStyle: actionTextStyle ?? this._actionTextStyle,
-                tabLabelTextStyle: tabLabelTextStyle ?? this._tabLabelTextStyle,
-                navTitleTextStyle: navTitleTextStyle ?? this._navTitleTextStyle,
-                navLargeTitleTextStyle: navLargeTitleTextStyle ?? this._navLargeTitleTextStyle,
-                navActionTextStyle: navActionTextStyle ?? this._navActionTextStyle
+                primaryColor: primaryColor ?? _primaryColor,
+                brightness: brightness ?? _brightness,
+                textStyle: textStyle ?? _textStyle,
+                actionTextStyle: actionTextStyle ?? _actionTextStyle,
+                tabLabelTextStyle: tabLabelTextStyle ?? _tabLabelTextStyle,
+                navTitleTextStyle: navTitleTextStyle ?? _navTitleTextStyle,
+                navLargeTitleTextStyle: navLargeTitleTextStyle ?? _navLargeTitleTextStyle,
+                navActionTextStyle: navActionTextStyle ?? _navActionTextStyle
             );
         }
     }

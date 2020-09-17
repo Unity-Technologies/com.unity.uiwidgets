@@ -83,17 +83,17 @@ namespace Unity.UIWidgets.service {
 
         public Dictionary<string, object> _toMap() {
             return new Dictionary<string, object> {
-                {"systemNavigationBarColor", this.systemNavigationBarColor?.value},
-                {"systemNavigationBarDividerColor", this.systemNavigationBarDividerColor?.value},
-                {"statusBarColor", this.statusBarColor?.value},
-                {"statusBarBrightness", this.statusBarBrightness?.ToString()},
-                {"statusBarIconBrightness", this.statusBarIconBrightness?.ToString()},
-                {"systemNavigationBarIconBrightness", this.systemNavigationBarIconBrightness?.ToString()}
+                {"systemNavigationBarColor", systemNavigationBarColor?.value},
+                {"systemNavigationBarDividerColor", systemNavigationBarDividerColor?.value},
+                {"statusBarColor", statusBarColor?.value},
+                {"statusBarBrightness", statusBarBrightness?.ToString()},
+                {"statusBarIconBrightness", statusBarIconBrightness?.ToString()},
+                {"systemNavigationBarIconBrightness", systemNavigationBarIconBrightness?.ToString()}
             };
         }
 
         public override string ToString() {
-            return this._toMap().ToString();
+            return _toMap().ToString();
         }
 
         public SystemUiOverlayStyle copyWith(
@@ -117,17 +117,17 @@ namespace Unity.UIWidgets.service {
         }
 
         public override int GetHashCode() {
-            var hashCode = this.systemNavigationBarColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ (this.systemNavigationBarDividerColor != null
-                           ? this.systemNavigationBarDividerColor.GetHashCode()
+            var hashCode = systemNavigationBarColor.GetHashCode();
+            hashCode = (hashCode * 397) ^ (systemNavigationBarDividerColor != null
+                           ? systemNavigationBarDividerColor.GetHashCode()
                            : 0);
-            hashCode = (hashCode * 397) ^ (this.statusBarColor != null ? this.statusBarColor.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ (statusBarColor != null ? statusBarColor.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^
-                       (this.statusBarBrightness != null ? this.statusBarBrightness.GetHashCode() : 0);
+                       (statusBarBrightness != null ? statusBarBrightness.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^
-                       (this.statusBarIconBrightness != null ? this.statusBarIconBrightness.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (this.systemNavigationBarIconBrightness != null
-                           ? this.systemNavigationBarIconBrightness.GetHashCode()
+                       (statusBarIconBrightness != null ? statusBarIconBrightness.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ (systemNavigationBarIconBrightness != null
+                           ? systemNavigationBarIconBrightness.GetHashCode()
                            : 0);
             return hashCode;
         }
@@ -142,12 +142,12 @@ namespace Unity.UIWidgets.service {
                 return true;
             }
 
-            return other.systemNavigationBarColor == this.systemNavigationBarColor &&
-                   other.systemNavigationBarDividerColor == this.systemNavigationBarDividerColor &&
-                   other.statusBarColor == this.statusBarColor &&
-                   other.statusBarIconBrightness == this.statusBarIconBrightness &&
-                   other.statusBarBrightness == this.statusBarIconBrightness &&
-                   other.systemNavigationBarIconBrightness == this.systemNavigationBarIconBrightness;
+            return other.systemNavigationBarColor == systemNavigationBarColor &&
+                   other.systemNavigationBarDividerColor == systemNavigationBarDividerColor &&
+                   other.statusBarColor == statusBarColor &&
+                   other.statusBarIconBrightness == statusBarIconBrightness &&
+                   other.statusBarBrightness == statusBarIconBrightness &&
+                   other.systemNavigationBarIconBrightness == systemNavigationBarIconBrightness;
         }
 
         public override bool Equals(object obj) {
@@ -159,11 +159,11 @@ namespace Unity.UIWidgets.service {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((SystemUiOverlayStyle) obj);
+            return Equals((SystemUiOverlayStyle) obj);
         }
 
         public static bool operator ==(SystemUiOverlayStyle left, SystemUiOverlayStyle right) {

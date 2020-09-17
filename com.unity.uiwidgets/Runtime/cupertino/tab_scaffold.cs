@@ -42,22 +42,22 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this._currentPage = this.widget.tabBar.currentIndex;
+            _currentPage = widget.tabBar.currentIndex;
             
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             CupertinoTabScaffold oldWidget = _oldWidget as CupertinoTabScaffold;
             base.didUpdateWidget(oldWidget);
-            if (this._currentPage >= this.widget.tabBar.items.Count) {
-                this._currentPage = this.widget.tabBar.items.Count - 1;
-                D.assert(this._currentPage >= 0,
+            if (_currentPage >= widget.tabBar.items.Count) {
+                _currentPage = widget.tabBar.items.Count - 1;
+                D.assert(_currentPage >= 0,
                     () => "CupertinoTabBar is expected to keep at least 2 tabs after updating"
                 );
             }
 
-            if (this.widget.tabBar.currentIndex != oldWidget.tabBar.currentIndex) {
-                this._currentPage = this.widget.tabBar.currentIndex;
+            if (widget.tabBar.currentIndex != oldWidget.tabBar.currentIndex) {
+                _currentPage = widget.tabBar.currentIndex;
             }
         }
 
@@ -68,23 +68,23 @@ namespace Unity.UIWidgets.cupertino {
             MediaQueryData newMediaQuery = MediaQuery.of(context);
 
             Widget content = new _TabSwitchingView(
-                currentTabIndex: this._currentPage,
-                tabNumber: this.widget.tabBar.items.Count,
-                tabBuilder: this.widget.tabBuilder
+                currentTabIndex: _currentPage,
+                tabNumber: widget.tabBar.items.Count,
+                tabBuilder: widget.tabBuilder
             );
             EdgeInsets contentPadding = EdgeInsets.zero;
 
-            if (this.widget.resizeToAvoidBottomInset) {
+            if (widget.resizeToAvoidBottomInset) {
                 newMediaQuery = newMediaQuery.removeViewInsets(removeBottom: true);
                 contentPadding = EdgeInsets.only(bottom: existingMediaQuery.viewInsets.bottom);
             }
 
-            if (this.widget.tabBar != null &&
-                (!this.widget.resizeToAvoidBottomInset ||
-                 this.widget.tabBar.preferredSize.height > existingMediaQuery.viewInsets.bottom)) {
-                float bottomPadding = this.widget.tabBar.preferredSize.height + existingMediaQuery.padding.bottom;
+            if (widget.tabBar != null &&
+                (!widget.resizeToAvoidBottomInset ||
+                 widget.tabBar.preferredSize.height > existingMediaQuery.viewInsets.bottom)) {
+                float bottomPadding = widget.tabBar.preferredSize.height + existingMediaQuery.padding.bottom;
 
-                if (this.widget.tabBar.opaque(context)) {
+                if (widget.tabBar.opaque(context)) {
                     contentPadding = EdgeInsets.only(bottom: bottomPadding);
                 }
                 else {
@@ -106,15 +106,15 @@ namespace Unity.UIWidgets.cupertino {
 
             stacked.Add(content);
 
-            if (this.widget.tabBar != null) {
+            if (widget.tabBar != null) {
                 stacked.Add(new Align(
                     alignment: Alignment.bottomCenter,
-                    child: this.widget.tabBar.copyWith(
-                        currentIndex: this._currentPage,
+                    child: widget.tabBar.copyWith(
+                        currentIndex: _currentPage,
                         onTap: (int newIndex) => {
-                            this.setState(() => { this._currentPage = newIndex; });
-                            if (this.widget.tabBar.onTap != null) {
-                                this.widget.tabBar.onTap(newIndex);
+                            setState(() => { _currentPage = newIndex; });
+                            if (widget.tabBar.onTap != null) {
+                                widget.tabBar.onTap(newIndex);
                             }
                         }
                     )
@@ -123,7 +123,7 @@ namespace Unity.UIWidgets.cupertino {
 
             return new DecoratedBox(
                 decoration: new BoxDecoration(
-                    color: this.widget.backgroundColor ?? CupertinoTheme.of(context).scaffoldBackgroundColor
+                    color: widget.backgroundColor ?? CupertinoTheme.of(context).scaffoldBackgroundColor
                 ),
                 child: new Stack(
                     children: stacked
@@ -160,30 +160,30 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this.tabs = new List<Widget>(this.widget.tabNumber);
-            for (int i = 0; i < this.widget.tabNumber; i++) {
-                this.tabs.Add(null);
+            tabs = new List<Widget>(widget.tabNumber);
+            for (int i = 0; i < widget.tabNumber; i++) {
+                tabs.Add(null);
             }
-            this.tabFocusNodes = Enumerable.Repeat(new FocusScopeNode(), this.widget.tabNumber).ToList();
+            tabFocusNodes = Enumerable.Repeat(new FocusScopeNode(), widget.tabNumber).ToList();
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this._focusActiveTab();
+            _focusActiveTab();
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             _TabSwitchingView oldWidget = _oldWidget as _TabSwitchingView;
             base.didUpdateWidget(oldWidget);
-            this._focusActiveTab();
+            _focusActiveTab();
         }
 
         void _focusActiveTab() {
-            FocusScope.of(this.context).setFirstFocus(this.tabFocusNodes[this.widget.currentTabIndex]);
+            FocusScope.of(context).setFirstFocus(tabFocusNodes[widget.currentTabIndex]);
         }
 
         public override void dispose() {
-            foreach (FocusScopeNode focusScopeNode in this.tabFocusNodes) {
+            foreach (FocusScopeNode focusScopeNode in tabFocusNodes) {
                 focusScopeNode.detach();
             }
 
@@ -192,12 +192,12 @@ namespace Unity.UIWidgets.cupertino {
 
         public override Widget build(BuildContext context) {
             List<Widget> children = new List<Widget>();
-            for (int index = 0; index < this.widget.tabNumber; index++) {
-                bool active = index == this.widget.currentTabIndex;
+            for (int index = 0; index < widget.tabNumber; index++) {
+                bool active = index == widget.currentTabIndex;
 
                 var tabIndex = index;
-                if (active || this.tabs[index] != null) {
-                    this.tabs[index] = this.widget.tabBuilder(context, tabIndex);
+                if (active || tabs[index] != null) {
+                    tabs[index] = widget.tabBuilder(context, tabIndex);
                 }
 
                 children.Add(new Offstage(
@@ -205,8 +205,8 @@ namespace Unity.UIWidgets.cupertino {
                     child: new TickerMode(
                         enabled: active,
                         child: new FocusScope(
-                            node: this.tabFocusNodes[index],
-                            child: this.tabs[index] ?? new Container()
+                            node: tabFocusNodes[index],
+                            child: tabs[index] ?? new Container()
                         )
                     )
                 ));

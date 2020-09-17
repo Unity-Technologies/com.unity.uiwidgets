@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override bool debugAssertIsValid() {
-            D.assert(this.shape != BoxShape.circle || this.borderRadius == null);
+            D.assert(shape != BoxShape.circle || borderRadius == null);
             return base.debugAssertIsValid();
         }
 
@@ -50,29 +50,29 @@ namespace Unity.UIWidgets.painting {
         public readonly BoxShape shape;
 
         public override EdgeInsets padding {
-            get { return this.border?.dimensions; }
+            get { return border?.dimensions; }
         }
 
         public BoxDecoration scale(float factor) {
             return new BoxDecoration(
-                color: Color.lerp(null, this.color, factor),
-                image: this.image,
-                border: Border.lerp(null, this.border, factor),
-                borderRadius: BorderRadius.lerp(null, this.borderRadius, factor),
-                boxShadow: BoxShadow.lerpList(null, this.boxShadow, factor),
-                gradient: this.gradient?.scale(factor),
-                backgroundBlendMode: this.backgroundBlendMode,
-                shape: this.shape
+                color: Color.lerp(null, color, factor),
+                image: image,
+                border: Border.lerp(null, border, factor),
+                borderRadius: BorderRadius.lerp(null, borderRadius, factor),
+                boxShadow: BoxShadow.lerpList(null, boxShadow, factor),
+                gradient: gradient?.scale(factor),
+                backgroundBlendMode: backgroundBlendMode,
+                shape: shape
             );
         }
 
         public override bool isComplex {
-            get { return this.boxShadow != null; }
+            get { return boxShadow != null; }
         }
 
         public override Decoration lerpFrom(Decoration a, float t) {
             if (a == null) {
-                return this.scale(t);
+                return scale(t);
             }
 
             if (a is BoxDecoration boxDecoration) {
@@ -84,7 +84,7 @@ namespace Unity.UIWidgets.painting {
 
         public override Decoration lerpTo(Decoration b, float t) {
             if (b == null) {
-                return this.scale(1.0f - t);
+                return scale(1.0f - t);
             }
 
             if (b is BoxDecoration boxDecoration) {
@@ -136,10 +136,10 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.color, other.color) && Equals(this.image, other.image) &&
-                   Equals(this.border, other.border) && Equals(this.borderRadius, other.borderRadius) &&
-                   Equals(this.boxShadow, other.boxShadow) && Equals(this.gradient, other.gradient) &&
-                   this.backgroundBlendMode == other.backgroundBlendMode && this.shape == other.shape;
+            return Equals(color, other.color) && Equals(image, other.image) &&
+                   Equals(border, other.border) && Equals(borderRadius, other.borderRadius) &&
+                   Equals(boxShadow, other.boxShadow) && Equals(gradient, other.gradient) &&
+                   backgroundBlendMode == other.backgroundBlendMode && shape == other.shape;
         }
 
         public override bool Equals(object obj) {
@@ -151,23 +151,23 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((BoxDecoration) obj);
+            return Equals((BoxDecoration) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.color != null ? this.color.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.image != null ? this.image.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.border != null ? this.border.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.borderRadius != null ? this.borderRadius.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.boxShadow != null ? this.boxShadow.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.gradient != null ? this.gradient.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.backgroundBlendMode.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) this.shape;
+                var hashCode = (color != null ? color.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (image != null ? image.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (border != null ? border.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (borderRadius != null ? borderRadius.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (boxShadow != null ? boxShadow.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (gradient != null ? gradient.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ backgroundBlendMode.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) shape;
                 return hashCode;
             }
         }
@@ -184,29 +184,29 @@ namespace Unity.UIWidgets.painting {
             base.debugFillProperties(properties);
             properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.whitespace;
             properties.emptyBodyDescription = "<no decorations specified>";
-            properties.add(new DiagnosticsProperty<Color>("color", this.color,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<DecorationImage>("image", this.image,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Border>("border", this.border,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", this.borderRadius,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumerableProperty<BoxShadow>("boxShadow", this.boxShadow,
-                defaultValue: Diagnostics.kNullDefaultValue, style: DiagnosticsTreeStyle.whitespace));
-            properties.add(new DiagnosticsProperty<Gradient>("gradient", this.gradient,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<BlendMode?>("backgroundBlendMode", this.backgroundBlendMode,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<BoxShape>("shape", this.shape, defaultValue: BoxShape.rectangle));
+            properties.add(new DiagnosticsProperty<Color>("color", color,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<DecorationImage>("image", image,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<Border>("border", border,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", borderRadius,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumerableProperty<BoxShadow>("boxShadow", boxShadow,
+                defaultValue: foundation_.kNullDefaultValue, style: DiagnosticsTreeStyle.whitespace));
+            properties.add(new DiagnosticsProperty<Gradient>("gradient", gradient,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<BlendMode?>("backgroundBlendMode", backgroundBlendMode,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<BoxShape>("shape", shape, defaultValue: BoxShape.rectangle));
         }
 
         public override bool hitTest(Size size, Offset position) {
             D.assert((Offset.zero & size).contains(position));
-            switch (this.shape) {
+            switch (shape) {
                 case BoxShape.rectangle:
-                    if (this.borderRadius != null) {
-                        RRect bounds = this.borderRadius.toRRect(Offset.zero & size);
+                    if (borderRadius != null) {
+                        RRect bounds = borderRadius.toRRect(Offset.zero & size);
                         return bounds.contains(position);
                     }
 
@@ -221,7 +221,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override BoxPainter createBoxPainter(VoidCallback onChanged = null) {
-            D.assert(onChanged != null || this.image == null);
+            D.assert(onChanged != null || image == null);
             return new _BoxDecorationPainter(this, onChanged);
         }
     }
@@ -230,7 +230,7 @@ namespace Unity.UIWidgets.painting {
         public _BoxDecorationPainter(BoxDecoration decoration, VoidCallback onChanged)
             : base(onChanged) {
             D.assert(decoration != null);
-            this._decoration = decoration;
+            _decoration = decoration;
         }
 
         readonly BoxDecoration _decoration;
@@ -241,44 +241,44 @@ namespace Unity.UIWidgets.painting {
 
         Paint _getBackgroundPaint(Rect rect) {
             D.assert(rect != null);
-            D.assert(this._decoration.gradient != null || this._rectForCachedBackgroundPaint == null);
+            D.assert(_decoration.gradient != null || _rectForCachedBackgroundPaint == null);
 
-            if (this._cachedBackgroundPaint == null ||
-                (this._decoration.gradient != null && this._rectForCachedBackgroundPaint != rect)) {
+            if (_cachedBackgroundPaint == null ||
+                (_decoration.gradient != null && _rectForCachedBackgroundPaint != rect)) {
                 var paint = new Paint();
-                if (this._decoration.backgroundBlendMode != null) {
-                    paint.blendMode = this._decoration.backgroundBlendMode.Value;
+                if (_decoration.backgroundBlendMode != null) {
+                    paint.blendMode = _decoration.backgroundBlendMode.Value;
                 }
 
-                if (this._decoration.color != null) {
-                    paint.color = this._decoration.color;
+                if (_decoration.color != null) {
+                    paint.color = _decoration.color;
                 }
 
-                if (this._decoration.gradient != null) {
-                    paint.shader = this._decoration.gradient.createShader(rect);
-                    this._rectForCachedBackgroundPaint = rect;
+                if (_decoration.gradient != null) {
+                    paint.shader = _decoration.gradient.createShader(rect);
+                    _rectForCachedBackgroundPaint = rect;
                 }
 
-                this._cachedBackgroundPaint = paint;
+                _cachedBackgroundPaint = paint;
             }
 
-            return this._cachedBackgroundPaint;
+            return _cachedBackgroundPaint;
         }
 
         void _paintBox(Canvas canvas, Rect rect, Paint paint) {
-            switch (this._decoration.shape) {
+            switch (_decoration.shape) {
                 case BoxShape.circle:
-                    D.assert(this._decoration.borderRadius == null);
+                    D.assert(_decoration.borderRadius == null);
                     Offset center = rect.center;
                     float radius = rect.shortestSide / 2.0f;
                     canvas.drawCircle(center, radius, paint);
                     break;
                 case BoxShape.rectangle:
-                    if (this._decoration.borderRadius == null) {
+                    if (_decoration.borderRadius == null) {
                         canvas.drawRect(rect, paint);
                     }
                     else {
-                        canvas.drawRRect(this._decoration.borderRadius.toRRect(rect), paint);
+                        canvas.drawRRect(_decoration.borderRadius.toRRect(rect), paint);
                     }
 
                     break;
@@ -286,52 +286,52 @@ namespace Unity.UIWidgets.painting {
         }
 
         void _paintShadows(Canvas canvas, Rect rect) {
-            if (this._decoration.boxShadow == null) {
+            if (_decoration.boxShadow == null) {
                 return;
             }
 
-            foreach (BoxShadow boxShadow in this._decoration.boxShadow) {
+            foreach (BoxShadow boxShadow in _decoration.boxShadow) {
                 Paint paint = boxShadow.toPaint();
                 Rect bounds = rect.shift(boxShadow.offset).inflate(boxShadow.spreadRadius);
-                this._paintBox(canvas, bounds, paint);
+                _paintBox(canvas, bounds, paint);
             }
         }
 
         void _paintBackgroundColor(Canvas canvas, Rect rect) {
-            if (this._decoration.color != null || this._decoration.gradient != null) {
-                this._paintBox(canvas, rect, this._getBackgroundPaint(rect));
+            if (_decoration.color != null || _decoration.gradient != null) {
+                _paintBox(canvas, rect, _getBackgroundPaint(rect));
             }
         }
 
         DecorationImagePainter _imagePainter;
 
         void _paintBackgroundImage(Canvas canvas, Rect rect, ImageConfiguration configuration) {
-            if (this._decoration.image == null) {
+            if (_decoration.image == null) {
                 return;
             }
 
-            this._imagePainter = this._imagePainter ?? this._decoration.image.createPainter(this.onChanged);
+            _imagePainter = _imagePainter ?? _decoration.image.createPainter(onChanged);
 
             Path clipPath = null;
-            switch (this._decoration.shape) {
+            switch (_decoration.shape) {
                 case BoxShape.circle:
                     clipPath = new Path();
                     clipPath.addOval(rect);
                     break;
                 case BoxShape.rectangle:
-                    if (this._decoration.borderRadius != null) {
+                    if (_decoration.borderRadius != null) {
                         clipPath = new Path();
-                        clipPath.addRRect(this._decoration.borderRadius.toRRect(rect));
+                        clipPath.addRRect(_decoration.borderRadius.toRRect(rect));
                     }
 
                     break;
             }
 
-            this._imagePainter.paint(canvas, rect, clipPath, configuration);
+            _imagePainter.paint(canvas, rect, clipPath, configuration);
         }
 
         public override void Dispose() {
-            this._imagePainter?.Dispose();
+            _imagePainter?.Dispose();
             base.Dispose();
         }
 
@@ -341,19 +341,19 @@ namespace Unity.UIWidgets.painting {
 
             Rect rect = offset & configuration.size;
 
-            this._paintShadows(canvas, rect);
-            this._paintBackgroundColor(canvas, rect);
-            this._paintBackgroundImage(canvas, rect, configuration);
-            this._decoration.border?.paint(
+            _paintShadows(canvas, rect);
+            _paintBackgroundColor(canvas, rect);
+            _paintBackgroundImage(canvas, rect, configuration);
+            _decoration.border?.paint(
                 canvas,
                 rect,
-                shape: this._decoration.shape,
-                borderRadius: this._decoration.borderRadius
+                shape: _decoration.shape,
+                borderRadius: _decoration.borderRadius
             );
         }
 
         public override string ToString() {
-            return $"BoxPainter for {this._decoration}";
+            return $"BoxPainter for {_decoration}";
         }
     }
 }

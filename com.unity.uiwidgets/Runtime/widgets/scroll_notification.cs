@@ -18,7 +18,7 @@ namespace Unity.UIWidgets.widgets {
 
         protected override void debugFillDescription(List<string> description) {
             base.debugFillDescription(description);
-            description.Add(this.metrics.ToString());
+            description.Add(metrics.ToString());
         }
 
         public static bool defaultScrollNotificationPredicate(ScrollNotification notification) {
@@ -39,8 +39,8 @@ namespace Unity.UIWidgets.widgets {
 
         protected override void debugFillDescription(List<string> description) {
             base.debugFillDescription(description);
-            if (this.dragDetails != null) {
-                description.Add(this.dragDetails.ToString());
+            if (dragDetails != null) {
+                description.Add(dragDetails.ToString());
             }
         }
     }
@@ -62,9 +62,9 @@ namespace Unity.UIWidgets.widgets {
 
         protected override void debugFillDescription(List<string> description) {
             base.debugFillDescription(description);
-            description.Add($"scrollDelta: {this.scrollDelta}");
-            if (this.dragDetails != null) {
-                description.Add(this.dragDetails.ToString());
+            description.Add($"scrollDelta: {scrollDelta}");
+            if (dragDetails != null) {
+                description.Add(dragDetails.ToString());
             }
         }
     }
@@ -90,10 +90,10 @@ namespace Unity.UIWidgets.widgets {
 
         protected override void debugFillDescription(List<string> description) {
             base.debugFillDescription(description);
-            description.Add($"overscroll: {this.overscroll:F1}");
-            description.Add($"velocity: {this.velocity:F1}");
-            if (this.dragDetails != null) {
-                description.Add(this.dragDetails.ToString());
+            description.Add($"overscroll: {overscroll:F1}");
+            description.Add($"velocity: {velocity:F1}");
+            if (dragDetails != null) {
+                description.Add(dragDetails.ToString());
             }
         }
     }
@@ -113,8 +113,8 @@ namespace Unity.UIWidgets.widgets {
 
         protected override void debugFillDescription(List<string> description) {
             base.debugFillDescription(description);
-            if (this.dragDetails != null) {
-                description.Add(this.dragDetails.ToString());
+            if (dragDetails != null) {
+                description.Add(dragDetails.ToString());
             }
         }
     }
@@ -132,7 +132,7 @@ namespace Unity.UIWidgets.widgets {
 
         protected override void debugFillDescription(List<string> description) {
             base.debugFillDescription(description);
-            description.Add($"direction: {this.direction}");
+            description.Add($"direction: {direction}");
         }
     }
 

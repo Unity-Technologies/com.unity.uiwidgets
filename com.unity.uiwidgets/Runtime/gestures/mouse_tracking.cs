@@ -54,7 +54,7 @@ namespace Unity.UIWidgets.gestures {
 
         public override string ToString() {
             return
-                $"{this.GetType()}#{this.GetHashCode()}{(this.onEnter == null ? "" : " onEnter")}{(this.onHover == null ? "" : " onHover")}{(this.onExit == null ? "" : " onExit")}";
+                $"{GetType()}#{GetHashCode()}{(onEnter == null ? "" : " onEnter")}{(onHover == null ? "" : " onHover")}{(onExit == null ? "" : " onExit")}";
         }
     }
 
@@ -77,7 +77,7 @@ namespace Unity.UIWidgets.gestures {
             MouseDetectorAnnotationFinder annotationFinder,
             bool inEditorWindow = false
         ) {
-            router.addGlobalRoute(this._handleEvent);
+            router.addGlobalRoute(_handleEvent);
             this.annotationFinder = annotationFinder;
             this.inEditorWindow = inEditorWindow;
         }
@@ -87,7 +87,7 @@ namespace Unity.UIWidgets.gestures {
         readonly Dictionary<int, PointerEvent> _lastMouseEvent = new Dictionary<int, PointerEvent>();
 
         public bool mouseIsConnected {
-            get { return this._lastMouseEvent.isNotEmpty(); }
+            get { return _lastMouseEvent.isNotEmpty(); }
         }
 
         public readonly MouseDetectorAnnotationFinder annotationFinder;
@@ -96,31 +96,31 @@ namespace Unity.UIWidgets.gestures {
             new Dictionary<MouseTrackerAnnotation, _TrackedAnnotation>();
 
         public void attachAnnotation(MouseTrackerAnnotation annotation) {
-            this._trackedAnnotations[annotation] = new _TrackedAnnotation(annotation);
-            this._scheduleMousePositionCheck();
+            _trackedAnnotations[annotation] = new _TrackedAnnotation(annotation);
+            _scheduleMousePositionCheck();
 
 #if UNITY_EDITOR
-            this._scheduleDragFromEditorMousePositionCheck();
+            _scheduleDragFromEditorMousePositionCheck();
 #endif
         }
 
         public void detachAnnotation(MouseTrackerAnnotation annotation) {
-            _TrackedAnnotation trackedAnnotation = this._findAnnotation(annotation);
+            _TrackedAnnotation trackedAnnotation = _findAnnotation(annotation);
             foreach (int deviceId in trackedAnnotation.activeDevices) {
                 if (annotation.onExit != null) {
                     annotation.onExit(
-                        PointerExitEvent.fromMouseEvent(this._lastMouseEvent[deviceId]));
+                        PointerExitEvent.fromMouseEvent(_lastMouseEvent[deviceId]));
                 }
 #if UNITY_EDITOR
-                this.detachDragFromEditorAnnotation(annotation, deviceId);
+                detachDragFromEditorAnnotation(annotation, deviceId);
 #endif
             }
 
-            this._trackedAnnotations.Remove(annotation);
+            _trackedAnnotations.Remove(annotation);
         }
 
         void _scheduleMousePositionCheck() {
-            SchedulerBinding.instance.addPostFrameCallback(_ => { this.collectMousePositions(); });
+            SchedulerBinding.instance.addPostFrameCallback(_ => { collectMousePositions(); });
             SchedulerBinding.instance.scheduleFrame();
         }
 
@@ -131,38 +131,38 @@ namespace Unity.UIWidgets.gestures {
             }
 
             int deviceId = evt.device;
-            if (this._trackedAnnotations.isEmpty()) {
+            if (_trackedAnnotations.isEmpty()) {
                 // If we are adding the device again, then we're not removing it anymore.
-                this._lastMouseEvent.Remove(deviceId);
+                _lastMouseEvent.Remove(deviceId);
                 return;
             }
 
             if (evt is PointerRemovedEvent) {
-                this._lastMouseEvent.Remove(deviceId);
+                _lastMouseEvent.Remove(deviceId);
                 // If the mouse was removed, then we need to schedule one more check to
                 // exit any annotations that were active.
-                this._scheduleMousePositionCheck();
+                _scheduleMousePositionCheck();
             }
             else {
                 if (evt is PointerMoveEvent ||
                     evt is PointerHoverEvent ||
                     evt is PointerDownEvent) {
-                    if (!this._lastMouseEvent.ContainsKey(deviceId) ||
-                        this._lastMouseEvent[deviceId].position != evt.position) {
-                        this._scheduleMousePositionCheck();
+                    if (!_lastMouseEvent.ContainsKey(deviceId) ||
+                        _lastMouseEvent[deviceId].position != evt.position) {
+                        _scheduleMousePositionCheck();
                     }
 
-                    this._lastMouseEvent[deviceId] = evt;
+                    _lastMouseEvent[deviceId] = evt;
                 }
             }
 
 #if UNITY_EDITOR
-            this._handleDragFromEditorEvent(evt, deviceId);
+            _handleDragFromEditorEvent(evt, deviceId);
 #endif
         }
 
         _TrackedAnnotation _findAnnotation(MouseTrackerAnnotation annotation) {
-            if (!this._trackedAnnotations.TryGetValue(annotation, out var trackedAnnotation)) {
+            if (!_trackedAnnotations.TryGetValue(annotation, out var trackedAnnotation)) {
                 D.assert(false, () => "Unable to find annotation $annotation in tracked annotations. " +
                                       "Check that attachAnnotation has been called for all annotated layers.");
             }
@@ -171,7 +171,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         bool isAnnotationAttached(MouseTrackerAnnotation annotation) {
-            return this._trackedAnnotations.ContainsKey(annotation);
+            return _trackedAnnotations.ContainsKey(annotation);
         }
 
         /// Tells interested objects that a mouse has entered, exited, or moved, given
@@ -188,7 +188,7 @@ namespace Unity.UIWidgets.gestures {
                 if (trackedAnnotation.activeDevices.Contains(deviceId)) {
                     if (trackedAnnotation.annotation?.onExit != null) {
                         trackedAnnotation.annotation.onExit(
-                            PointerExitEvent.fromMouseEvent(this._lastMouseEvent[deviceId]));
+                            PointerExitEvent.fromMouseEvent(_lastMouseEvent[deviceId]));
                     }
 
                     trackedAnnotation.activeDevices.Remove(deviceId);
@@ -204,27 +204,27 @@ namespace Unity.UIWidgets.gestures {
                 }
             }
 
-            if (!this.mouseIsConnected) {
-                foreach (var annotation in this._trackedAnnotations.Values) {
+            if (!mouseIsConnected) {
+                foreach (var annotation in _trackedAnnotations.Values) {
                     exitAllDevices(annotation);
                 }
 
                 return;
             }
 
-            foreach (int deviceId in this._lastMouseEvent.Keys) {
-                PointerEvent lastEvent = this._lastMouseEvent[deviceId];
-                MouseTrackerAnnotation hit = this.annotationFinder(lastEvent.position);
+            foreach (int deviceId in _lastMouseEvent.Keys) {
+                PointerEvent lastEvent = _lastMouseEvent[deviceId];
+                MouseTrackerAnnotation hit = annotationFinder(lastEvent.position);
 
                 if (hit == null) {
-                    foreach (_TrackedAnnotation trackedAnnotation in this._trackedAnnotations.Values) {
+                    foreach (_TrackedAnnotation trackedAnnotation in _trackedAnnotations.Values) {
                         exitAnnotation(trackedAnnotation, deviceId);
                     }
 
                     return;
                 }
 
-                _TrackedAnnotation hitAnnotation = this._findAnnotation(hit);
+                _TrackedAnnotation hitAnnotation = _findAnnotation(hit);
 
                 //enter
                 if (!hitAnnotation.activeDevices.Contains(deviceId)) {
@@ -240,7 +240,7 @@ namespace Unity.UIWidgets.gestures {
                 }
 
                 //leave
-                foreach (_TrackedAnnotation trackedAnnotation in this._trackedAnnotations.Values) {
+                foreach (_TrackedAnnotation trackedAnnotation in _trackedAnnotations.Values) {
                     if (hitAnnotation == trackedAnnotation) {
                         continue;
                     }

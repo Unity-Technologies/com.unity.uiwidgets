@@ -18,7 +18,7 @@ namespace Unity.UIWidgets.widgets {
             this.top = top;
             this.right = right;
             this.bottom = bottom;
-            this.minimum = mininum ?? EdgeInsets.zero;
+            minimum = mininum ?? EdgeInsets.zero;
             this.child = child;
         }
 
@@ -38,27 +38,27 @@ namespace Unity.UIWidgets.widgets {
             EdgeInsets padding = MediaQuery.of(context).padding;
             return new Padding(
                 padding: EdgeInsets.only(
-                    left: Mathf.Max(this.left ? padding.left : 0.0f, this.minimum.left),
-                    top: Mathf.Max(this.top ? padding.top : 0.0f, this.minimum.top),
-                    right: Mathf.Max(this.right ? padding.right : 0.0f, this.minimum.right),
-                    bottom: Mathf.Max(this.bottom ? padding.bottom : 0.0f, this.minimum.bottom)
+                    left: Mathf.Max(left ? padding.left : 0.0f, minimum.left),
+                    top: Mathf.Max(top ? padding.top : 0.0f, minimum.top),
+                    right: Mathf.Max(right ? padding.right : 0.0f, minimum.right),
+                    bottom: Mathf.Max(bottom ? padding.bottom : 0.0f, minimum.bottom)
                 ),
                 child: MediaQuery.removePadding(
                     context: context,
-                    removeLeft: this.left,
-                    removeTop: this.top,
-                    removeRight: this.right,
-                    removeBottom: this.bottom,
-                    child: this.child));
+                    removeLeft: left,
+                    removeTop: top,
+                    removeRight: right,
+                    removeBottom: bottom,
+                    child: child));
         }
 
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FlagProperty("left", value: this.left, ifTrue: "avoid left padding"));
-            properties.add(new FlagProperty("top", value: this.top, ifTrue: "avoid top padding"));
-            properties.add(new FlagProperty("right", value: this.right, ifTrue: "avoid right padding"));
-            properties.add(new FlagProperty("bottom", value: this.bottom, ifTrue: "avoid bottom padding"));
+            properties.add(new FlagProperty("left", value: left, ifTrue: "avoid left padding"));
+            properties.add(new FlagProperty("top", value: top, ifTrue: "avoid top padding"));
+            properties.add(new FlagProperty("right", value: right, ifTrue: "avoid right padding"));
+            properties.add(new FlagProperty("bottom", value: bottom, ifTrue: "avoid bottom padding"));
         }
     }
 
@@ -97,26 +97,26 @@ namespace Unity.UIWidgets.widgets {
             EdgeInsets padding = MediaQuery.of(context).padding;
             return new SliverPadding(
                 padding: EdgeInsets.only(
-                    left: Mathf.Max(this.left ? padding.left : 0.0f, this.minimum.left),
-                    top: Mathf.Max(this.top ? padding.top : 0.0f, this.minimum.top),
-                    right: Mathf.Max(this.right ? padding.right : 0.0f, this.minimum.right),
-                    bottom: Mathf.Max(this.bottom ? padding.bottom : 0.0f, this.minimum.bottom)
+                    left: Mathf.Max(left ? padding.left : 0.0f, minimum.left),
+                    top: Mathf.Max(top ? padding.top : 0.0f, minimum.top),
+                    right: Mathf.Max(right ? padding.right : 0.0f, minimum.right),
+                    bottom: Mathf.Max(bottom ? padding.bottom : 0.0f, minimum.bottom)
                 ),
                 sliver: MediaQuery.removePadding(
                     context: context,
-                    removeLeft: this.left,
-                    removeTop: this.top,
-                    removeRight: this.right,
-                    removeBottom: this.bottom,
-                    child: this.sliver));
+                    removeLeft: left,
+                    removeTop: top,
+                    removeRight: right,
+                    removeBottom: bottom,
+                    child: sliver));
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FlagProperty("left", value: this.left, ifTrue: "avoid left padding"));
-            properties.add(new FlagProperty("top", value: this.top, ifTrue: "avoid top padding"));
-            properties.add(new FlagProperty("right", value: this.right, ifTrue: "avoid right padding"));
-            properties.add(new FlagProperty("bottom", value: this.bottom, ifTrue: "avoid bottom padding"));
+            properties.add(new FlagProperty("left", value: left, ifTrue: "avoid left padding"));
+            properties.add(new FlagProperty("top", value: top, ifTrue: "avoid top padding"));
+            properties.add(new FlagProperty("right", value: right, ifTrue: "avoid right padding"));
+            properties.add(new FlagProperty("bottom", value: bottom, ifTrue: "avoid bottom padding"));
         }
     }
 }

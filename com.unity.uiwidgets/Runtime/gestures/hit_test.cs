@@ -18,38 +18,38 @@ namespace Unity.UIWidgets.gestures {
 
     public class HitTestEntry {
         public HitTestEntry(HitTestTarget target) {
-            this._target = target;
+            _target = target;
         }
 
         public virtual HitTestTarget target {
-            get { return this._target; }
+            get { return _target; }
         }
 
         readonly HitTestTarget _target;
 
         public override string ToString() {
-            return this._target.ToString();
+            return _target.ToString();
         }
     }
 
     public class HitTestResult {
         public HitTestResult(List<HitTestEntry> path = null) {
-            this._path = path ?? new List<HitTestEntry>();
+            _path = path ?? new List<HitTestEntry>();
         }
 
         public IList<HitTestEntry> path {
-            get { return this._path.AsReadOnly(); }
+            get { return _path.AsReadOnly(); }
         }
 
         readonly List<HitTestEntry> _path;
 
         public void add(HitTestEntry entry) {
-            this._path.Add(entry);
+            _path.Add(entry);
         }
 
         public override string ToString() {
             return
-                $"HitTestResult({(this._path.isEmpty() ? "<empty path>" : string.Join(", ", this._path.Select(x => x.ToString()).ToArray()))})";
+                $"HitTestResult({(_path.isEmpty() ? "<empty path>" : string.Join(", ", _path.Select(x => x.ToString()).ToArray()))})";
         }
     }
 }

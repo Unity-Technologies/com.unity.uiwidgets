@@ -32,7 +32,7 @@ namespace Unity.UIWidgets.services {
         public virtual void evict(String key) {
         }
 
-        public override string ToString() => $"{Diagnostics.describeIdentity(this)}()";
+        public override string ToString() => $"{foundation_.describeIdentity(this)}()";
     }
 
     public class NetworkAssetBundle : AssetBundle {
@@ -85,7 +85,7 @@ namespace Unity.UIWidgets.services {
             return loadString(key).then<T>(value => parser(value));
         }
 
-        public override string ToString() => $"{Diagnostics.describeIdentity(this)}({_baseUrl})";
+        public override string ToString() => $"{foundation_.describeIdentity(this)}({_baseUrl})";
     }
 
 

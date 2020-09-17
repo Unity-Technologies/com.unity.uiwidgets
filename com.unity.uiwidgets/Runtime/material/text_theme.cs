@@ -100,20 +100,20 @@ namespace Unity.UIWidgets.material {
                 return this;
             }
 
-            return this.copyWith(
-                display4: this.display4?.merge(other.display4) ?? other.display4,
-                display3: this.display3?.merge(other.display3) ?? other.display3,
-                display2: this.display2?.merge(other.display2) ?? other.display2,
-                display1: this.display1?.merge(other.display1) ?? other.display1,
-                headline: this.headline?.merge(other.headline) ?? other.headline,
-                title: this.title?.merge(other.title) ?? other.title,
-                subhead: this.subhead?.merge(other.subhead) ?? other.subhead,
-                body2: this.body2?.merge(other.body2) ?? other.body2,
-                body1: this.body1?.merge(other.body1) ?? other.body1,
-                caption: this.caption?.merge(other.caption) ?? other.caption,
-                button: this.button?.merge(other.button) ?? other.button,
-                subtitle: this.subtitle?.merge(other.subtitle) ?? other.subtitle,
-                overline: this.overline?.merge(other.overline) ?? other.overline
+            return copyWith(
+                display4: display4?.merge(other.display4) ?? other.display4,
+                display3: display3?.merge(other.display3) ?? other.display3,
+                display2: display2?.merge(other.display2) ?? other.display2,
+                display1: display1?.merge(other.display1) ?? other.display1,
+                headline: headline?.merge(other.headline) ?? other.headline,
+                title: title?.merge(other.title) ?? other.title,
+                subhead: subhead?.merge(other.subhead) ?? other.subhead,
+                body2: body2?.merge(other.body2) ?? other.body2,
+                body1: body1?.merge(other.body1) ?? other.body1,
+                caption: caption?.merge(other.caption) ?? other.caption,
+                button: button?.merge(other.button) ?? other.button,
+                subtitle: subtitle?.merge(other.subtitle) ?? other.subtitle,
+                overline: overline?.merge(other.overline) ?? other.overline
             );
         }
 
@@ -129,7 +129,7 @@ namespace Unity.UIWidgets.material {
             TextDecorationStyle? decorationStyle = null
         ) {
             return new TextTheme(
-                display4: this.display4?.apply(
+                display4: display4?.apply(
                     color: displayColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -138,7 +138,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                display3: this.display3?.apply(
+                display3: display3?.apply(
                     color: displayColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -147,7 +147,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                display2: this.display2?.apply(
+                display2: display2?.apply(
                     color: displayColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -156,7 +156,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                display1: this.display1?.apply(
+                display1: display1?.apply(
                     color: displayColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -165,7 +165,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                headline: this.headline?.apply(
+                headline: headline?.apply(
                     color: bodyColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -174,7 +174,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                title: this.title?.apply(
+                title: title?.apply(
                     color: bodyColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -183,7 +183,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                subhead: this.subhead?.apply(
+                subhead: subhead?.apply(
                     color: bodyColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -192,7 +192,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                body2: this.body2?.apply(
+                body2: body2?.apply(
                     color: bodyColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -201,7 +201,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                body1: this.body1?.apply(
+                body1: body1?.apply(
                     color: bodyColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -210,7 +210,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                caption: this.caption?.apply(
+                caption: caption?.apply(
                     color: displayColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -219,7 +219,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                button: this.button?.apply(
+                button: button?.apply(
                     color: bodyColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -228,7 +228,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                subtitle: this.subtitle?.apply(
+                subtitle: subtitle?.apply(
                     color: bodyColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -237,7 +237,7 @@ namespace Unity.UIWidgets.material {
                     fontSizeFactor: fontSizeFactor,
                     fontSizeDelta: fontSizeDelta
                 ),
-                overline: this.overline?.apply(
+                overline: overline?.apply(
                     color: bodyColor,
                     decoration: decoration,
                     decorationColor: decorationColor,
@@ -276,19 +276,19 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return this.display4 == other.display4
-                   && this.display3 == other.display3
-                   && this.display2 == other.display2
-                   && this.display1 == other.display1
-                   && this.headline == other.headline
-                   && this.title == other.title
-                   && this.subhead == other.subhead
-                   && this.body2 == other.body2
-                   && this.body1 == other.body1
-                   && this.caption == other.caption
-                   && this.button == other.button
-                   && this.subtitle == other.subtitle
-                   && this.overline == other.overline;
+            return display4 == other.display4
+                   && display3 == other.display3
+                   && display2 == other.display2
+                   && display1 == other.display1
+                   && headline == other.headline
+                   && title == other.title
+                   && subhead == other.subhead
+                   && body2 == other.body2
+                   && body1 == other.body1
+                   && caption == other.caption
+                   && button == other.button
+                   && subtitle == other.subtitle
+                   && overline == other.overline;
         }
 
         public override bool Equals(object obj) {
@@ -300,11 +300,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextTheme) obj);
+            return Equals((TextTheme) obj);
         }
 
         public static bool operator ==(TextTheme left, TextTheme right) {
@@ -317,25 +317,25 @@ namespace Unity.UIWidgets.material {
 
         int? _cachedHashCode = null;
         public override int GetHashCode() {
-            if (this._cachedHashCode != null) {
-                return this._cachedHashCode.Value;
+            if (_cachedHashCode != null) {
+                return _cachedHashCode.Value;
             }
             unchecked {
-                var hashCode = this.display4?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.display3?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.display2?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.display1?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.headline?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.title?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.subhead?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.body2?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.body1?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.caption?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.button?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.subtitle?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ this.overline?.GetHashCode() ?? 0;
+                var hashCode = display4?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ display3?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ display2?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ display1?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ headline?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ title?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ subhead?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ body2?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ body1?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ caption?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ button?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ subtitle?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ overline?.GetHashCode() ?? 0;
 
-                this._cachedHashCode = hashCode;
+                _cachedHashCode = hashCode;
                 return hashCode;
             }
         }
@@ -343,28 +343,28 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             TextTheme defaultTheme = new Typography().black;
-            properties.add(new DiagnosticsProperty<TextStyle>("display4", this.display4,
+            properties.add(new DiagnosticsProperty<TextStyle>("display4", display4,
                 defaultValue: defaultTheme.display4));
-            properties.add(new DiagnosticsProperty<TextStyle>("display3", this.display3,
+            properties.add(new DiagnosticsProperty<TextStyle>("display3", display3,
                 defaultValue: defaultTheme.display3));
-            properties.add(new DiagnosticsProperty<TextStyle>("display2", this.display2,
+            properties.add(new DiagnosticsProperty<TextStyle>("display2", display2,
                 defaultValue: defaultTheme.display2));
-            properties.add(new DiagnosticsProperty<TextStyle>("display1", this.display1,
+            properties.add(new DiagnosticsProperty<TextStyle>("display1", display1,
                 defaultValue: defaultTheme.display1));
-            properties.add(new DiagnosticsProperty<TextStyle>("headline", this.headline,
+            properties.add(new DiagnosticsProperty<TextStyle>("headline", headline,
                 defaultValue: defaultTheme.headline));
-            properties.add(new DiagnosticsProperty<TextStyle>("title", this.title, defaultValue: defaultTheme.title));
+            properties.add(new DiagnosticsProperty<TextStyle>("title", title, defaultValue: defaultTheme.title));
             properties.add(
-                new DiagnosticsProperty<TextStyle>("subhead", this.subhead, defaultValue: defaultTheme.subhead));
-            properties.add(new DiagnosticsProperty<TextStyle>("body2", this.body2, defaultValue: defaultTheme.body2));
-            properties.add(new DiagnosticsProperty<TextStyle>("body1", this.body1, defaultValue: defaultTheme.body1));
+                new DiagnosticsProperty<TextStyle>("subhead", subhead, defaultValue: defaultTheme.subhead));
+            properties.add(new DiagnosticsProperty<TextStyle>("body2", body2, defaultValue: defaultTheme.body2));
+            properties.add(new DiagnosticsProperty<TextStyle>("body1", body1, defaultValue: defaultTheme.body1));
             properties.add(
-                new DiagnosticsProperty<TextStyle>("caption", this.caption, defaultValue: defaultTheme.caption));
+                new DiagnosticsProperty<TextStyle>("caption", caption, defaultValue: defaultTheme.caption));
             properties.add(
-                new DiagnosticsProperty<TextStyle>("button", this.button, defaultValue: defaultTheme.button));
-            properties.add(new DiagnosticsProperty<TextStyle>("subtitle)", this.subtitle,
+                new DiagnosticsProperty<TextStyle>("button", button, defaultValue: defaultTheme.button));
+            properties.add(new DiagnosticsProperty<TextStyle>("subtitle)", subtitle,
                 defaultValue: defaultTheme.subtitle));
-            properties.add(new DiagnosticsProperty<TextStyle>("overline", this.overline,
+            properties.add(new DiagnosticsProperty<TextStyle>("overline", overline,
                 defaultValue: defaultTheme.overline));
         }
     }

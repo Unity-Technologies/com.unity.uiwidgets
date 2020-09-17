@@ -21,23 +21,23 @@ namespace Unity.UIWidgets.painting {
 
         public override EdgeInsets dimensions {
             get {
-                return EdgeInsets.all(this.side.width);
+                return EdgeInsets.all(side.width);
             }
         }
 
         public override ShapeBorder scale(float t) {
             return new ContinuousRectangleBorder(
-                side: this.side.scale(t),
-                borderRadius: this.borderRadius * t
+                side: side.scale(t),
+                borderRadius: borderRadius * t
             );
         }
 
         public override ShapeBorder lerpFrom(ShapeBorder a, float t) {
             if (a is ContinuousRectangleBorder) {
                 return new ContinuousRectangleBorder(
-                    side: BorderSide.lerp((a as ContinuousRectangleBorder).side, this.side, t),
+                    side: BorderSide.lerp((a as ContinuousRectangleBorder).side, side, t),
                     borderRadius: BorderRadius.lerp((a as ContinuousRectangleBorder).borderRadius,
-                        this.borderRadius, t)
+                        borderRadius, t)
                 );
             }
             return base.lerpFrom(a, t);
@@ -46,8 +46,8 @@ namespace Unity.UIWidgets.painting {
         public override ShapeBorder lerpTo(ShapeBorder b, float t) {
             if (b is ContinuousRectangleBorder) {
                 return new ContinuousRectangleBorder(
-                    side: BorderSide.lerp(this.side, (b as ContinuousRectangleBorder).side, t),
-                    borderRadius: BorderRadius.lerp(this.borderRadius,
+                    side: BorderSide.lerp(side, (b as ContinuousRectangleBorder).side, t),
+                    borderRadius: BorderRadius.lerp(borderRadius,
                         (b as ContinuousRectangleBorder).borderRadius, t)
                 );
             }
@@ -64,14 +64,14 @@ namespace Unity.UIWidgets.painting {
             float top = rrect.top;
             float bottom = rrect.bottom;
             
-            float tlRadiusX = Mathf.Max(0.0f, this._clampToShortest(rrect, rrect.tlRadiusX));
-            float tlRadiusY = Mathf.Max(0.0f, this._clampToShortest(rrect, rrect.tlRadiusY));
-            float trRadiusX = Mathf.Max(0.0f, this._clampToShortest(rrect, rrect.trRadiusX));
-            float trRadiusY = Mathf.Max(0.0f, this._clampToShortest(rrect, rrect.trRadiusY));
-            float blRadiusX = Mathf.Max(0.0f, this._clampToShortest(rrect, rrect.blRadiusX));
-            float blRadiusY = Mathf.Max(0.0f, this._clampToShortest(rrect, rrect.blRadiusY));
-            float brRadiusX = Mathf.Max(0.0f, this._clampToShortest(rrect, rrect.brRadiusX));
-            float brRadiusY = Mathf.Max(0.0f, this._clampToShortest(rrect, rrect.brRadiusY));
+            float tlRadiusX = Mathf.Max(0.0f, _clampToShortest(rrect, rrect.tlRadiusX));
+            float tlRadiusY = Mathf.Max(0.0f, _clampToShortest(rrect, rrect.tlRadiusY));
+            float trRadiusX = Mathf.Max(0.0f, _clampToShortest(rrect, rrect.trRadiusX));
+            float trRadiusY = Mathf.Max(0.0f, _clampToShortest(rrect, rrect.trRadiusY));
+            float blRadiusX = Mathf.Max(0.0f, _clampToShortest(rrect, rrect.blRadiusX));
+            float blRadiusY = Mathf.Max(0.0f, _clampToShortest(rrect, rrect.blRadiusY));
+            float brRadiusX = Mathf.Max(0.0f, _clampToShortest(rrect, rrect.brRadiusX));
+            float brRadiusY = Mathf.Max(0.0f, _clampToShortest(rrect, rrect.brRadiusY));
 
             Path path = new Path();
             path.moveTo(left, top + tlRadiusX);
@@ -87,11 +87,11 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override Path getInnerPath(Rect rect) {
-            return this._getPath(this.borderRadius.toRRect(rect).deflate(this.side.width));
+            return _getPath(borderRadius.toRRect(rect).deflate(side.width));
         }
 
         public override Path getOuterPath(Rect rect) {
-            return this._getPath(this.borderRadius.toRRect(rect));
+            return _getPath(borderRadius.toRRect(rect));
         }
 
         public override void paint(Canvas canvas, Rect rect) {
@@ -99,12 +99,12 @@ namespace Unity.UIWidgets.painting {
                 return;
             }
 
-            switch (this.side.style) {
+            switch (side.style) {
                 case BorderStyle.none:
                     break;
                 case BorderStyle.solid:
-                    Path path = this.getOuterPath(rect);
-                    Paint paint = this.side.toPaint();
+                    Path path = getOuterPath(rect);
+                    Paint paint = side.toPaint();
                     canvas.drawPath(path, paint);
                     break;
             }
@@ -118,7 +118,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return this.side == other.side && this.borderRadius == other.borderRadius;
+            return side == other.side && borderRadius == other.borderRadius;
         }
 
         public override bool Equals(object obj) {
@@ -130,16 +130,16 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ContinuousRectangleBorder) obj);
+            return Equals((ContinuousRectangleBorder) obj);
         }
 
         public override int GetHashCode() {
-            var hashCode = (this.side != null ? this.side.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (this.borderRadius != null ? this.borderRadius.GetHashCode() : 0);
+            var hashCode = (side != null ? side.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ (borderRadius != null ? borderRadius.GetHashCode() : 0);
             return hashCode;
         }
 
@@ -152,7 +152,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.side}, {this.borderRadius})";
+            return $"{GetType()}({side}, {borderRadius})";
         }
     }
 }

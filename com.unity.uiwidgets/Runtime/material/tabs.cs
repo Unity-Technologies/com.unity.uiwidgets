@@ -56,7 +56,7 @@ namespace Unity.UIWidgets.material {
         public readonly Widget icon;
 
         Widget _buildLabelText() {
-            return this.child ?? new Text(this.text, softWrap: false, overflow: TextOverflow.fade);
+            return child ?? new Text(text, softWrap: false, overflow: TextOverflow.fade);
         }
 
         public override Widget build(BuildContext context) {
@@ -65,13 +65,13 @@ namespace Unity.UIWidgets.material {
             float height = 0f;
             Widget label = null;
 
-            if (this.icon == null) {
+            if (icon == null) {
                 height = TabsUtils._kTabHeight;
-                label = this._buildLabelText();
+                label = _buildLabelText();
             }
-            else if (this.text == null && this.child == null) {
+            else if (text == null && child == null) {
                 height = TabsUtils._kTabHeight;
-                label = this.icon;
+                label = icon;
             }
             else {
                 height = TabsUtils._kTextAndIconTabHeight;
@@ -80,10 +80,10 @@ namespace Unity.UIWidgets.material {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new Container(
-                            child: this.icon,
+                            child: icon,
                             margin: EdgeInsets.only(bottom: 10.0f)
                         ),
-                        this._buildLabelText()
+                        _buildLabelText()
                     }
                 );
             }
@@ -98,9 +98,9 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new StringProperty("text", this.text, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Widget>("icon", this.icon,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new StringProperty("text", text, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<Widget>("icon", icon,
+                defaultValue: foundation_.kNullDefaultValue));
         }
     }
 
@@ -141,23 +141,23 @@ namespace Unity.UIWidgets.material {
         protected internal override Widget build(BuildContext context) {
             ThemeData themeData = Theme.of(context);
             TabBarTheme tabBarTheme = TabBarTheme.of(context);
-            Animation<float> animation = (Animation<float>) this.listenable;
+            Animation<float> animation = (Animation<float>) listenable;
             
-            TextStyle defaultStyle = (this.labelStyle
+            TextStyle defaultStyle = (labelStyle
                                       ?? tabBarTheme.labelStyle
                                       ?? themeData.primaryTextTheme.body2).copyWith(inherit: true);
-            TextStyle defaultUnselectedStyle = (this.unselectedLabelStyle
+            TextStyle defaultUnselectedStyle = (unselectedLabelStyle
                                                ?? tabBarTheme.unselectedLabelStyle
-                                               ?? this.labelStyle
+                                               ?? labelStyle
                                                ?? themeData.primaryTextTheme.body2).copyWith(inherit: true);
-            TextStyle textStyle = this.selected
+            TextStyle textStyle = selected
                 ? TextStyle.lerp(defaultStyle, defaultUnselectedStyle, animation.value)
                 : TextStyle.lerp(defaultUnselectedStyle, defaultStyle, animation.value);
 
-            Color selectedColor = this.labelColor ?? tabBarTheme.labelColor ?? themeData.primaryTextTheme.body2.color;
-            Color unselectedColor = this.unselectedLabelColor ??
+            Color selectedColor = labelColor ?? tabBarTheme.labelColor ?? themeData.primaryTextTheme.body2.color;
+            Color unselectedColor = unselectedLabelColor ??
                                     tabBarTheme.unselectedLabelColor ?? selectedColor.withAlpha(0xB2);
-            Color color = this.selected
+            Color color = selected
                 ? Color.lerp(selectedColor, unselectedColor, animation.value)
                 : Color.lerp(unselectedColor, selectedColor, animation.value);
 
@@ -167,7 +167,7 @@ namespace Unity.UIWidgets.material {
                     data: new IconThemeData(
                         size: 24.0f,
                         color: color),
-                    child: this.child
+                    child: child
                 )
             );
         }
@@ -208,7 +208,7 @@ namespace Unity.UIWidgets.material {
         protected override void performLayout() {
             base.performLayout();
 
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             List<float> xOffsets = new List<float>();
 
             while (child != null) {
@@ -218,8 +218,8 @@ namespace Unity.UIWidgets.material {
                 child = childParentData.nextSibling;
             }
 
-            xOffsets.Add(this.size.width);
-            this.onPerformLayout(xOffsets, this.size.width);
+            xOffsets.Add(size.width);
+            onPerformLayout(xOffsets, size.width);
         }
     }
 
@@ -245,19 +245,19 @@ namespace Unity.UIWidgets.material {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _TabLabelBarRenderer(
-                direction: this.direction,
-                mainAxisAlignment: this.mainAxisAlignment,
-                mainAxisSize: this.mainAxisSize,
-                crossAxisAlignment: this.crossAxisAlignment,
-                verticalDirection: this.verticalDirection,
-                onPerformLayout: this.onPerformLayout
+                direction: direction,
+                mainAxisAlignment: mainAxisAlignment,
+                mainAxisSize: mainAxisSize,
+                crossAxisAlignment: crossAxisAlignment,
+                verticalDirection: verticalDirection,
+                onPerformLayout: onPerformLayout
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             base.updateRenderObject(context, renderObject);
             _TabLabelBarRenderer _renderObject = (_TabLabelBarRenderer) renderObject;
-            _renderObject.onPerformLayout = this.onPerformLayout;
+            _renderObject.onPerformLayout = onPerformLayout;
         }
     }
 
@@ -276,7 +276,7 @@ namespace Unity.UIWidgets.material {
             this.indicatorSize = indicatorSize;
             this.tabKeys = tabKeys;
             if (old != null) {
-                this.saveTabOffsets(old._currentTabOffsets);
+                saveTabOffsets(old._currentTabOffsets);
             }
         }
 
@@ -294,39 +294,39 @@ namespace Unity.UIWidgets.material {
         bool _needsPaint = false;
 
         void markNeedsPaint() {
-            this._needsPaint = true;
+            _needsPaint = true;
         }
 
         public void dispose() {
-            this._painter?.Dispose();
+            _painter?.Dispose();
         }
 
         public void saveTabOffsets(List<float> tabOffsets) {
-            this._currentTabOffsets = tabOffsets;
+            _currentTabOffsets = tabOffsets;
         }
 
         public int maxTabIndex {
-            get { return this._currentTabOffsets.Count - 2; }
+            get { return _currentTabOffsets.Count - 2; }
         }
 
         public float centerOf(int tabIndex) {
-            D.assert(this._currentTabOffsets != null);
-            D.assert(this._currentTabOffsets.isNotEmpty());
+            D.assert(_currentTabOffsets != null);
+            D.assert(_currentTabOffsets.isNotEmpty());
             D.assert(tabIndex >= 0);
-            D.assert(tabIndex <= this.maxTabIndex);
-            return (this._currentTabOffsets[tabIndex] + this._currentTabOffsets[tabIndex + 1]) / 2.0f;
+            D.assert(tabIndex <= maxTabIndex);
+            return (_currentTabOffsets[tabIndex] + _currentTabOffsets[tabIndex + 1]) / 2.0f;
         }
 
         public Rect indicatorRect(Size tabBarSize, int tabIndex) {
-            D.assert(this._currentTabOffsets != null);
-            D.assert(this._currentTabOffsets.isNotEmpty());
+            D.assert(_currentTabOffsets != null);
+            D.assert(_currentTabOffsets.isNotEmpty());
             D.assert(tabIndex >= 0);
-            D.assert(tabIndex <= this.maxTabIndex);
-            float tabLeft = this._currentTabOffsets[tabIndex];
-            float tabRight = this._currentTabOffsets[tabIndex + 1];
+            D.assert(tabIndex <= maxTabIndex);
+            float tabLeft = _currentTabOffsets[tabIndex];
+            float tabRight = _currentTabOffsets[tabIndex + 1];
 
-            if (this.indicatorSize == TabBarIndicatorSize.label) {
-                float tabWidth = this.tabKeys[tabIndex].currentContext.size.width;
+            if (indicatorSize == TabBarIndicatorSize.label) {
+                float tabWidth = tabKeys[tabIndex].currentContext.size.width;
                 float delta = ((tabRight - tabLeft) - tabWidth) / 2.0f;
                 tabLeft += delta;
                 tabRight -= delta;
@@ -336,45 +336,45 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void paint(Canvas canvas, Size size) {
-            this._needsPaint = false;
-            this._painter = this._painter ?? this.indicator.createBoxPainter(this.markNeedsPaint);
+            _needsPaint = false;
+            _painter = _painter ?? indicator.createBoxPainter(markNeedsPaint);
 
-            if (this.controller.indexIsChanging) {
-                Rect targetRect = this.indicatorRect(size, this.controller.index);
-                this._currentRect = Rect.lerp(targetRect, this._currentRect ?? targetRect,
-                    TabsUtils._indexChangeProgress(this.controller));
+            if (controller.indexIsChanging) {
+                Rect targetRect = indicatorRect(size, controller.index);
+                _currentRect = Rect.lerp(targetRect, _currentRect ?? targetRect,
+                    TabsUtils._indexChangeProgress(controller));
             }
             else {
-                int currentIndex = this.controller.index;
-                Rect previous = currentIndex > 0 ? this.indicatorRect(size, currentIndex - 1) : null;
-                Rect middle = this.indicatorRect(size, currentIndex);
-                Rect next = currentIndex < this.maxTabIndex ? this.indicatorRect(size, currentIndex + 1) : null;
-                float index = this.controller.index;
-                float value = this.controller.animation.value;
+                int currentIndex = controller.index;
+                Rect previous = currentIndex > 0 ? indicatorRect(size, currentIndex - 1) : null;
+                Rect middle = indicatorRect(size, currentIndex);
+                Rect next = currentIndex < maxTabIndex ? indicatorRect(size, currentIndex + 1) : null;
+                float index = controller.index;
+                float value = controller.animation.value;
                 if (value == index - 1.0f) {
-                    this._currentRect = previous ?? middle;
+                    _currentRect = previous ?? middle;
                 }
                 else if (value == index + 1.0f) {
-                    this._currentRect = next ?? middle;
+                    _currentRect = next ?? middle;
                 }
                 else if (value == index) {
-                    this._currentRect = middle;
+                    _currentRect = middle;
                 }
                 else if (value < index) {
-                    this._currentRect = previous == null ? middle : Rect.lerp(middle, previous, index - value);
+                    _currentRect = previous == null ? middle : Rect.lerp(middle, previous, index - value);
                 }
                 else {
-                    this._currentRect = next == null ? middle : Rect.lerp(middle, next, value - index);
+                    _currentRect = next == null ? middle : Rect.lerp(middle, next, value - index);
                 }
             }
 
-            D.assert(this._currentRect != null);
+            D.assert(_currentRect != null);
 
             ImageConfiguration configuration = new ImageConfiguration(
-                size: this._currentRect.size
+                size: _currentRect.size
             );
 
-            this._painter.paint(canvas, this._currentRect.topLeft, configuration);
+            _painter.paint(canvas, _currentRect.topLeft, configuration);
         }
 
         static bool _tabOffsetsEqual(List<float> a, List<float> b) {
@@ -393,11 +393,11 @@ namespace Unity.UIWidgets.material {
 
         public override bool shouldRepaint(CustomPainter old) {
             _IndicatorPainter _old = (_IndicatorPainter) old;
-            return this._needsPaint
-                   || this.controller != _old.controller
-                   || this.indicator != _old.indicator
-                   || this.tabKeys.Count != _old.tabKeys.Count
-                   || !_tabOffsetsEqual(this._currentTabOffsets, _old._currentTabOffsets);
+            return _needsPaint
+                   || controller != _old.controller
+                   || indicator != _old.indicator
+                   || tabKeys.Count != _old.tabKeys.Count
+                   || !_tabOffsetsEqual(_currentTabOffsets, _old._currentTabOffsets);
         }
     }
 
@@ -410,11 +410,11 @@ namespace Unity.UIWidgets.material {
         public readonly TabController controller;
 
         public override Animation<float> parent {
-            get { return this.controller.animation; }
+            get { return controller.animation; }
         }
 
         public override float value {
-            get { return TabsUtils._indexChangeProgress(this.controller); }
+            get { return TabsUtils._indexChangeProgress(controller); }
         }
     }
 
@@ -432,13 +432,13 @@ namespace Unity.UIWidgets.material {
         public readonly int index;
 
         public override Animation<float> parent {
-            get { return this.controller.animation; }
+            get { return controller.animation; }
         }
 
         public override float value {
             get {
-                D.assert(!this.controller.indexIsChanging);
-                return (this.controller.animation.value - this.index).abs().clamp(0.0f, 1.0f);
+                D.assert(!controller.indexIsChanging);
+                return (controller.animation.value - index).abs().clamp(0.0f, 1.0f);
             }
         }
     }
@@ -464,9 +464,9 @@ namespace Unity.UIWidgets.material {
 
         public override bool applyContentDimensions(float minScrollExtent, float maxScrollExtent) {
             bool result = true;
-            if (this._initialViewportDimensionWasZero != true) {
-                this._initialViewportDimensionWasZero = this.viewportDimension != 0.0;
-                this.correctPixels(this.tabBar._initialScrollOffset(this.viewportDimension, minScrollExtent,
+            if (_initialViewportDimensionWasZero != true) {
+                _initialViewportDimensionWasZero = viewportDimension != 0.0;
+                correctPixels(tabBar._initialScrollOffset(viewportDimension, minScrollExtent,
                     maxScrollExtent));
                 result = false;
             }
@@ -489,7 +489,7 @@ namespace Unity.UIWidgets.material {
                 physics: physics,
                 context: context,
                 oldPosition: oldPosition,
-                tabBar: this.tabBar
+                tabBar: tabBar
             );
         }
     }
@@ -567,16 +567,16 @@ namespace Unity.UIWidgets.material {
 
         public override Size preferredSize {
             get {
-                foreach (Widget item in this.tabs) {
+                foreach (Widget item in tabs) {
                     if (item is Tab) {
                         Tab tab = (Tab) item;
                         if (tab.text != null && tab.icon != null) {
-                            return Size.fromHeight(TabsUtils._kTextAndIconTabHeight + this.indicatorWeight);
+                            return Size.fromHeight(TabsUtils._kTextAndIconTabHeight + indicatorWeight);
                         }
                     }
                 }
 
-                return Size.fromHeight(TabsUtils._kTabHeight + this.indicatorWeight);
+                return Size.fromHeight(TabsUtils._kTabHeight + indicatorWeight);
             }
         }
 
@@ -597,45 +597,45 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._tabKeys = new List<GlobalKey>();
-            foreach (Widget tab in this.widget.tabs) {
-                this._tabKeys.Add(GlobalKey.key());
+            _tabKeys = new List<GlobalKey>();
+            foreach (Widget tab in widget.tabs) {
+                _tabKeys.Add(GlobalKey.key());
             }
         }
 
         Decoration _indicator {
             get {
-                if (this.widget.indicator != null) {
-                    return this.widget.indicator;
+                if (widget.indicator != null) {
+                    return widget.indicator;
                 }
 
-                TabBarTheme tabBarTheme = TabBarTheme.of(this.context);
+                TabBarTheme tabBarTheme = TabBarTheme.of(context);
                 if (tabBarTheme.indicator != null) {
                     return tabBarTheme.indicator;
                 }
 
-                Color color = this.widget.indicatorColor ?? Theme.of(this.context).indicatorColor;
-                if (color.value == Material.of(this.context).color?.value) {
+                Color color = widget.indicatorColor ?? Theme.of(context).indicatorColor;
+                if (color.value == Material.of(context).color?.value) {
                     color = Colors.white;
                 }
 
                 return new UnderlineTabIndicator(
-                    insets: this.widget.indicatorPadding,
+                    insets: widget.indicatorPadding,
                     borderSide: new BorderSide(
-                        width: this.widget.indicatorWeight,
+                        width: widget.indicatorWeight,
                         color: color));
             }
         }
 
         void _updateTabController() {
-            TabController newController = this.widget.controller ?? DefaultTabController.of(this.context);
+            TabController newController = widget.controller ?? DefaultTabController.of(context);
             D.assert(() => {
                 if (newController == null) {
                     throw new UIWidgetsError(
-                        "No TabController for " + this.widget.GetType() + ".\n" +
-                        "When creating a " + this.widget.GetType() + ", you must either provide an explicit " +
+                        "No TabController for " + widget.GetType() + ".\n" +
+                        "When creating a " + widget.GetType() + ", you must either provide an explicit " +
                         "TabController using the \"controller\" property, or you must ensure that there " +
-                        "is a DefaultTabController above the " + this.widget.GetType() + ".\n" +
+                        "is a DefaultTabController above the " + widget.GetType() + ".\n" +
                         "In this case, there was neither an explicit controller nor a default controller."
                     );
                 }
@@ -643,126 +643,126 @@ namespace Unity.UIWidgets.material {
                 return true;
             });
             D.assert(() => {
-                if (newController.length != this.widget.tabs.Count) {
+                if (newController.length != widget.tabs.Count) {
                     throw new UIWidgetsError(
                         $"Controller's length property {newController.length} does not match the\n" +
-                        $"number of tab elements {this.widget.tabs.Count} present in TabBar's tabs property."
+                        $"number of tab elements {widget.tabs.Count} present in TabBar's tabs property."
                     );
                 }
 
                 return true;
             });
-            if (newController == this._controller) {
+            if (newController == _controller) {
                 return;
             }
 
-            if (this._controller != null) {
-                this._controller.animation.removeListener(this._handleTabControllerAnimationTick);
-                this._controller.removeListener(this._handleTabControllerTick);
+            if (_controller != null) {
+                _controller.animation.removeListener(_handleTabControllerAnimationTick);
+                _controller.removeListener(_handleTabControllerTick);
             }
 
-            this._controller = newController;
-            if (this._controller != null) {
-                this._controller.animation.addListener(this._handleTabControllerAnimationTick);
-                this._controller.addListener(this._handleTabControllerTick);
-                this._currentIndex = this._controller.index;
+            _controller = newController;
+            if (_controller != null) {
+                _controller.animation.addListener(_handleTabControllerAnimationTick);
+                _controller.addListener(_handleTabControllerTick);
+                _currentIndex = _controller.index;
             }
         }
 
         void _initIndicatorPainter() {
-            this._indicatorPainter = this._controller == null
+            _indicatorPainter = _controller == null
                 ? null
                 : new _IndicatorPainter(
-                    controller: this._controller,
-                    indicator: this._indicator,
-                    indicatorSize: this.widget.indicatorSize ?? TabBarTheme.of(this.context).indicatorSize,
-                    tabKeys: this._tabKeys,
-                    old: this._indicatorPainter
+                    controller: _controller,
+                    indicator: _indicator,
+                    indicatorSize: widget.indicatorSize ?? TabBarTheme.of(context).indicatorSize,
+                    tabKeys: _tabKeys,
+                    old: _indicatorPainter
                 );
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            D.assert(MaterialD.debugCheckHasMaterial(this.context));
-            this._updateTabController();
-            this._initIndicatorPainter();
+            D.assert(MaterialD.debugCheckHasMaterial(context));
+            _updateTabController();
+            _initIndicatorPainter();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
             TabBar _oldWidget = (TabBar) oldWidget;
-            if (this.widget.controller != _oldWidget.controller) {
-                this._updateTabController();
-                this._initIndicatorPainter();
+            if (widget.controller != _oldWidget.controller) {
+                _updateTabController();
+                _initIndicatorPainter();
             }
-            else if (this.widget.indicatorColor != _oldWidget.indicatorColor ||
-                     this.widget.indicatorWeight != _oldWidget.indicatorWeight ||
-                     this.widget.indicatorSize != _oldWidget.indicatorSize ||
-                     this.widget.indicator != _oldWidget.indicator) {
-                this._initIndicatorPainter();
+            else if (widget.indicatorColor != _oldWidget.indicatorColor ||
+                     widget.indicatorWeight != _oldWidget.indicatorWeight ||
+                     widget.indicatorSize != _oldWidget.indicatorSize ||
+                     widget.indicator != _oldWidget.indicator) {
+                _initIndicatorPainter();
             }
 
-            if (this.widget.tabs.Count > _oldWidget.tabs.Count) {
-                int delta = this.widget.tabs.Count - _oldWidget.tabs.Count;
+            if (widget.tabs.Count > _oldWidget.tabs.Count) {
+                int delta = widget.tabs.Count - _oldWidget.tabs.Count;
                 for (int i = 0; i < delta; i++) {
-                    this._tabKeys.Add(GlobalKey.key());
+                    _tabKeys.Add(GlobalKey.key());
                 }
             }
-            else if (this.widget.tabs.Count < _oldWidget.tabs.Count) {
-                int delta = _oldWidget.tabs.Count - this.widget.tabs.Count;
-                this._tabKeys.RemoveRange(this.widget.tabs.Count, delta);
+            else if (widget.tabs.Count < _oldWidget.tabs.Count) {
+                int delta = _oldWidget.tabs.Count - widget.tabs.Count;
+                _tabKeys.RemoveRange(widget.tabs.Count, delta);
             }
         }
 
         public override void dispose() {
-            this._indicatorPainter.dispose();
-            if (this._controller != null) {
-                this._controller.animation.removeListener(this._handleTabControllerAnimationTick);
-                this._controller.removeListener(this._handleTabControllerTick);
+            _indicatorPainter.dispose();
+            if (_controller != null) {
+                _controller.animation.removeListener(_handleTabControllerAnimationTick);
+                _controller.removeListener(_handleTabControllerTick);
             }
 
             base.dispose();
         }
 
         public int maxTabIndex {
-            get { return this._indicatorPainter.maxTabIndex; }
+            get { return _indicatorPainter.maxTabIndex; }
         }
 
         float _tabScrollOffset(int index, float viewportWidth, float minExtent, float maxExtent) {
-            if (!this.widget.isScrollable) {
+            if (!widget.isScrollable) {
                 return 0.0f;
             }
 
-            float tabCenter = this._indicatorPainter.centerOf(index);
+            float tabCenter = _indicatorPainter.centerOf(index);
             return (tabCenter - viewportWidth / 2.0f).clamp(minExtent, maxExtent);
         }
 
         float _tabCenteredScrollOffset(int index) {
-            ScrollPosition position = this._scrollController.position;
-            return this._tabScrollOffset(index, position.viewportDimension, position.minScrollExtent,
+            ScrollPosition position = _scrollController.position;
+            return _tabScrollOffset(index, position.viewportDimension, position.minScrollExtent,
                 position.maxScrollExtent);
         }
 
         internal float _initialScrollOffset(float viewportWidth, float minExtent, float maxExtent) {
-            return this._tabScrollOffset(this._currentIndex, viewportWidth, minExtent, maxExtent);
+            return _tabScrollOffset(_currentIndex, viewportWidth, minExtent, maxExtent);
         }
 
         void _scrollToCurrentIndex() {
-            float offset = this._tabCenteredScrollOffset(this._currentIndex);
-            this._scrollController.animateTo(offset, duration: Constants.kTabScrollDuration, curve: Curves.ease);
+            float offset = _tabCenteredScrollOffset(_currentIndex);
+            _scrollController.animateTo(offset, duration: Constants.kTabScrollDuration, curve: Curves.ease);
         }
 
         void _scrollToControllerValue() {
-            float? leadingPosition = this._currentIndex > 0
-                ? (float?) this._tabCenteredScrollOffset(this._currentIndex - 1)
+            float? leadingPosition = _currentIndex > 0
+                ? (float?) _tabCenteredScrollOffset(_currentIndex - 1)
                 : null;
-            float middlePosition = this._tabCenteredScrollOffset(this._currentIndex);
-            float? trailingPosition = this._currentIndex < this.maxTabIndex
-                ? (float?) this._tabCenteredScrollOffset(this._currentIndex + 1)
+            float middlePosition = _tabCenteredScrollOffset(_currentIndex);
+            float? trailingPosition = _currentIndex < maxTabIndex
+                ? (float?) _tabCenteredScrollOffset(_currentIndex + 1)
                 : null;
 
-            float index = this._controller.index;
-            float value = this._controller.animation.value;
+            float index = _controller.index;
+            float value = _controller.animation.value;
             float offset = 0.0f;
             if (value == index - 1.0f) {
                 offset = leadingPosition ?? middlePosition;
@@ -784,38 +784,38 @@ namespace Unity.UIWidgets.material {
                     : MathUtils.lerpNullableFloat(middlePosition, trailingPosition, value - index).Value;
             }
 
-            this._scrollController.jumpTo(offset);
+            _scrollController.jumpTo(offset);
         }
 
 
         void _handleTabControllerAnimationTick() {
-            D.assert(this.mounted);
-            if (!this._controller.indexIsChanging && this.widget.isScrollable) {
-                this._currentIndex = this._controller.index;
-                this._scrollToControllerValue();
+            D.assert(mounted);
+            if (!_controller.indexIsChanging && widget.isScrollable) {
+                _currentIndex = _controller.index;
+                _scrollToControllerValue();
             }
         }
 
         void _handleTabControllerTick() {
-            if (this._controller.index != this._currentIndex) {
-                this._currentIndex = this._controller.index;
-                if (this.widget.isScrollable) {
-                    this._scrollToCurrentIndex();
+            if (_controller.index != _currentIndex) {
+                _currentIndex = _controller.index;
+                if (widget.isScrollable) {
+                    _scrollToCurrentIndex();
                 }
             }
 
-            this.setState(() => { });
+            setState(() => { });
         }
 
         void _saveTabOffsets(List<float> tabOffsets, float width) {
-            this._indicatorPainter?.saveTabOffsets(tabOffsets);
+            _indicatorPainter?.saveTabOffsets(tabOffsets);
         }
 
         void _handleTap(int index) {
-            D.assert(index >= 0 && index < this.widget.tabs.Count);
-            this._controller.animateTo(index);
-            if (this.widget.onTap != null) {
-                this.widget.onTap(index);
+            D.assert(index >= 0 && index < widget.tabs.Count);
+            _controller.animateTo(index);
+            if (widget.onTap != null) {
+                widget.onTap(index);
             }
         }
 
@@ -823,10 +823,10 @@ namespace Unity.UIWidgets.material {
             return new _TabStyle(
                 animation: animation,
                 selected: selected,
-                labelColor: this.widget.labelColor,
-                unselectedLabelColor: this.widget.unselectedLabelColor,
-                labelStyle: this.widget.labelStyle,
-                unselectedLabelStyle: this.widget.unselectedLabelStyle,
+                labelColor: widget.labelColor,
+                unselectedLabelColor: widget.unselectedLabelColor,
+                labelStyle: widget.labelStyle,
+                unselectedLabelStyle: widget.unselectedLabelStyle,
                 child: child
             );
         }
@@ -834,99 +834,99 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
 
-            if (this._controller.length == 0) {
+            if (_controller.length == 0) {
                 return new Container(
-                    height: TabsUtils._kTabHeight + this.widget.indicatorWeight
+                    height: TabsUtils._kTabHeight + widget.indicatorWeight
                 );
             }
 
             TabBarTheme tabBarTheme = TabBarTheme.of(context);
 
             List<Widget> wrappedTabs = new List<Widget>();
-            for (int i = 0; i < this.widget.tabs.Count; i++) {
+            for (int i = 0; i < widget.tabs.Count; i++) {
                 wrappedTabs.Add(new Center(
                         heightFactor: 1.0f,
                         child: new Padding(
-                            padding: this.widget.labelPadding ?? tabBarTheme.labelPadding ?? Constants.kTabLabelPadding,
+                            padding: widget.labelPadding ?? tabBarTheme.labelPadding ?? Constants.kTabLabelPadding,
                             child: new KeyedSubtree(
-                                key: this._tabKeys[i],
-                                child: this.widget.tabs[i]
+                                key: _tabKeys[i],
+                                child: widget.tabs[i]
                             )
                         )
                     )
                 );
             }
 
-            if (this._controller != null) {
-                int previousIndex = this._controller.previousIndex;
+            if (_controller != null) {
+                int previousIndex = _controller.previousIndex;
 
-                if (this._controller.indexIsChanging) {
-                    D.assert(this._currentIndex != previousIndex);
-                    Animation<float> animation = new _ChangeAnimation(this._controller);
-                    wrappedTabs[this._currentIndex] =
-                        this._buildStyledTab(wrappedTabs[this._currentIndex], true, animation);
-                    wrappedTabs[previousIndex] = this._buildStyledTab(wrappedTabs[previousIndex], false, animation);
+                if (_controller.indexIsChanging) {
+                    D.assert(_currentIndex != previousIndex);
+                    Animation<float> animation = new _ChangeAnimation(_controller);
+                    wrappedTabs[_currentIndex] =
+                        _buildStyledTab(wrappedTabs[_currentIndex], true, animation);
+                    wrappedTabs[previousIndex] = _buildStyledTab(wrappedTabs[previousIndex], false, animation);
                 }
                 else {
-                    int tabIndex = this._currentIndex;
-                    Animation<float> centerAnimation = new _DragAnimation(this._controller, tabIndex);
-                    wrappedTabs[tabIndex] = this._buildStyledTab(wrappedTabs[tabIndex], true, centerAnimation);
-                    if (this._currentIndex > 0) {
-                        int previousTabIndex = this._currentIndex - 1;
+                    int tabIndex = _currentIndex;
+                    Animation<float> centerAnimation = new _DragAnimation(_controller, tabIndex);
+                    wrappedTabs[tabIndex] = _buildStyledTab(wrappedTabs[tabIndex], true, centerAnimation);
+                    if (_currentIndex > 0) {
+                        int previousTabIndex = _currentIndex - 1;
                         Animation<float> previousAnimation =
-                            new ReverseAnimation(new _DragAnimation(this._controller, previousTabIndex));
+                            new ReverseAnimation(new _DragAnimation(_controller, previousTabIndex));
                         wrappedTabs[previousTabIndex] =
-                            this._buildStyledTab(wrappedTabs[previousTabIndex], false, previousAnimation);
+                            _buildStyledTab(wrappedTabs[previousTabIndex], false, previousAnimation);
                     }
 
-                    if (this._currentIndex < this.widget.tabs.Count - 1) {
-                        int nextTabIndex = this._currentIndex + 1;
+                    if (_currentIndex < widget.tabs.Count - 1) {
+                        int nextTabIndex = _currentIndex + 1;
                         Animation<float> nextAnimation =
-                            new ReverseAnimation(new _DragAnimation(this._controller, nextTabIndex));
+                            new ReverseAnimation(new _DragAnimation(_controller, nextTabIndex));
                         wrappedTabs[nextTabIndex] =
-                            this._buildStyledTab(wrappedTabs[nextTabIndex], false, nextAnimation);
+                            _buildStyledTab(wrappedTabs[nextTabIndex], false, nextAnimation);
                     }
                 }
             }
 
-            int tabCount = this.widget.tabs.Count;
+            int tabCount = widget.tabs.Count;
             for (int index = 0; index < tabCount; index++) {
                 int tabIndex = index;
                 wrappedTabs[index] = new InkWell(
-                    onTap: () => { this._handleTap(tabIndex); },
+                    onTap: () => { _handleTap(tabIndex); },
                     child: new Padding(
-                        padding: EdgeInsets.only(bottom: this.widget.indicatorWeight),
+                        padding: EdgeInsets.only(bottom: widget.indicatorWeight),
                         child: wrappedTabs[index]
                     )
                 );
-                if (!this.widget.isScrollable) {
+                if (!widget.isScrollable) {
                     wrappedTabs[index] = new Expanded(
                         child: wrappedTabs[index]);
                 }
             }
 
             Widget tabBar = new CustomPaint(
-                painter: this._indicatorPainter,
+                painter: _indicatorPainter,
                 child: new _TabStyle(
                     animation: Animations.kAlwaysDismissedAnimation,
                     selected: false,
-                    labelColor: this.widget.labelColor,
-                    unselectedLabelColor: this.widget.unselectedLabelColor,
-                    labelStyle: this.widget.labelStyle,
-                    unselectedLabelStyle: this.widget.unselectedLabelStyle,
+                    labelColor: widget.labelColor,
+                    unselectedLabelColor: widget.unselectedLabelColor,
+                    labelStyle: widget.labelStyle,
+                    unselectedLabelStyle: widget.unselectedLabelStyle,
                     child: new _TabLabelBar(
-                        onPerformLayout: this._saveTabOffsets,
+                        onPerformLayout: _saveTabOffsets,
                         children: wrappedTabs
                     )
                 )
             );
 
-            if (this.widget.isScrollable) {
-                this._scrollController = this._scrollController ?? new _TabBarScrollController(this);
+            if (widget.isScrollable) {
+                _scrollController = _scrollController ?? new _TabBarScrollController(this);
                 tabBar = new SingleChildScrollView(
-                    dragStartBehavior: this.widget.dragStartBehavior,
+                    dragStartBehavior: widget.dragStartBehavior,
                     scrollDirection: Axis.horizontal,
-                    controller: this._scrollController,
+                    controller: _scrollController,
                     child: tabBar);
             }
 
@@ -971,14 +971,14 @@ namespace Unity.UIWidgets.material {
         int _warpUnderwayCount = 0;
 
         void _updateTabController() {
-            TabController newController = this.widget.controller ?? DefaultTabController.of(this.context);
+            TabController newController = widget.controller ?? DefaultTabController.of(context);
             D.assert(() => {
                 if (newController == null) {
                     throw new UIWidgetsError(
-                        "No TabController for " + this.widget.GetType() + "\n" +
-                        "When creating a " + this.widget.GetType() + ", you must either provide an explicit " +
+                        "No TabController for " + widget.GetType() + "\n" +
+                        "When creating a " + widget.GetType() + ", you must either provide an explicit " +
                         "TabController using the \"controller\" property, or you must ensure that there " +
-                        "is a DefaultTabController above the " + this.widget.GetType() + ".\n" +
+                        "is a DefaultTabController above the " + widget.GetType() + ".\n" +
                         "In this case, there was neither an explicit controller nor a default controller."
                     );
                 }
@@ -986,114 +986,114 @@ namespace Unity.UIWidgets.material {
                 return true;
             });
             D.assert(() => {
-                if (newController.length != this.widget.children.Count) {
+                if (newController.length != widget.children.Count) {
                     throw new UIWidgetsError(
                         $"Controller's length property {newController.length} does not match the\n" +
-                        $"number of elements {this.widget.children.Count} present in TabBarView's children property."
+                        $"number of elements {widget.children.Count} present in TabBarView's children property."
                     );
                 }
 
                 return true;
             });
-            if (newController == this._controller) {
+            if (newController == _controller) {
                 return;
             }
 
-            if (this._controller != null) {
-                this._controller.animation.removeListener(this._handleTabControllerAnimationTick);
+            if (_controller != null) {
+                _controller.animation.removeListener(_handleTabControllerAnimationTick);
             }
 
-            this._controller = newController;
-            if (this._controller != null) {
-                this._controller.animation.addListener(this._handleTabControllerAnimationTick);
+            _controller = newController;
+            if (_controller != null) {
+                _controller.animation.addListener(_handleTabControllerAnimationTick);
             }
         }
 
 
         public override void initState() {
             base.initState();
-            this._children = this.widget.children;
+            _children = widget.children;
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this._updateTabController();
-            this._currentIndex = this._controller?.index;
-            this._pageController = new PageController(initialPage: this._currentIndex ?? 0);
+            _updateTabController();
+            _currentIndex = _controller?.index;
+            _pageController = new PageController(initialPage: _currentIndex ?? 0);
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
             TabBarView _oldWidget = (TabBarView) oldWidget;
-            if (this.widget.controller != _oldWidget.controller) {
-                this._updateTabController();
+            if (widget.controller != _oldWidget.controller) {
+                _updateTabController();
             }
 
-            if (this.widget.children != _oldWidget.children && this._warpUnderwayCount == 0) {
-                this._children = this.widget.children;
+            if (widget.children != _oldWidget.children && _warpUnderwayCount == 0) {
+                _children = widget.children;
             }
         }
 
         public override void dispose() {
-            if (this._controller != null) {
-                this._controller.animation.removeListener(this._handleTabControllerAnimationTick);
+            if (_controller != null) {
+                _controller.animation.removeListener(_handleTabControllerAnimationTick);
             }
 
             base.dispose();
         }
 
         void _handleTabControllerAnimationTick() {
-            if (this._warpUnderwayCount > 0 || !this._controller.indexIsChanging) {
+            if (_warpUnderwayCount > 0 || !_controller.indexIsChanging) {
                 return;
             }
 
-            if (this._controller.index != this._currentIndex) {
-                this._currentIndex = this._controller.index;
-                this._warpToCurrentIndex();
+            if (_controller.index != _currentIndex) {
+                _currentIndex = _controller.index;
+                _warpToCurrentIndex();
             }
         }
 
         void _warpToCurrentIndex() {
-            if (!this.mounted) {
+            if (!mounted) {
                 return;
             }
 
-            if (this._pageController.page == this._currentIndex) {
+            if (_pageController.page == _currentIndex) {
                 return;
             }
 
-            int previousIndex = this._controller.previousIndex;
-            if ((this._currentIndex.Value - previousIndex).abs() == 1) {
-                this._pageController.animateToPage(this._currentIndex.Value, duration: Constants.kTabScrollDuration,
+            int previousIndex = _controller.previousIndex;
+            if ((_currentIndex.Value - previousIndex).abs() == 1) {
+                _pageController.animateToPage(_currentIndex.Value, duration: Constants.kTabScrollDuration,
                     curve: Curves.ease);
                 return;
             }
 
-            D.assert((this._currentIndex.Value - previousIndex).abs() > 1);
+            D.assert((_currentIndex.Value - previousIndex).abs() > 1);
             int initialPage = 0;
-            this.setState(() => {
-                this._warpUnderwayCount += 1;
-                this._children = new List<Widget>(this.widget.children);
-                if (this._currentIndex > previousIndex) {
-                    this._children[this._currentIndex.Value - 1] = this._children[previousIndex];
-                    initialPage = this._currentIndex.Value - 1;
+            setState(() => {
+                _warpUnderwayCount += 1;
+                _children = new List<Widget>(widget.children);
+                if (_currentIndex > previousIndex) {
+                    _children[_currentIndex.Value - 1] = _children[previousIndex];
+                    initialPage = _currentIndex.Value - 1;
                 }
                 else {
-                    this._children[this._currentIndex.Value + 1] = this._children[previousIndex];
-                    initialPage = this._currentIndex.Value + 1;
+                    _children[_currentIndex.Value + 1] = _children[previousIndex];
+                    initialPage = _currentIndex.Value + 1;
                 }
             });
 
-            this._pageController.jumpToPage(initialPage);
-            this._pageController.animateToPage(this._currentIndex.Value, duration: Constants.kTabScrollDuration,
+            _pageController.jumpToPage(initialPage);
+            _pageController.animateToPage(_currentIndex.Value, duration: Constants.kTabScrollDuration,
                 curve: Curves.ease).Then(() => {
-                if (!this.mounted) {
+                if (!mounted) {
                     return new Promise();
                 }
 
-                this.setState(() => {
-                    this._warpUnderwayCount -= 1;
-                    this._children = this.widget.children;
+                setState(() => {
+                    _warpUnderwayCount -= 1;
+                    _children = widget.children;
                 });
 
                 return new Promise();
@@ -1101,7 +1101,7 @@ namespace Unity.UIWidgets.material {
         }
 
         bool _handleScrollNotification(ScrollNotification notification) {
-            if (this._warpUnderwayCount > 0) {
+            if (_warpUnderwayCount > 0) {
                 return false;
             }
 
@@ -1109,35 +1109,35 @@ namespace Unity.UIWidgets.material {
                 return false;
             }
 
-            this._warpUnderwayCount += 1;
-            if (notification is ScrollUpdateNotification && !this._controller.indexIsChanging) {
-                if ((this._pageController.page - this._controller.index).abs() > 1.0) {
-                    this._controller.index = this._pageController.page.floor();
-                    this._currentIndex = this._controller.index;
+            _warpUnderwayCount += 1;
+            if (notification is ScrollUpdateNotification && !_controller.indexIsChanging) {
+                if ((_pageController.page - _controller.index).abs() > 1.0) {
+                    _controller.index = _pageController.page.floor();
+                    _currentIndex = _controller.index;
                 }
 
-                this._controller.offset = (this._pageController.page - this._controller.index).clamp(-1.0f, 1.0f);
+                _controller.offset = (_pageController.page - _controller.index).clamp(-1.0f, 1.0f);
             }
             else if (notification is ScrollEndNotification) {
-                this._controller.index = this._pageController.page.round();
-                this._currentIndex = this._controller.index;
+                _controller.index = _pageController.page.round();
+                _currentIndex = _controller.index;
             }
 
-            this._warpUnderwayCount -= 1;
+            _warpUnderwayCount -= 1;
 
             return false;
         }
 
         public override Widget build(BuildContext context) {
             return new NotificationListener<ScrollNotification>(
-                onNotification: this._handleScrollNotification,
+                onNotification: _handleScrollNotification,
                 child: new PageView(
-                    dragStartBehavior: this.widget.dragStartBehavior,
-                    controller: this._pageController,
-                    physics: this.widget.physics == null
+                    dragStartBehavior: widget.dragStartBehavior,
+                    controller: _pageController,
+                    physics: widget.physics == null
                         ? TabsUtils._kTabBarViewPhysics
-                        : TabsUtils._kTabBarViewPhysics.applyTo(this.widget.physics),
-                    children: this._children
+                        : TabsUtils._kTabBarViewPhysics.applyTo(widget.physics),
+                    children: _children
                 )
             );
         }
@@ -1168,12 +1168,12 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                width: this.size,
-                height: this.size,
+                width: size,
+                height: size,
                 margin: EdgeInsets.all(4.0f),
                 decoration: new BoxDecoration(
-                    color: this.backgroundColor,
-                    border: Border.all(color: this.borderColor),
+                    color: backgroundColor,
+                    border: Border.all(color: borderColor),
                     shape: BoxShape.circle
                 )
             );
@@ -1241,23 +1241,23 @@ namespace Unity.UIWidgets.material {
             return new TabPageSelectorIndicator(
                 backgroundColor: background,
                 borderColor: selectedColorTween.end,
-                size: this.indicatorSize
+                size: indicatorSize
             );
         }
 
         public override Widget build(BuildContext context) {
-            Color fixColor = this.color ?? Colors.transparent;
-            Color fixSelectedColor = this.selectedColor ?? Theme.of(context).accentColor;
+            Color fixColor = color ?? Colors.transparent;
+            Color fixSelectedColor = selectedColor ?? Theme.of(context).accentColor;
             ColorTween selectedColorTween = new ColorTween(begin: fixColor, end: fixSelectedColor);
             ColorTween previousColorTween = new ColorTween(begin: fixSelectedColor, end: fixColor);
-            TabController tabController = this.controller ?? DefaultTabController.of(context);
+            TabController tabController = controller ?? DefaultTabController.of(context);
             D.assert(() => {
                 if (tabController == null) {
                     throw new UIWidgetsError(
-                        "No TabController for " + this.GetType() + ".\n" +
-                        "When creating a " + this.GetType() + ", you must either provide an explicit TabController " +
+                        "No TabController for " + GetType() + ".\n" +
+                        "When creating a " + GetType() + ", you must either provide an explicit TabController " +
                         "using the \"controller\" property, or you must ensure that there is a " +
-                        "DefaultTabController above the " + this.GetType() + ".\n" +
+                        "DefaultTabController above the " + GetType() + ".\n" +
                         "In this case, there was neither an explicit controller nor a default controller."
                     );
                 }
@@ -1276,7 +1276,7 @@ namespace Unity.UIWidgets.material {
                     List<Widget> children = new List<Widget>();
 
                     for (int tabIndex = 0; tabIndex < tabController.length; tabIndex++) {
-                        children.Add(this._buildTabIndicator(
+                        children.Add(_buildTabIndicator(
                             tabIndex,
                             tabController,
                             selectedColorTween,

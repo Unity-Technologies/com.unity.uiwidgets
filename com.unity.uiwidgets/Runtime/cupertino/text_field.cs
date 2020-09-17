@@ -216,32 +216,32 @@ namespace Unity.UIWidgets.cupertino {
             base.debugFillProperties(properties);
 
             properties.add(
-                new DiagnosticsProperty<TextEditingController>("controller", this.controller, defaultValue: null));
-            properties.add(new DiagnosticsProperty<FocusNode>("focusNode", this.focusNode, defaultValue: null));
-            properties.add(new DiagnosticsProperty<BoxDecoration>("decoration", this.decoration));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding));
-            properties.add(new StringProperty("placeholder", this.placeholder));
-            properties.add(new DiagnosticsProperty<TextStyle>("placeholderStyle", this.placeholderStyle));
+                new DiagnosticsProperty<TextEditingController>("controller", controller, defaultValue: null));
+            properties.add(new DiagnosticsProperty<FocusNode>("focusNode", focusNode, defaultValue: null));
+            properties.add(new DiagnosticsProperty<BoxDecoration>("decoration", decoration));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
+            properties.add(new StringProperty("placeholder", placeholder));
+            properties.add(new DiagnosticsProperty<TextStyle>("placeholderStyle", placeholderStyle));
             properties.add(new DiagnosticsProperty<OverlayVisibilityMode>("prefix",
-                this.prefix == null ? OverlayVisibilityMode.never : this.prefixMode));
+                prefix == null ? OverlayVisibilityMode.never : prefixMode));
             properties.add(new DiagnosticsProperty<OverlayVisibilityMode>("suffix",
-                this.suffix == null ? OverlayVisibilityMode.never : this.suffixMode));
-            properties.add(new DiagnosticsProperty<OverlayVisibilityMode>("clearButtonMode", this.clearButtonMode));
-            properties.add(new DiagnosticsProperty<TextInputType>("keyboardType", this.keyboardType,
+                suffix == null ? OverlayVisibilityMode.never : suffixMode));
+            properties.add(new DiagnosticsProperty<OverlayVisibilityMode>("clearButtonMode", clearButtonMode));
+            properties.add(new DiagnosticsProperty<TextInputType>("keyboardType", keyboardType,
                 defaultValue: TextInputType.text));
-            properties.add(new DiagnosticsProperty<TextStyle>("style", this.style, defaultValue: null));
-            properties.add(new DiagnosticsProperty<bool>("autofocus", this.autofocus, defaultValue: false));
-            properties.add(new DiagnosticsProperty<bool>("obscureText", this.obscureText, defaultValue: false));
-            properties.add(new DiagnosticsProperty<bool>("autocorrect", this.autocorrect, defaultValue: false));
-            properties.add(new IntProperty("maxLines", this.maxLines, defaultValue: 1));
-            properties.add(new IntProperty("minLines", this.minLines, defaultValue: null));
-            properties.add(new DiagnosticsProperty<bool>("expands", this.expands, defaultValue: false));
-            properties.add(new IntProperty("maxLength", this.maxLength, defaultValue: null));
-            properties.add(new FlagProperty("maxLengthEnforced", value: this.maxLengthEnforced,
+            properties.add(new DiagnosticsProperty<TextStyle>("style", style, defaultValue: null));
+            properties.add(new DiagnosticsProperty<bool>("autofocus", autofocus, defaultValue: false));
+            properties.add(new DiagnosticsProperty<bool>("obscureText", obscureText, defaultValue: false));
+            properties.add(new DiagnosticsProperty<bool>("autocorrect", autocorrect, defaultValue: false));
+            properties.add(new IntProperty("maxLines", maxLines, defaultValue: 1));
+            properties.add(new IntProperty("minLines", minLines, defaultValue: null));
+            properties.add(new DiagnosticsProperty<bool>("expands", expands, defaultValue: false));
+            properties.add(new IntProperty("maxLength", maxLength, defaultValue: null));
+            properties.add(new FlagProperty("maxLengthEnforced", value: maxLengthEnforced,
                 ifTrue: "max length enforced"));
-            properties.add(new DiagnosticsProperty<Color>("cursorColor", this.cursorColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("cursorColor", cursorColor, defaultValue: null));
             properties.add(
-                new DiagnosticsProperty<ScrollPhysics>("scrollPhysics", this.scrollPhysics, defaultValue: null));
+                new DiagnosticsProperty<ScrollPhysics>("scrollPhysics", scrollPhysics, defaultValue: null));
         }
     }
 
@@ -251,20 +251,20 @@ namespace Unity.UIWidgets.cupertino {
         TextEditingController _controller;
 
         TextEditingController _effectiveController {
-            get { return this.widget.controller ?? this._controller; }
+            get { return widget.controller ?? _controller; }
         }
 
         FocusNode _focusNode;
 
         FocusNode _effectiveFocusNode {
-            get { return this.widget.focusNode ?? this._focusNode ?? (this._focusNode = new FocusNode()); }
+            get { return widget.focusNode ?? _focusNode ?? (_focusNode = new FocusNode()); }
         }
 
         public override void initState() {
             base.initState();
-            if (this.widget.controller == null) {
-                this._controller = new TextEditingController();
-                this._controller.addListener(this.updateKeepAlive);
+            if (widget.controller == null) {
+                _controller = new TextEditingController();
+                _controller.addListener(updateKeepAlive);
             }
         }
 
@@ -272,71 +272,71 @@ namespace Unity.UIWidgets.cupertino {
             base.didUpdateWidget(oldWidget);
             CupertinoTextField _oldWidget = (CupertinoTextField) oldWidget;
 
-            if (this.widget.controller == null && _oldWidget.controller != null) {
-                this._controller = TextEditingController.fromValue(_oldWidget.controller.value);
-                this._controller.addListener(this.updateKeepAlive);
+            if (widget.controller == null && _oldWidget.controller != null) {
+                _controller = TextEditingController.fromValue(_oldWidget.controller.value);
+                _controller.addListener(updateKeepAlive);
             }
-            else if (this.widget.controller != null && _oldWidget.controller == null) {
-                this._controller = null;
+            else if (widget.controller != null && _oldWidget.controller == null) {
+                _controller = null;
             }
 
-            bool isEnabled = this.widget.enabled ?? true;
+            bool isEnabled = widget.enabled ?? true;
             bool wasEnabled = _oldWidget.enabled ?? true;
 
             if (wasEnabled && !isEnabled) {
-                this._effectiveFocusNode.unfocus();
+                _effectiveFocusNode.unfocus();
             }
         }
 
         public override void dispose() {
-            this._focusNode?.dispose();
-            this._controller?.removeListener(this.updateKeepAlive);
+            _focusNode?.dispose();
+            _controller?.removeListener(updateKeepAlive);
             base.dispose();
         }
 
         void _requestKeyboard() {
-            this._editableTextKey.currentState?.requestKeyboard();
+            _editableTextKey.currentState?.requestKeyboard();
         }
 
         RenderEditable _renderEditable {
-            get { return this._editableTextKey.currentState.renderEditable; }
+            get { return _editableTextKey.currentState.renderEditable; }
         }
 
         void _handleTapDown(TapDownDetails details) {
-            this._renderEditable.handleTapDown(details);
+            _renderEditable.handleTapDown(details);
         }
 
 
         void _handleSingleTapUp(TapUpDetails details) {
-            this._renderEditable.selectWordEdge(cause: SelectionChangedCause.tap);
-            this._requestKeyboard();
+            _renderEditable.selectWordEdge(cause: SelectionChangedCause.tap);
+            _requestKeyboard();
         }
 
         void _handleSingleLongTapStart(LongPressStartDetails details) {
-            this._renderEditable.selectPositionAt(
+            _renderEditable.selectPositionAt(
                 from: details.globalPosition,
                 cause: SelectionChangedCause.longPress
             );
         }
 
         void _handleSingleLongTapMoveUpdate(LongPressMoveUpdateDetails details) {
-            this._renderEditable.selectPositionAt(
+            _renderEditable.selectPositionAt(
                 from: details.globalPosition,
                 cause: SelectionChangedCause.longPress
             );
         }
 
         void _handleSingleLongTapEnd(LongPressEndDetails details) {
-            this._editableTextKey.currentState.showToolbar();
+            _editableTextKey.currentState.showToolbar();
         }
 
         void _handleDoubleTapDown(TapDownDetails details) {
-            this._renderEditable.selectWord(cause: SelectionChangedCause.tap);
-            this._editableTextKey.currentState.showToolbar();
+            _renderEditable.selectWord(cause: SelectionChangedCause.tap);
+            _editableTextKey.currentState.showToolbar();
         }
 
         void _handleMouseDragSelectionStart(DragStartDetails details) {
-            this._renderEditable.selectPositionAt(
+            _renderEditable.selectPositionAt(
                 from: details.globalPosition,
                 cause: SelectionChangedCause.drag
             );
@@ -346,7 +346,7 @@ namespace Unity.UIWidgets.cupertino {
             DragStartDetails startDetails,
             DragUpdateDetails updateDetails
         ) {
-            this._renderEditable.selectPositionAt(
+            _renderEditable.selectPositionAt(
                 from: startDetails.globalPosition,
                 to: updateDetails.globalPosition,
                 cause: SelectionChangedCause.drag
@@ -354,17 +354,17 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         void _handleMouseDragSelectionEnd(DragEndDetails details) {
-            this._requestKeyboard();
+            _requestKeyboard();
         }
 
         void _handleSelectionChanged(TextSelection selection, SelectionChangedCause cause) {
             if (cause == SelectionChangedCause.longPress) {
-                this._editableTextKey.currentState?.bringIntoView(selection.basePos);
+                _editableTextKey.currentState?.bringIntoView(selection.basePos);
             }
         }
 
         protected override bool wantKeepAlive {
-            get { return this._controller?.text?.isNotEmpty() == true; }
+            get { return _controller?.text?.isNotEmpty() == true; }
         }
 
         bool _shouldShowAttachment(
@@ -387,22 +387,22 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         bool _showPrefixWidget(TextEditingValue text) {
-            return this.widget.prefix != null && this._shouldShowAttachment(
-                       attachment: this.widget.prefixMode,
+            return widget.prefix != null && _shouldShowAttachment(
+                       attachment: widget.prefixMode,
                        hasText: text.text.isNotEmpty()
                    );
         }
 
         bool _showSuffixWidget(TextEditingValue text) {
-            return this.widget.suffix != null && this._shouldShowAttachment(
-                       attachment: this.widget.suffixMode,
+            return widget.suffix != null && _shouldShowAttachment(
+                       attachment: widget.suffixMode,
                        hasText: text.text.isNotEmpty()
                    );
         }
 
         bool _showClearButton(TextEditingValue text) {
-            return this._shouldShowAttachment(
-                attachment: this.widget.clearButtonMode,
+            return _shouldShowAttachment(
+                attachment: widget.clearButtonMode,
                 hasText: text.text.isNotEmpty()
             );
         }
@@ -412,30 +412,30 @@ namespace Unity.UIWidgets.cupertino {
             D.assert(textStyle != null);
             D.assert(placeholderStyle != null);
 
-            if (this.widget.placeholder == null &&
-                this.widget.clearButtonMode == OverlayVisibilityMode.never &&
-                this.widget.prefix == null &&
-                this.widget.suffix == null) {
+            if (widget.placeholder == null &&
+                widget.clearButtonMode == OverlayVisibilityMode.never &&
+                widget.prefix == null &&
+                widget.suffix == null) {
                 return editableText;
             }
 
             return new ValueListenableBuilder<TextEditingValue>(
-                valueListenable: this._effectiveController,
+                valueListenable: _effectiveController,
                 child: editableText,
                 builder: (BuildContext context, TextEditingValue text, Widget child) => {
                     List<Widget> rowChildren = new List<Widget>();
 
-                    if (this._showPrefixWidget(text)) {
-                        rowChildren.Add(this.widget.prefix);
+                    if (_showPrefixWidget(text)) {
+                        rowChildren.Add(widget.prefix);
                     }
 
                     List<Widget> stackChildren = new List<Widget>();
-                    if (this.widget.placeholder != null && text.text.isEmpty()) {
+                    if (widget.placeholder != null && text.text.isEmpty()) {
                         stackChildren.Add(
                             new Padding(
-                                padding: this.widget.padding,
+                                padding: widget.padding,
                                 child: new Text(
-                                    this.widget.placeholder,
+                                    widget.placeholder,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: placeholderStyle
@@ -450,18 +450,18 @@ namespace Unity.UIWidgets.cupertino {
                         (child: new Stack
                             (children: stackChildren)));
 
-                    if (this._showSuffixWidget(text)) {
-                        rowChildren.Add(this.widget.suffix);
+                    if (_showSuffixWidget(text)) {
+                        rowChildren.Add(widget.suffix);
                     }
-                    else if (this._showClearButton(text)) {
+                    else if (_showClearButton(text)) {
                         rowChildren.Add(
                             new GestureDetector(
-                                onTap: this.widget.enabled ?? true
+                                onTap: widget.enabled ?? true
                                     ? () => {
-                                        bool textChanged = this._effectiveController.text.isNotEmpty();
-                                        this._effectiveController.clear();
-                                        if (this.widget.onChanged != null && textChanged) {
-                                            this.widget.onChanged(this._effectiveController.text);
+                                        bool textChanged = _effectiveController.text.isNotEmpty();
+                                        _effectiveController.clear();
+                                        if (widget.onChanged != null && textChanged) {
+                                            widget.onChanged(_effectiveController.text);
                                         }
                                     }
                                     : (GestureTapCallback) null,
@@ -484,61 +484,61 @@ namespace Unity.UIWidgets.cupertino {
 
         public override Widget build(BuildContext context) {
             base.build(context);
-            TextEditingController controller = this._effectiveController;
-            List<TextInputFormatter> formatters = this.widget.inputFormatters ?? new List<TextInputFormatter>();
-            bool enabled = this.widget.enabled ?? true;
+            TextEditingController controller = _effectiveController;
+            List<TextInputFormatter> formatters = widget.inputFormatters ?? new List<TextInputFormatter>();
+            bool enabled = widget.enabled ?? true;
             Offset cursorOffset =
                 new Offset(
                     CupertinoTextFieldUtils._iOSHorizontalCursorOffsetPixels / MediaQuery.of(context).devicePixelRatio,
                     0);
-            if (this.widget.maxLength != null && this.widget.maxLengthEnforced) {
-                formatters.Add(new LengthLimitingTextInputFormatter(this.widget.maxLength));
+            if (widget.maxLength != null && widget.maxLengthEnforced) {
+                formatters.Add(new LengthLimitingTextInputFormatter(widget.maxLength));
             }
 
             CupertinoThemeData themeData = CupertinoTheme.of(context);
-            TextStyle textStyle = themeData.textTheme.textStyle.merge(this.widget.style);
-            TextStyle placeholderStyle = textStyle.merge(this.widget.placeholderStyle);
-            Brightness keyboardAppearance = this.widget.keyboardAppearance ?? themeData.brightness;
-            Color cursorColor = this.widget.cursorColor ?? themeData.primaryColor;
+            TextStyle textStyle = themeData.textTheme.textStyle.merge(widget.style);
+            TextStyle placeholderStyle = textStyle.merge(widget.placeholderStyle);
+            Brightness keyboardAppearance = widget.keyboardAppearance ?? themeData.brightness;
+            Color cursorColor = widget.cursorColor ?? themeData.primaryColor;
 
             Widget paddedEditable = new Padding(
-                padding: this.widget.padding,
+                padding: widget.padding,
                 child: new RepaintBoundary(
                     child: new EditableText(
-                        key: this._editableTextKey,
+                        key: _editableTextKey,
                         controller: controller,
-                        focusNode: this._effectiveFocusNode,
-                        keyboardType: this.widget.keyboardType,
-                        textInputAction: this.widget.textInputAction,
-                        textCapitalization: this.widget.textCapitalization,
+                        focusNode: _effectiveFocusNode,
+                        keyboardType: widget.keyboardType,
+                        textInputAction: widget.textInputAction,
+                        textCapitalization: widget.textCapitalization,
                         style: textStyle,
-                        strutStyle: this.widget.strutStyle,
-                        textAlign: this.widget.textAlign,
-                        autofocus: this.widget.autofocus,
-                        obscureText: this.widget.obscureText,
-                        autocorrect: this.widget.autocorrect,
-                        maxLines: this.widget.maxLines,
-                        minLines: this.widget.minLines,
-                        expands: this.widget.expands,
+                        strutStyle: widget.strutStyle,
+                        textAlign: widget.textAlign,
+                        autofocus: widget.autofocus,
+                        obscureText: widget.obscureText,
+                        autocorrect: widget.autocorrect,
+                        maxLines: widget.maxLines,
+                        minLines: widget.minLines,
+                        expands: widget.expands,
                         selectionColor: CupertinoTextFieldUtils._kSelectionHighlightColor,
                         selectionControls: CupertinoTextSelectionUtils.cupertinoTextSelectionControls,
-                        onChanged: this.widget.onChanged,
-                        onSelectionChanged: this._handleSelectionChanged,
-                        onEditingComplete: this.widget.onEditingComplete,
-                        onSubmitted: this.widget.onSubmitted,
+                        onChanged: widget.onChanged,
+                        onSelectionChanged: _handleSelectionChanged,
+                        onEditingComplete: widget.onEditingComplete,
+                        onSubmitted: widget.onSubmitted,
                         inputFormatters: formatters,
                         rendererIgnoresPointer: true,
-                        cursorWidth: this.widget.cursorWidth,
-                        cursorRadius: this.widget.cursorRadius,
+                        cursorWidth: widget.cursorWidth,
+                        cursorRadius: widget.cursorRadius,
                         cursorColor: cursorColor,
                         cursorOpacityAnimates: true,
                         cursorOffset: cursorOffset,
                         paintCursorAboveText: true,
                         backgroundCursorColor: CupertinoColors.inactiveGray,
-                        scrollPadding: this.widget.scrollPadding,
+                        scrollPadding: widget.scrollPadding,
                         keyboardAppearance: keyboardAppearance,
-                        dragStartBehavior: this.widget.dragStartBehavior,
-                        scrollPhysics: this.widget.scrollPhysics
+                        dragStartBehavior: widget.dragStartBehavior,
+                        scrollPhysics: widget.scrollPhysics
                     )
                 )
             );
@@ -546,7 +546,7 @@ namespace Unity.UIWidgets.cupertino {
             return new IgnorePointer(
                 ignoring: !enabled,
                 child: new Container(
-                    decoration: this.widget.decoration,
+                    decoration: widget.decoration,
                     child: new Container(
                         color: enabled
                             ? null
@@ -554,17 +554,17 @@ namespace Unity.UIWidgets.cupertino {
                                 ? CupertinoTextFieldUtils._kDisabledBackground
                                 : CupertinoColors.darkBackgroundGray,
                         child: new TextSelectionGestureDetector(
-                            onTapDown: this._handleTapDown,
-                            onSingleTapUp: this._handleSingleTapUp,
-                            onSingleLongTapStart: this._handleSingleLongTapStart,
-                            onSingleLongTapMoveUpdate: this._handleSingleLongTapMoveUpdate,
-                            onSingleLongTapEnd: this._handleSingleLongTapEnd,
-                            onDoubleTapDown: this._handleDoubleTapDown,
-                            onDragSelectionStart: this._handleMouseDragSelectionStart,
-                            onDragSelectionUpdate: this._handleMouseDragSelectionUpdate,
-                            onDragSelectionEnd: this._handleMouseDragSelectionEnd,
+                            onTapDown: _handleTapDown,
+                            onSingleTapUp: _handleSingleTapUp,
+                            onSingleLongTapStart: _handleSingleLongTapStart,
+                            onSingleLongTapMoveUpdate: _handleSingleLongTapMoveUpdate,
+                            onSingleLongTapEnd: _handleSingleLongTapEnd,
+                            onDoubleTapDown: _handleDoubleTapDown,
+                            onDragSelectionStart: _handleMouseDragSelectionStart,
+                            onDragSelectionUpdate: _handleMouseDragSelectionUpdate,
+                            onDragSelectionEnd: _handleMouseDragSelectionEnd,
                             behavior: HitTestBehavior.translucent,
-                            child: this._addTextDependentAttachments(paddedEditable, textStyle, placeholderStyle)
+                            child: _addTextDependentAttachments(paddedEditable, textStyle, placeholderStyle)
                         )
                     )
                 )

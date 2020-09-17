@@ -23,8 +23,8 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            return this.codePoint == other.codePoint &&
-                   string.Equals(this.fontFamily, other.fontFamily);
+            return codePoint == other.codePoint &&
+                   string.Equals(fontFamily, other.fontFamily);
         }
 
         public override bool Equals(object obj) {
@@ -36,16 +36,16 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((IconData) obj);
+            return Equals((IconData) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return (this.codePoint * 397) ^ (this.fontFamily != null ? this.fontFamily.GetHashCode() : 0);
+                return (codePoint * 397) ^ (fontFamily != null ? fontFamily.GetHashCode() : 0);
             }
         }
 
@@ -58,7 +58,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string ToString() {
-            return "IconData(U+" + this.codePoint.ToString("X5") + ")";
+            return "IconData(U+" + codePoint.ToString("X5") + ")";
         }
     }
 }

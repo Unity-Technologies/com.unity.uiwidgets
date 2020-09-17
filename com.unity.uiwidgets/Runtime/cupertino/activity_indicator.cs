@@ -41,43 +41,43 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this._controller = new AnimationController(
+            _controller = new AnimationController(
                 duration: TimeSpan.FromSeconds(1),
                 vsync: this
             );
 
-            if (this.widget.animating) {
-                this._controller.repeat();
+            if (widget.animating) {
+                _controller.repeat();
             }
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget: oldWidget);
             if (oldWidget is CupertinoActivityIndicator _oldWidget) {
-                if (this.widget.animating != _oldWidget.animating) {
-                    if (this.widget.animating) {
-                        this._controller.repeat();
+                if (widget.animating != _oldWidget.animating) {
+                    if (widget.animating) {
+                        _controller.repeat();
                     }
                     else {
-                        this._controller.stop();
+                        _controller.stop();
                     }
                 }
             }
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
             return new SizedBox(
-                height: this.widget.radius * 2,
-                width: this.widget.radius * 2,
+                height: widget.radius * 2,
+                width: widget.radius * 2,
                 child: new CustomPaint(
                     painter: new _CupertinoActivityIndicatorPainter(
-                        position: this._controller,
-                        radius: this.widget.radius
+                        position: _controller,
+                        radius: widget.radius
                     )
                 )
             );
@@ -89,7 +89,7 @@ namespace Unity.UIWidgets.cupertino {
             Animation<float> position,
             float radius
         ) : base(repaint: position) {
-            this.tickFundamentalRRect = RRect.fromLTRBXY(
+            tickFundamentalRRect = RRect.fromLTRBXY(
                 left: -radius,
                 top: 1.0f * radius / CupertinoActivityIndicatorUtils._kDefaultIndicatorRadius,
                 right: -radius / 2.0f,
@@ -109,14 +109,14 @@ namespace Unity.UIWidgets.cupertino {
             canvas.save();
             canvas.translate(size.width / 2.0f, size.height / 2.0f);
 
-            int activeTick = (CupertinoActivityIndicatorUtils._kTickCount * this.position.value).floor();
+            int activeTick = (CupertinoActivityIndicatorUtils._kTickCount * position.value).floor();
 
             for (int i = 0; i < CupertinoActivityIndicatorUtils._kTickCount; ++i) {
                 float t = (((i + activeTick) % CupertinoActivityIndicatorUtils._kTickCount) /
                            CupertinoActivityIndicatorUtils._kHalfTickCount).clamp(0, 1);
                 paint.color = Color.lerp(a: CupertinoActivityIndicatorUtils._kActiveTickColor,
                     b: CupertinoActivityIndicatorUtils._kTickColor, t: t);
-                canvas.drawRRect(rect: this.tickFundamentalRRect, paint: paint);
+                canvas.drawRRect(rect: tickFundamentalRRect, paint: paint);
                 canvas.rotate(-CupertinoActivityIndicatorUtils._kTwoPI / CupertinoActivityIndicatorUtils._kTickCount);
             }
 
@@ -124,7 +124,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override bool shouldRepaint(CustomPainter oldPainter) {
-            return (oldPainter as _CupertinoActivityIndicatorPainter).position != this.position;
+            return (oldPainter as _CupertinoActivityIndicatorPainter).position != position;
         }
     }
 }

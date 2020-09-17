@@ -148,14 +148,14 @@ namespace Unity.UIWidgets.ui {
         }
 
         protected NativeWrapper(IntPtr ptr) {
-            D.assert(this._ptr != IntPtr.Zero);
-            this._ptr = ptr;
+            D.assert(_ptr != IntPtr.Zero);
+            _ptr = ptr;
         }
 
         ~NativeWrapper() {
-            if (this._ptr != IntPtr.Zero) {
-                this.DisposePtr(this._ptr);
-                this._ptr = IntPtr.Zero;
+            if (_ptr != IntPtr.Zero) {
+                DisposePtr(_ptr);
+                _ptr = IntPtr.Zero;
             }
         }
 
@@ -169,23 +169,23 @@ namespace Unity.UIWidgets.ui {
         }
 
         protected NativeWrapperDisposable(IntPtr ptr) {
-            D.assert(this._ptr != IntPtr.Zero);
-            this._ptr = ptr;
+            D.assert(_ptr != IntPtr.Zero);
+            _ptr = ptr;
         }
 
         ~NativeWrapperDisposable() {
-            if (this._ptr != IntPtr.Zero) {
-                this.DisposePtr(this._ptr);
-                this._ptr = IntPtr.Zero;
+            if (_ptr != IntPtr.Zero) {
+                DisposePtr(_ptr);
+                _ptr = IntPtr.Zero;
             }
         }
 
         protected abstract void DisposePtr(IntPtr ptr);
 
         public void Dispose() {
-            if (this._ptr != IntPtr.Zero) {
-                this.DisposePtr(this._ptr);
-                this._ptr = IntPtr.Zero;
+            if (_ptr != IntPtr.Zero) {
+                DisposePtr(_ptr);
+                _ptr = IntPtr.Zero;
             }
 
             GC.SuppressFinalize(this);

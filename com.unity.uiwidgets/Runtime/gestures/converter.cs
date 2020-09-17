@@ -9,7 +9,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public int pointer {
-            get { return this._pointer; }
+            get { return _pointer; }
         }
 
         int _pointer;
@@ -22,38 +22,38 @@ namespace Unity.UIWidgets.gestures {
         const int scrollPointer = 5;
 
         public void initScrollPointer() {
-            this._pointer = scrollPointer;
+            _pointer = scrollPointer;
         }
 
         public void startNewPointer() {
             _pointerCount += 1;
-            this._pointer = _pointerCount;
+            _pointer = _pointerCount;
         }
 
         public bool down {
-            get { return this._down; }
+            get { return _down; }
         }
 
         bool _down = false;
 
         public void setDown() {
-            D.assert(!this._down);
-            this._down = true;
+            D.assert(!_down);
+            _down = true;
         }
 
         public void setUp() {
-            D.assert(this._down);
-            this._down = false;
+            D.assert(_down);
+            _down = false;
         }
 
         public Offset lastPosition;
 
         public Offset deltaTo(Offset to) {
-            return to - this.lastPosition;
+            return to - lastPosition;
         }
 
         public override string ToString() {
-            return $"_PointerState(pointer: {this.pointer}, down: {this.down}, lastPosition: {this.lastPosition})";
+            return $"_PointerState(pointer: {pointer}, down: {down}, lastPosition: {lastPosition})";
         }
 
         internal static int _synthesiseDownButtons(int buttons, PointerDeviceKind kind) {

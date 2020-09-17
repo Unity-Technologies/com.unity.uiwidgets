@@ -107,45 +107,45 @@ namespace Unity.UIWidgets.gestures {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Offset>("position", this.position));
-            properties.add(new DiagnosticsProperty<Offset>("delta", this.delta, defaultValue: Offset.zero,
+            properties.add(new DiagnosticsProperty<Offset>("position", position));
+            properties.add(new DiagnosticsProperty<Offset>("delta", delta, defaultValue: Offset.zero,
                 level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<TimeSpan>("timeStamp", this.timeStamp, defaultValue: TimeSpan.Zero,
+            properties.add(new DiagnosticsProperty<TimeSpan>("timeStamp", timeStamp, defaultValue: TimeSpan.Zero,
                 level: DiagnosticLevel.debug));
-            properties.add(new IntProperty("pointer", this.pointer, level: DiagnosticLevel.debug));
-            properties.add(new EnumProperty<PointerDeviceKind>("kind", this.kind, level: DiagnosticLevel.debug));
-            properties.add(new IntProperty("device", this.device, defaultValue: 0, level: DiagnosticLevel.debug));
-            properties.add(new IntProperty("buttons", this.buttons, defaultValue: 0, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<bool>("down", this.down, level: DiagnosticLevel.debug));
+            properties.add(new IntProperty("pointer", pointer, level: DiagnosticLevel.debug));
+            properties.add(new EnumProperty<PointerDeviceKind>("kind", kind, level: DiagnosticLevel.debug));
+            properties.add(new IntProperty("device", device, defaultValue: 0, level: DiagnosticLevel.debug));
+            properties.add(new IntProperty("buttons", buttons, defaultValue: 0, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<bool>("down", down, level: DiagnosticLevel.debug));
             properties.add(
-                new FloatProperty("pressure", this.pressure, defaultValue: 1.0, level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("pressureMin", this.pressureMin, defaultValue: 1.0,
+                new FloatProperty("pressure", pressure, defaultValue: 1.0, level: DiagnosticLevel.debug));
+            properties.add(new FloatProperty("pressureMin", pressureMin, defaultValue: 1.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("pressureMax", this.pressureMax, defaultValue: 1.0,
+            properties.add(new FloatProperty("pressureMax", pressureMax, defaultValue: 1.0,
                 level: DiagnosticLevel.debug));
             properties.add(
-                new FloatProperty("distance", this.distance, defaultValue: 0.0, level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("distanceMin", this.distanceMin, defaultValue: 0.0,
+                new FloatProperty("distance", distance, defaultValue: 0.0, level: DiagnosticLevel.debug));
+            properties.add(new FloatProperty("distanceMin", distanceMin, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("distanceMax", this.distanceMax, defaultValue: 0.0,
+            properties.add(new FloatProperty("distanceMax", distanceMax, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("size", this.size, defaultValue: 0.0, level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMajor", this.radiusMajor, defaultValue: 0.0,
+            properties.add(new FloatProperty("size", size, defaultValue: 0.0, level: DiagnosticLevel.debug));
+            properties.add(new FloatProperty("radiusMajor", radiusMajor, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMinor", this.radiusMinor, defaultValue: 0.0,
+            properties.add(new FloatProperty("radiusMinor", radiusMinor, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMin", this.radiusMin, defaultValue: 0.0,
+            properties.add(new FloatProperty("radiusMin", radiusMin, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMax", this.radiusMax, defaultValue: 0.0,
+            properties.add(new FloatProperty("radiusMax", radiusMax, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("orientation", this.orientation, defaultValue: 0.0,
+            properties.add(new FloatProperty("orientation", orientation, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("tilt", this.tilt, defaultValue: 0.0, level: DiagnosticLevel.debug));
-            properties.add(new IntProperty("platformData", this.platformData, defaultValue: 0,
+            properties.add(new FloatProperty("tilt", tilt, defaultValue: 0.0, level: DiagnosticLevel.debug));
+            properties.add(new IntProperty("platformData", platformData, defaultValue: 0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FlagProperty("obscured", value: this.obscured, ifTrue: "obscured",
+            properties.add(new FlagProperty("obscured", value: obscured, ifTrue: "obscured",
                 level: DiagnosticLevel.debug));
-            properties.add(new FlagProperty("synthesized", value: this.synthesized, ifTrue: "synthesized",
+            properties.add(new FlagProperty("synthesized", value: synthesized, ifTrue: "synthesized",
                 level: DiagnosticLevel.debug));
         }
     }
@@ -592,7 +592,7 @@ namespace Unity.UIWidgets.gestures {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Offset>("scrollDelta", this.scrollDelta));
+            properties.add(new DiagnosticsProperty<Offset>("scrollDelta", scrollDelta));
         }
     }
 

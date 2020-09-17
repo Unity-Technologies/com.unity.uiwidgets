@@ -8,43 +8,43 @@ namespace Unity.UIWidgets.flow {
         Offset _offset = Offset.zero;
 
         public Offset offset {
-            set { this._offset = value ?? Offset.zero; }
+            set { _offset = value ?? Offset.zero; }
         }
 
         Size _size;
 
         public Size size {
-            set { this._size = value; }
+            set { _size = value; }
         }
 
         Texture _texture;
 
         public Texture texture {
-            set { this._texture = value; }
+            set { _texture = value; }
         }
 
         bool _freeze = false;
 
         public bool freeze {
-            set { this._freeze = value; }
+            set { _freeze = value; }
         }
 
         public override void preroll(PrerollContext context, Matrix3 matrix) {
-            this.paintBounds = Rect.fromLTWH(
-                this._offset.dx, this._offset.dy, this._size.width, this._size.height);
+            paintBounds = Rect.fromLTWH(
+                _offset.dx, _offset.dy, _size.width, _size.height);
         }
 
         public override void paint(PaintContext context) {
-            D.assert(this.needsPainting);
+            D.assert(needsPainting);
 
-            if (this._texture == null) {
+            if (_texture == null) {
                 return;
             }
 
-            var image = new Image(this._texture, noDispose: true);
+            var image = new Image(_texture, noDispose: true);
 
             var canvas = context.canvas;
-            canvas.drawImageRect(image, this.paintBounds, new Paint());
+            canvas.drawImageRect(image, paintBounds, new Paint());
         }
     }
 }

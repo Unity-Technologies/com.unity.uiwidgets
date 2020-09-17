@@ -20,7 +20,7 @@ namespace Unity.UIWidgets.ui {
 
         public ImageCodec(Image image) {
             D.assert(image != null);
-            this._image = image;
+            _image = image;
         }
 
         public int frameCount {
@@ -32,18 +32,18 @@ namespace Unity.UIWidgets.ui {
         }
 
         public FrameInfo getNextFrame() {
-            D.assert(this._image != null);
+            D.assert(_image != null);
 
             return new FrameInfo {
                 duration = TimeSpan.Zero,
-                image = this._image
+                image = _image
             };
         }
 
         public void Dispose() {
-            if (this._image != null) {
-                this._image.Dispose();
-                this._image = null;
+            if (_image != null) {
+                _image.Dispose();
+                _image = null;
             }
         }
     }

@@ -9,11 +9,11 @@ namespace Unity.UIWidgets.ui {
         }
 
         public bool isRect {
-            get { return this._shapeHint == uiPathShapeHint.Rect; }
+            get { return _shapeHint == uiPathShapeHint.Rect; }
         }
 
         public bool isCircle {
-            get { return this._shapeHint == uiPathShapeHint.Circle; }
+            get { return _shapeHint == uiPathShapeHint.Circle; }
         }
     }
 }

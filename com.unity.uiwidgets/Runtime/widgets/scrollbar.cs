@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.widgets {
             this.radius = radius;
             this.minLength = minLength;
             this.minOverscrollLength = minOverscrollLength;
-            fadeoutOpacityAnimation.addListener(this.notifyListeners);
+            fadeoutOpacityAnimation.addListener(notifyListeners);
         }
 
         const float _kMinThumbExtent = 18.0f;
@@ -48,52 +48,52 @@ namespace Unity.UIWidgets.widgets {
         AxisDirection? _lastAxisDirection;
 
         public void update(ScrollMetrics metrics, AxisDirection axisDirection) {
-            this._lastMetrics = metrics;
-            this._lastAxisDirection = axisDirection;
-            this.notifyListeners();
+            _lastMetrics = metrics;
+            _lastAxisDirection = axisDirection;
+            notifyListeners();
         }
 
         Paint _paint {
             get {
                 var paint = new Paint();
-                paint.color = this.color.withOpacity(this.color.opacity * this.fadeoutOpacityAnimation.value);
+                paint.color = color.withOpacity(color.opacity * fadeoutOpacityAnimation.value);
                 return paint;
             }
         }
 
         float _getThumbX(Size size) {
-            D.assert(this.textDirection != null);
-            switch (this.textDirection) {
+            D.assert(textDirection != null);
+            switch (textDirection) {
                 case TextDirection.rtl:
-                    return this.crossAxisMargin;
+                    return crossAxisMargin;
                 case TextDirection.ltr:
-                    return size.width - this.thickness - this.crossAxisMargin;
+                    return size.width - thickness - crossAxisMargin;
             }
 
             return 0;
         }
 
         void _paintVerticalThumb(Canvas canvas, Size size, float thumbOffset, float thumbExtent) {
-            Offset thumbOrigin = new Offset(this._getThumbX(size), thumbOffset);
-            Size thumbSize = new Size(this.thickness, thumbExtent);
+            Offset thumbOrigin = new Offset(_getThumbX(size), thumbOffset);
+            Size thumbSize = new Size(thickness, thumbExtent);
             Rect thumbRect = thumbOrigin & thumbSize;
-            if (this.radius == null) {
-                canvas.drawRect(thumbRect, this._paint);
+            if (radius == null) {
+                canvas.drawRect(thumbRect, _paint);
             }
             else {
-                canvas.drawRRect(RRect.fromRectAndRadius(thumbRect, this.radius), this._paint);
+                canvas.drawRRect(RRect.fromRectAndRadius(thumbRect, radius), _paint);
             }
         }
 
         void _paintHorizontalThumb(Canvas canvas, Size size, float thumbOffset, float thumbExtent) {
-            Offset thumbOrigin = new Offset(thumbOffset, size.height - this.thickness);
-            Size thumbSize = new Size(thumbExtent, this.thickness);
+            Offset thumbOrigin = new Offset(thumbOffset, size.height - thickness);
+            Size thumbSize = new Size(thumbExtent, thickness);
             Rect thumbRect = thumbOrigin & thumbSize;
-            if (this.radius == null) {
-                canvas.drawRect(thumbRect, this._paint);
+            if (radius == null) {
+                canvas.drawRect(thumbRect, _paint);
             }
             else {
-                canvas.drawRRect(RRect.fromRectAndRadius(thumbRect, this.radius), this._paint);
+                canvas.drawRRect(RRect.fromRectAndRadius(thumbRect, radius), _paint);
             }
         }
 
@@ -108,66 +108,66 @@ namespace Unity.UIWidgets.widgets {
             Size size,
             painterDelegate painter
         ) {
-            float thumbExtent = Mathf.Min(viewport, this.minOverscrollLength);
+            float thumbExtent = Mathf.Min(viewport, minOverscrollLength);
 
             if (before + inside + after > 0.0) {
                 float fractionVisible = inside / (before + inside + after);
                 thumbExtent = Mathf.Max(
                     thumbExtent,
-                    viewport * fractionVisible - 2 * this.mainAxisMargin
+                    viewport * fractionVisible - 2 * mainAxisMargin
                 );
 
                 if (before != 0.0 && after != 0.0) {
                     thumbExtent = Mathf.Max(
-                        this.minLength,
+                        minLength,
                         thumbExtent
                     );
                 }
                 else {
                     thumbExtent = Mathf.Max(
                         thumbExtent,
-                        this.minLength * (((inside / viewport) - 0.8f) / 0.2f)
+                        minLength * (((inside / viewport) - 0.8f) / 0.2f)
                     );
                 }
 
                 float fractionPast = before / (before + after);
                 float thumbOffset = (before + after > 0.0)
-                    ? fractionPast * (viewport - thumbExtent - 2 * this.mainAxisMargin) + this.mainAxisMargin
-                    : this.mainAxisMargin;
+                    ? fractionPast * (viewport - thumbExtent - 2 * mainAxisMargin) + mainAxisMargin
+                    : mainAxisMargin;
 
                 painter(canvas, size, thumbOffset, thumbExtent);
             }
         }
 
         public override void dispose() {
-            this.fadeoutOpacityAnimation.removeListener(this.notifyListeners);
+            fadeoutOpacityAnimation.removeListener(notifyListeners);
             base.dispose();
         }
 
 
         public void paint(Canvas canvas, Size size) {
-            if (this._lastAxisDirection == null
-                || this._lastMetrics == null
-                || this.fadeoutOpacityAnimation.value == 0.0) {
+            if (_lastAxisDirection == null
+                || _lastMetrics == null
+                || fadeoutOpacityAnimation.value == 0.0) {
                 return;
             }
 
-            switch (this._lastAxisDirection) {
+            switch (_lastAxisDirection) {
                 case AxisDirection.down:
-                    this._paintThumb(this._lastMetrics.extentBefore(), this._lastMetrics.extentInside(),
-                        this._lastMetrics.extentAfter(), size.height, canvas, size, this._paintVerticalThumb);
+                    _paintThumb(_lastMetrics.extentBefore(), _lastMetrics.extentInside(),
+                        _lastMetrics.extentAfter(), size.height, canvas, size, _paintVerticalThumb);
                     break;
                 case AxisDirection.up:
-                    this._paintThumb(this._lastMetrics.extentAfter(), this._lastMetrics.extentInside(),
-                        this._lastMetrics.extentBefore(), size.height, canvas, size, this._paintVerticalThumb);
+                    _paintThumb(_lastMetrics.extentAfter(), _lastMetrics.extentInside(),
+                        _lastMetrics.extentBefore(), size.height, canvas, size, _paintVerticalThumb);
                     break;
                 case AxisDirection.right:
-                    this._paintThumb(this._lastMetrics.extentBefore(), this._lastMetrics.extentInside(),
-                        this._lastMetrics.extentAfter(), size.width, canvas, size, this._paintHorizontalThumb);
+                    _paintThumb(_lastMetrics.extentBefore(), _lastMetrics.extentInside(),
+                        _lastMetrics.extentAfter(), size.width, canvas, size, _paintHorizontalThumb);
                     break;
                 case AxisDirection.left:
-                    this._paintThumb(this._lastMetrics.extentAfter(), this._lastMetrics.extentInside(),
-                        this._lastMetrics.extentBefore(), size.width, canvas, size, this._paintHorizontalThumb);
+                    _paintThumb(_lastMetrics.extentAfter(), _lastMetrics.extentInside(),
+                        _lastMetrics.extentBefore(), size.width, canvas, size, _paintHorizontalThumb);
                     break;
             }
         }
@@ -178,14 +178,14 @@ namespace Unity.UIWidgets.widgets {
 
         public bool shouldRepaint(CustomPainter oldRaw) {
             if (oldRaw is ScrollbarPainter old) {
-                return this.color != old.color
-                       || this.textDirection != old.textDirection
-                       || this.thickness != old.thickness
-                       || this.fadeoutOpacityAnimation != old.fadeoutOpacityAnimation
-                       || this.mainAxisMargin != old.mainAxisMargin
-                       || this.crossAxisMargin != old.crossAxisMargin
-                       || this.radius != old.radius
-                       || this.minLength != old.minLength;
+                return color != old.color
+                       || textDirection != old.textDirection
+                       || thickness != old.thickness
+                       || fadeoutOpacityAnimation != old.fadeoutOpacityAnimation
+                       || mainAxisMargin != old.mainAxisMargin
+                       || crossAxisMargin != old.crossAxisMargin
+                       || radius != old.radius
+                       || minLength != old.minLength;
             }
 
             return false;

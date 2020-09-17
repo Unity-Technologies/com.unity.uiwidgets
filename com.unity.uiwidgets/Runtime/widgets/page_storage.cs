@@ -21,11 +21,11 @@ namespace Unity.UIWidgets.widgets {
         public readonly List<PageStorageKey> keys;
 
         public bool isNotEmpty {
-            get { return this.keys.isNotEmpty(); }
+            get { return keys.isNotEmpty(); }
         }
 
         public override string ToString() {
-            return $"StorageEntryIdentifier({string.Join(":", this.keys.Select(x => x.ToString()).ToArray())})";
+            return $"StorageEntryIdentifier({string.Join(":", keys.Select(x => x.ToString()).ToArray())})";
         }
 
         public bool Equals(_StorageEntryIdentifier other) {
@@ -37,7 +37,7 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            return this.keys.SequenceEqual(other.keys);
+            return keys.SequenceEqual(other.keys);
         }
 
         public override bool Equals(object obj) {
@@ -49,21 +49,21 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_StorageEntryIdentifier) obj);
+            return Equals((_StorageEntryIdentifier) obj);
         }
 
         public override int GetHashCode() {
-            if (this.keys == null || this.keys.isEmpty()) {
+            if (keys == null || keys.isEmpty()) {
                 return 0;
             }
 
-            var hashCode = this.keys[0].GetHashCode();
-            for (var i = 1; i < this.keys.Count; i++) {
-                hashCode = (hashCode * 397) ^ this.keys[i].GetHashCode();
+            var hashCode = keys[0].GetHashCode();
+            for (var i = 1; i < keys.Count; i++) {
+                hashCode = (hashCode * 397) ^ keys[i].GetHashCode();
             }
 
             return hashCode;
@@ -99,35 +99,35 @@ namespace Unity.UIWidgets.widgets {
         }
 
         _StorageEntryIdentifier _computeIdentifier(BuildContext context) {
-            return new _StorageEntryIdentifier(this._allKeys(context));
+            return new _StorageEntryIdentifier(_allKeys(context));
         }
 
         Dictionary<object, object> _storage;
 
         public void writeState(BuildContext context, object data, object identifier = null) {
-            this._storage = this._storage ?? new Dictionary<object, object>();
+            _storage = _storage ?? new Dictionary<object, object>();
             if (identifier != null) {
-                this._storage[identifier] = data;
+                _storage[identifier] = data;
             }
             else {
-                _StorageEntryIdentifier contextIdentifier = this._computeIdentifier(context);
+                _StorageEntryIdentifier contextIdentifier = _computeIdentifier(context);
                 if (contextIdentifier.isNotEmpty) {
-                    this._storage[contextIdentifier] = data;
+                    _storage[contextIdentifier] = data;
                 }
             }
         }
 
         public object readState(BuildContext context, object identifier = null) {
-            if (this._storage == null) {
+            if (_storage == null) {
                 return null;
             }
 
             if (identifier != null) {
-                return this._storage.getOrDefault(identifier);
+                return _storage.getOrDefault(identifier);
             }
 
-            _StorageEntryIdentifier contextIdentifier = this._computeIdentifier(context);
-            return contextIdentifier.isNotEmpty ? this._storage.getOrDefault(contextIdentifier) : null;
+            _StorageEntryIdentifier contextIdentifier = _computeIdentifier(context);
+            return contextIdentifier.isNotEmpty ? _storage.getOrDefault(contextIdentifier) : null;
         }
     }
 
@@ -153,7 +153,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            return this.child;
+            return child;
         }
     }
 }

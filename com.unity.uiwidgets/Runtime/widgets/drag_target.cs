@@ -101,7 +101,7 @@ namespace Unity.UIWidgets.widgets {
 
 
         public virtual GestureRecognizer createRecognizer(GestureMultiDragStartCallback onStart) {
-            switch (this.affinity) {
+            switch (affinity) {
                 case Axis.horizontal: {
                     return new HorizontalMultiDragGestureRecognizer(this) {onStart = onStart};
                 }
@@ -164,11 +164,11 @@ namespace Unity.UIWidgets.widgets {
     public class _DraggableState<T> : State<Draggable<T>> {
         public override void initState() {
             base.initState();
-            this._recognizer = this.widget.createRecognizer(this._startDrag);
+            _recognizer = widget.createRecognizer(_startDrag);
         }
 
         public override void dispose() {
-            this._disposeRecognizerIfInactive();
+            _disposeRecognizerIfInactive();
             base.dispose();
         }
 
@@ -176,36 +176,36 @@ namespace Unity.UIWidgets.widgets {
         int _activeCount;
 
         void _disposeRecognizerIfInactive() {
-            if (this._activeCount > 0) {
+            if (_activeCount > 0) {
                 return;
             }
 
-            this._recognizer.dispose();
-            this._recognizer = null;
+            _recognizer.dispose();
+            _recognizer = null;
         }
 
 
         void _routePointer(PointerEvent pEvent) {
-            if (this.widget.maxSimultaneousDrags != null &&
-                this._activeCount >= this.widget.maxSimultaneousDrags) {
+            if (widget.maxSimultaneousDrags != null &&
+                _activeCount >= widget.maxSimultaneousDrags) {
                 return;
             }
 
             if (pEvent is PointerDownEvent) {
-                this._recognizer.addPointer((PointerDownEvent) pEvent);
+                _recognizer.addPointer((PointerDownEvent) pEvent);
             }
         }
 
         _DragAvatar<T> _startDrag(Offset position) {
-            if (this.widget.maxSimultaneousDrags != null &&
-                this._activeCount >= this.widget.maxSimultaneousDrags) {
+            if (widget.maxSimultaneousDrags != null &&
+                _activeCount >= widget.maxSimultaneousDrags) {
                 return null;
             }
 
             var dragStartPoint = Offset.zero;
-            switch (this.widget.dragAnchor) {
+            switch (widget.dragAnchor) {
                 case DragAnchor.child:
-                    RenderBox renderObject = this.context.findRenderObject() as RenderBox;
+                    RenderBox renderObject = context.findRenderObject() as RenderBox;
                     dragStartPoint = renderObject.globalToLocal(position);
                     break;
                 case DragAnchor.pointer:
@@ -213,64 +213,64 @@ namespace Unity.UIWidgets.widgets {
                     break;
             }
 
-            this.setState(() => { this._activeCount += 1; });
+            setState(() => { _activeCount += 1; });
 
             _DragAvatar<T> avatar = new _DragAvatar<T>(
-                overlayState: Overlay.of(this.context, debugRequiredFor: this.widget),
-                data: this.widget.data,
-                axis: this.widget.axis,
+                overlayState: Overlay.of(context, debugRequiredFor: widget),
+                data: widget.data,
+                axis: widget.axis,
                 initialPosition: position,
                 dragStartPoint: dragStartPoint,
-                feedback: this.widget.feedback,
-                feedbackOffset: this.widget.feedbackOffset,
+                feedback: widget.feedback,
+                feedbackOffset: widget.feedbackOffset,
                 onDragEnd: (Velocity velocity, Offset offset, bool wasAccepted) => {
-                    if (this.mounted) {
-                        this.setState(() => { this._activeCount -= 1; });
+                    if (mounted) {
+                        setState(() => { _activeCount -= 1; });
                     }
                     else {
-                        this._activeCount -= 1;
-                        this._disposeRecognizerIfInactive();
+                        _activeCount -= 1;
+                        _disposeRecognizerIfInactive();
                     }
 
-                    if (this.mounted && this.widget.onDragEnd != null) {
-                        this.widget.onDragEnd(new DraggableDetails(
+                    if (mounted && widget.onDragEnd != null) {
+                        widget.onDragEnd(new DraggableDetails(
                             wasAccepted: wasAccepted,
                             velocity: velocity,
                             offset: offset
                         ));
                     }
 
-                    if (wasAccepted && this.widget.onDragCompleted != null) {
-                        this.widget.onDragCompleted();
+                    if (wasAccepted && widget.onDragCompleted != null) {
+                        widget.onDragCompleted();
                     }
 
-                    if (!wasAccepted && this.widget.onDraggableCanceled != null) {
-                        this.widget.onDraggableCanceled(velocity, offset);
+                    if (!wasAccepted && widget.onDraggableCanceled != null) {
+                        widget.onDraggableCanceled(velocity, offset);
                     }
                 }
             );
-            if (this.widget.onDragStarted != null) {
-                this.widget.onDragStarted();
+            if (widget.onDragStarted != null) {
+                widget.onDragStarted();
             }
 
             return avatar;
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(Overlay.of(context, debugRequiredFor: this.widget) != null);
-            bool canDrag = this.widget.maxSimultaneousDrags == null ||
-                           this._activeCount < this.widget.maxSimultaneousDrags;
+            D.assert(Overlay.of(context, debugRequiredFor: widget) != null);
+            bool canDrag = widget.maxSimultaneousDrags == null ||
+                           _activeCount < widget.maxSimultaneousDrags;
 
-            bool showChild = this._activeCount == 0 || this.widget.childWhenDragging == null;
+            bool showChild = _activeCount == 0 || widget.childWhenDragging == null;
             if (canDrag) {
                 return new Listener(
-                    onPointerDown: this._routePointer,
-                    child: showChild ? this.widget.child : this.widget.childWhenDragging
+                    onPointerDown: _routePointer,
+                    child: showChild ? widget.child : widget.childWhenDragging
                 );
             }
 
             return new Listener(
-                child: showChild ? this.widget.child : this.widget.childWhenDragging);
+                child: showChild ? widget.child : widget.childWhenDragging);
         }
     }
 
@@ -329,52 +329,52 @@ namespace Unity.UIWidgets.widgets {
         readonly List<_DragAvatar<T>> _rejectedAvatars = new List<_DragAvatar<T>>();
 
         public bool didEnter(_DragAvatar<T> avatar) {
-            D.assert(!this._candidateAvatars.Contains(avatar));
-            D.assert(!this._rejectedAvatars.Contains(avatar));
+            D.assert(!_candidateAvatars.Contains(avatar));
+            D.assert(!_rejectedAvatars.Contains(avatar));
 
-            if (avatar.data is T && (this.widget.onWillAccept == null || this.widget.onWillAccept(avatar.data))) {
-                this.setState(() => { this._candidateAvatars.Add(avatar); });
+            if (avatar.data is T && (widget.onWillAccept == null || widget.onWillAccept(avatar.data))) {
+                setState(() => { _candidateAvatars.Add(avatar); });
                 return true;
             }
 
-            this._rejectedAvatars.Add(avatar);
+            _rejectedAvatars.Add(avatar);
             return false;
         }
 
         public void didLeave(_DragAvatar<T> avatar) {
-            D.assert(this._candidateAvatars.Contains(avatar) || this._rejectedAvatars.Contains(avatar));
-            if (!this.mounted) {
+            D.assert(_candidateAvatars.Contains(avatar) || _rejectedAvatars.Contains(avatar));
+            if (!mounted) {
                 return;
             }
 
-            this.setState(() => {
-                this._candidateAvatars.Remove(avatar);
-                this._rejectedAvatars.Remove(avatar);
+            setState(() => {
+                _candidateAvatars.Remove(avatar);
+                _rejectedAvatars.Remove(avatar);
             });
-            if (this.widget.onLeave != null) {
-                this.widget.onLeave(avatar.data);
+            if (widget.onLeave != null) {
+                widget.onLeave(avatar.data);
             }
         }
 
         public void didDrop(_DragAvatar<T> avatar) {
-            D.assert(this._candidateAvatars.Contains(avatar));
-            if (!this.mounted) {
+            D.assert(_candidateAvatars.Contains(avatar));
+            if (!mounted) {
                 return;
             }
 
-            this.setState(() => { this._candidateAvatars.Remove(avatar); });
-            if (this.widget.onAccept != null) {
-                this.widget.onAccept(avatar.data);
+            setState(() => { _candidateAvatars.Remove(avatar); });
+            if (widget.onAccept != null) {
+                widget.onAccept(avatar.data);
             }
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(this.widget.builder != null);
+            D.assert(widget.builder != null);
             return new MetaData(
                 metaData: this,
                 behavior: HitTestBehavior.translucent,
-                child: this.widget.builder(context, _DragUtils._mapAvatarsToData(this._candidateAvatars),
-                    _DragUtils._mapAvatarsToData(this._rejectedAvatars)));
+                child: widget.builder(context, _DragUtils._mapAvatarsToData(_candidateAvatars),
+                    _DragUtils._mapAvatarsToData(_rejectedAvatars)));
         }
     }
 
@@ -419,11 +419,11 @@ namespace Unity.UIWidgets.widgets {
             this.feedbackOffset = feedbackOffset;
             this.onDragEnd = onDragEnd;
 
-            this._entry = new OverlayEntry(this._build);
+            _entry = new OverlayEntry(_build);
 
-            this.overlayState.insert(this._entry);
-            this._position = initialPosition;
-            this.updateDrag(initialPosition);
+            this.overlayState.insert(_entry);
+            _position = initialPosition;
+            updateDrag(initialPosition);
         }
 
         public readonly T data;
@@ -451,34 +451,34 @@ namespace Unity.UIWidgets.widgets {
         OverlayEntry _entry;
 
         public void update(DragUpdateDetails details) {
-            this._position += this._restrictAxis(details.delta);
-            this.updateDrag(this._position);
+            _position += _restrictAxis(details.delta);
+            updateDrag(_position);
         }
 
         public void end(DragEndDetails details) {
-            this.finishDrag(_DragEndKind.dropped, this._restrictVelocityAxis(details.velocity));
+            finishDrag(_DragEndKind.dropped, _restrictVelocityAxis(details.velocity));
         }
 
         public void cancel() {
-            this.finishDrag(_DragEndKind.canceled);
+            finishDrag(_DragEndKind.canceled);
         }
 
         void updateDrag(Offset globalPosition) {
-            this._lastOffset = globalPosition - this.dragStartPoint;
-            this._entry.markNeedsBuild();
+            _lastOffset = globalPosition - dragStartPoint;
+            _entry.markNeedsBuild();
 
             HitTestResult result = new HitTestResult();
-            WidgetsBinding.instance.hitTest(result, globalPosition + this.feedbackOffset);
+            WidgetsBinding.instance.hitTest(result, globalPosition + feedbackOffset);
 
-            List<_DragTargetState<T>> targets = this._getDragTargets(result.path);
+            List<_DragTargetState<T>> targets = _getDragTargets(result.path);
 
             bool listsMatch = false;
-            if (targets.Count >= this._enteredTargets.Count && this._enteredTargets.isNotEmpty()) {
+            if (targets.Count >= _enteredTargets.Count && _enteredTargets.isNotEmpty()) {
                 listsMatch = true;
                 List<_DragTargetState<T>>.Enumerator iterator = targets.GetEnumerator();
-                for (int i = 0; i < this._enteredTargets.Count; i++) {
+                for (int i = 0; i < _enteredTargets.Count; i++) {
                     iterator.MoveNext();
-                    if (iterator.Current != this._enteredTargets[i]) {
+                    if (iterator.Current != _enteredTargets[i]) {
                         listsMatch = false;
                         break;
                     }
@@ -489,18 +489,18 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
 
-            this._leaveAllEntered();
+            _leaveAllEntered();
 
             _DragTargetState<T> newTarget = null;
             foreach (var target in targets) {
-                this._enteredTargets.Add(target);
+                _enteredTargets.Add(target);
                 if (target.didEnter(this)) {
                     newTarget = target;
                     break;
                 }
             }
 
-            this._activeTarget = newTarget;
+            _activeTarget = newTarget;
         }
 
         List<_DragTargetState<T>> _getDragTargets(IList<HitTestEntry> path) {
@@ -519,58 +519,58 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _leaveAllEntered() {
-            for (int i = 0; i < this._enteredTargets.Count; i++) {
-                this._enteredTargets[i].didLeave(this);
+            for (int i = 0; i < _enteredTargets.Count; i++) {
+                _enteredTargets[i].didLeave(this);
             }
 
-            this._enteredTargets.Clear();
+            _enteredTargets.Clear();
         }
 
         void finishDrag(_DragEndKind endKind, Velocity velocity = null) {
             bool wasAccepted = false;
-            if (endKind == _DragEndKind.dropped && this._activeTarget != null) {
-                this._activeTarget.didDrop(this);
+            if (endKind == _DragEndKind.dropped && _activeTarget != null) {
+                _activeTarget.didDrop(this);
                 wasAccepted = true;
-                this._enteredTargets.Remove(this._activeTarget);
+                _enteredTargets.Remove(_activeTarget);
             }
 
-            this._leaveAllEntered();
-            this._activeTarget = null;
-            this._entry.remove();
-            this._entry = null;
+            _leaveAllEntered();
+            _activeTarget = null;
+            _entry.remove();
+            _entry = null;
 
-            if (this.onDragEnd != null) {
-                this.onDragEnd(velocity == null ? Velocity.zero : velocity, this._lastOffset, wasAccepted);
+            if (onDragEnd != null) {
+                onDragEnd(velocity == null ? Velocity.zero : velocity, _lastOffset, wasAccepted);
             }
         }
 
         public Widget _build(BuildContext context) {
-            RenderBox box = (RenderBox) this.overlayState.context.findRenderObject();
+            RenderBox box = (RenderBox) overlayState.context.findRenderObject();
             Offset overlayTopLeft = box.localToGlobal(Offset.zero);
             return new Positioned(
-                left: this._lastOffset.dx - overlayTopLeft.dx,
-                top: this._lastOffset.dy - overlayTopLeft.dy,
+                left: _lastOffset.dx - overlayTopLeft.dx,
+                top: _lastOffset.dy - overlayTopLeft.dy,
                 child: new IgnorePointer(
-                    child: this.feedback
+                    child: feedback
                 )
             );
         }
 
         Velocity _restrictVelocityAxis(Velocity velocity) {
-            if (this.axis == null) {
+            if (axis == null) {
                 return velocity;
             }
 
             return new Velocity(
-                this._restrictAxis(velocity.pixelsPerSecond));
+                _restrictAxis(velocity.pixelsPerSecond));
         }
 
         Offset _restrictAxis(Offset offset) {
-            if (this.axis == null) {
+            if (axis == null) {
                 return offset;
             }
 
-            if (this.axis == Axis.horizontal) {
+            if (axis == Axis.horizontal) {
                 return new Offset(offset.dx, 0.0f);
             }
 

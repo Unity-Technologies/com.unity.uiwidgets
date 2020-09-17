@@ -114,14 +114,14 @@ namespace RSG {
         /// Resolve the returned promise once the time has elapsed
         /// </summary>
         public IPromise WaitFor(float seconds) {
-            return this.WaitUntil(t => t.elapsedTime >= seconds);
+            return WaitUntil(t => t.elapsedTime >= seconds);
         }
 
         /// <summary>
         /// Resolve the returned promise once the predicate evaluates to false
         /// </summary>
         public IPromise WaitWhile(Func<TimeData, bool> predicate) {
-            return this.WaitUntil(t => !predicate(t));
+            return WaitUntil(t => !predicate(t));
         }
 
         /// <summary>
@@ -131,33 +131,33 @@ namespace RSG {
             var promise = new Promise();
 
             var wait = new PredicateWait() {
-                timeStarted = this.curTime,
+                timeStarted = curTime,
                 pendingPromise = promise,
                 timeData = new TimeData(),
                 predicate = predicate,
-                frameStarted = this.curFrame
+                frameStarted = curFrame
             };
 
-            this.waiting.AddLast(wait);
+            waiting.AddLast(wait);
 
             return promise;
         }
 
         public bool Cancel(IPromise promise) {
-            var node = this.FindInWaiting(promise);
+            var node = FindInWaiting(promise);
 
             if (node == null) {
                 return false;
             }
 
             node.Value.pendingPromise.Reject(new PromiseCancelledException("Promise was cancelled by user."));
-            this.waiting.Remove(node);
+            waiting.Remove(node);
 
             return true;
         }
 
         LinkedListNode<PredicateWait> FindInWaiting(IPromise promise) {
-            for (var node = this.waiting.First; node != null; node = node.Next) {
+            for (var node = waiting.First; node != null; node = node.Next) {
                 if (node.Value.pendingPromise.Id.Equals(promise.Id)) {
                     return node;
                 }
@@ -170,17 +170,17 @@ namespace RSG {
         /// Update all pending promises. Must be called for the promises to progress and resolve at all.
         /// </summary>
         public void Update(float deltaTime) {
-            this.curTime += deltaTime;
-            this.curFrame += 1;
+            curTime += deltaTime;
+            curFrame += 1;
 
-            var node = this.waiting.First;
+            var node = waiting.First;
             while (node != null) {
                 var wait = node.Value;
 
-                var newElapsedTime = this.curTime - wait.timeStarted;
+                var newElapsedTime = curTime - wait.timeStarted;
                 wait.timeData.deltaTime = newElapsedTime - wait.timeData.elapsedTime;
                 wait.timeData.elapsedTime = newElapsedTime;
-                var newElapsedUpdates = this.curFrame - wait.frameStarted;
+                var newElapsedUpdates = curFrame - wait.frameStarted;
                 wait.timeData.elapsedUpdates = newElapsedUpdates;
 
                 bool result;
@@ -190,14 +190,14 @@ namespace RSG {
                 catch (Exception ex) {
                     wait.pendingPromise.Reject(ex);
 
-                    node = this.RemoveNode(node);
+                    node = RemoveNode(node);
                     continue;
                 }
 
                 if (result) {
                     wait.pendingPromise.Resolve();
 
-                    node = this.RemoveNode(node);
+                    node = RemoveNode(node);
                 }
                 else {
                     node = node.Next;
@@ -212,7 +212,7 @@ namespace RSG {
             var currentNode = node;
             node = node.Next;
 
-            this.waiting.Remove(currentNode);
+            waiting.Remove(currentNode);
 
             return node;
         }

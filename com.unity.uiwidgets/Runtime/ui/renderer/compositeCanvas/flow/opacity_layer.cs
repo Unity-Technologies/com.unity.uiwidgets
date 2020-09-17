@@ -6,42 +6,42 @@ namespace Unity.UIWidgets.flow {
         Offset _offset;
 
         public Offset offset {
-            set { this._offset = value; }
+            set { _offset = value; }
         }
 
         int _alpha;
 
         public int alpha {
-            set { this._alpha = value; }
+            set { _alpha = value; }
         }
 
         public override void preroll(PrerollContext context, Matrix3 matrix) {
             var childMatrix = new Matrix3(matrix);
-            childMatrix.preTranslate(this._offset.dx,
-                this._offset.dy); // TOOD: pre or post? https://github.com/flutter/engine/pull/7945
+            childMatrix.preTranslate(_offset.dx,
+                _offset.dy); // TOOD: pre or post? https://github.com/flutter/engine/pull/7945
 
             base.preroll(context, childMatrix);
 
-            var bounds = this.paintBounds.shift(this._offset);
-            this.paintBounds = bounds;
+            var bounds = paintBounds.shift(_offset);
+            paintBounds = bounds;
         }
 
         public override void paint(PaintContext context) {
-            D.assert(this.needsPainting);
+            D.assert(needsPainting);
 
             var canvas = context.canvas;
 
             canvas.save();
-            canvas.translate(this._offset.dx, this._offset.dy);
+            canvas.translate(_offset.dx, _offset.dy);
 
             canvas.alignToPixel();
 
-            var saveLayerBounds = this.paintBounds.shift(-this._offset).roundOut();
-            var paint = new Paint {color = Color.fromARGB(this._alpha, 255, 255, 255)};
+            var saveLayerBounds = paintBounds.shift(-_offset).roundOut();
+            var paint = new Paint {color = Color.fromARGB(_alpha, 255, 255, 255)};
             canvas.saveLayer(saveLayerBounds, paint);
 
             try {
-                this.paintChildren(context);
+                paintChildren(context);
             }
             finally {
                 canvas.restore();

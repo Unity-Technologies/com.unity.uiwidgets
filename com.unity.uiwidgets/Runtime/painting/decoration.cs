@@ -8,7 +8,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string toStringShort() {
-            return this.GetType().ToString();
+            return GetType().ToString();
         }
 
         public virtual bool debugAssertIsValid() {

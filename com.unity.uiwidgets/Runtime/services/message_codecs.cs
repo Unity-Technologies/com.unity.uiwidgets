@@ -315,7 +315,7 @@ namespace Unity.UIWidgets.services {
                                     string s = jsonStr.Substring(i + 1, 4);
                                     token.Append((char) int.Parse(
                                         s,
-                                        System.Globalization.NumberStyles.AllowHexSpecifier));
+                                        NumberStyles.AllowHexSpecifier));
                                     i += 4;
                                     break;
                                 }

@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.async2 {
         }
 
         public static void run(ZoneCallback callback) {
-            Timer.create(TimeSpan.Zero, callback);
+            create(TimeSpan.Zero, callback);
         }
 
         public abstract void cancel();

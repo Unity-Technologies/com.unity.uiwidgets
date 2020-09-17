@@ -15,77 +15,77 @@ namespace Unity.UIWidgets.ui {
         public readonly float bottom;
 
         public bool isEmpty {
-            get { return this.left >= this.right || this.top >= this.bottom; }
+            get { return left >= right || top >= bottom; }
         }
 
         public float width {
-            get { return this.right - this.left; }
+            get { return right - left; }
         }
 
         public float height {
-            get { return this.bottom - this.top; }
+            get { return bottom - top; }
         }
 
         public float area {
-            get { return this.width * this.height; }
+            get { return width * height; }
         }
 
         public float margin {
-            get { return this.width + this.height; }
+            get { return width + height; }
         }
 
         public uiOffset topLeft {
-            get { return new uiOffset(this.left, this.top); }
+            get { return new uiOffset(left, top); }
         }
 
         public uiOffset topCenter {
-            get { return new uiOffset(this.left + this.width / 2.0f, this.top); }
+            get { return new uiOffset(left + width / 2.0f, top); }
         }
 
         public uiOffset topRight {
-            get { return new uiOffset(this.right, this.top); }
+            get { return new uiOffset(right, top); }
         }
 
         public uiOffset centerLeft {
-            get { return new uiOffset(this.left, this.top + this.height / 2.0f); }
+            get { return new uiOffset(left, top + height / 2.0f); }
         }
 
         public uiOffset center {
-            get { return new uiOffset(this.left + this.width / 2.0f, this.top + this.height / 2.0f); }
+            get { return new uiOffset(left + width / 2.0f, top + height / 2.0f); }
         }
 
         public uiOffset centerRight {
-            get { return new uiOffset(this.right, this.bottom); }
+            get { return new uiOffset(right, bottom); }
         }
 
         public uiOffset bottomLeft {
-            get { return new uiOffset(this.left, this.bottom); }
+            get { return new uiOffset(left, bottom); }
         }
 
         public uiOffset bottomCenter {
-            get { return new uiOffset(this.left + this.width / 2.0f, this.bottom); }
+            get { return new uiOffset(left + width / 2.0f, bottom); }
         }
 
         public uiOffset bottomRight {
-            get { return new uiOffset(this.right, this.bottom); }
+            get { return new uiOffset(right, bottom); }
         }
 
         public uiRect shift(uiOffset offset) {
-            return uiRectHelper.fromLTRB(this.left + offset.dx, this.top + offset.dy, this.right + offset.dx,
-                this.bottom + offset.dy);
+            return uiRectHelper.fromLTRB(left + offset.dx, top + offset.dy, right + offset.dx,
+                bottom + offset.dy);
         }
 
         public uiRect intersect(uiRect other) {
             return uiRectHelper.fromLTRB(
-                Mathf.Max(this.left, other.left),
-                Mathf.Max(this.top, other.top),
-                Mathf.Min(this.right, other.right),
-                Mathf.Min(this.bottom, other.bottom)
+                Mathf.Max(left, other.left),
+                Mathf.Max(top, other.top),
+                Mathf.Min(right, other.right),
+                Mathf.Min(bottom, other.bottom)
             );
         }
 
         public uiRect expandToInclude(uiRect? other) {
-            if (this.isEmpty) {
+            if (isEmpty) {
                 return other.Value;
             }
 
@@ -94,10 +94,10 @@ namespace Unity.UIWidgets.ui {
             }
 
             return uiRectHelper.fromLTRB(
-                Mathf.Min(this.left, other.Value.left),
-                Mathf.Min(this.top, other.Value.top),
-                Mathf.Max(this.right, other.Value.right),
-                Mathf.Max(this.bottom, other.Value.bottom)
+                Mathf.Min(left, other.Value.left),
+                Mathf.Min(top, other.Value.top),
+                Mathf.Max(right, other.Value.right),
+                Mathf.Max(bottom, other.Value.bottom)
             );
         }
     }

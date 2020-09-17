@@ -30,7 +30,7 @@ namespace Unity.UIWidgets.physics {
         public readonly float damping;
 
         public override string ToString() {
-            return $"{this.GetType()}(mass {this.mass:F1}, stiffness: {this.stiffness:F1}, damping: {this.damping:F1})";
+            return $"{GetType()}(mass {mass:F1}, stiffness: {stiffness:F1}, damping: {damping:F1})";
         }
     }
 
@@ -48,32 +48,32 @@ namespace Unity.UIWidgets.physics {
             float velocity,
             Tolerance tolerance = null
         ) : base(tolerance: tolerance) {
-            this._endPosition = end;
-            this._solution = _SpringSolution.create(spring, start - end, velocity);
+            _endPosition = end;
+            _solution = _SpringSolution.create(spring, start - end, velocity);
         }
 
         protected readonly float _endPosition;
         readonly _SpringSolution _solution;
 
         public SpringType type {
-            get { return this._solution.type; }
+            get { return _solution.type; }
         }
 
         public override float x(float time) {
-            return this._endPosition + this._solution.x(time);
+            return _endPosition + _solution.x(time);
         }
 
         public override float dx(float time) {
-            return this._solution.dx(time);
+            return _solution.dx(time);
         }
 
         public override bool isDone(float time) {
-            return PhysicsUtils.nearZero(this._solution.x(time), this.tolerance.distance) &&
-                   PhysicsUtils.nearZero(this._solution.dx(time), this.tolerance.velocity);
+            return PhysicsUtils.nearZero(_solution.x(time), tolerance.distance) &&
+                   PhysicsUtils.nearZero(_solution.dx(time), tolerance.velocity);
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(end: {this._endPosition}, {this.type}";
+            return $"{GetType()}(end: {_endPosition}, {type}";
         }
     }
 
@@ -88,7 +88,7 @@ namespace Unity.UIWidgets.physics {
         }
 
         public override float x(float time) {
-            return this.isDone(time) ? this._endPosition : base.x(time);
+            return isDone(time) ? _endPosition : base.x(time);
         }
     }
 
@@ -132,20 +132,20 @@ namespace Unity.UIWidgets.physics {
         _CriticalSolution(
             float r, float c1, float c2
         ) {
-            this._r = r;
-            this._c1 = c1;
-            this._c2 = c2;
+            _r = r;
+            _c1 = c1;
+            _c2 = c2;
         }
 
         readonly float _r, _c1, _c2;
 
         public override float x(float time) {
-            return ((this._c1 + this._c2 * time) * Mathf.Pow((float) Math.E, this._r * time));
+            return ((_c1 + _c2 * time) * Mathf.Pow((float) Math.E, _r * time));
         }
 
         public override float dx(float time) {
-            float power = Mathf.Pow((float) Math.E, this._r * time);
-            return (this._r * (this._c1 + this._c2 * time) * power + this._c2 * power);
+            float power = Mathf.Pow((float) Math.E, _r * time);
+            return (_r * (_c1 + _c2 * time) * power + _c2 * power);
         }
 
         public override SpringType type {
@@ -170,22 +170,22 @@ namespace Unity.UIWidgets.physics {
         _OverdampedSolution(
             float r1, float r2, float c1, float c2
         ) {
-            this._r1 = r1;
-            this._r2 = r2;
-            this._c1 = c1;
-            this._c2 = c2;
+            _r1 = r1;
+            _r2 = r2;
+            _c1 = c1;
+            _c2 = c2;
         }
 
         readonly float _r1, _r2, _c1, _c2;
 
         public override float x(float time) {
-            return (this._c1 * Mathf.Pow((float) Math.E, this._r1 * time) +
-                    this._c2 * Mathf.Pow((float) Math.E, this._r2 * time));
+            return (_c1 * Mathf.Pow((float) Math.E, _r1 * time) +
+                    _c2 * Mathf.Pow((float) Math.E, _r2 * time));
         }
 
         public override float dx(float time) {
-            return (this._c1 * this._r1 * Mathf.Pow((float) Math.E, this._r1 * time) +
-                    this._c2 * this._r2 * Mathf.Pow((float) Math.E, this._r2 * time));
+            return (_c1 * _r1 * Mathf.Pow((float) Math.E, _r1 * time) +
+                    _c2 * _r2 * Mathf.Pow((float) Math.E, _r2 * time));
         }
 
         public override SpringType type {
@@ -210,25 +210,25 @@ namespace Unity.UIWidgets.physics {
         _UnderdampedSolution(
             float w, float r, float c1, float c2
         ) {
-            this._w = w;
-            this._r = r;
-            this._c1 = c1;
-            this._c2 = c2;
+            _w = w;
+            _r = r;
+            _c1 = c1;
+            _c2 = c2;
         }
 
         readonly float _w, _r, _c1, _c2;
 
         public override float x(float time) {
-            return (Mathf.Pow((float) Math.E, this._r * time) *
-                    (this._c1 * Mathf.Cos(this._w * time) + this._c2 * Mathf.Sin(this._w * time)));
+            return (Mathf.Pow((float) Math.E, _r * time) *
+                    (_c1 * Mathf.Cos(_w * time) + _c2 * Mathf.Sin(_w * time)));
         }
 
         public override float dx(float time) {
-            float power = Mathf.Pow((float) Math.E, this._r * time);
-            float cosine = Mathf.Cos(this._w * time);
-            float sine = Mathf.Sin(this._w * time);
-            return (power * (this._c2 * this._w * cosine - this._c1 * this._w * sine) +
-                    this._r * power * (this._c2 * sine + this._c1 * cosine));
+            float power = Mathf.Pow((float) Math.E, _r * time);
+            float cosine = Mathf.Cos(_w * time);
+            float sine = Mathf.Sin(_w * time);
+            return (power * (_c2 * _w * cosine - _c1 * _w * sine) +
+                    _r * power * (_c2 * sine + _c1 * cosine));
         }
 
         public override SpringType type {

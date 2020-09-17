@@ -6,15 +6,15 @@ using UnityEngine;
 namespace Unity.UIWidgets.gestures {
     class _Vector {
         internal _Vector(int size) {
-            this._offset = 0;
-            this._length = size;
-            this._elements = CollectionUtils.CreateRepeatedList(0.0f, size);
+            _offset = 0;
+            _length = size;
+            _elements = CollectionUtils.CreateRepeatedList(0.0f, size);
         }
 
         _Vector(List<float> values, int offset, int length) {
-            this._offset = offset;
-            this._length = length;
-            this._elements = values;
+            _offset = offset;
+            _length = length;
+            _elements = values;
         }
 
         internal static _Vector fromVOL(List<float> values, int offset, int length) {
@@ -28,8 +28,8 @@ namespace Unity.UIWidgets.gestures {
         readonly List<float> _elements;
 
         public float this[int i] {
-            get { return this._elements[i + this._offset]; }
-            set { this._elements[i + this._offset] = value; }
+            get { return _elements[i + _offset]; }
+            set { _elements[i + _offset] = value; }
         }
 
         public static float operator *(_Vector a, _Vector b) {
@@ -48,30 +48,30 @@ namespace Unity.UIWidgets.gestures {
 
     class _Matrix {
         internal _Matrix(int rows, int cols) {
-            this._columns = cols;
-            this._elements = CollectionUtils.CreateRepeatedList(0.0f, rows * cols);
+            _columns = cols;
+            _elements = CollectionUtils.CreateRepeatedList(0.0f, rows * cols);
         }
 
         readonly int _columns;
         readonly List<float> _elements;
 
         public float this[int row, int col] {
-            get { return this._elements[row * this._columns + col]; }
-            set { this._elements[row * this._columns + col] = value; }
+            get { return _elements[row * _columns + col]; }
+            set { _elements[row * _columns + col] = value; }
         }
 
         public _Vector getRow(int row) {
             return _Vector.fromVOL(
-                this._elements,
-                row * this._columns,
-                this._columns
+                _elements,
+                row * _columns,
+                _columns
             );
         }
     }
 
     public class PolynomialFit {
         public PolynomialFit(int degree) {
-            this.coefficients = CollectionUtils.CreateRepeatedList(0.0f, degree + 1);
+            coefficients = CollectionUtils.CreateRepeatedList(0.0f, degree + 1);
         }
 
         public readonly List<float> coefficients;
@@ -97,7 +97,7 @@ namespace Unity.UIWidgets.gestures {
 
         /// Fits a polynomial of the given degree to the data points.
         public PolynomialFit solve(int degree) {
-            if (degree > this.x.Count) {
+            if (degree > x.Count) {
                 // Not enough data to fit a curve.
                 return null;
             }
@@ -105,15 +105,15 @@ namespace Unity.UIWidgets.gestures {
             PolynomialFit result = new PolynomialFit(degree);
 
             // Shorthands for the purpose of notation equivalence to original C++ code.
-            int m = this.x.Count;
+            int m = x.Count;
             int n = degree + 1;
 
             // Expand the X vector to a matrix A, pre-multiplied by the weights.
             _Matrix a = new _Matrix(n, m);
             for (int h = 0; h < m; h += 1) {
-                a[0, h] = this.w[h];
+                a[0, h] = w[h];
                 for (int i = 1; i < n; i += 1) {
-                    a[i, h] = a[i - 1, h] * this.x[h];
+                    a[i, h] = a[i - 1, h] * x[h];
                 }
             }
 
@@ -155,7 +155,7 @@ namespace Unity.UIWidgets.gestures {
             // We just work from bottom-right to top-left calculating B's coefficients.
             _Vector wy = new _Vector(m);
             for (int h = 0; h < m; h += 1) {
-                wy[h] = this.y[h] * this.w[h];
+                wy[h] = y[h] * w[h];
             }
 
             for (int i = n - 1; i >= 0; i -= 1) {
@@ -174,7 +174,7 @@ namespace Unity.UIWidgets.gestures {
             // data) where each has been weighted.
             float yMean = 0.0f;
             for (int h = 0; h < m; h += 1) {
-                yMean += this.y[h];
+                yMean += y[h];
             }
 
             yMean /= m;
@@ -183,15 +183,15 @@ namespace Unity.UIWidgets.gestures {
             float sumSquaredTotal = 0.0f;
             for (int h = 0; h < m; h += 1) {
                 float term = 1.0f;
-                float err = this.y[h] - result.coefficients[0];
+                float err = y[h] - result.coefficients[0];
                 for (int i = 1; i < n; i += 1) {
-                    term *= this.x[h];
+                    term *= x[h];
                     err -= term * result.coefficients[i];
                 }
 
-                sumSquaredError += this.w[h] * this.w[h] * err * err;
-                float v = this.y[h] - yMean;
-                sumSquaredTotal += this.w[h] * this.w[h] * v * v;
+                sumSquaredError += w[h] * w[h] * err * err;
+                float v = y[h] - yMean;
+                sumSquaredTotal += w[h] * w[h] * v * v;
             }
 
             result.confidence = sumSquaredTotal <= 0.000001f ? 1.0f : 1.0f - (sumSquaredError / sumSquaredTotal);

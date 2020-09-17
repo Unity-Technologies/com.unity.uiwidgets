@@ -8,11 +8,11 @@ namespace Unity.UIWidgets.Editor {
     public class UIWidgetsPanelEditor : RawImageEditor {
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
-            var pixelRatioProperty = this.serializedObject.FindProperty("devicePixelRatioOverride");
-            var antiAliasingProperty = this.serializedObject.FindProperty("hardwareAntiAliasing");
+            var pixelRatioProperty = serializedObject.FindProperty("devicePixelRatioOverride");
+            var antiAliasingProperty = serializedObject.FindProperty("hardwareAntiAliasing");
             EditorGUILayout.PropertyField(pixelRatioProperty);
             EditorGUILayout.PropertyField(antiAliasingProperty);
-            this.serializedObject.ApplyModifiedProperties();
+            serializedObject.ApplyModifiedProperties();
         }
     }
 }

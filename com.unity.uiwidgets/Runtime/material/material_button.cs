@@ -83,7 +83,7 @@ namespace Unity.UIWidgets.material {
         public readonly Widget child;
 
         public bool enabled {
-            get { return this.onPressed != null; }
+            get { return onPressed != null; }
         }
 
         public readonly EdgeInsets padding;
@@ -105,29 +105,29 @@ namespace Unity.UIWidgets.material {
             ButtonThemeData buttonTheme = ButtonTheme.of(context);
 
             return new RawMaterialButton(
-                onPressed: this.onPressed,
-                onHighlightChanged: this.onHighlightChanged,
+                onPressed: onPressed,
+                onHighlightChanged: onHighlightChanged,
                 fillColor: buttonTheme.getFillColor(this),
                 textStyle: theme.textTheme.button.copyWith(color: buttonTheme.getTextColor(this)),
-                highlightColor: this.highlightColor ?? theme.highlightColor,
-                splashColor: this.splashColor ?? theme.splashColor,
+                highlightColor: highlightColor ?? theme.highlightColor,
+                splashColor: splashColor ?? theme.splashColor,
                 elevation: buttonTheme.getElevation(this),
                 highlightElevation: buttonTheme.getHighlightElevation(this),
                 padding: buttonTheme.getPadding(this),
                 constraints: buttonTheme.getConstraints(this).copyWith(
-                    minWidth: this.minWidth,
-                    minHeight: this.height),
+                    minWidth: minWidth,
+                    minHeight: height),
                 shape: buttonTheme.getShape(this),
-                clipBehavior: this.clipBehavior ?? Clip.none,
+                clipBehavior: clipBehavior ?? Clip.none,
                 animationDuration: buttonTheme.getAnimationDuration(this),
-                child: this.child,
-                materialTapTargetSize: this.materialTapTargetSize ?? theme.materialTapTargetSize);
+                child: child,
+                materialTapTargetSize: materialTapTargetSize ?? theme.materialTapTargetSize);
         }
 
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FlagProperty("enabled", value: this.enabled, ifFalse: "disabled"));
+            properties.add(new FlagProperty("enabled", value: enabled, ifFalse: "disabled"));
         }
     }
 

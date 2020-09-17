@@ -145,7 +145,7 @@ namespace Unity.UIWidgets.async2 {
                         foreach (var value in values) {
                             if (value != null) {
                                 // Ensure errors from cleanUp are uncaught.
-                                Future.sync(() => {
+                                sync(() => {
                                     cleanUp(value);
                                     return FutureOr.nil;
                                 });
@@ -184,7 +184,7 @@ namespace Unity.UIWidgets.async2 {
                         else {
                             if (cleanUp != null && value != null) {
                                 // Ensure errors from cleanUp are uncaught.
-                                Future.sync(() => {
+                                sync(() => {
                                     cleanUp((T) value);
                                     return FutureOr.nil;
                                 });
@@ -204,7 +204,7 @@ namespace Unity.UIWidgets.async2 {
                 }
 
                 if (remaining == 0) {
-                    return Future.value(FutureOr.value(new List<T>()));
+                    return value(FutureOr.value(new List<T>()));
                 }
 
                 values = new List<T>(remaining);

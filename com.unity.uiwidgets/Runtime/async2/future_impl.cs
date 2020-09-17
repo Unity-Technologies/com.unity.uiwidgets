@@ -741,7 +741,7 @@ namespace Unity.UIWidgets.async2 {
 
 
         public override Future timeout(TimeSpan timeLimit, Func<FutureOr> onTimeout = null) {
-            if (_isComplete) return _Future.immediate(this);
+            if (_isComplete) return immediate(this);
 
             _Future result = new _Future();
             Timer timer;

@@ -8,12 +8,12 @@ namespace Unity.UIWidgets.async {
         readonly Queue<Action> _queue = new Queue<Action>();
 
         public void scheduleMicrotask(Action action) {
-            this._queue.Enqueue(action);
+            _queue.Enqueue(action);
         }
 
         public void flushMicrotasks() {
-            while (this._queue.isNotEmpty()) {
-                var action = this._queue.Dequeue();
+            while (_queue.isNotEmpty()) {
+                var action = _queue.Dequeue();
                 try {
                     action();
                 }

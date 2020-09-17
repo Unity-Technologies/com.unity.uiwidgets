@@ -9,19 +9,19 @@
         string _text;
 
         public WordSeparate(string text) {
-            this._text = text;
+            _text = text;
         }
 
         public Range<int> findWordRange(int index) {
-            if (index >= this._text.Length) {
+            if (index >= _text.Length) {
                 return new Range<int>(0, 0);
             }
 
-            var t = classifyChar(this._text, index);
+            var t = classifyChar(_text, index);
             int start = index;
             for (int i = index; i >= 0; --i) {
-                if (!char.IsLowSurrogate(this._text[start])) {
-                    if (classifyChar(this._text, i) != t) {
+                if (!char.IsLowSurrogate(_text[start])) {
+                    if (classifyChar(_text, i) != t) {
                         break;
                     }
 
@@ -30,9 +30,9 @@
             }
 
             int end = index;
-            for (int i = index; i < this._text.Length; ++i) {
-                if (!char.IsLowSurrogate(this._text[i])) {
-                    if (classifyChar(this._text, i) != t) {
+            for (int i = index; i < _text.Length; ++i) {
+                if (!char.IsLowSurrogate(_text[i])) {
+                    if (classifyChar(_text, i) != t) {
                         break;
                     }
 

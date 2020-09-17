@@ -67,12 +67,12 @@ namespace Unity.UIWidgets.material {
         }
 
         public override int GetHashCode() {
-            var hashCode = this.brightness?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.color?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.elevation?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.iconTheme?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.actionsIconTheme?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.textTheme?.GetHashCode() ?? 0;
+            var hashCode = brightness?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ color?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ elevation?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ iconTheme?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ actionsIconTheme?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ textTheme?.GetHashCode() ?? 0;
             return hashCode;
         }
 
@@ -85,11 +85,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((AppBarTheme) obj);
+            return Equals((AppBarTheme) obj);
         }
 
         public static bool operator ==(AppBarTheme left, AppBarTheme right) {
@@ -101,22 +101,22 @@ namespace Unity.UIWidgets.material {
         }
 
         public bool Equals(AppBarTheme other) {
-            return other.brightness == this.brightness
-                   && other.color == this.color
-                   && other.elevation == this.elevation
-                   && other.iconTheme == this.iconTheme
-                   && other.actionsIconTheme == this.actionsIconTheme
-                   && other.textTheme == this.textTheme;
+            return other.brightness == brightness
+                   && other.color == color
+                   && other.elevation == elevation
+                   && other.iconTheme == iconTheme
+                   && other.actionsIconTheme == actionsIconTheme
+                   && other.textTheme == textTheme;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Brightness?>("brightness", this.brightness, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color, defaultValue: null));
-            properties.add(new DiagnosticsProperty<float?>("elevation", this.elevation, defaultValue: null));
-            properties.add(new DiagnosticsProperty<IconThemeData>("iconTheme", this.iconTheme, defaultValue: null));
-            properties.add(new DiagnosticsProperty<IconThemeData>("actionsIconTheme", this.actionsIconTheme, defaultValue: null));
-            properties.add(new DiagnosticsProperty<TextTheme>("textTheme", this.textTheme, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Brightness?>("brightness", brightness, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("color", color, defaultValue: null));
+            properties.add(new DiagnosticsProperty<float?>("elevation", elevation, defaultValue: null));
+            properties.add(new DiagnosticsProperty<IconThemeData>("iconTheme", iconTheme, defaultValue: null));
+            properties.add(new DiagnosticsProperty<IconThemeData>("actionsIconTheme", actionsIconTheme, defaultValue: null));
+            properties.add(new DiagnosticsProperty<TextTheme>("textTheme", textTheme, defaultValue: null));
         }
     }
 }

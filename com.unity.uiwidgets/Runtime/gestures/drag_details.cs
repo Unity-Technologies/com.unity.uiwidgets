@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly Offset globalPosition;
 
         public override string ToString() {
-            return this.GetType() + "(" + this.globalPosition + ")";
+            return GetType() + "(" + globalPosition + ")";
         }
     }
 
@@ -30,7 +30,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly Offset globalPosition;
 
         public override string ToString() {
-            return this.GetType() + "(" + this.globalPosition + ")";
+            return GetType() + "(" + globalPosition + ")";
         }
     }
 
@@ -64,7 +64,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly bool isScroll;
 
         public override string ToString() {
-            return this.GetType() + "(" + this.delta + ")";
+            return GetType() + "(" + delta + ")";
         }
     }
 
@@ -88,7 +88,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly float? primaryVelocity;
 
         public override string ToString() {
-            return this.GetType() + "(" + this.velocity + ")";
+            return GetType() + "(" + velocity + ")";
         }
     }
 }

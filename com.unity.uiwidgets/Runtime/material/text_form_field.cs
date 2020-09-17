@@ -112,7 +112,7 @@ namespace UIWidgets.Runtime.material {
         TextEditingController _controller;
 
         public TextEditingController _effectiveController {
-            get { return this.widget.controller ?? this._controller; }
+            get { return widget.controller ?? _controller; }
         }
 
         public new TextFormField widget {
@@ -121,47 +121,47 @@ namespace UIWidgets.Runtime.material {
 
         public override void initState() {
             base.initState();
-            if (this.widget.controller == null) {
-                this._controller = new TextEditingController(text: this.widget.initialValue);
+            if (widget.controller == null) {
+                _controller = new TextEditingController(text: widget.initialValue);
             }
             else {
-                this.widget.controller.addListener(this._handleControllerChanged);
+                widget.controller.addListener(_handleControllerChanged);
             }
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             TextFormField oldWidget = _oldWidget as TextFormField;
             base.didUpdateWidget(oldWidget);
-            if (this.widget.controller != oldWidget.controller) {
-                oldWidget.controller?.removeListener(this._handleControllerChanged);
-                this.widget.controller?.addListener(this._handleControllerChanged);
+            if (widget.controller != oldWidget.controller) {
+                oldWidget.controller?.removeListener(_handleControllerChanged);
+                widget.controller?.addListener(_handleControllerChanged);
 
-                if (oldWidget.controller != null && this.widget.controller == null) {
-                    this._controller = TextEditingController.fromValue(oldWidget.controller.value);
+                if (oldWidget.controller != null && widget.controller == null) {
+                    _controller = TextEditingController.fromValue(oldWidget.controller.value);
                 }
 
-                if (this.widget.controller != null) {
-                    this.setValue(this.widget.controller.text);
+                if (widget.controller != null) {
+                    setValue(widget.controller.text);
                     if (oldWidget.controller == null) {
-                        this._controller = null;
+                        _controller = null;
                     }
                 }
             }
         }
 
         public override void dispose() {
-            this.widget.controller?.removeListener(this._handleControllerChanged);
+            widget.controller?.removeListener(_handleControllerChanged);
             base.dispose();
         }
 
         public override void reset() {
             base.reset();
-            this.setState(() => { this._effectiveController.text = (string) this.widget.initialValue; });
+            setState(() => { _effectiveController.text = (string) widget.initialValue; });
         }
 
         void _handleControllerChanged() {
-            if (this._effectiveController.text != this.value) {
-                this.didChange(this._effectiveController.text);
+            if (_effectiveController.text != value) {
+                didChange(_effectiveController.text);
             }
         }
     }

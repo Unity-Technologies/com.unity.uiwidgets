@@ -40,7 +40,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly AxisDirection axisDirection;
 
         public Axis axis {
-            get { return AxisUtils.axisDirectionToAxis(this.axisDirection); }
+            get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 
         public readonly Color color;
@@ -55,15 +55,15 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<AxisDirection>("axisDirection", this.axisDirection));
+            properties.add(new EnumProperty<AxisDirection>("axisDirection", axisDirection));
             string showDescription;
-            if (this.showLeading && this.showTrailing) {
+            if (showLeading && showTrailing) {
                 showDescription = "both sides";
             }
-            else if (this.showLeading) {
+            else if (showLeading) {
                 showDescription = "leading side only";
             }
-            else if (this.showTrailing) {
+            else if (showTrailing) {
                 showDescription = "trailing side only";
             }
             else {
@@ -71,7 +71,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             properties.add(new MessageProperty("show", showDescription));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color, showName: false));
+            properties.add(new DiagnosticsProperty<Color>("color", color, showName: false));
         }
     }
 
@@ -82,22 +82,22 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            this._leadingController =
-                new _GlowController(vsync: this, color: this.widget.color, axis: this.widget.axis);
-            this._trailingController =
-                new _GlowController(vsync: this, color: this.widget.color, axis: this.widget.axis);
-            this._leadingAndTrailingListener = ListenableUtils.merge(new List<Listenable>
-                {this._leadingController, this._trailingController});
+            _leadingController =
+                new _GlowController(vsync: this, color: widget.color, axis: widget.axis);
+            _trailingController =
+                new _GlowController(vsync: this, color: widget.color, axis: widget.axis);
+            _leadingAndTrailingListener = ListenableUtils.merge(new List<Listenable>
+                {_leadingController, _trailingController});
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             base.didUpdateWidget(_oldWidget);
             GlowingOverscrollIndicator oldWidget = _oldWidget as GlowingOverscrollIndicator;
-            if (oldWidget.color != this.widget.color || oldWidget.axis != this.widget.axis) {
-                this._leadingController.color = this.widget.color;
-                this._leadingController.axis = this.widget.axis;
-                this._trailingController.color = this.widget.color;
-                this._trailingController.axis = this.widget.axis;
+            if (oldWidget.color != widget.color || oldWidget.axis != widget.axis) {
+                _leadingController.color = widget.color;
+                _leadingController.axis = widget.axis;
+                _trailingController.color = widget.color;
+                _trailingController.axis = widget.axis;
             }
         }
 
@@ -105,7 +105,7 @@ namespace Unity.UIWidgets.widgets {
         Dictionary<bool, bool> _accepted = new Dictionary<bool, bool> {{false, true}, {true, true}};
 
         bool _handleScrollNotification(ScrollNotification notification) {
-            if (!this.widget.notificationPredicate(notification)) {
+            if (!widget.notificationPredicate(notification)) {
                 return false;
             }
 
@@ -113,26 +113,26 @@ namespace Unity.UIWidgets.widgets {
                 _GlowController controller;
                 OverscrollNotification _notification = notification as OverscrollNotification;
                 if (_notification.overscroll < 0.0f) {
-                    controller = this._leadingController;
+                    controller = _leadingController;
                 }
                 else if (_notification.overscroll > 0.0f) {
-                    controller = this._trailingController;
+                    controller = _trailingController;
                 }
                 else {
                     throw new Exception("overscroll is 0.0f!");
                 }
 
-                bool isLeading = controller == this._leadingController;
-                if (this._lastNotificationType != typeof(OverscrollNotification)) {
+                bool isLeading = controller == _leadingController;
+                if (_lastNotificationType != typeof(OverscrollNotification)) {
                     OverscrollIndicatorNotification confirmationNotification =
                         new OverscrollIndicatorNotification(leading: isLeading);
-                    confirmationNotification.dispatch(this.context);
-                    this._accepted[isLeading] = confirmationNotification._accepted;
+                    confirmationNotification.dispatch(context);
+                    _accepted[isLeading] = confirmationNotification._accepted;
                 }
 
                 D.assert(controller != null);
-                D.assert(_notification.metrics.axis() == this.widget.axis);
-                if (this._accepted[isLeading]) {
+                D.assert(_notification.metrics.axis() == widget.axis);
+                if (_accepted[isLeading]) {
                     if (_notification.velocity != 0.0f) {
                         D.assert(_notification.dragDetails == null);
                         controller.absorbImpact(_notification.velocity.abs());
@@ -162,34 +162,34 @@ namespace Unity.UIWidgets.widgets {
             }
             else if (notification is ScrollEndNotification || notification is ScrollUpdateNotification) {
                 if ((notification as ScrollEndNotification).dragDetails != null) {
-                    this._leadingController.scrollEnd();
-                    this._trailingController.scrollEnd();
+                    _leadingController.scrollEnd();
+                    _trailingController.scrollEnd();
                 }
             }
 
-            this._lastNotificationType = notification.GetType();
+            _lastNotificationType = notification.GetType();
             return false;
         }
 
         public override void dispose() {
-            this._leadingController.dispose();
-            this._trailingController.dispose();
+            _leadingController.dispose();
+            _trailingController.dispose();
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
             return new NotificationListener<ScrollNotification>(
-                onNotification: this._handleScrollNotification,
+                onNotification: _handleScrollNotification,
                 child: new RepaintBoundary(
                     child: new CustomPaint(
                         foregroundPainter: new _GlowingOverscrollIndicatorPainter(
-                            leadingController: this.widget.showLeading ? this._leadingController : null,
-                            trailingController: this.widget.showTrailing ? this._trailingController : null,
-                            axisDirection: this.widget.axisDirection,
-                            repaint: this._leadingAndTrailingListener
+                            leadingController: widget.showLeading ? _leadingController : null,
+                            trailingController: widget.showTrailing ? _trailingController : null,
+                            axisDirection: widget.axisDirection,
+                            repaint: _leadingAndTrailingListener
                         ),
                         child: new RepaintBoundary(
-                            child: this.widget.child
+                            child: widget.child
                         )
                     )
                 )
@@ -213,18 +213,18 @@ namespace Unity.UIWidgets.widgets {
         ) {
             D.assert(vsync != null);
             D.assert(color != null);
-            this._color = color;
-            this._axis = axis;
-            this._glowController = new AnimationController(vsync: vsync);
-            this._glowController.addStatusListener(this._changePhase);
+            _color = color;
+            _axis = axis;
+            _glowController = new AnimationController(vsync: vsync);
+            _glowController.addStatusListener(_changePhase);
             Animation<float> decelerator = new CurvedAnimation(
-                parent: this._glowController,
+                parent: _glowController,
                 curve: Curves.decelerate
             );
-            decelerator.addListener(this.notifyListeners);
-            this._glowOpacity = decelerator.drive(this._glowOpacityTween);
-            this._glowSize = decelerator.drive(this._glowSizeTween);
-            this._displacementTicker = vsync.createTicker(this._tickDisplacement);
+            decelerator.addListener(notifyListeners);
+            _glowOpacity = decelerator.drive(_glowOpacityTween);
+            _glowSize = decelerator.drive(_glowSizeTween);
+            _displacementTicker = vsync.createTicker(_tickDisplacement);
         }
 
         _GlowState _state = _GlowState.idle;
@@ -244,29 +244,29 @@ namespace Unity.UIWidgets.widgets {
         float _pullDistance = 0.0f;
 
         public Color color {
-            get { return this._color; }
+            get { return _color; }
             set {
-                D.assert(this.color != null);
-                if (this.color == value) {
+                D.assert(color != null);
+                if (color == value) {
                     return;
                 }
 
-                this._color = value;
-                this.notifyListeners();
+                _color = value;
+                notifyListeners();
             }
         }
 
         Color _color;
 
         public Axis axis {
-            get { return this._axis; }
+            get { return _axis; }
             set {
-                if (this.axis == value) {
+                if (axis == value) {
                     return;
                 }
 
-                this._axis = value;
-                this.notifyListeners();
+                _axis = value;
+                notifyListeners();
             }
         }
 
@@ -288,70 +288,70 @@ namespace Unity.UIWidgets.widgets {
         const float _maxVelocity = 10000.0f; // logical pixels per second
 
         public override void dispose() {
-            this._glowController.dispose();
-            this._displacementTicker.dispose();
-            this._pullRecedeTimer?.cancel();
+            _glowController.dispose();
+            _displacementTicker.dispose();
+            _pullRecedeTimer?.cancel();
             base.dispose();
         }
 
         public void absorbImpact(float velocity) {
             D.assert(velocity >= 0.0f);
-            this._pullRecedeTimer?.cancel();
-            this._pullRecedeTimer = null;
+            _pullRecedeTimer?.cancel();
+            _pullRecedeTimer = null;
             velocity = velocity.clamp(_minVelocity, _maxVelocity);
-            this._glowOpacityTween.begin = this._state == _GlowState.idle ? 0.3f : this._glowOpacity.value;
-            this._glowOpacityTween.end =
-                (velocity * _velocityGlowFactor).clamp(this._glowOpacityTween.begin, _maxOpacity);
-            this._glowSizeTween.begin = this._glowSize.value;
-            this._glowSizeTween.end = Mathf.Min(0.025f + 7.5e-7f * velocity * velocity, 1.0f);
-            this._glowController.duration = new TimeSpan(0, 0, 0, 0, (0.15f + velocity * 0.02f).round());
-            this._glowController.forward(from: 0.0f);
-            this._displacement = 0.5f;
-            this._state = _GlowState.absorb;
+            _glowOpacityTween.begin = _state == _GlowState.idle ? 0.3f : _glowOpacity.value;
+            _glowOpacityTween.end =
+                (velocity * _velocityGlowFactor).clamp(_glowOpacityTween.begin, _maxOpacity);
+            _glowSizeTween.begin = _glowSize.value;
+            _glowSizeTween.end = Mathf.Min(0.025f + 7.5e-7f * velocity * velocity, 1.0f);
+            _glowController.duration = new TimeSpan(0, 0, 0, 0, (0.15f + velocity * 0.02f).round());
+            _glowController.forward(from: 0.0f);
+            _displacement = 0.5f;
+            _state = _GlowState.absorb;
         }
 
         public void pull(float overscroll, float extent, float crossAxisOffset, float crossExtent) {
-            this._pullRecedeTimer?.cancel();
-            this._pullDistance +=
+            _pullRecedeTimer?.cancel();
+            _pullDistance +=
                 overscroll / 200.0f; // This factor is magic. Not clear why we need it to match Android.
-            this._glowOpacityTween.begin = this._glowOpacity.value;
-            this._glowOpacityTween.end =
-                Mathf.Min(this._glowOpacity.value + overscroll / extent * _pullOpacityGlowFactor, _maxOpacity);
+            _glowOpacityTween.begin = _glowOpacity.value;
+            _glowOpacityTween.end =
+                Mathf.Min(_glowOpacity.value + overscroll / extent * _pullOpacityGlowFactor, _maxOpacity);
             float height = Mathf.Min(extent, crossExtent * _widthToHeightFactor);
-            this._glowSizeTween.begin = this._glowSize.value;
-            this._glowSizeTween.end = Mathf.Max(1.0f - 1.0f / (0.7f * Mathf.Sqrt(this._pullDistance * height)),
-                this._glowSize.value);
-            this._displacementTarget = crossAxisOffset / crossExtent;
-            if (this._displacementTarget != this._displacement) {
-                if (!this._displacementTicker.isTicking) {
-                    D.assert(this._displacementTickerLastElapsed == null);
-                    this._displacementTicker.start();
+            _glowSizeTween.begin = _glowSize.value;
+            _glowSizeTween.end = Mathf.Max(1.0f - 1.0f / (0.7f * Mathf.Sqrt(_pullDistance * height)),
+                _glowSize.value);
+            _displacementTarget = crossAxisOffset / crossExtent;
+            if (_displacementTarget != _displacement) {
+                if (!_displacementTicker.isTicking) {
+                    D.assert(_displacementTickerLastElapsed == null);
+                    _displacementTicker.start();
                 }
             }
             else {
-                this._displacementTicker.stop();
-                this._displacementTickerLastElapsed = null;
+                _displacementTicker.stop();
+                _displacementTickerLastElapsed = null;
             }
 
-            this._glowController.duration = this._pullTime;
-            if (this._state != _GlowState.pull) {
-                this._glowController.forward(from: 0.0f);
-                this._state = _GlowState.pull;
+            _glowController.duration = _pullTime;
+            if (_state != _GlowState.pull) {
+                _glowController.forward(from: 0.0f);
+                _state = _GlowState.pull;
             }
             else {
-                if (!this._glowController.isAnimating) {
-                    D.assert(this._glowController.value == 1.0f);
-                    this.notifyListeners();
+                if (!_glowController.isAnimating) {
+                    D.assert(_glowController.value == 1.0f);
+                    notifyListeners();
                 }
             }
 
-            this._pullRecedeTimer =
-                Window.instance.run(this._pullHoldTime, () => this._recede(this._pullDecayTime));
+            _pullRecedeTimer =
+                Window.instance.run(_pullHoldTime, () => _recede(_pullDecayTime));
         }
 
         public void scrollEnd() {
-            if (this._state == _GlowState.pull) {
-                this._recede(this._recedeTime);
+            if (_state == _GlowState.pull) {
+                _recede(_recedeTime);
             }
         }
 
@@ -360,13 +360,13 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
 
-            switch (this._state) {
+            switch (_state) {
                 case _GlowState.absorb:
-                    this._recede(this._recedeTime);
+                    _recede(_recedeTime);
                     break;
                 case _GlowState.recede:
-                    this._state = _GlowState.idle;
-                    this._pullDistance = 0.0f;
+                    _state = _GlowState.idle;
+                    _pullDistance = 0.0f;
                     break;
                 case _GlowState.pull:
                 case _GlowState.idle:
@@ -375,52 +375,52 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _recede(TimeSpan duration) {
-            if (this._state == _GlowState.recede || this._state == _GlowState.idle) {
+            if (_state == _GlowState.recede || _state == _GlowState.idle) {
                 return;
             }
 
-            this._pullRecedeTimer?.cancel();
-            this._pullRecedeTimer = null;
-            this._glowOpacityTween.begin = this._glowOpacity.value;
-            this._glowOpacityTween.end = 0.0f;
-            this._glowSizeTween.begin = this._glowSize.value;
-            this._glowSizeTween.end = 0.0f;
-            this._glowController.duration = duration;
-            this._glowController.forward(from: 0.0f);
-            this._state = _GlowState.recede;
+            _pullRecedeTimer?.cancel();
+            _pullRecedeTimer = null;
+            _glowOpacityTween.begin = _glowOpacity.value;
+            _glowOpacityTween.end = 0.0f;
+            _glowSizeTween.begin = _glowSize.value;
+            _glowSizeTween.end = 0.0f;
+            _glowController.duration = duration;
+            _glowController.forward(from: 0.0f);
+            _state = _GlowState.recede;
         }
 
         void _tickDisplacement(TimeSpan elapsed) {
-            if (this._displacementTickerLastElapsed != null) {
-                float? t = elapsed.Milliseconds - this._displacementTickerLastElapsed?.Milliseconds;
-                this._displacement = this._displacementTarget - (this._displacementTarget - this._displacement) *
+            if (_displacementTickerLastElapsed != null) {
+                float? t = elapsed.Milliseconds - _displacementTickerLastElapsed?.Milliseconds;
+                _displacement = _displacementTarget - (_displacementTarget - _displacement) *
                                      Mathf.Pow(2.0f, (-t ?? 0.0f) / _crossAxisHalfTime.Milliseconds);
-                this.notifyListeners();
+                notifyListeners();
             }
 
-            if (PhysicsUtils.nearEqual(this._displacementTarget, this._displacement,
+            if (PhysicsUtils.nearEqual(_displacementTarget, _displacement,
                 Tolerance.defaultTolerance.distance)) {
-                this._displacementTicker.stop();
-                this._displacementTickerLastElapsed = null;
+                _displacementTicker.stop();
+                _displacementTickerLastElapsed = null;
             }
             else {
-                this._displacementTickerLastElapsed = elapsed;
+                _displacementTickerLastElapsed = elapsed;
             }
         }
 
         public void paint(Canvas canvas, Size size) {
-            if (this._glowOpacity.value == 0.0f) {
+            if (_glowOpacity.value == 0.0f) {
                 return;
             }
 
             float baseGlowScale = size.width > size.height ? size.height / size.width : 1.0f;
             float radius = size.width * 3.0f / 2.0f;
             float height = Mathf.Min(size.height, size.width * _widthToHeightFactor);
-            float scaleY = this._glowSize.value * baseGlowScale;
+            float scaleY = _glowSize.value * baseGlowScale;
             Rect rect = Rect.fromLTWH(0.0f, 0.0f, size.width, height);
-            Offset center = new Offset((size.width / 2.0f) * (0.5f + this._displacement), height - radius);
+            Offset center = new Offset((size.width / 2.0f) * (0.5f + _displacement), height - radius);
             Paint paint = new Paint();
-            paint.color = this.color.withOpacity(this._glowOpacity.value);
+            paint.color = color.withOpacity(_glowOpacity.value);
             canvas.save();
             canvas.scale(1.0f, scaleY);
             canvas.clipRect(rect);
@@ -486,14 +486,14 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void paint(Canvas canvas, Size size) {
-            this._paintSide(canvas, size, this.leadingController, this.axisDirection, GrowthDirection.reverse);
-            this._paintSide(canvas, size, this.trailingController, this.axisDirection, GrowthDirection.forward);
+            _paintSide(canvas, size, leadingController, axisDirection, GrowthDirection.reverse);
+            _paintSide(canvas, size, trailingController, axisDirection, GrowthDirection.forward);
         }
 
         public override bool shouldRepaint(CustomPainter _oldDelegate) {
             _GlowingOverscrollIndicatorPainter oldDelegate = _oldDelegate as _GlowingOverscrollIndicatorPainter;
-            return oldDelegate.leadingController != this.leadingController
-                   || oldDelegate.trailingController != this.trailingController;
+            return oldDelegate.leadingController != leadingController
+                   || oldDelegate.trailingController != trailingController;
         }
     }
 
@@ -509,12 +509,12 @@ namespace Unity.UIWidgets.widgets {
         internal bool _accepted = true;
 
         public void disallowGlow() {
-            this._accepted = false;
+            _accepted = false;
         }
 
         protected override void debugFillDescription(List<string> description) {
             base.debugFillDescription(description);
-            description.Add($"side: {(this.leading ? "leading edge" : "trailing edge")}");
+            description.Add($"side: {(leading ? "leading edge" : "trailing edge")}");
         }
     }
 }

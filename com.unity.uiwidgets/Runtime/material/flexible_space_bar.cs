@@ -66,8 +66,8 @@ namespace Unity.UIWidgets.material {
 
     class _FlexibleSpaceBarState : State<FlexibleSpaceBar> {
         bool? _getEffectiveCenterTitle(ThemeData themeData) {
-            if (this.widget.centerTitle != null) {
-                return this.widget.centerTitle;
+            if (widget.centerTitle != null) {
+                return widget.centerTitle;
             }
 
             switch (themeData.platform) {
@@ -88,7 +88,7 @@ namespace Unity.UIWidgets.material {
         }
 
         float? _getCollapsePadding(float t, FlexibleSpaceBarSettings settings) {
-            switch (this.widget.collapseMode) {
+            switch (widget.collapseMode) {
                 case CollapseMode.pin:
                     return -(settings.maxExtent.Value - settings.currentExtent.Value);
                 case CollapseMode.none:
@@ -113,7 +113,7 @@ namespace Unity.UIWidgets.material {
             float t = (1.0f - (settings.currentExtent.Value - settings.minExtent.Value) / deltaExtent)
                 .clamp(0.0f, 1.0f);
 
-            if (this.widget.background != null) {
+            if (widget.background != null) {
                 float fadeStart = Mathf.Max(0.0f, 1.0f - Constants.kToolbarHeight / deltaExtent);
                 float fadeEnd = 1.0f;
                 D.assert(fadeStart <= fadeEnd);
@@ -121,26 +121,26 @@ namespace Unity.UIWidgets.material {
                 float opacity = 1.0f - new Interval(fadeStart, fadeEnd).transform(t);
                 if (opacity > 0.0f) {
                     children.Add(new Positioned(
-                            top: this._getCollapsePadding(t, settings),
+                            top: _getCollapsePadding(t, settings),
                             left: 0.0f,
                             right: 0.0f,
                             height: settings.maxExtent,
                             child: new Opacity(
                                 opacity: opacity,
-                                child: this.widget.background)
+                                child: widget.background)
                         )
                     );
                 }
             }
 
             Widget title = null;
-            if (this.widget.title != null) {
+            if (widget.title != null) {
                 switch (Application.platform) {
                     case RuntimePlatform.IPhonePlayer:
-                        title = this.widget.title;
+                        title = widget.title;
                         break;
                     default:
-                        title = this.widget.title;
+                        title = widget.title;
                         break;
                 }
             }
@@ -152,15 +152,15 @@ namespace Unity.UIWidgets.material {
                 titleStyle = titleStyle.copyWith(
                     color: titleStyle.color.withOpacity(toolbarOpacity));
 
-                bool effectiveCenterTitle = this._getEffectiveCenterTitle(theme).Value;
-                EdgeInsets padding = this.widget.titlePadding ??
+                bool effectiveCenterTitle = _getEffectiveCenterTitle(theme).Value;
+                EdgeInsets padding = widget.titlePadding ??
                     EdgeInsets.only(
                         left: effectiveCenterTitle ? 0.0f : 72.0f,
                         bottom: 16.0f
                     );
                 float scaleValue = new FloatTween(begin: 1.5f, end: 1.0f).lerp(t);
                 Matrix3 scaleTransform = Matrix3.makeScale(scaleValue, scaleValue);
-                Alignment titleAlignment = this._getTitleAlignment(effectiveCenterTitle);
+                Alignment titleAlignment = _getTitleAlignment(effectiveCenterTitle);
 
                 children.Add(new Container(
                         padding: padding,
@@ -214,10 +214,10 @@ namespace Unity.UIWidgets.material {
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
             FlexibleSpaceBarSettings _oldWidget = (FlexibleSpaceBarSettings) oldWidget;
-            return this.toolbarOpacity != _oldWidget.toolbarOpacity
-                   || this.minExtent != _oldWidget.minExtent
-                   || this.maxExtent != _oldWidget.maxExtent
-                   || this.currentExtent != _oldWidget.currentExtent;
+            return toolbarOpacity != _oldWidget.toolbarOpacity
+                   || minExtent != _oldWidget.minExtent
+                   || maxExtent != _oldWidget.maxExtent
+                   || currentExtent != _oldWidget.currentExtent;
         }
     }
 }

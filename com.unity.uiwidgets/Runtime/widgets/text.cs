@@ -28,11 +28,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         DefaultTextStyle() {
-            this.style = new TextStyle();
-            this.textAlign = null;
-            this.softWrap = true;
-            this.overflow = TextOverflow.clip;
-            this.maxLines = null;
+            style = new TextStyle();
+            textAlign = null;
+            softWrap = true;
+            overflow = TextOverflow.clip;
+            maxLines = null;
         }
 
         public static DefaultTextStyle fallback() {
@@ -78,27 +78,27 @@ namespace Unity.UIWidgets.widgets {
 
         public override bool updateShouldNotify(InheritedWidget w) {
             var oldWidget = (DefaultTextStyle) w;
-            return this.style != oldWidget.style ||
-                   this.textAlign != oldWidget.textAlign ||
-                   this.softWrap != oldWidget.softWrap ||
-                   this.overflow != oldWidget.overflow ||
-                   this.maxLines != oldWidget.maxLines;
+            return style != oldWidget.style ||
+                   textAlign != oldWidget.textAlign ||
+                   softWrap != oldWidget.softWrap ||
+                   overflow != oldWidget.overflow ||
+                   maxLines != oldWidget.maxLines;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            if (this.style != null) {
-                this.style.debugFillProperties(properties);
+            if (style != null) {
+                style.debugFillProperties(properties);
             }
 
-            properties.add(new EnumProperty<TextAlign?>("textAlign", this.textAlign,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FlagProperty("softWrap", value: this.softWrap, ifTrue: "wrapping at box width",
+            properties.add(new EnumProperty<TextAlign?>("textAlign", textAlign,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width",
                 ifFalse: "no wrapping except at line break characters", showName: true));
-            properties.add(new EnumProperty<TextOverflow>("overflow", this.overflow,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new IntProperty("maxLines", this.maxLines,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new EnumProperty<TextOverflow>("overflow", overflow,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new IntProperty("maxLines", maxLines,
+                defaultValue: foundation_.kNullDefaultValue));
         }
     }
 
@@ -113,7 +113,7 @@ namespace Unity.UIWidgets.widgets {
             float? textScaleFactor = null,
             int? maxLines = null) : base(key) {
             D.assert(data != null, () => "A non-null string must be provided to a Text widget.");
-            this.textSpan = null;
+            textSpan = null;
             this.data = data;
             this.style = style;
             this.strutStyle = strutStyle;
@@ -135,7 +135,7 @@ namespace Unity.UIWidgets.widgets {
             int? maxLines = null) : base(key) {
             D.assert(textSpan != null, () => "A non-null TextSpan must be provided to a Text.rich widget.");
             this.textSpan = textSpan;
-            this.data = null;
+            data = null;
             this.style = style;
             this.strutStyle = strutStyle;
             this.textAlign = textAlign;
@@ -185,47 +185,47 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
-            TextStyle effectiveTextStyle = this.style;
-            if (this.style == null || this.style.inherit) {
-                effectiveTextStyle = defaultTextStyle.style.merge(this.style);
+            TextStyle effectiveTextStyle = style;
+            if (style == null || style.inherit) {
+                effectiveTextStyle = defaultTextStyle.style.merge(style);
             }
 
             return new RichText(
-                textAlign: this.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.left,
-                softWrap: this.softWrap ?? defaultTextStyle.softWrap,
-                overflow: this.overflow ?? defaultTextStyle.overflow,
-                textScaleFactor: this.textScaleFactor ?? MediaQuery.textScaleFactorOf(context),
-                maxLines: this.maxLines ?? defaultTextStyle.maxLines,
-                strutStyle: this.strutStyle,
+                textAlign: textAlign ?? defaultTextStyle.textAlign ?? TextAlign.left,
+                softWrap: softWrap ?? defaultTextStyle.softWrap,
+                overflow: overflow ?? defaultTextStyle.overflow,
+                textScaleFactor: textScaleFactor ?? MediaQuery.textScaleFactorOf(context),
+                maxLines: maxLines ?? defaultTextStyle.maxLines,
+                strutStyle: strutStyle,
                 text: new TextSpan(
                     style: effectiveTextStyle,
-                    text: this.data,
-                    children: this.textSpan != null ? new List<TextSpan> {this.textSpan} : null
+                    text: data,
+                    children: textSpan != null ? new List<TextSpan> {textSpan} : null
                 )
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new StringProperty("data", this.data, showName: false));
-            if (this.textSpan != null) {
+            properties.add(new StringProperty("data", data, showName: false));
+            if (textSpan != null) {
                 properties.add(
-                    this.textSpan.toDiagnosticsNode(name: "textSpan", style: DiagnosticsTreeStyle.transition));
+                    textSpan.toDiagnosticsNode(name: "textSpan", style: DiagnosticsTreeStyle.transition));
             }
 
-            if (this.style != null) {
-                this.style.debugFillProperties(properties);
+            if (style != null) {
+                style.debugFillProperties(properties);
             }
 
-            properties.add(new EnumProperty<TextAlign?>("textAlign", this.textAlign,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FlagProperty("softWrap", value: this.softWrap, ifTrue: "wrapping at box width",
+            properties.add(new EnumProperty<TextAlign?>("textAlign", textAlign,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width",
                 ifFalse: "no wrapping except at line break characters", showName: true));
-            properties.add(new EnumProperty<TextOverflow?>("overflow", this.overflow,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FloatProperty("textScaleFactor", this.textScaleFactor,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new IntProperty("maxLines", this.maxLines, defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new EnumProperty<TextOverflow?>("overflow", overflow,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FloatProperty("textScaleFactor", textScaleFactor,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new IntProperty("maxLines", maxLines, defaultValue: foundation_.kNullDefaultValue));
         }
     }
 }

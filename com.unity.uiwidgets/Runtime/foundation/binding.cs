@@ -1,26 +1,41 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using developer;
 using RSG;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.ui2;
 
 namespace Unity.UIWidgets.foundation {
+    public delegate Future<IDictionary<string, object>>
+        ServiceExtensionCallback(IDictionary<string, string> parameters);
+
     public abstract class BindingBase {
         protected BindingBase() {
+            Timeline.startSync("Framework initialization");
+            
             initInstances();
-        }
+            
+            initServiceExtensions();
+            
+            developer_.postEvent("Flutter.FrameworkInitialization", new Hashtable());
 
-        static bool _debugInitialized = false;
+            Timeline.finishSync();
+        }
 
         public Window window => Window.instance;
 
         protected virtual void initInstances() {
+        }
+        
+        protected virtual void initServiceExtensions() {
         }
 
         protected bool locked => _lockCount > 0;
         int _lockCount = 0;
 
         protected Future lockEvents(Func<Future> callback) {
-            developer.Timeline.startSync("Lock events");
+            Timeline.startSync("Lock events");
 
             D.assert(callback != null);
             _lockCount += 1;
@@ -32,7 +47,7 @@ namespace Unity.UIWidgets.foundation {
             future.whenComplete(() => {
                 _lockCount -= 1;
                 if (!locked) {
-                    developer.Timeline.finishSync();
+                    Timeline.finishSync();
                     unlocked();
                 }
 

@@ -18,11 +18,11 @@ namespace Unity.UIWidgets.widgets {
         Widget _buildWithConstraints(BuildContext context, BoxConstraints constraints) {
             Orientation orientation =
                 constraints.maxWidth > constraints.maxHeight ? Orientation.landscape : Orientation.portrait;
-            return this.builder(context, orientation);
+            return builder(context, orientation);
         }
 
         public override Widget build(BuildContext context) {
-            return new LayoutBuilder(builder: this._buildWithConstraints);
+            return new LayoutBuilder(builder: _buildWithConstraints);
         }
     }
 }

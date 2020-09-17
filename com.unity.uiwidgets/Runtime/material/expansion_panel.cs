@@ -35,8 +35,8 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return other.salt.Equals(this.salt)
-                   && other.value.Equals(this.value);
+            return other.salt.Equals(salt)
+                   && other.value.Equals(value);
         }
 
         public override bool Equals(object obj) {
@@ -48,11 +48,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_SaltedKey<S, V>) obj);
+            return Equals((_SaltedKey<S, V>) obj);
         }
 
         public static bool operator ==(_SaltedKey<S, V> left, _SaltedKey<S, V> right) {
@@ -65,15 +65,15 @@ namespace Unity.UIWidgets.material {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.salt.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.value.GetHashCode();
+                var hashCode = salt.GetHashCode();
+                hashCode = (hashCode * 397) ^ value.GetHashCode();
                 return hashCode;
             }
         }
 
         public override string ToString() {
-            string saltString = this.salt is string ? "<\'" + this.salt + "\'>" : "<" + this.salt + ">";
-            string valueString = this.value is string ? "<\'" + this.value + "\'>" : "<" + this.value + ">";
+            string saltString = salt is string ? "<\'" + salt + "\'>" : "<" + salt + ">";
+            string valueString = value is string ? "<\'" + value + "\'>" : "<" + value + ">";
             return "[" + saltString + " " + valueString + "]";
         }
     }
@@ -132,8 +132,8 @@ namespace Unity.UIWidgets.material {
             this.children = children ?? new List<ExpansionPanel>();
             this.expansionCallback = expansionCallback;
             this.animationDuration = animationDuration ?? Constants.kThemeChangeDuration;
-            this._allowOnlyOnePanelOpen = false;
-            this.initialOpenPanelValue = null;
+            _allowOnlyOnePanelOpen = false;
+            initialOpenPanelValue = null;
         }
 
         ExpansionPanelList(
@@ -145,7 +145,7 @@ namespace Unity.UIWidgets.material {
             this.children = children ?? new List<ExpansionPanel>();
             this.expansionCallback = expansionCallback;
             this.animationDuration = animationDuration ?? Constants.kThemeChangeDuration;
-            this._allowOnlyOnePanelOpen = true;
+            _allowOnlyOnePanelOpen = true;
             this.initialOpenPanelValue = initialOpenPanelValue;
         }
 
@@ -187,12 +187,12 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            if (this.widget._allowOnlyOnePanelOpen) {
-                D.assert(this._allIdentifierUnique(), () => "All object identifiers are not unique!");
-                foreach (ExpansionPanelRadio child in this.widget.children) {
-                    if (this.widget.initialOpenPanelValue != null &&
-                        child.value == this.widget.initialOpenPanelValue) {
-                        this._currentOpenPanel = child;
+            if (widget._allowOnlyOnePanelOpen) {
+                D.assert(_allIdentifierUnique(), () => "All object identifiers are not unique!");
+                foreach (ExpansionPanelRadio child in widget.children) {
+                    if (widget.initialOpenPanelValue != null &&
+                        child.value == widget.initialOpenPanelValue) {
+                        _currentOpenPanel = child;
                     }
                 }
             }
@@ -201,58 +201,58 @@ namespace Unity.UIWidgets.material {
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
             ExpansionPanelList _oldWidget = (ExpansionPanelList) oldWidget;
-            if (this.widget._allowOnlyOnePanelOpen) {
-                D.assert(this._allIdentifierUnique(), () => "All object identifiers are not unique!");
-                foreach (ExpansionPanelRadio newChild in this.widget.children) {
-                    if (this.widget.initialOpenPanelValue != null &&
-                        newChild.value == this.widget.initialOpenPanelValue) {
-                        this._currentOpenPanel = newChild;
+            if (widget._allowOnlyOnePanelOpen) {
+                D.assert(_allIdentifierUnique(), () => "All object identifiers are not unique!");
+                foreach (ExpansionPanelRadio newChild in widget.children) {
+                    if (widget.initialOpenPanelValue != null &&
+                        newChild.value == widget.initialOpenPanelValue) {
+                        _currentOpenPanel = newChild;
                     }
                 }
             }
             else if (_oldWidget._allowOnlyOnePanelOpen) {
-                this._currentOpenPanel = null;
+                _currentOpenPanel = null;
             }
         }
 
         bool _allIdentifierUnique() {
             Dictionary<object, bool> identifierMap = new Dictionary<object, bool>();
-            foreach (ExpansionPanelRadio child in this.widget.children) {
+            foreach (ExpansionPanelRadio child in widget.children) {
                 identifierMap[child.value] = true;
             }
 
-            return identifierMap.Count == this.widget.children.Count;
+            return identifierMap.Count == widget.children.Count;
         }
 
         bool _isChildExpanded(int index) {
-            if (this.widget._allowOnlyOnePanelOpen) {
-                ExpansionPanelRadio radioWidget = (ExpansionPanelRadio) this.widget.children[index];
-                return this._currentOpenPanel?.value == radioWidget.value;
+            if (widget._allowOnlyOnePanelOpen) {
+                ExpansionPanelRadio radioWidget = (ExpansionPanelRadio) widget.children[index];
+                return _currentOpenPanel?.value == radioWidget.value;
             }
 
-            return this.widget.children[index].isExpanded;
+            return widget.children[index].isExpanded;
         }
 
         void _handlePressed(bool isExpanded, int index) {
-            if (this.widget.expansionCallback != null) {
-                this.widget.expansionCallback(index, isExpanded);
+            if (widget.expansionCallback != null) {
+                widget.expansionCallback(index, isExpanded);
             }
 
-            if (this.widget._allowOnlyOnePanelOpen) {
-                ExpansionPanelRadio pressedChild = (ExpansionPanelRadio) this.widget.children[index];
+            if (widget._allowOnlyOnePanelOpen) {
+                ExpansionPanelRadio pressedChild = (ExpansionPanelRadio) widget.children[index];
 
-                for (int childIndex = 0; childIndex < this.widget.children.Count; childIndex++) {
-                    ExpansionPanelRadio child = (ExpansionPanelRadio) this.widget.children[childIndex];
-                    if (this.widget.expansionCallback != null && childIndex != index &&
-                        child.value == this._currentOpenPanel?.value) {
-                        this.widget.expansionCallback(childIndex, false);
+                for (int childIndex = 0; childIndex < widget.children.Count; childIndex++) {
+                    ExpansionPanelRadio child = (ExpansionPanelRadio) widget.children[childIndex];
+                    if (widget.expansionCallback != null && childIndex != index &&
+                        child.value == _currentOpenPanel?.value) {
+                        widget.expansionCallback(childIndex, false);
                     }
                 }
 
-                this._currentOpenPanel = isExpanded ? null : pressedChild;
+                _currentOpenPanel = isExpanded ? null : pressedChild;
             }
 
-            this.setState(() => { });
+            setState(() => { });
         }
 
         public override Widget build(BuildContext context) {
@@ -261,25 +261,25 @@ namespace Unity.UIWidgets.material {
                 vertical: ExpansionPanelUtils._kPanelHeaderExpandedHeight -
                           ExpansionPanelUtils._kPanelHeaderCollapsedHeight);
 
-            for (int index = 0; index < this.widget.children.Count; index++) {
+            for (int index = 0; index < widget.children.Count; index++) {
                 int expandIndex = index;
-                if (this._isChildExpanded(index) && index != 0 && !this._isChildExpanded(index - 1)) {
+                if (_isChildExpanded(index) && index != 0 && !_isChildExpanded(index - 1)) {
                     items.Add(new MaterialGap(
                         key: new _SaltedKey<BuildContext, int>(context, index * 2 - 1)));
                 }
 
-                ExpansionPanel child = this.widget.children[index];
+                ExpansionPanel child = widget.children[index];
                 Widget headerWidget = child.headerBuilder(
                     context,
-                    this._isChildExpanded(index)
+                    _isChildExpanded(index)
                 );
                 Row header = new Row(
                     children: new List<Widget> {
                         new Expanded(
                             child: new AnimatedContainer(
-                                duration: this.widget.animationDuration,
+                                duration: widget.animationDuration,
                                 curve: Curves.fastOutSlowIn,
-                                margin: this._isChildExpanded(index) ? kExpandedEdgeInsets : EdgeInsets.zero,
+                                margin: _isChildExpanded(index) ? kExpandedEdgeInsets : EdgeInsets.zero,
                                 child: new ConstrainedBox(
                                     constraints: new BoxConstraints(
                                         minHeight: ExpansionPanelUtils._kPanelHeaderCollapsedHeight),
@@ -290,11 +290,11 @@ namespace Unity.UIWidgets.material {
                         new Container(
                             margin: EdgeInsets.fromLTRB(0, 0, 8, 0),
                             child: new ExpandIcon(
-                                isExpanded: this._isChildExpanded(index),
+                                isExpanded: _isChildExpanded(index),
                                 padding: EdgeInsets.all(16.0f),
                                 onPressed: !child.canTapOnHeader
                                     ? (ValueChanged<bool>) ((bool isExpanded) => {
-                                        this._handlePressed(isExpanded, expandIndex);
+                                        _handlePressed(isExpanded, expandIndex);
                                     })
                                     : null
                             )
@@ -309,7 +309,7 @@ namespace Unity.UIWidgets.material {
                                 child.canTapOnHeader
                                     ? (Widget) new InkWell(
                                         onTap: () =>
-                                            this._handlePressed(this._isChildExpanded(expandIndex), expandIndex),
+                                            _handlePressed(_isChildExpanded(expandIndex), expandIndex),
                                         child: header
                                     )
                                     : header,
@@ -319,17 +319,17 @@ namespace Unity.UIWidgets.material {
                                     firstCurve: new Interval(0.0f, 0.6f, curve: Curves.fastOutSlowIn),
                                     secondCurve: new Interval(0.4f, 1.0f, curve: Curves.fastOutSlowIn),
                                     sizeCurve: Curves.fastOutSlowIn,
-                                    crossFadeState: this._isChildExpanded(index)
+                                    crossFadeState: _isChildExpanded(index)
                                         ? CrossFadeState.showSecond
                                         : CrossFadeState.showFirst,
-                                    duration: this.widget.animationDuration
+                                    duration: widget.animationDuration
                                 )
                             }
                         )
                     )
                 );
 
-                if (this._isChildExpanded(index) && index != this.widget.children.Count - 1) {
+                if (_isChildExpanded(index) && index != widget.children.Count - 1) {
                     items.Add(new MaterialGap(
                         key: new _SaltedKey<BuildContext, int>(context, index * 2 + 1)));
                 }

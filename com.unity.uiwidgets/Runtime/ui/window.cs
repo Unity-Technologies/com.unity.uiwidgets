@@ -32,27 +32,27 @@ namespace Unity.UIWidgets.ui {
         public static WindowPadding zero = new WindowPadding(left: 0.0f, top: 0.0f, right: 0.0f, bottom: 0.0f);
 
         public override string ToString() {
-            return $"{this.GetType()}(left: {this.left}, top: {this.top}, right: {this.right}, bottom: {this.bottom})";
+            return $"{GetType()}(left: {left}, top: {top}, right: {right}, bottom: {bottom})";
         }
     }
 
     public class Locale : IEquatable<Locale> {
         public Locale(string languageCode, string countryCode = null) {
             D.assert(languageCode != null);
-            this._languageCode = languageCode;
-            this._countryCode = countryCode;
+            _languageCode = languageCode;
+            _countryCode = countryCode;
         }
 
         readonly string _languageCode;
 
         public string languageCode {
-            get { return this._languageCode; }
+            get { return _languageCode; }
         }
 
         readonly string _countryCode;
 
         public string countryCode {
-            get { return this._countryCode; }
+            get { return _countryCode; }
         }
 
         public bool Equals(Locale other) {
@@ -64,8 +64,8 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return string.Equals(this._languageCode, other._languageCode) &&
-                   string.Equals(this._countryCode, other._countryCode);
+            return string.Equals(_languageCode, other._languageCode) &&
+                   string.Equals(_countryCode, other._countryCode);
         }
 
         public override bool Equals(object obj) {
@@ -77,17 +77,17 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((Locale) obj);
+            return Equals((Locale) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this._languageCode != null ? this._languageCode.GetHashCode() : 0) * 397) ^
-                       (this._countryCode != null ? this._countryCode.GetHashCode() : 0);
+                return ((_languageCode != null ? _languageCode.GetHashCode() : 0) * 397) ^
+                       (_countryCode != null ? _countryCode.GetHashCode() : 0);
             }
         }
 
@@ -100,11 +100,11 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override string ToString() {
-            if (this.countryCode == null) {
-                return this.languageCode;
+            if (countryCode == null) {
+                return languageCode;
             }
 
-            return $"{this.languageCode}_{this.countryCode}";
+            return $"{languageCode}_{countryCode}";
         }
     }
 
@@ -139,19 +139,19 @@ namespace Unity.UIWidgets.ui {
         public const int defaultAntiAliasing = 4;
 
         public float devicePixelRatio {
-            get { return this._devicePixelRatio; }
+            get { return _devicePixelRatio; }
         }
 
         protected float _devicePixelRatio = 1.0f;
         
         public int antiAliasing {
-            get { return this._antiAliasing; }
+            get { return _antiAliasing; }
         }
 
         protected int _antiAliasing = defaultAntiAliasing;
 
         public Size physicalSize {
-            get { return this._physicalSize; }
+            get { return _physicalSize; }
         }
 
         public WindowConfig windowConfig = WindowConfig.defaultConfig;
@@ -159,28 +159,28 @@ namespace Unity.UIWidgets.ui {
         protected Size _physicalSize = Size.zero;
 
         public WindowPadding viewInsets {
-            get { return this._viewInsets; }
+            get { return _viewInsets; }
         }
 
         protected WindowPadding _viewInsets = WindowPadding.zero;
 
         public WindowPadding padding {
-            get { return this._padding; }
+            get { return _padding; }
         }
 
         protected WindowPadding _padding = WindowPadding.zero;
 
         public VoidCallback onMetricsChanged {
-            get { return this._onMetricsChanged; }
-            set { this._onMetricsChanged = value; }
+            get { return _onMetricsChanged; }
+            set { _onMetricsChanged = value; }
         }
 
         VoidCallback _onMetricsChanged;
 
         public Locale locale {
             get {
-                if (this._locales != null && this._locales.isNotEmpty()) {
-                    return this._locales[0];
+                if (_locales != null && _locales.isNotEmpty()) {
+                    return _locales[0];
                 }
 
                 return null;
@@ -188,55 +188,55 @@ namespace Unity.UIWidgets.ui {
         }
 
         public List<Locale> locales {
-            get { return this._locales; }
+            get { return _locales; }
         }
 
         protected List<Locale> _locales;
 
         public VoidCallback onLocaleChanged {
-            get { return this._onLocaleChanged; }
-            set { this._onLocaleChanged = value; }
+            get { return _onLocaleChanged; }
+            set { _onLocaleChanged = value; }
         }
 
         VoidCallback _onLocaleChanged;
 
         public float textScaleFactor {
-            get { return this._textScaleFactor; }
+            get { return _textScaleFactor; }
         }
 
         protected float _textScaleFactor = 1.0f;
 
         public VoidCallback onTextScaleFactorChanged {
-            get { return this._onTextScaleFactorChanged; }
-            set { this._onTextScaleFactorChanged = value; }
+            get { return _onTextScaleFactorChanged; }
+            set { _onTextScaleFactorChanged = value; }
         }
 
         VoidCallback _onTextScaleFactorChanged;
 
         public VoidCallback onPlatformBrightnessChanged {
-            get { return this._onPlatformBrightnessChanged; }
-            set { this._onPlatformBrightnessChanged = value; }
+            get { return _onPlatformBrightnessChanged; }
+            set { _onPlatformBrightnessChanged = value; }
         }
 
         VoidCallback _onPlatformBrightnessChanged;
 
         public FrameCallback onBeginFrame {
-            get { return this._onBeginFrame; }
-            set { this._onBeginFrame = value; }
+            get { return _onBeginFrame; }
+            set { _onBeginFrame = value; }
         }
 
         FrameCallback _onBeginFrame;
 
         public VoidCallback onDrawFrame {
-            get { return this._onDrawFrame; }
-            set { this._onDrawFrame = value; }
+            get { return _onDrawFrame; }
+            set { _onDrawFrame = value; }
         }
 
         VoidCallback _onDrawFrame;
 
         public PointerDataPacketCallback onPointerEvent {
-            get { return this._onPointerEvent; }
-            set { this._onPointerEvent = value; }
+            get { return _onPointerEvent; }
+            set { _onPointerEvent = value; }
         }
 
         PointerDataPacketCallback _onPointerEvent;
@@ -252,11 +252,11 @@ namespace Unity.UIWidgets.ui {
         public abstract Timer run(TimeSpan duration, Action callback, bool periodic = false);
 
         public Timer periodic(TimeSpan duration, Action callback) {
-            return this.run(duration, callback, true);
+            return run(duration, callback, true);
         }
 
         public Timer run(Action callback) {
-            return this.run(TimeSpan.Zero, callback);
+            return run(TimeSpan.Zero, callback);
         }
 
         public abstract Timer runInMain(Action callback);
@@ -267,11 +267,11 @@ namespace Unity.UIWidgets.ui {
         float fpsDeltaTime;
 
         public void updateFPS(float unscaledDeltaTime) {
-            this.fpsDeltaTime += (unscaledDeltaTime - this.fpsDeltaTime) * 0.1f;
+            fpsDeltaTime += (unscaledDeltaTime - fpsDeltaTime) * 0.1f;
         }
 
         public float getFPS() {
-            return 1.0f / this.fpsDeltaTime;
+            return 1.0f / fpsDeltaTime;
         }
 
         public const int defaultMaxTargetFrameRate = 60;

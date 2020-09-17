@@ -70,7 +70,7 @@ namespace Unity.UIWidgets.service {
         }
 
         public void setEditingState(TextEditingValue value) {
-            this._value = value;
+            _value = value;
         }
         
         Offset _editorWindowPosToScreenPos(Offset position) {
@@ -89,17 +89,17 @@ namespace Unity.UIWidgets.service {
             var uiWidgetWindowAdapter = Window.instance as UIWidgetWindowAdapter;
             Offset screenPos = uiWidgetWindowAdapter != null 
                 ? uiWidgetWindowAdapter.windowPosToScreenPos(imeGlobalPos) 
-                : this._editorWindowPosToScreenPos(imeGlobalPos);
+                : _editorWindowPosToScreenPos(imeGlobalPos);
             
             Input.compositionCursorPos = new Vector2(screenPos.dx, screenPos.dy);
         }
 
         public void setClient(int client, TextInputConfiguration configuration) {
-            this._client = client;
+            _client = client;
         }
 
         public void clearClient() {
-            this._client = 0;
+            _client = 0;
         }
 
         public bool imeRequired() {
@@ -113,61 +113,61 @@ namespace Unity.UIWidgets.service {
                 return;
             }
 
-            if (this._client == 0) {
+            if (_client == 0) {
                 return;
             }
             
             
             var currentEvent = Event.current;
-            var oldValue = this._value;
+            var oldValue = _value;
 
             if (currentEvent != null && currentEvent.type == EventType.KeyDown) {
-                var response = TextInput._handleGlobalInputKey(this._client,
+                var response = TextInput._handleGlobalInputKey(_client,
                     new RawKeyDownEvent(new RawKeyEventData(currentEvent)));
 
                 if (response.swallow) {
                     if (response.inputAction != null) {
-                        Window.instance.run(() => { TextInput._performAction(this._client, response.inputAction.Value); });
+                        Window.instance.run(() => { TextInput._performAction(_client, response.inputAction.Value); });
                     }
                     
                     if (_validateCharacter(response.input)) {
-                        this._value = this._value.insert(new string(response.input, 1));
+                        _value = _value.insert(new string(response.input, 1));
                     }
                 } else if (currentEvent.keyCode == KeyCode.Backspace) {
-                    if (this._value.selection.isValid) {
-                        this._value = this._value.deleteSelection(true);
+                    if (_value.selection.isValid) {
+                        _value = _value.deleteSelection(true);
                     }
                 } else if (currentEvent.character != '\0') {
-                    this._value = this._value.clearCompose();
+                    _value = _value.clearCompose();
                     char ch = currentEvent.character;
                     if (ch == '\r' || ch == 3) {
                         ch = '\n';
                     }
 
                     if (ch == '\n') {
-                        Window.instance.run(() => { TextInput._performAction(this._client, TextInputAction.newline); });
+                        Window.instance.run(() => { TextInput._performAction(_client, TextInputAction.newline); });
                     }
                     
                     if (_validateCharacter(ch)) {
-                        this._value = this._value.insert(new string(ch, 1));
+                        _value = _value.insert(new string(ch, 1));
                     }
                 }
                 else if (!string.IsNullOrEmpty(Input.compositionString)) {
-                    this.isIMEInput = true;
-                    this._value = this._value.compose(Input.compositionString);
+                    isIMEInput = true;
+                    _value = _value.compose(Input.compositionString);
                 }
                 
                 currentEvent.Use();
             }
 
-            if (this._value != oldValue) {
+            if (_value != oldValue) {
                 if (this.isIMEInput) {
                     var isIMEInput = this.isIMEInput;
-                    Window.instance.run(() => { TextInput._updateEditingState(this._client, this._value, isIMEInput); });
+                    Window.instance.run(() => { TextInput._updateEditingState(_client, _value, isIMEInput); });
                     this.isIMEInput = false;
                 }
                 else {
-                    Window.instance.run(() => { TextInput._updateEditingState(this._client, this._value); });
+                    Window.instance.run(() => { TextInput._updateEditingState(_client, _value); });
                 }
             }
         }
@@ -191,62 +191,62 @@ namespace Unity.UIWidgets.service {
         readonly TextInput _textInput;
 
         public void Update() {
-            if (this._client == 0 || this._keyboard == null) {
+            if (_client == 0 || _keyboard == null) {
                 return;
             }
 
-            if (this._keyboard.canSetSelection && this._pendingSelection != null) {
-                this._keyboard.selection = this._pendingSelection.Value;
-                this._pendingSelection = null;
+            if (_keyboard.canSetSelection && _pendingSelection != null) {
+                _keyboard.selection = _pendingSelection.Value;
+                _pendingSelection = null;
             }
 
-            if (this._keyboard.status == TouchScreenKeyboard.Status.Done) {
-                if (!this._screenKeyboardDone) {
-                    this._screenKeyboardDone = true;
+            if (_keyboard.status == TouchScreenKeyboard.Status.Done) {
+                if (!_screenKeyboardDone) {
+                    _screenKeyboardDone = true;
                     Window.instance.run(() => {
-                        TextInput._performAction(this._client,
+                        TextInput._performAction(_client,
                             TextInputAction.done);
                     });
                 }
             }
-            else if (this._keyboard.status == TouchScreenKeyboard.Status.Visible) {
-                var keyboardSelection = this._keyboard.selection;
+            else if (_keyboard.status == TouchScreenKeyboard.Status.Visible) {
+                var keyboardSelection = _keyboard.selection;
                 var newValue = new TextEditingValue(
-                    this._keyboard.text,
-                    this._keyboard.canGetSelection
+                    _keyboard.text,
+                    _keyboard.canGetSelection
                         ? new TextSelection(keyboardSelection.start, keyboardSelection.end)
                         : TextSelection.collapsed(0)
                 );
-                var changed = this._value != newValue;
+                var changed = _value != newValue;
                 
-                this._value = newValue;
+                _value = newValue;
                 if (changed) {
                     Window.instance.run(() => {
-                        TextInput._updateEditingState(this._client,
-                            this._value);
+                        TextInput._updateEditingState(_client,
+                            _value);
                     });
                 }
             }
         }
 
         public void show() {
-            var secure = this._configuration.obscureText;
-            var multiline = this._configuration.inputType == TextInputType.multiline;
-            var autocorrection = this._configuration.autocorrect;
-            this._keyboard = TouchScreenKeyboard.Open(this._value.text,
-                getKeyboardTypeForConfiguration(this._configuration),
+            var secure = _configuration.obscureText;
+            var multiline = _configuration.inputType == TextInputType.multiline;
+            var autocorrection = _configuration.autocorrect;
+            _keyboard = TouchScreenKeyboard.Open(_value.text,
+                getKeyboardTypeForConfiguration(_configuration),
                 autocorrection, multiline, secure, false, "", 0);
-            this._pendingSelection = null;
-            this._screenKeyboardDone = false;
-            if (this._value.selection != null && this._value.selection.isValid) {
-                int start = this._value.selection.start;
-                int end = this._value.selection.end;
-                this._pendingSelection = new RangeInt(start, end - start);
+            _pendingSelection = null;
+            _screenKeyboardDone = false;
+            if (_value.selection != null && _value.selection.isValid) {
+                int start = _value.selection.start;
+                int end = _value.selection.end;
+                _pendingSelection = new RangeInt(start, end - start);
             }
         }
 
         public void clearClient() {
-            this._client = 0;
+            _client = 0;
         }
 
         public bool imeRequired() {
@@ -257,33 +257,33 @@ namespace Unity.UIWidgets.service {
         }
 
         public void setClient(int client, TextInputConfiguration configuration) {
-            this._client = client;
-            this._configuration = configuration;
+            _client = client;
+            _configuration = configuration;
         }
 
         public void hide() {
-            if (this._keyboard != null) {
-                this._keyboard.active = false;
-                this._keyboard = null;
+            if (_keyboard != null) {
+                _keyboard.active = false;
+                _keyboard = null;
             }
         }
 
         public void setEditingState(TextEditingValue state) {
-            this._value = state;
-            if (this._keyboard != null && this._keyboard.active) {
-                this._keyboard.text = state.text;
-                if (this._value.selection != null && this._value.selection.isValid) {
-                    int start = this._value.selection.start;
-                    int end = this._value.selection.end;
-                    this._pendingSelection = new RangeInt(start, end - start);
+            _value = state;
+            if (_keyboard != null && _keyboard.active) {
+                _keyboard.text = state.text;
+                if (_value.selection != null && _value.selection.isValid) {
+                    int start = _value.selection.start;
+                    int end = _value.selection.end;
+                    _pendingSelection = new RangeInt(start, end - start);
                     RangeInt selection = new RangeInt(state.selection.start, end - start);
 
-                    if (this._keyboard.canGetSelection) {
-                        this._pendingSelection = null;
-                        this._keyboard.selection = selection;
+                    if (_keyboard.canGetSelection) {
+                        _pendingSelection = null;
+                        _keyboard.selection = selection;
                     }
                     else {
-                        this._pendingSelection = selection;
+                        _pendingSelection = selection;
                     }
                 }
             }
@@ -319,12 +319,12 @@ namespace Unity.UIWidgets.service {
         
         protected AbstractUIWidgetsKeyboardDelegate() {
             UIWidgetsMessageManager.instance.
-                AddChannelMessageDelegate("TextInput", this._handleMethodCall);
+                AddChannelMessageDelegate("TextInput", _handleMethodCall);
         }
         
         public void Dispose() {
             UIWidgetsMessageManager.instance.
-                RemoveChannelMessageDelegate("TextInput", this._handleMethodCall);
+                RemoveChannelMessageDelegate("TextInput", _handleMethodCall);
         }
 
         public abstract void show();

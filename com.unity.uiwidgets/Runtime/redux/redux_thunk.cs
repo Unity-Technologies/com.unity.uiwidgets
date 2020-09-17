@@ -26,7 +26,7 @@ namespace Unity.UIWidgets.Redux {
         }
 
         public override string ToString() {
-            return "ThunkAction(" + this.displayName + ")";
+            return "ThunkAction(" + displayName + ")";
         }
     }
 }

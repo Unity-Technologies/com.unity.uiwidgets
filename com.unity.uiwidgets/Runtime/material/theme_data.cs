@@ -759,56 +759,56 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return other.brightness == this.brightness &&
-                   other.primaryColor == this.primaryColor &&
-                   other.primaryColorBrightness == this.primaryColorBrightness &&
-                   other.primaryColorLight == this.primaryColorLight &&
-                   other.primaryColorDark == this.primaryColorDark &&
-                   other.accentColor == this.accentColor &&
-                   other.accentColorBrightness == this.accentColorBrightness &&
-                   other.canvasColor == this.canvasColor &&
-                   other.scaffoldBackgroundColor == this.scaffoldBackgroundColor &&
-                   other.bottomAppBarColor == this.bottomAppBarColor &&
-                   other.cardColor == this.cardColor &&
-                   other.dividerColor == this.dividerColor &&
-                   other.highlightColor == this.highlightColor &&
-                   other.splashColor == this.splashColor &&
-                   other.splashFactory == this.splashFactory &&
-                   other.selectedRowColor == this.selectedRowColor &&
-                   other.unselectedWidgetColor == this.unselectedWidgetColor &&
-                   other.disabledColor == this.disabledColor &&
-                   other.buttonTheme == this.buttonTheme &&
-                   other.buttonColor == this.buttonColor &&
-                   other.secondaryHeaderColor == this.secondaryHeaderColor &&
-                   other.textSelectionColor == this.textSelectionColor &&
-                   other.cursorColor == this.cursorColor &&
-                   other.textSelectionHandleColor == this.textSelectionHandleColor &&
-                   other.backgroundColor == this.backgroundColor &&
-                   other.dialogBackgroundColor == this.dialogBackgroundColor &&
-                   other.indicatorColor == this.indicatorColor &&
-                   other.hintColor == this.hintColor &&
-                   other.errorColor == this.errorColor &&
-                   other.textTheme == this.textTheme &&
-                   other.primaryTextTheme == this.primaryTextTheme &&
-                   other.accentTextTheme == this.accentTextTheme &&
-                   other.sliderTheme == this.sliderTheme &&
-                   other.inputDecorationTheme == this.inputDecorationTheme &&
-                   other.toggleableActiveColor == this.toggleableActiveColor &&
-                   other.iconTheme == this.iconTheme &&
-                   other.primaryIconTheme == this.primaryIconTheme &&
-                   other.accentIconTheme == this.accentIconTheme &&
-                   other.tabBarTheme == this.tabBarTheme &&
-                   other.cardTheme == this.cardTheme &&
-                   other.chipTheme == this.chipTheme &&
-                   other.platform == this.platform &&
-                   other.materialTapTargetSize == this.materialTapTargetSize &&
-                   other.pageTransitionsTheme == this.pageTransitionsTheme &&
-                   other.appBarTheme == this.appBarTheme &&
-                   other.bottomAppBarTheme == this.bottomAppBarTheme &&
-                   other.colorScheme == this.colorScheme &&
-                   other.dialogTheme == this.dialogTheme &&
-                   other.floatingActionButtonTheme == this.floatingActionButtonTheme &&
-                   other.typography == this.typography;
+            return other.brightness == brightness &&
+                   other.primaryColor == primaryColor &&
+                   other.primaryColorBrightness == primaryColorBrightness &&
+                   other.primaryColorLight == primaryColorLight &&
+                   other.primaryColorDark == primaryColorDark &&
+                   other.accentColor == accentColor &&
+                   other.accentColorBrightness == accentColorBrightness &&
+                   other.canvasColor == canvasColor &&
+                   other.scaffoldBackgroundColor == scaffoldBackgroundColor &&
+                   other.bottomAppBarColor == bottomAppBarColor &&
+                   other.cardColor == cardColor &&
+                   other.dividerColor == dividerColor &&
+                   other.highlightColor == highlightColor &&
+                   other.splashColor == splashColor &&
+                   other.splashFactory == splashFactory &&
+                   other.selectedRowColor == selectedRowColor &&
+                   other.unselectedWidgetColor == unselectedWidgetColor &&
+                   other.disabledColor == disabledColor &&
+                   other.buttonTheme == buttonTheme &&
+                   other.buttonColor == buttonColor &&
+                   other.secondaryHeaderColor == secondaryHeaderColor &&
+                   other.textSelectionColor == textSelectionColor &&
+                   other.cursorColor == cursorColor &&
+                   other.textSelectionHandleColor == textSelectionHandleColor &&
+                   other.backgroundColor == backgroundColor &&
+                   other.dialogBackgroundColor == dialogBackgroundColor &&
+                   other.indicatorColor == indicatorColor &&
+                   other.hintColor == hintColor &&
+                   other.errorColor == errorColor &&
+                   other.textTheme == textTheme &&
+                   other.primaryTextTheme == primaryTextTheme &&
+                   other.accentTextTheme == accentTextTheme &&
+                   other.sliderTheme == sliderTheme &&
+                   other.inputDecorationTheme == inputDecorationTheme &&
+                   other.toggleableActiveColor == toggleableActiveColor &&
+                   other.iconTheme == iconTheme &&
+                   other.primaryIconTheme == primaryIconTheme &&
+                   other.accentIconTheme == accentIconTheme &&
+                   other.tabBarTheme == tabBarTheme &&
+                   other.cardTheme == cardTheme &&
+                   other.chipTheme == chipTheme &&
+                   other.platform == platform &&
+                   other.materialTapTargetSize == materialTapTargetSize &&
+                   other.pageTransitionsTheme == pageTransitionsTheme &&
+                   other.appBarTheme == appBarTheme &&
+                   other.bottomAppBarTheme == bottomAppBarTheme &&
+                   other.colorScheme == colorScheme &&
+                   other.dialogTheme == dialogTheme &&
+                   other.floatingActionButtonTheme == floatingActionButtonTheme &&
+                   other.typography == typography;
         }
 
         public override bool Equals(object obj) {
@@ -820,11 +820,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ThemeData) obj);
+            return Equals((ThemeData) obj);
         }
 
         public static bool operator ==(ThemeData left, ThemeData right) {
@@ -838,63 +838,63 @@ namespace Unity.UIWidgets.material {
         int? _cachedHashCode = null;
 
         public override int GetHashCode() {
-            if (this._cachedHashCode != null) {
-                return this._cachedHashCode.Value;
+            if (_cachedHashCode != null) {
+                return _cachedHashCode.Value;
             }
 
             unchecked {
-                var hashCode = this.brightness.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.primaryColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.primaryColorBrightness.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.primaryColorLight.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.primaryColorDark.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.canvasColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.accentColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.accentColorBrightness.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.scaffoldBackgroundColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.bottomAppBarColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.cardColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.dividerColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.highlightColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.splashColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.splashFactory.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.selectedRowColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.unselectedWidgetColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.buttonTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.buttonColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.secondaryHeaderColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.textSelectionColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.cursorColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.textSelectionHandleColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.backgroundColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.dialogBackgroundColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.indicatorColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.hintColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.errorColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.toggleableActiveColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.textTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.primaryTextTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.accentTextTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.inputDecorationTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.iconTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.primaryIconTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.accentIconTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.sliderTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.tabBarTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.cardTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.chipTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.platform.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.materialTapTargetSize.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.pageTransitionsTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.appBarTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.bottomAppBarTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.colorScheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.dialogTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.floatingActionButtonTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.typography.GetHashCode();
+                var hashCode = brightness.GetHashCode();
+                hashCode = (hashCode * 397) ^ primaryColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ primaryColorBrightness.GetHashCode();
+                hashCode = (hashCode * 397) ^ primaryColorLight.GetHashCode();
+                hashCode = (hashCode * 397) ^ primaryColorDark.GetHashCode();
+                hashCode = (hashCode * 397) ^ canvasColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ accentColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ accentColorBrightness.GetHashCode();
+                hashCode = (hashCode * 397) ^ scaffoldBackgroundColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ bottomAppBarColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ cardColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ dividerColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ highlightColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ splashColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ splashFactory.GetHashCode();
+                hashCode = (hashCode * 397) ^ selectedRowColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ unselectedWidgetColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ disabledColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ buttonTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ buttonColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ secondaryHeaderColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ textSelectionColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ cursorColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ textSelectionHandleColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ backgroundColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ dialogBackgroundColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ indicatorColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ hintColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ errorColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ toggleableActiveColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ textTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ primaryTextTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ accentTextTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ inputDecorationTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ iconTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ primaryIconTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ accentIconTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ sliderTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ tabBarTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ cardTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ chipTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ platform.GetHashCode();
+                hashCode = (hashCode * 397) ^ materialTapTargetSize.GetHashCode();
+                hashCode = (hashCode * 397) ^ pageTransitionsTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ appBarTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ bottomAppBarTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ colorScheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ dialogTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ floatingActionButtonTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ typography.GetHashCode();
 
-                this._cachedHashCode = hashCode;
+                _cachedHashCode = hashCode;
                 return hashCode;
             }
         }
@@ -902,86 +902,86 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             ThemeData defaultData = fallback();
-            properties.add(new EnumProperty<RuntimePlatform>("platform", this.platform,
+            properties.add(new EnumProperty<RuntimePlatform>("platform", platform,
                 defaultValue: Application.platform));
-            properties.add(new EnumProperty<Brightness>("brightness", this.brightness,
+            properties.add(new EnumProperty<Brightness>("brightness", brightness,
                 defaultValue: defaultData.brightness));
-            properties.add(new DiagnosticsProperty<Color>("primaryColor", this.primaryColor,
+            properties.add(new DiagnosticsProperty<Color>("primaryColor", primaryColor,
                 defaultValue: defaultData.primaryColor));
-            properties.add(new EnumProperty<Brightness>("primaryColorBrightness", this.primaryColorBrightness,
+            properties.add(new EnumProperty<Brightness>("primaryColorBrightness", primaryColorBrightness,
                 defaultValue: defaultData.primaryColorBrightness));
-            properties.add(new DiagnosticsProperty<Color>("accentColor", this.accentColor,
+            properties.add(new DiagnosticsProperty<Color>("accentColor", accentColor,
                 defaultValue: defaultData.accentColor));
-            properties.add(new EnumProperty<Brightness>("accentColorBrightness", this.accentColorBrightness,
+            properties.add(new EnumProperty<Brightness>("accentColorBrightness", accentColorBrightness,
                 defaultValue: defaultData.accentColorBrightness));
-            properties.add(new DiagnosticsProperty<Color>("canvasColor", this.canvasColor,
+            properties.add(new DiagnosticsProperty<Color>("canvasColor", canvasColor,
                 defaultValue: defaultData.canvasColor));
-            properties.add(new DiagnosticsProperty<Color>("scaffoldBackgroundColor", this.scaffoldBackgroundColor,
+            properties.add(new DiagnosticsProperty<Color>("scaffoldBackgroundColor", scaffoldBackgroundColor,
                 defaultValue: defaultData.scaffoldBackgroundColor));
-            properties.add(new DiagnosticsProperty<Color>("bottomAppBarColor", this.bottomAppBarColor,
+            properties.add(new DiagnosticsProperty<Color>("bottomAppBarColor", bottomAppBarColor,
                 defaultValue: defaultData.bottomAppBarColor));
-            properties.add(new DiagnosticsProperty<Color>("cardColor", this.cardColor,
+            properties.add(new DiagnosticsProperty<Color>("cardColor", cardColor,
                 defaultValue: defaultData.cardColor));
-            properties.add(new DiagnosticsProperty<Color>("dividerColor", this.dividerColor,
+            properties.add(new DiagnosticsProperty<Color>("dividerColor", dividerColor,
                 defaultValue: defaultData.dividerColor));
-            properties.add(new DiagnosticsProperty<Color>("highlightColor", this.highlightColor,
+            properties.add(new DiagnosticsProperty<Color>("highlightColor", highlightColor,
                 defaultValue: defaultData.highlightColor));
-            properties.add(new DiagnosticsProperty<Color>("splashColor", this.splashColor,
+            properties.add(new DiagnosticsProperty<Color>("splashColor", splashColor,
                 defaultValue: defaultData.splashColor));
-            properties.add(new DiagnosticsProperty<Color>("selectedRowColor", this.selectedRowColor,
+            properties.add(new DiagnosticsProperty<Color>("selectedRowColor", selectedRowColor,
                 defaultValue: defaultData.selectedRowColor));
-            properties.add(new DiagnosticsProperty<Color>("unselectedWidgetColor", this.unselectedWidgetColor,
+            properties.add(new DiagnosticsProperty<Color>("unselectedWidgetColor", unselectedWidgetColor,
                 defaultValue: defaultData.unselectedWidgetColor));
-            properties.add(new DiagnosticsProperty<Color>("disabledColor", this.disabledColor,
+            properties.add(new DiagnosticsProperty<Color>("disabledColor", disabledColor,
                 defaultValue: defaultData.disabledColor));
-            properties.add(new DiagnosticsProperty<ButtonThemeData>("buttonTheme", this.buttonTheme));
-            properties.add(new DiagnosticsProperty<Color>("buttonColor", this.buttonColor,
+            properties.add(new DiagnosticsProperty<ButtonThemeData>("buttonTheme", buttonTheme));
+            properties.add(new DiagnosticsProperty<Color>("buttonColor", buttonColor,
                 defaultValue: defaultData.buttonColor));
-            properties.add(new DiagnosticsProperty<Color>("secondaryHeaderColor", this.secondaryHeaderColor,
+            properties.add(new DiagnosticsProperty<Color>("secondaryHeaderColor", secondaryHeaderColor,
                 defaultValue: defaultData.secondaryHeaderColor));
-            properties.add(new DiagnosticsProperty<Color>("textSelectionColor", this.textSelectionColor,
+            properties.add(new DiagnosticsProperty<Color>("textSelectionColor", textSelectionColor,
                 defaultValue: defaultData.textSelectionColor));
-            properties.add(new DiagnosticsProperty<Color>("cursorColor", this.cursorColor,
+            properties.add(new DiagnosticsProperty<Color>("cursorColor", cursorColor,
                 defaultValue: defaultData.cursorColor));
-            properties.add(new DiagnosticsProperty<Color>("textSelectionHandleColor", this.textSelectionHandleColor,
+            properties.add(new DiagnosticsProperty<Color>("textSelectionHandleColor", textSelectionHandleColor,
                 defaultValue: defaultData.textSelectionHandleColor));
-            properties.add(new DiagnosticsProperty<Color>("backgroundColor", this.backgroundColor,
+            properties.add(new DiagnosticsProperty<Color>("backgroundColor", backgroundColor,
                 defaultValue: defaultData.backgroundColor));
-            properties.add(new DiagnosticsProperty<Color>("dialogBackgroundColor", this.dialogBackgroundColor,
+            properties.add(new DiagnosticsProperty<Color>("dialogBackgroundColor", dialogBackgroundColor,
                 defaultValue: defaultData.dialogBackgroundColor));
-            properties.add(new DiagnosticsProperty<Color>("indicatorColor", this.indicatorColor,
+            properties.add(new DiagnosticsProperty<Color>("indicatorColor", indicatorColor,
                 defaultValue: defaultData.indicatorColor));
-            properties.add(new DiagnosticsProperty<Color>("hintColor", this.hintColor,
+            properties.add(new DiagnosticsProperty<Color>("hintColor", hintColor,
                 defaultValue: defaultData.hintColor));
-            properties.add(new DiagnosticsProperty<Color>("errorColor", this.errorColor,
+            properties.add(new DiagnosticsProperty<Color>("errorColor", errorColor,
                 defaultValue: defaultData.errorColor));
-            properties.add(new DiagnosticsProperty<TextTheme>("textTheme", this.textTheme));
-            properties.add(new DiagnosticsProperty<TextTheme>("primaryTextTheme", this.primaryTextTheme));
-            properties.add(new DiagnosticsProperty<TextTheme>("accentTextTheme", this.accentTextTheme));
+            properties.add(new DiagnosticsProperty<TextTheme>("textTheme", textTheme));
+            properties.add(new DiagnosticsProperty<TextTheme>("primaryTextTheme", primaryTextTheme));
+            properties.add(new DiagnosticsProperty<TextTheme>("accentTextTheme", accentTextTheme));
             properties.add(
-                new DiagnosticsProperty<InputDecorationTheme>("inputDecorationTheme", this.inputDecorationTheme));
-            properties.add(new DiagnosticsProperty<Color>("toggleableActiveColor", this.toggleableActiveColor,
+                new DiagnosticsProperty<InputDecorationTheme>("inputDecorationTheme", inputDecorationTheme));
+            properties.add(new DiagnosticsProperty<Color>("toggleableActiveColor", toggleableActiveColor,
                 defaultValue: defaultData.toggleableActiveColor));
-            properties.add(new DiagnosticsProperty<IconThemeData>("iconTheme", this.iconTheme));
-            properties.add(new DiagnosticsProperty<IconThemeData>("primaryIconTheme", this.primaryIconTheme));
-            properties.add(new DiagnosticsProperty<IconThemeData>("accentIconTheme", this.accentIconTheme));
-            properties.add(new DiagnosticsProperty<SliderThemeData>("sliderTheme", this.sliderTheme));
-            properties.add(new DiagnosticsProperty<TabBarTheme>("tabBarTheme", this.tabBarTheme));
-            properties.add(new DiagnosticsProperty<CardTheme>("cardTheme", this.cardTheme));
-            properties.add(new DiagnosticsProperty<ChipThemeData>("chipTheme", this.chipTheme));
+            properties.add(new DiagnosticsProperty<IconThemeData>("iconTheme", iconTheme));
+            properties.add(new DiagnosticsProperty<IconThemeData>("primaryIconTheme", primaryIconTheme));
+            properties.add(new DiagnosticsProperty<IconThemeData>("accentIconTheme", accentIconTheme));
+            properties.add(new DiagnosticsProperty<SliderThemeData>("sliderTheme", sliderTheme));
+            properties.add(new DiagnosticsProperty<TabBarTheme>("tabBarTheme", tabBarTheme));
+            properties.add(new DiagnosticsProperty<CardTheme>("cardTheme", cardTheme));
+            properties.add(new DiagnosticsProperty<ChipThemeData>("chipTheme", chipTheme));
             properties.add(
-                new DiagnosticsProperty<MaterialTapTargetSize>("materialTapTargetSize", this.materialTapTargetSize));
+                new DiagnosticsProperty<MaterialTapTargetSize>("materialTapTargetSize", materialTapTargetSize));
             properties.add(
-                new DiagnosticsProperty<PageTransitionsTheme>("pageTransitionsTheme", this.pageTransitionsTheme));
-            properties.add(new DiagnosticsProperty<AppBarTheme>("appBarTheme", this.appBarTheme));
-            properties.add(new DiagnosticsProperty<BottomAppBarTheme>("bottomAppBarTheme", this.bottomAppBarTheme));
-            properties.add(new DiagnosticsProperty<ColorScheme>("colorScheme", this.colorScheme,
+                new DiagnosticsProperty<PageTransitionsTheme>("pageTransitionsTheme", pageTransitionsTheme));
+            properties.add(new DiagnosticsProperty<AppBarTheme>("appBarTheme", appBarTheme));
+            properties.add(new DiagnosticsProperty<BottomAppBarTheme>("bottomAppBarTheme", bottomAppBarTheme));
+            properties.add(new DiagnosticsProperty<ColorScheme>("colorScheme", colorScheme,
                 defaultValue: defaultData.colorScheme));
-            properties.add(new DiagnosticsProperty<DialogTheme>("dialogTheme", this.dialogTheme,
+            properties.add(new DiagnosticsProperty<DialogTheme>("dialogTheme", dialogTheme,
                 defaultValue: defaultData.dialogTheme));
             properties.add(new DiagnosticsProperty<FloatingActionButtonThemeData>("floatingActionButtonTheme",
-                this.floatingActionButtonTheme, defaultValue: defaultData.floatingActionButtonTheme));
-            properties.add(new DiagnosticsProperty<Typography>("typography", this.typography,
+                floatingActionButtonTheme, defaultValue: defaultData.floatingActionButtonTheme));
+            properties.add(new DiagnosticsProperty<Typography>("typography", typography,
                 defaultValue: defaultData.typography));
         }
     }
@@ -1008,8 +1008,8 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return ReferenceEquals(this.baseTheme, other.baseTheme) &&
-                   ReferenceEquals(this.localTextGeometry, other.localTextGeometry);
+            return ReferenceEquals(baseTheme, other.baseTheme) &&
+                   ReferenceEquals(localTextGeometry, other.localTextGeometry);
         }
 
         public override bool Equals(object obj) {
@@ -1021,11 +1021,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_IdentityThemeDataCacheKey) obj);
+            return Equals((_IdentityThemeDataCacheKey) obj);
         }
 
         public static bool operator ==(_IdentityThemeDataCacheKey left, _IdentityThemeDataCacheKey right) {
@@ -1037,8 +1037,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override int GetHashCode() {
-            var hashCode = this.baseTheme.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.localTextGeometry.GetHashCode();
+            var hashCode = baseTheme.GetHashCode();
+            hashCode = (hashCode * 397) ^ localTextGeometry.GetHashCode();
             return hashCode;
         }
     }
@@ -1046,7 +1046,7 @@ namespace Unity.UIWidgets.material {
     class _FifoCache<K, V> {
         public _FifoCache(int maximumSize) {
             D.assert(maximumSize > 0);
-            this._maximumSize = maximumSize;
+            _maximumSize = maximumSize;
         }
 
         readonly Dictionary<K, V> _cache = new Dictionary<K, V>();
@@ -1058,16 +1058,16 @@ namespace Unity.UIWidgets.material {
             D.assert(value != null);
 
             V get_value;
-            if (this._cache.TryGetValue(key, out get_value)) {
+            if (_cache.TryGetValue(key, out get_value)) {
                 return get_value;
             }
 
-            if (this._cache.Count == this._maximumSize) {
-                this._cache.Remove(this._cache.Keys.First());
+            if (_cache.Count == _maximumSize) {
+                _cache.Remove(_cache.Keys.First());
             }
 
-            this._cache[key] = value();
-            return this._cache[key];
+            _cache[key] = value();
+            return _cache[key];
         }
     }
 }

@@ -48,31 +48,31 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this._heroController = CupertinoApp.createCupertinoHeroController();
-            this._updateObservers();
+            _heroController = CupertinoApp.createCupertinoHeroController();
+            _updateObservers();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
             CupertinoTabView _oldWidget = (CupertinoTabView) oldWidget;
-            if (this.widget.navigatorKey != _oldWidget.navigatorKey
-                || this.widget.navigatorObservers != _oldWidget.navigatorObservers) {
-                this._updateObservers();
+            if (widget.navigatorKey != _oldWidget.navigatorKey
+                || widget.navigatorObservers != _oldWidget.navigatorObservers) {
+                _updateObservers();
             }
         }
 
         void _updateObservers() {
-            this._navigatorObservers =
-                new List<NavigatorObserver>(this.widget.navigatorObservers);
-            this._navigatorObservers.Add(this._heroController);
+            _navigatorObservers =
+                new List<NavigatorObserver>(widget.navigatorObservers);
+            _navigatorObservers.Add(_heroController);
         }
 
         public override Widget build(BuildContext context) {
             return new Navigator(
-                key: this.widget.navigatorKey,
-                onGenerateRoute: this._onGenerateRoute,
-                onUnknownRoute: this._onUnknownRoute,
-                observers: this._navigatorObservers
+                key: widget.navigatorKey,
+                onGenerateRoute: _onGenerateRoute,
+                onUnknownRoute: _onUnknownRoute,
+                observers: _navigatorObservers
             );
         }
 
@@ -80,12 +80,12 @@ namespace Unity.UIWidgets.cupertino {
             string name = settings.name;
             WidgetBuilder routeBuilder = null;
             string title = null;
-            if (name == Navigator.defaultRouteName && this.widget.builder != null) {
-                routeBuilder = this.widget.builder;
-                title = this.widget.defaultTitle;
+            if (name == Navigator.defaultRouteName && widget.builder != null) {
+                routeBuilder = widget.builder;
+                title = widget.defaultTitle;
             }
-            else if (this.widget.routes != null) {
-                routeBuilder = this.widget.routes[name];
+            else if (widget.routes != null) {
+                routeBuilder = widget.routes[name];
             }
 
             if (routeBuilder != null) {
@@ -96,8 +96,8 @@ namespace Unity.UIWidgets.cupertino {
                 );
             }
 
-            if (this.widget.onGenerateRoute != null) {
-                return this.widget.onGenerateRoute(settings);
+            if (widget.onGenerateRoute != null) {
+                return widget.onGenerateRoute(settings);
             }
 
             return null;
@@ -105,9 +105,9 @@ namespace Unity.UIWidgets.cupertino {
 
         Route _onUnknownRoute(RouteSettings settings) {
             D.assert(() => {
-                if (this.widget.onUnknownRoute == null) {
+                if (widget.onUnknownRoute == null) {
                     throw new UIWidgetsError(
-                        $"Could not find a generator for route {settings} in the {this.GetType()}.\n" +
+                        $"Could not find a generator for route {settings} in the {GetType()}.\n" +
                         "Generators for routes are searched for in the following order:\n" +
                         " 1. For the \"/\" route, the \"builder\" property, if non-null, is used.\n" +
                         " 2. Otherwise, the \"routes\" table is used, if it has an entry for " +
@@ -122,12 +122,12 @@ namespace Unity.UIWidgets.cupertino {
                 return true;
             });
 
-            Route result = this.widget.onUnknownRoute(settings);
+            Route result = widget.onUnknownRoute(settings);
             D.assert(() => {
                 if (result == null) {
                     throw new UIWidgetsError(
                         "The onUnknownRoute callback returned null.\n" +
-                        $"When the {this.GetType()} requested the route {settings} from its " +
+                        $"When the {GetType()} requested the route {settings} from its " +
                         "onUnknownRoute callback, the callback returned null. Such callbacks " +
                         "must never return null."
                     );

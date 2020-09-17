@@ -15,7 +15,7 @@ namespace Unity.UIWidgets.rendering {
             builder.addText(
                 $"{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}"
             );
-            this._paragraph = builder.build();
+            _paragraph = builder.build();
         }
 
         string message;

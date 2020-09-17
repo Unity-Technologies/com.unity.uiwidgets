@@ -76,7 +76,7 @@ namespace Unity.UIWidgets.widgets {
         public abstract Type type { get; }
 
         public override string ToString() {
-            return $"{this.GetType()}[{this.type}]";
+            return $"{GetType()}[{type}]";
         }
     }
 
@@ -147,7 +147,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly Dictionary<Type, object> typeToResources;
 
         public override bool updateShouldNotify(InheritedWidget old) {
-            return this.typeToResources != ((_LocalizationsScope) old).typeToResources;
+            return typeToResources != ((_LocalizationsScope) old).typeToResources;
         }
     }
 
@@ -230,8 +230,8 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Locale>("locale", this.locale));
-            properties.add(new EnumerableProperty<LocalizationsDelegate>("delegates", this.delegates));
+            properties.add(new DiagnosticsProperty<Locale>("locale", locale));
+            properties.add(new EnumerableProperty<LocalizationsDelegate>("delegates", delegates));
         }
     }
 
@@ -241,22 +241,22 @@ namespace Unity.UIWidgets.widgets {
         Dictionary<Type, object> _typeToResources = new Dictionary<Type, object>();
 
         public Locale locale {
-            get { return this._locale; }
+            get { return _locale; }
         }
 
         Locale _locale;
 
         public override void initState() {
             base.initState();
-            this.load(this.widget.locale);
+            load(widget.locale);
         }
 
         bool _anyDelegatesShouldReload(Localizations old) {
-            if (this.widget.delegates.Count != old.delegates.Count) {
+            if (widget.delegates.Count != old.delegates.Count) {
                 return true;
             }
 
-            List<LocalizationsDelegate> delegates = this.widget.delegates.ToList();
+            List<LocalizationsDelegate> delegates = widget.delegates.ToList();
             List<LocalizationsDelegate> oldDelegates = old.delegates.ToList();
             for (int i = 0; i < delegates.Count; i += 1) {
                 LocalizationsDelegate del = delegates[i];
@@ -272,18 +272,18 @@ namespace Unity.UIWidgets.widgets {
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             Localizations old = (Localizations) oldWidget;
             base.didUpdateWidget(old);
-            if (this.widget.locale != old.locale
-                || (this.widget.delegates == null && old.delegates != null)
-                || (this.widget.delegates != null && old.delegates == null)
-                || (this.widget.delegates != null && this._anyDelegatesShouldReload(old))) {
-                this.load(this.widget.locale);
+            if (widget.locale != old.locale
+                || (widget.delegates == null && old.delegates != null)
+                || (widget.delegates != null && old.delegates == null)
+                || (widget.delegates != null && _anyDelegatesShouldReload(old))) {
+                load(widget.locale);
             }
         }
 
         void load(Locale locale) {
-            var delegates = this.widget.delegates;
+            var delegates = widget.delegates;
             if (delegates == null || delegates.isEmpty()) {
-                this._locale = locale;
+                _locale = locale;
                 return;
             }
 
@@ -292,20 +292,20 @@ namespace Unity.UIWidgets.widgets {
                 .Then(value => { return typeToResources = value; });
 
             if (typeToResources != null) {
-                this._typeToResources = typeToResources;
-                this._locale = locale;
+                _typeToResources = typeToResources;
+                _locale = locale;
             }
             else {
                 // WidgetsBinding.instance.deferFirstFrameReport();
                 typeToResourcesFuture.Then(value => {
                     // WidgetsBinding.instance.allowFirstFrameReport();
-                    if (!this.mounted) {
+                    if (!mounted) {
                         return;
                     }
 
-                    this.setState(() => {
-                        this._typeToResources = value;
-                        this._locale = locale;
+                    setState(() => {
+                        _typeToResources = value;
+                        _locale = locale;
                     });
                 });
             }
@@ -313,21 +313,21 @@ namespace Unity.UIWidgets.widgets {
 
         public T resourcesFor<T>(Type type) {
             D.assert(type != null);
-            T resources = (T) this._typeToResources.getOrDefault(type);
+            T resources = (T) _typeToResources.getOrDefault(type);
             return resources;
         }
 
         public override Widget build(BuildContext context) {
-            if (this._locale == null) {
+            if (_locale == null) {
                 return new Container();
             }
 
             return new _LocalizationsScope(
-                key: this._localizedResourcesScopeKey,
-                locale: this._locale,
+                key: _localizedResourcesScopeKey,
+                locale: _locale,
                 localizationsState: this,
-                typeToResources: this._typeToResources,
-                child: this.widget.child
+                typeToResources: _typeToResources,
+                child: widget.child
             );
         }
     }

@@ -113,30 +113,30 @@ namespace Unity.UIWidgets.material {
         
         public override void initState() {
             base.initState();
-            this._heroController = new HeroController(createRectTween: this._createRectTween);
-            this._updateNavigator();
+            _heroController = new HeroController(createRectTween: _createRectTween);
+            _updateNavigator();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.navigatorKey != (oldWidget as MaterialApp).navigatorKey) {
-                this._heroController = new HeroController(createRectTween: this._createRectTween);
+            if (widget.navigatorKey != (oldWidget as MaterialApp).navigatorKey) {
+                _heroController = new HeroController(createRectTween: _createRectTween);
             }
-            this._updateNavigator();
+            _updateNavigator();
         }
 
         List<NavigatorObserver> _navigatorObservers;
 
         void _updateNavigator() {
-            if (this.widget.home != null ||
-                this.widget.routes.isNotEmpty() ||
-                this.widget.onGenerateRoute != null ||
-                this.widget.onUnknownRoute != null) {
-                this._navigatorObservers = new List<NavigatorObserver>(this.widget.navigatorObservers);
-                this._navigatorObservers.Add(this._heroController);
+            if (widget.home != null ||
+                widget.routes.isNotEmpty() ||
+                widget.onGenerateRoute != null ||
+                widget.onUnknownRoute != null) {
+                _navigatorObservers = new List<NavigatorObserver>(widget.navigatorObservers);
+                _navigatorObservers.Add(_heroController);
             }
             else {
-                this._navigatorObservers = new List<NavigatorObserver>();
+                _navigatorObservers = new List<NavigatorObserver>();
             }
         }
 
@@ -147,8 +147,8 @@ namespace Unity.UIWidgets.material {
         List<LocalizationsDelegate> _localizationsDelegates {
             get {
                 var _delegates = new List<LocalizationsDelegate>();
-                if (this.widget.localizationsDelegates != null) {
-                    _delegates.AddRange(this.widget.localizationsDelegates);
+                if (widget.localizationsDelegates != null) {
+                    _delegates.AddRange(widget.localizationsDelegates);
                 }
                 
                 _delegates.Add(DefaultCupertinoLocalizations.del);
@@ -160,23 +160,23 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             Widget result = new WidgetsApp(
                 key: new GlobalObjectKey<State>(this),
-                navigatorKey: this.widget.navigatorKey,
-                navigatorObservers: this._navigatorObservers,
+                navigatorKey: widget.navigatorKey,
+                navigatorObservers: _navigatorObservers,
                 pageRouteBuilder: (RouteSettings settings, WidgetBuilder builder) =>
                     new MaterialPageRoute(settings: settings, builder: builder),
-                home: this.widget.home,
-                routes: this.widget.routes,
-                initialRoute: this.widget.initialRoute,
-                onGenerateRoute: this.widget.onGenerateRoute,
-                onUnknownRoute: this.widget.onUnknownRoute,
+                home: widget.home,
+                routes: widget.routes,
+                initialRoute: widget.initialRoute,
+                onGenerateRoute: widget.onGenerateRoute,
+                onUnknownRoute: widget.onUnknownRoute,
                 builder: (BuildContext _context, Widget child) => {
                     ThemeData theme;
                     Brightness platformBrightness = MediaQuery.platformBrightnessOf(_context);
-                    if (platformBrightness == Brightness.dark && this.widget.darkTheme != null) {
-                        theme = this.widget.darkTheme;
+                    if (platformBrightness == Brightness.dark && widget.darkTheme != null) {
+                        theme = widget.darkTheme;
                     }
-                    else if (this.widget.theme != null) {
-                        theme = this.widget.theme;
+                    else if (widget.theme != null) {
+                        theme = widget.theme;
                     }
                     else {
                         theme = ThemeData.fallback();
@@ -185,20 +185,20 @@ namespace Unity.UIWidgets.material {
                     return new AnimatedTheme(
                         data: theme,
                         isMaterialAppTheme: true,
-                        child: this.widget.builder != null
+                        child: widget.builder != null
                             ? new Builder(
-                                builder: (__context) => { return this.widget.builder(__context, child); }
+                                builder: (__context) => { return widget.builder(__context, child); }
                             )
                             : child
                     );
                 },
                 textStyle: AppUtils._errorTextStyle,
-                locale: this.widget.locale,
-                localizationsDelegates: this._localizationsDelegates,
-                localeResolutionCallback: this.widget.localeResolutionCallback,
-                localeListResolutionCallback: this.widget.localeListResolutionCallback,
-                supportedLocales: this.widget.supportedLocales,
-                showPerformanceOverlay: this.widget.showPerformanceOverlay
+                locale: widget.locale,
+                localizationsDelegates: _localizationsDelegates,
+                localeResolutionCallback: widget.localeResolutionCallback,
+                localeListResolutionCallback: widget.localeListResolutionCallback,
+                supportedLocales: widget.supportedLocales,
+                showPerformanceOverlay: widget.showPerformanceOverlay
             );
 
             return result;

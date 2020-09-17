@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.ui {
             }
 
             public override void clear() {
-                this.layer = null;
+                layer = null;
             }
 
             public static CmdLayer create(RenderLayer layer) {
@@ -48,9 +48,9 @@ namespace Unity.UIWidgets.ui {
 
 
             public override void clear() {
-                ObjectPool<uiMeshMesh>.release(this.mesh);
-                ObjectPool<TextBlobMesh>.release(this.textMesh);
-                ObjectPool<MaterialPropertyBlockWrapper>.release(this.properties);
+                ObjectPool<uiMeshMesh>.release(mesh);
+                ObjectPool<TextBlobMesh>.release(textMesh);
+                ObjectPool<MaterialPropertyBlockWrapper>.release(properties);
             }
 
             public CmdDraw() {
@@ -86,7 +86,7 @@ namespace Unity.UIWidgets.ui {
             }
 
             public override void clear() {
-                this.deviceScissor = null;
+                deviceScissor = null;
             }
 
             public static CmdScissor create(uiRect? deviceScissor) {

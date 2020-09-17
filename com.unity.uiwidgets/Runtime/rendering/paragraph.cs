@@ -49,9 +49,9 @@ namespace Unity.UIWidgets.rendering {
             Color selectionColor = null
         ) {
             D.assert(maxLines == null || maxLines > 0);
-            this._softWrap = softWrap;
-            this._overflow = overflow;
-            this._textPainter = new TextPainter(
+            _softWrap = softWrap;
+            _overflow = overflow;
+            _textPainter = new TextPainter(
                 text,
                 textAlign,
                 textDirection,
@@ -61,166 +61,166 @@ namespace Unity.UIWidgets.rendering {
                 strutStyle: strutStyle
             );
 
-            this._selection = null;
+            _selection = null;
             this.onSelectionChanged = onSelectionChanged;
             this.selectionColor = selectionColor;
 
-            this._resetHoverHandler();
+            _resetHoverHandler();
         }
 
         public Action onSelectionChanged;
         public Color selectionColor;
 
         public TextSelection selection {
-            get { return this._selection; }
+            get { return _selection; }
             set {
-                if (this._selection == value) {
+                if (_selection == value) {
                     return;
                 }
 
-                this._selection = value;
-                this._selectionRects = null;
-                this.markNeedsPaint();
+                _selection = value;
+                _selectionRects = null;
+                markNeedsPaint();
             }
         }
 
         public TextSpan text {
-            get { return this._textPainter.text; }
+            get { return _textPainter.text; }
 
             set {
                 Debug.Assert(value != null);
-                switch (this._textPainter.text.compareTo(value)) {
+                switch (_textPainter.text.compareTo(value)) {
                     case RenderComparison.identical:
                     case RenderComparison.metadata:
                         return;
                     case RenderComparison.function:
-                        this._textPainter.text = value;
-                        this.markNeedsPaint();
+                        _textPainter.text = value;
+                        markNeedsPaint();
                         break;
                     case RenderComparison.paint:
-                        this._textPainter.text = value;
-                        this.markNeedsPaint();
+                        _textPainter.text = value;
+                        markNeedsPaint();
                         break;
                     case RenderComparison.layout:
-                        this._textPainter.text = value;
-                        this.markNeedsLayout();
+                        _textPainter.text = value;
+                        markNeedsLayout();
                         break;
                 }
 
-                this._resetHoverHandler();
+                _resetHoverHandler();
             }
         }
 
         public TextAlign textAlign {
-            get { return this._textPainter.textAlign; }
+            get { return _textPainter.textAlign; }
             set {
-                if (this._textPainter.textAlign == value) {
+                if (_textPainter.textAlign == value) {
                     return;
                 }
 
-                this._textPainter.textAlign = value;
-                this.markNeedsPaint();
+                _textPainter.textAlign = value;
+                markNeedsPaint();
             }
         }
 
         public TextDirection? textDirection {
-            get { return this._textPainter.textDirection; }
+            get { return _textPainter.textDirection; }
             set {
-                if (this._textPainter.textDirection == value) {
+                if (_textPainter.textDirection == value) {
                     return;
                 }
 
-                this._textPainter.textDirection = this.textDirection;
-                this.markNeedsLayout();
+                _textPainter.textDirection = textDirection;
+                markNeedsLayout();
             }
         }
 
         protected Offset getOffsetForCaret(TextPosition position, Rect caretPrototype) {
-            D.assert(this._textPainter != null);
-            return this._textPainter.getOffsetForCaret(position, caretPrototype);
+            D.assert(_textPainter != null);
+            return _textPainter.getOffsetForCaret(position, caretPrototype);
         }
 
         public bool softWrap {
-            get { return this._softWrap; }
+            get { return _softWrap; }
             set {
-                if (this._softWrap == value) {
+                if (_softWrap == value) {
                     return;
                 }
 
-                this._softWrap = value;
-                this.markNeedsLayout();
+                _softWrap = value;
+                markNeedsLayout();
             }
         }
 
         public TextOverflow overflow {
-            get { return this._overflow; }
+            get { return _overflow; }
             set {
-                if (this._overflow == value) {
+                if (_overflow == value) {
                     return;
                 }
 
-                this._overflow = value;
-                this._textPainter.ellipsis = value == TextOverflow.ellipsis ? _kEllipsis : null;
+                _overflow = value;
+                _textPainter.ellipsis = value == TextOverflow.ellipsis ? _kEllipsis : null;
                 // _textPainter.e
-                this.markNeedsLayout();
+                markNeedsLayout();
             }
         }
 
         public float textScaleFactor {
-            get { return this._textPainter.textScaleFactor; }
+            get { return _textPainter.textScaleFactor; }
             set {
-                if (Mathf.Abs(this._textPainter.textScaleFactor - value) < 0.00000001) {
+                if (Mathf.Abs(_textPainter.textScaleFactor - value) < 0.00000001) {
                     return;
                 }
 
-                this._textPainter.textScaleFactor = value;
-                this.markNeedsLayout();
+                _textPainter.textScaleFactor = value;
+                markNeedsLayout();
             }
         }
 
         public int? maxLines {
-            get { return this._textPainter.maxLines; }
+            get { return _textPainter.maxLines; }
             set {
-                D.assert(this.maxLines == null || this.maxLines > 0);
-                if (this._textPainter.maxLines == value) {
+                D.assert(maxLines == null || maxLines > 0);
+                if (_textPainter.maxLines == value) {
                     return;
                 }
 
-                this._textPainter.maxLines = value;
-                this.markNeedsLayout();
+                _textPainter.maxLines = value;
+                markNeedsLayout();
             }
         }
 
         public Size textSize {
-            get { return this._textPainter.size; }
+            get { return _textPainter.size; }
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            this._layoutText();
-            return this._textPainter.minIntrinsicWidth;
+            _layoutText();
+            return _textPainter.minIntrinsicWidth;
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            this._layoutText();
-            return this._textPainter.maxIntrinsicWidth;
+            _layoutText();
+            return _textPainter.maxIntrinsicWidth;
         }
 
         float _computeIntrinsicHeight(float width) {
-            this._layoutText(minWidth: width, maxWidth: width);
-            return this._textPainter.height;
+            _layoutText(minWidth: width, maxWidth: width);
+            return _textPainter.height;
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            return this._computeIntrinsicHeight(width);
+            return _computeIntrinsicHeight(width);
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            return this._computeIntrinsicHeight(width);
+            return _computeIntrinsicHeight(width);
         }
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            this._layoutTextWithConstraints(this.constraints);
-            return this._textPainter.computeDistanceToActualBaseline(baseline);
+            _layoutTextWithConstraints(constraints);
+            return _textPainter.computeDistanceToActualBaseline(baseline);
         }
 
 
@@ -232,24 +232,24 @@ namespace Unity.UIWidgets.rendering {
         bool _listenerAttached = false;
 
         public bool hasFocus {
-            get { return this._hasFocus; }
+            get { return _hasFocus; }
             set {
-                if (this._hasFocus == value) {
+                if (_hasFocus == value) {
                     return;
                 }
 
-                this._hasFocus = value;
+                _hasFocus = value;
 
-                if (this._hasFocus) {
-                    D.assert(!this._listenerAttached);
-                    RawKeyboard.instance.addListener(this._handleKeyEvent);
-                    this._listenerAttached = true;
+                if (_hasFocus) {
+                    D.assert(!_listenerAttached);
+                    RawKeyboard.instance.addListener(_handleKeyEvent);
+                    _listenerAttached = true;
                 }
                 else {
-                    this.selection = null;
-                    D.assert(this._listenerAttached);
-                    RawKeyboard.instance.removeListener(this._handleKeyEvent);
-                    this._listenerAttached = false;
+                    selection = null;
+                    D.assert(_listenerAttached);
+                    RawKeyboard.instance.removeListener(_handleKeyEvent);
+                    _listenerAttached = false;
                 }
             }
         }
@@ -263,26 +263,26 @@ namespace Unity.UIWidgets.rendering {
         MouseTrackerAnnotation _hoverAnnotation;
 
         void _resetHoverHandler() {
-            this._hasHoverRecognizer = this._textPainter.text.hasHoverRecognizer;
-            this._previousHoverSpan = null;
-            this._pointerHoverInside = false;
+            _hasHoverRecognizer = _textPainter.text.hasHoverRecognizer;
+            _previousHoverSpan = null;
+            _pointerHoverInside = false;
 
-            if (this._hoverAnnotation != null && this.attached) {
-                RendererBinding.instance.mouseTracker.detachAnnotation(this._hoverAnnotation);
+            if (_hoverAnnotation != null && attached) {
+                RendererBinding.instance.mouseTracker.detachAnnotation(_hoverAnnotation);
             }
 
-            if (this._hasHoverRecognizer) {
-                this._hoverAnnotation = new MouseTrackerAnnotation(
-                    onEnter: this._onPointerEnter,
-                    onHover: this._onPointerHover,
-                    onExit: this._onPointerExit);
+            if (_hasHoverRecognizer) {
+                _hoverAnnotation = new MouseTrackerAnnotation(
+                    onEnter: _onPointerEnter,
+                    onHover: _onPointerHover,
+                    onExit: _onPointerExit);
 
-                if (this.attached) {
-                    RendererBinding.instance.mouseTracker.attachAnnotation(this._hoverAnnotation);
+                if (attached) {
+                    RendererBinding.instance.mouseTracker.attachAnnotation(_hoverAnnotation);
                 }
             }
             else {
-                this._hoverAnnotation = null;
+                _hoverAnnotation = null;
             }
         }
 
@@ -292,7 +292,7 @@ namespace Unity.UIWidgets.rendering {
                 return;
             }
 
-            if (this.selection.isCollapsed) {
+            if (selection.isCollapsed) {
                 return;
             }
 
@@ -311,26 +311,26 @@ namespace Unity.UIWidgets.rendering {
 
             if (kcmd == KeyCommand.Copy) {
                 Clipboard.setData(
-                    new ClipboardData(text: this.selection.textInside(this.text.toPlainText()))
+                    new ClipboardData(text: selection.textInside(text.toPlainText()))
                 );
             }
         }
 
         public override void attach(object owner) {
             base.attach(owner);
-            if (this._hoverAnnotation != null) {
-                RendererBinding.instance.mouseTracker.attachAnnotation(this._hoverAnnotation);
+            if (_hoverAnnotation != null) {
+                RendererBinding.instance.mouseTracker.attachAnnotation(_hoverAnnotation);
             }
         }
 
         public override void detach() {
-            if (this._listenerAttached) {
-                RawKeyboard.instance.removeListener(this._handleKeyEvent);
+            if (_listenerAttached) {
+                RawKeyboard.instance.removeListener(_handleKeyEvent);
             }
 
             base.detach();
-            if (this._hoverAnnotation != null) {
-                RendererBinding.instance.mouseTracker.detachAnnotation(this._hoverAnnotation);
+            if (_hoverAnnotation != null) {
+                RendererBinding.instance.mouseTracker.detachAnnotation(_hoverAnnotation);
             }
         }
 
@@ -341,10 +341,10 @@ namespace Unity.UIWidgets.rendering {
             D.assert(from != null);
             if (true) {
                 TextPosition fromPosition =
-                    this._textPainter.getPositionForOffset(this.globalToLocal(from));
+                    _textPainter.getPositionForOffset(globalToLocal(from));
                 TextPosition toPosition = to == null
                     ? null
-                    : this._textPainter.getPositionForOffset(this.globalToLocal(to));
+                    : _textPainter.getPositionForOffset(globalToLocal(to));
 
                 int baseOffset = fromPosition.offset;
                 int extentOffset = fromPosition.offset;
@@ -358,8 +358,8 @@ namespace Unity.UIWidgets.rendering {
                     extentOffset: extentOffset,
                     affinity: fromPosition.affinity);
 
-                if (newSelection != this._selection) {
-                    this._handleSelectionChanged(newSelection, cause.Value);
+                if (newSelection != _selection) {
+                    _handleSelectionChanged(newSelection, cause.Value);
                 }
             }
         }
@@ -368,118 +368,118 @@ namespace Unity.UIWidgets.rendering {
         void _handleSelectionChanged(TextSelection selection,
             SelectionChangedCause cause) {
             this.selection = selection;
-            this.onSelectionChanged?.Invoke();
+            onSelectionChanged?.Invoke();
         }
 
         void _onPointerEnter(PointerEvent evt) {
-            this._pointerHoverInside = true;
+            _pointerHoverInside = true;
         }
 
         void _onPointerExit(PointerEvent evt) {
-            this._pointerHoverInside = false;
-            this._previousHoverSpan?.hoverRecognizer?.OnPointerLeave?.Invoke();
-            this._previousHoverSpan = null;
+            _pointerHoverInside = false;
+            _previousHoverSpan?.hoverRecognizer?.OnPointerLeave?.Invoke();
+            _previousHoverSpan = null;
         }
 
         void _onPointerHover(PointerEvent evt) {
-            this._layoutTextWithConstraints(this.constraints);
-            Offset offset = this.globalToLocal(evt.position);
-            TextPosition position = this._textPainter.getPositionForOffset(offset);
-            TextSpan span = this._textPainter.text.getSpanForPosition(position);
+            _layoutTextWithConstraints(constraints);
+            Offset offset = globalToLocal(evt.position);
+            TextPosition position = _textPainter.getPositionForOffset(offset);
+            TextSpan span = _textPainter.text.getSpanForPosition(position);
 
-            if (this._previousHoverSpan != span) {
-                this._previousHoverSpan?.hoverRecognizer?.OnPointerLeave?.Invoke();
+            if (_previousHoverSpan != span) {
+                _previousHoverSpan?.hoverRecognizer?.OnPointerLeave?.Invoke();
                 span?.hoverRecognizer?.OnPointerEnter?.Invoke((PointerHoverEvent) evt);
-                this._previousHoverSpan = span;
+                _previousHoverSpan = span;
             }
         }
 
         public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
-            D.assert(this.debugHandleEvent(evt, entry));
+            D.assert(debugHandleEvent(evt, entry));
             if (!(evt is PointerDownEvent)) {
                 return;
             }
             
-            this._layoutTextWithConstraints(this.constraints);
+            _layoutTextWithConstraints(constraints);
             Offset offset = ((BoxHitTestEntry) entry).localPosition;
-            TextPosition position = this._textPainter.getPositionForOffset(offset);
-            TextSpan span = this._textPainter.text.getSpanForPosition(position);
+            TextPosition position = _textPainter.getPositionForOffset(offset);
+            TextSpan span = _textPainter.text.getSpanForPosition(position);
             span?.recognizer?.addPointer((PointerDownEvent) evt);
         }
 
         protected override void performLayout() {
-            this._layoutTextWithConstraints(this.constraints);
-            var textSize = this._textPainter.size;
-            var textDidExceedMaxLines = this._textPainter.didExceedMaxLines;
-            this.size = this.constraints.constrain(textSize);
+            _layoutTextWithConstraints(constraints);
+            var textSize = _textPainter.size;
+            var textDidExceedMaxLines = _textPainter.didExceedMaxLines;
+            size = constraints.constrain(textSize);
 
-            var didOverflowHeight = this.size.height < textSize.height || textDidExceedMaxLines;
-            var didOverflowWidth = this.size.width < textSize.width;
+            var didOverflowHeight = size.height < textSize.height || textDidExceedMaxLines;
+            var didOverflowWidth = size.width < textSize.width;
             var hasVisualOverflow = didOverflowWidth || didOverflowHeight;
             if (hasVisualOverflow) {
-                switch (this._overflow) {
+                switch (_overflow) {
                 case TextOverflow.visible:
-                    this._needsClipping = false;
+                    _needsClipping = false;
                     break;
                 case TextOverflow.clip:
                 case TextOverflow.ellipsis:
                 case TextOverflow.fade:
-                    this._needsClipping = true;
+                    _needsClipping = true;
                     break;
                 }
             }
             else {
-                this._needsClipping = false;
+                _needsClipping = false;
             }
 
-            this._selectionRects = null;
+            _selectionRects = null;
         }
 
 
         void paintParagraph(PaintingContext context, Offset offset) {
-            this._layoutTextWithConstraints(this.constraints);
+            _layoutTextWithConstraints(constraints);
             var canvas = context.canvas;
 
-            if (this._needsClipping) {
-                var bounds = offset & this.size;
+            if (_needsClipping) {
+                var bounds = offset & size;
                 canvas.save();
                 canvas.clipRect(bounds);
             }
 
-            if (this._selection != null && this.selectionColor != null && this._selection.isValid) {
-                if (!this._selection.isCollapsed) {
-                    this._selectionRects =
-                        this._selectionRects ?? this._textPainter.getBoxesForSelection(this._selection);
-                    this._paintSelection(canvas, offset);
+            if (_selection != null && selectionColor != null && _selection.isValid) {
+                if (!_selection.isCollapsed) {
+                    _selectionRects =
+                        _selectionRects ?? _textPainter.getBoxesForSelection(_selection);
+                    _paintSelection(canvas, offset);
                 }
             }
 
-            this._textPainter.paint(canvas, offset);
-            if (this._needsClipping) {
+            _textPainter.paint(canvas, offset);
+            if (_needsClipping) {
                 canvas.restore();
             }
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this._hoverAnnotation != null) {
+            if (_hoverAnnotation != null) {
                 AnnotatedRegionLayer<MouseTrackerAnnotation> layer = new AnnotatedRegionLayer<MouseTrackerAnnotation>(
-                    this._hoverAnnotation, size: this.size, offset: offset);
+                    _hoverAnnotation, size: size, offset: offset);
 
-                context.pushLayer(layer, this.paintParagraph, offset);
+                context.pushLayer(layer, paintParagraph, offset);
             }
             else {
-                this.paintParagraph(context, offset);
+                paintParagraph(context, offset);
             }
         }
 
 
         void _paintSelection(Canvas canvas, Offset effectiveOffset) {
-            D.assert(this._selectionRects != null);
-            D.assert(this.selectionColor != null);
-            var paint = new Paint {color = this.selectionColor};
+            D.assert(_selectionRects != null);
+            D.assert(selectionColor != null);
+            var paint = new Paint {color = selectionColor};
 
             Path barPath = new Path();
-            foreach (var box in this._selectionRects) {
+            foreach (var box in _selectionRects) {
                 barPath.addRect(box.toRect().shift(effectiveOffset));
             }
 
@@ -487,41 +487,41 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public StrutStyle strutStyle {
-            get { return this._textPainter.strutStyle; }
+            get { return _textPainter.strutStyle; }
             set {
-                if (this._textPainter.strutStyle == value) {
+                if (_textPainter.strutStyle == value) {
                     return;
                 }
 
-                this._textPainter.strutStyle = value;
-                this.markNeedsLayout();
+                _textPainter.strutStyle = value;
+                markNeedsLayout();
             }
         }
 
         void _layoutText(float minWidth = 0.0f, float maxWidth = float.PositiveInfinity) {
-            var widthMatters = this.softWrap || this.overflow == TextOverflow.ellipsis;
-            this._textPainter.layout(minWidth, widthMatters ? maxWidth : float.PositiveInfinity);
+            var widthMatters = softWrap || overflow == TextOverflow.ellipsis;
+            _textPainter.layout(minWidth, widthMatters ? maxWidth : float.PositiveInfinity);
         }
 
         void _layoutTextWithConstraints(BoxConstraints constraints) {
-            this._layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
+            _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
             return new List<DiagnosticsNode> {
-                this.text.toDiagnosticsNode(name: "text", style: DiagnosticsTreeStyle.transition)
+                text.toDiagnosticsNode(name: "text", style: DiagnosticsTreeStyle.transition)
             };
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<TextAlign>("textAlign", this.textAlign));
-            properties.add(new EnumProperty<TextDirection?>("textDirection", this.textDirection));
-            properties.add(new FlagProperty("softWrap", value: this.softWrap, ifTrue: "wrapping at box width",
+            properties.add(new EnumProperty<TextAlign>("textAlign", textAlign));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection));
+            properties.add(new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width",
                 ifFalse: "no wrapping except at line break characters", showName: true));
-            properties.add(new EnumProperty<TextOverflow>("overflow", this.overflow));
-            properties.add(new FloatProperty("textScaleFactor", this.textScaleFactor, defaultValue: 1.0f));
-            properties.add(new IntProperty("maxLines", this.maxLines, ifNull: "unlimited"));
+            properties.add(new EnumProperty<TextOverflow>("overflow", overflow));
+            properties.add(new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: 1.0f));
+            properties.add(new IntProperty("maxLines", maxLines, ifNull: "unlimited"));
         }
     }
 }

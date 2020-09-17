@@ -44,62 +44,62 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void _fieldDidChange() {
-            if (this.widget.onChanged != null) {
-                this.widget.onChanged();
+            if (widget.onChanged != null) {
+                widget.onChanged();
             }
 
-            this._forceRebuild();
+            _forceRebuild();
         }
 
         void _forceRebuild() {
-            this.setState(() => { ++this._generation; });
+            setState(() => { ++_generation; });
         }
 
         public void _register(FormFieldState field) {
-            this._fields.Add(field);
+            _fields.Add(field);
         }
 
         public void _unregister(FormFieldState field) {
-            this._fields.Remove(field);
+            _fields.Remove(field);
         }
 
         public override Widget build(BuildContext context) {
-            if (this.widget.autovalidate) {
-                this._validate();
+            if (widget.autovalidate) {
+                _validate();
             }
 
             return new WillPopScope(
-                onWillPop: this.widget.onWillPop,
+                onWillPop: widget.onWillPop,
                 child: new _FormScope(
                     formState: this,
-                    generation: this._generation,
-                    child: this.widget.child
+                    generation: _generation,
+                    child: widget.child
                 )
             );
         }
 
         public void save() {
-            foreach (FormFieldState field in this._fields) {
+            foreach (FormFieldState field in _fields) {
                 field.save();
             }
         }
 
         public void reset() {
-            foreach (FormFieldState field in this._fields) {
+            foreach (FormFieldState field in _fields) {
                 field.reset();
             }
 
-            this._fieldDidChange();
+            _fieldDidChange();
         }
 
         public bool validate() {
-            this._forceRebuild();
-            return this._validate();
+            _forceRebuild();
+            return _validate();
         }
 
         bool _validate() {
             bool hasError = false;
-            foreach (FormFieldState field in this._fields) {
+            foreach (FormFieldState field in _fields) {
                 hasError = !field.validate() || hasError;
             }
 
@@ -115,8 +115,8 @@ namespace Unity.UIWidgets.widgets {
             int? generation = null
         ) :
             base(key: key, child: child) {
-            this._formState = formState;
-            this._generation = generation;
+            _formState = formState;
+            _generation = generation;
         }
 
         public readonly FormState _formState;
@@ -124,12 +124,12 @@ namespace Unity.UIWidgets.widgets {
         public readonly int? _generation;
 
         public Form form {
-            get { return this._formState.widget; }
+            get { return _formState.widget; }
         }
 
         public override bool updateShouldNotify(InheritedWidget _old) {
             _FormScope old = _old as _FormScope;
-            return this._generation != old._generation;
+            return _generation != old._generation;
         }
     }
 
@@ -188,67 +188,67 @@ namespace Unity.UIWidgets.widgets {
         string _errorText;
 
         public T value {
-            get { return this._value; }
+            get { return _value; }
         }
 
         public string errorText {
-            get { return this._errorText; }
+            get { return _errorText; }
         }
 
         public bool hasError {
-            get { return this._errorText != null; }
+            get { return _errorText != null; }
         }
 
         public void save() {
-            if (this.widget.onSaved != null) {
-                this.widget.onSaved(this.value);
+            if (widget.onSaved != null) {
+                widget.onSaved(value);
             }
         }
 
         public virtual void reset() {
-            this.setState(() => {
-                this._value = this.widget.initialValue;
-                this._errorText = null;
+            setState(() => {
+                _value = widget.initialValue;
+                _errorText = null;
             });
         }
 
         public bool validate() {
-            this.setState(() => { this._validate(); });
-            return !this.hasError;
+            setState(() => { _validate(); });
+            return !hasError;
         }
 
         void _validate() {
-            if (this.widget.validator != null) {
-                this._errorText = this.widget.validator(this._value);
+            if (widget.validator != null) {
+                _errorText = widget.validator(_value);
             }
         }
 
         public virtual void didChange(T value) {
-            this.setState(() => { this._value = value; });
-            Form.of(this.context)?._fieldDidChange();
+            setState(() => { _value = value; });
+            Form.of(context)?._fieldDidChange();
         }
 
         protected void setValue(T value) {
-            this._value = value;
+            _value = value;
         }
 
         public override void initState() {
             base.initState();
-            this._value = this.widget.initialValue;
+            _value = widget.initialValue;
         }
 
         public override void deactivate() {
-            Form.of(this.context)?._unregister(this);
+            Form.of(context)?._unregister(this);
             base.deactivate();
         }
 
         public override Widget build(BuildContext context) {
-            if (this.widget.autovalidate && this.widget.enabled) {
-                this._validate();
+            if (widget.autovalidate && widget.enabled) {
+                _validate();
             }
 
             Form.of(context)?._register(this);
-            return this.widget.builder(this);
+            return widget.builder(this);
         }
     }
 }

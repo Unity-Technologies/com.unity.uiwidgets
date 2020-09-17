@@ -49,21 +49,21 @@ namespace Unity.UIWidgets.painting {
         public Offset alongOffset(Offset other) {
             float centerX = other.dx / 2.0f;
             float centerY = other.dy / 2.0f;
-            return new Offset(centerX + this.x * centerX, centerY + this.y * centerY);
+            return new Offset(centerX + x * centerX, centerY + y * centerY);
         }
 
         public Offset alongSize(Size other) {
             float centerX = other.width / 2.0f;
             float centerY = other.height / 2.0f;
-            return new Offset(centerX + this.x * centerX, centerY + this.y * centerY);
+            return new Offset(centerX + x * centerX, centerY + y * centerY);
         }
 
         public Offset withinRect(Rect rect) {
             float halfWidth = rect.width / 2.0f;
             float halfHeight = rect.height / 2.0f;
             return new Offset(
-                rect.left + halfWidth + this.x * halfWidth,
-                rect.top + halfHeight + this.y * halfHeight
+                rect.left + halfWidth + x * halfWidth,
+                rect.top + halfHeight + y * halfHeight
             );
         }
 
@@ -71,8 +71,8 @@ namespace Unity.UIWidgets.painting {
             float halfWidthDelta = (rect.width - size.width) / 2.0f;
             float halfHeightDelta = (rect.height - size.height) / 2.0f;
             return Rect.fromLTWH(
-                rect.left + halfWidthDelta + this.x * halfWidthDelta,
-                rect.top + halfHeightDelta + this.y * halfHeightDelta,
+                rect.left + halfWidthDelta + x * halfWidthDelta,
+                rect.top + halfHeightDelta + y * halfHeightDelta,
                 size.width,
                 size.height
             );
@@ -103,7 +103,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return this.x.Equals(other.x) && this.y.Equals(other.y);
+            return x.Equals(other.x) && y.Equals(other.y);
         }
 
         public override bool Equals(object obj) {
@@ -115,16 +115,16 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((Alignment) obj);
+            return Equals((Alignment) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return (this.x.GetHashCode() * 397) ^ this.y.GetHashCode();
+                return (x.GetHashCode() * 397) ^ y.GetHashCode();
             }
         }
 
@@ -137,43 +137,43 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            if (this.x == -1.0f && this.y == -1.0f) {
+            if (x == -1.0f && y == -1.0f) {
                 return "topLeft";
             }
 
-            if (this.x == 0.0f && this.y == -1.0f) {
+            if (x == 0.0f && y == -1.0f) {
                 return "topCenter";
             }
 
-            if (this.x == 1.0f && this.y == -1.0f) {
+            if (x == 1.0f && y == -1.0f) {
                 return "topRight";
             }
 
-            if (this.x == -1.0f && this.y == 0.0f) {
+            if (x == -1.0f && y == 0.0f) {
                 return "centerLeft";
             }
 
-            if (this.x == 0.0f && this.y == 0.0f) {
+            if (x == 0.0f && y == 0.0f) {
                 return "center";
             }
 
-            if (this.x == 1.0f && this.y == 0.0f) {
+            if (x == 1.0f && y == 0.0f) {
                 return "centerRight";
             }
 
-            if (this.x == -1.0f && this.y == 1.0f) {
+            if (x == -1.0f && y == 1.0f) {
                 return "bottomLeft";
             }
 
-            if (this.x == 0.0f && this.y == 1.0f) {
+            if (x == 0.0f && y == 1.0f) {
                 return "bottomCenter";
             }
 
-            if (this.x == 1.0f && this.y == 1.0f) {
+            if (x == 1.0f && y == 1.0f) {
                 return "bottomRight";
             }
 
-            return $"Alignment({this.x:F1}, {this.y:F1})";
+            return $"Alignment({x:F1}, {y:F1})";
         }
     }
 }

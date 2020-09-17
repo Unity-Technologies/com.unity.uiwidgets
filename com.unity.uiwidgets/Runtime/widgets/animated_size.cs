@@ -32,18 +32,18 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderAnimatedSize(
-                alignment: this.alignment,
-                duration: this.duration,
-                curve: this.curve,
-                vsync: this.vsync);
+                alignment: alignment,
+                duration: duration,
+                curve: curve,
+                vsync: vsync);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderAnimatedSize _renderObject = (RenderAnimatedSize) renderObject;
-            _renderObject.alignment = this.alignment;
-            _renderObject.duration = this.duration;
-            _renderObject.curve = this.curve;
-            _renderObject.vsync = this.vsync;
+            _renderObject.alignment = alignment;
+            _renderObject.duration = duration;
+            _renderObject.curve = curve;
+            _renderObject.vsync = vsync;
         }
     }
 }

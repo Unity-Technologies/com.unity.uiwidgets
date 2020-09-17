@@ -24,11 +24,11 @@ namespace Unity.UIWidgets.painting {
         }
 
         public float dx {
-            get { return (this.x + 1.0f) / 2.0f; }
+            get { return (x + 1.0f) / 2.0f; }
         }
 
         public float dy {
-            get { return (this.y + 1.0f) / 2.0f; }
+            get { return (y + 1.0f) / 2.0f; }
         }
 
 #pragma warning disable 0108
@@ -102,8 +102,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"FractionalOffset({this.dx:0.0}, " +
-                   $"{this.dy:0.0})";
+            return $"FractionalOffset({dx:0.0}, " +
+                   $"{dy:0.0})";
         }
     }
 }

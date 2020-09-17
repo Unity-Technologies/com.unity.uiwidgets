@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.cupertino {
             bool filled = false
         ) : base(key: key) {
             D.assert(pressedOpacity >= 0.0 && pressedOpacity <= 1.0);
-            this._filled = filled;
+            _filled = filled;
             this.child = child;
             this.onPressed = onPressed;
             this.padding = padding;
@@ -85,7 +85,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly bool _filled;
 
         public bool enabled {
-            get { return this.onPressed != null; }
+            get { return onPressed != null; }
         }
 
         public override State createState() {
@@ -94,7 +94,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FlagProperty("enabled", value: this.enabled, ifFalse: "disabled"));
+            properties.add(new FlagProperty("enabled", value: enabled, ifFalse: "disabled"));
         }
     }
 
@@ -107,78 +107,78 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this._animationController = new AnimationController(
+            _animationController = new AnimationController(
                 duration: new TimeSpan(0, 0, 0, 0, 200),
                 value: 0.0f,
                 vsync: this);
-            this._opacityAnimation = this._animationController
+            _opacityAnimation = _animationController
                 .drive(new CurveTween(curve: Curves.decelerate))
-                .drive(this._opacityTween);
-            this._setTween();
+                .drive(_opacityTween);
+            _setTween();
         }
 
         public override void didUpdateWidget(StatefulWidget old) {
             base.didUpdateWidget(old);
-            this._setTween();
+            _setTween();
         }
 
         void _setTween() {
-            if (this.widget != null) {
-                this._opacityTween.end = this.widget.pressedOpacity ?? 1.0f;
+            if (widget != null) {
+                _opacityTween.end = widget.pressedOpacity ?? 1.0f;
             }
         }
 
         public override void dispose() {
-            this._animationController.dispose();
-            this._animationController = null;
+            _animationController.dispose();
+            _animationController = null;
             base.dispose();
         }
 
         bool _buttonHeldDown = false;
 
         void _handleTapDown(TapDownDetails evt) {
-            if (!this._buttonHeldDown) {
-                this._buttonHeldDown = true;
-                this._animate();
+            if (!_buttonHeldDown) {
+                _buttonHeldDown = true;
+                _animate();
             }
         }
 
         void _handleTapUp(TapUpDetails evt) {
-            if (this._buttonHeldDown) {
-                this._buttonHeldDown = false;
-                this._animate();
+            if (_buttonHeldDown) {
+                _buttonHeldDown = false;
+                _animate();
             }
         }
 
         void _handleTapCancel() {
-            if (this._buttonHeldDown) {
-                this._buttonHeldDown = false;
-                this._animate();
+            if (_buttonHeldDown) {
+                _buttonHeldDown = false;
+                _animate();
             }
         }
 
         void _animate() {
-            if (this._animationController.isAnimating) {
+            if (_animationController.isAnimating) {
                 return;
             }
 
-            bool wasHeldDown = this._buttonHeldDown;
+            bool wasHeldDown = _buttonHeldDown;
 
-            TickerFuture ticker = this._buttonHeldDown
-                ? this._animationController.animateTo(1.0f, duration: kFadeOutDuration)
-                : this._animationController.animateTo(0.0f, duration: kFadeInDuration);
+            TickerFuture ticker = _buttonHeldDown
+                ? _animationController.animateTo(1.0f, duration: kFadeOutDuration)
+                : _animationController.animateTo(0.0f, duration: kFadeInDuration);
 
             ticker.Then(() => {
-                if (this.mounted && wasHeldDown != this._buttonHeldDown) {
-                    this._animate();
+                if (mounted && wasHeldDown != _buttonHeldDown) {
+                    _animate();
                 }
             });
         }
 
         public override Widget build(BuildContext context) {
-            bool enabled = this.widget.enabled;
+            bool enabled = widget.enabled;
             Color primaryColor = CupertinoTheme.of(context).primaryColor;
-            Color backgroundColor = this.widget.color ?? (this.widget._filled ? primaryColor : null);
+            Color backgroundColor = widget.color ?? (widget._filled ? primaryColor : null);
 
             Color foregroundColor = backgroundColor != null
                 ? CupertinoTheme.of(context).primaryContrastingColor
@@ -190,32 +190,32 @@ namespace Unity.UIWidgets.cupertino {
                 CupertinoTheme.of(context).textTheme.textStyle.copyWith(color: foregroundColor);
             return new GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTapDown: enabled ? this._handleTapDown : (GestureTapDownCallback) null,
-                onTapUp: enabled ? this._handleTapUp : (GestureTapUpCallback) null,
-                onTapCancel: enabled ? this._handleTapCancel : (GestureTapCancelCallback) null,
-                onTap: this.widget.onPressed == null
+                onTapDown: enabled ? _handleTapDown : (GestureTapDownCallback) null,
+                onTapUp: enabled ? _handleTapUp : (GestureTapUpCallback) null,
+                onTapCancel: enabled ? _handleTapCancel : (GestureTapCancelCallback) null,
+                onTap: widget.onPressed == null
                     ? (GestureTapCallback) null
                     : () => {
-                        if (this.widget.onPressed != null) {
-                            this.widget.onPressed();
+                        if (widget.onPressed != null) {
+                            widget.onPressed();
                         }
                     },
                 child: new ConstrainedBox(
                     constraints: new BoxConstraints(
-                        minWidth: this.widget.minSize,
-                        minHeight: this.widget.minSize
+                        minWidth: widget.minSize,
+                        minHeight: widget.minSize
                     ),
                     child: new FadeTransition(
-                        opacity: this._opacityAnimation,
+                        opacity: _opacityAnimation,
                         child: new DecoratedBox(
                             decoration: new BoxDecoration(
-                                borderRadius: this.widget.borderRadius,
+                                borderRadius: widget.borderRadius,
                                 color: backgroundColor != null && !enabled
-                                    ? this.widget.disabledColor ?? CupertinoButtonUtils._kDisabledBackground
+                                    ? widget.disabledColor ?? CupertinoButtonUtils._kDisabledBackground
                                     : backgroundColor
                             ),
                             child: new Padding(
-                                padding: this.widget.padding ?? (backgroundColor != null
+                                padding: widget.padding ?? (backgroundColor != null
                                              ? CupertinoButtonUtils._kBackgroundButtonPadding
                                              : CupertinoButtonUtils._kButtonPadding),
                                 child: new Center(
@@ -225,7 +225,7 @@ namespace Unity.UIWidgets.cupertino {
                                         style: textStyle,
                                         child: new IconTheme(
                                             data: new IconThemeData(color: foregroundColor),
-                                            child: this.widget.child
+                                            child: widget.child
                                         )
                                     )
                                 )

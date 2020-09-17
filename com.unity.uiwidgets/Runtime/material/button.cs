@@ -84,7 +84,7 @@ namespace Unity.UIWidgets.material {
         public readonly Widget child;
 
         public bool enabled {
-            get { return this.onPressed != null; }
+            get { return onPressed != null; }
         }
 
         public readonly MaterialTapTargetSize materialTapTargetSize;
@@ -101,11 +101,11 @@ namespace Unity.UIWidgets.material {
         bool _highlight = false;
 
         void _handleHighlightChanged(bool value) {
-            if (this._highlight != value) {
-                this.setState(() => {
-                    this._highlight = value;
-                    if (this.widget.onHighlightChanged != null) {
-                        this.widget.onHighlightChanged(value);
+            if (_highlight != value) {
+                setState(() => {
+                    _highlight = value;
+                    if (widget.onHighlightChanged != null) {
+                        widget.onHighlightChanged(value);
                     }
                 });
             }
@@ -114,49 +114,49 @@ namespace Unity.UIWidgets.material {
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             RawMaterialButton oldWidget = _oldWidget as RawMaterialButton;
             base.didUpdateWidget(oldWidget);
-            if (this._highlight && !this.widget.enabled) {
-                this._highlight = false;
-                if (this.widget.onHighlightChanged != null) {
-                    this.widget.onHighlightChanged(false);
+            if (_highlight && !widget.enabled) {
+                _highlight = false;
+                if (widget.onHighlightChanged != null) {
+                    widget.onHighlightChanged(false);
                 }
             }
         }
 
         public override Widget build(BuildContext context) {
-            float elevation = this.widget.enabled
-                ? (this._highlight ? this.widget.highlightElevation : this.widget.elevation)
-                : this.widget.disabledElevation;
+            float elevation = widget.enabled
+                ? (_highlight ? widget.highlightElevation : widget.elevation)
+                : widget.disabledElevation;
 
             Widget result = new ConstrainedBox(
-                constraints: this.widget.constraints,
+                constraints: widget.constraints,
                 child: new Material(
                     elevation: elevation,
-                    textStyle: this.widget.textStyle,
-                    shape: this.widget.shape,
-                    color: this.widget.fillColor,
-                    type: this.widget.fillColor == null ? MaterialType.transparency : MaterialType.button,
-                    animationDuration: this.widget.animationDuration,
-                    clipBehavior: this.widget.clipBehavior,
+                    textStyle: widget.textStyle,
+                    shape: widget.shape,
+                    color: widget.fillColor,
+                    type: widget.fillColor == null ? MaterialType.transparency : MaterialType.button,
+                    animationDuration: widget.animationDuration,
+                    clipBehavior: widget.clipBehavior,
                     child: new InkWell(
-                        onHighlightChanged: this._handleHighlightChanged,
-                        splashColor: this.widget.splashColor,
-                        highlightColor: this.widget.highlightColor,
-                        onTap: this.widget.onPressed == null
+                        onHighlightChanged: _handleHighlightChanged,
+                        splashColor: widget.splashColor,
+                        highlightColor: widget.highlightColor,
+                        onTap: widget.onPressed == null
                             ? (GestureTapCallback) null
                             : () => {
-                                if (this.widget.onPressed != null) {
-                                    this.widget.onPressed();
+                                if (widget.onPressed != null) {
+                                    widget.onPressed();
                                 }
                             },
-                        customBorder: this.widget.shape,
+                        customBorder: widget.shape,
                         child: IconTheme.merge(
-                            data: new IconThemeData(color: this.widget.textStyle?.color),
+                            data: new IconThemeData(color: widget.textStyle?.color),
                             child: new Container(
-                                padding: this.widget.padding,
+                                padding: widget.padding,
                                 child: new Center(
                                     widthFactor: 1.0f,
                                     heightFactor: 1.0f,
-                                    child: this.widget.child)
+                                    child: widget.child)
                             )
                         )
                     )

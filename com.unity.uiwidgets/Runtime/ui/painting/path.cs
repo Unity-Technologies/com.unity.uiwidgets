@@ -39,42 +39,42 @@ namespace Unity.UIWidgets.ui {
 
         //shadow speeder relevant
         bool _isNaiveRRect = false;
-        public bool isNaiveRRect => this._isNaiveRRect;
+        public bool isNaiveRRect => _isNaiveRRect;
         
         PathShapeHint _shapeHint = PathShapeHint.Other;
-        public PathShapeHint shapeHint => this._shapeHint;
+        public PathShapeHint shapeHint => _shapeHint;
 
         float _rRectCorner;
-        public float rRectCorner => this._rRectCorner;
+        public float rRectCorner => _rRectCorner;
 
         public uint pathKey {
-            get { return this._pathKey; }
+            get { return _pathKey; }
         }
 
         public Path(int capacity = 128) {
-            this._commands = new List<float>(capacity);
-            this._reset();
+            _commands = new List<float>(capacity);
+            _reset();
         }
 
         public List<float> commands {
-            get { return this._commands; }
+            get { return _commands; }
         }
 
         void _updateRRectFlag(bool isNaiveRRect, PathShapeHint shapeHint = PathShapeHint.Other, float corner = 0) {
-            if (this._commands.Count > 0 && !this._isNaiveRRect) {
+            if (_commands.Count > 0 && !_isNaiveRRect) {
                 return;
             }
-            this._isNaiveRRect = isNaiveRRect && this._hasOnlyMoveTos();
-            if (this._isNaiveRRect) {
-                this._shapeHint = shapeHint;
-                this._rRectCorner = corner;
+            _isNaiveRRect = isNaiveRRect && _hasOnlyMoveTos();
+            if (_isNaiveRRect) {
+                _shapeHint = shapeHint;
+                _rRectCorner = corner;
             }
         }
         
         bool _hasOnlyMoveTos() {
             var i = 0;
-            while (i < this._commands.Count) {
-                var cmd = (PathCommand) this._commands[i];
+            while (i < _commands.Count) {
+                var cmd = (PathCommand) _commands[i];
                 switch (cmd) {
                     case PathCommand.moveTo: 
                         i += 3;
@@ -98,24 +98,24 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override string ToString() {
-            var sb = new StringBuilder("Path: count = " + this._commands.Count);
+            var sb = new StringBuilder("Path: count = " + _commands.Count);
 
             var i = 0;
-            while (i < this._commands.Count) {
-                var cmd = (PathCommand) this._commands[i];
+            while (i < _commands.Count) {
+                var cmd = (PathCommand) _commands[i];
                 switch (cmd) {
                     case PathCommand.moveTo:
-                        sb.Append(", moveTo(" + this._commands[i + 1] + ", " + this._commands[i + 2] + ")");
+                        sb.Append(", moveTo(" + _commands[i + 1] + ", " + _commands[i + 2] + ")");
                         i += 3;
                         break;
                     case PathCommand.lineTo:
-                        sb.Append(", lineTo(" + this._commands[i + 1] + ", " + this._commands[i + 2] + ")");
+                        sb.Append(", lineTo(" + _commands[i + 1] + ", " + _commands[i + 2] + ")");
                         i += 3;
                         break;
                     case PathCommand.bezierTo:
-                        sb.Append(", bezierTo(" + this._commands[i + 1] + ", " + this._commands[i + 2] +
-                                  ", " + this._commands[i + 3] + ", " + this._commands[i + 4] +
-                                  ", " + this._commands[i + 5] + ", " + this._commands[i + 6] + ")");
+                        sb.Append(", bezierTo(" + _commands[i + 1] + ", " + _commands[i + 2] +
+                                  ", " + _commands[i + 3] + ", " + _commands[i + 4] +
+                                  ", " + _commands[i + 5] + ", " + _commands[i + 6] + ")");
                         i += 7;
                         break;
                     case PathCommand.close:
@@ -123,7 +123,7 @@ namespace Unity.UIWidgets.ui {
                         i++;
                         break;
                     case PathCommand.winding:
-                        sb.Append(", winding(" + (PathWinding) this._commands[i + 1] + ")");
+                        sb.Append(", winding(" + (PathWinding) _commands[i + 1] + ")");
                         i += 2;
                         break;
                     default:
@@ -136,58 +136,58 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void resetAll() {
-            this._reset();
+            _reset();
         }
 
         void _reset() {
-            this._commands.Clear();
-            this._commandx = 0;
-            this._commandy = 0;
-            this._minX = float.MaxValue;
-            this._minY = float.MaxValue;
-            this._maxX = float.MinValue;
-            this._maxY = float.MinValue;
+            _commands.Clear();
+            _commandx = 0;
+            _commandy = 0;
+            _minX = float.MaxValue;
+            _minY = float.MaxValue;
+            _maxX = float.MinValue;
+            _maxY = float.MinValue;
 
-            this._pathKey = pathGlobalKey++;
-            this._cache = null;
-            this._isNaiveRRect = false;
+            _pathKey = pathGlobalKey++;
+            _cache = null;
+            _isNaiveRRect = false;
         }
 
         internal PathCache flatten(float scale) {
             scale = Mathf.Round(scale * 2.0f) / 2.0f; // round to 0.5f
 
-            if (this._cache != null && this._cache.canReuse(scale)) {
-                return this._cache;
+            if (_cache != null && _cache.canReuse(scale)) {
+                return _cache;
             }
 
-            this._cache = new PathCache(scale);
+            _cache = new PathCache(scale);
 
             var i = 0;
-            while (i < this._commands.Count) {
-                var cmd = (PathCommand) this._commands[i];
+            while (i < _commands.Count) {
+                var cmd = (PathCommand) _commands[i];
                 switch (cmd) {
                     case PathCommand.moveTo:
-                        this._cache.addPath();
-                        this._cache.addPoint(this._commands[i + 1], this._commands[i + 2], PointFlags.corner);
+                        _cache.addPath();
+                        _cache.addPoint(_commands[i + 1], _commands[i + 2], PointFlags.corner);
                         i += 3;
                         break;
                     case PathCommand.lineTo:
-                        this._cache.addPoint(this._commands[i + 1], this._commands[i + 2], PointFlags.corner);
+                        _cache.addPoint(_commands[i + 1], _commands[i + 2], PointFlags.corner);
                         i += 3;
                         break;
                     case PathCommand.bezierTo:
-                        this._cache.tessellateBezier(
-                            this._commands[i + 1], this._commands[i + 2],
-                            this._commands[i + 3], this._commands[i + 4],
-                            this._commands[i + 5], this._commands[i + 6], PointFlags.corner);
+                        _cache.tessellateBezier(
+                            _commands[i + 1], _commands[i + 2],
+                            _commands[i + 3], _commands[i + 4],
+                            _commands[i + 5], _commands[i + 6], PointFlags.corner);
                         i += 7;
                         break;
                     case PathCommand.close:
-                        this._cache.closePath();
+                        _cache.closePath();
                         i++;
                         break;
                     case PathCommand.winding:
-                        this._cache.pathWinding((PathWinding) this._commands[i + 1]);
+                        _cache.pathWinding((PathWinding) _commands[i + 1]);
                         i += 2;
                         break;
                     default:
@@ -196,42 +196,42 @@ namespace Unity.UIWidgets.ui {
                 }
             }
 
-            this._cache.normalize();
-            return this._cache;
+            _cache.normalize();
+            return _cache;
         }
 
         void _expandBounds(float x, float y) {
-            if (x < this._minX) {
-                this._minX = x;
+            if (x < _minX) {
+                _minX = x;
             }
 
-            if (y < this._minY) {
-                this._minY = y;
+            if (y < _minY) {
+                _minY = y;
             }
 
-            if (x > this._maxX) {
-                this._maxX = x;
+            if (x > _maxX) {
+                _maxX = x;
             }
 
-            if (y > this._maxY) {
-                this._maxY = y;
+            if (y > _maxY) {
+                _maxY = y;
             }
         }
 
         public Rect getBounds() {
-            if (this._minX >= this._maxX || this._minY >= this._maxY) {
+            if (_minX >= _maxX || _minY >= _maxY) {
                 return Rect.zero;
             }
 
-            return Rect.fromLTRB(this._minX, this._minY, this._maxX, this._maxY);
+            return Rect.fromLTRB(_minX, _minY, _maxX, _maxY);
         }
 
         public Rect getBoundsWithMargin(float margin) {
-            if (this._minX - margin >= this._maxX + margin || this._minY - margin >= this._maxY + margin) {
+            if (_minX - margin >= _maxX + margin || _minY - margin >= _maxY + margin) {
                 return Rect.zero;
             }
 
-            return Rect.fromLTRB(this._minX - margin, this._minY - margin, this._maxX + margin, this._maxY + margin);
+            return Rect.fromLTRB(_minX - margin, _minY - margin, _maxX + margin, _maxY + margin);
         }
 
         public static Path combine(PathOperation operation, Path path1, Path path2) {
@@ -255,144 +255,144 @@ namespace Unity.UIWidgets.ui {
         }
 
         void _appendMoveTo(float x, float y) {
-            this._commands.Add((float) PathCommand.moveTo);
-            this._commands.Add(x);
-            this._commands.Add(y);
+            _commands.Add((float) PathCommand.moveTo);
+            _commands.Add(x);
+            _commands.Add(y);
 
-            this._commandx = x;
-            this._commandy = y;
+            _commandx = x;
+            _commandy = y;
 
-            this._pathKey = pathGlobalKey++;
-            this._cache = null;
+            _pathKey = pathGlobalKey++;
+            _cache = null;
         }
 
         void _appendLineTo(float x, float y) {
-            this._expandBounds(this._commandx, this._commandy);
-            this._expandBounds(x, y);
+            _expandBounds(_commandx, _commandy);
+            _expandBounds(x, y);
 
-            this._commands.Add((float) PathCommand.lineTo);
-            this._commands.Add(x);
-            this._commands.Add(y);
+            _commands.Add((float) PathCommand.lineTo);
+            _commands.Add(x);
+            _commands.Add(y);
 
-            this._commandx = x;
-            this._commandy = y;
+            _commandx = x;
+            _commandy = y;
 
-            this._pathKey = pathGlobalKey++;
-            this._cache = null;
+            _pathKey = pathGlobalKey++;
+            _cache = null;
         }
 
         void _appendBezierTo(float x1, float y1, float x2, float y2, float x3, float y3) {
-            this._expandBounds(this._commandx, this._commandy);
-            this._expandBounds(x1, y1);
-            this._expandBounds(x2, y2);
-            this._expandBounds(x3, y3);
+            _expandBounds(_commandx, _commandy);
+            _expandBounds(x1, y1);
+            _expandBounds(x2, y2);
+            _expandBounds(x3, y3);
 
-            this._commands.Add((float) PathCommand.bezierTo);
-            this._commands.Add(x1);
-            this._commands.Add(y1);
-            this._commands.Add(x2);
-            this._commands.Add(y2);
-            this._commands.Add(x3);
-            this._commands.Add(y3);
+            _commands.Add((float) PathCommand.bezierTo);
+            _commands.Add(x1);
+            _commands.Add(y1);
+            _commands.Add(x2);
+            _commands.Add(y2);
+            _commands.Add(x3);
+            _commands.Add(y3);
 
-            this._commandx = x3;
-            this._commandy = y3;
+            _commandx = x3;
+            _commandy = y3;
 
-            this._pathKey = pathGlobalKey++;
-            this._cache = null;
+            _pathKey = pathGlobalKey++;
+            _cache = null;
         }
 
         void _appendClose() {
-            this._commands.Add((float) PathCommand.close);
+            _commands.Add((float) PathCommand.close);
 
-            this._pathKey = pathGlobalKey++;
-            this._cache = null;
+            _pathKey = pathGlobalKey++;
+            _cache = null;
         }
 
         void _appendWinding(float winding) {
-            this._commands.Add((float) PathCommand.winding);
-            this._commands.Add(winding);
+            _commands.Add((float) PathCommand.winding);
+            _commands.Add(winding);
 
-            this._pathKey = pathGlobalKey++;
-            this._cache = null;
+            _pathKey = pathGlobalKey++;
+            _cache = null;
         }
 
         public void relativeMoveTo(float x, float y) {
-            var x0 = this._commandx;
-            var y0 = this._commandy;
+            var x0 = _commandx;
+            var y0 = _commandy;
 
-            this._appendMoveTo(x + x0, y + y0);
+            _appendMoveTo(x + x0, y + y0);
         }
 
         public void moveTo(float x, float y) {
-            this._appendMoveTo(x, y);
+            _appendMoveTo(x, y);
         }
 
         public void relativeLineTo(float x, float y) {
-            var x0 = this._commandx;
-            var y0 = this._commandy;
+            var x0 = _commandx;
+            var y0 = _commandy;
 
-            this._updateRRectFlag(false);
-            this._appendLineTo(x + x0, y + y0);
+            _updateRRectFlag(false);
+            _appendLineTo(x + x0, y + y0);
         }
 
         public void lineTo(float x, float y) {
-            this._updateRRectFlag(false);
-            this._appendLineTo(x, y);
+            _updateRRectFlag(false);
+            _appendLineTo(x, y);
         }
 
         public void cubicTo(float c1x, float c1y, float c2x, float c2y, float x, float y) {
-            this._updateRRectFlag(false);
-            this._appendBezierTo(c1x, c1y, c2x, c2y, x, y);
+            _updateRRectFlag(false);
+            _appendBezierTo(c1x, c1y, c2x, c2y, x, y);
         }
 
         public void relativeCubicTo(float c1x, float c1y, float c2x, float c2y, float x, float y) {
-            var x0 = this._commandx;
-            var y0 = this._commandy;
-            this._updateRRectFlag(false);
-            this.cubicTo(x0 + c1x, y0 + c1y, x0 + c2x, y0 + c2y, x0 + x, y0 + y);
+            var x0 = _commandx;
+            var y0 = _commandy;
+            _updateRRectFlag(false);
+            cubicTo(x0 + c1x, y0 + c1y, x0 + c2x, y0 + c2y, x0 + x, y0 + y);
         }
 
         public void quadraticBezierTo(float cx, float cy, float x, float y) {
-            var x0 = this._commandx;
-            var y0 = this._commandy;
+            var x0 = _commandx;
+            var y0 = _commandy;
 
             const float twoThird = 2.0f / 3.0f;
-            this._updateRRectFlag(false);
-            this._appendBezierTo(
+            _updateRRectFlag(false);
+            _appendBezierTo(
                 x0 + twoThird * (cx - x0), y0 + twoThird * (cy - y0),
                 x + twoThird * (cx - x), y + twoThird * (cy - y),
                 x, y);
         }
 
         public void relativeQuadraticBezierTo(float cx, float cy, float x, float y) {
-            var x0 = this._commandx;
-            var y0 = this._commandy;
+            var x0 = _commandx;
+            var y0 = _commandy;
 
-            this._updateRRectFlag(false);
-            this.quadraticBezierTo(x0 + cx, y0 + cy, x0 + x, y0 + y);
+            _updateRRectFlag(false);
+            quadraticBezierTo(x0 + cx, y0 + cy, x0 + x, y0 + y);
         }
 
         public void conicTo(float x1, float y1, float x2, float y2, float w) {
-            this._updateRRectFlag(false);
+            _updateRRectFlag(false);
             if (!(w > 0)) {
-                this.lineTo(x2, y2);
+                lineTo(x2, y2);
                 return;
             }
 
             if (w.isInfinite()) {
-                this.lineTo(x1, y1);
-                this.lineTo(x2, y2);
+                lineTo(x1, y1);
+                lineTo(x2, y2);
                 return;
             }
 
             if (w == 1) {
-                this.quadraticBezierTo(x1, y1, x2, y2);
+                quadraticBezierTo(x1, y1, x2, y2);
                 return;
             }
 
-            var x0 = this._commandx;
-            var y0 = this._commandy;
+            var x0 = _commandx;
+            var y0 = _commandy;
 
             var conic = new _Conic {
                 x0 = x0, y0 = y0,
@@ -405,15 +405,15 @@ namespace Unity.UIWidgets.ui {
             var quadY = new float[5];
             conic.chopIntoQuadsPOW2(quadX, quadY, 1);
 
-            this.quadraticBezierTo(quadX[1], quadY[1], quadX[2], quadY[2]);
-            this.quadraticBezierTo(quadX[3], quadY[3], quadX[4], quadY[4]);
+            quadraticBezierTo(quadX[1], quadY[1], quadX[2], quadY[2]);
+            quadraticBezierTo(quadX[3], quadY[3], quadX[4], quadY[4]);
         }
 
         public void relativeConicTo(float x1, float y1, float x2, float y2, float w) {
-            var x0 = this._commandx;
-            var y0 = this._commandy;
-            this._updateRRectFlag(false);
-            this.conicTo(x0 + x1, y0 + y1, x0 + x2, y0 + y2, w);
+            var x0 = _commandx;
+            var y0 = _commandy;
+            _updateRRectFlag(false);
+            conicTo(x0 + x1, y0 + y1, x0 + x2, y0 + y2, w);
         }
 
         // http://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
@@ -423,12 +423,12 @@ namespace Unity.UIWidgets.ui {
             bool largeArc = false,
             bool clockwise = false) {
             radius = radius ?? Radius.zero;
-            this._updateRRectFlag(false);
+            _updateRRectFlag(false);
             D.assert(PaintingUtils._offsetIsValid(arcEnd));
             D.assert(PaintingUtils._radiusIsValid(radius));
 
-            var x0 = this._commandx;
-            var y0 = this._commandy;
+            var x0 = _commandx;
+            var y0 = _commandy;
             var x1 = arcEnd.dx;
             var y1 = arcEnd.dy;
 
@@ -436,12 +436,12 @@ namespace Unity.UIWidgets.ui {
             var ry = Mathf.Abs(radius.y);
 
             if (rx == 0 || ry == 0) {
-                this.lineTo(x1, y1);
+                lineTo(x1, y1);
                 return;
             }
 
             if (x0 == x1 && y0 == y1) {
-                this.lineTo(x1, y1);
+                lineTo(x1, y1);
                 return;
             }
 
@@ -549,30 +549,30 @@ namespace Unity.UIWidgets.ui {
                     }
                 }
 
-                this.conicTo(mapped[0].dx, mapped[0].dy, mapped[1].dx, mapped[1].dy, w);
+                conicTo(mapped[0].dx, mapped[0].dy, mapped[1].dx, mapped[1].dy, w);
                 startTheta = endTheta;
             }
         }
 
         public void close() {
-            this._appendClose();
+            _appendClose();
         }
 
         public void winding(PathWinding dir) {
-            this._appendWinding((float) dir);
+            _appendWinding((float) dir);
         }
 
         public void addRect(Rect rect) {
-            this._updateRRectFlag(true, PathShapeHint.Rect);
-            this._appendMoveTo(rect.left, rect.top);
-            this._appendLineTo(rect.left, rect.bottom);
-            this._appendLineTo(rect.right, rect.bottom);
-            this._appendLineTo(rect.right, rect.top);
-            this._appendClose();
+            _updateRRectFlag(true, PathShapeHint.Rect);
+            _appendMoveTo(rect.left, rect.top);
+            _appendLineTo(rect.left, rect.bottom);
+            _appendLineTo(rect.right, rect.bottom);
+            _appendLineTo(rect.right, rect.top);
+            _appendClose();
         }
 
         public void addRRect(RRect rrect) {
-            this._updateRRectFlag(rrect.isNaiveRRect(), PathShapeHint.NaiveRRect, rrect.blRadiusX);
+            _updateRRectFlag(rrect.isNaiveRRect(), PathShapeHint.NaiveRRect, rrect.blRadiusX);
             float w = rrect.width;
             float h = rrect.height;
             float halfw = Mathf.Abs(w) * 0.5f;
@@ -591,50 +591,50 @@ namespace Unity.UIWidgets.ui {
             float x = rrect.left;
             float y = rrect.top;
 
-            this._appendMoveTo(x, y + ryTL);
-            this._appendLineTo(x, y + h - ryBL);
-            this._appendBezierTo(x, y + h - ryBL * (1 - _KAPPA90),
+            _appendMoveTo(x, y + ryTL);
+            _appendLineTo(x, y + h - ryBL);
+            _appendBezierTo(x, y + h - ryBL * (1 - _KAPPA90),
                 x + rxBL * (1 - _KAPPA90), y + h, x + rxBL, y + h);
-            this._appendLineTo(x + w - rxBR, y + h);
-            this._appendBezierTo(x + w - rxBR * (1 - _KAPPA90), y + h,
+            _appendLineTo(x + w - rxBR, y + h);
+            _appendBezierTo(x + w - rxBR * (1 - _KAPPA90), y + h,
                 x + w, y + h - ryBR * (1 - _KAPPA90), x + w, y + h - ryBR);
-            this._appendLineTo(x + w, y + ryTR);
-            this._appendBezierTo(x + w, y + ryTR * (1 - _KAPPA90),
+            _appendLineTo(x + w, y + ryTR);
+            _appendBezierTo(x + w, y + ryTR * (1 - _KAPPA90),
                 x + w - rxTR * (1 - _KAPPA90), y, x + w - rxTR, y);
-            this._appendLineTo(x + rxTL, y);
-            this._appendBezierTo(x + rxTL * (1 - _KAPPA90), y,
+            _appendLineTo(x + rxTL, y);
+            _appendBezierTo(x + rxTL * (1 - _KAPPA90), y,
                 x, y + ryTL * (1 - _KAPPA90), x, y + ryTL);
-            this._appendClose();
+            _appendClose();
         }
 
         public void addEllipse(float cx, float cy, float rx, float ry) {
-            this._updateRRectFlag(rx == ry, PathShapeHint.Circle, rx);
-            this._appendMoveTo(cx - rx, cy);
-            this._appendBezierTo(cx - rx, cy + ry * _KAPPA90,
+            _updateRRectFlag(rx == ry, PathShapeHint.Circle, rx);
+            _appendMoveTo(cx - rx, cy);
+            _appendBezierTo(cx - rx, cy + ry * _KAPPA90,
                 cx - rx * _KAPPA90, cy + ry, cx, cy + ry);
-            this._appendBezierTo(cx + rx * _KAPPA90, cy + ry,
+            _appendBezierTo(cx + rx * _KAPPA90, cy + ry,
                 cx + rx, cy + ry * _KAPPA90, cx + rx, cy);
-            this._appendBezierTo(cx + rx, cy - ry * _KAPPA90,
+            _appendBezierTo(cx + rx, cy - ry * _KAPPA90,
                 cx + rx * _KAPPA90, cy - ry, cx, cy - ry);
-            this._appendBezierTo(cx - rx * _KAPPA90, cy - ry,
+            _appendBezierTo(cx - rx * _KAPPA90, cy - ry,
                 cx - rx, cy - ry * _KAPPA90, cx - rx, cy);
-            this._appendClose();
+            _appendClose();
         }
 
         public void addCircle(float cx, float cy, float r) {
-            this.addEllipse(cx, cy, r, r);
+            addEllipse(cx, cy, r, r);
         }
 
         public void addOval(Rect oval) {
             D.assert(oval != null);
             var center = oval.center;
-            this.addEllipse(center.dx, center.dy, oval.width / 2, oval.height / 2);
+            addEllipse(center.dx, center.dy, oval.width / 2, oval.height / 2);
         }
 
         public void arcTo(float x1, float y1, float x2, float y2, float radius) {
-            this._updateRRectFlag(false);
-            var x0 = this._commandx;
-            var y0 = this._commandy;
+            _updateRRectFlag(false);
+            var x0 = _commandx;
+            var y0 = _commandy;
 
             // Calculate tangential circle to lines (x0,y0)-(x1,y1) and (x1,y1)-(x2,y2).
             float dx0 = x0 - x1;
@@ -647,7 +647,7 @@ namespace Unity.UIWidgets.ui {
             float d = radius / Mathf.Tan(a / 2.0f);
 
             if (d > 10000.0f) {
-                this.lineTo(x1, y1);
+                lineTo(x1, y1);
                 return;
             }
 
@@ -669,22 +669,22 @@ namespace Unity.UIWidgets.ui {
                 dir = PathWinding.counterClockwise;
             }
 
-            this.addArc(cx, cy, radius, a0, a1, dir);
+            addArc(cx, cy, radius, a0, a1, dir);
         }
 
         public void arcTo(Rect rect, float startAngle, float sweepAngle, bool forceMoveTo = true) {
-            this._updateRRectFlag(false);
+            _updateRRectFlag(false);
             var mat = Matrix3.makeScale(rect.width / 2, rect.height / 2);
             var center = rect.center;
             mat.postTranslate(center.dx, center.dy);
 
-            this._addArcCommands(0, 0, 1, startAngle, startAngle + sweepAngle,
+            _addArcCommands(0, 0, 1, startAngle, startAngle + sweepAngle,
                 sweepAngle >= 0 ? PathWinding.clockwise : PathWinding.counterClockwise, forceMoveTo, mat);
         }
 
         public void addArc(Rect rect, float startAngle, float sweepAngle) {
-            this._updateRRectFlag(false);
-            this.arcTo(rect, startAngle, sweepAngle, true);
+            _updateRRectFlag(false);
+            arcTo(rect, startAngle, sweepAngle, true);
         }
 
         void _addArcCommands(
@@ -730,7 +730,7 @@ namespace Unity.UIWidgets.ui {
                 kappa = -kappa;
             }
 
-            PathCommand move = (forceMoveTo || this._commands.Count == 0) ? PathCommand.moveTo : PathCommand.lineTo;
+            PathCommand move = (forceMoveTo || _commands.Count == 0) ? PathCommand.moveTo : PathCommand.lineTo;
             float px = 0, py = 0, ptanx = 0, ptany = 0;
 
             for (int i = 0; i <= ndivs; i++) {
@@ -749,10 +749,10 @@ namespace Unity.UIWidgets.ui {
                     }
 
                     if (move == PathCommand.moveTo) {
-                        this._appendMoveTo(x1, y1);
+                        _appendMoveTo(x1, y1);
                     }
                     else {
-                        this._appendLineTo(x1, y1);
+                        _appendLineTo(x1, y1);
                     }
                 }
                 else {
@@ -768,7 +768,7 @@ namespace Unity.UIWidgets.ui {
                         transform.mapXY(x1, y1, out x1, out y1);
                     }
 
-                    this._appendBezierTo(c1x, c1y, c2x, c2y, x1, y1);
+                    _appendBezierTo(c1x, c1y, c2x, c2y, x1, y1);
                 }
 
                 px = x;
@@ -779,26 +779,26 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void addArc(float cx, float cy, float r, float a0, float a1, PathWinding dir, bool forceMoveTo = true) {
-            this._updateRRectFlag(false);
-            this._addArcCommands(cx, cy, r, a0, a1, dir, forceMoveTo);
+            _updateRRectFlag(false);
+            _addArcCommands(cx, cy, r, a0, a1, dir, forceMoveTo);
         }
 
         public void addPolygon(IList<Offset> points, bool close) {
-            this._updateRRectFlag(false);
+            _updateRRectFlag(false);
             D.assert(points != null);
             if (points.Count == 0) {
                 return;
             }
 
-            this._appendMoveTo(points[0].dx, points[0].dy);
+            _appendMoveTo(points[0].dx, points[0].dy);
 
             for (int i = 1; i < points.Count; i++) {
                 var point = points[i];
-                this._appendLineTo(point.dx, point.dy);
+                _appendLineTo(point.dx, point.dy);
             }
 
             if (close) {
-                this._appendClose();
+                _appendClose();
             }
         }
 
@@ -817,18 +817,18 @@ namespace Unity.UIWidgets.ui {
 
         public void addPath(Path path, Offset offset) {
             if (offset == null) {
-                this.addPath(path);
+                addPath(path);
                 return;
             }
 
             var transform = Matrix3.makeTrans(offset.dx, offset.dy);
-            this.addPath(path, transform);
+            addPath(path, transform);
         }
 
         public void addPath(Path path, Matrix3 transform = null) {
             D.assert(path != null);
             
-            this._updateRRectFlag(path.isNaiveRRect, path.shapeHint, path.rRectCorner);
+            _updateRRectFlag(path.isNaiveRRect, path.shapeHint, path.rRectCorner);
             var i = 0;
             while (i < path._commands.Count) {
                 var cmd = (PathCommand) path._commands[i];
@@ -840,7 +840,7 @@ namespace Unity.UIWidgets.ui {
                             transform.mapXY(x, y, out x, out y);
                         }
 
-                        this._appendMoveTo(x, y);
+                        _appendMoveTo(x, y);
                     }
                         i += 3;
                         break;
@@ -851,7 +851,7 @@ namespace Unity.UIWidgets.ui {
                             transform.mapXY(x, y, out x, out y);
                         }
 
-                        this._appendLineTo(x, y);
+                        _appendLineTo(x, y);
                     }
                         i += 3;
                         break;
@@ -868,16 +868,16 @@ namespace Unity.UIWidgets.ui {
                             transform.mapXY(x1, y1, out x1, out y1);
                         }
 
-                        this._appendBezierTo(c1x, c1y, c2x, c2y, x1, y1);
+                        _appendBezierTo(c1x, c1y, c2x, c2y, x1, y1);
                     }
                         i += 7;
                         break;
                     case PathCommand.close:
-                        this._appendClose();
+                        _appendClose();
                         i++;
                         break;
                     case PathCommand.winding:
-                        this._appendWinding(path._commands[i + 1]);
+                        _appendWinding(path._commands[i + 1]);
                         i += 2;
                         break;
                     default:
@@ -888,7 +888,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public bool contains(Offset point) {
-            var bounds = this.getBounds();
+            var bounds = getBounds();
             if (bounds == null || bounds.isEmpty) {
                 return false;
             }
@@ -909,8 +909,8 @@ namespace Unity.UIWidgets.ui {
             var totalW = 0;
             var w = 0;
             var i = 0;
-            while (i < this._commands.Count) {
-                var cmd = (PathCommand) this._commands[i];
+            while (i < _commands.Count) {
+                var cmd = (PathCommand) _commands[i];
                 switch (cmd) {
                     case PathCommand.moveTo:
                         if (lastMoveToX != commandx || lastMoveToY != commandy) {
@@ -925,36 +925,36 @@ namespace Unity.UIWidgets.ui {
                             w = 0;
                         }
 
-                        lastMoveToX = commandx = this._commands[i + 1];
-                        lastMoveToY = commandy = this._commands[i + 2];
+                        lastMoveToX = commandx = _commands[i + 1];
+                        lastMoveToY = commandy = _commands[i + 2];
                         winding = PathWinding.counterClockwise;
                         i += 3;
                         break;
                     case PathCommand.lineTo:
                         w += windingLine(
                             commandx, commandy,
-                            this._commands[i + 1], this._commands[i + 2],
+                            _commands[i + 1], _commands[i + 2],
                             x, y);
-                        commandx = this._commands[i + 1];
-                        commandy = this._commands[i + 2];
+                        commandx = _commands[i + 1];
+                        commandy = _commands[i + 2];
                         i += 3;
                         break;
                     case PathCommand.bezierTo:
                         w += windingCubic(
                             commandx, commandy,
-                            this._commands[i + 1], this._commands[i + 2],
-                            this._commands[i + 3], this._commands[i + 4],
-                            this._commands[i + 5], this._commands[i + 6],
+                            _commands[i + 1], _commands[i + 2],
+                            _commands[i + 3], _commands[i + 4],
+                            _commands[i + 5], _commands[i + 6],
                             x, y);
-                        commandx = this._commands[i + 5];
-                        commandy = this._commands[i + 6];
+                        commandx = _commands[i + 5];
+                        commandy = _commands[i + 6];
                         i += 7;
                         break;
                     case PathCommand.close:
                         i++;
                         break;
                     case PathCommand.winding:
-                        winding = (PathWinding) this._commands[i + 1];
+                        winding = (PathWinding) _commands[i + 1];
                         i += 2;
                         break;
                     default:
@@ -1338,7 +1338,7 @@ namespace Unity.UIWidgets.ui {
 
     public class PathMetrics : IEnumerable<PathMetric> {
         public PathMetrics(IEnumerator<PathMetric> enumerator) {
-            this._enumerator = enumerator;
+            _enumerator = enumerator;
         }
 
         public static PathMetrics _(Path path, bool forceClosed) {
@@ -1348,11 +1348,11 @@ namespace Unity.UIWidgets.ui {
         public readonly IEnumerator<PathMetric> _enumerator;
 
         public IEnumerator<PathMetric> GetEnumerator() {
-            return this._enumerator;
+            return _enumerator;
         }
 
         IEnumerator IEnumerable.GetEnumerator() {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
     }
 
@@ -1363,7 +1363,7 @@ namespace Unity.UIWidgets.ui {
 
     public class PathMetricIterator : IEnumerator<PathMetric> {
         PathMetricIterator(_PathMeasure measure) {
-            this._pathMeasure = measure;
+            _pathMeasure = measure;
         }
 
         internal static PathMetricIterator _(_PathMeasure _pathMeasure) {
@@ -1422,18 +1422,18 @@ namespace Unity.UIWidgets.ui {
         public float w;
 
         public int chopIntoQuadsPOW2(float[] quadX, float[] quadY, int pow2) {
-            quadX[0] = this.x0;
-            quadY[0] = this.y0;
+            quadX[0] = x0;
+            quadY[0] = y0;
 
-            var endIndex = this._subdivide(quadX, quadY, 1, pow2);
+            var endIndex = _subdivide(quadX, quadY, 1, pow2);
             var quadCount = 1 << pow2;
             var ptCount = 2 * quadCount + 1;
             D.assert(endIndex == ptCount);
 
             if (!(_areFinite(quadX, 0, ptCount) && _areFinite(quadY, 0, ptCount))) {
                 for (int i = 1; i < ptCount - 1; i++) {
-                    quadX[i] = this.x1;
-                    quadY[i] = this.y1;
+                    quadX[i] = x1;
+                    quadY[i] = y1;
                 }
             }
 
@@ -1456,20 +1456,20 @@ namespace Unity.UIWidgets.ui {
             D.assert(level >= 0);
 
             if (0 == level) {
-                quadX[0 + index] = this.x1;
-                quadY[0 + index] = this.y1;
-                quadX[1 + index] = this.x2;
-                quadY[1 + index] = this.y2;
+                quadX[0 + index] = x1;
+                quadY[0 + index] = y1;
+                quadX[1 + index] = x2;
+                quadY[1 + index] = y2;
                 return 2 + index;
             }
 
             _Conic c1, c2;
-            this._chop(out c1, out c2);
+            _chop(out c1, out c2);
 
-            var startY = this.y0;
-            var endY = this.y2;
+            var startY = y0;
+            var endY = y2;
 
-            if (_between(startY, this.y1, endY)) {
+            if (_between(startY, y1, endY)) {
                 // If the input is monotonic and the output is not, the scan converter hangs.
                 // Ensure that the chopped conics maintain their y-order.
                 var midY = c1.y2;
@@ -1507,27 +1507,27 @@ namespace Unity.UIWidgets.ui {
         }
 
         void _chop(out _Conic c1, out _Conic c2) {
-            var scale = 1.0f / (1.0f + this.w);
-            var newW = Mathf.Sqrt(0.5f + this.w * 0.5f);
+            var scale = 1.0f / (1.0f + w);
+            var newW = Mathf.Sqrt(0.5f + w * 0.5f);
 
-            var wp1X = this.w * this.x1;
-            var wp1Y = this.w * this.y1;
-            var mX = (this.x0 + (wp1X + wp1X) + this.x2) * scale * 0.5f;
-            var mY = (this.y0 + (wp1Y + wp1Y) + this.y2) * scale * 0.5f;
+            var wp1X = w * x1;
+            var wp1Y = w * y1;
+            var mX = (x0 + (wp1X + wp1X) + x2) * scale * 0.5f;
+            var mY = (y0 + (wp1Y + wp1Y) + y2) * scale * 0.5f;
 
             if (!(mX.isFinite() && mY.isFinite())) {
-                double w_d = this.w;
+                double w_d = w;
                 double w_2 = w_d * 2.0;
                 double scale_half = 1.0 / (1.0 + w_d) * 0.5;
-                mX = (float) ((this.x0 + w_2 * this.x1 + this.x2) * scale_half);
-                mY = (float) ((this.y0 + w_2 * this.y1 + this.y2) * scale_half);
+                mX = (float) ((x0 + w_2 * x1 + x2) * scale_half);
+                mY = (float) ((y0 + w_2 * y1 + y2) * scale_half);
             }
 
             c1 = new _Conic {
-                x0 = this.x0,
-                y0 = this.y0,
-                x1 = (this.x0 + wp1X) * scale,
-                y1 = (this.y0 + wp1Y) * scale,
+                x0 = x0,
+                y0 = y0,
+                x1 = (x0 + wp1X) * scale,
+                y1 = (y0 + wp1Y) * scale,
                 x2 = mX,
                 y2 = mY,
                 w = newW,
@@ -1536,10 +1536,10 @@ namespace Unity.UIWidgets.ui {
             c2 = new _Conic {
                 x0 = mX,
                 y0 = mY,
-                x1 = (wp1X + this.x2) * scale,
-                y1 = (wp1Y + this.y2) * scale,
-                x2 = this.x2,
-                y2 = this.y2,
+                x1 = (wp1X + x2) * scale,
+                y1 = (wp1Y + y2) * scale,
+                x2 = x2,
+                y2 = y2,
                 w = newW,
             };
         }
@@ -1605,13 +1605,13 @@ namespace Unity.UIWidgets.ui {
         MeshMesh _fillMesh;
 
         public MeshMesh fillMesh {
-            get { return this._fillMesh; }
+            get { return _fillMesh; }
         }
 
         MeshMesh _strokeMesh;
 
         public MeshMesh strokeMesh {
-            get { return this._strokeMesh; }
+            get { return _strokeMesh; }
         }
 
         float _strokeWidth;
@@ -1621,13 +1621,13 @@ namespace Unity.UIWidgets.ui {
         float _fringe;
 
         public PathCache(float scale) {
-            this._scale = scale;
-            this._distTol = 0.01f / scale;
-            this._tessTol = 0.25f / scale;
+            _scale = scale;
+            _distTol = 0.01f / scale;
+            _tessTol = 0.25f / scale;
         }
 
         public bool canReuse(float scale) {
-            if (this._scale != scale) {
+            if (_scale != scale) {
                 return false;
             }
 
@@ -1635,32 +1635,32 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void addPath() {
-            this._paths.add(new PathPath {
-                first = this._points.length,
+            _paths.add(new PathPath {
+                first = _points.length,
                 winding = PathWinding.counterClockwise
             });
         }
 
         public void addPoint(float x, float y, PointFlags flags) {
-            this._addPoint(new PathPoint {x = x, y = y, flags = flags});
+            _addPoint(new PathPoint {x = x, y = y, flags = flags});
         }
 
         void _addPoint(PathPoint point) {
-            if (this._paths.length == 0) {
-                this.addPath();
-                this.addPoint(0, 0, PointFlags.corner);
+            if (_paths.length == 0) {
+                addPath();
+                addPoint(0, 0, PointFlags.corner);
             }
 
-            ref var path = ref this._paths.array[this._paths.length - 1];
+            ref var path = ref _paths.array[_paths.length - 1];
             if (path.count > 0) {
-                ref var pt = ref this._points.array[this._points.length - 1];
-                if (PathUtils.ptEquals(pt.x, pt.y, point.x, point.y, this._distTol)) {
+                ref var pt = ref _points.array[_points.length - 1];
+                if (PathUtils.ptEquals(pt.x, pt.y, point.x, point.y, _distTol)) {
                     pt.flags |= point.flags;
                     return;
                 }
             }
 
-            this._points.add(point);
+            _points.add(point);
             path.count++;
         }
 
@@ -1669,12 +1669,12 @@ namespace Unity.UIWidgets.ui {
             float x3, float y3, float x4, float y4,
             PointFlags flags) {
             float x1, y1;
-            if (this._points.length == 0) {
+            if (_points.length == 0) {
                 x1 = 0;
                 y1 = 0;
             }
             else {
-                ref var pt = ref this._points.array[this._points.length - 1];
+                ref var pt = ref _points.array[_points.length - 1];
                 x1 = pt.x;
                 y1 = pt.y;
             }
@@ -1684,19 +1684,19 @@ namespace Unity.UIWidgets.ui {
                 return;
             }
 
-            var points = TessellationGenerator.tessellateBezier(x1, y1, x2, y2, x3, y3, x4, y4, this._tessTol);
+            var points = TessellationGenerator.tessellateBezier(x1, y1, x2, y2, x3, y3, x4, y4, _tessTol);
             D.assert(points.Count > 0);
             for (int i = 0; i < points.Count; i++) {
                 var point = points[i];
                 if (i == points.Count - 1) {
-                    this._addPoint(new PathPoint {
+                    _addPoint(new PathPoint {
                         x = point.x + x1,
                         y = point.y + y1,
                         flags = flags,
                     });
                 }
                 else {
-                    this._addPoint(new PathPoint {
+                    _addPoint(new PathPoint {
                         x = point.x + x1,
                         y = point.y + y1,
                     });
@@ -1705,26 +1705,26 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void closePath() {
-            if (this._paths.length == 0) {
+            if (_paths.length == 0) {
                 return;
             }
 
-            ref var path = ref this._paths.array[this._paths.length - 1];
+            ref var path = ref _paths.array[_paths.length - 1];
             path.closed = true;
         }
 
         public void pathWinding(PathWinding winding) {
-            if (this._paths.length == 0) {
+            if (_paths.length == 0) {
                 return;
             }
 
-            ref var path = ref this._paths.array[this._paths.length - 1];
+            ref var path = ref _paths.array[_paths.length - 1];
             path.winding = winding;
         }
 
         public void normalize() {
-            var points = this._points;
-            var paths = this._paths;
+            var points = _points;
+            var paths = _paths;
             for (var j = 0; j < paths.length; j++) {
                 ref var path = ref paths.array[j];
                 if (path.count <= 1) {
@@ -1736,7 +1736,7 @@ namespace Unity.UIWidgets.ui {
 
                 ref var p0 = ref points.array[ip0];
                 ref var p1 = ref points.array[ip1];
-                if (PathUtils.ptEquals(p0.x, p0.y, p1.x, p1.y, this._distTol)) {
+                if (PathUtils.ptEquals(p0.x, p0.y, p1.x, p1.y, _distTol)) {
                     path.count--;
                     path.closed = true;
                 }
@@ -1752,8 +1752,8 @@ namespace Unity.UIWidgets.ui {
         void _calculateJoins(float w, StrokeJoin lineJoin, float miterLimit) {
             float iw = w > 0.0f ? 1.0f / w : 0.0f;
 
-            var points = this._points;
-            var paths = this._paths;
+            var points = _points;
+            var paths = _paths;
             for (var i = 0; i < paths.length; i++) {
                 ref var path = ref paths.array[i];
                 if (path.count <= 1) {
@@ -1829,7 +1829,7 @@ namespace Unity.UIWidgets.ui {
             float u0 = 0.0f, u1 = 1.0f;
             int ncap = 0;
             if (lineCap == StrokeCap.round || lineJoin == StrokeJoin.round) {
-                ncap = uiPathUtils.curveDivs(w, Mathf.PI, this._tessTol);
+                ncap = uiPathUtils.curveDivs(w, Mathf.PI, _tessTol);
             }
 
             w += aa * 0.5f;
@@ -1839,10 +1839,10 @@ namespace Unity.UIWidgets.ui {
                 u1 = 0.5f;
             }
 
-            this._calculateJoins(w, lineJoin, miterLimit);
+            _calculateJoins(w, lineJoin, miterLimit);
 
-            var points = this._points;
-            var paths = this._paths;
+            var points = _points;
+            var paths = _paths;
 
             var cvertices = 0;
             for (var i = 0; i < paths.length; i++) {
@@ -1855,15 +1855,15 @@ namespace Unity.UIWidgets.ui {
                 cvertices += 8;
             }
 
-            this._vertices = new List<Vector3>(cvertices);
-            this._uv = new List<Vector2>(cvertices);
+            _vertices = new List<Vector3>(cvertices);
+            _uv = new List<Vector2>(cvertices);
             for (var i = 0; i < paths.length; i++) {
                 var path = paths.array[i];
                 if (path.count <= 1) {
                     continue;
                 }
 
-                path.istroke = this._vertices.Count;
+                path.istroke = _vertices.Count;
 
                 int s, e, ip0, ip1;
                 if (path.closed) {
@@ -1884,14 +1884,14 @@ namespace Unity.UIWidgets.ui {
 
                 if (!path.closed) {
                     if (lineCap == StrokeCap.butt) {
-                        this._vertices.buttCapStart(this._uv, p0, p0.dx, p0.dy, w, 0.0f, aa, u0, u1);
+                        _vertices.buttCapStart(_uv, p0, p0.dx, p0.dy, w, 0.0f, aa, u0, u1);
                     }
                     else if (lineCap == StrokeCap.square) {
-                        this._vertices.buttCapStart(this._uv, p0, p0.dx, p0.dy, w, w, aa, u0, u1);
+                        _vertices.buttCapStart(_uv, p0, p0.dx, p0.dy, w, w, aa, u0, u1);
                     }
                     else {
                         // round
-                        this._vertices.roundCapStart(this._uv, p0, p0.dx, p0.dy, w, ncap, u0, u1);
+                        _vertices.roundCapStart(_uv, p0, p0.dx, p0.dy, w, ncap, u0, u1);
                     }
                 }
 
@@ -1901,17 +1901,17 @@ namespace Unity.UIWidgets.ui {
 
                     if ((p1.flags & (PointFlags.bevel | PointFlags.innerBevel)) != 0) {
                         if (lineJoin == StrokeJoin.round) {
-                            this._vertices.roundJoin(this._uv, p0, p1, w, w, ncap, u0, u1, aa);
+                            _vertices.roundJoin(_uv, p0, p1, w, w, ncap, u0, u1, aa);
                         }
                         else {
-                            this._vertices.bevelJoin(this._uv, p0, p1, w, w, u0, u1, aa);
+                            _vertices.bevelJoin(_uv, p0, p1, w, w, u0, u1, aa);
                         }
                     }
                     else {
-                        this._vertices.Add(new Vector2(p1.x + p1.dmx * w, p1.y + p1.dmy * w));
-                        this._vertices.Add(new Vector2(p1.x - p1.dmx * w, p1.y - p1.dmy * w));
-                        this._uv.Add(new Vector2(u0, 1));
-                        this._uv.Add(new Vector2(u1, 1));
+                        _vertices.Add(new Vector2(p1.x + p1.dmx * w, p1.y + p1.dmy * w));
+                        _vertices.Add(new Vector2(p1.x - p1.dmx * w, p1.y - p1.dmy * w));
+                        _uv.Add(new Vector2(u0, 1));
+                        _uv.Add(new Vector2(u1, 1));
                     }
 
                     ip0 = ip1++;
@@ -1921,41 +1921,41 @@ namespace Unity.UIWidgets.ui {
                     p0 = points.array[ip0];
                     p1 = points.array[ip1];
                     if (lineCap == StrokeCap.butt) {
-                        this._vertices.buttCapEnd(this._uv, p1, p0.dx, p0.dy, w, 0.0f, aa, u0, u1);
+                        _vertices.buttCapEnd(_uv, p1, p0.dx, p0.dy, w, 0.0f, aa, u0, u1);
                     }
                     else if (lineCap == StrokeCap.square) {
-                        this._vertices.buttCapEnd(this._uv, p1, p0.dx, p0.dy, w, w, aa, u0, u1);
+                        _vertices.buttCapEnd(_uv, p1, p0.dx, p0.dy, w, w, aa, u0, u1);
                     }
                     else {
                         // round
-                        this._vertices.roundCapEnd(this._uv, p1, p0.dx, p0.dy, w, ncap, u0, u1);
+                        _vertices.roundCapEnd(_uv, p1, p0.dx, p0.dy, w, ncap, u0, u1);
                     }
                 }
                 else {
-                    this._vertices.Add(this._vertices[path.istroke]);
-                    this._vertices.Add(this._vertices[path.istroke + 1]);
-                    this._uv.Add(new Vector2(u0, 1));
-                    this._uv.Add(new Vector2(u1, 1));
+                    _vertices.Add(_vertices[path.istroke]);
+                    _vertices.Add(_vertices[path.istroke + 1]);
+                    _uv.Add(new Vector2(u0, 1));
+                    _uv.Add(new Vector2(u1, 1));
                 }
 
-                path.nstroke = this._vertices.Count - path.istroke;
+                path.nstroke = _vertices.Count - path.istroke;
                 paths.array[i] = path;
             }
 
-            D.assert(this._uv.Count == this._vertices.Count);
+            D.assert(_uv.Count == _vertices.Count);
 
             return new VertexUV {
-                strokeVertices = this._vertices,
-                strokeUV = this._uv,
+                strokeVertices = _vertices,
+                strokeUV = _uv,
             };
         }
 
         VertexUV _expandFill(float fringe) {
             float aa = fringe;
             float woff = aa * 0.5f;
-            var points = this._points;
-            var paths = this._paths;
-            this._calculateJoins(fringe, StrokeJoin.miter, 4.0f);
+            var points = _points;
+            var paths = _paths;
+            _calculateJoins(fringe, StrokeJoin.miter, 4.0f);
 
             var cvertices = 0;
             for (var i = 0; i < paths.length; i++) {
@@ -1967,16 +1967,16 @@ namespace Unity.UIWidgets.ui {
                 cvertices += path.count;
             }
 
-            this._fillConvex = false;
+            _fillConvex = false;
             for (var i = 0; i < paths.length; i++) {
                 var path = paths.array[i];
                 if (path.count <= 2) {
                     continue;
                 }
 
-                if (this._fillConvex) {
+                if (_fillConvex) {
                     // if more than two paths, convex is false.
-                    this._fillConvex = false;
+                    _fillConvex = false;
                     break;
                 }
 
@@ -1985,37 +1985,37 @@ namespace Unity.UIWidgets.ui {
                     break;
                 }
 
-                this._fillConvex = true;
+                _fillConvex = true;
             }
 
-            this._vertices = new List<Vector3>(cvertices);
-            this._uv = new List<Vector2>(cvertices);
+            _vertices = new List<Vector3>(cvertices);
+            _uv = new List<Vector2>(cvertices);
             for (var i = 0; i < paths.length; i++) {
                 var path = paths.array[i];
                 if (path.count <= 2) {
                     continue;
                 }
 
-                path.ifill = this._vertices.Count;
+                path.ifill = _vertices.Count;
                 for (var j = 0; j < path.count; j++) {
                     var p = points.array[path.first + j];
                     if (aa > 0.0f) {
-                        this._vertices.Add(new Vector2(p.x + p.dmx * woff, p.y + p.dmy * woff));
+                        _vertices.Add(new Vector2(p.x + p.dmx * woff, p.y + p.dmy * woff));
                     }
                     else {
-                        this._vertices.Add(new Vector2(p.x, p.y));
+                        _vertices.Add(new Vector2(p.x, p.y));
                     }
 
-                    this._uv.Add(new Vector2(0.5f, 1.0f));
+                    _uv.Add(new Vector2(0.5f, 1.0f));
                 }
 
-                path.nfill = this._vertices.Count - path.ifill;
+                path.nfill = _vertices.Count - path.ifill;
                 paths.array[i] = path;
             }
 
             if (aa > 0.0f) {
-                this._strokeVertices = new List<Vector3>();
-                this._strokeUV = new List<Vector2>();
+                _strokeVertices = new List<Vector3>();
+                _strokeUV = new List<Vector2>();
                 cvertices = 0;
                 for (var i = 0; i < paths.length; i++) {
                     var path = paths.array[i];
@@ -2026,12 +2026,12 @@ namespace Unity.UIWidgets.ui {
                     cvertices += path.count * 2;
                 }
 
-                this._strokeVertices.Capacity = cvertices;
-                this._strokeUV.Capacity = cvertices;
+                _strokeVertices.Capacity = cvertices;
+                _strokeUV.Capacity = cvertices;
 
-                float lw = this._fillConvex ? woff : aa + woff;
+                float lw = _fillConvex ? woff : aa + woff;
                 float rw = aa - woff;
-                float lu = this._fillConvex ? 0.5f : 0.0f;
+                float lu = _fillConvex ? 0.5f : 0.0f;
                 float ru = 1.0f;
 
                 for (var i = 0; i < paths.length; i++) {
@@ -2040,43 +2040,43 @@ namespace Unity.UIWidgets.ui {
                         continue;
                     }
 
-                    path.istroke = this._strokeVertices.Count;
+                    path.istroke = _strokeVertices.Count;
                     for (var j = 0; j < path.count; j++) {
                         var p = points.array[path.first + j];
-                        this._strokeVertices.Add(new Vector2(p.x + p.dmx * lw, p.y + p.dmy * lw));
-                        this._strokeUV.Add(new Vector2(lu, 1.0f));
-                        this._strokeVertices.Add(new Vector2(p.x - p.dmx * rw, p.y - p.dmy * rw));
-                        this._strokeUV.Add(new Vector2(ru, 1.0f));
+                        _strokeVertices.Add(new Vector2(p.x + p.dmx * lw, p.y + p.dmy * lw));
+                        _strokeUV.Add(new Vector2(lu, 1.0f));
+                        _strokeVertices.Add(new Vector2(p.x - p.dmx * rw, p.y - p.dmy * rw));
+                        _strokeUV.Add(new Vector2(ru, 1.0f));
                     }
 
-                    path.nstroke = this._strokeVertices.Count - path.istroke;
+                    path.nstroke = _strokeVertices.Count - path.istroke;
                     paths.array[i] = path;
                 }
             }
 
             return new VertexUV {
-                fillVertices = this._vertices,
-                fillUV = this._uv,
-                strokeVertices = this._strokeVertices,
-                strokeUV = this._strokeUV,
+                fillVertices = _vertices,
+                fillUV = _uv,
+                strokeVertices = _strokeVertices,
+                strokeUV = _strokeUV,
             };
         }
 
         public void computeStrokeMesh(float strokeWidth, float fringe, StrokeCap lineCap, StrokeJoin lineJoin,
             float miterLimit) {
-            if (this._strokeMesh != null &&
-                this._fillMesh == null && // Ensure that the cached stroke mesh was not calculated in computeFillMesh
-                this._strokeWidth == strokeWidth &&
-                this._fringe == fringe &&
-                this._lineCap == lineCap &&
-                this._lineJoin == lineJoin &&
-                this._miterLimit == miterLimit) {
+            if (_strokeMesh != null &&
+                _fillMesh == null && // Ensure that the cached stroke mesh was not calculated in computeFillMesh
+                _strokeWidth == strokeWidth &&
+                _fringe == fringe &&
+                _lineCap == lineCap &&
+                _lineJoin == lineJoin &&
+                _miterLimit == miterLimit) {
                 return;
             }
 
-            var verticesUV = this._expandStroke(strokeWidth, fringe, lineCap, lineJoin, miterLimit);
+            var verticesUV = _expandStroke(strokeWidth, fringe, lineCap, lineJoin, miterLimit);
 
-            var paths = this._paths;
+            var paths = _paths;
 
             var cindices = 0;
             for (var i = 0; i < paths.length; i++) {
@@ -2116,25 +2116,25 @@ namespace Unity.UIWidgets.ui {
 
             D.assert(indices.Count == cindices);
 
-            this._strokeMesh = new MeshMesh(null, verticesUV.strokeVertices, indices, verticesUV.strokeUV);
-            this._fillMesh = null;
-            this._strokeWidth = strokeWidth;
-            this._fringe = fringe;
-            this._lineCap = lineCap;
-            this._lineJoin = lineJoin;
-            this._miterLimit = miterLimit;
+            _strokeMesh = new MeshMesh(null, verticesUV.strokeVertices, indices, verticesUV.strokeUV);
+            _fillMesh = null;
+            _strokeWidth = strokeWidth;
+            _fringe = fringe;
+            _lineCap = lineCap;
+            _lineJoin = lineJoin;
+            _miterLimit = miterLimit;
         }
 
         public void computeFillMesh(float fringe, out bool convex) {
-            if (this._fillMesh != null && (fringe != 0.0f || this._strokeMesh != null) && this._fringe == fringe) {
-                convex = this._fillConvex;
+            if (_fillMesh != null && (fringe != 0.0f || _strokeMesh != null) && _fringe == fringe) {
+                convex = _fillConvex;
                 return;
             }
 
-            var verticesUV = this._expandFill(fringe);
-            convex = this._fillConvex;
+            var verticesUV = _expandFill(fringe);
+            convex = _fillConvex;
 
-            var paths = this._paths;
+            var paths = _paths;
 
             var cindices = 0;
             for (var i = 0; i < paths.length; i++) {
@@ -2212,12 +2212,12 @@ namespace Unity.UIWidgets.ui {
 
                 D.assert(strokeIndices.Count == cindices);
 
-                this._strokeMesh = new MeshMesh(null, verticesUV.strokeVertices, strokeIndices, verticesUV.strokeUV);
+                _strokeMesh = new MeshMesh(null, verticesUV.strokeVertices, strokeIndices, verticesUV.strokeUV);
             }
 
             var mesh = new MeshMesh(null, verticesUV.fillVertices, indices, verticesUV.fillUV);
-            this._fillMesh = mesh;
-            this._fringe = fringe;
+            _fillMesh = mesh;
+            _fringe = fringe;
         }
     }
 
@@ -2563,11 +2563,11 @@ namespace Unity.UIWidgets.ui {
 
         public Rect bounds {
             get {
-                if (this._bounds == null) {
-                    this._bounds = this.matrix != null ? this.matrix.mapRect(this.rawBounds) : this.rawBounds;
+                if (_bounds == null) {
+                    _bounds = matrix != null ? matrix.mapRect(rawBounds) : rawBounds;
                 }
 
-                return this._bounds;
+                return _bounds;
             }
         }
 
@@ -2580,27 +2580,27 @@ namespace Unity.UIWidgets.ui {
 
         public MeshMesh boundsMesh {
             get {
-                if (this._boundsMesh == null) {
-                    this._boundsMesh = new MeshMesh(this.bounds);
+                if (_boundsMesh == null) {
+                    _boundsMesh = new MeshMesh(bounds);
                 }
 
-                return this._boundsMesh;
+                return _boundsMesh;
             }
         }
 
         public MeshMesh(Rect rect) {
-            this.vertices = new List<Vector3>(4) {
+            vertices = new List<Vector3>(4) {
                 new Vector3(rect.right, rect.bottom),
                 new Vector3(rect.right, rect.top),
                 new Vector3(rect.left, rect.bottom),
                 new Vector3(rect.left, rect.top)
             };
 
-            this.triangles = _boundsTriangles;
-            this.rawBounds = rect;
+            triangles = _boundsTriangles;
+            rawBounds = rect;
 
-            this._bounds = this.rawBounds;
-            this._boundsMesh = this;
+            _bounds = rawBounds;
+            _boundsMesh = this;
         }
 
         public MeshMesh(Matrix3 matrix, List<Vector3> vertices, List<int> triangles, List<Vector2> uv = null,
@@ -2653,7 +2653,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public MeshMesh transform(Matrix3 matrix) {
-            return new MeshMesh(matrix, this.vertices, this.triangles, this.uv, this.rawBounds);
+            return new MeshMesh(matrix, vertices, triangles, uv, rawBounds);
         }
     }
 
@@ -2661,8 +2661,8 @@ namespace Unity.UIWidgets.ui {
         readonly Queue<Mesh> _pool = new Queue<Mesh>();
 
         public Mesh getMesh() {
-            if (this._pool.Count > 0) {
-                var mesh = this._pool.Dequeue();
+            if (_pool.Count > 0) {
+                var mesh = _pool.Dequeue();
                 return mesh;
             }
             else {
@@ -2676,15 +2676,15 @@ namespace Unity.UIWidgets.ui {
         public void returnMesh(Mesh mesh) {
             D.assert(mesh != null);
             D.assert(mesh.hideFlags == HideFlags.HideAndDontSave);
-            this._pool.Enqueue(mesh);
+            _pool.Enqueue(mesh);
         }
 
         public void Dispose() {
-            foreach (var mesh in this._pool) {
+            foreach (var mesh in _pool) {
                 ObjectUtils.SafeDestroy(mesh);
             }
 
-            this._pool.Clear();
+            _pool.Clear();
         }
     }
 }

@@ -20,13 +20,13 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void dispatch(BuildContext target) {
-            target?.visitAncestorElements(this.visitAncestor);
+            target?.visitAncestorElements(visitAncestor);
         }
 
         public override string ToString() {
             var description = new List<string>();
-            this.debugFillDescription(description);
-            return $"{this.GetType()}({string.Join(", ", description.ToArray())})";
+            debugFillDescription(description);
+            return $"{GetType()}({string.Join(", ", description.ToArray())})";
         }
 
         protected virtual void debugFillDescription(List<string> description) {
@@ -51,8 +51,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly NotificationListenerCallback<T> onNotification;
 
         bool _NotificationListener._dispatch(Notification notification, Element element) {
-            if (this.onNotification != null && notification is T) {
-                bool result = this.onNotification((T) notification);
+            if (onNotification != null && notification is T) {
+                bool result = onNotification((T) notification);
                 return result;
             }
 
@@ -60,7 +60,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            return this.child;
+            return child;
         }
     }
 

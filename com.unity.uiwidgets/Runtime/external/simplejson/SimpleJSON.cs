@@ -718,7 +718,7 @@ namespace Unity.UIWidgets.external.simplejson
                                         string s = aJSON.Substring(i + 1, 4);
                                         Token.Append((char)int.Parse(
                                             s,
-                                            System.Globalization.NumberStyles.AllowHexSpecifier));
+                                            NumberStyles.AllowHexSpecifier));
                                         i += 4;
                                         break;
                                     }
@@ -1215,7 +1215,7 @@ namespace Unity.UIWidgets.external.simplejson
 
         public override bool Equals(object obj)
         {
-            if (object.ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, obj))
                 return true;
             return (obj is JSONNull);
         }
@@ -1286,7 +1286,7 @@ namespace Unity.UIWidgets.external.simplejson
         {
             if (b == null)
                 return true;
-            return System.Object.ReferenceEquals(a, b);
+            return ReferenceEquals(a, b);
         }
 
         public static bool operator !=(JSONLazyCreator a, object b)
@@ -1298,7 +1298,7 @@ namespace Unity.UIWidgets.external.simplejson
         {
             if (obj == null)
                 return true;
-            return System.Object.ReferenceEquals(this, obj);
+            return ReferenceEquals(this, obj);
         }
 
         public override int GetHashCode()

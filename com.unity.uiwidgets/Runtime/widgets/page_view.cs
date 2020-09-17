@@ -32,10 +32,10 @@ namespace Unity.UIWidgets.widgets {
 
         public virtual float page {
             get {
-                D.assert(this.positions.isNotEmpty(),
+                D.assert(positions.isNotEmpty(),
                     () => "PageController.page cannot be accessed before a PageView is built with it."
                 );
-                D.assert(this.positions.Count == 1,
+                D.assert(positions.Count == 1,
                     () => "The page property cannot be read when multiple PageViews are attached to " +
                           "the same PageController."
                 );
@@ -59,11 +59,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public IPromise nextPage(TimeSpan duration, Curve curve) {
-            return this.animateToPage(this.page.round() + 1, duration: duration, curve: curve);
+            return animateToPage(page.round() + 1, duration: duration, curve: curve);
         }
 
         public IPromise previousPage(TimeSpan duration, Curve curve) {
-            return this.animateToPage(this.page.round() - 1, duration: duration, curve: curve);
+            return animateToPage(page.round() - 1, duration: duration, curve: curve);
         }
 
         public override ScrollPosition createScrollPosition(ScrollPhysics physics, ScrollContext context,
@@ -71,9 +71,9 @@ namespace Unity.UIWidgets.widgets {
             return new _PagePosition(
                 physics: physics,
                 context: context,
-                initialPage: this.initialPage,
-                keepPage: this.keepPage,
-                viewportFraction: this.viewportFraction,
+                initialPage: initialPage,
+                keepPage: keepPage,
+                viewportFraction: viewportFraction,
                 oldPosition: oldPosition
             );
         }
@@ -81,7 +81,7 @@ namespace Unity.UIWidgets.widgets {
         public override void attach(ScrollPosition position) {
             base.attach(position);
             _PagePosition pagePosition = (_PagePosition) position;
-            pagePosition.viewportFraction = this.viewportFraction;
+            pagePosition.viewportFraction = viewportFraction;
         }
     }
 
@@ -105,20 +105,20 @@ namespace Unity.UIWidgets.widgets {
             viewportDimension: viewportDimension,
             axisDirection: axisDirection
         ) {
-            this._viewportFraction = viewportFraction;
+            _viewportFraction = viewportFraction;
         }
 
         public readonly float _viewportFraction;
 
         public float page {
             get {
-                return (Mathf.Max(0.0f, this.pixels.clamp(this.minScrollExtent, this.maxScrollExtent)) /
-                        Mathf.Max(1.0f, this.viewportDimension * this.viewportFraction));
+                return (Mathf.Max(0.0f, pixels.clamp(minScrollExtent, maxScrollExtent)) /
+                        Mathf.Max(1.0f, viewportDimension * viewportFraction));
             }
         }
 
         public float viewportFraction {
-            get { return this._viewportFraction; }
+            get { return _viewportFraction; }
         }
     }
 
@@ -140,73 +140,73 @@ namespace Unity.UIWidgets.widgets {
             ) {
             D.assert(viewportFraction > 0.0);
             this.initialPage = initialPage;
-            this._viewportFraction = viewportFraction;
-            this._pageToUseOnStartup = initialPage;
+            _viewportFraction = viewportFraction;
+            _pageToUseOnStartup = initialPage;
         }
 
         public readonly int initialPage;
         float _pageToUseOnStartup;
 
         public float viewportFraction {
-            get { return this._viewportFraction; }
+            get { return _viewportFraction; }
             set {
-                if (this._viewportFraction == value) {
+                if (_viewportFraction == value) {
                     return;
                 }
 
-                float oldPage = this.page;
-                this._viewportFraction = value;
-                this.forcePixels(this.getPixelsFromPage(oldPage));
+                float oldPage = page;
+                _viewportFraction = value;
+                forcePixels(getPixelsFromPage(oldPage));
             }
         }
 
         float _viewportFraction;
 
         public float getPageFromPixels(float pixels, float viewportDimension) {
-            return (Mathf.Max(0.0f, pixels) / Mathf.Max(1.0f, viewportDimension * this.viewportFraction));
+            return (Mathf.Max(0.0f, pixels) / Mathf.Max(1.0f, viewportDimension * viewportFraction));
         }
 
         public float getPixelsFromPage(float page) {
-            return page * this.viewportDimension * this.viewportFraction;
+            return page * viewportDimension * viewportFraction;
         }
 
         public float page {
             get {
-                return this.getPageFromPixels(this.pixels.clamp(this.minScrollExtent, this.maxScrollExtent),
-                    this.viewportDimension);
+                return getPageFromPixels(pixels.clamp(minScrollExtent, maxScrollExtent),
+                    viewportDimension);
             }
         }
 
         protected override void saveScrollOffset() {
-            PageStorage.of(this.context.storageContext)?.writeState(this.context.storageContext,
-                this.getPageFromPixels(this.pixels, this.viewportDimension));
+            PageStorage.of(context.storageContext)?.writeState(context.storageContext,
+                getPageFromPixels(pixels, viewportDimension));
         }
 
         protected override void restoreScrollOffset() {
-            object value = PageStorage.of(this.context.storageContext)?.readState(this.context.storageContext);
+            object value = PageStorage.of(context.storageContext)?.readState(context.storageContext);
             if (value != null) {
-                this._pageToUseOnStartup = (float) value;
+                _pageToUseOnStartup = (float) value;
             }
         }
 
         public override bool applyViewportDimension(float viewportDimension) {
             float oldViewportDimensions = 0.0f;
-            if (this.haveDimensions) {
+            if (haveDimensions) {
                 oldViewportDimensions = this.viewportDimension;
             }
 
             bool result = base.applyViewportDimension(viewportDimension);
             float? oldPixels = null;
-            if (this.havePixels) {
-                oldPixels = this.pixels;
+            if (havePixels) {
+                oldPixels = pixels;
             }
 
             float page = (oldPixels == null || oldViewportDimensions == 0.0f)
-                ? this._pageToUseOnStartup
-                : this.getPageFromPixels(oldPixels.Value, oldViewportDimensions);
-            float newPixels = this.getPixelsFromPage(page);
+                ? _pageToUseOnStartup
+                : getPageFromPixels(oldPixels.Value, oldViewportDimensions);
+            float newPixels = getPixelsFromPage(page);
             if (newPixels != oldPixels) {
-                this.correctPixels(newPixels);
+                correctPixels(newPixels);
                 return false;
             }
 
@@ -218,7 +218,7 @@ namespace Unity.UIWidgets.widgets {
         public PageScrollPhysics(ScrollPhysics parent = null) : base(parent: parent) { }
 
         public override ScrollPhysics applyTo(ScrollPhysics ancestor) {
-            return new PageScrollPhysics(parent: this.buildParent(ancestor));
+            return new PageScrollPhysics(parent: buildParent(ancestor));
         }
 
         float _getPage(ScrollPosition position) {
@@ -238,7 +238,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         float _getTargetPixels(ScrollPosition position, Tolerance tolerance, float velocity) {
-            float page = this._getPage(position);
+            float page = _getPage(position);
             if (velocity < -tolerance.velocity) {
                 page -= 0.5f;
             }
@@ -246,7 +246,7 @@ namespace Unity.UIWidgets.widgets {
                 page += 0.5f;
             }
 
-            return this._getPixels(position, page.round());
+            return _getPixels(position, page.round());
         }
 
         public override Simulation createBallisticSimulation(ScrollMetrics position, float velocity) {
@@ -256,9 +256,9 @@ namespace Unity.UIWidgets.widgets {
             }
 
             Tolerance tolerance = this.tolerance;
-            float target = this._getTargetPixels((ScrollPosition) position, tolerance, velocity);
+            float target = _getTargetPixels((ScrollPosition) position, tolerance, velocity);
             if (target != position.pixels) {
-                return new ScrollSpringSimulation(this.spring, position.pixels, target, velocity, tolerance: tolerance);
+                return new ScrollSpringSimulation(spring, position.pixels, target, velocity, tolerance: tolerance);
             }
 
             return null;
@@ -298,13 +298,13 @@ namespace Unity.UIWidgets.widgets {
             this.dragStartBehavior = dragStartBehavior;
             this.controller = controller ?? PageViewUtils._defaultPageController;
             if (itemBuilder != null) {
-                this.childrenDelegate = new SliverChildBuilderDelegate(itemBuilder, childCount: itemCount);
+                childrenDelegate = new SliverChildBuilderDelegate(itemBuilder, childCount: itemCount);
             }
             else if (childDelegate != null) {
-                this.childrenDelegate = childDelegate;
+                childrenDelegate = childDelegate;
             }
             else {
-                this.childrenDelegate = new SliverChildListDelegate(children ?? new List<Widget>());
+                childrenDelegate = new SliverChildListDelegate(children ?? new List<Widget>());
             }
         }
         
@@ -362,47 +362,47 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            this._lastReportedPage = this.widget.controller.initialPage;
+            _lastReportedPage = widget.controller.initialPage;
         }
 
         AxisDirection _getDirection(BuildContext context) {
-            switch (this.widget.scrollDirection) {
+            switch (widget.scrollDirection) {
                 case Axis.horizontal:
                     D.assert(WidgetsD.debugCheckHasDirectionality(context));
                     TextDirection textDirection = Directionality.of(context);
                     AxisDirection axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
-                    return this.widget.reverse ? AxisUtils.flipAxisDirection(axisDirection) : axisDirection;
+                    return widget.reverse ? AxisUtils.flipAxisDirection(axisDirection) : axisDirection;
                 case Axis.vertical:
-                    return this.widget.reverse ? AxisDirection.up : AxisDirection.down;
+                    return widget.reverse ? AxisDirection.up : AxisDirection.down;
             }
 
             throw new UIWidgetsError("fail to get axis direction");
         }
 
         public override Widget build(BuildContext context) {
-            AxisDirection axisDirection = this._getDirection(context);
-            ScrollPhysics physics = this.widget.pageSnapping
-                ? PageViewUtils._kPagePhysics.applyTo(this.widget.physics)
-                : this.widget.physics;
+            AxisDirection axisDirection = _getDirection(context);
+            ScrollPhysics physics = widget.pageSnapping
+                ? PageViewUtils._kPagePhysics.applyTo(widget.physics)
+                : widget.physics;
 
             return new NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification notification) => {
-                    if (notification.depth == 0 && this.widget.onPageChanged != null &&
+                    if (notification.depth == 0 && widget.onPageChanged != null &&
                         notification is ScrollUpdateNotification) {
                         IPageMetrics metrics = (IPageMetrics) notification.metrics;
                         int currentPage = metrics.page.round();
-                        if (currentPage != this._lastReportedPage) {
-                            this._lastReportedPage = currentPage;
-                            this.widget.onPageChanged(currentPage);
+                        if (currentPage != _lastReportedPage) {
+                            _lastReportedPage = currentPage;
+                            widget.onPageChanged(currentPage);
                         }
                     }
 
                     return false;
                 },
                 child: new Scrollable(
-                    dragStartBehavior: this.widget.dragStartBehavior,
+                    dragStartBehavior: widget.dragStartBehavior,
                     axisDirection: axisDirection,
-                    controller: this.widget.controller,
+                    controller: widget.controller,
                     physics: physics,
                     viewportBuilder: (BuildContext _context, ViewportOffset position) => {
                         return new Viewport(
@@ -411,8 +411,8 @@ namespace Unity.UIWidgets.widgets {
                             offset: position,
                             slivers: new List<Widget> {
                                 new SliverFillViewport(
-                                    viewportFraction: this.widget.controller.viewportFraction,
-                                    del: this.widget.childrenDelegate
+                                    viewportFraction: widget.controller.viewportFraction,
+                                    del: widget.childrenDelegate
                                 )
                             }
                         );
@@ -423,12 +423,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new EnumProperty<Axis>("scrollDirection", this.widget.scrollDirection));
-            description.add(new FlagProperty("reverse", value: this.widget.reverse, ifTrue: "reversed"));
+            description.add(new EnumProperty<Axis>("scrollDirection", widget.scrollDirection));
+            description.add(new FlagProperty("reverse", value: widget.reverse, ifTrue: "reversed"));
             description.add(
-                new DiagnosticsProperty<PageController>("controller", this.widget.controller, showName: false));
-            description.add(new DiagnosticsProperty<ScrollPhysics>("physics", this.widget.physics, showName: false));
-            description.add(new FlagProperty("pageSnapping", value: this.widget.pageSnapping,
+                new DiagnosticsProperty<PageController>("controller", widget.controller, showName: false));
+            description.add(new DiagnosticsProperty<ScrollPhysics>("physics", widget.physics, showName: false));
+            description.add(new FlagProperty("pageSnapping", value: widget.pageSnapping,
                 ifFalse: "snapping disabled"));
         }
     }

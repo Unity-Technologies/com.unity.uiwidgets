@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.material {
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
             SliderTheme _oldWidget = (SliderTheme) oldWidget;
-            return this.data != _oldWidget.data;
+            return data != _oldWidget.data;
         }
     }
 
@@ -280,26 +280,26 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return other.trackHeight == this.trackHeight
-                   && other.activeTrackColor == this.activeTrackColor
-                   && other.inactiveTrackColor == this.inactiveTrackColor
-                   && other.disabledActiveTrackColor == this.disabledActiveTrackColor
-                   && other.disabledInactiveTrackColor == this.disabledInactiveTrackColor
-                   && other.activeTickMarkColor == this.activeTickMarkColor
-                   && other.inactiveTickMarkColor == this.inactiveTickMarkColor
-                   && other.disabledActiveTickMarkColor == this.disabledActiveTickMarkColor
-                   && other.disabledInactiveTickMarkColor == this.disabledInactiveTickMarkColor
-                   && other.thumbColor == this.thumbColor
-                   && other.disabledThumbColor == this.disabledThumbColor
-                   && other.overlayColor == this.overlayColor
-                   && other.valueIndicatorColor == this.valueIndicatorColor
-                   && other.trackShape == this.trackShape
-                   && other.tickMarkShape == this.tickMarkShape
-                   && other.thumbShape == this.thumbShape
-                   && other.overlayShape == this.overlayShape
-                   && other.valueIndicatorShape == this.valueIndicatorShape
-                   && other.showValueIndicator == this.showValueIndicator
-                   && other.valueIndicatorTextStyle == this.valueIndicatorTextStyle;
+            return other.trackHeight == trackHeight
+                   && other.activeTrackColor == activeTrackColor
+                   && other.inactiveTrackColor == inactiveTrackColor
+                   && other.disabledActiveTrackColor == disabledActiveTrackColor
+                   && other.disabledInactiveTrackColor == disabledInactiveTrackColor
+                   && other.activeTickMarkColor == activeTickMarkColor
+                   && other.inactiveTickMarkColor == inactiveTickMarkColor
+                   && other.disabledActiveTickMarkColor == disabledActiveTickMarkColor
+                   && other.disabledInactiveTickMarkColor == disabledInactiveTickMarkColor
+                   && other.thumbColor == thumbColor
+                   && other.disabledThumbColor == disabledThumbColor
+                   && other.overlayColor == overlayColor
+                   && other.valueIndicatorColor == valueIndicatorColor
+                   && other.trackShape == trackShape
+                   && other.tickMarkShape == tickMarkShape
+                   && other.thumbShape == thumbShape
+                   && other.overlayShape == overlayShape
+                   && other.valueIndicatorShape == valueIndicatorShape
+                   && other.showValueIndicator == showValueIndicator
+                   && other.valueIndicatorTextStyle == valueIndicatorTextStyle;
         }
 
         public override bool Equals(object obj) {
@@ -311,11 +311,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((SliderThemeData) obj);
+            return Equals((SliderThemeData) obj);
         }
 
         public static bool operator ==(SliderThemeData left, SliderThemeData right) {
@@ -329,33 +329,33 @@ namespace Unity.UIWidgets.material {
         int? _cachedHashCode = null;
 
         public override int GetHashCode() {
-            if (this._cachedHashCode != null) {
-                return this._cachedHashCode.Value;
+            if (_cachedHashCode != null) {
+                return _cachedHashCode.Value;
             }
 
             unchecked {
-                var hashCode = this.trackHeight.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.activeTrackColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.inactiveTrackColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledActiveTrackColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledInactiveTrackColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.activeTickMarkColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.inactiveTickMarkColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledActiveTickMarkColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledInactiveTickMarkColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.thumbColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledThumbColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.overlayColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.valueIndicatorColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.trackShape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.tickMarkShape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.thumbShape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.overlayShape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.valueIndicatorShape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.showValueIndicator.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.valueIndicatorTextStyle.GetHashCode();
+                var hashCode = trackHeight.GetHashCode();
+                hashCode = (hashCode * 397) ^ activeTrackColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ inactiveTrackColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ disabledActiveTrackColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ disabledInactiveTrackColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ activeTickMarkColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ inactiveTickMarkColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ disabledActiveTickMarkColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ disabledInactiveTickMarkColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ thumbColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ disabledThumbColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ overlayColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ valueIndicatorColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ trackShape.GetHashCode();
+                hashCode = (hashCode * 397) ^ tickMarkShape.GetHashCode();
+                hashCode = (hashCode * 397) ^ thumbShape.GetHashCode();
+                hashCode = (hashCode * 397) ^ overlayShape.GetHashCode();
+                hashCode = (hashCode * 397) ^ valueIndicatorShape.GetHashCode();
+                hashCode = (hashCode * 397) ^ showValueIndicator.GetHashCode();
+                hashCode = (hashCode * 397) ^ valueIndicatorTextStyle.GetHashCode();
 
-                this._cachedHashCode = hashCode;
+                _cachedHashCode = hashCode;
                 return hashCode;
             }
         }
@@ -369,47 +369,47 @@ namespace Unity.UIWidgets.material {
                 primaryColorLight: defaultTheme.primaryColorLight,
                 valueIndicatorTextStyle: defaultTheme.accentTextTheme.body2
             );
-            properties.add(new DiagnosticsProperty<Color>("activeTrackColor", this.activeTrackColor,
+            properties.add(new DiagnosticsProperty<Color>("activeTrackColor", activeTrackColor,
                 defaultValue: defaultData.activeTrackColor));
-            properties.add(new DiagnosticsProperty<Color>("activeTrackColor", this.activeTrackColor,
+            properties.add(new DiagnosticsProperty<Color>("activeTrackColor", activeTrackColor,
                 defaultValue: defaultData.activeTrackColor));
-            properties.add(new DiagnosticsProperty<Color>("inactiveTrackColor", this.inactiveTrackColor,
+            properties.add(new DiagnosticsProperty<Color>("inactiveTrackColor", inactiveTrackColor,
                 defaultValue: defaultData.inactiveTrackColor));
-            properties.add(new DiagnosticsProperty<Color>("disabledActiveTrackColor", this.disabledActiveTrackColor,
+            properties.add(new DiagnosticsProperty<Color>("disabledActiveTrackColor", disabledActiveTrackColor,
                 defaultValue: defaultData.disabledActiveTrackColor, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("disabledInactiveTrackColor", this.disabledInactiveTrackColor,
+            properties.add(new DiagnosticsProperty<Color>("disabledInactiveTrackColor", disabledInactiveTrackColor,
                 defaultValue: defaultData.disabledInactiveTrackColor, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("activeTickMarkColor", this.activeTickMarkColor,
+            properties.add(new DiagnosticsProperty<Color>("activeTickMarkColor", activeTickMarkColor,
                 defaultValue: defaultData.activeTickMarkColor, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("inactiveTickMarkColor", this.inactiveTickMarkColor,
+            properties.add(new DiagnosticsProperty<Color>("inactiveTickMarkColor", inactiveTickMarkColor,
                 defaultValue: defaultData.inactiveTickMarkColor, level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<Color>("disabledActiveTickMarkColor",
-                this.disabledActiveTickMarkColor, defaultValue: defaultData.disabledActiveTickMarkColor,
+                disabledActiveTickMarkColor, defaultValue: defaultData.disabledActiveTickMarkColor,
                 level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<Color>("disabledInactiveTickMarkColor",
-                this.disabledInactiveTickMarkColor, defaultValue: defaultData.disabledInactiveTickMarkColor,
+                disabledInactiveTickMarkColor, defaultValue: defaultData.disabledInactiveTickMarkColor,
                 level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("thumbColor", this.thumbColor,
+            properties.add(new DiagnosticsProperty<Color>("thumbColor", thumbColor,
                 defaultValue: defaultData.thumbColor));
-            properties.add(new DiagnosticsProperty<Color>("disabledThumbColor", this.disabledThumbColor,
+            properties.add(new DiagnosticsProperty<Color>("disabledThumbColor", disabledThumbColor,
                 defaultValue: defaultData.disabledThumbColor, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("overlayColor", this.overlayColor,
+            properties.add(new DiagnosticsProperty<Color>("overlayColor", overlayColor,
                 defaultValue: defaultData.overlayColor, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("valueIndicatorColor", this.valueIndicatorColor,
+            properties.add(new DiagnosticsProperty<Color>("valueIndicatorColor", valueIndicatorColor,
                 defaultValue: defaultData.valueIndicatorColor));
-            properties.add(new DiagnosticsProperty<SliderTrackShape>("trackShape", this.trackShape,
+            properties.add(new DiagnosticsProperty<SliderTrackShape>("trackShape", trackShape,
                 defaultValue: defaultData.trackShape, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<SliderTickMarkShape>("tickMarkShape", this.tickMarkShape,
+            properties.add(new DiagnosticsProperty<SliderTickMarkShape>("tickMarkShape", tickMarkShape,
                 defaultValue: defaultData.tickMarkShape, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<SliderComponentShape>("thumbShape", this.thumbShape,
+            properties.add(new DiagnosticsProperty<SliderComponentShape>("thumbShape", thumbShape,
                 defaultValue: defaultData.thumbShape, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<SliderComponentShape>("overlayShape", this.overlayShape,
+            properties.add(new DiagnosticsProperty<SliderComponentShape>("overlayShape", overlayShape,
                 defaultValue: defaultData.overlayShape, level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<SliderComponentShape>("valueIndicatorShape",
-                this.valueIndicatorShape, defaultValue: defaultData.valueIndicatorShape, level: DiagnosticLevel.debug));
-            properties.add(new EnumProperty<ShowValueIndicator>("showValueIndicator", this.showValueIndicator,
+                valueIndicatorShape, defaultValue: defaultData.valueIndicatorShape, level: DiagnosticLevel.debug));
+            properties.add(new EnumProperty<ShowValueIndicator>("showValueIndicator", showValueIndicator,
                 defaultValue: defaultData.showValueIndicator));
-            properties.add(new DiagnosticsProperty<TextStyle>("valueIndicatorTextStyle", this.valueIndicatorTextStyle,
+            properties.add(new DiagnosticsProperty<TextStyle>("valueIndicatorTextStyle", valueIndicatorTextStyle,
                 defaultValue: defaultData.valueIndicatorTextStyle));
         }
     }
@@ -573,11 +573,11 @@ namespace Unity.UIWidgets.material {
             float horizontalAdjustment = 0.0f;
             if (!isEnabled.Value) {
                 float disabledThumbRadius = sliderTheme.thumbShape.getPreferredSize(false, isDiscrete).width / 2.0f;
-                float gap = this.disabledThumbGapWidth * (1.0f - enableAnimation.value);
+                float gap = disabledThumbGapWidth * (1.0f - enableAnimation.value);
                 horizontalAdjustment = disabledThumbRadius + gap;
             }
 
-            Rect trackRect = this.getPreferredRect(
+            Rect trackRect = getPreferredRect(
                 parentBox: parentBox,
                 offset: offset,
                 sliderTheme: sliderTheme,
@@ -608,7 +608,7 @@ namespace Unity.UIWidgets.material {
             SliderThemeData sliderTheme = null,
             bool? isEnabled = null
         ) {
-            return Size.fromRadius(this.tickMarkRadius ?? sliderTheme.trackHeight / 2f);
+            return Size.fromRadius(tickMarkRadius ?? sliderTheme.trackHeight / 2f);
         }
 
 
@@ -632,7 +632,7 @@ namespace Unity.UIWidgets.material {
 
             Paint paint = new Paint {color = new ColorTween(begin: begin, end: end).evaluate(enableAnimation)};
 
-            float tickMarkRadius = this.getPreferredSize(
+            float tickMarkRadius = getPreferredSize(
                                        isEnabled: isEnabled,
                                        sliderTheme: sliderTheme
                                    ).width / 2f;
@@ -654,12 +654,12 @@ namespace Unity.UIWidgets.material {
         public readonly float? disabledThumbRadius;
 
         float _disabledThumbRadius {
-            get { return this.disabledThumbRadius ?? this.enabledThumbRadius * 2f / 3f; }
+            get { return disabledThumbRadius ?? enabledThumbRadius * 2f / 3f; }
         }
 
 
         public override Size getPreferredSize(bool? isEnabled, bool? isDiscrete) {
-            return Size.fromRadius(isEnabled.Value ? this.enabledThumbRadius : this._disabledThumbRadius);
+            return Size.fromRadius(isEnabled.Value ? enabledThumbRadius : _disabledThumbRadius);
         }
 
 
@@ -676,8 +676,8 @@ namespace Unity.UIWidgets.material {
         ) {
             Canvas canvas = context.canvas;
             FloatTween radiusTween = new FloatTween(
-                begin: this._disabledThumbRadius,
-                end: this.enabledThumbRadius
+                begin: _disabledThumbRadius,
+                end: enabledThumbRadius
             );
             ColorTween colorTween = new ColorTween(
                 begin: sliderTheme.disabledThumbColor,
@@ -700,7 +700,7 @@ namespace Unity.UIWidgets.material {
         public readonly float overlayRadius;
 
         public override Size getPreferredSize(bool? isEnabled, bool? isDiscrete) {
-            return Size.fromRadius(this.overlayRadius);
+            return Size.fromRadius(overlayRadius);
         }
 
         public override void paint(
@@ -717,7 +717,7 @@ namespace Unity.UIWidgets.material {
             Canvas canvas = context.canvas;
             FloatTween radiusTween = new FloatTween(
                 begin: 0.0f,
-                end: this.overlayRadius
+                end: overlayRadius
             );
             canvas.drawCircle(
                 center,
@@ -884,7 +884,7 @@ namespace Unity.UIWidgets.material {
                 inverseTextScale * labelHalfWidth - (_topLobeRadius - _labelPadding)
             );
 
-            float shift = this._getIdealOffset(parentBox, halfWidthNeeded, overallScale, center);
+            float shift = _getIdealOffset(parentBox, halfWidthNeeded, overallScale, center);
             float leftWidthNeeded;
             float rightWidthNeeded;
             if (shift < 0.0) {
@@ -898,7 +898,7 @@ namespace Unity.UIWidgets.material {
             leftWidthNeeded = halfWidthNeeded - shift;
 
             Path path = new Path();
-            Offset bottomLobeEnd = this._addBottomLobe(path);
+            Offset bottomLobeEnd = _addBottomLobe(path);
 
             float neckTriangleBase = _topNeckRadius - bottomLobeEnd.dx;
 
@@ -999,7 +999,7 @@ namespace Unity.UIWidgets.material {
                 begin: sliderTheme.disabledThumbColor,
                 end: sliderTheme.valueIndicatorColor
             );
-            this._drawValueIndicator(
+            _drawValueIndicator(
                 parentBox,
                 context.canvas,
                 center,

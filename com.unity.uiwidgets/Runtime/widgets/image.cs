@@ -237,20 +237,20 @@ namespace Unity.UIWidgets.widgets {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
 
-            properties.add(new DiagnosticsProperty<ImageProvider>("image", this.image));
-            properties.add(new FloatProperty("width", this.width, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FloatProperty("height", this.height, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumProperty<BlendMode>("colorBlendMode", this.colorBlendMode,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumProperty<BoxFit?>("fit", this.fit, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumProperty<ImageRepeat>("repeat", this.repeat, defaultValue: ImageRepeat.noRepeat));
-            properties.add(new DiagnosticsProperty<Rect>("centerSlice", this.centerSlice,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumProperty<FilterMode>("filterMode", this.filterMode, Diagnostics.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<ImageProvider>("image", image));
+            properties.add(new FloatProperty("width", width, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FloatProperty("height", height, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<Color>("color", color,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<BoxFit?>("fit", fit, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<ImageRepeat>("repeat", repeat, defaultValue: ImageRepeat.noRepeat));
+            properties.add(new DiagnosticsProperty<Rect>("centerSlice", centerSlice,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<FilterMode>("filterMode", filterMode, foundation_.kNullDefaultValue));
         }
     }
 
@@ -261,15 +261,15 @@ namespace Unity.UIWidgets.widgets {
         bool _invertColors;
 
         public override void didChangeDependencies() {
-            this._invertColors = false;
+            _invertColors = false;
 
-            this._resolveImage();
+            _resolveImage();
 
-            if (TickerMode.of(this.context)) {
-                this._listenToStream();
+            if (TickerMode.of(context)) {
+                _listenToStream();
             }
             else {
-                this._stopListeningToStream();
+                _stopListeningToStream();
             }
 
             base.didChangeDependencies();
@@ -278,85 +278,85 @@ namespace Unity.UIWidgets.widgets {
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
 
-            if (this.widget.image != ((Image) oldWidget).image) {
-                this._resolveImage();
+            if (widget.image != ((Image) oldWidget).image) {
+                _resolveImage();
             }
         }
 
         void _resolveImage() {
             ImageStream newStream =
-                this.widget.image.resolve(ImageUtils.createLocalImageConfiguration(
-                    this.context,
-                    size: this.widget.width != null && this.widget.height != null
-                        ? new Size(this.widget.width.Value, this.widget.height.Value)
+                widget.image.resolve(ImageUtils.createLocalImageConfiguration(
+                    context,
+                    size: widget.width != null && widget.height != null
+                        ? new Size(widget.width.Value, widget.height.Value)
                         : null
                 ));
             D.assert(newStream != null);
-            this._updateSourceStream(newStream);
+            _updateSourceStream(newStream);
         }
 
         void _handleImageChanged(ImageInfo imageInfo, bool synchronousCall) {
-            this.setState(() => { this._imageInfo = imageInfo; });
+            setState(() => { _imageInfo = imageInfo; });
         }
 
         void _updateSourceStream(ImageStream newStream) {
-            if (this._imageStream?.key == newStream?.key) {
+            if (_imageStream?.key == newStream?.key) {
                 return;
             }
 
-            if (this._isListeningToStream) {
-                this._imageStream.removeListener(this._handleImageChanged);
+            if (_isListeningToStream) {
+                _imageStream.removeListener(_handleImageChanged);
             }
 
-            if (!this.widget.gaplessPlayback) {
-                this.setState(() => { this._imageInfo = null; });
+            if (!widget.gaplessPlayback) {
+                setState(() => { _imageInfo = null; });
             }
 
-            this._imageStream = newStream;
-            if (this._isListeningToStream) {
-                this._imageStream.addListener(this._handleImageChanged);
+            _imageStream = newStream;
+            if (_isListeningToStream) {
+                _imageStream.addListener(_handleImageChanged);
             }
         }
 
         void _listenToStream() {
-            if (this._isListeningToStream) {
+            if (_isListeningToStream) {
                 return;
             }
 
-            this._imageStream.addListener(this._handleImageChanged);
-            this._isListeningToStream = true;
+            _imageStream.addListener(_handleImageChanged);
+            _isListeningToStream = true;
         }
 
         void _stopListeningToStream() {
-            if (!this._isListeningToStream) {
+            if (!_isListeningToStream) {
                 return;
             }
 
-            this._imageStream.removeListener(this._handleImageChanged);
-            this._isListeningToStream = false;
+            _imageStream.removeListener(_handleImageChanged);
+            _isListeningToStream = false;
         }
 
         public override void dispose() {
-            D.assert(this._imageStream != null);
-            this._stopListeningToStream();
+            D.assert(_imageStream != null);
+            _stopListeningToStream();
             base.dispose();
         }
 
 
         public override Widget build(BuildContext context) {
             RawImage image = new RawImage(
-                image: this._imageInfo?.image,
-                width: this.widget.width,
-                height: this.widget.height,
-                scale: this._imageInfo?.scale ?? 1.0f,
-                color: this.widget.color,
-                colorBlendMode: this.widget.colorBlendMode,
-                fit: this.widget.fit,
-                alignment: this.widget.alignment,
-                repeat: this.widget.repeat,
-                centerSlice: this.widget.centerSlice,
-                invertColors: this._invertColors,
-                filterMode: this.widget.filterMode
+                image: _imageInfo?.image,
+                width: widget.width,
+                height: widget.height,
+                scale: _imageInfo?.scale ?? 1.0f,
+                color: widget.color,
+                colorBlendMode: widget.colorBlendMode,
+                fit: widget.fit,
+                alignment: widget.alignment,
+                repeat: widget.repeat,
+                centerSlice: widget.centerSlice,
+                invertColors: _invertColors,
+                filterMode: widget.filterMode
             );
 
             return image;
@@ -364,8 +364,8 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new DiagnosticsProperty<ImageStream>("stream", this._imageStream));
-            description.add(new DiagnosticsProperty<ImageInfo>("pixels", this._imageInfo));
+            description.add(new DiagnosticsProperty<ImageStream>("stream", _imageStream));
+            description.add(new DiagnosticsProperty<ImageInfo>("pixels", _imageInfo));
         }
     }
 }

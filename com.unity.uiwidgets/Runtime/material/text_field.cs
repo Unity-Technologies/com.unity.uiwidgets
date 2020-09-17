@@ -62,7 +62,7 @@ namespace Unity.UIWidgets.material {
                 () => "minLines can't be greater than maxLines");
             D.assert(!expands || (maxLines == null && minLines == null),
                 () => "minLines and maxLines must be null when expands is true.");
-            D.assert(maxLength == null || maxLength == TextField.noMaxLength || maxLength > 0);
+            D.assert(maxLength == null || maxLength == noMaxLength || maxLength > 0);
 
             this.controller = controller;
             this.focusNode = focusNode;
@@ -166,7 +166,7 @@ namespace Unity.UIWidgets.material {
         
         public bool selectionEnabled {
             get {
-                return this.enableInteractiveSelection ?? !this.obscureText;
+                return enableInteractiveSelection ?? !obscureText;
             }
         }
 
@@ -181,33 +181,33 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(
-                new DiagnosticsProperty<TextEditingController>("controller", this.controller, defaultValue: null));
-            properties.add(new DiagnosticsProperty<FocusNode>("focusNode", this.focusNode, defaultValue: null));
-            properties.add(new DiagnosticsProperty<bool?>("enabled", this.enabled, defaultValue: null));
-            properties.add(new DiagnosticsProperty<InputDecoration>("decoration", this.decoration, defaultValue: new InputDecoration()));
-            properties.add(new DiagnosticsProperty<TextInputType>("keyboardType", this.keyboardType,
+                new DiagnosticsProperty<TextEditingController>("controller", controller, defaultValue: null));
+            properties.add(new DiagnosticsProperty<FocusNode>("focusNode", focusNode, defaultValue: null));
+            properties.add(new DiagnosticsProperty<bool?>("enabled", enabled, defaultValue: null));
+            properties.add(new DiagnosticsProperty<InputDecoration>("decoration", decoration, defaultValue: new InputDecoration()));
+            properties.add(new DiagnosticsProperty<TextInputType>("keyboardType", keyboardType,
                 defaultValue: TextInputType.text));
-            properties.add(new DiagnosticsProperty<TextStyle>("style", this.style, defaultValue: null));
-            properties.add(new DiagnosticsProperty<bool>("autofocus", this.autofocus, defaultValue: false));
-            properties.add(new DiagnosticsProperty<bool>("obscureText", this.obscureText, defaultValue: false));
-            properties.add(new DiagnosticsProperty<bool>("autocorrect", this.autocorrect, defaultValue: true));
-            properties.add(new IntProperty("maxLines", this.maxLines, defaultValue: 1));
-            properties.add(new IntProperty("minLines", this.minLines, defaultValue: null));
-            properties.add(new DiagnosticsProperty<bool>("expands", this.expands, defaultValue: false));
-            properties.add(new IntProperty("maxLength", this.maxLength, defaultValue: null));
-            properties.add(new FlagProperty("maxLengthEnforced", value: this.maxLengthEnforced, defaultValue: true,
+            properties.add(new DiagnosticsProperty<TextStyle>("style", style, defaultValue: null));
+            properties.add(new DiagnosticsProperty<bool>("autofocus", autofocus, defaultValue: false));
+            properties.add(new DiagnosticsProperty<bool>("obscureText", obscureText, defaultValue: false));
+            properties.add(new DiagnosticsProperty<bool>("autocorrect", autocorrect, defaultValue: true));
+            properties.add(new IntProperty("maxLines", maxLines, defaultValue: 1));
+            properties.add(new IntProperty("minLines", minLines, defaultValue: null));
+            properties.add(new DiagnosticsProperty<bool>("expands", expands, defaultValue: false));
+            properties.add(new IntProperty("maxLength", maxLength, defaultValue: null));
+            properties.add(new FlagProperty("maxLengthEnforced", value: maxLengthEnforced, defaultValue: true,
                 ifFalse: "maxLength not enforced"));
-            properties.add(new EnumProperty<TextInputAction?>("textInputAction", this.textInputAction, defaultValue: null));
-            properties.add(new EnumProperty<TextCapitalization>("textCapitalization", this.textCapitalization, defaultValue: TextCapitalization.none));
-            properties.add(new EnumProperty<TextAlign>("textAlign", this.textAlign, defaultValue: TextAlign.left));
-            properties.add(new EnumProperty<TextDirection>("textDirection", this.textDirection, defaultValue: null));
-            properties.add(new FloatProperty("cursorWidth", this.cursorWidth, defaultValue: 2.0f));
-            properties.add(new DiagnosticsProperty<Radius>("cursorRadius", this.cursorRadius, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("cursorColor", this.cursorColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Brightness?>("keyboardAppearance", this.keyboardAppearance, defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("scrollPadding", this.scrollPadding, defaultValue: EdgeInsets.all(20.0f)));
-            properties.add(new FlagProperty("selectionEnabled", value: this.selectionEnabled, defaultValue: true, ifFalse: "selection disabled"));
-            properties.add(new DiagnosticsProperty<ScrollPhysics>("scrollPhysics", this.scrollPhysics, defaultValue: null));
+            properties.add(new EnumProperty<TextInputAction?>("textInputAction", textInputAction, defaultValue: null));
+            properties.add(new EnumProperty<TextCapitalization>("textCapitalization", textCapitalization, defaultValue: TextCapitalization.none));
+            properties.add(new EnumProperty<TextAlign>("textAlign", textAlign, defaultValue: TextAlign.left));
+            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection, defaultValue: null));
+            properties.add(new FloatProperty("cursorWidth", cursorWidth, defaultValue: 2.0f));
+            properties.add(new DiagnosticsProperty<Radius>("cursorRadius", cursorRadius, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("cursorColor", cursorColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Brightness?>("keyboardAppearance", keyboardAppearance, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("scrollPadding", scrollPadding, defaultValue: EdgeInsets.all(20.0f)));
+            properties.add(new FlagProperty("selectionEnabled", value: selectionEnabled, defaultValue: true, ifFalse: "selection disabled"));
+            properties.add(new DiagnosticsProperty<ScrollPhysics>("scrollPhysics", scrollPhysics, defaultValue: null));
         }
     }
 
@@ -220,42 +220,42 @@ namespace Unity.UIWidgets.material {
         TextEditingController _controller;
 
         TextEditingController _effectiveController {
-            get { return this.widget.controller ?? this._controller; }
+            get { return widget.controller ?? _controller; }
         }
 
         FocusNode _focusNode;
 
         FocusNode _effectiveFocusNode {
             get {
-                if (this.widget.focusNode != null) {
-                    return this.widget.focusNode;
+                if (widget.focusNode != null) {
+                    return widget.focusNode;
                 }
 
-                if (this._focusNode != null) {
-                    return this._focusNode;
+                if (_focusNode != null) {
+                    return _focusNode;
                 }
 
-                this._focusNode = new FocusNode();
-                return this._focusNode;
+                _focusNode = new FocusNode();
+                return _focusNode;
             }
         }
 
         bool needsCounter {
             get {
-                return this.widget.maxLength != null
-                       && this.widget.decoration != null
-                       && this.widget.decoration.counterText == null;
+                return widget.maxLength != null
+                       && widget.decoration != null
+                       && widget.decoration.counterText == null;
             }
         }
 
         InputDecoration _getEffectiveDecoration() {
-            MaterialLocalizations localizations = MaterialLocalizations.of(this.context);
-            ThemeData themeData = Theme.of(this.context);
-            InputDecoration effectiveDecoration = (this.widget.decoration ?? new InputDecoration())
+            MaterialLocalizations localizations = MaterialLocalizations.of(context);
+            ThemeData themeData = Theme.of(context);
+            InputDecoration effectiveDecoration = (widget.decoration ?? new InputDecoration())
                 .applyDefaults(themeData.inputDecorationTheme)
                 .copyWith(
-                    enabled: this.widget.enabled,
-                    hintMaxLines: this.widget.decoration?.hintMaxLines ?? this.widget.maxLines
+                    enabled: widget.enabled,
+                    hintMaxLines: widget.decoration?.hintMaxLines ?? widget.maxLines
                 );
 
             if (effectiveDecoration.counter != null || effectiveDecoration.counterText != null) {
@@ -263,29 +263,29 @@ namespace Unity.UIWidgets.material {
             }
 
             Widget counter;
-            int currentLength = this._effectiveController.value.text.Length;
+            int currentLength = _effectiveController.value.text.Length;
             if (effectiveDecoration.counter == null
                 && effectiveDecoration.counterText == null
-                && this.widget.buildCounter != null) {
-                bool isFocused = this._effectiveFocusNode.hasFocus;
-                counter = this.widget.buildCounter(
-                    this.context,
+                && widget.buildCounter != null) {
+                bool isFocused = _effectiveFocusNode.hasFocus;
+                counter = widget.buildCounter(
+                    context,
                     currentLength: currentLength,
-                    maxLength: this.widget.maxLength,
+                    maxLength: widget.maxLength,
                     isFocused: isFocused
                 );
                 return effectiveDecoration.copyWith(counter: counter);
             }
 
-            if (this.widget.maxLength == null) {
+            if (widget.maxLength == null) {
                 return effectiveDecoration;
             }
 
             string counterText = $"{currentLength}";
 
-            if (this.widget.maxLength > 0) {
-                counterText += $"/{this.widget.maxLength}";
-                if (this._effectiveController.value.text.Length > this.widget.maxLength) {
+            if (widget.maxLength > 0) {
+                counterText += $"/{widget.maxLength}";
+                if (_effectiveController.value.text.Length > widget.maxLength) {
                     return effectiveDecoration.copyWith(
                         errorText: effectiveDecoration.errorText ?? "",
                         counterStyle: effectiveDecoration.errorStyle
@@ -304,41 +304,41 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            if (this.widget.controller == null) {
-                this._controller = new TextEditingController();
+            if (widget.controller == null) {
+                _controller = new TextEditingController();
             }
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.controller == null && ((TextField) oldWidget).controller != null) {
-                this._controller = TextEditingController.fromValue(((TextField) oldWidget).controller.value);
+            if (widget.controller == null && ((TextField) oldWidget).controller != null) {
+                _controller = TextEditingController.fromValue(((TextField) oldWidget).controller.value);
             }
-            else if (this.widget.controller != null && ((TextField) oldWidget).controller == null) {
-                this._controller = null;
+            else if (widget.controller != null && ((TextField) oldWidget).controller == null) {
+                _controller = null;
             }
 
-            bool isEnabled = this.widget.enabled ?? this.widget.decoration?.enabled ?? true;
+            bool isEnabled = widget.enabled ?? widget.decoration?.enabled ?? true;
             bool wasEnabled = ((TextField) oldWidget).enabled ?? ((TextField) oldWidget).decoration?.enabled ?? true;
             if (wasEnabled && !isEnabled) {
-                this._effectiveFocusNode.unfocus();
+                _effectiveFocusNode.unfocus();
             }
         }
 
         public override void dispose() {
-            this._focusNode?.dispose();
+            _focusNode?.dispose();
             base.dispose();
         }
 
         void _requestKeyboard() {
-            this._editableTextKey.currentState?.requestKeyboard();
+            _editableTextKey.currentState?.requestKeyboard();
         }
 
         void _handleSelectionChanged(TextSelection selection, SelectionChangedCause cause) {
-            switch (Theme.of(this.context).platform) {
+            switch (Theme.of(context).platform) {
                 case RuntimePlatform.IPhonePlayer:
                     if (cause == SelectionChangedCause.longPress) {
-                        this._editableTextKey.currentState?.bringIntoView(selection.basePos);
+                        _editableTextKey.currentState?.bringIntoView(selection.basePos);
                     }
                     return;
                 case RuntimePlatform.Android:
@@ -347,9 +347,9 @@ namespace Unity.UIWidgets.material {
         }
 
         InteractiveInkFeature _createInkFeature(Offset globalPosition) {
-            MaterialInkController inkController = Material.of(this.context);
-            ThemeData themeData = Theme.of(this.context);
-            BuildContext editableContext = this._editableTextKey.currentContext;
+            MaterialInkController inkController = Material.of(context);
+            ThemeData themeData = Theme.of(context);
+            BuildContext editableContext = _editableTextKey.currentContext;
             RenderBox referenceBox =
                 (RenderBox) (InputDecorator.containerOf(editableContext) ?? editableContext.findRenderObject());
             Offset position = referenceBox.globalToLocal(globalPosition);
@@ -358,14 +358,14 @@ namespace Unity.UIWidgets.material {
             InteractiveInkFeature splash = null;
 
             void handleRemoved() {
-                if (this._splashes != null) {
-                    D.assert(this._splashes.Contains(splash));
-                    this._splashes.Remove(splash);
-                    if (this._currentSplash == splash) {
-                        this._currentSplash = null;
+                if (_splashes != null) {
+                    D.assert(_splashes.Contains(splash));
+                    _splashes.Remove(splash);
+                    if (_currentSplash == splash) {
+                        _currentSplash = null;
                     }
 
-                    this.updateKeepAlive();
+                    updateKeepAlive();
                 } // else we're probably in deactivate()
             }
 
@@ -383,90 +383,90 @@ namespace Unity.UIWidgets.material {
         }
 
         RenderEditable _renderEditable {
-            get { return this._editableTextKey.currentState.renderEditable; }
+            get { return _editableTextKey.currentState.renderEditable; }
         }
 
         void _handleTapDown(TapDownDetails details) {
-            this._renderEditable.handleTapDown(details);
-            this._startSplash(details.globalPosition);
+            _renderEditable.handleTapDown(details);
+            _startSplash(details.globalPosition);
         }
 
         void _handleSingleTapUp(TapUpDetails details) {
-            if (this.widget.enableInteractiveSelection == true) {
-                this._renderEditable.handleTap();
+            if (widget.enableInteractiveSelection == true) {
+                _renderEditable.handleTap();
             }
 
-            this._requestKeyboard();
-            this._confirmCurrentSplash();
-            if (this.widget.onTap != null) {
-                this.widget.onTap();
+            _requestKeyboard();
+            _confirmCurrentSplash();
+            if (widget.onTap != null) {
+                widget.onTap();
             }
         }
 
         void _handleSingleTapCancel() {
-            this._cancelCurrentSplash();
+            _cancelCurrentSplash();
         }
 
         void _handleSingleLongTapStart(LongPressStartDetails details) {
-            if (this.widget.selectionEnabled) {
-                switch (Theme.of(this.context).platform) {
+            if (widget.selectionEnabled) {
+                switch (Theme.of(context).platform) {
                     case RuntimePlatform.IPhonePlayer:
-                        this._renderEditable.selectPositionAt(
+                        _renderEditable.selectPositionAt(
                             from: details.globalPosition,
                             cause: SelectionChangedCause.longPress
                         );
                         break;
                     case RuntimePlatform.Android:
-                        this._renderEditable.selectWord(cause: SelectionChangedCause.longPress);
-                        Feedback.forLongPress(this.context);
+                        _renderEditable.selectWord(cause: SelectionChangedCause.longPress);
+                        Feedback.forLongPress(context);
                         break;
                 }
             }
-            this._confirmCurrentSplash();
+            _confirmCurrentSplash();
         }
 
         void _handleSingleLongTapMoveUpdate(LongPressMoveUpdateDetails details) {
-            if (this.widget.selectionEnabled) {
-                switch (Theme.of(this.context).platform) {
+            if (widget.selectionEnabled) {
+                switch (Theme.of(context).platform) {
                     case RuntimePlatform.IPhonePlayer:
-                        this._renderEditable.selectPositionAt(
+                        _renderEditable.selectPositionAt(
                             from: details.globalPosition,
                             cause: SelectionChangedCause.longPress
                         );
                         break;
                     case RuntimePlatform.Android:
-                        this._renderEditable.selectWordsInRange(
+                        _renderEditable.selectWordsInRange(
                             from: details.globalPosition - details.offsetFromOrigin,
                             to: details.globalPosition,
                             cause: SelectionChangedCause.longPress);
-                        Feedback.forLongPress(this.context);
+                        Feedback.forLongPress(context);
                         break;
                 }
             }
         }
 
         void _handleSingleLongTapEnd(LongPressEndDetails details) {
-            this._editableTextKey.currentState.showToolbar();
+            _editableTextKey.currentState.showToolbar();
         }
 
         void _handleDoubleTapDown(TapDownDetails details) {
-            if (this.widget.selectionEnabled) {
-                this._renderEditable.selectWord(cause: SelectionChangedCause.doubleTap);
-                this._editableTextKey.currentState.showToolbar();
+            if (widget.selectionEnabled) {
+                _renderEditable.selectWord(cause: SelectionChangedCause.doubleTap);
+                _editableTextKey.currentState.showToolbar();
             }
         }
 
         void _handleMouseDragSelectionStart(DragStartDetails details) {
-            this._renderEditable.selectPositionAt(
+            _renderEditable.selectPositionAt(
                 from: details.globalPosition,
                 cause: SelectionChangedCause.drag);
 
-            this._startSplash(details.globalPosition);
+            _startSplash(details.globalPosition);
         }
 
         void _handleMouseDragSelectionUpdate(DragStartDetails startDetails,
             DragUpdateDetails updateDetails) {
-            this._renderEditable.selectPositionAt(
+            _renderEditable.selectPositionAt(
                 from: startDetails.globalPosition,
                 to: updateDetails.globalPosition,
                 cause: SelectionChangedCause.drag);
@@ -474,42 +474,42 @@ namespace Unity.UIWidgets.material {
 
 
         void _startSplash(Offset globalPosition) {
-            if (this._effectiveFocusNode.hasFocus) {
+            if (_effectiveFocusNode.hasFocus) {
                 return;
             }
 
-            InteractiveInkFeature splash = this._createInkFeature(globalPosition);
-            this._splashes = this._splashes ?? new HashSet<InteractiveInkFeature>();
-            this._splashes.Add(splash);
-            this._currentSplash = splash;
-            this.updateKeepAlive();
+            InteractiveInkFeature splash = _createInkFeature(globalPosition);
+            _splashes = _splashes ?? new HashSet<InteractiveInkFeature>();
+            _splashes.Add(splash);
+            _currentSplash = splash;
+            updateKeepAlive();
         }
 
         void _confirmCurrentSplash() {
-            this._currentSplash?.confirm();
-            this._currentSplash = null;
+            _currentSplash?.confirm();
+            _currentSplash = null;
         }
 
         void _cancelCurrentSplash() {
-            this._currentSplash?.cancel();
+            _currentSplash?.cancel();
         }
 
         protected override bool wantKeepAlive {
-            get { return this._splashes != null && this._splashes.isNotEmpty(); }
+            get { return _splashes != null && _splashes.isNotEmpty(); }
         }
 
         public override void deactivate() {
-            if (this._splashes != null) {
-                HashSet<InteractiveInkFeature> splashes = this._splashes;
-                this._splashes = null;
+            if (_splashes != null) {
+                HashSet<InteractiveInkFeature> splashes = _splashes;
+                _splashes = null;
                 foreach (InteractiveInkFeature splash in splashes) {
                     splash.dispose();
                 }
 
-                this._currentSplash = null;
+                _currentSplash = null;
             }
 
-            D.assert(this._currentSplash == null);
+            D.assert(_currentSplash == null);
             base.deactivate();
         }
 
@@ -518,18 +518,18 @@ namespace Unity.UIWidgets.material {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
             D.assert(
-              !(this.widget.style != null && this.widget.style.inherit == false &&
-                (this.widget.style.fontSize == null || this.widget.style.textBaseline == null)),
+              !(widget.style != null && widget.style.inherit == false &&
+                (widget.style.fontSize == null || widget.style.textBaseline == null)),
               () => "inherit false style must supply fontSize and textBaseline"
             );
             ThemeData themeData = Theme.of(context);
-            TextStyle style = themeData.textTheme.subhead.merge(this.widget.style);
-            Brightness keyboardAppearance = this.widget.keyboardAppearance ?? themeData.primaryColorBrightness;
-            TextEditingController controller = this._effectiveController;
-            FocusNode focusNode = this._effectiveFocusNode;
-            List<TextInputFormatter> formatters = this.widget.inputFormatters ?? new List<TextInputFormatter>();
-            if (this.widget.maxLength != null && this.widget.maxLengthEnforced) {
-                formatters.Add(new LengthLimitingTextInputFormatter(this.widget.maxLength));
+            TextStyle style = themeData.textTheme.subhead.merge(widget.style);
+            Brightness keyboardAppearance = widget.keyboardAppearance ?? themeData.primaryColorBrightness;
+            TextEditingController controller = _effectiveController;
+            FocusNode focusNode = _effectiveFocusNode;
+            List<TextInputFormatter> formatters = widget.inputFormatters ?? new List<TextInputFormatter>();
+            if (widget.maxLength != null && widget.maxLengthEnforced) {
+                formatters.Add(new LengthLimitingTextInputFormatter(widget.maxLength));
             }
             
             // bool forcePressEnabled = false; // TODO: wait for force press is ready
@@ -537,62 +537,62 @@ namespace Unity.UIWidgets.material {
             bool paintCursorAboveText = false;
             bool cursorOpacityAnimates = false;
             Offset cursorOffset = null;
-            Color cursorColor = this.widget.cursorColor ?? themeData.cursorColor;
-            Radius cursorRadius = this.widget.cursorRadius;
+            Color cursorColor = widget.cursorColor ?? themeData.cursorColor;
+            Radius cursorRadius = widget.cursorRadius;
 
             Widget child = new RepaintBoundary(
                 child: new EditableText(
-                    key: this._editableTextKey,
+                    key: _editableTextKey,
                     controller: controller,
                     focusNode: focusNode,
-                    keyboardType: this.widget.keyboardType,
-                    textInputAction: this.widget.textInputAction,
-                    textCapitalization: this.widget.textCapitalization,
+                    keyboardType: widget.keyboardType,
+                    textInputAction: widget.textInputAction,
+                    textCapitalization: widget.textCapitalization,
                     style: style,
-                    strutStyle: this.widget.strutStyle,
-                    textAlign: this.widget.textAlign,
-                    textDirection: this.widget.textDirection,
-                    autofocus: this.widget.autofocus,
-                    obscureText: this.widget.obscureText,
-                    autocorrect: this.widget.autocorrect,
-                    maxLines: this.widget.maxLines,
-                    minLines: this.widget.minLines,
-                    expands: this.widget.expands,
+                    strutStyle: widget.strutStyle,
+                    textAlign: widget.textAlign,
+                    textDirection: widget.textDirection,
+                    autofocus: widget.autofocus,
+                    obscureText: widget.obscureText,
+                    autocorrect: widget.autocorrect,
+                    maxLines: widget.maxLines,
+                    minLines: widget.minLines,
+                    expands: widget.expands,
                     selectionColor: themeData.textSelectionColor,
-                    selectionControls: this.widget.selectionEnabled ? textSelectionControls : null,
-                    onChanged: this.widget.onChanged,
-                    onSelectionChanged: this._handleSelectionChanged,
-                    onEditingComplete: this.widget.onEditingComplete,
-                    onSubmitted: this.widget.onSubmitted,
+                    selectionControls: widget.selectionEnabled ? textSelectionControls : null,
+                    onChanged: widget.onChanged,
+                    onSelectionChanged: _handleSelectionChanged,
+                    onEditingComplete: widget.onEditingComplete,
+                    onSubmitted: widget.onSubmitted,
                     inputFormatters: formatters,
                     rendererIgnoresPointer: true,
-                    cursorWidth: this.widget.cursorWidth,
+                    cursorWidth: widget.cursorWidth,
                     cursorRadius: cursorRadius,
                     cursorColor: cursorColor,
                     cursorOpacityAnimates: cursorOpacityAnimates,
                     cursorOffset: cursorOffset,
                     paintCursorAboveText: paintCursorAboveText,
                     backgroundCursorColor: new Color(0xFF8E8E93),// TODO: CupertinoColors.inactiveGray,
-                    scrollPadding: this.widget.scrollPadding,
+                    scrollPadding: widget.scrollPadding,
                     keyboardAppearance: keyboardAppearance,
-                    enableInteractiveSelection: this.widget.enableInteractiveSelection == true,
-                    dragStartBehavior: this.widget.dragStartBehavior,
-                    scrollPhysics: this.widget.scrollPhysics
+                    enableInteractiveSelection: widget.enableInteractiveSelection == true,
+                    dragStartBehavior: widget.dragStartBehavior,
+                    scrollPhysics: widget.scrollPhysics
                 )
             );
 
-            if (this.widget.decoration != null) {
+            if (widget.decoration != null) {
                 child = new AnimatedBuilder(
                     animation: ListenableUtils.merge(new List<Listenable> {focusNode, controller}),
                     builder:
                     (_context, _child) => {
                         return new InputDecorator(
-                            decoration: this._getEffectiveDecoration(),
-                            baseStyle: this.widget.style,
-                            textAlign: this.widget.textAlign,
+                            decoration: _getEffectiveDecoration(),
+                            baseStyle: widget.style,
+                            textAlign: widget.textAlign,
                             isFocused: focusNode.hasFocus,
                             isEmpty: controller.value.text.isEmpty(),
-                            expands: this.widget.expands,
+                            expands: widget.expands,
                             child: _child
                         );
                     },
@@ -601,18 +601,18 @@ namespace Unity.UIWidgets.material {
             }
 
             return new IgnorePointer(
-                ignoring: !(this.widget.enabled ?? this.widget.decoration?.enabled ?? true),
+                ignoring: !(widget.enabled ?? widget.decoration?.enabled ?? true),
                 child: new TextSelectionGestureDetector(
-                    onTapDown: this._handleTapDown,
+                    onTapDown: _handleTapDown,
                     // onForcePressStart: forcePressEnabled ? this._handleForcePressStarted : null, // TODO: Remove this when force press is added
-                    onSingleTapUp: this._handleSingleTapUp,
-                    onSingleTapCancel: this._handleSingleTapCancel,
-                    onSingleLongTapStart: this._handleSingleLongTapStart,
-                    onSingleLongTapMoveUpdate: this._handleSingleLongTapMoveUpdate,
-                    onSingleLongTapEnd: this._handleSingleLongTapEnd,
-                    onDoubleTapDown: this._handleDoubleTapDown,
-                    onDragSelectionStart: this._handleMouseDragSelectionStart,
-                    onDragSelectionUpdate: this._handleMouseDragSelectionUpdate,
+                    onSingleTapUp: _handleSingleTapUp,
+                    onSingleTapCancel: _handleSingleTapCancel,
+                    onSingleLongTapStart: _handleSingleLongTapStart,
+                    onSingleLongTapMoveUpdate: _handleSingleLongTapMoveUpdate,
+                    onSingleLongTapEnd: _handleSingleLongTapEnd,
+                    onDoubleTapDown: _handleDoubleTapDown,
+                    onDragSelectionStart: _handleMouseDragSelectionStart,
+                    onDragSelectionUpdate: _handleMouseDragSelectionUpdate,
                     behavior: HitTestBehavior.translucent,
                     child: child
                 )

@@ -256,7 +256,7 @@ namespace Unity.UIWidgets.ui2 {
             int backAlpha = background.alpha;
             if (backAlpha == 0xff) {
                 // Opaque background case
-                return Color.fromARGB(
+                return fromARGB(
                     0xff,
                     (alpha * foreground.red + invAlpha * background.red) / 0xff,
                     (alpha * foreground.green + invAlpha * background.green) / 0xff,
@@ -268,7 +268,7 @@ namespace Unity.UIWidgets.ui2 {
                 backAlpha = (backAlpha * invAlpha) / 0xff;
                 int outAlpha = alpha + backAlpha;
                 D.assert(outAlpha != 0x00);
-                return Color.fromARGB(
+                return fromARGB(
                     outAlpha,
                     (foreground.red * alpha + background.red * backAlpha) / outAlpha,
                     (foreground.green * alpha + background.green * backAlpha) / outAlpha,

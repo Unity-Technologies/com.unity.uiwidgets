@@ -13,8 +13,8 @@ namespace Unity.UIWidgets.widgets {
         public bool hasFocus {
             get {
                 FocusNode node = null;
-                if (this._manager != null) {
-                    node = this._manager._currentFocus;
+                if (_manager != null) {
+                    node = _manager._currentFocus;
                 }
 
                 return node == this;
@@ -22,43 +22,43 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public bool consumeKeyboardToken() {
-            if (!this._hasKeyboardToken) {
+            if (!_hasKeyboardToken) {
                 return false;
             }
 
-            this._hasKeyboardToken = false;
+            _hasKeyboardToken = false;
             return true;
         }
 
         public void unfocus() {
-            if (this._parent != null) {
-                this._parent._resignFocus(this);
+            if (_parent != null) {
+                _parent._resignFocus(this);
             }
 
-            D.assert(this._parent == null);
-            D.assert(this._manager == null);
+            D.assert(_parent == null);
+            D.assert(_manager == null);
         }
 
         public override void dispose() {
-            if (this._manager != null) {
-                this._manager._willDisposeFocusNode(this);
+            if (_manager != null) {
+                _manager._willDisposeFocusNode(this);
             }
 
-            if (this._parent != null) {
-                this._parent._resignFocus(this);
+            if (_parent != null) {
+                _parent._resignFocus(this);
             }
 
-            D.assert(this._parent == null);
-            D.assert(this._manager == null);
+            D.assert(_parent == null);
+            D.assert(_manager == null);
             base.dispose();
         }
 
         internal void _notify() {
-            this.notifyListeners();
+            notifyListeners();
         }
 
         public override string ToString() {
-            return $"{Diagnostics.describeIdentity(this)} hasFocus: {this.hasFocus}";
+            return $"{foundation_.describeIdentity(this)} hasFocus: {hasFocus}";
         }
     }
 
@@ -76,13 +76,13 @@ namespace Unity.UIWidgets.widgets {
         internal List<FocusScopeNode> _focusPath;
 
         public bool isFirstFocus {
-            get { return this._parent == null || this._parent._firstChild == this; }
+            get { return _parent == null || _parent._firstChild == this; }
         }
 
         internal List<FocusScopeNode> _getFocusPath() {
             List<FocusScopeNode> nodes = new List<FocusScopeNode> {this};
-            FocusScopeNode node = this._parent;
-            while (node != null && node != this._manager?.rootScope) {
+            FocusScopeNode node = _parent;
+            while (node != null && node != _manager?.rootScope) {
                 nodes.Add(node);
                 node = node._parent;
             }
@@ -92,8 +92,8 @@ namespace Unity.UIWidgets.widgets {
 
         internal void _prepend(FocusScopeNode child) {
             D.assert(child != this);
-            D.assert(child != this._firstChild);
-            D.assert(child != this._lastChild);
+            D.assert(child != _firstChild);
+            D.assert(child != _lastChild);
             D.assert(child._parent == null);
             D.assert(child._manager == null);
             D.assert(child._nextSibling == null);
@@ -108,14 +108,14 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             });
             child._parent = this;
-            child._nextSibling = this._firstChild;
-            if (this._firstChild != null) {
-                this._firstChild._previousSibling = child;
+            child._nextSibling = _firstChild;
+            if (_firstChild != null) {
+                _firstChild._previousSibling = child;
             }
 
-            this._firstChild = child;
-            this._lastChild = this._lastChild ?? child;
-            child._updateManager(this._manager);
+            _firstChild = child;
+            _lastChild = _lastChild ?? child;
+            child._updateManager(_manager);
         }
 
         void _updateManager(FocusManager manager) {
@@ -139,7 +139,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _visitChildren(Action<FocusScopeNode> vistor) {
-            FocusScopeNode child = this._firstChild;
+            FocusScopeNode child = _firstChild;
             while (child != null) {
                 vistor.Invoke(child);
                 child = child._nextSibling;
@@ -166,20 +166,20 @@ namespace Unity.UIWidgets.widgets {
 
         internal void _remove(FocusScopeNode child) {
             D.assert(child._parent == this);
-            D.assert(child._manager == this._manager);
-            D.assert(this._debugUltimatePreviousSiblingOf(child, equals: this._firstChild));
-            D.assert(this._debugUltimateNextSiblingOf(child, equals: this._lastChild));
+            D.assert(child._manager == _manager);
+            D.assert(_debugUltimatePreviousSiblingOf(child, equals: _firstChild));
+            D.assert(_debugUltimateNextSiblingOf(child, equals: _lastChild));
             if (child._previousSibling == null) {
-                D.assert(this._firstChild == child);
-                this._firstChild = child._nextSibling;
+                D.assert(_firstChild == child);
+                _firstChild = child._nextSibling;
             }
             else {
                 child._previousSibling._nextSibling = child._nextSibling;
             }
 
             if (child._nextSibling == null) {
-                D.assert(this._lastChild == child);
-                this._lastChild = child._previousSibling;
+                D.assert(_lastChild == child);
+                _lastChild = child._previousSibling;
             }
             else {
                 child._nextSibling._previousSibling = child._previousSibling;
@@ -192,33 +192,33 @@ namespace Unity.UIWidgets.widgets {
         }
 
         internal void _didChangeFocusChain() {
-            if (this.isFirstFocus && this._manager != null) {
-                this._manager._markNeedsUpdate();
+            if (isFirstFocus && _manager != null) {
+                _manager._markNeedsUpdate();
             }
         }
 
         public void requestFocus(FocusNode node) {
             D.assert(node != null);
-            var focusPath = this._manager?._getCurrentFocusPath();
-            if (this._focus == node &&
-                (this._focusPath == focusPath || (focusPath != null && this._focusPath != null &&
-                                                  this._focusPath.SequenceEqual(focusPath)))) {
+            var focusPath = _manager?._getCurrentFocusPath();
+            if (_focus == node &&
+                (_focusPath == focusPath || (focusPath != null && _focusPath != null &&
+                                                  _focusPath.SequenceEqual(focusPath)))) {
                 return;
             }
 
-            if (this._focus != null) {
-                this._focus.unfocus();
+            if (_focus != null) {
+                _focus.unfocus();
             }
 
             node._hasKeyboardToken = true;
-            this._setFocus(node);
+            _setFocus(node);
         }
 
         public void autofocus(FocusNode node) {
             D.assert(node != null);
-            if (this._focus == null) {
+            if (_focus == null) {
                 node._hasKeyboardToken = true;
-                this._setFocus(node);
+                _setFocus(node);
             }
         }
 
@@ -230,46 +230,46 @@ namespace Unity.UIWidgets.widgets {
 
             node.unfocus();
             D.assert(node._parent == null);
-            if (this._focus == null) {
-                this._setFocus(node);
+            if (_focus == null) {
+                _setFocus(node);
             }
         }
 
         internal void _setFocus(FocusNode node) {
             D.assert(node != null);
             D.assert(node._parent == null);
-            D.assert(this._focus == null);
-            this._focus = node;
-            this._focus._parent = this;
-            this._focus._manager = this._manager;
-            this._focus._hasKeyboardToken = true;
-            this._didChangeFocusChain();
-            this._focusPath = this._getFocusPath();
+            D.assert(_focus == null);
+            _focus = node;
+            _focus._parent = this;
+            _focus._manager = _manager;
+            _focus._hasKeyboardToken = true;
+            _didChangeFocusChain();
+            _focusPath = _getFocusPath();
         }
 
         internal void _resignFocus(FocusNode node) {
             D.assert(node != null);
-            if (this._focus != node) {
+            if (_focus != node) {
                 return;
             }
 
-            this._focus._parent = null;
-            this._focus._manager = null;
-            this._focus = null;
-            this._didChangeFocusChain();
+            _focus._parent = null;
+            _focus._manager = null;
+            _focus = null;
+            _didChangeFocusChain();
         }
 
         public void setFirstFocus(FocusScopeNode child) {
             D.assert(child != null);
             D.assert(child._parent == null || child._parent == this);
-            if (this._firstChild == child) {
+            if (_firstChild == child) {
                 return;
             }
 
             child.detach();
-            this._prepend(child);
+            _prepend(child);
             D.assert(child._parent == this);
-            this._didChangeFocusChain();
+            _didChangeFocusChain();
         }
 
         public void reparentScopeIfNeeded(FocusScopeNode child) {
@@ -279,7 +279,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (child.isFirstFocus) {
-                this.setFirstFocus(child);
+                setFirstFocus(child);
             }
             else {
                 child.detach();
@@ -287,29 +287,29 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void detach() {
-            this._didChangeFocusChain();
-            if (this._parent != null) {
-                this._parent._remove(this);
+            _didChangeFocusChain();
+            if (_parent != null) {
+                _parent._remove(this);
             }
 
-            D.assert(this._parent == null);
+            D.assert(_parent == null);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            if (this._focus != null) {
-                properties.add(new DiagnosticsProperty<FocusNode>("focus", this._focus));
+            if (_focus != null) {
+                properties.add(new DiagnosticsProperty<FocusNode>("focus", _focus));
             }
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
             var children = new List<DiagnosticsNode>();
-            if (this._firstChild != null) {
-                FocusScopeNode child = this._firstChild;
+            if (_firstChild != null) {
+                FocusScopeNode child = _firstChild;
                 int count = 1;
                 while (true) {
                     children.Add(child.toDiagnosticsNode(name: $"child {count}"));
-                    if (child == this._lastChild) {
+                    if (child == _lastChild) {
                         break;
                     }
 
@@ -324,40 +324,40 @@ namespace Unity.UIWidgets.widgets {
 
     public class FocusManager {
         public FocusManager() {
-            this.rootScope._manager = this;
-            D.assert(this.rootScope._firstChild == null);
-            D.assert(this.rootScope._lastChild == null);
+            rootScope._manager = this;
+            D.assert(rootScope._firstChild == null);
+            D.assert(rootScope._lastChild == null);
         }
 
         public readonly FocusScopeNode rootScope = new FocusScopeNode();
         internal readonly FocusScopeNode _noneScope = new FocusScopeNode();
 
         public FocusNode currentFocus {
-            get { return this._currentFocus; }
+            get { return _currentFocus; }
         }
 
         internal FocusNode _currentFocus;
 
         internal void _willDisposeFocusNode(FocusNode node) {
             D.assert(node != null);
-            if (this._currentFocus == node) {
-                this._currentFocus = null;
+            if (_currentFocus == node) {
+                _currentFocus = null;
             }
         }
 
         bool _haveScheduledUpdate = false;
 
         internal void _markNeedsUpdate() {
-            if (this._haveScheduledUpdate) {
+            if (_haveScheduledUpdate) {
                 return;
             }
 
-            this._haveScheduledUpdate = true;
-            Window.instance.scheduleMicrotask(this._update);
+            _haveScheduledUpdate = true;
+            Window.instance.scheduleMicrotask(_update);
         }
 
         internal FocusNode _findNextFocus() {
-            FocusScopeNode scope = this.rootScope;
+            FocusScopeNode scope = rootScope;
             while (scope._firstChild != null) {
                 scope = scope._firstChild;
             }
@@ -366,50 +366,50 @@ namespace Unity.UIWidgets.widgets {
         }
 
         internal void _update() {
-            this._haveScheduledUpdate = false;
-            var nextFocus = this._findNextFocus();
-            if (this._currentFocus == nextFocus) {
+            _haveScheduledUpdate = false;
+            var nextFocus = _findNextFocus();
+            if (_currentFocus == nextFocus) {
                 return;
             }
 
-            var previousFocus = this._currentFocus;
-            this._currentFocus = nextFocus;
+            var previousFocus = _currentFocus;
+            _currentFocus = nextFocus;
             if (previousFocus != null) {
                 previousFocus._notify();
             }
 
-            if (this._currentFocus != null) {
-                this._currentFocus._notify();
+            if (_currentFocus != null) {
+                _currentFocus._notify();
             }
         }
 
         internal List<FocusScopeNode> _getCurrentFocusPath() {
-            return this._currentFocus?._parent?._getFocusPath();
+            return _currentFocus?._parent?._getFocusPath();
         }
 
         public void focusNone(bool focus) {
             if (focus) {
-                if (this._noneScope._parent != null && this._noneScope.isFirstFocus) {
+                if (_noneScope._parent != null && _noneScope.isFirstFocus) {
                     return;
                 }
 
-                this.rootScope.setFirstFocus(this._noneScope);
+                rootScope.setFirstFocus(_noneScope);
             }
             else {
-                if (this._noneScope._parent == null) {
+                if (_noneScope._parent == null) {
                     return;
                 }
 
-                this._noneScope.detach();
+                _noneScope.detach();
             }
         }
 
         public override string ToString() {
-            var status = this._haveScheduledUpdate ? " UPDATE SCHEDULED" : "";
+            var status = _haveScheduledUpdate ? " UPDATE SCHEDULED" : "";
             var indent = "    ";
-            return string.Format("{1}{2}\n{0}currentFocus: {3}\n{4}", indent, Diagnostics.describeIdentity(this),
-                status, this._currentFocus,
-                this.rootScope.toStringDeep(prefixLineOne: indent, prefixOtherLines: indent));
+            return string.Format("{1}{2}\n{0}currentFocus: {3}\n{4}", indent, foundation_.describeIdentity(this),
+                status, _currentFocus,
+                rootScope.toStringDeep(prefixLineOne: indent, prefixOtherLines: indent));
         }
     }
 }

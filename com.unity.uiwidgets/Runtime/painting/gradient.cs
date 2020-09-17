@@ -78,14 +78,14 @@ namespace Unity.UIWidgets.painting {
         public readonly List<float> stops;
 
         protected List<float> _impliedStops() {
-            if (this.stops != null) {
-                return this.stops;
+            if (stops != null) {
+                return stops;
             }
 
-            D.assert(this.colors.Count >= 2, () => "colors list must have at least two colors");
-            float separation = 1.0f / (this.colors.Count - 1);
+            D.assert(colors.Count >= 2, () => "colors list must have at least two colors");
+            float separation = 1.0f / (colors.Count - 1);
 
-            return Enumerable.Range(0, this.colors.Count).Select(i => i * separation).ToList();
+            return Enumerable.Range(0, colors.Count).Select(i => i * separation).ToList();
         }
 
         public abstract PaintShader createShader(Rect rect);
@@ -94,7 +94,7 @@ namespace Unity.UIWidgets.painting {
 
         protected virtual Gradient lerpFrom(Gradient a, float t) {
             if (a == null) {
-                return this.scale(t);
+                return scale(t);
             }
 
             return null;
@@ -102,7 +102,7 @@ namespace Unity.UIWidgets.painting {
 
         protected virtual Gradient lerpTo(Gradient b, float t) {
             if (b == null) {
-                return this.scale(1.0f - t);
+                return scale(1.0f - t);
             }
 
             return null;
@@ -154,20 +154,20 @@ namespace Unity.UIWidgets.painting {
 
         public override PaintShader createShader(Rect rect) {
             return ui.Gradient.linear(
-                this.begin.withinRect(rect),
-                this.end.withinRect(rect),
-                this.colors, this._impliedStops(),
-                this.tileMode
+                begin.withinRect(rect),
+                end.withinRect(rect),
+                colors, _impliedStops(),
+                tileMode
             );
         }
 
         public override Gradient scale(float factor) {
             return new LinearGradient(
-                begin: this.begin,
-                end: this.end,
-                colors: this.colors.Select(color => Color.lerp(null, color, factor)).ToList(),
-                stops: this.stops,
-                tileMode: this.tileMode
+                begin: begin,
+                end: end,
+                colors: colors.Select(color => Color.lerp(null, color, factor)).ToList(),
+                stops: stops,
+                tileMode: tileMode
             );
         }
 
@@ -225,11 +225,11 @@ namespace Unity.UIWidgets.painting {
             }
 
             return
-                this.colors.equalsList(other.colors) &&
-                this.stops.equalsList(other.stops) &&
-                Equals(this.begin, other.begin) &&
-                Equals(this.end, other.end) &&
-                this.tileMode == other.tileMode;
+                colors.equalsList(other.colors) &&
+                stops.equalsList(other.stops) &&
+                Equals(begin, other.begin) &&
+                Equals(end, other.end) &&
+                tileMode == other.tileMode;
         }
 
         public override bool Equals(object obj) {
@@ -241,20 +241,20 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((LinearGradient) obj);
+            return Equals((LinearGradient) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.colors.hashList();
-                hashCode = (hashCode * 397) ^ this.stops.hashList();
-                hashCode = (hashCode * 397) ^ (this.begin != null ? this.begin.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.end != null ? this.end.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int) this.tileMode;
+                var hashCode = colors.hashList();
+                hashCode = (hashCode * 397) ^ stops.hashList();
+                hashCode = (hashCode * 397) ^ (begin != null ? begin.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (end != null ? end.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (int) tileMode;
                 return hashCode;
             }
         }
@@ -268,8 +268,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.begin}, {this.end}," +
-                   $"{this.colors.toStringList()}, {this.stops.toStringList()}, {this.tileMode})";
+            return $"{GetType()}({begin}, {end}," +
+                   $"{colors.toStringList()}, {stops.toStringList()}, {tileMode})";
         }
     }
 
@@ -295,20 +295,20 @@ namespace Unity.UIWidgets.painting {
 
         public override PaintShader createShader(Rect rect) {
             return ui.Gradient.radial(
-                this.center.withinRect(rect),
-                this.radius * rect.shortestSide,
-                this.colors, this._impliedStops(),
-                this.tileMode
+                center.withinRect(rect),
+                radius * rect.shortestSide,
+                colors, _impliedStops(),
+                tileMode
             );
         }
 
         public override Gradient scale(float factor) {
             return new RadialGradient(
-                center: this.center,
-                radius: this.radius,
-                colors: this.colors.Select(color => Color.lerp(null, color, factor)).ToList(),
-                stops: this.stops,
-                tileMode: this.tileMode
+                center: center,
+                radius: radius,
+                colors: colors.Select(color => Color.lerp(null, color, factor)).ToList(),
+                stops: stops,
+                tileMode: tileMode
             );
         }
 
@@ -366,11 +366,11 @@ namespace Unity.UIWidgets.painting {
             }
 
             return
-                this.colors.equalsList(other.colors) &&
-                this.stops.equalsList(other.stops) &&
-                Equals(this.center, other.center) &&
-                Equals(this.radius, other.radius) &&
-                this.tileMode == other.tileMode;
+                colors.equalsList(other.colors) &&
+                stops.equalsList(other.stops) &&
+                Equals(center, other.center) &&
+                Equals(radius, other.radius) &&
+                tileMode == other.tileMode;
         }
 
         public override bool Equals(object obj) {
@@ -382,20 +382,20 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((RadialGradient) obj);
+            return Equals((RadialGradient) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.colors.hashList();
-                hashCode = (hashCode * 397) ^ this.stops.hashList();
-                hashCode = (hashCode * 397) ^ (this.center != null ? this.center.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.radius.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) this.tileMode;
+                var hashCode = colors.hashList();
+                hashCode = (hashCode * 397) ^ stops.hashList();
+                hashCode = (hashCode * 397) ^ (center != null ? center.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ radius.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) tileMode;
                 return hashCode;
             }
         }
@@ -409,8 +409,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.center}, {this.radius}," +
-                   $"{this.colors.toStringList()}, {this.stops.toStringList()}, {this.tileMode})";
+            return $"{GetType()}({center}, {radius}," +
+                   $"{colors.toStringList()}, {stops.toStringList()}, {tileMode})";
         }
     }
 
@@ -440,26 +440,26 @@ namespace Unity.UIWidgets.painting {
 
         public override PaintShader createShader(Rect rect) {
             return ui.Gradient.sweep(
-                this.center.withinRect(rect),
-                this.colors, this._impliedStops(),
-                this.tileMode,
-                this.startAngle, this.endAngle
+                center.withinRect(rect),
+                colors, _impliedStops(),
+                tileMode,
+                startAngle, endAngle
             );
         }
 
         public override Gradient scale(float factor) {
             return new SweepGradient(
-                center: this.center,
-                startAngle: this.startAngle,
-                endAngle: this.endAngle,
-                colors: this.colors.Select(color => Color.lerp(null, color, factor)).ToList(),
-                stops: this.stops,
-                tileMode: this.tileMode
+                center: center,
+                startAngle: startAngle,
+                endAngle: endAngle,
+                colors: colors.Select(color => Color.lerp(null, color, factor)).ToList(),
+                stops: stops,
+                tileMode: tileMode
             );
         }
 
         protected override Gradient lerpFrom(Gradient a, float t) {
-            if (a == null || (a is SweepGradient && a.colors.Count == this.colors.Count)) {
+            if (a == null || (a is SweepGradient && a.colors.Count == colors.Count)) {
                 return lerp((SweepGradient) a, this, t);
             }
 
@@ -467,7 +467,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         protected override Gradient lerpTo(Gradient b, float t) {
-            if (b == null || (b is SweepGradient && b.colors.Count == this.colors.Count)) {
+            if (b == null || (b is SweepGradient && b.colors.Count == colors.Count)) {
                 return lerp(this, (SweepGradient) b, t);
             }
 
@@ -509,12 +509,12 @@ namespace Unity.UIWidgets.painting {
             }
 
             return
-                this.colors.equalsList(other.colors) &&
-                this.stops.equalsList(other.stops) &&
-                Equals(this.center, other.center) &&
-                Equals(this.startAngle, other.startAngle) &&
-                Equals(this.endAngle, other.endAngle) &&
-                this.tileMode == other.tileMode;
+                colors.equalsList(other.colors) &&
+                stops.equalsList(other.stops) &&
+                Equals(center, other.center) &&
+                Equals(startAngle, other.startAngle) &&
+                Equals(endAngle, other.endAngle) &&
+                tileMode == other.tileMode;
         }
 
         public override bool Equals(object obj) {
@@ -526,21 +526,21 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((SweepGradient) obj);
+            return Equals((SweepGradient) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.colors.hashList();
-                hashCode = (hashCode * 397) ^ this.stops.hashList();
-                hashCode = (hashCode * 397) ^ (this.center != null ? this.center.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.startAngle.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.endAngle.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) this.tileMode;
+                var hashCode = colors.hashList();
+                hashCode = (hashCode * 397) ^ stops.hashList();
+                hashCode = (hashCode * 397) ^ (center != null ? center.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ startAngle.GetHashCode();
+                hashCode = (hashCode * 397) ^ endAngle.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) tileMode;
                 return hashCode;
             }
         }
@@ -554,8 +554,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.center}, {this.startAngle}, {this.endAngle}, " +
-                   $"{this.colors.toStringList()}, {this.stops.toStringList()}, {this.tileMode})";
+            return $"{GetType()}({center}, {startAngle}, {endAngle}, " +
+                   $"{colors.toStringList()}, {stops.toStringList()}, {tileMode})";
         }
     }
 }

@@ -16,11 +16,11 @@ namespace Unity.UIWidgets.widgets {
 
     public abstract class GestureRecognizerFactory<T> : GestureRecognizerFactory where T : GestureRecognizer {
         public override GestureRecognizer constructorRaw() {
-            return this.constructor();
+            return constructor();
         }
 
         public override void initializerRaw(GestureRecognizer instance) {
-            this.initializer((T) instance);
+            initializer((T) instance);
         }
 
         public abstract T constructor();
@@ -44,8 +44,8 @@ namespace Unity.UIWidgets.widgets {
             D.assert(constructor != null);
             D.assert(initializer != null);
 
-            this._constructor = constructor;
-            this._initializer = initializer;
+            _constructor = constructor;
+            _initializer = initializer;
         }
 
         readonly GestureRecognizerFactoryConstructor<T> _constructor;
@@ -53,11 +53,11 @@ namespace Unity.UIWidgets.widgets {
         readonly GestureRecognizerFactoryInitializer<T> _initializer;
 
         public override T constructor() {
-            return this._constructor();
+            return _constructor();
         }
 
         public override void initializer(T instance) {
-            this._initializer(instance);
+            _initializer(instance);
         }
     }
 
@@ -194,129 +194,129 @@ namespace Unity.UIWidgets.widgets {
         public override Widget build(BuildContext context) {
             var gestures = new Dictionary<Type, GestureRecognizerFactory>();
 
-            if (this.onTapDown != null ||
-                this.onTapUp != null ||
-                this.onTap != null ||
-                this.onTapCancel != null) {
+            if (onTapDown != null ||
+                onTapUp != null ||
+                onTap != null ||
+                onTapCancel != null) {
                 gestures[typeof(TapGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
                         () => new TapGestureRecognizer(debugOwner: this),
                         instance => {
-                            instance.onTapDown = this.onTapDown;
-                            instance.onTapUp = this.onTapUp;
-                            instance.onTap = this.onTap;
-                            instance.onTapCancel = this.onTapCancel;
+                            instance.onTapDown = onTapDown;
+                            instance.onTapUp = onTapUp;
+                            instance.onTap = onTap;
+                            instance.onTapCancel = onTapCancel;
                         }
                     );
             }
 
-            if (this.onDoubleTap != null) {
+            if (onDoubleTap != null) {
                 gestures[typeof(DoubleTapGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<DoubleTapGestureRecognizer>(
                         () => new DoubleTapGestureRecognizer(debugOwner: this),
-                        instance => { instance.onDoubleTap = this.onDoubleTap; }
+                        instance => { instance.onDoubleTap = onDoubleTap; }
                     );
             }
 
-            if (this.onLongPress != null ||
-                this.onLongPressUp != null ||
-                this.onLongPressStart != null ||
-                this.onLongPressMoveUpdate != null ||
-                this.onLongPressEnd != null) {
+            if (onLongPress != null ||
+                onLongPressUp != null ||
+                onLongPressStart != null ||
+                onLongPressMoveUpdate != null ||
+                onLongPressEnd != null) {
                 gestures[typeof(LongPressGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
                         () => new LongPressGestureRecognizer(debugOwner: this),
                         instance => {
-                            instance.onLongPress = this.onLongPress;
-                            instance.onLongPressStart = this.onLongPressStart;
-                            instance.onLongPressMoveUpdate = this.onLongPressMoveUpdate;
-                            instance.onLongPressEnd = this.onLongPressEnd;
-                            instance.onLongPressUp = this.onLongPressUp;
+                            instance.onLongPress = onLongPress;
+                            instance.onLongPressStart = onLongPressStart;
+                            instance.onLongPressMoveUpdate = onLongPressMoveUpdate;
+                            instance.onLongPressEnd = onLongPressEnd;
+                            instance.onLongPressUp = onLongPressUp;
                         }
                     );
             }
 
-            if (this.onVerticalDragDown != null ||
-                this.onVerticalDragStart != null ||
-                this.onVerticalDragUpdate != null ||
-                this.onVerticalDragEnd != null ||
-                this.onVerticalDragCancel != null) {
+            if (onVerticalDragDown != null ||
+                onVerticalDragStart != null ||
+                onVerticalDragUpdate != null ||
+                onVerticalDragEnd != null ||
+                onVerticalDragCancel != null) {
                 gestures[typeof(VerticalDragGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
                         () => new VerticalDragGestureRecognizer(debugOwner: this),
                         instance => {
-                            instance.onDown = this.onVerticalDragDown;
-                            instance.onStart = this.onVerticalDragStart;
-                            instance.onUpdate = this.onVerticalDragUpdate;
-                            instance.onEnd = this.onVerticalDragEnd;
-                            instance.onCancel = this.onVerticalDragCancel;
-                            instance.dragStartBehavior = this.dragStartBehavior;
+                            instance.onDown = onVerticalDragDown;
+                            instance.onStart = onVerticalDragStart;
+                            instance.onUpdate = onVerticalDragUpdate;
+                            instance.onEnd = onVerticalDragEnd;
+                            instance.onCancel = onVerticalDragCancel;
+                            instance.dragStartBehavior = dragStartBehavior;
                         }
                     );
             }
 
-            if (this.onHorizontalDragDown != null ||
-                this.onHorizontalDragStart != null ||
-                this.onHorizontalDragUpdate != null ||
-                this.onHorizontalDragEnd != null ||
-                this.onHorizontalDragCancel != null) {
+            if (onHorizontalDragDown != null ||
+                onHorizontalDragStart != null ||
+                onHorizontalDragUpdate != null ||
+                onHorizontalDragEnd != null ||
+                onHorizontalDragCancel != null) {
                 gestures[typeof(HorizontalDragGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
                         () => new HorizontalDragGestureRecognizer(debugOwner: this),
                         instance => {
-                            instance.onDown = this.onHorizontalDragDown;
-                            instance.onStart = this.onHorizontalDragStart;
-                            instance.onUpdate = this.onHorizontalDragUpdate;
-                            instance.onEnd = this.onHorizontalDragEnd;
-                            instance.onCancel = this.onHorizontalDragCancel;
-                            instance.dragStartBehavior = this.dragStartBehavior;
+                            instance.onDown = onHorizontalDragDown;
+                            instance.onStart = onHorizontalDragStart;
+                            instance.onUpdate = onHorizontalDragUpdate;
+                            instance.onEnd = onHorizontalDragEnd;
+                            instance.onCancel = onHorizontalDragCancel;
+                            instance.dragStartBehavior = dragStartBehavior;
                         }
                     );
             }
 
-            if (this.onPanDown != null ||
-                this.onPanStart != null ||
-                this.onPanUpdate != null ||
-                this.onPanEnd != null ||
-                this.onPanCancel != null) {
+            if (onPanDown != null ||
+                onPanStart != null ||
+                onPanUpdate != null ||
+                onPanEnd != null ||
+                onPanCancel != null) {
                 gestures[typeof(PanGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
                         () => new PanGestureRecognizer(debugOwner: this),
                         instance => {
-                            instance.onDown = this.onPanDown;
-                            instance.onStart = this.onPanStart;
-                            instance.onUpdate = this.onPanUpdate;
-                            instance.onEnd = this.onPanEnd;
-                            instance.onCancel = this.onPanCancel;
-                            instance.dragStartBehavior = this.dragStartBehavior;
+                            instance.onDown = onPanDown;
+                            instance.onStart = onPanStart;
+                            instance.onUpdate = onPanUpdate;
+                            instance.onEnd = onPanEnd;
+                            instance.onCancel = onPanCancel;
+                            instance.dragStartBehavior = dragStartBehavior;
                         }
                     );
             }
 
-            if (this.onScaleStart != null ||
-                this.onScaleUpdate != null ||
-                this.onScaleEnd != null) {
+            if (onScaleStart != null ||
+                onScaleUpdate != null ||
+                onScaleEnd != null) {
                 gestures[typeof(ScaleGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
                         () => new ScaleGestureRecognizer(debugOwner: this),
                         instance => {
-                            instance.onStart = this.onScaleStart;
-                            instance.onUpdate = this.onScaleUpdate;
-                            instance.onEnd = this.onScaleEnd;
+                            instance.onStart = onScaleStart;
+                            instance.onUpdate = onScaleUpdate;
+                            instance.onEnd = onScaleEnd;
                         }
                     );
             }
 
             return new RawGestureDetector(
                 gestures: gestures,
-                behavior: this.behavior,
-                child: this.child
+                behavior: behavior,
+                child: child
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<DragStartBehavior>("startBehavior", this.dragStartBehavior));
+            properties.add(new EnumProperty<DragStartBehavior>("startBehavior", dragStartBehavior));
         }
     }
 
@@ -349,17 +349,17 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            this._syncAll(this.widget.gestures);
+            _syncAll(widget.gestures);
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            this._syncAll(this.widget.gestures);
+            _syncAll(widget.gestures);
         }
 
         public void replaceGestureRecognizers(Dictionary<Type, GestureRecognizerFactory> gestures) {
             D.assert(() => {
-                if (!this.context.findRenderObject().owner.debugDoingLayout) {
+                if (!context.findRenderObject().owner.debugDoingLayout) {
                     throw new UIWidgetsError(
                         "Unexpected call to replaceGestureRecognizers() method of RawGestureDetectorState.\n" +
                         "The replaceGestureRecognizers() method can only be called during the layout phase. " +
@@ -370,88 +370,88 @@ namespace Unity.UIWidgets.widgets {
 
                 return true;
             });
-            this._syncAll(gestures);
+            _syncAll(gestures);
         }
 
         public override void dispose() {
-            foreach (GestureRecognizer recognizer in this._recognizers.Values) {
+            foreach (GestureRecognizer recognizer in _recognizers.Values) {
                 recognizer.dispose();
             }
 
-            this._recognizers = null;
+            _recognizers = null;
             base.dispose();
         }
 
         void _syncAll(Dictionary<Type, GestureRecognizerFactory> gestures) {
-            D.assert(this._recognizers != null);
-            var oldRecognizers = this._recognizers;
-            this._recognizers = new Dictionary<Type, GestureRecognizer>();
+            D.assert(_recognizers != null);
+            var oldRecognizers = _recognizers;
+            _recognizers = new Dictionary<Type, GestureRecognizer>();
 
             foreach (Type type in gestures.Keys) {
                 D.assert(gestures[type] != null);
                 D.assert(gestures[type]._debugAssertTypeMatches(type));
-                D.assert(!this._recognizers.ContainsKey(type));
-                this._recognizers[type] = oldRecognizers.ContainsKey(type)
+                D.assert(!_recognizers.ContainsKey(type));
+                _recognizers[type] = oldRecognizers.ContainsKey(type)
                     ? oldRecognizers[type]
                     : gestures[type].constructorRaw();
-                D.assert(this._recognizers[type].GetType() == type,
+                D.assert(_recognizers[type].GetType() == type,
                     () => "GestureRecognizerFactory of type " + type + " created a GestureRecognizer of type " +
-                          this._recognizers[type].GetType() +
+                          _recognizers[type].GetType() +
                           ". The GestureRecognizerFactory must be specialized with the type of the class that it returns from its constructor method.");
-                gestures[type].initializerRaw(this._recognizers[type]);
+                gestures[type].initializerRaw(_recognizers[type]);
             }
 
             foreach (Type type in oldRecognizers.Keys) {
-                if (!this._recognizers.ContainsKey(type)) {
+                if (!_recognizers.ContainsKey(type)) {
                     oldRecognizers[type].dispose();
                 }
             }
         }
 
         void _handlePointerDown(PointerDownEvent evt) {
-            D.assert(this._recognizers != null);
-            foreach (GestureRecognizer recognizer in this._recognizers.Values) {
+            D.assert(_recognizers != null);
+            foreach (GestureRecognizer recognizer in _recognizers.Values) {
                 recognizer.addPointer(evt);
             }
         }
 
         void _handlePointerScroll(PointerScrollEvent evt) {
-            D.assert(this._recognizers != null);
-            foreach (GestureRecognizer recognizer in this._recognizers.Values) {
+            D.assert(_recognizers != null);
+            foreach (GestureRecognizer recognizer in _recognizers.Values) {
                 recognizer.addScrollPointer(evt);
             }
         }
 
         HitTestBehavior _defaultBehavior {
-            get { return this.widget.child == null ? HitTestBehavior.translucent : HitTestBehavior.deferToChild; }
+            get { return widget.child == null ? HitTestBehavior.translucent : HitTestBehavior.deferToChild; }
         }
 
 
         public override Widget build(BuildContext context) {
             Widget result = new Listener(
-                onPointerDown: this._handlePointerDown,
-                onPointerScroll: this._handlePointerScroll,
-                behavior: this.widget.behavior ?? this._defaultBehavior,
-                child: this.widget.child
+                onPointerDown: _handlePointerDown,
+                onPointerScroll: _handlePointerScroll,
+                behavior: widget.behavior ?? _defaultBehavior,
+                child: widget.child
             );
             return result;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            if (this._recognizers == null) {
+            if (_recognizers == null) {
                 properties.add(DiagnosticsNode.message("DISPOSED"));
             }
             else {
-                List<string> gestures = this._recognizers.Values.Select(recognizer => recognizer.debugDescription)
+                List<string> gestures = _recognizers.Values.Select(recognizer => recognizer.debugDescription)
                     .ToList();
                 properties.add(new EnumerableProperty<string>("gestures", gestures, ifEmpty: "<none>"));
-                properties.add(new EnumerableProperty<GestureRecognizer>("recognizers", this._recognizers.Values,
+                properties.add(new EnumerableProperty<GestureRecognizer>("recognizers", _recognizers.Values,
                     level: DiagnosticLevel.fine));
             }
 
-            properties.add(new EnumProperty<HitTestBehavior?>("behavior", this.widget.behavior,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new EnumProperty<HitTestBehavior?>("behavior", widget.behavior,
+                defaultValue: foundation_.kNullDefaultValue));
         }
     }
 }

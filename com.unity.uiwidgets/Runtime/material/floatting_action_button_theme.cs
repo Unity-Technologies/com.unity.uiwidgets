@@ -67,12 +67,12 @@ namespace Unity.UIWidgets.material {
         }
 
         public override int GetHashCode() {
-            var hashCode = this.backgroundColor?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.foregroundColor?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.elevation?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.disabledElevation?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.highlightElevation?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.shape?.GetHashCode() ?? 0;
+            var hashCode = backgroundColor?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ foregroundColor?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ elevation?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ disabledElevation?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ highlightElevation?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ shape?.GetHashCode() ?? 0;
             return hashCode;
         }
 
@@ -85,12 +85,12 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return Equals(this.backgroundColor, other.backgroundColor)
-                   && Equals(this.elevation, other.elevation)
-                   && Equals(this.shape, other.shape)
-                   && Equals(this.foregroundColor, other.foregroundColor)
-                   && Equals(this.disabledElevation, other.disabledElevation)
-                   && Equals(this.highlightElevation, other.highlightElevation);
+            return Equals(backgroundColor, other.backgroundColor)
+                   && Equals(elevation, other.elevation)
+                   && Equals(shape, other.shape)
+                   && Equals(foregroundColor, other.foregroundColor)
+                   && Equals(disabledElevation, other.disabledElevation)
+                   && Equals(highlightElevation, other.highlightElevation);
         }
 
         public override bool Equals(object obj) {
@@ -102,28 +102,28 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((FloatingActionButtonThemeData) obj);
+            return Equals((FloatingActionButtonThemeData) obj);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             FloatingActionButtonThemeData defaultData = new FloatingActionButtonThemeData();
 
-            properties.add(new DiagnosticsProperty<Color>("backgroundColor", this.backgroundColor,
+            properties.add(new DiagnosticsProperty<Color>("backgroundColor", backgroundColor,
                 defaultValue: defaultData.backgroundColor));
-            properties.add(new DiagnosticsProperty<Color>("foregroundColor", this.foregroundColor,
+            properties.add(new DiagnosticsProperty<Color>("foregroundColor", foregroundColor,
                 defaultValue: defaultData.foregroundColor));
-            properties.add(new DiagnosticsProperty<float?>("elevation", this.elevation,
+            properties.add(new DiagnosticsProperty<float?>("elevation", elevation,
                 defaultValue: defaultData.elevation));
-            properties.add(new DiagnosticsProperty<float?>("disabledElevation", this.disabledElevation,
+            properties.add(new DiagnosticsProperty<float?>("disabledElevation", disabledElevation,
                 defaultValue: defaultData.disabledElevation));
-            properties.add(new DiagnosticsProperty<float?>("highlightElevation", this.highlightElevation,
+            properties.add(new DiagnosticsProperty<float?>("highlightElevation", highlightElevation,
                 defaultValue: defaultData.highlightElevation));
-            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", this.shape, defaultValue: defaultData.shape));
+            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: defaultData.shape));
         }
     }
 }

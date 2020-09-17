@@ -156,12 +156,12 @@ namespace Unity.UIWidgets.material {
         };
 
         public override string formatHour(TimeOfDay timeOfDay, bool alwaysUse24HourFormat = false) {
-            TimeOfDayFormat format = this.timeOfDayFormat(alwaysUse24HourFormat: alwaysUse24HourFormat);
+            TimeOfDayFormat format = timeOfDayFormat(alwaysUse24HourFormat: alwaysUse24HourFormat);
             switch (format) {
                 case TimeOfDayFormat.h_colon_mm_space_a:
-                    return this.formatDecimal(timeOfDay.hourOfPeriod == 0 ? 12 : timeOfDay.hourOfPeriod);
+                    return formatDecimal(timeOfDay.hourOfPeriod == 0 ? 12 : timeOfDay.hourOfPeriod);
                 case TimeOfDayFormat.HH_colon_mm:
-                    return this._formatTwoDigitZeroPad(timeOfDay.hour);
+                    return _formatTwoDigitZeroPad(timeOfDay.hour);
                 default:
                     throw new AssertionError($"runtimeType does not support {format}.");
             }
@@ -198,7 +198,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string formatMonthYear(DateTime date) {
-            string year = this.formatYear(date);
+            string year = formatYear(date);
             string month = _months[date.Month - 1];
             return $"{month} {year}";
         }
@@ -214,9 +214,9 @@ namespace Unity.UIWidgets.material {
         string _formatDayPeriod(TimeOfDay timeOfDay) {
             switch (timeOfDay.period) {
                 case DayPeriod.am:
-                    return this.anteMeridiemAbbreviation;
+                    return anteMeridiemAbbreviation;
                 case DayPeriod.pm:
-                    return this.postMeridiemAbbreviation;
+                    return postMeridiemAbbreviation;
             }
             return null;
         }
@@ -241,16 +241,16 @@ namespace Unity.UIWidgets.material {
         public override string formatTimeOfDay(TimeOfDay timeOfDay, bool alwaysUse24HourFormat = false) {
             StringBuilder buffer = new StringBuilder();
 
-            buffer.Append(this.formatHour(timeOfDay, alwaysUse24HourFormat: alwaysUse24HourFormat));
+            buffer.Append(formatHour(timeOfDay, alwaysUse24HourFormat: alwaysUse24HourFormat));
             buffer.Append(":");
-            buffer.Append(this.formatMinute(timeOfDay));
+            buffer.Append(formatMinute(timeOfDay));
 
             if (alwaysUse24HourFormat) {
                 return buffer.ToString();
             }
 
             buffer.Append(" ");
-            buffer.Append(this._formatDayPeriod(timeOfDay));
+            buffer.Append(_formatDayPeriod(timeOfDay));
             return buffer.ToString();
         }
 

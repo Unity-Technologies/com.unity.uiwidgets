@@ -6,17 +6,17 @@ namespace Unity.UIWidgets.flow {
         ImageFilter _filter;
 
         public ImageFilter filter {
-            set { this._filter = value; }
+            set { _filter = value; }
         }
 
         public override void paint(PaintContext context) {
-            D.assert(this.needsPainting);
+            D.assert(needsPainting);
 
             var canvas = context.canvas;
-            canvas.saveLayer(this.paintBounds, new Paint {backdrop = this._filter});
+            canvas.saveLayer(paintBounds, new Paint {backdrop = _filter});
 
             try {
-                this.paintChildren(context);
+                paintChildren(context);
             }
             finally {
                 canvas.restore();

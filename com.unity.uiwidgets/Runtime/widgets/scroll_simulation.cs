@@ -22,36 +22,36 @@ namespace Unity.UIWidgets.widgets {
             this.spring = spring;
 
             if (position < leadingExtent) {
-                this._springSimulation = this._underscrollSimulation(position, velocity);
-                this._springTime = float.NegativeInfinity;
+                _springSimulation = _underscrollSimulation(position, velocity);
+                _springTime = float.NegativeInfinity;
             }
             else if (position > trailingExtent) {
-                this._springSimulation = this._overscrollSimulation(position, velocity);
-                this._springTime = float.NegativeInfinity;
+                _springSimulation = _overscrollSimulation(position, velocity);
+                _springTime = float.NegativeInfinity;
             }
             else {
-                this._frictionSimulation = new FrictionSimulation(0.135f, position, velocity);
-                float finalX = this._frictionSimulation.finalX;
+                _frictionSimulation = new FrictionSimulation(0.135f, position, velocity);
+                float finalX = _frictionSimulation.finalX;
                 if (velocity > 0.0f && finalX > trailingExtent) {
-                    this._springTime = this._frictionSimulation.timeAtX(trailingExtent);
-                    this._springSimulation = this._overscrollSimulation(
+                    _springTime = _frictionSimulation.timeAtX(trailingExtent);
+                    _springSimulation = _overscrollSimulation(
                         trailingExtent,
-                        Mathf.Min(this._frictionSimulation.dx(this._springTime),
+                        Mathf.Min(_frictionSimulation.dx(_springTime),
                             maxSpringTransferVelocity)
                     );
-                    D.assert(this._springTime.isFinite());
+                    D.assert(_springTime.isFinite());
                 }
                 else if (velocity < 0.0f && finalX < leadingExtent) {
-                    this._springTime = this._frictionSimulation.timeAtX(leadingExtent);
-                    this._springSimulation = this._underscrollSimulation(
+                    _springTime = _frictionSimulation.timeAtX(leadingExtent);
+                    _springSimulation = _underscrollSimulation(
                         leadingExtent,
-                        Mathf.Min(this._frictionSimulation.dx(this._springTime),
+                        Mathf.Min(_frictionSimulation.dx(_springTime),
                             maxSpringTransferVelocity)
                     );
-                    D.assert(this._springTime.isFinite());
+                    D.assert(_springTime.isFinite());
                 }
                 else {
-                    this._springTime = float.PositiveInfinity;
+                    _springTime = float.PositiveInfinity;
                 }
             }
         }
@@ -70,42 +70,42 @@ namespace Unity.UIWidgets.widgets {
         float _timeOffset = 0.0f;
 
         Simulation _underscrollSimulation(float x, float dx) {
-            return new ScrollSpringSimulation(this.spring, x, this.leadingExtent, dx);
+            return new ScrollSpringSimulation(spring, x, leadingExtent, dx);
         }
 
         Simulation _overscrollSimulation(float x, float dx) {
-            return new ScrollSpringSimulation(this.spring, x, this.trailingExtent, dx);
+            return new ScrollSpringSimulation(spring, x, trailingExtent, dx);
         }
 
         Simulation _simulation(float time) {
             Simulation simulation;
-            if (time > this._springTime) {
-                this._timeOffset = this._springTime.isFinite() ? this._springTime : 0.0f;
-                simulation = this._springSimulation;
+            if (time > _springTime) {
+                _timeOffset = _springTime.isFinite() ? _springTime : 0.0f;
+                simulation = _springSimulation;
             }
             else {
-                this._timeOffset = 0.0f;
-                simulation = this._frictionSimulation;
+                _timeOffset = 0.0f;
+                simulation = _frictionSimulation;
             }
 
-            simulation.tolerance = this.tolerance;
+            simulation.tolerance = tolerance;
             return simulation;
         }
 
         public override float x(float time) {
-            return this._simulation(time).x(time - this._timeOffset);
+            return _simulation(time).x(time - _timeOffset);
         }
 
         public override float dx(float time) {
-            return this._simulation(time).dx(time - this._timeOffset);
+            return _simulation(time).dx(time - _timeOffset);
         }
 
         public override bool isDone(float time) {
-            return this._simulation(time).isDone(time - this._timeOffset);
+            return _simulation(time).isDone(time - _timeOffset);
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(leadingExtent: {this.leadingExtent}, trailingExtent: {this.trailingExtent})";
+            return $"{GetType()}(leadingExtent: {leadingExtent}, trailingExtent: {trailingExtent})";
         }
     }
 
@@ -122,8 +122,8 @@ namespace Unity.UIWidgets.widgets {
             this.velocity = velocity;
             this.friction = friction;
 
-            this._duration = this._flingDuration(velocity);
-            this._distance = (velocity * this._duration / _initialVelocityPenetration).abs();
+            _duration = _flingDuration(velocity);
+            _distance = (velocity * _duration / _initialVelocityPenetration).abs();
         }
 
         public readonly float position;
@@ -143,7 +143,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         float _flingDuration(float velocity) {
-            float scaledFriction = this.friction * _decelerationForFriction(0.84f);
+            float scaledFriction = friction * _decelerationForFriction(0.84f);
 
             float deceleration = Mathf.Log(0.35f * velocity.abs() / scaledFriction);
 
@@ -161,19 +161,19 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override float x(float time) {
-            float t = (time / this._duration).clamp(0.0f, 1.0f);
-            return (this.position + this._distance * _flingDistancePenetration(t) *
-                            this.velocity.sign());
+            float t = (time / _duration).clamp(0.0f, 1.0f);
+            return (position + _distance * _flingDistancePenetration(t) *
+                            velocity.sign());
         }
 
         public override float dx(float time) {
-            float t = (time / this._duration).clamp(0.0f, 1.0f);
-            return (this._distance * _flingVelocityPenetration(t) * this.velocity.sign() /
-                            this._duration);
+            float t = (time / _duration).clamp(0.0f, 1.0f);
+            return (_distance * _flingVelocityPenetration(t) * velocity.sign() /
+                            _duration);
         }
 
         public override bool isDone(float time) {
-            return time >= this._duration;
+            return time >= _duration;
         }
     }
 }

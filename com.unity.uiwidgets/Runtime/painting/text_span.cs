@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.painting {
         public TextSpan(string text = "", TextStyle style = null, List<TextSpan> children = null,
             GestureRecognizer recognizer = null, HoverRecognizer hoverRecognizer = null) {
             this.text = text;
-            this.splitedText = !string.IsNullOrEmpty(text) ? EmojiUtils.splitByEmoji(text) : null;
+            splitedText = !string.IsNullOrEmpty(text) ? EmojiUtils.splitByEmoji(text) : null;
             this.style = style;
             this.children = children;
             this.recognizer = recognizer;
@@ -32,27 +32,27 @@ namespace Unity.UIWidgets.painting {
             var hasStyle = this.style != null;
 
             if (hasStyle) {
-                builder.pushStyle(this.style, textScaleFactor);
+                builder.pushStyle(style, textScaleFactor);
             }
 
-            if (this.splitedText != null) {
-                if (this.splitedText.Count == 1 && !char.IsHighSurrogate(this.splitedText[0][0]) &&
-                    !EmojiUtils.isSingleCharEmoji(this.splitedText[0][0])) {
-                    builder.addText(this.splitedText[0]);
+            if (splitedText != null) {
+                if (splitedText.Count == 1 && !char.IsHighSurrogate(splitedText[0][0]) &&
+                    !EmojiUtils.isSingleCharEmoji(splitedText[0][0])) {
+                    builder.addText(splitedText[0]);
                 }
                 else {
                     TextStyle style = this.style ?? new TextStyle();
-                    for (int i = 0; i < this.splitedText.Count; i++) {
+                    for (int i = 0; i < splitedText.Count; i++) {
                         builder.pushStyle(style, textScaleFactor);
-                        builder.addText(this.splitedText[i]);
+                        builder.addText(splitedText[i]);
                         builder.pop();
                     }
                 }
             }
 
 
-            if (this.children != null) {
-                foreach (var child in this.children) {
+            if (children != null) {
+                foreach (var child in children) {
                     Assert.IsNotNull(child);
                     child.build(builder, textScaleFactor);
                 }
@@ -66,7 +66,7 @@ namespace Unity.UIWidgets.painting {
         public bool hasHoverRecognizer {
             get {
                 bool need = false;
-                this.visitTextSpan((text) => {
+                visitTextSpan((text) => {
                     if (text.hoverRecognizer != null) {
                         need = true;
                         return false;
@@ -79,14 +79,14 @@ namespace Unity.UIWidgets.painting {
         }
 
         bool visitTextSpan(Visitor visitor) {
-            if (!string.IsNullOrEmpty(this.text)) {
+            if (!string.IsNullOrEmpty(text)) {
                 if (!visitor.Invoke(this)) {
                     return false;
                 }
             }
 
-            if (this.children != null) {
-                foreach (var child in this.children) {
+            if (children != null) {
+                foreach (var child in children) {
                     if (!child.visitTextSpan(visitor)) {
                         return false;
                     }
@@ -97,12 +97,12 @@ namespace Unity.UIWidgets.painting {
         }
 
         public TextSpan getSpanForPosition(TextPosition position) {
-            D.assert(this.debugAssertIsValid());
+            D.assert(debugAssertIsValid());
             var offset = 0;
             var targetOffset = position.offset;
             var affinity = position.affinity;
             TextSpan result = null;
-            this.visitTextSpan((span) => {
+            visitTextSpan((span) => {
                 var endOffset = offset + span.text.Length;
                 if ((targetOffset == offset && affinity == TextAffinity.downstream) ||
                     (targetOffset > offset && targetOffset < endOffset) ||
@@ -119,7 +119,7 @@ namespace Unity.UIWidgets.painting {
 
         public string toPlainText() {
             var sb = new StringBuilder();
-            this.visitTextSpan((span) => {
+            visitTextSpan((span) => {
                 sb.Append(span.text);
                 return true;
             });
@@ -133,7 +133,7 @@ namespace Unity.UIWidgets.painting {
 
             var offset = 0;
             int? result = null;
-            this.visitTextSpan(span => {
+            visitTextSpan(span => {
                 if (index - offset < span.text.Length) {
                     result = span.text[index - offset];
                     return false;
@@ -147,7 +147,7 @@ namespace Unity.UIWidgets.painting {
 
         bool debugAssertIsValid() {
             D.assert(() => {
-                if (!this.visitTextSpan(span => {
+                if (!visitTextSpan(span => {
                     if (span.children != null) {
                         foreach (TextSpan child in span.children) {
                             if (child == null) {
@@ -161,7 +161,7 @@ namespace Unity.UIWidgets.painting {
                     throw new UIWidgetsError(
                         "A TextSpan object with a non-null child list should not have any nulls in its child list.\n" +
                         "The full text in question was:\n" +
-                        this.toStringDeep(prefixLineOne: "  "));
+                        toStringDeep(prefixLineOne: "  "));
                 }
 
                 return true;
@@ -170,28 +170,28 @@ namespace Unity.UIWidgets.painting {
         }
 
         public RenderComparison compareTo(TextSpan other) {
-            if (this.Equals(other)) {
+            if (Equals(other)) {
                 return RenderComparison.identical;
             }
 
-            if (other.text != this.text
-                || ((this.children == null) != (other.children == null))
-                || (this.children != null && other.children != null && this.children.Count != other.children.Count)
-                || ((this.style == null) != (other.style != null))
+            if (other.text != text
+                || ((children == null) != (other.children == null))
+                || (children != null && other.children != null && children.Count != other.children.Count)
+                || ((style == null) != (other.style != null))
             ) {
                 return RenderComparison.layout;
             }
 
-            RenderComparison result = Equals(this.recognizer, other.recognizer)
+            RenderComparison result = Equals(recognizer, other.recognizer)
                 ? RenderComparison.identical
                 : RenderComparison.metadata;
 
-            if (!Equals(this.hoverRecognizer, other.hoverRecognizer)) {
+            if (!Equals(hoverRecognizer, other.hoverRecognizer)) {
                 result = RenderComparison.function > result ? RenderComparison.function : result;
             }
 
-            if (this.style != null) {
-                var candidate = this.style.compareTo(other.style);
+            if (style != null) {
+                var candidate = style.compareTo(other.style);
                 if (candidate > result) {
                     result = candidate;
                 }
@@ -201,9 +201,9 @@ namespace Unity.UIWidgets.painting {
                 }
             }
 
-            if (this.children != null) {
-                for (var index = 0; index < this.children.Count; index++) {
-                    var candidate = this.children[index].compareTo(other.children[index]);
+            if (children != null) {
+                for (var index = 0; index < children.Count; index++) {
+                    var candidate = children[index].compareTo(other.children[index]);
                     if (candidate > result) {
                         result = candidate;
                     }
@@ -226,19 +226,19 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextSpan) obj);
+            return Equals((TextSpan) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.style != null ? this.style.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.text != null ? this.text.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.recognizer != null ? this.recognizer.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.childHash());
+                var hashCode = (style != null ? style.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (text != null ? text.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (recognizer != null ? recognizer.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (childHash());
                 return hashCode;
             }
         }
@@ -252,8 +252,8 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.style, other.style) && string.Equals(this.text, other.text) &&
-                   childEquals(this.children, other.children) && this.recognizer == other.recognizer;
+            return Equals(style, other.style) && string.Equals(text, other.text) &&
+                   childEquals(children, other.children) && recognizer == other.recognizer;
         }
 
         public static bool operator ==(TextSpan left, TextSpan right) {
@@ -267,8 +267,8 @@ namespace Unity.UIWidgets.painting {
         int childHash() {
             unchecked {
                 var hashCode = 0;
-                if (this.children != null) {
-                    foreach (var child in this.children) {
+                if (children != null) {
+                    foreach (var child in children) {
                         hashCode = (hashCode * 397) ^ (child != null ? child.GetHashCode() : 0);
                     }
                 }
@@ -294,29 +294,29 @@ namespace Unity.UIWidgets.painting {
             properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.whitespace;
             // Properties on style are added as if they were properties directly on
             // this TextSpan.
-            if (this.style != null) {
-                this.style.debugFillProperties(properties);
+            if (style != null) {
+                style.debugFillProperties(properties);
             }
 
             properties.add(new DiagnosticsProperty<GestureRecognizer>(
-                "recognizer", this.recognizer,
-                description: this.recognizer == null ? "" : this.recognizer.GetType().FullName,
-                defaultValue: Diagnostics.kNullDefaultValue
+                "recognizer", recognizer,
+                description: recognizer == null ? "" : recognizer.GetType().FullName,
+                defaultValue: foundation_.kNullDefaultValue
             ));
 
-            properties.add(new StringProperty("text", this.text, showName: false,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            if (this.style == null && this.text == null && this.children == null) {
+            properties.add(new StringProperty("text", text, showName: false,
+                defaultValue: foundation_.kNullDefaultValue));
+            if (style == null && text == null && children == null) {
                 properties.add(DiagnosticsNode.message("(empty)"));
             }
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
-            if (this.children == null) {
+            if (children == null) {
                 return new List<DiagnosticsNode>();
             }
 
-            return this.children.Select((child) => {
+            return children.Select((child) => {
                 if (child != null) {
                     return child.toDiagnosticsNode();
                 }

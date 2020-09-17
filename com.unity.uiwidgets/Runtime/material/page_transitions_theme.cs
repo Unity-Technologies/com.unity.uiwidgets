@@ -14,8 +14,8 @@ namespace Unity.UIWidgets.material {
             Widget child = null) : base(key: key) {
             D.assert(routeAnimation != null);
             D.assert(child != null);
-            this._positionAnimation = routeAnimation.drive(_bottomUpTween.chain(_fastOutSlowInTween));
-            this._opacityAnimation = routeAnimation.drive(_easeInTween);
+            _positionAnimation = routeAnimation.drive(_bottomUpTween.chain(_fastOutSlowInTween));
+            _opacityAnimation = routeAnimation.drive(_easeInTween);
             this.child = child;
         }
 
@@ -36,10 +36,10 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             return new SlideTransition(
-                position: this._positionAnimation,
+                position: _positionAnimation,
                 child: new FadeTransition(
-                    opacity: this._opacityAnimation,
-                    child: this.child));
+                    opacity: _opacityAnimation,
+                    child: child));
         }
     }
 
@@ -82,7 +82,7 @@ namespace Unity.UIWidgets.material {
                     Size size = constraints.biggest;
 
                     CurvedAnimation primaryAnimation = new CurvedAnimation(
-                        parent: this.animation,
+                        parent: animation,
                         curve: _transitionCurve,
                         reverseCurve: _transitionCurve.flipped
                     );
@@ -97,14 +97,14 @@ namespace Unity.UIWidgets.material {
 
                     Animation<Offset> secondaryTranslationAnimation = _secondaryTranslationTween.animate(
                         new CurvedAnimation(
-                            parent: this.secondaryAnimation,
+                            parent: secondaryAnimation,
                             curve: _transitionCurve,
                             reverseCurve: _transitionCurve.flipped
                         )
                     );
 
                     return new AnimatedBuilder(
-                        animation: this.animation,
+                        animation: animation,
                         builder: (BuildContext _, Widget child) => {
                             return new Container(
                                 color: Colors.black.withOpacity(opacityAnimation.value),
@@ -122,7 +122,7 @@ namespace Unity.UIWidgets.material {
                             );
                         },
                         child: new AnimatedBuilder(
-                            animation: this.secondaryAnimation,
+                            animation: secondaryAnimation,
                             child: new FractionalTranslation(
                                 translation: primaryTranslationAnimation.value,
                                 child: this.child
@@ -191,13 +191,13 @@ namespace Unity.UIWidgets.material {
     public class PageTransitionsTheme : Diagnosticable, IEquatable<PageTransitionsTheme> {
         public PageTransitionsTheme(
             PageTransitionsBuilder builder = null) {
-            this._builder = builder;
+            _builder = builder;
         }
 
         static PageTransitionsBuilder _defaultBuilder = new FadeUpwardsPageTransitionsBuilder();
 
         public PageTransitionsBuilder builder {
-            get { return this._builder ?? _defaultBuilder; }
+            get { return _builder ?? _defaultBuilder; }
         }
 
         readonly PageTransitionsBuilder _builder;
@@ -208,7 +208,7 @@ namespace Unity.UIWidgets.material {
             Animation<float> animation,
             Animation<float> secondaryAnimation,
             Widget child) {
-            PageTransitionsBuilder matchingBuilder = this.builder;
+            PageTransitionsBuilder matchingBuilder = builder;
             return matchingBuilder.buildTransitions(route, context, animation, secondaryAnimation, child);
         }
 
@@ -225,7 +225,7 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return this._all(this.builder) == this._all(other.builder);
+            return _all(builder) == _all(other.builder);
         }
 
         public override bool Equals(object obj) {
@@ -237,11 +237,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((PageTransitionsTheme) obj);
+            return Equals((PageTransitionsTheme) obj);
         }
 
         public static bool operator ==(PageTransitionsTheme left, PageTransitionsTheme right) {
@@ -254,14 +254,14 @@ namespace Unity.UIWidgets.material {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this._all(this.builder).GetHashCode();
+                var hashCode = _all(builder).GetHashCode();
                 return hashCode;
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<PageTransitionsBuilder>("builder", this.builder,
+            properties.add(new DiagnosticsProperty<PageTransitionsBuilder>("builder", builder,
                 defaultValue: _defaultBuilder));
         }
     }

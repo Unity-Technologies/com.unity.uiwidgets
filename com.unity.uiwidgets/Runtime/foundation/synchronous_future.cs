@@ -30,7 +30,7 @@ namespace Unity.UIWidgets.foundation {
         }
 
         public override Future timeout(TimeSpan timeLimit, Func<FutureOr> onTimeout = null) {
-            return Future.value(FutureOr.value(_value)).timeout(timeLimit, onTimeout: onTimeout);
+            return value(FutureOr.value(_value)).timeout(timeLimit, onTimeout: onTimeout);
         }
 
         public override Future whenComplete(Func<FutureOr> action) {
@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.foundation {
                 return this;
             }
             catch (Exception e) {
-                return Future.error(e);
+                return error(e);
             }
         }
     }

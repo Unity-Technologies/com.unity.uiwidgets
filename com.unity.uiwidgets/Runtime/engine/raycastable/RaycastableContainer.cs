@@ -9,20 +9,20 @@ namespace Unity.UIWidgets.engine.raycast {
             Key key = null,
             Widget child = null
         ) : base(key, child) {
-            this.windowHashCode = Window.instance.GetHashCode();
+            windowHashCode = Window.instance.GetHashCode();
         }
 
         readonly int windowHashCode;
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderRaycastableBox(
-                windowHashCode: this.windowHashCode,
+                windowHashCode: windowHashCode,
                 widget: this
             );
         }
 
         public override Element createElement() {
-            return new _RaycastableBoxRenderElement(windowHashCode: this.windowHashCode, widget: this);
+            return new _RaycastableBoxRenderElement(windowHashCode: windowHashCode, widget: this);
         }
     }
 
@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.engine.raycast {
             int windowHashCode,
             RaycastableBox widget
         ) {
-            this.widgetHashCode = widget.GetHashCode();
+            widgetHashCode = widget.GetHashCode();
             this.windowHashCode = windowHashCode;
         }
 
@@ -39,7 +39,7 @@ namespace Unity.UIWidgets.engine.raycast {
         readonly int windowHashCode;
 
         public override void paint(PaintingContext context, Offset offset) {
-            RaycastManager.UpdateSizeOffset(this.widgetHashCode, this.windowHashCode, this.size, offset);
+            RaycastManager.UpdateSizeOffset(widgetHashCode, windowHashCode, size, offset);
 
             base.paint(context, offset);
         }
@@ -61,18 +61,18 @@ namespace Unity.UIWidgets.engine.raycast {
         int windowHashCode;
 
         public override void mount(Element parent, object newSlot) {
-            this.widgetHashCode = this.widget.GetHashCode();
-            RaycastManager.AddToList(this.widgetHashCode, this.windowHashCode);
+            widgetHashCode = widget.GetHashCode();
+            RaycastManager.AddToList(widgetHashCode, windowHashCode);
             base.mount(parent, newSlot);
         }
 
         public override void update(Widget newWidget) {
-            RaycastManager.MarkDirty(this.widgetHashCode, this.windowHashCode);
+            RaycastManager.MarkDirty(widgetHashCode, windowHashCode);
             base.update(newWidget);
         }
 
         public override void unmount() {
-            RaycastManager.RemoveFromList(this.widgetHashCode, this.windowHashCode);
+            RaycastManager.RemoveFromList(widgetHashCode, windowHashCode);
             base.unmount();
         }
     }
@@ -88,9 +88,9 @@ namespace Unity.UIWidgets.engine.raycast {
         public readonly Widget child;
 
         public override Widget build(BuildContext context) {
-            Widget current = this.child;
+            Widget current = child;
 
-            if (this.child == null) {
+            if (child == null) {
                 current = new LimitedBox(
                     maxWidth: 0.0f,
                     maxHeight: 0.0f,

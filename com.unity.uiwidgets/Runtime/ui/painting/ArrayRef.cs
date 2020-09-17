@@ -7,17 +7,17 @@ namespace Unity.UIWidgets.ui {
         public int length;
 
         public ArrayRef() {
-            this.array = Array.Empty<T>();
-            this.length = 0;
+            array = Array.Empty<T>();
+            length = 0;
         }
 
         public void add(T item) {
-            if (this.length == this.array.Length) {
-                int newCapacity = this.array.Length == 0 ? 4 : this.array.Length * 2;
-                Array.Resize(ref this.array, newCapacity);
+            if (length == array.Length) {
+                int newCapacity = array.Length == 0 ? 4 : array.Length * 2;
+                Array.Resize(ref array, newCapacity);
             }
 
-            this.array[this.length++] = item;
+            array[length++] = item;
         }
     }
 }

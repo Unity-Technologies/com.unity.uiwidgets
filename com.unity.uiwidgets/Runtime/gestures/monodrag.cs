@@ -55,15 +55,15 @@ namespace Unity.UIWidgets.gestures {
         readonly Dictionary<int, VelocityTracker> _velocityTrackers = new Dictionary<int, VelocityTracker>();
 
         public override void addScrollPointer(PointerScrollEvent evt) {
-            this.startTrackingScrollerPointer(evt.pointer);
-            if (this._state == _DragState.ready) {
-                this._state = _DragState.possible;
-                this._initialPosition = evt.position;
-                if (this.onStart != null) {
-                    this.invokeCallback<object>("onStart", () => {
-                        this.onStart(new DragStartDetails(
+            startTrackingScrollerPointer(evt.pointer);
+            if (_state == _DragState.ready) {
+                _state = _DragState.possible;
+                _initialPosition = evt.position;
+                if (onStart != null) {
+                    invokeCallback<object>("onStart", () => {
+                        onStart(new DragStartDetails(
                             sourceTimeStamp: evt.timeStamp,
-                            globalPosition: this._initialPosition
+                            globalPosition: _initialPosition
                         ));
                         return null;
                     });
@@ -72,37 +72,37 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override void addAllowedPointer(PointerDownEvent evt) {
-            this.startTrackingPointer(evt.pointer);
-            this._velocityTrackers[evt.pointer] = new VelocityTracker();
-            if (this._state == _DragState.ready) {
-                this._state = _DragState.possible;
-                this._initialPosition = evt.position;
-                this._pendingDragOffset = Offset.zero;
-                this._lastPendingEventTimestamp = evt.timeStamp;
-                if (this.onDown != null) {
-                    this.invokeCallback<object>("onDown",
+            startTrackingPointer(evt.pointer);
+            _velocityTrackers[evt.pointer] = new VelocityTracker();
+            if (_state == _DragState.ready) {
+                _state = _DragState.possible;
+                _initialPosition = evt.position;
+                _pendingDragOffset = Offset.zero;
+                _lastPendingEventTimestamp = evt.timeStamp;
+                if (onDown != null) {
+                    invokeCallback<object>("onDown",
                         () => {
-                            this.onDown(new DragDownDetails(globalPosition: this._initialPosition));
+                            onDown(new DragDownDetails(globalPosition: _initialPosition));
                             return null;
                         });
                 }
             }
-            else if (this._state == _DragState.accepted) {
-                this.resolve(GestureDisposition.accepted);
+            else if (_state == _DragState.accepted) {
+                resolve(GestureDisposition.accepted);
             }
         }
 
         protected override void handleEvent(PointerEvent evt) {
-            D.assert(this._state != _DragState.ready);
+            D.assert(_state != _DragState.ready);
             if (evt is PointerScrollEvent) {
                 var scrollEvt = (PointerScrollEvent) evt;
                 Offset delta = scrollEvt.scrollDelta;
-                if (this.onUpdate != null) {
-                    this.invokeCallback<object>("onUpdate", () => {
-                        this.onUpdate(new DragUpdateDetails(
+                if (onUpdate != null) {
+                    invokeCallback<object>("onUpdate", () => {
+                        onUpdate(new DragUpdateDetails(
                             sourceTimeStamp: evt.timeStamp,
-                            delta: this._getDeltaForDetails(delta),
-                            primaryDelta: this._getPrimaryValueFromOffset(delta),
+                            delta: _getDeltaForDetails(delta),
+                            primaryDelta: _getPrimaryValueFromOffset(delta),
                             globalPosition: evt.position,
                             isScroll: true
                         ));
@@ -110,26 +110,26 @@ namespace Unity.UIWidgets.gestures {
                     });
                 }
 
-                this.stopTrackingScrollerPointer(evt.pointer);
+                stopTrackingScrollerPointer(evt.pointer);
                 return;
             }
 
             if (!evt.synthesized
                 && (evt is PointerDownEvent || evt is PointerMoveEvent)) {
-                var tracker = this._velocityTrackers[evt.pointer];
+                var tracker = _velocityTrackers[evt.pointer];
                 D.assert(tracker != null);
                 tracker.addPosition(evt.timeStamp, evt.position);
             }
 
             if (evt is PointerMoveEvent) {
                 Offset delta = evt.delta;
-                if (this._state == _DragState.accepted) {
-                    if (this.onUpdate != null) {
-                        this.invokeCallback<object>("onUpdate", () => {
-                            this.onUpdate(new DragUpdateDetails(
+                if (_state == _DragState.accepted) {
+                    if (onUpdate != null) {
+                        invokeCallback<object>("onUpdate", () => {
+                            onUpdate(new DragUpdateDetails(
                                 sourceTimeStamp: evt.timeStamp,
-                                delta: this._getDeltaForDetails(delta),
-                                primaryDelta: this._getPrimaryValueFromOffset(delta),
+                                delta: _getDeltaForDetails(delta),
+                                primaryDelta: _getPrimaryValueFromOffset(delta),
                                 globalPosition: evt.position
                             ));
                             return null;
@@ -137,55 +137,55 @@ namespace Unity.UIWidgets.gestures {
                     }
                 }
                 else {
-                    this._pendingDragOffset += delta;
-                    this._lastPendingEventTimestamp = evt.timeStamp;
-                    if (this._hasSufficientPendingDragDeltaToAccept) {
-                        this.resolve(GestureDisposition.accepted);
+                    _pendingDragOffset += delta;
+                    _lastPendingEventTimestamp = evt.timeStamp;
+                    if (_hasSufficientPendingDragDeltaToAccept) {
+                        resolve(GestureDisposition.accepted);
                     }
                 }
             }
 
-            this.stopTrackingIfPointerNoLongerDown(evt);
+            stopTrackingIfPointerNoLongerDown(evt);
         }
 
         public override void acceptGesture(int pointer) {
-            if (this._state != _DragState.accepted) {
-                this._state = _DragState.accepted;
-                Offset delta = this._pendingDragOffset;
-                var timestamp = this._lastPendingEventTimestamp;
+            if (_state != _DragState.accepted) {
+                _state = _DragState.accepted;
+                Offset delta = _pendingDragOffset;
+                var timestamp = _lastPendingEventTimestamp;
 
                 Offset updateDelta = null;
-                switch (this.dragStartBehavior) {
+                switch (dragStartBehavior) {
                     case DragStartBehavior.start:
-                        this._initialPosition = this._initialPosition + delta;
+                        _initialPosition = _initialPosition + delta;
                         updateDelta = Offset.zero;
                         break;
                     case DragStartBehavior.down:
-                        updateDelta = this._getDeltaForDetails(delta);
+                        updateDelta = _getDeltaForDetails(delta);
                         break;
                 }
 
                 D.assert(updateDelta != null);
 
-                this._pendingDragOffset = Offset.zero;
-                this._lastPendingEventTimestamp = default(TimeSpan);
-                if (this.onStart != null) {
-                    this.invokeCallback<object>("onStart", () => {
-                        this.onStart(new DragStartDetails(
+                _pendingDragOffset = Offset.zero;
+                _lastPendingEventTimestamp = default(TimeSpan);
+                if (onStart != null) {
+                    invokeCallback<object>("onStart", () => {
+                        onStart(new DragStartDetails(
                             sourceTimeStamp: timestamp,
-                            globalPosition: this._initialPosition
+                            globalPosition: _initialPosition
                         ));
                         return null;
                     });
                 }
 
-                if (updateDelta != Offset.zero && this.onUpdate != null) {
-                    this.invokeCallback<object>("onUpdate", () => {
-                        this.onUpdate(new DragUpdateDetails(
+                if (updateDelta != Offset.zero && onUpdate != null) {
+                    invokeCallback<object>("onUpdate", () => {
+                        onUpdate(new DragUpdateDetails(
                             sourceTimeStamp: timestamp,
                             delta: updateDelta,
-                            primaryDelta: this._getPrimaryValueFromOffset(updateDelta),
-                            globalPosition: this._initialPosition + updateDelta
+                            primaryDelta: _getPrimaryValueFromOffset(updateDelta),
+                            globalPosition: _initialPosition + updateDelta
                         ));
                         return null;
                     });
@@ -194,13 +194,13 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override void rejectGesture(int pointer) {
-            this.stopTrackingPointer(pointer);
+            stopTrackingPointer(pointer);
         }
 
         protected override void didStopTrackingLastScrollerPointer(int pointer) {
-            this._state = _DragState.ready;
-            this.invokeCallback<object>("onEnd", () => {
-                    this.onEnd(new DragEndDetails(
+            _state = _DragState.ready;
+            invokeCallback<object>("onEnd", () => {
+                    onEnd(new DragEndDetails(
                         velocity: Velocity.zero,
                         primaryVelocity: 0.0f
                     ));
@@ -210,12 +210,12 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected override void didStopTrackingLastPointer(int pointer) {
-            if (this._state == _DragState.possible) {
-                this.resolve(GestureDisposition.rejected);
-                this._state = _DragState.ready;
-                if (this.onCancel != null) {
-                    this.invokeCallback<object>("onCancel", () => {
-                        this.onCancel();
+            if (_state == _DragState.possible) {
+                resolve(GestureDisposition.rejected);
+                _state = _DragState.ready;
+                if (onCancel != null) {
+                    invokeCallback<object>("onCancel", () => {
+                        onCancel();
                         return null;
                     });
                 }
@@ -223,29 +223,29 @@ namespace Unity.UIWidgets.gestures {
                 return;
             }
 
-            bool wasAccepted = this._state == _DragState.accepted;
-            this._state = _DragState.ready;
-            if (wasAccepted && this.onEnd != null) {
-                var tracker = this._velocityTrackers[pointer];
+            bool wasAccepted = _state == _DragState.accepted;
+            _state = _DragState.ready;
+            if (wasAccepted && onEnd != null) {
+                var tracker = _velocityTrackers[pointer];
                 D.assert(tracker != null);
 
                 var estimate = tracker.getVelocityEstimate();
-                if (estimate != null && this._isFlingGesture(estimate)) {
+                if (estimate != null && _isFlingGesture(estimate)) {
                     Velocity velocity = new Velocity(pixelsPerSecond: estimate.pixelsPerSecond)
-                        .clampMagnitude(this.minFlingVelocity ?? Constants.kMinFlingVelocity,
-                            this.maxFlingVelocity ?? Constants.kMaxFlingVelocity);
-                    this.invokeCallback<object>("onEnd", () => {
-                        this.onEnd(new DragEndDetails(
+                        .clampMagnitude(minFlingVelocity ?? Constants.kMinFlingVelocity,
+                            maxFlingVelocity ?? Constants.kMaxFlingVelocity);
+                    invokeCallback<object>("onEnd", () => {
+                        onEnd(new DragEndDetails(
                             velocity: velocity,
-                            primaryVelocity: this._getPrimaryValueFromOffset(velocity.pixelsPerSecond)
+                            primaryVelocity: _getPrimaryValueFromOffset(velocity.pixelsPerSecond)
                         ));
                         return null;
                     }, debugReport: () =>
                         $"{estimate}; fling at {velocity}.");
                 }
                 else {
-                    this.invokeCallback<object>("onEnd", () => {
-                            this.onEnd(new DragEndDetails(
+                    invokeCallback<object>("onEnd", () => {
+                            onEnd(new DragEndDetails(
                                 velocity: Velocity.zero,
                                 primaryVelocity: 0.0f
                             ));
@@ -258,17 +258,17 @@ namespace Unity.UIWidgets.gestures {
                 }
             }
 
-            this._velocityTrackers.Clear();
+            _velocityTrackers.Clear();
         }
 
         public override void dispose() {
-            this._velocityTrackers.Clear();
+            _velocityTrackers.Clear();
             base.dispose();
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<DragStartBehavior>("start behavior", this.dragStartBehavior));
+            properties.add(new EnumProperty<DragStartBehavior>("start behavior", dragStartBehavior));
         }
     }
 
@@ -278,13 +278,13 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected override bool _isFlingGesture(VelocityEstimate estimate) {
-            float minVelocity = this.minFlingVelocity ?? Constants.kMinFlingVelocity;
-            float minDistance = this.minFlingDistance ?? Constants.kTouchSlop;
+            float minVelocity = minFlingVelocity ?? Constants.kMinFlingVelocity;
+            float minDistance = minFlingDistance ?? Constants.kTouchSlop;
             return Mathf.Abs(estimate.pixelsPerSecond.dy) > minVelocity && Mathf.Abs(estimate.offset.dy) > minDistance;
         }
 
         protected override bool _hasSufficientPendingDragDeltaToAccept {
-            get { return Mathf.Abs(this._pendingDragOffset.dy) > Constants.kTouchSlop; }
+            get { return Mathf.Abs(_pendingDragOffset.dy) > Constants.kTouchSlop; }
         }
 
         protected override Offset _getDeltaForDetails(Offset delta) {
@@ -306,13 +306,13 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected override bool _isFlingGesture(VelocityEstimate estimate) {
-            float minVelocity = this.minFlingVelocity ?? Constants.kMinFlingVelocity;
-            float minDistance = this.minFlingDistance ?? Constants.kTouchSlop;
+            float minVelocity = minFlingVelocity ?? Constants.kMinFlingVelocity;
+            float minDistance = minFlingDistance ?? Constants.kTouchSlop;
             return Mathf.Abs(estimate.pixelsPerSecond.dx) > minVelocity && Mathf.Abs(estimate.offset.dx) > minDistance;
         }
 
         protected override bool _hasSufficientPendingDragDeltaToAccept {
-            get { return Mathf.Abs(this._pendingDragOffset.dx) > Constants.kTouchSlop; }
+            get { return Mathf.Abs(_pendingDragOffset.dx) > Constants.kTouchSlop; }
         }
 
         protected override Offset _getDeltaForDetails(Offset delta) {
@@ -334,14 +334,14 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected override bool _isFlingGesture(VelocityEstimate estimate) {
-            float minVelocity = this.minFlingVelocity ?? Constants.kMinFlingVelocity;
-            float minDistance = this.minFlingDistance ?? Constants.kTouchSlop;
+            float minVelocity = minFlingVelocity ?? Constants.kMinFlingVelocity;
+            float minDistance = minFlingDistance ?? Constants.kTouchSlop;
             return estimate.pixelsPerSecond.distanceSquared > minVelocity * minVelocity
                    && estimate.offset.distanceSquared > minDistance * minDistance;
         }
 
         protected override bool _hasSufficientPendingDragDeltaToAccept {
-            get { return this._pendingDragOffset.distance > Constants.kPanSlop; }
+            get { return _pendingDragOffset.distance > Constants.kPanSlop; }
         }
 
         protected override Offset _getDeltaForDetails(Offset delta) {

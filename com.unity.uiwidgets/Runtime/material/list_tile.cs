@@ -80,12 +80,12 @@ namespace Unity.UIWidgets.material {
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
             ListTileTheme _oldWidget = (ListTileTheme) oldWidget;
-            return this.dense != _oldWidget.dense ||
-                   this.style != _oldWidget.style ||
-                   this.selectedColor != _oldWidget.selectedColor ||
-                   this.iconColor != _oldWidget.iconColor ||
-                   this.textColor != _oldWidget.textColor ||
-                   this.contentPadding != _oldWidget.contentPadding;
+            return dense != _oldWidget.dense ||
+                   style != _oldWidget.style ||
+                   selectedColor != _oldWidget.selectedColor ||
+                   iconColor != _oldWidget.iconColor ||
+                   textColor != _oldWidget.textColor ||
+                   contentPadding != _oldWidget.contentPadding;
         }
     }
 
@@ -174,42 +174,42 @@ namespace Unity.UIWidgets.material {
         }
 
         Color _iconColor(ThemeData theme, ListTileTheme tileTheme) {
-            if (!this.enabled) {
+            if (!enabled) {
                 return theme.disabledColor;
             }
 
-            if (this.selected && tileTheme?.selectedColor != null) {
+            if (selected && tileTheme?.selectedColor != null) {
                 return tileTheme.selectedColor;
             }
 
-            if (!this.selected && tileTheme?.iconColor != null) {
+            if (!selected && tileTheme?.iconColor != null) {
                 return tileTheme.iconColor;
             }
 
             switch (theme.brightness) {
                 case Brightness.light:
-                    return this.selected ? theme.primaryColor : Colors.black45;
+                    return selected ? theme.primaryColor : Colors.black45;
                 case Brightness.dark:
-                    return this.selected ? theme.accentColor : null;
+                    return selected ? theme.accentColor : null;
             }
 
             return null;
         }
 
         Color _textColor(ThemeData theme, ListTileTheme tileTheme, Color defaultColor) {
-            if (!this.enabled) {
+            if (!enabled) {
                 return theme.disabledColor;
             }
 
-            if (this.selected && tileTheme?.selectedColor != null) {
+            if (selected && tileTheme?.selectedColor != null) {
                 return tileTheme.selectedColor;
             }
 
-            if (!this.selected && tileTheme?.textColor != null) {
+            if (!selected && tileTheme?.textColor != null) {
                 return tileTheme.textColor;
             }
 
-            if (this.selected) {
+            if (selected) {
                 switch (theme.brightness) {
                     case Brightness.light:
                         return theme.primaryColor;
@@ -222,7 +222,7 @@ namespace Unity.UIWidgets.material {
         }
 
         bool _isDenseLayout(ListTileTheme tileTheme) {
-            return this.dense != null ? this.dense ?? false : (tileTheme?.dense ?? false);
+            return dense != null ? dense ?? false : (tileTheme?.dense ?? false);
         }
 
         TextStyle _titleTextStyle(ThemeData theme, ListTileTheme tileTheme) {
@@ -241,16 +241,16 @@ namespace Unity.UIWidgets.material {
                 style = theme.textTheme.subhead;
             }
 
-            Color color = this._textColor(theme, tileTheme, style.color);
-            return this._isDenseLayout(tileTheme)
+            Color color = _textColor(theme, tileTheme, style.color);
+            return _isDenseLayout(tileTheme)
                 ? style.copyWith(fontSize: 13.0f, color: color)
                 : style.copyWith(color: color);
         }
 
         TextStyle _subtitleTextStyle(ThemeData theme, ListTileTheme tileTheme) {
             TextStyle style = theme.textTheme.body1;
-            Color color = this._textColor(theme, tileTheme, theme.textTheme.caption.color);
-            return this._isDenseLayout(tileTheme)
+            Color color = _textColor(theme, tileTheme, theme.textTheme.caption.color);
+            return _isDenseLayout(tileTheme)
                 ? style.copyWith(color: color, fontSize: 12.0f)
                 : style.copyWith(color: color);
         }
@@ -261,48 +261,48 @@ namespace Unity.UIWidgets.material {
             ListTileTheme tileTheme = ListTileTheme.of(context);
 
             IconThemeData iconThemeData = null;
-            if (this.leading != null || this.trailing != null) {
-                iconThemeData = new IconThemeData(color: this._iconColor(theme, tileTheme));
+            if (leading != null || trailing != null) {
+                iconThemeData = new IconThemeData(color: _iconColor(theme, tileTheme));
             }
 
             Widget leadingIcon = null;
-            if (this.leading != null) {
+            if (leading != null) {
                 leadingIcon = IconTheme.merge(
                     data: iconThemeData,
-                    child: this.leading);
+                    child: leading);
             }
 
-            TextStyle titleStyle = this._titleTextStyle(theme, tileTheme);
+            TextStyle titleStyle = _titleTextStyle(theme, tileTheme);
             Widget titleText = new AnimatedDefaultTextStyle(
                 style: titleStyle,
                 duration: Constants.kThemeChangeDuration,
-                child: this.title ?? new SizedBox()
+                child: title ?? new SizedBox()
             );
 
             Widget subtitleText = null;
             TextStyle subtitleStyle = null;
-            if (this.subtitle != null) {
-                subtitleStyle = this._subtitleTextStyle(theme, tileTheme);
+            if (subtitle != null) {
+                subtitleStyle = _subtitleTextStyle(theme, tileTheme);
                 subtitleText = new AnimatedDefaultTextStyle(
                     style: subtitleStyle,
                     duration: Constants.kThemeChangeDuration,
-                    child: this.subtitle);
+                    child: subtitle);
             }
 
             Widget trailingIcon = null;
-            if (this.trailing != null) {
+            if (trailing != null) {
                 trailingIcon = IconTheme.merge(
                     data: iconThemeData,
-                    child: this.trailing);
+                    child: trailing);
             }
 
             EdgeInsets _defaultContentPadding = EdgeInsets.symmetric(horizontal: 16.0f);
             EdgeInsets resolvedContentPadding =
-                this.contentPadding ?? tileTheme?.contentPadding ?? _defaultContentPadding;
+                contentPadding ?? tileTheme?.contentPadding ?? _defaultContentPadding;
 
             return new InkWell(
-                onTap: this.enabled ? this.onTap : null,
-                onLongPress: this.enabled ? this.onLongPress : null,
+                onTap: enabled ? onTap : null,
+                onLongPress: enabled ? onLongPress : null,
                 child: new SafeArea(
                     top: false,
                     bottom: false,
@@ -312,8 +312,8 @@ namespace Unity.UIWidgets.material {
                         title: titleText,
                         subtitle: subtitleText,
                         trailing: trailingIcon,
-                        isDense: this._isDenseLayout(tileTheme),
-                        isThreeLine: this.isThreeLine,
+                        isDense: _isDenseLayout(tileTheme),
+                        isThreeLine: isThreeLine,
                         titleBaselineType: titleStyle.textBaseline,
                         subtitleBaselineType: subtitleStyle?.textBaseline
                     )
@@ -375,20 +375,20 @@ namespace Unity.UIWidgets.material {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderListTile(
-                isThreeLine: this.isThreeLine,
-                isDense: this.isDense,
-                titleBaselineType: this.titleBaselineType,
-                subtitleBaselineType: this.subtitleBaselineType
+                isThreeLine: isThreeLine,
+                isDense: isDense,
+                titleBaselineType: titleBaselineType,
+                subtitleBaselineType: subtitleBaselineType
             );
         }
 
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             _RenderListTile _renderObject = (_RenderListTile) renderObject;
-            _renderObject.isThreeLine = this.isThreeLine;
-            _renderObject.isDense = this.isDense;
-            _renderObject.titleBaselineType = this.titleBaselineType;
-            _renderObject.subtitleBaselineType = this.subtitleBaselineType;
+            _renderObject.isThreeLine = isThreeLine;
+            _renderObject.isDense = isDense;
+            _renderObject.titleBaselineType = titleBaselineType;
+            _renderObject.subtitleBaselineType = subtitleBaselineType;
         }
     }
 
@@ -409,77 +409,77 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void visitChildren(ElementVisitor visitor) {
-            foreach (var element in this.slotToChild.Values) {
+            foreach (var element in slotToChild.Values) {
                 visitor(element);
             }
         }
 
         protected override void forgetChild(Element child) {
-            D.assert(this.slotToChild.Values.Contains(child));
-            D.assert(this.childToSlot.Keys.Contains(child));
-            _ListTileSlot slot = this.childToSlot[child];
-            this.childToSlot.Remove(child);
-            this.slotToChild.Remove(slot);
+            D.assert(slotToChild.Values.Contains(child));
+            D.assert(childToSlot.Keys.Contains(child));
+            _ListTileSlot slot = childToSlot[child];
+            childToSlot.Remove(child);
+            slotToChild.Remove(slot);
         }
 
         void _mountChild(Widget widget, _ListTileSlot slot) {
-            Element oldChild = this.slotToChild.getOrDefault(slot);
-            Element newChild = this.updateChild(oldChild, widget, slot);
+            Element oldChild = slotToChild.getOrDefault(slot);
+            Element newChild = updateChild(oldChild, widget, slot);
             if (oldChild != null) {
-                this.slotToChild.Remove(slot);
-                this.childToSlot.Remove(oldChild);
+                slotToChild.Remove(slot);
+                childToSlot.Remove(oldChild);
             }
 
             if (newChild != null) {
-                this.slotToChild[slot] = newChild;
-                this.childToSlot[newChild] = slot;
+                slotToChild[slot] = newChild;
+                childToSlot[newChild] = slot;
             }
         }
 
         public override void mount(Element parent, object newSlot) {
             base.mount(parent, newSlot);
-            this._mountChild(this.widget.leading, _ListTileSlot.leading);
-            this._mountChild(this.widget.title, _ListTileSlot.title);
-            this._mountChild(this.widget.subtitle, _ListTileSlot.subtitle);
-            this._mountChild(this.widget.trailing, _ListTileSlot.trailing);
+            _mountChild(widget.leading, _ListTileSlot.leading);
+            _mountChild(widget.title, _ListTileSlot.title);
+            _mountChild(widget.subtitle, _ListTileSlot.subtitle);
+            _mountChild(widget.trailing, _ListTileSlot.trailing);
         }
 
         void _updateChild(Widget widget, _ListTileSlot slot) {
-            Element oldChild = this.slotToChild.getOrDefault(slot);
-            Element newChild = this.updateChild(oldChild, widget, slot);
+            Element oldChild = slotToChild.getOrDefault(slot);
+            Element newChild = updateChild(oldChild, widget, slot);
             if (oldChild != null) {
-                this.childToSlot.Remove(oldChild);
-                this.slotToChild.Remove(slot);
+                childToSlot.Remove(oldChild);
+                slotToChild.Remove(slot);
             }
 
             if (newChild != null) {
-                this.slotToChild[slot] = newChild;
-                this.childToSlot[newChild] = slot;
+                slotToChild[slot] = newChild;
+                childToSlot[newChild] = slot;
             }
         }
 
         public override void update(Widget newWidget) {
             base.update(newWidget);
-            D.assert(this.widget == newWidget);
-            this._updateChild(this.widget.leading, _ListTileSlot.leading);
-            this._updateChild(this.widget.title, _ListTileSlot.title);
-            this._updateChild(this.widget.subtitle, _ListTileSlot.subtitle);
-            this._updateChild(this.widget.trailing, _ListTileSlot.trailing);
+            D.assert(widget == newWidget);
+            _updateChild(widget.leading, _ListTileSlot.leading);
+            _updateChild(widget.title, _ListTileSlot.title);
+            _updateChild(widget.subtitle, _ListTileSlot.subtitle);
+            _updateChild(widget.trailing, _ListTileSlot.trailing);
         }
 
         void _updateRenderObject(RenderObject child, _ListTileSlot slot) {
             switch (slot) {
                 case _ListTileSlot.leading:
-                    this.renderObject.leading = (RenderBox) child;
+                    renderObject.leading = (RenderBox) child;
                     break;
                 case _ListTileSlot.title:
-                    this.renderObject.title = (RenderBox) child;
+                    renderObject.title = (RenderBox) child;
                     break;
                 case _ListTileSlot.subtitle:
-                    this.renderObject.subtitle = (RenderBox) child;
+                    renderObject.subtitle = (RenderBox) child;
                     break;
                 case _ListTileSlot.trailing:
-                    this.renderObject.trailing = (RenderBox) child;
+                    renderObject.trailing = (RenderBox) child;
                     break;
             }
         }
@@ -488,18 +488,18 @@ namespace Unity.UIWidgets.material {
             D.assert(child is RenderBox);
             D.assert(slotValue is _ListTileSlot);
             _ListTileSlot slot = (_ListTileSlot) slotValue;
-            this._updateRenderObject(child, slot);
-            D.assert(this.renderObject.childToSlot.Keys.Contains(child));
-            D.assert(this.renderObject.slotToChild.Keys.Contains(slot));
+            _updateRenderObject(child, slot);
+            D.assert(renderObject.childToSlot.Keys.Contains(child));
+            D.assert(renderObject.slotToChild.Keys.Contains(slot));
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
             D.assert(child is RenderBox);
-            D.assert(this.renderObject.childToSlot.Keys.Contains(child));
-            _ListTileSlot slot = this.renderObject.childToSlot[(RenderBox) child];
-            this._updateRenderObject(null, slot);
-            D.assert(!this.renderObject.childToSlot.Keys.Contains(child));
-            D.assert(!this.renderObject.slotToChild.Keys.Contains(slot));
+            D.assert(renderObject.childToSlot.Keys.Contains(child));
+            _ListTileSlot slot = renderObject.childToSlot[(RenderBox) child];
+            _updateRenderObject(null, slot);
+            D.assert(!renderObject.childToSlot.Keys.Contains(child));
+            D.assert(!renderObject.slotToChild.Keys.Contains(slot));
         }
 
         protected override void moveChildRenderObject(RenderObject child, object slotValue) {
@@ -517,10 +517,10 @@ namespace Unity.UIWidgets.material {
             D.assert(isDense != null);
             D.assert(isThreeLine != null);
             D.assert(titleBaselineType != null);
-            this._isDense = isDense ?? false;
-            this._isThreeLine = isThreeLine ?? false;
-            this._titleBaselineType = titleBaselineType ?? TextBaseline.alphabetic;
-            this._subtitleBaselineType = subtitleBaselineType;
+            _isDense = isDense ?? false;
+            _isThreeLine = isThreeLine ?? false;
+            _titleBaselineType = titleBaselineType ?? TextBaseline.alphabetic;
+            _subtitleBaselineType = subtitleBaselineType;
         }
 
         const float _minLeadingWidth = 40.0f;
@@ -534,15 +534,15 @@ namespace Unity.UIWidgets.material {
 
         RenderBox _updateChild(RenderBox oldChild, RenderBox newChild, _ListTileSlot slot) {
             if (oldChild != null) {
-                this.dropChild(oldChild);
-                this.childToSlot.Remove(oldChild);
-                this.slotToChild.Remove(slot);
+                dropChild(oldChild);
+                childToSlot.Remove(oldChild);
+                slotToChild.Remove(slot);
             }
 
             if (newChild != null) {
-                this.childToSlot[newChild] = slot;
-                this.slotToChild[slot] = newChild;
-                this.adoptChild(newChild);
+                childToSlot[newChild] = slot;
+                slotToChild[slot] = newChild;
+                adoptChild(newChild);
             }
 
             return newChild;
@@ -551,48 +551,48 @@ namespace Unity.UIWidgets.material {
         RenderBox _leading;
 
         public RenderBox leading {
-            get { return this._leading; }
-            set { this._leading = this._updateChild(this._leading, value, _ListTileSlot.leading); }
+            get { return _leading; }
+            set { _leading = _updateChild(_leading, value, _ListTileSlot.leading); }
         }
 
         RenderBox _title;
 
         public RenderBox title {
-            get { return this._title; }
-            set { this._title = this._updateChild(this._title, value, _ListTileSlot.title); }
+            get { return _title; }
+            set { _title = _updateChild(_title, value, _ListTileSlot.title); }
         }
 
         RenderBox _subtitle;
 
         public RenderBox subtitle {
-            get { return this._subtitle; }
-            set { this._subtitle = this._updateChild(this._subtitle, value, _ListTileSlot.subtitle); }
+            get { return _subtitle; }
+            set { _subtitle = _updateChild(_subtitle, value, _ListTileSlot.subtitle); }
         }
 
         RenderBox _trailing;
 
         public RenderBox trailing {
-            get { return this._trailing; }
-            set { this._trailing = this._updateChild(this._trailing, value, _ListTileSlot.trailing); }
+            get { return _trailing; }
+            set { _trailing = _updateChild(_trailing, value, _ListTileSlot.trailing); }
         }
 
         List<RenderObject> _children {
             get {
                 List<RenderObject> ret = new List<RenderObject>();
-                if (this.leading != null) {
-                    ret.Add(this.leading);
+                if (leading != null) {
+                    ret.Add(leading);
                 }
 
-                if (this.title != null) {
-                    ret.Add(this.title);
+                if (title != null) {
+                    ret.Add(title);
                 }
 
-                if (this.subtitle != null) {
-                    ret.Add(this.subtitle);
+                if (subtitle != null) {
+                    ret.Add(subtitle);
                 }
 
-                if (this.trailing != null) {
-                    ret.Add(this.trailing);
+                if (trailing != null) {
+                    ret.Add(trailing);
                 }
 
                 return ret;
@@ -600,56 +600,56 @@ namespace Unity.UIWidgets.material {
         }
 
         public bool isDense {
-            get { return this._isDense; }
+            get { return _isDense; }
             set {
-                if (this._isDense == value) {
+                if (_isDense == value) {
                     return;
                 }
 
-                this._isDense = value;
-                this.markNeedsLayout();
+                _isDense = value;
+                markNeedsLayout();
             }
         }
 
         bool _isDense;
 
         public bool isThreeLine {
-            get { return this._isThreeLine; }
+            get { return _isThreeLine; }
             set {
-                if (this._isThreeLine == value) {
+                if (_isThreeLine == value) {
                     return;
                 }
 
-                this._isThreeLine = value;
-                this.markNeedsLayout();
+                _isThreeLine = value;
+                markNeedsLayout();
             }
         }
 
         bool _isThreeLine;
 
         public TextBaseline titleBaselineType {
-            get { return this._titleBaselineType; }
+            get { return _titleBaselineType; }
             set {
-                if (this._titleBaselineType == value) {
+                if (_titleBaselineType == value) {
                     return;
                 }
 
-                this._titleBaselineType = value;
-                this.markNeedsLayout();
+                _titleBaselineType = value;
+                markNeedsLayout();
             }
         }
 
         TextBaseline _titleBaselineType;
 
         public TextBaseline? subtitleBaselineType {
-            get { return this._subtitleBaselineType; }
+            get { return _subtitleBaselineType; }
             set {
-                if (this._subtitleBaselineType == value) {
+                if (_subtitleBaselineType == value) {
                     return;
                 }
 
-                this._subtitleBaselineType = value;
-                this.markNeedsLayout();
+                _subtitleBaselineType = value;
+                markNeedsLayout();
             }
         }
 
@@ -657,26 +657,26 @@ namespace Unity.UIWidgets.material {
 
         public override void attach(object owner) {
             base.attach(owner);
-            foreach (RenderBox child in this._children) {
+            foreach (RenderBox child in _children) {
                 child.attach(owner);
             }
         }
 
         public override void detach() {
             base.detach();
-            foreach (RenderBox child in this._children) {
+            foreach (RenderBox child in _children) {
                 child.detach();
             }
         }
 
         public override void redepthChildren() {
-            foreach (var child in this._children) {
-                this.redepthChild(child);
+            foreach (var child in _children) {
+                redepthChild(child);
             }
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            foreach (var child in this._children) {
+            foreach (var child in _children) {
                 visitor(child);
             }
         }
@@ -690,10 +690,10 @@ namespace Unity.UIWidgets.material {
                 }
             }
 
-            add(this.leading, "leading");
-            add(this.title, "title");
-            add(this.subtitle, "subtitle");
-            add(this.trailing, "trailing");
+            add(leading, "leading");
+            add(title, "title");
+            add(subtitle, "subtitle");
+            add(trailing, "trailing");
             return value;
         }
 
@@ -710,53 +710,53 @@ namespace Unity.UIWidgets.material {
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            float leadingWidth = this.leading != null
-                ? Mathf.Max(this.leading.getMinIntrinsicWidth(height), _minLeadingWidth) + _horizontalTitleGap
+            float leadingWidth = leading != null
+                ? Mathf.Max(leading.getMinIntrinsicWidth(height), _minLeadingWidth) + _horizontalTitleGap
                 : 0.0f;
-            return leadingWidth + Mathf.Max(_minWidth(this.title, height), _minWidth(this.subtitle, height)) +
-                   _maxWidth(this.trailing, height);
+            return leadingWidth + Mathf.Max(_minWidth(title, height), _minWidth(subtitle, height)) +
+                   _maxWidth(trailing, height);
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            float leadingWidth = this.leading != null
-                ? Mathf.Max(this.leading.getMaxIntrinsicWidth(height), _minLeadingWidth) + _horizontalTitleGap
+            float leadingWidth = leading != null
+                ? Mathf.Max(leading.getMaxIntrinsicWidth(height), _minLeadingWidth) + _horizontalTitleGap
                 : 0.0f;
-            return leadingWidth + Mathf.Max(_maxWidth(this.title, height), _maxWidth(this.subtitle, height)) +
-                   _maxWidth(this.trailing, height);
+            return leadingWidth + Mathf.Max(_maxWidth(title, height), _maxWidth(subtitle, height)) +
+                   _maxWidth(trailing, height);
         }
 
         float _defaultTileHeight {
             get {
-                bool hasSubtitle = this.subtitle != null;
-                bool isTwoLine = !this.isThreeLine && hasSubtitle;
-                bool isOneLine = !this.isThreeLine && !hasSubtitle;
+                bool hasSubtitle = subtitle != null;
+                bool isTwoLine = !isThreeLine && hasSubtitle;
+                bool isOneLine = !isThreeLine && !hasSubtitle;
 
                 if (isOneLine) {
-                    return this.isDense ? 48.0f : 56.0f;
+                    return isDense ? 48.0f : 56.0f;
                 }
 
                 if (isTwoLine) {
-                    return this.isDense ? 64.0f : 72.0f;
+                    return isDense ? 64.0f : 72.0f;
                 }
 
-                return this.isDense ? 76.0f : 88.0f;
+                return isDense ? 76.0f : 88.0f;
             }
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
             return Mathf.Max(
-                this._defaultTileHeight,
-                this.title.getMinIntrinsicHeight(width) + this.subtitle?.getMinIntrinsicHeight(width) ?? 0.0f);
+                _defaultTileHeight,
+                title.getMinIntrinsicHeight(width) + subtitle?.getMinIntrinsicHeight(width) ?? 0.0f);
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            return this.computeMinIntrinsicHeight(width);
+            return computeMinIntrinsicHeight(width);
         }
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            D.assert(this.title != null);
-            BoxParentData parentData = (BoxParentData) this.title.parentData;
-            return parentData.offset.dy + this.title.getDistanceToActualBaseline(baseline);
+            D.assert(title != null);
+            BoxParentData parentData = (BoxParentData) title.parentData;
+            return parentData.offset.dy + title.getDistanceToActualBaseline(baseline);
         }
 
         static float _boxBaseline(RenderBox box, TextBaseline baseline) {
@@ -778,20 +778,20 @@ namespace Unity.UIWidgets.material {
         }
 
         protected override void performLayout() {
-            bool hasLeading = this.leading != null;
-            bool hasSubtitle = this.subtitle != null;
-            bool hasTrailing = this.trailing != null;
-            bool isTwoLine = !this.isThreeLine && hasSubtitle;
-            bool isOneLine = !this.isThreeLine && !hasSubtitle;
+            bool hasLeading = leading != null;
+            bool hasSubtitle = subtitle != null;
+            bool hasTrailing = trailing != null;
+            bool isTwoLine = !isThreeLine && hasSubtitle;
+            bool isOneLine = !isThreeLine && !hasSubtitle;
             BoxConstraints maxIconHeightConstrains = new BoxConstraints(
-                maxHeight: this.isDense ? 48.0f: 56.0f
+                maxHeight: isDense ? 48.0f: 56.0f
             );
-            BoxConstraints looseConstraints = this.constraints.loosen();
+            BoxConstraints looseConstraints = constraints.loosen();
             BoxConstraints iconConstraints = looseConstraints.enforce(maxIconHeightConstrains);
 
             float tileWidth = looseConstraints.maxWidth;
-            Size leadingSize = _layoutBox(this.leading, iconConstraints);
-            Size trailingSize = _layoutBox(this.trailing, iconConstraints);
+            Size leadingSize = _layoutBox(leading, iconConstraints);
+            Size trailingSize = _layoutBox(trailing, iconConstraints);
             D.assert(
                 tileWidth != leadingSize.width,
                 () => "Leading widget consumes entire width. Please use a sized widget."
@@ -806,24 +806,24 @@ namespace Unity.UIWidgets.material {
                 : 0.0f;
             BoxConstraints textConstraints = looseConstraints.tighten(
                 width: tileWidth - titleStart - (hasTrailing ? trailingSize.width + _horizontalTitleGap : 0.0f));
-            Size titleSize = _layoutBox(this.title, textConstraints);
-            Size subtitleSize = _layoutBox(this.subtitle, textConstraints);
+            Size titleSize = _layoutBox(title, textConstraints);
+            Size subtitleSize = _layoutBox(subtitle, textConstraints);
 
             float titleBaseline = 0.0f;
             float subtitleBaseline = 0.0f;
             if (isTwoLine) {
-                titleBaseline = this.isDense ? 28.0f : 32.0f;
-                subtitleBaseline = this.isDense ? 48.0f : 52.0f;
+                titleBaseline = isDense ? 28.0f : 32.0f;
+                subtitleBaseline = isDense ? 48.0f : 52.0f;
             }
-            else if (this.isThreeLine) {
-                titleBaseline = this.isDense ? 22.0f : 28.0f;
-                subtitleBaseline = this.isDense ? 42.0f : 48.0f;
+            else if (isThreeLine) {
+                titleBaseline = isDense ? 22.0f : 28.0f;
+                subtitleBaseline = isDense ? 42.0f : 48.0f;
             }
             else {
                 D.assert(isOneLine);
             }
 
-            float defaultTileHeight = this._defaultTileHeight;
+            float defaultTileHeight = _defaultTileHeight;
 
             float tileHeight = 0.0f;
             float titleY = 0.0f;
@@ -833,10 +833,10 @@ namespace Unity.UIWidgets.material {
                 titleY = (tileHeight - titleSize.height) / 2.0f;
             }
             else {
-                D.assert(this.subtitleBaselineType != null);
-                titleY = titleBaseline - _boxBaseline(this.title, this.titleBaselineType);
+                D.assert(subtitleBaselineType != null);
+                titleY = titleBaseline - _boxBaseline(title, titleBaselineType);
                 subtitleY = subtitleBaseline -
-                            _boxBaseline(this.subtitle, this.subtitleBaselineType ?? TextBaseline.alphabetic);
+                            _boxBaseline(subtitle, subtitleBaselineType ?? TextBaseline.alphabetic);
                 tileHeight = defaultTileHeight;
 
                 float titleOverlap = titleY + titleSize.height - subtitleY;
@@ -866,21 +866,21 @@ namespace Unity.UIWidgets.material {
             }
 
             if (hasLeading) {
-                _positionBox(this.leading, new Offset(0.0f, leadingY));
+                _positionBox(leading, new Offset(0.0f, leadingY));
             }
 
-            _positionBox(this.title, new Offset(titleStart, titleY));
+            _positionBox(title, new Offset(titleStart, titleY));
             if (hasSubtitle) {
-                _positionBox(this.subtitle, new Offset(titleStart, subtitleY));
+                _positionBox(subtitle, new Offset(titleStart, subtitleY));
             }
 
             if (hasTrailing) {
-                _positionBox(this.trailing, new Offset(tileWidth - trailingSize.width, trailingY));
+                _positionBox(trailing, new Offset(tileWidth - trailingSize.width, trailingY));
             }
 
-            this.size = this.constraints.constrain(new Size(tileWidth, tileHeight));
-            D.assert(this.size.width == this.constraints.constrainWidth(tileWidth));
-            D.assert(this.size.height == this.constraints.constrainHeight(tileHeight));
+            size = constraints.constrain(new Size(tileWidth, tileHeight));
+            D.assert(size.width == constraints.constrainWidth(tileWidth));
+            D.assert(size.height == constraints.constrainHeight(tileHeight));
         }
 
         public override void paint(PaintingContext context, Offset offset) {
@@ -891,10 +891,10 @@ namespace Unity.UIWidgets.material {
                 }
             }
 
-            doPaint(this.leading);
-            doPaint(this.title);
-            doPaint(this.subtitle);
-            doPaint(this.trailing);
+            doPaint(leading);
+            doPaint(title);
+            doPaint(subtitle);
+            doPaint(trailing);
         }
 
         protected override bool hitTestSelf(Offset position) {
@@ -903,7 +903,7 @@ namespace Unity.UIWidgets.material {
 
         protected override bool hitTestChildren(HitTestResult result, Offset position) {
             D.assert(position != null);
-            foreach (RenderBox child in this._children) {
+            foreach (RenderBox child in _children) {
                 BoxParentData parentData = (BoxParentData) child.parentData;
                 if (child.hitTest(result, position: position - parentData.offset)) {
                     return true;

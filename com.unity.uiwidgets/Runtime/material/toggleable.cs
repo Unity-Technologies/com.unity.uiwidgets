@@ -28,55 +28,55 @@ namespace Unity.UIWidgets.material {
             D.assert(activeColor != null);
             D.assert(inactiveColor != null);
             D.assert(vsync != null);
-            this._value = value;
-            this._tristate = tristate;
-            this._activeColor = activeColor;
-            this._inactiveColor = inactiveColor;
-            this._onChanged = onChanged;
-            this._vsync = vsync;
+            _value = value;
+            _tristate = tristate;
+            _activeColor = activeColor;
+            _inactiveColor = inactiveColor;
+            _onChanged = onChanged;
+            _vsync = vsync;
 
-            this._tap = new TapGestureRecognizer {
-                onTapDown = this._handleTapDown,
-                onTap = this._handleTap,
-                onTapUp = this._handleTapUp,
-                onTapCancel = this._handleTapCancel
+            _tap = new TapGestureRecognizer {
+                onTapDown = _handleTapDown,
+                onTap = _handleTap,
+                onTapUp = _handleTapUp,
+                onTapCancel = _handleTapCancel
             };
 
-            this._positionController = new AnimationController(
+            _positionController = new AnimationController(
                 duration: ToggleableUtils._kToggleDuration,
                 value: value == false ? 0.0f : 1.0f,
                 vsync: vsync);
 
-            this._position = new CurvedAnimation(
-                parent: this._positionController,
+            _position = new CurvedAnimation(
+                parent: _positionController,
                 curve: Curves.linear);
-            this._position.addListener(this.markNeedsPaint);
-            this._position.addStatusListener(this._handlePositionStateChanged);
+            _position.addListener(markNeedsPaint);
+            _position.addStatusListener(_handlePositionStateChanged);
 
-            this._reactionController = new AnimationController(
+            _reactionController = new AnimationController(
                 duration: Constants.kRadialReactionDuration,
                 vsync: vsync);
 
-            this._reaction = new CurvedAnimation(
-                parent: this._reactionController,
+            _reaction = new CurvedAnimation(
+                parent: _reactionController,
                 curve: Curves.fastOutSlowIn);
-            this._reaction.addListener(this.markNeedsPaint);
+            _reaction.addListener(markNeedsPaint);
         }
 
         protected AnimationController positionController {
-            get { return this._positionController; }
+            get { return _positionController; }
         }
 
         AnimationController _positionController;
 
         public CurvedAnimation position {
-            get { return this._position; }
+            get { return _position; }
         }
 
         CurvedAnimation _position;
 
         protected AnimationController reactionController {
-            get { return this._reactionController; }
+            get { return _reactionController; }
         }
 
         AnimationController _reactionController;
@@ -84,51 +84,51 @@ namespace Unity.UIWidgets.material {
         Animation<float> _reaction;
 
         public TickerProvider vsync {
-            get { return this._vsync; }
+            get { return _vsync; }
             set {
                 D.assert(value != null);
-                if (value == this._vsync) {
+                if (value == _vsync) {
                     return;
                 }
 
-                this._vsync = value;
-                this.positionController.resync(this.vsync);
-                this.reactionController.resync(this.vsync);
+                _vsync = value;
+                positionController.resync(vsync);
+                reactionController.resync(vsync);
             }
         }
 
         TickerProvider _vsync;
 
         public virtual bool? value {
-            get { return this._value; }
+            get { return _value; }
             set {
-                D.assert(this.tristate || value != null);
-                if (value == this._value) {
+                D.assert(tristate || value != null);
+                if (value == _value) {
                     return;
                 }
 
-                this._value = value;
-                this._position.curve = Curves.easeIn;
-                this._position.reverseCurve = Curves.easeOut;
-                if (this.tristate) {
-                    switch (this._positionController.status) {
+                _value = value;
+                _position.curve = Curves.easeIn;
+                _position.reverseCurve = Curves.easeOut;
+                if (tristate) {
+                    switch (_positionController.status) {
                         case AnimationStatus.forward:
                         case AnimationStatus.completed: {
-                            this._positionController.reverse();
+                            _positionController.reverse();
                             break;
                         }
                         default: {
-                            this._positionController.forward();
+                            _positionController.forward();
                             break;
                         }
                     }
                 }
                 else {
                     if (value == true) {
-                        this._positionController.forward();
+                        _positionController.forward();
                     }
                     else {
-                        this._positionController.reverse();
+                        _positionController.reverse();
                     }
                 }
             }
@@ -137,59 +137,59 @@ namespace Unity.UIWidgets.material {
         bool? _value;
 
         public bool tristate {
-            get { return this._tristate; }
+            get { return _tristate; }
             set {
-                if (value == this._tristate) {
+                if (value == _tristate) {
                     return;
                 }
 
-                this._tristate = value;
+                _tristate = value;
             }
         }
 
         bool _tristate;
 
         public Color activeColor {
-            get { return this._activeColor; }
+            get { return _activeColor; }
             set {
                 D.assert(value != null);
-                if (value == this._activeColor) {
+                if (value == _activeColor) {
                     return;
                 }
 
-                this._activeColor = value;
-                this.markNeedsPaint();
+                _activeColor = value;
+                markNeedsPaint();
             }
         }
 
         Color _activeColor;
 
         public Color inactiveColor {
-            get { return this._inactiveColor; }
+            get { return _inactiveColor; }
             set {
                 D.assert(value != null);
-                if (value == this._inactiveColor) {
+                if (value == _inactiveColor) {
                     return;
                 }
 
-                this._inactiveColor = value;
-                this.markNeedsPaint();
+                _inactiveColor = value;
+                markNeedsPaint();
             }
         }
 
         Color _inactiveColor;
 
         public ValueChanged<bool?> onChanged {
-            get { return this._onChanged; }
+            get { return _onChanged; }
             set {
-                if (value == this._onChanged) {
+                if (value == _onChanged) {
                     return;
                 }
 
-                bool wasInteractive = this.isInteractive;
-                this._onChanged = value;
-                if (wasInteractive != this.isInteractive) {
-                    this.markNeedsPaint();
+                bool wasInteractive = isInteractive;
+                _onChanged = value;
+                if (wasInteractive != isInteractive) {
+                    markNeedsPaint();
                 }
             }
         }
@@ -197,7 +197,7 @@ namespace Unity.UIWidgets.material {
         ValueChanged<bool?> _onChanged;
 
         public bool isInteractive {
-            get { return this.onChanged != null; }
+            get { return onChanged != null; }
         }
 
         TapGestureRecognizer _tap;
@@ -205,21 +205,21 @@ namespace Unity.UIWidgets.material {
 
         public override void attach(object owner) {
             base.attach(owner);
-            if (this.value == false) {
-                this._positionController.reverse();
+            if (value == false) {
+                _positionController.reverse();
             }
             else {
-                this._positionController.forward();
+                _positionController.forward();
             }
 
-            if (this.isInteractive) {
-                switch (this._reactionController.status) {
+            if (isInteractive) {
+                switch (_reactionController.status) {
                     case AnimationStatus.forward: {
-                        this._reactionController.forward();
+                        _reactionController.forward();
                         break;
                     }
                     case AnimationStatus.reverse: {
-                        this._reactionController.reverse();
+                        _reactionController.reverse();
                         break;
                     }
                     case AnimationStatus.dismissed:
@@ -231,58 +231,58 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void detach() {
-            this._positionController.stop();
-            this._reactionController.stop();
+            _positionController.stop();
+            _reactionController.stop();
             base.detach();
         }
 
         void _handlePositionStateChanged(AnimationStatus status) {
-            if (this.isInteractive && !this.tristate) {
-                if (status == AnimationStatus.completed && this._value == false) {
-                    this.onChanged(true);
+            if (isInteractive && !tristate) {
+                if (status == AnimationStatus.completed && _value == false) {
+                    onChanged(true);
                 }
-                else if (status == AnimationStatus.dismissed && this._value != false) {
-                    this.onChanged(false);
+                else if (status == AnimationStatus.dismissed && _value != false) {
+                    onChanged(false);
                 }
             }
         }
 
         void _handleTapDown(TapDownDetails details) {
-            if (this.isInteractive) {
-                this._downPosition = this.globalToLocal(details.globalPosition);
-                this._reactionController.forward();
+            if (isInteractive) {
+                _downPosition = globalToLocal(details.globalPosition);
+                _reactionController.forward();
             }
         }
 
         void _handleTap() {
-            if (!this.isInteractive) {
+            if (!isInteractive) {
                 return;
             }
 
-            switch (this.value) {
+            switch (value) {
                 case false:
-                    this.onChanged(true);
+                    onChanged(true);
                     break;
                 case true:
-                    this.onChanged(this.tristate ? (bool?) null : false);
+                    onChanged(tristate ? (bool?) null : false);
                     break;
                 default:
-                    this.onChanged(false);
+                    onChanged(false);
                     break;
             }
         }
 
         void _handleTapUp(TapUpDetails details) {
-            this._downPosition = null;
-            if (this.isInteractive) {
-                this._reactionController.reverse();
+            _downPosition = null;
+            if (isInteractive) {
+                _reactionController.reverse();
             }
         }
 
         void _handleTapCancel() {
-            this._downPosition = null;
-            if (this.isInteractive) {
-                this._reactionController.reverse();
+            _downPosition = null;
+            if (isInteractive) {
+                _reactionController.reverse();
             }
         }
 
@@ -291,26 +291,26 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void handleEvent(PointerEvent pEvent, HitTestEntry entry) {
-            D.assert(this.debugHandleEvent(pEvent, entry));
-            if (pEvent is PointerDownEvent && this.isInteractive) {
-                this._tap.addPointer((PointerDownEvent) pEvent);
+            D.assert(debugHandleEvent(pEvent, entry));
+            if (pEvent is PointerDownEvent && isInteractive) {
+                _tap.addPointer((PointerDownEvent) pEvent);
             }
         }
 
         public void paintRadialReaction(Canvas canvas, Offset offset, Offset origin) {
-            if (!this._reaction.isDismissed) {
-                Paint reactionPaint = new Paint {color = this.activeColor.withAlpha(Constants.kRadialReactionAlpha)};
-                Offset center = Offset.lerp(this._downPosition ?? origin, origin, this._reaction.value);
-                float radius = ToggleableUtils._kRadialReactionRadiusTween.evaluate(this._reaction);
+            if (!_reaction.isDismissed) {
+                Paint reactionPaint = new Paint {color = activeColor.withAlpha(Constants.kRadialReactionAlpha)};
+                Offset center = Offset.lerp(_downPosition ?? origin, origin, _reaction.value);
+                float radius = ToggleableUtils._kRadialReactionRadiusTween.evaluate(_reaction);
                 canvas.drawCircle(center + offset, radius, reactionPaint);
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FlagProperty("value", value: this.value, ifTrue: "checked", ifFalse: "unchecked",
+            properties.add(new FlagProperty("value", value: value, ifTrue: "checked", ifFalse: "unchecked",
                 showName: true));
-            properties.add(new FlagProperty("isInteractive", value: this.isInteractive, ifTrue: "enabled",
+            properties.add(new FlagProperty("isInteractive", value: isInteractive, ifTrue: "enabled",
                 ifFalse: "disabled", defaultValue: true));
         }
     }

@@ -28,7 +28,7 @@ namespace Unity.UIWidgets.material {
             ButtonThemeData buttonTheme = ButtonTheme.of(context);
             float paddingUnit = buttonTheme.padding.horizontal / 4.0f;
             List<Widget> _children = new List<Widget>();
-            foreach (Widget _child in this.children) {
+            foreach (Widget _child in children) {
                 _children.Add(
                     new Padding(
                         padding: EdgeInsets.symmetric(horizontal: paddingUnit),
@@ -38,8 +38,8 @@ namespace Unity.UIWidgets.material {
             }
 
             Widget child = new Row(
-                mainAxisAlignment: this.alignment,
-                mainAxisSize: this.mainAxisSize,
+                mainAxisAlignment: alignment,
+                mainAxisSize: mainAxisSize,
                 children: _children
             );
 

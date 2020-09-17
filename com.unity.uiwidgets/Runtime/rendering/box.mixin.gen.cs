@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.rendering {
         where ParentDataType : ContainerParentDataMixinBoxParentData<ChildType> {
         
         public float? defaultComputeDistanceToFirstActualBaseline(TextBaseline baseline) {
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 float? result = child.getDistanceToActualBaseline(baseline);
@@ -30,7 +30,7 @@ namespace Unity.UIWidgets.rendering {
 
         public float? defaultComputeDistanceToHighestActualBaseline(TextBaseline baseline) {
             float? result = null;
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 float? candidate = child.getDistanceToActualBaseline(baseline);
@@ -50,7 +50,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void defaultPaint(PaintingContext context, Offset offset) {
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 context.paintChild(child, childParentData.offset + offset);
@@ -60,7 +60,7 @@ namespace Unity.UIWidgets.rendering {
 
        public bool defaultHitTestChildren(HitTestResult result, Offset position) {
             // the x, y parameters have the top left of the node's box as the origin
-            ChildType child = this.lastChild;
+            ChildType child = lastChild;
             while (child != null)
             {
                 ParentDataType childParentData = (ParentDataType) child.parentData;
@@ -74,7 +74,7 @@ namespace Unity.UIWidgets.rendering {
 
         public List<ChildType> getChildrenAsList() {
             var result = new List<ChildType>();
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 result.Add(child);

@@ -11,7 +11,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly FocusScopeNode node;
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            return this.node != ((_FocusScopeMarker) oldWidget).node;
+            return node != ((_FocusScopeMarker) oldWidget).node;
         }
     }
 
@@ -66,20 +66,20 @@ namespace Unity.UIWidgets.widgets {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            if (!this._didAutofocus && this.widget.autofocus) {
-                FocusScope.of(this.context).setFirstFocus(this.widget.node);
-                this._didAutofocus = true;
+            if (!_didAutofocus && widget.autofocus) {
+                FocusScope.of(context).setFirstFocus(widget.node);
+                _didAutofocus = true;
             }
         }
 
         public override void dispose() {
-            this.widget.node.detach();
+            widget.node.detach();
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
-            FocusScope.of(context).reparentScopeIfNeeded(this.widget.node);
-            return new _FocusScopeMarker(node: this.widget.node, child: this.widget.child);
+            FocusScope.of(context).reparentScopeIfNeeded(widget.node);
+            return new _FocusScopeMarker(node: widget.node, child: widget.child);
         }
     }
 }

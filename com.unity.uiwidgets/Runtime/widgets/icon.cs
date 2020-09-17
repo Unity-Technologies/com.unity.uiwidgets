@@ -24,14 +24,14 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             IconThemeData iconTheme = IconTheme.of(context);
-            float iconSize = this.size ?? iconTheme.size.Value;
+            float iconSize = size ?? iconTheme.size.Value;
 
-            if (this.icon == null) {
+            if (icon == null) {
                 return new SizedBox(width: iconSize, height: iconSize);
             }
 
             float iconOpacity = iconTheme.opacity.Value;
-            Color iconColor = this.color ?? iconTheme.color;
+            Color iconColor = color ?? iconTheme.color;
             if (iconOpacity != 1.0) {
                 iconColor = iconColor.withOpacity(iconColor.opacity * iconOpacity);
             }
@@ -39,12 +39,12 @@ namespace Unity.UIWidgets.widgets {
             Widget iconWidget = new RichText(
                 overflow: TextOverflow.visible,
                 text: new TextSpan(
-                    text: new string(new[] {(char) this.icon.codePoint}),
+                    text: new string(new[] {(char) icon.codePoint}),
                     style: new TextStyle(
                         inherit: false,
                         color: iconColor,
                         fontSize: iconSize,
-                        fontFamily: this.icon.fontFamily
+                        fontFamily: icon.fontFamily
                     )
                 )
             );

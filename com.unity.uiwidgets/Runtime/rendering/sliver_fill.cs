@@ -11,43 +11,43 @@ namespace Unity.UIWidgets.rendering {
         ) :
             base(childManager: childManager) {
             D.assert(viewportFraction > 0.0);
-            this._viewportFraction = viewportFraction;
+            _viewportFraction = viewportFraction;
         }
 
         public override float itemExtent {
-            get { return this.constraints.viewportMainAxisExtent * this.viewportFraction; }
+            get { return constraints.viewportMainAxisExtent * viewportFraction; }
             set { }
         }
 
         float _viewportFraction;
 
         public float viewportFraction {
-            get { return this._viewportFraction; }
+            get { return _viewportFraction; }
             set {
-                if (this._viewportFraction == value) {
+                if (_viewportFraction == value) {
                     return;
                 }
 
-                this._viewportFraction = value;
-                this.markNeedsLayout();
+                _viewportFraction = value;
+                markNeedsLayout();
             }
         }
 
 
         float _padding {
-            get { return (1.0f - this.viewportFraction) * this.constraints.viewportMainAxisExtent * 0.5f; }
+            get { return (1.0f - viewportFraction) * constraints.viewportMainAxisExtent * 0.5f; }
         }
 
         protected override float indexToLayoutOffset(float itemExtent, int index) {
-            return this._padding + base.indexToLayoutOffset(itemExtent, index);
+            return _padding + base.indexToLayoutOffset(itemExtent, index);
         }
 
         protected override int getMinChildIndexForScrollOffset(float scrollOffset, float itemExtent) {
-            return base.getMinChildIndexForScrollOffset(Mathf.Max(scrollOffset - this._padding, 0.0f), itemExtent);
+            return base.getMinChildIndexForScrollOffset(Mathf.Max(scrollOffset - _padding, 0.0f), itemExtent);
         }
 
         protected override int getMaxChildIndexForScrollOffset(float scrollOffset, float itemExtent) {
-            return base.getMaxChildIndexForScrollOffset(Mathf.Max(scrollOffset - this._padding, 0.0f), itemExtent);
+            return base.getMaxChildIndexForScrollOffset(Mathf.Max(scrollOffset - _padding, 0.0f), itemExtent);
         }
 
         protected override float estimateMaxScrollOffset(SliverConstraints constraints,
@@ -56,8 +56,8 @@ namespace Unity.UIWidgets.rendering {
             float leadingScrollOffset = 0.0f,
             float trailingScrollOffset = 0.0f
         ) {
-            float padding = this._padding;
-            return this.childManager.estimateMaxScrollOffset(
+            float padding = _padding;
+            return childManager.estimateMaxScrollOffset(
                        constraints,
                        firstIndex: firstIndex,
                        lastIndex: lastIndex,
@@ -74,24 +74,24 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
-            float extent = this.constraints.remainingPaintExtent - Mathf.Min(this.constraints.overlap, 0.0f);
-            if (this.child != null) {
-                this.child.layout(this.constraints.asBoxConstraints(minExtent: extent, maxExtent: extent),
+            float extent = constraints.remainingPaintExtent - Mathf.Min(constraints.overlap, 0.0f);
+            if (child != null) {
+                child.layout(constraints.asBoxConstraints(minExtent: extent, maxExtent: extent),
                     parentUsesSize: true);
             }
 
-            float paintedChildSize = this.calculatePaintOffset(this.constraints, from: 0.0f, to: extent);
+            float paintedChildSize = calculatePaintOffset(constraints, from: 0.0f, to: extent);
             D.assert(paintedChildSize.isFinite());
             D.assert(paintedChildSize >= 0.0);
-            this.geometry = new SliverGeometry(
-                scrollExtent: this.constraints.viewportMainAxisExtent,
+            geometry = new SliverGeometry(
+                scrollExtent: constraints.viewportMainAxisExtent,
                 paintExtent: paintedChildSize,
                 maxPaintExtent: paintedChildSize,
-                hasVisualOverflow: extent > this.constraints.remainingPaintExtent ||
-                                   this.constraints.scrollOffset > 0.0
+                hasVisualOverflow: extent > constraints.remainingPaintExtent ||
+                                   constraints.scrollOffset > 0.0
             );
-            if (this.child != null) {
-                this.setChildParentData(this.child, this.constraints, this.geometry);
+            if (child != null) {
+                setChildParentData(child, constraints, geometry);
             }
         }
     }

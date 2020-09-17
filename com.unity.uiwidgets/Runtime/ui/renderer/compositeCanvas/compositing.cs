@@ -12,56 +12,56 @@ namespace Unity.UIWidgets.ui {
         }
 
         public Scene build() {
-            return new Scene(this._rootLayer);
+            return new Scene(_rootLayer);
         }
 
         void _pushLayer(ContainerLayer layer) {
-            if (this._rootLayer == null) {
-                this._rootLayer = layer;
-                this._currentLayer = layer;
+            if (_rootLayer == null) {
+                _rootLayer = layer;
+                _currentLayer = layer;
                 return;
             }
 
-            if (this._currentLayer == null) {
+            if (_currentLayer == null) {
                 return;
             }
 
-            this._currentLayer.add(layer);
-            this._currentLayer = layer;
+            _currentLayer.add(layer);
+            _currentLayer = layer;
         }
 
         public Layer pushTransform(Matrix3 matrix) {
             var layer = new TransformLayer();
             layer.transform = matrix;
-            this._pushLayer(layer);
+            _pushLayer(layer);
             return layer;
         }
 
         public Layer pushOffset(float dx, float dy) {
             var layer = new TransformLayer();
             layer.transform = Matrix3.makeTrans(dx, dy);
-            this._pushLayer(layer);
+            _pushLayer(layer);
             return layer;
         }
 
         public Layer pushClipRect(Rect clipRect) {
             var layer = new ClipRectLayer();
             layer.clipRect = clipRect;
-            this._pushLayer(layer);
+            _pushLayer(layer);
             return layer;
         }
 
         public Layer pushClipRRect(RRect clipRRect) {
             var layer = new ClipRRectLayer();
             layer.clipRRect = clipRRect;
-            this._pushLayer(layer);
+            _pushLayer(layer);
             return layer;
         }
 
         public Layer pushClipPath(Path clipPath) {
             var layer = new ClipPathLayer();
             layer.clipPath = clipPath;
-            this._pushLayer(layer);
+            _pushLayer(layer);
             return layer;
         }
 
@@ -71,32 +71,32 @@ namespace Unity.UIWidgets.ui {
             var layer = new OpacityLayer();
             layer.alpha = alpha;
             layer.offset = offset;
-            this._pushLayer(layer);
+            _pushLayer(layer);
             return layer;
         }
 
         public Layer pushBackdropFilter(ImageFilter filter) {
             var layer = new BackdropFilterLayer();
             layer.filter = filter;
-            this._pushLayer(layer);
+            _pushLayer(layer);
             return layer;
         }
 
 
         public void addRetained(Layer layer) {
-            if (this._currentLayer == null) {
+            if (_currentLayer == null) {
                 return;
             }
 
-            this._currentLayer.add(layer);
+            _currentLayer.add(layer);
         }
 
         public void pop() {
-            if (this._currentLayer == null) {
+            if (_currentLayer == null) {
                 return;
             }
 
-            this._currentLayer = this._currentLayer.parent;
+            _currentLayer = _currentLayer.parent;
         }
 
         public void addPicture(Offset offset, Picture picture,
@@ -104,7 +104,7 @@ namespace Unity.UIWidgets.ui {
             D.assert(offset != null);
             D.assert(picture != null);
 
-            if (this._currentLayer == null) {
+            if (_currentLayer == null) {
                 return;
             }
 
@@ -113,7 +113,7 @@ namespace Unity.UIWidgets.ui {
             layer.picture = picture;
             layer.isComplex = isComplexHint;
             layer.willChange = willChangeHint;
-            this._currentLayer.add(layer);
+            _currentLayer.add(layer);
         }
 
         public void addTexture(
@@ -122,7 +122,7 @@ namespace Unity.UIWidgets.ui {
             float width,
             float height,
             bool freeze) {
-            if (this._currentLayer == null) {
+            if (_currentLayer == null) {
                 return;
             }
 
@@ -131,11 +131,11 @@ namespace Unity.UIWidgets.ui {
             layer.size = new Size(width, height);
             layer.texture = texture;
             layer.freeze = freeze;
-            this._currentLayer.add(layer);
+            _currentLayer.add(layer);
         }
 
         public void addPerformanceOverlay(int enabledOptions, Rect bounds) {
-            if (this._currentLayer == null) {
+            if (_currentLayer == null) {
                 return;
             }
 
@@ -146,7 +146,7 @@ namespace Unity.UIWidgets.ui {
                 bounds.right,
                 bounds.bottom
             );
-            this._currentLayer.add(layer);
+            _currentLayer.add(layer);
         }
 
         public Layer pushPhysicalShape(Path path, float elevation, Color color, Color shadowColor, Clip clipBehavior) {
@@ -157,21 +157,21 @@ namespace Unity.UIWidgets.ui {
             layer.shadowColor = shadowColor;
             layer.devicePixelRatio = Window.instance.devicePixelRatio;
 
-            this._pushLayer(layer);
+            _pushLayer(layer);
             return layer;
         }
     }
 
     public class Scene : IDisposable {
         public Scene(Layer rootLayer) {
-            this._layerTree = new LayerTree();
-            this._layerTree.rootLayer = rootLayer;
+            _layerTree = new LayerTree();
+            _layerTree.rootLayer = rootLayer;
         }
 
         readonly LayerTree _layerTree;
 
         public LayerTree takeLayerTree() {
-            return this._layerTree;
+            return _layerTree;
         }
 
         public void Dispose() {

@@ -18,12 +18,12 @@ namespace Unity.UIWidgets.animation {
 
     class _AnimatedEvaluation<T> : AnimationWithParentMixin<float, T> {
         internal _AnimatedEvaluation(Animation<float> parent, Animatable<T> evaluatable) {
-            this._parent = parent;
-            this._evaluatable = evaluatable;
+            _parent = parent;
+            _evaluatable = evaluatable;
         }
 
         public override Animation<float> parent {
-            get { return this._parent; }
+            get { return _parent; }
         }
 
         readonly Animation<float> _parent;
@@ -31,23 +31,23 @@ namespace Unity.UIWidgets.animation {
         readonly Animatable<T> _evaluatable;
 
         public override T value {
-            get { return this._evaluatable.evaluate(this.parent); }
+            get { return _evaluatable.evaluate(parent); }
         }
 
         public override string ToString() {
-            return $"{this.parent}\u27A9{this._evaluatable}\u27A9{this.value}";
+            return $"{parent}\u27A9{_evaluatable}\u27A9{value}";
         }
 
         public override string toStringDetails() {
-            return base.toStringDetails() + " " + this._evaluatable;
+            return base.toStringDetails() + " " + _evaluatable;
         }
     }
 
 
     class _ChainedEvaluation<T> : Animatable<T> {
         internal _ChainedEvaluation(Animatable<float> parent, Animatable<T> evaluatable) {
-            this._parent = parent;
-            this._evaluatable = evaluatable;
+            _parent = parent;
+            _evaluatable = evaluatable;
         }
 
         readonly Animatable<float> _parent;
@@ -55,12 +55,12 @@ namespace Unity.UIWidgets.animation {
         readonly Animatable<T> _evaluatable;
 
         public override T evaluate(Animation<float> animation) {
-            float value = this._parent.evaluate(animation);
-            return this._evaluatable.evaluate(new AlwaysStoppedAnimation<float>(value));
+            float value = _parent.evaluate(animation);
+            return _evaluatable.evaluate(new AlwaysStoppedAnimation<float>(value));
         }
 
         public override string ToString() {
-            return $"{this._parent}\u27A9{this._evaluatable}";
+            return $"{_parent}\u27A9{_evaluatable}";
         }
     }
 
@@ -79,18 +79,18 @@ namespace Unity.UIWidgets.animation {
         public override T evaluate(Animation<float> animation) {
             float t = animation.value;
             if (t == 0.0) {
-                return this.begin;
+                return begin;
             }
 
             if (t == 1.0) {
-                return this.end;
+                return end;
             }
 
-            return this.lerp(t);
+            return lerp(t);
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.begin} \u2192 {this.end})";
+            return $"{GetType()}({begin} \u2192 {end})";
         }
 
         public bool Equals(Tween<T> other) {
@@ -102,8 +102,8 @@ namespace Unity.UIWidgets.animation {
                 return true;
             }
 
-            return EqualityComparer<T>.Default.Equals(this.begin, other.begin) &&
-                   EqualityComparer<T>.Default.Equals(this.end, other.end);
+            return EqualityComparer<T>.Default.Equals(begin, other.begin) &&
+                   EqualityComparer<T>.Default.Equals(end, other.end);
         }
 
         public override bool Equals(object obj) {
@@ -115,17 +115,17 @@ namespace Unity.UIWidgets.animation {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((Tween<T>) obj);
+            return Equals((Tween<T>) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return (EqualityComparer<T>.Default.GetHashCode(this.begin) * 397) ^
-                       EqualityComparer<T>.Default.GetHashCode(this.end);
+                return (EqualityComparer<T>.Default.GetHashCode(begin) * 397) ^
+                       EqualityComparer<T>.Default.GetHashCode(end);
             }
         }
 
@@ -146,7 +146,7 @@ namespace Unity.UIWidgets.animation {
         public readonly Tween<T> parent;
 
         public override T lerp(float t) {
-            return this.parent.lerp(1.0f - t);
+            return parent.lerp(1.0f - t);
         }
     }
 
@@ -155,7 +155,7 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override Color lerp(float t) {
-            return Color.lerp(this.begin, this.end, t);
+            return Color.lerp(begin, end, t);
         }
     }
 
@@ -164,7 +164,7 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override Size lerp(float t) {
-            return Size.lerp(this.begin, this.end, t);
+            return Size.lerp(begin, end, t);
         }
     }
 
@@ -173,7 +173,7 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override Rect lerp(float t) {
-            return Rect.lerp(this.begin, this.end, t);
+            return Rect.lerp(begin, end, t);
         }
     }
 
@@ -182,7 +182,7 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override int lerp(float t) {
-            return (this.begin + (this.end - this.begin) * t).round();
+            return (begin + (end - begin) * t).round();
         }
     }
 
@@ -191,9 +191,9 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override float? lerp(float t) {
-            D.assert(this.begin != null);
-            D.assert(this.end != null);
-            return this.begin + (this.end - this.begin) * t;
+            D.assert(begin != null);
+            D.assert(end != null);
+            return begin + (end - begin) * t;
         }
     }
 
@@ -202,7 +202,7 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override float lerp(float t) {
-            return this.begin + (this.end - this.begin) * t;
+            return begin + (end - begin) * t;
         }
     }
 
@@ -211,7 +211,7 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override int lerp(float t) {
-            return (this.begin + (this.end - this.begin) * t).floor();
+            return (begin + (end - begin) * t).floor();
         }
     }
 
@@ -220,7 +220,7 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override Offset lerp(float t) {
-            return (this.begin + (this.end - this.begin) * t);
+            return (begin + (end - begin) * t);
         }
     }
 
@@ -229,11 +229,11 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override T lerp(float t) {
-            return this.begin;
+            return begin;
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(value: {this.begin})";
+            return $"{GetType()}(value: {begin})";
         }
     }
 
@@ -248,15 +248,15 @@ namespace Unity.UIWidgets.animation {
         public override float evaluate(Animation<float> animation) {
             float t = animation.value;
             if (t == 0.0 || t == 1.0) {
-                D.assert(this.curve.transform(t).round() == t);
+                D.assert(curve.transform(t).round() == t);
                 return t;
             }
 
-            return this.curve.transform(t);
+            return curve.transform(t);
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(curve: {this.curve})";
+            return $"{GetType()}(curve: {curve})";
         }
     }
 }

@@ -44,12 +44,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            return this.data != ((IconTheme) oldWidget).data;
+            return data != ((IconTheme) oldWidget).data;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<IconThemeData>("data", this.data, showName: false));
+            properties.add(new DiagnosticsProperty<IconThemeData>("data", data, showName: false));
         }
     }
 }

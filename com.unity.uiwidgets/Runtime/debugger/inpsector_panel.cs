@@ -30,49 +30,49 @@ namespace Unity.UIWidgets.debugger {
 
         public InspectorPanel(EditorWindow window, WidgetTreeType treeType, InspectorService inspectorService,
             float? splitOffset = null) {
-            this.m_Window = window;
+            m_Window = window;
             this.treeType = treeType;
-            this.m_InspectorService = inspectorService;
-            this.m_InspectorService.selectionChanged += this.handleSelectionChanged;
-            this.m_TreeView = new InspectorTreeView(new TreeViewState());
-            this.m_TreeView.onNodeSelectionChanged += this.OnNodeSelectionChanged;
-            this.m_TreeView.Reload();
+            m_InspectorService = inspectorService;
+            m_InspectorService.selectionChanged += handleSelectionChanged;
+            m_TreeView = new InspectorTreeView(new TreeViewState());
+            m_TreeView.onNodeSelectionChanged += OnNodeSelectionChanged;
+            m_TreeView.Reload();
             if (treeType == WidgetTreeType.Widget) {
-                this.m_DetailTreeView = new InspectorTreeView(new TreeViewState());
-                this.m_DetailTreeView.Reload();
+                m_DetailTreeView = new InspectorTreeView(new TreeViewState());
+                m_DetailTreeView.Reload();
             }
 
-            this.m_GroupName = Singleton<InspectorObjectGroupManager>.Instance.nextGroupName("inspector");
-            this.m_SplitOffset = splitOffset ?? window.position.height / 2;
+            m_GroupName = Singleton<InspectorObjectGroupManager>.Instance.nextGroupName("inspector");
+            m_SplitOffset = splitOffset ?? window.position.height / 2;
         }
 
         public string title {
-            get { return this.treeType == WidgetTreeType.Widget ? "Widgets" : "Render Tree"; }
+            get { return treeType == WidgetTreeType.Widget ? "Widgets" : "Render Tree"; }
         }
 
         public bool visibleToUser {
-            get { return this.m_VisibleToUser; }
+            get { return m_VisibleToUser; }
             set {
-                if (this.m_VisibleToUser == value) {
+                if (m_VisibleToUser == value) {
                     return;
                 }
 
-                this.m_VisibleToUser = value;
+                m_VisibleToUser = value;
                 if (value) {
-                    this.m_NeedSelectionUpdate = true;
-                    this.m_NeedDetailUpdate = true;
+                    m_NeedSelectionUpdate = true;
+                    m_NeedDetailUpdate = true;
                 }
             }
         }
 
         public PanelState PanelState {
-            get { return new PanelState() {splitOffset = this.m_SplitOffset, treeType = this.treeType}; }
+            get { return new PanelState() {splitOffset = m_SplitOffset, treeType = treeType}; }
         }
 
         public void Close() {
-            this.m_InspectorService.selectionChanged -= this.handleSelectionChanged;
-            if (this.m_InspectorService != null) {
-                this.m_InspectorService.disposeGroup(this.m_GroupName);
+            m_InspectorService.selectionChanged -= handleSelectionChanged;
+            if (m_InspectorService != null) {
+                m_InspectorService.disposeGroup(m_GroupName);
             }
 
             // todo
@@ -87,25 +87,25 @@ namespace Unity.UIWidgets.debugger {
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
 
             // splitter
-            this.m_SplitOffset = Mathf.Max(0, this.m_SplitOffset);
+            m_SplitOffset = Mathf.Max(0, m_SplitOffset);
             var rect = EditorGUILayout.GetControlRect(GUILayout.ExpandWidth(true),
-                GUILayout.Height(this.m_SplitOffset));
-            this.m_TreeView.OnGUI(rect);
+                GUILayout.Height(m_SplitOffset));
+            m_TreeView.OnGUI(rect);
             GUILayout.Box("",
                 GUILayout.ExpandWidth(true),
                 GUILayout.Height(splitterHeight));
             var splitterRect = GUILayoutUtility.GetLastRect();
-            this.splitGUI(splitterRect);
+            splitGUI(splitterRect);
 
-            if (this.m_DetailTreeView != null) {
+            if (m_DetailTreeView != null) {
                 var rect2 = EditorGUILayout.GetControlRect(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-                this.m_DetailTreeView.OnGUI(rect2);
+                m_DetailTreeView.OnGUI(rect2);
             }
 
-            if (this.m_Properties != null) {
+            if (m_Properties != null) {
                 EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-                this.m_PropertyScrollPos = EditorGUILayout.BeginScrollView(this.m_PropertyScrollPos);
-                foreach (var property in this.m_Properties) {
+                m_PropertyScrollPos = EditorGUILayout.BeginScrollView(m_PropertyScrollPos);
+                foreach (var property in m_Properties) {
                     if (property.isColorProperty) {
                         var properties = property.valuePropertiesJson;
                         int alpha = Util.GetIntProperty(properties, "alpha");
@@ -128,110 +128,110 @@ namespace Unity.UIWidgets.debugger {
             EditorGUILayout.EndVertical();
 
             if (Event.current.type == EventType.Repaint) {
-                if (splitterRect.yMax > this.m_Window.position.height) {
-                    this.m_SplitOffset -= splitterRect.yMax - this.m_Window.position.height;
-                    this.m_Window.Repaint();
+                if (splitterRect.yMax > m_Window.position.height) {
+                    m_SplitOffset -= splitterRect.yMax - m_Window.position.height;
+                    m_Window.Repaint();
                 }
             }
         }
 
 
         public void LoadTree() {
-            var node = this.treeType == WidgetTreeType.Widget
-                ? this.m_InspectorService.getRootWidgetSummaryTree(this.m_GroupName)
-                : this.m_InspectorService.getRootRenderObject(this.m_GroupName);
-            this.m_TreeView.node = node;
+            var node = treeType == WidgetTreeType.Widget
+                ? m_InspectorService.getRootWidgetSummaryTree(m_GroupName)
+                : m_InspectorService.getRootRenderObject(m_GroupName);
+            m_TreeView.node = node;
         }
 
         public void MarkNeedReload() {
-            this.m_TreeView.node = null;
-            this.m_NeedSelectionUpdate = true;
+            m_TreeView.node = null;
+            m_NeedSelectionUpdate = true;
         }
 
         public void Update() {
-            if (!this.m_VisibleToUser) {
+            if (!m_VisibleToUser) {
                 return;
             }
 
-            if (this.m_TreeView.node == null) {
-                this.LoadTree();
+            if (m_TreeView.node == null) {
+                LoadTree();
             }
 
-            this.updateSelection();
-            this.updateDetailTree();
+            updateSelection();
+            updateDetailTree();
 
-            if (this.treeType == WidgetTreeType.Render &&
-                Timer.timespanSinceStartup - this.m_LastPropertyRefresh > TimeSpan.FromMilliseconds(200)) {
-                this.m_LastPropertyRefresh = Timer.timespanSinceStartup;
-                this.m_Properties = this.m_SelectedNodeRef == null
+            if (treeType == WidgetTreeType.Render &&
+                Timer.timespanSinceStartup - m_LastPropertyRefresh > TimeSpan.FromMilliseconds(200)) {
+                m_LastPropertyRefresh = Timer.timespanSinceStartup;
+                m_Properties = m_SelectedNodeRef == null
                     ? new List<DiagnosticsNode>()
-                    : this.m_InspectorService.getProperties(this.m_SelectedNodeRef, this.m_GroupName);
-                this.m_Properties = this.m_Properties.Where((p) => p.level != DiagnosticLevel.hidden).ToList();
+                    : m_InspectorService.getProperties(m_SelectedNodeRef, m_GroupName);
+                m_Properties = m_Properties.Where((p) => p.level != DiagnosticLevel.hidden).ToList();
 
-                this.m_Window.Repaint();
+                m_Window.Repaint();
             }
         }
 
 
         void OnNodeSelectionChanged(DiagnosticsNode node) {
-            this.m_SelectedNodeRef = node == null ? null : node.diagnosticRef;
-            this.m_InspectorService.setSelection(node == null ? null : node.valueRef, this.m_GroupName);
-            this.m_NeedDetailUpdate = this.m_DetailTreeView != null;
+            m_SelectedNodeRef = node == null ? null : node.diagnosticRef;
+            m_InspectorService.setSelection(node == null ? null : node.valueRef, m_GroupName);
+            m_NeedDetailUpdate = m_DetailTreeView != null;
         }
 
         void handleSelectionChanged() {
-            this.m_NeedSelectionUpdate = true;
-            this.m_NeedDetailUpdate = true;
+            m_NeedSelectionUpdate = true;
+            m_NeedDetailUpdate = true;
         }
 
         void updateSelection() {
-            if (!this.m_NeedSelectionUpdate) {
+            if (!m_NeedSelectionUpdate) {
                 return;
             }
 
-            this.m_NeedSelectionUpdate = false;
-            var diagnosticsNode = this.m_InspectorService.getSelection(this.m_TreeView.selectedNode, this.treeType,
-                true, this.m_GroupName);
-            this.m_SelectedNodeRef = diagnosticsNode == null ? null : diagnosticsNode.diagnosticRef;
+            m_NeedSelectionUpdate = false;
+            var diagnosticsNode = m_InspectorService.getSelection(m_TreeView.selectedNode, treeType,
+                true, m_GroupName);
+            m_SelectedNodeRef = diagnosticsNode == null ? null : diagnosticsNode.diagnosticRef;
 
             if (diagnosticsNode != null) {
-                var item = this.m_TreeView.getTreeItemByValueRef(diagnosticsNode.valueRef);
+                var item = m_TreeView.getTreeItemByValueRef(diagnosticsNode.valueRef);
                 if (item == null) {
-                    this.LoadTree();
-                    item = this.m_TreeView.getTreeItemByValueRef(diagnosticsNode.valueRef);
+                    LoadTree();
+                    item = m_TreeView.getTreeItemByValueRef(diagnosticsNode.valueRef);
                 }
 
                 if (item != null) {
-                    this.m_TreeView.SetSelection(new List<int> {item.id}, TreeViewSelectionOptions.RevealAndFrame);
+                    m_TreeView.SetSelection(new List<int> {item.id}, TreeViewSelectionOptions.RevealAndFrame);
                 }
                 else {
-                    this.m_TreeView.SetSelection(new List<int>());
+                    m_TreeView.SetSelection(new List<int>());
                 }
 
-                this.m_TreeView.Repaint();
+                m_TreeView.Repaint();
             }
         }
 
         void updateDetailTree() {
-            D.assert(!this.m_NeedSelectionUpdate);
-            if (!this.m_NeedDetailUpdate) {
+            D.assert(!m_NeedSelectionUpdate);
+            if (!m_NeedDetailUpdate) {
                 return;
             }
 
-            if (this.m_DetailTreeView == null) {
+            if (m_DetailTreeView == null) {
                 return;
             }
 
-            this.m_NeedDetailUpdate = false;
-            if (this.m_SelectedNodeRef == null) {
-                this.m_DetailTreeView.node = null;
+            m_NeedDetailUpdate = false;
+            if (m_SelectedNodeRef == null) {
+                m_DetailTreeView.node = null;
             }
             else {
-                this.m_DetailTreeView.node =
-                    this.m_InspectorService.getDetailsSubtree(this.m_SelectedNodeRef, this.m_GroupName);
+                m_DetailTreeView.node =
+                    m_InspectorService.getDetailsSubtree(m_SelectedNodeRef, m_GroupName);
             }
 
-            this.m_DetailTreeView.ExpandAll();
+            m_DetailTreeView.ExpandAll();
         }
 
         void splitGUI(Rect splitterRect) {
@@ -246,8 +246,8 @@ namespace Unity.UIWidgets.debugger {
                     break;
                 case EventType.MouseDrag:
                     if (GUIUtility.hotControl == id) {
-                        this.m_SplitOffset += Event.current.delta.y;
-                        this.m_Window.Repaint();
+                        m_SplitOffset += Event.current.delta.y;
+                        m_Window.Repaint();
                         Event.current.Use();
                     }
 
