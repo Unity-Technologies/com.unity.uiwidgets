@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace Unity.UIWidgets.foundation {
-    public static class foundation_ {
+    public static partial class foundation_ {
         public static readonly bool kReleaseMode = !Debug.isDebugBuild;
 
 #if UIWidgets_PROFILE

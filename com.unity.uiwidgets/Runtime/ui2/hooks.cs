@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using AOT;
+using Unity.UIWidgets.async2;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
@@ -11,7 +13,7 @@ namespace Unity.UIWidgets.ui2 {
 #else
         [RuntimeInitializeOnLoadMethod]
 #endif
-        static void hook() {
+        static unsafe void hook() {
             Mono_hook(
                 Mono_throwException);
 
@@ -20,7 +22,8 @@ namespace Unity.UIWidgets.ui2 {
                 Window_dispose,
                 Window_updateWindowMetrics,
                 Window_beginFrame,
-                Window_drawFrame);
+                Window_drawFrame,
+                ui_._dispatchPlatformMessage);
         }
 
         delegate void Mono_ThrowExceptionCallback(IntPtr exception);
@@ -90,52 +93,66 @@ namespace Unity.UIWidgets.ui2 {
             float systemGestureInsetBottom,
             float systemGestureInsetLeft
         ) {
-            var window = Window.instance;
+            try {
+                var window = Window.instance;
+                window.devicePixelRatio = devicePixelRatio;
 
-            window.devicePixelRatio = devicePixelRatio;
+                window.physicalSize = new Size(width, height);
+                window.physicalDepth = depth;
 
-            window.physicalSize = new Size(width, height);
-            window.physicalDepth = depth;
+                window.viewPadding = new WindowPadding(
+                    top: viewPaddingTop,
+                    right: viewPaddingRight,
+                    bottom: viewPaddingBottom,
+                    left: viewPaddingLeft);
 
-            window.viewPadding = new WindowPadding(
-                top: viewPaddingTop,
-                right: viewPaddingRight,
-                bottom: viewPaddingBottom,
-                left: viewPaddingLeft);
+                window.viewInsets = new WindowPadding(
+                    top: viewInsetTop,
+                    right: viewInsetRight,
+                    bottom: viewInsetBottom,
+                    left: viewInsetLeft);
 
-            window.viewInsets = new WindowPadding(
-                top: viewInsetTop,
-                right: viewInsetRight,
-                bottom: viewInsetBottom,
-                left: viewInsetLeft);
+                window.padding = new WindowPadding(
+                    top: Mathf.Max(0.0f, viewPaddingTop - viewInsetTop),
+                    right: Mathf.Max(0.0f, viewPaddingRight - viewInsetRight),
+                    bottom: Mathf.Max(0.0f, viewPaddingBottom - viewInsetBottom),
+                    left: Mathf.Max(0.0f, viewPaddingLeft - viewInsetLeft));
 
-            window.padding = new WindowPadding(
-                top: Mathf.Max(0.0f, viewPaddingTop - viewInsetTop),
-                right: Mathf.Max(0.0f, viewPaddingRight - viewInsetRight),
-                bottom: Mathf.Max(0.0f, viewPaddingBottom - viewInsetBottom),
-                left: Mathf.Max(0.0f, viewPaddingLeft - viewInsetLeft));
+                window.systemGestureInsets = new WindowPadding(
+                    top: Mathf.Max(0.0f, systemGestureInsetTop),
+                    right: Mathf.Max(0.0f, systemGestureInsetRight),
+                    bottom: Mathf.Max(0.0f, systemGestureInsetBottom),
+                    left: Mathf.Max(0.0f, systemGestureInsetLeft));
 
-            window.systemGestureInsets = new WindowPadding(
-                top: Mathf.Max(0.0f, systemGestureInsetTop),
-                right: Mathf.Max(0.0f, systemGestureInsetRight),
-                bottom: Mathf.Max(0.0f, systemGestureInsetBottom),
-                left: Mathf.Max(0.0f, systemGestureInsetLeft));
-
-            window.onMetricsChanged?.Invoke();
+                window.onMetricsChanged?.Invoke();
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
         }
 
         delegate void Window_beginFrameCallback(long microseconds);
 
         [MonoPInvokeCallback(typeof(Window_beginFrameCallback))]
         static void Window_beginFrame(long microseconds) {
-            Window.instance.onBeginFrame?.Invoke(TimeSpan.FromMilliseconds(microseconds / 1000.0));
+            try {
+                Window.instance.onBeginFrame?.Invoke(TimeSpan.FromMilliseconds(microseconds / 1000.0));
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
         }
 
         delegate void Window_drawFrameCallback();
 
         [MonoPInvokeCallback(typeof(Window_drawFrameCallback))]
         static void Window_drawFrame() {
-            Window.instance.onDrawFrame?.Invoke();
+            try {
+                Window.instance.onDrawFrame?.Invoke();
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
         }
 
         [DllImport(NativeBindings.dllName)]
@@ -144,6 +161,65 @@ namespace Unity.UIWidgets.ui2 {
             Window_disposeCallback Window_dispose,
             Window_updateWindowMetricsCallback Window_updateWindowMetrics,
             Window_beginFrameCallback Window_beginFrame,
-            Window_drawFrameCallback Window_drawFrame);
+            Window_drawFrameCallback Window_drawFrame,
+            ui_.Window_dispatchPlatformMessageCallback Window_dispatchPlatformMessage);
+    }
+
+    public static partial class ui_ {
+        internal unsafe delegate void Window_dispatchPlatformMessageCallback(string name, byte* dataRaw, int dataLength,
+            int responseId);
+
+        [MonoPInvokeCallback(typeof(Window_dispatchPlatformMessageCallback))]
+        internal static unsafe void _dispatchPlatformMessage(
+            string name, byte* dataRaw, int dataLength, int responseId) {
+            try {
+                var data = new byte[dataLength];
+                Marshal.Copy((IntPtr) dataRaw, data, 0, dataLength);
+
+                if (name == ChannelBuffers.kControlChannelName) {
+                    try {
+                        channelBuffers.handleMessage(data);
+                    }
+                    catch (Exception ex) {
+                        Debug.LogError($"Message to \"{name}\" caused exception {ex}");
+                    }
+                    finally {
+                        Window.instance._respondToPlatformMessage(responseId, null);
+                    }
+                }
+                else if (Window.instance.onPlatformMessage != null) {
+                    _invoke3<string, byte[], PlatformMessageResponseCallback>(
+                        (name1, data1, callback1) => Window.instance.onPlatformMessage(name1, data1, callback1),
+                        Window.instance._onPlatformMessageZone,
+                        name, data, responseData =>
+                            Window.instance._respondToPlatformMessage(responseId, responseData)
+                    );
+                }
+                else {
+                    channelBuffers.push(name, data, responseData
+                        => Window.instance._respondToPlatformMessage(responseId, responseData));
+                }
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
+        }
+
+        internal static void _invoke3<A1, A2, A3>(Action<A1, A2, A3> callback, Zone zone, A1 arg1, A2 arg2, A3 arg3) {
+            if (callback == null)
+                return;
+
+            D.assert(zone != null);
+
+            if (ReferenceEquals(zone, Zone.current)) {
+                callback(arg1, arg2, arg3);
+            }
+            else {
+                zone.runGuarded(() => {
+                    callback(arg1, arg2, arg3);
+                    return null;
+                });
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@ using Unity.UIWidgets.foundation;
 namespace Unity.UIWidgets.async2 {
     using _FutureOnValue = Func<object, FutureOr>;
     using _FutureErrorTest = Func<Exception, bool>;
-    using _FutureAction = Func<object>;
+    using _FutureAction = Func<FutureOr>;
 
     abstract class _Completer : Completer {
         protected readonly _Future _future = new _Future();
@@ -166,9 +166,9 @@ namespace Unity.UIWidgets.async2 {
             return (FutureOr) _zone.runUnary(arg => errorCallback((Exception) arg), asyncError.InnerException);
         }
 
-        public object handleWhenComplete() {
+        public FutureOr handleWhenComplete() {
             D.assert(!handlesError);
-            return _zone.run(() => _whenCompleteAction());
+            return (FutureOr) _zone.run(() => _whenCompleteAction());
         }
     }
 
@@ -193,7 +193,7 @@ namespace Unity.UIWidgets.async2 {
             _zone = zone;
         }
 
-        internal static _Future immediate(object result) {
+        internal static _Future immediate(FutureOr result) {
             var future = new _Future(Zone.current);
             future._asyncComplete(result);
             return future;
@@ -255,7 +255,7 @@ namespace Unity.UIWidgets.async2 {
             return result;
         }
 
-        public override Future whenComplete(Func<object> action) {
+        public override Future whenComplete(Func<FutureOr> action) {
             _Future result = new _Future();
             if (!ReferenceEquals(result._zone, async_._rootZone)) {
                 action = async_._registerHandler(action, result._zone);
@@ -292,6 +292,7 @@ namespace Unity.UIWidgets.async2 {
         }
 
         internal void _setValue(object value) {
+            D.assert(!(value is Future || value is FutureOr));
             D.assert(!_isComplete); // But may have a completion pending.
             _state = _stateValue;
             _resultOrListeners = value;
@@ -415,7 +416,7 @@ namespace Unity.UIWidgets.async2 {
                         // implementation is mis-behaving,
                         // so use _complete instead of _completeWithValue.
                         target._clearPendingComplete(); // Clear this first, it's set again.
-                        target._complete(FutureOr.withValue(value));
+                        target._complete(FutureOr.value(value));
                         return new FutureOr();
                     },
                     onError: (Exception error) => {
@@ -454,26 +455,25 @@ namespace Unity.UIWidgets.async2 {
             }
         }
 
-        internal void _complete(FutureOr value) {
+        internal void _complete(FutureOr value = default) {
             D.assert(!_isComplete);
             if (value.isFuture) {
-                if (value.future is _Future coreFuture) {
+                if (value.f is _Future coreFuture) {
                     _chainCoreFuture(coreFuture, this);
                 }
                 else {
-                    _chainForeignFuture(value.future, this);
+                    _chainForeignFuture(value.f, this);
                 }
             }
             else {
                 _FutureListener listeners = _removeListeners();
-                _setValue(value);
+                _setValue(value.v);
                 _propagateToListeners(this, listeners);
             }
         }
 
         internal void _completeWithValue(object value) {
             D.assert(!_isComplete);
-            D.assert(!(value is Future));
 
             _FutureListener listeners = _removeListeners();
             _setValue(value);
@@ -488,7 +488,7 @@ namespace Unity.UIWidgets.async2 {
             _propagateToListeners(this, listeners);
         }
 
-        internal void _asyncComplete(object value) {
+        internal void _asyncComplete(FutureOr value) {
             D.assert(!_isComplete);
             // Two corner cases if the value is a future:
             //   1. the future is already completed and an error.
@@ -501,14 +501,14 @@ namespace Unity.UIWidgets.async2 {
             // unhandled error, even though we know we are already going to listen to
             // it.
 
-            if (value is Future future) {
-                _chainFuture(future);
+            if (value.isFuture) {
+                _chainFuture(value.f);
                 return;
             }
 
             _setPendingComplete();
             _zone.scheduleMicrotask(() => {
-                _completeWithValue(value);
+                _completeWithValue(value.v);
                 return null;
             });
         }
@@ -608,7 +608,7 @@ namespace Unity.UIWidgets.async2 {
                         // listener.
                         D.assert(!listener.handlesValue);
                         D.assert(!listener.handlesError);
-                        object completeResult = null;
+                        FutureOr completeResult;
                         try {
                             completeResult = listener.handleWhenComplete();
                         }
@@ -624,8 +624,9 @@ namespace Unity.UIWidgets.async2 {
                             return;
                         }
 
-                        if (completeResult is Future completeResultFuture) {
-                            if (completeResult is _Future completeResultCoreFuture &&
+                        if (completeResult.isFuture) {
+                            var completeResultFuture = completeResult.f;
+                            if (completeResultFuture is _Future completeResultCoreFuture &&
                                 completeResultCoreFuture._isComplete) {
                                 if (completeResultCoreFuture._hasError) {
                                     listenerValueOrError = completeResultCoreFuture._error;
@@ -641,7 +642,7 @@ namespace Unity.UIWidgets.async2 {
                             // of source.
                             var originalSource = source;
                             listenerValueOrError =
-                                completeResultFuture.then((_) => FutureOr.withFuture(originalSource));
+                                completeResultFuture.then((_) => FutureOr.future(originalSource));
                             listenerHasError = false;
                         }
                     };
@@ -693,6 +694,10 @@ namespace Unity.UIWidgets.async2 {
 
                     // If we changed zone, oldZone will not be null.
                     if (oldZone != null) Zone._leave(oldZone);
+
+                    if (listenerValueOrError is FutureOr futureOr) {
+                        listenerValueOrError = futureOr.isFuture ? futureOr.f : futureOr.v;
+                    }
 
                     // If the listener's value is a future we need to chain it. Note that
                     // this can only happen if there is a callback.
@@ -769,14 +774,14 @@ namespace Unity.UIWidgets.async2 {
                     result._completeWithValue(v);
                 }
 
-                return FutureOr.nullValue;
+                return FutureOr.nil;
             }, onError: e => {
                 if (timer.isActive) {
                     timer.cancel();
                     result._completeError(e);
                 }
 
-                return FutureOr.nullValue;
+                return FutureOr.nil;
             });
             return result;
         }

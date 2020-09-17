@@ -6,9 +6,7 @@ using Unity.UIWidgets.ui2;
 namespace Unity.UIWidgets.foundation {
     public abstract class BindingBase {
         protected BindingBase() {
-            D.assert(!_debugInitialized);
             initInstances();
-            D.assert(_debugInitialized);
         }
 
         static bool _debugInitialized = false;
@@ -16,11 +14,6 @@ namespace Unity.UIWidgets.foundation {
         public Window window => Window.instance;
 
         protected virtual void initInstances() {
-            D.assert(!_debugInitialized);
-            D.assert(() => {
-                _debugInitialized = true;
-                return true;
-            });
         }
 
         protected bool locked => _lockCount > 0;
@@ -43,7 +36,7 @@ namespace Unity.UIWidgets.foundation {
                     unlocked();
                 }
 
-                return null;
+                return FutureOr.nil;
             });
             return future;
         }

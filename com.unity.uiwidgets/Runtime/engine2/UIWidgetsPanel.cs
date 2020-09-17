@@ -9,7 +9,11 @@ using NativeBindings = Unity.UIWidgets.ui2.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
     public class UIWidgetsPanel : RawImage {
-        public IntPtr isolate { get; private set; }
+        public static UIWidgetsPanel current {
+            get { return Window.instance._panel; }
+        }
+
+        public Isolate isolate { get; private set; }
 
         IntPtr _ptr;
         GCHandle _handle;
@@ -47,16 +51,17 @@ namespace Unity.UIWidgets.engine2 {
 
             _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, UIWidgetsPanel_entrypoint);
             UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
-                _width, _height, _devicePixelRatio);
+                _width, _height, _devicePixelRatio, Application.streamingAssetsPath);
         }
 
         protected virtual void main() {
-            Debug.Log(Debug.isDebugBuild);
         }
 
         public void entryPoint() {
             try {
                 isolate = Isolate.current;
+                Window.instance._panel = this;
+
                 main();
             }
             catch (Exception ex) {
@@ -81,6 +86,9 @@ namespace Unity.UIWidgets.engine2 {
 
             _handle.Free();
             _handle = default;
+
+            if (isolate != null)
+                Isolate.remove(isolate);
 
             base.OnDisable();
         }
@@ -143,7 +151,7 @@ namespace Unity.UIWidgets.engine2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onEnable(IntPtr ptr,
-            IntPtr nativeTexturePtr, int width, int height, float dpi);
+            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath);
 
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onDisable(IntPtr ptr);

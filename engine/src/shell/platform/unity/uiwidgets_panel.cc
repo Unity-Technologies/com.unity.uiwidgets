@@ -24,7 +24,8 @@ UIWidgetsPanel::UIWidgetsPanel(Mono_Handle handle,
 UIWidgetsPanel::~UIWidgetsPanel() = default;
 
 void UIWidgetsPanel::OnEnable(void* native_texture_ptr, size_t width,
-                              size_t height, float device_pixel_ratio) {
+                              size_t height, float device_pixel_ratio,
+                              const char* streaming_assets_path) {
   surface_manager_ = std::make_unique<UnitySurfaceManager>(
       UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
 
@@ -121,7 +122,7 @@ void UIWidgetsPanel::OnEnable(void* native_texture_ptr, size_t width,
   UIWidgetsProjectArgs args = {};
   args.struct_size = sizeof(UIWidgetsProjectArgs);
 
-  args.assets_path = "";
+  args.assets_path = streaming_assets_path;
   args.icu_data_path = "";
 
   args.command_line_argc = 0;
@@ -175,10 +176,10 @@ void UIWidgetsPanel::OnEnable(void* native_texture_ptr, size_t width,
 void UIWidgetsPanel::MonoEntrypoint() { entrypoint_callback_(handle_); }
 
 void UIWidgetsPanel::OnDisable() {
-	// drain pending messages
+  // drain pending messages
   ProcessMessages();
 
-	// drain pending vsync batons
+  // drain pending vsync batons
   ProcessVSync();
 
   UIWidgetsSystem::GetInstancePtr()->UnregisterPanel(this);
@@ -219,8 +220,8 @@ void UIWidgetsPanel::OnRenderTexture(void* native_texture_ptr, size_t width,
       });
 
   ViewportMetrics metrics;
-  metrics.physical_width = width;
-  metrics.physical_height = height;
+  metrics.physical_width = static_cast<float>(width);
+  metrics.physical_height = static_cast<float>(height);
   metrics.device_pixel_ratio = device_pixel_ratio;
   reinterpret_cast<EmbedderEngine*>(engine_)->SetViewportMetrics(metrics);
 }
@@ -264,8 +265,10 @@ UIWIDGETS_API(void) UIWidgetsPanel_dispose(UIWidgetsPanel* panel) {
 
 UIWIDGETS_API(void)
 UIWidgetsPanel_onEnable(UIWidgetsPanel* panel, void* native_texture_ptr,
-                        size_t width, size_t height, float device_pixel_ratio) {
-  panel->OnEnable(native_texture_ptr, width, height, device_pixel_ratio);
+                        size_t width, size_t height, float device_pixel_ratio,
+                        const char* streaming_assets_path) {
+  panel->OnEnable(native_texture_ptr, width, height, device_pixel_ratio,
+                  streaming_assets_path);
 }
 
 UIWIDGETS_API(void) UIWidgetsPanel_onDisable(UIWidgetsPanel* panel) {

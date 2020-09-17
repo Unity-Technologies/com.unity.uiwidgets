@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.ui2;
+using UnityEngine;
 
 namespace Unity.UIWidgets.async2 {
     public abstract class Timer : IDisposable {
@@ -94,6 +95,8 @@ namespace Unity.UIWidgets.async2 {
         }
 
         void _enqueue() {
+            Isolate.ensureExists();
+            
             GCHandle callabackHandle = GCHandle.Alloc(this);
             UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callabackHandle, _wakeupTime * 1000L);
         }
@@ -104,29 +107,34 @@ namespace Unity.UIWidgets.async2 {
             var timer = (_Timer) timerHandle.Target;
             timerHandle.Free();
 
-            if (timer._callback != null) {
-                var callback = timer._callback;
-                if (!timer._repeating) {
-                    timer._callback = null;
-                }
-                else if (timer._milliSeconds > 0) {
-                    var ms = timer._milliSeconds;
-                    int overdue = UIMonoState_timerMillisecondClock() - timer._wakeupTime;
-                    if (overdue > ms) {
-                        int missedTicks = overdue / ms;
-                        timer._wakeupTime += missedTicks * ms;
-                        timer._tick += missedTicks;
+            try {
+                if (timer._callback != null) {
+                    var callback = timer._callback;
+                    if (!timer._repeating) {
+                        timer._callback = null;
+                    }
+                    else if (timer._milliSeconds > 0) {
+                        var ms = timer._milliSeconds;
+                        int overdue = UIMonoState_timerMillisecondClock() - timer._wakeupTime;
+                        if (overdue > ms) {
+                            int missedTicks = overdue / ms;
+                            timer._wakeupTime += missedTicks * ms;
+                            timer._tick += missedTicks;
+                        }
+                    }
+
+                    timer._tick += 1;
+
+                    callback(timer);
+
+                    if (timer._repeating && (timer._callback != null)) {
+                        timer._advanceWakeupTime();
+                        timer._enqueue();
                     }
                 }
-
-                timer._tick += 1;
-
-                callback(timer);
-
-                if (timer._repeating && (timer._callback != null)) {
-                    timer._advanceWakeupTime();
-                    timer._enqueue();
-                }
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
             }
         }
 

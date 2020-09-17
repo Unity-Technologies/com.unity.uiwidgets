@@ -59,10 +59,10 @@ namespace Unity.UIWidgets.scheduler2 {
 
         public void run() {
             if (!foundation_.kReleaseMode) {
-                completer.complete(FutureOr.withValue(task()));
+                completer.complete(FutureOr.value(task()));
             }
             else {
-                completer.complete(FutureOr.withValue(task()));
+                completer.complete(FutureOr.value(task()));
             }
         }
 
@@ -183,7 +183,7 @@ namespace Unity.UIWidgets.scheduler2 {
 
         public static SchedulerBinding instance {
             get { return (SchedulerBinding) Window.instance._binding; }
-            set { Window.instance._binding = value; }
+            private set { Window.instance._binding = value; }
         }
 
         public AppLifecycleState? lifecycleState => _lifecycleState;
@@ -343,7 +343,7 @@ namespace Unity.UIWidgets.scheduler2 {
                     if (schedulerPhase == SchedulerPhase.idle)
                         scheduleFrame();
                     _nextFrameCompleter = Completer.create();
-                    addPostFrameCallback((TimeSpan timeStamp) => {
+                    addPostFrameCallback((timeStamp) => {
                         _nextFrameCompleter.complete();
                         _nextFrameCompleter = null;
                     });
@@ -463,7 +463,7 @@ namespace Unity.UIWidgets.scheduler2 {
             // scheduled frame has finished.
             lockEvents(() => endOfFrame.then(v => {
                 Timeline.finishSync();
-                return FutureOr.nullValue;
+                return FutureOr.nil;
             }));
         }
 
