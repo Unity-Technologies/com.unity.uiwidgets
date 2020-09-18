@@ -12,7 +12,7 @@
 #include "flutter/fml/paths.h"
 #include "flutter/fml/trace_event.h"
 #include "flutter/fml/unique_fd.h"
-//#include "lib/ui/text/font_collection.h"
+#include "lib/ui/txt/font_collection.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPictureRecorder.h"
 #include "rapidjson/document.h"
@@ -85,7 +85,8 @@ bool Engine::UpdateAssetManager(
   }
 
   //// Using libTXT as the text engine.
-  // font_collection_.RegisterFonts(asset_manager_);
+  font_collection_.RegisterFonts(asset_manager_);
+
 
   return true;
 }
@@ -100,6 +101,11 @@ bool Engine::Restart(RunConfiguration configuration) {
   runtime_controller_ = runtime_controller_->Clone();
   UpdateAssetManager(nullptr);
   return Run(std::move(configuration)) == RunStatus::Success;
+}
+
+void Engine::SetupDefaultFontManager() {
+    TRACE_EVENT0("uiwidgets", "Engine::SetupDefaultFontManager");
+    font_collection_.SetupDefaultFontManager();
 }
 
 Engine::RunStatus Engine::Run(RunConfiguration configuration) {
@@ -337,7 +343,7 @@ void Engine::SetNeedsReportTimings(bool needs_reporting) {
   delegate_.SetNeedsReportTimings(needs_reporting);
 }
 
-// FontCollection& Engine::GetFontCollection() { return font_collection_; }
+FontCollection& Engine::GetFontCollection() { return font_collection_; }
 
 void Engine::DoDispatchPacket(std::unique_ptr<PointerDataPacket> packet,
                               uint64_t trace_flow_id) {

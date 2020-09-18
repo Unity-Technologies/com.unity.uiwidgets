@@ -602,7 +602,7 @@ namespace Unity.UIWidgets.ui2 {
                 fixed (byte* data = _fontChangeMessage) {
                     Window window = new Window();
                     window.onPlatformMessage?.Invoke("flutter/system", data, _fontChangeMessage.Length,
-                        (byte* data, int dataLength) => { });
+                        (byte* dataIn, int dataLength) => { });
                 }
             }
         }
@@ -621,7 +621,7 @@ namespace Unity.UIWidgets.ui2 {
 
     public class TextStyle {
         public TextStyle(
-            Color color,
+            Color color = null,
             TextDecoration decoration = null,
             Color decorationColor = null,
             TextDecorationStyle? decorationStyle = null,
@@ -1316,7 +1316,7 @@ namespace Unity.UIWidgets.ui2 {
         static extern List<int> Paragraph_getLineBoundary(IntPtr ptr, int offset);
 
         [DllImport(NativeBindings.dllName)]
-        static extern void Paragraph_paint(IntPtr ptr, Canvas canvas, double x, double y);
+        static extern void Paragraph_paint(IntPtr ptr, IntPtr canvas, double x, double y);
 
         [DllImport(NativeBindings.dllName)]
         static extern Utils.Float32List Paragraph_computeLineMetrics(IntPtr ptr);
@@ -1414,7 +1414,9 @@ namespace Unity.UIWidgets.ui2 {
 
         List<int> _getLineBoundary(int offset) => Paragraph_getLineBoundary(_ptr, offset);
 
-        void _paint(Canvas canvas, double x, double y) => Paragraph_paint(_ptr, canvas, x, y);
+        public void _paint(Canvas canvas, double x, double y) {
+            Paragraph_paint(_ptr, canvas._ptr, x, y);
+        }
 
         public List<LineMetrics> computeLineMetrics() {
             Utils.Float32List encoded = _computeLineMetrics();
@@ -1566,7 +1568,7 @@ namespace Unity.UIWidgets.ui2 {
 
             fullFontFamilies.Add(style._fontFamily);
             if (style._fontFamilyFallback != null)
-                fullFontFamilies.AddRange(style._fontFamilyFallback!);
+                fullFontFamilies.AddRange(style._fontFamilyFallback);
 
             byte[] encodedFontFeatures = null;
             List<FontFeature> fontFeatures = style._fontFeatures;
@@ -1639,7 +1641,7 @@ namespace Unity.UIWidgets.ui2 {
                 );
         }
 
-        static string _encodeLocale(Locale? locale) => locale?.ToString() ?? "";
+        static string _encodeLocale(Locale locale) => locale?.ToString() ?? "";
 
         public void pop() => ParagraphBuilder_pop(_ptr);
 

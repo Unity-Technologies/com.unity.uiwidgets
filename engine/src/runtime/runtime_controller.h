@@ -7,7 +7,6 @@
 #include "flow/layers/layer_tree.h"
 #include "flutter/fml/macros.h"
 #include "lib/ui/io_manager.h"
-//#include "lib/ui/text/font_collection.h"
 
 #include "lib/ui/ui_mono_state.h"
 #include "lib/ui/window/pointer_data_packet.h"
@@ -100,7 +99,7 @@ class RuntimeController final : public WindowClient {
   void HandlePlatformMessage(fml::RefPtr<PlatformMessage> message) override;
 
   // |WindowClient|
-  // FontCollection& GetFontCollection() override;
+  FontCollection& GetFontCollection() override;
 
   // |WindowClient|
   void SetNeedsReportTimings(bool value) override;

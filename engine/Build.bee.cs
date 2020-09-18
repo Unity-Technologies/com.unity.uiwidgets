@@ -121,8 +121,14 @@ class Build
                 "src/lib/ui/compositing/scene_builder.h",
                 
                 "src/lib/ui/txt/utils.h",
+                "src/lib/ui/txt/icu_util.h",
+                "src/lib/ui/txt/icu_util.cc",
+                "src/lib/ui/txt/asset_manager_font_provider.cc",
+                "src/lib/ui/txt/asset_manager_font_provider.h",
                 "src/lib/ui/txt/paragraph_builder.cc",
                 "src/lib/ui/txt/paragraph_builder.h",
+                "src/lib/ui/txt/font_collection.cc",
+                "src/lib/ui/txt/font_collection.h",
                 "src/lib/ui/txt/paragraph.cc",
                 "src/lib/ui/txt/paragraph.h",
 
@@ -483,7 +489,6 @@ class Build
                 new StaticLibrary(basePath + "/skottie.lib"),
                 new StaticLibrary(basePath + "/sksg.lib"),
                 new StaticLibrary(basePath + "/skshaper.lib"),
-                new StaticLibrary(basePath + "/icu.lib"),
                 new StaticLibrary(basePath + "/harfbuzz.lib"),
                 new StaticLibrary(basePath + "/libEGL.dll.lib"),
                 new StaticLibrary(basePath + "/libGLESv2.dll.lib"),
@@ -514,7 +519,6 @@ class Build
             "U_ENABLE_DYLOAD=0", "USE_CHROMIUM_ICU=1", "U_STATIC_IMPLEMENTATION",
             "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_STATIC"
         });
-
         np.IncludeDirectories.Add(flutterRoot + "/flutter/third_party/txt/src");
         np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/harfbuzz/src");
         np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/icu/source/common");

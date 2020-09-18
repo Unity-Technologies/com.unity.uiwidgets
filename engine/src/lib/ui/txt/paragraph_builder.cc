@@ -213,7 +213,6 @@ namespace uiwidgets {
 		double height,
 		const std::u16string& ellipsis,
 		const std::string& locale) {
-		TestLoadICU();
 
 		int32_t mask = encoded[0];
 		txt::ParagraphStyle style;
@@ -268,24 +267,15 @@ namespace uiwidgets {
 			style.locale = locale;
 		}
 
-		// TODO: change to window 
-		//FontCollection& font_collection =
-		//	UIDartState::Current()->window()->client()->GetFontCollection();
-
-		std::shared_ptr<txt::FontCollection> collection =
-			std::make_shared<txt::FontCollection>();
-		collection->SetupDefaultFontManager();
+		 FontCollection& font_collection =
+			UIMonoState::Current()->window()->client()->GetFontCollection();
 #if FLUTTER_ENABLE_SKSHAPER
 #define FLUTTER_PARAGRAPH_BUILDER txt::ParagraphBuilder::CreateSkiaBuilder
 #else
 #define FLUTTER_PARAGRAPH_BUILDER txt::ParagraphBuilder::CreateTxtBuilder
 #endif
-
-		//m_paragraphBuilder =
-		//	FLUTTER_PARAGRAPH_BUILDER(style, font_collection.GetFontCollection());
-
 		m_paragraphBuilder =
-			FLUTTER_PARAGRAPH_BUILDER(style, collection);
+			FLUTTER_PARAGRAPH_BUILDER(style, font_collection.GetFontCollection());
 	}
 
 	ParagraphBuilder::~ParagraphBuilder() = default;

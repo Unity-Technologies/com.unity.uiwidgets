@@ -496,7 +496,7 @@ namespace Unity.UIWidgets.ui {
     }
 
     public class Rect : IEquatable<Rect> {
-        Rect(float left, float top, float right, float bottom) {
+        public Rect(float left, float top, float right, float bottom) {
             this.left = left;
             this.top = top;
             this.right = right;

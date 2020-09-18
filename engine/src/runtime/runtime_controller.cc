@@ -215,9 +215,9 @@ void RuntimeController::HandlePlatformMessage(
 }
 
 // |WindowClient|
-// FontCollection& RuntimeController::GetFontCollection() {
-//   return client_.GetFontCollection();
-//}
+FontCollection& RuntimeController::GetFontCollection() {
+  return client_.GetFontCollection();
+}
 
 // |WindowClient|
 void RuntimeController::SetNeedsReportTimings(bool value) {

@@ -4,6 +4,7 @@
 #include <src\lib\ui\painting\canvas.h>
 #include <flutter\third_party\txt\src\txt\paragraph.h>
 #include "flutter/third_party/txt/src/txt/paragraph_builder.h"
+#include "lib/ui/txt/font_collection.h"
 #include "utils.h"
 #include "paragraph.h"
 

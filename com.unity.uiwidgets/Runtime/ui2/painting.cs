@@ -2131,13 +2131,11 @@ namespace Unity.UIWidgets.ui2 {
         }
 
 
-        /* TODO
-        void drawParagraph(Paragraph paragraph, Offset offset) {
-            assert(paragraph != null);
-            assert(_offsetIsValid(offset));
+        public void drawParagraph(Paragraph paragraph, Offset offset) {
+            D.assert(paragraph != null);
+            D.assert(PaintingUtils._offsetIsValid(offset));
             paragraph._paint(this, offset.dx, offset.dy);
         }
-        */
 
         public unsafe void drawRawPoints(PointMode pointMode, float[] points, Paint paint) {
             D.assert(points != null);
@@ -2554,8 +2552,8 @@ namespace Unity.UIWidgets.ui2 {
             D.assert(t != null);
             if (a == null && b == null)
                 return null;
-            a ??= new List<Shadow>();
-            b ??= new List<Shadow>();
+            a = a ?? new List<Shadow>();
+            b = b ?? new List<Shadow>();
             List<Shadow> result = new List<Shadow>();
             int commonLength = Math.Min(a.Count, b.Count);
             for (int i = 0; i < commonLength; i += 1)
