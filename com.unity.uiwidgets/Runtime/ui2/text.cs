@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.ui2 {
         };
 
         public override string ToString() {
-            return map[this.index];
+            return map[index];
         }
     }
 
@@ -126,7 +126,7 @@ namespace Unity.UIWidgets.ui2 {
         public void _encode(byte[] byteData) {
             D.assert(() => {
                 bool result = true;
-                foreach (var charUnit in this.feature.ToCharArray()) {
+                foreach (var charUnit in feature.ToCharArray()) {
                     if (charUnit <= 0x20 && charUnit >= 0x7F) {
                         return false;
                     }
@@ -135,13 +135,13 @@ namespace Unity.UIWidgets.ui2 {
                 return true;
             });
             for (int i = 0; i < 4; i++) {
-                byteData[i] = (byte) this.feature[i];
+                byteData[i] = (byte) feature[i];
             }
 
-            byteData[4] = (byte) (this.value >> 0);
-            byteData[5] = (byte) (this.value >> 8);
-            byteData[6] = (byte) (this.value >> 16);
-            byteData[7] = (byte) (this.value >> 24);
+            byteData[4] = (byte) (value >> 0);
+            byteData[5] = (byte) (value >> 8);
+            byteData[6] = (byte) (value >> 16);
+            byteData[7] = (byte) (value >> 24);
         }
 
 
@@ -150,18 +150,18 @@ namespace Unity.UIWidgets.ui2 {
                 return true;
             }
 
-            return obj is FontFeature fontFeature && fontFeature.feature == this.feature &&
-                   fontFeature.value == this.value;
+            return obj is FontFeature fontFeature && fontFeature.feature == feature &&
+                   fontFeature.value == value;
         }
 
         public override int GetHashCode() {
-            int hashcode = this.value.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this.feature.GetHashCode();
+            int hashcode = value.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ feature.GetHashCode();
             return hashcode;
         }
 
         public override string ToString() {
-            return $"FontFeature({this.feature}, {this.value})";
+            return $"FontFeature({feature}, {value})";
         }
     }
 
@@ -202,7 +202,7 @@ namespace Unity.UIWidgets.ui2 {
         public readonly int _mask;
 
         bool contains(TextDecoration other) {
-            return (this._mask | other._mask) == this._mask;
+            return (_mask | other._mask) == _mask;
         }
 
         public static readonly TextDecoration none = new TextDecoration(0x0);
@@ -215,25 +215,25 @@ namespace Unity.UIWidgets.ui2 {
 
         public override bool Equals(object obj) {
             return obj is TextDecoration textDecoration
-                   && textDecoration._mask == this._mask;
+                   && textDecoration._mask == _mask;
         }
 
         public override int GetHashCode() {
-            return this._mask.GetHashCode();
+            return _mask.GetHashCode();
         }
 
 
         public override string ToString() {
-            if (this._mask == 0) {
+            if (_mask == 0) {
                 return "TextDecoration.none";
             }
 
             List<String> values = new List<string>();
-            if ((this._mask & TextDecoration.underline._mask) != 0)
+            if ((_mask & TextDecoration.underline._mask) != 0)
                 values.Add("underline");
-            if ((this._mask & TextDecoration.overline._mask) != 0)
+            if ((_mask & TextDecoration.overline._mask) != 0)
                 values.Add("overline");
-            if ((this._mask & TextDecoration.lineThrough._mask) != 0)
+            if ((_mask & TextDecoration.lineThrough._mask) != 0)
                 values.Add("lineThrough");
             if (values.Count == 1)
                 return $"TextDecoration.{values[0]}";
@@ -273,19 +273,19 @@ namespace Unity.UIWidgets.ui2 {
         public readonly bool applyHeightToLastDescent;
 
         public int encode() {
-            return (this.applyHeightToFirstAscent ? 0 : 1 << 0) | (this.applyHeightToLastDescent ? 0 : 1 << 1);
+            return (applyHeightToFirstAscent ? 0 : 1 << 0) | (applyHeightToLastDescent ? 0 : 1 << 1);
         }
 
         public override bool Equals(object other) {
             return other is TextHeightBehavior otherText
-                   && otherText.applyHeightToFirstAscent == this.applyHeightToFirstAscent
-                   && otherText.applyHeightToLastDescent == this.applyHeightToLastDescent;
+                   && otherText.applyHeightToFirstAscent == applyHeightToFirstAscent
+                   && otherText.applyHeightToLastDescent == applyHeightToLastDescent;
         }
 
 
         public override int GetHashCode() {
-            int hashcode = this.applyHeightToFirstAscent.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this.applyHeightToLastDescent.GetHashCode();
+            int hashcode = applyHeightToFirstAscent.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ applyHeightToLastDescent.GetHashCode();
             return hashcode;
         }
 
@@ -599,11 +599,9 @@ namespace Unity.UIWidgets.ui2 {
 
         public static async void _sendFontChangeMessage() {
             unsafe {
-                fixed (byte* data = _fontChangeMessage) {
-                    Window window = new Window();
-                    window.onPlatformMessage?.Invoke("flutter/system", data, _fontChangeMessage.Length,
-                        (byte* dataIn, int dataLength) => { });
-                }
+                Window window = new Window();
+                window.onPlatformMessage?.Invoke("flutter/system", _fontChangeMessage,
+                    (byte[] dataIn) => { });
             }
         }
 
@@ -645,7 +643,7 @@ namespace Unity.UIWidgets.ui2 {
                 // "Cannot provide both a color and a foreground\n"+
                 // "The color argument is just a shorthand for \"foreground: Paint()..color = color\"."
             );
-            this._encoded = Utils._encodeTextStyle(
+            _encoded = Utils._encodeTextStyle(
                 color,
                 decoration,
                 decorationColor,
@@ -667,18 +665,18 @@ namespace Unity.UIWidgets.ui2 {
                 fontFeatures
             );
 
-            this._fontFamily = fontFamily ?? "";
-            this._fontFamilyFallback = fontFamilyFallback;
-            this._fontSize = fontSize;
-            this._letterSpacing = letterSpacing;
-            this._wordSpacing = wordSpacing;
-            this._height = height;
-            this._decorationThickness = decorationThickness;
-            this._locale = locale;
-            this._background = background;
-            this._foreground = foreground;
-            this._shadows = shadows;
-            this._fontFeatures = fontFeatures;
+            _fontFamily = fontFamily ?? "";
+            _fontFamilyFallback = fontFamilyFallback;
+            _fontSize = fontSize;
+            _letterSpacing = letterSpacing;
+            _wordSpacing = wordSpacing;
+            _height = height;
+            _decorationThickness = decorationThickness;
+            _locale = locale;
+            _background = background;
+            _foreground = foreground;
+            _shadows = shadows;
+            _fontFeatures = fontFeatures;
         }
 
         public readonly List<int> _encoded;
@@ -699,85 +697,85 @@ namespace Unity.UIWidgets.ui2 {
             if (ReferenceEquals(this, obj))
                 return true;
             return obj is TextStyle textStyle
-                   && textStyle._fontFamily == this._fontFamily
-                   && textStyle._fontSize == this._fontSize
-                   && textStyle._letterSpacing == this._letterSpacing
-                   && textStyle._wordSpacing == this._wordSpacing
-                   && textStyle._height == this._height
-                   && textStyle._decorationThickness == this._decorationThickness
-                   && textStyle._locale == this._locale
-                   && textStyle._background == this._background
-                   && textStyle._foreground == this._foreground
-                   && Utils._listEquals<int>(textStyle._encoded, this._encoded)
-                   && Utils._listEquals<Shadow>(textStyle._shadows, this._shadows)
-                   && Utils._listEquals<String>(textStyle._fontFamilyFallback, this._fontFamilyFallback)
-                   && Utils._listEquals<FontFeature>(textStyle._fontFeatures, this._fontFeatures);
+                   && textStyle._fontFamily == _fontFamily
+                   && textStyle._fontSize == _fontSize
+                   && textStyle._letterSpacing == _letterSpacing
+                   && textStyle._wordSpacing == _wordSpacing
+                   && textStyle._height == _height
+                   && textStyle._decorationThickness == _decorationThickness
+                   && textStyle._locale == _locale
+                   && textStyle._background == _background
+                   && textStyle._foreground == _foreground
+                   && Utils._listEquals<int>(textStyle._encoded, _encoded)
+                   && Utils._listEquals<Shadow>(textStyle._shadows, _shadows)
+                   && Utils._listEquals<String>(textStyle._fontFamilyFallback, _fontFamilyFallback)
+                   && Utils._listEquals<FontFeature>(textStyle._fontFeatures, _fontFeatures);
         }
 
         public override int GetHashCode() {
-            int hashcode = this._encoded.hashList();
-            hashcode = (hashcode ^ 397) ^ (this._fontFamily.GetHashCode());
+            int hashcode = _encoded.hashList();
+            hashcode = (hashcode ^ 397) ^ (_fontFamily.GetHashCode());
 
-            hashcode = (hashcode ^ 397) ^ this._fontFamilyFallback.hashList();
-            hashcode = (hashcode ^ 397) ^ this._fontSize.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._letterSpacing.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._wordSpacing.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._height.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._locale.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._background.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._foreground.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._shadows.hashList();
-            hashcode = (hashcode ^ 397) ^ this._decorationThickness.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._fontFeatures.hashList();
+            hashcode = (hashcode ^ 397) ^ _fontFamilyFallback.hashList();
+            hashcode = (hashcode ^ 397) ^ _fontSize.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _letterSpacing.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _wordSpacing.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _height.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _locale.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _background.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _foreground.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _shadows.hashList();
+            hashcode = (hashcode ^ 397) ^ _decorationThickness.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _fontFeatures.hashList();
             return hashcode;
         }
 
         public override string ToString() {
-            string color = (this._encoded[0] & 0x00002) == 0x00002
-                ? (new Color((uint) this._encoded[1])).ToString()
+            string color = (_encoded[0] & 0x00002) == 0x00002
+                ? (new Color((uint) _encoded[1])).ToString()
                 : "unspecified";
-            string decoration = (this._encoded[0] & 0x00004) == 0x00004
-                ? (new TextDecoration(this._encoded[2])).ToString()
+            string decoration = (_encoded[0] & 0x00004) == 0x00004
+                ? (new TextDecoration(_encoded[2])).ToString()
                 : "unspecified";
-            string decorationColor = (this._encoded[0] & 0x00008) == 0x00008
-                ? (new Color((uint) this._encoded[3])).ToString()
+            string decorationColor = (_encoded[0] & 0x00008) == 0x00008
+                ? (new Color((uint) _encoded[3])).ToString()
                 : "unspecified";
-            string decorationStyle = (this._encoded[0] & 0x00010) == 0x00010
-                ? ((TextDecorationStyle) this._encoded[4]).ToString()
+            string decorationStyle = (_encoded[0] & 0x00010) == 0x00010
+                ? ((TextDecorationStyle) _encoded[4]).ToString()
                 : "unspecified";
             // The decorationThickness is not in encoded order in order to keep it near the other decoration properties.
-            string decorationThickness = (this._encoded[0] & 0x00100) == 0x00100
-                ? this._decorationThickness.ToString()
+            string decorationThickness = (_encoded[0] & 0x00100) == 0x00100
+                ? _decorationThickness.ToString()
                 : "unspecified";
-            string fontWeight = (this._encoded[0] & 0x00020) == 0x00020
-                ? FontWeight.values[this._encoded[5]].ToString()
+            string fontWeight = (_encoded[0] & 0x00020) == 0x00020
+                ? FontWeight.values[_encoded[5]].ToString()
                 : "unspecified";
-            string fontStyle = (this._encoded[0] & 0x00040) == 0x00040
-                ? ((FontStyle) this._encoded[6]).ToString()
+            string fontStyle = (_encoded[0] & 0x00040) == 0x00040
+                ? ((FontStyle) _encoded[6]).ToString()
                 : "unspecified";
-            string textBaseline = (this._encoded[0] & 0x00080) == 0x00080
-                ? ((TextBaseline) this._encoded[7]).ToString()
+            string textBaseline = (_encoded[0] & 0x00080) == 0x00080
+                ? ((TextBaseline) _encoded[7]).ToString()
                 : "unspecified";
-            string fontFamily = (this._encoded[0] & 0x00200) == 0x00200
-                                && this._fontFamily != null
-                ? this._fontFamily
+            string fontFamily = (_encoded[0] & 0x00200) == 0x00200
+                                && _fontFamily != null
+                ? _fontFamily
                 : "unspecified";
-            string fontFamilyFallback = (this._encoded[0] & 0x00200) == 0x00200
-                                        && this._fontFamilyFallback != null
-                                        && this._fontFamilyFallback.isNotEmpty()
-                ? this._fontFamilyFallback.ToString()
+            string fontFamilyFallback = (_encoded[0] & 0x00200) == 0x00200
+                                        && _fontFamilyFallback != null
+                                        && _fontFamilyFallback.isNotEmpty()
+                ? _fontFamilyFallback.ToString()
                 : "unspecified";
-            string fontSize = (this._encoded[0] & 0x00400) == 0x00400 ? this._fontSize.ToString() : "unspecified";
-            string letterSpacing = (this._encoded[0] & 0x00800) == 0x00800 ? "_letterSpacing}x" : "unspecified";
-            string wordSpacing = (this._encoded[0] & 0x01000) == 0x01000 ? "_wordSpacing}x" : "unspecified";
-            string height = (this._encoded[0] & 0x02000) == 0x02000 ? "_height}x" : "unspecified";
-            string locale = (this._encoded[0] & 0x04000) == 0x04000 ? this._locale.ToString() : "unspecified";
-            string background = (this._encoded[0] & 0x08000) == 0x08000 ? this._locale.ToString() : "unspecified";
-            string foreground = (this._encoded[0] & 0x10000) == 0x10000 ? this._locale.ToString() : "unspecified";
-            string shadows = (this._encoded[0] & 0x20000) == 0x20000 ? this._locale.ToString() : "unspecified";
+            string fontSize = (_encoded[0] & 0x00400) == 0x00400 ? _fontSize.ToString() : "unspecified";
+            string letterSpacing = (_encoded[0] & 0x00800) == 0x00800 ? "_letterSpacing}x" : "unspecified";
+            string wordSpacing = (_encoded[0] & 0x01000) == 0x01000 ? "_wordSpacing}x" : "unspecified";
+            string height = (_encoded[0] & 0x02000) == 0x02000 ? "_height}x" : "unspecified";
+            string locale = (_encoded[0] & 0x04000) == 0x04000 ? _locale.ToString() : "unspecified";
+            string background = (_encoded[0] & 0x08000) == 0x08000 ? _locale.ToString() : "unspecified";
+            string foreground = (_encoded[0] & 0x10000) == 0x10000 ? _locale.ToString() : "unspecified";
+            string shadows = (_encoded[0] & 0x20000) == 0x20000 ? _locale.ToString() : "unspecified";
 
             string fontFeatures =
-                (this._encoded[0] & 0x40000) == 0x40000 ? this._fontFeatures.ToString() : "unspecified";
+                (_encoded[0] & 0x40000) == 0x40000 ? _fontFeatures.ToString() : "unspecified";
 
             return "TextStyle(\n" +
                    $"color: {color}\n" +
@@ -819,7 +817,7 @@ namespace Unity.UIWidgets.ui2 {
             string ellipsis = null,
             Locale locale = null
         ) {
-            this._encoded = Utils._encodeParagraphStyle(
+            _encoded = Utils._encodeParagraphStyle(
                 textAlign,
                 textDirection,
                 maxLines,
@@ -833,12 +831,12 @@ namespace Unity.UIWidgets.ui2 {
                 ellipsis,
                 locale
             );
-            this._fontFamily = fontFamily;
-            this._fontSize = fontSize;
-            this._height = height;
-            this._strutStyle = strutStyle;
-            this._ellipsis = ellipsis;
-            this._locale = locale;
+            _fontFamily = fontFamily;
+            _fontSize = fontSize;
+            _height = height;
+            _strutStyle = strutStyle;
+            _ellipsis = ellipsis;
+            _locale = locale;
         }
 
         public readonly List<int> _encoded;
@@ -853,48 +851,48 @@ namespace Unity.UIWidgets.ui2 {
             if (ReferenceEquals(this, other))
                 return true;
             return other is ParagraphStyle otherParagraph
-                   && otherParagraph._fontFamily == this._fontFamily
-                   && otherParagraph._fontSize == this._fontSize
-                   && otherParagraph._height == this._height
-                   && otherParagraph._strutStyle == this._strutStyle
-                   && otherParagraph._ellipsis == this._ellipsis
-                   && otherParagraph._locale == this._locale
-                   && Utils._listEquals<int>(otherParagraph._encoded, this._encoded);
+                   && otherParagraph._fontFamily == _fontFamily
+                   && otherParagraph._fontSize == _fontSize
+                   && otherParagraph._height == _height
+                   && otherParagraph._strutStyle == _strutStyle
+                   && otherParagraph._ellipsis == _ellipsis
+                   && otherParagraph._locale == _locale
+                   && Utils._listEquals<int>(otherParagraph._encoded, _encoded);
         }
 
         public override int GetHashCode() {
-            int hashcode = this._encoded.hashList();
-            hashcode = (hashcode ^ 397) ^ this._fontFamily.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._fontSize.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._height.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._ellipsis.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this._locale.GetHashCode();
+            int hashcode = _encoded.hashList();
+            hashcode = (hashcode ^ 397) ^ _fontFamily.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _fontSize.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _height.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _ellipsis.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ _locale.GetHashCode();
 
             return hashcode;
         }
 
         public override string ToString() {
-            string textAlign = (this._encoded[0] & 0x002) == 0x002
-                ? ((TextAlign) this._encoded[1]).ToString()
+            string textAlign = (_encoded[0] & 0x002) == 0x002
+                ? ((TextAlign) _encoded[1]).ToString()
                 : "unspecified";
-            string textDirection = (this._encoded[0] & 0x004) == 0x004
-                ? ((TextDirection) this._encoded[2]).ToString()
+            string textDirection = (_encoded[0] & 0x004) == 0x004
+                ? ((TextDirection) _encoded[2]).ToString()
                 : "unspecified";
-            string fontWeight = (this._encoded[0] & 0x008) == 0x008
-                ? FontWeight.values[this._encoded[3]].ToString()
+            string fontWeight = (_encoded[0] & 0x008) == 0x008
+                ? FontWeight.values[_encoded[3]].ToString()
                 : "unspecified";
-            string fontStyle = (this._encoded[0] & 0x010) == 0x010
-                ? ((FontStyle) this._encoded[4]).ToString()
+            string fontStyle = (_encoded[0] & 0x010) == 0x010
+                ? ((FontStyle) _encoded[4]).ToString()
                 : "unspecified";
-            string maxLines = (this._encoded[0] & 0x020) == 0x020 ? this._encoded[5].ToString() : "unspecified";
-            string textHeightBehavior = (this._encoded[0] & 0x040) == 0x040
-                ? TextHeightBehavior.fromEncoded(this._encoded[6]).ToString()
+            string maxLines = (_encoded[0] & 0x020) == 0x020 ? _encoded[5].ToString() : "unspecified";
+            string textHeightBehavior = (_encoded[0] & 0x040) == 0x040
+                ? TextHeightBehavior.fromEncoded(_encoded[6]).ToString()
                 : "unspecified";
-            string fontFamily = (this._encoded[0] & 0x080) == 0x080 ? this._fontFamily : "unspecified";
-            string fontSize = (this._encoded[0] & 0x100) == 0x100 ? this._fontSize.ToString() : "unspecified";
-            string height = (this._encoded[0] & 0x200) == 0x200 ? $"{this._height}x" : "unspecified";
-            string ellipsis = (this._encoded[0] & 0x400) == 0x400 ? this._ellipsis : "unspecified";
-            string locale = (this._encoded[0] & 0x800) == 0x800 ? this._locale.ToString() : "unspecified";
+            string fontFamily = (_encoded[0] & 0x080) == 0x080 ? _fontFamily : "unspecified";
+            string fontSize = (_encoded[0] & 0x100) == 0x100 ? _fontSize.ToString() : "unspecified";
+            string height = (_encoded[0] & 0x200) == 0x200 ? $"{_height}x" : "unspecified";
+            string ellipsis = (_encoded[0] & 0x400) == 0x400 ? _ellipsis : "unspecified";
+            string locale = (_encoded[0] & 0x800) == 0x800 ? _locale.ToString() : "unspecified";
             return "ParagraphStyle(\n" +
                    $"textAlign: {textAlign}\n" +
                    $"textDirection: {textDirection}\n" +
@@ -922,7 +920,7 @@ namespace Unity.UIWidgets.ui2 {
             FontStyle fontStyle,
             bool forceStrutHeight
         ) {
-            this._encoded = Utils._encodeStrut(
+            _encoded = Utils._encodeStrut(
                 fontFamily,
                 fontFamilyFallback,
                 fontSize,
@@ -932,8 +930,8 @@ namespace Unity.UIWidgets.ui2 {
                 fontStyle,
                 forceStrutHeight
             );
-            this._fontFamily = fontFamily;
-            this._fontFamilyFallback = fontFamilyFallback;
+            _fontFamily = fontFamily;
+            _fontFamilyFallback = fontFamilyFallback;
         }
 
         public readonly List<byte> _encoded; // Most of the data for strut is encoded.
@@ -946,14 +944,14 @@ namespace Unity.UIWidgets.ui2 {
             }
 
             return obj is StrutStyle other
-                   && other._fontFamily == this._fontFamily
-                   && Utils._listEquals<String>(other._fontFamilyFallback, this._fontFamilyFallback)
-                   && Utils._listEquals<byte>(other._encoded, this._encoded);
+                   && other._fontFamily == _fontFamily
+                   && Utils._listEquals<String>(other._fontFamilyFallback, _fontFamilyFallback)
+                   && Utils._listEquals<byte>(other._encoded, _encoded);
         }
 
         public override int GetHashCode() {
-            int hashcode = this._encoded.hashList();
-            hashcode = (hashcode ^ 397) ^ this._fontFamily.GetHashCode();
+            int hashcode = _encoded.hashList();
+            hashcode = (hashcode ^ 397) ^ _fontFamily.GetHashCode();
             return hashcode;
         }
     }
@@ -997,39 +995,39 @@ namespace Unity.UIWidgets.ui2 {
 
         public readonly TextDirection direction;
 
-        Rect toRect() => Rect.fromLTRB((float) this.left, (float) this.top, (float) this.right, (float) this.bottom);
+        Rect toRect() => Rect.fromLTRB((float) left, (float) top, (float) right, (float) bottom);
 
         double start {
-            get { return (this.direction == TextDirection.ltr) ? this.left : this.right; }
+            get { return (direction == TextDirection.ltr) ? left : right; }
         }
 
         double end {
-            get { return (this.direction == TextDirection.ltr) ? this.right : this.left; }
+            get { return (direction == TextDirection.ltr) ? right : left; }
         }
 
         public override bool Equals(object other) {
             if (ReferenceEquals(this, other))
                 return true;
             return other is TextBox textBox
-                   && textBox.left == this.left
-                   && textBox.top == this.top
-                   && textBox.right == this.right
-                   && textBox.bottom == this.bottom
-                   && textBox.direction == this.direction;
+                   && textBox.left == left
+                   && textBox.top == top
+                   && textBox.right == right
+                   && textBox.bottom == bottom
+                   && textBox.direction == direction;
         }
 
         public override int GetHashCode() {
-            int hashcode = this.left.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this.top.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this.right.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this.bottom.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this.direction.GetHashCode();
+            int hashcode = left.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ top.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ right.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ bottom.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ direction.GetHashCode();
             return hashcode;
         }
 
         public override string ToString() {
             return
-                $"TextBox.fromLTRBD({this.left.ToString("N1")}, {this.top.ToString("N1")}, {this.right.ToString("N1")}, {this.bottom.ToString("N1")}, {this.direction})";
+                $"TextBox.fromLTRBD({left.ToString("N1")}, {top.ToString("N1")}, {right.ToString("N1")}, {bottom.ToString("N1")}, {direction})";
         }
     }
 
@@ -1053,18 +1051,18 @@ namespace Unity.UIWidgets.ui2 {
 
         public override bool Equals(object obj) {
             return obj is TextPosition other
-                   && other.offset == this.offset
-                   && other.affinity == this.affinity;
+                   && other.offset == offset
+                   && other.affinity == affinity;
         }
 
         public override int GetHashCode() {
-            int hashcode = this.offset.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ this.affinity.GetHashCode();
+            int hashcode = offset.GetHashCode();
+            hashcode = (hashcode ^ 397) ^ affinity.GetHashCode();
             return hashcode;
         }
 
         public override string ToString() {
-            return $"TextPosition(offset: {this.offset}, affinity: {this.affinity})";
+            return $"TextPosition(offset: {offset}, affinity: {affinity})";
         }
     }
 
@@ -1089,30 +1087,30 @@ namespace Unity.UIWidgets.ui2 {
         public readonly int end;
 
         bool isValid {
-            get { return this.start >= 0 && this.end >= 0; }
+            get { return start >= 0 && end >= 0; }
         }
 
         bool isCollapsed {
-            get { return this.start == this.end; }
+            get { return start == end; }
         }
 
         bool isNormalized {
-            get { return this.end >= this.start; }
+            get { return end >= start; }
         }
 
         String textBefore(String text) {
-            D.assert(this.isNormalized);
-            return text.Substring(0, this.start);
+            D.assert(isNormalized);
+            return text.Substring(0, start);
         }
 
         String textAfter(String text) {
-            D.assert(this.isNormalized);
-            return text.Substring(this.end);
+            D.assert(isNormalized);
+            return text.Substring(end);
         }
 
         String textInside(String text) {
-            D.assert(this.isNormalized);
-            return text.Substring(this.start, this.end);
+            D.assert(isNormalized);
+            return text.Substring(start, end);
         }
 
         public override bool Equals(object obj) {
@@ -1120,15 +1118,15 @@ namespace Unity.UIWidgets.ui2 {
                 return true;
             }
 
-            return obj is TextRange other && other.start == this.start && other.end == this.end;
+            return obj is TextRange other && other.start == start && other.end == end;
         }
 
         public override int GetHashCode() {
-            return (this.start.GetHashCode() ^ 397) ^ this.end.GetHashCode();
+            return (start.GetHashCode() ^ 397) ^ end.GetHashCode();
         }
 
         public override string ToString() {
-            return $"TextRange(start: {this.start}, end: {this.end})";
+            return $"TextRange(start: {start}, end: {end})";
         }
     }
 
@@ -1140,15 +1138,15 @@ namespace Unity.UIWidgets.ui2 {
         public readonly double width;
 
         public override bool Equals(object obj) {
-            return obj is ui.ParagraphConstraints other && other.width == this.width;
+            return obj is ui.ParagraphConstraints other && other.width == width;
         }
 
         public override int GetHashCode() {
-            return this.width.GetHashCode();
+            return width.GetHashCode();
         }
 
         public override string ToString() {
-            return $"ParagraphConstraints(width: {this.width})";
+            return $"ParagraphConstraints(width: {width})";
         }
     }
 
@@ -1228,48 +1226,48 @@ namespace Unity.UIWidgets.ui2 {
 
         public override bool Equals(object obj) {
             return obj is LineMetrics other
-                   && other.hardBreak == this.hardBreak
-                   && other.ascent == this.ascent
-                   && other.descent == this.descent
-                   && other.unscaledAscent == this.unscaledAscent
-                   && other.height == this.height
-                   && other.width == this.width
-                   && other.left == this.left
-                   && other.baseline == this.baseline
-                   && other.lineNumber == this.lineNumber;
+                   && other.hardBreak == hardBreak
+                   && other.ascent == ascent
+                   && other.descent == descent
+                   && other.unscaledAscent == unscaledAscent
+                   && other.height == height
+                   && other.width == width
+                   && other.left == left
+                   && other.baseline == baseline
+                   && other.lineNumber == lineNumber;
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.hardBreak.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.ascent.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.descent.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.unscaledAscent.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.height.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.width.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.left.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.baseline.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.lineNumber;
+                var hashCode = hardBreak.GetHashCode();
+                hashCode = (hashCode * 397) ^ ascent.GetHashCode();
+                hashCode = (hashCode * 397) ^ descent.GetHashCode();
+                hashCode = (hashCode * 397) ^ unscaledAscent.GetHashCode();
+                hashCode = (hashCode * 397) ^ height.GetHashCode();
+                hashCode = (hashCode * 397) ^ width.GetHashCode();
+                hashCode = (hashCode * 397) ^ left.GetHashCode();
+                hashCode = (hashCode * 397) ^ baseline.GetHashCode();
+                hashCode = (hashCode * 397) ^ lineNumber;
                 return hashCode;
             }
         }
 
         public override string ToString() {
-            return $"LineMetrics(hardBreak: {this.hardBreak}, \n" +
-                   $"ascent: {this.ascent}, " +
-                   $"descent: {this.descent}, " +
-                   $"unscaledAscent: {this.unscaledAscent}, " +
-                   $"height: {this.height}, " +
-                   $"width: {this.width}, " +
-                   $"left: {this.left}, " +
-                   $"baseline: {this.baseline}, " +
-                   $"lineNumber: {this.lineNumber})";
+            return $"LineMetrics(hardBreak: {hardBreak}, \n" +
+                   $"ascent: {ascent}, " +
+                   $"descent: {descent}, " +
+                   $"unscaledAscent: {unscaledAscent}, " +
+                   $"height: {height}, " +
+                   $"width: {width}, " +
+                   $"left: {left}, " +
+                   $"baseline: {baseline}, " +
+                   $"lineNumber: {lineNumber})";
         }
     }
 
     public class Paragraph : NativeWrapper {
         internal Paragraph(IntPtr ptr) {
-            this._ptr = ptr;
+            _ptr = ptr;
         }
 
         [DllImport(NativeBindings.dllName)]
@@ -1347,35 +1345,35 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         public double width() {
-            return Paragraph_width(this._ptr);
+            return Paragraph_width(_ptr);
         }
 
         public double height() {
-            return Paragraph_height(this._ptr);
+            return Paragraph_height(_ptr);
         }
 
         public double longestLine() {
-            return Paragraph_longestLine(this._ptr);
+            return Paragraph_longestLine(_ptr);
         }
 
         public double minIntrinsicWidth() {
-            return Paragraph_minIntrinsicWidth(this._ptr);
+            return Paragraph_minIntrinsicWidth(_ptr);
         }
 
         public double maxIntrinsicWidth() {
-            return Paragraph_maxIntrinsicWidth(this._ptr);
+            return Paragraph_maxIntrinsicWidth(_ptr);
         }
 
         public double alphabeticBaseline() {
-            return Paragraph_alphabeticBaseline(this._ptr);
+            return Paragraph_alphabeticBaseline(_ptr);
         }
 
         public double ideographicBaseline() {
-            return Paragraph_ideographicBaseline(this._ptr);
+            return Paragraph_ideographicBaseline(_ptr);
         }
 
         public bool didExceedMaxLines() {
-            return Paragraph_didExceedMaxLines(this._ptr);
+            return Paragraph_didExceedMaxLines(_ptr);
         }
 
         public List<TextBox> getBoxesForRange(int start, int end, BoxHeightStyle boxHeightStyle = BoxHeightStyle.tight,
@@ -1516,7 +1514,7 @@ namespace Unity.UIWidgets.ui2 {
                     strutFontFamilies.AddRange(strutStyle._fontFamilyFallback);
             }
 
-            this._ptr = _constructor(
+            _ptr = _constructor(
                 style._encoded.ToArray(),
                 strutStyle?._encoded.ToArray(),
                 style._fontFamily,
