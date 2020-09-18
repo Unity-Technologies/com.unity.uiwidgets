@@ -239,10 +239,10 @@ namespace Unity.UIWidgets.scheduler2 {
         public void whenCompleteOrCancel(VoidCallback callback) {
             orCancel.then((value) => {
                 callback();
-                return FutureOr.nullValue;
+                return FutureOr.nil;
             }, ex => {
                 callback();
-                return FutureOr.nullValue;
+                return FutureOr.nil;
             });
         }
 
@@ -280,12 +280,12 @@ namespace Unity.UIWidgets.scheduler2 {
             return _primaryCompleter.future.timeout(timeLimit, onTimeout: onTimeout);
         }
 
-        public override Future whenComplete(Func<object> action) {
+        public override Future whenComplete(Func<FutureOr> action) {
             return _primaryCompleter.future.whenComplete(action);
         }
 
         public override string ToString() =>
-            $"{Diagnostics.describeIdentity(this)}({(_completed == null ? "active" : (_completed.Value ? "complete" : "canceled"))})";
+            $"{foundation_.describeIdentity(this)}({(_completed == null ? "active" : (_completed.Value ? "complete" : "canceled"))})";
     }
 
 

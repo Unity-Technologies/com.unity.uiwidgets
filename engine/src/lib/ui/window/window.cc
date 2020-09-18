@@ -2,6 +2,7 @@
 
 #include "lib/ui/compositing/scene.h"
 #include "lib/ui/ui_mono_state.h"
+#include "platform_message_response_mono.h"
 
 namespace uiwidgets {
 namespace {
@@ -30,17 +31,26 @@ Window_beginFrameCallback Window_beginFrame_;
 typedef void (*Window_drawFrameCallback)();
 Window_drawFrameCallback Window_drawFrame_;
 
+typedef void (*Window_dispatchPlatformMessageCallback)(const char* name,
+                                                       const uint8_t* data,
+                                                       int data_length,
+                                                       int response_id);
+Window_dispatchPlatformMessageCallback Window_dispatchPlatformMessage_;
+
 UIWIDGETS_API(void)
-Window_hook(Window_constructorCallback Window_constructor,
-            Window_disposeCallback Window_dispose,
-            Window_updateWindowMetricsCallback Window_updateWindowMetrics,
-            Window_beginFrameCallback Window_beginFrame,
-            Window_drawFrameCallback Window_drawFrame) {
+Window_hook(
+    Window_constructorCallback Window_constructor,
+    Window_disposeCallback Window_dispose,
+    Window_updateWindowMetricsCallback Window_updateWindowMetrics,
+    Window_beginFrameCallback Window_beginFrame,
+    Window_drawFrameCallback Window_drawFrame,
+    Window_dispatchPlatformMessageCallback Window_dispatchPlatformMessage) {
   Window_constructor_ = Window_constructor;
   Window_dispose_ = Window_dispose;
   Window_updateWindowMetrics_ = Window_updateWindowMetrics;
   Window_beginFrame_ = Window_beginFrame;
   Window_drawFrame_ = Window_drawFrame;
+  Window_dispatchPlatformMessage_ = Window_dispatchPlatformMessage;
 }
 
 UIWIDGETS_API(Mono_Handle) Window_instance() {
@@ -65,6 +75,51 @@ UIWIDGETS_API(void) Window_freeDefaultRouteName(char* routeName) {
 
 UIWIDGETS_API(void) Window_scheduleFrame(Window* ptr) {
   ptr->client()->ScheduleFrame();
+}
+
+typedef void (*Window_sendPlatformMessageCallback)(Mono_Handle callback_handle,
+                                                   const uint8_t* data,
+                                                   int data_length);
+
+UIWIDGETS_API(const char*)
+Window_sendPlatformMessage(char* name,
+                           Window_sendPlatformMessageCallback callback,
+                           Mono_Handle callback_handle, const uint8_t* data,
+                           int data_length) {
+  UIMonoState* dart_state = UIMonoState::Current();
+
+  if (!dart_state->window()) {
+    return "Platform messages can only be sent from the main isolate";
+  }
+
+  fml::RefPtr<PlatformMessageResponse> response;
+  if (callback != nullptr) {
+    response = fml::MakeRefCounted<PlatformMessageResponseMono>(
+        dart_state->GetWeakPtr(), callback, callback_handle,
+        dart_state->GetTaskRunners().GetUITaskRunner());
+  }
+
+  if (data == nullptr) {
+    dart_state->window()->client()->HandlePlatformMessage(
+        fml::MakeRefCounted<PlatformMessage>(name, response));
+  } else {
+    dart_state->window()->client()->HandlePlatformMessage(
+        fml::MakeRefCounted<PlatformMessage>(
+            name, std::vector<uint8_t>(data, data + data_length), response));
+  }
+
+  return nullptr;
+}
+
+UIWIDGETS_API(void)
+Window_respondToPlatformMessage(Window* ptr, int response_id,
+                                const uint8_t* data, int data_length) {
+  if (data == nullptr || data_length == 0) {
+    ptr->CompletePlatformMessageEmptyResponse(response_id);
+  } else {
+    ptr->CompletePlatformMessageResponse(
+        response_id, std::vector<uint8_t>(data, data + data_length));
+  }
 }
 
 UIWIDGETS_API(void) Window_render(Window* ptr, Scene* scene) {
@@ -111,7 +166,33 @@ void Window::UpdateLifecycleState(const std::string& data) {}
 
 void Window::UpdateAccessibilityFeatures(int32_t values) {}
 
-void Window::DispatchPlatformMessage(fml::RefPtr<PlatformMessage> message) {}
+void Window::DispatchPlatformMessage(fml::RefPtr<PlatformMessage> message) {
+  std::shared_ptr<MonoState> mono_state = mono_state_.lock();
+  if (!mono_state) {
+    FML_DLOG(WARNING)
+        << "Dropping platform message for lack of MonoState on channel: "
+        << message->channel();
+    return;
+  }
+
+  MonoState::Scope scope(mono_state);
+
+  int response_id = 0;
+  if (auto response = message->response()) {
+    response_id = next_response_id_++;
+    pending_responses_[response_id] = response;
+  }
+
+  const uint8_t* data = nullptr;
+  int data_length = 0;
+  if (message->hasData()) {
+    data = message->data().data();
+    data_length = static_cast<int>(message->data().size());
+  }
+
+  Window_dispatchPlatformMessage_(message->channel().c_str(), data, data_length,
+                                  response_id);
+}
 
 void Window::DispatchPointerDataPacket(const PointerDataPacket& packet) {}
 

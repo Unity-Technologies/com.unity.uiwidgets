@@ -7,22 +7,22 @@ namespace Unity.UIWidgets.flow {
         readonly List<Layer> _layers = new List<Layer>();
 
         public List<Layer> layers {
-            get { return this._layers; }
+            get { return _layers; }
         }
 
         public void add(Layer layer) {
             layer.parent = this;
-            this._layers.Add(layer);
+            _layers.Add(layer);
         }
 
         public override void preroll(PrerollContext context, Matrix3 matrix) {
             Rect childPaintBounds = Rect.zero;
-            this.prerollChildren(context, matrix, ref childPaintBounds);
-            this.paintBounds = childPaintBounds;
+            prerollChildren(context, matrix, ref childPaintBounds);
+            paintBounds = childPaintBounds;
         }
 
         protected void prerollChildren(PrerollContext context, Matrix3 childMatrix, ref Rect childPaintBounds) {
-            foreach (var layer in this._layers) {
+            foreach (var layer in _layers) {
                 layer.preroll(context, childMatrix);
 
                 if (childPaintBounds == null || childPaintBounds.isEmpty) {
@@ -35,9 +35,9 @@ namespace Unity.UIWidgets.flow {
         }
 
         protected void paintChildren(PaintContext context) {
-            D.assert(this.needsPainting);
+            D.assert(needsPainting);
 
-            foreach (var layer in this._layers) {
+            foreach (var layer in _layers) {
                 if (layer.needsPainting) {
                     layer.paint(context);
                 }

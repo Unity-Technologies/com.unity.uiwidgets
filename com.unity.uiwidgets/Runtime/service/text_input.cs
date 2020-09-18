@@ -64,14 +64,14 @@ namespace Unity.UIWidgets.service {
 
         public JSONNode toJson() {
             JSONObject jsonObject = new JSONObject();
-            jsonObject["name"] = this._name;
-            jsonObject["signed"] = this.signed;
-            jsonObject["decimal"] = this.decimalNum;
+            jsonObject["name"] = _name;
+            jsonObject["signed"] = signed;
+            jsonObject["decimal"] = decimalNum;
             return jsonObject;
         }
 
         string _name {
-            get { return $"TextInputType.{_names[this.index]}"; }
+            get { return $"TextInputType.{_names[index]}"; }
         }
 
         public bool Equals(TextInputType other) {
@@ -83,7 +83,7 @@ namespace Unity.UIWidgets.service {
                 return true;
             }
 
-            return this.index == other.index && this.signed == other.signed && this.decimalNum == other.decimalNum;
+            return index == other.index && signed == other.signed && decimalNum == other.decimalNum;
         }
 
         public override bool Equals(object obj) {
@@ -95,18 +95,18 @@ namespace Unity.UIWidgets.service {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextInputType) obj);
+            return Equals((TextInputType) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.index;
-                hashCode = (hashCode * 397) ^ this.signed.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.decimalNum.GetHashCode();
+                var hashCode = index;
+                hashCode = (hashCode * 397) ^ signed.GetHashCode();
+                hashCode = (hashCode * 397) ^ decimalNum.GetHashCode();
                 return hashCode;
             }
         }
@@ -120,7 +120,7 @@ namespace Unity.UIWidgets.service {
         }
 
         public override string ToString() {
-            return $"{this.GetType().FullName}(name: {this._name}, signed: {this.signed}, decimal: {this.decimalNum})";
+            return $"{GetType().FullName}(name: {_name}, signed: {signed}, decimal: {decimalNum})";
         }
     }
 
@@ -267,88 +267,88 @@ namespace Unity.UIWidgets.service {
         }
 
         public TextEditingValue deleteSelection(bool backDelete = true) {
-            if (this.selection.isCollapsed) {
+            if (selection.isCollapsed) {
                 if (backDelete) {
-                    if (this.selection.start == 0) {
+                    if (selection.start == 0) {
                         return this;
                     }
 
-                    if (char.IsHighSurrogate(this.text[this.selection.start - 1])) {
-                        return this.copyWith(
-                            text: this.text.Substring(0, this.selection.start - 1) +
-                                  this.text.Substring(this.selection.start + 1),
-                            selection: TextSelection.collapsed(this.selection.start - 1),
+                    if (char.IsHighSurrogate(text[selection.start - 1])) {
+                        return copyWith(
+                            text: text.Substring(0, selection.start - 1) +
+                                  text.Substring(selection.start + 1),
+                            selection: TextSelection.collapsed(selection.start - 1),
                             composing: TextRange.empty);
                     }
 
-                    if (char.IsLowSurrogate(this.text[this.selection.start - 1])) {
-                        D.assert(this.selection.start > 1);
-                        return this.copyWith(
-                            text: this.text.Substring(0, this.selection.start - 2) +
-                                  this.selection.textAfter(this.text),
-                            selection: TextSelection.collapsed(this.selection.start - 2),
+                    if (char.IsLowSurrogate(text[selection.start - 1])) {
+                        D.assert(selection.start > 1);
+                        return copyWith(
+                            text: text.Substring(0, selection.start - 2) +
+                                  selection.textAfter(text),
+                            selection: TextSelection.collapsed(selection.start - 2),
                             composing: TextRange.empty);
                     }
 
-                    return this.copyWith(
-                        text: this.text.Substring(0, this.selection.start - 1) + this.selection.textAfter(this.text),
-                        selection: TextSelection.collapsed(this.selection.start - 1),
+                    return copyWith(
+                        text: text.Substring(0, selection.start - 1) + selection.textAfter(text),
+                        selection: TextSelection.collapsed(selection.start - 1),
                         composing: TextRange.empty);
                 }
 
-                if (this.selection.start >= this.text.Length) {
+                if (selection.start >= text.Length) {
                     return this;
                 }
 
-                return this.copyWith(text: this.text.Substring(0, this.selection.start) +
-                                           this.text.Substring(this.selection.start + 1),
+                return copyWith(text: text.Substring(0, selection.start) +
+                                           text.Substring(selection.start + 1),
                     composing: TextRange.empty);
             }
             else {
-                var newText = this.selection.textBefore(this.text) + this.selection.textAfter(this.text);
-                return this.copyWith(text: newText, selection: TextSelection.collapsed(this.selection.start),
+                var newText = selection.textBefore(text) + selection.textAfter(text);
+                return copyWith(text: newText, selection: TextSelection.collapsed(selection.start),
                     composing: TextRange.empty);
             }
         }
 
         public TextEditingValue moveLeft() {
-            return this.moveSelection(-1);
+            return moveSelection(-1);
         }
 
         public TextEditingValue moveRight() {
-            return this.moveSelection(1);
+            return moveSelection(1);
         }
 
         public TextEditingValue extendLeft() {
-            return this.moveExtent(-1);
+            return moveExtent(-1);
         }
 
         public TextEditingValue extendRight() {
-            return this.moveExtent(1);
+            return moveExtent(1);
         }
 
         public TextEditingValue moveExtent(int move) {
-            int offset = this.selection.extentOffset + move;
+            int offset = selection.extentOffset + move;
             offset = Mathf.Max(0, offset);
-            offset = Mathf.Min(offset, this.text.Length);
-            return this.copyWith(selection: this.selection.copyWith(extentOffset: offset));
+            offset = Mathf.Min(offset, text.Length);
+            return copyWith(selection: selection.copyWith(extentOffset: offset));
         }
 
         public TextEditingValue moveSelection(int move) {
-            int offset = this.selection.baseOffset + move;
+            int offset = selection.baseOffset + move;
             offset = Mathf.Max(0, offset);
-            offset = Mathf.Min(offset, this.text.Length);
-            return this.copyWith(selection: TextSelection.collapsed(offset, affinity: this.selection.affinity));
+            offset = Mathf.Min(offset, text.Length);
+            return copyWith(selection: TextSelection.collapsed(offset, affinity: selection.affinity));
         }
 
         public TextEditingValue compose(string composeText) {
             D.assert(!string.IsNullOrEmpty(composeText));
-            var composeStart = this.composing == TextRange.empty ? this.selection.start : this.composing.start;
-            var lastComposeEnd = this.composing == TextRange.empty ? this.selection.end : this.composing.end;
+            var composeStart = composing == TextRange.empty ? selection.start : composing.start;
+            var lastComposeEnd = composing == TextRange.empty ? selection.end : composing.end;
             
-            composeStart = Mathf.Clamp(composeStart, 0, this.text.Length);
-            lastComposeEnd = Mathf.Clamp(lastComposeEnd, 0, this.text.Length);
-            var newText = this.text.Substring(0, composeStart) + composeText + this.text.Substring(lastComposeEnd);
+            composeStart = Mathf.Clamp(composeStart, 0, text.Length);
+            lastComposeEnd = Mathf.Clamp(lastComposeEnd, 0, text.Length);
+            var newText = text.Substring(0, composeStart) + composeText + text.Substring(lastComposeEnd);
             var componseEnd = composeStart + composeText.Length;
             return new TextEditingValue(
                 text: newText, selection: TextSelection.collapsed(componseEnd),
@@ -357,13 +357,13 @@ namespace Unity.UIWidgets.service {
         }
 
         public TextEditingValue clearCompose() {
-            if (this.composing == TextRange.empty) {
+            if (composing == TextRange.empty) {
                 return this;
             }
 
             return new TextEditingValue(
-                text: this.text.Substring(0, this.composing.start) + this.text.Substring(this.composing.end),
-                selection: TextSelection.collapsed(this.composing.start),
+                text: text.Substring(0, composing.start) + text.Substring(composing.end),
+                selection: TextSelection.collapsed(composing.start),
                 composing: TextRange.empty
             );
         }
@@ -379,8 +379,8 @@ namespace Unity.UIWidgets.service {
                 return true;
             }
 
-            return string.Equals(this.text, other.text) && Equals(this.selection, other.selection) &&
-                   Equals(this.composing, other.composing);
+            return string.Equals(text, other.text) && Equals(selection, other.selection) &&
+                   Equals(composing, other.composing);
         }
 
         public override bool Equals(object obj) {
@@ -392,18 +392,18 @@ namespace Unity.UIWidgets.service {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextEditingValue) obj);
+            return Equals((TextEditingValue) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.text != null ? this.text.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.selection != null ? this.selection.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.composing != null ? this.composing.GetHashCode() : 0);
+                var hashCode = (text != null ? text.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (selection != null ? selection.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (composing != null ? composing.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -417,18 +417,18 @@ namespace Unity.UIWidgets.service {
         }
 
         public override string ToString() {
-            return $"Text: {this.text}, Selection: {this.selection}, Composing: {this.composing}";
+            return $"Text: {text}, Selection: {selection}, Composing: {composing}";
         }
 
         public JSONNode toJson() {
             var json = new JSONObject();
-            json["text"] = this.text;
-            json["selectionBase"] = this.selection.baseOffset;
-            json["selectionExtent"] = this.selection.extentOffset;
-            json["selectionAffinity"] = this.selection.affinity.ToString();
-            json["selectionIsDirectional"] = this.selection.isDirectional;
-            json["composingBase"] = this.composing.start;
-            json["composingExtent"] = this.composing.end;
+            json["text"] = text;
+            json["selectionBase"] = selection.baseOffset;
+            json["selectionExtent"] = selection.extentOffset;
+            json["selectionAffinity"] = selection.affinity.ToString();
+            json["selectionIsDirectional"] = selection.isDirectional;
+            json["composingBase"] = composing.start;
+            json["composingExtent"] = composing.end;
             return json;
         }
     }
@@ -499,13 +499,13 @@ namespace Unity.UIWidgets.service {
 
         public JSONNode toJson() {
             var json = new JSONObject();
-            json["inputType"] = this.inputType.toJson();
-            json["obscureText"] = this.obscureText;
-            json["autocorrect"] = this.autocorrect;
-            json["inputAction"] = $"TextInputAction.{this.inputAction.ToString()}";
-            json["unityTouchKeyboard"] = this.unityTouchKeyboard;
-            json["textCapitalization"] = $"TextCapitalization.{this.textCapitalization.ToString()}";
-            json["keyboardAppearance"] = $"Brightness.{this.keyboardAppearance.ToString()}";
+            json["inputType"] = inputType.toJson();
+            json["obscureText"] = obscureText;
+            json["autocorrect"] = autocorrect;
+            json["inputAction"] = $"TextInputAction.{inputAction.ToString()}";
+            json["unityTouchKeyboard"] = unityTouchKeyboard;
+            json["textCapitalization"] = $"TextCapitalization.{textCapitalization.ToString()}";
+            json["keyboardAppearance"] = $"Brightness.{keyboardAppearance.ToString()}";
             return json;
         }
     }
@@ -513,9 +513,9 @@ namespace Unity.UIWidgets.service {
     public class TextInputConnection {
         internal TextInputConnection(TextInputClient client) {
             D.assert(client != null);
-            this._window = Window.instance;
-            this._client = client;
-            this._id = _nextId++;
+            _window = Window.instance;
+            _client = client;
+            _id = _nextId++;
         }
 
         public bool attached {
@@ -523,14 +523,14 @@ namespace Unity.UIWidgets.service {
         }
 
         public void setEditingState(TextEditingValue value) {
-            D.assert(this.attached);
+            D.assert(attached);
             TextInput.keyboardDelegate.setEditingState(value);
         }
 
         public void setIMEPos(Offset imeGlobalPos) {
-            D.assert(this.attached);
+            D.assert(attached);
             D.assert(imeGlobalPos != null);
-            D.assert(this.imeRequired());
+            D.assert(imeRequired());
             TextInput.keyboardDelegate.setIMEPos(imeGlobalPos);
         }
 
@@ -540,18 +540,18 @@ namespace Unity.UIWidgets.service {
 
 
         public void close() {
-            if (this.attached) {
+            if (attached) {
                 TextInput.keyboardDelegate.clearClient();
                 TextInput._currentConnection = null;
                 Input.imeCompositionMode = IMECompositionMode.Auto;
                 TextInput._scheduleHide();
             }
 
-            D.assert(!this.attached);
+            D.assert(!attached);
         }
 
         public void show() {
-            D.assert(this.attached);
+            D.assert(attached);
             Input.imeCompositionMode = IMECompositionMode.On;
             TextInput.keyboardDelegate.show();
         }

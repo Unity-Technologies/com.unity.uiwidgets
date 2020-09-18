@@ -17,46 +17,46 @@ namespace Unity.UIWidgets.painting {
 
         public bool isNonNegative {
             get {
-                return this.left >= 0.0
-                       && this.right >= 0.0
-                       && this.top >= 0.0
-                       && this.bottom >= 0.0;
+                return left >= 0.0
+                       && right >= 0.0
+                       && top >= 0.0
+                       && bottom >= 0.0;
             }
         }
 
         public float horizontal {
-            get { return this.left + this.right; }
+            get { return left + right; }
         }
 
         public float vertical {
-            get { return this.top + this.bottom; }
+            get { return top + bottom; }
         }
 
         public float along(Axis axis) {
             switch (axis) {
                 case Axis.horizontal:
-                    return this.horizontal;
+                    return horizontal;
                 case Axis.vertical:
-                    return this.vertical;
+                    return vertical;
             }
 
             throw new Exception("unknown axis");
         }
 
         public Size collapsedSize {
-            get { return new Size(this.horizontal, this.vertical); }
+            get { return new Size(horizontal, vertical); }
         }
 
         public EdgeInsets flipped {
-            get { return fromLTRB(this.right, this.bottom, this.left, this.top); }
+            get { return fromLTRB(right, bottom, left, top); }
         }
 
         public Size inflateSize(Size size) {
-            return new Size(size.width + this.horizontal, size.height + this.vertical);
+            return new Size(size.width + horizontal, size.height + vertical);
         }
 
         public Size deflateSize(Size size) {
-            return new Size(size.width - this.horizontal, size.height - this.vertical);
+            return new Size(size.width - horizontal, size.height - vertical);
         }
 
         public static EdgeInsets fromLTRB(float left, float top, float right, float bottom) {
@@ -87,48 +87,48 @@ namespace Unity.UIWidgets.painting {
         public static readonly EdgeInsets zero = only();
 
         public Offset topLeft {
-            get { return new Offset(this.left, this.top); }
+            get { return new Offset(left, top); }
         }
 
         public Offset topRight {
-            get { return new Offset(-this.right, this.top); }
+            get { return new Offset(-right, top); }
         }
 
         public Offset bottomLeft {
-            get { return new Offset(this.left, -this.bottom); }
+            get { return new Offset(left, -bottom); }
         }
 
         public Offset bottomRight {
-            get { return new Offset(-this.right, -this.bottom); }
+            get { return new Offset(-right, -bottom); }
         }
 
         public Rect inflateRect(Rect rect) {
             return Rect.fromLTRB(
-                rect.left - this.left, rect.top - this.top,
-                rect.right + this.right, rect.bottom + this.bottom);
+                rect.left - left, rect.top - top,
+                rect.right + right, rect.bottom + bottom);
         }
 
         public Rect deflateRect(Rect rect) {
             return Rect.fromLTRB(
-                rect.left + this.left, rect.top + this.top,
-                rect.right - this.right, rect.bottom - this.bottom);
+                rect.left + left, rect.top + top,
+                rect.right - right, rect.bottom - bottom);
         }
 
         public EdgeInsets subtract(EdgeInsets other) {
             return fromLTRB(
-                this.left - other.left,
-                this.top - other.top,
-                this.right - other.right,
-                this.bottom - other.bottom
+                left - other.left,
+                top - other.top,
+                right - other.right,
+                bottom - other.bottom
             );
         }
 
         public EdgeInsets add(EdgeInsets other) {
             return fromLTRB(
-                this.left + other.left,
-                this.top + other.top,
-                this.right + other.right,
-                this.bottom + other.bottom
+                left + other.left,
+                top + other.top,
+                right + other.right,
+                bottom + other.bottom
             );
         }
 
@@ -230,10 +230,10 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return this.left.Equals(other.left)
-                   && this.right.Equals(other.right)
-                   && this.top.Equals(other.top)
-                   && this.bottom.Equals(other.bottom);
+            return left.Equals(other.left)
+                   && right.Equals(other.right)
+                   && top.Equals(other.top)
+                   && bottom.Equals(other.bottom);
         }
 
         public override bool Equals(object obj) {
@@ -245,19 +245,19 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((EdgeInsets) obj);
+            return Equals((EdgeInsets) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.left.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.right.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.top.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.bottom.GetHashCode();
+                var hashCode = left.GetHashCode();
+                hashCode = (hashCode * 397) ^ right.GetHashCode();
+                hashCode = (hashCode * 397) ^ top.GetHashCode();
+                hashCode = (hashCode * 397) ^ bottom.GetHashCode();
                 return hashCode;
             }
         }
@@ -271,18 +271,18 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            if (this.left == 0.0 && this.right == 0.0 && this.top == 0.0 && this.bottom == 0.0) {
+            if (left == 0.0 && right == 0.0 && top == 0.0 && bottom == 0.0) {
                 return "EdgeInsets.zero";
             }
 
-            if (this.left == this.right && this.right == this.top && this.top == this.bottom) {
-                return $"EdgeInsets.all({this.left:F1})";
+            if (left == right && right == top && top == bottom) {
+                return $"EdgeInsets.all({left:F1})";
             }
 
-            return $"EdgeInsets({this.left:F1}, " +
-                   $"{this.top:F1}, " +
-                   $"{this.right:F1}, " +
-                   $"{this.bottom:F1})";
+            return $"EdgeInsets({left:F1}, " +
+                   $"{top:F1}, " +
+                   $"{right:F1}, " +
+                   $"{bottom:F1})";
         }
     }
 }

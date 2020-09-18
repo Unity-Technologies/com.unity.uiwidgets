@@ -24,27 +24,27 @@ namespace Unity.UIWidgets.painting {
         }
 
         public HSVColor withAlpha(float alpha) {
-            return fromAHSV(alpha, this.hue, this.saturation, this.value);
+            return fromAHSV(alpha, hue, saturation, value);
         }
 
         public HSVColor withHue(float hue) {
-            return fromAHSV(this.alpha, hue, this.saturation, this.value);
+            return fromAHSV(alpha, hue, saturation, value);
         }
 
         public HSVColor withSaturation(float saturation) {
-            return fromAHSV(this.alpha, this.hue, saturation, this.value);
+            return fromAHSV(alpha, hue, saturation, value);
         }
 
         public HSVColor withValue(float value) {
-            return fromAHSV(this.alpha, this.hue, this.saturation, value);
+            return fromAHSV(alpha, hue, saturation, value);
         }
 
         public Color toColor() {
-            float chroma = this.saturation * this.value;
-            float secondary = chroma * (1.0f - (((this.hue / 60.0f) % 2.0f) - 1.0f).abs());
-            float match = this.value - chroma;
+            float chroma = saturation * value;
+            float secondary = chroma * (1.0f - (((hue / 60.0f) % 2.0f) - 1.0f).abs());
+            float match = value - chroma;
 
-            return ColorUtils._colorFromHue(this.alpha, this.hue, chroma, secondary, match);
+            return ColorUtils._colorFromHue(alpha, hue, chroma, secondary, match);
         }
 
         public readonly float alpha;
@@ -57,13 +57,13 @@ namespace Unity.UIWidgets.painting {
         public ColorSwatch(
             long primary,
             Dictionary<T, Color> swatch) : base(primary) {
-            this._swatch = swatch;
+            _swatch = swatch;
         }
 
         protected readonly Dictionary<T, Color> _swatch;
 
         public Color this[T index] {
-            get { return this._swatch[index]; }
+            get { return _swatch[index]; }
         }
 
 
@@ -76,7 +76,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return this.value == other.value && this._swatch == other._swatch;
+            return value == other.value && _swatch == other._swatch;
         }
 
         public override bool Equals(object obj) {
@@ -88,11 +88,11 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ColorSwatch<T>) obj);
+            return Equals((ColorSwatch<T>) obj);
         }
 
         public static bool operator ==(ColorSwatch<T> left, ColorSwatch<T> right) {
@@ -105,14 +105,14 @@ namespace Unity.UIWidgets.painting {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (int) this.value;
-                hashCode = (hashCode * 397) ^ this._swatch.GetHashCode();
+                var hashCode = (int) value;
+                hashCode = (hashCode * 397) ^ _swatch.GetHashCode();
                 return hashCode;
             }
         }
 
         public override string ToString() {
-            return this.GetType() + "(primary value: " + base.ToString() + ")";
+            return GetType() + "(primary value: " + base.ToString() + ")";
         }
     }
 

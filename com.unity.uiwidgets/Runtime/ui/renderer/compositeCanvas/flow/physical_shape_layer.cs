@@ -8,8 +8,8 @@ namespace Unity.UIWidgets.flow {
     public class PhysicalShapeLayer : ContainerLayer {
         public PhysicalShapeLayer(
             Clip clipBehavior) {
-            this._isRect = false;
-            this._clip_behavior = clipBehavior;
+            _isRect = false;
+            _clip_behavior = clipBehavior;
         }
 
         float _elevation;
@@ -26,56 +26,56 @@ namespace Unity.UIWidgets.flow {
         public Path path {
             set {
                 //todo: xingwei.zhu : try to do path => rect transfer
-                this._path = value;
-                this._isRect = false;
-                this._frameRRect = value.getBounds();
+                _path = value;
+                _isRect = false;
+                _frameRRect = value.getBounds();
             }
         }
 
         public float elevation {
-            set { this._elevation = value; }
+            set { _elevation = value; }
         }
 
         public Color color {
-            set { this._color = value; }
+            set { _color = value; }
         }
 
         public Color shadowColor {
-            set { this._shadow_color = value; }
+            set { _shadow_color = value; }
         }
 
         public float devicePixelRatio {
-            set { this._device_pixel_ratio = value; }
+            set { _device_pixel_ratio = value; }
         }
 
         public override void preroll(PrerollContext context, Matrix3 matrix) {
             Rect child_paint_bounds = Rect.zero;
-            this.prerollChildren(context, matrix, ref child_paint_bounds);
+            prerollChildren(context, matrix, ref child_paint_bounds);
 
-            if (this._elevation == 0) {
-                this.paintBounds = this._path.getBounds();
+            if (_elevation == 0) {
+                paintBounds = _path.getBounds();
             }
             else {
-                Rect bounds = this._path.getBounds();
+                Rect bounds = _path.getBounds();
                 Rect outset = bounds.outset(20.0f, 20.0f);
-                this.paintBounds = outset;
+                paintBounds = outset;
             }
         }
 
         Paint _shadowPaint = new Paint();
 
         public override void paint(PaintContext context) {
-            if (this._elevation != 0) {
-                drawShadow(context.canvas, this._path, this._shadow_color, this._elevation,
-                    this._color.alpha != 255, this._device_pixel_ratio);
+            if (_elevation != 0) {
+                drawShadow(context.canvas, _path, _shadow_color, _elevation,
+                    _color.alpha != 255, _device_pixel_ratio);
             }
 
-            this._shadowPaint.color = this._color;
-            context.canvas.drawPath(this._path, this._shadowPaint);
+            _shadowPaint.color = _color;
+            context.canvas.drawPath(_path, _shadowPaint);
 
             context.canvas.save();
-            context.canvas.clipPath(this._path);
-            this.paintChildren(context);
+            context.canvas.clipPath(_path);
+            paintChildren(context);
             context.canvas.restore();
         }
 

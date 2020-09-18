@@ -59,43 +59,43 @@ namespace Unity.UIWidgets.ui {
         public readonly long value;
 
         public int alpha {
-            get { return (int) ((0xff000000 & this.value) >> 24); }
+            get { return (int) ((0xff000000 & value) >> 24); }
         }
 
         public float opacity {
-            get { return this.alpha / 255.0f; }
+            get { return alpha / 255.0f; }
         }
 
         public int red {
-            get { return (int) ((0x00ff0000 & this.value) >> 16); }
+            get { return (int) ((0x00ff0000 & value) >> 16); }
         }
 
         public int green {
-            get { return (int) ((0x0000ff00 & this.value) >> 8); }
+            get { return (int) ((0x0000ff00 & value) >> 8); }
         }
 
         public int blue {
-            get { return (int) ((0x000000ff & this.value) >> 0); }
+            get { return (int) ((0x000000ff & value) >> 0); }
         }
 
         public Color withAlpha(int a) {
-            return fromARGB(a, this.red, this.green, this.blue);
+            return fromARGB(a, red, green, blue);
         }
 
         public Color withOpacity(float opacity) {
-            return this.withAlpha((int) (opacity * 255));
+            return withAlpha((int) (opacity * 255));
         }
 
         public Color withRed(int r) {
-            return fromARGB(this.alpha, r, this.green, this.blue);
+            return fromARGB(alpha, r, green, blue);
         }
 
         public Color withGreen(int g) {
-            return fromARGB(this.alpha, this.red, g, this.blue);
+            return fromARGB(alpha, red, g, blue);
         }
 
         public Color withBlue(int b) {
-            return fromARGB(this.alpha, this.red, this.green, b);
+            return fromARGB(alpha, red, green, b);
         }
 
         static float _linearizeColorComponent(float component) {
@@ -107,9 +107,9 @@ namespace Unity.UIWidgets.ui {
         }
 
         public float computeLuminance() {
-            float R = _linearizeColorComponent(this.red / 0xFF);
-            float G = _linearizeColorComponent(this.green / 0xFF);
-            float B = _linearizeColorComponent(this.blue / 0xFF);
+            float R = _linearizeColorComponent(red / 0xFF);
+            float G = _linearizeColorComponent(green / 0xFF);
+            float B = _linearizeColorComponent(blue / 0xFF);
             return 0.2126f * R + 0.7152f * G + 0.0722f * B;
         }
 
@@ -143,7 +143,7 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return this.value == other.value;
+            return value == other.value;
         }
 
         public override bool Equals(object obj) {
@@ -155,15 +155,15 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((Color) obj);
+            return Equals((Color) obj);
         }
 
         public override int GetHashCode() {
-            return this.value.GetHashCode();
+            return value.GetHashCode();
         }
 
         public static bool operator ==(Color a, Color b) {
@@ -175,7 +175,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override string ToString() {
-            return $"Color(0x{this.value:X8})";
+            return $"Color(0x{value:X8})";
         }
     }
 
@@ -237,7 +237,7 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return this.style == other.style && this.sigma.Equals(other.sigma);
+            return style == other.style && sigma.Equals(other.sigma);
         }
 
         public override bool Equals(object obj) {
@@ -249,16 +249,16 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((MaskFilter) obj);
+            return Equals((MaskFilter) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((int) this.style * 397) ^ this.sigma.GetHashCode();
+                return ((int) style * 397) ^ sigma.GetHashCode();
             }
         }
 
@@ -271,7 +271,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override string ToString() {
-            return $"MaskFilter.blur(${this.style}, ${this.sigma:F1})";
+            return $"MaskFilter.blur(${style}, ${sigma:F1})";
         }
     }
 
@@ -299,7 +299,7 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return Equals(this.color, other.color) && this.blendMode == other.blendMode;
+            return Equals(color, other.color) && blendMode == other.blendMode;
         }
 
         public override bool Equals(object obj) {
@@ -311,16 +311,16 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ColorFilter) obj);
+            return Equals((ColorFilter) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.color != null ? this.color.GetHashCode() : 0) * 397) ^ (int) this.blendMode;
+                return ((color != null ? color.GetHashCode() : 0) * 397) ^ (int) blendMode;
             }
         }
 
@@ -333,7 +333,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override string ToString() {
-            return $"ColorFilter({this.color}, {this.blendMode})";
+            return $"ColorFilter({color}, {blendMode})";
         }
     }
 
@@ -403,19 +403,19 @@ namespace Unity.UIWidgets.ui {
         public Paint(Paint paint) {
             D.assert(paint != null);
 
-            this.color = paint.color;
-            this.blendMode = paint.blendMode;
-            this.style = paint.style;
-            this.strokeWidth = paint.strokeWidth;
-            this.strokeCap = paint.strokeCap;
-            this.strokeJoin = paint.strokeJoin;
-            this.strokeMiterLimit = paint.strokeMiterLimit;
-            this.filterMode = paint.filterMode;
-            this.colorFilter = paint.colorFilter;
-            this.maskFilter = paint.maskFilter;
-            this.backdrop = paint.backdrop;
-            this.shader = paint.shader;
-            this.invertColors = paint.invertColors;
+            color = paint.color;
+            blendMode = paint.blendMode;
+            style = paint.style;
+            strokeWidth = paint.strokeWidth;
+            strokeCap = paint.strokeCap;
+            strokeJoin = paint.strokeJoin;
+            strokeMiterLimit = paint.strokeMiterLimit;
+            filterMode = paint.filterMode;
+            colorFilter = paint.colorFilter;
+            maskFilter = paint.maskFilter;
+            backdrop = paint.backdrop;
+            shader = paint.shader;
+            invertColors = paint.invertColors;
         }
 
         public static Paint shapeOnly(Paint paint) {

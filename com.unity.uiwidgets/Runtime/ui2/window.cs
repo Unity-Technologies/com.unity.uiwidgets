@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using AOT;
+using Unity.UIWidgets.async2;
+using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 
 namespace Unity.UIWidgets.ui2 {
     public delegate void VoidCallback();
@@ -13,11 +17,10 @@ namespace Unity.UIWidgets.ui2 {
 
     public delegate void PointerDataPacketCallback(PointerDataPacket packet);
 
-    public unsafe delegate void PlatformMessageResponseCallback(byte* data, int dataLength);
+    public delegate void PlatformMessageResponseCallback(byte[] data);
 
-    public unsafe delegate void PlatformMessageCallback(
-        [MarshalAs(UnmanagedType.LPStr)] string name, byte* data, int dataLength,
-        PlatformMessageResponseCallback callback);
+    public delegate Future PlatformMessageCallback(
+        string name, byte[] data, PlatformMessageResponseCallback callback);
 
     delegate void _SetNeedsReportTimingsFunc(IntPtr ptr, bool value);
 
@@ -87,6 +90,8 @@ namespace Unity.UIWidgets.ui2 {
     public class Window {
         internal IntPtr _ptr;
         internal object _binding;
+        internal UIWidgetsPanel _panel;
+        internal _AsyncCallbackState _asyncCallbackState;
 
         internal Window() {
             _setNeedsReportTimings = Window_setNeedsReportTimings;
@@ -176,18 +181,34 @@ namespace Unity.UIWidgets.ui2 {
         public VoidCallback onAccessibilityFeaturesChanged { get; set; }
 
         public unsafe void sendPlatformMessage(string name,
-            byte* data, int dataLength,
-            PlatformMessageResponseCallback callback) {
-            IntPtr errorPtr =
-                Window_sendPlatformMessage(_ptr, name, callback, data, dataLength);
-            if (errorPtr != IntPtr.Zero)
-                throw new Exception(Marshal.PtrToStringAnsi(errorPtr));
+            byte[] data, PlatformMessageResponseCallback callback) {
+            fixed (byte* bytes = data) {
+                var callbackHandle = GCHandle.Alloc(callback);
+                IntPtr errorPtr = Window_sendPlatformMessage(name, _sendPlatformMessageCallback,
+                    (IntPtr) callbackHandle, bytes, data?.Length ?? 0);
+
+                if (errorPtr != IntPtr.Zero) {
+                    callbackHandle.Free();
+                    throw new Exception(Marshal.PtrToStringAnsi(errorPtr));
+                }
+            }
         }
 
-        public PlatformMessageCallback onPlatformMessage { get; set; }
+        public PlatformMessageCallback onPlatformMessage {
+            get { return _onPlatformMessage; }
+            set {
+                _onPlatformMessage = value;
+                _onPlatformMessageZone = Zone.current;
+            }
+        }
 
-        unsafe void _respondToPlatformMessage(int responseId, byte* data, int dataLength) {
-            Window_respondToPlatformMessage(_ptr, responseId, data, dataLength);
+        PlatformMessageCallback _onPlatformMessage;
+        internal Zone _onPlatformMessageZone;
+
+        internal unsafe void _respondToPlatformMessage(int responseId, byte[] data) {
+            fixed (byte* bytes = data) {
+                Window_respondToPlatformMessage(_ptr, responseId, bytes, data?.Length ?? 0);
+            }
         }
 
         [DllImport(NativeBindings.dllName)]
@@ -208,9 +229,31 @@ namespace Unity.UIWidgets.ui2 {
         [DllImport(NativeBindings.dllName)]
         static extern void Window_render(IntPtr ptr, IntPtr scene);
 
+        [MonoPInvokeCallback(typeof(Window_sendPlatformMessageCallback))]
+        static unsafe void _sendPlatformMessageCallback(IntPtr callbackHandle, byte* data, int dataLength) {
+            GCHandle handle = (GCHandle) callbackHandle;
+            var callback = (PlatformMessageResponseCallback) handle.Target;
+            handle.Free();
+
+            byte[] bytes = null;
+            if (data != null && dataLength != 0) {
+                bytes = new byte[dataLength];
+                Marshal.Copy((IntPtr) data, bytes, 0, dataLength);
+            }
+
+            try {
+                callback(bytes);
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
+        }
+
+        unsafe delegate void Window_sendPlatformMessageCallback(IntPtr callbackHandle, byte* data, int dataLength);
+
         [DllImport(NativeBindings.dllName)]
-        static extern unsafe IntPtr Window_sendPlatformMessage(IntPtr ptr, string name,
-            PlatformMessageResponseCallback callback,
+        static extern unsafe IntPtr Window_sendPlatformMessage(string name,
+            Window_sendPlatformMessageCallback callback, IntPtr callbackHandle,
             byte* data, int dataLength);
 
         [DllImport(NativeBindings.dllName)]

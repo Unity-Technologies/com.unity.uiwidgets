@@ -48,25 +48,25 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void performLayout(Size size) {
             float remainingWidth = size.width;
-            for (int i = 0; i < this.columnWidths.Count; i++) {
-                remainingWidth -= this.columnWidths[i] + CupertinoDatePickerUtils._kDatePickerPadSize * 2;
+            for (int i = 0; i < columnWidths.Count; i++) {
+                remainingWidth -= columnWidths[i] + CupertinoDatePickerUtils._kDatePickerPadSize * 2;
             }
 
             float currentHorizontalOffset = 0.0f;
-            for (int i = 0; i < this.columnWidths.Count; i++) {
-                float childWidth = this.columnWidths[i] + CupertinoDatePickerUtils._kDatePickerPadSize * 2;
-                if (i == 0 || i == this.columnWidths.Count - 1) {
+            for (int i = 0; i < columnWidths.Count; i++) {
+                float childWidth = columnWidths[i] + CupertinoDatePickerUtils._kDatePickerPadSize * 2;
+                if (i == 0 || i == columnWidths.Count - 1) {
                     childWidth += remainingWidth / 2;
                 }
 
-                this.layoutChild(i, BoxConstraints.tight(new Size(childWidth, size.height)));
-                this.positionChild(i, new Offset(currentHorizontalOffset, 0.0f));
+                layoutChild(i, BoxConstraints.tight(new Size(childWidth, size.height)));
+                positionChild(i, new Offset(currentHorizontalOffset, 0.0f));
                 currentHorizontalOffset += childWidth;
             }
         }
 
         public override bool shouldRelayout(MultiChildLayoutDelegate oldDelegate) {
-            return this.columnWidths != ((_DatePickerLayoutDelegate) oldDelegate).columnWidths;
+            return columnWidths != ((_DatePickerLayoutDelegate) oldDelegate).columnWidths;
         }
     }
 
@@ -148,7 +148,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly ValueChanged<DateTime> onDateTimeChanged;
 
         public override State createState() {
-            if (this.mode == CupertinoDatePickerMode.time || this.mode == CupertinoDatePickerMode.dateAndTime) {
+            if (mode == CupertinoDatePickerMode.time || mode == CupertinoDatePickerMode.dateAndTime) {
                 return new _CupertinoDatePickerDateTimeState();
             }
             else {
@@ -253,28 +253,28 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this.initialDateTime = this.widget.initialDateTime;
-            this.selectedDayFromInitial = 0;
-            this.selectedHour = this.widget.initialDateTime.Hour;
-            this.selectedMinute = this.widget.initialDateTime.Minute;
-            this.selectedAmPm = 0;
-            if (!this.widget.use24hFormat) {
-                this.selectedAmPm = this.selectedHour / 12;
-                this.selectedHour = this.selectedHour % 12;
-                if (this.selectedHour == 0) {
-                    this.selectedHour = 12;
+            initialDateTime = widget.initialDateTime;
+            selectedDayFromInitial = 0;
+            selectedHour = widget.initialDateTime.Hour;
+            selectedMinute = widget.initialDateTime.Minute;
+            selectedAmPm = 0;
+            if (!widget.use24hFormat) {
+                selectedAmPm = selectedHour / 12;
+                selectedHour = selectedHour % 12;
+                if (selectedHour == 0) {
+                    selectedHour = 12;
                 }
 
-                this.amPmController = new FixedExtentScrollController(initialItem: this.selectedAmPm);
+                amPmController = new FixedExtentScrollController(initialItem: selectedAmPm);
             }
 
-            this.previousHourIndex = this.selectedHour;
+            previousHourIndex = selectedHour;
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
             D.assert(
-                ((CupertinoDatePicker) oldWidget).mode == this.widget.mode,
+                ((CupertinoDatePicker) oldWidget).mode == widget.mode,
                 () => "The CupertinoDatePicker's mode cannot change once it's built"
             );
         }
@@ -282,61 +282,61 @@ namespace Unity.UIWidgets.cupertino {
         public override void didChangeDependencies() {
             base.didChangeDependencies();
 
-            this.localizations = CupertinoLocalizations.of(this.context);
-            this.alignCenterLeft = Alignment.centerLeft;
-            this.alignCenterRight = Alignment.centerRight;
+            localizations = CupertinoLocalizations.of(context);
+            alignCenterLeft = Alignment.centerLeft;
+            alignCenterRight = Alignment.centerRight;
             estimatedColumnWidths.Clear();
         }
 
         float _getEstimatedColumnWidth(_PickerColumnType columnType) {
             if (!estimatedColumnWidths.TryGetValue((int) columnType, out float _)) {
                 estimatedColumnWidths[(int) columnType] =
-                    CupertinoDatePicker._getColumnWidth(columnType, this.localizations, this.context);
+                    CupertinoDatePicker._getColumnWidth(columnType, localizations, context);
             }
 
             return estimatedColumnWidths[(int) columnType];
         }
 
         DateTime _getDateTime() {
-            DateTime date = new DateTime(this.initialDateTime.Year, this.initialDateTime.Month, this.initialDateTime.Day
-            ).Add(new TimeSpan(this.selectedDayFromInitial, 0, 0, 0));
+            DateTime date = new DateTime(initialDateTime.Year, initialDateTime.Month, initialDateTime.Day
+            ).Add(new TimeSpan(selectedDayFromInitial, 0, 0, 0));
             return new DateTime(
                 date.Year,
                 date.Month,
                 date.Day,
-                this.widget.use24hFormat ? this.selectedHour : this.selectedHour % 12 + this.selectedAmPm * 12,
-                this.selectedMinute,
+                widget.use24hFormat ? selectedHour : selectedHour % 12 + selectedAmPm * 12,
+                selectedMinute,
                 0
             );
         }
 
         Widget _buildMediumDatePicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) {
             return CupertinoPicker.builder(
-                scrollController: new FixedExtentScrollController(initialItem: this.selectedDayFromInitial),
+                scrollController: new FixedExtentScrollController(initialItem: selectedDayFromInitial),
                 offAxisFraction: offAxisFraction,
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
                 useMagnifier: CupertinoDatePickerUtils._kUseMagnifier,
                 magnification: CupertinoDatePickerUtils._kMagnification,
                 backgroundColor: CupertinoDatePickerUtils._kBackgroundColor,
                 onSelectedItemChanged: (int index) => {
-                    this.selectedDayFromInitial = index;
-                    this.widget.onDateTimeChanged(this._getDateTime());
+                    selectedDayFromInitial = index;
+                    widget.onDateTimeChanged(_getDateTime());
                 },
                 itemBuilder: (BuildContext context, int index) => {
-                    DateTime dateTime = new DateTime(this.initialDateTime.Year, this.initialDateTime.Month,
-                        this.initialDateTime.Day
+                    DateTime dateTime = new DateTime(initialDateTime.Year, initialDateTime.Month,
+                        initialDateTime.Day
                     ).Add(new TimeSpan(index, 0, 0, 0));
-                    if (this.widget.minimumDate != null && dateTime < this.widget.minimumDate) {
+                    if (widget.minimumDate != null && dateTime < widget.minimumDate) {
                         return null;
                     }
 
-                    if (this.widget.maximumDate != null && dateTime > this.widget.maximumDate) {
+                    if (widget.maximumDate != null && dateTime > widget.maximumDate) {
                         return null;
                     }
 
                     return itemPositioningBuilder(
                         context,
-                        new Text(this.localizations.datePickerMediumDate(dateTime))
+                        new Text(localizations.datePickerMediumDate(dateTime))
                     );
                 }
             );
@@ -344,46 +344,46 @@ namespace Unity.UIWidgets.cupertino {
 
         Widget _buildHourPicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) {
             return new CupertinoPicker(
-                scrollController: new FixedExtentScrollController(initialItem: this.selectedHour),
+                scrollController: new FixedExtentScrollController(initialItem: selectedHour),
                 offAxisFraction: offAxisFraction,
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
                 useMagnifier: CupertinoDatePickerUtils._kUseMagnifier,
                 magnification: CupertinoDatePickerUtils._kMagnification,
                 backgroundColor: CupertinoDatePickerUtils._kBackgroundColor,
                 onSelectedItemChanged: (int index) => {
-                    if (this.widget.use24hFormat) {
-                        this.selectedHour = index;
-                        this.widget.onDateTimeChanged(this._getDateTime());
+                    if (widget.use24hFormat) {
+                        selectedHour = index;
+                        widget.onDateTimeChanged(_getDateTime());
                     }
                     else {
-                        this.selectedHour = index % 12;
+                        selectedHour = index % 12;
 
 
-                        bool wasAm = this.previousHourIndex >= 0 && this.previousHourIndex <= 11;
+                        bool wasAm = previousHourIndex >= 0 && previousHourIndex <= 11;
                         bool isAm = index >= 0 && index <= 11;
                         if (wasAm != isAm) {
-                            this.amPmController.animateToItem(
-                                1 - this.amPmController.selectedItem,
+                            amPmController.animateToItem(
+                                1 - amPmController.selectedItem,
                                 duration: new TimeSpan(0, 0, 0, 0, 300),
                                 curve:
                                 Curves.easeOut
                             );
                         }
                         else {
-                            this.widget.onDateTimeChanged(this._getDateTime());
+                            widget.onDateTimeChanged(_getDateTime());
                         }
                     }
 
-                    this.previousHourIndex = index;
+                    previousHourIndex = index;
                 },
                 children: CupertinoDatePickerUtils.listGenerate(24, (index) => {
                     int hour = index;
-                    if (!this.widget.use24hFormat) {
+                    if (!widget.use24hFormat) {
                         hour = hour % 12 == 0 ? 12 : hour % 12;
                     }
 
-                    return itemPositioningBuilder(this.context,
-                        new Text(this.localizations.datePickerHour(hour)
+                    return itemPositioningBuilder(context,
+                        new Text(localizations.datePickerHour(hour)
                         )
                     );
                 }),
@@ -394,20 +394,20 @@ namespace Unity.UIWidgets.cupertino {
         Widget _buildMinutePicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) {
             return new CupertinoPicker(
                 scrollController: new FixedExtentScrollController(
-                    initialItem: this.selectedMinute / this.widget.minuteInterval),
+                    initialItem: selectedMinute / widget.minuteInterval),
                 offAxisFraction: offAxisFraction,
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
                 useMagnifier: CupertinoDatePickerUtils._kUseMagnifier,
                 magnification: CupertinoDatePickerUtils._kMagnification,
                 backgroundColor: CupertinoDatePickerUtils._kBackgroundColor,
                 onSelectedItemChanged: (int index) => {
-                    this.selectedMinute = index * this.widget.minuteInterval;
-                    this.widget.onDateTimeChanged(this._getDateTime());
+                    selectedMinute = index * widget.minuteInterval;
+                    widget.onDateTimeChanged(_getDateTime());
                 },
-                children: CupertinoDatePickerUtils.listGenerate(60 / this.widget.minuteInterval, (int index) => {
-                    int minute = index * this.widget.minuteInterval;
-                    return itemPositioningBuilder(this.context,
-                        new Text(this.localizations.datePickerMinute(minute)
+                children: CupertinoDatePickerUtils.listGenerate(60 / widget.minuteInterval, (int index) => {
+                    int minute = index * widget.minuteInterval;
+                    return itemPositioningBuilder(context,
+                        new Text(localizations.datePickerMinute(minute)
                         )
                     );
                 }),
@@ -417,22 +417,22 @@ namespace Unity.UIWidgets.cupertino {
 
         Widget _buildAmPmPicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) {
             return new CupertinoPicker(
-                scrollController: this.amPmController,
+                scrollController: amPmController,
                 offAxisFraction: offAxisFraction,
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
                 useMagnifier: CupertinoDatePickerUtils._kUseMagnifier,
                 magnification: CupertinoDatePickerUtils._kMagnification,
                 backgroundColor: CupertinoDatePickerUtils._kBackgroundColor,
                 onSelectedItemChanged: (int index) => {
-                    this.selectedAmPm = index;
-                    this.widget.onDateTimeChanged(this._getDateTime());
+                    selectedAmPm = index;
+                    widget.onDateTimeChanged(_getDateTime());
                 },
                 children: CupertinoDatePickerUtils.listGenerate(2, (int index) => {
-                    return itemPositioningBuilder(this.context,
+                    return itemPositioningBuilder(context,
                         new Text(
                             index == 0
-                                ? this.localizations.anteMeridiemAbbreviation
-                                : this.localizations.postMeridiemAbbreviation
+                                ? localizations.anteMeridiemAbbreviation
+                                : localizations.postMeridiemAbbreviation
                         )
                     );
                 })
@@ -441,35 +441,35 @@ namespace Unity.UIWidgets.cupertino {
 
         public override Widget build(BuildContext context) {
             List<float> columnWidths = new List<float>() {
-                this._getEstimatedColumnWidth(_PickerColumnType.hour),
-                this._getEstimatedColumnWidth(_PickerColumnType.minute),
+                _getEstimatedColumnWidth(_PickerColumnType.hour),
+                _getEstimatedColumnWidth(_PickerColumnType.minute),
             };
 
             List<_ColumnBuilder> pickerBuilders = new List<_ColumnBuilder> {
-                this._buildHourPicker, this._buildMinutePicker,
+                _buildHourPicker, _buildMinutePicker,
             };
 
-            if (!this.widget.use24hFormat) {
-                if (this.localizations.datePickerDateTimeOrder == DatePickerDateTimeOrder.date_time_dayPeriod
-                    || this.localizations.datePickerDateTimeOrder == DatePickerDateTimeOrder.time_dayPeriod_date) {
-                    pickerBuilders.Add(this._buildAmPmPicker);
-                    columnWidths.Add(this._getEstimatedColumnWidth(_PickerColumnType.dayPeriod));
+            if (!widget.use24hFormat) {
+                if (localizations.datePickerDateTimeOrder == DatePickerDateTimeOrder.date_time_dayPeriod
+                    || localizations.datePickerDateTimeOrder == DatePickerDateTimeOrder.time_dayPeriod_date) {
+                    pickerBuilders.Add(_buildAmPmPicker);
+                    columnWidths.Add(_getEstimatedColumnWidth(_PickerColumnType.dayPeriod));
                 }
                 else {
-                    pickerBuilders.Insert(0, this._buildAmPmPicker);
-                    columnWidths.Insert(0, this._getEstimatedColumnWidth(_PickerColumnType.dayPeriod));
+                    pickerBuilders.Insert(0, _buildAmPmPicker);
+                    columnWidths.Insert(0, _getEstimatedColumnWidth(_PickerColumnType.dayPeriod));
                 }
             }
 
-            if (this.widget.mode == CupertinoDatePickerMode.dateAndTime) {
-                if (this.localizations.datePickerDateTimeOrder == DatePickerDateTimeOrder.time_dayPeriod_date
-                    || this.localizations.datePickerDateTimeOrder == DatePickerDateTimeOrder.dayPeriod_time_date) {
-                    pickerBuilders.Add(this._buildMediumDatePicker);
-                    columnWidths.Add(this._getEstimatedColumnWidth(_PickerColumnType.date));
+            if (widget.mode == CupertinoDatePickerMode.dateAndTime) {
+                if (localizations.datePickerDateTimeOrder == DatePickerDateTimeOrder.time_dayPeriod_date
+                    || localizations.datePickerDateTimeOrder == DatePickerDateTimeOrder.dayPeriod_time_date) {
+                    pickerBuilders.Add(_buildMediumDatePicker);
+                    columnWidths.Add(_getEstimatedColumnWidth(_PickerColumnType.date));
                 }
                 else {
-                    pickerBuilders.Insert(0, this._buildMediumDatePicker);
-                    columnWidths.Insert(0, this._getEstimatedColumnWidth(_PickerColumnType.date));
+                    pickerBuilders.Insert(0, _buildMediumDatePicker);
+                    columnWidths.Insert(0, _getEstimatedColumnWidth(_PickerColumnType.date));
                 }
             }
 
@@ -496,13 +496,13 @@ namespace Unity.UIWidgets.cupertino {
                         (BuildContext _context, Widget child) => {
                             return new Container(
                                 alignment: _i == columnWidths.Count - 1
-                                    ? this.alignCenterLeft
-                                    : this.alignCenterRight,
+                                    ? alignCenterLeft
+                                    : alignCenterRight,
                                 padding: padding,
                                 child: new Container(
                                     alignment: _i == columnWidths.Count - 1
-                                        ? this.alignCenterLeft
-                                        : this.alignCenterRight,
+                                        ? alignCenterLeft
+                                        : alignCenterRight,
                                     width: _i == 0 || _i == columnWidths.Count - 1
                                         ? (float?) null
                                         : columnWidths[_i] + CupertinoDatePickerUtils._kDatePickerPadSize,
@@ -544,46 +544,46 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this.selectedDay = this.widget.initialDateTime.Day;
-            this.selectedMonth = this.widget.initialDateTime.Month;
-            this.selectedYear = this.widget.initialDateTime.Year;
-            this.dayController = new FixedExtentScrollController(initialItem: this.selectedDay - 1);
+            selectedDay = widget.initialDateTime.Day;
+            selectedMonth = widget.initialDateTime.Month;
+            selectedYear = widget.initialDateTime.Year;
+            dayController = new FixedExtentScrollController(initialItem: selectedDay - 1);
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this.localizations = CupertinoLocalizations.of(this.context);
-            this.alignCenterLeft = Alignment.centerLeft;
-            this.alignCenterRight = Alignment.centerRight;
-            this.estimatedColumnWidths[(int) _PickerColumnType.dayOfMonth] = CupertinoDatePicker._getColumnWidth(
-                _PickerColumnType.dayOfMonth, this.localizations, this.context);
+            localizations = CupertinoLocalizations.of(context);
+            alignCenterLeft = Alignment.centerLeft;
+            alignCenterRight = Alignment.centerRight;
+            estimatedColumnWidths[(int) _PickerColumnType.dayOfMonth] = CupertinoDatePicker._getColumnWidth(
+                _PickerColumnType.dayOfMonth, localizations, context);
 
-            this.estimatedColumnWidths[(int) _PickerColumnType.month] = CupertinoDatePicker._getColumnWidth(
-                _PickerColumnType.month, this.localizations, this.context);
+            estimatedColumnWidths[(int) _PickerColumnType.month] = CupertinoDatePicker._getColumnWidth(
+                _PickerColumnType.month, localizations, context);
 
-            this.estimatedColumnWidths[(int) _PickerColumnType.year] = CupertinoDatePicker._getColumnWidth(
-                _PickerColumnType.year, this.localizations, this.context);
+            estimatedColumnWidths[(int) _PickerColumnType.year] = CupertinoDatePicker._getColumnWidth(
+                _PickerColumnType.year, localizations, context);
         }
 
         Widget _buildDayPicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) {
-            int daysInCurrentMonth = DateTime.DaysInMonth(this.selectedYear, this.selectedMonth);
+            int daysInCurrentMonth = DateTime.DaysInMonth(selectedYear, selectedMonth);
             return new CupertinoPicker(
-                scrollController: this.dayController,
+                scrollController: dayController,
                 offAxisFraction: offAxisFraction,
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
                 useMagnifier: CupertinoDatePickerUtils._kUseMagnifier,
                 magnification: CupertinoDatePickerUtils._kMagnification,
                 backgroundColor: CupertinoDatePickerUtils._kBackgroundColor,
                 onSelectedItemChanged: (int index) => {
-                    this.selectedDay = index + 1;
-                    var validDay = this.selectedDay;
-                    if (DateTime.DaysInMonth(this.selectedYear, this.selectedMonth) < this.selectedDay) {
-                        validDay -= DateTime.DaysInMonth(this.selectedYear, this.selectedMonth);
+                    selectedDay = index + 1;
+                    var validDay = selectedDay;
+                    if (DateTime.DaysInMonth(selectedYear, selectedMonth) < selectedDay) {
+                        validDay -= DateTime.DaysInMonth(selectedYear, selectedMonth);
                     }
 
-                    if (this.selectedDay == validDay) {
-                        this.widget.onDateTimeChanged(new DateTime(this.selectedYear, this.selectedMonth,
-                            this.selectedDay));
+                    if (selectedDay == validDay) {
+                        widget.onDateTimeChanged(new DateTime(selectedYear, selectedMonth,
+                            selectedDay));
                     }
                 },
                 children: CupertinoDatePickerUtils.listGenerate(31, (int index) => {
@@ -593,8 +593,8 @@ namespace Unity.UIWidgets.cupertino {
                         disableTextStyle = new TextStyle(color: CupertinoColors.inactiveGray);
                     }
 
-                    return itemPositioningBuilder(this.context,
-                        new Text(this.localizations.datePickerDayOfMonth(index + 1),
+                    return itemPositioningBuilder(context,
+                        new Text(localizations.datePickerDayOfMonth(index + 1),
                             style: disableTextStyle
                         )
                     );
@@ -605,27 +605,27 @@ namespace Unity.UIWidgets.cupertino {
 
         Widget _buildMonthPicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) {
             return new CupertinoPicker(
-                scrollController: new FixedExtentScrollController(initialItem: this.selectedMonth - 1),
+                scrollController: new FixedExtentScrollController(initialItem: selectedMonth - 1),
                 offAxisFraction: offAxisFraction,
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
                 useMagnifier: CupertinoDatePickerUtils._kUseMagnifier,
                 magnification: CupertinoDatePickerUtils._kMagnification,
                 backgroundColor: CupertinoDatePickerUtils._kBackgroundColor,
                 onSelectedItemChanged: (int index) => {
-                    this.selectedMonth = index + 1;
-                    var validDay = this.selectedDay;
-                    if (DateTime.DaysInMonth(this.selectedYear, this.selectedMonth) < this.selectedDay) {
-                        validDay -= DateTime.DaysInMonth(this.selectedYear, this.selectedMonth);
+                    selectedMonth = index + 1;
+                    var validDay = selectedDay;
+                    if (DateTime.DaysInMonth(selectedYear, selectedMonth) < selectedDay) {
+                        validDay -= DateTime.DaysInMonth(selectedYear, selectedMonth);
                     }
 
-                    if (this.selectedDay == validDay) {
-                        this.widget.onDateTimeChanged(new DateTime(this.selectedYear, this.selectedMonth,
-                            this.selectedDay));
+                    if (selectedDay == validDay) {
+                        widget.onDateTimeChanged(new DateTime(selectedYear, selectedMonth,
+                            selectedDay));
                     }
                 },
                 children: CupertinoDatePickerUtils.listGenerate(12, (int index) => {
-                    return itemPositioningBuilder(this.context,
-                        new Text(this.localizations.datePickerMonth(index + 1))
+                    return itemPositioningBuilder(context,
+                        new Text(localizations.datePickerMonth(index + 1))
                     );
                 }),
                 looping: true
@@ -634,45 +634,45 @@ namespace Unity.UIWidgets.cupertino {
 
         Widget _buildYearPicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) {
             return CupertinoPicker.builder(
-                scrollController: new FixedExtentScrollController(initialItem: this.selectedYear),
+                scrollController: new FixedExtentScrollController(initialItem: selectedYear),
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
                 offAxisFraction: offAxisFraction,
                 useMagnifier: CupertinoDatePickerUtils._kUseMagnifier,
                 magnification: CupertinoDatePickerUtils._kMagnification,
                 backgroundColor: CupertinoDatePickerUtils._kBackgroundColor,
                 onSelectedItemChanged: (int index) => {
-                    this.selectedYear = index;
-                    if (new DateTime(this.selectedYear, this.selectedMonth, this.selectedDay).Day == this.selectedDay) {
-                        this.widget.onDateTimeChanged(new DateTime(this.selectedYear, this.selectedMonth,
-                            this.selectedDay));
+                    selectedYear = index;
+                    if (new DateTime(selectedYear, selectedMonth, selectedDay).Day == selectedDay) {
+                        widget.onDateTimeChanged(new DateTime(selectedYear, selectedMonth,
+                            selectedDay));
                     }
                 },
                 itemBuilder: (BuildContext context, int index) => {
-                    if (index < this.widget.minimumYear) {
+                    if (index < widget.minimumYear) {
                         return null;
                     }
 
-                    if (this.widget.maximumYear != null && index > this.widget.maximumYear) {
+                    if (widget.maximumYear != null && index > widget.maximumYear) {
                         return null;
                     }
 
                     return itemPositioningBuilder(
                         context,
-                        new Text(this.localizations.datePickerYear(index))
+                        new Text(localizations.datePickerYear(index))
                     );
                 }
             );
         }
 
         bool _keepInValidRange(ScrollEndNotification notification) {
-            var desiredDay = this.selectedDay;
-            if (DateTime.DaysInMonth(this.selectedYear, this.selectedMonth) < this.selectedDay) {
-                desiredDay -= DateTime.DaysInMonth(this.selectedYear, this.selectedMonth);
+            var desiredDay = selectedDay;
+            if (DateTime.DaysInMonth(selectedYear, selectedMonth) < selectedDay) {
+                desiredDay -= DateTime.DaysInMonth(selectedYear, selectedMonth);
             }
 
-            if (desiredDay != this.selectedDay) {
+            if (desiredDay != selectedDay) {
                 SchedulerBinding.instance.addPostFrameCallback((TimeSpan timestamp) => {
-                    this.dayController.animateToItem(this.dayController.selectedItem - desiredDay,
+                    dayController.animateToItem(dayController.selectedItem - desiredDay,
                         duration: new TimeSpan(0, 0, 0, 0, 200),
                         curve:
                         Curves.easeOut
@@ -680,48 +680,48 @@ namespace Unity.UIWidgets.cupertino {
                 });
             }
 
-            this.setState(() => { });
+            setState(() => { });
             return false;
         }
 
         public override Widget build(BuildContext context) {
             List<_ColumnBuilder> pickerBuilders = new List<_ColumnBuilder>();
             List<float> columnWidths = new List<float>();
-            switch (this.localizations.datePickerDateOrder) {
+            switch (localizations.datePickerDateOrder) {
                 case DatePickerDateOrder.mdy:
                     pickerBuilders = new List<_ColumnBuilder>()
-                        {this._buildMonthPicker, this._buildDayPicker, this._buildYearPicker};
+                        {_buildMonthPicker, _buildDayPicker, _buildYearPicker};
                     columnWidths = new List<float>() {
-                        this.estimatedColumnWidths[(int) _PickerColumnType.month],
-                        this.estimatedColumnWidths[(int) _PickerColumnType.dayOfMonth],
-                        this.estimatedColumnWidths[(int) _PickerColumnType.year]
+                        estimatedColumnWidths[(int) _PickerColumnType.month],
+                        estimatedColumnWidths[(int) _PickerColumnType.dayOfMonth],
+                        estimatedColumnWidths[(int) _PickerColumnType.year]
                     };
                     break;
                 case DatePickerDateOrder.dmy:
                     pickerBuilders = new List<_ColumnBuilder>
-                        {this._buildDayPicker, this._buildMonthPicker, this._buildYearPicker};
+                        {_buildDayPicker, _buildMonthPicker, _buildYearPicker};
                     columnWidths = new List<float> {
-                        this.estimatedColumnWidths[(int) _PickerColumnType.dayOfMonth],
-                        this.estimatedColumnWidths[(int) _PickerColumnType.month],
-                        this.estimatedColumnWidths[(int) _PickerColumnType.year]
+                        estimatedColumnWidths[(int) _PickerColumnType.dayOfMonth],
+                        estimatedColumnWidths[(int) _PickerColumnType.month],
+                        estimatedColumnWidths[(int) _PickerColumnType.year]
                     };
                     break;
                 case DatePickerDateOrder.ymd:
                     pickerBuilders = new List<_ColumnBuilder>
-                        {this._buildYearPicker, this._buildMonthPicker, this._buildDayPicker};
+                        {_buildYearPicker, _buildMonthPicker, _buildDayPicker};
                     columnWidths = new List<float>() {
-                        this.estimatedColumnWidths[(int) _PickerColumnType.year],
-                        this.estimatedColumnWidths[(int) _PickerColumnType.month],
-                        this.estimatedColumnWidths[(int) _PickerColumnType.dayOfMonth]
+                        estimatedColumnWidths[(int) _PickerColumnType.year],
+                        estimatedColumnWidths[(int) _PickerColumnType.month],
+                        estimatedColumnWidths[(int) _PickerColumnType.dayOfMonth]
                     };
                     break;
                 case DatePickerDateOrder.ydm:
                     pickerBuilders = new List<_ColumnBuilder>
-                        {this._buildYearPicker, this._buildDayPicker, this._buildMonthPicker};
+                        {_buildYearPicker, _buildDayPicker, _buildMonthPicker};
                     columnWidths = new List<float> {
-                        this.estimatedColumnWidths[(int) _PickerColumnType.year],
-                        this.estimatedColumnWidths[(int) _PickerColumnType.dayOfMonth],
-                        this.estimatedColumnWidths[(int) _PickerColumnType.month]
+                        estimatedColumnWidths[(int) _PickerColumnType.year],
+                        estimatedColumnWidths[(int) _PickerColumnType.dayOfMonth],
+                        estimatedColumnWidths[(int) _PickerColumnType.month]
                     };
                     break;
                 default:
@@ -742,11 +742,11 @@ namespace Unity.UIWidgets.cupertino {
                         (BuildContext _context, Widget child) => {
                             return new Container(
                                 alignment: _i == columnWidths.Count - 1
-                                    ? this.alignCenterLeft
-                                    : this.alignCenterRight,
+                                    ? alignCenterLeft
+                                    : alignCenterRight,
                                 padding: _i == 0 ? null : padding,
                                 child: new Container(
-                                    alignment: _i == 0 ? this.alignCenterLeft : this.alignCenterRight,
+                                    alignment: _i == 0 ? alignCenterLeft : alignCenterRight,
                                     width: columnWidths[_i] + CupertinoDatePickerUtils._kDatePickerPadSize,
                                     child: child
                                 )
@@ -759,7 +759,7 @@ namespace Unity.UIWidgets.cupertino {
             return new MediaQuery(
                 data: new MediaQueryData(textScaleFactor: 1.0f),
                 child: new NotificationListener<ScrollEndNotification>(
-                    onNotification: this._keepInValidRange,
+                    onNotification: _keepInValidRange,
                     child: DefaultTextStyle.merge(
                         style: CupertinoDatePickerUtils._kDefaultPickerTextStyle,
                         child: new CustomMultiChildLayout(
@@ -824,13 +824,13 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this.selectedMinute = (int) this.widget.initialTimerDuration.TotalMinutes % 60;
-            if (this.widget.mode != CupertinoTimerPickerMode.ms) {
-                this.selectedHour = (int) this.widget.initialTimerDuration.TotalHours;
+            selectedMinute = (int) widget.initialTimerDuration.TotalMinutes % 60;
+            if (widget.mode != CupertinoTimerPickerMode.ms) {
+                selectedHour = (int) widget.initialTimerDuration.TotalHours;
             }
 
-            if (this.widget.mode != CupertinoTimerPickerMode.hm) {
-                this.selectedSecond = (int) this.widget.initialTimerDuration.TotalSeconds % 60;
+            if (widget.mode != CupertinoTimerPickerMode.hm) {
+                selectedSecond = (int) widget.initialTimerDuration.TotalSeconds % 60;
             }
         }
 
@@ -844,38 +844,38 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this.localizations = CupertinoLocalizations.of(this.context);
-            this.alignCenterLeft = Alignment.centerLeft;
-            this.alignCenterRight = Alignment.centerRight;
+            localizations = CupertinoLocalizations.of(context);
+            alignCenterLeft = Alignment.centerLeft;
+            alignCenterRight = Alignment.centerRight;
         }
 
         Widget _buildHourPicker() {
             return new CupertinoPicker(
-                scrollController: new FixedExtentScrollController(initialItem: this.selectedHour),
+                scrollController: new FixedExtentScrollController(initialItem: selectedHour),
                 offAxisFraction: -0.5f,
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
                 backgroundColor: CupertinoDatePickerUtils._kBackgroundColor,
                 onSelectedItemChanged: (int index) => {
-                    this.setState(() => {
-                        this.selectedHour = index;
-                        this.widget.onTimerDurationChanged(
+                    setState(() => {
+                        selectedHour = index;
+                        widget.onTimerDurationChanged(
                             new TimeSpan(
-                                hours: this.selectedHour,
-                                minutes: this.selectedMinute,
-                                seconds: this.selectedSecond));
+                                hours: selectedHour,
+                                minutes: selectedMinute,
+                                seconds: selectedSecond));
                     });
                 },
                 children: CupertinoDatePickerUtils.listGenerate(24, (int index) => {
-                    float hourLabelWidth = this.widget.mode == CupertinoTimerPickerMode.hm
+                    float hourLabelWidth = widget.mode == CupertinoTimerPickerMode.hm
                         ? CupertinoDatePickerUtils._kPickerWidth / 4
                         : CupertinoDatePickerUtils._kPickerWidth / 6;
                     return new Container(
-                        alignment: this.alignCenterRight,
+                        alignment: alignCenterRight,
                         padding: EdgeInsets.only(right: hourLabelWidth),
                         child: new Container(
-                            alignment: this.alignCenterRight,
+                            alignment: alignCenterRight,
                             padding: EdgeInsets.symmetric(horizontal: 2.0f),
-                            child: new Text(this.localizations.timerPickerHour(index))
+                            child: new Text(localizations.timerPickerHour(index))
                         )
                     );
                 })
@@ -885,20 +885,20 @@ namespace Unity.UIWidgets.cupertino {
         Widget _buildHourColumn() {
             Widget hourLabel = new IgnorePointer(
                 child: new Container(
-                    alignment: this.alignCenterRight,
+                    alignment: alignCenterRight,
                     child: new Container(
-                        alignment: this.alignCenterLeft,
+                        alignment: alignCenterLeft,
                         padding: EdgeInsets.symmetric(horizontal: 2.0f),
-                        width: this.widget.mode == CupertinoTimerPickerMode.hm
+                        width: widget.mode == CupertinoTimerPickerMode.hm
                             ? CupertinoDatePickerUtils._kPickerWidth / 4
                             : CupertinoDatePickerUtils._kPickerWidth / 6,
-                        child: this._buildLabel(this.localizations.timerPickerHourLabel(this.selectedHour))
+                        child: _buildLabel(localizations.timerPickerHourLabel(selectedHour))
                     )
                 )
             );
             return new Stack(
                 children: new List<Widget> {
-                    this._buildHourPicker(),
+                    _buildHourPicker(),
                     hourLabel
                 }
             );
@@ -906,10 +906,10 @@ namespace Unity.UIWidgets.cupertino {
 
         Widget _buildMinutePicker() {
             float offAxisFraction;
-            if (this.widget.mode == CupertinoTimerPickerMode.hm) {
+            if (widget.mode == CupertinoTimerPickerMode.hm) {
                 offAxisFraction = 0.5f;
             }
-            else if (this.widget.mode == CupertinoTimerPickerMode.hms) {
+            else if (widget.mode == CupertinoTimerPickerMode.hms) {
                 offAxisFraction = 0.0f;
             }
             else {
@@ -918,45 +918,45 @@ namespace Unity.UIWidgets.cupertino {
 
             return new CupertinoPicker(
                 scrollController: new FixedExtentScrollController(
-                    initialItem: this.selectedMinute / this.widget.minuteInterval
+                    initialItem: selectedMinute / widget.minuteInterval
                 ),
                 offAxisFraction: offAxisFraction,
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
                 backgroundColor: CupertinoDatePickerUtils._kBackgroundColor,
                 onSelectedItemChanged: (int index) => {
-                    this.setState(() => {
-                        this.selectedMinute = index * this.widget.minuteInterval;
-                        this.widget.onTimerDurationChanged(
+                    setState(() => {
+                        selectedMinute = index * widget.minuteInterval;
+                        widget.onTimerDurationChanged(
                             new TimeSpan(
-                                hours: this.selectedHour,
-                                minutes: this.selectedMinute,
-                                seconds: this.selectedSecond));
+                                hours: selectedHour,
+                                minutes: selectedMinute,
+                                seconds: selectedSecond));
                     });
                 },
-                children: CupertinoDatePickerUtils.listGenerate(60 / this.widget.minuteInterval, (int index) => {
-                    int minute = index * this.widget.minuteInterval;
-                    if (this.widget.mode == CupertinoTimerPickerMode.ms) {
+                children: CupertinoDatePickerUtils.listGenerate(60 / widget.minuteInterval, (int index) => {
+                    int minute = index * widget.minuteInterval;
+                    if (widget.mode == CupertinoTimerPickerMode.ms) {
                         return new Container(
-                            alignment: this.alignCenterRight,
+                            alignment: alignCenterRight,
                             padding: EdgeInsets.only(right: CupertinoDatePickerUtils._kPickerWidth / 4),
                             child: new Container(
-                                alignment: this.alignCenterRight,
+                                alignment: alignCenterRight,
                                 padding: EdgeInsets.symmetric(horizontal: 2.0f),
-                                child: new Text(this.localizations.timerPickerMinute(minute))
+                                child: new Text(localizations.timerPickerMinute(minute))
                             )
                         );
                     }
                     else {
                         return new Container(
-                            alignment: this.alignCenterLeft,
+                            alignment: alignCenterLeft,
                             child: new Container(
-                                alignment: this.alignCenterRight,
-                                width: this.widget.mode == CupertinoTimerPickerMode.hm
+                                alignment: alignCenterRight,
+                                width: widget.mode == CupertinoTimerPickerMode.hm
                                     ? CupertinoDatePickerUtils._kPickerWidth / 10
                                     : CupertinoDatePickerUtils._kPickerWidth / 6,
                                 padding: EdgeInsets.symmetric(horizontal: 2.0f),
                                 child:
-                                new Text(this.localizations.timerPickerMinute(minute))
+                                new Text(localizations.timerPickerMinute(minute))
                             )
                         );
                     }
@@ -966,15 +966,15 @@ namespace Unity.UIWidgets.cupertino {
 
         Widget _buildMinuteColumn() {
             Widget minuteLabel;
-            if (this.widget.mode == CupertinoTimerPickerMode.hm) {
+            if (widget.mode == CupertinoTimerPickerMode.hm) {
                 minuteLabel = new IgnorePointer(
                     child: new Container(
-                        alignment: this.alignCenterLeft,
+                        alignment: alignCenterLeft,
                         padding: EdgeInsets.only(left: CupertinoDatePickerUtils._kPickerWidth / 10),
                         child: new Container(
-                            alignment: this.alignCenterLeft,
+                            alignment: alignCenterLeft,
                             padding: EdgeInsets.symmetric(horizontal: 2.0f),
-                            child: this._buildLabel(this.localizations.timerPickerMinuteLabel(this.selectedMinute))
+                            child: _buildLabel(localizations.timerPickerMinuteLabel(selectedMinute))
                         )
                     )
                 );
@@ -982,14 +982,14 @@ namespace Unity.UIWidgets.cupertino {
             else {
                 minuteLabel = new IgnorePointer(
                     child: new Container(
-                        alignment: this.alignCenterRight,
+                        alignment: alignCenterRight,
                         child: new Container(
-                            alignment: this.alignCenterLeft,
-                            width: this.widget.mode == CupertinoTimerPickerMode.ms
+                            alignment: alignCenterLeft,
+                            width: widget.mode == CupertinoTimerPickerMode.ms
                                 ? CupertinoDatePickerUtils._kPickerWidth / 4
                                 : CupertinoDatePickerUtils._kPickerWidth / 6,
                             padding: EdgeInsets.symmetric(horizontal: 2.0f),
-                            child: this._buildLabel(this.localizations.timerPickerMinuteLabel(this.selectedMinute))
+                            child: _buildLabel(localizations.timerPickerMinuteLabel(selectedMinute))
                         )
                     )
                 );
@@ -997,7 +997,7 @@ namespace Unity.UIWidgets.cupertino {
 
             return new Stack(
                 children: new List<Widget> {
-                    this._buildMinutePicker(),
+                    _buildMinutePicker(),
                     minuteLabel
                 }
             );
@@ -1005,35 +1005,35 @@ namespace Unity.UIWidgets.cupertino {
 
         Widget _buildSecondPicker() {
             float offAxisFraction = 0.5f;
-            float secondPickerWidth = this.widget.mode == CupertinoTimerPickerMode.ms
+            float secondPickerWidth = widget.mode == CupertinoTimerPickerMode.ms
                 ? CupertinoDatePickerUtils._kPickerWidth / 10
                 : CupertinoDatePickerUtils._kPickerWidth / 6;
             return new CupertinoPicker(
                 scrollController: new FixedExtentScrollController(
-                    initialItem: this.selectedSecond / this.widget.secondInterval
+                    initialItem: selectedSecond / widget.secondInterval
                 ),
                 offAxisFraction: offAxisFraction,
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
                 backgroundColor: CupertinoDatePickerUtils._kBackgroundColor,
                 onSelectedItemChanged: (int index) => {
-                    this.setState(() => {
-                        this.selectedSecond = index * this.widget.secondInterval;
-                        this.widget.onTimerDurationChanged(
+                    setState(() => {
+                        selectedSecond = index * widget.secondInterval;
+                        widget.onTimerDurationChanged(
                             new TimeSpan(
-                                hours: this.selectedHour,
-                                minutes: this.selectedMinute,
-                                seconds: this.selectedSecond));
+                                hours: selectedHour,
+                                minutes: selectedMinute,
+                                seconds: selectedSecond));
                     });
                 },
-                children: CupertinoDatePickerUtils.listGenerate(60 / this.widget.secondInterval, (int index) => {
-                    int second = index * this.widget.secondInterval;
+                children: CupertinoDatePickerUtils.listGenerate(60 / widget.secondInterval, (int index) => {
+                    int second = index * widget.secondInterval;
                     return new Container(
-                        alignment: this.alignCenterLeft,
+                        alignment: alignCenterLeft,
                         child: new Container(
-                            alignment: this.alignCenterRight,
+                            alignment: alignCenterRight,
                             padding: EdgeInsets.symmetric(horizontal: 2.0f),
                             width: secondPickerWidth,
-                            child: new Text(this.localizations.timerPickerSecond(second))
+                            child: new Text(localizations.timerPickerSecond(second))
                         )
                     );
                 })
@@ -1041,23 +1041,23 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         Widget _buildSecondColumn() {
-            float secondPickerWidth = this.widget.mode == CupertinoTimerPickerMode.ms
+            float secondPickerWidth = widget.mode == CupertinoTimerPickerMode.ms
                 ? CupertinoDatePickerUtils._kPickerWidth / 10
                 : CupertinoDatePickerUtils._kPickerWidth / 6;
             Widget secondLabel = new IgnorePointer(
                 child: new Container(
-                    alignment: this.alignCenterLeft,
+                    alignment: alignCenterLeft,
                     padding: EdgeInsets.only(left: secondPickerWidth),
                     child: new Container(
-                        alignment: this.alignCenterLeft,
+                        alignment: alignCenterLeft,
                         padding: EdgeInsets.symmetric(horizontal: 2.0f),
-                        child: this._buildLabel(this.localizations.timerPickerSecondLabel(this.selectedSecond))
+                        child: _buildLabel(localizations.timerPickerSecondLabel(selectedSecond))
                     )
                 )
             );
             return new Stack(
                 children: new List<Widget> {
-                    this._buildSecondPicker(),
+                    _buildSecondPicker(),
                     secondLabel
                 }
             );
@@ -1065,31 +1065,31 @@ namespace Unity.UIWidgets.cupertino {
 
         public override Widget build(BuildContext context) {
             Widget picker;
-            if (this.widget.mode == CupertinoTimerPickerMode.hm) {
+            if (widget.mode == CupertinoTimerPickerMode.hm) {
                 picker = new Row(
                     children: new List<Widget> {
-                        new Expanded(child: this._buildHourColumn()),
-                        new Expanded(child: this._buildMinuteColumn()),
+                        new Expanded(child: _buildHourColumn()),
+                        new Expanded(child: _buildMinuteColumn()),
                     }
                 );
             }
-            else if (this.widget.mode == CupertinoTimerPickerMode.ms) {
+            else if (widget.mode == CupertinoTimerPickerMode.ms) {
                 picker = new Row(
                     children: new List<Widget> {
-                        new Expanded(child: this._buildMinuteColumn()),
-                        new Expanded(child: this._buildSecondColumn()),
+                        new Expanded(child: _buildMinuteColumn()),
+                        new Expanded(child: _buildSecondColumn()),
                     }
                 );
             }
             else {
                 picker = new Row(
                     children: new List<Widget> {
-                        new Expanded(child: this._buildHourColumn()),
+                        new Expanded(child: _buildHourColumn()),
                         new Container(
                             width: CupertinoDatePickerUtils._kPickerWidth / 3,
-                            child: this._buildMinuteColumn()
+                            child: _buildMinuteColumn()
                         ),
-                        new Expanded(child: this._buildSecondColumn()),
+                        new Expanded(child: _buildSecondColumn()),
                     }
                 );
             }

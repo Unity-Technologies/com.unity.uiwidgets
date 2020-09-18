@@ -6,7 +6,7 @@ namespace Unity.UIWidgets.debugger {
         [SerializeField] int m_NextId = 0;
 
         public string nextGroupName(string name) {
-            return $"pid{Process.GetCurrentProcess().Id}_{name}_{this.m_NextId++}";
+            return $"pid{Process.GetCurrentProcess().Id}_{name}_{m_NextId++}";
         }
     }
 
@@ -28,15 +28,15 @@ namespace Unity.UIWidgets.debugger {
 
         void OnEnable() {
             if (m_CreateNonSingletonInstance) {
-                this.m_IsNonSingletonInstance = true;
-                this.Initialize();
+                m_IsNonSingletonInstance = true;
+                Initialize();
             }
-            else if (this.m_IsNonSingletonInstance) {
+            else if (m_IsNonSingletonInstance) {
                 DestroyImmediate((Object) this);
             }
             else if (m_Instance == null) {
                 m_Instance = this as T;
-                this.Initialize();
+                Initialize();
             }
             else {
                 DestroyImmediate((Object) this);

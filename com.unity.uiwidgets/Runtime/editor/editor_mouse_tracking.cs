@@ -9,35 +9,35 @@ namespace Unity.UIWidgets.gestures {
         bool _enableDragFromEditorRelease = false;
 
         void _handleDragFromEditorEvent(PointerEvent evt, int deviceId) {
-            if (!this.inEditorWindow) {
+            if (!inEditorWindow) {
                 return;
             }
 
             if (evt is PointerDragFromEditorReleaseEvent) {
-                this._enableDragFromEditorRelease = false;
-                this._scheduleDragFromEditorReleaseCheck();
-                this._lastMouseEvent.Remove(deviceId);
+                _enableDragFromEditorRelease = false;
+                _scheduleDragFromEditorReleaseCheck();
+                _lastMouseEvent.Remove(deviceId);
             }
             else if (evt is PointerDragFromEditorEnterEvent ||
                      evt is PointerDragFromEditorHoverEvent ||
                      evt is PointerDragFromEditorExitEvent) {
-                if (!this._lastMouseEvent.ContainsKey(deviceId) ||
-                    this._lastMouseEvent[deviceId].position != evt.position) {
-                    this._scheduleDragFromEditorMousePositionCheck();
+                if (!_lastMouseEvent.ContainsKey(deviceId) ||
+                    _lastMouseEvent[deviceId].position != evt.position) {
+                    _scheduleDragFromEditorMousePositionCheck();
                 }
 
-                this._lastMouseEvent[deviceId] = evt;
+                _lastMouseEvent[deviceId] = evt;
             }
         }
 
         void detachDragFromEditorAnnotation(MouseTrackerAnnotation annotation, int deviceId) {
-            if (!this.inEditorWindow) {
+            if (!inEditorWindow) {
                 return;
             }
 
             if (annotation.onDragFromEditorExit != null) {
                 annotation.onDragFromEditorExit(
-                    PointerDragFromEditorExitEvent.fromDragFromEditorEvent(this._lastMouseEvent[deviceId]));
+                    PointerDragFromEditorExitEvent.fromDragFromEditorEvent(_lastMouseEvent[deviceId]));
             }
         }
 
@@ -45,15 +45,15 @@ namespace Unity.UIWidgets.gestures {
             DragAndDrop.AcceptDrag();
 
             var lastMouseEvent = new List<PointerEvent>();
-            foreach (int deviceId in this._lastMouseEvent.Keys) {
+            foreach (int deviceId in _lastMouseEvent.Keys) {
                 var _deviceId = deviceId;
-                lastMouseEvent.Add(this._lastMouseEvent[_deviceId]);
+                lastMouseEvent.Add(_lastMouseEvent[_deviceId]);
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     foreach (var lastEvent in lastMouseEvent) {
-                        MouseTrackerAnnotation hit = this.annotationFinder(lastEvent.position);
+                        MouseTrackerAnnotation hit = annotationFinder(lastEvent.position);
 
                         if (hit == null) {
-                            foreach (_TrackedAnnotation trackedAnnotation in this._trackedAnnotations.Values) {
+                            foreach (_TrackedAnnotation trackedAnnotation in _trackedAnnotations.Values) {
                                 if (trackedAnnotation.activeDevices.Contains(_deviceId)) {
                                     trackedAnnotation.activeDevices.Remove(_deviceId);
                                 }
@@ -62,7 +62,7 @@ namespace Unity.UIWidgets.gestures {
                             return;
                         }
 
-                        _TrackedAnnotation hitAnnotation = this._findAnnotation(hit);
+                        _TrackedAnnotation hitAnnotation = _findAnnotation(hit);
 
                         // release
                         if (hitAnnotation.activeDevices.Contains(_deviceId)) {
@@ -90,32 +90,32 @@ namespace Unity.UIWidgets.gestures {
         /// When [_enableDragFromEditorRelease] set to false, it will stop, vice versa.
         /// </summary>
         void _enableDragFromEditorReleaseVisualModeLoop() {
-            if (this._enableDragFromEditorRelease) {
+            if (_enableDragFromEditorRelease) {
                 DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
-                    this._enableDragFromEditorReleaseVisualModeLoop();
+                    _enableDragFromEditorReleaseVisualModeLoop();
                 });
                 SchedulerBinding.instance.scheduleFrame();
             }
         }
 
         void _scheduleDragFromEditorMousePositionCheck() {
-            if (!this.inEditorWindow) {
+            if (!inEditorWindow) {
                 return;
             }
 
-            SchedulerBinding.instance.addPostFrameCallback(_ => { this.collectDragFromEditorMousePositions(); });
+            SchedulerBinding.instance.addPostFrameCallback(_ => { collectDragFromEditorMousePositions(); });
             SchedulerBinding.instance.scheduleFrame();
         }
 
         public void collectDragFromEditorMousePositions() {
             void exitAnnotation(_TrackedAnnotation trackedAnnotation, int deviceId) {
                 if (trackedAnnotation.activeDevices.Contains(deviceId)) {
-                    this._enableDragFromEditorRelease = false;
+                    _enableDragFromEditorRelease = false;
                     if (trackedAnnotation.annotation?.onDragFromEditorExit != null) {
                         trackedAnnotation.annotation.onDragFromEditorExit(
                             PointerDragFromEditorExitEvent.fromDragFromEditorEvent(
-                                this._lastMouseEvent[deviceId]));
+                                _lastMouseEvent[deviceId]));
                     }
 
                     trackedAnnotation.activeDevices.Remove(deviceId);
@@ -131,27 +131,27 @@ namespace Unity.UIWidgets.gestures {
                 }
             }
 
-            if (!this.mouseIsConnected) {
-                foreach (var annotation in this._trackedAnnotations.Values) {
+            if (!mouseIsConnected) {
+                foreach (var annotation in _trackedAnnotations.Values) {
                     exitAllDevices(annotation);
                 }
 
                 return;
             }
 
-            foreach (int deviceId in this._lastMouseEvent.Keys) {
-                PointerEvent lastEvent = this._lastMouseEvent[deviceId];
-                MouseTrackerAnnotation hit = this.annotationFinder(lastEvent.position);
+            foreach (int deviceId in _lastMouseEvent.Keys) {
+                PointerEvent lastEvent = _lastMouseEvent[deviceId];
+                MouseTrackerAnnotation hit = annotationFinder(lastEvent.position);
 
                 if (hit == null) {
-                    foreach (_TrackedAnnotation trackedAnnotation in this._trackedAnnotations.Values) {
+                    foreach (_TrackedAnnotation trackedAnnotation in _trackedAnnotations.Values) {
                         exitAnnotation(trackedAnnotation, deviceId);
                     }
 
                     return;
                 }
 
-                _TrackedAnnotation hitAnnotation = this._findAnnotation(hit);
+                _TrackedAnnotation hitAnnotation = _findAnnotation(hit);
 
                 // While acrossing two areas, set the flag to true to prevent setting the Pointer Copy VisualMode to None
                 bool enterFlag = false;
@@ -163,9 +163,9 @@ namespace Unity.UIWidgets.gestures {
                     // Both onRelease or onEnter event will enable Copy VisualMode
                     if (hitAnnotation.annotation?.onDragFromEditorRelease != null ||
                         hitAnnotation.annotation?.onDragFromEditorEnter != null) {
-                        if (!this._enableDragFromEditorRelease) {
-                            this._enableDragFromEditorRelease = true;
-                            this._enableDragFromEditorReleaseVisualModeLoop();
+                        if (!_enableDragFromEditorRelease) {
+                            _enableDragFromEditorRelease = true;
+                            _enableDragFromEditorReleaseVisualModeLoop();
                         }
 
                         if (hitAnnotation.annotation?.onDragFromEditorEnter != null) {
@@ -183,14 +183,14 @@ namespace Unity.UIWidgets.gestures {
                 }
 
                 // leave
-                foreach (_TrackedAnnotation trackedAnnotation in this._trackedAnnotations.Values) {
+                foreach (_TrackedAnnotation trackedAnnotation in _trackedAnnotations.Values) {
                     if (hitAnnotation == trackedAnnotation) {
                         continue;
                     }
 
                     if (trackedAnnotation.activeDevices.Contains(deviceId)) {
                         if (!enterFlag) {
-                            this._enableDragFromEditorRelease = false;
+                            _enableDragFromEditorRelease = false;
                         }
 
                         if (trackedAnnotation.annotation?.onDragFromEditorExit != null) {

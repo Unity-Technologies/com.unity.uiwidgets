@@ -21,11 +21,11 @@ namespace Unity.UIWidgets.widgets {
         public readonly UnityEngine.Texture texture;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new TextureBox(texture: this.texture);
+            return new TextureBox(texture: texture);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((TextureBox) renderObject).texture = this.texture;
+            ((TextureBox) renderObject).texture = texture;
         }
     }
 }

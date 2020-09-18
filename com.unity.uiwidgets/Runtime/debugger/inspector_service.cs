@@ -16,12 +16,12 @@ namespace Unity.UIWidgets.debugger {
 
         public InspectorService(WindowAdapter window) {
             this.window = window;
-            this._widgetInspectorService = window.widgetInspectorService;
-            this._widgetInspectorService.developerInspect += this.developerInspect; // todo dispose
+            _widgetInspectorService = window.widgetInspectorService;
+            _widgetInspectorService.developerInspect += developerInspect; // todo dispose
         }
 
         public bool active {
-            get { return this.window.alive; }
+            get { return window.alive; }
         }
 
         public bool debugEnabled {
@@ -29,28 +29,28 @@ namespace Unity.UIWidgets.debugger {
         }
 
         public void close() {
-            this.setShowInspect(false);
-            this._widgetInspectorService.developerInspect -= this.developerInspect;
+            setShowInspect(false);
+            _widgetInspectorService.developerInspect -= developerInspect;
         }
 
         public DiagnosticsNode getRootWidgetSummaryTree(string groupName) {
-            return this.toNode(this.window.withBindingFunc(() =>
-                this._widgetInspectorService.getRootWidgetSummaryTree(groupName)));
+            return toNode(window.withBindingFunc(() =>
+                _widgetInspectorService.getRootWidgetSummaryTree(groupName)));
         }
 
         public DiagnosticsNode getRootWidget(string groupName) {
-            return this.toNode(this.window.withBindingFunc(() =>
-                this._widgetInspectorService.getRootWidget(groupName)));
+            return toNode(window.withBindingFunc(() =>
+                _widgetInspectorService.getRootWidget(groupName)));
         }
 
         public DiagnosticsNode getRootRenderObject(string groupName) {
-            return this.toNode(this.window.withBindingFunc(() =>
-                this._widgetInspectorService.getRootRenderObject(groupName)));
+            return toNode(window.withBindingFunc(() =>
+                _widgetInspectorService.getRootRenderObject(groupName)));
         }
 
         public DiagnosticsNode getDetailsSubtree(InspectorInstanceRef instanceRef, string groupName) {
-            return this.toNode(this.window.withBindingFunc(() =>
-                this._widgetInspectorService.getDetailsSubtree(instanceRef.id, groupName)));
+            return toNode(window.withBindingFunc(() =>
+                _widgetInspectorService.getDetailsSubtree(instanceRef.id, groupName)));
         }
 
         public DiagnosticsNode getSelection(DiagnosticsNode previousSelection, WidgetTreeType treeType, bool localOnly,
@@ -60,18 +60,18 @@ namespace Unity.UIWidgets.debugger {
             string previousSelectionId = previousSelectionRef == null ? null : previousSelectionRef.id;
             DiagnosticsNode result = null;
 
-            this.window.withBinding(() => {
+            window.withBinding(() => {
                 switch (treeType) {
                     case WidgetTreeType.Widget:
                         result = localOnly
-                            ? this.toNode(
-                                this._widgetInspectorService.getSelectedSummaryWidget(previousSelectionId, groupName))
-                            : this.toNode(
-                                this._widgetInspectorService.getSelectedWidget(previousSelectionId, groupName));
+                            ? toNode(
+                                _widgetInspectorService.getSelectedSummaryWidget(previousSelectionId, groupName))
+                            : toNode(
+                                _widgetInspectorService.getSelectedWidget(previousSelectionId, groupName));
                         break;
                     case WidgetTreeType.Render:
-                        result = this.toNode(
-                            this._widgetInspectorService.getSelectedRenderObject(previousSelectionId, groupName));
+                        result = toNode(
+                            _widgetInspectorService.getSelectedRenderObject(previousSelectionId, groupName));
                         break;
                 }
             });
@@ -86,26 +86,26 @@ namespace Unity.UIWidgets.debugger {
         }
 
         public bool setSelection(InspectorInstanceRef inspectorInstanceRef, string groupName) {
-            return this.window.withBindingFunc(() =>
-                this._widgetInspectorService.setSelectionById(inspectorInstanceRef.id, groupName));
+            return window.withBindingFunc(() =>
+                _widgetInspectorService.setSelectionById(inspectorInstanceRef.id, groupName));
         }
 
         public void setShowInspect(bool show) {
-            this.window.withBinding(() => { this._widgetInspectorService.debugShowInspector = show; });
+            window.withBinding(() => { _widgetInspectorService.debugShowInspector = show; });
         }
 
         public bool getShowInspect() {
-            return this.window.withBindingFunc(() => this._widgetInspectorService.debugShowInspector);
+            return window.withBindingFunc(() => _widgetInspectorService.debugShowInspector);
         }
 
         public List<DiagnosticsNode> getProperties(InspectorInstanceRef inspectorInstanceRef, string groupName) {
-            var list = this.window.withBindingFunc(() =>
-                this._widgetInspectorService.getProperties(inspectorInstanceRef.id, groupName));
-            return list.Select(json => this.toNode(json, isProperty: true)).ToList();
+            var list = window.withBindingFunc(() =>
+                _widgetInspectorService.getProperties(inspectorInstanceRef.id, groupName));
+            return list.Select(json => toNode(json, isProperty: true)).ToList();
         }
 
         public void disposeGroup(string groupName) {
-            this.window.withBinding(() => this._widgetInspectorService.disposeGroup(groupName));
+            window.withBinding(() => _widgetInspectorService.disposeGroup(groupName));
         }
 
         DiagnosticsNode toNode(Dictionary<string, object> json, bool isProperty = false) {
@@ -118,8 +118,8 @@ namespace Unity.UIWidgets.debugger {
 
 
         void developerInspect() {
-            if (this.selectionChanged != null) {
-                this.selectionChanged();
+            if (selectionChanged != null) {
+                selectionChanged();
             }
         }
     }

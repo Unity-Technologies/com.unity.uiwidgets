@@ -81,24 +81,24 @@ namespace Unity.UIWidgets.cupertino {
 
             Widget result = new DecoratedBox(
                 decoration: new BoxDecoration(
-                    border: this.border,
-                    color: this.backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor
+                    border: border,
+                    color: backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor
                 ),
                 child: new SizedBox(
                     height: BottomAppBarUtils._kTabBarHeight + bottomPadding,
                     child: IconTheme.merge( // Default with the inactive state.
                         data: new IconThemeData(
-                            color: this.inactiveColor,
-                            size: this.iconSize
+                            color: inactiveColor,
+                            size: iconSize
                         ),
                         child: new DefaultTextStyle( // Default with the inactive state.
                             style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle
-                                .copyWith(color: this.inactiveColor),
+                                .copyWith(color: inactiveColor),
                             child: new Padding(
                                 padding: EdgeInsets.only(bottom: bottomPadding),
                                 child: new Row(
                                     crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: this._buildTabItems(context)
+                                    children: _buildTabItems(context)
                                 )
                             )
                         )
@@ -106,7 +106,7 @@ namespace Unity.UIWidgets.cupertino {
                 )
             );
 
-            if (!this.opaque(context)) {
+            if (!opaque(context)) {
                 result = new ClipRect(
                     child: new BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 10.0f, sigmaY: 10.0f),
@@ -121,21 +121,21 @@ namespace Unity.UIWidgets.cupertino {
         List<Widget> _buildTabItems(BuildContext context) {
             List<Widget> result = new List<Widget> { };
 
-            for (int index = 0; index < this.items.Count; index += 1) {
-                bool active = index == this.currentIndex;
+            for (int index = 0; index < items.Count; index += 1) {
+                bool active = index == currentIndex;
                 var tabIndex = index;
                 result.Add(
-                    this._wrapActiveItem(
+                    _wrapActiveItem(
                         context,
                         new Expanded(
                             child: new GestureDetector(
                                 behavior: HitTestBehavior.opaque,
-                                onTap: this.onTap == null ? null : (GestureTapCallback) (() => { this.onTap(tabIndex); }),
+                                onTap: onTap == null ? null : (GestureTapCallback) (() => { onTap(tabIndex); }),
                                 child: new Padding(
                                     padding: EdgeInsets.only(bottom: 4.0f),
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.end,
-                                        children: this._buildSingleTabItem(this.items[index], active)
+                                        children: _buildSingleTabItem(items[index], active)
                                     )
                                 )
                             )

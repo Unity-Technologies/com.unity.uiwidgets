@@ -9,7 +9,7 @@ namespace Unity.UIWidgets.widgets {
             float? opacity = null,
             float? size = null) {
             this.color = color;
-            this._opacity = opacity;
+            _opacity = opacity;
             this.size = size;
         }
 
@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.widgets {
                 return this;
             }
 
-            return this.copyWith(
+            return copyWith(
                 color: other.color,
                 opacity: other.opacity,
                 size: other.size
@@ -44,13 +44,13 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public bool isConcrete {
-            get { return this.color != null && this.opacity != null && this.size != null; }
+            get { return color != null && opacity != null && size != null; }
         }
 
         public readonly Color color;
 
         public float? opacity {
-            get { return this._opacity == null ? (float?) null : this._opacity.Value.clamp(0.0f, 1.0f); }
+            get { return _opacity == null ? (float?) null : _opacity.Value.clamp(0.0f, 1.0f); }
         }
 
         readonly float? _opacity;
@@ -74,9 +74,9 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            return Equals(this.color, other.color) &&
-                   this._opacity.Equals(other._opacity) &&
-                   this.size.Equals(other.size);
+            return Equals(color, other.color) &&
+                   _opacity.Equals(other._opacity) &&
+                   size.Equals(other.size);
         }
 
         public override bool Equals(object obj) {
@@ -88,18 +88,18 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((IconThemeData) obj);
+            return Equals((IconThemeData) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.color != null ? this.color.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this._opacity.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.size.GetHashCode();
+                var hashCode = (color != null ? color.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ _opacity.GetHashCode();
+                hashCode = (hashCode * 397) ^ size.GetHashCode();
                 return hashCode;
             }
         }
@@ -114,12 +114,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Color>("color", this.color,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FloatProperty("opacity", this.opacity,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FloatProperty("size", this.size,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<Color>("color", color,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FloatProperty("opacity", opacity,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FloatProperty("size", size,
+                defaultValue: foundation_.kNullDefaultValue));
         }
     }
 }

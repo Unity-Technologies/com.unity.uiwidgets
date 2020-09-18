@@ -25,11 +25,9 @@ namespace Unity.UIWidgets.foundation {
 
         bool _debugAssertNotDisposed() {
             D.assert(() => {
-                if (this._listeners == null) {
-                    throw new UIWidgetsError(
-                        string.Format("A {0} was used after being disposed.\n" +
-                                      "Once you have called dispose() on a {0}, it can no longer be used.",
-                            this.GetType()));
+                if (_listeners == null) {
+                    throw new UIWidgetsError($"A {GetType()} was used after being disposed.\n" +
+                                             "Once you have called dispose() on a {GetType()}, it can no longer be used.");
                 }
 
                 return true;
@@ -40,33 +38,33 @@ namespace Unity.UIWidgets.foundation {
 
         protected bool hasListeners {
             get {
-                D.assert(this._debugAssertNotDisposed());
-                return this._listeners.isNotEmpty();
+                D.assert(_debugAssertNotDisposed());
+                return _listeners.isNotEmpty();
             }
         }
 
         public void addListener(VoidCallback listener) {
-            D.assert(this._debugAssertNotDisposed());
-            this._listeners.Add(listener);
+            D.assert(_debugAssertNotDisposed());
+            _listeners.Add(listener);
         }
 
         public void removeListener(VoidCallback listener) {
-            D.assert(this._debugAssertNotDisposed());
-            this._listeners.Remove(listener);
+            D.assert(_debugAssertNotDisposed());
+            _listeners.Remove(listener);
         }
 
         public virtual void dispose() {
-            D.assert(this._debugAssertNotDisposed());
-            this._listeners = null;
+            D.assert(_debugAssertNotDisposed());
+            _listeners = null;
         }
 
         protected virtual void notifyListeners() {
-            D.assert(this._debugAssertNotDisposed());
-            if (this._listeners != null) {
-                var localListeners = new List<VoidCallback>(this._listeners);
+            D.assert(_debugAssertNotDisposed());
+            if (_listeners != null) {
+                var localListeners = new List<VoidCallback>(_listeners);
                 foreach (VoidCallback listener in localListeners) {
                     try {
-                        if (this._listeners.Contains(listener)) {
+                        if (_listeners.Contains(listener)) {
                             listener();
                         }
                     }
@@ -74,9 +72,9 @@ namespace Unity.UIWidgets.foundation {
                         UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                             exception: ex,
                             library: "foundation library",
-                            context: "while dispatching notifications for " + this.GetType(),
+                            context: "while dispatching notifications for " + GetType(),
                             informationCollector: information => {
-                                information.AppendLine("The " + this.GetType() + " sending notification was:");
+                                information.AppendLine("The " + GetType() + " sending notification was:");
                                 information.Append("  " + this);
                             }
                         ));
@@ -94,43 +92,43 @@ namespace Unity.UIWidgets.foundation {
         readonly List<Listenable> _children;
 
         public void addListener(VoidCallback listener) {
-            foreach (Listenable child in this._children) {
+            foreach (Listenable child in _children) {
                 child?.addListener(listener);
             }
         }
 
         public void removeListener(VoidCallback listener) {
-            foreach (Listenable child in this._children) {
+            foreach (Listenable child in _children) {
                 child?.removeListener(listener);
             }
         }
 
         public override string ToString() {
-            return "Listenable.merge([" + string.Join(", ", this._children.Select(c => c.ToString()).ToArray()) + "])";
+            return "Listenable.merge([" + _children.toStringList() + "])";
         }
     }
 
     public class ValueNotifier<T> : ChangeNotifier, ValueListenable<T> {
         public ValueNotifier(T value) {
-            this._value = value;
+            _value = value;
         }
 
         public virtual T value {
-            get { return this._value; }
+            get { return _value; }
             set {
-                if (Equals(value, this._value)) {
+                if (Equals(value, _value)) {
                     return;
                 }
 
-                this._value = value;
-                this.notifyListeners();
+                _value = value;
+                notifyListeners();
             }
         }
 
         T _value;
 
         public override string ToString() {
-            return Diagnostics.describeIdentity(this) + "(" + this._value + ")";
+            return $"{foundation_.describeIdentity(this)}({_value})";
         }
     }
 }

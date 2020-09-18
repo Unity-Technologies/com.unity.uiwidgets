@@ -40,9 +40,9 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return this.x2 == other.x2 && this.y2 == other.y2 && this.x3 == other.x3 &&
-                   this.y3 == other.y3 && this.x4 == other.x4 && this.y4 == other.y4 &&
-                   this.tessTol == other.tessTol;
+            return x2 == other.x2 && y2 == other.y2 && x3 == other.x3 &&
+                   y3 == other.y3 && x4 == other.x4 && y4 == other.y4 &&
+                   tessTol == other.tessTol;
         }
 
         public override bool Equals(object obj) {
@@ -54,29 +54,29 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((uiTessellationKey) obj);
+            return Equals((uiTessellationKey) obj);
         }
 
         public override unsafe int GetHashCode() {
             unchecked {
                 var hashCode = 0;
-                float x = this.x2;
+                float x = x2;
                 hashCode ^= *(int*) &x;
-                x = this.y2;
+                x = y2;
                 hashCode = (hashCode * 13) ^ *(int*) &x;
-                x = this.x3;
+                x = x3;
                 hashCode = (hashCode * 13) ^ *(int*) &x;
-                x = this.y3;
+                x = y3;
                 hashCode = (hashCode * 13) ^ *(int*) &x;
-                x = this.x4;
+                x = x4;
                 hashCode = (hashCode * 13) ^ *(int*) &x;
-                x = this.y4;
+                x = y4;
                 hashCode = (hashCode * 13) ^ *(int*) &x;
-                x = this.tessTol;
+                x = tessTol;
                 hashCode = (hashCode * 13) ^ *(int*) &x;
                 return hashCode;
             }
@@ -92,13 +92,13 @@ namespace Unity.UIWidgets.ui {
 
         public override string ToString() {
             return $"uiTessellationKey(" +
-                   $"x2: {this.x2}, " +
-                   $"y2: {this.y2}, " +
-                   $"x3: {this.x3}, " +
-                   $"y3: {this.y3}, " +
-                   $"x4: {this.x4}, " +
-                   $"y4: {this.y4}, " +
-                   $"tessTol: {this.tessTol})";
+                   $"x2: {x2}, " +
+                   $"y2: {y2}, " +
+                   $"x3: {x3}, " +
+                   $"y3: {y3}, " +
+                   $"x4: {x4}, " +
+                   $"y4: {y4}, " +
+                   $"tessTol: {tessTol})";
         }
     }
 
@@ -120,15 +120,15 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            ObjectPool<uiList<Vector2>>.release(this.points);
+            ObjectPool<uiList<Vector2>>.release(points);
         }
 
         public long timeToLive {
-            get { return this._timeToLive; }
+            get { return _timeToLive; }
         }
 
         public void touch(long timeTolive = 5) {
-            this._timeToLive = timeTolive + TextBlobMesh.frameCount;
+            _timeToLive = timeTolive + TextBlobMesh.frameCount;
         }
     }
 

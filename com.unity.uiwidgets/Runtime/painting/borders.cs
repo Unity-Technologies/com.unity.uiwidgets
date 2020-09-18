@@ -75,18 +75,18 @@ namespace Unity.UIWidgets.painting {
 
         public BorderSide scale(float t) {
             return new BorderSide(
-                color: this.color,
-                width: Mathf.Max(0.0f, this.width * t),
-                style: t <= 0.0 ? BorderStyle.none : this.style
+                color: color,
+                width: Mathf.Max(0.0f, width * t),
+                style: t <= 0.0 ? BorderStyle.none : style
             );
         }
 
         public Paint toPaint() {
-            switch (this.style) {
+            switch (style) {
                 case BorderStyle.solid:
                     return new Paint {
-                        color = this.color,
-                        strokeWidth = this.width,
+                        color = color,
+                        strokeWidth = width,
                         style = PaintingStyle.stroke,
                     };
                 case BorderStyle.none:
@@ -170,7 +170,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.color, other.color) && this.width.Equals(other.width) && this.style == other.style;
+            return Equals(color, other.color) && width.Equals(other.width) && style == other.style;
         }
 
         public override bool Equals(object obj) {
@@ -182,18 +182,18 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((BorderSide) obj);
+            return Equals((BorderSide) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.color != null ? this.color.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.width.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) this.style;
+                var hashCode = (color != null ? color.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ width.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) style;
                 return hashCode;
             }
         }
@@ -207,7 +207,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.color}, {this.width:F1}, {this.style})";
+            return $"{GetType()}({color}, {width:F1}, {style})";
         }
     }
 
@@ -230,7 +230,7 @@ namespace Unity.UIWidgets.painting {
 
         public virtual ShapeBorder lerpFrom(ShapeBorder a, float t) {
             if (a == null) {
-                return this.scale(t);
+                return scale(t);
             }
 
             return null;
@@ -238,7 +238,7 @@ namespace Unity.UIWidgets.painting {
 
         public virtual ShapeBorder lerpTo(ShapeBorder b, float t) {
             if (b == null) {
-                return this.scale(1.0f - t);
+                return scale(1.0f - t);
             }
 
             return null;
@@ -264,7 +264,7 @@ namespace Unity.UIWidgets.painting {
         public abstract void paint(Canvas canvas, Rect rect);
 
         public override string ToString() {
-            return $"{this.GetType()}()";
+            return $"{GetType()}()";
         }
     }
 
@@ -281,7 +281,7 @@ namespace Unity.UIWidgets.painting {
 
         public override EdgeInsets dimensions {
             get {
-                return this.borders.Aggregate(
+                return borders.Aggregate(
                     EdgeInsets.zero,
                     (previousValue, border) => previousValue.add(border.dimensions));
             }
@@ -289,10 +289,10 @@ namespace Unity.UIWidgets.painting {
 
         public override ShapeBorder add(ShapeBorder other, bool reversed = false) {
             if (!(other is _CompoundBorder)) {
-                ShapeBorder ours = reversed ? this.borders.Last() : this.borders.First();
+                ShapeBorder ours = reversed ? borders.Last() : borders.First();
                 ShapeBorder merged = ours.add(other, reversed: reversed) ?? other.add(ours, reversed: !reversed);
                 if (merged != null) {
-                    List<ShapeBorder> result = new List<ShapeBorder>(this.borders);
+                    List<ShapeBorder> result = new List<ShapeBorder>(borders);
                     result[reversed ? result.Count - 1 : 0] = merged;
                     return new _CompoundBorder(result);
                 }
@@ -300,7 +300,7 @@ namespace Unity.UIWidgets.painting {
 
             List<ShapeBorder> mergedBorders = new List<ShapeBorder>();
             if (reversed) {
-                mergedBorders.AddRange(this.borders);
+                mergedBorders.AddRange(borders);
             }
 
             if (other is _CompoundBorder border) {
@@ -311,7 +311,7 @@ namespace Unity.UIWidgets.painting {
             }
 
             if (!reversed) {
-                mergedBorders.AddRange(this.borders);
+                mergedBorders.AddRange(borders);
             }
 
             return new _CompoundBorder(mergedBorders);
@@ -319,7 +319,7 @@ namespace Unity.UIWidgets.painting {
 
         public override ShapeBorder scale(float t) {
             return new _CompoundBorder(
-                this.borders.Select(border => border.scale(t)).ToList()
+                borders.Select(border => border.scale(t)).ToList()
             );
         }
 
@@ -361,19 +361,19 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override Path getInnerPath(Rect rect) {
-            for (int index = 0; index < this.borders.Count - 1; index += 1) {
-                rect = this.borders[index].dimensions.deflateRect(rect);
+            for (int index = 0; index < borders.Count - 1; index += 1) {
+                rect = borders[index].dimensions.deflateRect(rect);
             }
 
-            return this.borders.Last().getInnerPath(rect);
+            return borders.Last().getInnerPath(rect);
         }
 
         public override Path getOuterPath(Rect rect) {
-            return this.borders.First().getOuterPath(rect);
+            return borders.First().getOuterPath(rect);
         }
 
         public override void paint(Canvas canvas, Rect rect) {
-            foreach (ShapeBorder border in this.borders) {
+            foreach (ShapeBorder border in borders) {
                 border.paint(canvas, rect);
                 rect = border.dimensions.deflateRect(rect);
             }
@@ -388,7 +388,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return this.borders.SequenceEqual(other.borders);
+            return borders.SequenceEqual(other.borders);
         }
 
         public override bool Equals(object obj) {
@@ -400,15 +400,15 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_CompoundBorder) obj);
+            return Equals((_CompoundBorder) obj);
         }
 
         public override int GetHashCode() {
-            return (this.borders != null ? this.borders.GetHashCode() : 0);
+            return (borders != null ? borders.GetHashCode() : 0);
         }
 
         public static bool operator ==(_CompoundBorder left, _CompoundBorder right) {
@@ -421,7 +421,7 @@ namespace Unity.UIWidgets.painting {
 
         public override string ToString() {
             return string.Join(" + ",
-                ((IList<ShapeBorder>) this.borders).Reverse().Select((border) => border.ToString()));
+                ((IList<ShapeBorder>) borders).Reverse().Select((border) => border.ToString()));
         }
     }
 

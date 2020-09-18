@@ -5,6 +5,7 @@ using AOT;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 
 namespace Unity.UIWidgets.ui2 {
     public class Scene : NativeWrapperDisposable {
@@ -40,12 +41,17 @@ namespace Unity.UIWidgets.ui2 {
             var completer = (Promise<Image>) completerHandle.Target;
             completerHandle.Free();
 
-            if (result == IntPtr.Zero) {
-                completer.Reject(new Exception("operation failed"));
+            try {
+                if (result == IntPtr.Zero) {
+                    completer.Reject(new Exception("operation failed"));
+                }
+                else {
+                    var image = new Image(result);
+                    completer.Resolve(image);
+                }
             }
-            else {
-                var image = new Image(result);
-                completer.Resolve(image);
+            catch (Exception ex) {
+                Debug.LogException(ex);
             }
         }
 
@@ -228,7 +234,7 @@ namespace Unity.UIWidgets.ui2 {
         public Scene build() {
             return new Scene(SceneBuilder_build(_ptr));
         }
-        
+
         public void addRetained(EngineLayer retainedLayer) {
             D.assert(retainedLayer is _EngineLayerWrapper);
             D.assert(() => {
@@ -253,10 +259,10 @@ namespace Unity.UIWidgets.ui2 {
             _EngineLayerWrapper wrapper = retainedLayer as _EngineLayerWrapper;
             SceneBuilder_addRetained(_ptr, wrapper._ptr);
         }
-        
+
         public void addPicture(
             Offset offset,
-            Picture picture, 
+            Picture picture,
             bool isComplexHint = false,
             bool willChangeHint = false
         ) {
@@ -281,7 +287,7 @@ namespace Unity.UIWidgets.ui2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_build(IntPtr ptr);
-        
+
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_addPicture(IntPtr ptr, float dx, float dy, IntPtr picture, int hints);
 

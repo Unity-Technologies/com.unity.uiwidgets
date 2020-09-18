@@ -110,19 +110,19 @@ namespace Unity.UIWidgets.ui {
         }
 
         public uiPaint(uiPaint paint) {
-            this.color = paint.color;
-            this.blendMode = paint.blendMode;
-            this.style = paint.style;
-            this.strokeWidth = paint.strokeWidth;
-            this.strokeCap = paint.strokeCap;
-            this.strokeJoin = paint.strokeJoin;
-            this.strokeMiterLimit = paint.strokeMiterLimit;
-            this.filterMode = paint.filterMode;
-            this.colorFilter = paint.colorFilter;
-            this.maskFilter = paint.maskFilter;
-            this.backdrop = paint.backdrop;
-            this.shader = paint.shader;
-            this.invertColors = paint.invertColors;
+            color = paint.color;
+            blendMode = paint.blendMode;
+            style = paint.style;
+            strokeWidth = paint.strokeWidth;
+            strokeCap = paint.strokeCap;
+            strokeJoin = paint.strokeJoin;
+            strokeMiterLimit = paint.strokeMiterLimit;
+            filterMode = paint.filterMode;
+            colorFilter = paint.colorFilter;
+            maskFilter = paint.maskFilter;
+            backdrop = paint.backdrop;
+            shader = paint.shader;
+            invertColors = paint.invertColors;
         }
 
         public static uiPaint shapeOnly(uiPaint paint) {

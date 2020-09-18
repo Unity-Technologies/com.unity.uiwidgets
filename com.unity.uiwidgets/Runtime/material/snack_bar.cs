@@ -64,22 +64,22 @@ namespace Unity.UIWidgets.material {
         bool _haveTriggeredAction = false;
 
         void _handlePressed() {
-            if (this._haveTriggeredAction) {
+            if (_haveTriggeredAction) {
                 return;
             }
 
-            this.setState(() => { this._haveTriggeredAction = true; });
+            setState(() => { _haveTriggeredAction = true; });
 
-            this.widget.onPressed();
-            Scaffold.of(this.context).hideCurrentSnackBar(reason: SnackBarClosedReason.action);
+            widget.onPressed();
+            Scaffold.of(context).hideCurrentSnackBar(reason: SnackBarClosedReason.action);
         }
 
         public override Widget build(BuildContext context) {
             return new FlatButton(
-                onPressed: this._haveTriggeredAction ? (VoidCallback) null : this._handlePressed,
-                child: new Text(this.widget.label),
-                textColor: this.widget.textColor,
-                disabledTextColor: this.widget.disabledTextColor
+                onPressed: _haveTriggeredAction ? (VoidCallback) null : _handlePressed,
+                child: new Text(widget.label),
+                textColor: widget.textColor,
+                disabledTextColor: widget.disabledTextColor
             );
         }
     }
@@ -115,7 +115,7 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             MediaQueryData mediaQueryData = MediaQuery.of(context);
-            D.assert(this.animation != null);
+            D.assert(animation != null);
 
             ThemeData theme = Theme.of(context);
             ThemeData darkTheme = new ThemeData(
@@ -131,16 +131,16 @@ namespace Unity.UIWidgets.material {
                         padding: EdgeInsets.symmetric(vertical: SnackBarUtils._kSingleLineVerticalPadding),
                         child: new DefaultTextStyle(
                             style: darkTheme.textTheme.subhead,
-                            child: this.content)
+                            child: content)
                     )
                 )
             };
 
-            if (this.action != null) {
+            if (action != null) {
                 children.Add(ButtonTheme.bar(
                     padding: EdgeInsets.symmetric(horizontal: SnackBarUtils._kSnackBarPadding),
                     textTheme: ButtonTextTheme.accent,
-                    child: this.action
+                    child: action
                 ));
             }
             else {
@@ -148,8 +148,8 @@ namespace Unity.UIWidgets.material {
             }
 
             CurvedAnimation heightAnimation =
-                new CurvedAnimation(parent: this.animation, curve: SnackBarUtils._snackBarHeightCurve);
-            CurvedAnimation fadeAnimation = new CurvedAnimation(parent: this.animation,
+                new CurvedAnimation(parent: animation, curve: SnackBarUtils._snackBarHeightCurve);
+            CurvedAnimation fadeAnimation = new CurvedAnimation(parent: animation,
                 curve: SnackBarUtils._snackBarFadeCurve, reverseCurve: new Threshold(0.0f));
             Widget snackbar = new SafeArea(
                 top: false,
@@ -168,7 +168,7 @@ namespace Unity.UIWidgets.material {
                 },
                 child: new Material(
                     elevation: 6.0f,
-                    color: this.backgroundColor ?? SnackBarUtils._kSnackBackground,
+                    color: backgroundColor ?? SnackBarUtils._kSnackBackground,
                     child: new Theme(
                         data: darkTheme,
                         child: mediaQueryData.accessibleNavigation
@@ -208,11 +208,11 @@ namespace Unity.UIWidgets.material {
 
         public SnackBar withAnimation(Animation<float> newAnimation, Key fallbackKey = null) {
             return new SnackBar(
-                key: this.key ?? fallbackKey,
-                content: this.content,
-                backgroundColor: this.backgroundColor,
-                action: this.action,
-                duration: this.duration,
+                key: key ?? fallbackKey,
+                content: content,
+                backgroundColor: backgroundColor,
+                action: action,
+                duration: duration,
                 animation: newAnimation
             );
         }

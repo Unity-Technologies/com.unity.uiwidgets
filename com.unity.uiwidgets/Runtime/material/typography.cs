@@ -53,11 +53,11 @@ namespace Unity.UIWidgets.material {
         public TextTheme geometryThemeFor(ScriptCategory category) {
             switch (category) {
                 case ScriptCategory.englishLike:
-                    return this.englishLike;
+                    return englishLike;
                 case ScriptCategory.dense:
-                    return this.dense;
+                    return dense;
                 case ScriptCategory.tall:
-                    return this.tall;
+                    return tall;
             }
 
             return null;
@@ -98,11 +98,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return this.black == other.black
-                   && this.white == other.white
-                   && this.englishLike == other.englishLike
-                   && this.dense == other.dense
-                   && this.tall == other.tall;
+            return black == other.black
+                   && white == other.white
+                   && englishLike == other.englishLike
+                   && dense == other.dense
+                   && tall == other.tall;
         }
 
         public override bool Equals(object obj) {
@@ -114,11 +114,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((Typography) obj);
+            return Equals((Typography) obj);
         }
 
         public static bool operator ==(Typography left, Typography right) {
@@ -131,11 +131,11 @@ namespace Unity.UIWidgets.material {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.black.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.white.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.englishLike.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.dense.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.tall.GetHashCode();
+                var hashCode = black.GetHashCode();
+                hashCode = (hashCode * 397) ^ white.GetHashCode();
+                hashCode = (hashCode * 397) ^ englishLike.GetHashCode();
+                hashCode = (hashCode * 397) ^ dense.GetHashCode();
+                hashCode = (hashCode * 397) ^ tall.GetHashCode();
                 return hashCode;
             }
         }
@@ -144,14 +144,14 @@ namespace Unity.UIWidgets.material {
             base.debugFillProperties(properties);
             Typography defaultTypography = new Typography();
             properties.add(
-                new DiagnosticsProperty<TextTheme>("black", this.black, defaultValue: defaultTypography.black));
+                new DiagnosticsProperty<TextTheme>("black", black, defaultValue: defaultTypography.black));
             properties.add(
-                new DiagnosticsProperty<TextTheme>("white", this.white, defaultValue: defaultTypography.white));
-            properties.add(new DiagnosticsProperty<TextTheme>("englishLike", this.englishLike,
+                new DiagnosticsProperty<TextTheme>("white", white, defaultValue: defaultTypography.white));
+            properties.add(new DiagnosticsProperty<TextTheme>("englishLike", englishLike,
                 defaultValue: defaultTypography.englishLike));
             properties.add(
-                new DiagnosticsProperty<TextTheme>("dense", this.dense, defaultValue: defaultTypography.dense));
-            properties.add(new DiagnosticsProperty<TextTheme>("tall", this.tall, defaultValue: defaultTypography.tall));
+                new DiagnosticsProperty<TextTheme>("dense", dense, defaultValue: defaultTypography.dense));
+            properties.add(new DiagnosticsProperty<TextTheme>("tall", tall, defaultValue: defaultTypography.tall));
         }
 
         public static readonly TextTheme blackMountainView = new TextTheme(

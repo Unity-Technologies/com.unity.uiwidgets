@@ -41,8 +41,8 @@ namespace Unity.UIWidgets.material {
             return new ConstrainedBox(
                 constraints: BoxConstraints.expand(width: DrawerUtils._kWidth),
                 child: new Material(
-                    elevation: this.elevation,
-                    child: this.child
+                    elevation: elevation,
+                    child: child
                 )
             );
         }
@@ -84,31 +84,31 @@ namespace Unity.UIWidgets.material {
     public class DrawerControllerState : SingleTickerProviderStateMixin<DrawerController> {
         public override void initState() {
             base.initState();
-            this._controller = new AnimationController(duration: DrawerUtils._kBaseSettleDuration, vsync: this);
-            this._controller.addListener(this._animationChanged);
-            this._controller.addStatusListener(this._animationStatusChanged);
+            _controller = new AnimationController(duration: DrawerUtils._kBaseSettleDuration, vsync: this);
+            _controller.addListener(_animationChanged);
+            _controller.addStatusListener(_animationStatusChanged);
         }
 
         public override void dispose() {
-            this._historyEntry?.remove();
-            this._controller.dispose();
+            _historyEntry?.remove();
+            _controller.dispose();
             base.dispose();
         }
 
         void _animationChanged() {
-            this.setState(() => { });
+            setState(() => { });
         }
 
         LocalHistoryEntry _historyEntry;
         readonly FocusScopeNode _focusScopeNode = new FocusScopeNode();
 
         void _ensureHistoryEntry() {
-            if (this._historyEntry == null) {
-                ModalRoute route = ModalRoute.of(this.context);
+            if (_historyEntry == null) {
+                ModalRoute route = ModalRoute.of(context);
                 if (route != null) {
-                    this._historyEntry = new LocalHistoryEntry(onRemove: this._handleHistoryEntryRemoved);
-                    route.addLocalHistoryEntry(this._historyEntry);
-                    FocusScope.of(this.context).setFirstFocus(this._focusScopeNode);
+                    _historyEntry = new LocalHistoryEntry(onRemove: _handleHistoryEntryRemoved);
+                    route.addLocalHistoryEntry(_historyEntry);
+                    FocusScope.of(context).setFirstFocus(_focusScopeNode);
                 }
             }
         }
@@ -116,11 +116,11 @@ namespace Unity.UIWidgets.material {
         void _animationStatusChanged(AnimationStatus status) {
             switch (status) {
                 case AnimationStatus.forward:
-                    this._ensureHistoryEntry();
+                    _ensureHistoryEntry();
                     break;
                 case AnimationStatus.reverse:
-                    this._historyEntry?.remove();
-                    this._historyEntry = null;
+                    _historyEntry?.remove();
+                    _historyEntry = null;
                     break;
                 case AnimationStatus.dismissed:
                     break;
@@ -130,28 +130,28 @@ namespace Unity.UIWidgets.material {
         }
 
         void _handleHistoryEntryRemoved() {
-            this._historyEntry = null;
-            this.close();
+            _historyEntry = null;
+            close();
         }
 
         AnimationController _controller;
 
 
         void _handleDragDown(DragDownDetails details) {
-            this._controller.stop();
-            this._ensureHistoryEntry();
+            _controller.stop();
+            _ensureHistoryEntry();
         }
 
         void _handleDragCancel() {
-            if (this._controller.isDismissed || this._controller.isAnimating) {
+            if (_controller.isDismissed || _controller.isAnimating) {
                 return;
             }
 
-            if (this._controller.value < 0.5) {
-                this.close();
+            if (_controller.value < 0.5) {
+                close();
             }
             else {
-                this.open();
+                open();
             }
         }
 
@@ -160,7 +160,7 @@ namespace Unity.UIWidgets.material {
 
         float _width {
             get {
-                RenderBox box = (RenderBox) this._drawerKey.currentContext?.findRenderObject();
+                RenderBox box = (RenderBox) _drawerKey.currentContext?.findRenderObject();
                 if (box != null) {
                     return box.size.width;
                 }
@@ -172,8 +172,8 @@ namespace Unity.UIWidgets.material {
         bool _previouslyOpened = false;
 
         void _move(DragUpdateDetails details) {
-            float delta = (details.primaryDelta ?? 0) / this._width;
-            switch (this.widget.alignment) {
+            float delta = (details.primaryDelta ?? 0) / _width;
+            switch (widget.alignment) {
                 case DrawerAlignment.start:
                     break;
                 case DrawerAlignment.end:
@@ -181,24 +181,24 @@ namespace Unity.UIWidgets.material {
                     break;
             }
 
-            this._controller.setValue(this._controller.value + delta);
+            _controller.setValue(_controller.value + delta);
 
-            bool opened = this._controller.value > 0.5;
-            if (opened != this._previouslyOpened && this.widget.drawerCallback != null) {
-                this.widget.drawerCallback(opened);
+            bool opened = _controller.value > 0.5;
+            if (opened != _previouslyOpened && widget.drawerCallback != null) {
+                widget.drawerCallback(opened);
             }
 
-            this._previouslyOpened = opened;
+            _previouslyOpened = opened;
         }
 
         void _settle(DragEndDetails details) {
-            if (this._controller.isDismissed) {
+            if (_controller.isDismissed) {
                 return;
             }
 
             if (details.velocity.pixelsPerSecond.dx.abs() >= DrawerUtils._kMinFlingVelocity) {
                 float visualVelocity = details.velocity.pixelsPerSecond.dx / DrawerUtils._kWidth;
-                switch (this.widget.alignment) {
+                switch (widget.alignment) {
                     case DrawerAlignment.start:
                         break;
                     case DrawerAlignment.end:
@@ -206,27 +206,27 @@ namespace Unity.UIWidgets.material {
                         break;
                 }
 
-                this._controller.fling(velocity: visualVelocity);
+                _controller.fling(velocity: visualVelocity);
             }
-            else if (this._controller.value < 0.5) {
-                this.close();
+            else if (_controller.value < 0.5) {
+                close();
             }
             else {
-                this.open();
+                open();
             }
         }
 
         public void open() {
-            this._controller.fling(velocity: 1.0f);
-            if (this.widget.drawerCallback != null) {
-                this.widget.drawerCallback(true);
+            _controller.fling(velocity: 1.0f);
+            if (widget.drawerCallback != null) {
+                widget.drawerCallback(true);
             }
         }
 
         public void close() {
-            this._controller.fling(velocity: -1.0f);
-            if (this.widget.drawerCallback != null) {
-                this.widget.drawerCallback(false);
+            _controller.fling(velocity: -1.0f);
+            if (widget.drawerCallback != null) {
+                widget.drawerCallback(false);
             }
         }
 
@@ -235,7 +235,7 @@ namespace Unity.UIWidgets.material {
 
         Alignment _drawerOuterAlignment {
             get {
-                switch (this.widget.alignment) {
+                switch (widget.alignment) {
                     case DrawerAlignment.start:
                         return Alignment.centerLeft;
                     case DrawerAlignment.end:
@@ -248,7 +248,7 @@ namespace Unity.UIWidgets.material {
 
         Alignment _drawerInnerAlignment {
             get {
-                switch (this.widget.alignment) {
+                switch (widget.alignment) {
                     case DrawerAlignment.start:
                         return Alignment.centerRight;
                     case DrawerAlignment.end:
@@ -260,51 +260,51 @@ namespace Unity.UIWidgets.material {
         }
 
         Widget _buildDrawer(BuildContext context) {
-            bool drawerIsStart = this.widget.alignment == DrawerAlignment.start;
+            bool drawerIsStart = widget.alignment == DrawerAlignment.start;
             EdgeInsets padding = MediaQuery.of(context).padding;
             float dragAreaWidth = drawerIsStart ? padding.left : padding.right;
 
             dragAreaWidth = Mathf.Max(dragAreaWidth, DrawerUtils._kEdgeDragWidth);
-            if (this._controller.status == AnimationStatus.dismissed) {
+            if (_controller.status == AnimationStatus.dismissed) {
                 return new Align(
-                    alignment: this._drawerOuterAlignment,
+                    alignment: _drawerOuterAlignment,
                     child: new GestureDetector(
-                        key: this._gestureDetectorKey,
-                        onHorizontalDragUpdate: this._move,
-                        onHorizontalDragEnd: this._settle,
+                        key: _gestureDetectorKey,
+                        onHorizontalDragUpdate: _move,
+                        onHorizontalDragEnd: _settle,
                         behavior: HitTestBehavior.translucent,
-                        dragStartBehavior: this.widget.dragStartBehavior ?? DragStartBehavior.down,
+                        dragStartBehavior: widget.dragStartBehavior ?? DragStartBehavior.down,
                         child: new Container(width: dragAreaWidth)
                     )
                 );
             }
             else {
                 return new GestureDetector(
-                    key: this._gestureDetectorKey,
-                    onHorizontalDragDown: this._handleDragDown,
-                    onHorizontalDragUpdate: this._move,
-                    onHorizontalDragEnd: this._settle,
-                    onHorizontalDragCancel: this._handleDragCancel,
-                    dragStartBehavior: this.widget.dragStartBehavior ?? DragStartBehavior.down,
+                    key: _gestureDetectorKey,
+                    onHorizontalDragDown: _handleDragDown,
+                    onHorizontalDragUpdate: _move,
+                    onHorizontalDragEnd: _settle,
+                    onHorizontalDragCancel: _handleDragCancel,
+                    dragStartBehavior: widget.dragStartBehavior ?? DragStartBehavior.down,
                     child: new RepaintBoundary(
                         child: new Stack(
                             children: new List<Widget> {
                                 new GestureDetector(
-                                    onTap: this.close,
+                                    onTap: close,
                                     child: new Container(
-                                        color: this._color.evaluate(this._controller)
+                                        color: _color.evaluate(_controller)
                                     )
                                 ),
                                 new Align(
-                                    alignment: this._drawerOuterAlignment,
+                                    alignment: _drawerOuterAlignment,
                                     child: new Align(
-                                        alignment: this._drawerInnerAlignment,
-                                        widthFactor: this._controller.value,
+                                        alignment: _drawerInnerAlignment,
+                                        widthFactor: _controller.value,
                                         child: new RepaintBoundary(
                                             child: new FocusScope(
-                                                key: this._drawerKey,
-                                                node: this._focusScopeNode,
-                                                child: this.widget.child)
+                                                key: _drawerKey,
+                                                node: _focusScopeNode,
+                                                child: widget.child)
                                         )
                                     )
                                 )
@@ -319,7 +319,7 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             return new ListTileTheme(
                 style: ListTileStyle.drawer,
-                child: this._buildDrawer(context));
+                child: _buildDrawer(context));
         }
     }
 }

@@ -26,18 +26,18 @@ namespace Unity.UIWidgets.widgets {
 
     public abstract class ScrollActivity {
         public ScrollActivity(ScrollActivityDelegate del) {
-            this._del = del;
+            _del = del;
         }
 
         public ScrollActivityDelegate del {
-            get { return this._del; }
+            get { return _del; }
         }
 
         ScrollActivityDelegate _del;
 
         public void updateDelegate(ScrollActivityDelegate value) {
-            D.assert(this._del != value);
-            this._del = value;
+            D.assert(_del != value);
+            _del = value;
         }
 
         public virtual void resetActivity() {
@@ -72,11 +72,11 @@ namespace Unity.UIWidgets.widgets {
         public abstract float velocity { get; }
 
         public virtual void dispose() {
-            this._del = null;
+            _del = null;
         }
 
         public override string ToString() {
-            return Diagnostics.describeIdentity(this);
+            return foundation_.describeIdentity(this);
         }
     }
 
@@ -85,7 +85,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void applyNewDimensions() {
-            this.del.goBallistic(0.0f);
+            del.goBallistic(0.0f);
         }
 
         public override bool shouldIgnorePointer {
@@ -128,12 +128,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void cancel() {
-            this.del.goBallistic(0.0f);
+            del.goBallistic(0.0f);
         }
 
         public override void dispose() {
-            if (this.onHoldCanceled != null) {
-                this.onHoldCanceled();
+            if (onHoldCanceled != null) {
+                onHoldCanceled();
             }
 
             base.dispose();
@@ -155,11 +155,11 @@ namespace Unity.UIWidgets.widgets {
                 () => "motionStartDistanceThreshold must be a positive number or null"
             );
 
-            this._del = del;
-            this._lastDetails = details;
-            this._retainMomentum = carriedVelocity != null && carriedVelocity != 0.0;
-            this._lastNonStationaryTimestamp = details.sourceTimeStamp;
-            this._offsetSinceLastStop = motionStartDistanceThreshold == null ? (float?) null : 0.0f;
+            _del = del;
+            _lastDetails = details;
+            _retainMomentum = carriedVelocity != null && carriedVelocity != 0.0;
+            _lastNonStationaryTimestamp = details.sourceTimeStamp;
+            _offsetSinceLastStop = motionStartDistanceThreshold == null ? (float?) null : 0.0f;
 
             this.onDragCanceled = onDragCanceled;
             this.carriedVelocity = carriedVelocity;
@@ -167,7 +167,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public ScrollActivityDelegate del {
-            get { return this._del; }
+            get { return _del; }
         }
 
         ScrollActivityDelegate _del;
@@ -191,21 +191,21 @@ namespace Unity.UIWidgets.widgets {
         const float _bigThresholdBreakDistance = 24.0f;
 
         bool _reversed {
-            get { return AxisUtils.axisDirectionIsReversed(this.del.axisDirection); }
+            get { return AxisUtils.axisDirectionIsReversed(del.axisDirection); }
         }
 
         public void updateDelegate(ScrollActivityDelegate value) {
-            D.assert(this._del != value);
-            this._del = value;
+            D.assert(_del != value);
+            _del = value;
         }
 
         void _maybeLoseMomentum(float offset, TimeSpan? timestamp) {
-            if (this._retainMomentum &&
+            if (_retainMomentum &&
                 offset == 0.0 &&
                 (timestamp == null ||
-                 timestamp - this._lastNonStationaryTimestamp >
+                 timestamp - _lastNonStationaryTimestamp >
                  momentumRetainStationaryDurationThreshold)) {
-                this._retainMomentum = false;
+                _retainMomentum = false;
             }
         }
 
@@ -215,29 +215,29 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (offset == 0.0) {
-                if (this.motionStartDistanceThreshold != null &&
-                    this._offsetSinceLastStop == null &&
-                    timestamp - this._lastNonStationaryTimestamp >
+                if (motionStartDistanceThreshold != null &&
+                    _offsetSinceLastStop == null &&
+                    timestamp - _lastNonStationaryTimestamp >
                     motionStoppedDurationThreshold) {
-                    this._offsetSinceLastStop = 0.0f;
+                    _offsetSinceLastStop = 0.0f;
                 }
 
                 return 0.0f;
             }
             else {
-                if (this._offsetSinceLastStop == null) {
+                if (_offsetSinceLastStop == null) {
                     return offset;
                 }
                 else {
-                    this._offsetSinceLastStop += offset;
-                    if (this._offsetSinceLastStop.Value.abs() > this.motionStartDistanceThreshold) {
-                        this._offsetSinceLastStop = null;
+                    _offsetSinceLastStop += offset;
+                    if (_offsetSinceLastStop.Value.abs() > motionStartDistanceThreshold) {
+                        _offsetSinceLastStop = null;
                         if (offset.abs() > _bigThresholdBreakDistance) {
                             return offset;
                         }
                         else {
                             return Mathf.Min(
-                                       this.motionStartDistanceThreshold.Value / 3.0f,
+                                       motionStartDistanceThreshold.Value / 3.0f,
                                        offset.abs()
                                    ) * offset.sign();
                         }
@@ -251,7 +251,7 @@ namespace Unity.UIWidgets.widgets {
 
         public void update(DragUpdateDetails details) {
             D.assert(details.primaryDelta != null);
-            this._lastDetails = details;
+            _lastDetails = details;
             float offset = details.primaryDelta.Value;
 
             if (details.isScroll) {
@@ -259,68 +259,68 @@ namespace Unity.UIWidgets.widgets {
                     return;
                 }
 
-                if (this._reversed) {
+                if (_reversed) {
                     offset = -offset;
                 }
 
 
-                this.del.applyUserScrollOffset(offset);
+                del.applyUserScrollOffset(offset);
                 return;
             }
 
 
             if (offset != 0.0) {
-                this._lastNonStationaryTimestamp = details.sourceTimeStamp;
+                _lastNonStationaryTimestamp = details.sourceTimeStamp;
             }
 
-            this._maybeLoseMomentum(offset, details.sourceTimeStamp);
-            offset = this._adjustForScrollStartThreshold(offset, details.sourceTimeStamp);
+            _maybeLoseMomentum(offset, details.sourceTimeStamp);
+            offset = _adjustForScrollStartThreshold(offset, details.sourceTimeStamp);
             if (offset == 0.0) {
                 return;
             }
 
-            if (this._reversed) {
+            if (_reversed) {
                 offset = -offset;
             }
 
-            this.del.applyUserOffset(offset);
+            del.applyUserOffset(offset);
         }
 
         public void end(DragEndDetails details) {
             D.assert(details.primaryVelocity != null);
             float velocity = -details.primaryVelocity.Value;
-            if (this._reversed) {
+            if (_reversed) {
                 velocity = -velocity;
             }
 
-            this._lastDetails = details;
+            _lastDetails = details;
 
-            if (this._retainMomentum && velocity.sign() == this.carriedVelocity.Value.sign()) {
-                velocity += this.carriedVelocity.Value;
+            if (_retainMomentum && velocity.sign() == carriedVelocity.Value.sign()) {
+                velocity += carriedVelocity.Value;
             }
 
-            this.del.goBallistic(velocity);
+            del.goBallistic(velocity);
         }
 
         public void cancel() {
-            this.del.goBallistic(0.0f);
+            del.goBallistic(0.0f);
         }
 
         public virtual void dispose() {
-            this._lastDetails = null;
-            if (this.onDragCanceled != null) {
-                this.onDragCanceled();
+            _lastDetails = null;
+            if (onDragCanceled != null) {
+                onDragCanceled();
             }
         }
 
         public object lastDetails {
-            get { return this._lastDetails; }
+            get { return _lastDetails; }
         }
 
         object _lastDetails;
 
         public override string ToString() {
-            return Diagnostics.describeIdentity(this);
+            return foundation_.describeIdentity(this);
         }
     }
 
@@ -329,13 +329,13 @@ namespace Unity.UIWidgets.widgets {
             ScrollActivityDelegate del,
             ScrollDragController controller
         ) : base(del) {
-            this._controller = controller;
+            _controller = controller;
         }
 
         ScrollDragController _controller;
 
         public override void dispatchScrollStartNotification(ScrollMetrics metrics, BuildContext context) {
-            object lastDetails = this._controller.lastDetails;
+            object lastDetails = _controller.lastDetails;
             D.assert(lastDetails is DragStartDetails);
             new ScrollStartNotification(metrics: metrics, context: context, dragDetails: (DragStartDetails) lastDetails)
                 .dispatch(context);
@@ -343,7 +343,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void dispatchScrollUpdateNotification(ScrollMetrics metrics, BuildContext context,
             float scrollDelta) {
-            object lastDetails = this._controller.lastDetails;
+            object lastDetails = _controller.lastDetails;
             D.assert(lastDetails is DragUpdateDetails);
             new ScrollUpdateNotification(metrics: metrics, context: context, scrollDelta: scrollDelta,
                 dragDetails: (DragUpdateDetails) lastDetails).dispatch(context);
@@ -351,14 +351,14 @@ namespace Unity.UIWidgets.widgets {
 
         public override void dispatchOverscrollNotification(ScrollMetrics metrics, BuildContext context,
             float overscroll) {
-            object lastDetails = this._controller.lastDetails;
+            object lastDetails = _controller.lastDetails;
             D.assert(lastDetails is DragUpdateDetails);
             new OverscrollNotification(metrics: metrics, context: context, overscroll: overscroll,
                 dragDetails: (DragUpdateDetails) lastDetails).dispatch(context);
         }
 
         public override void dispatchScrollEndNotification(ScrollMetrics metrics, BuildContext context) {
-            object lastDetails = this._controller.lastDetails;
+            object lastDetails = _controller.lastDetails;
             new ScrollEndNotification(
                 metrics: metrics,
                 context: context,
@@ -379,12 +379,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void dispose() {
-            this._controller = null;
+            _controller = null;
             base.dispose();
         }
 
         public override string ToString() {
-            return $"{Diagnostics.describeIdentity(this)}({this._controller})";
+            return $"{foundation_.describeIdentity(this)}({_controller})";
         }
     }
 
@@ -394,49 +394,49 @@ namespace Unity.UIWidgets.widgets {
             Simulation simulation,
             TickerProvider vsync
         ) : base(del) {
-            this._controller = AnimationController.unbounded(
-                debugLabel: this.GetType().ToString(),
+            _controller = AnimationController.unbounded(
+                debugLabel: GetType().ToString(),
                 vsync: vsync
             );
 
-            this._controller.addListener(this._tick);
-            this._controller.animateWith(simulation).Then(() => this._end());
+            _controller.addListener(_tick);
+            _controller.animateWith(simulation).Then(() => _end());
         }
 
         public override float velocity {
-            get { return this._controller.velocity; }
+            get { return _controller.velocity; }
         }
 
         readonly AnimationController _controller;
 
         public override void resetActivity() {
-            this.del.goBallistic(this.velocity);
+            del.goBallistic(velocity);
         }
 
         public override void applyNewDimensions() {
-            this.del.goBallistic(this.velocity);
+            del.goBallistic(velocity);
         }
 
         void _tick() {
-            if (!this.applyMoveTo(this._controller.value)) {
-                this.del.goIdle();
+            if (!applyMoveTo(_controller.value)) {
+                del.goIdle();
             }
         }
 
         protected virtual bool applyMoveTo(float value) {
-            return this.del.setPixels(value) == 0.0;
+            return del.setPixels(value) == 0.0;
         }
 
         void _end() {
-            if (this.del != null) {
-                this.del.goBallistic(0.0f);
+            if (del != null) {
+                del.goBallistic(0.0f);
             }
         }
 
         public override void dispatchOverscrollNotification(
             ScrollMetrics metrics, BuildContext context, float overscroll) {
             new OverscrollNotification(metrics: metrics, context: context, overscroll: overscroll,
-                velocity: this.velocity).dispatch(context);
+                velocity: velocity).dispatch(context);
         }
 
         public override bool shouldIgnorePointer {
@@ -448,12 +448,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
         public override string ToString() {
-            return $"{Diagnostics.describeIdentity(this)}({this._controller})";
+            return $"{foundation_.describeIdentity(this)}({_controller})";
         }
     }
 
@@ -469,44 +469,44 @@ namespace Unity.UIWidgets.widgets {
             D.assert(duration > TimeSpan.Zero);
             D.assert(curve != null);
 
-            this._completer = new Promise();
-            this._controller = AnimationController.unbounded(
+            _completer = new Promise();
+            _controller = AnimationController.unbounded(
                 value: from,
-                debugLabel: this.GetType().ToString(),
+                debugLabel: GetType().ToString(),
                 vsync: vsync
             );
-            this._controller.addListener(this._tick);
-            this._controller.animateTo(to, duration: duration, curve: curve)
-                .Then(() => this._end());
+            _controller.addListener(_tick);
+            _controller.animateTo(to, duration: duration, curve: curve)
+                .Then(() => _end());
         }
 
         readonly Promise _completer;
         readonly AnimationController _controller;
 
         public IPromise done {
-            get { return this._completer; }
+            get { return _completer; }
         }
 
         public override float velocity {
-            get { return this._controller.velocity; }
+            get { return _controller.velocity; }
         }
 
         void _tick() {
-            if (this.del.setPixels(this._controller.value) != 0.0) {
-                this.del.goIdle();
+            if (del.setPixels(_controller.value) != 0.0) {
+                del.goIdle();
             }
         }
 
         void _end() {
-            if (this.del != null) {
-                this.del.goBallistic(this.velocity);
+            if (del != null) {
+                del.goBallistic(velocity);
             }
         }
 
         public override void dispatchOverscrollNotification(
             ScrollMetrics metrics, BuildContext context, float overscroll) {
             new OverscrollNotification(metrics: metrics, context: context, overscroll: overscroll,
-                velocity: this.velocity).dispatch(context);
+                velocity: velocity).dispatch(context);
         }
 
         public override bool shouldIgnorePointer {
@@ -518,13 +518,13 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void dispose() {
-            this._completer.Resolve();
-            this._controller.dispose();
+            _completer.Resolve();
+            _controller.dispose();
             base.dispose();
         }
 
         public override string ToString() {
-            return $"{Diagnostics.describeIdentity(this)}({this._controller})";
+            return $"{foundation_.describeIdentity(this)}({_controller})";
         }
     }
 }

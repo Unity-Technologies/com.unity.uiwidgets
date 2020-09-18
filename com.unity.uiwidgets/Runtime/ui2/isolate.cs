@@ -1,16 +1,54 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.ui2 {
-    public static class Isolate {
-        
-        public static IntPtr current {
-            get => Isolate_current();
+    public class Isolate {
+        static Dictionary<IntPtr, Isolate> _isolates = new Dictionary<IntPtr, Isolate>();
+
+        Isolate(IntPtr ptr) {
+            _ptr = ptr;
         }
-        
-        public static IDisposable getScope(IntPtr isolate) {
-            return new _IsolateDisposable(isolate);
+
+        IntPtr _ptr;
+
+        public bool isValid => _ptr != IntPtr.Zero;
+
+        public static Isolate current {
+            get {
+                IntPtr ptr = ensureExists();
+                if (_isolates.TryGetValue(ptr, out Isolate value)) {
+                    D.assert(value.isValid);
+                    return value;
+                }
+
+                var isolate = new Isolate(ptr);
+                _isolates.Add(ptr, isolate);
+                return isolate;
+            }
+        }
+
+        public static IntPtr ensureExists() {
+            IntPtr ptr = Isolate_current();
+            if (ptr == IntPtr.Zero) {
+                throw new Exception("Isolate.current is null. " +
+                                    "This usually happens when there is a callback from outside of UIWidgets. " +
+                                    "Try to use \"using (Isolate.getScope(...)) { ... }\" to wrap your code.");
+            }
+
+            return ptr;
+        }
+
+        internal static void remove(Isolate isolate) {
+            D.assert(isolate != null && isolate.isValid);
+            _isolates.Remove(isolate._ptr);
+            isolate._ptr = IntPtr.Zero;
+        }
+
+        public static IDisposable getScope(Isolate isolate) {
+            D.assert(isolate != null && isolate.isValid);
+            return new _IsolateDisposable(isolate._ptr);
         }
 
         class _IsolateDisposable : IDisposable {
@@ -47,8 +85,8 @@ namespace Unity.UIWidgets.ui2 {
                 }
             }
         }
-        
-        
+
+
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr Isolate_current();
 
@@ -57,6 +95,5 @@ namespace Unity.UIWidgets.ui2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern void Isolate_exit();
-
     }
 }

@@ -32,10 +32,10 @@ namespace Unity.UIWidgets.editor {
             HitTestBehavior? behavior = null
         ) : base(key: key) {
             this.child = child;
-            this.onDragFromEditorEnter = onEnter;
-            this.onDragFromEditorHover = onHover;
-            this.onDragFromEditorExit = onExit;
-            this.onDragFromEditorRelease = onRelease;
+            onDragFromEditorEnter = onEnter;
+            onDragFromEditorHover = onHover;
+            onDragFromEditorExit = onExit;
+            onDragFromEditorRelease = onRelease;
             this.behavior = behavior;
         }
 
@@ -55,27 +55,27 @@ namespace Unity.UIWidgets.editor {
 
     public class UnityObjectDetectorState : State<UnityObjectDetector> {
         HitTestBehavior _defaultBehavior {
-            get { return this.widget.child == null ? HitTestBehavior.translucent : HitTestBehavior.deferToChild; }
+            get { return widget.child == null ? HitTestBehavior.translucent : HitTestBehavior.deferToChild; }
         }
 
         public override Widget build(BuildContext context) {
             Widget result = new Listener(
-                child: this.widget.child,
-                onPointerDragFromEditorEnter: this.widget.onDragFromEditorEnter == null
+                child: widget.child,
+                onPointerDragFromEditorEnter: widget.onDragFromEditorEnter == null
                     ? ((PointerDragFromEditorEnterEventListener) null)
-                    : (evt) => { this.widget.onDragFromEditorEnter.Invoke(); },
-                onPointerDragFromEditorHover: this.widget.onDragFromEditorHover == null
+                    : (evt) => { widget.onDragFromEditorEnter.Invoke(); },
+                onPointerDragFromEditorHover: widget.onDragFromEditorHover == null
                     ? ((PointerDragFromEditorHoverEventListener) null)
-                    : (evt) => { this.widget.onDragFromEditorHover.Invoke(); },
-                onPointerDragFromEditorExit: this.widget.onDragFromEditorExit == null
+                    : (evt) => { widget.onDragFromEditorHover.Invoke(); },
+                onPointerDragFromEditorExit: widget.onDragFromEditorExit == null
                     ? ((PointerDragFromEditorExitEventListener) null)
-                    : (evt) => { this.widget.onDragFromEditorExit.Invoke(); },
-                onPointerDragFromEditorRelease: this.widget.onDragFromEditorRelease == null
+                    : (evt) => { widget.onDragFromEditorExit.Invoke(); },
+                onPointerDragFromEditorRelease: widget.onDragFromEditorRelease == null
                     ? ((PointerDragFromEditorReleaseEventListener) null)
                     : (evt) => {
-                        this.widget.onDragFromEditorRelease.Invoke(new DragFromEditorDetails(evt.objectReferences));
+                        widget.onDragFromEditorRelease.Invoke(new DragFromEditorDetails(evt.objectReferences));
                     },
-                behavior: this.widget.behavior ?? this._defaultBehavior
+                behavior: widget.behavior ?? _defaultBehavior
             );
             return result;
         }

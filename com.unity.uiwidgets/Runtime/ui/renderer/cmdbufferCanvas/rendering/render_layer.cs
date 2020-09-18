@@ -25,15 +25,15 @@ namespace Unity.UIWidgets.ui {
 
             public Vector4 viewport {
                 get {
-                    if (!this._viewport.HasValue) {
-                        this._viewport = new Vector4(
-                            this.layerBounds.left,
-                            this.layerBounds.top,
-                            this.layerBounds.width,
-                            this.layerBounds.height);
+                    if (!_viewport.HasValue) {
+                        _viewport = new Vector4(
+                            layerBounds.left,
+                            layerBounds.top,
+                            layerBounds.width,
+                            layerBounds.height);
                     }
 
-                    return this._viewport.Value;
+                    return _viewport.Value;
                 }
             }
 
@@ -59,24 +59,24 @@ namespace Unity.UIWidgets.ui {
             }
 
             public void addLayer(RenderLayer layer) {
-                this.layers.Add(layer);
-                this.draws.Add(CmdLayer.create(layer: layer));
+                layers.Add(layer);
+                draws.Add(CmdLayer.create(layer: layer));
             }
 
             public override void clear() {
                 //these two list should have been cleared in PictureFlusher._clearLayer
-                D.assert(this.draws.Count == 0);
-                D.assert(this.layers.Count == 0);
-                this.draws.Clear();
-                this.layers.Clear();
+                D.assert(draws.Count == 0);
+                D.assert(layers.Count == 0);
+                draws.Clear();
+                layers.Clear();
 
-                foreach (var state in this.states) {
+                foreach (var state in states) {
                     ObjectPool<State>.release(state);
                 }
 
-                this.states.Clear();
-                ObjectPool<ClipStack>.release(this.clipStack);
-                this._viewport = null;
+                states.Clear();
+                ObjectPool<ClipStack>.release(clipStack);
+                _viewport = null;
             }
         }
 
@@ -100,42 +100,42 @@ namespace Unity.UIWidgets.ui {
             }
 
             public override void clear() {
-                this._matrix = null;
-                this._scale = null;
-                this._invMatrix = null;
+                _matrix = null;
+                _scale = null;
+                _invMatrix = null;
             }
 
             public uiMatrix3? matrix {
-                get { return this._matrix; }
+                get { return _matrix; }
                 set {
-                    this._matrix = value ?? _id;
-                    this._scale = null;
-                    this._invMatrix = null;
+                    _matrix = value ?? _id;
+                    _scale = null;
+                    _invMatrix = null;
                 }
             }
 
             public float scale {
                 get {
-                    if (this._scale == null) {
-                        this._scale = uiXformUtils.getScale(this._matrix.Value);
+                    if (_scale == null) {
+                        _scale = uiXformUtils.getScale(_matrix.Value);
                     }
 
-                    return this._scale.Value;
+                    return _scale.Value;
                 }
             }
 
             public uiMatrix3 invMatrix {
                 get {
-                    if (this._invMatrix == null) {
-                        this._invMatrix = this._matrix.Value.invert();
+                    if (_invMatrix == null) {
+                        _invMatrix = _matrix.Value.invert();
                     }
 
-                    return this._invMatrix.Value;
+                    return _invMatrix.Value;
                 }
             }
 
             public State copy() {
-                return create(this._matrix, this._scale, this._invMatrix);
+                return create(_matrix, _scale, _invMatrix);
             }
         }
     }

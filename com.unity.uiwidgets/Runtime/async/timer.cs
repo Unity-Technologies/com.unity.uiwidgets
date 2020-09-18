@@ -12,7 +12,7 @@ namespace Unity.UIWidgets.async {
         public abstract void cancel();
 
         public void Dispose() {
-            this.cancel();
+            cancel();
         }
 
         public static float timeSinceStartup {
@@ -66,14 +66,14 @@ namespace Unity.UIWidgets.async {
         readonly PriorityQueue<TimerImpl> _queue;
 
         public TimerProvider() {
-            this._queue = new PriorityQueue<TimerImpl>();
+            _queue = new PriorityQueue<TimerImpl>();
         }
 
         public Timer runInMain(Action callback) {
             var timer = new TimerImpl(callback);
 
-            lock (this._queue) {
-                this._queue.enqueue(timer);
+            lock (_queue) {
+                _queue.enqueue(timer);
             }
 
             return timer;
@@ -82,8 +82,8 @@ namespace Unity.UIWidgets.async {
         public Timer run(TimeSpan duration, Action callback) {
             var timer = new TimerImpl(duration, callback);
 
-            lock (this._queue) {
-                this._queue.enqueue(timer);
+            lock (_queue) {
+                _queue.enqueue(timer);
             }
 
             return timer;
@@ -92,8 +92,8 @@ namespace Unity.UIWidgets.async {
         public Timer periodic(TimeSpan duration, Action callback) {
             var timer = new TimerImpl(duration, callback, periodic: true);
 
-            lock (this._queue) {
-                this._queue.enqueue(timer);
+            lock (_queue) {
+                _queue.enqueue(timer);
             }
 
             return timer;
@@ -108,9 +108,9 @@ namespace Unity.UIWidgets.async {
             _timers.Clear();
             _appendList.Clear();
                 
-            lock (this._queue) {
-                while (this._queue.count > 0 && this._queue.peek().deadline <= now) {
-                    var timer = this._queue.dequeue();
+            lock (_queue) {
+                while (_queue.count > 0 && _queue.peek().deadline <= now) {
+                    var timer = _queue.dequeue();
                     _timers.Add(timer);
                 }
             }
@@ -129,9 +129,9 @@ namespace Unity.UIWidgets.async {
             }
 
             if (_appendList.Count != 0) {
-                lock (this._queue) {
+                lock (_queue) {
                     foreach (var timer in _appendList) {
-                        this._queue.enqueue(timer);
+                        _queue.enqueue(timer);
                     }
                 }
             }
@@ -146,58 +146,58 @@ namespace Unity.UIWidgets.async {
             readonly TimeSpan _interval;
 
             public TimerImpl(TimeSpan duration, Action callback, bool periodic = false) {
-                this._deadline = timeSinceStartup + (float) duration.TotalSeconds;
-                this._callback = callback;
-                this._done = false;
+                _deadline = timeSinceStartup + (float) duration.TotalSeconds;
+                _callback = callback;
+                _done = false;
 
                 this.periodic = periodic;
                 if (periodic) {
-                    this._interval = duration;
+                    _interval = duration;
                 }
             }
 
             public TimerImpl(Action callback) {
-                this._deadline = 0;
-                this._callback = callback;
-                this._done = false;
+                _deadline = 0;
+                _callback = callback;
+                _done = false;
             }
 
             public float deadline {
-                get { return this._deadline; }
+                get { return _deadline; }
             }
 
             public override void cancel() {
-                this._done = true;
+                _done = true;
             }
 
             public bool done {
-                get { return this._done; }
+                get { return _done; }
             }
 
             public void invoke() {
-                if (this._done) {
+                if (_done) {
                     return;
                 }
 
                 var now = timeSinceStartup;
-                if (!this.periodic) {
-                    this._done = true;
+                if (!periodic) {
+                    _done = true;
                 }
 
                 try {
-                    this._callback();
+                    _callback();
                 }
                 catch (Exception ex) {
                     D.logError("Error to execute timer callback: ", ex);
                 }
 
-                if (this.periodic) {
-                    this._deadline = now + (float) this._interval.TotalSeconds;
+                if (periodic) {
+                    _deadline = now + (float) _interval.TotalSeconds;
                 }
             }
 
             public int CompareTo(TimerImpl other) {
-                return this.deadline.CompareTo(other.deadline);
+                return deadline.CompareTo(other.deadline);
             }
         }
     }

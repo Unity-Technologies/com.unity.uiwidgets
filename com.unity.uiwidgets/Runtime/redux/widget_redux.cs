@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.Redux {
             Key key = null) : base(key: key, child: child) {
             D.assert(store != null);
             D.assert(child != null);
-            this._store = store;
+            _store = store;
         }
 
         public static Store<State> of(BuildContext context) {
@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.Redux {
         }
 
         public override bool updateShouldNotify(InheritedWidget old) {
-            return !Equals(this._store, ((StoreProvider<State>) old)._store);
+            return !Equals(_store, ((StoreProvider<State>) old)._store);
         }
     }
 
@@ -67,10 +67,10 @@ namespace Unity.UIWidgets.Redux {
         public override Widget build(BuildContext context) {
             return new _StoreListener<State, ViewModel>(
                 store: StoreProvider<State>.of(context),
-                builder: this.builder,
-                converter: this.converter,
-                pure: this.pure,
-                shouldRebuild: this.shouldRebuild
+                builder: builder,
+                converter: converter,
+                pure: pure,
+                shouldRebuild: shouldRebuild
             );
         }
     }
@@ -113,59 +113,59 @@ namespace Unity.UIWidgets.Redux {
 
         public override void initState() {
             base.initState();
-            this._init();
+            _init();
         }
 
         public override void dispose() {
-            this.widget.store.stateChanged -= this._handleStateChanged;
+            widget.store.stateChanged -= _handleStateChanged;
             base.dispose();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             var oldStore = ((_StoreListener<State, ViewModel>) oldWidget).store;
-            if (this.widget.store != oldStore) {
-                oldStore.stateChanged -= this._handleStateChanged;
-                this._init();
+            if (widget.store != oldStore) {
+                oldStore.stateChanged -= _handleStateChanged;
+                _init();
             }
 
             base.didUpdateWidget(oldWidget);
         }
 
         void _init() {
-            this.widget.store.stateChanged += this._handleStateChanged;
-            this.latestValue = this.widget.converter(this.widget.store.getState());
+            widget.store.stateChanged += _handleStateChanged;
+            latestValue = widget.converter(widget.store.getState());
         }
 
         void _handleStateChanged(State state) {
             if (Window.hasInstance) {
-                this._innerStateChanged(state);
+                _innerStateChanged(state);
             }
             else {
-                using (WindowProvider.of(this.context).getScope()) {
-                    this._innerStateChanged(state);
+                using (WindowProvider.of(context).getScope()) {
+                    _innerStateChanged(state);
                 }
             }
         }
 
         void _innerStateChanged(State state) {
-            var preValue = this.latestValue;
-            this.latestValue = this.widget.converter(this.widget.store.getState());
-            if (this.widget.shouldRebuild != null) {
-                if (!this.widget.shouldRebuild(preValue, this.latestValue)) {
+            var preValue = latestValue;
+            latestValue = widget.converter(widget.store.getState());
+            if (widget.shouldRebuild != null) {
+                if (!widget.shouldRebuild(preValue, latestValue)) {
                     return;
                 }
             }
-            else if (this.widget.pure) {
-                if (Equals(preValue, this.latestValue)) {
+            else if (widget.pure) {
+                if (Equals(preValue, latestValue)) {
                     return;
                 }
             }
 
-            this.setState();
+            setState();
         }
 
         public override Widget build(BuildContext context) {
-            return this.widget.builder(context, this.latestValue, this.widget.store.dispatcher);
+            return widget.builder(context, latestValue, widget.store.dispatcher);
         }
     }
 }

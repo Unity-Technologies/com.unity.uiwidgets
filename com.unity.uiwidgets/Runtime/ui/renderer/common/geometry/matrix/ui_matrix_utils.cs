@@ -6,11 +6,11 @@ namespace Unity.UIWidgets.ui {
     public partial struct uiMatrix3 {
         public void mapPoints(ref uiOffset[] dst, ref uiOffset[] src) {
             D.assert(dst != null && src != null && dst.Length == src.Length);
-            this._getMapPtsProc()(this, ref dst, ref src, src.Length);
+            _getMapPtsProc()(this, ref dst, ref src, src.Length);
         }
 
         public void mapPoints(ref uiOffset[] pts) {
-            this.mapPoints(ref pts, ref pts);
+            mapPoints(ref pts, ref pts);
         }
 
         delegate void MapPtsProc(uiMatrix3 mat, ref uiOffset[] dst, ref uiOffset[] src, int count);
@@ -33,7 +33,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         MapPtsProc _getMapPtsProc() {
-            return GetMapPtsProc(this._getType());
+            return GetMapPtsProc(_getType());
         }
 
         static void Identity_pts(uiMatrix3 m, ref uiOffset[] dst, ref uiOffset[] src, int count) {
@@ -132,7 +132,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         MapXYProc _getMapXYProc() {
-            return GetMapXYProc(this._getType());
+            return GetMapXYProc(_getType());
         }
 
         static void Identity_xy(uiMatrix3 m, float sx, float sy, out float resX, out float resY) {
@@ -255,43 +255,43 @@ namespace Unity.UIWidgets.ui {
         public void setRotate(float radians, float px, float py) {
             float sinV, cosV;
             sinV = uiScalarUtils.ScalarSinCos(radians, out cosV);
-            this.setSinCos(sinV, cosV, px, py);
+            setSinCos(sinV, cosV, px, py);
         }
 
         public void setRotate(float radians) {
             float sinV, cosV;
             sinV = uiScalarUtils.ScalarSinCos(radians, out cosV);
-            this.setSinCos(sinV, cosV);
+            setSinCos(sinV, cosV);
         }
 
         public void setSkew(float kx, float ky, float px, float py) {
-            this.kMScaleX = 1;
-            this.kMSkewX = kx;
-            this.kMTransX = -kx * py;
+            kMScaleX = 1;
+            kMSkewX = kx;
+            kMTransX = -kx * py;
 
-            this.kMSkewY = ky;
-            this.kMScaleY = 1;
-            this.kMTransY = -ky * px;
+            kMSkewY = ky;
+            kMScaleY = 1;
+            kMTransY = -ky * px;
 
-            this.kMPersp0 = this.kMPersp1 = 0;
-            this.kMPersp2 = 1;
+            kMPersp0 = kMPersp1 = 0;
+            kMPersp2 = 1;
 
-            this._setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
+            _setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
         }
 
         public void setSkew(float kx, float ky) {
-            this.kMScaleX = 1;
-            this.kMSkewX = kx;
-            this.kMTransX = 0;
+            kMScaleX = 1;
+            kMSkewX = kx;
+            kMTransX = 0;
 
-            this.kMSkewY = ky;
-            this.kMScaleY = 1;
-            this.kMTransY = 0;
+            kMSkewY = ky;
+            kMScaleY = 1;
+            kMTransY = 0;
 
-            this.kMPersp0 = this.kMPersp1 = 0;
-            this.kMPersp2 = 1;
+            kMPersp0 = kMPersp1 = 0;
+            kMPersp2 = 1;
 
-            this._setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
+            _setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
         }
 
         public static bool equals(uiMatrix3? a, uiMatrix3? b) {

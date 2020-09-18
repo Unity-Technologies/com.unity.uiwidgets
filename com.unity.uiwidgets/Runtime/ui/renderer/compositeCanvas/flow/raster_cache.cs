@@ -25,26 +25,26 @@ namespace Unity.UIWidgets.flow {
         public readonly float devicePixelRatio;
 
         public void draw(Canvas canvas) {
-            var boundRect = canvas.getTotalMatrix().mapRect(this.logicalRect);
-            var bounds = boundRect.withDevicePixelRatio(this.devicePixelRatio);
+            var boundRect = canvas.getTotalMatrix().mapRect(logicalRect);
+            var bounds = boundRect.withDevicePixelRatio(devicePixelRatio);
 
             D.assert(() => {
-                var boundsInPixel = boundRect.roundOutScale(this.devicePixelRatio);
+                var boundsInPixel = boundRect.roundOutScale(devicePixelRatio);
                 var textureWidth = Mathf.CeilToInt(boundsInPixel.width);
                 var textureHeight = Mathf.CeilToInt(boundsInPixel.height);
                 
                 //it is possible that there is a minor difference between the bound size and the image size (1 pixel at
                 //most) due to the roundOut operation when calculating the bounds if the elements in the canvas transform
                 //is not all integer
-                D.assert(Mathf.Abs(this.image.width - textureWidth) <= 1);
-                D.assert(Mathf.Abs(this.image.height - textureHeight) <= 1);
+                D.assert(Mathf.Abs(image.width - textureWidth) <= 1);
+                D.assert(Mathf.Abs(image.height - textureHeight) <= 1);
                 return true;
             });
 
             canvas.save();
             try {
                 canvas.resetMatrix();
-                canvas.drawImage(this.image, bounds.topLeft, new Paint());
+                canvas.drawImage(image, bounds.topLeft, new Paint());
             }
             finally {
                 canvas.restore();
@@ -97,10 +97,10 @@ namespace Unity.UIWidgets.flow {
                 return true;
             }
 
-            return Equals(this.picture, other.picture) &&
-                   Equals(this.matrix, other.matrix) &&
-                   this.devicePixelRatio.Equals(other.devicePixelRatio) &&
-                   this.antiAliasing.Equals(other.antiAliasing);
+            return Equals(picture, other.picture) &&
+                   Equals(matrix, other.matrix) &&
+                   devicePixelRatio.Equals(other.devicePixelRatio) &&
+                   antiAliasing.Equals(other.antiAliasing);
         }
 
         public override bool Equals(object obj) {
@@ -112,19 +112,19 @@ namespace Unity.UIWidgets.flow {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_RasterCacheKey) obj);
+            return Equals((_RasterCacheKey) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.picture != null ? this.picture.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.matrix != null ? this.matrix.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.devicePixelRatio.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.antiAliasing.GetHashCode();
+                var hashCode = (picture != null ? picture.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (matrix != null ? matrix.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ devicePixelRatio.GetHashCode();
+                hashCode = (hashCode * 397) ^ antiAliasing.GetHashCode();
                 return hashCode;
             }
         }
@@ -147,7 +147,7 @@ namespace Unity.UIWidgets.flow {
     public class RasterCache {
         public RasterCache(int threshold = 3) {
             this.threshold = threshold;
-            this._cache = new Dictionary<_RasterCacheKey, _RasterCacheEntry>();
+            _cache = new Dictionary<_RasterCacheKey, _RasterCacheEntry>();
         }
 
         public readonly int threshold;
@@ -157,13 +157,13 @@ namespace Unity.UIWidgets.flow {
         MeshPool _meshPool;
 
         public MeshPool meshPool {
-            set { this._meshPool = value; }
+            set { _meshPool = value; }
         }
 
         public RasterCacheResult getPrerolledImage(
             Picture picture, Matrix3 transform, float devicePixelRatio, int antiAliasing, bool isComplex,
             bool willChange) {
-            if (this.threshold == 0) {
+            if (threshold == 0) {
                 return null;
             }
 
@@ -177,19 +177,19 @@ namespace Unity.UIWidgets.flow {
 
             _RasterCacheKey cacheKey = new _RasterCacheKey(picture, transform, devicePixelRatio, antiAliasing);
 
-            var entry = this._cache.putIfAbsent(cacheKey, () => new _RasterCacheEntry());
+            var entry = _cache.putIfAbsent(cacheKey, () => new _RasterCacheEntry());
 
-            entry.accessCount = (entry.accessCount + 1).clamp(0, this.threshold);
+            entry.accessCount = (entry.accessCount + 1).clamp(0, threshold);
             entry.usedThisFrame = true;
 
-            if (entry.accessCount < this.threshold) {
+            if (entry.accessCount < threshold) {
                 return null;
             }
 
             if (entry.image == null) {
-                D.assert(this._meshPool != null);
+                D.assert(_meshPool != null);
                 entry.image =
-                    this._rasterizePicture(picture, transform, devicePixelRatio, antiAliasing, this._meshPool);
+                    _rasterizePicture(picture, transform, devicePixelRatio, antiAliasing, _meshPool);
             }
 
             return entry.image;
@@ -276,7 +276,7 @@ namespace Unity.UIWidgets.flow {
 
         public void sweepAfterFrame() {
             var dead = new List<KeyValuePair<_RasterCacheKey, _RasterCacheEntry>>();
-            foreach (var entry in this._cache) {
+            foreach (var entry in _cache) {
                 if (!entry.Value.usedThisFrame) {
                     dead.Add(entry);
                 }
@@ -286,7 +286,7 @@ namespace Unity.UIWidgets.flow {
             }
 
             foreach (var entry in dead) {
-                this._cache.Remove(entry.Key);
+                _cache.Remove(entry.Key);
                 if (entry.Value.image != null) {
                     entry.Value.image.image.Dispose();
                 }
@@ -294,13 +294,13 @@ namespace Unity.UIWidgets.flow {
         }
 
         public void clear() {
-            foreach (var entry in this._cache) {
+            foreach (var entry in _cache) {
                 if (entry.Value.image != null) {
                     entry.Value.image.image.Dispose();
                 }
             }
 
-            this._cache.Clear();
+            _cache.Clear();
         }
     }
 }

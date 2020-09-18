@@ -37,7 +37,7 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return this.width.Equals(other.width);
+            return width.Equals(other.width);
         }
 
         public override bool Equals(object obj) {
@@ -49,15 +49,15 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ParagraphConstraints) obj);
+            return Equals((ParagraphConstraints) obj);
         }
 
         public override int GetHashCode() {
-            return this.width.GetHashCode();
+            return width.GetHashCode();
         }
 
         public static bool operator ==(ParagraphConstraints left, ParagraphConstraints right) {
@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override string ToString() {
-            return $"Width: {this.width}";
+            return $"Width: {width}";
         }
     }
 
@@ -103,13 +103,13 @@ namespace Unity.UIWidgets.ui {
         public readonly List<BoxShadow> shadows;
 
         internal UnityEngine.Color UnityColor {
-            get { return this.color.toColor(); }
+            get { return color.toColor(); }
         }
 
         internal UnityEngine.FontStyle UnityFontStyle {
             get {
-                bool isBold = this.fontWeight.index == FontWeight.bold.index;
-                if (this.fontStyle == FontStyle.italic) {
+                bool isBold = fontWeight.index == FontWeight.bold.index;
+                if (fontStyle == FontStyle.italic) {
                     if (isBold) {
                         return UnityEngine.FontStyle.BoldAndItalic;
                     }
@@ -126,7 +126,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         internal int UnityFontSize {
-            get { return (int) this.fontSize; }
+            get { return (int) fontSize; }
         }
 
         public static TextStyle applyStyle(TextStyle currentStyle, painting.TextStyle style, float textScaleFactor) {
@@ -176,15 +176,15 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return Equals(this.color, other.color) && this.fontSize.Equals(other.fontSize) &&
-                   this.fontWeight == other.fontWeight && this.fontStyle == other.fontStyle &&
-                   this.letterSpacing.Equals(other.letterSpacing) && this.wordSpacing.Equals(other.wordSpacing) &&
-                   this.textBaseline == other.textBaseline && this.height.Equals(other.height) &&
-                   Equals(this.decoration, other.decoration) &&
-                   Equals(this.decorationColor, other.decorationColor) &&
-                   this.decorationStyle == other.decorationStyle &&
-                   string.Equals(this.fontFamily, other.fontFamily) &&
-                   this.shadows.equalsList(other.shadows);
+            return Equals(color, other.color) && fontSize.Equals(other.fontSize) &&
+                   fontWeight == other.fontWeight && fontStyle == other.fontStyle &&
+                   letterSpacing.Equals(other.letterSpacing) && wordSpacing.Equals(other.wordSpacing) &&
+                   textBaseline == other.textBaseline && height.Equals(other.height) &&
+                   Equals(decoration, other.decoration) &&
+                   Equals(decorationColor, other.decorationColor) &&
+                   decorationStyle == other.decorationStyle &&
+                   string.Equals(fontFamily, other.fontFamily) &&
+                   shadows.equalsList(other.shadows);
         }
 
         public override bool Equals(object obj) {
@@ -196,28 +196,28 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextStyle) obj);
+            return Equals((TextStyle) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.color != null ? this.color.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.fontSize.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.fontWeight != null ? this.fontWeight.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.fontStyle.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.letterSpacing.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.wordSpacing.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.textBaseline.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.height.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.decoration != null ? this.decoration.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.decorationColor != null ? this.decorationColor.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.decorationStyle.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.fontFamily != null ? this.fontFamily.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.shadows != null ? this.shadows.GetHashCode() : 0);
+                var hashCode = (color != null ? color.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ fontSize.GetHashCode();
+                hashCode = (hashCode * 397) ^ (fontWeight != null ? fontWeight.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ fontStyle.GetHashCode();
+                hashCode = (hashCode * 397) ^ letterSpacing.GetHashCode();
+                hashCode = (hashCode * 397) ^ wordSpacing.GetHashCode();
+                hashCode = (hashCode * 397) ^ textBaseline.GetHashCode();
+                hashCode = (hashCode * 397) ^ height.GetHashCode();
+                hashCode = (hashCode * 397) ^ (decoration != null ? decoration.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (decorationColor != null ? decorationColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ decorationStyle.GetHashCode();
+                hashCode = (hashCode * 397) ^ (fontFamily != null ? fontFamily.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (shadows != null ? shadows.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -298,11 +298,11 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return this.textAlign == other.textAlign && this.textDirection == other.textDirection &&
-                   this.fontWeight == other.fontWeight && this.fontStyle == other.fontStyle &&
-                   this.maxLines == other.maxLines && this.fontSize.Equals(other.fontSize) &&
-                   string.Equals(this.fontFamily, other.fontFamily) && this.height.Equals(other.height) &&
-                   string.Equals(this.ellipsis, other.ellipsis);
+            return textAlign == other.textAlign && textDirection == other.textDirection &&
+                   fontWeight == other.fontWeight && fontStyle == other.fontStyle &&
+                   maxLines == other.maxLines && fontSize.Equals(other.fontSize) &&
+                   string.Equals(fontFamily, other.fontFamily) && height.Equals(other.height) &&
+                   string.Equals(ellipsis, other.ellipsis);
         }
 
         public override bool Equals(object obj) {
@@ -314,11 +314,11 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ParagraphStyle) obj);
+            return Equals((ParagraphStyle) obj);
         }
 
         public static bool operator ==(ParagraphStyle a, ParagraphStyle b) {
@@ -331,31 +331,31 @@ namespace Unity.UIWidgets.ui {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.textAlign.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.textDirection.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.fontWeight != null ? this.fontWeight.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.fontStyle.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.maxLines.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.fontSize.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.fontFamily != null ? this.fontFamily.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.height.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.ellipsis != null ? this.ellipsis.GetHashCode() : 0);
+                var hashCode = textAlign.GetHashCode();
+                hashCode = (hashCode * 397) ^ textDirection.GetHashCode();
+                hashCode = (hashCode * 397) ^ (fontWeight != null ? fontWeight.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ fontStyle.GetHashCode();
+                hashCode = (hashCode * 397) ^ maxLines.GetHashCode();
+                hashCode = (hashCode * 397) ^ fontSize.GetHashCode();
+                hashCode = (hashCode * 397) ^ (fontFamily != null ? fontFamily.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ height.GetHashCode();
+                hashCode = (hashCode * 397) ^ (ellipsis != null ? ellipsis.GetHashCode() : 0);
                 return hashCode;
             }
         }
 
         internal TextStyle getTextStyle() {
             return new TextStyle(
-                fontWeight: this.fontWeight,
-                fontStyle: this.fontStyle,
-                fontFamily: this.fontFamily,
-                fontSize: this.fontSize,
-                height: this.height
+                fontWeight: fontWeight,
+                fontStyle: fontStyle,
+                fontFamily: fontFamily,
+                fontSize: fontSize,
+                height: height
             );
         }
 
         public TextAlign TextAlign {
-            get { return this.textAlign ?? TextAlign.left; }
+            get { return textAlign ?? TextAlign.left; }
         }
 
         public readonly TextAlign? textAlign;
@@ -370,7 +370,7 @@ namespace Unity.UIWidgets.ui {
         public readonly StrutStyle strutStyle;
 
         public bool ellipsized() {
-            return !string.IsNullOrEmpty(this.ellipsis);
+            return !string.IsNullOrEmpty(ellipsis);
         }
     }
 
@@ -389,7 +389,7 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return this.mask == other.mask;
+            return mask == other.mask;
         }
 
         public override bool Equals(object obj) {
@@ -401,15 +401,15 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextDecoration) obj);
+            return Equals((TextDecoration) obj);
         }
 
         public override int GetHashCode() {
-            return this.mask;
+            return mask;
         }
 
 
@@ -436,7 +436,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public bool contains(TextDecoration other) {
-            return (this.mask | other.mask) == this.mask;
+            return (mask | other.mask) == mask;
         }
     }
 
@@ -496,7 +496,7 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return this.index == other.index;
+            return index == other.index;
         }
 
         public override bool Equals(object obj) {
@@ -508,15 +508,15 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((FontWeight) obj);
+            return Equals((FontWeight) obj);
         }
 
         public override int GetHashCode() {
-            return this.index;
+            return index;
         }
 
         public static bool operator ==(FontWeight left, FontWeight right) {
@@ -528,11 +528,11 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override string ToString() {
-            return $"FontWeight.w{this.weightValue}";
+            return $"FontWeight.w{weightValue}";
         }
 
         public int weightValue {
-            get { return indexToFontWeight[this.index]; }
+            get { return indexToFontWeight[index]; }
         }
     }
 
@@ -547,7 +547,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override string ToString() {
-            return $"Offset: {this.offset}, Affinity: {this.affinity}";
+            return $"Offset: {offset}, Affinity: {affinity}";
         }
 
         public bool Equals(TextPosition other) {
@@ -559,7 +559,7 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return this.offset == other.offset && this.affinity == other.affinity;
+            return offset == other.offset && affinity == other.affinity;
         }
 
         public override bool Equals(object obj) {
@@ -571,16 +571,16 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextPosition) obj);
+            return Equals((TextPosition) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return (this.offset * 397) ^ (int) this.affinity;
+                return (offset * 397) ^ (int) affinity;
             }
         }
 
@@ -617,20 +617,20 @@ namespace Unity.UIWidgets.ui {
         }
 
         public Rect toRect() {
-            return Rect.fromLTRB(this.left, this.top, this.right, this.bottom);
+            return Rect.fromLTRB(left, top, right, bottom);
         }
 
         public float start {
-            get { return this.direction == TextDirection.ltr ? this.left : this.right; }
+            get { return direction == TextDirection.ltr ? left : right; }
         }
 
         public float end {
-            get { return this.direction == TextDirection.ltr ? this.right : this.left; }
+            get { return direction == TextDirection.ltr ? right : left; }
         }
 
         public bool Equals(TextBox other) {
-            return this.left.Equals(other.left) && this.top.Equals(other.top) && this.right.Equals(other.right) &&
-                   this.bottom.Equals(other.bottom) && this.direction == other.direction;
+            return left.Equals(other.left) && top.Equals(other.top) && right.Equals(other.right) &&
+                   bottom.Equals(other.bottom) && direction == other.direction;
         }
 
         public override bool Equals(object obj) {
@@ -638,25 +638,25 @@ namespace Unity.UIWidgets.ui {
                 return false;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextBox) obj);
+            return Equals((TextBox) obj);
         }
 
         public override string ToString() {
             return
-                $"Left: {this.left}, Top: {this.top}, Right: {this.right}, Bottom: {this.bottom}, Direction: {this.direction}";
+                $"Left: {left}, Top: {top}, Right: {right}, Bottom: {bottom}, Direction: {direction}";
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.left.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.top.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.right.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.bottom.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) this.direction;
+                var hashCode = left.GetHashCode();
+                hashCode = (hashCode * 397) ^ top.GetHashCode();
+                hashCode = (hashCode * 397) ^ right.GetHashCode();
+                hashCode = (hashCode * 397) ^ bottom.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int) direction;
                 return hashCode;
             }
         }

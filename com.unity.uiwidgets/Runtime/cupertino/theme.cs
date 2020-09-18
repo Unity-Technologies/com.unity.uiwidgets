@@ -36,8 +36,8 @@ namespace Unity.UIWidgets.cupertino {
             return new _InheritedCupertinoTheme(
                 theme: this,
                 child: new IconTheme(
-                    data: new IconThemeData(color: this.data.primaryColor),
-                    child: this.child
+                    data: new IconThemeData(color: data.primaryColor),
+                    child: child
                 )
             );
         }
@@ -57,7 +57,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly CupertinoTheme theme;
 
         public override bool updateShouldNotify(InheritedWidget old) {
-            return this.theme.data != ((_InheritedCupertinoTheme) old).theme.data;
+            return theme.data != ((_InheritedCupertinoTheme) old).theme.data;
         }
     }
 
@@ -70,12 +70,12 @@ namespace Unity.UIWidgets.cupertino {
             Color barBackgroundColor = null,
             Color scaffoldBackgroundColor = null
         ) {
-            this._brightness = brightness;
-            this._primaryColor = primaryColor;
-            this._primaryContrastingColor = primaryContrastingColor;
-            this._textTheme = textTheme;
-            this._barBackgroundColor = barBackgroundColor;
-            this._scaffoldBackgroundColor = scaffoldBackgroundColor;
+            _brightness = brightness;
+            _primaryColor = primaryColor;
+            _primaryContrastingColor = primaryContrastingColor;
+            _textTheme = textTheme;
+            _barBackgroundColor = barBackgroundColor;
+            _scaffoldBackgroundColor = scaffoldBackgroundColor;
         }
 
         public static CupertinoThemeData raw(
@@ -103,19 +103,19 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         bool _isLight {
-            get { return this.brightness == Brightness.light; }
+            get { return brightness == Brightness.light; }
         }
 
         public Brightness brightness {
-            get { return this._brightness ?? Brightness.light; }
+            get { return _brightness ?? Brightness.light; }
         }
 
         readonly Brightness? _brightness;
 
         public Color primaryColor {
             get {
-                return this._primaryColor ??
-                       (this._isLight ? CupertinoColors.activeBlue : CupertinoColors.activeOrange);
+                return _primaryColor ??
+                       (_isLight ? CupertinoColors.activeBlue : CupertinoColors.activeOrange);
             }
         }
 
@@ -123,8 +123,8 @@ namespace Unity.UIWidgets.cupertino {
 
         public Color primaryContrastingColor {
             get {
-                return this._primaryContrastingColor ??
-                       (this._isLight ? CupertinoColors.white : CupertinoColors.black);
+                return _primaryContrastingColor ??
+                       (_isLight ? CupertinoColors.white : CupertinoColors.black);
             }
         }
 
@@ -132,9 +132,9 @@ namespace Unity.UIWidgets.cupertino {
 
         public CupertinoTextThemeData textTheme {
             get {
-                return this._textTheme ?? new CupertinoTextThemeData(
-                           brightness: this.brightness,
-                           primaryColor: this.primaryColor
+                return _textTheme ?? new CupertinoTextThemeData(
+                           brightness: brightness,
+                           primaryColor: primaryColor
                        );
             }
         }
@@ -143,8 +143,8 @@ namespace Unity.UIWidgets.cupertino {
 
         public Color barBackgroundColor {
             get {
-                return this._barBackgroundColor ??
-                       (this._isLight
+                return _barBackgroundColor ??
+                       (_isLight
                            ? CupertinoThemeDataUtils._kDefaultBarLightBackgroundColor
                            : CupertinoThemeDataUtils._kDefaultBarDarkBackgroundColor);
             }
@@ -154,8 +154,8 @@ namespace Unity.UIWidgets.cupertino {
 
         public Color scaffoldBackgroundColor {
             get {
-                return this._scaffoldBackgroundColor ??
-                       (this._isLight ? CupertinoColors.white : CupertinoColors.black);
+                return _scaffoldBackgroundColor ??
+                       (_isLight ? CupertinoColors.white : CupertinoColors.black);
             }
         }
 
@@ -163,12 +163,12 @@ namespace Unity.UIWidgets.cupertino {
 
         public CupertinoThemeData noDefault() {
             return new _NoDefaultCupertinoThemeData(
-                this._brightness,
-                this._primaryColor,
-                this._primaryContrastingColor,
-                this._textTheme,
-                this._barBackgroundColor,
-                this._scaffoldBackgroundColor
+                _brightness,
+                _primaryColor,
+                _primaryContrastingColor,
+                _textTheme,
+                _barBackgroundColor,
+                _scaffoldBackgroundColor
             );
         }
 
@@ -181,12 +181,12 @@ namespace Unity.UIWidgets.cupertino {
             Color scaffoldBackgroundColor = null
         ) {
             return new CupertinoThemeData(
-                brightness: brightness ?? this._brightness,
-                primaryColor: primaryColor ?? this._primaryColor,
-                primaryContrastingColor: primaryContrastingColor ?? this._primaryContrastingColor,
-                textTheme: textTheme ?? this._textTheme,
-                barBackgroundColor: barBackgroundColor ?? this._barBackgroundColor,
-                scaffoldBackgroundColor: scaffoldBackgroundColor ?? this._scaffoldBackgroundColor
+                brightness: brightness ?? _brightness,
+                primaryColor: primaryColor ?? _primaryColor,
+                primaryContrastingColor: primaryContrastingColor ?? _primaryContrastingColor,
+                textTheme: textTheme ?? _textTheme,
+                barBackgroundColor: barBackgroundColor ?? _barBackgroundColor,
+                scaffoldBackgroundColor: scaffoldBackgroundColor ?? _scaffoldBackgroundColor
             );
         }
 
@@ -194,17 +194,17 @@ namespace Unity.UIWidgets.cupertino {
             base.debugFillProperties(properties);
             CupertinoThemeData defaultData = new CupertinoThemeData();
             properties.add(
-                new EnumProperty<Brightness>("brightness", this.brightness, defaultValue: defaultData.brightness));
-            properties.add(new DiagnosticsProperty<Color>("primaryColor", this.primaryColor,
+                new EnumProperty<Brightness>("brightness", brightness, defaultValue: defaultData.brightness));
+            properties.add(new DiagnosticsProperty<Color>("primaryColor", primaryColor,
                 defaultValue: defaultData.primaryColor));
-            properties.add(new DiagnosticsProperty<Color>("primaryContrastingColor", this.primaryContrastingColor,
+            properties.add(new DiagnosticsProperty<Color>("primaryContrastingColor", primaryContrastingColor,
                 defaultValue: defaultData.primaryContrastingColor));
             properties.add(
-                new DiagnosticsProperty<CupertinoTextThemeData>("textTheme", this.textTheme,
+                new DiagnosticsProperty<CupertinoTextThemeData>("textTheme", textTheme,
                     defaultValue: defaultData.textTheme));
-            properties.add(new DiagnosticsProperty<Color>("barBackgroundColor", this.barBackgroundColor,
+            properties.add(new DiagnosticsProperty<Color>("barBackgroundColor", barBackgroundColor,
                 defaultValue: defaultData.barBackgroundColor));
-            properties.add(new DiagnosticsProperty<Color>("scaffoldBackgroundColor", this.scaffoldBackgroundColor,
+            properties.add(new DiagnosticsProperty<Color>("scaffoldBackgroundColor", scaffoldBackgroundColor,
                 defaultValue: defaultData.scaffoldBackgroundColor));
         }
     }

@@ -81,11 +81,11 @@ namespace Unity.UIWidgets.cupertino {
 
         Widget _buildContent() {
             List<Widget> content = new List<Widget>();
-            if (this.title != null || this.message != null) {
+            if (title != null || message != null) {
                 Widget titleSection = new _CupertinoAlertContentSection(
-                    title: this.title,
-                    message: this.message,
-                    scrollController: this.messageScrollController
+                    title: title,
+                    message: message,
+                    scrollController: messageScrollController
                 );
                 content.Add(new Flexible(child: titleSection));
             }
@@ -101,27 +101,27 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         Widget _buildActions() {
-            if (this.actions == null || this.actions.isEmpty()) {
+            if (actions == null || actions.isEmpty()) {
                 return new Container(height: 0.0f);
             }
 
             return new Container(
                 child: new _CupertinoAlertActionSection(
-                    children: this.actions,
-                    scrollController: this.actionScrollController,
-                    hasCancelButton: this.cancelButton != null
+                    children: actions,
+                    scrollController: actionScrollController,
+                    hasCancelButton: cancelButton != null
                 )
             );
         }
 
         Widget _buildCancelButton() {
-            float cancelPadding = (this.actions != null || this.message != null || this.title != null)
+            float cancelPadding = (actions != null || message != null || title != null)
                 ? CupertinoActionSheetUtils._kCancelButtonPadding
                 : 0.0f;
             return new Padding(
                 padding: EdgeInsets.only(top: cancelPadding),
                 child: new _CupertinoActionSheetCancelButton(
-                    child: this.cancelButton
+                    child: cancelButton
                 )
             );
         }
@@ -136,8 +136,8 @@ namespace Unity.UIWidgets.cupertino {
                             child: new Container(
                                 decoration: CupertinoActionSheetUtils._kAlertBlurOverlayDecoration,
                                 child: new _CupertinoAlertRenderWidget(
-                                    contentSection: this._buildContent(),
-                                    actionsSection: this._buildActions()
+                                    contentSection: _buildContent(),
+                                    actionsSection: _buildActions()
                                 )
                             )
                         )
@@ -145,8 +145,8 @@ namespace Unity.UIWidgets.cupertino {
                 ),
             };
 
-            if (this.cancelButton != null) {
-                children.Add(this._buildCancelButton()
+            if (cancelButton != null) {
+                children.Add(_buildCancelButton()
                 );
             }
 
@@ -203,16 +203,16 @@ namespace Unity.UIWidgets.cupertino {
         public override Widget build(BuildContext context) {
             TextStyle style = CupertinoActionSheetUtils._kActionSheetActionStyle;
 
-            if (this.isDefaultAction) {
+            if (isDefaultAction) {
                 style = style.copyWith(fontWeight: FontWeight.w600);
             }
 
-            if (this.isDestructiveAction) {
+            if (isDestructiveAction) {
                 style = style.copyWith(color: CupertinoColors.destructiveRed);
             }
 
             return new GestureDetector(
-                onTap: () => this.onPressed(),
+                onTap: () => onPressed(),
                 behavior: HitTestBehavior.opaque,
                 child: new ConstrainedBox(
                     constraints: new BoxConstraints(
@@ -226,7 +226,7 @@ namespace Unity.UIWidgets.cupertino {
                         ),
                         child: new DefaultTextStyle(
                             style: style,
-                            child: this.child,
+                            child: child,
                             textAlign: TextAlign.center
                         )
                     )
@@ -254,33 +254,33 @@ namespace Unity.UIWidgets.cupertino {
         Color _backgroundColor;
 
         public override void initState() {
-            this._backgroundColor = CupertinoColors.white;
+            _backgroundColor = CupertinoColors.white;
             base.initState();
         }
 
         void _onTapDown(TapDownDetails evt) {
-            this.setState(() => { this._backgroundColor = CupertinoActionSheetUtils._kCancelButtonPressedColor; });
+            setState(() => { _backgroundColor = CupertinoActionSheetUtils._kCancelButtonPressedColor; });
         }
 
         void _onTapUp(TapUpDetails evt) {
-            this.setState(() => { this._backgroundColor = CupertinoColors.white; });
+            setState(() => { _backgroundColor = CupertinoColors.white; });
         }
 
         void _onTapCancel() {
-            this.setState(() => { this._backgroundColor = CupertinoColors.white; });
+            setState(() => { _backgroundColor = CupertinoColors.white; });
         }
 
         public override Widget build(BuildContext context) {
             return new GestureDetector(
-                onTapDown: this._onTapDown,
-                onTapUp: this._onTapUp,
-                onTapCancel: this._onTapCancel,
+                onTapDown: _onTapDown,
+                onTapUp: _onTapUp,
+                onTapCancel: _onTapCancel,
                 child: new Container(
                     decoration: new BoxDecoration(
-                        color: this._backgroundColor,
+                        color: _backgroundColor,
                         borderRadius: BorderRadius.circular(CupertinoActionSheetUtils._kCornerRadius)
                     ),
-                    child: this.widget.child
+                    child: widget.child
                 )
             );
         }
@@ -326,66 +326,66 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override void visitChildren(ElementVisitor visitor) {
-            if (this._contentElement != null) {
-                visitor(this._contentElement);
+            if (_contentElement != null) {
+                visitor(_contentElement);
             }
 
-            if (this._actionsElement != null) {
-                visitor(this._actionsElement);
+            if (_actionsElement != null) {
+                visitor(_actionsElement);
             }
         }
 
         public override void mount(Element parent, object newSlot) {
             base.mount(parent, newSlot);
-            this._contentElement = this.updateChild(this._contentElement, this.widget.contentSection,
+            _contentElement = updateChild(_contentElement, widget.contentSection,
                 _AlertSections.contentSection);
-            this._actionsElement = this.updateChild(this._actionsElement, this.widget.actionsSection,
+            _actionsElement = updateChild(_actionsElement, widget.actionsSection,
                 _AlertSections.actionsSection);
         }
 
         protected override void insertChildRenderObject(RenderObject child, object slot) {
-            this._placeChildInSlot(child, slot);
+            _placeChildInSlot(child, slot);
         }
 
         protected override void moveChildRenderObject(RenderObject child, object slot) {
-            this._placeChildInSlot(child, slot);
+            _placeChildInSlot(child, slot);
         }
 
         public override void update(Widget newWidget) {
             base.update(newWidget);
-            this._contentElement = this.updateChild(this._contentElement, this.widget.contentSection,
+            _contentElement = updateChild(_contentElement, widget.contentSection,
                 _AlertSections.contentSection);
-            this._actionsElement = this.updateChild(this._actionsElement, this.widget.actionsSection,
+            _actionsElement = updateChild(_actionsElement, widget.actionsSection,
                 _AlertSections.actionsSection);
         }
 
         protected override void forgetChild(Element child) {
-            D.assert(child == this._contentElement || child == this._actionsElement);
-            if (this._contentElement == child) {
-                this._contentElement = null;
+            D.assert(child == _contentElement || child == _actionsElement);
+            if (_contentElement == child) {
+                _contentElement = null;
             }
-            else if (this._actionsElement == child) {
-                this._actionsElement = null;
+            else if (_actionsElement == child) {
+                _actionsElement = null;
             }
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
-            D.assert(child == this.renderObject.contentSection || child == this.renderObject.actionsSection);
-            if (this.renderObject.contentSection == child) {
-                this.renderObject.contentSection = null;
+            D.assert(child == renderObject.contentSection || child == renderObject.actionsSection);
+            if (renderObject.contentSection == child) {
+                renderObject.contentSection = null;
             }
-            else if (this.renderObject.actionsSection == child) {
-                this.renderObject.actionsSection = null;
+            else if (renderObject.actionsSection == child) {
+                renderObject.actionsSection = null;
             }
         }
 
         void _placeChildInSlot(RenderObject child, object slot) {
             switch ((_AlertSections) slot) {
                 case _AlertSections.contentSection:
-                    this.renderObject.contentSection = child as RenderBox;
+                    renderObject.contentSection = child as RenderBox;
                     break;
                 case _AlertSections.actionsSection:
-                    this.renderObject.actionsSection = child as RenderBox;
+                    renderObject.actionsSection = child as RenderBox;
                     ;
                     break;
             }
@@ -399,22 +399,22 @@ namespace Unity.UIWidgets.cupertino {
             RenderBox actionsSection = null,
             float dividerThickness = 0.0f
         ) {
-            this._contentSection = contentSection;
-            this._actionsSection = actionsSection;
-            this._dividerThickness = dividerThickness;
+            _contentSection = contentSection;
+            _actionsSection = actionsSection;
+            _dividerThickness = dividerThickness;
         }
 
         public RenderBox contentSection {
-            get { return this._contentSection; }
+            get { return _contentSection; }
             set {
-                if (value != this._contentSection) {
-                    if (null != this._contentSection) {
-                        this.dropChild(this._contentSection);
+                if (value != _contentSection) {
+                    if (null != _contentSection) {
+                        dropChild(_contentSection);
                     }
 
-                    this._contentSection = value;
-                    if (null != this._contentSection) {
-                        this.adoptChild(this._contentSection);
+                    _contentSection = value;
+                    if (null != _contentSection) {
+                        adoptChild(_contentSection);
                     }
                 }
             }
@@ -424,16 +424,16 @@ namespace Unity.UIWidgets.cupertino {
 
 
         public RenderBox actionsSection {
-            get { return this._actionsSection; }
+            get { return _actionsSection; }
             set {
-                if (value != this._actionsSection) {
-                    if (null != this._actionsSection) {
-                        this.dropChild(this._actionsSection);
+                if (value != _actionsSection) {
+                    if (null != _actionsSection) {
+                        dropChild(_actionsSection);
                     }
 
-                    this._actionsSection = value;
-                    if (null != this._actionsSection) {
-                        this.adoptChild(this._actionsSection);
+                    _actionsSection = value;
+                    if (null != _actionsSection) {
+                        adoptChild(_actionsSection);
                     }
                 }
             }
@@ -450,33 +450,33 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void attach(object owner) {
             base.attach(owner);
-            if (null != this.contentSection) {
-                this.contentSection.attach(owner);
+            if (null != contentSection) {
+                contentSection.attach(owner);
             }
 
-            if (null != this.actionsSection) {
-                this.actionsSection.attach(owner);
+            if (null != actionsSection) {
+                actionsSection.attach(owner);
             }
         }
 
         public override void detach() {
             base.detach();
-            if (null != this.contentSection) {
-                this.contentSection.detach();
+            if (null != contentSection) {
+                contentSection.detach();
             }
 
-            if (null != this.actionsSection) {
-                this.actionsSection.detach();
+            if (null != actionsSection) {
+                actionsSection.detach();
             }
         }
 
         public override void redepthChildren() {
-            if (null != this.contentSection) {
-                this.redepthChild(this.contentSection);
+            if (null != contentSection) {
+                redepthChild(contentSection);
             }
 
-            if (null != this.actionsSection) {
-                this.redepthChild(this.actionsSection);
+            if (null != actionsSection) {
+                redepthChild(actionsSection);
             }
         }
 
@@ -487,41 +487,41 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            if (this.contentSection != null) {
-                visitor(this.contentSection);
+            if (contentSection != null) {
+                visitor(contentSection);
             }
 
-            if (this.actionsSection != null) {
-                visitor(this.actionsSection);
+            if (actionsSection != null) {
+                visitor(actionsSection);
             }
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
             List<DiagnosticsNode> value = new List<DiagnosticsNode>();
-            if (this.contentSection != null) {
-                value.Add(this.contentSection.toDiagnosticsNode(name: "content"));
+            if (contentSection != null) {
+                value.Add(contentSection.toDiagnosticsNode(name: "content"));
             }
 
-            if (this.actionsSection != null) {
-                value.Add(this.actionsSection.toDiagnosticsNode(name: "actions"));
+            if (actionsSection != null) {
+                value.Add(actionsSection.toDiagnosticsNode(name: "actions"));
             }
 
             return value;
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            return this.constraints.minWidth;
+            return constraints.minWidth;
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            return this.constraints.maxWidth;
+            return constraints.maxWidth;
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            float contentHeight = this.contentSection.getMinIntrinsicHeight(width);
-            float actionsHeight = this.actionsSection.getMinIntrinsicHeight(width);
+            float contentHeight = contentSection.getMinIntrinsicHeight(width);
+            float actionsHeight = actionsSection.getMinIntrinsicHeight(width);
             bool hasDivider = contentHeight > 0.0f && actionsHeight > 0.0f;
-            float height = contentHeight + (hasDivider ? this._dividerThickness : 0.0f) + actionsHeight;
+            float height = contentHeight + (hasDivider ? _dividerThickness : 0.0f) + actionsHeight;
 
             if (actionsHeight > 0 || contentHeight > 0) {
                 height -= 2 * CupertinoActionSheetUtils._kEdgeVerticalPadding;
@@ -535,10 +535,10 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            float contentHeight = this.contentSection.getMaxIntrinsicHeight(width);
-            float actionsHeight = this.actionsSection.getMaxIntrinsicHeight(width);
+            float contentHeight = contentSection.getMaxIntrinsicHeight(width);
+            float actionsHeight = actionsSection.getMaxIntrinsicHeight(width);
             bool hasDivider = contentHeight > 0.0f && actionsHeight > 0.0f;
-            float height = contentHeight + (hasDivider ? this._dividerThickness : 0.0f) + actionsHeight;
+            float height = contentHeight + (hasDivider ? _dividerThickness : 0.0f) + actionsHeight;
 
             if (actionsHeight > 0 || contentHeight > 0) {
                 height -= 2 * CupertinoActionSheetUtils._kEdgeVerticalPadding;
@@ -552,71 +552,71 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         protected override void performLayout() {
-            bool hasDivider = this.contentSection.getMaxIntrinsicHeight(this.constraints.maxWidth) > 0.0f
-                              && this.actionsSection.getMaxIntrinsicHeight(this.constraints.maxWidth) > 0.0f;
-            float dividerThickness = hasDivider ? this._dividerThickness : 0.0f;
+            bool hasDivider = contentSection.getMaxIntrinsicHeight(constraints.maxWidth) > 0.0f
+                              && actionsSection.getMaxIntrinsicHeight(constraints.maxWidth) > 0.0f;
+            float dividerThickness = hasDivider ? _dividerThickness : 0.0f;
 
-            float minActionsHeight = this.actionsSection.getMinIntrinsicHeight(this.constraints.maxWidth);
+            float minActionsHeight = actionsSection.getMinIntrinsicHeight(constraints.maxWidth);
 
 
-            this.contentSection.layout(
-                this.constraints.deflate(EdgeInsets.only(bottom: minActionsHeight + dividerThickness)),
+            contentSection.layout(
+                constraints.deflate(EdgeInsets.only(bottom: minActionsHeight + dividerThickness)),
                 parentUsesSize: true
             );
-            Size contentSize = this.contentSection.size;
+            Size contentSize = contentSection.size;
 
 
-            this.actionsSection.layout(
-                this.constraints.deflate(EdgeInsets.only(top: contentSize.height + dividerThickness)),
+            actionsSection.layout(
+                constraints.deflate(EdgeInsets.only(top: contentSize.height + dividerThickness)),
                 parentUsesSize: true
             );
-            Size actionsSize = this.actionsSection.size;
+            Size actionsSize = actionsSection.size;
 
 
             float actionSheetHeight = contentSize.height + dividerThickness + actionsSize.height;
 
 
-            this.size = new Size(this.constraints.maxWidth, actionSheetHeight);
+            size = new Size(constraints.maxWidth, actionSheetHeight);
 
 
-            D.assert(this.actionsSection.parentData is MultiChildLayoutParentData);
-            MultiChildLayoutParentData actionParentData = this.actionsSection.parentData as MultiChildLayoutParentData;
+            D.assert(actionsSection.parentData is MultiChildLayoutParentData);
+            MultiChildLayoutParentData actionParentData = actionsSection.parentData as MultiChildLayoutParentData;
             actionParentData.offset = new Offset(0.0f, contentSize.height + dividerThickness);
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            MultiChildLayoutParentData contentParentData = this.contentSection.parentData as MultiChildLayoutParentData;
-            this.contentSection.paint(context, offset + contentParentData.offset);
+            MultiChildLayoutParentData contentParentData = contentSection.parentData as MultiChildLayoutParentData;
+            contentSection.paint(context, offset + contentParentData.offset);
 
-            bool hasDivider = this.contentSection.size.height > 0.0f && this.actionsSection.size.height > 0.0f;
+            bool hasDivider = contentSection.size.height > 0.0f && actionsSection.size.height > 0.0f;
             if (hasDivider) {
-                this._paintDividerBetweenContentAndActions(context.canvas, offset);
+                _paintDividerBetweenContentAndActions(context.canvas, offset);
             }
 
-            MultiChildLayoutParentData actionsParentData = this.actionsSection.parentData as MultiChildLayoutParentData;
-            this.actionsSection.paint(context, offset + actionsParentData.offset);
+            MultiChildLayoutParentData actionsParentData = actionsSection.parentData as MultiChildLayoutParentData;
+            actionsSection.paint(context, offset + actionsParentData.offset);
         }
 
         void _paintDividerBetweenContentAndActions(Canvas canvas, Offset offset) {
             canvas.drawRect(
                 Rect.fromLTWH(
                     offset.dx,
-                    offset.dy + this.contentSection.size.height, this.size.width, this._dividerThickness
-                ), this._dividerPaint
+                    offset.dy + contentSection.size.height, size.width, _dividerThickness
+                ), _dividerPaint
             );
         }
 
         protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
             bool isHit = false;
             MultiChildLayoutParentData contentSectionParentData =
-                this.contentSection.parentData as MultiChildLayoutParentData;
+                contentSection.parentData as MultiChildLayoutParentData;
             MultiChildLayoutParentData actionsSectionParentData =
-                this.actionsSection.parentData as MultiChildLayoutParentData;
+                actionsSection.parentData as MultiChildLayoutParentData;
             ;
-            if (this.contentSection.hitTest(result, position: position - contentSectionParentData.offset)) {
+            if (contentSection.hitTest(result, position: position - contentSectionParentData.offset)) {
                 isHit = true;
             }
-            else if (this.actionsSection.hitTest(result,
+            else if (actionsSection.hitTest(result,
                 position: position - actionsSectionParentData.offset)) {
                 isHit = true;
             }
@@ -650,7 +650,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public override Widget build(BuildContext context) {
             List<Widget> titleContentGroup = new List<Widget>();
-            if (this.title != null) {
+            if (title != null) {
                 titleContentGroup.Add(new Padding(
                     padding: EdgeInsets.only(
                         left: CupertinoActionSheetUtils._kContentHorizontalPadding,
@@ -659,31 +659,31 @@ namespace Unity.UIWidgets.cupertino {
                         top: CupertinoActionSheetUtils._kContentVerticalPadding
                     ),
                     child: new DefaultTextStyle(
-                        style: this.message == null
+                        style: message == null
                             ? CupertinoActionSheetUtils._kActionSheetContentStyle
                             : CupertinoActionSheetUtils._kActionSheetContentStyle.copyWith(fontWeight: FontWeight.w600),
                         textAlign: TextAlign.center,
-                        child: this.title
+                        child: title
                     )
                 ));
             }
 
-            if (this.message != null) {
+            if (message != null) {
                 titleContentGroup.Add(
                     new Padding(
                         padding: EdgeInsets.only(
                             left: CupertinoActionSheetUtils._kContentHorizontalPadding,
                             right: CupertinoActionSheetUtils._kContentHorizontalPadding,
-                            bottom: this.title == null ? CupertinoActionSheetUtils._kContentVerticalPadding : 22.0f,
-                            top: this.title == null ? CupertinoActionSheetUtils._kContentVerticalPadding : 0.0f
+                            bottom: title == null ? CupertinoActionSheetUtils._kContentVerticalPadding : 22.0f,
+                            top: title == null ? CupertinoActionSheetUtils._kContentVerticalPadding : 0.0f
                         ),
                         child: new DefaultTextStyle(
-                            style: this.title == null
+                            style: title == null
                                 ? CupertinoActionSheetUtils._kActionSheetContentStyle.copyWith(
                                     fontWeight: FontWeight.w600)
                                 : CupertinoActionSheetUtils._kActionSheetContentStyle,
                             textAlign: TextAlign.center,
-                            child: this.message
+                            child: message
                         )
                     )
                 );
@@ -691,7 +691,7 @@ namespace Unity.UIWidgets.cupertino {
 
             if (titleContentGroup.isEmpty()) {
                 return new SingleChildScrollView(
-                    controller: this.scrollController,
+                    controller: scrollController,
                     child: new Container(
                         width: 0.0f,
                         height: 0.0f
@@ -706,7 +706,7 @@ namespace Unity.UIWidgets.cupertino {
 
             return new CupertinoScrollbar(
                 child: new SingleChildScrollView(
-                    controller: this.scrollController,
+                    controller: scrollController,
                     child: new Column(
                         mainAxisSize: MainAxisSize.max,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -745,20 +745,20 @@ namespace Unity.UIWidgets.cupertino {
             float devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
 
             List<Widget> interactiveButtons = new List<Widget>();
-            for (int i = 0; i < this.widget.children.Count; i += 1) {
+            for (int i = 0; i < widget.children.Count; i += 1) {
                 interactiveButtons.Add(new _PressableActionSheetActionButton(
-                        child: this.widget.children[i]
+                        child: widget.children[i]
                     )
                 );
             }
 
             return new CupertinoScrollbar(
                 child: new SingleChildScrollView(
-                    controller: this.widget.scrollController,
+                    controller: widget.scrollController,
                     child: new _CupertinoAlertActionsRenderWidget(
                         actionButtons: interactiveButtons,
                         dividerThickness: CupertinoActionSheetUtils._kDividerThickness / devicePixelRatio,
-                        hasCancelButton: this.widget.hasCancelButton
+                        hasCancelButton: widget.hasCancelButton
                     )
                 )
             );
@@ -784,13 +784,13 @@ namespace Unity.UIWidgets.cupertino {
 
         public override Widget build(BuildContext context) {
             return new _ActionSheetActionButtonParentDataWidget(
-                isPressed: this._isPressed,
+                isPressed: _isPressed,
                 child: new GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTapDown: (TapDownDetails details) => this.setState(() => { this._isPressed = true; }),
-                    onTapUp: (TapUpDetails details) => this.setState(() => { this._isPressed = false; }),
-                    onTapCancel: () => this.setState(() => this._isPressed = false),
-                    child: this.widget.child
+                    onTapDown: (TapDownDetails details) => setState(() => { _isPressed = true; }),
+                    onTapUp: (TapUpDetails details) => setState(() => { _isPressed = false; }),
+                    onTapCancel: () => setState(() => _isPressed = false),
+                    child: widget.child
                 )
             );
         }
@@ -811,8 +811,8 @@ namespace Unity.UIWidgets.cupertino {
             D.assert(renderObject.parentData is _ActionSheetActionButtonParentData);
             _ActionSheetActionButtonParentData parentData =
                 renderObject.parentData as _ActionSheetActionButtonParentData;
-            if (parentData.isPressed != this.isPressed) {
-                parentData.isPressed = this.isPressed;
+            if (parentData.isPressed != isPressed) {
+                parentData.isPressed = isPressed;
                 AbstractNodeMixinDiagnosticableTree targetParent = renderObject.parent;
                 if (targetParent is RenderObject) {
                     ((RenderObject) targetParent).markNeedsPaint();
@@ -838,8 +838,8 @@ namespace Unity.UIWidgets.cupertino {
             float dividerThickness = 0.0f,
             bool hasCancelButton = false
         ) : base(key: key, children: actionButtons) {
-            this._dividerThickness = dividerThickness;
-            this._hasCancelButton = hasCancelButton;
+            _dividerThickness = dividerThickness;
+            _hasCancelButton = hasCancelButton;
         }
 
         readonly float _dividerThickness;
@@ -847,14 +847,14 @@ namespace Unity.UIWidgets.cupertino {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderCupertinoAlertActions(
-                dividerThickness: this._dividerThickness,
-                hasCancelButton: this._hasCancelButton
+                dividerThickness: _dividerThickness,
+                hasCancelButton: _hasCancelButton
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((_RenderCupertinoAlertActions) renderObject).dividerThickness = this._dividerThickness;
-            ((_RenderCupertinoAlertActions) renderObject).hasCancelButton = this._hasCancelButton;
+            ((_RenderCupertinoAlertActions) renderObject).dividerThickness = _dividerThickness;
+            ((_RenderCupertinoAlertActions) renderObject).hasCancelButton = _hasCancelButton;
         }
     }
 
@@ -865,20 +865,20 @@ namespace Unity.UIWidgets.cupertino {
             float dividerThickness = 0.0f,
             bool hasCancelButton = false
         ) {
-            this._dividerThickness = dividerThickness;
-            this._hasCancelButton = hasCancelButton;
-            this.addAll(children ?? new List<RenderBox>());
+            _dividerThickness = dividerThickness;
+            _hasCancelButton = hasCancelButton;
+            addAll(children ?? new List<RenderBox>());
         }
 
         public float dividerThickness {
-            get { return this._dividerThickness; }
+            get { return _dividerThickness; }
             set {
-                if (value == this._dividerThickness) {
+                if (value == _dividerThickness) {
                     return;
                 }
 
-                this._dividerThickness = value;
-                this.markNeedsLayout();
+                _dividerThickness = value;
+                markNeedsLayout();
             }
         }
 
@@ -887,14 +887,14 @@ namespace Unity.UIWidgets.cupertino {
         bool _hasCancelButton;
 
         public bool hasCancelButton {
-            get { return this._hasCancelButton; }
+            get { return _hasCancelButton; }
             set {
-                if (value == this._hasCancelButton) {
+                if (value == _hasCancelButton) {
                     return;
                 }
 
-                this._hasCancelButton = value;
-                this.markNeedsLayout();
+                _hasCancelButton = value;
+                markNeedsLayout();
             }
         }
 
@@ -921,81 +921,81 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            return this.constraints.minWidth;
+            return constraints.minWidth;
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            return this.constraints.maxWidth;
+            return constraints.maxWidth;
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            if (this.childCount == 0) {
+            if (childCount == 0) {
                 return 0.0f;
             }
 
-            if (this.childCount == 1) {
-                return this.firstChild.computeMaxIntrinsicHeight(width) + this.dividerThickness;
+            if (childCount == 1) {
+                return firstChild.computeMaxIntrinsicHeight(width) + dividerThickness;
             }
 
-            if (this.hasCancelButton && this.childCount < 4) {
-                return this._computeMinIntrinsicHeightWithCancel(width);
+            if (hasCancelButton && childCount < 4) {
+                return _computeMinIntrinsicHeightWithCancel(width);
             }
 
-            return this._computeMinIntrinsicHeightWithoutCancel(width);
+            return _computeMinIntrinsicHeightWithoutCancel(width);
         }
 
         float _computeMinIntrinsicHeightWithCancel(float width) {
-            D.assert(this.childCount == 2 || this.childCount == 3);
-            if (this.childCount == 2) {
-                return this.firstChild.getMinIntrinsicHeight(width)
-                       + this.childAfter(this.firstChild).getMinIntrinsicHeight(width)
-                       + this.dividerThickness;
+            D.assert(childCount == 2 || childCount == 3);
+            if (childCount == 2) {
+                return firstChild.getMinIntrinsicHeight(width)
+                       + childAfter(firstChild).getMinIntrinsicHeight(width)
+                       + dividerThickness;
             }
 
-            return this.firstChild.getMinIntrinsicHeight(width)
-                   + this.childAfter(this.firstChild).getMinIntrinsicHeight(width)
-                   + this.childAfter(this.childAfter(this.firstChild)).getMinIntrinsicHeight(width)
-                   + (this.dividerThickness * 2);
+            return firstChild.getMinIntrinsicHeight(width)
+                   + childAfter(firstChild).getMinIntrinsicHeight(width)
+                   + childAfter(childAfter(firstChild)).getMinIntrinsicHeight(width)
+                   + (dividerThickness * 2);
         }
 
         float _computeMinIntrinsicHeightWithoutCancel(float width) {
-            D.assert(this.childCount >= 2);
-            return this.firstChild.getMinIntrinsicHeight(width)
-                   + this.dividerThickness
-                   + (0.5f * this.childAfter(this.firstChild).getMinIntrinsicHeight(width));
+            D.assert(childCount >= 2);
+            return firstChild.getMinIntrinsicHeight(width)
+                   + dividerThickness
+                   + (0.5f * childAfter(firstChild).getMinIntrinsicHeight(width));
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this.childCount == 0) {
+            if (childCount == 0) {
                 return 0.0f;
             }
 
-            if (this.childCount == 1) {
-                return this.firstChild.computeMaxIntrinsicHeight(width) + this.dividerThickness;
+            if (childCount == 1) {
+                return firstChild.computeMaxIntrinsicHeight(width) + dividerThickness;
             }
 
-            return this._computeMaxIntrinsicHeightStacked(width);
+            return _computeMaxIntrinsicHeightStacked(width);
         }
 
         float _computeMaxIntrinsicHeightStacked(float width) {
-            D.assert(this.childCount >= 2);
-            float allDividersHeight = (this.childCount - 1) * this.dividerThickness;
+            D.assert(childCount >= 2);
+            float allDividersHeight = (childCount - 1) * dividerThickness;
             float heightAccumulation = allDividersHeight;
-            RenderBox button = this.firstChild;
+            RenderBox button = firstChild;
             while (button != null) {
                 heightAccumulation += button.getMaxIntrinsicHeight(width);
-                button = this.childAfter(button);
+                button = childAfter(button);
             }
 
             return heightAccumulation;
         }
 
         protected override void performLayout() {
-            BoxConstraints perButtonConstraints = this.constraints.copyWith(
+            BoxConstraints perButtonConstraints = constraints.copyWith(
                 minHeight: 0.0f,
                 maxHeight: float.PositiveInfinity
             );
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             int index = 0;
             float verticalOffset = 0.0f;
             while (child != null) {
@@ -1007,35 +1007,35 @@ namespace Unity.UIWidgets.cupertino {
                 MultiChildLayoutParentData parentData = child.parentData as MultiChildLayoutParentData;
                 parentData.offset = new Offset(0.0f, verticalOffset);
                 verticalOffset += child.size.height;
-                if (index < this.childCount - 1) {
-                    verticalOffset += this.dividerThickness;
+                if (index < childCount - 1) {
+                    verticalOffset += dividerThickness;
                 }
 
                 index += 1;
-                child = this.childAfter(child);
+                child = childAfter(child);
             }
 
-            this.size = this.constraints.constrain(
-                new Size(this.constraints.maxWidth, verticalOffset)
+            size = constraints.constrain(
+                new Size(constraints.maxWidth, verticalOffset)
             );
         }
 
         public override void paint(PaintingContext context, Offset offset) {
             Canvas canvas = context.canvas;
-            this._drawButtonBackgroundsAndDividersStacked(canvas, offset);
-            this._drawButtons(context, offset);
+            _drawButtonBackgroundsAndDividersStacked(canvas, offset);
+            _drawButtons(context, offset);
         }
 
         void _drawButtonBackgroundsAndDividersStacked(Canvas canvas, Offset offset) {
-            Offset dividerOffset = new Offset(0.0f, this.dividerThickness);
+            Offset dividerOffset = new Offset(0.0f, dividerThickness);
             Path backgroundFillPath = new Path();
             // fillType = PathFillType.evenOdd
-            backgroundFillPath.addRect(Rect.fromLTWH(0.0f, 0.0f, this.size.width, this.size.height));
+            backgroundFillPath.addRect(Rect.fromLTWH(0.0f, 0.0f, size.width, size.height));
 
             Path pressedBackgroundFillPath = new Path();
             Path dividersPath = new Path();
             Offset accumulatingOffset = offset;
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             RenderBox prevChild = null;
             while (child != null) {
                 D.assert(child.parentData is _ActionSheetActionButtonParentData);
@@ -1050,15 +1050,15 @@ namespace Unity.UIWidgets.cupertino {
                     isPrevButtonPressed = previousButtonParentData.isPressed;
                 }
 
-                bool isDividerPresent = child != this.firstChild;
+                bool isDividerPresent = child != firstChild;
                 bool isDividerPainted = isDividerPresent && !(isButtonPressed || isPrevButtonPressed);
                 Rect dividerRect = Rect.fromLTWH(
                     accumulatingOffset.dx,
-                    accumulatingOffset.dy, this.size.width, this._dividerThickness
+                    accumulatingOffset.dy, size.width, _dividerThickness
                 );
                 Rect buttonBackgroundRect = Rect.fromLTWH(
                     accumulatingOffset.dx,
-                    accumulatingOffset.dy + (isDividerPresent ? this.dividerThickness : 0.0f), this.size.width,
+                    accumulatingOffset.dy + (isDividerPresent ? dividerThickness : 0.0f), size.width,
                     child.size.height
                 );
                 if (isButtonPressed) {
@@ -1074,25 +1074,25 @@ namespace Unity.UIWidgets.cupertino {
                 accumulatingOffset += (isDividerPresent ? dividerOffset : Offset.zero)
                                       + new Offset(0.0f, child.size.height);
                 prevChild = child;
-                child = this.childAfter(child);
+                child = childAfter(child);
             }
 
-            canvas.drawPath(backgroundFillPath, this._buttonBackgroundPaint);
-            canvas.drawPath(pressedBackgroundFillPath, this._pressedButtonBackgroundPaint);
-            canvas.drawPath(dividersPath, this._dividerPaint);
+            canvas.drawPath(backgroundFillPath, _buttonBackgroundPaint);
+            canvas.drawPath(pressedBackgroundFillPath, _pressedButtonBackgroundPaint);
+            canvas.drawPath(dividersPath, _dividerPaint);
         }
 
         void _drawButtons(PaintingContext context, Offset offset) {
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             while (child != null) {
                 MultiChildLayoutParentData childParentData = child.parentData as MultiChildLayoutParentData;
                 context.paintChild(child, childParentData.offset + offset);
-                child = this.childAfter(child);
+                child = childAfter(child);
             }
         }
 
         protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
-            return this.defaultHitTestChildren(result, position: position);
+            return defaultHitTestChildren(result, position: position);
         }
     }
 }

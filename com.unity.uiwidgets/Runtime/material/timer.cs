@@ -23,7 +23,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public static TimeOfDay now() {
-            return TimeOfDay.fromDateTime(DateTime.Now);
+            return fromDateTime(DateTime.Now);
         }
 
         public static readonly int hoursPerDay = 24;
@@ -44,15 +44,15 @@ namespace Unity.UIWidgets.material {
         public readonly int minute;
 
         public DayPeriod period {
-            get { return this.hour < hoursPerPeriod ? DayPeriod.am : DayPeriod.pm; }
+            get { return hour < hoursPerPeriod ? DayPeriod.am : DayPeriod.pm; }
         }
 
         public int hourOfPeriod {
-            get { return this.hour - this.periodOffset; }
+            get { return hour - periodOffset; }
         }
 
         public int periodOffset {
-            get { return this.period == DayPeriod.am ? 0 : hoursPerPeriod; }
+            get { return period == DayPeriod.am ? 0 : hoursPerPeriod; }
         }
 
         public string format(BuildContext context) {
@@ -79,7 +79,7 @@ namespace Unity.UIWidgets.material {
             if (ReferenceEquals(this, other)) {
                 return true;
             }
-            return this.hour == other.hour && this.minute == other.minute;
+            return hour == other.hour && minute == other.minute;
         }
 
         public override bool Equals(object obj) {
@@ -89,15 +89,15 @@ namespace Unity.UIWidgets.material {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
-            return this.Equals((TimeOfDay) obj);
+            return Equals((TimeOfDay) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return (this.hour * 397) ^ this.minute;
+                return (hour * 397) ^ minute;
             }
         }
 
@@ -110,8 +110,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string ToString() {
-            string hourLabel = _addLeadingZeroIfNeeded(this.hour);
-            string minuteLabel = _addLeadingZeroIfNeeded(this.minute);
+            string hourLabel = _addLeadingZeroIfNeeded(hour);
+            string minuteLabel = _addLeadingZeroIfNeeded(minute);
 
             return $"TimeOfDay({hourLabel}:{minuteLabel})";
         }

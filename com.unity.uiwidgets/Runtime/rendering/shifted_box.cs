@@ -13,32 +13,32 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            if (this.child != null) {
-                return this.child.getMinIntrinsicWidth(height);
+            if (child != null) {
+                return child.getMinIntrinsicWidth(height);
             }
 
             return 0.0f;
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicWidth(height);
+            if (child != null) {
+                return child.getMaxIntrinsicWidth(height);
             }
 
             return 0.0f;
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            if (this.child != null) {
-                return this.child.getMinIntrinsicHeight(width);
+            if (child != null) {
+                return child.getMinIntrinsicHeight(width);
             }
 
             return 0.0f;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicHeight(width);
+            if (child != null) {
+                return child.getMaxIntrinsicHeight(width);
             }
 
             return 0.0f;
@@ -47,12 +47,12 @@ namespace Unity.UIWidgets.rendering {
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             float? result;
 
-            if (this.child != null) {
-                D.assert(!this.debugNeedsLayout);
+            if (child != null) {
+                D.assert(!debugNeedsLayout);
 
-                result = this.child.getDistanceToActualBaseline(baseline);
+                result = child.getDistanceToActualBaseline(baseline);
                 if (result != null) {
-                    var childParentData = (BoxParentData) this.child.parentData;
+                    var childParentData = (BoxParentData) child.parentData;
                     result += childParentData.offset.dy;
                 }
             }
@@ -64,16 +64,16 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                var childParentData = (BoxParentData) this.child.parentData;
-                context.paintChild(this.child, childParentData.offset + offset);
+            if (child != null) {
+                var childParentData = (BoxParentData) child.parentData;
+                context.paintChild(child, childParentData.offset + offset);
             }
         }
 
         protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
-            if (this.child != null) {
-                var childParentData = (BoxParentData) this.child.parentData;
-                return this.child.hitTest(result, position - childParentData.offset);
+            if (child != null) {
+                var childParentData = (BoxParentData) child.parentData;
+                return child.hitTest(result, position - childParentData.offset);
             }
 
             return false;
@@ -88,89 +88,89 @@ namespace Unity.UIWidgets.rendering {
             D.assert(padding != null);
             D.assert(padding.isNonNegative);
 
-            this._padding = padding;
+            _padding = padding;
         }
 
         public EdgeInsets padding {
-            get { return this._padding; }
+            get { return _padding; }
             set {
                 D.assert(value != null);
                 D.assert(value.isNonNegative);
 
-                if (this._padding == value) {
+                if (_padding == value) {
                     return;
                 }
 
-                this._padding = value;
-                this.markNeedsLayout();
+                _padding = value;
+                markNeedsLayout();
             }
         }
 
         EdgeInsets _padding;
 
         protected override float computeMinIntrinsicWidth(float height) {
-            if (this.child != null) {
-                return this.child.getMinIntrinsicWidth(Mathf.Max(0.0f, height - this._padding.vertical)) +
-                       this._padding.horizontal;
+            if (child != null) {
+                return child.getMinIntrinsicWidth(Mathf.Max(0.0f, height - _padding.vertical)) +
+                       _padding.horizontal;
             }
 
-            return this._padding.horizontal;
+            return _padding.horizontal;
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicWidth(Mathf.Max(0.0f, height - this._padding.vertical)) +
-                       this._padding.horizontal;
+            if (child != null) {
+                return child.getMaxIntrinsicWidth(Mathf.Max(0.0f, height - _padding.vertical)) +
+                       _padding.horizontal;
             }
 
-            return this._padding.horizontal;
+            return _padding.horizontal;
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            if (this.child != null) {
-                return this.child.getMinIntrinsicHeight(Mathf.Max(0.0f, width - this._padding.horizontal)) +
-                       this._padding.vertical;
+            if (child != null) {
+                return child.getMinIntrinsicHeight(Mathf.Max(0.0f, width - _padding.horizontal)) +
+                       _padding.vertical;
             }
 
-            return this._padding.vertical;
+            return _padding.vertical;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicHeight(Mathf.Max(0.0f, width - this._padding.horizontal)) +
-                       this._padding.vertical;
+            if (child != null) {
+                return child.getMaxIntrinsicHeight(Mathf.Max(0.0f, width - _padding.horizontal)) +
+                       _padding.vertical;
             }
 
-            return this._padding.vertical;
+            return _padding.vertical;
         }
 
         protected override void performLayout() {
-            if (this.child == null) {
-                this.size = this.constraints.constrain(this._padding.inflateSize(Size.zero));
+            if (child == null) {
+                size = constraints.constrain(_padding.inflateSize(Size.zero));
                 return;
             }
 
-            var innerConstraints = this.constraints.deflate(this._padding);
-            this.child.layout(innerConstraints, parentUsesSize: true);
+            var innerConstraints = constraints.deflate(_padding);
+            child.layout(innerConstraints, parentUsesSize: true);
 
-            var childParentData = (BoxParentData) this.child.parentData;
-            childParentData.offset = this._padding.topLeft;
-            this.size = this.constraints.constrain(this._padding.inflateSize(this.child.size));
+            var childParentData = (BoxParentData) child.parentData;
+            childParentData.offset = _padding.topLeft;
+            size = constraints.constrain(_padding.inflateSize(child.size));
         }
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {
             base.debugPaintSize(context, offset);
             D.assert(() => {
-                Rect outerRect = offset & this.size;
+                Rect outerRect = offset & size;
                 D.debugPaintPadding(context.canvas, outerRect,
-                    this.child != null ? this._padding.deflateRect(outerRect) : null);
+                    child != null ? _padding.deflateRect(outerRect) : null);
                 return true;
             });
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
         }
     }
 
@@ -179,37 +179,37 @@ namespace Unity.UIWidgets.rendering {
             Alignment alignment = null,
             RenderBox child = null
         ) : base(child) {
-            this._alignment = alignment ?? Alignment.center;
+            _alignment = alignment ?? Alignment.center;
         }
 
         public Alignment alignment {
-            get { return this._alignment; }
+            get { return _alignment; }
             set {
                 D.assert(value != null);
-                if (this._alignment == value) {
+                if (_alignment == value) {
                     return;
                 }
 
-                this._alignment = value;
-                this.markNeedsLayout();
+                _alignment = value;
+                markNeedsLayout();
             }
         }
 
         Alignment _alignment;
 
         protected void alignChild() {
-            D.assert(this.child != null);
-            D.assert(!this.child.debugNeedsLayout);
-            D.assert(this.child.hasSize);
-            D.assert(this.hasSize);
+            D.assert(child != null);
+            D.assert(!child.debugNeedsLayout);
+            D.assert(child.hasSize);
+            D.assert(hasSize);
 
-            var childParentData = (BoxParentData) this.child.parentData;
-            childParentData.offset = this._alignment.alongOffset(this.size - this.child.size);
+            var childParentData = (BoxParentData) child.parentData;
+            childParentData.offset = _alignment.alongOffset(size - child.size);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
         }
     }
 
@@ -223,53 +223,53 @@ namespace Unity.UIWidgets.rendering {
             D.assert(widthFactor == null || widthFactor >= 0.0);
             D.assert(heightFactor == null || heightFactor >= 0.0);
 
-            this._widthFactor = widthFactor;
-            this._heightFactor = heightFactor;
+            _widthFactor = widthFactor;
+            _heightFactor = heightFactor;
         }
 
         public float? widthFactor {
-            get { return this._widthFactor; }
+            get { return _widthFactor; }
             set {
                 D.assert(value == null || value >= 0.0);
-                if (this._widthFactor == value) {
+                if (_widthFactor == value) {
                     return;
                 }
 
-                this._widthFactor = value;
-                this.markNeedsLayout();
+                _widthFactor = value;
+                markNeedsLayout();
             }
         }
 
         float? _widthFactor;
 
         public float? heightFactor {
-            get { return this._heightFactor; }
+            get { return _heightFactor; }
             set {
                 D.assert(value == null || value >= 0.0);
-                if (this._heightFactor == value) {
+                if (_heightFactor == value) {
                     return;
                 }
 
-                this._heightFactor = value;
-                this.markNeedsLayout();
+                _heightFactor = value;
+                markNeedsLayout();
             }
         }
 
         float? _heightFactor;
 
         protected override void performLayout() {
-            bool shrinkWrapWidth = this._widthFactor != null || float.IsPositiveInfinity(this.constraints.maxWidth);
-            bool shrinkWrapHeight = this._heightFactor != null || float.IsPositiveInfinity(this.constraints.maxHeight);
+            bool shrinkWrapWidth = _widthFactor != null || float.IsPositiveInfinity(constraints.maxWidth);
+            bool shrinkWrapHeight = _heightFactor != null || float.IsPositiveInfinity(constraints.maxHeight);
 
-            if (this.child != null) {
-                this.child.layout(this.constraints.loosen(), parentUsesSize: true);
-                this.size = this.constraints.constrain(new Size(
-                    shrinkWrapWidth ? this.child.size.width * (this._widthFactor ?? 1.0f) : float.PositiveInfinity,
-                    shrinkWrapHeight ? this.child.size.height * (this._heightFactor ?? 1.0f) : float.PositiveInfinity));
-                this.alignChild();
+            if (child != null) {
+                child.layout(constraints.loosen(), parentUsesSize: true);
+                size = constraints.constrain(new Size(
+                    shrinkWrapWidth ? child.size.width * (_widthFactor ?? 1.0f) : float.PositiveInfinity,
+                    shrinkWrapHeight ? child.size.height * (_heightFactor ?? 1.0f) : float.PositiveInfinity));
+                alignChild();
             }
             else {
-                this.size = this.constraints.constrain(new Size(
+                size = constraints.constrain(new Size(
                     shrinkWrapWidth ? 0.0f : float.PositiveInfinity,
                     shrinkWrapHeight ? 0.0f : float.PositiveInfinity));
             }
@@ -279,7 +279,7 @@ namespace Unity.UIWidgets.rendering {
            base.debugPaintSize(context, offset);
             D.assert(() => {
                 Paint paint;
-                if (this.child != null && !this.child.size.isEmpty) {
+                if (child != null && !child.size.isEmpty) {
                     Path path;
                     paint = new Paint {
                         style = PaintingStyle.stroke,
@@ -287,11 +287,11 @@ namespace Unity.UIWidgets.rendering {
                         color = new ui.Color(0xFFFFFF00)
                     };
 
-                    BoxParentData childParentData = (BoxParentData) this.child.parentData;
+                    BoxParentData childParentData = (BoxParentData) child.parentData;
                     if (childParentData.offset.dy > 0) {
                         float headSize = Mathf.Min(childParentData.offset.dy * 0.2f, 10.0f);
 
-                        float x = offset.dx + this.size.width / 2.0f;
+                        float x = offset.dx + size.width / 2.0f;
                         float y = offset.dy;
                         path = new Path();
                         path.moveTo(x, y);
@@ -301,8 +301,8 @@ namespace Unity.UIWidgets.rendering {
                         path.lineTo(x += -headSize, y += -headSize);
                         path.lineTo(x += headSize, y += 0.0f);
 
-                        x = offset.dx + this.size.width / 2.0f;
-                        y = offset.dy + this.size.height;
+                        x = offset.dx + size.width / 2.0f;
+                        y = offset.dy + size.height;
                         path.moveTo(x, y);
                         path.lineTo(x += 0.0f, y += -childParentData.offset.dy + headSize);
                         path.lineTo(x += headSize, y += 0.0f);
@@ -316,7 +316,7 @@ namespace Unity.UIWidgets.rendering {
 
                         float headSize = Mathf.Min(childParentData.offset.dx * 0.2f, 10.0f);
                         float x = offset.dx;
-                        float y = offset.dy + this.size.height / 2.0f;
+                        float y = offset.dy + size.height / 2.0f;
                         path = new Path();
                         path.moveTo(x, y);
                         path.lineTo(x += childParentData.offset.dx - headSize, y += 0.0f);
@@ -325,7 +325,7 @@ namespace Unity.UIWidgets.rendering {
                         path.lineTo(x += -headSize, y += -headSize);
                         path.lineTo(x += 0.0f, y += headSize);
                         
-                        path.moveTo(x = offset.dx + this.size.width, y = offset.dy + this.size.height / 2.0f);
+                        path.moveTo(x = offset.dx + size.width, y = offset.dy + size.height / 2.0f);
                         path.lineTo(x += -childParentData.offset.dx + headSize, y += 0.0f);
                         path.lineTo(x += 0.0f, y += headSize);
                         path.lineTo(x += -headSize, y += -headSize);
@@ -338,7 +338,7 @@ namespace Unity.UIWidgets.rendering {
                     paint = new Paint {
                         color = new ui.Color(0x90909090),
                     };
-                    context.canvas.drawRect(offset & this.size, paint);
+                    context.canvas.drawRect(offset & size, paint);
                 }
 
                 return true;
@@ -347,8 +347,8 @@ namespace Unity.UIWidgets.rendering {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("widthFactor", this._widthFactor, ifNull: "expand"));
-            properties.add(new FloatProperty("heightFactor", this._heightFactor, ifNull: "expand"));
+            properties.add(new FloatProperty("widthFactor", _widthFactor, ifNull: "expand"));
+            properties.add(new FloatProperty("heightFactor", _heightFactor, ifNull: "expand"));
         }
     }
 
@@ -361,63 +361,63 @@ namespace Unity.UIWidgets.rendering {
             float? maxHeight = null,
             Alignment alignment = null
         ) : base(alignment, child) {
-            this._minWidth = minWidth;
-            this._maxWidth = maxWidth;
-            this._minHeight = minHeight;
-            this._maxHeight = maxHeight;
+            _minWidth = minWidth;
+            _maxWidth = maxWidth;
+            _minHeight = minHeight;
+            _maxHeight = maxHeight;
         }
 
         public float? minWidth {
-            get { return this._minWidth; }
+            get { return _minWidth; }
             set {
-                if (this._minWidth == value) {
+                if (_minWidth == value) {
                     return;
                 }
 
-                this._minWidth = value;
-                this.markNeedsLayout();
+                _minWidth = value;
+                markNeedsLayout();
             }
         }
 
         public float? _minWidth;
 
         public float? maxWidth {
-            get { return this._maxWidth; }
+            get { return _maxWidth; }
             set {
-                if (this._maxWidth == value) {
+                if (_maxWidth == value) {
                     return;
                 }
 
-                this._maxWidth = value;
-                this.markNeedsLayout();
+                _maxWidth = value;
+                markNeedsLayout();
             }
         }
 
         public float? _maxWidth;
 
         public float? minHeight {
-            get { return this._minHeight; }
+            get { return _minHeight; }
             set {
-                if (this._minHeight == value) {
+                if (_minHeight == value) {
                     return;
                 }
 
-                this._minHeight = value;
-                this.markNeedsLayout();
+                _minHeight = value;
+                markNeedsLayout();
             }
         }
 
         public float? _minHeight;
 
         public float? maxHeight {
-            get { return this._maxHeight; }
+            get { return _maxHeight; }
             set {
-                if (this._maxHeight == value) {
+                if (_maxHeight == value) {
                     return;
                 }
 
-                this._maxHeight = value;
-                this.markNeedsLayout();
+                _maxHeight = value;
+                markNeedsLayout();
             }
         }
 
@@ -425,10 +425,10 @@ namespace Unity.UIWidgets.rendering {
 
         public BoxConstraints _getInnerConstraints(BoxConstraints constraints) {
             return new BoxConstraints(
-                minWidth: this._minWidth ?? constraints.minWidth,
-                maxWidth: this._maxWidth ?? constraints.maxWidth,
-                minHeight: this._minHeight ?? constraints.minHeight,
-                maxHeight: this._maxHeight ?? constraints.maxHeight
+                minWidth: _minWidth ?? constraints.minWidth,
+                maxWidth: _maxWidth ?? constraints.maxWidth,
+                minHeight: _minHeight ?? constraints.minHeight,
+                maxHeight: _maxHeight ?? constraints.maxHeight
             );
         }
 
@@ -437,13 +437,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performResize() {
-            this.size = this.constraints.biggest;
+            size = constraints.biggest;
         }
 
         protected override void performLayout() {
-            if (this.child != null) {
-                this.child.layout(this._getInnerConstraints(this.constraints), parentUsesSize: true);
-                this.alignChild();
+            if (child != null) {
+                child.layout(_getInnerConstraints(constraints), parentUsesSize: true);
+                alignChild();
             }
         }
     }
@@ -454,18 +454,18 @@ namespace Unity.UIWidgets.rendering {
             Axis? constrainedAxis = null,
             RenderBox child = null
         ) : base(alignment, child) {
-            this._constrainedAxis = constrainedAxis;
+            _constrainedAxis = constrainedAxis;
         }
 
         public Axis? constrainedAxis {
-            get { return this._constrainedAxis; }
+            get { return _constrainedAxis; }
             set {
-                if (this._constrainedAxis == value) {
+                if (_constrainedAxis == value) {
                     return;
                 }
 
-                this._constrainedAxis = value;
-                this.markNeedsLayout();
+                _constrainedAxis = value;
+                markNeedsLayout();
             }
         }
 
@@ -476,19 +476,19 @@ namespace Unity.UIWidgets.rendering {
         public bool _isOverflowing = false;
 
         protected override void performLayout() {
-            if (this.child != null) {
+            if (child != null) {
                 BoxConstraints childConstraints = null;
-                if (this.constrainedAxis != null) {
-                    switch (this.constrainedAxis) {
+                if (constrainedAxis != null) {
+                    switch (constrainedAxis) {
                         case Axis.horizontal:
                             childConstraints = new BoxConstraints(
-                                maxWidth: this.constraints.maxWidth,
-                                minWidth: this.constraints.minWidth);
+                                maxWidth: constraints.maxWidth,
+                                minWidth: constraints.minWidth);
                             break;
                         case Axis.vertical:
                             childConstraints = new BoxConstraints(
-                                maxHeight: this.constraints.maxHeight,
-                                minHeight: this.constraints.minHeight);
+                                maxHeight: constraints.maxHeight,
+                                minHeight: constraints.minHeight);
                             break;
                     }
                 }
@@ -496,36 +496,36 @@ namespace Unity.UIWidgets.rendering {
                     childConstraints = new BoxConstraints();
                 }
 
-                this.child.layout(childConstraints, parentUsesSize: true);
-                this.size = this.constraints.constrain(this.child.size);
-                this.alignChild();
-                var childParentData = (BoxParentData) this.child.parentData;
-                this._overflowContainerRect = Offset.zero & this.size;
-                this._overflowChildRect = childParentData.offset & this.child.size;
+                child.layout(childConstraints, parentUsesSize: true);
+                size = constraints.constrain(child.size);
+                alignChild();
+                var childParentData = (BoxParentData) child.parentData;
+                _overflowContainerRect = Offset.zero & size;
+                _overflowChildRect = childParentData.offset & child.size;
             }
             else {
-                this.size = this.constraints.smallest;
-                this._overflowContainerRect = Rect.zero;
-                this._overflowChildRect = Rect.zero;
+                size = constraints.smallest;
+                _overflowContainerRect = Rect.zero;
+                _overflowChildRect = Rect.zero;
             }
 
-            this._isOverflowing = RelativeRect.fromRect(
-                this._overflowContainerRect, this._overflowChildRect).hasInsets;
+            _isOverflowing = RelativeRect.fromRect(
+                _overflowContainerRect, _overflowChildRect).hasInsets;
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child == null || this.size.isEmpty) {
+            if (child == null || size.isEmpty) {
                 return;
             }
 
-            if (!this._isOverflowing) {
+            if (!_isOverflowing) {
                 base.paint(context, offset);
                 return;
             }
 
-            context.pushClipRect(this.needsCompositing, offset, Offset.zero & this.size, base.paint);
+            context.pushClipRect(needsCompositing, offset, Offset.zero & size, base.paint);
             D.assert(() => {
-                DebugOverflowIndicatorMixin.paintOverflowIndicator(this, context, offset, this._overflowContainerRect, this._overflowChildRect);
+                DebugOverflowIndicatorMixin.paintOverflowIndicator(this, context, offset, _overflowContainerRect, _overflowChildRect);
                 return true;
             });
         }
@@ -537,52 +537,52 @@ namespace Unity.UIWidgets.rendering {
             Size requestedSize = null,
             Alignment alignment = null
         ) : base(alignment, child) {
-            this._requestedSize = requestedSize;
+            _requestedSize = requestedSize;
         }
 
         public Size requestedSize {
-            get { return this._requestedSize; }
+            get { return _requestedSize; }
             set {
-                if (this._requestedSize == value) {
+                if (_requestedSize == value) {
                     return;
                 }
 
-                this._requestedSize = value;
-                this.markNeedsLayout();
+                _requestedSize = value;
+                markNeedsLayout();
             }
         }
 
         public Size _requestedSize;
 
         protected override float computeMinIntrinsicWidth(float height) {
-            return this._requestedSize.width;
+            return _requestedSize.width;
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            return this._requestedSize.width;
+            return _requestedSize.width;
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            return this._requestedSize.height;
+            return _requestedSize.height;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            return this._requestedSize.height;
+            return _requestedSize.height;
         }
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            if (this.child != null) {
-                return this.child.getDistanceToActualBaseline(baseline);
+            if (child != null) {
+                return child.getDistanceToActualBaseline(baseline);
             }
 
             return base.computeDistanceToActualBaseline(baseline);
         }
 
         protected override void performLayout() {
-            this.size = this.constraints.constrain(this._requestedSize);
-            if (this.child != null) {
-                this.child.layout(this.constraints);
-                this.alignChild();
+            size = constraints.constrain(_requestedSize);
+            if (child != null) {
+                child.layout(constraints);
+                alignChild();
             }
         }
     }
@@ -594,33 +594,33 @@ namespace Unity.UIWidgets.rendering {
             float? heightFactor = null,
             Alignment alignment = null
         ) : base(alignment, child) {
-            this._widthFactor = widthFactor;
-            this._heightFactor = heightFactor;
+            _widthFactor = widthFactor;
+            _heightFactor = heightFactor;
         }
 
         public float? widthFactor {
-            get { return this._widthFactor; }
+            get { return _widthFactor; }
             set {
-                if (this._widthFactor == value) {
+                if (_widthFactor == value) {
                     return;
                 }
 
-                this._widthFactor = value;
-                this.markNeedsLayout();
+                _widthFactor = value;
+                markNeedsLayout();
             }
         }
 
         public float? _widthFactor;
 
         public float? heightFactor {
-            get { return this._heightFactor; }
+            get { return _heightFactor; }
             set {
-                if (this._heightFactor == value) {
+                if (_heightFactor == value) {
                     return;
                 }
 
-                this._heightFactor = value;
-                this.markNeedsLayout();
+                _heightFactor = value;
+                markNeedsLayout();
             }
         }
 
@@ -629,16 +629,16 @@ namespace Unity.UIWidgets.rendering {
         public BoxConstraints _getInnerConstraints(BoxConstraints constraints) {
             float minWidth = constraints.minWidth;
             float maxWidth = constraints.maxWidth;
-            if (this._widthFactor != null) {
-                float width = maxWidth * this._widthFactor.Value;
+            if (_widthFactor != null) {
+                float width = maxWidth * _widthFactor.Value;
                 minWidth = width;
                 maxWidth = width;
             }
 
             float minHeight = constraints.minHeight;
             float maxHeight = constraints.maxHeight;
-            if (this._heightFactor != null) {
-                float height = maxHeight * this._heightFactor.Value;
+            if (_heightFactor != null) {
+                float height = maxHeight * _heightFactor.Value;
                 minHeight = height;
                 maxHeight = height;
             }
@@ -653,61 +653,61 @@ namespace Unity.UIWidgets.rendering {
 
         protected override float computeMinIntrinsicWidth(float height) {
             float result;
-            if (this.child == null) {
+            if (child == null) {
                 result = base.computeMinIntrinsicWidth(height);
             }
             else {
-                result = this.child.getMinIntrinsicWidth(height * (this._heightFactor ?? 1.0f));
+                result = child.getMinIntrinsicWidth(height * (_heightFactor ?? 1.0f));
             }
 
-            return result / (this._widthFactor ?? 1.0f);
+            return result / (_widthFactor ?? 1.0f);
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
             float result;
-            if (this.child == null) {
+            if (child == null) {
                 result = base.computeMaxIntrinsicWidth(height);
             }
             else {
-                result = this.child.getMaxIntrinsicWidth(height * (this._heightFactor ?? 1.0f));
+                result = child.getMaxIntrinsicWidth(height * (_heightFactor ?? 1.0f));
             }
 
-            return result / (this._widthFactor ?? 1.0f);
+            return result / (_widthFactor ?? 1.0f);
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
             float result;
-            if (this.child == null) {
+            if (child == null) {
                 result = base.computeMinIntrinsicHeight(width);
             }
             else {
-                result = this.child.getMinIntrinsicHeight(width * (this._widthFactor ?? 1.0f));
+                result = child.getMinIntrinsicHeight(width * (_widthFactor ?? 1.0f));
             }
 
-            return result / (this._heightFactor ?? 1.0f);
+            return result / (_heightFactor ?? 1.0f);
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
             float result;
-            if (this.child == null) {
+            if (child == null) {
                 result = base.computeMaxIntrinsicHeight(width);
             }
             else {
-                result = this.child.getMaxIntrinsicHeight(width * (this._widthFactor ?? 1.0f));
+                result = child.getMaxIntrinsicHeight(width * (_widthFactor ?? 1.0f));
             }
 
-            return result / (this._heightFactor ?? 1.0f);
+            return result / (_heightFactor ?? 1.0f);
         }
 
         protected override void performLayout() {
-            if (this.child != null) {
-                this.child.layout(this._getInnerConstraints(this.constraints), parentUsesSize: true);
-                this.size = this.constraints.constrain(this.child.size);
-                this.alignChild();
+            if (child != null) {
+                child.layout(_getInnerConstraints(constraints), parentUsesSize: true);
+                size = constraints.constrain(child.size);
+                alignChild();
             }
             else {
-                this.size = this.constraints.constrain(
-                    this._getInnerConstraints(this.constraints).constrain(Size.zero));
+                size = constraints.constrain(
+                    _getInnerConstraints(constraints).constrain(Size.zero));
             }
         }
     }
@@ -738,27 +738,27 @@ namespace Unity.UIWidgets.rendering {
         public RenderCustomSingleChildLayoutBox(RenderBox child = null,
             SingleChildLayoutDelegate layoutDelegate = null) : base(child) {
             D.assert(layoutDelegate != null);
-            this._delegate = layoutDelegate;
+            _delegate = layoutDelegate;
         }
 
         public SingleChildLayoutDelegate layoutDelegate {
-            get { return this._delegate; }
+            get { return _delegate; }
             set {
                 var newDelegate = value;
                 D.assert(newDelegate != null);
-                if (this._delegate == newDelegate) {
+                if (_delegate == newDelegate) {
                     return;
                 }
 
-                SingleChildLayoutDelegate oldDelegate = this._delegate;
+                SingleChildLayoutDelegate oldDelegate = _delegate;
                 if (newDelegate.GetType() != oldDelegate.GetType() || newDelegate.shouldRelayout(oldDelegate)) {
-                    this.markNeedsLayout();
+                    markNeedsLayout();
                 }
 
-                this._delegate = newDelegate;
-                if (this.attached) {
-                    oldDelegate?._relayout?.removeListener(this.markNeedsLayout);
-                    newDelegate?._relayout?.addListener(this.markNeedsLayout);
+                _delegate = newDelegate;
+                if (attached) {
+                    oldDelegate?._relayout?.removeListener(markNeedsLayout);
+                    newDelegate?._relayout?.addListener(markNeedsLayout);
                 }
             }
         }
@@ -767,21 +767,21 @@ namespace Unity.UIWidgets.rendering {
 
         public override void attach(object owner) {
             base.attach(owner);
-            this._delegate?._relayout?.addListener(this.markNeedsLayout);
+            _delegate?._relayout?.addListener(markNeedsLayout);
         }
 
         public override void detach() {
-            this._delegate?._relayout?.removeListener(this.markNeedsLayout);
+            _delegate?._relayout?.removeListener(markNeedsLayout);
             base.detach();
         }
 
         Size _getSize(BoxConstraints constraints) {
-            return constraints.constrain(this._delegate.getSize(constraints));
+            return constraints.constrain(_delegate.getSize(constraints));
         }
 
 
         protected override float computeMinIntrinsicWidth(float height) {
-            float width = this._getSize(BoxConstraints.tightForFinite(height: height)).width;
+            float width = _getSize(BoxConstraints.tightForFinite(height: height)).width;
             if (width.isFinite()) {
                 return width;
             }
@@ -790,7 +790,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            float width = this._getSize(BoxConstraints.tightForFinite(height: height)).width;
+            float width = _getSize(BoxConstraints.tightForFinite(height: height)).width;
             if (width.isFinite()) {
                 return width;
             }
@@ -799,7 +799,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            float height = this._getSize(BoxConstraints.tightForFinite(width: width)).height;
+            float height = _getSize(BoxConstraints.tightForFinite(width: width)).height;
             if (height.isFinite()) {
                 return height;
             }
@@ -808,7 +808,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            float height = this._getSize(BoxConstraints.tightForFinite(width: width)).height;
+            float height = _getSize(BoxConstraints.tightForFinite(width: width)).height;
             if (height.isFinite()) {
                 return height;
             }
@@ -817,14 +817,14 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
-            this.size = this._getSize(this.constraints);
-            if (this.child != null) {
-                BoxConstraints childConstraints = this.layoutDelegate.getConstraintsForChild(this.constraints);
+            size = _getSize(constraints);
+            if (child != null) {
+                BoxConstraints childConstraints = layoutDelegate.getConstraintsForChild(constraints);
                 D.assert(childConstraints.debugAssertIsValid(isAppliedConstraint: true));
-                this.child.layout(childConstraints, parentUsesSize: !childConstraints.isTight);
-                BoxParentData childParentData = (BoxParentData) this.child.parentData;
-                childParentData.offset = this.layoutDelegate.getPositionForChild(this.size,
-                    childConstraints.isTight ? childConstraints.smallest : this.child.size);
+                child.layout(childConstraints, parentUsesSize: !childConstraints.isTight);
+                BoxParentData childParentData = (BoxParentData) child.parentData;
+                childParentData.offset = layoutDelegate.getPositionForChild(size,
+                    childConstraints.isTight ? childConstraints.smallest : child.size);
             }
         }
     }
@@ -835,19 +835,19 @@ namespace Unity.UIWidgets.rendering {
             float baseline = 0.0f,
             TextBaseline baselineType = TextBaseline.alphabetic
         ) : base(child) {
-            this._baseline = baseline;
-            this._baselineType = baselineType;
+            _baseline = baseline;
+            _baselineType = baselineType;
         }
 
         public float baseline {
-            get { return this._baseline; }
+            get { return _baseline; }
             set {
-                if (this._baseline == value) {
+                if (_baseline == value) {
                     return;
                 }
 
-                this._baseline = value;
-                this.markNeedsLayout();
+                _baseline = value;
+                markNeedsLayout();
             }
         }
 
@@ -855,32 +855,32 @@ namespace Unity.UIWidgets.rendering {
 
 
         public TextBaseline baselineType {
-            get { return this._baselineType; }
+            get { return _baselineType; }
             set {
-                if (this._baselineType == value) {
+                if (_baselineType == value) {
                     return;
                 }
 
-                this._baselineType = value;
-                this.markNeedsLayout();
+                _baselineType = value;
+                markNeedsLayout();
             }
         }
 
         public TextBaseline _baselineType;
 
         protected override void performLayout() {
-            if (this.child != null) {
-                this.child.layout(this.constraints.loosen(), parentUsesSize: true);
-                float? childBaseline = this.child.getDistanceToBaseline(this.baselineType);
-                float actualBaseline = this.baseline;
+            if (child != null) {
+                child.layout(constraints.loosen(), parentUsesSize: true);
+                float? childBaseline = child.getDistanceToBaseline(baselineType);
+                float actualBaseline = baseline;
                 float top = actualBaseline - childBaseline.Value;
-                var childParentData = (BoxParentData) this.child.parentData;
+                var childParentData = (BoxParentData) child.parentData;
                 childParentData.offset = new Offset(0.0f, top);
-                Size childSize = this.child.size;
-                this.size = this.constraints.constrain(new Size(childSize.width, top + childSize.height));
+                Size childSize = child.size;
+                size = constraints.constrain(new Size(childSize.width, top + childSize.height));
             }
             else {
-                this.performResize();
+                performResize();
             }
         }
     }

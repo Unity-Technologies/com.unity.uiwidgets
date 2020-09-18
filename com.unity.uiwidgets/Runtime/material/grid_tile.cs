@@ -22,28 +22,28 @@ namespace Unity.UIWidgets.material {
         public readonly Widget child;
 
         public override Widget build(BuildContext context) {
-            if (this.header == null && this.footer == null) {
-                return this.child;
+            if (header == null && footer == null) {
+                return child;
             }
 
             List<Widget> children = new List<Widget> {
                 Positioned.fill(
-                    child: this.child)
+                    child: child)
             };
-            if (this.header != null) {
+            if (header != null) {
                 children.Add(new Positioned(
                     top: 0.0f,
                     left: 0.0f,
                     right: 0.0f,
-                    child: this.header));
+                    child: header));
             }
 
-            if (this.footer != null) {
+            if (footer != null) {
                 children.Add(new Positioned(
                     left: 0.0f,
                     bottom: 0.0f,
                     right: 0.0f,
-                    child: this.footer));
+                    child: footer));
             }
 
             return new Stack(

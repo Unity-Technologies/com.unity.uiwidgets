@@ -32,9 +32,9 @@ namespace Unity.UIWidgets.rendering {
 
         public override bool hitTest(HitTestResult result, Offset position = null) {
             bool hitTarget = false;
-            if (this.size.contains(position)) {
-                hitTarget = this.hitTestChildren(result, position: position) || this.hitTestSelf(position);
-                if (hitTarget || this.behavior == HitTestBehavior.translucent) {
+            if (size.contains(position)) {
+                hitTarget = hitTestChildren(result, position: position) || hitTestSelf(position);
+                if (hitTarget || behavior == HitTestBehavior.translucent) {
                     result.add(new BoxHitTestEntry(this, position));
                 }
             }
@@ -43,13 +43,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestSelf(Offset position) {
-            return this.behavior == HitTestBehavior.opaque;
+            return behavior == HitTestBehavior.opaque;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new EnumProperty<HitTestBehavior>(
-                "behavior", this.behavior, defaultValue: Diagnostics.kNullDefaultValue));
+                "behavior", behavior, defaultValue: foundation_.kNullDefaultValue));
         }
     }
 
@@ -60,104 +60,104 @@ namespace Unity.UIWidgets.rendering {
             D.assert(additionalConstraints != null);
             D.assert(additionalConstraints.debugAssertIsValid());
 
-            this._additionalConstraints = additionalConstraints;
+            _additionalConstraints = additionalConstraints;
         }
 
         public BoxConstraints additionalConstraints {
-            get { return this._additionalConstraints; }
+            get { return _additionalConstraints; }
             set {
                 D.assert(value != null);
                 D.assert(value.debugAssertIsValid());
 
-                if (this._additionalConstraints == value) {
+                if (_additionalConstraints == value) {
                     return;
                 }
 
-                this._additionalConstraints = value;
-                this.markNeedsLayout();
+                _additionalConstraints = value;
+                markNeedsLayout();
             }
         }
 
         BoxConstraints _additionalConstraints;
 
         protected override float computeMinIntrinsicWidth(float height) {
-            if (this._additionalConstraints.hasBoundedWidth && this._additionalConstraints.hasTightWidth) {
-                return this._additionalConstraints.minWidth;
+            if (_additionalConstraints.hasBoundedWidth && _additionalConstraints.hasTightWidth) {
+                return _additionalConstraints.minWidth;
             }
 
             float width = base.computeMinIntrinsicWidth(height);
             D.assert(width.isFinite());
 
-            if (!this._additionalConstraints.hasInfiniteWidth) {
-                return this._additionalConstraints.constrainWidth(width);
+            if (!_additionalConstraints.hasInfiniteWidth) {
+                return _additionalConstraints.constrainWidth(width);
             }
 
             return width;
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            if (this._additionalConstraints.hasBoundedWidth && this._additionalConstraints.hasTightWidth) {
-                return this._additionalConstraints.minWidth;
+            if (_additionalConstraints.hasBoundedWidth && _additionalConstraints.hasTightWidth) {
+                return _additionalConstraints.minWidth;
             }
 
             float width = base.computeMaxIntrinsicWidth(height);
             D.assert(width.isFinite());
 
-            if (!this._additionalConstraints.hasInfiniteWidth) {
-                return this._additionalConstraints.constrainWidth(width);
+            if (!_additionalConstraints.hasInfiniteWidth) {
+                return _additionalConstraints.constrainWidth(width);
             }
 
             return width;
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            if (this._additionalConstraints.hasBoundedHeight && this._additionalConstraints.hasTightHeight) {
-                return this._additionalConstraints.minHeight;
+            if (_additionalConstraints.hasBoundedHeight && _additionalConstraints.hasTightHeight) {
+                return _additionalConstraints.minHeight;
             }
 
             float height = base.computeMinIntrinsicHeight(width);
             D.assert(height.isFinite());
 
-            if (!this._additionalConstraints.hasInfiniteHeight) {
-                return this._additionalConstraints.constrainHeight(height);
+            if (!_additionalConstraints.hasInfiniteHeight) {
+                return _additionalConstraints.constrainHeight(height);
             }
 
             return height;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this._additionalConstraints.hasBoundedHeight && this._additionalConstraints.hasTightHeight) {
-                return this._additionalConstraints.minHeight;
+            if (_additionalConstraints.hasBoundedHeight && _additionalConstraints.hasTightHeight) {
+                return _additionalConstraints.minHeight;
             }
 
             float height = base.computeMaxIntrinsicHeight(width);
             D.assert(height.isFinite());
 
-            if (!this._additionalConstraints.hasInfiniteHeight) {
-                return this._additionalConstraints.constrainHeight(height);
+            if (!_additionalConstraints.hasInfiniteHeight) {
+                return _additionalConstraints.constrainHeight(height);
             }
 
             return height;
         }
 
         protected override void performLayout() {
-            if (this.child != null) {
-                this.child.layout(this._additionalConstraints.enforce(this.constraints), parentUsesSize: true);
-                this.size = this.child.size;
+            if (child != null) {
+                child.layout(_additionalConstraints.enforce(constraints), parentUsesSize: true);
+                size = child.size;
             }
             else {
-                this.size = this._additionalConstraints.enforce(this.constraints).constrain(Size.zero);
+                size = _additionalConstraints.enforce(constraints).constrain(Size.zero);
             }
         }
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {
             base.debugPaintSize(context, offset);
             D.assert(() => {
-                if (this.child == null || this.child.size.isEmpty) {
+                if (child == null || child.size.isEmpty) {
                     var paint = new Paint {
                         color = new Color(0x90909090)
                     };
-                    context.canvas.drawRect(offset & this.size, paint);
+                    context.canvas.drawRect(offset & size, paint);
                 }
 
                 return true;
@@ -167,7 +167,7 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(
-                new DiagnosticsProperty<BoxConstraints>("additionalConstraints", this.additionalConstraints));
+                new DiagnosticsProperty<BoxConstraints>("additionalConstraints", additionalConstraints));
         }
     }
 
@@ -180,35 +180,35 @@ namespace Unity.UIWidgets.rendering {
             D.assert(maxWidth >= 0.0);
             D.assert(maxHeight >= 0.0);
 
-            this._maxWidth = maxWidth;
-            this._maxHeight = maxHeight;
+            _maxWidth = maxWidth;
+            _maxHeight = maxHeight;
         }
 
         public float maxWidth {
-            get { return this._maxWidth; }
+            get { return _maxWidth; }
             set {
                 D.assert(value >= 0.0);
-                if (this._maxWidth == value) {
+                if (_maxWidth == value) {
                     return;
                 }
 
-                this._maxWidth = value;
-                this.markNeedsLayout();
+                _maxWidth = value;
+                markNeedsLayout();
             }
         }
 
         float _maxWidth;
 
         public float maxHeight {
-            get { return this._maxHeight; }
+            get { return _maxHeight; }
             set {
                 D.assert(value >= 0.0);
-                if (this._maxHeight == value) {
+                if (_maxHeight == value) {
                     return;
                 }
 
-                this._maxHeight = value;
-                this.markNeedsLayout();
+                _maxHeight = value;
+                markNeedsLayout();
             }
         }
 
@@ -219,45 +219,45 @@ namespace Unity.UIWidgets.rendering {
                 minWidth: constraints.minWidth,
                 maxWidth: constraints.hasBoundedWidth
                     ? constraints.maxWidth
-                    : constraints.constrainWidth(this.maxWidth),
+                    : constraints.constrainWidth(maxWidth),
                 minHeight: constraints.minHeight,
                 maxHeight: constraints.hasBoundedHeight
                     ? constraints.maxHeight
-                    : constraints.constrainHeight(this.maxHeight)
+                    : constraints.constrainHeight(maxHeight)
             );
         }
 
         protected override void performLayout() {
-            if (this.child != null) {
-                this.child.layout(this._limitConstraints(this.constraints), parentUsesSize: true);
-                this.size = this.constraints.constrain(this.child.size);
+            if (child != null) {
+                child.layout(_limitConstraints(constraints), parentUsesSize: true);
+                size = constraints.constrain(child.size);
             }
             else {
-                this.size = this._limitConstraints(this.constraints).constrain(Size.zero);
+                size = _limitConstraints(constraints).constrain(Size.zero);
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("maxWidth", this.maxWidth, defaultValue: float.PositiveInfinity));
-            properties.add(new FloatProperty("maxHeight", this.maxHeight, defaultValue: float.PositiveInfinity));
+            properties.add(new FloatProperty("maxWidth", maxWidth, defaultValue: float.PositiveInfinity));
+            properties.add(new FloatProperty("maxHeight", maxHeight, defaultValue: float.PositiveInfinity));
         }
     }
 
     public class RenderAspectRatio : RenderProxyBox {
         public RenderAspectRatio(float aspectRatio, RenderBox child = null) : base(child) {
-            this._aspectRatio = aspectRatio;
+            _aspectRatio = aspectRatio;
         }
 
         public float aspectRatio {
-            get { return this._aspectRatio; }
+            get { return _aspectRatio; }
             set {
-                if (this._aspectRatio == value) {
+                if (_aspectRatio == value) {
                     return;
                 }
 
-                this._aspectRatio = value;
-                this.markNeedsLayout();
+                _aspectRatio = value;
+                markNeedsLayout();
             }
         }
 
@@ -266,11 +266,11 @@ namespace Unity.UIWidgets.rendering {
 
         protected override float computeMinIntrinsicWidth(float height) {
             if (height.isFinite()) {
-                return height * this._aspectRatio;
+                return height * _aspectRatio;
             }
 
-            if (this.child != null) {
-                return this.child.getMinIntrinsicWidth(height);
+            if (child != null) {
+                return child.getMinIntrinsicWidth(height);
             }
 
             return 0.0f;
@@ -278,11 +278,11 @@ namespace Unity.UIWidgets.rendering {
 
         protected override float computeMaxIntrinsicWidth(float height) {
             if (height.isFinite()) {
-                return height * this._aspectRatio;
+                return height * _aspectRatio;
             }
 
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicWidth(height);
+            if (child != null) {
+                return child.getMaxIntrinsicWidth(height);
             }
 
             return 0.0f;
@@ -290,11 +290,11 @@ namespace Unity.UIWidgets.rendering {
 
         protected override float computeMinIntrinsicHeight(float width) {
             if (width.isFinite()) {
-                return width / this._aspectRatio;
+                return width / _aspectRatio;
             }
 
-            if (this.child != null) {
-                return this.child.getMinIntrinsicHeight(width);
+            if (child != null) {
+                return child.getMinIntrinsicHeight(width);
             }
 
             return 0.0f;
@@ -302,11 +302,11 @@ namespace Unity.UIWidgets.rendering {
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
             if (width.isFinite()) {
-                return width / this._aspectRatio;
+                return width / _aspectRatio;
             }
 
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicHeight(width);
+            if (child != null) {
+                return child.getMaxIntrinsicHeight(width);
             }
 
             return 0.0f;
@@ -319,41 +319,41 @@ namespace Unity.UIWidgets.rendering {
             }
 
             float width = constraints.maxWidth;
-            float height = width / this._aspectRatio;
+            float height = width / _aspectRatio;
 
             if (width > constraints.maxWidth) {
                 width = constraints.maxWidth;
-                height = width / this._aspectRatio;
+                height = width / _aspectRatio;
             }
 
             if (height > constraints.maxHeight) {
                 height = constraints.maxHeight;
-                width = height * this._aspectRatio;
+                width = height * _aspectRatio;
             }
 
             if (width < constraints.minWidth) {
                 width = constraints.minWidth;
-                height = width / this._aspectRatio;
+                height = width / _aspectRatio;
             }
 
             if (height < constraints.minHeight) {
                 height = constraints.minHeight;
-                width = height * this._aspectRatio;
+                width = height * _aspectRatio;
             }
 
             return constraints.constrain(new Size(width, height));
         }
 
         protected override void performLayout() {
-            this.size = this._applyAspectRatio(this.constraints);
-            if (this.child != null) {
-                this.child.layout(BoxConstraints.tight(this.size));
+            size = _applyAspectRatio(constraints);
+            if (child != null) {
+                child.layout(BoxConstraints.tight(size));
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("aspectRatio", this.aspectRatio));
+            properties.add(new FloatProperty("aspectRatio", aspectRatio));
         }
     }
 
@@ -365,37 +365,37 @@ namespace Unity.UIWidgets.rendering {
         ) : base(child) {
             D.assert(stepWidth == null || stepWidth > 0.0f);
             D.assert(stepHeight == null || stepHeight > 0.0f);
-            this._stepWidth = stepWidth;
-            this._stepHeight = stepHeight;
+            _stepWidth = stepWidth;
+            _stepHeight = stepHeight;
         }
 
         float? _stepWidth;
 
         public float? stepWidth {
-            get { return this._stepWidth; }
+            get { return _stepWidth; }
             set {
                 D.assert(value == null || value > 0.0f);
-                if (value == this._stepWidth) {
+                if (value == _stepWidth) {
                     return;
                 }
 
-                this._stepWidth = value;
-                this.markNeedsLayout();
+                _stepWidth = value;
+                markNeedsLayout();
             }
         }
 
         float? _stepHeight;
 
         public float? stepHeight {
-            get { return this._stepHeight; }
+            get { return _stepHeight; }
             set {
                 D.assert(value == null || value > 0.0f);
-                if (value == this._stepHeight) {
+                if (value == _stepHeight) {
                     return;
                 }
 
-                this._stepHeight = value;
-                this.markNeedsLayout();
+                _stepHeight = value;
+                markNeedsLayout();
             }
         }
 
@@ -409,73 +409,73 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            return this.computeMaxIntrinsicWidth(height);
+            return computeMaxIntrinsicWidth(height);
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            if (this.child == null) {
+            if (child == null) {
                 return 0.0f;
             }
 
-            float width = this.child.getMaxIntrinsicWidth(height);
-            return _applyStep(width, this._stepWidth);
+            float width = child.getMaxIntrinsicWidth(height);
+            return _applyStep(width, _stepWidth);
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            if (this.child == null) {
+            if (child == null) {
                 return 0.0f;
             }
 
             if (!width.isFinite()) {
-                width = this.computeMaxIntrinsicWidth(float.PositiveInfinity);
+                width = computeMaxIntrinsicWidth(float.PositiveInfinity);
             }
 
             D.assert(width.isFinite());
-            float height = this.child.getMinIntrinsicHeight(width);
-            return _applyStep(height, this._stepHeight);
+            float height = child.getMinIntrinsicHeight(width);
+            return _applyStep(height, _stepHeight);
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this.child == null) {
+            if (child == null) {
                 return 0.0f;
             }
 
             if (!width.isFinite()) {
-                width = this.computeMaxIntrinsicWidth(float.PositiveInfinity);
+                width = computeMaxIntrinsicWidth(float.PositiveInfinity);
             }
 
             D.assert(width.isFinite());
-            float height = this.child.getMaxIntrinsicHeight(width);
-            return _applyStep(height, this._stepHeight);
+            float height = child.getMaxIntrinsicHeight(width);
+            return _applyStep(height, _stepHeight);
         }
 
         protected override void performLayout() {
-            if (this.child != null) {
-                BoxConstraints childConstraints = this.constraints;
+            if (child != null) {
+                BoxConstraints childConstraints = constraints;
                 if (!childConstraints.hasTightWidth) {
-                    float width = this.child.getMaxIntrinsicWidth(childConstraints.maxHeight);
+                    float width = child.getMaxIntrinsicWidth(childConstraints.maxHeight);
                     D.assert(width.isFinite());
-                    childConstraints = childConstraints.tighten(width: _applyStep(width, this._stepWidth));
+                    childConstraints = childConstraints.tighten(width: _applyStep(width, _stepWidth));
                 }
 
-                if (this._stepHeight != null) {
-                    float height = this.child.getMaxIntrinsicHeight(childConstraints.maxWidth);
+                if (_stepHeight != null) {
+                    float height = child.getMaxIntrinsicHeight(childConstraints.maxWidth);
                     D.assert(height.isFinite());
-                    childConstraints = childConstraints.tighten(height: _applyStep(height, this._stepHeight));
+                    childConstraints = childConstraints.tighten(height: _applyStep(height, _stepHeight));
                 }
 
-                this.child.layout(childConstraints, parentUsesSize: true);
-                this.size = this.child.size;
+                child.layout(childConstraints, parentUsesSize: true);
+                size = child.size;
             }
             else {
-                this.performResize();
+                performResize();
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("stepWidth", this.stepWidth));
-            properties.add(new FloatProperty("stepHeight", this.stepHeight));
+            properties.add(new FloatProperty("stepWidth", stepWidth));
+            properties.add(new FloatProperty("stepHeight", stepHeight));
         }
     }
 
@@ -486,49 +486,49 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            if (this.child == null) {
+            if (child == null) {
                 return 0.0f;
             }
 
             if (!height.isFinite()) {
-                height = this.child.getMaxIntrinsicHeight(float.PositiveInfinity);
+                height = child.getMaxIntrinsicHeight(float.PositiveInfinity);
             }
 
             D.assert(height.isFinite());
-            return this.child.getMinIntrinsicWidth(height);
+            return child.getMinIntrinsicWidth(height);
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            if (this.child == null) {
+            if (child == null) {
                 return 0.0f;
             }
 
             if (!height.isFinite()) {
-                height = this.child.getMaxIntrinsicHeight(float.PositiveInfinity);
+                height = child.getMaxIntrinsicHeight(float.PositiveInfinity);
             }
 
             D.assert(height.isFinite());
-            return this.child.getMaxIntrinsicWidth(height);
+            return child.getMaxIntrinsicWidth(height);
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            return this.computeMaxIntrinsicHeight(width);
+            return computeMaxIntrinsicHeight(width);
         }
 
         protected override void performLayout() {
-            if (this.child != null) {
-                BoxConstraints childConstraints = this.constraints;
+            if (child != null) {
+                BoxConstraints childConstraints = constraints;
                 if (!childConstraints.hasTightHeight) {
-                    float height = this.child.getMaxIntrinsicHeight(childConstraints.maxWidth);
+                    float height = child.getMaxIntrinsicHeight(childConstraints.maxWidth);
                     D.assert(height.isFinite());
                     childConstraints = childConstraints.tighten(height: height);
                 }
 
-                this.child.layout(childConstraints, parentUsesSize: true);
-                this.size = this.child.size;
+                child.layout(childConstraints, parentUsesSize: true);
+                size = child.size;
             }
             else {
-                this.performResize();
+                performResize();
             }
         }
     }
@@ -536,12 +536,12 @@ namespace Unity.UIWidgets.rendering {
     public class RenderOpacity : RenderProxyBox {
         public RenderOpacity(float opacity = 1.0f, RenderBox child = null) : base(child) {
             D.assert(opacity >= 0.0 && opacity <= 1.0);
-            this._opacity = opacity;
-            this._alpha = _getAlphaFromOpacity(opacity);
+            _opacity = opacity;
+            _alpha = _getAlphaFromOpacity(opacity);
         }
 
         protected override bool alwaysNeedsCompositing {
-            get { return this.child != null && (this._alpha != 0 && this._alpha != 255); }
+            get { return child != null && (_alpha != 0 && _alpha != 255); }
         }
 
         int _alpha;
@@ -553,45 +553,45 @@ namespace Unity.UIWidgets.rendering {
         float _opacity;
 
         public float opacity {
-            get { return this._opacity; }
+            get { return _opacity; }
             set {
                 D.assert(value >= 0.0 && value <= 1.0);
-                if (this._opacity == value) {
+                if (_opacity == value) {
                     return;
                 }
 
-                bool didNeedCompositing = this.alwaysNeedsCompositing;
+                bool didNeedCompositing = alwaysNeedsCompositing;
 
-                this._opacity = value;
-                this._alpha = _getAlphaFromOpacity(this._opacity);
+                _opacity = value;
+                _alpha = _getAlphaFromOpacity(_opacity);
 
-                if (didNeedCompositing != this.alwaysNeedsCompositing) {
-                    this.markNeedsCompositingBitsUpdate();
+                if (didNeedCompositing != alwaysNeedsCompositing) {
+                    markNeedsCompositingBitsUpdate();
                 }
 
-                this.markNeedsPaint();
+                markNeedsPaint();
             }
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                if (this._alpha == 0) {
+            if (child != null) {
+                if (_alpha == 0) {
                     return;
                 }
             }
 
-            if (this._alpha == 255) {
-                context.paintChild(this.child, offset);
+            if (_alpha == 255) {
+                context.paintChild(child, offset);
                 return;
             }
 
-            D.assert(this.needsCompositing);
-            context.pushOpacity(offset, this._alpha, base.paint);
+            D.assert(needsCompositing);
+            context.pushOpacity(offset, _alpha, base.paint);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("opacity", this.opacity));
+            properties.add(new FloatProperty("opacity", opacity));
         }
     }
 
@@ -608,7 +608,7 @@ namespace Unity.UIWidgets.rendering {
         int _alpha;
 
         protected override bool alwaysNeedsCompositing {
-            get { return this.child != null && this._currentlyNeedsCompositing; }
+            get { return child != null && _currentlyNeedsCompositing; }
         }
 
         bool _currentlyNeedsCompositing;
@@ -616,71 +616,71 @@ namespace Unity.UIWidgets.rendering {
         Animation<float> _opacity;
 
         public Animation<float> opacity {
-            get { return this._opacity; }
+            get { return _opacity; }
             set {
                 D.assert(value != null);
-                if (this._opacity == value) {
+                if (_opacity == value) {
                     return;
                 }
 
-                if (this.attached && this._opacity != null) {
-                    this._opacity.removeListener(this._updateOpacity);
+                if (attached && _opacity != null) {
+                    _opacity.removeListener(_updateOpacity);
                 }
 
-                this._opacity = value;
-                if (this.attached) {
-                    this._opacity.addListener(this._updateOpacity);
+                _opacity = value;
+                if (attached) {
+                    _opacity.addListener(_updateOpacity);
                 }
 
-                this._updateOpacity();
+                _updateOpacity();
             }
         }
 
 
         public override void attach(object owner) {
             base.attach(owner);
-            this._opacity.addListener(this._updateOpacity);
-            this._updateOpacity(); // in case it changed while we weren't listening
+            _opacity.addListener(_updateOpacity);
+            _updateOpacity(); // in case it changed while we weren't listening
         }
 
         public override void detach() {
-            this._opacity.removeListener(this._updateOpacity);
+            _opacity.removeListener(_updateOpacity);
             base.detach();
         }
 
         public void _updateOpacity() {
-            var oldAlpha = this._alpha;
-            this._alpha = RenderOpacity._getAlphaFromOpacity(this._opacity.value.clamp(0.0f, 1.0f));
-            if (oldAlpha != this._alpha) {
-                bool didNeedCompositing = this._currentlyNeedsCompositing;
-                this._currentlyNeedsCompositing = this._alpha > 0 && this._alpha < 255;
-                if (this.child != null && didNeedCompositing != this._currentlyNeedsCompositing) {
-                    this.markNeedsCompositingBitsUpdate();
+            var oldAlpha = _alpha;
+            _alpha = RenderOpacity._getAlphaFromOpacity(_opacity.value.clamp(0.0f, 1.0f));
+            if (oldAlpha != _alpha) {
+                bool didNeedCompositing = _currentlyNeedsCompositing;
+                _currentlyNeedsCompositing = _alpha > 0 && _alpha < 255;
+                if (child != null && didNeedCompositing != _currentlyNeedsCompositing) {
+                    markNeedsCompositingBitsUpdate();
                 }
 
-                this.markNeedsPaint();
+                markNeedsPaint();
             }
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                if (this._alpha == 0) {
+            if (child != null) {
+                if (_alpha == 0) {
                     return;
                 }
 
-                if (this._alpha == 255) {
-                    context.paintChild(this.child, offset);
+                if (_alpha == 255) {
+                    context.paintChild(child, offset);
                     return;
                 }
 
-                D.assert(this.needsCompositing);
-                context.pushOpacity(offset, this._alpha, base.paint);
+                D.assert(needsCompositing);
+                context.pushOpacity(offset, _alpha, base.paint);
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Animation<float>>("opacity", this.opacity));
+            properties.add(new DiagnosticsProperty<Animation<float>>("opacity", opacity));
         }
     }
 
@@ -690,38 +690,38 @@ namespace Unity.UIWidgets.rendering {
             ImageFilter filter = null
         ) : base(child) {
             D.assert(filter != null);
-            this._filter = filter;
+            _filter = filter;
         }
 
         ImageFilter _filter;
 
         public ImageFilter filter {
-            get { return this._filter; }
+            get { return _filter; }
             set {
                 D.assert(value != null);
-                if (this._filter == value) {
+                if (_filter == value) {
                     return;
                 }
 
-                this.markNeedsPaint();
+                markNeedsPaint();
             }
         }
 
         protected override bool alwaysNeedsCompositing {
-            get { return this.child != null; }
+            get { return child != null; }
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                D.assert(this.needsCompositing);
-                context.pushLayer(new BackdropFilterLayer(this.filter), base.paint, offset);
+            if (child != null) {
+                D.assert(needsCompositing);
+                context.pushLayer(new BackdropFilterLayer(filter), base.paint, offset);
             }
         }
     }
 
     public abstract class CustomClipper<T> {
         public CustomClipper(Listenable reclip = null) {
-            this._reclip = reclip;
+            _reclip = reclip;
         }
 
         public readonly Listenable _reclip;
@@ -735,7 +735,7 @@ namespace Unity.UIWidgets.rendering {
         public abstract bool shouldReclip(CustomClipper<T> oldClipper);
 
         public override string ToString() {
-            return this.GetType() + "";
+            return GetType() + "";
         }
     }
 
@@ -749,16 +749,16 @@ namespace Unity.UIWidgets.rendering {
         public readonly ShapeBorder shape;
 
         public override Path getClip(Size size) {
-            return this.shape.getOuterPath(Offset.zero & size);
+            return shape.getOuterPath(Offset.zero & size);
         }
 
         public override bool shouldReclip(CustomClipper<Path> oldClipper) {
-            if (oldClipper.GetType() != this.GetType()) {
+            if (oldClipper.GetType() != GetType()) {
                 return true;
             }
 
             ShapeBorderClipper typedOldClipper = (ShapeBorderClipper) oldClipper;
-            return typedOldClipper.shape != this.shape;
+            return typedOldClipper.shape != shape;
         }
     }
 
@@ -768,28 +768,28 @@ namespace Unity.UIWidgets.rendering {
             CustomClipper<T> clipper = null,
             Clip clipBehavior = Clip.antiAlias) : base(child: child) {
             this.clipBehavior = clipBehavior;
-            this._clipper = clipper;
+            _clipper = clipper;
         }
 
         public CustomClipper<T> clipper {
-            get { return this._clipper; }
+            get { return _clipper; }
             set {
-                if (this._clipper == value) {
+                if (_clipper == value) {
                     return;
                 }
 
-                CustomClipper<T> oldClipper = this._clipper;
-                this._clipper = value;
+                CustomClipper<T> oldClipper = _clipper;
+                _clipper = value;
                 D.assert(value != null || oldClipper != null);
                 if (value == null || oldClipper == null ||
                     value.GetType() != oldClipper.GetType() ||
                     value.shouldReclip(oldClipper)) {
-                    this._markNeedsClip();
+                    _markNeedsClip();
                 }
 
-                if (this.attached) {
-                    oldClipper?._reclip?.removeListener(this._markNeedsClip);
-                    value?._reclip?.addListener(this._markNeedsClip);
+                if (attached) {
+                    oldClipper?._reclip?.removeListener(_markNeedsClip);
+                    value?._reclip?.addListener(_markNeedsClip);
                 }
             }
         }
@@ -798,17 +798,17 @@ namespace Unity.UIWidgets.rendering {
 
         public override void attach(object owner) {
             base.attach(owner);
-            this._clipper?._reclip?.addListener(this._markNeedsClip);
+            _clipper?._reclip?.addListener(_markNeedsClip);
         }
 
         public override void detach() {
-            this._clipper?._reclip?.removeListener(this._markNeedsClip);
+            _clipper?._reclip?.removeListener(_markNeedsClip);
             base.detach();
         }
 
         protected void _markNeedsClip() {
-            this._clip = null;
-            this.markNeedsPaint();
+            _clip = null;
+            markNeedsPaint();
         }
 
         protected abstract T _defaultClip { get; }
@@ -817,19 +817,19 @@ namespace Unity.UIWidgets.rendering {
         public readonly Clip clipBehavior;
 
         protected override void performLayout() {
-            Size oldSize = this.hasSize ? this.size : null;
+            Size oldSize = hasSize ? size : null;
             base.performLayout();
-            if (oldSize != this.size) {
-                this._clip = null;
+            if (oldSize != size) {
+                _clip = null;
             }
         }
 
         protected void _updateClip() {
-            this._clip = this._clip ?? this._clipper?.getClip(this.size) ?? this._defaultClip;
+            _clip = _clip ?? _clipper?.getClip(size) ?? _defaultClip;
         }
 
         public override Rect describeApproximatePaintClip(RenderObject child) {
-            return this._clipper?.getApproximateClipRect(this.size) ?? Offset.zero & this.size;
+            return _clipper?.getApproximateClipRect(size) ?? Offset.zero & size;
         }
 
         protected Paint _debugPaint;
@@ -837,28 +837,28 @@ namespace Unity.UIWidgets.rendering {
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {
             D.assert(() => {
-                if (this._debugPaint == null) {
-                    this._debugPaint = new Paint();
-                    this._debugPaint.shader = Gradient.linear(
+                if (_debugPaint == null) {
+                    _debugPaint = new Paint();
+                    _debugPaint.shader = Gradient.linear(
                         new Offset(0.0f, 0.0f),
                         new Offset(10.0f, 10.0f),
                         new List<Color> {
                             new Color(0x00000000),
                             new Color(0xFFFF00FF),
                         }, null, TileMode.repeated);
-                    this._debugPaint.strokeWidth = 2.0f;
-                    this._debugPaint.style = PaintingStyle.stroke;
+                    _debugPaint.strokeWidth = 2.0f;
+                    _debugPaint.style = PaintingStyle.stroke;
                 }
 
-                if (this._debugText == null) {
-                    this._debugText = new TextPainter(
+                if (_debugText == null) {
+                    _debugText = new TextPainter(
                         text: new TextSpan(
                             text: "x",
                             style: new TextStyle(
                                 color: new Color(0xFFFF00FF),
                                 fontSize: 14.0f)
                         ));
-                    this._debugText.layout();
+                    _debugText.layout();
                 }
 
                 return true;
@@ -878,14 +878,14 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override Rect _defaultClip {
-            get { return Offset.zero & this.size; }
+            get { return Offset.zero & size; }
         }
 
         public override bool hitTest(HitTestResult result, Offset position = null) {
-            if (this._clipper != null) {
-                this._updateClip();
-                D.assert(this._clip != null);
-                if (!this._clip.contains(position)) {
+            if (_clipper != null) {
+                _updateClip();
+                D.assert(_clip != null);
+                if (!_clip.contains(position)) {
                     return false;
                 }
             }
@@ -894,21 +894,21 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                this._updateClip();
-                context.pushClipRect(this.needsCompositing, offset, this._clip,
-                    base.paint, clipBehavior: this.clipBehavior);
+            if (child != null) {
+                _updateClip();
+                context.pushClipRect(needsCompositing, offset, _clip,
+                    base.paint, clipBehavior: clipBehavior);
             }
         }
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {
             D.assert(() => {
-                if (this.child != null) {
+                if (child != null) {
                     base.debugPaintSize(context, offset);
-                    context.canvas.drawRect(this._clip.shift(offset), this._debugPaint);
-                    this._debugText.paint(context.canvas,
-                        offset + new Offset(this._clip.width / 8.0f,
-                            -(this._debugText.text.style.fontSize ?? 0.0f) * 1.1f));
+                    context.canvas.drawRect(_clip.shift(offset), _debugPaint);
+                    _debugText.paint(context.canvas,
+                        offset + new Offset(_clip.width / 8.0f,
+                            -(_debugText.text.style.fontSize ?? 0.0f) * 1.1f));
                 }
 
                 return true;
@@ -925,34 +925,34 @@ namespace Unity.UIWidgets.rendering {
             Clip clipBehavior = Clip.antiAlias
         ) : base(child: child, clipper: clipper, clipBehavior: clipBehavior) {
             D.assert(clipBehavior != Clip.none);
-            this._borderRadius = borderRadius ?? BorderRadius.zero;
-            D.assert(this._borderRadius != null || clipper != null);
+            _borderRadius = borderRadius ?? BorderRadius.zero;
+            D.assert(_borderRadius != null || clipper != null);
         }
 
         public BorderRadius borderRadius {
-            get { return this._borderRadius; }
+            get { return _borderRadius; }
             set {
                 D.assert(value != null);
-                if (this._borderRadius == value) {
+                if (_borderRadius == value) {
                     return;
                 }
 
-                this._borderRadius = value;
-                this._markNeedsClip();
+                _borderRadius = value;
+                _markNeedsClip();
             }
         }
 
         BorderRadius _borderRadius;
 
         protected override RRect _defaultClip {
-            get { return this._borderRadius.toRRect(Offset.zero & this.size); }
+            get { return _borderRadius.toRRect(Offset.zero & size); }
         }
 
         public override bool hitTest(HitTestResult result, Offset position = null) {
-            if (this._clipper != null) {
-                this._updateClip();
-                D.assert(this._clip != null);
-                if (!this._clip.contains(position)) {
+            if (_clipper != null) {
+                _updateClip();
+                D.assert(_clip != null);
+                if (!_clip.contains(position)) {
                     return false;
                 }
             }
@@ -961,21 +961,21 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                this._updateClip();
-                context.pushClipRRect(this.needsCompositing, offset, this._clip.outerRect, this._clip,
-                    base.paint, clipBehavior: this.clipBehavior);
+            if (child != null) {
+                _updateClip();
+                context.pushClipRRect(needsCompositing, offset, _clip.outerRect, _clip,
+                    base.paint, clipBehavior: clipBehavior);
             }
         }
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {
             D.assert(() => {
-                if (this.child != null) {
+                if (child != null) {
                     base.debugPaintSize(context, offset);
-                    context.canvas.drawRRect(this._clip.shift(offset), this._debugPaint);
-                    this._debugText.paint(context.canvas,
-                        offset + new Offset(this._clip.tlRadiusX,
-                            -(this._debugText.text.style.fontSize ?? 0.0f) * 1.1f));
+                    context.canvas.drawRRect(_clip.shift(offset), _debugPaint);
+                    _debugText.paint(context.canvas,
+                        offset + new Offset(_clip.tlRadiusX,
+                            -(_debugText.text.style.fontSize ?? 0.0f) * 1.1f));
                 }
 
                 return true;
@@ -996,27 +996,27 @@ namespace Unity.UIWidgets.rendering {
         Path _cachedPath;
 
         Path _getClipPath(Rect rect) {
-            if (rect != this._cachedRect) {
-                this._cachedRect = rect;
-                this._cachedPath = new Path();
-                this._cachedPath.addOval(this._cachedRect);
+            if (rect != _cachedRect) {
+                _cachedRect = rect;
+                _cachedPath = new Path();
+                _cachedPath.addOval(_cachedRect);
             }
 
-            return this._cachedPath;
+            return _cachedPath;
         }
 
         protected override Rect _defaultClip {
-            get { return Offset.zero & this.size; }
+            get { return Offset.zero & size; }
         }
 
         public override bool hitTest(HitTestResult result,
             Offset position = null
         ) {
-            this._updateClip();
-            D.assert(this._clip != null);
-            Offset center = this._clip.center;
-            Offset offset = new Offset((position.dx - center.dx) / this._clip.width,
-                (position.dy - center.dy) / this._clip.height);
+            _updateClip();
+            D.assert(_clip != null);
+            Offset center = _clip.center;
+            Offset offset = new Offset((position.dx - center.dx) / _clip.width,
+                (position.dy - center.dy) / _clip.height);
             if (offset.distanceSquared > 0.25f) {
                 return false;
             }
@@ -1025,21 +1025,21 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                this._updateClip();
-                context.pushClipPath(this.needsCompositing, offset, this._clip, this._getClipPath(this._clip),
-                    base.paint, clipBehavior: this.clipBehavior);
+            if (child != null) {
+                _updateClip();
+                context.pushClipPath(needsCompositing, offset, _clip, _getClipPath(_clip),
+                    base.paint, clipBehavior: clipBehavior);
             }
         }
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {
             D.assert(() => {
-                if (this.child != null) {
+                if (child != null) {
                     base.debugPaintSize(context, offset);
-                    context.canvas.drawPath(this._getClipPath(this._clip).shift(offset), this._debugPaint);
-                    this._debugText.paint(context.canvas,
-                        offset + new Offset((this._clip.width - this._debugText.width) / 2.0f,
-                            -this._debugText.text.style.fontSize * 1.1f ?? 0.0f));
+                    context.canvas.drawPath(_getClipPath(_clip).shift(offset), _debugPaint);
+                    _debugText.paint(context.canvas,
+                        offset + new Offset((_clip.width - _debugText.width) / 2.0f,
+                            -_debugText.text.style.fontSize * 1.1f ?? 0.0f));
                 }
 
                 return true;
@@ -1059,7 +1059,7 @@ namespace Unity.UIWidgets.rendering {
         protected override Path _defaultClip {
             get {
                 var path = new Path();
-                path.addRect(Offset.zero & this.size);
+                path.addRect(Offset.zero & size);
                 return path;
             }
         }
@@ -1067,10 +1067,10 @@ namespace Unity.UIWidgets.rendering {
         public override bool hitTest(HitTestResult result, Offset position = null) {
             D.assert(position != null);
 
-            if (this._clipper != null) {
-                this._updateClip();
-                D.assert(this._clip != null);
-                if (!this._clip.contains(position)) {
+            if (_clipper != null) {
+                _updateClip();
+                D.assert(_clip != null);
+                if (!_clip.contains(position)) {
                     return false;
                 }
             }
@@ -1080,21 +1080,21 @@ namespace Unity.UIWidgets.rendering {
 
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                this._updateClip();
-                context.pushClipPath(this.needsCompositing, offset, Offset.zero & this.size,
-                    this._clip, base.paint, clipBehavior: this.clipBehavior);
+            if (child != null) {
+                _updateClip();
+                context.pushClipPath(needsCompositing, offset, Offset.zero & size,
+                    _clip, base.paint, clipBehavior: clipBehavior);
             }
         }
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {
             D.assert(() => {
-                if (this.child != null) {
+                if (child != null) {
                     base.debugPaintSize(context, offset);
                     Path offsetPath = new Path();
-                    offsetPath.addPath(this._clip, offset);
-                    context.canvas.drawPath(offsetPath, this._debugPaint);
-                    this._debugText.paint(context.canvas, offset);
+                    offsetPath.addPath(_clip, offset);
+                    context.canvas.drawPath(offsetPath, _debugPaint);
+                    _debugText.paint(context.canvas, offset);
                 }
 
                 return true;
@@ -1114,56 +1114,56 @@ namespace Unity.UIWidgets.rendering {
             D.assert(elevation != null && elevation >= 0.0f);
             D.assert(color != null);
             D.assert(shadowColor != null);
-            this._elevation = elevation ?? 0.0f;
-            this._color = color;
-            this._shadowColor = shadowColor;
+            _elevation = elevation ?? 0.0f;
+            _color = color;
+            _shadowColor = shadowColor;
         }
 
         public float elevation {
-            get { return this._elevation; }
+            get { return _elevation; }
             set {
                 D.assert(value >= 0.0f);
-                if (this.elevation == value) {
+                if (elevation == value) {
                     return;
                 }
 
-                bool didNeedCompositing = this.alwaysNeedsCompositing;
-                this._elevation = value;
-                if (didNeedCompositing != this.alwaysNeedsCompositing) {
-                    this.markNeedsCompositingBitsUpdate();
+                bool didNeedCompositing = alwaysNeedsCompositing;
+                _elevation = value;
+                if (didNeedCompositing != alwaysNeedsCompositing) {
+                    markNeedsCompositingBitsUpdate();
                 }
 
-                this.markNeedsPaint();
+                markNeedsPaint();
             }
         }
 
         float _elevation;
 
         public Color shadowColor {
-            get { return this._shadowColor; }
+            get { return _shadowColor; }
             set {
                 D.assert(value != null);
-                if (this.shadowColor == value) {
+                if (shadowColor == value) {
                     return;
                 }
 
-                this._shadowColor = value;
-                this.markNeedsPaint();
+                _shadowColor = value;
+                markNeedsPaint();
             }
         }
 
         Color _shadowColor;
 
         public Color color {
-            get { return this._color; }
+            get { return _color; }
             set {
                 D.assert(value != null);
-                if (this.color == value) {
+                if (color == value) {
                     return;
                 }
 
-                this._color = value;
-                this.markNeedsPaint();
+                _color = value;
+                markNeedsPaint();
             }
         }
 
@@ -1175,9 +1175,9 @@ namespace Unity.UIWidgets.rendering {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new FloatProperty("elevation", this.elevation));
-            description.add(new DiagnosticsProperty<Color>("color", this.color));
-            description.add(new DiagnosticsProperty<Color>("shadowColor", this.shadowColor));
+            description.add(new FloatProperty("elevation", elevation));
+            description.add(new DiagnosticsProperty<Color>("color", color));
+            description.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor));
         }
     }
 
@@ -1194,33 +1194,33 @@ namespace Unity.UIWidgets.rendering {
             shadowColor: shadowColor ?? new Color(0xFF000000)) {
             D.assert(color != null);
             D.assert(elevation != null && elevation >= 0.0f);
-            this._shape = shape;
-            this._borderRadius = borderRadius;
+            _shape = shape;
+            _borderRadius = borderRadius;
         }
 
         public BoxShape shape {
-            get { return this._shape; }
+            get { return _shape; }
             set {
-                if (this.shape == value) {
+                if (shape == value) {
                     return;
                 }
 
-                this._shape = value;
-                this._markNeedsClip();
+                _shape = value;
+                _markNeedsClip();
             }
         }
 
         BoxShape _shape;
 
         public BorderRadius borderRadius {
-            get { return this._borderRadius; }
+            get { return _borderRadius; }
             set {
-                if (this.borderRadius == value) {
+                if (borderRadius == value) {
                     return;
                 }
 
-                this._borderRadius = value;
-                this._markNeedsClip();
+                _borderRadius = value;
+                _markNeedsClip();
             }
         }
 
@@ -1228,12 +1228,12 @@ namespace Unity.UIWidgets.rendering {
 
         protected override RRect _defaultClip {
             get {
-                D.assert(this.hasSize);
-                switch (this._shape) {
+                D.assert(hasSize);
+                switch (_shape) {
                     case BoxShape.rectangle:
-                        return (this.borderRadius ?? BorderRadius.zero).toRRect(Offset.zero & this.size);
+                        return (borderRadius ?? BorderRadius.zero).toRRect(Offset.zero & size);
                     case BoxShape.circle:
-                        Rect rect = Offset.zero & this.size;
+                        Rect rect = Offset.zero & size;
                         return RRect.fromRectXY(rect, rect.width / 2, rect.height / 2);
                 }
 
@@ -1242,10 +1242,10 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override bool hitTest(HitTestResult result, Offset position = null) {
-            if (this._clipper != null) {
-                this._updateClip();
-                D.assert(this._clip != null);
-                if (!this._clip.contains(position)) {
+            if (_clipper != null) {
+                _updateClip();
+                D.assert(_clip != null);
+                if (!_clip.contains(position)) {
                     return false;
                 }
             }
@@ -1255,21 +1255,21 @@ namespace Unity.UIWidgets.rendering {
 
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                this._updateClip();
-                RRect offsetRRect = this._clip.shift(offset);
+            if (child != null) {
+                _updateClip();
+                RRect offsetRRect = _clip.shift(offset);
                 Rect offsetBounds = offsetRRect.outerRect;
                 Path offsetRRectAsPath = new Path();
                 offsetRRectAsPath.addRRect(offsetRRect);
 
                 PhysicalModelLayer physicalModel = new PhysicalModelLayer(
                     clipPath: offsetRRectAsPath,
-                    clipBehavior: this.clipBehavior,
-                    elevation: this.elevation,
-                    color: this.color,
-                    shadowColor: this.shadowColor);
+                    clipBehavior: clipBehavior,
+                    elevation: elevation,
+                    color: color,
+                    shadowColor: shadowColor);
                 D.assert(() => {
-                    physicalModel.debugCreator = this.debugCreator;
+                    physicalModel.debugCreator = debugCreator;
                     return true;
                 });
                 context.pushLayer(physicalModel, base.paint, offset, childPaintBounds: offsetBounds);
@@ -1278,8 +1278,8 @@ namespace Unity.UIWidgets.rendering {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new DiagnosticsProperty<BoxShape>("shape", this.shape));
-            description.add(new DiagnosticsProperty<BorderRadius>("borderRadius", this.borderRadius));
+            description.add(new DiagnosticsProperty<BoxShape>("shape", shape));
+            description.add(new DiagnosticsProperty<BorderRadius>("borderRadius", borderRadius));
         }
     }
 
@@ -1305,16 +1305,16 @@ namespace Unity.UIWidgets.rendering {
         protected override Path _defaultClip {
             get {
                 Path path = new Path();
-                path.addRect(Offset.zero & this.size);
+                path.addRect(Offset.zero & size);
                 return path;
             }
         }
 
         public override bool hitTest(HitTestResult result, Offset position = null) {
-            if (this._clipper != null) {
-                this._updateClip();
-                D.assert(this._clip != null);
-                if (!this._clip.contains(position)) {
+            if (_clipper != null) {
+                _updateClip();
+                D.assert(_clip != null);
+                if (!_clip.contains(position)) {
                     return false;
                 }
             }
@@ -1324,18 +1324,18 @@ namespace Unity.UIWidgets.rendering {
 
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                this._updateClip();
-                Rect offsetBounds = offset & this.size;
+            if (child != null) {
+                _updateClip();
+                Rect offsetBounds = offset & size;
                 Path offsetPath = new Path();
-                offsetPath.addPath(this._clip, offset);
+                offsetPath.addPath(_clip, offset);
 
                 PhysicalModelLayer physicalModel = new PhysicalModelLayer(
                     clipPath: offsetPath,
-                    clipBehavior: this.clipBehavior,
-                    elevation: this.elevation,
-                    color: this.color,
-                    shadowColor: this.shadowColor);
+                    clipBehavior: clipBehavior,
+                    elevation: elevation,
+                    color: color,
+                    shadowColor: shadowColor);
                 context.pushLayer(physicalModel, base.paint, offset, childPaintBounds: offsetBounds);
             }
         }
@@ -1343,7 +1343,7 @@ namespace Unity.UIWidgets.rendering {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new DiagnosticsProperty<CustomClipper<Path>>("clipper", this.clipper));
+            description.add(new DiagnosticsProperty<CustomClipper<Path>>("clipper", clipper));
         }
     }
 
@@ -1360,116 +1360,116 @@ namespace Unity.UIWidgets.rendering {
             RenderBox child = null
         ) : base(child) {
             D.assert(decoration != null);
-            this._decoration = decoration;
-            this._position = position;
-            this._configuration = configuration ?? ImageConfiguration.empty;
+            _decoration = decoration;
+            _position = position;
+            _configuration = configuration ?? ImageConfiguration.empty;
         }
 
         BoxPainter _painter;
 
         public Decoration decoration {
-            get { return this._decoration; }
+            get { return _decoration; }
             set {
                 D.assert(value != null);
-                if (value == this._decoration) {
+                if (value == _decoration) {
                     return;
                 }
 
-                if (this._painter != null) {
-                    this._painter.Dispose();
-                    this._painter = null;
+                if (_painter != null) {
+                    _painter.Dispose();
+                    _painter = null;
                 }
 
-                this._decoration = value;
-                this.markNeedsPaint();
+                _decoration = value;
+                markNeedsPaint();
             }
         }
 
         Decoration _decoration;
 
         public DecorationPosition position {
-            get { return this._position; }
+            get { return _position; }
             set {
-                if (value == this._position) {
+                if (value == _position) {
                     return;
                 }
 
-                this._position = value;
-                this.markNeedsPaint();
+                _position = value;
+                markNeedsPaint();
             }
         }
 
         DecorationPosition _position;
 
         public ImageConfiguration configuration {
-            get { return this._configuration; }
+            get { return _configuration; }
             set {
                 D.assert(value != null);
-                if (value == this._configuration) {
+                if (value == _configuration) {
                     return;
                 }
 
-                this._configuration = value;
-                this.markNeedsPaint();
+                _configuration = value;
+                markNeedsPaint();
             }
         }
 
         ImageConfiguration _configuration;
 
         public override void detach() {
-            if (this._painter != null) {
-                this._painter.Dispose();
-                this._painter = null;
+            if (_painter != null) {
+                _painter.Dispose();
+                _painter = null;
             }
 
             base.detach();
-            this.markNeedsPaint();
+            markNeedsPaint();
         }
 
         protected override bool hitTestSelf(Offset position) {
-            return this._decoration.hitTest(this.size, position);
+            return _decoration.hitTest(size, position);
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            this._painter = this._painter ?? this._decoration.createBoxPainter(this.markNeedsPaint);
-            var filledConfiguration = this.configuration.copyWith(size: this.size);
+            _painter = _painter ?? _decoration.createBoxPainter(markNeedsPaint);
+            var filledConfiguration = configuration.copyWith(size: size);
 
-            if (this.position == DecorationPosition.background) {
+            if (position == DecorationPosition.background) {
                 int debugSaveCount = 0;
                 D.assert(() => {
                     debugSaveCount = context.canvas.getSaveCount();
                     return true;
                 });
 
-                this._painter.paint(context.canvas, offset, filledConfiguration);
+                _painter.paint(context.canvas, offset, filledConfiguration);
 
                 D.assert(() => {
                     if (debugSaveCount != context.canvas.getSaveCount()) {
                         throw new UIWidgetsError(
-                            this._decoration.GetType() + " painter had mismatching save and restore calls.\n" +
+                            _decoration.GetType() + " painter had mismatching save and restore calls.\n" +
                             "Before painting the decoration, the canvas save count was $debugSaveCount. " +
                             "After painting it, the canvas save count was " + context.canvas.getSaveCount() + ". " +
                             "Every call to save() or saveLayer() must be matched by a call to restore().\n" +
                             "The decoration was:\n" +
-                            "  " + this.decoration + "\n" +
+                            "  " + decoration + "\n" +
                             "The painter was:\n" +
-                            "  " + this._painter
+                            "  " + _painter
                         );
                     }
 
                     return true;
                 });
 
-                if (this.decoration.isComplex) {
+                if (decoration.isComplex) {
                     context.setIsComplexHint();
                 }
             }
 
             base.paint(context, offset);
 
-            if (this.position == DecorationPosition.foreground) {
-                this._painter.paint(context.canvas, offset, filledConfiguration);
-                if (this.decoration.isComplex) {
+            if (position == DecorationPosition.foreground) {
+                _painter.paint(context.canvas, offset, filledConfiguration);
+                if (decoration.isComplex) {
                     context.setIsComplexHint();
                 }
             }
@@ -1477,8 +1477,8 @@ namespace Unity.UIWidgets.rendering {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(this._decoration.toDiagnosticsNode(name: "decoration"));
-            properties.add(new DiagnosticsProperty<ImageConfiguration>("configuration", this.configuration));
+            properties.add(_decoration.toDiagnosticsNode(name: "decoration"));
+            properties.add(new DiagnosticsProperty<ImageConfiguration>("configuration", configuration));
         }
     }
 
@@ -1497,28 +1497,28 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public Offset origin {
-            get { return this._origin; }
+            get { return _origin; }
             set {
-                if (this._origin == value) {
+                if (_origin == value) {
                     return;
                 }
 
-                this._origin = value;
-                this.markNeedsPaint();
+                _origin = value;
+                markNeedsPaint();
             }
         }
 
         Offset _origin;
 
         public Alignment alignment {
-            get { return this._alignment; }
+            get { return _alignment; }
             set {
-                if (this._alignment == value) {
+                if (_alignment == value) {
                     return;
                 }
 
-                this._alignment = value;
-                this.markNeedsPaint();
+                _alignment = value;
+                markNeedsPaint();
             }
         }
 
@@ -1528,20 +1528,20 @@ namespace Unity.UIWidgets.rendering {
 
         public Matrix3 transform {
             set {
-                if (this._transform == value) {
+                if (_transform == value) {
                     return;
                 }
 
-                this._transform = value;
-                this.markNeedsPaint();
+                _transform = value;
+                markNeedsPaint();
             }
         }
 
         Matrix3 _transform;
 
         public void setIdentity() {
-            this._transform = Matrix3.I();
-            this.markNeedsPaint();
+            _transform = Matrix3.I();
+            markNeedsPaint();
         }
 
         public void rotateX(float degrees) {
@@ -1553,46 +1553,46 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void rotateZ(float degrees) {
-            this._transform.preRotate(degrees);
-            this.markNeedsPaint();
+            _transform.preRotate(degrees);
+            markNeedsPaint();
         }
 
         public void translate(float x, float y = 0.0f, float z = 0.0f) {
-            this._transform.preTranslate(x, y);
-            this.markNeedsPaint();
+            _transform.preTranslate(x, y);
+            markNeedsPaint();
         }
 
         public void scale(float x, float y, float z) {
-            this._transform.preScale(x, y);
-            this.markNeedsPaint();
+            _transform.preScale(x, y);
+            markNeedsPaint();
         }
 
         Matrix3 _effectiveTransform {
             get {
-                Alignment resolvedAlignment = this.alignment;
-                if (this._origin == null && resolvedAlignment == null) {
-                    return this._transform;
+                Alignment resolvedAlignment = alignment;
+                if (_origin == null && resolvedAlignment == null) {
+                    return _transform;
                 }
 
                 var result = Matrix3.I();
-                if (this._origin != null) {
-                    result.preTranslate(this._origin.dx, this._origin.dy);
+                if (_origin != null) {
+                    result.preTranslate(_origin.dx, _origin.dy);
                 }
 
                 Offset translation = null;
                 if (resolvedAlignment != null) {
-                    translation = resolvedAlignment.alongSize(this.size);
+                    translation = resolvedAlignment.alongSize(size);
                     result.preTranslate(translation.dx, translation.dy);
                 }
 
-                result.preConcat(this._transform);
+                result.preConcat(_transform);
 
                 if (resolvedAlignment != null) {
                     result.preTranslate(-translation.dx, -translation.dy);
                 }
 
-                if (this._origin != null) {
-                    result.preTranslate(-this._origin.dx, -this._origin.dy);
+                if (_origin != null) {
+                    result.preTranslate(-_origin.dx, -_origin.dy);
                 }
 
                 return result;
@@ -1600,12 +1600,12 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override bool hitTest(HitTestResult result, Offset position = null) {
-            return this.hitTestChildren(result, position: position);
+            return hitTestChildren(result, position: position);
         }
 
         protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
-            if (this.transformHitTests) {
-                var transform = this._effectiveTransform;
+            if (transformHitTests) {
+                var transform = _effectiveTransform;
                 var inverse = Matrix3.I();
                 var invertible = transform.invert(inverse);
 
@@ -1620,12 +1620,12 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                var transform = this._effectiveTransform;
+            if (child != null) {
+                var transform = _effectiveTransform;
                 Offset childOffset = transform.getAsTranslation();
 
                 if (childOffset == null) {
-                    context.pushTransform(this.needsCompositing, offset, transform, base.paint);
+                    context.pushTransform(needsCompositing, offset, transform, base.paint);
                 }
                 else {
                     base.paint(context, offset + childOffset);
@@ -1634,15 +1634,15 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            transform.preConcat(this._effectiveTransform);
+            transform.preConcat(_effectiveTransform);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Matrix3>("transform matrix", this._transform));
-            properties.add(new DiagnosticsProperty<Offset>("origin", this.origin));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment));
-            properties.add(new DiagnosticsProperty<bool>("transformHitTests", this.transformHitTests));
+            properties.add(new DiagnosticsProperty<Matrix3>("transform matrix", _transform));
+            properties.add(new DiagnosticsProperty<Offset>("origin", origin));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new DiagnosticsProperty<bool>("transformHitTests", transformHitTests));
         }
     }
 
@@ -1652,64 +1652,64 @@ namespace Unity.UIWidgets.rendering {
             Alignment alignment = null,
             RenderBox child = null
         ) : base(child) {
-            this._fit = fit;
-            this._alignment = alignment ?? Alignment.center;
+            _fit = fit;
+            _alignment = alignment ?? Alignment.center;
         }
 
         Alignment _resolvedAlignment;
 
         void _resolve() {
-            if (this._resolvedAlignment != null) {
+            if (_resolvedAlignment != null) {
                 return;
             }
 
-            this._resolvedAlignment = this.alignment;
+            _resolvedAlignment = alignment;
         }
 
         void _markNeedResolution() {
-            this._resolvedAlignment = null;
-            this.markNeedsPaint();
+            _resolvedAlignment = null;
+            markNeedsPaint();
         }
 
         public BoxFit fit {
-            get { return this._fit; }
+            get { return _fit; }
             set {
-                if (this._fit == value) {
+                if (_fit == value) {
                     return;
                 }
 
-                this._fit = value;
-                this._clearPaintData();
-                this.markNeedsPaint();
+                _fit = value;
+                _clearPaintData();
+                markNeedsPaint();
             }
         }
 
         BoxFit _fit;
 
         public Alignment alignment {
-            get { return this._alignment; }
+            get { return _alignment; }
             set {
                 D.assert(value != null);
-                if (this._alignment == value) {
+                if (_alignment == value) {
                     return;
                 }
 
-                this._alignment = value;
-                this._clearPaintData();
-                this._markNeedResolution();
+                _alignment = value;
+                _clearPaintData();
+                _markNeedResolution();
             }
         }
 
         Alignment _alignment;
 
         protected override void performLayout() {
-            if (this.child != null) {
-                this.child.layout(new BoxConstraints(), parentUsesSize: true);
-                this.size = this.constraints.constrainSizeAndAttemptToPreserveAspectRatio(this.child.size);
-                this._clearPaintData();
+            if (child != null) {
+                child.layout(new BoxConstraints(), parentUsesSize: true);
+                size = constraints.constrainSizeAndAttemptToPreserveAspectRatio(child.size);
+                _clearPaintData();
             }
             else {
-                this.size = this.constraints.smallest;
+                size = constraints.smallest;
             }
         }
 
@@ -1717,38 +1717,38 @@ namespace Unity.UIWidgets.rendering {
         Matrix3 _transform;
 
         void _clearPaintData() {
-            this._hasVisualOverflow = null;
-            this._transform = null;
+            _hasVisualOverflow = null;
+            _transform = null;
         }
 
         void _updatePaintData() {
-            if (this._transform != null) {
+            if (_transform != null) {
                 return;
             }
 
-            if (this.child == null) {
-                this._hasVisualOverflow = false;
-                this._transform = Matrix3.I();
+            if (child == null) {
+                _hasVisualOverflow = false;
+                _transform = Matrix3.I();
             }
             else {
-                this._resolve();
-                Size childSize = this.child.size;
-                FittedSizes sizes = FittedSizes.applyBoxFit(this._fit, childSize, this.size);
+                _resolve();
+                Size childSize = child.size;
+                FittedSizes sizes = FittedSizes.applyBoxFit(_fit, childSize, size);
                 float scaleX = sizes.destination.width / sizes.source.width;
                 float scaleY = sizes.destination.height / sizes.source.height;
-                Rect sourceRect = this._resolvedAlignment.inscribe(sizes.source, Offset.zero & childSize);
-                Rect destinationRect = this._resolvedAlignment.inscribe(sizes.destination, Offset.zero & this.size);
-                this._hasVisualOverflow = sourceRect.width < childSize.width || sourceRect.height < childSize.height;
-                this._transform = Matrix3.makeTrans(destinationRect.left, destinationRect.top);
-                this._transform.postScale(scaleX, scaleY);
-                this._transform.postTranslate(-sourceRect.left, -sourceRect.top);
+                Rect sourceRect = _resolvedAlignment.inscribe(sizes.source, Offset.zero & childSize);
+                Rect destinationRect = _resolvedAlignment.inscribe(sizes.destination, Offset.zero & size);
+                _hasVisualOverflow = sourceRect.width < childSize.width || sourceRect.height < childSize.height;
+                _transform = Matrix3.makeTrans(destinationRect.left, destinationRect.top);
+                _transform.postScale(scaleX, scaleY);
+                _transform.postTranslate(-sourceRect.left, -sourceRect.top);
             }
         }
 
         void _paintChildWithTransform(PaintingContext context, Offset offset) {
-            Offset childOffset = this._transform.getAsTranslation();
+            Offset childOffset = _transform.getAsTranslation();
             if (childOffset == null) {
-                context.pushTransform(this.needsCompositing, offset, this._transform, base.paint);
+                context.pushTransform(needsCompositing, offset, _transform, base.paint);
             }
             else {
                 base.paint(context, offset + childOffset);
@@ -1756,30 +1756,30 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.size.isEmpty) {
+            if (size.isEmpty) {
                 return;
             }
 
-            this._updatePaintData();
-            if (this.child != null) {
-                if (this._hasVisualOverflow == true) {
-                    context.pushClipRect(this.needsCompositing, offset, Offset.zero & this.size,
-                        this._paintChildWithTransform);
+            _updatePaintData();
+            if (child != null) {
+                if (_hasVisualOverflow == true) {
+                    context.pushClipRect(needsCompositing, offset, Offset.zero & size,
+                        _paintChildWithTransform);
                 }
                 else {
-                    this._paintChildWithTransform(context, offset);
+                    _paintChildWithTransform(context, offset);
                 }
             }
         }
 
         protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
-            if (this.size.isEmpty) {
+            if (size.isEmpty) {
                 return false;
             }
 
-            this._updatePaintData();
+            _updatePaintData();
             Matrix3 inverse = Matrix3.I();
-            if (!this._transform.invert(inverse)) {
+            if (!_transform.invert(inverse)) {
                 return false;
             }
 
@@ -1788,19 +1788,19 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            if (this.size.isEmpty) {
+            if (size.isEmpty) {
                 transform.setAll(0, 0, 0, 0, 0, 0, 0, 0, 0);
             }
             else {
-                this._updatePaintData();
-                transform.postConcat(this._transform);
+                _updatePaintData();
+                transform.postConcat(_transform);
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<BoxFit>("fit", this.fit));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment));
+            properties.add(new EnumProperty<BoxFit>("fit", fit));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
         }
     }
 
@@ -1811,38 +1811,38 @@ namespace Unity.UIWidgets.rendering {
             RenderBox child = null
         ) : base(child: child) {
             D.assert(translation != null);
-            this._translation = translation;
+            _translation = translation;
             this.transformHitTests = transformHitTests;
         }
 
         public Offset translation {
-            get { return this._translation; }
+            get { return _translation; }
 
             set {
                 D.assert(value != null);
-                if (this._translation == value) {
+                if (_translation == value) {
                     return;
                 }
 
-                this._translation = value;
-                this.markNeedsPaint();
+                _translation = value;
+                markNeedsPaint();
             }
         }
 
         Offset _translation;
 
         public override bool hitTest(HitTestResult result, Offset position) {
-            return this.hitTestChildren(result, position: position);
+            return hitTestChildren(result, position: position);
         }
 
         public bool transformHitTests;
 
         protected override bool hitTestChildren(HitTestResult result, Offset position) {
-            D.assert(!this.debugNeedsLayout);
-            if (this.transformHitTests) {
+            D.assert(!debugNeedsLayout);
+            if (transformHitTests) {
                 position = new Offset(
-                    position.dx - this.translation.dx * this.size.width,
-                    position.dy - this.translation.dy * this.size.height
+                    position.dx - translation.dx * size.width,
+                    position.dy - translation.dy * size.height
                 );
             }
 
@@ -1850,24 +1850,24 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            D.assert(!this.debugNeedsLayout);
-            if (this.child != null) {
+            D.assert(!debugNeedsLayout);
+            if (child != null) {
                 base.paint(context, new Offset(
-                    offset.dx + this.translation.dx * this.size.width,
-                    offset.dy + this.translation.dy * this.size.height
+                    offset.dx + translation.dx * size.width,
+                    offset.dy + translation.dy * size.height
                 ));
             }
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            transform.preTranslate(this.translation.dx * this.size.width,
-                this.translation.dy * this.size.height);
+            transform.preTranslate(translation.dx * size.width,
+                translation.dy * size.height);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Offset>("translation", this.translation));
-            properties.add(new DiagnosticsProperty<bool>("transformHitTests", this.transformHitTests));
+            properties.add(new DiagnosticsProperty<Offset>("translation", translation));
+            properties.add(new DiagnosticsProperty<bool>("transformHitTests", transformHitTests));
         }
     }
 
@@ -1908,31 +1908,31 @@ namespace Unity.UIWidgets.rendering {
             this.onPointerSignal = onPointerSignal;
             this.onPointerScroll = onPointerScroll;
 
-            this._onPointerEnter = onPointerEnter;
-            this._onPointerHover = onPointerHover;
-            this._onPointerExit = onPointerExit;
+            _onPointerEnter = onPointerEnter;
+            _onPointerHover = onPointerHover;
+            _onPointerExit = onPointerExit;
 
-            this._onPointerDragFromEditorEnter = onPointerDragFromEditorEnter;
-            this._onPointerDragFromEditorHover = onPointerDragFromEditorHover;
-            this._onPointerDragFromEditorExit = onPointerDragFromEditorExit;
-            this._onPointerDragFromEditorRelease = onPointerDragFromEditorRelease;
+            _onPointerDragFromEditorEnter = onPointerDragFromEditorEnter;
+            _onPointerDragFromEditorHover = onPointerDragFromEditorHover;
+            _onPointerDragFromEditorExit = onPointerDragFromEditorExit;
+            _onPointerDragFromEditorRelease = onPointerDragFromEditorRelease;
 
-            if (this._onPointerEnter != null ||
-                this._onPointerHover != null ||
-                this._onPointerExit != null ||
-                this._onPointerDragFromEditorEnter != null ||
-                this._onPointerDragFromEditorHover != null ||
-                this._onPointerDragFromEditorExit != null ||
-                this._onPointerDragFromEditorRelease != null
+            if (_onPointerEnter != null ||
+                _onPointerHover != null ||
+                _onPointerExit != null ||
+                _onPointerDragFromEditorEnter != null ||
+                _onPointerDragFromEditorHover != null ||
+                _onPointerDragFromEditorExit != null ||
+                _onPointerDragFromEditorRelease != null
             ) {
-                this._hoverAnnotation = new MouseTrackerAnnotation(
-                    onEnter: this._onPointerEnter,
-                    onHover: this._onPointerHover,
-                    onExit: this._onPointerExit,
-                    onDragFromEditorEnter: this._onPointerDragFromEditorEnter,
-                    onDragFromEditorHover: this._onPointerDragFromEditorHover,
-                    onDragFromEditorExit: this._onPointerDragFromEditorExit,
-                    onDragFromEditorRelease: this._onPointerDragFromEditorRelease
+                _hoverAnnotation = new MouseTrackerAnnotation(
+                    onEnter: _onPointerEnter,
+                    onHover: _onPointerHover,
+                    onExit: _onPointerExit,
+                    onDragFromEditorEnter: _onPointerDragFromEditorEnter,
+                    onDragFromEditorHover: _onPointerDragFromEditorHover,
+                    onDragFromEditorExit: _onPointerDragFromEditorExit,
+                    onDragFromEditorRelease: _onPointerDragFromEditorRelease
                 );
             }
         }
@@ -1940,11 +1940,11 @@ namespace Unity.UIWidgets.rendering {
         PointerDragFromEditorEnterEventListener _onPointerDragFromEditorEnter;
 
         public PointerDragFromEditorEnterEventListener onPointerDragFromEditorEnter {
-            get { return this._onPointerDragFromEditorEnter; }
+            get { return _onPointerDragFromEditorEnter; }
             set {
-                if (this._onPointerDragFromEditorEnter != value) {
-                    this._onPointerDragFromEditorEnter = value;
-                    this._updateAnnotations();
+                if (_onPointerDragFromEditorEnter != value) {
+                    _onPointerDragFromEditorEnter = value;
+                    _updateAnnotations();
                 }
             }
         }
@@ -1952,11 +1952,11 @@ namespace Unity.UIWidgets.rendering {
         PointerDragFromEditorExitEventListener _onPointerDragFromEditorExit;
 
         public PointerDragFromEditorExitEventListener onPointerDragFromEditorExit {
-            get { return this._onPointerDragFromEditorExit; }
+            get { return _onPointerDragFromEditorExit; }
             set {
-                if (this._onPointerDragFromEditorExit != value) {
-                    this._onPointerDragFromEditorExit = value;
-                    this._updateAnnotations();
+                if (_onPointerDragFromEditorExit != value) {
+                    _onPointerDragFromEditorExit = value;
+                    _updateAnnotations();
                 }
             }
         }
@@ -1964,11 +1964,11 @@ namespace Unity.UIWidgets.rendering {
         PointerDragFromEditorHoverEventListener _onPointerDragFromEditorHover;
 
         public PointerDragFromEditorHoverEventListener onPointerDragFromEditorHover {
-            get { return this._onPointerDragFromEditorHover; }
+            get { return _onPointerDragFromEditorHover; }
             set {
-                if (this._onPointerDragFromEditorHover != value) {
-                    this._onPointerDragFromEditorHover = value;
-                    this._updateAnnotations();
+                if (_onPointerDragFromEditorHover != value) {
+                    _onPointerDragFromEditorHover = value;
+                    _updateAnnotations();
                 }
             }
         }
@@ -1976,21 +1976,21 @@ namespace Unity.UIWidgets.rendering {
         PointerDragFromEditorReleaseEventListener _onPointerDragFromEditorRelease;
 
         public PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease {
-            get { return this._onPointerDragFromEditorRelease; }
+            get { return _onPointerDragFromEditorRelease; }
             set {
-                if (this._onPointerDragFromEditorRelease != value) {
-                    this._onPointerDragFromEditorRelease = value;
-                    this._updateAnnotations();
+                if (_onPointerDragFromEditorRelease != value) {
+                    _onPointerDragFromEditorRelease = value;
+                    _updateAnnotations();
                 }
             }
         }
 
         public PointerEnterEventListener onPointerEnter {
-            get { return this._onPointerEnter; }
+            get { return _onPointerEnter; }
             set {
-                if (this._onPointerEnter != value) {
-                    this._onPointerEnter = value;
-                    this._updateAnnotations();
+                if (_onPointerEnter != value) {
+                    _onPointerEnter = value;
+                    _updateAnnotations();
                 }
             }
         }
@@ -1998,11 +1998,11 @@ namespace Unity.UIWidgets.rendering {
         PointerEnterEventListener _onPointerEnter;
 
         public PointerHoverEventListener onPointerHover {
-            get { return this._onPointerHover; }
+            get { return _onPointerHover; }
             set {
-                if (this._onPointerHover != value) {
-                    this._onPointerHover = value;
-                    this._updateAnnotations();
+                if (_onPointerHover != value) {
+                    _onPointerHover = value;
+                    _updateAnnotations();
                 }
             }
         }
@@ -2010,11 +2010,11 @@ namespace Unity.UIWidgets.rendering {
         PointerHoverEventListener _onPointerHover;
 
         public PointerExitEventListener onPointerExit {
-            get { return this._onPointerExit; }
+            get { return _onPointerExit; }
             set {
-                if (this._onPointerExit != value) {
-                    this._onPointerExit = value;
-                    this._updateAnnotations();
+                if (_onPointerExit != value) {
+                    _onPointerExit = value;
+                    _updateAnnotations();
                 }
             }
         }
@@ -2036,76 +2036,76 @@ namespace Unity.UIWidgets.rendering {
         MouseTrackerAnnotation _hoverAnnotation;
 
         public MouseTrackerAnnotation hoverAnnotation {
-            get { return this._hoverAnnotation; }
+            get { return _hoverAnnotation; }
         }
 
         void _updateAnnotations() {
-            D.assert(this._onPointerEnter != this._hoverAnnotation.onEnter ||
-                     this._onPointerHover != this._hoverAnnotation.onHover ||
-                     this._onPointerExit != this._hoverAnnotation.onExit
+            D.assert(_onPointerEnter != _hoverAnnotation.onEnter ||
+                     _onPointerHover != _hoverAnnotation.onHover ||
+                     _onPointerExit != _hoverAnnotation.onExit
 #if UNITY_EDITOR
-                     || this._onPointerDragFromEditorEnter != this._hoverAnnotation.onDragFromEditorEnter
-                     || this._onPointerDragFromEditorHover != this._hoverAnnotation.onDragFromEditorHover
-                     || this._onPointerDragFromEditorExit != this._hoverAnnotation.onDragFromEditorExit
-                     || this._onPointerDragFromEditorRelease != this._hoverAnnotation.onDragFromEditorRelease
+                     || _onPointerDragFromEditorEnter != _hoverAnnotation.onDragFromEditorEnter
+                     || _onPointerDragFromEditorHover != _hoverAnnotation.onDragFromEditorHover
+                     || _onPointerDragFromEditorExit != _hoverAnnotation.onDragFromEditorExit
+                     || _onPointerDragFromEditorRelease != _hoverAnnotation.onDragFromEditorRelease
 #endif
                 , () => "Shouldn't call _updateAnnotations if nothing has changed.");
 
-            if (this._hoverAnnotation != null && this.attached) {
-                RendererBinding.instance.mouseTracker.detachAnnotation(this._hoverAnnotation);
+            if (_hoverAnnotation != null && attached) {
+                RendererBinding.instance.mouseTracker.detachAnnotation(_hoverAnnotation);
             }
 
-            if (this._onPointerEnter != null ||
-                this._onPointerHover != null ||
-                this._onPointerExit != null
+            if (_onPointerEnter != null ||
+                _onPointerHover != null ||
+                _onPointerExit != null
 #if UNITY_EDITOR
-                || this._onPointerDragFromEditorEnter != null
-                || this._onPointerDragFromEditorHover != null
-                || this._onPointerDragFromEditorExit != null
-                || this._onPointerDragFromEditorRelease != null
+                || _onPointerDragFromEditorEnter != null
+                || _onPointerDragFromEditorHover != null
+                || _onPointerDragFromEditorExit != null
+                || _onPointerDragFromEditorRelease != null
 #endif
             ) {
-                this._hoverAnnotation = new MouseTrackerAnnotation(
-                    onEnter: this._onPointerEnter,
-                    onHover: this._onPointerHover,
-                    onExit: this._onPointerExit
+                _hoverAnnotation = new MouseTrackerAnnotation(
+                    onEnter: _onPointerEnter,
+                    onHover: _onPointerHover,
+                    onExit: _onPointerExit
 #if UNITY_EDITOR
-                    , onDragFromEditorEnter: this._onPointerDragFromEditorEnter
-                    , onDragFromEditorHover: this._onPointerDragFromEditorHover
-                    , onDragFromEditorExit: this._onPointerDragFromEditorExit
-                    , onDragFromEditorRelease: this._onPointerDragFromEditorRelease
+                    , onDragFromEditorEnter: _onPointerDragFromEditorEnter
+                    , onDragFromEditorHover: _onPointerDragFromEditorHover
+                    , onDragFromEditorExit: _onPointerDragFromEditorExit
+                    , onDragFromEditorRelease: _onPointerDragFromEditorRelease
 #endif
                 );
 
-                if (this.attached) {
-                    RendererBinding.instance.mouseTracker.attachAnnotation(this._hoverAnnotation);
+                if (attached) {
+                    RendererBinding.instance.mouseTracker.attachAnnotation(_hoverAnnotation);
                 }
             }
             else {
-                this._hoverAnnotation = null;
+                _hoverAnnotation = null;
             }
 
-            this.markNeedsPaint();
+            markNeedsPaint();
         }
 
         public override void attach(object owner) {
             base.attach(owner);
-            if (this._hoverAnnotation != null) {
-                RendererBinding.instance.mouseTracker.attachAnnotation(this._hoverAnnotation);
+            if (_hoverAnnotation != null) {
+                RendererBinding.instance.mouseTracker.attachAnnotation(_hoverAnnotation);
             }
         }
 
         public override void detach() {
             base.detach();
-            if (this._hoverAnnotation != null) {
-                RendererBinding.instance.mouseTracker.detachAnnotation(this._hoverAnnotation);
+            if (_hoverAnnotation != null) {
+                RendererBinding.instance.mouseTracker.detachAnnotation(_hoverAnnotation);
             }
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this._hoverAnnotation != null) {
+            if (_hoverAnnotation != null) {
                 AnnotatedRegionLayer<MouseTrackerAnnotation> layer = new AnnotatedRegionLayer<MouseTrackerAnnotation>(
-                    this._hoverAnnotation, size: this.size, offset: offset);
+                    _hoverAnnotation, size: size, offset: offset);
 
                 context.pushLayer(layer, base.paint, offset);
             }
@@ -2115,74 +2115,74 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performResize() {
-            this.size = this.constraints.biggest;
+            size = constraints.biggest;
         }
 
         public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
-            D.assert(this.debugHandleEvent(evt, entry));
+            D.assert(debugHandleEvent(evt, entry));
 
-            if (this.onPointerDown != null && evt is PointerDownEvent) {
-                this.onPointerDown((PointerDownEvent) evt);
+            if (onPointerDown != null && evt is PointerDownEvent) {
+                onPointerDown((PointerDownEvent) evt);
                 return;
             }
 
-            if (this.onPointerMove != null && evt is PointerMoveEvent) {
-                this.onPointerMove((PointerMoveEvent) evt);
+            if (onPointerMove != null && evt is PointerMoveEvent) {
+                onPointerMove((PointerMoveEvent) evt);
                 return;
             }
 
-            if (this.onPointerUp != null && evt is PointerUpEvent) {
-                this.onPointerUp((PointerUpEvent) evt);
+            if (onPointerUp != null && evt is PointerUpEvent) {
+                onPointerUp((PointerUpEvent) evt);
                 return;
             }
 
-            if (this.onPointerCancel != null && evt is PointerCancelEvent) {
-                this.onPointerCancel((PointerCancelEvent) evt);
+            if (onPointerCancel != null && evt is PointerCancelEvent) {
+                onPointerCancel((PointerCancelEvent) evt);
                 return;
             }
 
-            if (this.onPointerSignal != null && evt is PointerSignalEvent) {
-                this.onPointerSignal((PointerSignalEvent) evt);
+            if (onPointerSignal != null && evt is PointerSignalEvent) {
+                onPointerSignal((PointerSignalEvent) evt);
                 return;
             }
             
-            if (this.onPointerScroll != null && evt is PointerScrollEvent) {
-                this.onPointerScroll((PointerScrollEvent) evt);
+            if (onPointerScroll != null && evt is PointerScrollEvent) {
+                onPointerScroll((PointerScrollEvent) evt);
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             var listeners = new List<string>();
-            if (this.onPointerDown != null) {
+            if (onPointerDown != null) {
                 listeners.Add("down");
             }
 
-            if (this.onPointerMove != null) {
+            if (onPointerMove != null) {
                 listeners.Add("move");
             }
 
-            if (this.onPointerEnter != null) {
+            if (onPointerEnter != null) {
                 listeners.Add("enter");
             }
 
-            if (this.onPointerHover != null) {
+            if (onPointerHover != null) {
                 listeners.Add("hover");
             }
 
-            if (this.onPointerExit != null) {
+            if (onPointerExit != null) {
                 listeners.Add("exit");
             }
 
-            if (this.onPointerUp != null) {
+            if (onPointerUp != null) {
                 listeners.Add("up");
             }
 
-            if (this.onPointerCancel != null) {
+            if (onPointerCancel != null) {
                 listeners.Add("cancel");
             }
 
-            if (this.onPointerSignal != null) {
+            if (onPointerSignal != null) {
                 listeners.Add("signal");
             }
 
@@ -2205,21 +2205,21 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public int debugSymmetricPaintCount {
-            get { return this._debugSymmetricPaintCount; }
+            get { return _debugSymmetricPaintCount; }
         }
 
         int _debugSymmetricPaintCount = 0;
 
         public int debugAsymmetricPaintCount {
-            get { return this._debugAsymmetricPaintCount; }
+            get { return _debugAsymmetricPaintCount; }
         }
 
         int _debugAsymmetricPaintCount = 0;
 
         public void debugResetMetrics() {
             D.assert(() => {
-                this._debugSymmetricPaintCount = 0;
-                this._debugAsymmetricPaintCount = 0;
+                _debugSymmetricPaintCount = 0;
+                _debugAsymmetricPaintCount = 0;
                 return true;
             });
         }
@@ -2227,10 +2227,10 @@ namespace Unity.UIWidgets.rendering {
         public override void debugRegisterRepaintBoundaryPaint(bool includedParent = true, bool includedChild = false) {
             D.assert(() => {
                 if (includedParent && includedChild) {
-                    this._debugSymmetricPaintCount += 1;
+                    _debugSymmetricPaintCount += 1;
                 }
                 else {
-                    this._debugAsymmetricPaintCount += 1;
+                    _debugAsymmetricPaintCount += 1;
                 }
 
                 return true;
@@ -2242,15 +2242,15 @@ namespace Unity.UIWidgets.rendering {
             bool inReleaseMode = true;
             D.assert(() => {
                 inReleaseMode = false;
-                if (this.debugSymmetricPaintCount + this.debugAsymmetricPaintCount == 0) {
+                if (debugSymmetricPaintCount + debugAsymmetricPaintCount == 0) {
                     properties.add(new MessageProperty("usefulness ratio", "no metrics collected yet (never painted)"));
                 }
                 else {
-                    float fraction = (float) this.debugAsymmetricPaintCount /
-                                     (this.debugSymmetricPaintCount + this.debugAsymmetricPaintCount);
+                    float fraction = (float) debugAsymmetricPaintCount /
+                                     (debugSymmetricPaintCount + debugAsymmetricPaintCount);
 
                     string diagnosis;
-                    if (this.debugSymmetricPaintCount + this.debugAsymmetricPaintCount < 5) {
+                    if (debugSymmetricPaintCount + debugAsymmetricPaintCount < 5) {
                         diagnosis = "insufficient data to draw conclusion (less than five repaints)";
                     }
                     else if (fraction > 0.9) {
@@ -2266,7 +2266,7 @@ namespace Unity.UIWidgets.rendering {
                     else if (fraction > 0.1) {
                         diagnosis = "this repaint boundary does sometimes show value, though currently not that often";
                     }
-                    else if (this.debugAsymmetricPaintCount == 0) {
+                    else if (debugAsymmetricPaintCount == 0) {
                         diagnosis = "this repaint boundary is astoundingly ineffectual and should be removed";
                     }
                     else {
@@ -2274,7 +2274,7 @@ namespace Unity.UIWidgets.rendering {
                     }
 
                     properties.add(new PercentProperty("metrics", fraction, unit: "useful",
-                        tooltip: this.debugSymmetricPaintCount + " bad vs " + this.debugAsymmetricPaintCount +
+                        tooltip: debugSymmetricPaintCount + " bad vs " + debugAsymmetricPaintCount +
                                  " good"));
                     properties.add(new MessageProperty("diagnosis", diagnosis));
                 }
@@ -2292,55 +2292,55 @@ namespace Unity.UIWidgets.rendering {
             RenderBox child = null,
             bool ignoring = true
         ) : base(child) {
-            this._ignoring = ignoring;
+            _ignoring = ignoring;
         }
 
         public bool ignoring {
-            get { return this._ignoring; }
+            get { return _ignoring; }
             set {
-                if (value == this._ignoring) {
+                if (value == _ignoring) {
                     return;
                 }
 
-                this._ignoring = value;
+                _ignoring = value;
             }
         }
 
         bool _ignoring;
 
         public override bool hitTest(HitTestResult result, Offset position = null) {
-            return this.ignoring ? false : base.hitTest(result, position: position);
+            return ignoring ? false : base.hitTest(result, position: position);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<bool>("ignoring", this.ignoring));
+            properties.add(new DiagnosticsProperty<bool>("ignoring", ignoring));
         }
     }
 
     public class RenderOffstage : RenderProxyBox {
         public RenderOffstage(bool offstage = true,
             RenderBox child = null) : base(child) {
-            this._offstage = offstage;
+            _offstage = offstage;
         }
 
         public bool offstage {
-            get { return this._offstage; }
+            get { return _offstage; }
 
             set {
-                if (value == this._offstage) {
+                if (value == _offstage) {
                     return;
                 }
 
-                this._offstage = value;
-                this.markNeedsLayoutForSizedByParentChange();
+                _offstage = value;
+                markNeedsLayoutForSizedByParentChange();
             }
         }
 
         bool _offstage;
 
         protected override float computeMinIntrinsicWidth(float height) {
-            if (this.offstage) {
+            if (offstage) {
                 return 0.0f;
             }
 
@@ -2349,7 +2349,7 @@ namespace Unity.UIWidgets.rendering {
 
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            if (this.offstage) {
+            if (offstage) {
                 return 0.0f;
             }
 
@@ -2357,7 +2357,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            if (this.offstage) {
+            if (offstage) {
                 return 0.0f;
             }
 
@@ -2365,7 +2365,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this.offstage) {
+            if (offstage) {
                 return 0.0f;
             }
 
@@ -2373,7 +2373,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            if (this.offstage) {
+            if (offstage) {
                 return null;
             }
 
@@ -2381,17 +2381,17 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool sizedByParent {
-            get { return this.offstage; }
+            get { return offstage; }
         }
 
         protected override void performResize() {
-            D.assert(this.offstage);
-            this.size = this.constraints.smallest;
+            D.assert(offstage);
+            size = constraints.smallest;
         }
 
         protected override void performLayout() {
-            if (this.offstage) {
-                this.child?.layout(this.constraints);
+            if (offstage) {
+                child?.layout(constraints);
             }
             else {
                 base.performLayout();
@@ -2399,11 +2399,11 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override bool hitTest(HitTestResult result, Offset position) {
-            return !this.offstage && base.hitTest(result, position: position);
+            return !offstage && base.hitTest(result, position: position);
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.offstage) {
+            if (offstage) {
                 return;
             }
 
@@ -2413,19 +2413,19 @@ namespace Unity.UIWidgets.rendering {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<bool>("offstage", this.offstage));
+            properties.add(new DiagnosticsProperty<bool>("offstage", offstage));
         }
 
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
-            if (this.child == null) {
+            if (child == null) {
                 return new List<DiagnosticsNode>();
             }
 
             return new List<DiagnosticsNode> {
-                this.child.toDiagnosticsNode(
+                child.toDiagnosticsNode(
                     name: "child",
-                    style: this.offstage ? DiagnosticsTreeStyle.offstage : DiagnosticsTreeStyle.sparse
+                    style: offstage ? DiagnosticsTreeStyle.offstage : DiagnosticsTreeStyle.sparse
                 ),
             };
         }
@@ -2436,27 +2436,27 @@ namespace Unity.UIWidgets.rendering {
             RenderBox child = null,
             bool absorbing = true
         ) : base(child) {
-            this._absorbing = absorbing;
+            _absorbing = absorbing;
         }
 
 
         public bool absorbing {
-            get { return this._absorbing; }
-            set { this._absorbing = value; }
+            get { return _absorbing; }
+            set { _absorbing = value; }
         }
 
         bool _absorbing;
 
         public override bool hitTest(HitTestResult result, Offset position) {
-            return this.absorbing
-                ? this.size.contains(position)
+            return absorbing
+                ? size.contains(position)
                 : base.hitTest(result, position: position);
         }
 
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<bool>("absorbing", this.absorbing));
+            properties.add(new DiagnosticsProperty<bool>("absorbing", absorbing));
         }
     }
 
@@ -2473,7 +2473,7 @@ namespace Unity.UIWidgets.rendering {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<object>("metaData", this.metaData));
+            properties.add(new DiagnosticsProperty<object>("metaData", metaData));
         }
     }
 
@@ -2487,15 +2487,15 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public LayerLink link {
-            get { return this._link; }
+            get { return _link; }
             set {
                 D.assert(value != null);
-                if (this._link == value) {
+                if (_link == value) {
                     return;
                 }
 
-                this._link = value;
-                this.markNeedsPaint();
+                _link = value;
+                markNeedsPaint();
             }
         }
 
@@ -2506,12 +2506,12 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            context.pushLayer(new LeaderLayer(link: this.link, offset: offset), base.paint, Offset.zero);
+            context.pushLayer(new LeaderLayer(link: link, offset: offset), base.paint, Offset.zero);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<LayerLink>("link", this.link));
+            properties.add(new DiagnosticsProperty<LayerLink>("link", link));
         }
     }
 
@@ -2528,51 +2528,51 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public LayerLink link {
-            get { return this._link; }
+            get { return _link; }
             set {
                 D.assert(value != null);
-                if (this._link == value) {
+                if (_link == value) {
                     return;
                 }
 
-                this._link = value;
-                this.markNeedsPaint();
+                _link = value;
+                markNeedsPaint();
             }
         }
 
         LayerLink _link;
 
         public bool showWhenUnlinked {
-            get { return this._showWhenUnlinked; }
+            get { return _showWhenUnlinked; }
             set {
-                if (this._showWhenUnlinked == value) {
+                if (_showWhenUnlinked == value) {
                     return;
                 }
 
-                this._showWhenUnlinked = value;
-                this.markNeedsPaint();
+                _showWhenUnlinked = value;
+                markNeedsPaint();
             }
         }
 
         bool _showWhenUnlinked;
 
         public Offset offset {
-            get { return this._offset; }
+            get { return _offset; }
             set {
                 D.assert(value != null);
-                if (this._offset == value) {
+                if (_offset == value) {
                     return;
                 }
 
-                this._offset = value;
-                this.markNeedsPaint();
+                _offset = value;
+                markNeedsPaint();
             }
         }
 
         Offset _offset;
 
         public override void detach() {
-            this._layer = null;
+            _layer = null;
             base.detach();
         }
 
@@ -2583,16 +2583,16 @@ namespace Unity.UIWidgets.rendering {
         new FollowerLayer _layer;
 
         Matrix3 getCurrentTransform() {
-            return this._layer?.getLastTransform() ?? Matrix3.I();
+            return _layer?.getLastTransform() ?? Matrix3.I();
         }
 
         public override bool hitTest(HitTestResult result, Offset position) {
-            return this.hitTestChildren(result, position: position);
+            return hitTestChildren(result, position: position);
         }
 
         protected override bool hitTestChildren(HitTestResult result, Offset position) {
             Matrix3 inverse = Matrix3.I();
-            if (!this.getCurrentTransform().invert(inverse)) {
+            if (!getCurrentTransform().invert(inverse)) {
                 return false;
             }
 
@@ -2601,13 +2601,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            this._layer = new FollowerLayer(
-                link: this.link,
-                showWhenUnlinked: this.showWhenUnlinked,
+            _layer = new FollowerLayer(
+                link: link,
+                showWhenUnlinked: showWhenUnlinked,
                 linkedOffset: this.offset,
                 unlinkedOffset: offset
             );
-            context.pushLayer(this._layer,
+            context.pushLayer(_layer,
                 base.paint,
                 Offset.zero,
                 childPaintBounds: Rect.fromLTRB(
@@ -2620,15 +2620,15 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            transform.preConcat(this.getCurrentTransform());
+            transform.preConcat(getCurrentTransform());
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<LayerLink>("link", this.link));
-            properties.add(new DiagnosticsProperty<bool>("showWhenUnlinked", this.showWhenUnlinked));
-            properties.add(new DiagnosticsProperty<Offset>("offset", this.offset));
-            properties.add(new TransformProperty("current transform matrix", this.getCurrentTransform()));
+            properties.add(new DiagnosticsProperty<LayerLink>("link", link));
+            properties.add(new DiagnosticsProperty<bool>("showWhenUnlinked", showWhenUnlinked));
+            properties.add(new DiagnosticsProperty<Offset>("offset", offset));
+            properties.add(new TransformProperty("current transform matrix", getCurrentTransform()));
         }
     }
 
@@ -2641,33 +2641,33 @@ namespace Unity.UIWidgets.rendering {
         ) : base(child: child) {
             D.assert(value != null);
             D.assert(sized != null);
-            this._value = value;
-            this._sized = sized.Value;
+            _value = value;
+            _sized = sized.Value;
         }
 
         public T value {
-            get { return this._value; }
+            get { return _value; }
             set {
-                if (this._value == value) {
+                if (_value == value) {
                     return;
                 }
 
-                this._value = value;
-                this.markNeedsPaint();
+                _value = value;
+                markNeedsPaint();
             }
         }
 
         T _value;
 
         public bool sized {
-            get { return this._sized; }
+            get { return _sized; }
             set {
-                if (this._sized == value) {
+                if (_sized == value) {
                     return;
                 }
 
-                this._sized = value;
-                this.markNeedsPaint();
+                _sized = value;
+                markNeedsPaint();
             }
         }
 
@@ -2680,9 +2680,9 @@ namespace Unity.UIWidgets.rendering {
         public override void paint(PaintingContext context, Offset offset) {
             AnnotatedRegionLayer<T> layer =
                 new AnnotatedRegionLayer<T>(
-                    value: this.value,
-                    size: this.sized ? this.size : null,
-                    offset: this.sized ? offset : null);
+                    value: value,
+                    size: sized ? size : null,
+                    offset: sized ? offset : null);
 
             context.pushLayer(layer, base.paint, offset);
         }

@@ -35,7 +35,7 @@ namespace Unity.UIWidgets.engine {
         void OnEnable() {
             D.assert(_instance == null, () => "Only one instance of UIWidgetsMessageManager should exists");
             _instance = this;
-            this.UpdateNameIfNeed();
+            UpdateNameIfNeed();
         }
 
         void OnDisable() {
@@ -44,7 +44,7 @@ namespace Unity.UIWidgets.engine {
         }
 
         void Update() {
-            this.UpdateNameIfNeed();
+            UpdateNameIfNeed();
         }
 
         void UpdateNameIfNeed() {
@@ -62,15 +62,15 @@ namespace Unity.UIWidgets.engine {
 
         public void AddChannelMessageDelegate(string channel, MethodChannelMessageDelegate del) {
             MethodChannelMessageDelegate exists;
-            this._methodChannelMessageDelegates.TryGetValue(channel, out exists);
-            this._methodChannelMessageDelegates[channel] = exists + del;
+            _methodChannelMessageDelegates.TryGetValue(channel, out exists);
+            _methodChannelMessageDelegates[channel] = exists + del;
         }
         
         public void RemoveChannelMessageDelegate(string channel, MethodChannelMessageDelegate del) {
             MethodChannelMessageDelegate exists;
-            this._methodChannelMessageDelegates.TryGetValue(channel, out exists);
+            _methodChannelMessageDelegates.TryGetValue(channel, out exists);
             if (exists != null) {
-                this._methodChannelMessageDelegates[channel] = exists - del;
+                _methodChannelMessageDelegates[channel] = exists - del;
             }  
         }
 
@@ -84,7 +84,7 @@ namespace Unity.UIWidgets.engine {
             }
             else {
                 MethodChannelMessageDelegate exists;
-                this._methodChannelMessageDelegates.TryGetValue(channel, out exists);
+                _methodChannelMessageDelegates.TryGetValue(channel, out exists);
                 exists?.Invoke(method, args);
             }
         }

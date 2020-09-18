@@ -9,40 +9,40 @@ namespace Unity.UIWidgets.ui {
 
 
         public int next() {
-            this._last = this._current;
-            this._detectEmailOrUrl();
-            if (this._inEmailOrUrl) {
-                this._current = this._findNextBreakInEmailOrUrl();
+            _last = _current;
+            _detectEmailOrUrl();
+            if (_inEmailOrUrl) {
+                _current = _findNextBreakInEmailOrUrl();
             }
             else {
-                this._current = this._findNextBoundaryNormal();
+                _current = _findNextBoundaryNormal();
             }
 
-            return this._current;
+            return _current;
         }
 
         public void setText(TextBuff text) {
-            this._text = text;
-            this._last = 0;
-            this._current = 0;
-            this._scanOffset = 0;
-            this._inEmailOrUrl = false;
+            _text = text;
+            _last = 0;
+            _current = 0;
+            _scanOffset = 0;
+            _inEmailOrUrl = false;
             // this.nextUntilCodePoint();
         }
 
         public int current() {
-            return this._current;
+            return _current;
         }
 
         public int wordStart() {
-            if (this._inEmailOrUrl) {
-                return this._last;
+            if (_inEmailOrUrl) {
+                return _last;
             }
 
-            var result = this._last;
-            while (result < this._current) {
+            var result = _last;
+            while (result < _current) {
                 int ix = result;
-                uint c = nextCode(this._text, ref ix, this._current);
+                uint c = nextCode(_text, ref ix, _current);
                 if (!LayoutUtils.isLineEndSpace((char) c)) {
                     break;
                 }
@@ -54,14 +54,14 @@ namespace Unity.UIWidgets.ui {
         }
 
         public int wordEnd() {
-            if (this._inEmailOrUrl) {
-                return this._last;
+            if (_inEmailOrUrl) {
+                return _last;
             }
 
-            int result = this._current;
-            while (result > this._last) {
+            int result = _current;
+            while (result > _last) {
                 int ix = result;
-                uint ch = preCode(this._text, ref ix, this._last);
+                uint ch = preCode(_text, ref ix, _last);
                 if (!LayoutUtils.isLineEndSpace((char) ch)) {
                     break;
                 }
@@ -73,11 +73,11 @@ namespace Unity.UIWidgets.ui {
         }
 
         public int breakBadness() {
-            return (this._inEmailOrUrl && this._current < this._scanOffset) ? 1 : 0;
+            return (_inEmailOrUrl && _current < _scanOffset) ? 1 : 0;
         }
 
         public void finish() {
-            this._text = default;
+            _text = default;
         }
 
         int _findNextBreakInEmailOrUrl() {
@@ -85,31 +85,31 @@ namespace Unity.UIWidgets.ui {
         }
 
         int _findNextBoundaryNormal() {
-            if (this._current == this._text.size) {
+            if (_current == _text.size) {
                 return -1;
             }
 
-            char c = this._text.charAt(this._current);
+            char c = _text.charAt(_current);
             bool preWhiteSpace = char.IsWhiteSpace(c);
             bool preBoundaryChar = isBoundaryChar(c);
-            this._current++;
+            _current++;
             if (preBoundaryChar) {
-                return this._current;
+                return _current;
             }
 
-            this._findBoundaryCharOrTypeChange(preWhiteSpace);
+            _findBoundaryCharOrTypeChange(preWhiteSpace);
 
-            return this._current;
+            return _current;
         }
 
         void _findBoundaryCharOrTypeChange(bool preWhiteSpace) {
-            for (; this._current < this._text.size; ++this._current) {
+            for (; _current < _text.size; ++_current) {
                 // this.nextUntilCodePoint();
-                if (this._current >= this._text.size) {
+                if (_current >= _text.size) {
                     break;
                 }
 
-                char c = this._text.charAt(this._current);
+                char c = _text.charAt(_current);
                 if (isBoundaryChar(c)) {
                     break;
                 }
@@ -171,10 +171,10 @@ namespace Unity.UIWidgets.ui {
         }
 
         void nextUntilCodePoint() {
-            while (this._current < this._text.size
-                   && (char.IsLowSurrogate(this._text.charAt(this._current))
-                       || char.IsHighSurrogate(this._text.charAt(this._current)))) {
-                this._current++;
+            while (_current < _text.size
+                   && (char.IsLowSurrogate(_text.charAt(_current))
+                       || char.IsHighSurrogate(_text.charAt(_current)))) {
+                _current++;
             }
         }
     }

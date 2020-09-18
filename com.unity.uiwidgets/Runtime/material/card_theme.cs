@@ -61,29 +61,29 @@ namespace Unity.UIWidgets.material {
         }
 
         public override int GetHashCode() {
-            var hashCode = this.clipBehavior?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.color?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.elevation?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.margin?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.shape?.GetHashCode() ?? 0;
+            var hashCode = clipBehavior?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ color?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ elevation?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ margin?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ shape?.GetHashCode() ?? 0;
             return hashCode;
         }
 
         public bool Equals(CardTheme other) {
-            return other.clipBehavior == this.clipBehavior
-                   && other.color == this.color
-                   && other.elevation == this.elevation
-                   && other.margin == this.margin
-                   && other.shape == this.shape;
+            return other.clipBehavior == clipBehavior
+                   && other.color == color
+                   && other.elevation == elevation
+                   && other.margin == margin
+                   && other.shape == shape;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Clip?>("clipBehavior", this.clipBehavior, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color, defaultValue: null));
-            properties.add(new DiagnosticsProperty<float?>("elevation", this.elevation, defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("margin", this.margin, defaultValue: null));
-            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", this.shape, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Clip?>("clipBehavior", clipBehavior, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("color", color, defaultValue: null));
+            properties.add(new DiagnosticsProperty<float?>("elevation", elevation, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("margin", margin, defaultValue: null));
+            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: null));
         }
     }
 }

@@ -19,19 +19,19 @@ namespace Unity.UIWidgets.flow {
         ContainerLayer _parent;
 
         public ContainerLayer parent {
-            get { return this._parent; }
-            set { this._parent = value; }
+            get { return _parent; }
+            set { _parent = value; }
         }
 
         Rect _paintBounds = Rect.zero;
 
         public Rect paintBounds {
-            get { return this._paintBounds; }
-            set { this._paintBounds = value ?? Rect.zero; }
+            get { return _paintBounds; }
+            set { _paintBounds = value ?? Rect.zero; }
         }
 
         public bool needsPainting {
-            get { return !this._paintBounds.isEmpty; }
+            get { return !_paintBounds.isEmpty; }
         }
 
         public virtual void preroll(PrerollContext context, Matrix3 matrix) {

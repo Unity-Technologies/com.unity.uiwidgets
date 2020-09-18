@@ -50,8 +50,8 @@ namespace Unity.UIWidgets.material {
 
             return new AnimatedPadding(
                 padding: MediaQuery.of(context).viewInsets + EdgeInsets.symmetric(horizontal: 40.0f, vertical: 24.0f),
-                duration: this.insetAnimationDuration,
-                curve: this.insetAnimationCurve,
+                duration: insetAnimationDuration,
+                curve: insetAnimationCurve,
                 child: MediaQuery.removeViewInsets(
                     removeLeft: true,
                     removeTop: true,
@@ -62,12 +62,12 @@ namespace Unity.UIWidgets.material {
                         child: new ConstrainedBox(
                             constraints: new BoxConstraints(minWidth: 280.0f),
                             child: new Material(
-                                color: this.backgroundColor ?? dialogTheme.backgroundColor ??
+                                color: backgroundColor ?? dialogTheme.backgroundColor ??
                                        Theme.of(context).dialogBackgroundColor,
-                                elevation: this.elevation ?? dialogTheme.elevation ?? _defaultElevation,
-                                shape: this.shape ?? dialogTheme.shape ?? _defaultDialogShape,
+                                elevation: elevation ?? dialogTheme.elevation ?? _defaultElevation,
+                                shape: shape ?? dialogTheme.shape ?? _defaultDialogShape,
                                 type: MaterialType.card,
-                                child: this.child
+                                child: child
                             )
                         )
                     )
@@ -121,33 +121,33 @@ namespace Unity.UIWidgets.material {
 
             List<Widget> children = new List<Widget>();
 
-            if (this.title != null) {
+            if (title != null) {
                 children.Add(new Padding(
-                    padding: this.titlePadding ??
-                             EdgeInsets.fromLTRB(24.0f, 24.0f, 24.0f, this.content == null ? 20.0f : 0.0f),
+                    padding: titlePadding ??
+                             EdgeInsets.fromLTRB(24.0f, 24.0f, 24.0f, content == null ? 20.0f : 0.0f),
                     child: new DefaultTextStyle(
-                        style: this.titleTextStyle ?? dialogTheme.titleTextStyle ?? theme.textTheme.title,
-                        child: this.title
+                        style: titleTextStyle ?? dialogTheme.titleTextStyle ?? theme.textTheme.title,
+                        child: title
                     )
                 ));
             }
 
-            if (this.content != null) {
+            if (content != null) {
                 children.Add(new Flexible(
                     child: new Padding(
-                        padding: this.contentPadding,
+                        padding: contentPadding,
                         child: new DefaultTextStyle(
-                            style: this.contentTextStyle ?? dialogTheme.contentTextStyle ?? theme.textTheme.subhead,
-                            child: this.content
+                            style: contentTextStyle ?? dialogTheme.contentTextStyle ?? theme.textTheme.subhead,
+                            child: content
                         )
                     )
                 ));
             }
 
-            if (this.actions != null) {
+            if (actions != null) {
                 children.Add(ButtonTheme.bar(
                     child: new ButtonBar(
-                        children: this.actions
+                        children: actions
                     )
                 ));
             }
@@ -161,9 +161,9 @@ namespace Unity.UIWidgets.material {
             );
 
             return new Dialog(
-                backgroundColor: this.backgroundColor,
-                elevation: this.elevation,
-                shape: this.shape,
+                backgroundColor: backgroundColor,
+                elevation: elevation,
+                shape: shape,
                 child: dialogChild
             );
         }
@@ -185,10 +185,10 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             return new InkWell(
-                onTap: () => this.onPressed(),
+                onTap: () => onPressed(),
                 child: new Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.0f, horizontal: 24.0f),
-                    child: this.child
+                    child: child
                 )
             );
         }
@@ -233,21 +233,21 @@ namespace Unity.UIWidgets.material {
 
             List<Widget> body = new List<Widget>();
 
-            if (this.title != null) {
+            if (title != null) {
                 body.Add(new Padding(
-                    padding: this.titlePadding,
+                    padding: titlePadding,
                     child: new DefaultTextStyle(
                         style: Theme.of(context).textTheme.title,
-                        child: this.title
+                        child: title
                     )
                 ));
             }
 
-            if (this.children != null) {
+            if (children != null) {
                 body.Add(new Flexible(
                     child: new SingleChildScrollView(
-                        padding: this.contentPadding,
-                        child: new ListBody(children: this.children)
+                        padding: contentPadding,
+                        child: new ListBody(children: children)
                     )
                 ));
             }
@@ -265,9 +265,9 @@ namespace Unity.UIWidgets.material {
             );
 
             return new Dialog(
-                backgroundColor: this.backgroundColor,
-                elevation: this.elevation,
-                shape: this.shape,
+                backgroundColor: backgroundColor,
+                elevation: elevation,
+                shape: shape,
                 child: dialogChild
             );
         }

@@ -80,7 +80,7 @@ namespace Unity.UIWidgets.material {
         public readonly BottomNavigationBarType? type;
 
         public Color fixedColor {
-            get { return this.selectedItemColor; }
+            get { return selectedItemColor; }
         }
 
         public readonly Color backgroundColor;
@@ -180,32 +180,32 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             int size;
-            float bottomPadding = this.selectedFontSize / 2.0f;
-            float topPadding = this.selectedFontSize / 2.0f;
-            if (this.showSelectedLabels && !this.showUnselectedLabels) {
+            float bottomPadding = selectedFontSize / 2.0f;
+            float topPadding = selectedFontSize / 2.0f;
+            if (showSelectedLabels && !showUnselectedLabels) {
                 bottomPadding = new FloatTween(
                     begin: 0.0f,
-                    end: this.selectedFontSize / 2.0f
-                ).evaluate(this.animation);
+                    end: selectedFontSize / 2.0f
+                ).evaluate(animation);
                 topPadding = new FloatTween(
-                    begin: this.selectedFontSize,
-                    end: this.selectedFontSize / 2.0f
-                ).evaluate(this.animation);
+                    begin: selectedFontSize,
+                    end: selectedFontSize / 2.0f
+                ).evaluate(animation);
             }
 
-            if (!this.showSelectedLabels && !this.showUnselectedLabels) {
+            if (!showSelectedLabels && !showUnselectedLabels) {
                 bottomPadding = 0.0f;
-                topPadding = this.selectedFontSize;
+                topPadding = selectedFontSize;
             }
-            switch (this.type) {
+            switch (type) {
                 case BottomNavigationBarType.fix:
                     size = 1;
                     break;
                 case BottomNavigationBarType.shifting:
-                    size = ((this.flex * 1000.0f) ?? 0.0f).round();
+                    size = ((flex * 1000.0f) ?? 0.0f).round();
                     break;
                 default:
-                    throw new Exception("Unknown BottomNavigationBarType: " + this.type);
+                    throw new Exception("Unknown BottomNavigationBarType: " + type);
             }
 
             return new Expanded(
@@ -213,7 +213,7 @@ namespace Unity.UIWidgets.material {
                 child: new Stack(
                     children: new List<Widget> {
                         new InkResponse(
-                            onTap: this.onTap == null ? (GestureTapCallback) null : () => { this.onTap(); },
+                            onTap: onTap == null ? (GestureTapCallback) null : () => { onTap(); },
                             child: new Padding(
                                 padding: EdgeInsets.only(top: topPadding, bottom: bottomPadding),
                                 child: new Column(
@@ -222,20 +222,20 @@ namespace Unity.UIWidgets.material {
                                     mainAxisSize: MainAxisSize.min,
                                     children: new List<Widget> {
                                         new _TileIcon(
-                                            colorTween: this.colorTween,
-                                            animation: this.animation,
-                                            iconSize: this.iconSize,
-                                            selected: this.selected,
-                                            item: this.item
+                                            colorTween: colorTween,
+                                            animation: animation,
+                                            iconSize: iconSize,
+                                            selected: selected,
+                                            item: item
                                         ),
                                         new _Label(
-                                            colorTween: this.colorTween,
-                                            animation: this.animation,
-                                            item: this.item,
-                                            selectedFontSize: this.selectedFontSize,
-                                            unselectedFontSize: this.unselectedFontSize,
-                                            showSelectedLabels: this.showSelectedLabels,
-                                            showUnselectedLabels: this.showUnselectedLabels
+                                            colorTween: colorTween,
+                                            animation: animation,
+                                            item: item,
+                                            selectedFontSize: selectedFontSize,
+                                            unselectedFontSize: unselectedFontSize,
+                                            showSelectedLabels: showSelectedLabels,
+                                            showUnselectedLabels: showUnselectedLabels
                                         )
                                     }
                                 )
@@ -273,7 +273,7 @@ namespace Unity.UIWidgets.material {
         BottomNavigationBarItem item;
 
         public override Widget build(BuildContext context) {
-            Color iconColor = this.colorTween.evaluate(this.animation);
+            Color iconColor = colorTween.evaluate(animation);
 
             return new Align(
                 alignment: Alignment.topCenter,
@@ -282,9 +282,9 @@ namespace Unity.UIWidgets.material {
                     child: new IconTheme(
                         data: new IconThemeData(
                             color: iconColor,
-                            size: this.iconSize
+                            size: iconSize
                         ),
-                        child: this.selected == true ? this.item.activeIcon : this.item.icon
+                        child: selected == true ? item.activeIcon : item.icon
                     )
                 )
             );
@@ -327,36 +327,36 @@ namespace Unity.UIWidgets.material {
         public readonly bool showUnselectedLabels;
 
         public override Widget build(BuildContext context) {
-            float t = new FloatTween(begin: this.unselectedFontSize / this.selectedFontSize, end: 1.0f)
-                    .evaluate(this.animation);
+            float t = new FloatTween(begin: unselectedFontSize / selectedFontSize, end: 1.0f)
+                    .evaluate(animation);
             Widget text = DefaultTextStyle.merge(
                 style: new TextStyle(
-                    fontSize: this.selectedFontSize,
-                    color: this.colorTween.evaluate(this.animation)
+                    fontSize: selectedFontSize,
+                    color: colorTween.evaluate(animation)
                 ),
                 child: new Transform(
                     transform: Matrix3.makeAll(t, 0, 0,
                                                0, t, 0,
                                                0, 0, 1),
                     alignment: Alignment.bottomCenter,
-                    child: this.item.title
+                    child: item.title
                 )
             );
-            if (!this.showUnselectedLabels && !this.showSelectedLabels) {
+            if (!showUnselectedLabels && !showSelectedLabels) {
                 text = new Opacity(
                     opacity: 0.0f,
                     child: text
                 );
             }
-            else if (!this.showUnselectedLabels) {
+            else if (!showUnselectedLabels) {
                 text = new FadeTransition(
-                    opacity: this.animation,
+                    opacity: animation,
                     child: text
                 );
             }
-            else if (!this.showSelectedLabels) {
+            else if (!showSelectedLabels) {
                 text = new FadeTransition(
-                    opacity: new FloatTween(begin: 1.0f, end: 0.0f).animate(this.animation),
+                    opacity: new FloatTween(begin: 1.0f, end: 0.0f).animate(animation),
                     child: text
                 );
             }
@@ -382,54 +382,54 @@ namespace Unity.UIWidgets.material {
         }
 
         void _resetState() {
-            foreach (AnimationController controller in this._controllers) {
+            foreach (AnimationController controller in _controllers) {
                 controller.dispose();
             }
 
-            foreach (_Circle circle in this._circles) {
+            foreach (_Circle circle in _circles) {
                 circle.dispose();
             }
 
-            this._circles.Clear();
+            _circles.Clear();
 
-            this._controllers = new List<AnimationController>(capacity: this.widget.items.Count);
-            for (int index = 0; index < this.widget.items.Count; index++) {
+            _controllers = new List<AnimationController>(capacity: widget.items.Count);
+            for (int index = 0; index < widget.items.Count; index++) {
                 AnimationController controller = new AnimationController(
                     duration: ThemeUtils.kThemeAnimationDuration,
                     vsync: this
                 );
-                controller.addListener(this._rebuild);
-                this._controllers.Add(controller);
+                controller.addListener(_rebuild);
+                _controllers.Add(controller);
             }
 
-            this._animations = new List<CurvedAnimation>(capacity: this.widget.items.Count);
-            for (int index = 0; index < this.widget.items.Count; index++) {
-                this._animations.Add(new CurvedAnimation(
-                    parent: this._controllers[index],
+            _animations = new List<CurvedAnimation>(capacity: widget.items.Count);
+            for (int index = 0; index < widget.items.Count; index++) {
+                _animations.Add(new CurvedAnimation(
+                    parent: _controllers[index],
                     curve: Curves.fastOutSlowIn,
                     reverseCurve: Curves.fastOutSlowIn.flipped
                 ));
             }
 
-            this._controllers[this.widget.currentIndex].setValue(1.0f);
-            this._backgroundColor = this.widget.items[this.widget.currentIndex].backgroundColor;
+            _controllers[widget.currentIndex].setValue(1.0f);
+            _backgroundColor = widget.items[widget.currentIndex].backgroundColor;
         }
 
         public override void initState() {
             base.initState();
-            this._resetState();
+            _resetState();
         }
 
         void _rebuild() {
-            this.setState(() => { });
+            setState(() => { });
         }
 
         public override void dispose() {
-            foreach (AnimationController controller in this._controllers) {
+            foreach (AnimationController controller in _controllers) {
                 controller.dispose();
             }
 
-            foreach (_Circle circle in this._circles) {
+            foreach (_Circle circle in _circles) {
                 circle.dispose();
             }
 
@@ -441,20 +441,20 @@ namespace Unity.UIWidgets.material {
         }
 
         void _pushCircle(int index) {
-            if (this.widget.items[index].backgroundColor != null) {
+            if (widget.items[index].backgroundColor != null) {
                 _Circle circle = new _Circle(
                     state: this,
                     index: index,
-                    color: this.widget.items[index].backgroundColor,
+                    color: widget.items[index].backgroundColor,
                     vsync: this
                 );
                 circle.controller.addStatusListener(
                     (AnimationStatus status) => {
                         switch (status) {
                             case AnimationStatus.completed:
-                                this.setState(() => {
-                                    _Circle cir = this._circles.Dequeue();
-                                    this._backgroundColor = cir.color;
+                                setState(() => {
+                                    _Circle cir = _circles.Dequeue();
+                                    _backgroundColor = cir.color;
                                     cir.dispose();
                                 });
                                 break;
@@ -465,41 +465,41 @@ namespace Unity.UIWidgets.material {
                         }
                     }
                 );
-                this._circles.Enqueue(circle);
+                _circles.Enqueue(circle);
             }
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             base.didUpdateWidget(_oldWidget);
             BottomNavigationBar oldWidget = _oldWidget as BottomNavigationBar;
-            if (this.widget.items.Count != oldWidget.items.Count) {
-                this._resetState();
+            if (widget.items.Count != oldWidget.items.Count) {
+                _resetState();
                 return;
             }
 
-            if (this.widget.currentIndex != oldWidget.currentIndex) {
-                switch (this.widget.type) {
+            if (widget.currentIndex != oldWidget.currentIndex) {
+                switch (widget.type) {
                     case BottomNavigationBarType.fix:
                         break;
                     case BottomNavigationBarType.shifting:
-                        this._pushCircle(this.widget.currentIndex);
+                        _pushCircle(widget.currentIndex);
                         break;
                 }
 
-                this._controllers[oldWidget.currentIndex].reverse();
-                this._controllers[this.widget.currentIndex].forward();
+                _controllers[oldWidget.currentIndex].reverse();
+                _controllers[widget.currentIndex].forward();
             }
             else {
-                if (this._backgroundColor != this.widget.items[this.widget.currentIndex].backgroundColor) {
-                    this._backgroundColor = this.widget.items[this.widget.currentIndex].backgroundColor;
+                if (_backgroundColor != widget.items[widget.currentIndex].backgroundColor) {
+                    _backgroundColor = widget.items[widget.currentIndex].backgroundColor;
                 }
             }
         }
 
         List<Widget> _createTiles() {
-            MaterialLocalizations localizations = MaterialLocalizations.of(this.context);
+            MaterialLocalizations localizations = MaterialLocalizations.of(context);
             D.assert(localizations != null);
-            ThemeData themeData = Theme.of(this.context);
+            ThemeData themeData = Theme.of(context);
             Color themeColor;
             switch (themeData.brightness) {
                 case Brightness.light:
@@ -513,44 +513,44 @@ namespace Unity.UIWidgets.material {
             }
 
             ColorTween colorTween;
-            switch (this.widget.type) {
+            switch (widget.type) {
                 case BottomNavigationBarType.fix:
                     colorTween = new ColorTween(
-                        begin: this.widget.unselectedItemColor ?? themeData.textTheme.caption.color,
-                        end: this.widget.selectedItemColor ?? this.widget.fixedColor ?? themeColor
+                        begin: widget.unselectedItemColor ?? themeData.textTheme.caption.color,
+                        end: widget.selectedItemColor ?? widget.fixedColor ?? themeColor
                     );
                     break;
                 case BottomNavigationBarType.shifting:
                     colorTween = new ColorTween(
-                        begin: this.widget.unselectedItemColor ?? Colors.white,
-                        end: this.widget.selectedItemColor ?? Colors.white
+                        begin: widget.unselectedItemColor ?? Colors.white,
+                        end: widget.selectedItemColor ?? Colors.white
                     );
                     break;
                 default:
-                    throw new UIWidgetsError($"Unknown bottom navigation bar type: {this.widget.type}");
+                    throw new UIWidgetsError($"Unknown bottom navigation bar type: {widget.type}");
             }
 
             List<Widget> tiles = new List<Widget>();
-            for (int i = 0; i < this.widget.items.Count; i++) {
+            for (int i = 0; i < widget.items.Count; i++) {
                 int index = i;
                 tiles.Add(new _BottomNavigationTile(
-                    this.widget.type,
-                    this.widget.items[i],
-                    this._animations[i],
-                    this.widget.iconSize,
-                    selectedFontSize: this.widget.selectedFontSize,
-                    unselectedFontSize: this.widget.unselectedFontSize,
+                    widget.type,
+                    widget.items[i],
+                    _animations[i],
+                    widget.iconSize,
+                    selectedFontSize: widget.selectedFontSize,
+                    unselectedFontSize: widget.unselectedFontSize,
                     onTap: () => {
-                        if (this.widget.onTap != null) {
-                            this.widget.onTap(index);
+                        if (widget.onTap != null) {
+                            widget.onTap(index);
                         }
                     },
                     colorTween: colorTween,
-                    flex: this._evaluateFlex(this._animations[i]),
-                    selected: i == this.widget.currentIndex,
-                    showSelectedLabels: this.widget.showSelectedLabels,
-                    showUnselectedLabels: this.widget.showUnselectedLabels,
-                    indexLabel: localizations.tabLabel(tabIndex: i+1, tabCount: this.widget.items.Count)
+                    flex: _evaluateFlex(_animations[i]),
+                    selected: i == widget.currentIndex,
+                    showSelectedLabels: widget.showSelectedLabels,
+                    showUnselectedLabels: widget.showUnselectedLabels,
+                    indexLabel: localizations.tabLabel(tabIndex: i+1, tabCount: widget.items.Count)
                 ));
             }
 
@@ -572,27 +572,27 @@ namespace Unity.UIWidgets.material {
             D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
 
             float additionalBottomPadding =
-                Mathf.Max(MediaQuery.of(context).padding.bottom - this.widget.selectedFontSize / 2.0f, 0.0f);
+                Mathf.Max(MediaQuery.of(context).padding.bottom - widget.selectedFontSize / 2.0f, 0.0f);
             Color backgroundColor = null;
-            switch (this.widget.type) {
+            switch (widget.type) {
                 case BottomNavigationBarType.fix:
-                    backgroundColor = this.widget.backgroundColor;
+                    backgroundColor = widget.backgroundColor;
                     break;
                 case BottomNavigationBarType.shifting:
-                    backgroundColor = this._backgroundColor;
+                    backgroundColor = _backgroundColor;
                     break;
             }
 
 
             return new Material(
-                elevation: this.widget.elevation,
+                elevation: widget.elevation,
                 color: backgroundColor,
                 child: new ConstrainedBox(
                     constraints: new BoxConstraints(
                         minHeight: Constants.kBottomNavigationBarHeight + additionalBottomPadding),
                     child: new CustomPaint(
                         painter: new _RadialPainter(
-                            circles: this._circles.ToList()
+                            circles: _circles.ToList()
                         ),
                         child: new Material( // Splashes.
                             type: MaterialType.transparency,
@@ -601,7 +601,7 @@ namespace Unity.UIWidgets.material {
                                 child: MediaQuery.removePadding(
                                     context: context,
                                     removeBottom: true,
-                                    child: this._createContainer(this._createTiles())
+                                    child: _createContainer(_createTiles())
                                 )
                             )
                         )
@@ -624,15 +624,15 @@ namespace Unity.UIWidgets.material {
             this.state = state;
             this.index = index;
             this.color = color;
-            this.controller = new AnimationController(
+            controller = new AnimationController(
                 duration: ThemeUtils.kThemeAnimationDuration,
                 vsync: vsync
             );
-            this.animation = new CurvedAnimation(
-                parent: this.controller,
+            animation = new CurvedAnimation(
+                parent: controller,
                 curve: Curves.fastOutSlowIn
             );
-            this.controller.forward();
+            controller.forward();
         }
 
         public readonly _BottomNavigationBarState state;
@@ -644,19 +644,19 @@ namespace Unity.UIWidgets.material {
         public float horizontalLeadingOffset {
             get {
                 float weightSum(IEnumerable<Animation<float>> animations) {
-                    return animations.Select(this.state._evaluateFlex).Sum();
+                    return animations.Select(state._evaluateFlex).Sum();
                 }
 
-                float allWeights = weightSum(this.state._animations);
-                float leadingWeights = weightSum(this.state._animations.GetRange(0, this.index ?? 0));
+                float allWeights = weightSum(state._animations);
+                float leadingWeights = weightSum(state._animations.GetRange(0, index ?? 0));
 
-                return (leadingWeights + this.state._evaluateFlex(this.state._animations[this.index ?? 0]) / 2.0f) /
+                return (leadingWeights + state._evaluateFlex(state._animations[index ?? 0]) / 2.0f) /
                        allWeights;
             }
         }
 
         public void dispose() {
-            this.controller.dispose();
+            controller.dispose();
         }
     }
 
@@ -678,16 +678,16 @@ namespace Unity.UIWidgets.material {
 
         public override bool shouldRepaint(CustomPainter _oldPainter) {
             _RadialPainter oldPainter = _oldPainter as _RadialPainter;
-            if (this.circles == oldPainter.circles) {
+            if (circles == oldPainter.circles) {
                 return false;
             }
 
-            if (this.circles.Count != oldPainter.circles.Count) {
+            if (circles.Count != oldPainter.circles.Count) {
                 return true;
             }
 
-            for (int i = 0; i < this.circles.Count; i += 1) {
-                if (this.circles[i] != oldPainter.circles[i]) {
+            for (int i = 0; i < circles.Count; i += 1) {
+                if (circles[i] != oldPainter.circles[i]) {
                     return true;
                 }
             }
@@ -696,7 +696,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void paint(Canvas canvas, Size size) {
-            foreach (_Circle circle in this.circles) {
+            foreach (_Circle circle in circles) {
                 Paint paint = new Paint();
                 paint.color = circle.color;
                 Rect rect = Rect.fromLTWH(0.0f, 0.0f, size.width, size.height);

@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.material {
         public readonly Widget child;
 
         public override string ToString() {
-            return "MergeableSlice(key: " + this.key + ", child: " + this.child + ")";
+            return "MergeableSlice(key: " + key + ", child: " + child + ")";
         }
     }
 
@@ -44,7 +44,7 @@ namespace Unity.UIWidgets.material {
         public readonly float size;
 
         public override string ToString() {
-            return "MaterialGap(key: " + this.key + ", child: " + this.size + ")";
+            return "MaterialGap(key: " + key + ", child: " + size + ")";
         }
     }
 
@@ -72,8 +72,8 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<Axis>("mainAxis", this.mainAxis));
-            properties.add(new FloatProperty("elevation", this.elevation));
+            properties.add(new EnumProperty<Axis>("mainAxis", mainAxis));
+            properties.add(new FloatProperty("elevation", elevation));
         }
 
         public override State createState() {
@@ -116,17 +116,17 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._children = new List<MergeableMaterialItem>();
-            this._children.AddRange(this.widget.children);
+            _children = new List<MergeableMaterialItem>();
+            _children.AddRange(widget.children);
 
-            for (int i = 0; i < this._children.Count; i++) {
-                if (this._children[i] is MaterialGap) {
-                    this._initGap((MaterialGap) this._children[i]);
-                    this._animationTuples[this._children[i].key].controller.setValue(1.0f);
+            for (int i = 0; i < _children.Count; i++) {
+                if (_children[i] is MaterialGap) {
+                    _initGap((MaterialGap) _children[i]);
+                    _animationTuples[_children[i].key].controller.setValue(1.0f);
                 }
             }
 
-            D.assert(this._debugGapsAreValid(this._children));
+            D.assert(_debugGapsAreValid(_children));
         }
 
         void _initGap(MaterialGap gap) {
@@ -146,9 +146,9 @@ namespace Unity.UIWidgets.material {
                 parent: controller,
                 curve: Curves.fastOutSlowIn);
 
-            controller.addListener(this._handleTick);
+            controller.addListener(_handleTick);
 
-            this._animationTuples[gap.key] = new _AnimationTuple(
+            _animationTuples[gap.key] = new _AnimationTuple(
                 controller: controller,
                 startAnimation: startAnimation,
                 endAnimation: endAnimation,
@@ -156,9 +156,9 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void dispose() {
-            foreach (MergeableMaterialItem child in this._children) {
+            foreach (MergeableMaterialItem child in _children) {
                 if (child is MaterialGap) {
-                    this._animationTuples[child.key].controller.dispose();
+                    _animationTuples[child.key].controller.dispose();
                 }
             }
 
@@ -167,13 +167,13 @@ namespace Unity.UIWidgets.material {
 
 
         void _handleTick() {
-            this.setState(() => { });
+            setState(() => { });
         }
 
         bool _debugHasConsecutiveGaps(List<MergeableMaterialItem> children) {
-            for (int i = 0; i < this.widget.children.Count - 1; i++) {
-                if (this.widget.children[i] is MaterialGap &&
-                    this.widget.children[i + 1] is MaterialGap) {
+            for (int i = 0; i < widget.children.Count - 1; i++) {
+                if (widget.children[i] is MaterialGap &&
+                    widget.children[i + 1] is MaterialGap) {
                     return true;
                 }
             }
@@ -182,7 +182,7 @@ namespace Unity.UIWidgets.material {
         }
 
         bool _debugGapsAreValid(List<MergeableMaterialItem> children) {
-            if (this._debugHasConsecutiveGaps(children)) {
+            if (_debugHasConsecutiveGaps(children)) {
                 return false;
             }
 
@@ -196,25 +196,25 @@ namespace Unity.UIWidgets.material {
         }
 
         void _insertChild(int index, MergeableMaterialItem child) {
-            this._children.Insert(index, child);
+            _children.Insert(index, child);
 
             if (child is MaterialGap) {
-                this._initGap((MaterialGap) child);
+                _initGap((MaterialGap) child);
             }
         }
 
         void _removeChild(int index) {
-            MergeableMaterialItem child = this._children[index];
-            this._children.RemoveAt(index);
+            MergeableMaterialItem child = _children[index];
+            _children.RemoveAt(index);
 
             if (child is MaterialGap) {
-                this._animationTuples[child.key] = null;
+                _animationTuples[child.key] = null;
             }
         }
 
         bool _isClosingGap(int index) {
-            if (index < this._children.Count - 1 && this._children[index] is MaterialGap) {
-                return this._animationTuples[this._children[index].key].controller.status == AnimationStatus.reverse;
+            if (index < _children.Count - 1 && _children[index] is MaterialGap) {
+                return _animationTuples[_children[index].key].controller.status == AnimationStatus.reverse;
             }
 
             return false;
@@ -223,10 +223,10 @@ namespace Unity.UIWidgets.material {
         void _removeEmptyGaps() {
             int j = 0;
 
-            while (j < this._children.Count) {
-                if (this._children[j] is MaterialGap &&
-                    this._animationTuples[this._children[j].key].controller.status == AnimationStatus.dismissed) {
-                    this._removeChild(j);
+            while (j < _children.Count) {
+                if (_children[j] is MaterialGap &&
+                    _animationTuples[_children[j].key].controller.status == AnimationStatus.dismissed) {
+                    _removeChild(j);
                 }
                 else {
                     j++;
@@ -244,7 +244,7 @@ namespace Unity.UIWidgets.material {
             }
 
             HashSet<LocalKey> newKeys = new HashSet<LocalKey>();
-            foreach (MergeableMaterialItem child in this.widget.children) {
+            foreach (MergeableMaterialItem child in widget.children) {
                 newKeys.Add(child.key);
             }
 
@@ -262,16 +262,16 @@ namespace Unity.UIWidgets.material {
                 }
             }
 
-            List<MergeableMaterialItem> newChildren = this.widget.children;
+            List<MergeableMaterialItem> newChildren = widget.children;
             int i = 0;
             int j = 0;
 
-            D.assert(this._debugGapsAreValid(newChildren));
-            this._removeEmptyGaps();
+            D.assert(_debugGapsAreValid(newChildren));
+            _removeEmptyGaps();
 
-            while (i < newChildren.Count && j < this._children.Count) {
+            while (i < newChildren.Count && j < _children.Count) {
                 if (newOnly.Contains(newChildren[i].key) ||
-                    oldOnly.Contains(this._children[j].key)) {
+                    oldOnly.Contains(_children[j].key)) {
                     int startNew = i;
                     int startOld = j;
 
@@ -279,7 +279,7 @@ namespace Unity.UIWidgets.material {
                         i++;
                     }
 
-                    while (oldOnly.Contains(this._children[j].key) || this._isClosingGap(j)) {
+                    while (oldOnly.Contains(_children[j].key) || _isClosingGap(j)) {
                         j++;
                     }
 
@@ -287,32 +287,32 @@ namespace Unity.UIWidgets.material {
                     int oldLength = j - startOld;
 
                     if (newLength > 0) {
-                        if (oldLength > 1 || oldLength == 1 && this._children[startOld] is MaterialSlice) {
+                        if (oldLength > 1 || oldLength == 1 && _children[startOld] is MaterialSlice) {
                             if (newLength == 1 && newChildren[startNew] is MaterialGap) {
                                 float gapSizeSum = 0.0f;
 
                                 while (startOld < j) {
-                                    if (this._children[startOld] is MaterialGap) {
-                                        MaterialGap gap = (MaterialGap) this._children[startOld];
+                                    if (_children[startOld] is MaterialGap) {
+                                        MaterialGap gap = (MaterialGap) _children[startOld];
                                         gapSizeSum += gap.size;
                                     }
 
-                                    this._removeChild(startOld);
+                                    _removeChild(startOld);
                                     j--;
                                 }
 
-                                this._insertChild(startOld, newChildren[startNew]);
-                                this._animationTuples[newChildren[startNew].key].gapStart = gapSizeSum;
-                                this._animationTuples[newChildren[startNew].key].controller.forward();
+                                _insertChild(startOld, newChildren[startNew]);
+                                _animationTuples[newChildren[startNew].key].gapStart = gapSizeSum;
+                                _animationTuples[newChildren[startNew].key].controller.forward();
                                 j++;
                             }
                             else {
                                 for (int k = 0; k < oldLength; k++) {
-                                    this._removeChild(startOld);
+                                    _removeChild(startOld);
                                 }
 
                                 for (int k = 0; k < newLength; k++) {
-                                    this._insertChild(startOld + k, newChildren[startNew + k]);
+                                    _insertChild(startOld + k, newChildren[startNew + k]);
                                 }
 
                                 j += (newLength - oldLength);
@@ -320,16 +320,16 @@ namespace Unity.UIWidgets.material {
                         }
                         else if (oldLength == 1) {
                             if (newLength == 1 && newChildren[startNew] is MaterialGap &&
-                                this._children[startOld].key == newChildren[startNew].key) {
-                                this._animationTuples[newChildren[startNew].key].controller.forward();
+                                _children[startOld].key == newChildren[startNew].key) {
+                                _animationTuples[newChildren[startNew].key].controller.forward();
                             }
                             else {
-                                float gapSize = this._getGapSize(startOld);
+                                float gapSize = _getGapSize(startOld);
 
-                                this._removeChild(startOld);
+                                _removeChild(startOld);
 
                                 for (int k = 0; k < newLength; k++) {
-                                    this._insertChild(startOld + k, newChildren[startNew + k]);
+                                    _insertChild(startOld + k, newChildren[startNew + k]);
                                 }
 
                                 j += (newLength - 1);
@@ -346,20 +346,20 @@ namespace Unity.UIWidgets.material {
                                     if (newChildren[k] is MaterialGap) {
                                         MaterialGap gap = (MaterialGap) newChildren[k];
 
-                                        this._animationTuples[gap.key].gapStart = gapSize * gap.size / gapSizeSum;
-                                        this._animationTuples[gap.key].controller.setValue(0.0f);
-                                        this._animationTuples[gap.key].controller.forward();
+                                        _animationTuples[gap.key].gapStart = gapSize * gap.size / gapSizeSum;
+                                        _animationTuples[gap.key].controller.setValue(0.0f);
+                                        _animationTuples[gap.key].controller.forward();
                                     }
                                 }
                             }
                         }
                         else {
                             for (int k = 0; k < newLength; k++) {
-                                this._insertChild(startOld + k, newChildren[startNew + k]);
+                                _insertChild(startOld + k, newChildren[startNew + k]);
 
                                 if (newChildren[startNew + k] is MaterialGap) {
                                     MaterialGap gap = (MaterialGap) newChildren[startNew + k];
-                                    this._animationTuples[gap.key].controller.forward();
+                                    _animationTuples[gap.key].controller.forward();
                                 }
                             }
 
@@ -367,55 +367,55 @@ namespace Unity.UIWidgets.material {
                         }
                     }
                     else {
-                        if (oldLength > 1 || oldLength == 1 && this._children[startOld] is MaterialSlice) {
+                        if (oldLength > 1 || oldLength == 1 && _children[startOld] is MaterialSlice) {
                             float gapSizeSum = 0.0f;
 
                             while (startOld < j) {
-                                if (this._children[startOld] is MaterialGap) {
-                                    MaterialGap gap = (MaterialGap) this._children[startOld];
+                                if (_children[startOld] is MaterialGap) {
+                                    MaterialGap gap = (MaterialGap) _children[startOld];
                                     gapSizeSum += gap.size;
                                 }
 
-                                this._removeChild(startOld);
+                                _removeChild(startOld);
                                 j--;
                             }
 
                             if (gapSizeSum != 0.0) {
                                 MaterialGap gap = new MaterialGap(key: new UniqueKey(), size: gapSizeSum);
-                                this._insertChild(startOld, gap);
-                                this._animationTuples[gap.key].gapStart = 0.0f;
-                                this._animationTuples[gap.key].controller.setValue(1.0f);
-                                this._animationTuples[gap.key].controller.reverse();
+                                _insertChild(startOld, gap);
+                                _animationTuples[gap.key].gapStart = 0.0f;
+                                _animationTuples[gap.key].controller.setValue(1.0f);
+                                _animationTuples[gap.key].controller.reverse();
                                 j++;
                             }
                         }
                         else if (oldLength == 1) {
-                            MaterialGap gap = (MaterialGap) this._children[startOld];
-                            this._animationTuples[gap.key].gapStart = 0.0f;
-                            this._animationTuples[gap.key].controller.reverse();
+                            MaterialGap gap = (MaterialGap) _children[startOld];
+                            _animationTuples[gap.key].gapStart = 0.0f;
+                            _animationTuples[gap.key].controller.reverse();
                         }
                     }
                 }
                 else {
-                    if ((this._children[j] is MaterialGap) == (newChildren[i] is MaterialGap)) {
-                        this._children[j] = newChildren[i];
+                    if ((_children[j] is MaterialGap) == (newChildren[i] is MaterialGap)) {
+                        _children[j] = newChildren[i];
 
                         i++;
                         j++;
                     }
                     else {
-                        D.assert(this._children[j] is MaterialGap);
+                        D.assert(_children[j] is MaterialGap);
                         j++;
                     }
                 }
             }
 
-            while (j < this._children.Count) {
-                this._removeChild(j);
+            while (j < _children.Count) {
+                _removeChild(j);
             }
 
             while (i < newChildren.Count) {
-                this._insertChild(j, newChildren[i]);
+                _insertChild(j, newChildren[i]);
 
                 i++;
                 j++;
@@ -435,21 +435,21 @@ namespace Unity.UIWidgets.material {
             Radius startRadius = Radius.zero;
             Radius endRadius = Radius.zero;
 
-            if (index > 0 && this._children[index - 1] is MaterialGap) {
+            if (index > 0 && _children[index - 1] is MaterialGap) {
                 startRadius = Radius.lerp(
                     Radius.zero,
                     cardRadius,
-                    this._animationTuples[this._children[index - 1].key].startAnimation.value);
+                    _animationTuples[_children[index - 1].key].startAnimation.value);
             }
 
-            if (index < this._children.Count - 2 && this._children[index + 1] is MaterialGap) {
+            if (index < _children.Count - 2 && _children[index + 1] is MaterialGap) {
                 endRadius = Radius.lerp(
                     Radius.zero,
                     cardRadius,
-                    this._animationTuples[this._children[index + 1].key].endAnimation.value);
+                    _animationTuples[_children[index + 1].key].endAnimation.value);
             }
 
-            if (this.widget.mainAxis == Axis.vertical) {
+            if (widget.mainAxis == Axis.vertical) {
                 return BorderRadius.vertical(
                     top: start ? cardRadius : startRadius,
                     bottom: end ? cardRadius : endRadius);
@@ -463,11 +463,11 @@ namespace Unity.UIWidgets.material {
 
 
         float _getGapSize(int index) {
-            MaterialGap gap = (MaterialGap) this._children[index];
+            MaterialGap gap = (MaterialGap) _children[index];
 
-            return MathUtils.lerpFloat(this._animationTuples[gap.key].gapStart,
+            return MathUtils.lerpFloat(_animationTuples[gap.key].gapStart,
                 gap.size,
-                this._animationTuples[gap.key].gapAnimation.value);
+                _animationTuples[gap.key].gapAnimation.value);
         }
 
 
@@ -476,32 +476,32 @@ namespace Unity.UIWidgets.material {
                 return false;
             }
 
-            if (index >= this._children.Count) {
+            if (index >= _children.Count) {
                 return false;
             }
 
-            return this._children[index] is MaterialSlice || this._isClosingGap(index);
+            return _children[index] is MaterialSlice || _isClosingGap(index);
         }
 
 
         public override Widget build(BuildContext context) {
-            this._removeEmptyGaps();
+            _removeEmptyGaps();
 
             List<Widget> widgets = new List<Widget>();
             List<Widget> slices = new List<Widget>();
             int i;
 
-            for (i = 0; i < this._children.Count; i++) {
-                if (this._children[i] is MaterialGap) {
+            for (i = 0; i < _children.Count; i++) {
+                if (_children[i] is MaterialGap) {
                     D.assert(slices.isNotEmpty());
                     widgets.Add(
                         new Container(
                             decoration: new BoxDecoration(
                                 color: Theme.of(context).cardColor,
-                                borderRadius: this._borderRadius(i - 1, widgets.isEmpty(), false),
+                                borderRadius: _borderRadius(i - 1, widgets.isEmpty(), false),
                                 shape: BoxShape.rectangle),
                             child: new ListBody(
-                                mainAxis: this.widget.mainAxis,
+                                mainAxis: widget.mainAxis,
                                 children: slices)
                         )
                     );
@@ -509,17 +509,17 @@ namespace Unity.UIWidgets.material {
                     slices = new List<Widget>();
                     widgets.Add(
                         new SizedBox(
-                            width: this.widget.mainAxis == Axis.horizontal ? this._getGapSize(i) : (float?) null,
-                            height: this.widget.mainAxis == Axis.vertical ? this._getGapSize(i) : (float?) null)
+                            width: widget.mainAxis == Axis.horizontal ? _getGapSize(i) : (float?) null,
+                            height: widget.mainAxis == Axis.vertical ? _getGapSize(i) : (float?) null)
                     );
                 }
                 else {
-                    MaterialSlice slice = (MaterialSlice) this._children[i];
+                    MaterialSlice slice = (MaterialSlice) _children[i];
                     Widget child = slice.child;
 
-                    if (this.widget.hasDividers) {
-                        bool hasTopDivider = this._willNeedDivider(i - 1);
-                        bool hasBottomDivider = this._willNeedDivider(i + 1);
+                    if (widget.hasDividers) {
+                        bool hasTopDivider = _willNeedDivider(i - 1);
+                        bool hasBottomDivider = _willNeedDivider(i + 1);
 
                         Border border;
                         BorderSide divider = Divider.createBorderSide(
@@ -531,7 +531,7 @@ namespace Unity.UIWidgets.material {
                             border = new Border(
                                 bottom: hasBottomDivider ? divider : BorderSide.none);
                         }
-                        else if (i == this._children.Count - 1) {
+                        else if (i == _children.Count - 1) {
                             border = new Border(
                                 top: hasTopDivider ? divider : BorderSide.none);
                         }
@@ -545,7 +545,7 @@ namespace Unity.UIWidgets.material {
                         D.assert(border != null);
 
                         child = new AnimatedContainer(
-                            key: new _MergeableMaterialSliceKey(this._children[i].key),
+                            key: new _MergeableMaterialSliceKey(_children[i].key),
                             decoration: new BoxDecoration(border: border),
                             duration: ThemeUtils.kThemeAnimationDuration,
                             curve: Curves.fastOutSlowIn,
@@ -567,11 +567,11 @@ namespace Unity.UIWidgets.material {
                     new Container(
                         decoration: new BoxDecoration(
                             color: Theme.of(context).cardColor,
-                            borderRadius: this._borderRadius(i - 1, widgets.isEmpty(), true),
+                            borderRadius: _borderRadius(i - 1, widgets.isEmpty(), true),
                             shape: BoxShape.rectangle
                         ),
                         child: new ListBody(
-                            mainAxis: this.widget.mainAxis,
+                            mainAxis: widget.mainAxis,
                             children: slices
                         )
                     )
@@ -580,9 +580,9 @@ namespace Unity.UIWidgets.material {
             }
 
             return new _MergeableMaterialListBody(
-                mainAxis: this.widget.mainAxis,
-                boxShadows: ShadowConstants.kElevationToShadow[this.widget.elevation],
-                items: this._children,
+                mainAxis: widget.mainAxis,
+                boxShadows: ShadowConstants.kElevationToShadow[widget.elevation],
+                items: _children,
                 children: widgets
             );
         }
@@ -605,7 +605,7 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return other.value == this.value;
+            return other.value == value;
         }
 
         public override bool Equals(object obj) {
@@ -617,11 +617,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_MergeableMaterialSliceKey) obj);
+            return Equals((_MergeableMaterialSliceKey) obj);
         }
 
         public static bool operator ==(_MergeableMaterialSliceKey left, _MergeableMaterialSliceKey right) {
@@ -634,13 +634,13 @@ namespace Unity.UIWidgets.material {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.value.GetHashCode();
+                var hashCode = value.GetHashCode();
                 return hashCode;
             }
         }
 
         public override string ToString() {
-            return "_MergeableMaterialSliceKey(" + this.value + ")";
+            return "_MergeableMaterialSliceKey(" + value + ")";
         }
     }
 
@@ -661,21 +661,21 @@ namespace Unity.UIWidgets.material {
         public readonly List<BoxShadow> boxShadows;
 
         AxisDirection _getDirection(BuildContext context) {
-            return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, this.mainAxis, false) ??
+            return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, mainAxis, false) ??
                    AxisDirection.right;
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderMergeableMaterialListBody(
-                axisDirection: this._getDirection(context),
-                boxShadows: this.boxShadows
+                axisDirection: _getDirection(context),
+                boxShadows: boxShadows
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             _RenderMergeableMaterialListBody materialRenderListBody = (_RenderMergeableMaterialListBody) renderObject;
-            materialRenderListBody.axisDirection = this._getDirection(context);
-            materialRenderListBody.boxShadows = this.boxShadows;
+            materialRenderListBody.axisDirection = _getDirection(context);
+            materialRenderListBody.boxShadows = boxShadows;
         }
     }
 
@@ -692,7 +692,7 @@ namespace Unity.UIWidgets.material {
         public List<BoxShadow> boxShadows;
 
         void _paintShadows(Canvas canvas, Rect rect) {
-            foreach (BoxShadow boxShadow in this.boxShadows) {
+            foreach (BoxShadow boxShadow in boxShadows) {
                 Paint paint = boxShadow.toPaint();
                 canvas.drawRRect(
                     MaterialConstantsUtils.kMaterialEdges[MaterialType.card].toRRect(rect), paint);
@@ -700,21 +700,21 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             int i = 0;
 
             while (child != null) {
                 ListBodyParentData childParentData = (ListBodyParentData) child.parentData;
                 Rect rect = (childParentData.offset + offset) & child.size;
                 if (i % 2 == 0) {
-                    this._paintShadows(context.canvas, rect);
+                    _paintShadows(context.canvas, rect);
                 }
 
                 child = childParentData.nextSibling;
                 i++;
             }
 
-            this.defaultPaint(context, offset);
+            defaultPaint(context, offset);
         }
     }
 }

@@ -7,13 +7,13 @@ namespace Unity.UIWidgets.ui {
         void _drawRRectShadow(uiPath path, uiPaint paint) {
             D.assert(path.isNaiveRRect, () => "Cannot draw fast Shadow for non-NaiveRRect shapes");
             D.assert(paint.style == PaintingStyle.fill, () => "Cannot draw fast Shadow for stroke lines");
-            var layer = this._currentLayer;
+            var layer = _currentLayer;
             var state = layer.currentState;
             
-            var cache = path.flatten(state.scale * this._devicePixelRatio);
+            var cache = path.flatten(state.scale * _devicePixelRatio);
             bool convex;
             
-            cache.computeFillMesh(this._fringeWidth, out convex);
+            cache.computeFillMesh(_fringeWidth, out convex);
             var fillMesh = cache.fillMesh;
             var meshBounds = fillMesh.transform(state.matrix);
             var clipBounds = layer.layerBounds;
@@ -39,7 +39,7 @@ namespace Unity.UIWidgets.ui {
             }
             
             var blurMesh = ImageMeshGenerator.imageMesh(null, uiRectHelper.one, maskBounds);
-            if (!this._applyClip(blurMesh.bounds)) {
+            if (!_applyClip(blurMesh.bounds)) {
                 ObjectPool<uiMeshMesh>.release(meshBounds);
                 ObjectPool<uiMeshMesh>.release(blurMesh);
                 return;

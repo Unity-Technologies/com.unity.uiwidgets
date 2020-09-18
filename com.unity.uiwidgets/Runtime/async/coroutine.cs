@@ -25,44 +25,44 @@ namespace Unity.UIWidgets.async {
         readonly Promise<object> _promise = new Promise<object>(isSync: true);
 
         public IPromise<object> promise {
-            get { return this._promise; }
+            get { return _promise; }
         }
 
         internal UIWidgetsCoroutine(IEnumerator routine, Window window, bool isBackground = false) {
             D.assert(routine != null);
             D.assert(window != null);
 
-            this._routine = routine;
-            this._window = window;
-            this._isBackground = isBackground;
+            _routine = routine;
+            _window = window;
+            _isBackground = isBackground;
 
             if (isBackground && BackgroundCallbacks.getInstance() != null) {
-                this._unhook = BackgroundCallbacks.getInstance().addCallback(this._moveNext);
+                _unhook = BackgroundCallbacks.getInstance().addCallback(_moveNext);
             }
             else {
-                this._unhook = this._window.run(TimeSpan.Zero, this._moveNext, periodic: true);
-                this._moveNext(true); // try to run the first enumeration in the current loop.
+                _unhook = _window.run(TimeSpan.Zero, _moveNext, periodic: true);
+                _moveNext(true); // try to run the first enumeration in the current loop.
             }
         }
 
         void _moveNext() {
-            this._moveNext(false);
+            _moveNext(false);
         }
 
         void _moveNext(bool firstTime) {
-            D.assert(!this.isDone);
+            D.assert(!isDone);
 
             var lastError = this.lastError;
             if (lastError != null) {
-                this._unhook.Dispose();
+                _unhook.Dispose();
 
-                this.isDone = true;
-                this.lastResult = null;
-                if (this._isBackground) {
-                    this._window.runInMain(() => { this._promise.Reject(lastError); });
+                isDone = true;
+                lastResult = null;
+                if (_isBackground) {
+                    _window.runInMain(() => { _promise.Reject(lastError); });
                 }
                 else {
-                    this._promise.Reject(lastError);
+                    _promise.Reject(lastError);
                 }
 
                 return;
@@ -71,27 +71,27 @@ namespace Unity.UIWidgets.async {
             bool hasNext = true;
             try {
                 if (firstTime) {
-                    hasNext = this._routine.MoveNext();
+                    hasNext = _routine.MoveNext();
                 }
                 if (hasNext) {
-                    hasNext = this._processIEnumeratorRecursive(this._routine);
+                    hasNext = _processIEnumeratorRecursive(_routine);
                 }
             }
             catch (Exception ex) {
-                this.stop(ex);
+                stop(ex);
                 return;
             }
 
-            if (!hasNext && !this.isDone) {
-                this._unhook.Dispose();
+            if (!hasNext && !isDone) {
+                _unhook.Dispose();
 
-                this.isDone = true;
+                isDone = true;
                 D.assert(this.lastError == null);
-                if (this._isBackground) {
-                    this._window.runInMain(() => { this._promise.Resolve(this.lastResult); });
+                if (_isBackground) {
+                    _window.runInMain(() => { _promise.Resolve(lastResult); });
                 }
                 else {
-                    this._promise.Resolve(this.lastResult);
+                    _promise.Resolve(lastResult);
                 }
             }
         }
@@ -100,47 +100,47 @@ namespace Unity.UIWidgets.async {
             D.assert(child != null);
 
             if (child.Current is IEnumerator nestedEnumerator) {
-                return this._processIEnumeratorRecursive(nestedEnumerator) || child.MoveNext();
+                return _processIEnumeratorRecursive(nestedEnumerator) || child.MoveNext();
             }
 
             if (child.Current is UIWidgetsCoroutine nestedCoroutine) {
-                if (this._isBackground) {
+                if (_isBackground) {
                     throw new Exception("nestedCoroutine is not supported in Background Coroutine");
                 }
 
-                this._waitForCoroutine.set(nestedCoroutine);
-                return this._waitForCoroutine.moveNext(child, this);
+                _waitForCoroutine.set(nestedCoroutine);
+                return _waitForCoroutine.moveNext(child, this);
             }
 
             if (child.Current is UIWidgetsWaitForSeconds waitForSeconds) {
-                if (this._isBackground) {
+                if (_isBackground) {
                     throw new Exception("waitForSeconds is not supported in Background Coroutine");
                 }
 
-                this._waitProcessor.set(waitForSeconds);
-                return this._waitProcessor.moveNext(child);
+                _waitProcessor.set(waitForSeconds);
+                return _waitProcessor.moveNext(child);
             }
 
             if (child.Current is AsyncOperation waitForAsyncOP) {
-                if (this._isBackground) {
+                if (_isBackground) {
                     throw new Exception("asyncOperation is not supported in Background Coroutine");
                 }
 
-                this._waitForAsyncOPProcessor.set(waitForAsyncOP);
-                return this._waitForAsyncOPProcessor.moveNext(child);
+                _waitForAsyncOPProcessor.set(waitForAsyncOP);
+                return _waitForAsyncOPProcessor.moveNext(child);
             }
 
-            this.lastResult = child.Current;
+            lastResult = child.Current;
             return child.MoveNext();
         }
 
         public void stop() {
-            this.stop(null);
+            stop(null);
         }
 
         internal void stop(Exception ex) {
-            if (this.lastError == null) {
-                this.lastError = ex ?? new CoroutineCanceledException();
+            if (lastError == null) {
+                lastError = ex ?? new CoroutineCanceledException();
             }
         }
     }
@@ -150,16 +150,16 @@ namespace Unity.UIWidgets.async {
         float _targetTime;
 
         public void set(UIWidgetsWaitForSeconds yieldStatement) {
-            if (this._current != yieldStatement) {
-                this._current = yieldStatement;
-                this._targetTime = Timer.timeSinceStartup + yieldStatement.waitTime;
+            if (_current != yieldStatement) {
+                _current = yieldStatement;
+                _targetTime = Timer.timeSinceStartup + yieldStatement.waitTime;
             }
         }
 
         public bool moveNext(IEnumerator enumerator) {
-            if (this._targetTime <= Timer.timeSinceStartup) {
-                this._current = null;
-                this._targetTime = 0;
+            if (_targetTime <= Timer.timeSinceStartup) {
+                _current = null;
+                _targetTime = 0;
                 return enumerator.MoveNext();
             }
 
@@ -171,15 +171,15 @@ namespace Unity.UIWidgets.async {
         UIWidgetsCoroutine _current;
 
         public void set(UIWidgetsCoroutine routine) {
-            if (this._current != routine) {
-                this._current = routine;
+            if (_current != routine) {
+                _current = routine;
             }
         }
 
         public bool moveNext(IEnumerator enumerator, UIWidgetsCoroutine parent) {
-            if (this._current.isDone) {
-                var current = this._current;
-                this._current = null;
+            if (_current.isDone) {
+                var current = _current;
+                _current = null;
 
                 if (current.lastError != null) {
                     parent.stop(current.lastError);
@@ -198,14 +198,14 @@ namespace Unity.UIWidgets.async {
         AsyncOperation _current;
 
         public void set(AsyncOperation operation) {
-            if (this._current != operation) {
-                this._current = operation;
+            if (_current != operation) {
+                _current = operation;
             }
         }
 
         public bool moveNext(IEnumerator enumerator) {
-            if (this._current.isDone) {
-                this._current = null;
+            if (_current.isDone) {
+                _current = null;
                 return enumerator.MoveNext();
             }
 
@@ -230,7 +230,7 @@ namespace Unity.UIWidgets.async {
         public float waitTime { get; }
 
         public UIWidgetsWaitForSeconds(float time) {
-            this.waitTime = time;
+            waitTime = time;
         }
     }
 
@@ -256,43 +256,43 @@ namespace Unity.UIWidgets.async {
         volatile bool _aborted = false;
 
         public BackgroundCallbacks(int threadCount = 1) {
-            this._callbackList = new LinkedList<_CallbackNode>();
-            this._event = new ManualResetEvent(false);
+            _callbackList = new LinkedList<_CallbackNode>();
+            _event = new ManualResetEvent(false);
 
-            this._threads = new Thread[threadCount];
-            for (var i = 0; i < this._threads.Length; i++) {
-                this._threads[i] = new Thread(this._threadLoop);
-                this._threads[i].Start();
+            _threads = new Thread[threadCount];
+            for (var i = 0; i < _threads.Length; i++) {
+                _threads[i] = new Thread(_threadLoop);
+                _threads[i].Start();
             }
         }
 
         public void Dispose() {
-            foreach (var t in this._threads) {
-                this._aborted = true;
-                this._event.Set();
+            foreach (var t in _threads) {
+                _aborted = true;
+                _event.Set();
                 t.Join();
             }
 
-            this._callbackList.Clear();
+            _callbackList.Clear();
         }
 
         void _threadLoop() {
             while (true) {
-                if (this._aborted) {
+                if (_aborted) {
                     break;
                 }
 
                 LinkedListNode<_CallbackNode> node;
-                lock (this._callbackList) {
-                    node = this._callbackList.First;
+                lock (_callbackList) {
+                    node = _callbackList.First;
                     if (node != null) {
-                        this._callbackList.Remove(node);
+                        _callbackList.Remove(node);
                     }
                 }
 
                 if (node == null) {
-                    this._event.WaitOne();
-                    this._event.Reset();
+                    _event.WaitOne();
+                    _event.Reset();
                     continue;
                 }
 
@@ -307,8 +307,8 @@ namespace Unity.UIWidgets.async {
                 }
 
                 if (!callbackNode.isDone) {
-                    lock (this._callbackList) {
-                        this._callbackList.AddLast(node);
+                    lock (_callbackList) {
+                        _callbackList.AddLast(node);
                     }
                 }
             }
@@ -316,11 +316,11 @@ namespace Unity.UIWidgets.async {
 
         public IDisposable addCallback(VoidCallback callback) {
             var node = new _CallbackNode {callback = callback};
-            lock (this._callbackList) {
-                this._callbackList.AddLast(node);
+            lock (_callbackList) {
+                _callbackList.AddLast(node);
             }
 
-            this._event.Set();
+            _event.Set();
 
             return new _CallbackDisposable(node);
         }
@@ -329,11 +329,11 @@ namespace Unity.UIWidgets.async {
             readonly _CallbackNode _node;
 
             public _CallbackDisposable(_CallbackNode node) {
-                this._node = node;
+                _node = node;
             }
 
             public void Dispose() {
-                this._node.isDone = true;
+                _node.isDone = true;
             }
         }
 

@@ -51,29 +51,29 @@ namespace UIWidgetsGallery.gallery {
 
         float _minDiameter {
             get {
-                if (this.radius == null && this.minRadius == null && this.maxRadius == null) {
+                if (radius == null && minRadius == null && maxRadius == null) {
                     return _defaultRadius * 2.0f;
                 }
 
-                return 2.0f * (this.radius ?? this.minRadius ?? _defaultMinRadius);
+                return 2.0f * (radius ?? minRadius ?? _defaultMinRadius);
             }
         }
 
         float _maxDiameter {
             get {
-                if (this.radius == null && this.minRadius == null && this.maxRadius == null) {
+                if (radius == null && minRadius == null && maxRadius == null) {
                     return _defaultRadius * 2.0f;
                 }
 
-                return 2.0f * (this.radius ?? this.maxRadius ?? _defaultMaxRadius);
+                return 2.0f * (radius ?? maxRadius ?? _defaultMaxRadius);
             }
         }
 
         public override Widget build(BuildContext context) {
             D.assert(WidgetsD.debugCheckHasMediaQuery(context));
             ThemeData theme = Theme.of(context);
-            TextStyle textStyle = theme.primaryTextTheme.subhead.copyWith(color: this.foregroundColor);
-            Color effectiveBackgroundColor = this.backgroundColor;
+            TextStyle textStyle = theme.primaryTextTheme.subhead.copyWith(color: foregroundColor);
+            Color effectiveBackgroundColor = backgroundColor;
             if (effectiveBackgroundColor == null) {
                 switch (ThemeData.estimateBrightnessForColor(textStyle.color)) {
                     case Brightness.dark:
@@ -84,8 +84,8 @@ namespace UIWidgetsGallery.gallery {
                         break;
                 }
             }
-            else if (this.foregroundColor == null) {
-                switch (ThemeData.estimateBrightnessForColor(this.backgroundColor)) {
+            else if (foregroundColor == null) {
+                switch (ThemeData.estimateBrightnessForColor(backgroundColor)) {
                     case Brightness.dark:
                         textStyle = textStyle.copyWith(color: theme.primaryColorLight);
                         break;
@@ -95,8 +95,8 @@ namespace UIWidgetsGallery.gallery {
                 }
             }
 
-            float minDiameter = this._minDiameter;
-            float maxDiameter = this._maxDiameter;
+            float minDiameter = _minDiameter;
+            float maxDiameter = _maxDiameter;
             return new AnimatedContainer(
                 constraints: new BoxConstraints(
                     minHeight: minDiameter,
@@ -107,12 +107,12 @@ namespace UIWidgetsGallery.gallery {
                 duration: Constants.kThemeChangeDuration,
                 decoration: new BoxDecoration(
                     color: effectiveBackgroundColor,
-                    image: this.backgroundImage != null
-                        ? new DecorationImage(image: this.backgroundImage, fit: BoxFit.cover)
+                    image: backgroundImage != null
+                        ? new DecorationImage(image: backgroundImage, fit: BoxFit.cover)
                         : null,
                     shape: BoxShape.circle
                 ),
-                child: this.child == null
+                child: child == null
                     ? null
                     : new Center(
                         child: new MediaQuery(
@@ -121,7 +121,7 @@ namespace UIWidgetsGallery.gallery {
                                 data: theme.iconTheme.copyWith(color: textStyle.color),
                                 child: new DefaultTextStyle(
                                     style: textStyle,
-                                    child: this.child
+                                    child: child
                                 )
                             )
                         )

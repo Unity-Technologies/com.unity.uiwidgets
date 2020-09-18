@@ -164,7 +164,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override int GetHashCode() {
-            return this.edgeGradient.GetHashCode();
+            return edgeGradient.GetHashCode();
         }
 
         public bool Equals(_CupertinoEdgeShadowDecoration other) {
@@ -176,7 +176,7 @@ namespace Unity.UIWidgets.cupertino {
                 return true;
             }
 
-            return Equals(this.edgeGradient, other.edgeGradient);
+            return Equals(edgeGradient, other.edgeGradient);
         }
 
         public override bool Equals(object obj) {
@@ -188,11 +188,11 @@ namespace Unity.UIWidgets.cupertino {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_CupertinoEdgeShadowDecoration) obj);
+            return Equals((_CupertinoEdgeShadowDecoration) obj);
         }
 
         public static bool operator ==(_CupertinoEdgeShadowDecoration left, _CupertinoEdgeShadowDecoration right) {
@@ -204,12 +204,12 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public int hashCode {
-            get { return this.edgeGradient.GetHashCode(); }
+            get { return edgeGradient.GetHashCode(); }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<LinearGradient>("edgeGradient", this.edgeGradient));
+            properties.add(new DiagnosticsProperty<LinearGradient>("edgeGradient", edgeGradient));
         }
     }
 
@@ -219,13 +219,13 @@ namespace Unity.UIWidgets.cupertino {
             VoidCallback onChange = null
         ) : base(onChange) {
             D.assert(decoration != null);
-            this._decoration = decoration;
+            _decoration = decoration;
         }
 
         readonly _CupertinoEdgeShadowDecoration _decoration;
 
         public override void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-            LinearGradient gradient = this._decoration.edgeGradient;
+            LinearGradient gradient = _decoration.edgeGradient;
             if (gradient == null) {
                 return;
             }
@@ -248,7 +248,7 @@ namespace Unity.UIWidgets.cupertino {
         ) :
             base(settings: settings, fullscreenDialog: fullscreenDialog) {
             D.assert(builder != null);
-            D.assert(this.opaque);
+            D.assert(opaque);
             this.builder = builder;
             this.title = title;
             this.maintainState = maintainState;
@@ -261,10 +261,10 @@ namespace Unity.UIWidgets.cupertino {
         public ValueListenable<string> previousTitle {
             get {
                 D.assert(
-                    this._previousTitle != null,
+                    _previousTitle != null,
                     () => "Cannot read the previousTitle for a route that has not yet been installed"
                 );
-                return this._previousTitle;
+                return _previousTitle;
             }
         }
 
@@ -272,12 +272,12 @@ namespace Unity.UIWidgets.cupertino {
             string previousTitleString = previousRoute is CupertinoPageRoute
                 ? ((CupertinoPageRoute) previousRoute).title
                 : null;
-            if (this._previousTitle == null) {
-                this._previousTitle = new ValueNotifier<string>(previousTitleString);
+            if (_previousTitle == null) {
+                _previousTitle = new ValueNotifier<string>(previousTitleString);
             }
 
             else {
-                this._previousTitle.value = previousTitleString;
+                _previousTitle.value = previousTitleString;
             }
 
             base.didChangePrevious(previousRoute);
@@ -356,12 +356,12 @@ namespace Unity.UIWidgets.cupertino {
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            Widget result = this.builder(context);
+            Widget result = builder(context);
 
             D.assert(() => {
                 if (result == null) {
                     throw new UIWidgetsError(
-                        $"The builder for route {this.settings.name} returned null.\nRoute builders must never return null.");
+                        $"The builder for route {settings.name} returned null.\nRoute builders must never return null.");
                 }
 
                 return true;
@@ -412,7 +412,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public new string debugLabel {
-            get { return $"{base.debugLabel}(${this.settings.name})"; }
+            get { return $"{base.debugLabel}(${settings.name})"; }
         }
     }
 
@@ -424,7 +424,7 @@ namespace Unity.UIWidgets.cupertino {
             bool linearTransition,
             Key key = null
         ) : base(key: key) {
-            this._primaryPositionAnimation =
+            _primaryPositionAnimation =
                 (linearTransition
                     ? primaryRouteAnimation
                     : new CurvedAnimation(
@@ -434,7 +434,7 @@ namespace Unity.UIWidgets.cupertino {
                     )
                 ).drive(CupertinoRouteUtils._kRightMiddleTween);
 
-            this._secondaryPositionAnimation =
+            _secondaryPositionAnimation =
                 (linearTransition
                     ? secondaryRouteAnimation
                     : new CurvedAnimation(
@@ -443,7 +443,7 @@ namespace Unity.UIWidgets.cupertino {
                         reverseCurve: Curves.easeInToLinear
                     )
                 ).drive(CupertinoRouteUtils._kMiddleLeftTween);
-            this._primaryShadowAnimation =
+            _primaryShadowAnimation =
                 (linearTransition
                     ? primaryRouteAnimation
                     : new CurvedAnimation(
@@ -464,15 +464,15 @@ namespace Unity.UIWidgets.cupertino {
         public override Widget build(BuildContext context) {
             TextDirection textDirection = Directionality.of(context);
             return new SlideTransition(
-                position: this._secondaryPositionAnimation,
+                position: _secondaryPositionAnimation,
                 textDirection: textDirection,
                 transformHitTests: false,
                 child: new SlideTransition(
-                    position: this._primaryPositionAnimation,
+                    position: _primaryPositionAnimation,
                     textDirection: textDirection,
                     child: new DecoratedBoxTransition(
-                        decoration: this._primaryShadowAnimation,
-                        child: this.child
+                        decoration: _primaryShadowAnimation,
+                        child: child
                     )
                 )
             );
@@ -485,7 +485,7 @@ namespace Unity.UIWidgets.cupertino {
             Widget child,
             Key key = null
         ) : base(key: key) {
-            this._positionAnimation = new CurvedAnimation(
+            _positionAnimation = new CurvedAnimation(
                 parent: animation,
                 curve: Curves.linearToEaseOut,
                 reverseCurve: Curves.linearToEaseOut.flipped
@@ -499,8 +499,8 @@ namespace Unity.UIWidgets.cupertino {
 
         public override Widget build(BuildContext context) {
             return new SlideTransition(
-                position: this._positionAnimation,
-                child: this.child
+                position: _positionAnimation,
+                child: child
             );
         }
     }
@@ -538,53 +538,53 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this._recognizer = new HorizontalDragGestureRecognizer(debugOwner: this);
-            this._recognizer.onStart = this._handleDragStart;
-            this._recognizer.onUpdate = this._handleDragUpdate;
-            this._recognizer.onEnd = this._handleDragEnd;
-            this._recognizer.onCancel = this._handleDragCancel;
+            _recognizer = new HorizontalDragGestureRecognizer(debugOwner: this);
+            _recognizer.onStart = _handleDragStart;
+            _recognizer.onUpdate = _handleDragUpdate;
+            _recognizer.onEnd = _handleDragEnd;
+            _recognizer.onCancel = _handleDragCancel;
         }
 
         public override void dispose() {
-            this._recognizer.dispose();
+            _recognizer.dispose();
             base.dispose();
         }
 
         void _handleDragStart(DragStartDetails details) {
-            D.assert(this.mounted);
-            D.assert(this._backGestureController == null);
-            this._backGestureController = this.widget.onStartPopGesture();
+            D.assert(mounted);
+            D.assert(_backGestureController == null);
+            _backGestureController = widget.onStartPopGesture();
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
-            D.assert(this.mounted);
-            D.assert(this._backGestureController != null);
-            this._backGestureController.dragUpdate(
-                this._convertToLogical(details.primaryDelta / this.context.size.width));
+            D.assert(mounted);
+            D.assert(_backGestureController != null);
+            _backGestureController.dragUpdate(
+                _convertToLogical(details.primaryDelta / context.size.width));
         }
 
         void _handleDragEnd(DragEndDetails details) {
-            D.assert(this.mounted);
-            D.assert(this._backGestureController != null);
-            this._backGestureController.dragEnd(
-                this._convertToLogical(details.velocity.pixelsPerSecond.dx / this.context.size.width) ?? 0);
-            this._backGestureController = null;
+            D.assert(mounted);
+            D.assert(_backGestureController != null);
+            _backGestureController.dragEnd(
+                _convertToLogical(details.velocity.pixelsPerSecond.dx / context.size.width) ?? 0);
+            _backGestureController = null;
         }
 
         void _handleDragCancel() {
-            D.assert(this.mounted);
-            this._backGestureController?.dragEnd(0.0f);
-            this._backGestureController = null;
+            D.assert(mounted);
+            _backGestureController?.dragEnd(0.0f);
+            _backGestureController = null;
         }
 
         void _handlePointerDown(PointerDownEvent evt) {
-            if (this.widget.enabledCallback()) {
-                this._recognizer.addPointer(evt);
+            if (widget.enabledCallback()) {
+                _recognizer.addPointer(evt);
             }
         }
 
         float? _convertToLogical(float? value) {
-            switch (Directionality.of(this.context)) {
+            switch (Directionality.of(context)) {
                 case TextDirection.rtl:
                     return -value;
                 case TextDirection.ltr:
@@ -603,14 +603,14 @@ namespace Unity.UIWidgets.cupertino {
             return new Stack(
                 fit: StackFit.passthrough,
                 children: new List<Widget> {
-                    this.widget.child,
+                    widget.child,
                     new Positioned(
                         left: 0.0f,
                         width: dragAreaWidth,
                         top: 0.0f,
                         bottom: 0.0f,
                         child: new Listener(
-                            onPointerDown: this._handlePointerDown,
+                            onPointerDown: _handlePointerDown,
                             behavior: HitTestBehavior.translucent
                         )
                     )
@@ -637,7 +637,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public void dragUpdate(float? delta) {
             if (delta != null) {
-                this.controller.setValue(this.controller.value - (float) delta);
+                controller.setValue(controller.value - (float) delta);
             }
         }
 
@@ -649,40 +649,40 @@ namespace Unity.UIWidgets.cupertino {
                 animateForward = velocity > 0 ? false : true;
             }
             else {
-                animateForward = this.controller.value > 0.5 ? true : false;
+                animateForward = controller.value > 0.5 ? true : false;
             }
 
             if (animateForward) {
                 int droppedPageForwardAnimationTime = Mathf.Min(
                     MathUtils.lerpFloat(CupertinoRouteUtils._kMaxDroppedSwipePageForwardAnimationTime, 0f,
-                        this.controller.value).floor(),
+                        controller.value).floor(),
                     CupertinoRouteUtils._kMaxPageBackAnimationTime
                 );
-                this.controller.animateTo(1.0f, duration: new TimeSpan(0, 0, 0, 0, droppedPageForwardAnimationTime),
+                controller.animateTo(1.0f, duration: new TimeSpan(0, 0, 0, 0, droppedPageForwardAnimationTime),
                     curve: animationCurve);
             }
             else {
-                this.navigator.pop();
+                navigator.pop();
 
-                if (this.controller.isAnimating) {
+                if (controller.isAnimating) {
                     int droppedPageBackAnimationTime =
                         MathUtils.lerpFloat(0f, CupertinoRouteUtils._kMaxDroppedSwipePageForwardAnimationTime,
-                            this.controller.value).floor();
-                    this.controller.animateBack(0.0f, duration: new TimeSpan(0, 0, 0, 0, droppedPageBackAnimationTime),
+                            controller.value).floor();
+                    controller.animateBack(0.0f, duration: new TimeSpan(0, 0, 0, 0, droppedPageBackAnimationTime),
                         curve: animationCurve);
                 }
             }
 
-            if (this.controller.isAnimating) {
+            if (controller.isAnimating) {
                 AnimationStatusListener animationStatusCallback = null;
                 animationStatusCallback = (AnimationStatus status) => {
-                    this.navigator.didStopUserGesture();
-                    this.controller.removeStatusListener(animationStatusCallback);
+                    navigator.didStopUserGesture();
+                    controller.removeStatusListener(animationStatusCallback);
                 };
-                this.controller.addStatusListener(animationStatusCallback);
+                controller.addStatusListener(animationStatusCallback);
             }
             else {
-                this.navigator.didStopUserGesture();
+                navigator.didStopUserGesture();
             }
         }
     }
@@ -723,23 +723,23 @@ namespace Unity.UIWidgets.cupertino {
         Tween<Offset> _offsetTween;
 
         public override Animation<float> createAnimation() {
-            D.assert(this._animation == null);
-            this._animation = new CurvedAnimation(
+            D.assert(_animation == null);
+            _animation = new CurvedAnimation(
                 parent: base.createAnimation(),
                 curve: Curves.linearToEaseOut,
                 reverseCurve: Curves.linearToEaseOut.flipped
             );
-            this._offsetTween = new OffsetTween(
+            _offsetTween = new OffsetTween(
                 begin: new Offset(0.0f, 1.0f),
                 end: new Offset(0.0f, 0.0f)
             );
-            return this._animation;
+            return _animation;
         }
 
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            return this.builder(context);
+            return builder(context);
         }
 
 
@@ -748,7 +748,7 @@ namespace Unity.UIWidgets.cupertino {
             return new Align(
                 alignment: Alignment.bottomCenter,
                 child: new FractionalTranslation(
-                    translation: this._offsetTween.evaluate(this._animation),
+                    translation: _offsetTween.evaluate(_animation),
                     child: child
                 )
             );

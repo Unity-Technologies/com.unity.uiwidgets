@@ -29,41 +29,41 @@ namespace Unity.UIWidgets.widgets {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            if (this.widget.onWillPop != null) {
-                this._route?.removeScopedWillPopCallback(this.widget.onWillPop);
+            if (widget.onWillPop != null) {
+                _route?.removeScopedWillPopCallback(widget.onWillPop);
             }
 
-            this._route = ModalRoute.of(this.context);
-            if (this.widget.onWillPop != null) {
-                this._route?.addScopedWillPopCallback(this.widget.onWillPop);
+            _route = ModalRoute.of(context);
+            if (widget.onWillPop != null) {
+                _route?.addScopedWillPopCallback(widget.onWillPop);
             }
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             base.didUpdateWidget(_oldWidget);
-            D.assert(this._route == ModalRoute.of(this.context));
+            D.assert(_route == ModalRoute.of(context));
             WillPopScope oldWidget = _oldWidget as WillPopScope;
-            if (this.widget.onWillPop != oldWidget.onWillPop && this._route != null) {
+            if (widget.onWillPop != oldWidget.onWillPop && _route != null) {
                 if (oldWidget.onWillPop != null) {
-                    this._route.removeScopedWillPopCallback(oldWidget.onWillPop);
+                    _route.removeScopedWillPopCallback(oldWidget.onWillPop);
                 }
 
-                if (this.widget.onWillPop != null) {
-                    this._route.addScopedWillPopCallback(this.widget.onWillPop);
+                if (widget.onWillPop != null) {
+                    _route.addScopedWillPopCallback(widget.onWillPop);
                 }
             }
         }
 
         public override void dispose() {
-            if (this.widget.onWillPop != null) {
-                this._route?.removeScopedWillPopCallback(this.widget.onWillPop);
+            if (widget.onWillPop != null) {
+                _route?.removeScopedWillPopCallback(widget.onWillPop);
             }
 
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
-            return this.widget.child;
+            return widget.child;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string ToString() {
-            return this.GetType().ToString();
+            return GetType().ToString();
         }
     }
 
@@ -45,14 +45,14 @@ namespace Unity.UIWidgets.widgets {
         public override bool updateShouldNotify(InheritedWidget oldWidgetRaw) {
             var oldWidget = (ScrollConfiguration) oldWidgetRaw;
 
-            D.assert(this.behavior != null);
-            return this.behavior.GetType() != oldWidget.behavior.GetType()
-                   || this.behavior != oldWidget.behavior && this.behavior.shouldNotify(oldWidget.behavior);
+            D.assert(behavior != null);
+            return behavior.GetType() != oldWidget.behavior.GetType()
+                   || behavior != oldWidget.behavior && behavior.shouldNotify(oldWidget.behavior);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<ScrollBehavior>("behavior", this.behavior));
+            properties.add(new DiagnosticsProperty<ScrollBehavior>("behavior", behavior));
         }
     }
 }

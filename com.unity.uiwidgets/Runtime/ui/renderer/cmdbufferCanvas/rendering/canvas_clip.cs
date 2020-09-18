@@ -19,14 +19,14 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            ObjectPool<uiMeshMesh>.release(this.mesh);
-            this.saveCount = 0;
-            this.mesh = null;
-            this.convex = false;
-            this.isRect = false;
-            this._genId = 0;
-            this._isIntersectionOfRects = false;
-            this._invMat = null;
+            ObjectPool<uiMeshMesh>.release(mesh);
+            saveCount = 0;
+            mesh = null;
+            convex = false;
+            isRect = false;
+            _genId = 0;
+            _isIntersectionOfRects = false;
+            _invMat = null;
         }
 
         public static ClipElement create(int saveCount, uiPath uiPath, uiMatrix3 matrix, float scale) {
@@ -57,68 +57,68 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void setRect(uiRect rect) {
-            D.assert(ClipStack.invalidGenID != this._genId);
-            D.assert(this.isRect && uiRectHelper.contains(this.rect.Value, rect));
+            D.assert(ClipStack.invalidGenID != _genId);
+            D.assert(isRect && uiRectHelper.contains(this.rect.Value, rect));
             this.rect = rect;
         }
 
         public void setEmpty() {
-            this._genId = ClipStack.emptyGenID;
-            this._isIntersectionOfRects = false;
-            this._bound = uiRectHelper.zero;
+            _genId = ClipStack.emptyGenID;
+            _isIntersectionOfRects = false;
+            _bound = uiRectHelper.zero;
         }
 
         public void updateBoundAndGenID(ClipElement prior) {
-            this._genId = ClipStack.getNextGenID();
-            this._isIntersectionOfRects = false;
+            _genId = ClipStack.getNextGenID();
+            _isIntersectionOfRects = false;
 
-            if (this.isRect) {
-                this._bound = this.rect.Value;
+            if (isRect) {
+                _bound = rect.Value;
                 if (prior == null || prior.isIntersectionOfRects()) {
-                    this._isIntersectionOfRects = true;
+                    _isIntersectionOfRects = true;
                 }
             }
             else {
-                this._bound = this.mesh.bounds;
+                _bound = mesh.bounds;
             }
 
             if (prior != null) {
-                this._bound = uiRectHelper.intersect(this._bound, prior.getBound());
+                _bound = uiRectHelper.intersect(_bound, prior.getBound());
             }
 
-            if (this._bound.isEmpty) {
-                this.setEmpty();
+            if (_bound.isEmpty) {
+                setEmpty();
             }
         }
 
         public bool isEmpty() {
-            D.assert(ClipStack.invalidGenID != this._genId);
-            return this.getGenID() == ClipStack.emptyGenID;
+            D.assert(ClipStack.invalidGenID != _genId);
+            return getGenID() == ClipStack.emptyGenID;
         }
 
         public uiRect getBound() {
-            D.assert(ClipStack.invalidGenID != this._genId);
-            return this._bound;
+            D.assert(ClipStack.invalidGenID != _genId);
+            return _bound;
         }
 
         public bool isIntersectionOfRects() {
-            D.assert(ClipStack.invalidGenID != this._genId);
-            return this._isIntersectionOfRects;
+            D.assert(ClipStack.invalidGenID != _genId);
+            return _isIntersectionOfRects;
         }
 
         public uint getGenID() {
-            D.assert(ClipStack.invalidGenID != this._genId);
-            return this._genId;
+            D.assert(ClipStack.invalidGenID != _genId);
+            return _genId;
         }
 
         bool _convexContains(uiRect rect) {
-            if (this.mesh.vertices.Count <= 2) {
+            if (mesh.vertices.Count <= 2) {
                 return false;
             }
 
-            for (var i = 0; i < this.mesh.vertices.Count; i++) {
-                var p1 = this.mesh.vertices[i];
-                var p0 = this.mesh.vertices[i == this.mesh.vertices.Count - 1 ? 0 : i + 1];
+            for (var i = 0; i < mesh.vertices.Count; i++) {
+                var p1 = mesh.vertices[i];
+                var p0 = mesh.vertices[i == mesh.vertices.Count - 1 ? 0 : i + 1];
 
                 var v = p1 - p0;
                 if (v.x == 0.0 && v.y == 0.0) {
@@ -139,20 +139,20 @@ namespace Unity.UIWidgets.ui {
         }
 
         public bool contains(uiRect rect) {
-            if (this.isRect) {
+            if (isRect) {
                 return uiRectHelper.contains(this.rect.Value, rect);
             }
 
-            if (this.convex) {
-                if (this.mesh.matrix != null && !this.mesh.matrix.Value.isIdentity()) {
-                    if (this._invMat == null) {
-                        this._invMat = this.mesh.matrix.Value.invert();
+            if (convex) {
+                if (mesh.matrix != null && !mesh.matrix.Value.isIdentity()) {
+                    if (_invMat == null) {
+                        _invMat = mesh.matrix.Value.invert();
                     }
 
-                    rect = this._invMat.Value.mapRect(rect);
+                    rect = _invMat.Value.mapRect(rect);
                 }
 
-                return this._convexContains(rect);
+                return _convexContains(rect);
             }
 
             return false;
@@ -183,52 +183,52 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this._saveCount = 0;
-            this._lastElement = null;
-            foreach (var clipelement in this.stack) {
+            _saveCount = 0;
+            _lastElement = null;
+            foreach (var clipelement in stack) {
                 ObjectPool<ClipElement>.release(clipelement);
             }
 
-            this.stack.Clear();
+            stack.Clear();
         }
 
         public void save() {
-            this._saveCount++;
+            _saveCount++;
         }
 
         public void restore() {
-            this._saveCount--;
-            this._restoreTo(this._saveCount);
+            _saveCount--;
+            _restoreTo(_saveCount);
         }
 
         void _restoreTo(int saveCount) {
-            while (this._lastElement != null) {
-                if (this._lastElement.saveCount <= saveCount) {
+            while (_lastElement != null) {
+                if (_lastElement.saveCount <= saveCount) {
                     break;
                 }
 
-                var lastelement = this.stack[this.stack.Count - 1];
+                var lastelement = stack[stack.Count - 1];
                 ObjectPool<ClipElement>.release(lastelement);
 
-                this.stack.RemoveAt(this.stack.Count - 1);
-                this._lastElement = this.stack.Count == 0 ? null : this.stack[this.stack.Count - 1];
+                stack.RemoveAt(stack.Count - 1);
+                _lastElement = stack.Count == 0 ? null : stack[stack.Count - 1];
             }
         }
 
         public void clipPath(uiPath uiPath, uiMatrix3 matrix, float scale) {
-            var element = ClipElement.create(this._saveCount, uiPath, matrix, scale);
-            this._pushElement(element);
+            var element = ClipElement.create(_saveCount, uiPath, matrix, scale);
+            _pushElement(element);
         }
 
         void _pushElement(ClipElement element) {
-            ClipElement prior = this._lastElement;
+            ClipElement prior = _lastElement;
             if (prior != null) {
                 if (prior.isEmpty()) {
                     ObjectPool<ClipElement>.release(element);
                     return;
                 }
 
-                if (prior.saveCount == this._saveCount) {
+                if (prior.saveCount == _saveCount) {
                     // can not update prior if it's cross save count.
                     if (prior.isRect && element.isRect) {
                         var isectRect = uiRectHelper.intersect(prior.rect.Value, element.rect.Value);
@@ -239,7 +239,7 @@ namespace Unity.UIWidgets.ui {
                         }
 
                         prior.setRect(isectRect);
-                        var priorprior = this.stack.Count > 1 ? this.stack[this.stack.Count - 2] : null;
+                        var priorprior = stack.Count > 1 ? stack[stack.Count - 2] : null;
                         prior.updateBoundAndGenID(priorprior);
                         ObjectPool<ClipElement>.release(element);
                         return;
@@ -253,19 +253,19 @@ namespace Unity.UIWidgets.ui {
                 }
             }
 
-            this.stack.Add(element);
-            this._lastElement = element;
+            stack.Add(element);
+            _lastElement = element;
             element.updateBoundAndGenID(prior);
         }
 
         public void getBounds(out uiRect? bound, out bool isIntersectionOfRects) {
-            if (this._lastElement == null) {
+            if (_lastElement == null) {
                 bound = null;
                 isIntersectionOfRects = false;
                 return;
             }
 
-            var element = this._lastElement;
+            var element = _lastElement;
             bound = element.getBound();
             isIntersectionOfRects = element.isIntersectionOfRects();
         }
@@ -277,20 +277,20 @@ namespace Unity.UIWidgets.ui {
         ClipElement _lastElement;
 
         public bool isEmpty() {
-            return this.scissor != null && this.scissor.Value.isEmpty;
+            return scissor != null && scissor.Value.isEmpty;
         }
 
         public ReducedClip() {
         }
 
         public override void clear() {
-            this.scissor = null;
-            this.maskElements.Clear();
-            this._lastElement = null;
+            scissor = null;
+            maskElements.Clear();
+            _lastElement = null;
         }
 
         public uint maskGenID() {
-            var element = this._lastElement;
+            var element = _lastElement;
             if (element == null) {
                 return ClipStack.wideOpenGenID;
             }
@@ -336,8 +336,8 @@ namespace Unity.UIWidgets.ui {
                     continue;
                 }
 
-                this.maskElements.Add(element);
-                this._lastElement = element;
+                maskElements.Add(element);
+                _lastElement = element;
             }
         }
     }

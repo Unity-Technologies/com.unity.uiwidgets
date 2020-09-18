@@ -10,10 +10,10 @@ namespace Unity.UIWidgets.physics {
             float velocity
         ) {
             D.assert(endDistance >= 0);
-            this._a = acceleration;
-            this._x = distance;
-            this._v = velocity;
-            this._end = endDistance;
+            _a = acceleration;
+            _x = distance;
+            _v = velocity;
+            _end = endDistance;
         }
 
         readonly float _x;
@@ -22,15 +22,15 @@ namespace Unity.UIWidgets.physics {
         readonly float _end;
 
         public override float x(float time) {
-            return this._x + this._v * time + 0.5f * this._a * time * time;
+            return _x + _v * time + 0.5f * _a * time * time;
         }
 
         public override float dx(float time) {
-            return this._v + time * this._a;
+            return _v + time * _a;
         }
 
         public override bool isDone(float time) {
-            return this.x(time).abs() >= this._end;
+            return x(time).abs() >= _end;
         }
     }
 }

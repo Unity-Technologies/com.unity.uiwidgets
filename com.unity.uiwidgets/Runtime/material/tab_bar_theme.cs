@@ -77,15 +77,15 @@ namespace Unity.UIWidgets.material {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.indicator != null ? this.indicator.GetHashCode() : 0;
-                hashCode = (hashCode * 397) ^ (this.indicatorSize != null ? this.indicatorSize.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.labelColor != null ? this.labelColor.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.labelPadding != null ? this.labelPadding.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.labelStyle != null ? this.labelStyle.GetHashCode() : 0);
+                var hashCode = indicator != null ? indicator.GetHashCode() : 0;
+                hashCode = (hashCode * 397) ^ (indicatorSize != null ? indicatorSize.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (labelColor != null ? labelColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (labelPadding != null ? labelPadding.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (labelStyle != null ? labelStyle.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^
-                           (this.unselectedLabelColor != null ? this.unselectedLabelColor.GetHashCode() : 0);
+                           (unselectedLabelColor != null ? unselectedLabelColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^
-                           (this.unselectedLabelStyle != null ? this.unselectedLabelStyle.GetHashCode() : 0);
+                           (unselectedLabelStyle != null ? unselectedLabelStyle.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -100,11 +100,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return other.indicator == this.indicator &&
-                   other.indicatorSize == this.indicatorSize &&
-                   other.labelColor == this.labelColor &&
-                   other.labelPadding == this.labelPadding &&
-                   other.unselectedLabelColor == this.unselectedLabelColor;
+            return other.indicator == indicator &&
+                   other.indicatorSize == indicatorSize &&
+                   other.labelColor == labelColor &&
+                   other.labelPadding == labelPadding &&
+                   other.unselectedLabelColor == unselectedLabelColor;
         }
 
         public override bool Equals(object obj) {
@@ -116,11 +116,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TabBarTheme) obj);
+            return Equals((TabBarTheme) obj);
         }
 
         public static bool operator ==(TabBarTheme left, TabBarTheme right) {

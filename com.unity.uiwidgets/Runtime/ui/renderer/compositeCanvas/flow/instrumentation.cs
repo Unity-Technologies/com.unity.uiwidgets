@@ -24,39 +24,39 @@ namespace Unity.UIWidgets.flow {
         int _currentSample;
 
         public Stopwatch() {
-            this._start = InstrumentationUtils.now();
-            this._currentSample = 0;
+            _start = InstrumentationUtils.now();
+            _currentSample = 0;
             float delta = 0f;
 
-            this._laps = new float[InstrumentationUtils.kMaxSamples];
-            for (int i = 0; i < this._laps.Length; i++) {
-                this._laps[i] = delta;
+            _laps = new float[InstrumentationUtils.kMaxSamples];
+            for (int i = 0; i < _laps.Length; i++) {
+                _laps[i] = delta;
             }
         }
 
         public void start() {
-            this._start = InstrumentationUtils.now();
-            this._currentSample = (this._currentSample + 1) % InstrumentationUtils.kMaxSamples;
+            _start = InstrumentationUtils.now();
+            _currentSample = (_currentSample + 1) % InstrumentationUtils.kMaxSamples;
         }
 
         public void stop() {
-            this._laps[this._currentSample] = InstrumentationUtils.now() - this._start;
+            _laps[_currentSample] = InstrumentationUtils.now() - _start;
         }
 
         public void setLapTime(float delta) {
-            this._currentSample = (this._currentSample + 1) % InstrumentationUtils.kMaxSamples;
-            this._laps[this._currentSample] = delta;
+            _currentSample = (_currentSample + 1) % InstrumentationUtils.kMaxSamples;
+            _laps[_currentSample] = delta;
         }
 
         public float lastLap() {
-            return this._laps[(this._currentSample - 1) % InstrumentationUtils.kMaxSamples];
+            return _laps[(_currentSample - 1) % InstrumentationUtils.kMaxSamples];
         }
 
         public float maxDelta() {
             float maxDelta = 0f;
-            for (int i = 0; i < this._laps.Length; i++) {
-                if (maxDelta < this._laps[i]) {
-                    maxDelta = this._laps[i];
+            for (int i = 0; i < _laps.Length; i++) {
+                if (maxDelta < _laps[i]) {
+                    maxDelta = _laps[i];
                 }
             }
 
@@ -69,8 +69,8 @@ namespace Unity.UIWidgets.flow {
             Paint paint3 = new Paint {color = Colors.green};
             Paint paint4 = new Paint {color = Colors.white70};
 
-            float[] costFrames = this._laps;
-            int curFrame = (this._currentSample - 1) % InstrumentationUtils.kMaxSamples;
+            float[] costFrames = _laps;
+            int curFrame = (_currentSample - 1) % InstrumentationUtils.kMaxSamples;
 
             float barWidth = Mathf.Max(1, rect.width / costFrames.Length);
             float perHeight = rect.height / 32.0f;
@@ -102,7 +102,7 @@ namespace Unity.UIWidgets.flow {
 
                 var pb = new ParagraphBuilder(new ParagraphStyle { });
                 pb.addText("Current Frame Cost: " + costFrames[curFrame] * 1000 + "ms" +
-                           " ; Max(in last 120 frames): " + this.maxDelta() * 1000 + "ms");
+                           " ; Max(in last 120 frames): " + maxDelta() * 1000 + "ms");
                 var paragraph = pb.build();
                 paragraph.layout(new ParagraphConstraints(width: 800));
 

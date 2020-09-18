@@ -87,64 +87,64 @@ namespace Unity.UIWidgets.material {
 
         float? _childHeight {
             get {
-                RenderBox renderBox = (RenderBox) this._childKey.currentContext.findRenderObject();
+                RenderBox renderBox = (RenderBox) _childKey.currentContext.findRenderObject();
                 return renderBox.size.height;
             }
         }
 
         bool _dismissUnderway {
-            get { return this.widget.animationController.status == AnimationStatus.reverse; }
+            get { return widget.animationController.status == AnimationStatus.reverse; }
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
-            if (this._dismissUnderway) {
+            if (_dismissUnderway) {
                 return;
             }
 
-            this.widget.animationController.setValue(
-                this.widget.animationController.value -
-                details.primaryDelta.Value / (this._childHeight ?? details.primaryDelta.Value));
+            widget.animationController.setValue(
+                widget.animationController.value -
+                details.primaryDelta.Value / (_childHeight ?? details.primaryDelta.Value));
         }
 
         void _handleDragEnd(DragEndDetails details) {
-            if (this._dismissUnderway) {
+            if (_dismissUnderway) {
                 return;
             }
 
             if (details.velocity.pixelsPerSecond.dy > BottomSheetUtils._kMinFlingVelocity) {
-                float flingVelocity = -details.velocity.pixelsPerSecond.dy / this._childHeight.Value;
-                if (this.widget.animationController.value > 0.0f) {
-                    this.widget.animationController.fling(velocity: flingVelocity);
+                float flingVelocity = -details.velocity.pixelsPerSecond.dy / _childHeight.Value;
+                if (widget.animationController.value > 0.0f) {
+                    widget.animationController.fling(velocity: flingVelocity);
                 }
 
                 if (flingVelocity < 0.0f) {
-                    this.widget.onClosing();
+                    widget.onClosing();
                 }
             }
-            else if (this.widget.animationController.value < BottomSheetUtils._kCloseProgressThreshold) {
-                if (this.widget.animationController.value > 0.0f) {
-                    this.widget.animationController.fling(velocity: -1.0f);
+            else if (widget.animationController.value < BottomSheetUtils._kCloseProgressThreshold) {
+                if (widget.animationController.value > 0.0f) {
+                    widget.animationController.fling(velocity: -1.0f);
                 }
 
-                this.widget.onClosing();
+                widget.onClosing();
             }
             else {
-                this.widget.animationController.forward();
+                widget.animationController.forward();
             }
         }
 
         public override Widget build(BuildContext context) {
             Widget bottomSheet = new Material(
-                key: this._childKey,
-                elevation: this.widget.elevation,
-                child: this.widget.builder(context)
+                key: _childKey,
+                elevation: widget.elevation,
+                child: widget.builder(context)
             );
 
-            return !this.widget.enableDrag
+            return !widget.enableDrag
                 ? bottomSheet
                 : new GestureDetector(
-                    onVerticalDragUpdate: this._handleDragUpdate,
-                    onVerticalDragEnd: this._handleDragEnd,
+                    onVerticalDragUpdate: _handleDragUpdate,
+                    onVerticalDragEnd: _handleDragEnd,
                     child: bottomSheet
                 );
         }
@@ -168,12 +168,12 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Offset getPositionForChild(Size size, Size childSize) {
-            return new Offset(0.0f, size.height - childSize.height * this.progress);
+            return new Offset(0.0f, size.height - childSize.height * progress);
         }
 
         public override bool shouldRelayout(SingleChildLayoutDelegate _oldDelegate) {
             _ModalBottomSheetLayout oldDelegate = _oldDelegate as _ModalBottomSheetLayout;
-            return this.progress != oldDelegate.progress;
+            return progress != oldDelegate.progress;
         }
     }
 
@@ -197,17 +197,17 @@ namespace Unity.UIWidgets.material {
             return new GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: new AnimatedBuilder(
-                    animation: this.widget.route.animation,
+                    animation: widget.route.animation,
                     builder: (BuildContext _context, Widget child) => {
                         float animationValue =
-                            mediaQuery.accessibleNavigation ? 1.0f : this.widget.route.animation.value;
+                            mediaQuery.accessibleNavigation ? 1.0f : widget.route.animation.value;
                         return new ClipRect(
                             child: new CustomSingleChildLayout(
                                 layoutDelegate: new _ModalBottomSheetLayout(animationValue),
                                 child: new BottomSheet(
-                                    animationController: this.widget.route._animationController,
+                                    animationController: widget.route._animationController,
                                     onClosing: () => Navigator.pop(_context),
-                                    builder: this.widget.route.builder
+                                    builder: widget.route.builder
                                 )
                             )
                         );
@@ -249,9 +249,9 @@ namespace Unity.UIWidgets.material {
         public AnimationController _animationController;
 
         public override AnimationController createAnimationController() {
-            D.assert(this._animationController == null);
-            this._animationController = BottomSheet.createAnimationController(this.navigator.overlay);
-            return this._animationController;
+            D.assert(_animationController == null);
+            _animationController = BottomSheet.createAnimationController(navigator.overlay);
+            return _animationController;
         }
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
@@ -261,8 +261,8 @@ namespace Unity.UIWidgets.material {
                 removeTop: true,
                 child: new _ModalBottomSheet<T>(route: this)
             );
-            if (this.theme != null) {
-                bottomSheet = new Theme(data: this.theme, child: bottomSheet);
+            if (theme != null) {
+                bottomSheet = new Theme(data: theme, child: bottomSheet);
             }
 
             return bottomSheet;

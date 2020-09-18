@@ -14,11 +14,11 @@ namespace Unity.UIWidgets.ui {
 
         public uiRect bounds {
             get {
-                if (this._bounds == null) {
-                    this._bounds = this.matrix != null ? this.matrix.Value.mapRect(this.rawBounds) : this.rawBounds;
+                if (_bounds == null) {
+                    _bounds = matrix != null ? matrix.Value.mapRect(rawBounds) : rawBounds;
                 }
 
-                return this._bounds.Value;
+                return _bounds.Value;
             }
         }
 
@@ -27,21 +27,21 @@ namespace Unity.UIWidgets.ui {
         };
 
         public uiMeshMesh boundsMesh {
-            get { return create(this.bounds); }
+            get { return create(bounds); }
         }
 
         public uiMeshMesh() {
         }
 
         public override void clear() {
-            ObjectPool<uiList<Vector3>>.release(this.vertices);
-            ObjectPool<uiList<int>>.release(this.triangles);
-            ObjectPool<uiList<Vector2>>.release(this.uv);
-            this.vertices = null;
-            this.triangles = null;
-            this.uv = null;
-            this.matrix = null;
-            this._bounds = null;
+            ObjectPool<uiList<Vector3>>.release(vertices);
+            ObjectPool<uiList<int>>.release(triangles);
+            ObjectPool<uiList<Vector2>>.release(uv);
+            vertices = null;
+            triangles = null;
+            uv = null;
+            matrix = null;
+            _bounds = null;
         }
 
         public static uiMeshMesh create(uiRect rect) {
@@ -118,7 +118,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public uiMeshMesh duplicate() {
-            return this.transform(this.matrix);
+            return transform(matrix);
         }
 
         public uiMeshMesh transform(uiMatrix3? matrix) {
@@ -140,7 +140,7 @@ namespace Unity.UIWidgets.ui {
             }
 
 
-            var ret = create(matrix, vertices, triangles, uv, this.rawBounds);
+            var ret = create(matrix, vertices, triangles, uv, rawBounds);
             return ret;
         }
     }

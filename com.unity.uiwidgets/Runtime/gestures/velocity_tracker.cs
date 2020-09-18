@@ -33,13 +33,13 @@ namespace Unity.UIWidgets.gestures {
         public Velocity clampMagnitude(float minValue, float maxValue) {
             D.assert(minValue >= 0.0);
             D.assert(maxValue >= 0.0 && maxValue >= minValue);
-            float valueSquared = this.pixelsPerSecond.distanceSquared;
+            float valueSquared = pixelsPerSecond.distanceSquared;
             if (valueSquared > maxValue * maxValue) {
-                return new Velocity(pixelsPerSecond: (this.pixelsPerSecond / this.pixelsPerSecond.distance) * maxValue);
+                return new Velocity(pixelsPerSecond: (pixelsPerSecond / pixelsPerSecond.distance) * maxValue);
             }
 
             if (valueSquared < minValue * minValue) {
-                return new Velocity(pixelsPerSecond: (this.pixelsPerSecond / this.pixelsPerSecond.distance) * minValue);
+                return new Velocity(pixelsPerSecond: (pixelsPerSecond / pixelsPerSecond.distance) * minValue);
             }
 
             return this;
@@ -54,7 +54,7 @@ namespace Unity.UIWidgets.gestures {
                 return true;
             }
 
-            return Equals(this.pixelsPerSecond, other.pixelsPerSecond);
+            return Equals(pixelsPerSecond, other.pixelsPerSecond);
         }
 
         public override bool Equals(object obj) {
@@ -66,15 +66,15 @@ namespace Unity.UIWidgets.gestures {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((Velocity) obj);
+            return Equals((Velocity) obj);
         }
 
         public override int GetHashCode() {
-            return (this.pixelsPerSecond != null ? this.pixelsPerSecond.GetHashCode() : 0);
+            return (pixelsPerSecond != null ? pixelsPerSecond.GetHashCode() : 0);
         }
 
         public static bool operator ==(Velocity left, Velocity right) {
@@ -86,7 +86,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override string ToString() {
-            return $"Velocity({this.pixelsPerSecond.dx:F1}, {this.pixelsPerSecond.dy:F1})";
+            return $"Velocity({pixelsPerSecond.dx:F1}, {pixelsPerSecond.dy:F1})";
         }
     }
 
@@ -115,7 +115,7 @@ namespace Unity.UIWidgets.gestures {
 
         public override string ToString() {
             return
-                $"VelocityEstimate({this.pixelsPerSecond.dx:F1}, {this.pixelsPerSecond.dy:F1}; offset: {this.offset}, duration: {this.duration}, confidence: {this.confidence:F1})";
+                $"VelocityEstimate({pixelsPerSecond.dx:F1}, {pixelsPerSecond.dy:F1}; offset: {offset}, duration: {duration}, confidence: {confidence:F1})";
         }
     }
 
@@ -131,7 +131,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly TimeSpan time;
 
         public override string ToString() {
-            return $"_PointAtTime({this.point} at {this.time})";
+            return $"_PointAtTime({point} at {time})";
         }
     }
 
@@ -147,12 +147,12 @@ namespace Unity.UIWidgets.gestures {
         int _index = 0;
 
         public void addPosition(TimeSpan time, Offset position) {
-            this._index += 1;
-            if (this._index == _historySize) {
-                this._index = 0;
+            _index += 1;
+            if (_index == _historySize) {
+                _index = 0;
             }
 
-            this._samples[this._index] = new _PointAtTime(position, time);
+            _samples[_index] = new _PointAtTime(position, time);
         }
 
         public VelocityEstimate getVelocityEstimate() {
@@ -161,9 +161,9 @@ namespace Unity.UIWidgets.gestures {
             List<float> w = new List<float>();
             List<float> time = new List<float>();
             int sampleCount = 0;
-            int index = this._index;
+            int index = _index;
 
-            _PointAtTime newestSample = this._samples[index];
+            _PointAtTime newestSample = _samples[index];
             if (newestSample == null) {
                 return null;
             }
@@ -172,7 +172,7 @@ namespace Unity.UIWidgets.gestures {
             _PointAtTime oldestSample = newestSample;
 
             do {
-                _PointAtTime sample = this._samples[index];
+                _PointAtTime sample = _samples[index];
                 if (sample == null) {
                     break;
                 }
@@ -222,7 +222,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public Velocity getVelocity() {
-            VelocityEstimate estimate = this.getVelocityEstimate();
+            VelocityEstimate estimate = getVelocityEstimate();
             if (estimate == null || estimate.pixelsPerSecond == Offset.zero) {
                 return Velocity.zero;
             }

@@ -99,15 +99,15 @@ namespace Unity.UIWidgets.painting {
             bool showName = true,
             object defaultValue = null,
             DiagnosticLevel level = DiagnosticLevel.info
-        ) : base(name, value, showName: showName, defaultValue: defaultValue ?? Diagnostics.kNoDefaultValue,
+        ) : base(name, value, showName: showName, defaultValue: defaultValue ?? foundation_.kNoDefaultValue,
             level: level) { }
 
         protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
             if (parentConfiguration != null && !parentConfiguration.lineBreakProperties) {
-                return this.value == null ? "null" : this.value.ToString();
+                return value == null ? "null" : value.ToString();
             }
 
-            return string.Join("\n", MatrixUtils.debugDescribeTransform(this.value));
+            return string.Join("\n", MatrixUtils.debugDescribeTransform(value));
         }
     }
 }

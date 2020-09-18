@@ -50,10 +50,10 @@ namespace Unity.UIWidgets.rendering {
 
         public virtual IPromise moveTo(float to, TimeSpan? duration, Curve curve = null, bool clamp = true) {
             if (duration == null || duration.Value == TimeSpan.Zero) {
-                this.jumpTo(to);
+                jumpTo(to);
                 return Promise.Resolved();
             } else {
-                return this.animateTo(to, duration: duration??TimeSpan.Zero , curve: curve ?? Curves.ease);
+                return animateTo(to, duration: duration??TimeSpan.Zero , curve: curve ?? Curves.ease);
             }
         }
 
@@ -63,12 +63,12 @@ namespace Unity.UIWidgets.rendering {
 
         public override string ToString() {
             var description = new List<string>();
-            this.debugFillDescription(description);
-            return Diagnostics.describeIdentity(this) + "(" + string.Join(", ", description.ToArray()) + ")";
+            debugFillDescription(description);
+            return foundation_.describeIdentity(this) + "(" + string.Join(", ", description.ToArray()) + ")";
         }
 
         protected virtual void debugFillDescription(List<string> description) {
-            description.Add("offset: " + this.pixels.ToString("F1"));
+            description.Add("offset: " + pixels.ToString("F1"));
         }
     }
 
@@ -84,7 +84,7 @@ namespace Unity.UIWidgets.rendering {
         float _pixels;
 
         public override float pixels {
-            get { return this._pixels; }
+            get { return _pixels; }
         }
 
         public override bool applyViewportDimension(float viewportDimension) {
@@ -96,7 +96,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void correctBy(float correction) {
-            this._pixels += correction;
+            _pixels += correction;
         }
 
         public override void jumpTo(float pixels) {

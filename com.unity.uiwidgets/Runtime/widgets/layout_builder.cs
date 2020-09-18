@@ -41,49 +41,49 @@ namespace Unity.UIWidgets.widgets {
         Element _child;
 
         public override void visitChildren(ElementVisitor visitor) {
-            if (this._child != null) {
-                visitor(this._child);
+            if (_child != null) {
+                visitor(_child);
             }
         }
 
         protected override void forgetChild(Element child) {
-            D.assert(child == this._child);
-            this._child = null;
+            D.assert(child == _child);
+            _child = null;
         }
 
         public override void mount(Element parent, object newSlot) {
             base.mount(parent, newSlot);
-            this.renderObject.callback = this._layout;
+            renderObject.callback = _layout;
         }
 
         public override void update(Widget newWidget) {
-            D.assert(this.widget != newWidget);
+            D.assert(widget != newWidget);
             base.update(newWidget);
-            D.assert(this.widget == newWidget);
-            this.renderObject.callback = this._layout;
-            this.renderObject.markNeedsLayout();
+            D.assert(widget == newWidget);
+            renderObject.callback = _layout;
+            renderObject.markNeedsLayout();
         }
 
         protected override void performRebuild() {
-            this.renderObject.markNeedsLayout();
+            renderObject.markNeedsLayout();
             base.performRebuild();
         }
 
         public override void unmount() {
-            this.renderObject.callback = null;
+            renderObject.callback = null;
             base.unmount();
         }
 
         void _layout(BoxConstraints constraints) {
-            this.owner.buildScope(this, () => {
+            owner.buildScope(this, () => {
                 Widget built = null;
-                if (this.widget.builder != null) {
-                    built = this.widget.builder(this, constraints);
-                    WidgetsD.debugWidgetBuilderValue(this.widget, built);
+                if (widget.builder != null) {
+                    built = widget.builder(this, constraints);
+                    WidgetsD.debugWidgetBuilderValue(widget, built);
                 }
 
-                this._child = this.updateChild(this._child, built, null);
-                D.assert(this._child != null);
+                _child = updateChild(_child, built, null);
+                D.assert(_child != null);
             });
         }
 
@@ -111,18 +111,18 @@ namespace Unity.UIWidgets.widgets {
     public class _RenderLayoutBuilder : RenderObjectWithChildMixinRenderBox<RenderBox> {
         public _RenderLayoutBuilder(
             LayoutCallback<BoxConstraints> callback = null) {
-            this._callback = callback;
+            _callback = callback;
         }
 
         public LayoutCallback<BoxConstraints> callback {
-            get { return this._callback; }
+            get { return _callback; }
             set {
-                if (value == this._callback) {
+                if (value == _callback) {
                     return;
                 }
 
-                this._callback = value;
-                this.markNeedsLayout();
+                _callback = value;
+                markNeedsLayout();
             }
         }
 
@@ -144,44 +144,44 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            D.assert(this._debugThrowIfNotCheckingIntrinsics());
+            D.assert(_debugThrowIfNotCheckingIntrinsics());
             return 0.0f;
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            D.assert(this._debugThrowIfNotCheckingIntrinsics());
+            D.assert(_debugThrowIfNotCheckingIntrinsics());
             return 0.0f;
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            D.assert(this._debugThrowIfNotCheckingIntrinsics());
+            D.assert(_debugThrowIfNotCheckingIntrinsics());
             return 0.0f;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            D.assert(this._debugThrowIfNotCheckingIntrinsics());
+            D.assert(_debugThrowIfNotCheckingIntrinsics());
             return 0.0f;
         }
 
         protected override void performLayout() {
-            D.assert(this.callback != null);
-            this.invokeLayoutCallback(this.callback);
-            if (this.child != null) {
-                this.child.layout(this.constraints, parentUsesSize: true);
-                this.size = this.constraints.constrain(this.child.size);
+            D.assert(callback != null);
+            invokeLayoutCallback(callback);
+            if (child != null) {
+                child.layout(constraints, parentUsesSize: true);
+                size = constraints.constrain(child.size);
             }
             else {
-                this.size = this.constraints.biggest;
+                size = constraints.biggest;
             }
         }
 
         protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
-            return this.child?.hitTest(result, position: position) ?? false;
+            return child?.hitTest(result, position: position) ?? false;
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                context.paintChild(this.child, offset);
+            if (child != null) {
+                context.paintChild(child, offset);
             }
         }
     }

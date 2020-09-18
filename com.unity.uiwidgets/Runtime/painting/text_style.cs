@@ -27,7 +27,7 @@ namespace Unity.UIWidgets.painting {
         public readonly List<BoxShadow> shadows;
 
         public List<string> fontFamilyFallback {
-            get { return this._fontFamilyFallback; }
+            get { return _fontFamilyFallback; }
         }
 
         readonly List<string> _fontFamilyFallback;
@@ -78,7 +78,7 @@ namespace Unity.UIWidgets.painting {
             this.decorationStyle = decorationStyle;
             this.decorationThickness = decorationThickness;
             this.fontFamily = fontFamily;
-            this._fontFamilyFallback = fontFamilyFallback;
+            _fontFamilyFallback = fontFamilyFallback;
             this.debugLabel = debugLabel;
             this.foreground = foreground;
             this.background = background;
@@ -86,18 +86,18 @@ namespace Unity.UIWidgets.painting {
         }
 
         public RenderComparison compareTo(TextStyle other) {
-            if (this.inherit != other.inherit || this.fontFamily != other.fontFamily ||
-                this.fontSize != other.fontSize || this.fontWeight != other.fontWeight ||
-                this.fontStyle != other.fontStyle || this.letterSpacing != other.letterSpacing ||
-                this.wordSpacing != other.wordSpacing || this.textBaseline != other.textBaseline ||
-                this.height != other.height || this.background != other.background ||
-                this.shadows.equalsList(other.shadows)) {
+            if (inherit != other.inherit || fontFamily != other.fontFamily ||
+                fontSize != other.fontSize || fontWeight != other.fontWeight ||
+                fontStyle != other.fontStyle || letterSpacing != other.letterSpacing ||
+                wordSpacing != other.wordSpacing || textBaseline != other.textBaseline ||
+                height != other.height || background != other.background ||
+                shadows.equalsList(other.shadows)) {
                 return RenderComparison.layout;
             }
 
-            if (this.color != other.color || this.decoration != other.decoration ||
-                this.decorationColor != other.decorationColor ||
-                this.decorationStyle != other.decorationStyle) {
+            if (color != other.color || decoration != other.decoration ||
+                decorationColor != other.decorationColor ||
+                decorationStyle != other.decorationStyle) {
                 return RenderComparison.paint;
             }
 
@@ -107,8 +107,8 @@ namespace Unity.UIWidgets.painting {
         public ParagraphStyle getParagraphStyle(TextAlign textAlign,
             TextDirection textDirection, string ellipsis, int? maxLines, float textScaleFactor = 1.0f) {
             return new ParagraphStyle(
-                textAlign, textDirection, this.fontWeight, this.fontStyle,
-                maxLines, (this.fontSize ?? _defaultFontSize) * textScaleFactor, this.fontFamily, this.height,
+                textAlign, textDirection, fontWeight, fontStyle,
+                maxLines, (fontSize ?? _defaultFontSize) * textScaleFactor, fontFamily, height,
                 ellipsis
             );
         }
@@ -135,46 +135,46 @@ namespace Unity.UIWidgets.painting {
             float heightFactor = 1.0f,
             float heightDelta = 0.0f
         ) {
-            D.assert(this.fontSize != null || (fontSizeFactor == 1.0f && fontSizeDelta == 0.0f));
-            D.assert(this.fontWeight != null || fontWeightDelta == 0.0f);
-            D.assert(this.letterSpacing != null || (letterSpacingFactor == 1.0f && letterSpacingDelta == 0.0f));
-            D.assert(this.wordSpacing != null || (wordSpacingFactor == 1.0f && wordSpacingDelta == 0.0f));
-            D.assert(this.height != null || (heightFactor == 1.0f && heightDelta == 0.0f));
-            D.assert(this.decorationThickness != null ||
+            D.assert(fontSize != null || (fontSizeFactor == 1.0f && fontSizeDelta == 0.0f));
+            D.assert(fontWeight != null || fontWeightDelta == 0.0f);
+            D.assert(letterSpacing != null || (letterSpacingFactor == 1.0f && letterSpacingDelta == 0.0f));
+            D.assert(wordSpacing != null || (wordSpacingFactor == 1.0f && wordSpacingDelta == 0.0f));
+            D.assert(height != null || (heightFactor == 1.0f && heightDelta == 0.0f));
+            D.assert(decorationThickness != null ||
                      (decorationThicknessFactor == 1.0f && decorationThicknessDelta == 0.0f));
 
             string modifiedDebugLabel = "";
             D.assert(() => {
-                if (this.debugLabel != null) {
-                    modifiedDebugLabel = this.debugLabel + ".apply";
+                if (debugLabel != null) {
+                    modifiedDebugLabel = debugLabel + ".apply";
                 }
 
                 return true;
             });
 
             return new TextStyle(
-                inherit: this.inherit,
-                color: this.foreground == null ? color ?? this.color : null,
-                backgroundColor: this.background == null ? backgroundColor ?? this.backgroundColor : null,
+                inherit: inherit,
+                color: foreground == null ? color ?? this.color : null,
+                backgroundColor: background == null ? backgroundColor ?? this.backgroundColor : null,
                 fontFamily: fontFamily ?? this.fontFamily,
                 fontFamilyFallback: fontFamilyFallback ?? this.fontFamilyFallback,
-                fontSize: this.fontSize == null ? null : this.fontSize * fontSizeFactor + fontSizeDelta,
-                fontWeight: this.fontWeight == null ? null : this.fontWeight,
-                fontStyle: this.fontStyle,
-                letterSpacing: this.letterSpacing == null
+                fontSize: fontSize == null ? null : fontSize * fontSizeFactor + fontSizeDelta,
+                fontWeight: fontWeight == null ? null : fontWeight,
+                fontStyle: fontStyle,
+                letterSpacing: letterSpacing == null
                     ? null
-                    : this.letterSpacing * letterSpacingFactor + letterSpacingDelta,
-                wordSpacing: this.wordSpacing == null ? null : this.wordSpacing * wordSpacingFactor + wordSpacingDelta,
-                textBaseline: this.textBaseline,
-                height: this.height == null ? null : this.height * heightFactor + heightDelta,
-                foreground: this.foreground,
-                background: this.background,
+                    : letterSpacing * letterSpacingFactor + letterSpacingDelta,
+                wordSpacing: wordSpacing == null ? null : wordSpacing * wordSpacingFactor + wordSpacingDelta,
+                textBaseline: textBaseline,
+                height: height == null ? null : height * heightFactor + heightDelta,
+                foreground: foreground,
+                background: background,
                 decoration: decoration ?? this.decoration,
                 decorationColor: decorationColor ?? this.decorationColor,
                 decorationStyle: decorationStyle ?? this.decorationStyle,
-                decorationThickness: this.decorationThickness == null
+                decorationThickness: decorationThickness == null
                     ? null
-                    : this.decorationThickness * decorationThicknessFactor + decorationThicknessDelta,
+                    : decorationThickness * decorationThicknessFactor + decorationThicknessDelta,
                 shadows: shadows ?? this.shadows,
                 debugLabel: modifiedDebugLabel
             );
@@ -191,15 +191,15 @@ namespace Unity.UIWidgets.painting {
 
             string mergedDebugLabel = null;
             D.assert(() => {
-                if (other.debugLabel != null || this.debugLabel != null) {
+                if (other.debugLabel != null || debugLabel != null) {
                     mergedDebugLabel =
-                        $"({this.debugLabel ?? _kDefaultDebugLabel}).merge({other.debugLabel ?? _kDefaultDebugLabel})";
+                        $"({debugLabel ?? _kDefaultDebugLabel}).merge({other.debugLabel ?? _kDefaultDebugLabel})";
                 }
 
                 return true;
             });
 
-            return this.copyWith(
+            return copyWith(
                 color: other.color,
                 backgroundColor: other.backgroundColor,
                 fontFamily: other.fontFamily,
@@ -383,75 +383,75 @@ namespace Unity.UIWidgets.painting {
             base.debugFillProperties(properties);
 
             List<DiagnosticsNode> styles = new List<DiagnosticsNode>();
-            styles.Add(new DiagnosticsProperty<Color>("color", this.color,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<Color>("backgroundColor", this.backgroundColor,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            styles.Add(new StringProperty("family", this.fontFamily, defaultValue: Diagnostics.kNullDefaultValue,
+            styles.Add(new DiagnosticsProperty<Color>("color", color,
+                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new DiagnosticsProperty<Color>("backgroundColor", backgroundColor,
+                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new StringProperty("family", fontFamily, defaultValue: foundation_.kNullDefaultValue,
                 quoted: false));
-            styles.Add(new EnumerableProperty<string>("familyFallback", this.fontFamilyFallback,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<float?>("size", this.fontSize,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            styles.Add(new EnumerableProperty<string>("familyFallback", fontFamilyFallback,
+                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new DiagnosticsProperty<float?>("size", fontSize,
+                defaultValue: foundation_.kNullDefaultValue));
             string weightDescription = "";
-            if (this.fontWeight != null) {
-                weightDescription = this.fontWeight.weightValue.ToString();
+            if (fontWeight != null) {
+                weightDescription = fontWeight.weightValue.ToString();
             }
 
             styles.Add(new DiagnosticsProperty<FontWeight>(
-                "weight", this.fontWeight,
+                "weight", fontWeight,
                 description: weightDescription,
-                defaultValue: Diagnostics.kNullDefaultValue
+                defaultValue: foundation_.kNullDefaultValue
             ));
-            styles.Add(new EnumProperty<FontStyle?>("style", this.fontStyle,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<float?>("letterSpacing", this.letterSpacing,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<float?>("wordSpacing", this.wordSpacing,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            styles.Add(new EnumProperty<TextBaseline?>("baseline", this.textBaseline,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<float?>("height", this.height,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            styles.Add(new StringProperty("foreground", this.foreground == null ? null : this.foreground.ToString(),
-                defaultValue: Diagnostics.kNullDefaultValue, quoted: false));
-            styles.Add(new StringProperty("background", this.background == null ? null : this.background.ToString(),
-                defaultValue: Diagnostics.kNullDefaultValue, quoted: false));
-            if (this.decoration != null) {
+            styles.Add(new EnumProperty<FontStyle?>("style", fontStyle,
+                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new DiagnosticsProperty<float?>("letterSpacing", letterSpacing,
+                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new DiagnosticsProperty<float?>("wordSpacing", wordSpacing,
+                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new EnumProperty<TextBaseline?>("baseline", textBaseline,
+                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new DiagnosticsProperty<float?>("height", height,
+                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new StringProperty("foreground", foreground == null ? null : foreground.ToString(),
+                defaultValue: foundation_.kNullDefaultValue, quoted: false));
+            styles.Add(new StringProperty("background", background == null ? null : background.ToString(),
+                defaultValue: foundation_.kNullDefaultValue, quoted: false));
+            if (decoration != null) {
                 List<string> decorationDescription = new List<string>();
-                if (this.decorationStyle != null) {
-                    decorationDescription.Add(this.decorationStyle.ToString());
+                if (decorationStyle != null) {
+                    decorationDescription.Add(decorationStyle.ToString());
                 }
 
-                styles.Add(new DiagnosticsProperty<Color>("decorationColor", this.decorationColor,
-                    defaultValue: Diagnostics.kNullDefaultValue,
+                styles.Add(new DiagnosticsProperty<Color>("decorationColor", decorationColor,
+                    defaultValue: foundation_.kNullDefaultValue,
                     level: DiagnosticLevel.fine));
-                if (this.decorationColor != null) {
-                    decorationDescription.Add(this.decorationColor.ToString());
+                if (decorationColor != null) {
+                    decorationDescription.Add(decorationColor.ToString());
                 }
 
-                styles.Add(new DiagnosticsProperty<TextDecoration>("decoration", this.decoration,
-                    defaultValue: Diagnostics.kNullDefaultValue,
+                styles.Add(new DiagnosticsProperty<TextDecoration>("decoration", decoration,
+                    defaultValue: foundation_.kNullDefaultValue,
                     level: DiagnosticLevel.hidden));
-                if (this.decoration != null) {
+                if (decoration != null) {
                     decorationDescription.Add("$decoration");
                 }
 
                 D.assert(decorationDescription.isNotEmpty);
                 styles.Add(new MessageProperty("decoration", string.Join(" ", decorationDescription.ToArray())));
-                styles.Add(new FloatProperty("decorationThickness", this.decorationThickness, unit: "x",
-                    defaultValue: Diagnostics.kNoDefaultValue));
+                styles.Add(new FloatProperty("decorationThickness", decorationThickness, unit: "x",
+                    defaultValue: foundation_.kNoDefaultValue));
             }
 
             bool styleSpecified = styles.Any((DiagnosticsNode n) => !n.isFiltered(DiagnosticLevel.info));
-            properties.add(new DiagnosticsProperty<bool>("inherit", this.inherit,
-                level: (!styleSpecified && this.inherit) ? DiagnosticLevel.fine : DiagnosticLevel.info));
+            properties.add(new DiagnosticsProperty<bool>("inherit", inherit,
+                level: (!styleSpecified && inherit) ? DiagnosticLevel.fine : DiagnosticLevel.info));
             foreach (var style in styles) {
                 properties.add(style);
             }
 
             if (!styleSpecified) {
-                properties.add(new FlagProperty("inherit", value: this.inherit, ifTrue: "<all styles inherited>",
+                properties.add(new FlagProperty("inherit", value: inherit, ifTrue: "<all styles inherited>",
                     ifFalse: "<no style specified>"));
             }
         }
@@ -465,25 +465,25 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return this.inherit == other.inherit &&
-                   Equals(this.color, other.color) &&
-                   Equals(this.backgroundColor, other.backgroundColor) &&
-                   this.fontSize.Equals(other.fontSize) &&
-                   this.fontWeight == other.fontWeight &&
-                   this.fontStyle == other.fontStyle &&
-                   this.letterSpacing.Equals(other.letterSpacing) &&
-                   this.wordSpacing.Equals(other.wordSpacing) &&
-                   this.textBaseline == other.textBaseline &&
-                   this.height.Equals(other.height) &&
-                   Equals(this.decoration, other.decoration) &&
-                   Equals(this.decorationColor, other.decorationColor) &&
-                   this.decorationStyle == other.decorationStyle &&
-                   this.decorationThickness == other.decorationThickness &&
-                   Equals(this.foreground, other.foreground) &&
-                   Equals(this.background, other.background) &&
-                   this.fontFamilyFallback.equalsList(other.fontFamilyFallback) &&
-                   this.shadows.equalsList(other.shadows) &&
-                   string.Equals(this.fontFamily, other.fontFamily);
+            return inherit == other.inherit &&
+                   Equals(color, other.color) &&
+                   Equals(backgroundColor, other.backgroundColor) &&
+                   fontSize.Equals(other.fontSize) &&
+                   fontWeight == other.fontWeight &&
+                   fontStyle == other.fontStyle &&
+                   letterSpacing.Equals(other.letterSpacing) &&
+                   wordSpacing.Equals(other.wordSpacing) &&
+                   textBaseline == other.textBaseline &&
+                   height.Equals(other.height) &&
+                   Equals(decoration, other.decoration) &&
+                   Equals(decorationColor, other.decorationColor) &&
+                   decorationStyle == other.decorationStyle &&
+                   decorationThickness == other.decorationThickness &&
+                   Equals(foreground, other.foreground) &&
+                   Equals(background, other.background) &&
+                   fontFamilyFallback.equalsList(other.fontFamilyFallback) &&
+                   shadows.equalsList(other.shadows) &&
+                   string.Equals(fontFamily, other.fontFamily);
         }
 
         public override bool Equals(object obj) {
@@ -495,35 +495,35 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextStyle) obj);
+            return Equals((TextStyle) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.inherit.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.color != null ? this.color.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.backgroundColor != null ? this.backgroundColor.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.fontSize.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.fontWeight != null ? this.fontWeight.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.fontStyle.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.letterSpacing.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.wordSpacing.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.textBaseline.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.height.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.decoration != null ? this.decoration.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.decorationColor != null ? this.decorationColor.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.decorationStyle.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.decorationThickness.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.foreground != null ? this.foreground.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.background != null ? this.background.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.fontFamily != null ? this.fontFamily.GetHashCode() : 0);
+                var hashCode = inherit.GetHashCode();
+                hashCode = (hashCode * 397) ^ (color != null ? color.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (backgroundColor != null ? backgroundColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ fontSize.GetHashCode();
+                hashCode = (hashCode * 397) ^ (fontWeight != null ? fontWeight.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ fontStyle.GetHashCode();
+                hashCode = (hashCode * 397) ^ letterSpacing.GetHashCode();
+                hashCode = (hashCode * 397) ^ wordSpacing.GetHashCode();
+                hashCode = (hashCode * 397) ^ textBaseline.GetHashCode();
+                hashCode = (hashCode * 397) ^ height.GetHashCode();
+                hashCode = (hashCode * 397) ^ (decoration != null ? decoration.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (decorationColor != null ? decorationColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ decorationStyle.GetHashCode();
+                hashCode = (hashCode * 397) ^ decorationThickness.GetHashCode();
+                hashCode = (hashCode * 397) ^ (foreground != null ? foreground.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (background != null ? background.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (fontFamily != null ? fontFamily.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^
-                           (this.fontFamilyFallback != null ? this.fontFamilyFallback.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.shadows != null ? this.shadows.GetHashCode() : 0);
+                           (fontFamilyFallback != null ? fontFamilyFallback.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (shadows != null ? shadows.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -537,7 +537,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string toStringShort() {
-            return this.GetType().FullName;
+            return GetType().FullName;
         }
     }
 }

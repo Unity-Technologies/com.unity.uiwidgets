@@ -43,7 +43,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly DragStartBehavior dragStartBehavior;
 
         public Axis axis {
-            get { return AxisUtils.axisDirectionToAxis(this.axisDirection); }
+            get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 
         public override State createState() {
@@ -52,8 +52,8 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<AxisDirection>("axisDirection", this.axisDirection));
-            properties.add(new DiagnosticsProperty<ScrollPhysics>("physics", this.physics));
+            properties.add(new EnumProperty<AxisDirection>("axisDirection", axisDirection));
+            properties.add(new DiagnosticsProperty<ScrollPhysics>("physics", physics));
         }
 
         public static ScrollableState of(BuildContext context) {
@@ -112,19 +112,19 @@ namespace Unity.UIWidgets.widgets {
         public readonly ScrollPosition position;
 
         public override bool updateShouldNotify(InheritedWidget old) {
-            return this.position != ((_ScrollableScope) old).position;
+            return position != ((_ScrollableScope) old).position;
         }
     }
 
     public class ScrollableState : TickerProviderStateMixin<Scrollable>, ScrollContext {
         public ScrollPosition position {
-            get { return this._position; }
+            get { return _position; }
         }
 
         ScrollPosition _position;
 
         public AxisDirection axisDirection {
-            get { return this.widget.axisDirection; }
+            get { return widget.axisDirection; }
         }
 
         ScrollBehavior _configuration;
@@ -132,14 +132,14 @@ namespace Unity.UIWidgets.widgets {
         ScrollPhysics _physics;
 
         void _updatePosition() {
-            this._configuration = ScrollConfiguration.of(this.context);
-            this._physics = this._configuration.getScrollPhysics(this.context);
-            if (this.widget.physics != null) {
-                this._physics = this.widget.physics.applyTo(this._physics);
+            _configuration = ScrollConfiguration.of(context);
+            _physics = _configuration.getScrollPhysics(context);
+            if (widget.physics != null) {
+                _physics = widget.physics.applyTo(_physics);
             }
 
-            ScrollController controller = this.widget.controller;
-            ScrollPosition oldPosition = this.position;
+            ScrollController controller = widget.controller;
+            ScrollPosition oldPosition = position;
             if (oldPosition != null) {
                 if (controller != null) {
                     controller.detach(oldPosition);
@@ -148,25 +148,25 @@ namespace Unity.UIWidgets.widgets {
                 Window.instance.scheduleMicrotask(oldPosition.dispose);
             }
 
-            this._position = controller == null
+            _position = controller == null
                 ? null
-                : controller.createScrollPosition(this._physics, this, oldPosition);
-            this._position = this._position
-                             ?? new ScrollPositionWithSingleContext(physics: this._physics, context: this,
+                : controller.createScrollPosition(_physics, this, oldPosition);
+            _position = _position
+                             ?? new ScrollPositionWithSingleContext(physics: _physics, context: this,
                                  oldPosition: oldPosition);
-            D.assert(this.position != null);
+            D.assert(position != null);
             if (controller != null) {
-                controller.attach(this.position);
+                controller.attach(position);
             }
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this._updatePosition();
+            _updatePosition();
         }
 
         bool _shouldUpdatePosition(Scrollable oldWidget) {
-            ScrollPhysics newPhysics = this.widget.physics;
+            ScrollPhysics newPhysics = widget.physics;
             ScrollPhysics oldPhysics = oldWidget.physics;
             do {
                 Type newPhysicsType = newPhysics != null ? newPhysics.GetType() : null;
@@ -185,7 +185,7 @@ namespace Unity.UIWidgets.widgets {
                 }
             } while (newPhysics != null || oldPhysics != null);
 
-            Type controllerType = this.widget.controller == null ? null : this.widget.controller.GetType();
+            Type controllerType = widget.controller == null ? null : widget.controller.GetType();
             Type oldControllerType = oldWidget.controller == null ? null : oldWidget.controller.GetType();
             return controllerType != oldControllerType;
         }
@@ -194,27 +194,27 @@ namespace Unity.UIWidgets.widgets {
             Scrollable oldWidget = (Scrollable) oldWidgetRaw;
             base.didUpdateWidget(oldWidget);
 
-            if (this.widget.controller != oldWidget.controller) {
+            if (widget.controller != oldWidget.controller) {
                 if (oldWidget.controller != null) {
-                    oldWidget.controller.detach(this.position);
+                    oldWidget.controller.detach(position);
                 }
 
-                if (this.widget.controller != null) {
-                    this.widget.controller.attach(this.position);
+                if (widget.controller != null) {
+                    widget.controller.attach(position);
                 }
             }
 
-            if (this._shouldUpdatePosition(oldWidget)) {
-                this._updatePosition();
+            if (_shouldUpdatePosition(oldWidget)) {
+                _updatePosition();
             }
         }
 
         public override void dispose() {
-            if (this.widget.controller != null) {
-                this.widget.controller.detach(this.position);
+            if (widget.controller != null) {
+                widget.controller.detach(position);
             }
 
-            this.position.dispose();
+            position.dispose();
             base.dispose();
         }
 
@@ -230,64 +230,64 @@ namespace Unity.UIWidgets.widgets {
         Axis _lastAxisDirection;
 
         public void setCanDrag(bool canDrag) {
-            if (canDrag == this._lastCanDrag && (!canDrag || this.widget.axis == this._lastAxisDirection)) {
+            if (canDrag == _lastCanDrag && (!canDrag || widget.axis == _lastAxisDirection)) {
                 return;
             }
 
             if (!canDrag) {
-                this._gestureRecognizers = new Dictionary<Type, GestureRecognizerFactory>();
+                _gestureRecognizers = new Dictionary<Type, GestureRecognizerFactory>();
             }
             else {
-                switch (this.widget.axis) {
+                switch (widget.axis) {
                     case Axis.vertical:
-                        this._gestureRecognizers = new Dictionary<Type, GestureRecognizerFactory>();
-                        this._gestureRecognizers.Add(typeof(VerticalDragGestureRecognizer),
+                        _gestureRecognizers = new Dictionary<Type, GestureRecognizerFactory>();
+                        _gestureRecognizers.Add(typeof(VerticalDragGestureRecognizer),
                             new GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
                                 () => new VerticalDragGestureRecognizer(),
                                 instance => {
-                                    instance.onDown = this._handleDragDown;
-                                    instance.onStart = this._handleDragStart;
-                                    instance.onUpdate = this._handleDragUpdate;
-                                    instance.onEnd = this._handleDragEnd;
-                                    instance.onCancel = this._handleDragCancel;
+                                    instance.onDown = _handleDragDown;
+                                    instance.onStart = _handleDragStart;
+                                    instance.onUpdate = _handleDragUpdate;
+                                    instance.onEnd = _handleDragEnd;
+                                    instance.onCancel = _handleDragCancel;
                                     instance.minFlingDistance =
-                                        this._physics == null ? (float?) null : this._physics.minFlingDistance;
+                                        _physics == null ? (float?) null : _physics.minFlingDistance;
                                     instance.minFlingVelocity =
-                                        this._physics == null ? (float?) null : this._physics.minFlingVelocity;
+                                        _physics == null ? (float?) null : _physics.minFlingVelocity;
                                     instance.maxFlingVelocity =
-                                        this._physics == null ? (float?) null : this._physics.maxFlingVelocity;
-                                    instance.dragStartBehavior = this.widget.dragStartBehavior;
+                                        _physics == null ? (float?) null : _physics.maxFlingVelocity;
+                                    instance.dragStartBehavior = widget.dragStartBehavior;
                                 }
                             ));
                         break;
                     case Axis.horizontal:
-                        this._gestureRecognizers = new Dictionary<Type, GestureRecognizerFactory>();
-                        this._gestureRecognizers.Add(typeof(HorizontalDragGestureRecognizer),
+                        _gestureRecognizers = new Dictionary<Type, GestureRecognizerFactory>();
+                        _gestureRecognizers.Add(typeof(HorizontalDragGestureRecognizer),
                             new GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
                                 () => new HorizontalDragGestureRecognizer(),
                                 instance => {
-                                    instance.onDown = this._handleDragDown;
-                                    instance.onStart = this._handleDragStart;
-                                    instance.onUpdate = this._handleDragUpdate;
-                                    instance.onEnd = this._handleDragEnd;
-                                    instance.onCancel = this._handleDragCancel;
+                                    instance.onDown = _handleDragDown;
+                                    instance.onStart = _handleDragStart;
+                                    instance.onUpdate = _handleDragUpdate;
+                                    instance.onEnd = _handleDragEnd;
+                                    instance.onCancel = _handleDragCancel;
                                     instance.minFlingDistance =
-                                        this._physics == null ? (float?) null : this._physics.minFlingDistance;
+                                        _physics == null ? (float?) null : _physics.minFlingDistance;
                                     instance.minFlingVelocity =
-                                        this._physics == null ? (float?) null : this._physics.minFlingVelocity;
+                                        _physics == null ? (float?) null : _physics.minFlingVelocity;
                                     instance.maxFlingVelocity =
-                                        this._physics == null ? (float?) null : this._physics.maxFlingVelocity;
-                                    instance.dragStartBehavior = this.widget.dragStartBehavior;
+                                        _physics == null ? (float?) null : _physics.maxFlingVelocity;
+                                    instance.dragStartBehavior = widget.dragStartBehavior;
                                 }
                             ));
                         break;
                 }
             }
 
-            this._lastCanDrag = canDrag;
-            this._lastAxisDirection = this.widget.axis;
-            if (this._gestureDetectorKey.currentState != null) {
-                this._gestureDetectorKey.currentState.replaceGestureRecognizers(this._gestureRecognizers);
+            _lastCanDrag = canDrag;
+            _lastAxisDirection = widget.axis;
+            if (_gestureDetectorKey.currentState != null) {
+                _gestureDetectorKey.currentState.replaceGestureRecognizers(_gestureRecognizers);
             }
         }
 
@@ -296,23 +296,23 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void setIgnorePointer(bool value) {
-            if (this._shouldIgnorePointer == value) {
+            if (_shouldIgnorePointer == value) {
                 return;
             }
 
-            this._shouldIgnorePointer = value;
-            if (this._ignorePointerKey.currentContext != null) {
-                var renderBox = (RenderIgnorePointer) this._ignorePointerKey.currentContext.findRenderObject();
-                renderBox.ignoring = this._shouldIgnorePointer;
+            _shouldIgnorePointer = value;
+            if (_ignorePointerKey.currentContext != null) {
+                var renderBox = (RenderIgnorePointer) _ignorePointerKey.currentContext.findRenderObject();
+                renderBox.ignoring = _shouldIgnorePointer;
             }
         }
 
         public BuildContext notificationContext {
-            get { return this._gestureDetectorKey.currentContext; }
+            get { return _gestureDetectorKey.currentContext; }
         }
 
         public BuildContext storageContext {
-            get { return this.context; }
+            get { return context; }
         }
 
         Drag _drag;
@@ -320,106 +320,106 @@ namespace Unity.UIWidgets.widgets {
         ScrollHoldController _hold;
 
         void _handleDragDown(DragDownDetails details) {
-            D.assert(this._drag == null);
-            D.assert(this._hold == null);
-            this._hold = this.position.hold(this._disposeHold);
+            D.assert(_drag == null);
+            D.assert(_hold == null);
+            _hold = position.hold(_disposeHold);
         }
 
         void _handleDragStart(DragStartDetails details) {
-            D.assert(this._drag == null);
-            this._drag = this.position.drag(details, this._disposeDrag);
-            D.assert(this._drag != null);
-            D.assert(this._hold == null);
+            D.assert(_drag == null);
+            _drag = position.drag(details, _disposeDrag);
+            D.assert(_drag != null);
+            D.assert(_hold == null);
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
-            D.assert(this._hold == null || this._drag == null);
-            if (this._drag != null) {
-                this._drag.update(details);
+            D.assert(_hold == null || _drag == null);
+            if (_drag != null) {
+                _drag.update(details);
             }
         }
 
         void _handleDragEnd(DragEndDetails details) {
-            D.assert(this._hold == null || this._drag == null);
-            if (this._drag != null) {
-                this._drag.end(details);
+            D.assert(_hold == null || _drag == null);
+            if (_drag != null) {
+                _drag.end(details);
             }
 
-            D.assert(this._drag == null);
+            D.assert(_drag == null);
         }
 
         void _handleDragCancel() {
-            D.assert(this._hold == null || this._drag == null);
-            if (this._hold != null) {
-                this._hold.cancel();
+            D.assert(_hold == null || _drag == null);
+            if (_hold != null) {
+                _hold.cancel();
             }
 
-            if (this._drag != null) {
-                this._drag.cancel();
+            if (_drag != null) {
+                _drag.cancel();
             }
 
-            D.assert(this._hold == null);
-            D.assert(this._drag == null);
+            D.assert(_hold == null);
+            D.assert(_drag == null);
         }
         
         float _targetScrollOffsetForPointerScroll(PointerScrollEvent e) {
-            float delta = this.widget.axis == Axis.horizontal ? e.delta.dx : e.delta.dy;
-            return Mathf.Min(Mathf.Max(this.position.pixels + delta, this.position.minScrollExtent),
-                this.position.maxScrollExtent);
+            float delta = widget.axis == Axis.horizontal ? e.delta.dx : e.delta.dy;
+            return Mathf.Min(Mathf.Max(position.pixels + delta, position.minScrollExtent),
+                position.maxScrollExtent);
         }
         
         void _receivedPointerSignal(PointerSignalEvent e) {
-            if (e is PointerScrollEvent && this.position != null) {
-                float targetScrollOffset = this._targetScrollOffsetForPointerScroll(e as PointerScrollEvent);
-                if (targetScrollOffset != this.position.pixels) {
-                    GestureBinding.instance.pointerSignalResolver.register(e, this._handlePointerScroll);
+            if (e is PointerScrollEvent && position != null) {
+                float targetScrollOffset = _targetScrollOffsetForPointerScroll(e as PointerScrollEvent);
+                if (targetScrollOffset != position.pixels) {
+                    GestureBinding.instance.pointerSignalResolver.register(e, _handlePointerScroll);
                 }
             }
         }
 
         void _handlePointerScroll(PointerEvent e) {
             D.assert(e is PointerScrollEvent);
-            float targetScrollOffset = this._targetScrollOffsetForPointerScroll(e as PointerScrollEvent);
-            if (targetScrollOffset != this.position.pixels) {
-                this.position.jumpTo(targetScrollOffset);
+            float targetScrollOffset = _targetScrollOffsetForPointerScroll(e as PointerScrollEvent);
+            if (targetScrollOffset != position.pixels) {
+                position.jumpTo(targetScrollOffset);
             }
         }
 
         void _disposeHold() {
-            this._hold = null;
+            _hold = null;
         }
 
         void _disposeDrag() {
-            this._drag = null;
+            _drag = null;
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(this.position != null);
+            D.assert(position != null);
 
             Widget result = new _ScrollableScope(
                 scrollable: this,
-                position: this.position,
+                position: position,
                 child: new Listener(
-                    onPointerSignal: this._receivedPointerSignal,
+                    onPointerSignal: _receivedPointerSignal,
                     child: new RawGestureDetector(
-                        key: this._gestureDetectorKey,
-                        gestures: this._gestureRecognizers,
+                        key: _gestureDetectorKey,
+                        gestures: _gestureRecognizers,
                         behavior: HitTestBehavior.opaque,
                         child: new IgnorePointer(
-                            key: this._ignorePointerKey,
-                            ignoring: this._shouldIgnorePointer,
-                            child: this.widget.viewportBuilder(context, this.position)
+                            key: _ignorePointerKey,
+                            ignoring: _shouldIgnorePointer,
+                            child: widget.viewportBuilder(context, position)
                         )
                     )
                 )
             );
 
-            return this._configuration.buildViewportChrome(context, result, this.widget.axisDirection);
+            return _configuration.buildViewportChrome(context, result, widget.axisDirection);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<ScrollPosition>("position", this.position));
+            properties.add(new DiagnosticsProperty<ScrollPosition>("position", position));
         }
     }
 }

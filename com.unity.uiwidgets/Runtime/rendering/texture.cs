@@ -8,16 +8,16 @@ namespace Unity.UIWidgets.rendering {
 
         public TextureBox(Texture texture = null) {
             D.assert(texture != null);
-            this._texture = texture;
+            _texture = texture;
         }
 
         public Texture texture {
-            get { return this._texture; }
+            get { return _texture; }
             set {
                 D.assert(value != null);
-                if (value != this._texture) {
-                    this._texture = value;
-                    this.markNeedsPaint();
+                if (value != _texture) {
+                    _texture = value;
+                    markNeedsPaint();
                 }                
             }
         }
@@ -37,7 +37,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performResize() {
-            this.size = this.constraints.biggest;
+            size = constraints.biggest;
         }
 
         protected override bool hitTestSelf(Offset position) {
@@ -45,13 +45,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this._texture == null) {
+            if (_texture == null) {
                 return;
             }
             
             context.addLayer(new TextureLayer(
-                rect: Rect.fromLTWH(offset.dx, offset.dy, this.size.width, this.size.height),
-                texture: this._texture
+                rect: Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
+                texture: _texture
             ));
         }
     }

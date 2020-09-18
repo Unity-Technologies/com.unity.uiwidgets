@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.physics {
         public readonly float velocity;
 
         public override string ToString() {
-            return $"Tolerance(distance: ±{this.distance}, time: ±{this.time}, velocity: ±{this.velocity})";
+            return $"Tolerance(distance: ±{distance}, time: ±{time}, velocity: ±{velocity})";
         }
     }
 }

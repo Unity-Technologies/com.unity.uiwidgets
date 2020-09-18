@@ -33,7 +33,7 @@ namespace Unity.UIWidgets.painting {
             BorderStyle style = BorderStyle.solid
         ) {
             BorderSide side = new BorderSide(color: color, width: width, style: style);
-            return Border.fromBorderSide(side);
+            return fromBorderSide(side);
         }
 
         public static Border merge(Border a, Border b) {
@@ -60,41 +60,41 @@ namespace Unity.UIWidgets.painting {
         public override EdgeInsets dimensions {
             get {
                 return EdgeInsets.fromLTRB(
-                    this.left.width,
-                    this.top.width,
-                    this.right.width,
-                    this.bottom.width);
+                    left.width,
+                    top.width,
+                    right.width,
+                    bottom.width);
             }
         }
 
         public bool isUniform {
-            get { return this.isSameColor && this.isSameWidth && this.isSameStyle; }
+            get { return isSameColor && isSameWidth && isSameStyle; }
         }
 
         public bool isSameColor {
             get {
-                Color topColor = this.top.color;
-                return this.right.color == topColor
-                       && this.bottom.color == topColor
-                       && this.left.color == topColor;
+                Color topColor = top.color;
+                return right.color == topColor
+                       && bottom.color == topColor
+                       && left.color == topColor;
             }
         }
 
         public bool isSameWidth {
             get {
-                var topWidth = this.top.width;
-                return this.right.width == topWidth
-                       && this.bottom.width == topWidth
-                       && this.left.width == topWidth;
+                var topWidth = top.width;
+                return right.width == topWidth
+                       && bottom.width == topWidth
+                       && left.width == topWidth;
             }
         }
 
         public bool isSameStyle {
             get {
-                var topStyle = this.top.style;
-                return this.right.style == topStyle
-                       && this.bottom.style == topStyle
-                       && this.left.style == topStyle;
+                var topStyle = top.style;
+                return right.style == topStyle
+                       && bottom.style == topStyle
+                       && left.style == topStyle;
             }
         }
 
@@ -103,10 +103,10 @@ namespace Unity.UIWidgets.painting {
                 return null;
             }
 
-            if (BorderSide.canMerge(this.top, border.top) &&
-                BorderSide.canMerge(this.right, border.right) &&
-                BorderSide.canMerge(this.bottom, border.bottom) &&
-                BorderSide.canMerge(this.left, border.left)) {
+            if (BorderSide.canMerge(top, border.top) &&
+                BorderSide.canMerge(right, border.right) &&
+                BorderSide.canMerge(bottom, border.bottom) &&
+                BorderSide.canMerge(left, border.left)) {
                 return merge(this, border);
             }
 
@@ -115,10 +115,10 @@ namespace Unity.UIWidgets.painting {
 
         public override ShapeBorder scale(float t) {
             return new Border(
-                top: this.top.scale(t),
-                right: this.right.scale(t),
-                bottom: this.bottom.scale(t),
-                left: this.left.scale(t)
+                top: top.scale(t),
+                right: right.scale(t),
+                bottom: bottom.scale(t),
+                left: left.scale(t)
             );
         }
 
@@ -160,14 +160,14 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override void paint(Canvas canvas, Rect rect) {
-            this.paint(canvas, rect, BoxShape.rectangle, null);
+            paint(canvas, rect, BoxShape.rectangle, null);
         }
 
         public void paint(Canvas canvas, Rect rect,
             BoxShape shape = BoxShape.rectangle,
             BorderRadius borderRadius = null) {
-            if (this.isUniform) {
-                switch (this.top.style) {
+            if (isUniform) {
+                switch (top.style) {
                     case BorderStyle.none:
                         return;
                     case BorderStyle.solid:
@@ -175,14 +175,14 @@ namespace Unity.UIWidgets.painting {
                             case BoxShape.circle:
                                 D.assert(borderRadius == null,
                                     () => "A borderRadius can only be given for rectangular boxes.");
-                                _paintUniformBorderWithCircle(canvas, rect, this.top);
+                                _paintUniformBorderWithCircle(canvas, rect, top);
                                 break;
                             case BoxShape.rectangle:
                                 if (borderRadius != null) {
-                                    _paintUniformBorderWithRadius(canvas, rect, this.top, borderRadius);
+                                    _paintUniformBorderWithRadius(canvas, rect, top, borderRadius);
                                 }
                                 else {
-                                    _paintUniformBorderWithRectangle(canvas, rect, this.top);
+                                    _paintUniformBorderWithRectangle(canvas, rect, top);
                                 }
 
                                 break;
@@ -196,12 +196,12 @@ namespace Unity.UIWidgets.painting {
             D.assert(shape == BoxShape.rectangle, () => "A border can only be drawn as a circle if it is uniform.");
 
             BorderUtils.paintBorder(canvas, rect,
-                top: this.top, right: this.right, bottom: this.bottom, left: this.left);
+                top: top, right: right, bottom: bottom, left: left);
         }
 
         public override Path getInnerPath(Rect rect) {
             var path = new Path();
-            path.addRect(this.dimensions.deflateRect(rect));
+            path.addRect(dimensions.deflateRect(rect));
             return path;
         }
 
@@ -255,10 +255,10 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.top, other.top)
-                   && Equals(this.right, other.right)
-                   && Equals(this.bottom, other.bottom)
-                   && Equals(this.left, other.left);
+            return Equals(top, other.top)
+                   && Equals(right, other.right)
+                   && Equals(bottom, other.bottom)
+                   && Equals(left, other.left);
         }
 
         public override bool Equals(object obj) {
@@ -270,46 +270,46 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((Border) obj);
+            return Equals((Border) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.top != null ? this.top.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.right != null ? this.right.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.bottom != null ? this.bottom.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.left != null ? this.left.GetHashCode() : 0);
+                var hashCode = (top != null ? top.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (right != null ? right.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (bottom != null ? bottom.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (left != null ? left.GetHashCode() : 0);
                 return hashCode;
             }
         }
 
         public override string ToString() {
-            if (this.isUniform) {
-                return $"{this.GetType()}.all({this.top})";
+            if (isUniform) {
+                return $"{GetType()}.all({top})";
             }
 
             List<string> arguments = new List<string>();
-            if (this.top != BorderSide.none) {
-                arguments.Add($"top: {this.top}");
+            if (top != BorderSide.none) {
+                arguments.Add($"top: {top}");
             }
 
-            if (this.right != BorderSide.none) {
-                arguments.Add($"right: {this.right}");
+            if (right != BorderSide.none) {
+                arguments.Add($"right: {right}");
             }
 
-            if (this.bottom != BorderSide.none) {
-                arguments.Add($"bottom: {this.bottom}");
+            if (bottom != BorderSide.none) {
+                arguments.Add($"bottom: {bottom}");
             }
 
-            if (this.left != BorderSide.none) {
-                arguments.Add($"left: {this.left}");
+            if (left != BorderSide.none) {
+                arguments.Add($"left: {left}");
             }
 
-            return $"{this.GetType()}({string.Join(", ", arguments)})";
+            return $"{GetType()}({string.Join(", ", arguments)})";
         }
     }
 }

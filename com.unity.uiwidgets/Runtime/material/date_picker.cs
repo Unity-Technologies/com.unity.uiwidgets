@@ -107,8 +107,8 @@ namespace Unity.UIWidgets.material {
         public readonly Orientation orientation;
 
         void _handleChangeMode(DatePickerMode value) {
-            if (value != this.mode) {
-                this.onModeChanged(value);
+            if (value != mode) {
+                onModeChanged(value);
             }
         }
 
@@ -120,12 +120,12 @@ namespace Unity.UIWidgets.material {
             Color yearColor = null;
             switch (themeData.primaryColorBrightness) {
                 case Brightness.light:
-                    dayColor = this.mode == DatePickerMode.day ? Colors.black87 : Colors.black54;
-                    yearColor = this.mode == DatePickerMode.year ? Colors.black87 : Colors.black54;
+                    dayColor = mode == DatePickerMode.day ? Colors.black87 : Colors.black54;
+                    yearColor = mode == DatePickerMode.year ? Colors.black87 : Colors.black54;
                     break;
                 case Brightness.dark:
-                    dayColor = this.mode == DatePickerMode.day ? Colors.white : Colors.white70;
-                    yearColor = this.mode == DatePickerMode.year ? Colors.white : Colors.white70;
+                    dayColor = mode == DatePickerMode.day ? Colors.white : Colors.white70;
+                    yearColor = mode == DatePickerMode.year ? Colors.white : Colors.white70;
                     break;
             }
 
@@ -145,7 +145,7 @@ namespace Unity.UIWidgets.material {
             float height = 0f;
             EdgeInsets padding = null;
             MainAxisAlignment mainAxisAlignment = MainAxisAlignment.center;
-            switch (this.orientation) {
+            switch (orientation) {
                 case Orientation.portrait:
                     height = DatePickerUtils._kDatePickerHeaderPortraitHeight;
                     padding = EdgeInsets.symmetric(horizontal: 16.0f);
@@ -159,19 +159,19 @@ namespace Unity.UIWidgets.material {
             }
 
             Widget yearButton = new IgnorePointer(
-                ignoring: this.mode != DatePickerMode.day,
+                ignoring: mode != DatePickerMode.day,
                 child: new _DateHeaderButton(
                     color: backgroundColor,
-                    onTap: Feedback.wrapForTap(() => this._handleChangeMode(DatePickerMode.year), context),
-                    child: new Text(localizations.formatYear(this.selectedDate), style: yearStyle)
+                    onTap: Feedback.wrapForTap(() => _handleChangeMode(DatePickerMode.year), context),
+                    child: new Text(localizations.formatYear(selectedDate), style: yearStyle)
                 )
             );
             Widget dayButton = new IgnorePointer(
-                ignoring: this.mode == DatePickerMode.day,
+                ignoring: mode == DatePickerMode.day,
                 child: new _DateHeaderButton(
                     color: backgroundColor,
-                    onTap: Feedback.wrapForTap(() => this._handleChangeMode(DatePickerMode.day), context),
-                    child: new Text(localizations.formatMediumDate(this.selectedDate), style: dayStyle)
+                    onTap: Feedback.wrapForTap(() => _handleChangeMode(DatePickerMode.day), context),
+                    child: new Text(localizations.formatMediumDate(selectedDate), style: dayStyle)
                 )
             );
             return new Container(
@@ -208,15 +208,15 @@ namespace Unity.UIWidgets.material {
             ThemeData theme = Theme.of(context);
             return new Material(
                 type: MaterialType.button,
-                color: this.color,
+                color: color,
                 child: new InkWell(
                     borderRadius: MaterialConstantsUtils.kMaterialEdges[MaterialType.button],
                     highlightColor: theme.highlightColor,
                     splashColor: theme.splashColor,
-                    onTap: this.onTap,
+                    onTap: onTap,
                     child: new Container(
                         padding: EdgeInsets.symmetric(horizontal: 8.0f),
-                        child: this.child
+                        child: child
                     )
                 )
             );
@@ -326,12 +326,12 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             ThemeData themeData = Theme.of(context);
             MaterialLocalizations localizations = MaterialLocalizations.of(context);
-            int year = this.displayedMonth.Year;
-            int month = this.displayedMonth.Month;
+            int year = displayedMonth.Year;
+            int month = displayedMonth.Month;
             int daysInMonth = getDaysInMonth(year, month);
-            int firstDayOffset = this._computeFirstDayOffset(year, month, localizations);
+            int firstDayOffset = _computeFirstDayOffset(year, month, localizations);
             List<Widget> labels = new List<Widget>();
-            labels.AddRange(this._getDayHeaders(themeData.textTheme.caption, localizations));
+            labels.AddRange(_getDayHeaders(themeData.textTheme.caption, localizations));
             for (int i = 0; true; i += 1) {
                 int day = i - firstDayOffset + 1;
                 if (day > daysInMonth) {
@@ -343,14 +343,14 @@ namespace Unity.UIWidgets.material {
                 }
                 else {
                     DateTime dayToBuild = new DateTime(year, month, day);
-                    bool disabled = dayToBuild > this.lastDate
-                                    || dayToBuild < this.firstDate
-                                    || (this.selectableDayPredicate != null &&
-                                        !this.selectableDayPredicate(dayToBuild));
+                    bool disabled = dayToBuild > lastDate
+                                    || dayToBuild < firstDate
+                                    || (selectableDayPredicate != null &&
+                                        !selectableDayPredicate(dayToBuild));
                     BoxDecoration decoration = null;
                     TextStyle itemStyle = themeData.textTheme.body1;
-                    bool isSelectedDay = this.selectedDate.Year == year && this.selectedDate.Month == month &&
-                                         this.selectedDate.Day == day;
+                    bool isSelectedDay = selectedDate.Year == year && selectedDate.Month == month &&
+                                         selectedDate.Day == day;
                     if (isSelectedDay) {
                         itemStyle = themeData.accentTextTheme.body2;
                         decoration = new BoxDecoration(
@@ -361,8 +361,8 @@ namespace Unity.UIWidgets.material {
                     else if (disabled) {
                         itemStyle = themeData.textTheme.body1.copyWith(color: themeData.disabledColor);
                     }
-                    else if (this.currentDate.Year == year && this.currentDate.Month == month &&
-                             this.currentDate.Day == day) {
+                    else if (currentDate.Year == year && currentDate.Month == month &&
+                             currentDate.Day == day) {
                         itemStyle = themeData.textTheme.body2.copyWith(color: themeData.accentColor);
                     }
 
@@ -375,9 +375,9 @@ namespace Unity.UIWidgets.material {
                     if (!disabled) {
                         dayWidget = new GestureDetector(
                             behavior: HitTestBehavior.opaque,
-                            onTap: () => { this.onChanged(dayToBuild); },
+                            onTap: () => { onChanged(dayToBuild); },
                             child: dayWidget,
-                            dragStartBehavior: this.dragStartBehavior
+                            dragStartBehavior: dragStartBehavior
                         );
                     }
 
@@ -393,7 +393,7 @@ namespace Unity.UIWidgets.material {
                             height: DatePickerUtils._kDayPickerRowHeight,
                             child: new Center(
                                 child: new Text(
-                                    localizations.formatMonthYear(this.displayedMonth),
+                                    localizations.formatMonthYear(displayedMonth),
                                     style: themeData.textTheme.subhead
                                 )
                             )
@@ -460,23 +460,23 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            int monthPage = _monthDelta(this.widget.firstDate, this.widget.selectedDate);
-            this._dayPickerController = new PageController(initialPage: monthPage);
-            this._handleMonthPageChanged(monthPage);
-            this._updateCurrentDate();
-            this._chevronOpacityController = new AnimationController(
+            int monthPage = _monthDelta(widget.firstDate, widget.selectedDate);
+            _dayPickerController = new PageController(initialPage: monthPage);
+            _handleMonthPageChanged(monthPage);
+            _updateCurrentDate();
+            _chevronOpacityController = new AnimationController(
                 duration: new TimeSpan(0, 0, 0, 0, 250),
                 vsync: this
             );
-            this._chevronOpacityAnimation = this._chevronOpacityController.drive(_chevronOpacityTween);
+            _chevronOpacityAnimation = _chevronOpacityController.drive(_chevronOpacityTween);
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.selectedDate != ((MonthPicker) oldWidget).selectedDate) {
-                int monthPage = _monthDelta(this.widget.firstDate, this.widget.selectedDate);
-                this._dayPickerController = new PageController(initialPage: monthPage);
-                this._handleMonthPageChanged(monthPage);
+            if (widget.selectedDate != ((MonthPicker) oldWidget).selectedDate) {
+                int monthPage = _monthDelta(widget.firstDate, widget.selectedDate);
+                _dayPickerController = new PageController(initialPage: monthPage);
+                _handleMonthPageChanged(monthPage);
             }
         }
 
@@ -484,7 +484,7 @@ namespace Unity.UIWidgets.material {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this.localizations = MaterialLocalizations.of(this.context);
+            localizations = MaterialLocalizations.of(context);
         }
 
         DateTime _todayDate;
@@ -495,12 +495,12 @@ namespace Unity.UIWidgets.material {
         Animation<float> _chevronOpacityAnimation;
 
         void _updateCurrentDate() {
-            this._todayDate = DateTime.Now;
-            DateTime tomorrow = this._todayDate.AddDays(1);
-            TimeSpan timeUntilTomorrow = tomorrow.TimeOfDay - this._todayDate.TimeOfDay;
-            this._timer?.cancel();
-            this._timer = Window.instance.run(timeUntilTomorrow,
-                () => { this.setState(() => { this._updateCurrentDate(); }); });
+            _todayDate = DateTime.Now;
+            DateTime tomorrow = _todayDate.AddDays(1);
+            TimeSpan timeUntilTomorrow = tomorrow.TimeOfDay - _todayDate.TimeOfDay;
+            _timer?.cancel();
+            _timer = Window.instance.run(timeUntilTomorrow,
+                () => { setState(() => { _updateCurrentDate(); }); });
         }
 
         static int _monthDelta(DateTime startDate, DateTime endDate) {
@@ -512,44 +512,44 @@ namespace Unity.UIWidgets.material {
         }
 
         Widget _buildItems(BuildContext context, int index) {
-            DateTime month = this._addMonthsToMonthDate(this.widget.firstDate, index);
+            DateTime month = _addMonthsToMonthDate(widget.firstDate, index);
             return new DayPicker(
                 key: new ValueKey<DateTime>(month),
-                selectedDate: this.widget.selectedDate,
-                currentDate: this._todayDate,
-                onChanged: this.widget.onChanged,
-                firstDate: this.widget.firstDate,
-                lastDate: this.widget.lastDate,
+                selectedDate: widget.selectedDate,
+                currentDate: _todayDate,
+                onChanged: widget.onChanged,
+                firstDate: widget.firstDate,
+                lastDate: widget.lastDate,
                 displayedMonth: month,
-                selectableDayPredicate: this.widget.selectableDayPredicate,
-                dragStartBehavior: this.widget.dragStartBehavior
+                selectableDayPredicate: widget.selectableDayPredicate,
+                dragStartBehavior: widget.dragStartBehavior
             );
         }
 
         void _handleNextMonth() {
-            if (!this._isDisplayingLastMonth) {
-                this._dayPickerController.nextPage(duration: DatePickerUtils._kMonthScrollDuration, curve: Curves.ease);
+            if (!_isDisplayingLastMonth) {
+                _dayPickerController.nextPage(duration: DatePickerUtils._kMonthScrollDuration, curve: Curves.ease);
             }
         }
 
         void _handlePreviousMonth() {
-            if (!this._isDisplayingFirstMonth) {
-                this._dayPickerController.previousPage(duration: DatePickerUtils._kMonthScrollDuration,
+            if (!_isDisplayingFirstMonth) {
+                _dayPickerController.previousPage(duration: DatePickerUtils._kMonthScrollDuration,
                     curve: Curves.ease);
             }
         }
 
         bool _isDisplayingFirstMonth {
             get {
-                return this._currentDisplayedMonthDate <=
-                       new DateTime(this.widget.firstDate.Year, this.widget.firstDate.Month, 1);
+                return _currentDisplayedMonthDate <=
+                       new DateTime(widget.firstDate.Year, widget.firstDate.Month, 1);
             }
         }
 
         bool _isDisplayingLastMonth {
             get {
-                return this._currentDisplayedMonthDate >=
-                       new DateTime(this.widget.lastDate.Year, this.widget.lastDate.Month, 1);
+                return _currentDisplayedMonthDate >=
+                       new DateTime(widget.lastDate.Year, widget.lastDate.Month, 1);
             }
         }
 
@@ -557,10 +557,10 @@ namespace Unity.UIWidgets.material {
         DateTime _nextMonthDate;
 
         void _handleMonthPageChanged(int monthPage) {
-            this.setState(() => {
-                this._previousMonthDate = this._addMonthsToMonthDate(this.widget.firstDate, monthPage - 1);
-                this._currentDisplayedMonthDate = this._addMonthsToMonthDate(this.widget.firstDate, monthPage);
-                this._nextMonthDate = this._addMonthsToMonthDate(this.widget.firstDate, monthPage + 1);
+            setState(() => {
+                _previousMonthDate = _addMonthsToMonthDate(widget.firstDate, monthPage - 1);
+                _currentDisplayedMonthDate = _addMonthsToMonthDate(widget.firstDate, monthPage);
+                _nextMonthDate = _addMonthsToMonthDate(widget.firstDate, monthPage + 1);
             });
         }
 
@@ -572,22 +572,22 @@ namespace Unity.UIWidgets.material {
                     children: new List<Widget> {
                         new NotificationListener<ScrollStartNotification>(
                             onNotification: (_) => {
-                                this._chevronOpacityController.forward();
+                                _chevronOpacityController.forward();
                                 return false;
                             },
                             child: new NotificationListener<ScrollEndNotification>(
                                 onNotification: (_) => {
-                                    this._chevronOpacityController.reverse();
+                                    _chevronOpacityController.reverse();
                                     return false;
                                 },
                                 child: PageView.builder(
-                                    dragStartBehavior: this.widget.dragStartBehavior,
-                                    key: new ValueKey<DateTime>(this.widget.selectedDate),
-                                    controller: this._dayPickerController,
+                                    dragStartBehavior: widget.dragStartBehavior,
+                                    key: new ValueKey<DateTime>(widget.selectedDate),
+                                    controller: _dayPickerController,
                                     scrollDirection: Axis.horizontal,
-                                    itemCount: _monthDelta(this.widget.firstDate, this.widget.lastDate) + 1,
-                                    itemBuilder: this._buildItems,
-                                    onPageChanged: this._handleMonthPageChanged
+                                    itemCount: _monthDelta(widget.firstDate, widget.lastDate) + 1,
+                                    itemBuilder: _buildItems,
+                                    onPageChanged: _handleMonthPageChanged
                                 )
                             )
                         ),
@@ -595,15 +595,15 @@ namespace Unity.UIWidgets.material {
                             top: 0.0f,
                             left: 8.0f,
                             child: new FadeTransition(
-                                opacity: this._chevronOpacityAnimation,
+                                opacity: _chevronOpacityAnimation,
                                 child: new IconButton(
                                     icon: new Icon(Icons.chevron_left),
-                                    tooltip: this._isDisplayingFirstMonth
+                                    tooltip: _isDisplayingFirstMonth
                                         ? null
-                                        : $"{this.localizations.previousMonthTooltip} {this.localizations.formatMonthYear(this._previousMonthDate)}",
-                                    onPressed: this._isDisplayingFirstMonth
+                                        : $"{localizations.previousMonthTooltip} {localizations.formatMonthYear(_previousMonthDate)}",
+                                    onPressed: _isDisplayingFirstMonth
                                         ? (VoidCallback) null
-                                        : this._handlePreviousMonth
+                                        : _handlePreviousMonth
                                 )
                             )
                         ),
@@ -611,15 +611,15 @@ namespace Unity.UIWidgets.material {
                             top: 0.0f,
                             right: 8.0f,
                             child: new FadeTransition(
-                                opacity: this._chevronOpacityAnimation,
+                                opacity: _chevronOpacityAnimation,
                                 child: new IconButton(
                                     icon: new Icon(Icons.chevron_right),
-                                    tooltip: this._isDisplayingLastMonth
+                                    tooltip: _isDisplayingLastMonth
                                         ? null
-                                        : $"{this.localizations.nextMonthTooltip} {this.localizations.formatMonthYear(this._nextMonthDate)}",
-                                    onPressed: this._isDisplayingLastMonth
+                                        : $"{localizations.nextMonthTooltip} {localizations.formatMonthYear(_nextMonthDate)}",
+                                    onPressed: _isDisplayingLastMonth
                                         ? (VoidCallback) null
-                                        : this._handleNextMonth
+                                        : _handleNextMonth
                                 )
                             )
                         )
@@ -629,8 +629,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void dispose() {
-            this._timer?.cancel();
-            this._dayPickerController?.dispose();
+            _timer?.cancel();
+            _dayPickerController?.dispose();
             base.dispose();
         }
     }
@@ -678,8 +678,8 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this.scrollController = new ScrollController(
-                initialScrollOffset: (this.widget.selectedDate.Year - this.widget.firstDate.Year) * _itemExtent
+            scrollController = new ScrollController(
+                initialScrollOffset: (widget.selectedDate.Year - widget.firstDate.Year) * _itemExtent
             );
         }
 
@@ -688,21 +688,21 @@ namespace Unity.UIWidgets.material {
             ThemeData themeData = Theme.of(context);
             TextStyle style = themeData.textTheme.body1;
             return ListView.builder(
-                dragStartBehavior: this.widget.dragStartBehavior,
-                controller: this.scrollController,
+                dragStartBehavior: widget.dragStartBehavior,
+                controller: scrollController,
                 itemExtent: _itemExtent,
-                itemCount: this.widget.lastDate.Year - this.widget.firstDate.Year + 1,
+                itemCount: widget.lastDate.Year - widget.firstDate.Year + 1,
                 itemBuilder: (BuildContext _context, int index) => {
-                    int year = this.widget.firstDate.Year + index;
-                    bool isSelected = year == this.widget.selectedDate.Year;
+                    int year = widget.firstDate.Year + index;
+                    bool isSelected = year == widget.selectedDate.Year;
                     TextStyle itemStyle = isSelected
                         ? themeData.textTheme.headline.copyWith(color: themeData.accentColor)
                         : style;
                     return new InkWell(
                         key: new ValueKey<int>(year),
                         onTap: () => {
-                            this.widget.onChanged(new DateTime(year, this.widget.selectedDate.Month,
-                                this.widget.selectedDate.Day));
+                            widget.onChanged(new DateTime(year, widget.selectedDate.Month,
+                                widget.selectedDate.Day));
                         },
                         child: new Center(
                             child: new Text(year.ToString(), style: itemStyle)
@@ -743,8 +743,8 @@ namespace Unity.UIWidgets.material {
     class _DatePickerDialogState : State<_DatePickerDialog> {
         public override void initState() {
             base.initState();
-            this._selectedDate = this.widget.initialDate;
-            this._mode = this.widget.initialDatePickerMode;
+            _selectedDate = widget.initialDate;
+            _mode = widget.initialDatePickerMode;
         }
 
         bool _announcedInitialDate = false;
@@ -752,9 +752,9 @@ namespace Unity.UIWidgets.material {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this.localizations = MaterialLocalizations.of(this.context);
-            if (!this._announcedInitialDate) {
-                this._announcedInitialDate = true;
+            localizations = MaterialLocalizations.of(context);
+            if (!_announcedInitialDate) {
+                _announcedInitialDate = true;
             }
         }
 
@@ -764,7 +764,7 @@ namespace Unity.UIWidgets.material {
         GlobalKey _pickerKey = GlobalKey.key();
 
         void _vibrate() {
-            switch (Theme.of(this.context).platform) {
+            switch (Theme.of(context).platform) {
                 case RuntimePlatform.Android:
                     // case RuntimePlatform.fuchsia:
                     // HapticFeedback.vibrate();
@@ -773,10 +773,10 @@ namespace Unity.UIWidgets.material {
         }
 
         void _handleModeChanged(DatePickerMode mode) {
-            this._vibrate();
-            this.setState(() => {
-                this._mode = mode;
-                if (this._mode == DatePickerMode.day) {
+            _vibrate();
+            setState(() => {
+                _mode = mode;
+                if (_mode == DatePickerMode.day) {
                     // SemanticsService.announce(localizations.formatMonthYear(_selectedDate), textDirection);
                 }
                 else {
@@ -786,55 +786,55 @@ namespace Unity.UIWidgets.material {
         }
 
         void _handleYearChanged(DateTime value) {
-            if (value < this.widget.firstDate) {
-                value = this.widget.firstDate;
+            if (value < widget.firstDate) {
+                value = widget.firstDate;
             }
-            else if (value > this.widget.lastDate) {
-                value = this.widget.lastDate;
+            else if (value > widget.lastDate) {
+                value = widget.lastDate;
             }
 
-            if (value == this._selectedDate) {
+            if (value == _selectedDate) {
                 return;
             }
 
-            this._vibrate();
-            this.setState(() => {
-                this._mode = DatePickerMode.day;
-                this._selectedDate = value;
+            _vibrate();
+            setState(() => {
+                _mode = DatePickerMode.day;
+                _selectedDate = value;
             });
         }
 
         void _handleDayChanged(DateTime value) {
-            this._vibrate();
-            this.setState(() => { this._selectedDate = value; });
+            _vibrate();
+            setState(() => { _selectedDate = value; });
         }
 
         void _handleCancel() {
-            Navigator.pop(this.context);
+            Navigator.pop(context);
         }
 
         void _handleOk() {
-            Navigator.pop(this.context, this._selectedDate);
+            Navigator.pop(context, _selectedDate);
         }
 
         Widget _buildPicker() {
-            switch (this._mode) {
+            switch (_mode) {
                 case DatePickerMode.day:
                     return new MonthPicker(
-                        key: this._pickerKey,
-                        selectedDate: this._selectedDate,
-                        onChanged: this._handleDayChanged,
-                        firstDate: this.widget.firstDate,
-                        lastDate: this.widget.lastDate,
-                        selectableDayPredicate: this.widget.selectableDayPredicate
+                        key: _pickerKey,
+                        selectedDate: _selectedDate,
+                        onChanged: _handleDayChanged,
+                        firstDate: widget.firstDate,
+                        lastDate: widget.lastDate,
+                        selectableDayPredicate: widget.selectableDayPredicate
                     );
                 case DatePickerMode.year:
                     return new YearPicker(
-                        key: this._pickerKey,
-                        selectedDate: this._selectedDate,
-                        onChanged: this._handleYearChanged,
-                        firstDate: this.widget.firstDate,
-                        lastDate: this.widget.lastDate
+                        key: _pickerKey,
+                        selectedDate: _selectedDate,
+                        onChanged: _handleYearChanged,
+                        firstDate: widget.firstDate,
+                        lastDate: widget.lastDate
                     );
             }
 
@@ -846,19 +846,19 @@ namespace Unity.UIWidgets.material {
             Widget picker = new Flexible(
                 child: new SizedBox(
                     height: DatePickerUtils._kMaxDayPickerHeight,
-                    child: this._buildPicker()
+                    child: _buildPicker()
                 )
             );
             Widget actions = ButtonTheme.bar(
                 child: new ButtonBar(
                     children: new List<Widget> {
                         new FlatButton(
-                            child: new Text(this.localizations.cancelButtonLabel),
-                            onPressed: this._handleCancel
+                            child: new Text(localizations.cancelButtonLabel),
+                            onPressed: _handleCancel
                         ),
                         new FlatButton(
-                            child: new Text(this.localizations.okButtonLabel),
-                            onPressed: this._handleOk
+                            child: new Text(localizations.okButtonLabel),
+                            onPressed: _handleOk
                         )
                     }
                 )
@@ -867,9 +867,9 @@ namespace Unity.UIWidgets.material {
                 child: new OrientationBuilder(
                     builder: (BuildContext _context, Orientation orientation) => {
                         Widget header = new _DatePickerHeader(
-                            selectedDate: this._selectedDate,
-                            mode: this._mode,
-                            onModeChanged: this._handleModeChanged,
+                            selectedDate: _selectedDate,
+                            mode: _mode,
+                            onModeChanged: _handleModeChanged,
                             orientation: orientation
                         );
 

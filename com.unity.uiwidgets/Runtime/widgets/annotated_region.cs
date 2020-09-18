@@ -21,13 +21,13 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool sized;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderAnnotatedRegion<T>(value: this.value, sized: this.sized);
+            return new RenderAnnotatedRegion<T>(value: value, sized: sized);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderAnnotatedRegion<T> _renderObject = (RenderAnnotatedRegion<T>) renderObject;
-            _renderObject.value = this.value;
-            _renderObject.sized = this.sized;
+            _renderObject.value = value;
+            _renderObject.sized = sized;
         }
     }
 }

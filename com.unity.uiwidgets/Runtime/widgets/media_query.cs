@@ -76,7 +76,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool boldText;
 
         public Orientation orientation {
-            get { return this.size.width > this.size.height ? Orientation.landscape : Orientation.portrait; }
+            get { return size.width > size.height ? Orientation.landscape : Orientation.portrait; }
         }
 
         public MediaQueryData copyWith(
@@ -118,22 +118,22 @@ namespace Unity.UIWidgets.widgets {
             }
 
             return new MediaQueryData(
-                size: this.size,
-                devicePixelRatio: this.devicePixelRatio,
-                textScaleFactor: this.textScaleFactor,
-                platformBrightness: this.platformBrightness,
-                padding: this.padding.copyWith(
+                size: size,
+                devicePixelRatio: devicePixelRatio,
+                textScaleFactor: textScaleFactor,
+                platformBrightness: platformBrightness,
+                padding: padding.copyWith(
                     left: removeLeft ? (float?) 0.0 : null,
                     top: removeTop ? (float?) 0.0 : null,
                     right: removeRight ? (float?) 0.0 : null,
                     bottom: removeBottom ? (float?) 0.0 : null
                 ),
-                viewInsets: this.viewInsets,
-                alwaysUse24HourFormat: this.alwaysUse24HourFormat,
-                disableAnimations: this.disableAnimations,
-                invertColors: this.invertColors,
-                accessibleNavigation: this.accessibleNavigation,
-                boldText: this.boldText
+                viewInsets: viewInsets,
+                alwaysUse24HourFormat: alwaysUse24HourFormat,
+                disableAnimations: disableAnimations,
+                invertColors: invertColors,
+                accessibleNavigation: accessibleNavigation,
+                boldText: boldText
             );
         }
 
@@ -148,22 +148,22 @@ namespace Unity.UIWidgets.widgets {
             }
 
             return new MediaQueryData(
-                size: this.size,
-                devicePixelRatio: this.devicePixelRatio,
-                textScaleFactor: this.textScaleFactor,
-                platformBrightness: this.platformBrightness,
-                padding: this.padding,
-                viewInsets: this.viewInsets.copyWith(
+                size: size,
+                devicePixelRatio: devicePixelRatio,
+                textScaleFactor: textScaleFactor,
+                platformBrightness: platformBrightness,
+                padding: padding,
+                viewInsets: viewInsets.copyWith(
                     left: removeLeft ? (float?) 0.0 : null,
                     top: removeTop ? (float?) 0.0 : null,
                     right: removeRight ? (float?) 0.0 : null,
                     bottom: removeBottom ? (float?) 0.0 : null
                 ),
-                alwaysUse24HourFormat: this.alwaysUse24HourFormat,
-                disableAnimations: this.disableAnimations,
-                invertColors: this.invertColors,
-                accessibleNavigation: this.accessibleNavigation,
-                boldText: this.boldText
+                alwaysUse24HourFormat: alwaysUse24HourFormat,
+                disableAnimations: disableAnimations,
+                invertColors: invertColors,
+                accessibleNavigation: accessibleNavigation,
+                boldText: boldText
             );
         }
 
@@ -176,14 +176,14 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            return Equals(this.size, other.size) && this.devicePixelRatio.Equals(other.devicePixelRatio) &&
-                   this.textScaleFactor.Equals(other.textScaleFactor) &&
-                   Equals(this.platformBrightness, other.platformBrightness) &&
-                   Equals(this.viewInsets, other.viewInsets) &&
-                   Equals(this.padding, other.padding) &&
-                   this.alwaysUse24HourFormat == other.alwaysUse24HourFormat &&
-                   this.accessibleNavigation == other.accessibleNavigation && this.invertColors == other.invertColors &&
-                   this.disableAnimations == other.disableAnimations && this.boldText == other.boldText;
+            return Equals(size, other.size) && devicePixelRatio.Equals(other.devicePixelRatio) &&
+                   textScaleFactor.Equals(other.textScaleFactor) &&
+                   Equals(platformBrightness, other.platformBrightness) &&
+                   Equals(viewInsets, other.viewInsets) &&
+                   Equals(padding, other.padding) &&
+                   alwaysUse24HourFormat == other.alwaysUse24HourFormat &&
+                   accessibleNavigation == other.accessibleNavigation && invertColors == other.invertColors &&
+                   disableAnimations == other.disableAnimations && boldText == other.boldText;
         }
 
         public override bool Equals(object obj) {
@@ -195,26 +195,26 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((MediaQueryData) obj);
+            return Equals((MediaQueryData) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.size != null ? this.size.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.devicePixelRatio.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.textScaleFactor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.platformBrightness.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.viewInsets != null ? this.viewInsets.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.padding != null ? this.padding.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.alwaysUse24HourFormat.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.accessibleNavigation.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.invertColors.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disableAnimations.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.boldText.GetHashCode();
+                var hashCode = (size != null ? size.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ devicePixelRatio.GetHashCode();
+                hashCode = (hashCode * 397) ^ textScaleFactor.GetHashCode();
+                hashCode = (hashCode * 397) ^ platformBrightness.GetHashCode();
+                hashCode = (hashCode * 397) ^ (viewInsets != null ? viewInsets.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (padding != null ? padding.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ alwaysUse24HourFormat.GetHashCode();
+                hashCode = (hashCode * 397) ^ accessibleNavigation.GetHashCode();
+                hashCode = (hashCode * 397) ^ invertColors.GetHashCode();
+                hashCode = (hashCode * 397) ^ disableAnimations.GetHashCode();
+                hashCode = (hashCode * 397) ^ boldText.GetHashCode();
                 return hashCode;
             }
         }
@@ -228,18 +228,18 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(" +
-                   $"size: {this.size}, " +
-                   $"devicePixelRatio: {this.devicePixelRatio:F1}, " +
-                   $"textScaleFactor: {this.textScaleFactor:F1}, " +
-                   $"platformBrightness: {this.platformBrightness}, " +
-                   $"padding: {this.padding}, " +
-                   $"viewInsets: {this.viewInsets}, " +
-                   $"alwaysUse24HourFormat: {this.alwaysUse24HourFormat}, " +
-                   $"accessibleNavigation: {this.accessibleNavigation}" +
-                   $"disableAnimations: {this.disableAnimations}" +
-                   $"invertColors: {this.invertColors}" +
-                   $"boldText: {this.boldText}" +
+            return $"{GetType()}(" +
+                   $"size: {size}, " +
+                   $"devicePixelRatio: {devicePixelRatio:F1}, " +
+                   $"textScaleFactor: {textScaleFactor:F1}, " +
+                   $"platformBrightness: {platformBrightness}, " +
+                   $"padding: {padding}, " +
+                   $"viewInsets: {viewInsets}, " +
+                   $"alwaysUse24HourFormat: {alwaysUse24HourFormat}, " +
+                   $"accessibleNavigation: {accessibleNavigation}" +
+                   $"disableAnimations: {disableAnimations}" +
+                   $"invertColors: {invertColors}" +
+                   $"boldText: {boldText}" +
                    ")";
         }
     }
@@ -335,12 +335,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            return this.data != ((MediaQuery) oldWidget).data;
+            return data != ((MediaQuery) oldWidget).data;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<MediaQueryData>("data", this.data, showName: false));
+            properties.add(new DiagnosticsProperty<MediaQueryData>("data", data, showName: false));
         }
     }
 }

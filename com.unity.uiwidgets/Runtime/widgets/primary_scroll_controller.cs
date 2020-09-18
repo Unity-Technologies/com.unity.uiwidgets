@@ -33,12 +33,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            return this.controller != ((PrimaryScrollController) oldWidget).controller;
+            return controller != ((PrimaryScrollController) oldWidget).controller;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<ScrollController>("controller", this.controller,
+            properties.add(new DiagnosticsProperty<ScrollController>("controller", controller,
                 ifNull: "no controller", showName: false));
         }
     }

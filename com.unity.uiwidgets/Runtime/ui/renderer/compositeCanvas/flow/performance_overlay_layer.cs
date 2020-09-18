@@ -5,27 +5,27 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.flow {
     public class PerformanceOverlayLayer : Layer {
         public PerformanceOverlayLayer(int options) {
-            this._options = options;
+            _options = options;
         }
 
         readonly int _options;
 
         public override void paint(PaintContext context) {
-            D.assert(this.needsPainting);
+            D.assert(needsPainting);
             const int padding = 8;
             const int fpsHeight = 20;
 
             Canvas canvas = context.canvas;
             canvas.save();
 
-            float x = this.paintBounds.left + padding;
-            float y = this.paintBounds.top + padding;
-            float width = this.paintBounds.width - padding * 2;
-            float height = this.paintBounds.height;
+            float x = paintBounds.left + padding;
+            float y = paintBounds.top + padding;
+            float width = paintBounds.width - padding * 2;
+            float height = paintBounds.height;
 
-            this._drawFPS(canvas, x, y);
+            _drawFPS(canvas, x, y);
 
-            if ((this._options & (int) PerformanceOverlayOption.drawFrameCost) == 1) {
+            if ((_options & (int) PerformanceOverlayOption.drawFrameCost) == 1) {
                 context.frameTime.visualize(canvas,
                     Rect.fromLTWH(x, y + fpsHeight, width, height - padding - fpsHeight));
             }

@@ -21,7 +21,11 @@ cd skia
 git checkout chrome/m85
 python2 tools/git-sync-deps
 
-3. Build skia
+3. Install LLVM
+
+https://clang.llvm.org/get_started.html
+
+4. Build skia
 
 ```
 bin/gn gen out/Debug

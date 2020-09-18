@@ -117,109 +117,109 @@ namespace Unity.UIWidgets.material {
         ) : base(key: key) {
             D.assert(label != null);
             D.assert(elevation == null || elevation >= 0.0f);
-            this._avatar = avatar;
-            this._label = label;
-            this._labelStyle = labelStyle;
-            this._labelPadding = labelPadding;
-            this._deleteIcon = deleteIcon;
-            this._onDeleted = onDeleted;
-            this._deleteIconColor = deleteIconColor;
-            this._deleteButtonTooltipMessage = deleteButtonTooltipMessage;
-            this._shape = shape;
-            this._clipBehavior = clipBehavior;
-            this._backgroundColor = backgroundColor;
-            this._padding = padding;
-            this._materialTapTargetSize = materialTapTargetSize;
-            this._elevation = elevation;
-            this._shadowColor = shadowColor;
+            _avatar = avatar;
+            _label = label;
+            _labelStyle = labelStyle;
+            _labelPadding = labelPadding;
+            _deleteIcon = deleteIcon;
+            _onDeleted = onDeleted;
+            _deleteIconColor = deleteIconColor;
+            _deleteButtonTooltipMessage = deleteButtonTooltipMessage;
+            _shape = shape;
+            _clipBehavior = clipBehavior;
+            _backgroundColor = backgroundColor;
+            _padding = padding;
+            _materialTapTargetSize = materialTapTargetSize;
+            _elevation = elevation;
+            _shadowColor = shadowColor;
         }
 
         public Widget avatar {
-            get { return this._avatar; }
+            get { return _avatar; }
         }
 
         Widget _avatar;
 
         public Widget label {
-            get { return this._label; }
+            get { return _label; }
         }
 
         Widget _label;
 
         public TextStyle labelStyle {
-            get { return this._labelStyle; }
+            get { return _labelStyle; }
         }
 
         TextStyle _labelStyle;
 
         public EdgeInsets labelPadding {
-            get { return this._labelPadding; }
+            get { return _labelPadding; }
         }
 
         EdgeInsets _labelPadding;
 
         public ShapeBorder shape {
-            get { return this._shape; }
+            get { return _shape; }
         }
 
         ShapeBorder _shape;
 
         public Clip clipBehavior {
-            get { return this._clipBehavior; }
+            get { return _clipBehavior; }
         }
 
         Clip _clipBehavior;
 
         public Color backgroundColor {
-            get { return this._backgroundColor; }
+            get { return _backgroundColor; }
         }
 
         Color _backgroundColor;
 
         public EdgeInsets padding {
-            get { return this._padding; }
+            get { return _padding; }
         }
 
         EdgeInsets _padding;
 
         public Widget deleteIcon {
-            get { return this._deleteIcon; }
+            get { return _deleteIcon; }
         }
 
         Widget _deleteIcon;
 
         public VoidCallback onDeleted {
-            get { return this._onDeleted; }
+            get { return _onDeleted; }
         }
 
         VoidCallback _onDeleted;
 
         public Color deleteIconColor {
-            get { return this._deleteIconColor; }
+            get { return _deleteIconColor; }
         }
 
         Color _deleteIconColor;
 
         public string deleteButtonTooltipMessage {
-            get { return this._deleteButtonTooltipMessage; }
+            get { return _deleteButtonTooltipMessage; }
         }
 
         string _deleteButtonTooltipMessage;
 
         public MaterialTapTargetSize? materialTapTargetSize {
-            get { return this._materialTapTargetSize; }
+            get { return _materialTapTargetSize; }
         }
 
         MaterialTapTargetSize? _materialTapTargetSize;
 
         public float? elevation {
-            get { return this._elevation; }
+            get { return _elevation; }
         }
 
         float? _elevation;
 
         public Color shadowColor {
-            get { return this._shadowColor; }
+            get { return _shadowColor; }
         }
 
         Color _shadowColor;
@@ -227,22 +227,22 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             return new RawChip(
-                avatar: this.avatar,
-                label: this.label,
-                labelStyle: this.labelStyle,
-                labelPadding: this.labelPadding,
-                deleteIcon: this.deleteIcon,
-                onDeleted: this.onDeleted,
-                deleteIconColor: this.deleteIconColor,
-                deleteButtonTooltipMessage: this.deleteButtonTooltipMessage,
+                avatar: avatar,
+                label: label,
+                labelStyle: labelStyle,
+                labelPadding: labelPadding,
+                deleteIcon: deleteIcon,
+                onDeleted: onDeleted,
+                deleteIconColor: deleteIconColor,
+                deleteButtonTooltipMessage: deleteButtonTooltipMessage,
                 tapEnabled: false,
-                shape: this.shape,
-                clipBehavior: this.clipBehavior,
-                backgroundColor: this.backgroundColor,
-                padding: this.padding,
-                materialTapTargetSize: this.materialTapTargetSize,
-                elevation: this.elevation,
-                shadowColor: this.shadowColor,
+                shape: shape,
+                clipBehavior: clipBehavior,
+                backgroundColor: backgroundColor,
+                padding: padding,
+                materialTapTargetSize: materialTapTargetSize,
+                elevation: elevation,
+                shadowColor: shadowColor,
                 isEnabled: true
             );
         }
@@ -285,179 +285,179 @@ namespace Unity.UIWidgets.material {
             D.assert(label != null);
             D.assert(pressElevation == null || pressElevation >= 0.0f);
             D.assert(elevation == null || elevation >= 0.0f);
-            this._avatarBorder = avatarBorder ?? new CircleBorder();
-            this._avatar = avatar;
-            this._label = label;
-            this._labelStyle = labelStyle;
-            this._labelPadding = labelPadding;
-            this._selected = selected;
-            this._isEnabled = isEnabled;
-            this._onSelected = onSelected;
-            this._deleteIcon = deleteIcon;
-            this._onDeleted = onDeleted;
-            this._deleteIconColor = deleteIconColor;
-            this._deleteButtonTooltipMessage = deleteButtonTooltipMessage;
-            this._onPressed = onPressed;
-            this._pressElevation = pressElevation;
-            this._disabledColor = disabledColor;
-            this._selectedColor = selectedColor;
-            this._tooltip = tooltip;
-            this._shape = shape;
-            this._clipBehavior = clipBehavior;
-            this._backgroundColor = backgroundColor;
-            this._padding = padding;
-            this._materialTapTargetSize = materialTapTargetSize;
-            this._elevation = elevation;
-            this._shadowColor = shadowColor;
-            this._selectedShadowColor = selectedShadowColor;
+            _avatarBorder = avatarBorder ?? new CircleBorder();
+            _avatar = avatar;
+            _label = label;
+            _labelStyle = labelStyle;
+            _labelPadding = labelPadding;
+            _selected = selected;
+            _isEnabled = isEnabled;
+            _onSelected = onSelected;
+            _deleteIcon = deleteIcon;
+            _onDeleted = onDeleted;
+            _deleteIconColor = deleteIconColor;
+            _deleteButtonTooltipMessage = deleteButtonTooltipMessage;
+            _onPressed = onPressed;
+            _pressElevation = pressElevation;
+            _disabledColor = disabledColor;
+            _selectedColor = selectedColor;
+            _tooltip = tooltip;
+            _shape = shape;
+            _clipBehavior = clipBehavior;
+            _backgroundColor = backgroundColor;
+            _padding = padding;
+            _materialTapTargetSize = materialTapTargetSize;
+            _elevation = elevation;
+            _shadowColor = shadowColor;
+            _selectedShadowColor = selectedShadowColor;
         }
 
         public Widget avatar {
-            get { return this._avatar; }
+            get { return _avatar; }
         }
 
         Widget _avatar;
 
         public Widget label {
-            get { return this._label; }
+            get { return _label; }
         }
 
         Widget _label;
 
         public TextStyle labelStyle {
-            get { return this._labelStyle; }
+            get { return _labelStyle; }
         }
 
         TextStyle _labelStyle;
 
         public EdgeInsets labelPadding {
-            get { return this._labelPadding; }
+            get { return _labelPadding; }
         }
 
         EdgeInsets _labelPadding;
 
         public bool? selected {
-            get { return this._selected; }
+            get { return _selected; }
         }
 
         bool _selected;
 
         public bool? isEnabled {
-            get { return this._isEnabled; }
+            get { return _isEnabled; }
         }
 
         bool _isEnabled;
 
         public ValueChanged<bool> onSelected {
-            get { return this._onSelected; }
+            get { return _onSelected; }
         }
 
         ValueChanged<bool> _onSelected;
 
         public Widget deleteIcon {
-            get { return this._deleteIcon; }
+            get { return _deleteIcon; }
         }
 
         Widget _deleteIcon;
 
         public VoidCallback onDeleted {
-            get { return this._onDeleted; }
+            get { return _onDeleted; }
         }
 
         VoidCallback _onDeleted;
 
         public Color deleteIconColor {
-            get { return this._deleteIconColor; }
+            get { return _deleteIconColor; }
         }
 
         Color _deleteIconColor;
 
         public string deleteButtonTooltipMessage {
-            get { return this._deleteButtonTooltipMessage; }
+            get { return _deleteButtonTooltipMessage; }
         }
 
         string _deleteButtonTooltipMessage;
 
         public VoidCallback onPressed {
-            get { return this._onPressed; }
+            get { return _onPressed; }
         }
 
         VoidCallback _onPressed;
 
         public float? pressElevation {
-            get { return this._pressElevation; }
+            get { return _pressElevation; }
         }
 
         float? _pressElevation;
 
         public Color disabledColor {
-            get { return this._disabledColor; }
+            get { return _disabledColor; }
         }
 
         Color _disabledColor;
 
         public Color selectedColor {
-            get { return this._selectedColor; }
+            get { return _selectedColor; }
         }
 
         Color _selectedColor;
 
         public string tooltip {
-            get { return this._tooltip; }
+            get { return _tooltip; }
         }
 
         string _tooltip;
 
         public ShapeBorder shape {
-            get { return this._shape; }
+            get { return _shape; }
         }
 
         ShapeBorder _shape;
 
         public Clip clipBehavior {
-            get { return this._clipBehavior; }
+            get { return _clipBehavior; }
         }
 
         Clip _clipBehavior;
 
         public Color backgroundColor {
-            get { return this._backgroundColor; }
+            get { return _backgroundColor; }
         }
 
         Color _backgroundColor;
 
         public EdgeInsets padding {
-            get { return this._padding; }
+            get { return _padding; }
         }
 
         EdgeInsets _padding;
 
         public MaterialTapTargetSize? materialTapTargetSize {
-            get { return this._materialTapTargetSize; }
+            get { return _materialTapTargetSize; }
         }
 
         MaterialTapTargetSize? _materialTapTargetSize;
 
         public float? elevation {
-            get { return this._elevation; }
+            get { return _elevation; }
         }
 
         float? _elevation;
 
         public Color shadowColor {
-            get { return this._shadowColor; }
+            get { return _shadowColor; }
         }
 
         Color _shadowColor;
 
         public Color selectedShadowColor {
-            get { return this._selectedShadowColor; }
+            get { return _selectedShadowColor; }
         }
 
         Color _selectedShadowColor;
         
         public ShapeBorder avatarBorder {
-            get { return this._avatarBorder; }
+            get { return _avatarBorder; }
         }
 
         ShapeBorder _avatarBorder;
@@ -465,33 +465,33 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             return new RawChip(
-                avatar: this.avatar,
-                label: this.label,
-                labelStyle: this.labelStyle,
-                labelPadding: this.labelPadding,
-                deleteIcon: this.deleteIcon,
-                onDeleted: this.onDeleted,
-                deleteIconColor: this.deleteIconColor,
-                deleteButtonTooltipMessage: this.deleteButtonTooltipMessage,
-                onSelected: this.onSelected,
-                onPressed: this.onPressed,
-                pressElevation: this.pressElevation,
-                selected: this.selected,
+                avatar: avatar,
+                label: label,
+                labelStyle: labelStyle,
+                labelPadding: labelPadding,
+                deleteIcon: deleteIcon,
+                onDeleted: onDeleted,
+                deleteIconColor: deleteIconColor,
+                deleteButtonTooltipMessage: deleteButtonTooltipMessage,
+                onSelected: onSelected,
+                onPressed: onPressed,
+                pressElevation: pressElevation,
+                selected: selected,
                 tapEnabled: true,
-                disabledColor: this.disabledColor,
-                selectedColor: this.selectedColor,
-                tooltip: this.tooltip,
-                shape: this.shape,
-                clipBehavior: this.clipBehavior,
-                backgroundColor: this.backgroundColor,
-                padding: this.padding,
-                materialTapTargetSize: this.materialTapTargetSize,
-                elevation: this.elevation,
-                shadowColor: this.shadowColor,
-                selectedShadowColor: this.selectedShadowColor,
-                isEnabled: this.isEnabled == true &&
-                           (this.onSelected != null || this.onDeleted != null || this.onPressed != null),
-                avatarBorder: this.avatarBorder
+                disabledColor: disabledColor,
+                selectedColor: selectedColor,
+                tooltip: tooltip,
+                shape: shape,
+                clipBehavior: clipBehavior,
+                backgroundColor: backgroundColor,
+                padding: padding,
+                materialTapTargetSize: materialTapTargetSize,
+                elevation: elevation,
+                shadowColor: shadowColor,
+                selectedShadowColor: selectedShadowColor,
+                isEnabled: isEnabled == true &&
+                           (onSelected != null || onDeleted != null || onPressed != null),
+                avatarBorder: avatarBorder
             );
         }
     }
@@ -526,171 +526,171 @@ namespace Unity.UIWidgets.material {
             D.assert(label != null);
             D.assert(pressElevation == null || pressElevation >= 0.0f);
             D.assert(elevation == null || elevation >= 0.0f);
-            this._avatarBorder = avatarBorder ?? new CircleBorder();
-            this._avatar = avatar;
-            this._label = label;
-            this._labelStyle = labelStyle;
-            this._labelPadding = labelPadding;
-            this._onSelected = onSelected;
-            this._pressElevation = pressElevation;
-            this._selected = selected;
-            this._selectedColor = selectedColor;
-            this._disabledColor = disabledColor;
-            this._tooltip = tooltip;
-            this._shape = shape;
-            this._clipBehavior = clipBehavior;
-            this._backgroundColor = backgroundColor;
-            this._padding = padding;
-            this._materialTapTargetSize = materialTapTargetSize;
-            this._elevation = elevation;
-            this._shadowColor = shadowColor;
-            this._selectedShadowColor = selectedShadowColor;
+            _avatarBorder = avatarBorder ?? new CircleBorder();
+            _avatar = avatar;
+            _label = label;
+            _labelStyle = labelStyle;
+            _labelPadding = labelPadding;
+            _onSelected = onSelected;
+            _pressElevation = pressElevation;
+            _selected = selected;
+            _selectedColor = selectedColor;
+            _disabledColor = disabledColor;
+            _tooltip = tooltip;
+            _shape = shape;
+            _clipBehavior = clipBehavior;
+            _backgroundColor = backgroundColor;
+            _padding = padding;
+            _materialTapTargetSize = materialTapTargetSize;
+            _elevation = elevation;
+            _shadowColor = shadowColor;
+            _selectedShadowColor = selectedShadowColor;
         }
 
         public Widget avatar {
-            get { return this._avatar; }
+            get { return _avatar; }
         }
 
         Widget _avatar;
 
         public Widget label {
-            get { return this._label; }
+            get { return _label; }
         }
 
         Widget _label;
 
         public TextStyle labelStyle {
-            get { return this._labelStyle; }
+            get { return _labelStyle; }
         }
 
         TextStyle _labelStyle;
 
         public EdgeInsets labelPadding {
-            get { return this._labelPadding; }
+            get { return _labelPadding; }
         }
 
         EdgeInsets _labelPadding;
 
         public ValueChanged<bool> onSelected {
-            get { return this._onSelected; }
+            get { return _onSelected; }
         }
 
         ValueChanged<bool> _onSelected;
 
         public float? pressElevation {
-            get { return this._pressElevation; }
+            get { return _pressElevation; }
         }
 
         float? _pressElevation;
 
         public bool? selected {
-            get { return this._selected; }
+            get { return _selected; }
         }
 
         bool? _selected;
 
         public Color disabledColor {
-            get { return this._disabledColor; }
+            get { return _disabledColor; }
         }
 
         Color _disabledColor;
 
         public Color selectedColor {
-            get { return this._selectedColor; }
+            get { return _selectedColor; }
         }
 
         Color _selectedColor;
 
         public string tooltip {
-            get { return this._tooltip; }
+            get { return _tooltip; }
         }
 
         string _tooltip;
 
         public ShapeBorder shape {
-            get { return this._shape; }
+            get { return _shape; }
         }
 
         ShapeBorder _shape;
 
         public Clip clipBehavior {
-            get { return this._clipBehavior; }
+            get { return _clipBehavior; }
         }
 
         Clip _clipBehavior;
 
         public Color backgroundColor {
-            get { return this._backgroundColor; }
+            get { return _backgroundColor; }
         }
 
         Color _backgroundColor;
 
         public EdgeInsets padding {
-            get { return this._padding; }
+            get { return _padding; }
         }
 
         EdgeInsets _padding;
 
         public MaterialTapTargetSize? materialTapTargetSize {
-            get { return this._materialTapTargetSize; }
+            get { return _materialTapTargetSize; }
         }
 
         MaterialTapTargetSize? _materialTapTargetSize;
 
         public float? elevation {
-            get { return this._elevation; }
+            get { return _elevation; }
         }
 
         float? _elevation;
 
         public Color shadowColor {
-            get { return this._shadowColor; }
+            get { return _shadowColor; }
         }
 
         Color _shadowColor;
 
         public Color selectedShadowColor {
-            get { return this._selectedShadowColor; }
+            get { return _selectedShadowColor; }
         }
 
         Color _selectedShadowColor;
 
         public ShapeBorder avatarBorder {
-            get { return this._avatarBorder; }
+            get { return _avatarBorder; }
         }
 
         ShapeBorder _avatarBorder;
 
         public bool? isEnabled {
-            get { return this.onSelected != null; }
+            get { return onSelected != null; }
         }
 
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             ChipThemeData chipTheme = ChipTheme.of(context);
             return new RawChip(
-                avatar: this.avatar,
-                label: this.label,
-                labelStyle: this.labelStyle ?? (this.selected == true ? chipTheme.secondaryLabelStyle : null),
-                labelPadding: this.labelPadding,
-                onSelected: this.onSelected,
-                pressElevation: this.pressElevation,
-                selected: this.selected,
+                avatar: avatar,
+                label: label,
+                labelStyle: labelStyle ?? (selected == true ? chipTheme.secondaryLabelStyle : null),
+                labelPadding: labelPadding,
+                onSelected: onSelected,
+                pressElevation: pressElevation,
+                selected: selected,
                 showCheckmark: false,
                 onDeleted: null,
-                tooltip: this.tooltip,
-                shape: this.shape,
-                clipBehavior: this.clipBehavior,
-                disabledColor: this.disabledColor,
-                selectedColor: this.selectedColor ?? chipTheme.secondarySelectedColor,
-                backgroundColor: this.backgroundColor,
-                padding: this.padding,
-                isEnabled: this.isEnabled,
-                materialTapTargetSize: this.materialTapTargetSize,
-                elevation: this.elevation,
-                shadowColor: this.shadowColor,
-                selectedShadowColor: this.selectedShadowColor,
-                avatarBorder: this.avatarBorder
+                tooltip: tooltip,
+                shape: shape,
+                clipBehavior: clipBehavior,
+                disabledColor: disabledColor,
+                selectedColor: selectedColor ?? chipTheme.secondarySelectedColor,
+                backgroundColor: backgroundColor,
+                padding: padding,
+                isEnabled: isEnabled,
+                materialTapTargetSize: materialTapTargetSize,
+                elevation: elevation,
+                shadowColor: shadowColor,
+                selectedShadowColor: selectedShadowColor,
+                avatarBorder: avatarBorder
             );
         }
     }
@@ -724,168 +724,168 @@ namespace Unity.UIWidgets.material {
             D.assert(label != null);
             D.assert(pressElevation == null || pressElevation >= 0.0f);
             D.assert(elevation == null || elevation >= 0.0f);
-            this._avatarBorder = avatarBorder ?? new CircleBorder();
-            this._avatar = avatar;
-            this._label = label;
-            this._labelStyle = labelStyle;
-            this._labelPadding = labelPadding;
-            this._selected = selected;
-            this._onSelected = onSelected;
-            this._pressElevation = pressElevation;
-            this._disabledColor = disabledColor;
-            this._selectedColor = selectedColor;
-            this._tooltip = tooltip;
-            this._shape = shape;
-            this._clipBehavior = clipBehavior;
-            this._backgroundColor = backgroundColor;
-            this._padding = padding;
-            this._materialTapTargetSize = materialTapTargetSize;
-            this._elevation = elevation;
-            this._shadowColor = shadowColor;
-            this._selectedShadowColor = selectedShadowColor;
+            _avatarBorder = avatarBorder ?? new CircleBorder();
+            _avatar = avatar;
+            _label = label;
+            _labelStyle = labelStyle;
+            _labelPadding = labelPadding;
+            _selected = selected;
+            _onSelected = onSelected;
+            _pressElevation = pressElevation;
+            _disabledColor = disabledColor;
+            _selectedColor = selectedColor;
+            _tooltip = tooltip;
+            _shape = shape;
+            _clipBehavior = clipBehavior;
+            _backgroundColor = backgroundColor;
+            _padding = padding;
+            _materialTapTargetSize = materialTapTargetSize;
+            _elevation = elevation;
+            _shadowColor = shadowColor;
+            _selectedShadowColor = selectedShadowColor;
         }
 
         public Widget avatar {
-            get { return this._avatar; }
+            get { return _avatar; }
         }
 
         Widget _avatar;
 
         public Widget label {
-            get { return this._label; }
+            get { return _label; }
         }
 
         Widget _label;
 
         public TextStyle labelStyle {
-            get { return this._labelStyle; }
+            get { return _labelStyle; }
         }
 
         TextStyle _labelStyle;
 
         public EdgeInsets labelPadding {
-            get { return this._labelPadding; }
+            get { return _labelPadding; }
         }
 
         EdgeInsets _labelPadding;
 
         public bool? selected {
-            get { return this._selected; }
+            get { return _selected; }
         }
 
         bool _selected;
 
         public ValueChanged<bool> onSelected {
-            get { return this._onSelected; }
+            get { return _onSelected; }
         }
 
         ValueChanged<bool> _onSelected;
 
         public float? pressElevation {
-            get { return this._pressElevation; }
+            get { return _pressElevation; }
         }
 
         float? _pressElevation;
 
         public Color disabledColor {
-            get { return this._disabledColor; }
+            get { return _disabledColor; }
         }
 
         Color _disabledColor;
 
         public Color selectedColor {
-            get { return this._selectedColor; }
+            get { return _selectedColor; }
         }
 
         Color _selectedColor;
 
         public string tooltip {
-            get { return this._tooltip; }
+            get { return _tooltip; }
         }
 
         string _tooltip;
 
         public ShapeBorder shape {
-            get { return this._shape; }
+            get { return _shape; }
         }
 
         ShapeBorder _shape;
 
         public Clip clipBehavior {
-            get { return this._clipBehavior; }
+            get { return _clipBehavior; }
         }
 
         Clip _clipBehavior;
 
         public Color backgroundColor {
-            get { return this._backgroundColor; }
+            get { return _backgroundColor; }
         }
 
         Color _backgroundColor;
 
         public EdgeInsets padding {
-            get { return this._padding; }
+            get { return _padding; }
         }
 
         EdgeInsets _padding;
 
         public MaterialTapTargetSize? materialTapTargetSize {
-            get { return this._materialTapTargetSize; }
+            get { return _materialTapTargetSize; }
         }
 
         MaterialTapTargetSize? _materialTapTargetSize;
 
         public float? elevation {
-            get { return this._elevation; }
+            get { return _elevation; }
         }
 
         float? _elevation;
 
         public Color shadowColor {
-            get { return this._shadowColor; }
+            get { return _shadowColor; }
         }
 
         Color _shadowColor;
 
         public Color selectedShadowColor {
-            get { return this._selectedShadowColor; }
+            get { return _selectedShadowColor; }
         }
 
         Color _selectedShadowColor;
 
         public ShapeBorder avatarBorder {
-            get { return this._avatarBorder; }
+            get { return _avatarBorder; }
         }
 
         ShapeBorder _avatarBorder;
 
         public bool? isEnabled {
-            get { return this.onSelected != null; }
+            get { return onSelected != null; }
         }
 
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             return new RawChip(
-                avatar: this.avatar,
-                label: this.label,
-                labelStyle: this.labelStyle,
-                labelPadding: this.labelPadding,
-                onSelected: this.onSelected,
-                pressElevation: this.pressElevation,
-                selected: this.selected,
-                tooltip: this.tooltip,
-                shape: this.shape,
-                clipBehavior: this.clipBehavior,
-                backgroundColor: this.backgroundColor,
-                disabledColor: this.disabledColor,
-                selectedColor: this.selectedColor,
-                padding: this.padding,
-                isEnabled: this.isEnabled,
-                materialTapTargetSize: this.materialTapTargetSize,
-                elevation: this.elevation,
-                shadowColor: this.shadowColor,
-                selectedShadowColor: this.selectedShadowColor,
-                avatarBorder: this.avatarBorder
+                avatar: avatar,
+                label: label,
+                labelStyle: labelStyle,
+                labelPadding: labelPadding,
+                onSelected: onSelected,
+                pressElevation: pressElevation,
+                selected: selected,
+                tooltip: tooltip,
+                shape: shape,
+                clipBehavior: clipBehavior,
+                backgroundColor: backgroundColor,
+                disabledColor: disabledColor,
+                selectedColor: selectedColor,
+                padding: padding,
+                isEnabled: isEnabled,
+                materialTapTargetSize: materialTapTargetSize,
+                elevation: elevation,
+                shadowColor: shadowColor,
+                selectedShadowColor: selectedShadowColor,
+                avatarBorder: avatarBorder
             );
         }
     }
@@ -916,103 +916,103 @@ namespace Unity.UIWidgets.material {
             );
             D.assert(pressElevation == null || pressElevation >= 0.0f);
             D.assert(elevation == null || elevation >= 0.0f);
-            this._avatar = avatar;
-            this._label = label;
-            this._labelStyle = labelStyle;
-            this._labelPadding = labelPadding;
-            this._onPressed = onPressed;
-            this._pressElevation = pressElevation;
-            this._tooltip = tooltip;
-            this._shape = shape;
-            this._clipBehavior = clipBehavior;
-            this._backgroundColor = backgroundColor;
-            this._padding = padding;
-            this._materialTapTargetSize = materialTapTargetSize;
-            this._elevation = elevation;
-            this._shadowColor = shadowColor;
+            _avatar = avatar;
+            _label = label;
+            _labelStyle = labelStyle;
+            _labelPadding = labelPadding;
+            _onPressed = onPressed;
+            _pressElevation = pressElevation;
+            _tooltip = tooltip;
+            _shape = shape;
+            _clipBehavior = clipBehavior;
+            _backgroundColor = backgroundColor;
+            _padding = padding;
+            _materialTapTargetSize = materialTapTargetSize;
+            _elevation = elevation;
+            _shadowColor = shadowColor;
         }
 
 
         public Widget avatar {
-            get { return this._avatar; }
+            get { return _avatar; }
         }
 
         Widget _avatar;
 
         public Widget label {
-            get { return this._label; }
+            get { return _label; }
         }
 
         Widget _label;
 
         public TextStyle labelStyle {
-            get { return this._labelStyle; }
+            get { return _labelStyle; }
         }
 
         TextStyle _labelStyle;
 
         public EdgeInsets labelPadding {
-            get { return this._labelPadding; }
+            get { return _labelPadding; }
         }
 
         EdgeInsets _labelPadding;
 
         public VoidCallback onPressed {
-            get { return this._onPressed; }
+            get { return _onPressed; }
         }
 
         VoidCallback _onPressed;
 
         public float? pressElevation {
-            get { return this._pressElevation; }
+            get { return _pressElevation; }
         }
 
         float? _pressElevation;
 
         public string tooltip {
-            get { return this._tooltip; }
+            get { return _tooltip; }
         }
 
         string _tooltip;
 
         public ShapeBorder shape {
-            get { return this._shape; }
+            get { return _shape; }
         }
 
         ShapeBorder _shape;
 
         public Clip clipBehavior {
-            get { return this._clipBehavior; }
+            get { return _clipBehavior; }
         }
 
         Clip _clipBehavior;
 
         public Color backgroundColor {
-            get { return this._backgroundColor; }
+            get { return _backgroundColor; }
         }
 
         Color _backgroundColor;
 
         public EdgeInsets padding {
-            get { return this._padding; }
+            get { return _padding; }
         }
 
         EdgeInsets _padding;
 
         public MaterialTapTargetSize? materialTapTargetSize {
-            get { return this._materialTapTargetSize; }
+            get { return _materialTapTargetSize; }
         }
 
         MaterialTapTargetSize? _materialTapTargetSize;
 
         public float? elevation {
-            get { return this._elevation; }
+            get { return _elevation; }
         }
 
         float? _elevation;
 
         public Color shadowColor {
-            get { return this._shadowColor; }
+            get { return _shadowColor; }
         }
 
         Color _shadowColor;
@@ -1020,21 +1020,21 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             return new RawChip(
-                avatar: this.avatar,
-                label: this.label,
-                onPressed: this.onPressed,
-                pressElevation: this.pressElevation,
-                tooltip: this.tooltip,
-                labelStyle: this.labelStyle,
-                backgroundColor: this.backgroundColor,
-                shape: this.shape,
-                clipBehavior: this.clipBehavior,
-                padding: this.padding,
-                labelPadding: this.labelPadding,
+                avatar: avatar,
+                label: label,
+                onPressed: onPressed,
+                pressElevation: pressElevation,
+                tooltip: tooltip,
+                labelStyle: labelStyle,
+                backgroundColor: backgroundColor,
+                shape: shape,
+                clipBehavior: clipBehavior,
+                padding: padding,
+                labelPadding: labelPadding,
                 isEnabled: true,
-                materialTapTargetSize: this.materialTapTargetSize,
-                elevation: this.elevation,
-                shadowColor: this._shadowColor
+                materialTapTargetSize: materialTapTargetSize,
+                elevation: elevation,
+                shadowColor: _shadowColor
             );
         }
     }
@@ -1080,194 +1080,194 @@ namespace Unity.UIWidgets.material {
             D.assert(pressElevation == null || pressElevation >= 0.0f);
             D.assert(elevation == null || elevation >= 0.0f);
             deleteIcon = deleteIcon ?? ChipUtils._kDefaultDeleteIcon;
-            this._avatarBorder = avatarBorder ?? new CircleBorder();
-            this._avatar = avatar;
-            this._label = label;
-            this._labelStyle = labelStyle;
-            this._padding = padding;
-            this._labelPadding = labelPadding;
-            this._deleteIcon = deleteIcon;
-            this._onDeleted = onDeleted;
-            this._deleteIconColor = deleteIconColor;
-            this._deleteButtonTooltipMessage = deleteButtonTooltipMessage;
-            this._onPressed = onPressed;
-            this._onSelected = onSelected;
-            this._pressElevation = pressElevation;
-            this._tapEnabled = tapEnabled;
-            this._selected = selected;
-            this._showCheckmark = showCheckmark;
-            this._isEnabled = isEnabled;
-            this._disabledColor = disabledColor;
-            this._selectedColor = selectedColor;
-            this._tooltip = tooltip;
-            this._shape = shape;
-            this._clipBehavior = clipBehavior;
-            this._backgroundColor = backgroundColor;
-            this._materialTapTargetSize = materialTapTargetSize;
-            this._elevation = elevation;
-            this._shadowColor = shadowColor;
-            this._selectedShadowColor = selectedShadowColor;
+            _avatarBorder = avatarBorder ?? new CircleBorder();
+            _avatar = avatar;
+            _label = label;
+            _labelStyle = labelStyle;
+            _padding = padding;
+            _labelPadding = labelPadding;
+            _deleteIcon = deleteIcon;
+            _onDeleted = onDeleted;
+            _deleteIconColor = deleteIconColor;
+            _deleteButtonTooltipMessage = deleteButtonTooltipMessage;
+            _onPressed = onPressed;
+            _onSelected = onSelected;
+            _pressElevation = pressElevation;
+            _tapEnabled = tapEnabled;
+            _selected = selected;
+            _showCheckmark = showCheckmark;
+            _isEnabled = isEnabled;
+            _disabledColor = disabledColor;
+            _selectedColor = selectedColor;
+            _tooltip = tooltip;
+            _shape = shape;
+            _clipBehavior = clipBehavior;
+            _backgroundColor = backgroundColor;
+            _materialTapTargetSize = materialTapTargetSize;
+            _elevation = elevation;
+            _shadowColor = shadowColor;
+            _selectedShadowColor = selectedShadowColor;
         }
 
 
         public Widget avatar {
-            get { return this._avatar; }
+            get { return _avatar; }
         }
 
         Widget _avatar;
 
         public Widget label {
-            get { return this._label; }
+            get { return _label; }
         }
 
         Widget _label;
 
         public TextStyle labelStyle {
-            get { return this._labelStyle; }
+            get { return _labelStyle; }
         }
 
         TextStyle _labelStyle;
 
         public EdgeInsets labelPadding {
-            get { return this._labelPadding; }
+            get { return _labelPadding; }
         }
 
         EdgeInsets _labelPadding;
 
         public Widget deleteIcon {
-            get { return this._deleteIcon; }
+            get { return _deleteIcon; }
         }
 
         Widget _deleteIcon;
 
         public VoidCallback onDeleted {
-            get { return this._onDeleted; }
+            get { return _onDeleted; }
         }
 
         VoidCallback _onDeleted;
 
         public Color deleteIconColor {
-            get { return this._deleteIconColor; }
+            get { return _deleteIconColor; }
         }
 
         Color _deleteIconColor;
 
         public string deleteButtonTooltipMessage {
-            get { return this._deleteButtonTooltipMessage; }
+            get { return _deleteButtonTooltipMessage; }
         }
 
         string _deleteButtonTooltipMessage;
 
         public ValueChanged<bool> onSelected {
-            get { return this._onSelected; }
+            get { return _onSelected; }
         }
 
         ValueChanged<bool> _onSelected;
 
         public VoidCallback onPressed {
-            get { return this._onPressed; }
+            get { return _onPressed; }
         }
 
         VoidCallback _onPressed;
 
         public float? pressElevation {
-            get { return this._pressElevation; }
+            get { return _pressElevation; }
         }
 
         float? _pressElevation;
 
         public bool? selected {
-            get { return this._selected; }
+            get { return _selected; }
         }
 
         bool? _selected;
 
         public bool? isEnabled {
-            get { return this._isEnabled; }
+            get { return _isEnabled; }
         }
 
         bool? _isEnabled;
 
         public Color disabledColor {
-            get { return this._disabledColor; }
+            get { return _disabledColor; }
         }
 
         Color _disabledColor;
 
         public Color selectedColor {
-            get { return this._selectedColor; }
+            get { return _selectedColor; }
         }
 
         Color _selectedColor;
 
         public string tooltip {
-            get { return this._tooltip; }
+            get { return _tooltip; }
         }
 
         string _tooltip;
 
         public ShapeBorder shape {
-            get { return this._shape; }
+            get { return _shape; }
         }
 
         ShapeBorder _shape;
 
         public Clip clipBehavior {
-            get { return this._clipBehavior; }
+            get { return _clipBehavior; }
         }
 
         Clip _clipBehavior;
 
         public Color backgroundColor {
-            get { return this._backgroundColor; }
+            get { return _backgroundColor; }
         }
 
         Color _backgroundColor;
 
         public EdgeInsets padding {
-            get { return this._padding; }
+            get { return _padding; }
         }
 
         EdgeInsets _padding;
 
         public MaterialTapTargetSize? materialTapTargetSize {
-            get { return this._materialTapTargetSize; }
+            get { return _materialTapTargetSize; }
         }
 
         MaterialTapTargetSize? _materialTapTargetSize;
 
         public float? elevation {
-            get { return this._elevation; }
+            get { return _elevation; }
         }
 
         float? _elevation;
 
         public Color shadowColor {
-            get { return this._shadowColor; }
+            get { return _shadowColor; }
         }
 
         Color _shadowColor;
 
         public Color selectedShadowColor {
-            get { return this._selectedShadowColor; }
+            get { return _selectedShadowColor; }
         }
 
         Color _selectedShadowColor;
         
         public ShapeBorder avatarBorder {
-            get { return this._avatarBorder; }
+            get { return _avatarBorder; }
         }
 
         ShapeBorder _avatarBorder;
 
         public bool showCheckmark {
-            get { return this._showCheckmark; }
+            get { return _showCheckmark; }
         }
 
         bool _showCheckmark;
 
         public bool? tapEnabled {
-            get { return this._tapEnabled; }
+            get { return _tapEnabled; }
         }
 
         bool? _tapEnabled;
@@ -1291,52 +1291,52 @@ namespace Unity.UIWidgets.material {
         Animation<float> selectionFade;
 
         public bool hasDeleteButton {
-            get { return this.widget.onDeleted != null; }
+            get { return widget.onDeleted != null; }
         }
 
         public bool hasAvatar {
-            get { return this.widget.avatar != null; }
+            get { return widget.avatar != null; }
         }
 
         public bool canTap {
             get {
-                return this.widget.isEnabled == true
-                       && this.widget.tapEnabled == true
-                       && (this.widget.onPressed != null || this.widget.onSelected != null);
+                return widget.isEnabled == true
+                       && widget.tapEnabled == true
+                       && (widget.onPressed != null || widget.onSelected != null);
             }
         }
 
         bool _isTapping = false;
 
         public bool isTapping {
-            get { return !this.canTap ? false : this._isTapping; }
+            get { return !canTap ? false : _isTapping; }
         }
 
         public override void initState() {
-            D.assert(this.widget.onSelected == null || this.widget.onPressed == null);
+            D.assert(widget.onSelected == null || widget.onPressed == null);
             base.initState();
-            this.selectController = new AnimationController(
+            selectController = new AnimationController(
                 duration: ChipUtils._kSelectDuration,
-                value: this.widget.selected == true ? 1.0f : 0.0f,
+                value: widget.selected == true ? 1.0f : 0.0f,
                 vsync: this
             );
-            this.selectionFade = new CurvedAnimation(
-                parent: this.selectController,
+            selectionFade = new CurvedAnimation(
+                parent: selectController,
                 curve: Curves.fastOutSlowIn
             );
-            this.avatarDrawerController = new AnimationController(
+            avatarDrawerController = new AnimationController(
                 duration: ChipUtils._kDrawerDuration,
-                value: this.hasAvatar || this.widget.selected == true ? 1.0f : 0.0f,
+                value: hasAvatar || widget.selected == true ? 1.0f : 0.0f,
                 vsync: this
             );
-            this.deleteDrawerController = new AnimationController(
+            deleteDrawerController = new AnimationController(
                 duration: ChipUtils._kDrawerDuration,
-                value: this.hasDeleteButton ? 1.0f : 0.0f,
+                value: hasDeleteButton ? 1.0f : 0.0f,
                 vsync: this
             );
-            this.enableController = new AnimationController(
+            enableController = new AnimationController(
                 duration: ChipUtils._kDisableDuration,
-                value: this.widget.isEnabled == true ? 1.0f : 0.0f,
+                value: widget.isEnabled == true ? 1.0f : 0.0f,
                 vsync: this
             );
 
@@ -1346,8 +1346,8 @@ namespace Unity.UIWidgets.material {
                                                ChipUtils._kSelectDuration.TotalMilliseconds);
             float avatarDrawerReversePercentage = (float) (ChipUtils._kReverseDrawerDuration.TotalMilliseconds /
                                                   ChipUtils._kSelectDuration.TotalMilliseconds);
-            this.checkmarkAnimation = new CurvedAnimation(
-                parent: this.selectController,
+            checkmarkAnimation = new CurvedAnimation(
+                parent: selectController,
                 curve: new Interval(1.0f - checkmarkPercentage, 1.0f, curve: Curves.fastOutSlowIn),
                 reverseCurve: new Interval(
                     1.0f - checkmarkReversePercentage,
@@ -1355,12 +1355,12 @@ namespace Unity.UIWidgets.material {
                     curve: Curves.fastOutSlowIn
                 )
             );
-            this.deleteDrawerAnimation = new CurvedAnimation(
-                parent: this.deleteDrawerController,
+            deleteDrawerAnimation = new CurvedAnimation(
+                parent: deleteDrawerController,
                 curve: Curves.fastOutSlowIn
             );
-            this.avatarDrawerAnimation = new CurvedAnimation(
-                parent: this.avatarDrawerController,
+            avatarDrawerAnimation = new CurvedAnimation(
+                parent: avatarDrawerController,
                 curve: Curves.fastOutSlowIn,
                 reverseCurve: new Interval(
                     1.0f - avatarDrawerReversePercentage,
@@ -1368,101 +1368,101 @@ namespace Unity.UIWidgets.material {
                     curve: Curves.fastOutSlowIn
                 )
             );
-            this.enableAnimation = new CurvedAnimation(
-                parent: this.enableController,
+            enableAnimation = new CurvedAnimation(
+                parent: enableController,
                 curve: Curves.fastOutSlowIn
             );
         }
 
         public override void dispose() {
-            this.selectController.dispose();
-            this.avatarDrawerController.dispose();
-            this.deleteDrawerController.dispose();
-            this.enableController.dispose();
+            selectController.dispose();
+            avatarDrawerController.dispose();
+            deleteDrawerController.dispose();
+            enableController.dispose();
             base.dispose();
         }
 
         void _handleTapDown(TapDownDetails details) {
-            if (!this.canTap) {
+            if (!canTap) {
                 return;
             }
 
-            this.setState(() => { this._isTapping = true; });
+            setState(() => { _isTapping = true; });
         }
 
         void _handleTapCancel() {
-            if (!this.canTap) {
+            if (!canTap) {
                 return;
             }
 
-            this.setState(() => { this._isTapping = false; });
+            setState(() => { _isTapping = false; });
         }
 
         void _handleTap() {
-            if (!this.canTap) {
+            if (!canTap) {
                 return;
             }
 
-            this.setState(() => { this._isTapping = false; });
-            this.widget.onSelected?.Invoke(!this.widget.selected == true);
-            this.widget.onPressed?.Invoke();
+            setState(() => { _isTapping = false; });
+            widget.onSelected?.Invoke(!widget.selected == true);
+            widget.onPressed?.Invoke();
         }
 
         Color getBackgroundColor(ChipThemeData theme) {
             ColorTween backgroundTween = new ColorTween(
-                begin: this.widget.disabledColor ?? theme.disabledColor,
-                end: this.widget.backgroundColor ?? theme.backgroundColor
+                begin: widget.disabledColor ?? theme.disabledColor,
+                end: widget.backgroundColor ?? theme.backgroundColor
             );
             ColorTween selectTween = new ColorTween(
-                begin: backgroundTween.evaluate(this.enableController),
-                end: this.widget.selectedColor ?? theme.selectedColor
+                begin: backgroundTween.evaluate(enableController),
+                end: widget.selectedColor ?? theme.selectedColor
             );
-            return selectTween.evaluate(this.selectionFade);
+            return selectTween.evaluate(selectionFade);
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             RawChip oldWidget = _oldWidget as RawChip;
             base.didUpdateWidget(oldWidget);
-            if (oldWidget.isEnabled != this.widget.isEnabled) {
-                this.setState(() => {
-                    if (this.widget.isEnabled == true) {
-                        this.enableController.forward();
+            if (oldWidget.isEnabled != widget.isEnabled) {
+                setState(() => {
+                    if (widget.isEnabled == true) {
+                        enableController.forward();
                     }
                     else {
-                        this.enableController.reverse();
+                        enableController.reverse();
                     }
                 });
             }
 
-            if (oldWidget.avatar != this.widget.avatar || oldWidget.selected != this.widget.selected) {
-                this.setState(() => {
-                    if (this.hasAvatar || this.widget.selected == true) {
-                        this.avatarDrawerController.forward();
+            if (oldWidget.avatar != widget.avatar || oldWidget.selected != widget.selected) {
+                setState(() => {
+                    if (hasAvatar || widget.selected == true) {
+                        avatarDrawerController.forward();
                     }
                     else {
-                        this.avatarDrawerController.reverse();
+                        avatarDrawerController.reverse();
                     }
                 });
             }
 
-            if (oldWidget.selected != this.widget.selected) {
-                this.setState(() => {
-                    if (this.widget.selected == true) {
-                        this.selectController.forward();
+            if (oldWidget.selected != widget.selected) {
+                setState(() => {
+                    if (widget.selected == true) {
+                        selectController.forward();
                     }
                     else {
-                        this.selectController.reverse();
+                        selectController.reverse();
                     }
                 });
             }
 
-            if (oldWidget.onDeleted != this.widget.onDeleted) {
-                this.setState(() => {
-                    if (this.hasDeleteButton) {
-                        this.deleteDrawerController.forward();
+            if (oldWidget.onDeleted != widget.onDeleted) {
+                setState(() => {
+                    if (hasDeleteButton) {
+                        deleteDrawerController.forward();
                     }
                     else {
-                        this.deleteDrawerController.reverse();
+                        deleteDrawerController.reverse();
                     }
                 });
             }
@@ -1480,22 +1480,22 @@ namespace Unity.UIWidgets.material {
         }
 
         Widget _buildDeleteIcon(BuildContext context, ThemeData theme, ChipThemeData chipTheme) {
-            if (!this.hasDeleteButton) {
+            if (!hasDeleteButton) {
                 return null;
             }
 
-            return this._wrapWithTooltip(
-                this.widget.deleteButtonTooltipMessage ?? MaterialLocalizations.of(context)?.deleteButtonTooltip,
-                this.widget.onDeleted,
+            return _wrapWithTooltip(
+                widget.deleteButtonTooltipMessage ?? MaterialLocalizations.of(context)?.deleteButtonTooltip,
+                widget.onDeleted,
                 new InkResponse(
-                    onTap: this.widget.isEnabled == true
-                        ? () => { this.widget.onDeleted(); }
+                    onTap: widget.isEnabled == true
+                        ? () => { widget.onDeleted(); }
                         : (GestureTapCallback) null,
                     child: new IconTheme(
                         data: theme.iconTheme.copyWith(
-                            color: this.widget.deleteIconColor ?? chipTheme.deleteIconColor
+                            color: widget.deleteIconColor ?? chipTheme.deleteIconColor
                         ),
-                        child: this.widget.deleteIcon
+                        child: widget.deleteIcon
                     )
                 )
             );
@@ -1514,37 +1514,37 @@ namespace Unity.UIWidgets.material {
             ThemeData theme = Theme.of(context);
             ChipThemeData chipTheme = ChipTheme.of(context);
             TextDirection textDirection = Directionality.of(context);
-            ShapeBorder shape = this.widget.shape ?? chipTheme.shape;
-            float elevation = this.widget.elevation ?? (chipTheme.elevation ?? _defaultElevation);
-            float pressElevation = this.widget.pressElevation ?? (chipTheme.pressElevation ?? _defaultPressElevation);
-            Color shadowColor = this.widget.shadowColor ?? chipTheme.shadowColor ?? _defaultShadowColor;
-            Color selectedShadowColor = this.widget.selectedShadowColor ?? chipTheme.selectedShadowColor ?? _defaultShadowColor;
-            bool selected = this.widget.selected ?? false;
+            ShapeBorder shape = widget.shape ?? chipTheme.shape;
+            float elevation = widget.elevation ?? (chipTheme.elevation ?? _defaultElevation);
+            float pressElevation = widget.pressElevation ?? (chipTheme.pressElevation ?? _defaultPressElevation);
+            Color shadowColor = widget.shadowColor ?? chipTheme.shadowColor ?? _defaultShadowColor;
+            Color selectedShadowColor = widget.selectedShadowColor ?? chipTheme.selectedShadowColor ?? _defaultShadowColor;
+            bool selected = widget.selected ?? false;
 
             Widget result = new Material(
-                elevation: this.isTapping ? pressElevation : elevation,
+                elevation: isTapping ? pressElevation : elevation,
                 shadowColor: selected ? selectedShadowColor : shadowColor,
                 animationDuration: pressedAnimationDuration,
                 shape: shape,
-                clipBehavior: this.widget.clipBehavior,
+                clipBehavior: widget.clipBehavior,
                 child: new InkWell(
-                    onTap: this.canTap ? this._handleTap : (GestureTapCallback) null,
-                    onTapDown: this.canTap ? this._handleTapDown : (GestureTapDownCallback) null,
-                    onTapCancel: this.canTap ? this._handleTapCancel : (GestureTapCancelCallback) null,
+                    onTap: canTap ? _handleTap : (GestureTapCallback) null,
+                    onTapDown: canTap ? _handleTapDown : (GestureTapDownCallback) null,
+                    onTapCancel: canTap ? _handleTapCancel : (GestureTapCancelCallback) null,
                     customBorder: shape,
                     child: new AnimatedBuilder(
                         animation: ListenableUtils.merge(new List<Listenable>
-                            {this.selectController, this.enableController}),
+                            {selectController, enableController}),
                         builder: (BuildContext _context, Widget child) => {
                             return new Container(
                                 decoration: new ShapeDecoration(
                                     shape: shape,
-                                    color: this.getBackgroundColor(chipTheme)
+                                    color: getBackgroundColor(chipTheme)
                                 ),
                                 child: child
                             );
                         },
-                        child: this._wrapWithTooltip(this.widget.tooltip, this.widget.onPressed,
+                        child: _wrapWithTooltip(widget.tooltip, widget.onPressed,
                             new _ChipRenderWidget(
                                 theme: new _ChipRenderTheme(
                                     label: new DefaultTextStyle(
@@ -1552,40 +1552,40 @@ namespace Unity.UIWidgets.material {
                                         textAlign: TextAlign.left,
                                         maxLines: 1,
                                         softWrap: false,
-                                        style: this.widget.labelStyle ?? chipTheme.labelStyle,
-                                        child: this.widget.label
+                                        style: widget.labelStyle ?? chipTheme.labelStyle,
+                                        child: widget.label
                                     ),
                                     avatar: new AnimatedSwitcher(
-                                        child: this.widget.avatar,
+                                        child: widget.avatar,
                                         duration: ChipUtils._kDrawerDuration,
                                         switchInCurve: Curves.fastOutSlowIn
                                     ),
                                     deleteIcon: new AnimatedSwitcher(
-                                        child: this._buildDeleteIcon(context, theme, chipTheme),
+                                        child: _buildDeleteIcon(context, theme, chipTheme),
                                         duration: ChipUtils._kDrawerDuration,
                                         switchInCurve: Curves.fastOutSlowIn
                                     ),
                                     brightness: chipTheme.brightness,
-                                    padding: this.widget.padding ?? chipTheme.padding,
-                                    labelPadding: this.widget.labelPadding ?? chipTheme.labelPadding,
-                                    showAvatar: this.hasAvatar,
-                                    showCheckmark: this.widget.showCheckmark,
-                                    canTapBody: this.canTap
+                                    padding: widget.padding ?? chipTheme.padding,
+                                    labelPadding: widget.labelPadding ?? chipTheme.labelPadding,
+                                    showAvatar: hasAvatar,
+                                    showCheckmark: widget.showCheckmark,
+                                    canTapBody: canTap
                                 ),
-                                value: this.widget.selected,
-                                checkmarkAnimation: this.checkmarkAnimation,
-                                enableAnimation: this.enableAnimation,
-                                avatarDrawerAnimation: this.avatarDrawerAnimation,
-                                deleteDrawerAnimation: this.deleteDrawerAnimation,
-                                isEnabled: this.widget.isEnabled,
-                                avatarBorder: this.widget.avatarBorder
+                                value: widget.selected,
+                                checkmarkAnimation: checkmarkAnimation,
+                                enableAnimation: enableAnimation,
+                                avatarDrawerAnimation: avatarDrawerAnimation,
+                                deleteDrawerAnimation: deleteDrawerAnimation,
+                                isEnabled: widget.isEnabled,
+                                avatarBorder: widget.avatarBorder
                             )
                         )
                     )
                 )
             );
             BoxConstraints constraints;
-            switch (this.widget.materialTapTargetSize ?? theme.materialTapTargetSize) {
+            switch (widget.materialTapTargetSize ?? theme.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
                     constraints = new BoxConstraints(minHeight: 48.0f);
                     break;
@@ -1593,7 +1593,7 @@ namespace Unity.UIWidgets.material {
                     constraints = new BoxConstraints();
                     break;
                 default:
-                    throw new Exception("Unknown Material Tap Target Size: " + this.widget.materialTapTargetSize);
+                    throw new Exception("Unknown Material Tap Target Size: " + widget.materialTapTargetSize);
             }
 
             result = new _ChipRedirectingHitDetectionWidget(
@@ -1620,12 +1620,12 @@ namespace Unity.UIWidgets.material {
         public readonly BoxConstraints constraints;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new _RenderChipRedirectingHitDetection(this.constraints);
+            return new _RenderChipRedirectingHitDetection(constraints);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             _RenderChipRedirectingHitDetection renderObject = _renderObject as _RenderChipRedirectingHitDetection;
-            renderObject.additionalConstraints = this.constraints;
+            renderObject.additionalConstraints = constraints;
         }
     }
 
@@ -1635,11 +1635,11 @@ namespace Unity.UIWidgets.material {
         }
 
         public override bool hitTest(HitTestResult result, Offset position = null) {
-            if (!this.size.contains(position)) {
+            if (!size.contains(position)) {
                 return false;
             }
 
-            return this.child.hitTest(result, position: new Offset(position.dx, this.size.height / 2));
+            return child.hitTest(result, position: new Offset(position.dx, size.height / 2));
         }
     }
 
@@ -1681,26 +1681,26 @@ namespace Unity.UIWidgets.material {
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             _RenderChip renderObject = _renderObject as _RenderChip;
-            renderObject.theme = this.theme;
-            renderObject.value = this.value ?? false;
-            renderObject.isEnabled = this.isEnabled ?? false;
-            renderObject.checkmarkAnimation = this.checkmarkAnimation;
-            renderObject.avatarDrawerAnimation = this.avatarDrawerAnimation;
-            renderObject.deleteDrawerAnimation = this.deleteDrawerAnimation;
-            renderObject.enableAnimation = this.enableAnimation;
-            renderObject.avatarBorder = this.avatarBorder;
+            renderObject.theme = theme;
+            renderObject.value = value ?? false;
+            renderObject.isEnabled = isEnabled ?? false;
+            renderObject.checkmarkAnimation = checkmarkAnimation;
+            renderObject.avatarDrawerAnimation = avatarDrawerAnimation;
+            renderObject.deleteDrawerAnimation = deleteDrawerAnimation;
+            renderObject.enableAnimation = enableAnimation;
+            renderObject.avatarBorder = avatarBorder;
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderChip(
-                theme: this.theme,
-                value: this.value,
-                isEnabled: this.isEnabled,
-                checkmarkAnimation: this.checkmarkAnimation,
-                avatarDrawerAnimation: this.avatarDrawerAnimation,
-                deleteDrawerAnimation: this.deleteDrawerAnimation,
-                enableAnimation: this.enableAnimation,
-                avatarBorder: this.avatarBorder
+                theme: theme,
+                value: value,
+                isEnabled: isEnabled,
+                checkmarkAnimation: checkmarkAnimation,
+                avatarDrawerAnimation: avatarDrawerAnimation,
+                deleteDrawerAnimation: deleteDrawerAnimation,
+                enableAnimation: enableAnimation,
+                avatarBorder: avatarBorder
             );
         }
     }
@@ -1727,71 +1727,71 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void visitChildren(ElementVisitor visitor) {
-            this.slotToChild.Values.Each((value) => { visitor(value); });
+            slotToChild.Values.Each((value) => { visitor(value); });
         }
 
         protected override void forgetChild(Element child) {
-            D.assert(this.slotToChild.ContainsValue(child));
-            D.assert(this.childToSlot.ContainsKey(child));
-            _ChipSlot slot = this.childToSlot[child];
-            this.childToSlot.Remove(child);
-            this.slotToChild.Remove(slot);
+            D.assert(slotToChild.ContainsValue(child));
+            D.assert(childToSlot.ContainsKey(child));
+            _ChipSlot slot = childToSlot[child];
+            childToSlot.Remove(child);
+            slotToChild.Remove(slot);
         }
 
         void _mountChild(Widget widget, _ChipSlot slot) {
-            Element oldChild = this.slotToChild.getOrDefault(slot);
-            Element newChild = this.updateChild(oldChild, widget, slot);
+            Element oldChild = slotToChild.getOrDefault(slot);
+            Element newChild = updateChild(oldChild, widget, slot);
             if (oldChild != null) {
-                this.slotToChild.Remove(slot);
-                this.childToSlot.Remove(oldChild);
+                slotToChild.Remove(slot);
+                childToSlot.Remove(oldChild);
             }
 
             if (newChild != null) {
-                this.slotToChild[slot] = newChild;
-                this.childToSlot[newChild] = slot;
+                slotToChild[slot] = newChild;
+                childToSlot[newChild] = slot;
             }
         }
 
         public override void mount(Element parent, object newSlot) {
             base.mount(parent, newSlot);
-            this._mountChild(this.widget.theme.avatar, _ChipSlot.avatar);
-            this._mountChild(this.widget.theme.deleteIcon, _ChipSlot.deleteIcon);
-            this._mountChild(this.widget.theme.label, _ChipSlot.label);
+            _mountChild(widget.theme.avatar, _ChipSlot.avatar);
+            _mountChild(widget.theme.deleteIcon, _ChipSlot.deleteIcon);
+            _mountChild(widget.theme.label, _ChipSlot.label);
         }
 
         void _updateChild(Widget widget, _ChipSlot slot) {
-            Element oldChild = this.slotToChild[slot];
-            Element newChild = this.updateChild(oldChild, widget, slot);
+            Element oldChild = slotToChild[slot];
+            Element newChild = updateChild(oldChild, widget, slot);
             if (oldChild != null) {
-                this.childToSlot.Remove(oldChild);
-                this.slotToChild.Remove(slot);
+                childToSlot.Remove(oldChild);
+                slotToChild.Remove(slot);
             }
 
             if (newChild != null) {
-                this.slotToChild[slot] = newChild;
-                this.childToSlot[newChild] = slot;
+                slotToChild[slot] = newChild;
+                childToSlot[newChild] = slot;
             }
         }
 
         public override void update(Widget _newWidget) {
             _ChipRenderWidget newWidget = _newWidget as _ChipRenderWidget;
             base.update(newWidget);
-            D.assert(this.widget == newWidget);
-            this._updateChild(this.widget.theme.label, _ChipSlot.label);
-            this._updateChild(this.widget.theme.avatar, _ChipSlot.avatar);
-            this._updateChild(this.widget.theme.deleteIcon, _ChipSlot.deleteIcon);
+            D.assert(widget == newWidget);
+            _updateChild(widget.theme.label, _ChipSlot.label);
+            _updateChild(widget.theme.avatar, _ChipSlot.avatar);
+            _updateChild(widget.theme.deleteIcon, _ChipSlot.deleteIcon);
         }
 
         void _updateRenderObject(RenderObject child, _ChipSlot slot) {
             switch (slot) {
                 case _ChipSlot.avatar:
-                    this.renderObject.avatar = (RenderBox) child;
+                    renderObject.avatar = (RenderBox) child;
                     break;
                 case _ChipSlot.label:
-                    this.renderObject.label = (RenderBox) child;
+                    renderObject.label = (RenderBox) child;
                     break;
                 case _ChipSlot.deleteIcon:
-                    this.renderObject.deleteIcon = (RenderBox) child;
+                    renderObject.deleteIcon = (RenderBox) child;
                     break;
             }
         }
@@ -1800,17 +1800,17 @@ namespace Unity.UIWidgets.material {
             D.assert(child is RenderBox);
             D.assert(slotValue is _ChipSlot);
             _ChipSlot slot = (_ChipSlot) slotValue;
-            this._updateRenderObject(child, slot);
-            D.assert(this.renderObject.childToSlot.ContainsKey((RenderBox) child));
-            D.assert(this.renderObject.slotToChild.ContainsKey(slot));
+            _updateRenderObject(child, slot);
+            D.assert(renderObject.childToSlot.ContainsKey((RenderBox) child));
+            D.assert(renderObject.slotToChild.ContainsKey(slot));
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
             D.assert(child is RenderBox);
-            D.assert(this.renderObject.childToSlot.ContainsKey((RenderBox) child));
-            this._updateRenderObject(null, this.renderObject.childToSlot[(RenderBox) child]);
-            D.assert(!this.renderObject.childToSlot.ContainsKey((RenderBox) child));
-            D.assert(!this.renderObject.slotToChild.ContainsKey((_ChipSlot) this.slot));
+            D.assert(renderObject.childToSlot.ContainsKey((RenderBox) child));
+            _updateRenderObject(null, renderObject.childToSlot[(RenderBox) child]);
+            D.assert(!renderObject.childToSlot.ContainsKey((RenderBox) child));
+            D.assert(!renderObject.slotToChild.ContainsKey((_ChipSlot) slot));
         }
 
         protected override void moveChildRenderObject(RenderObject child, object slotValue) {
@@ -1860,23 +1860,23 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_ChipRenderTheme) obj);
+            return Equals((_ChipRenderTheme) obj);
         }
 
         public bool Equals(_ChipRenderTheme other) {
-            return this.avatar == other.avatar
-                   && this.label == other.label
-                   && this.deleteIcon == other.deleteIcon
-                   && this.brightness == other.brightness
-                   && this.padding == other.padding
-                   && this.labelPadding == other.labelPadding
-                   && this.showAvatar == other.showAvatar
-                   && this.showCheckmark == other.showCheckmark
-                   && this.canTapBody == other.canTapBody;
+            return avatar == other.avatar
+                   && label == other.label
+                   && deleteIcon == other.deleteIcon
+                   && brightness == other.brightness
+                   && padding == other.padding
+                   && labelPadding == other.labelPadding
+                   && showAvatar == other.showAvatar
+                   && showCheckmark == other.showCheckmark
+                   && canTapBody == other.canTapBody;
         }
 
         public static bool operator ==(_ChipRenderTheme left, _ChipRenderTheme right) {
@@ -1888,15 +1888,15 @@ namespace Unity.UIWidgets.material {
         }
 
         public override int GetHashCode() {
-            var hashCode = this.avatar.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.label.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.deleteIcon.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.brightness.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.padding.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.labelPadding.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.showAvatar.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.showCheckmark.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.canTapBody.GetHashCode();
+            var hashCode = avatar.GetHashCode();
+            hashCode = (hashCode * 397) ^ label.GetHashCode();
+            hashCode = (hashCode * 397) ^ deleteIcon.GetHashCode();
+            hashCode = (hashCode * 397) ^ brightness.GetHashCode();
+            hashCode = (hashCode * 397) ^ padding.GetHashCode();
+            hashCode = (hashCode * 397) ^ labelPadding.GetHashCode();
+            hashCode = (hashCode * 397) ^ showAvatar.GetHashCode();
+            hashCode = (hashCode * 397) ^ showCheckmark.GetHashCode();
+            hashCode = (hashCode * 397) ^ canTapBody.GetHashCode();
             return hashCode;
         }
     }
@@ -1913,11 +1913,11 @@ namespace Unity.UIWidgets.material {
             ShapeBorder avatarBorder = null
         ) {
             D.assert(theme != null);
-            this._theme = theme;
-            checkmarkAnimation.addListener(this.markNeedsPaint);
-            avatarDrawerAnimation.addListener(this.markNeedsLayout);
-            deleteDrawerAnimation.addListener(this.markNeedsLayout);
-            enableAnimation.addListener(this.markNeedsPaint);
+            _theme = theme;
+            checkmarkAnimation.addListener(markNeedsPaint);
+            avatarDrawerAnimation.addListener(markNeedsLayout);
+            deleteDrawerAnimation.addListener(markNeedsLayout);
+            enableAnimation.addListener(markNeedsPaint);
             this.value = value;
             this.isEnabled = isEnabled;
             this.checkmarkAnimation = checkmarkAnimation;
@@ -1942,15 +1942,15 @@ namespace Unity.UIWidgets.material {
 
         RenderBox _updateChild(RenderBox oldChild, RenderBox newChild, _ChipSlot slot) {
             if (oldChild != null) {
-                this.dropChild(oldChild);
-                this.childToSlot.Remove(oldChild);
-                this.slotToChild.Remove(slot);
+                dropChild(oldChild);
+                childToSlot.Remove(oldChild);
+                slotToChild.Remove(slot);
             }
 
             if (newChild != null) {
-                this.childToSlot[newChild] = slot;
-                this.slotToChild[slot] = newChild;
-                this.adoptChild(newChild);
+                childToSlot[newChild] = slot;
+                slotToChild[slot] = newChild;
+                adoptChild(newChild);
             }
 
             return newChild;
@@ -1959,33 +1959,33 @@ namespace Unity.UIWidgets.material {
         RenderBox _avatar;
 
         public RenderBox avatar {
-            get { return this._avatar; }
-            set { this._avatar = this._updateChild(this._avatar, value, _ChipSlot.avatar); }
+            get { return _avatar; }
+            set { _avatar = _updateChild(_avatar, value, _ChipSlot.avatar); }
         }
 
         RenderBox _deleteIcon;
 
         public RenderBox deleteIcon {
-            get { return this._deleteIcon; }
-            set { this._deleteIcon = this._updateChild(this._deleteIcon, value, _ChipSlot.deleteIcon); }
+            get { return _deleteIcon; }
+            set { _deleteIcon = _updateChild(_deleteIcon, value, _ChipSlot.deleteIcon); }
         }
 
         RenderBox _label;
 
         public RenderBox label {
-            get { return this._label; }
-            set { this._label = this._updateChild(this._label, value, _ChipSlot.label); }
+            get { return _label; }
+            set { _label = _updateChild(_label, value, _ChipSlot.label); }
         }
 
         public _ChipRenderTheme theme {
-            get { return this._theme; }
+            get { return _theme; }
             set {
-                if (this._theme == value) {
+                if (_theme == value) {
                     return;
                 }
 
-                this._theme = value;
-                this.markNeedsLayout();
+                _theme = value;
+                markNeedsLayout();
             }
         }
 
@@ -1993,49 +1993,49 @@ namespace Unity.UIWidgets.material {
 
         IEnumerable<RenderBox> _children {
             get {
-                if (this.avatar != null) {
-                    yield return this.avatar;
+                if (avatar != null) {
+                    yield return avatar;
                 }
 
-                if (this.label != null) {
-                    yield return this.label;
+                if (label != null) {
+                    yield return label;
                 }
 
-                if (this.deleteIcon != null) {
-                    yield return this.deleteIcon;
+                if (deleteIcon != null) {
+                    yield return deleteIcon;
                 }
             }
         }
 
         public bool isDrawingCheckmark {
-            get { return this.theme.showCheckmark == true && (!(this.checkmarkAnimation?.isDismissed ?? !this.value)) == true; }
+            get { return theme.showCheckmark == true && (!(checkmarkAnimation?.isDismissed ?? !value)) == true; }
         }
 
         public bool deleteIconShowing {
-            get { return !this.deleteDrawerAnimation.isDismissed; }
+            get { return !deleteDrawerAnimation.isDismissed; }
         }
 
         public override void attach(object _owner) {
             PipelineOwner owner = _owner as PipelineOwner;
             base.attach(owner);
-            foreach (RenderBox child in this._children) {
+            foreach (RenderBox child in _children) {
                 child.attach(owner);
             }
         }
 
         public override void detach() {
             base.detach();
-            foreach (RenderBox child in this._children) {
+            foreach (RenderBox child in _children) {
                 child.detach();
             }
         }
 
         public override void redepthChildren() {
-            this._children.Each(this.redepthChild);
+            _children.Each(redepthChild);
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            this._children.Each((value) => { visitor(value); });
+            _children.Each((value) => { visitor(value); });
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
@@ -2047,9 +2047,9 @@ namespace Unity.UIWidgets.material {
                 }
             }
 
-            add(this.avatar, "avatar");
-            add(this.label, "label");
-            add(this.deleteIcon, "deleteIcon");
+            add(avatar, "avatar");
+            add(label, "label");
+            add(deleteIcon, "deleteIcon");
             return value;
         }
 
@@ -2082,43 +2082,43 @@ namespace Unity.UIWidgets.material {
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            float overallPadding = this.theme.padding.horizontal + this.theme.labelPadding.horizontal;
+            float overallPadding = theme.padding.horizontal + theme.labelPadding.horizontal;
             return overallPadding +
-                   _minWidth(this.avatar, height) +
-                   _minWidth(this.label, height) +
-                   _minWidth(this.deleteIcon, height);
+                   _minWidth(avatar, height) +
+                   _minWidth(label, height) +
+                   _minWidth(deleteIcon, height);
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            float overallPadding = this.theme.padding.vertical + this.theme.labelPadding.horizontal;
+            float overallPadding = theme.padding.vertical + theme.labelPadding.horizontal;
             return overallPadding +
-                   _maxWidth(this.avatar, height) +
-                   _maxWidth(this.label, height) +
-                   _maxWidth(this.deleteIcon, height);
+                   _maxWidth(avatar, height) +
+                   _maxWidth(label, height) +
+                   _maxWidth(deleteIcon, height);
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
             return Mathf.Max(
                 ChipUtils._kChipHeight,
-                this.theme.padding.vertical + this.theme.labelPadding.vertical + _minHeight(this.label, width)
+                theme.padding.vertical + theme.labelPadding.vertical + _minHeight(label, width)
             );
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            return this.computeMinIntrinsicHeight(width);
+            return computeMinIntrinsicHeight(width);
         }
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            return this.label.getDistanceToActualBaseline(baseline);
+            return label.getDistanceToActualBaseline(baseline);
         }
 
         Size _layoutLabel(float iconSizes, Size size) {
-            Size rawSize = _boxSize(this.label);
-            if (this.constraints.maxWidth.isFinite()) {
-                this.label.layout(this.constraints.copyWith(
+            Size rawSize = _boxSize(label);
+            if (constraints.maxWidth.isFinite()) {
+                label.layout(constraints.copyWith(
                         minWidth: 0.0f,
                         maxWidth: Mathf.Max(
-                            0.0f, this.constraints.maxWidth - iconSizes - this.theme.labelPadding.horizontal
+                            0.0f, constraints.maxWidth - iconSizes - theme.labelPadding.horizontal
                         ),
                         minHeight: rawSize.height,
                         maxHeight: size.height
@@ -2127,7 +2127,7 @@ namespace Unity.UIWidgets.material {
                 );
             }
             else {
-                this.label.layout(
+                label.layout(
                     new BoxConstraints(
                         minHeight: rawSize.height,
                         maxHeight: size.height,
@@ -2139,8 +2139,8 @@ namespace Unity.UIWidgets.material {
             }
 
             return new Size(
-                rawSize.width + this.theme.labelPadding.horizontal,
-                rawSize.height + this.theme.labelPadding.vertical
+                rawSize.width + theme.labelPadding.horizontal,
+                rawSize.height + theme.labelPadding.vertical
             );
         }
 
@@ -2150,19 +2150,19 @@ namespace Unity.UIWidgets.material {
                 width: requestedSize,
                 height: requestedSize
             );
-            this.avatar.layout(avatarConstraints, parentUsesSize: true);
-            if (this.theme.showCheckmark != true && this.theme.showAvatar != true) {
+            avatar.layout(avatarConstraints, parentUsesSize: true);
+            if (theme.showCheckmark != true && theme.showAvatar != true) {
                 return new Size(0.0f, contentSize);
             }
 
             float avatarWidth = 0.0f;
             float avatarHeight = 0.0f;
-            Size avatarBoxSize = _boxSize(this.avatar);
-            if (this.theme.showAvatar == true) {
-                avatarWidth += this.avatarDrawerAnimation.value * avatarBoxSize.width;
+            Size avatarBoxSize = _boxSize(avatar);
+            if (theme.showAvatar == true) {
+                avatarWidth += avatarDrawerAnimation.value * avatarBoxSize.width;
             }
             else {
-                avatarWidth += this.avatarDrawerAnimation.value * contentSize;
+                avatarWidth += avatarDrawerAnimation.value * contentSize;
             }
 
             avatarHeight += avatarBoxSize.height;
@@ -2175,46 +2175,46 @@ namespace Unity.UIWidgets.material {
                 width: requestedSize,
                 height: requestedSize
             );
-            this.deleteIcon.layout(deleteIconConstraints, parentUsesSize: true);
-            if (!this.deleteIconShowing) {
+            deleteIcon.layout(deleteIconConstraints, parentUsesSize: true);
+            if (!deleteIconShowing) {
                 return new Size(0.0f, contentSize);
             }
 
             float deleteIconWidth = 0.0f;
             float deleteIconHeight = 0.0f;
-            Size boxSize = _boxSize(this.deleteIcon);
-            deleteIconWidth += this.deleteDrawerAnimation.value * boxSize.width;
+            Size boxSize = _boxSize(deleteIcon);
+            deleteIconWidth += deleteDrawerAnimation.value * boxSize.width;
             deleteIconHeight += boxSize.height;
             return new Size(deleteIconWidth, deleteIconHeight);
         }
 
         public override bool hitTest(HitTestResult result, Offset position = null) {
-            if (!this.size.contains(position)) {
+            if (!size.contains(position)) {
                 return false;
             }
 
             RenderBox hitTestChild;
-            if (position.dx / this.size.width > 0.66f) {
-                hitTestChild = this.deleteIcon ?? this.label ?? this.avatar;
+            if (position.dx / size.width > 0.66f) {
+                hitTestChild = deleteIcon ?? label ?? avatar;
             }
             else {
-                hitTestChild = this.label ?? this.avatar;
+                hitTestChild = label ?? avatar;
             }
 
             return hitTestChild?.hitTest(result, position: hitTestChild.size.center(Offset.zero)) ?? false;
         }
 
         protected override void performLayout() {
-            BoxConstraints contentConstraints = this.constraints.loosen();
-            this.label.layout(contentConstraints, parentUsesSize: true);
+            BoxConstraints contentConstraints = constraints.loosen();
+            label.layout(contentConstraints, parentUsesSize: true);
             float contentSize = Mathf.Max(
-                ChipUtils._kChipHeight - this.theme.padding.vertical + this.theme.labelPadding.vertical,
-                _boxSize(this.label).height + this.theme.labelPadding.vertical
+                ChipUtils._kChipHeight - theme.padding.vertical + theme.labelPadding.vertical,
+                _boxSize(label).height + theme.labelPadding.vertical
             );
-            Size avatarSize = this._layoutAvatar(contentConstraints, contentSize);
-            Size deleteIconSize = this._layoutDeleteIcon(contentConstraints, contentSize);
-            Size labelSize = new Size(_boxSize(this.label).width, contentSize);
-            labelSize = this._layoutLabel(avatarSize.width + deleteIconSize.width, labelSize);
+            Size avatarSize = _layoutAvatar(contentConstraints, contentSize);
+            Size deleteIconSize = _layoutDeleteIcon(contentConstraints, contentSize);
+            Size labelSize = new Size(_boxSize(label).width, contentSize);
+            labelSize = _layoutLabel(avatarSize.width + deleteIconSize.width, labelSize);
 
             Size overallSize = new Size(
                 avatarSize.width + labelSize.width + deleteIconSize.width,
@@ -2233,61 +2233,61 @@ namespace Unity.UIWidgets.material {
             Offset labelOffset = Offset.zero;
             Offset deleteIconOffset = Offset.zero;
             float start = left;
-            if (this.theme.showCheckmark == true || this.theme.showAvatar == true) {
-                avatarOffset = centerLayout(avatarSize, start - _boxSize(this.avatar).width + avatarSize.width);
+            if (theme.showCheckmark == true || theme.showAvatar == true) {
+                avatarOffset = centerLayout(avatarSize, start - _boxSize(avatar).width + avatarSize.width);
                 start += avatarSize.width;
             }
 
             labelOffset = centerLayout(labelSize, start);
             start += labelSize.width;
-            if (this.theme.canTapBody == true) {
-                this.pressRect = Rect.fromLTWH(
+            if (theme.canTapBody == true) {
+                pressRect = Rect.fromLTWH(
                     0.0f,
-                    0.0f, this.deleteIconShowing
-                        ? start + this.theme.padding.left
-                        : overallSize.width + this.theme.padding.horizontal,
-                    overallSize.height + this.theme.padding.vertical
+                    0.0f, deleteIconShowing
+                        ? start + theme.padding.left
+                        : overallSize.width + theme.padding.horizontal,
+                    overallSize.height + theme.padding.vertical
                 );
             }
             else {
-                this.pressRect = Rect.zero;
+                pressRect = Rect.zero;
             }
 
-            start -= _boxSize(this.deleteIcon).width - deleteIconSize.width;
-            if (this.deleteIconShowing) {
+            start -= _boxSize(deleteIcon).width - deleteIconSize.width;
+            if (deleteIconShowing) {
                 deleteIconOffset = centerLayout(deleteIconSize, start);
-                this.deleteButtonRect = Rect.fromLTWH(
-                    start + this.theme.padding.left,
+                deleteButtonRect = Rect.fromLTWH(
+                    start + theme.padding.left,
                     0.0f,
-                    deleteIconSize.width + this.theme.padding.right,
-                    overallSize.height + this.theme.padding.vertical
+                    deleteIconSize.width + theme.padding.right,
+                    overallSize.height + theme.padding.vertical
                 );
             }
             else {
-                this.deleteButtonRect = Rect.zero;
+                deleteButtonRect = Rect.zero;
             }
 
             labelOffset = labelOffset +
                           new Offset(
                               0.0f,
-                              ((labelSize.height - this.theme.labelPadding.vertical) - _boxSize(this.label).height) /
+                              ((labelSize.height - theme.labelPadding.vertical) - _boxSize(label).height) /
                               2.0f
                           );
-            _boxParentData(this.avatar).offset = this.theme.padding.topLeft + avatarOffset;
-            _boxParentData(this.label).offset =
-                this.theme.padding.topLeft + labelOffset + this.theme.labelPadding.topLeft;
-            _boxParentData(this.deleteIcon).offset = this.theme.padding.topLeft + deleteIconOffset;
+            _boxParentData(avatar).offset = theme.padding.topLeft + avatarOffset;
+            _boxParentData(label).offset =
+                theme.padding.topLeft + labelOffset + theme.labelPadding.topLeft;
+            _boxParentData(deleteIcon).offset = theme.padding.topLeft + deleteIconOffset;
             Size paddedSize = new Size(
-                overallSize.width + this.theme.padding.horizontal,
-                overallSize.height + this.theme.padding.vertical
+                overallSize.width + theme.padding.horizontal,
+                overallSize.height + theme.padding.vertical
             );
-            this.size = this.constraints.constrain(paddedSize);
-            D.assert(this.size.height == this.constraints.constrainHeight(paddedSize.height),
-                () => $"Constrained height {this.size.height} doesn't match expected height " +
-                $"{this.constraints.constrainWidth(paddedSize.height)}");
-            D.assert(this.size.width == this.constraints.constrainWidth(paddedSize.width),
-                () => $"Constrained width {this.size.width} doesn't match expected width " +
-                $"{this.constraints.constrainWidth(paddedSize.width)}");
+            size = constraints.constrain(paddedSize);
+            D.assert(size.height == constraints.constrainHeight(paddedSize.height),
+                () => $"Constrained height {size.height} doesn't match expected height " +
+                $"{constraints.constrainWidth(paddedSize.height)}");
+            D.assert(size.width == constraints.constrainWidth(paddedSize.width),
+                () => $"Constrained width {size.width} doesn't match expected width " +
+                $"{constraints.constrainWidth(paddedSize.width)}");
         }
 
         static ColorTween selectionScrimTween = new ColorTween(
@@ -2297,12 +2297,12 @@ namespace Unity.UIWidgets.material {
 
         Color _disabledColor {
             get {
-                if (this.enableAnimation == null || this.enableAnimation.isCompleted) {
+                if (enableAnimation == null || enableAnimation.isCompleted) {
                     return Colors.white;
                 }
 
                 ColorTween enableTween;
-                switch (this.theme.brightness) {
+                switch (theme.brightness) {
                     case Brightness.light:
                         enableTween = new ColorTween(
                             begin: Colors.white.withAlpha(ChipUtils._kDisabledAlpha),
@@ -2316,44 +2316,44 @@ namespace Unity.UIWidgets.material {
                         );
                         break;
                     default:
-                        throw new Exception("Unknown brightness: " + this.theme.brightness);
+                        throw new Exception("Unknown brightness: " + theme.brightness);
                 }
 
-                return enableTween.evaluate(this.enableAnimation);
+                return enableTween.evaluate(enableAnimation);
             }
         }
 
         void _paintCheck(Canvas canvas, Offset origin, float size) {
             Color paintColor;
-            switch (this.theme.brightness) {
+            switch (theme.brightness) {
                 case Brightness.light:
-                    paintColor = this.theme.showAvatar == true
+                    paintColor = theme.showAvatar == true
                         ? Colors.white
                         : Colors.black.withAlpha(ChipUtils._kCheckmarkAlpha);
                     break;
                 case Brightness.dark:
-                    paintColor = this.theme.showAvatar == true
+                    paintColor = theme.showAvatar == true
                         ? Colors.black
                         : Colors.white.withAlpha(ChipUtils._kCheckmarkAlpha);
                     break;
                 default:
-                    throw new Exception("Unknown brightness: " + this.theme.brightness);
+                    throw new Exception("Unknown brightness: " + theme.brightness);
             }
 
             ColorTween fadeTween = new ColorTween(begin: Colors.transparent, end: paintColor);
 
-            paintColor = this.checkmarkAnimation.status == AnimationStatus.reverse
-                ? fadeTween.evaluate(this.checkmarkAnimation)
+            paintColor = checkmarkAnimation.status == AnimationStatus.reverse
+                ? fadeTween.evaluate(checkmarkAnimation)
                 : paintColor;
 
             Paint paint = new Paint();
             paint.color = paintColor;
             paint.style = PaintingStyle.stroke;
             paint.strokeWidth = ChipUtils._kCheckmarkStrokeWidth *
-                                (this.avatar != null ? this.avatar.size.height / 24.0f : 1.0f);
-            float t = this.checkmarkAnimation.status == AnimationStatus.reverse
+                                (avatar != null ? avatar.size.height / 24.0f : 1.0f);
+            float t = checkmarkAnimation.status == AnimationStatus.reverse
                 ? 1.0f
-                : this.checkmarkAnimation.value;
+                : checkmarkAnimation.value;
             if (t == 0.0f) {
                 return;
             }
@@ -2381,43 +2381,43 @@ namespace Unity.UIWidgets.material {
         }
 
         void _paintSelectionOverlay(PaintingContext context, Offset offset) {
-            if (this.isDrawingCheckmark) {
-                if (this.theme.showAvatar == true) {
-                    Rect avatarRect = _boxRect(this.avatar).shift(offset);
+            if (isDrawingCheckmark) {
+                if (theme.showAvatar == true) {
+                    Rect avatarRect = _boxRect(avatar).shift(offset);
                     Paint darkenPaint = new Paint();
-                    darkenPaint.color = selectionScrimTween.evaluate(this.checkmarkAnimation);
+                    darkenPaint.color = selectionScrimTween.evaluate(checkmarkAnimation);
                     darkenPaint.blendMode = BlendMode.srcATop;
-                    Path path = this.avatarBorder.getOuterPath(avatarRect);
+                    Path path = avatarBorder.getOuterPath(avatarRect);
                     context.canvas.drawPath(path, darkenPaint);
                 }
 
-                float checkSize = this.avatar.size.height * 0.75f;
-                Offset checkOffset = _boxParentData(this.avatar).offset +
-                                     new Offset(this.avatar.size.height * 0.125f, this.avatar.size.height * 0.125f);
-                this._paintCheck(context.canvas, offset + checkOffset, checkSize);
+                float checkSize = avatar.size.height * 0.75f;
+                Offset checkOffset = _boxParentData(avatar).offset +
+                                     new Offset(avatar.size.height * 0.125f, avatar.size.height * 0.125f);
+                _paintCheck(context.canvas, offset + checkOffset, checkSize);
             }
         }
 
         void _paintAvatar(PaintingContext context, Offset offset) {
             void paintWithOverlay(PaintingContext _context, Offset _offset) {
-                _context.paintChild(this.avatar, _boxParentData(this.avatar).offset + _offset);
-                this._paintSelectionOverlay(_context, _offset);
+                _context.paintChild(avatar, _boxParentData(avatar).offset + _offset);
+                _paintSelectionOverlay(_context, _offset);
             }
 
-            if (this.theme.showAvatar == false && this.avatarDrawerAnimation.isDismissed) {
+            if (theme.showAvatar == false && avatarDrawerAnimation.isDismissed) {
                 return;
             }
 
-            Color disabledColor = this._disabledColor;
+            Color disabledColor = _disabledColor;
             int disabledColorAlpha = disabledColor.alpha;
-            if (this.needsCompositing) {
+            if (needsCompositing) {
                 context.pushLayer(new OpacityLayer(alpha: disabledColorAlpha), paintWithOverlay, offset);
             }
             else {
                 Paint _paint = new Paint();
-                _paint.color = this._disabledColor;
+                _paint.color = _disabledColor;
                 if (disabledColorAlpha != 0xff) {
-                    context.canvas.saveLayer(_boxRect(this.avatar).shift(offset).inflate(20.0f), _paint);
+                    context.canvas.saveLayer(_boxRect(avatar).shift(offset).inflate(20.0f), _paint);
                 }
 
                 paintWithOverlay(context, offset);
@@ -2432,9 +2432,9 @@ namespace Unity.UIWidgets.material {
                 return;
             }
 
-            int disabledColorAlpha = this._disabledColor.alpha;
-            if (!this.enableAnimation.isCompleted) {
-                if (this.needsCompositing) {
+            int disabledColorAlpha = _disabledColor.alpha;
+            if (!enableAnimation.isCompleted) {
+                if (needsCompositing) {
                     context.pushLayer(
                         new OpacityLayer(alpha: disabledColorAlpha),
                         (PaintingContext _context, Offset _offset) => {
@@ -2446,7 +2446,7 @@ namespace Unity.UIWidgets.material {
                 else {
                     Rect childRect = _boxRect(child).shift(offset);
                     Paint _paint = new Paint();
-                    _paint.color = this._disabledColor;
+                    _paint.color = _disabledColor;
                     context.canvas.saveLayer(childRect.inflate(20.0f), _paint);
                     context.paintChild(child, _boxParentData(child).offset + offset);
                     context.canvas.restore();
@@ -2458,12 +2458,12 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            this._paintAvatar(context, offset);
-            if (this.deleteIconShowing) {
-                this._paintChild(context, offset, this.deleteIcon, this.isEnabled == true);
+            _paintAvatar(context, offset);
+            if (deleteIconShowing) {
+                _paintChild(context, offset, deleteIcon, isEnabled == true);
             }
 
-            this._paintChild(context, offset, this.label, this.isEnabled == true);
+            _paintChild(context, offset, label, isEnabled == true);
         }
 
         const bool _debugShowTapTargetOutlines = false;
@@ -2474,12 +2474,12 @@ namespace Unity.UIWidgets.material {
                 outlinePaint.color = new Color(0xff800000);
                 outlinePaint.strokeWidth = 1.0f;
                 outlinePaint.style = PaintingStyle.stroke;
-                if (this.deleteIconShowing) {
-                    context.canvas.drawRect(this.deleteButtonRect.shift(offset), outlinePaint);
+                if (deleteIconShowing) {
+                    context.canvas.drawRect(deleteButtonRect.shift(offset), outlinePaint);
                 }
 
                 outlinePaint.color = new Color(0xff008000);
-                context.canvas.drawRect(this.pressRect.shift(offset), outlinePaint);
+                context.canvas.drawRect(pressRect.shift(offset), outlinePaint);
                 return true;
             }
 
@@ -2487,7 +2487,7 @@ namespace Unity.UIWidgets.material {
         }
 
         protected override bool hitTestSelf(Offset position) {
-            return this.deleteButtonRect.contains(position) || this.pressRect.contains(position);
+            return deleteButtonRect.contains(position) || pressRect.contains(position);
         }
     }
 }

@@ -10,14 +10,14 @@ namespace Unity.UIWidgets.ui {
         public int allocated;
 
         public void onAlloc(int allocatedCount) {
-            this.borrowed++;
-            this.watermark = this.borrowed > this.watermark ? this.borrowed : this.watermark;
-            this.allocated = allocatedCount;
+            borrowed++;
+            watermark = borrowed > watermark ? borrowed : watermark;
+            allocated = allocatedCount;
         }
 
         public void onRelease(int allocatedCount) {
-            this.borrowed--;
-            this.allocated = allocatedCount;
+            borrowed--;
+            allocated = allocatedCount;
         }
     }
 

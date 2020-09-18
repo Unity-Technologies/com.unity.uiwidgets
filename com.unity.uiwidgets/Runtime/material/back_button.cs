@@ -35,7 +35,7 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             return new IconButton(
                 icon: new BackButtonIcon(),
-                color: this.color,
+                color: color,
                 tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 onPressed: () => { Navigator.maybePop(context); });
         }

@@ -51,16 +51,16 @@ namespace Unity.UIWidgets.material {
         public readonly Animation<Color> valueColor;
 
         public Color _getBackgroundColor(BuildContext context) {
-            return this.backgroundColor ?? Theme.of(context).backgroundColor;
+            return backgroundColor ?? Theme.of(context).backgroundColor;
         }
 
         public Color _getValueColor(BuildContext context) {
-            return this.valueColor?.value ?? Theme.of(context).accentColor;
+            return valueColor?.value ?? Theme.of(context).accentColor;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new PercentProperty("value", this.value ?? 0.0f, showName: false,
+            properties.add(new PercentProperty("value", value ?? 0.0f, showName: false,
                 ifNull: "<indeterminate>"));
         }
     }
@@ -109,11 +109,11 @@ namespace Unity.UIWidgets.material {
 
         public override void paint(Canvas canvas, Size size) {
             Paint paint = new Paint();
-            paint.color = this.backgroundColor;
+            paint.color = backgroundColor;
             paint.style = PaintingStyle.fill;
             canvas.drawRect(Offset.zero & size, paint);
 
-            paint.color = this.valueColor;
+            paint.color = valueColor;
 
             void drawBar(float x, float width) {
                 if (width <= 0.0f) {
@@ -124,15 +124,15 @@ namespace Unity.UIWidgets.material {
                 canvas.drawRect(new Offset(left, 0.0f) & new Size(width, size.height), paint);
             }
 
-            if (this.value != null) {
-                drawBar(0.0f, this.value.Value.clamp(0.0f, 1.0f) * size.width);
+            if (value != null) {
+                drawBar(0.0f, value.Value.clamp(0.0f, 1.0f) * size.width);
             }
             else {
-                float x1 = size.width * line1Tail.transform(this.animationValue ?? 0.0f);
-                float width1 = size.width * line1Head.transform(this.animationValue ?? 0.0f) - x1;
+                float x1 = size.width * line1Tail.transform(animationValue ?? 0.0f);
+                float width1 = size.width * line1Head.transform(animationValue ?? 0.0f) - x1;
 
-                float x2 = size.width * line2Tail.transform(this.animationValue ?? 0.0f);
-                float width2 = size.width * line2Head.transform(this.animationValue ?? 0.0f) - x2;
+                float x2 = size.width * line2Tail.transform(animationValue ?? 0.0f);
+                float width2 = size.width * line2Head.transform(animationValue ?? 0.0f) - x2;
 
                 drawBar(x1, width1);
                 drawBar(x2, width2);
@@ -142,10 +142,10 @@ namespace Unity.UIWidgets.material {
         public override bool shouldRepaint(CustomPainter oldPainter) {
             D.assert(oldPainter is _LinearProgressIndicatorPainter);
             _LinearProgressIndicatorPainter painter = oldPainter as _LinearProgressIndicatorPainter;
-            return painter.backgroundColor != this.backgroundColor
-                   || painter.valueColor != this.valueColor
-                   || painter.value != this.value
-                   || painter.animationValue != this.animationValue;
+            return painter.backgroundColor != backgroundColor
+                   || painter.valueColor != valueColor
+                   || painter.value != value
+                   || painter.animationValue != animationValue;
         }
     }
 
@@ -176,27 +176,27 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._controller = new AnimationController(
+            _controller = new AnimationController(
                 duration: new TimeSpan(0, 0, 0, 0, _ProgressIndicatorContants._kIndeterminateLinearDuration),
                 vsync: this
             );
-            if (this.widget.value == null) {
-                this._controller.repeat();
+            if (widget.value == null) {
+                _controller.repeat();
             }
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.value == null && !this._controller.isAnimating) {
-                this._controller.repeat();
+            if (widget.value == null && !_controller.isAnimating) {
+                _controller.repeat();
             }
-            else if (this.widget.value != null && this._controller.isAnimating) {
-                this._controller.stop();
+            else if (widget.value != null && _controller.isAnimating) {
+                _controller.stop();
             }
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
@@ -208,9 +208,9 @@ namespace Unity.UIWidgets.material {
                 ),
                 child: new CustomPaint(
                     painter: new _LinearProgressIndicatorPainter(
-                        backgroundColor: this.widget._getBackgroundColor(context),
-                        valueColor: this.widget._getValueColor(context),
-                        value: this.widget.value,
+                        backgroundColor: widget._getBackgroundColor(context),
+                        valueColor: widget._getValueColor(context),
+                        value: widget.value,
                         animationValue: animationValue
                     )
                 )
@@ -218,14 +218,14 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            if (this.widget.value != null) {
-                return this._buildIndicator(context, this._controller.value);
+            if (widget.value != null) {
+                return _buildIndicator(context, _controller.value);
             }
 
             return new AnimatedBuilder(
-                animation: this._controller.view,
+                animation: _controller.view,
                 builder: (BuildContext _context, Widget child) => {
-                    return this._buildIndicator(_context, this._controller.value);
+                    return _buildIndicator(_context, _controller.value);
                 }
             );
         }
@@ -250,11 +250,11 @@ namespace Unity.UIWidgets.material {
             this.stepValue = stepValue;
             this.rotationValue = rotationValue;
             this.strokeWidth = strokeWidth;
-            this.arcStart = value != null
+            arcStart = value != null
                 ? _startAngle
                 : _startAngle + tailValue * 3 / 2 * Mathf.PI + rotationValue * Mathf.PI * 1.7f -
                   stepValue * 0.8f * Mathf.PI;
-            this.arcSweep = value != null
+            arcSweep = value != null
                 ? value.Value.clamp(0.0f, 1.0f) * _sweep
                 : Mathf.Max(headValue * 3 / 2 * Mathf.PI - tailValue * 3 / 2 * Mathf.PI ?? 0.0f, _epsilon);
         }
@@ -278,38 +278,38 @@ namespace Unity.UIWidgets.material {
 
         public override void paint(Canvas canvas, Size size) {
             Paint paint = new Paint();
-            paint.color = this.valueColor;
-            paint.strokeWidth = this.strokeWidth ?? 0.0f;
+            paint.color = valueColor;
+            paint.strokeWidth = strokeWidth ?? 0.0f;
             paint.style = PaintingStyle.stroke;
 
-            if (this.backgroundColor != null) {
+            if (backgroundColor != null) {
                 Paint backgroundPaint = new Paint() {
-                    color = this.backgroundColor,
-                    strokeWidth = this.strokeWidth ?? 0.0f,
+                    color = backgroundColor,
+                    strokeWidth = strokeWidth ?? 0.0f,
                     style = PaintingStyle.stroke
                 };
                 canvas.drawArc(Offset.zero & size, 0, _sweep, false, backgroundPaint);
             }
 
-            if (this.value == null)
+            if (value == null)
             {
                 paint.strokeCap = StrokeCap.square;
             }
 
-            canvas.drawArc(Offset.zero & size, this.arcStart ?? 0.0f, this.arcSweep ?? 0.0f, false, paint);
+            canvas.drawArc(Offset.zero & size, arcStart ?? 0.0f, arcSweep ?? 0.0f, false, paint);
         }
 
         public override bool shouldRepaint(CustomPainter oldPainter) {
             D.assert(oldPainter is _CircularProgressIndicatorPainter);
             _CircularProgressIndicatorPainter painter = oldPainter as _CircularProgressIndicatorPainter;
-            return painter.backgroundColor != this.backgroundColor
-                   || painter.valueColor != this.valueColor
-                   || painter.value != this.value
-                   || painter.headValue != this.headValue
-                   || painter.tailValue != this.tailValue
-                   || painter.stepValue != this.stepValue
-                   || painter.rotationValue != this.rotationValue
-                   || painter.strokeWidth != this.strokeWidth;
+            return painter.backgroundColor != backgroundColor
+                   || painter.valueColor != valueColor
+                   || painter.value != value
+                   || painter.headValue != headValue
+                   || painter.tailValue != tailValue
+                   || painter.stepValue != stepValue
+                   || painter.rotationValue != rotationValue
+                   || painter.strokeWidth != strokeWidth;
         }
     }
 
@@ -345,27 +345,27 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._controller = new AnimationController(
+            _controller = new AnimationController(
                 duration: new TimeSpan(0, 0, 0, 5),
                 vsync: this
             );
-            if (this.widget.value == null) {
-                this._controller.repeat();
+            if (widget.value == null) {
+                _controller.repeat();
             }
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.value == null && !this._controller.isAnimating) {
-                this._controller.repeat();
+            if (widget.value == null && !_controller.isAnimating) {
+                _controller.repeat();
             }
-            else if (this.widget.value != null && this._controller.isAnimating) {
-                this._controller.stop();
+            else if (widget.value != null && _controller.isAnimating) {
+                _controller.stop();
             }
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
@@ -378,14 +378,14 @@ namespace Unity.UIWidgets.material {
                 ),
                 child: new CustomPaint(
                     painter: new _CircularProgressIndicatorPainter(
-                        backgroundColor: this.widget.backgroundColor,
-                        valueColor: this.widget._getValueColor(context),
-                        value: this.widget.value,
+                        backgroundColor: widget.backgroundColor,
+                        valueColor: widget._getValueColor(context),
+                        value: widget.value,
                         headValue: headValue,
                         tailValue: tailValue,
                         stepValue: stepValue,
                         rotationValue: rotationValue,
-                        strokeWidth: this.widget.strokeWidth
+                        strokeWidth: widget.strokeWidth
                     )
                 )
             );
@@ -393,25 +393,25 @@ namespace Unity.UIWidgets.material {
 
         protected Widget _buildAnimation() {
             return new AnimatedBuilder(
-                animation: this._controller,
+                animation: _controller,
                 builder: (BuildContext context, Widget child) => {
-                    return this._buildIndicator(
+                    return _buildIndicator(
                         context,
-                        _ProgressIndicatorContants._kStrokeHeadTween.evaluate(this._controller),
-                        _ProgressIndicatorContants._kStrokeTailTween.evaluate(this._controller),
-                        _ProgressIndicatorContants._kStepTween.evaluate(this._controller),
-                        _ProgressIndicatorContants._kRotationTween.evaluate(this._controller)
+                        _ProgressIndicatorContants._kStrokeHeadTween.evaluate(_controller),
+                        _ProgressIndicatorContants._kStrokeTailTween.evaluate(_controller),
+                        _ProgressIndicatorContants._kStepTween.evaluate(_controller),
+                        _ProgressIndicatorContants._kRotationTween.evaluate(_controller)
                     );
                 }
             );
         }
 
         public override Widget build(BuildContext context) {
-            if (this.widget.value != null) {
-                return this._buildIndicator(context, 0.0f, 0.0f, 0, 0.0f);
+            if (widget.value != null) {
+                return _buildIndicator(context, 0.0f, 0.0f, 0, 0.0f);
             }
 
-            return this._buildAnimation();
+            return _buildAnimation();
         }
     }
 
@@ -440,15 +440,15 @@ namespace Unity.UIWidgets.material {
         public readonly float? arrowheadScale;
 
         void paintArrowhead(Canvas canvas, Size size) {
-            float arcEnd = this.arcStart + this.arcSweep ?? 0.0f;
+            float arcEnd = arcStart + arcSweep ?? 0.0f;
             float ux = Mathf.Cos(arcEnd);
             float uy = Mathf.Sin(arcEnd);
 
             D.assert(size.width == size.height);
             float radius = size.width / 2.0f;
-            float? arrowheadPointX = radius + ux * radius + -uy * this.strokeWidth * 2.0f * this.arrowheadScale;
-            float? arrowheadPointY = radius + uy * radius + ux * this.strokeWidth * 2.0f * this.arrowheadScale;
-            float? arrowheadRadius = this.strokeWidth * 1.5f * this.arrowheadScale;
+            float? arrowheadPointX = radius + ux * radius + -uy * strokeWidth * 2.0f * arrowheadScale;
+            float? arrowheadPointY = radius + uy * radius + ux * strokeWidth * 2.0f * arrowheadScale;
+            float? arrowheadRadius = strokeWidth * 1.5f * arrowheadScale;
             float? innerRadius = radius - arrowheadRadius;
             float? outerRadius = radius + arrowheadRadius;
 
@@ -458,16 +458,16 @@ namespace Unity.UIWidgets.material {
             path.lineTo(arrowheadPointX ?? 0.0f, arrowheadPointY ?? 0.0f);
             path.close();
             Paint paint = new Paint();
-            paint.color = this.valueColor;
-            paint.strokeWidth = this.strokeWidth ?? 0.0f;
+            paint.color = valueColor;
+            paint.strokeWidth = strokeWidth ?? 0.0f;
             paint.style = PaintingStyle.fill;
             canvas.drawPath(path, paint);
         }
 
         public override void paint(Canvas canvas, Size size) {
             base.paint(canvas, size);
-            if (this.arrowheadScale > 0.0) {
-                this.paintArrowhead(canvas, size);
+            if (arrowheadScale > 0.0) {
+                paintArrowhead(canvas, size);
             }
         }
     }
@@ -500,39 +500,39 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            if (this.widget.value != null) {
-                this._controller.setValue(this.widget.value / 10.0f ?? 0.0f);
+            if (widget.value != null) {
+                _controller.setValue(widget.value / 10.0f ?? 0.0f);
             }
-            else if (!this._controller.isAnimating) {
-                this._controller.repeat();
+            else if (!_controller.isAnimating) {
+                _controller.repeat();
             }
 
-            return this._buildAnimation();
+            return _buildAnimation();
         }
 
         Widget _buildIndicator(BuildContext context, float headValue, float tailValue, int stepValue,
             float rotationValue) {
             float arrowheadScale =
-                this.widget.value == null ? 0.0f : (this.widget.value * 2.0f).Value.clamp(0.0f, 1.0f);
+                widget.value == null ? 0.0f : (widget.value * 2.0f).Value.clamp(0.0f, 1.0f);
             return new Container(
                 width: _indicatorSize,
                 height: _indicatorSize,
                 margin: EdgeInsets.all(4.0f),
                 child: new Material(
                     type: MaterialType.circle,
-                    color: this.widget.backgroundColor ?? Theme.of(context).canvasColor,
+                    color: widget.backgroundColor ?? Theme.of(context).canvasColor,
                     elevation: 2.0f,
                     child: new Padding(
                         padding: EdgeInsets.all(12.0f),
                         child: new CustomPaint(
                             painter: new _RefreshProgressIndicatorPainter(
-                                valueColor: this.widget._getValueColor(context),
+                                valueColor: widget._getValueColor(context),
                                 value: null,
                                 headValue: headValue,
                                 tailValue: tailValue,
                                 stepValue: stepValue,
                                 rotationValue: rotationValue,
-                                strokeWidth: this.widget.strokeWidth,
+                                strokeWidth: widget.strokeWidth,
                                 arrowheadScale: arrowheadScale
                             )
                         )

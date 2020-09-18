@@ -12,24 +12,24 @@ namespace Unity.UIWidgets.gestures {
         public void register(PointerSignalEvent evt, PointerSignalResolvedCallback callback) {
             D.assert(evt != null);
             D.assert(callback != null);
-            D.assert(this._currentEvent == null || this._currentEvent == evt);
-            if (this._firstRegisteredCallback != null) {
+            D.assert(_currentEvent == null || _currentEvent == evt);
+            if (_firstRegisteredCallback != null) {
                 return;
             }
 
-            this._currentEvent = evt;
-            this._firstRegisteredCallback = callback;
+            _currentEvent = evt;
+            _firstRegisteredCallback = callback;
         }
 
         public void resolve(PointerSignalEvent evt) {
-            if (this._firstRegisteredCallback == null) {
-                D.assert(this._currentEvent == null);
+            if (_firstRegisteredCallback == null) {
+                D.assert(_currentEvent == null);
                 return;
             }
 
-            D.assert(this._currentEvent == evt);
+            D.assert(_currentEvent == evt);
             try {
-                this._firstRegisteredCallback(evt);
+                _firstRegisteredCallback(evt);
             }
             catch (Exception exception) {
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
@@ -44,8 +44,8 @@ namespace Unity.UIWidgets.gestures {
                 );
             }
 
-            this._firstRegisteredCallback = null;
-            this._currentEvent = null;
+            _firstRegisteredCallback = null;
+            _currentEvent = null;
         }
     }
 }

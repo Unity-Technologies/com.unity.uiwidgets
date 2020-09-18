@@ -69,39 +69,39 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("value", this.value));
-            properties.add(new FloatProperty("min", this.min));
-            properties.add(new FloatProperty("max", this.max));
+            properties.add(new FloatProperty("value", value));
+            properties.add(new FloatProperty("min", min));
+            properties.add(new FloatProperty("max", max));
         }
     }
 
     class _CupertinoSliderState : TickerProviderStateMixin<CupertinoSlider> {
         void _handleChanged(float value) {
-            D.assert(this.widget.onChanged != null);
-            float lerpValue = MathUtils.lerpFloat(this.widget.min, this.widget.max, value);
-            if (lerpValue != this.widget.value) {
-                this.widget.onChanged(lerpValue);
+            D.assert(widget.onChanged != null);
+            float lerpValue = MathUtils.lerpFloat(widget.min, widget.max, value);
+            if (lerpValue != widget.value) {
+                widget.onChanged(lerpValue);
             }
         }
 
         void _handleDragStart(float value) {
-            D.assert(this.widget.onChangeStart != null);
-            this.widget.onChangeStart(MathUtils.lerpFloat(this.widget.min, this.widget.max, value));
+            D.assert(widget.onChangeStart != null);
+            widget.onChangeStart(MathUtils.lerpFloat(widget.min, widget.max, value));
         }
 
         void _handleDragEnd(float value) {
-            D.assert(this.widget.onChangeEnd != null);
-            this.widget.onChangeEnd(MathUtils.lerpFloat(this.widget.min, this.widget.max, value));
+            D.assert(widget.onChangeEnd != null);
+            widget.onChangeEnd(MathUtils.lerpFloat(widget.min, widget.max, value));
         }
 
         public override Widget build(BuildContext context) {
             return new _CupertinoSliderRenderObjectWidget(
-                value: (this.widget.value - this.widget.min) / (this.widget.max - this.widget.min),
-                divisions: this.widget.divisions,
-                activeColor: this.widget.activeColor ?? CupertinoTheme.of(context).primaryColor,
-                onChanged: this.widget.onChanged != null ? (ValueChanged<float>) this._handleChanged : null,
-                onChangeStart: this.widget.onChangeStart != null ? (ValueChanged<float>) this._handleDragStart : null,
-                onChangeEnd: this.widget.onChangeEnd != null ? (ValueChanged<float>) this._handleDragEnd : null,
+                value: (widget.value - widget.min) / (widget.max - widget.min),
+                divisions: widget.divisions,
+                activeColor: widget.activeColor ?? CupertinoTheme.of(context).primaryColor,
+                onChanged: widget.onChanged != null ? (ValueChanged<float>) _handleChanged : null,
+                onChangeStart: widget.onChangeStart != null ? (ValueChanged<float>) _handleDragStart : null,
+                onChangeEnd: widget.onChangeEnd != null ? (ValueChanged<float>) _handleDragEnd : null,
                 vsync: this
             );
         }
@@ -137,24 +137,24 @@ namespace Unity.UIWidgets.cupertino {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderCupertinoSlider(
-                value: this.value ?? 0.0f,
-                divisions: this.divisions,
-                activeColor: this.activeColor,
-                onChanged: this.onChanged,
-                onChangeStart: this.onChangeStart,
-                onChangeEnd: this.onChangeEnd,
-                vsync: this.vsync
+                value: value ?? 0.0f,
+                divisions: divisions,
+                activeColor: activeColor,
+                onChanged: onChanged,
+                onChangeStart: onChangeStart,
+                onChangeEnd: onChangeEnd,
+                vsync: vsync
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             _RenderCupertinoSlider renderObject = _renderObject as _RenderCupertinoSlider;
-            renderObject.value = this.value ?? 0.0f;
-            renderObject.divisions = this.divisions;
-            renderObject.activeColor = this.activeColor;
-            renderObject.onChanged = this.onChanged;
-            renderObject.onChangeStart = this.onChangeStart;
-            renderObject.onChangeEnd = this.onChangeEnd;
+            renderObject.value = value ?? 0.0f;
+            renderObject.divisions = divisions;
+            renderObject.activeColor = activeColor;
+            renderObject.onChanged = onChanged;
+            renderObject.onChangeStart = onChangeStart;
+            renderObject.onChangeEnd = onChangeEnd;
         }
     }
 
@@ -170,38 +170,38 @@ namespace Unity.UIWidgets.cupertino {
         ) : base(additionalConstraints: BoxConstraints.tightFor(width: SliderUtils._kSliderWidth,
             height: SliderUtils._kSliderHeight)) {
             D.assert(value >= 0.0f && value <= 1.0f);
-            this._value = value;
-            this._divisions = divisions;
-            this._activeColor = activeColor;
-            this._onChanged = onChanged;
+            _value = value;
+            _divisions = divisions;
+            _activeColor = activeColor;
+            _onChanged = onChanged;
             this.onChangeStart = onChangeStart;
             this.onChangeEnd = onChangeEnd;
-            this._drag = new HorizontalDragGestureRecognizer();
-            this._drag.onStart = this._handleDragStart;
-            this._drag.onUpdate = this._handleDragUpdate;
-            this._drag.onEnd = this._handleDragEnd;
-            this._position = new AnimationController(
+            _drag = new HorizontalDragGestureRecognizer();
+            _drag.onStart = _handleDragStart;
+            _drag.onUpdate = _handleDragUpdate;
+            _drag.onEnd = _handleDragEnd;
+            _position = new AnimationController(
                 value: value,
                 duration: SliderUtils._kDiscreteTransitionDuration,
                 vsync: vsync
             );
-            this._position.addListener(this.markNeedsPaint);
+            _position.addListener(markNeedsPaint);
         }
 
         public float value {
-            get { return this._value; }
+            get { return _value; }
             set {
                 D.assert(value >= 0.0f && value <= 1.0f);
-                if (value == this._value) {
+                if (value == _value) {
                     return;
                 }
 
-                this._value = value;
-                if (this.divisions != null) {
-                    this._position.animateTo(value, curve: Curves.fastOutSlowIn);
+                _value = value;
+                if (divisions != null) {
+                    _position.animateTo(value, curve: Curves.fastOutSlowIn);
                 }
                 else {
-                    this._position.setValue(value);
+                    _position.setValue(value);
                 }
             }
         }
@@ -209,41 +209,41 @@ namespace Unity.UIWidgets.cupertino {
         float _value;
 
         public int? divisions {
-            get { return this._divisions; }
+            get { return _divisions; }
             set {
-                if (value == this._divisions) {
+                if (value == _divisions) {
                     return;
                 }
 
-                this._divisions = value;
-                this.markNeedsPaint();
+                _divisions = value;
+                markNeedsPaint();
             }
         }
 
         int? _divisions;
 
         public Color activeColor {
-            get { return this._activeColor; }
+            get { return _activeColor; }
             set {
-                if (value == this._activeColor) {
+                if (value == _activeColor) {
                     return;
                 }
 
-                this._activeColor = value;
-                this.markNeedsPaint();
+                _activeColor = value;
+                markNeedsPaint();
             }
         }
 
         Color _activeColor;
 
         public ValueChanged<float> onChanged {
-            get { return this._onChanged; }
+            get { return _onChanged; }
             set {
-                if (value == this._onChanged) {
+                if (value == _onChanged) {
                     return;
                 }
 
-                this._onChanged = value;
+                _onChanged = value;
             }
         }
 
@@ -260,9 +260,9 @@ namespace Unity.UIWidgets.cupertino {
 
         float _discretizedCurrentDragValue {
             get {
-                float dragValue = this._currentDragValue.clamp(0.0f, 1.0f);
-                if (this.divisions != null) {
-                    dragValue = Mathf.Round(dragValue * this.divisions.Value) / this.divisions.Value;
+                float dragValue = _currentDragValue.clamp(0.0f, 1.0f);
+                if (divisions != null) {
+                    dragValue = Mathf.Round(dragValue * divisions.Value) / divisions.Value;
                 }
 
                 return dragValue;
@@ -274,69 +274,69 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public float _trackRight {
-            get { return this.size.width - SliderUtils._kPadding; }
+            get { return size.width - SliderUtils._kPadding; }
         }
 
         float _thumbCenter {
             get {
-                float visualPosition = this._value;
+                float visualPosition = _value;
 
-                return MathUtils.lerpFloat(this._trackLeft + CupertinoThumbPainter.radius,
-                    this._trackRight - CupertinoThumbPainter.radius,
+                return MathUtils.lerpFloat(_trackLeft + CupertinoThumbPainter.radius,
+                    _trackRight - CupertinoThumbPainter.radius,
                     visualPosition);
             }
         }
 
         public bool isInteractive {
-            get { return this.onChanged != null; }
+            get { return onChanged != null; }
         }
 
         void _handleDragStart(DragStartDetails details) {
-            this._startInteraction(details.globalPosition);
+            _startInteraction(details.globalPosition);
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
-            if (this.isInteractive) {
+            if (isInteractive) {
                 float extent = Mathf.Max(SliderUtils._kPadding,
-                    this.size.width - 2.0f * (SliderUtils._kPadding + CupertinoThumbPainter.radius));
+                    size.width - 2.0f * (SliderUtils._kPadding + CupertinoThumbPainter.radius));
                 float? valueDelta = details.primaryDelta / extent;
-                this._currentDragValue += valueDelta ?? 0.0f;
+                _currentDragValue += valueDelta ?? 0.0f;
 
-                this.onChanged(this._discretizedCurrentDragValue);
+                onChanged(_discretizedCurrentDragValue);
             }
         }
 
         void _handleDragEnd(DragEndDetails details) {
-            this._endInteraction();
+            _endInteraction();
         }
 
         void _startInteraction(Offset globalPosition) {
-            if (this.isInteractive) {
-                if (this.onChangeStart != null) {
-                    this.onChangeStart(this._discretizedCurrentDragValue);
+            if (isInteractive) {
+                if (onChangeStart != null) {
+                    onChangeStart(_discretizedCurrentDragValue);
                 }
 
-                this._currentDragValue = this._value;
-                this.onChanged(this._discretizedCurrentDragValue);
+                _currentDragValue = _value;
+                onChanged(_discretizedCurrentDragValue);
             }
         }
 
         void _endInteraction() {
-            if (this.onChangeEnd != null) {
-                this.onChangeEnd(this._discretizedCurrentDragValue);
+            if (onChangeEnd != null) {
+                onChangeEnd(_discretizedCurrentDragValue);
             }
 
-            this._currentDragValue = 0.0f;
+            _currentDragValue = 0.0f;
         }
 
         protected override bool hitTestSelf(Offset position) {
-            return (position.dx - this._thumbCenter).abs() < CupertinoThumbPainter.radius + SliderUtils._kPadding;
+            return (position.dx - _thumbCenter).abs() < CupertinoThumbPainter.radius + SliderUtils._kPadding;
         }
 
         public override void handleEvent(PointerEvent e, HitTestEntry entry) {
-            D.assert(this.debugHandleEvent(e, entry));
-            if (e is PointerDownEvent pointerDownEvent && this.isInteractive) {
-                this._drag.addPointer(pointerDownEvent);
+            D.assert(debugHandleEvent(e, entry));
+            if (e is PointerDownEvent pointerDownEvent && isInteractive) {
+                _drag.addPointer(pointerDownEvent);
             }
         }
 
@@ -347,16 +347,16 @@ namespace Unity.UIWidgets.cupertino {
             float visualPosition;
             Color leftColor;
             Color rightColor;
-            visualPosition = this._position.value;
+            visualPosition = _position.value;
             leftColor = SliderUtils._kTrackColor;
-            rightColor = this._activeColor;
+            rightColor = _activeColor;
 
-            float trackCenter = offset.dy + this.size.height / 2.0f;
-            float trackLeft = offset.dx + this._trackLeft;
+            float trackCenter = offset.dy + size.height / 2.0f;
+            float trackLeft = offset.dx + _trackLeft;
             float trackTop = trackCenter - 1.0f;
             float trackBottom = trackCenter + 1.0f;
-            float trackRight = offset.dx + this._trackRight;
-            float trackActive = offset.dx + this._thumbCenter;
+            float trackRight = offset.dx + _trackRight;
+            float trackActive = offset.dx + _thumbCenter;
 
             Canvas canvas = context.canvas;
 
@@ -373,7 +373,7 @@ namespace Unity.UIWidgets.cupertino {
             }
 
             Offset thumbCenter = new Offset(trackActive, trackCenter);
-            this._thumbPainter.paint(canvas,
+            _thumbPainter.paint(canvas,
                 Rect.fromCircle(center: thumbCenter, radius: CupertinoThumbPainter.radius));
         }
     }

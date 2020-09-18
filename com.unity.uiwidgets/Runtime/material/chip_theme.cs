@@ -26,7 +26,7 @@ namespace Unity.UIWidgets.material {
 
         public override bool updateShouldNotify(InheritedWidget _oldWidget) {
             ChipTheme oldWidget = _oldWidget as ChipTheme;
-            return this.data != oldWidget.data;
+            return data != oldWidget.data;
         }
     }
 
@@ -218,40 +218,40 @@ namespace Unity.UIWidgets.material {
         }
 
         public override int GetHashCode() {
-            var hashCode = this.backgroundColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.deleteIconColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.disabledColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.selectedColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.secondarySelectedColor.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.shadowColor?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.selectedShadowColor?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.labelPadding.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.padding.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.shape.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.labelStyle.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.secondaryLabelStyle.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.brightness.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.elevation.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.pressElevation.GetHashCode();
+            var hashCode = backgroundColor.GetHashCode();
+            hashCode = (hashCode * 397) ^ deleteIconColor.GetHashCode();
+            hashCode = (hashCode * 397) ^ disabledColor.GetHashCode();
+            hashCode = (hashCode * 397) ^ selectedColor.GetHashCode();
+            hashCode = (hashCode * 397) ^ secondarySelectedColor.GetHashCode();
+            hashCode = (hashCode * 397) ^ shadowColor?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ selectedShadowColor?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ labelPadding.GetHashCode();
+            hashCode = (hashCode * 397) ^ padding.GetHashCode();
+            hashCode = (hashCode * 397) ^ shape.GetHashCode();
+            hashCode = (hashCode * 397) ^ labelStyle.GetHashCode();
+            hashCode = (hashCode * 397) ^ secondaryLabelStyle.GetHashCode();
+            hashCode = (hashCode * 397) ^ brightness.GetHashCode();
+            hashCode = (hashCode * 397) ^ elevation.GetHashCode();
+            hashCode = (hashCode * 397) ^ pressElevation.GetHashCode();
             return hashCode;
         }
 
         public bool Equals(ChipThemeData other) {
-            return other.backgroundColor == this.backgroundColor
-                   && other.deleteIconColor == this.deleteIconColor
-                   && other.disabledColor == this.disabledColor
-                   && other.selectedColor == this.selectedColor
-                   && other.secondarySelectedColor == this.secondarySelectedColor
-                   && other.shadowColor == this.shadowColor
-                   && other.selectedShadowColor == this.selectedShadowColor
-                   && other.labelPadding == this.labelPadding
-                   && other.padding == this.padding
-                   && other.shape == this.shape
-                   && other.labelStyle == this.labelStyle
-                   && other.secondaryLabelStyle == this.secondaryLabelStyle
-                   && other.brightness == this.brightness
-                   && other.elevation == this.elevation
-                   && other.pressElevation == this.pressElevation;
+            return other.backgroundColor == backgroundColor
+                   && other.deleteIconColor == deleteIconColor
+                   && other.disabledColor == disabledColor
+                   && other.selectedColor == selectedColor
+                   && other.secondarySelectedColor == secondarySelectedColor
+                   && other.shadowColor == shadowColor
+                   && other.selectedShadowColor == selectedShadowColor
+                   && other.labelPadding == labelPadding
+                   && other.padding == padding
+                   && other.shape == shape
+                   && other.labelStyle == labelStyle
+                   && other.secondaryLabelStyle == secondaryLabelStyle
+                   && other.brightness == brightness
+                   && other.elevation == elevation
+                   && other.pressElevation == pressElevation;
         }
 
         public override bool Equals(object obj) {
@@ -263,11 +263,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ChipThemeData) obj);
+            return Equals((ChipThemeData) obj);
         }
 
         public static bool operator ==(ChipThemeData left, ChipThemeData right) {
@@ -286,33 +286,33 @@ namespace Unity.UIWidgets.material {
                 brightness: defaultTheme.brightness,
                 labelStyle: defaultTheme.textTheme.body2
             );
-            properties.add(new DiagnosticsProperty<Color>("backgroundColor", this.backgroundColor,
+            properties.add(new DiagnosticsProperty<Color>("backgroundColor", backgroundColor,
                 defaultValue: defaultData.backgroundColor));
-            properties.add(new DiagnosticsProperty<Color>("deleteIconColor", this.deleteIconColor,
+            properties.add(new DiagnosticsProperty<Color>("deleteIconColor", deleteIconColor,
                 defaultValue: defaultData.deleteIconColor));
-            properties.add(new DiagnosticsProperty<Color>("disabledColor", this.disabledColor,
+            properties.add(new DiagnosticsProperty<Color>("disabledColor", disabledColor,
                 defaultValue: defaultData.disabledColor));
-            properties.add(new DiagnosticsProperty<Color>("selectedColor", this.selectedColor,
+            properties.add(new DiagnosticsProperty<Color>("selectedColor", selectedColor,
                 defaultValue: defaultData.selectedColor));
-            properties.add(new DiagnosticsProperty<Color>("secondarySelectedColor", this.secondarySelectedColor,
+            properties.add(new DiagnosticsProperty<Color>("secondarySelectedColor", secondarySelectedColor,
                 defaultValue: defaultData.secondarySelectedColor));
-            properties.add(new DiagnosticsProperty<Color>("shadowColor", this.shadowColor,
+            properties.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor,
                 defaultValue: defaultData.shadowColor));
-            properties.add(new DiagnosticsProperty<Color>("selectedShadowColor", this.selectedShadowColor,
+            properties.add(new DiagnosticsProperty<Color>("selectedShadowColor", selectedShadowColor,
                 defaultValue: defaultData.selectedShadowColor));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("labelPadding", this.labelPadding,
+            properties.add(new DiagnosticsProperty<EdgeInsets>("labelPadding", labelPadding,
                 defaultValue: defaultData.labelPadding));
             properties.add(
-                new DiagnosticsProperty<EdgeInsets>("padding", this.padding, defaultValue: defaultData.padding));
-            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", this.shape, defaultValue: defaultData.shape));
-            properties.add(new DiagnosticsProperty<TextStyle>("labelStyle", this.labelStyle,
+                new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: defaultData.padding));
+            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: defaultData.shape));
+            properties.add(new DiagnosticsProperty<TextStyle>("labelStyle", labelStyle,
                 defaultValue: defaultData.labelStyle));
-            properties.add(new DiagnosticsProperty<TextStyle>("secondaryLabelStyle", this.secondaryLabelStyle,
+            properties.add(new DiagnosticsProperty<TextStyle>("secondaryLabelStyle", secondaryLabelStyle,
                 defaultValue: defaultData.secondaryLabelStyle));
-            properties.add(new EnumProperty<Brightness?>("brightness", this.brightness,
+            properties.add(new EnumProperty<Brightness?>("brightness", brightness,
                 defaultValue: defaultData.brightness));
-            properties.add(new FloatProperty("elevation", this.elevation, defaultValue: defaultData.elevation));
-            properties.add(new FloatProperty("pressElevation", this.pressElevation,
+            properties.add(new FloatProperty("elevation", elevation, defaultValue: defaultData.elevation));
+            properties.add(new FloatProperty("pressElevation", pressElevation,
                 defaultValue: defaultData.pressElevation));
         }
     }

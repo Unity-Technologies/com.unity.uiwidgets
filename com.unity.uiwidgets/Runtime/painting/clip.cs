@@ -9,7 +9,7 @@ namespace Unity.UIWidgets.painting {
         void _clipAndPaint(Action<bool> canvasClipCall, Clip clipBehavior, Rect bounds, Action painter) {
             D.assert(canvasClipCall != null);
 
-            this.canvas.save();
+            canvas.save();
 
             switch (clipBehavior) {
                 case Clip.none:
@@ -22,31 +22,31 @@ namespace Unity.UIWidgets.painting {
                     break;
                 case Clip.antiAliasWithSaveLayer:
                     canvasClipCall(true);
-                    this.canvas.saveLayer(bounds, new Paint());
+                    canvas.saveLayer(bounds, new Paint());
                     break;
             }
 
             painter();
 
             if (clipBehavior == Clip.antiAliasWithSaveLayer) {
-                this.canvas.restore();
+                canvas.restore();
             }
 
-            this.canvas.restore();
+            canvas.restore();
         }
 
         public void clipPathAndPaint(Path path, Clip clipBehavior, Rect bounds, Action painter) {
-            this._clipAndPaint((bool doAntiAias) => this.canvas.clipPath(path),
+            _clipAndPaint((bool doAntiAias) => canvas.clipPath(path),
                 clipBehavior, bounds, painter);
         }
 
         public void clipRRectAndPaint(RRect rrect, Clip clipBehavior, Rect bounds, Action painter) {
-            this._clipAndPaint(doAntiAias => this.canvas.clipRRect(rrect),
+            _clipAndPaint(doAntiAias => canvas.clipRRect(rrect),
                 clipBehavior, bounds, painter);
         }
 
         public void clipRectAndPaint(Rect rect, Clip clipBehavior, Rect bounds, Action painter) {
-            this._clipAndPaint(doAntiAias => this.canvas.clipRect(rect),
+            _clipAndPaint(doAntiAias => canvas.clipRect(rect),
                 clipBehavior, bounds, painter);
         }
     }

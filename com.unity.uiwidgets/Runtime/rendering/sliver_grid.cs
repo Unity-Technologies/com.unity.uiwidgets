@@ -27,14 +27,14 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         public readonly float? crossAxisExtent;
 
         public float? trailingScrollOffset {
-            get { return this.scrollOffset + this.mainAxisExtent; }
+            get { return scrollOffset + mainAxisExtent; }
         }
 
         public BoxConstraints getBoxConstraints(SliverConstraints constraints) {
             return constraints.asBoxConstraints(
-                minExtent: this.mainAxisExtent ?? 0.0f,
-                maxExtent: this.mainAxisExtent ?? 0.0f,
-                crossAxisExtent: this.crossAxisExtent ?? 0.0f
+                minExtent: mainAxisExtent ?? 0.0f,
+                maxExtent: mainAxisExtent ?? 0.0f,
+                crossAxisExtent: crossAxisExtent ?? 0.0f
             );
         }
 
@@ -97,24 +97,24 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         public readonly bool? reverseCrossAxis;
 
         public override int getMinChildIndexForScrollOffset(float scrollOffset) {
-            return (this.mainAxisStride > 0.0f
-                       ? this.crossAxisCount * ((int) (scrollOffset / this.mainAxisStride))
+            return (mainAxisStride > 0.0f
+                       ? crossAxisCount * ((int) (scrollOffset / mainAxisStride))
                        : 0) ?? 0;
         }
 
         public override int getMaxChildIndexForScrollOffset(float scrollOffset) {
-            if (this.mainAxisStride > 0.0f) {
-                int? mainAxisCount = (scrollOffset / this.mainAxisStride)?.ceil();
-                return Mathf.Max(0, (this.crossAxisCount * mainAxisCount - 1) ?? 0);
+            if (mainAxisStride > 0.0f) {
+                int? mainAxisCount = (scrollOffset / mainAxisStride)?.ceil();
+                return Mathf.Max(0, (crossAxisCount * mainAxisCount - 1) ?? 0);
             }
 
             return 0;
         }
 
         float _getOffsetFromStartInCrossAxis(float crossAxisStart) {
-            if (this.reverseCrossAxis == true) {
-                return (this.crossAxisCount * this.crossAxisStride - crossAxisStart - this.childCrossAxisExtent
-                        - (this.crossAxisStride - this.childCrossAxisExtent)) ??
+            if (reverseCrossAxis == true) {
+                return (crossAxisCount * crossAxisStride - crossAxisStart - childCrossAxisExtent
+                        - (crossAxisStride - childCrossAxisExtent)) ??
                        0.0f;
             }
 
@@ -122,22 +122,22 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         }
 
         public override SliverGridGeometry getGeometryForChildIndex(int index) {
-            float? crossAxisStart = (index % this.crossAxisCount) * this.crossAxisStride;
+            float? crossAxisStart = (index % crossAxisCount) * crossAxisStride;
             return new SliverGridGeometry(
-                scrollOffset: (index / this.crossAxisCount) * this.mainAxisStride,
+                scrollOffset: (index / crossAxisCount) * mainAxisStride,
                 crossAxisOffset:
-                this._getOffsetFromStartInCrossAxis(crossAxisStart ?? 0.0f),
+                _getOffsetFromStartInCrossAxis(crossAxisStart ?? 0.0f),
                 mainAxisExtent:
-                this.childMainAxisExtent,
+                childMainAxisExtent,
                 crossAxisExtent:
-                this.childCrossAxisExtent
+                childCrossAxisExtent
             );
         }
 
         public override float computeMaxScrollOffset(int childCount) {
-            int? mainAxisCount = ((childCount - 1) / this.crossAxisCount) + 1;
-            float? mainAxisSpacing = this.mainAxisStride - this.childMainAxisExtent;
-            return (this.mainAxisStride * mainAxisCount - mainAxisSpacing) ?? 0.0f;
+            int? mainAxisCount = ((childCount - 1) / crossAxisCount) + 1;
+            float? mainAxisSpacing = mainAxisStride - childMainAxisExtent;
+            return (mainAxisStride * mainAxisCount - mainAxisSpacing) ?? 0.0f;
         }
     }
 
@@ -173,23 +173,23 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         public readonly float childAspectRatio;
 
         bool _debugAssertIsValid() {
-            D.assert(this.crossAxisCount > 0);
-            D.assert(this.mainAxisSpacing >= 0.0f);
-            D.assert(this.crossAxisSpacing >= 0.0f);
-            D.assert(this.childAspectRatio > 0.0f);
+            D.assert(crossAxisCount > 0);
+            D.assert(mainAxisSpacing >= 0.0f);
+            D.assert(crossAxisSpacing >= 0.0f);
+            D.assert(childAspectRatio > 0.0f);
             return true;
         }
 
         public override SliverGridLayout getLayout(SliverConstraints constraints) {
-            D.assert(this._debugAssertIsValid());
+            D.assert(_debugAssertIsValid());
             float usableCrossAxisExtent =
-                constraints.crossAxisExtent - this.crossAxisSpacing * (this.crossAxisCount - 1);
-            float childCrossAxisExtent = usableCrossAxisExtent / this.crossAxisCount;
-            float childMainAxisExtent = childCrossAxisExtent / this.childAspectRatio;
+                constraints.crossAxisExtent - crossAxisSpacing * (crossAxisCount - 1);
+            float childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
+            float childMainAxisExtent = childCrossAxisExtent / childAspectRatio;
             return new SliverGridRegularTileLayout(
-                crossAxisCount: this.crossAxisCount,
-                mainAxisStride: childMainAxisExtent + this.mainAxisSpacing,
-                crossAxisStride: childCrossAxisExtent + this.crossAxisSpacing,
+                crossAxisCount: crossAxisCount,
+                mainAxisStride: childMainAxisExtent + mainAxisSpacing,
+                crossAxisStride: childCrossAxisExtent + crossAxisSpacing,
                 childMainAxisExtent: childMainAxisExtent,
                 childCrossAxisExtent: childCrossAxisExtent,
                 reverseCrossAxis: AxisUtils.axisDirectionIsReversed(constraints.crossAxisDirection)
@@ -199,10 +199,10 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         public override bool shouldRelayout(SliverGridDelegate _oldDelegate) {
             SliverGridDelegateWithFixedCrossAxisCount oldDelegate =
                 _oldDelegate as SliverGridDelegateWithFixedCrossAxisCount;
-            return oldDelegate.crossAxisCount != this.crossAxisCount
-                   || oldDelegate.mainAxisSpacing != this.mainAxisSpacing
-                   || oldDelegate.crossAxisSpacing != this.crossAxisSpacing
-                   || oldDelegate.childAspectRatio != this.childAspectRatio;
+            return oldDelegate.crossAxisCount != crossAxisCount
+                   || oldDelegate.mainAxisSpacing != mainAxisSpacing
+                   || oldDelegate.crossAxisSpacing != crossAxisSpacing
+                   || oldDelegate.childAspectRatio != childAspectRatio;
         }
     }
 
@@ -232,24 +232,24 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         public readonly float childAspectRatio;
 
         bool _debugAssertIsValid() {
-            D.assert(this.maxCrossAxisExtent > 0.0f);
-            D.assert(this.mainAxisSpacing >= 0.0f);
-            D.assert(this.crossAxisSpacing >= 0.0f);
-            D.assert(this.childAspectRatio > 0.0f);
+            D.assert(maxCrossAxisExtent > 0.0f);
+            D.assert(mainAxisSpacing >= 0.0f);
+            D.assert(crossAxisSpacing >= 0.0f);
+            D.assert(childAspectRatio > 0.0f);
             return true;
         }
 
         public override SliverGridLayout getLayout(SliverConstraints constraints) {
-            D.assert(this._debugAssertIsValid());
+            D.assert(_debugAssertIsValid());
             int crossAxisCount =
-                (constraints.crossAxisExtent / (this.maxCrossAxisExtent + this.crossAxisSpacing)).ceil();
-            float usableCrossAxisExtent = constraints.crossAxisExtent - this.crossAxisSpacing * (crossAxisCount - 1);
+                (constraints.crossAxisExtent / (maxCrossAxisExtent + crossAxisSpacing)).ceil();
+            float usableCrossAxisExtent = constraints.crossAxisExtent - crossAxisSpacing * (crossAxisCount - 1);
             float childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
-            float childMainAxisExtent = childCrossAxisExtent / this.childAspectRatio;
+            float childMainAxisExtent = childCrossAxisExtent / childAspectRatio;
             return new SliverGridRegularTileLayout(
                 crossAxisCount: crossAxisCount,
-                mainAxisStride: childMainAxisExtent + this.mainAxisSpacing,
-                crossAxisStride: childCrossAxisExtent + this.crossAxisSpacing,
+                mainAxisStride: childMainAxisExtent + mainAxisSpacing,
+                crossAxisStride: childCrossAxisExtent + crossAxisSpacing,
                 childMainAxisExtent: childMainAxisExtent,
                 childCrossAxisExtent: childCrossAxisExtent,
                 reverseCrossAxis: AxisUtils.axisDirectionIsReversed(constraints.crossAxisDirection)
@@ -259,10 +259,10 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         public override bool shouldRelayout(SliverGridDelegate _oldDelegate) {
             SliverGridDelegateWithMaxCrossAxisExtent oldDelegate =
                 _oldDelegate as SliverGridDelegateWithMaxCrossAxisExtent;
-            return oldDelegate.maxCrossAxisExtent != this.maxCrossAxisExtent
-                   || oldDelegate.mainAxisSpacing != this.mainAxisSpacing
-                   || oldDelegate.crossAxisSpacing != this.crossAxisSpacing
-                   || oldDelegate.childAspectRatio != this.childAspectRatio;
+            return oldDelegate.maxCrossAxisExtent != maxCrossAxisExtent
+                   || oldDelegate.mainAxisSpacing != mainAxisSpacing
+                   || oldDelegate.crossAxisSpacing != crossAxisSpacing
+                   || oldDelegate.childAspectRatio != childAspectRatio;
         }
     }
 
@@ -280,7 +280,7 @@ namespace com.unity.uiwidgets.Runtime.rendering {
             SliverGridDelegate gridDelegate
         ) : base(childManager: childManager) {
             D.assert(gridDelegate != null);
-            this._gridDelegate = gridDelegate;
+            _gridDelegate = gridDelegate;
         }
 
 
@@ -291,19 +291,19 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         }
 
         public SliverGridDelegate gridDelegate {
-            get { return this._gridDelegate; }
+            get { return _gridDelegate; }
             set {
                 D.assert(value != null);
-                if (this._gridDelegate == value) {
+                if (_gridDelegate == value) {
                     return;
                 }
 
-                if (value.GetType() != this._gridDelegate.GetType() ||
-                    value.shouldRelayout(this._gridDelegate)) {
-                    this.markNeedsLayout();
+                if (value.GetType() != _gridDelegate.GetType() ||
+                    value.shouldRelayout(_gridDelegate)) {
+                    markNeedsLayout();
                 }
 
-                this._gridDelegate = value;
+                _gridDelegate = value;
             }
         }
 
@@ -315,58 +315,58 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         }
 
         protected override void performLayout() {
-            this.childManager.didStartLayout();
-            this.childManager.setDidUnderflow(false);
+            childManager.didStartLayout();
+            childManager.setDidUnderflow(false);
 
-            float scrollOffset = this.constraints.scrollOffset + this.constraints.cacheOrigin;
+            float scrollOffset = constraints.scrollOffset + constraints.cacheOrigin;
             D.assert(scrollOffset >= 0.0f);
-            float remainingExtent = this.constraints.remainingCacheExtent;
+            float remainingExtent = constraints.remainingCacheExtent;
             D.assert(remainingExtent >= 0.0f);
             float targetEndScrollOffset = scrollOffset + remainingExtent;
 
-            SliverGridLayout layout = this._gridDelegate.getLayout(this.constraints);
+            SliverGridLayout layout = _gridDelegate.getLayout(constraints);
 
             int firstIndex = layout.getMinChildIndexForScrollOffset(scrollOffset);
             int? targetLastIndex = targetEndScrollOffset.isFinite()
                 ? (int?) layout.getMaxChildIndexForScrollOffset(targetEndScrollOffset)
                 : null;
 
-            if (this.firstChild != null) {
-                int oldFirstIndex = this.indexOf(this.firstChild);
-                int oldLastIndex = this.indexOf(this.lastChild);
-                int leadingGarbage = (firstIndex - oldFirstIndex).clamp(0, this.childCount);
+            if (firstChild != null) {
+                int oldFirstIndex = indexOf(firstChild);
+                int oldLastIndex = indexOf(lastChild);
+                int leadingGarbage = (firstIndex - oldFirstIndex).clamp(0, childCount);
                 int trailingGarbage = targetLastIndex == null
                     ? 0
-                    : ((oldLastIndex - targetLastIndex) ?? 0).clamp(0, this.childCount);
-                this.collectGarbage(leadingGarbage, trailingGarbage);
+                    : ((oldLastIndex - targetLastIndex) ?? 0).clamp(0, childCount);
+                collectGarbage(leadingGarbage, trailingGarbage);
             }
             else {
-                this.collectGarbage(0, 0);
+                collectGarbage(0, 0);
             }
 
             SliverGridGeometry firstChildGridGeometry = layout.getGeometryForChildIndex(firstIndex);
             float? leadingScrollOffset = firstChildGridGeometry.scrollOffset;
             float? trailingScrollOffset = firstChildGridGeometry.trailingScrollOffset;
 
-            if (this.firstChild == null) {
-                if (!this.addInitialChild(index: firstIndex,
+            if (firstChild == null) {
+                if (!addInitialChild(index: firstIndex,
                     layoutOffset: firstChildGridGeometry.scrollOffset ?? 0.0f)) {
-                    float max = layout.computeMaxScrollOffset(this.childManager.childCount ?? 0);
-                    this.geometry = new SliverGeometry(
+                    float max = layout.computeMaxScrollOffset(childManager.childCount ?? 0);
+                    geometry = new SliverGeometry(
                         scrollExtent: max,
                         maxPaintExtent: max
                     );
-                    this.childManager.didFinishLayout();
+                    childManager.didFinishLayout();
                     return;
                 }
             }
 
             RenderBox trailingChildWithLayout = null;
 
-            for (int index = this.indexOf(this.firstChild) - 1; index >= firstIndex; --index) {
+            for (int index = indexOf(firstChild) - 1; index >= firstIndex; --index) {
                 SliverGridGeometry gridGeometry = layout.getGeometryForChildIndex(index);
-                RenderBox child = this.insertAndLayoutLeadingChild(
-                    gridGeometry.getBoxConstraints(this.constraints)
+                RenderBox child = insertAndLayoutLeadingChild(
+                    gridGeometry.getBoxConstraints(constraints)
                 );
                 SliverGridParentData childParentData = child.parentData as SliverGridParentData;
                 childParentData.layoutOffset = gridGeometry.scrollOffset ?? 0.0f;
@@ -378,21 +378,21 @@ namespace com.unity.uiwidgets.Runtime.rendering {
             }
 
             if (trailingChildWithLayout == null) {
-                this.firstChild.layout(firstChildGridGeometry.getBoxConstraints(this.constraints));
-                SliverGridParentData childParentData = this.firstChild.parentData as SliverGridParentData;
+                firstChild.layout(firstChildGridGeometry.getBoxConstraints(constraints));
+                SliverGridParentData childParentData = firstChild.parentData as SliverGridParentData;
                 childParentData.layoutOffset = firstChildGridGeometry.scrollOffset ?? 0.0f;
                 childParentData.crossAxisOffset = firstChildGridGeometry.crossAxisOffset ?? 0.0f;
-                trailingChildWithLayout = this.firstChild;
+                trailingChildWithLayout = firstChild;
             }
 
-            for (int index = this.indexOf(trailingChildWithLayout) + 1;
+            for (int index = indexOf(trailingChildWithLayout) + 1;
                 targetLastIndex == null || index <= targetLastIndex;
                 ++index) {
                 SliverGridGeometry gridGeometry = layout.getGeometryForChildIndex(index);
-                BoxConstraints childConstraints = gridGeometry.getBoxConstraints(this.constraints);
-                RenderBox child = this.childAfter(trailingChildWithLayout);
+                BoxConstraints childConstraints = gridGeometry.getBoxConstraints(constraints);
+                RenderBox child = childAfter(trailingChildWithLayout);
                 if (child == null) {
-                    child = this.insertAndLayoutChild(childConstraints, after: trailingChildWithLayout);
+                    child = insertAndLayoutChild(childConstraints, after: trailingChildWithLayout);
                     if (child == null) {
                         break;
                     }
@@ -411,30 +411,30 @@ namespace com.unity.uiwidgets.Runtime.rendering {
                     Mathf.Max(trailingScrollOffset ?? 0.0f, gridGeometry.trailingScrollOffset ?? 0.0f);
             }
 
-            int lastIndex = this.indexOf(this.lastChild);
+            int lastIndex = indexOf(lastChild);
 
-            D.assert(this.childScrollOffset(this.firstChild) <= scrollOffset);
-            D.assert(this.debugAssertChildListIsNonEmptyAndContiguous());
-            D.assert(this.indexOf(this.firstChild) == firstIndex);
+            D.assert(childScrollOffset(firstChild) <= scrollOffset);
+            D.assert(debugAssertChildListIsNonEmptyAndContiguous());
+            D.assert(indexOf(firstChild) == firstIndex);
             D.assert(targetLastIndex == null || lastIndex <= targetLastIndex);
 
-            float estimatedTotalExtent = this.childManager.estimateMaxScrollOffset(this.constraints,
+            float estimatedTotalExtent = childManager.estimateMaxScrollOffset(constraints,
                 firstIndex: firstIndex,
                 lastIndex: lastIndex,
                 leadingScrollOffset: leadingScrollOffset ?? 0.0f,
                 trailingScrollOffset: trailingScrollOffset ?? 0.0f
             );
 
-            float paintExtent = this.calculatePaintOffset(this.constraints,
+            float paintExtent = calculatePaintOffset(constraints,
                 from: leadingScrollOffset ?? 0.0f,
                 to: trailingScrollOffset ?? 0.0f
             );
-            float cacheExtent = this.calculateCacheOffset(this.constraints,
+            float cacheExtent = calculateCacheOffset(constraints,
                 from: leadingScrollOffset ?? 0.0f,
                 to: trailingScrollOffset ?? 0.0f
             );
 
-            this.geometry = new SliverGeometry(
+            geometry = new SliverGeometry(
                 scrollExtent: estimatedTotalExtent,
                 paintExtent: paintExtent,
                 maxPaintExtent: estimatedTotalExtent,
@@ -443,10 +443,10 @@ namespace com.unity.uiwidgets.Runtime.rendering {
             );
 
             if (estimatedTotalExtent == trailingScrollOffset) {
-                this.childManager.setDidUnderflow(true);
+                childManager.setDidUnderflow(true);
             }
 
-            this.childManager.didFinishLayout();
+            childManager.didFinishLayout();
         }
     }
 }

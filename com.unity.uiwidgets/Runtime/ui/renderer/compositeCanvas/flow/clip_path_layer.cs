@@ -6,23 +6,23 @@ namespace Unity.UIWidgets.flow {
         Path _clipPath;
 
         public Path clipPath {
-            set { this._clipPath = value; }
+            set { _clipPath = value; }
         }
 
         public override void preroll(PrerollContext context, Matrix3 matrix) {
             var previousCullRect = context.cullRect;
 
-            var clipPathBounds = this._clipPath.getBounds();
+            var clipPathBounds = _clipPath.getBounds();
             context.cullRect = context.cullRect.intersect(clipPathBounds);
 
-            this.paintBounds = Rect.zero;
+            paintBounds = Rect.zero;
             if (!context.cullRect.isEmpty) {
                 var childPaintBounds = Rect.zero;
-                this.prerollChildren(context, matrix, ref childPaintBounds);
+                prerollChildren(context, matrix, ref childPaintBounds);
 
                 childPaintBounds = childPaintBounds.intersect(clipPathBounds);
                 if (!childPaintBounds.isEmpty) {
-                    this.paintBounds = childPaintBounds;
+                    paintBounds = childPaintBounds;
                 }
             }
 
@@ -30,15 +30,15 @@ namespace Unity.UIWidgets.flow {
         }
 
         public override void paint(PaintContext context) {
-            D.assert(this.needsPainting);
+            D.assert(needsPainting);
 
             var canvas = context.canvas;
 
             canvas.save();
-            canvas.clipPath(this._clipPath);
+            canvas.clipPath(_clipPath);
 
             try {
-                this.paintChildren(context);
+                paintChildren(context);
             }
             finally {
                 canvas.restore();

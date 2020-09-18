@@ -108,7 +108,7 @@ namespace Unity.UIWidgets.widgets {
         public AxisDirection axisDirection { get; private set; }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.extentBefore():F1})..[{this.extentInside():F1}]..{this.extentAfter():F1})";
+            return $"{GetType()}({this.extentBefore():F1})..[{this.extentInside():F1}]..{this.extentAfter():F1})";
         }
     }
 }

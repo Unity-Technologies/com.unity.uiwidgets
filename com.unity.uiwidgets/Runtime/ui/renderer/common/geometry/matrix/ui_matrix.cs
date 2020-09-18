@@ -64,47 +64,47 @@ namespace Unity.UIWidgets.ui {
         //private methods
         void _setScale(float sx, float sy) {
             if (1 == sx && 1 == sy) {
-                this.reset();
+                reset();
             }
             else {
-                this.kMScaleX = sx;
-                this.kMScaleY = sy;
-                this.kMPersp2 = 1;
+                kMScaleX = sx;
+                kMScaleY = sy;
+                kMPersp2 = 1;
 
-                this.kMTransX = this.kMTransY = this.kMSkewX =
-                    this.kMSkewY = this.kMPersp0 = this.kMPersp1 = 0;
+                kMTransX = kMTransY = kMSkewX =
+                    kMSkewY = kMPersp0 = kMPersp1 = 0;
 
-                this._setTypeMask((int) TypeMask.kScale_Mask | kRectStaysRect_Mask);
+                _setTypeMask((int) TypeMask.kScale_Mask | kRectStaysRect_Mask);
             }
         }
 
         void _setScale(float sx, float sy, float px, float py) {
             if (1 == sx && 1 == sy) {
-                this.reset();
+                reset();
             }
             else {
-                this._setScaleTranslate(sx, sy, px - sx * px, py - sy * py);
+                _setScaleTranslate(sx, sy, px - sx * px, py - sy * py);
             }
         }
 
         int _computeTypeMask() {
             int mask = 0;
 
-            if (this.kMPersp0 != 0 || this.kMPersp1 != 0 ||
-                this.kMPersp2 != 1) {
+            if (kMPersp0 != 0 || kMPersp1 != 0 ||
+                kMPersp2 != 1) {
                 // Once it is determined that that this is a perspective transform,
                 // all other flags are moot as far as optimizations are concerned.
                 return kORableMasks;
             }
 
-            if (this.kMTransX != 0 || this.kMTransY != 0) {
+            if (kMTransX != 0 || kMTransY != 0) {
                 mask |= (int) TypeMask.kTranslate_Mask;
             }
 
-            int m00 = uiScalarUtils.ScalarAs2sCompliment(this.kMScaleX);
-            int m01 = uiScalarUtils.ScalarAs2sCompliment(this.kMSkewX);
-            int m10 = uiScalarUtils.ScalarAs2sCompliment(this.kMSkewY);
-            int m11 = uiScalarUtils.ScalarAs2sCompliment(this.kMScaleY);
+            int m00 = uiScalarUtils.ScalarAs2sCompliment(kMScaleX);
+            int m01 = uiScalarUtils.ScalarAs2sCompliment(kMSkewX);
+            int m10 = uiScalarUtils.ScalarAs2sCompliment(kMSkewY);
+            int m11 = uiScalarUtils.ScalarAs2sCompliment(kMScaleY);
 
             if ((m01 != 0) | (m10 != 0)) {
                 mask |= (int) TypeMask.kAffine_Mask | (int) TypeMask.kScale_Mask;
@@ -133,29 +133,29 @@ namespace Unity.UIWidgets.ui {
 
 
         TypeMask _getType() {
-            if ((this.fTypeMask & kUnknown_Mask) != 0) {
-                this.fTypeMask = this._computeTypeMask();
+            if ((fTypeMask & kUnknown_Mask) != 0) {
+                fTypeMask = _computeTypeMask();
             }
 
             // only return the public masks
-            return (TypeMask) (this.fTypeMask & 0xF);
+            return (TypeMask) (fTypeMask & 0xF);
         }
 
         public void reset() {
-            this.kMScaleX = this.kMScaleY = this.kMPersp2 = 1;
+            kMScaleX = kMScaleY = kMPersp2 = 1;
 
-            this.kMSkewX = this.kMSkewY = this.kMTransX =
-                this.kMTransY = this.kMPersp0 = this.kMPersp1 = 0;
+            kMSkewX = kMSkewY = kMTransX =
+                kMTransY = kMPersp0 = kMPersp1 = 0;
 
-            this._setTypeMask((int) TypeMask.kIdentity_Mask | kRectStaysRect_Mask);
+            _setTypeMask((int) TypeMask.kIdentity_Mask | kRectStaysRect_Mask);
         }
 
         bool _isTriviallyIdentity() {
-            if ((this.fTypeMask & kUnknown_Mask) != 0) {
+            if ((fTypeMask & kUnknown_Mask) != 0) {
                 return false;
             }
 
-            return (this.fTypeMask & 0xF) == 0;
+            return (fTypeMask & 0xF) == 0;
         }
 
         void _setConcat(uiMatrix3 a, uiMatrix3 b) {
@@ -163,13 +163,13 @@ namespace Unity.UIWidgets.ui {
             TypeMask bType = b._getType();
 
             if (a._isTriviallyIdentity()) {
-                this.copyFrom(b);
+                copyFrom(b);
             }
             else if (b._isTriviallyIdentity()) {
-                this.copyFrom(a);
+                copyFrom(a);
             }
             else if (_only_scale_and_translate((int) aType | (int) bType)) {
-                this._setScaleTranslate(a.kMScaleX * b.kMScaleX,
+                _setScaleTranslate(a.kMScaleX * b.kMScaleX,
                     a.kMScaleY * b.kMScaleY,
                     a.kMScaleX * b.kMTransX + a.kMTransX,
                     a.kMScaleY * b.kMTransY + a.kMTransY);
@@ -227,23 +227,23 @@ namespace Unity.UIWidgets.ui {
                     tmp._setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
                 }
 
-                this.copyFrom(tmp);
+                copyFrom(tmp);
             }
         }
 
 
         void _setScaleTranslate(float sx, float sy, float tx, float ty) {
-            this.kMScaleX = sx;
-            this.kMSkewX = 0;
-            this.kMTransX = tx;
+            kMScaleX = sx;
+            kMSkewX = 0;
+            kMTransX = tx;
 
-            this.kMSkewY = 0;
-            this.kMScaleY = sy;
-            this.kMTransY = ty;
+            kMSkewY = 0;
+            kMScaleY = sy;
+            kMTransY = ty;
 
-            this.kMPersp0 = 0;
-            this.kMPersp1 = 0;
-            this.kMPersp2 = 1;
+            kMPersp0 = 0;
+            kMPersp1 = 0;
+            kMPersp2 = 1;
 
             int mask = 0;
             if (sx != 1 || sy != 1) {
@@ -254,31 +254,31 @@ namespace Unity.UIWidgets.ui {
                 mask |= (int) TypeMask.kTranslate_Mask;
             }
 
-            this._setTypeMask(mask | kRectStaysRect_Mask);
+            _setTypeMask(mask | kRectStaysRect_Mask);
         }
 
         void _setTypeMask(int mask) {
             D.assert(kUnknown_Mask == mask || (mask & kAllMasks) == mask ||
                      ((kUnknown_Mask | kOnlyPerspectiveValid_Mask) & mask) ==
                      (kUnknown_Mask | kOnlyPerspectiveValid_Mask));
-            this.fTypeMask = mask;
+            fTypeMask = mask;
         }
 
         void _orTypeMask(int mask) {
             D.assert((mask & kORableMasks) == mask);
-            this.fTypeMask |= mask;
+            fTypeMask |= mask;
         }
 
         void _clearTypeMask(int mask) {
             // only allow a valid mask
             D.assert((mask & kAllMasks) == mask);
-            this.fTypeMask &= ~mask;
+            fTypeMask &= ~mask;
         }
 
 
         int _computePerspectiveTypeMask() {
-            if (this.kMPersp0 != 0 || this.kMPersp1 != 0 ||
-                this.kMPersp2 != 1) {
+            if (kMPersp0 != 0 || kMPersp1 != 0 ||
+                kMPersp2 != 1) {
                 return kORableMasks;
             }
 
@@ -286,24 +286,24 @@ namespace Unity.UIWidgets.ui {
         }
 
         TypeMask _getPerspectiveTypeMaskOnly() {
-            if ((this.fTypeMask & kUnknown_Mask) != 0 &&
-                (this.fTypeMask & kOnlyPerspectiveValid_Mask) == 0) {
-                this.fTypeMask = this._computePerspectiveTypeMask();
+            if ((fTypeMask & kUnknown_Mask) != 0 &&
+                (fTypeMask & kOnlyPerspectiveValid_Mask) == 0) {
+                fTypeMask = _computePerspectiveTypeMask();
             }
 
-            return (TypeMask) (this.fTypeMask & 0xF);
+            return (TypeMask) (fTypeMask & 0xF);
         }
 
         bool _hasPerspective() {
-            return (this._getPerspectiveTypeMaskOnly() & TypeMask.kPerspective_Mask) != 0;
+            return (_getPerspectiveTypeMaskOnly() & TypeMask.kPerspective_Mask) != 0;
         }
 
         void _updateTranslateMask() {
-            if ((this.kMTransX != 0) | (this.kMTransY != 0)) {
-                this.fTypeMask |= (int) TypeMask.kTranslate_Mask;
+            if ((kMTransX != 0) | (kMTransY != 0)) {
+                fTypeMask |= (int) TypeMask.kTranslate_Mask;
             }
             else {
-                this.fTypeMask &= ~(int) TypeMask.kTranslate_Mask;
+                fTypeMask &= ~(int) TypeMask.kTranslate_Mask;
             }
         }
 
@@ -312,16 +312,16 @@ namespace Unity.UIWidgets.ui {
         }
 
         uiMatrix3? _invertNonIdentity(bool invertableCheck) {
-            D.assert(!this.isIdentity());
-            TypeMask mask = this._getType();
+            D.assert(!isIdentity());
+            TypeMask mask = _getType();
 
             if (0 == (mask & ~(TypeMask.kScale_Mask | TypeMask.kTranslate_Mask))) {
                 // bool invertible = true; // Fix warning: value is never used
 
                 if (!invertableCheck) {
                     if ((mask & TypeMask.kScale_Mask) != 0) {
-                        var invX = this.kMScaleX;
-                        var invY = this.kMScaleY;
+                        var invX = kMScaleX;
+                        var invY = kMScaleY;
                         if (0 == invX || 0 == invY) {
                             return null;
                         }
@@ -336,20 +336,20 @@ namespace Unity.UIWidgets.ui {
                         _inv.kMScaleX = invX;
                         _inv.kMScaleY = invY;
                         _inv.kMPersp2 = 1;
-                        _inv.kMTransX = -this.kMTransX * invX;
-                        _inv.kMTransY = -this.kMTransY * invY;
+                        _inv.kMTransX = -kMTransX * invX;
+                        _inv.kMTransY = -kMTransY * invY;
 
                         _inv._setTypeMask((int) mask | kRectStaysRect_Mask);
                         return _inv;
                     }
                     else {
                         var _inv = I();
-                        _inv.setTranslate(-this.kMTransX, -this.kMTransY);
+                        _inv.setTranslate(-kMTransX, -kMTransY);
                         return _inv;
                     }
                 }
                 else {
-                    if (this.kMScaleX == 0 || this.kMScaleY == 0) {
+                    if (kMScaleX == 0 || kMScaleY == 0) {
                         return null;
                     }
 
@@ -370,21 +370,21 @@ namespace Unity.UIWidgets.ui {
                 return null;
             }
 
-            inv._setTypeMask(this.fTypeMask);
+            inv._setTypeMask(fTypeMask);
             return inv;
         }
 
         public bool _isScaleTranslate() {
-            return (this._getType() & ~(TypeMask.kScale_Mask | TypeMask.kTranslate_Mask)) == 0;
+            return (_getType() & ~(TypeMask.kScale_Mask | TypeMask.kTranslate_Mask)) == 0;
         }
 
         public uiRect _mapRectScaleTranslate(uiRect src) {
-            D.assert(this._isScaleTranslate());
+            D.assert(_isScaleTranslate());
 
-            var sx = this.kMScaleX;
-            var sy = this.kMScaleY;
-            var tx = this.kMTransX;
-            var ty = this.kMTransY;
+            var sx = kMScaleX;
+            var sy = kMScaleY;
+            var tx = kMTransX;
+            var ty = kMTransY;
 
             var dst = uiRectHelper.fromLTRB(
                 src.left * sx + tx,
@@ -402,141 +402,141 @@ namespace Unity.UIWidgets.ui {
     public partial struct uiMatrix3 {
         //public methods  
         public uiMatrix3(uiMatrix3 other) {
-            this.kMScaleX = other.kMScaleX;
-            this.kMSkewX = other.kMSkewX;
-            this.kMTransX = other.kMTransX;
-            this.kMSkewY = other.kMSkewY;
-            this.kMScaleY = other.kMScaleY;
+            kMScaleX = other.kMScaleX;
+            kMSkewX = other.kMSkewX;
+            kMTransX = other.kMTransX;
+            kMSkewY = other.kMSkewY;
+            kMScaleY = other.kMScaleY;
 
-            this.kMTransY = other.kMTransY;
+            kMTransY = other.kMTransY;
 
-            this.kMPersp0 = other.kMPersp0;
+            kMPersp0 = other.kMPersp0;
 
-            this.kMPersp1 = other.kMPersp1;
-            this.kMPersp2 = other.kMPersp2;
-            this.fTypeMask = other.fTypeMask;
+            kMPersp1 = other.kMPersp1;
+            kMPersp2 = other.kMPersp2;
+            fTypeMask = other.fTypeMask;
         }
 
 
         public void copyFrom(uiMatrix3 other) {
-            this.kMScaleX = other.kMScaleX;
-            this.kMSkewX = other.kMSkewX;
-            this.kMTransX = other.kMTransX;
-            this.kMSkewY = other.kMSkewY;
-            this.kMScaleY = other.kMScaleY;
+            kMScaleX = other.kMScaleX;
+            kMSkewX = other.kMSkewX;
+            kMTransX = other.kMTransX;
+            kMSkewY = other.kMSkewY;
+            kMScaleY = other.kMScaleY;
 
-            this.kMTransY = other.kMTransY;
+            kMTransY = other.kMTransY;
 
-            this.kMPersp0 = other.kMPersp0;
+            kMPersp0 = other.kMPersp0;
 
-            this.kMPersp1 = other.kMPersp1;
+            kMPersp1 = other.kMPersp1;
 
-            this.kMPersp2 = other.kMPersp2;
-            this.fTypeMask = other.fTypeMask;
+            kMPersp2 = other.kMPersp2;
+            fTypeMask = other.fTypeMask;
         }
 
 
         public bool isIdentity() {
-            return this._getType() == 0;
+            return _getType() == 0;
         }
 
         public float getScaleX() {
-            return this.kMScaleX;
+            return kMScaleX;
         }
 
         public float getScaleY() {
-            return this.kMScaleY;
+            return kMScaleY;
         }
 
         public float getSkewY() {
-            return this.kMSkewY;
+            return kMSkewY;
         }
 
         public float getSkewX() {
-            return this.kMSkewX;
+            return kMSkewX;
         }
 
         public float getTranslateX() {
-            return this.kMTransX;
+            return kMTransX;
         }
 
         public float getTranslateY() {
-            return this.kMTransY;
+            return kMTransY;
         }
 
         public float getPerspX() {
-            return this.kMPersp0;
+            return kMPersp0;
         }
 
         public float getPerspY() {
-            return this.kMPersp1;
+            return kMPersp1;
         }
 
         public void postConcat(uiMatrix3 mat) {
             if (!mat.isIdentity()) {
-                this._setConcat(mat, this);
+                _setConcat(mat, this);
             }
         }
 
         public void setSinCos(float sinV, float cosV, float px, float py) {
             var oneMinusCosV = 1 - cosV;
 
-            this.kMScaleX = cosV;
-            this.kMSkewX = -sinV;
-            this.kMTransX = uiScalarUtils.sdot(sinV, py, oneMinusCosV, px);
+            kMScaleX = cosV;
+            kMSkewX = -sinV;
+            kMTransX = uiScalarUtils.sdot(sinV, py, oneMinusCosV, px);
 
-            this.kMSkewY = sinV;
-            this.kMScaleY = cosV;
-            this.kMTransY = uiScalarUtils.sdot(-sinV, px, oneMinusCosV, py);
+            kMSkewY = sinV;
+            kMScaleY = cosV;
+            kMTransY = uiScalarUtils.sdot(-sinV, px, oneMinusCosV, py);
 
-            this.kMPersp0 = this.kMPersp1 = 0;
-            this.kMPersp2 = 1;
+            kMPersp0 = kMPersp1 = 0;
+            kMPersp2 = 1;
 
-            this._setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
+            _setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
         }
 
         public void setSinCos(float sinV, float cosV) {
-            this.kMScaleX = cosV;
-            this.kMSkewX = -sinV;
-            this.kMTransX = 0;
+            kMScaleX = cosV;
+            kMSkewX = -sinV;
+            kMTransX = 0;
 
-            this.kMSkewY = sinV;
-            this.kMScaleY = cosV;
-            this.kMTransY = 0;
+            kMSkewY = sinV;
+            kMScaleY = cosV;
+            kMTransY = 0;
 
-            this.kMPersp0 = this.kMPersp1 = 0;
-            this.kMPersp2 = 1;
+            kMPersp0 = kMPersp1 = 0;
+            kMPersp2 = 1;
 
-            this._setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
+            _setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
         }
 
         public void setTranslate(float dx, float dy) {
             if ((dx != 0) | (dy != 0)) {
-                this.kMTransX = dx;
-                this.kMTransY = dy;
+                kMTransX = dx;
+                kMTransY = dy;
 
-                this.kMScaleX = this.kMScaleY = this.kMPersp2 = 1;
-                this.kMSkewX = this.kMSkewY =
-                    this.kMPersp0 = this.kMPersp1 = 0;
+                kMScaleX = kMScaleY = kMPersp2 = 1;
+                kMSkewX = kMSkewY =
+                    kMPersp0 = kMPersp1 = 0;
 
-                this._setTypeMask((int) TypeMask.kTranslate_Mask | kRectStaysRect_Mask);
+                _setTypeMask((int) TypeMask.kTranslate_Mask | kRectStaysRect_Mask);
             }
             else {
-                this.reset();
+                reset();
             }
         }
 
 
         public void postTranslate(float dx, float dy) {
-            if (this._hasPerspective()) {
+            if (_hasPerspective()) {
                 var m = new uiMatrix3();
                 m.setTranslate(dx, dy);
-                this.postConcat(m);
+                postConcat(m);
             }
             else {
-                this.kMTransX += dx;
-                this.kMTransY += dy;
-                this._updateTranslateMask();
+                kMTransX += dx;
+                kMTransY += dy;
+                _updateTranslateMask();
             }
         }
 
@@ -547,29 +547,29 @@ namespace Unity.UIWidgets.ui {
 
             var m = new uiMatrix3();
             m._setScale(sx, sy);
-            this.postConcat(m);
+            postConcat(m);
         }
 
         public bool rectStaysRect() {
-            if ((this.fTypeMask & kUnknown_Mask) != 0) {
-                this.fTypeMask = this._computeTypeMask();
+            if ((fTypeMask & kUnknown_Mask) != 0) {
+                fTypeMask = _computeTypeMask();
             }
 
-            return (this.fTypeMask & kRectStaysRect_Mask) != 0;
+            return (fTypeMask & kRectStaysRect_Mask) != 0;
         }
 
         public uiMatrix3? invert(bool invertableCheck = false) {
-            if (this.isIdentity()) {
+            if (isIdentity()) {
                 return I();
             }
 
-            return this._invertNonIdentity(invertableCheck);
+            return _invertNonIdentity(invertableCheck);
         }
 
         public uiRect mapRect(uiRect src) {
-            if (this._getType() <= TypeMask.kTranslate_Mask) {
-                var tx = this.kMTransX;
-                var ty = this.kMTransY;
+            if (_getType() <= TypeMask.kTranslate_Mask) {
+                var tx = kMTransX;
+                var ty = kMTransY;
 
                 var dst = uiRectHelper.fromLTRB(
                     src.left + tx,
@@ -581,15 +581,15 @@ namespace Unity.UIWidgets.ui {
                 return dst;
             }
 
-            if (this._isScaleTranslate()) {
-                return this._mapRectScaleTranslate(src);
+            if (_isScaleTranslate()) {
+                return _mapRectScaleTranslate(src);
             }
             else {
                 float x1, y1, x2, y2, x3, y3, x4, y4;
-                this.mapXY(src.left, src.top, out x1, out y1);
-                this.mapXY(src.right, src.top, out x2, out y2);
-                this.mapXY(src.right, src.bottom, out x3, out y3);
-                this.mapXY(src.left, src.bottom, out x4, out y4);
+                mapXY(src.left, src.top, out x1, out y1);
+                mapXY(src.right, src.top, out x2, out y2);
+                mapXY(src.right, src.bottom, out x3, out y3);
+                mapXY(src.left, src.bottom, out x4, out y4);
 
                 var minX = x1;
                 var minY = y1;
@@ -650,51 +650,51 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void mapXY(float x, float y, out float x1, out float y1) {
-            this._getMapXYProc()(this, x, y, out x1, out y1);
+            _getMapXYProc()(this, x, y, out x1, out y1);
         }
 
         public Matrix4x4 toMatrix4x4() {
             var matrix = Matrix4x4.identity;
 
-            matrix[0, 0] = this.kMScaleX; // row 0
-            matrix[0, 1] = this.kMSkewX;
-            matrix[0, 3] = this.kMTransX;
+            matrix[0, 0] = kMScaleX; // row 0
+            matrix[0, 1] = kMSkewX;
+            matrix[0, 3] = kMTransX;
 
-            matrix[1, 0] = this.kMSkewY; // row 1
-            matrix[1, 1] = this.kMScaleY;
-            matrix[1, 3] = this.kMTransY;
+            matrix[1, 0] = kMSkewY; // row 1
+            matrix[1, 1] = kMScaleY;
+            matrix[1, 3] = kMTransY;
 
-            matrix[3, 0] = this.kMPersp0; // row 2
-            matrix[3, 1] = this.kMPersp1;
-            matrix[3, 3] = this.kMPersp2;
+            matrix[3, 0] = kMPersp0; // row 2
+            matrix[3, 1] = kMPersp1;
+            matrix[3, 3] = kMPersp2;
 
             return matrix;
         }
 
         public void preTranslate(float dx, float dy) {
-            var mask = this._getType();
+            var mask = _getType();
 
             if (mask <= TypeMask.kTranslate_Mask) {
-                this.kMTransX += dx;
-                this.kMTransY += dy;
+                kMTransX += dx;
+                kMTransY += dy;
             }
             else if ((mask & TypeMask.kPerspective_Mask) != 0) {
                 var m = new uiMatrix3();
                 m.setTranslate(dx, dy);
-                this.preConcat(m);
+                preConcat(m);
                 return;
             }
             else {
-                this.kMTransX += this.kMScaleX * dx + this.kMSkewX * dy;
-                this.kMTransY += this.kMSkewY * dx + this.kMScaleY * dy;
+                kMTransX += kMScaleX * dx + kMSkewX * dy;
+                kMTransY += kMSkewY * dx + kMScaleY * dy;
             }
 
-            this._updateTranslateMask();
+            _updateTranslateMask();
         }
 
         public void preConcat(uiMatrix3 other) {
             if (!other.isIdentity()) {
-                this._setConcat(this, other);
+                _setConcat(this, other);
             }
         }
 
@@ -705,7 +705,7 @@ namespace Unity.UIWidgets.ui {
 
             var m = new uiMatrix3();
             m.setScale(sx, sy, px, py);
-            this.preConcat(m);
+            preConcat(m);
         }
 
         public void preScale(float sx, float sy) {
@@ -713,48 +713,48 @@ namespace Unity.UIWidgets.ui {
                 return;
             }
 
-            this.kMScaleX *= sx;
-            this.kMSkewY *= sx;
-            this.kMPersp0 *= sx;
+            kMScaleX *= sx;
+            kMSkewY *= sx;
+            kMPersp0 *= sx;
 
-            this.kMSkewX *= sy;
-            this.kMScaleY *= sy;
-            this.kMPersp1 *= sy;
+            kMSkewX *= sy;
+            kMScaleY *= sy;
+            kMPersp1 *= sy;
 
-            if (this.kMScaleX == 1 && this.kMScaleY == 1 && (this.fTypeMask &
+            if (kMScaleX == 1 && kMScaleY == 1 && (fTypeMask &
                                                              (int) (TypeMask.kPerspective_Mask | TypeMask.kAffine_Mask)
                 ) == 0) {
-                this._clearTypeMask((int) TypeMask.kScale_Mask);
+                _clearTypeMask((int) TypeMask.kScale_Mask);
             }
             else {
-                this._orTypeMask((int) TypeMask.kScale_Mask);
+                _orTypeMask((int) TypeMask.kScale_Mask);
             }
         }
 
         public void preRotate(float radians, float px, float py) {
             var m = new uiMatrix3();
             m.setRotate(radians, px, py);
-            this.preConcat(m);
+            preConcat(m);
         }
 
         public void preRotate(float radians) {
             var m = new uiMatrix3();
             m.setRotate(radians);
-            this.preConcat(m);
+            preConcat(m);
         }
 
         public void preSkew(float kx, float ky) {
             var m = new uiMatrix3();
             m.setSkew(kx, ky);
-            this.preConcat(m);
+            preConcat(m);
         }
 
         public void setScale(float sx, float sy, float px, float py) {
             if (1 == sx && 1 == sy) {
-                this.reset();
+                reset();
             }
             else {
-                this._setScaleTranslate(sx, sy, px - sx * px, py - sy * py);
+                _setScaleTranslate(sx, sy, px - sx * px, py - sy * py);
             }
         }
     }

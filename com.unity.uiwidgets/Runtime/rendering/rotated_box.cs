@@ -15,79 +15,79 @@ namespace UIWidgets.Runtime.rendering {
             RenderBox child = null
         ) {
             this.child = child;
-            this._quarterTurns = quarterTurns;
+            _quarterTurns = quarterTurns;
         }
 
         public int quarterTurns {
-            get { return this._quarterTurns; }
+            get { return _quarterTurns; }
             set {
-                if (this._quarterTurns == value) {
+                if (_quarterTurns == value) {
                     return;
                 }
 
-                this._quarterTurns = value;
-                this.markNeedsLayout();
+                _quarterTurns = value;
+                markNeedsLayout();
             }
         }
 
         int _quarterTurns;
 
         bool _isVertical {
-            get { return this.quarterTurns % 2 == 1; }
+            get { return quarterTurns % 2 == 1; }
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            if (this.child == null) {
+            if (child == null) {
                 return 0.0f;
             }
 
-            return this._isVertical
-                ? this.child.getMinIntrinsicHeight(height)
-                : this.child.getMinIntrinsicWidth(height);
+            return _isVertical
+                ? child.getMinIntrinsicHeight(height)
+                : child.getMinIntrinsicWidth(height);
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            if (this.child == null) {
+            if (child == null) {
                 return 0.0f;
             }
 
-            return this._isVertical
-                ? this.child.getMaxIntrinsicHeight(height)
-                : this.child.getMaxIntrinsicWidth(height);
+            return _isVertical
+                ? child.getMaxIntrinsicHeight(height)
+                : child.getMaxIntrinsicWidth(height);
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            if (this.child == null) {
+            if (child == null) {
                 return 0.0f;
             }
 
-            return this._isVertical ? this.child.getMinIntrinsicWidth(width) : this.child.getMinIntrinsicHeight(width);
+            return _isVertical ? child.getMinIntrinsicWidth(width) : child.getMinIntrinsicHeight(width);
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this.child == null) {
+            if (child == null) {
                 return 0.0f;
             }
 
-            return this._isVertical ? this.child.getMaxIntrinsicWidth(width) : this.child.getMaxIntrinsicHeight(width);
+            return _isVertical ? child.getMaxIntrinsicWidth(width) : child.getMaxIntrinsicHeight(width);
         }
 
         Matrix3 _paintTransform;
 
         protected override void performLayout() {
-            this._paintTransform = null;
-            if (this.child != null) {
-                this.child.layout(this._isVertical ? this.constraints.flipped : this.constraints, parentUsesSize: true);
-                this.size = this._isVertical
-                    ? new Size(this.child.size.height, this.child.size.width)
-                    : this.child.size;
-                this._paintTransform = Matrix3.I();
-                this._paintTransform.preTranslate(this.size.width / 2.0f, this.size.height / 2.0f);
-                this._paintTransform.preRotate(RotatedBoxUtils._kQuarterTurnsInRadians * (this.quarterTurns % 4));
-                this._paintTransform.preTranslate(-this.child.size.width / 2.0f, -this.child.size.height / 2.0f);
+            _paintTransform = null;
+            if (child != null) {
+                child.layout(_isVertical ? constraints.flipped : constraints, parentUsesSize: true);
+                size = _isVertical
+                    ? new Size(child.size.height, child.size.width)
+                    : child.size;
+                _paintTransform = Matrix3.I();
+                _paintTransform.preTranslate(size.width / 2.0f, size.height / 2.0f);
+                _paintTransform.preRotate(RotatedBoxUtils._kQuarterTurnsInRadians * (quarterTurns % 4));
+                _paintTransform.preTranslate(-child.size.width / 2.0f, -child.size.height / 2.0f);
             }
             else {
-                this.performResize();
+                performResize();
             }
         }
 
@@ -95,30 +95,30 @@ namespace UIWidgets.Runtime.rendering {
             HitTestResult result,
             Offset position = null
         ) {
-            D.assert(this._paintTransform != null || this.debugNeedsLayout || this.child == null);
-            if (this.child == null || this._paintTransform == null) {
+            D.assert(_paintTransform != null || debugNeedsLayout || child == null);
+            if (child == null || _paintTransform == null) {
                 return false;
             }
 
 
             Matrix3 inverse = Matrix3.I();
-            this._paintTransform.invert(inverse);
-            return this.child.hitTest(result, position: inverse.mapPoint(position));
+            _paintTransform.invert(inverse);
+            return child.hitTest(result, position: inverse.mapPoint(position));
         }
 
         void _paintChild(PaintingContext context, Offset offset) {
-            context.paintChild(this.child, offset);
+            context.paintChild(child, offset);
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                context.pushTransform(this.needsCompositing, offset, this._paintTransform, this._paintChild);
+            if (child != null) {
+                context.pushTransform(needsCompositing, offset, _paintTransform, _paintChild);
             }
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            if (this._paintTransform != null) {
-                transform.preConcat(this._paintTransform);
+            if (_paintTransform != null) {
+                transform.preConcat(_paintTransform);
             }
 
             base.applyPaintTransform(child, transform);

@@ -178,7 +178,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly NavigatorState navigator;
 
         public override string ToString() {
-            return $"Default Hero tag for Cupertino navigation bars with navigator {this.navigator}";
+            return $"Default Hero tag for Cupertino navigation bars with navigator {navigator}";
         }
 
         public bool Equals(_HeroTag other) {
@@ -190,7 +190,7 @@ namespace Unity.UIWidgets.cupertino {
                 return true;
             }
 
-            return this.navigator == other.navigator;
+            return navigator == other.navigator;
         }
 
         public override bool Equals(object obj) {
@@ -202,15 +202,15 @@ namespace Unity.UIWidgets.cupertino {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_HeroTag) obj);
+            return Equals((_HeroTag) obj);
         }
 
         public override int GetHashCode() {
-            return this.navigator.GetHashCode();
+            return navigator.GetHashCode();
         }
 
         public static bool operator ==(_HeroTag left, _HeroTag right) {
@@ -290,7 +290,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly object heroTag;
 
         public override bool? fullObstruction {
-            get { return this.backgroundColor == null ? null : (bool?) (this.backgroundColor.alpha == 0xFF); }
+            get { return backgroundColor == null ? null : (bool?) (backgroundColor.alpha == 0xFF); }
         }
 
         public override Size preferredSize {
@@ -307,64 +307,64 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this.keys = new _NavigationBarStaticComponentsKeys();
+            keys = new _NavigationBarStaticComponentsKeys();
         }
 
         public override Widget build(BuildContext context) {
-            Color backgroundColor = this.widget.backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor;
+            Color backgroundColor = widget.backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor;
 
             _NavigationBarStaticComponents components = new _NavigationBarStaticComponents(
-                keys: this.keys,
+                keys: keys,
                 route: ModalRoute.of(context),
-                userLeading: this.widget.leading,
-                automaticallyImplyLeading: this.widget.automaticallyImplyLeading,
-                automaticallyImplyTitle: this.widget.automaticallyImplyMiddle,
-                previousPageTitle: this.widget.previousPageTitle,
-                userMiddle: this.widget.middle,
-                userTrailing: this.widget.trailing,
-                padding: this.widget.padding,
+                userLeading: widget.leading,
+                automaticallyImplyLeading: widget.automaticallyImplyLeading,
+                automaticallyImplyTitle: widget.automaticallyImplyMiddle,
+                previousPageTitle: widget.previousPageTitle,
+                userMiddle: widget.middle,
+                userTrailing: widget.trailing,
+                padding: widget.padding,
                 userLargeTitle: null,
                 large: false
             );
 
             Widget navBar = NavBarUtils._wrapWithBackground(
-                border: this.widget.border,
+                border: widget.border,
                 backgroundColor: backgroundColor,
                 child: new DefaultTextStyle(
                     style: CupertinoTheme.of(context).textTheme.textStyle,
                     child: new _PersistentNavigationBar(
                         components: components,
-                        padding: this.widget.padding
+                        padding: widget.padding
                     )
                 )
             );
 
-            if (!this.widget.transitionBetweenRoutes || !NavBarUtils._isTransitionable(context)) {
-                return NavBarUtils._wrapActiveColor(this.widget.actionsForegroundColor, context,
+            if (!widget.transitionBetweenRoutes || !NavBarUtils._isTransitionable(context)) {
+                return NavBarUtils._wrapActiveColor(widget.actionsForegroundColor, context,
                     navBar); // ignore: deprecated_member_use_from_same_package
             }
 
             return NavBarUtils._wrapActiveColor(
-                this.widget.actionsForegroundColor, // ignore: deprecated_member_use_from_same_package
+                widget.actionsForegroundColor, // ignore: deprecated_member_use_from_same_package
                 context,
                 new Builder(
                     builder: (BuildContext _context) => {
                         return new Hero(
-                            tag: this.widget.heroTag as _HeroTag == NavBarUtils._defaultHeroTag
+                            tag: widget.heroTag as _HeroTag == NavBarUtils._defaultHeroTag
                                 ? new _HeroTag(Navigator.of(_context))
-                                : this.widget.heroTag,
+                                : widget.heroTag,
                             createRectTween: NavBarUtils._linearTranslateWithLargestRectSizeTween,
                             placeholderBuilder: NavBarUtils._navBarHeroLaunchPadBuilder,
                             flightShuttleBuilder: NavBarUtils._navBarHeroFlightShuttleBuilder,
                             transitionOnUserGestures: true,
                             child: new _TransitionableNavigationBar(
-                                componentsKeys: this.keys,
+                                componentsKeys: keys,
                                 backgroundColor: backgroundColor,
                                 backButtonTextStyle: CupertinoTheme.of(_context).textTheme.navActionTextStyle,
                                 titleTextStyle: CupertinoTheme.of(_context).textTheme.navTitleTextStyle,
                                 largeTitleTextStyle: null,
-                                border: this.widget.border,
-                                hasUserMiddle: this.widget.middle != null,
+                                border: widget.border,
+                                hasUserMiddle: widget.middle != null,
                                 largeExpanded: false,
                                 child: navBar
                             )
@@ -440,7 +440,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly object heroTag;
 
         public bool opaque {
-            get { return this.backgroundColor.alpha == 0xFF; }
+            get { return backgroundColor.alpha == 0xFF; }
         }
 
         public override State createState() {
@@ -453,45 +453,45 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this.keys = new _NavigationBarStaticComponentsKeys();
+            keys = new _NavigationBarStaticComponentsKeys();
         }
 
         public override Widget build(BuildContext context) {
             Color actionsForegroundColor =
-                this.widget.actionsForegroundColor ??
+                widget.actionsForegroundColor ??
                 CupertinoTheme.of(context).primaryColor; // ignore: deprecated_member_use_from_same_package
 
             _NavigationBarStaticComponents components = new _NavigationBarStaticComponents(
-                keys: this.keys,
+                keys: keys,
                 route: ModalRoute.of(context),
-                userLeading: this.widget.leading,
-                automaticallyImplyLeading: this.widget.automaticallyImplyLeading,
-                automaticallyImplyTitle: this.widget.automaticallyImplyTitle,
-                previousPageTitle: this.widget.previousPageTitle,
-                userMiddle: this.widget.middle,
-                userTrailing: this.widget.trailing,
-                userLargeTitle: this.widget.largeTitle,
-                padding: this.widget.padding,
+                userLeading: widget.leading,
+                automaticallyImplyLeading: widget.automaticallyImplyLeading,
+                automaticallyImplyTitle: widget.automaticallyImplyTitle,
+                previousPageTitle: widget.previousPageTitle,
+                userMiddle: widget.middle,
+                userTrailing: widget.trailing,
+                userLargeTitle: widget.largeTitle,
+                padding: widget.padding,
                 large: true
             );
 
             return NavBarUtils._wrapActiveColor(
-                this.widget.actionsForegroundColor, // ignore: deprecated_member_use_from_same_package
+                widget.actionsForegroundColor, // ignore: deprecated_member_use_from_same_package
                 context,
                 new SliverPersistentHeader(
                     pinned: true, // iOS navigation bars are always pinned.
                     del: new _LargeTitleNavigationBarSliverDelegate(
-                        keys: this.keys,
+                        keys: keys,
                         components: components,
-                        userMiddle: this.widget.middle,
-                        backgroundColor: this.widget.backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor,
-                        border: this.widget.border,
-                        padding: this.widget.padding,
+                        userMiddle: widget.middle,
+                        backgroundColor: widget.backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor,
+                        border: widget.border,
+                        padding: widget.padding,
                         actionsForegroundColor: actionsForegroundColor,
-                        transitionBetweenRoutes: this.widget.transitionBetweenRoutes,
-                        heroTag: this.widget.heroTag,
+                        transitionBetweenRoutes: widget.transitionBetweenRoutes,
+                        heroTag: widget.heroTag,
                         persistentHeight: NavBarUtils._kNavBarPersistentHeight + MediaQuery.of(context).padding.top,
-                        alwaysShowMiddle: this.widget.middle != null
+                        alwaysShowMiddle: widget.middle != null
                     )
                 )
             );
@@ -539,34 +539,34 @@ namespace Unity.UIWidgets.cupertino {
         public readonly bool alwaysShowMiddle;
 
         public override float? minExtent {
-            get { return this.persistentHeight; }
+            get { return persistentHeight; }
         }
 
         public override float? maxExtent {
-            get { return this.persistentHeight + NavBarUtils._kNavBarLargeTitleHeightExtension; }
+            get { return persistentHeight + NavBarUtils._kNavBarLargeTitleHeightExtension; }
         }
 
         public override Widget build(BuildContext context, float shrinkOffset, bool overlapsContent) {
             bool showLargeTitle =
-                shrinkOffset < this.maxExtent - this.minExtent - NavBarUtils._kNavBarShowLargeTitleThreshold;
+                shrinkOffset < maxExtent - minExtent - NavBarUtils._kNavBarShowLargeTitleThreshold;
 
             _PersistentNavigationBar persistentNavigationBar =
                 new _PersistentNavigationBar(
-                    components: this.components,
-                    padding: this.padding,
-                    middleVisible: this.alwaysShowMiddle ? null : (bool?) !showLargeTitle
+                    components: components,
+                    padding: padding,
+                    middleVisible: alwaysShowMiddle ? null : (bool?) !showLargeTitle
                 );
 
             Widget navBar = NavBarUtils._wrapWithBackground(
-                border: this.border,
-                backgroundColor: this.backgroundColor,
+                border: border,
+                backgroundColor: backgroundColor,
                 child: new DefaultTextStyle(
                     style: CupertinoTheme.of(context).textTheme.textStyle,
                     child: new Stack(
                         fit: StackFit.expand,
                         children: new List<Widget> {
                             new Positioned(
-                                top: this.persistentHeight,
+                                top: persistentHeight,
                                 left: 0.0f,
                                 right: 0.0f,
                                 bottom: 0.0f,
@@ -591,7 +591,7 @@ namespace Unity.UIWidgets.cupertino {
                                                             .navLargeTitleTextStyle,
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis,
-                                                        child: this.components.largeTitle
+                                                        child: components.largeTitle
                                                     )
                                                 )
                                             )
@@ -610,26 +610,26 @@ namespace Unity.UIWidgets.cupertino {
                 )
             );
 
-            if (!this.transitionBetweenRoutes || !NavBarUtils._isTransitionable(context)) {
+            if (!transitionBetweenRoutes || !NavBarUtils._isTransitionable(context)) {
                 return navBar;
             }
 
             return new Hero(
-                tag: this.heroTag as _HeroTag == NavBarUtils._defaultHeroTag
+                tag: heroTag as _HeroTag == NavBarUtils._defaultHeroTag
                     ? new _HeroTag(Navigator.of(context))
-                    : this.heroTag,
+                    : heroTag,
                 createRectTween: NavBarUtils._linearTranslateWithLargestRectSizeTween,
                 flightShuttleBuilder: NavBarUtils._navBarHeroFlightShuttleBuilder,
                 placeholderBuilder: NavBarUtils._navBarHeroLaunchPadBuilder,
                 transitionOnUserGestures: true,
                 child: new _TransitionableNavigationBar(
-                    componentsKeys: this.keys,
-                    backgroundColor: this.backgroundColor,
+                    componentsKeys: keys,
+                    backgroundColor: backgroundColor,
                     backButtonTextStyle: CupertinoTheme.of(context).textTheme.navActionTextStyle,
                     titleTextStyle: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
                     largeTitleTextStyle: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
-                    border: this.border,
-                    hasUserMiddle: this.userMiddle != null,
+                    border: border,
+                    hasUserMiddle: userMiddle != null,
                     largeExpanded: showLargeTitle,
                     child: navBar
                 )
@@ -638,16 +638,16 @@ namespace Unity.UIWidgets.cupertino {
 
         public override bool shouldRebuild(SliverPersistentHeaderDelegate _oldDelegate) {
             _LargeTitleNavigationBarSliverDelegate oldDelegate = _oldDelegate as _LargeTitleNavigationBarSliverDelegate;
-            return this.components != oldDelegate.components
-                   || this.userMiddle != oldDelegate.userMiddle
-                   || this.backgroundColor != oldDelegate.backgroundColor
-                   || this.border != oldDelegate.border
-                   || this.padding != oldDelegate.padding
-                   || this.actionsForegroundColor != oldDelegate.actionsForegroundColor
-                   || this.transitionBetweenRoutes != oldDelegate.transitionBetweenRoutes
-                   || this.persistentHeight != oldDelegate.persistentHeight
-                   || this.alwaysShowMiddle != oldDelegate.alwaysShowMiddle
-                   || this.heroTag != oldDelegate.heroTag;
+            return components != oldDelegate.components
+                   || userMiddle != oldDelegate.userMiddle
+                   || backgroundColor != oldDelegate.backgroundColor
+                   || border != oldDelegate.border
+                   || padding != oldDelegate.padding
+                   || actionsForegroundColor != oldDelegate.actionsForegroundColor
+                   || transitionBetweenRoutes != oldDelegate.transitionBetweenRoutes
+                   || persistentHeight != oldDelegate.persistentHeight
+                   || alwaysShowMiddle != oldDelegate.alwaysShowMiddle
+                   || heroTag != oldDelegate.heroTag;
         }
     }
 
@@ -669,7 +669,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly bool middleVisible;
 
         public override Widget build(BuildContext context) {
-            Widget middle = this.components.middle;
+            Widget middle = components.middle;
 
             if (middle != null) {
                 middle = new DefaultTextStyle(
@@ -677,15 +677,15 @@ namespace Unity.UIWidgets.cupertino {
                     child: middle
                 );
                 middle = new AnimatedOpacity(
-                    opacity: this.middleVisible ? 1.0f : 0.0f,
+                    opacity: middleVisible ? 1.0f : 0.0f,
                     duration: NavBarUtils._kNavBarTitleFadeDuration,
                     child: middle
                 );
             }
 
-            Widget leading = this.components.leading;
-            Widget backChevron = this.components.backChevron;
-            Widget backLabel = this.components.backLabel;
+            Widget leading = components.leading;
+            Widget backChevron = components.backChevron;
+            Widget backLabel = components.backLabel;
 
             if (leading == null && backChevron != null && backLabel != null) {
                 leading = CupertinoNavigationBarBackButton._assemble(
@@ -697,16 +697,16 @@ namespace Unity.UIWidgets.cupertino {
             Widget paddedToolbar = new NavigationToolbar(
                 leading: leading,
                 middle: middle,
-                trailing: this.components.trailing,
+                trailing: components.trailing,
                 centerMiddle: true,
                 middleSpacing: 6.0f
             );
 
-            if (this.padding != null) {
+            if (padding != null) {
                 paddedToolbar = new Padding(
                     padding: EdgeInsets.only(
-                        top: this.padding.top,
-                        bottom: this.padding.bottom
+                        top: padding.top,
+                        bottom: padding.bottom
                     ),
                     child: paddedToolbar
                 );
@@ -724,13 +724,13 @@ namespace Unity.UIWidgets.cupertino {
 
     class _NavigationBarStaticComponentsKeys {
         public _NavigationBarStaticComponentsKeys() {
-            this.navBarBoxKey = GlobalKey.key(debugLabel: "Navigation bar render box");
-            this.leadingKey = GlobalKey.key(debugLabel: "Leading");
-            this.backChevronKey = GlobalKey.key(debugLabel: "Back chevron");
-            this.backLabelKey = GlobalKey.key(debugLabel: "Back label");
-            this.middleKey = GlobalKey.key(debugLabel: "Middle");
-            this.trailingKey = GlobalKey.key(debugLabel: "Trailing");
-            this.largeTitleKey = GlobalKey.key(debugLabel: "Large title");
+            navBarBoxKey = GlobalKey.key(debugLabel: "Navigation bar render box");
+            leadingKey = GlobalKey.key(debugLabel: "Leading");
+            backChevronKey = GlobalKey.key(debugLabel: "Back chevron");
+            backLabelKey = GlobalKey.key(debugLabel: "Back label");
+            middleKey = GlobalKey.key(debugLabel: "Middle");
+            trailingKey = GlobalKey.key(debugLabel: "Trailing");
+            largeTitleKey = GlobalKey.key(debugLabel: "Large title");
         }
 
         public readonly GlobalKey navBarBoxKey;
@@ -756,27 +756,27 @@ namespace Unity.UIWidgets.cupertino {
             EdgeInsets padding,
             bool large
         ) {
-            this.leading = createLeading(
+            leading = createLeading(
                 leadingKey: keys.leadingKey,
                 userLeading: userLeading,
                 route: route,
                 automaticallyImplyLeading: automaticallyImplyLeading,
                 padding: padding
             );
-            this.backChevron = createBackChevron(
+            backChevron = createBackChevron(
                 backChevronKey: keys.backChevronKey,
                 userLeading: userLeading,
                 route: route,
                 automaticallyImplyLeading: automaticallyImplyLeading
             );
-            this.backLabel = createBackLabel(
+            backLabel = createBackLabel(
                 backLabelKey: keys.backLabelKey,
                 userLeading: userLeading,
                 route: route,
                 previousPageTitle: previousPageTitle,
                 automaticallyImplyLeading: automaticallyImplyLeading
             );
-            this.middle = createMiddle(
+            middle = createMiddle(
                 middleKey: keys.middleKey,
                 userMiddle: userMiddle,
                 userLargeTitle: userLargeTitle,
@@ -784,12 +784,12 @@ namespace Unity.UIWidgets.cupertino {
                 automaticallyImplyTitle: automaticallyImplyTitle,
                 large: large
             );
-            this.trailing = createTrailing(
+            trailing = createTrailing(
                 trailingKey: keys.trailingKey,
                 userTrailing: userTrailing,
                 padding: padding
             );
-            this.largeTitle = createLargeTitle(
+            largeTitle = createLargeTitle(
                 largeTitleKey: keys.largeTitleKey,
                 userLargeTitle: userLargeTitle,
                 route: route,
@@ -1000,8 +1000,8 @@ namespace Unity.UIWidgets.cupertino {
             Color color,
             string previousPageTitle
         ) {
-            this._backChevron = null;
-            this._backLabel = null;
+            _backChevron = null;
+            _backLabel = null;
             this.color = color;
             this.previousPageTitle = previousPageTitle;
         }
@@ -1012,8 +1012,8 @@ namespace Unity.UIWidgets.cupertino {
             Widget backChevron,
             Widget backLabel
         ) {
-            this._backChevron = backChevron;
-            this._backLabel = backLabel;
+            _backChevron = backChevron;
+            _backLabel = backLabel;
             this.color = color;
             this.previousPageTitle = previousPageTitle;
         }
@@ -1046,8 +1046,8 @@ namespace Unity.UIWidgets.cupertino {
             );
 
             TextStyle actionTextStyle = CupertinoTheme.of(context).textTheme.navActionTextStyle;
-            if (this.color != null) {
-                actionTextStyle = actionTextStyle.copyWith(color: this.color);
+            if (color != null) {
+                actionTextStyle = actionTextStyle.copyWith(color: color);
             }
 
             return new CupertinoButton(
@@ -1060,11 +1060,11 @@ namespace Unity.UIWidgets.cupertino {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: new List<Widget> {
                                 new Padding(padding: EdgeInsets.only(left: 8.0f)),
-                                this._backChevron ?? new _BackChevron(),
+                                _backChevron ?? new _BackChevron(),
                                 new Padding(padding: EdgeInsets.only(left: 6.0f)),
                                 new Flexible(
-                                    child: this._backLabel ?? new _BackLabel(
-                                               specifiedPreviousTitle: this.previousPageTitle,
+                                    child: _backLabel ?? new _BackLabel(
+                                               specifiedPreviousTitle: previousPageTitle,
                                                route: currentRoute
                                            )
                                 )
@@ -1138,13 +1138,13 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override Widget build(BuildContext context) {
-            if (this.specifiedPreviousTitle != null) {
-                return this._buildPreviousTitleWidget(context, this.specifiedPreviousTitle, null);
+            if (specifiedPreviousTitle != null) {
+                return _buildPreviousTitleWidget(context, specifiedPreviousTitle, null);
             }
-            else if (this.route is CupertinoPageRoute cupertinoRoute) {
+            else if (route is CupertinoPageRoute cupertinoRoute) {
                 return new ValueListenableBuilder<string>(
                     valueListenable: cupertinoRoute.previousTitle,
-                    builder: this._buildPreviousTitleWidget
+                    builder: _buildPreviousTitleWidget
                 );
             }
             else {
@@ -1191,7 +1191,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public RenderBox renderBox {
             get {
-                RenderBox box = (RenderBox) this.componentsKeys.navBarBoxKey.currentContext.findRenderObject();
+                RenderBox box = (RenderBox) componentsKeys.navBarBoxKey.currentContext.findRenderObject();
                 D.assert(
                     box.attached,
                     () => "_TransitionableNavigationBar.renderBox should be called when building " +
@@ -1229,7 +1229,7 @@ namespace Unity.UIWidgets.cupertino {
                 );
                 return true;
             });
-            return this.child;
+            return child;
         }
     }
 
@@ -1242,15 +1242,15 @@ namespace Unity.UIWidgets.cupertino {
             this.animation = animation;
             this.topNavBar = topNavBar;
             this.bottomNavBar = bottomNavBar;
-            this.heightTween = new FloatTween(
+            heightTween = new FloatTween(
                 begin: this.bottomNavBar.renderBox.size.height,
                 end: this.topNavBar.renderBox.size.height
             );
-            this.backgroundTween = new ColorTween(
+            backgroundTween = new ColorTween(
                 begin: this.bottomNavBar.backgroundColor,
                 end: this.topNavBar.backgroundColor
             );
-            this.borderTween = new BorderTween(
+            borderTween = new BorderTween(
                 begin: this.bottomNavBar.border,
                 end: this.topNavBar.border
             );
@@ -1266,22 +1266,22 @@ namespace Unity.UIWidgets.cupertino {
 
         public override Widget build(BuildContext context) {
             _NavigationBarComponentsTransition componentsTransition = new _NavigationBarComponentsTransition(
-                animation: this.animation,
-                bottomNavBar: this.bottomNavBar,
-                topNavBar: this.topNavBar,
+                animation: animation,
+                bottomNavBar: bottomNavBar,
+                topNavBar: topNavBar,
                 directionality: Directionality.of(context)
             );
 
             List<Widget> children = new List<Widget> {
                 new AnimatedBuilder(
-                    animation: this.animation,
+                    animation: animation,
                     builder: (BuildContext _context, Widget child) => {
                         return NavBarUtils._wrapWithBackground(
                             updateSystemUiOverlay: false,
-                            backgroundColor: this.backgroundTween.evaluate(this.animation),
-                            border: this.borderTween.evaluate(this.animation),
+                            backgroundColor: backgroundTween.evaluate(animation),
+                            border: borderTween.evaluate(animation),
                             child: new SizedBox(
-                                height: this.heightTween.evaluate(this.animation),
+                                height: heightTween.evaluate(animation),
                                 width: float.PositiveInfinity
                             )
                         );
@@ -1304,7 +1304,7 @@ namespace Unity.UIWidgets.cupertino {
             children.RemoveAll((Widget child) => child == null);
 
             return new SizedBox(
-                height: Mathf.Max(this.heightTween.begin, this.heightTween.end) + MediaQuery.of(context).padding.top,
+                height: Mathf.Max(heightTween.begin, heightTween.end) + MediaQuery.of(context).padding.top,
                 width: float.PositiveInfinity,
                 child: new Stack(
                     children: children
@@ -1321,23 +1321,23 @@ namespace Unity.UIWidgets.cupertino {
             TextDirection directionality
         ) {
             this.animation = animation;
-            this.bottomComponents = bottomNavBar.componentsKeys;
-            this.topComponents = topNavBar.componentsKeys;
-            this.bottomNavBarBox = bottomNavBar.renderBox;
-            this.topNavBarBox = topNavBar.renderBox;
-            this.bottomBackButtonTextStyle = bottomNavBar.backButtonTextStyle;
-            this.topBackButtonTextStyle = topNavBar.backButtonTextStyle;
-            this.bottomTitleTextStyle = bottomNavBar.titleTextStyle;
-            this.topTitleTextStyle = topNavBar.titleTextStyle;
-            this.bottomLargeTitleTextStyle = bottomNavBar.largeTitleTextStyle;
-            this.topLargeTitleTextStyle = topNavBar.largeTitleTextStyle;
-            this.bottomHasUserMiddle = bottomNavBar.hasUserMiddle;
-            this.topHasUserMiddle = topNavBar.hasUserMiddle;
-            this.bottomLargeExpanded = bottomNavBar.largeExpanded;
-            this.topLargeExpanded = topNavBar.largeExpanded;
-            this.transitionBox =
+            bottomComponents = bottomNavBar.componentsKeys;
+            topComponents = topNavBar.componentsKeys;
+            bottomNavBarBox = bottomNavBar.renderBox;
+            topNavBarBox = topNavBar.renderBox;
+            bottomBackButtonTextStyle = bottomNavBar.backButtonTextStyle;
+            topBackButtonTextStyle = topNavBar.backButtonTextStyle;
+            bottomTitleTextStyle = bottomNavBar.titleTextStyle;
+            topTitleTextStyle = topNavBar.titleTextStyle;
+            bottomLargeTitleTextStyle = bottomNavBar.largeTitleTextStyle;
+            topLargeTitleTextStyle = topNavBar.largeTitleTextStyle;
+            bottomHasUserMiddle = bottomNavBar.hasUserMiddle;
+            topHasUserMiddle = topNavBar.hasUserMiddle;
+            bottomLargeExpanded = bottomNavBar.largeExpanded;
+            topLargeExpanded = topNavBar.largeExpanded;
+            transitionBox =
                 bottomNavBar.renderBox.paintBounds.expandToInclude(topNavBar.renderBox.paintBounds);
-            this.forwardDirection = directionality == TextDirection.ltr ? 1.0f : -1.0f;
+            forwardDirection = directionality == TextDirection.ltr ? 1.0f : -1.0f;
         }
 
         public static Animatable<float> fadeOut = new FloatTween(
@@ -1381,7 +1381,7 @@ namespace Unity.UIWidgets.cupertino {
             D.assert(componentBox.attached);
 
             return RelativeRect.fromRect(
-                componentBox.localToGlobal(Offset.zero, ancestor: from) & componentBox.size, this.transitionBox
+                componentBox.localToGlobal(Offset.zero, ancestor: from) & componentBox.size, transitionBox
             );
         }
 
@@ -1391,7 +1391,7 @@ namespace Unity.UIWidgets.cupertino {
             GlobalKey toKey,
             RenderBox toNavBarBox
         ) {
-            RelativeRect fromRect = this.positionInTransitionBox(fromKey, from: fromNavBarBox);
+            RelativeRect fromRect = positionInTransitionBox(fromKey, from: fromNavBarBox);
 
             RenderBox fromBox = (RenderBox) fromKey.currentContext.findRenderObject();
             RenderBox toBox = (RenderBox) toKey.currentContext.findRenderObject();
@@ -1405,40 +1405,40 @@ namespace Unity.UIWidgets.cupertino {
                     -fromBox.size.height / 2 + toBox.size.height / 2
                 ) & fromBox.size; // Keep the from render object"s size.
 
-            if (this.forwardDirection < 0) {
+            if (forwardDirection < 0) {
                 toRect = toRect.translate(-fromBox.size.width + toBox.size.width, 0.0f);
             }
 
             return new RelativeRectTween(
                 begin: fromRect,
-                end: RelativeRect.fromRect(toRect, this.transitionBox)
+                end: RelativeRect.fromRect(toRect, transitionBox)
             );
         }
 
         public Animation<float> fadeInFrom(float t, Curve curve = null) {
-            return this.animation.drive(fadeIn.chain(
+            return animation.drive(fadeIn.chain(
                 new CurveTween(curve: new Interval(t, 1.0f, curve: curve ?? Curves.easeIn))
             ));
         }
 
         public Animation<float> fadeOutBy(float t, Curve curve = null) {
-            return this.animation.drive(fadeOut.chain(
+            return animation.drive(fadeOut.chain(
                 new CurveTween(curve: new Interval(0.0f, t, curve: curve ?? Curves.easeOut))
             ));
         }
 
         public Widget bottomLeading {
             get {
-                KeyedSubtree bottomLeading = (KeyedSubtree) this.bottomComponents.leadingKey.currentWidget;
+                KeyedSubtree bottomLeading = (KeyedSubtree) bottomComponents.leadingKey.currentWidget;
 
                 if (bottomLeading == null) {
                     return null;
                 }
 
                 return Positioned.fromRelativeRect(
-                    rect: this.positionInTransitionBox(this.bottomComponents.leadingKey, from: this.bottomNavBarBox),
+                    rect: positionInTransitionBox(bottomComponents.leadingKey, from: bottomNavBarBox),
                     child: new FadeTransition(
-                        opacity: this.fadeOutBy(0.4f),
+                        opacity: fadeOutBy(0.4f),
                         child: bottomLeading.child
                     )
                 );
@@ -1447,19 +1447,19 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget bottomBackChevron {
             get {
-                KeyedSubtree bottomBackChevron = (KeyedSubtree) this.bottomComponents.backChevronKey.currentWidget;
+                KeyedSubtree bottomBackChevron = (KeyedSubtree) bottomComponents.backChevronKey.currentWidget;
 
                 if (bottomBackChevron == null) {
                     return null;
                 }
 
                 return Positioned.fromRelativeRect(
-                    rect: this.positionInTransitionBox(this.bottomComponents.backChevronKey,
-                        from: this.bottomNavBarBox),
+                    rect: positionInTransitionBox(bottomComponents.backChevronKey,
+                        from: bottomNavBarBox),
                     child: new FadeTransition(
-                        opacity: this.fadeOutBy(0.6f),
+                        opacity: fadeOutBy(0.6f),
                         child: new DefaultTextStyle(
-                            style: this.bottomBackButtonTextStyle,
+                            style: bottomBackButtonTextStyle,
                             child: bottomBackChevron.child
                         )
                     )
@@ -1469,30 +1469,30 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget bottomBackLabel {
             get {
-                KeyedSubtree bottomBackLabel = (KeyedSubtree) this.bottomComponents.backLabelKey.currentWidget;
+                KeyedSubtree bottomBackLabel = (KeyedSubtree) bottomComponents.backLabelKey.currentWidget;
 
                 if (bottomBackLabel == null) {
                     return null;
                 }
 
                 RelativeRect from =
-                    this.positionInTransitionBox(this.bottomComponents.backLabelKey, from: this.bottomNavBarBox);
+                    positionInTransitionBox(bottomComponents.backLabelKey, from: bottomNavBarBox);
 
                 RelativeRectTween positionTween = new RelativeRectTween(
                     begin: from,
                     end: from.shift(
-                        new Offset(this.forwardDirection * (-this.bottomNavBarBox.size.width / 2.0f),
+                        new Offset(forwardDirection * (-bottomNavBarBox.size.width / 2.0f),
                             0.0f
                         )
                     )
                 );
 
                 return new PositionedTransition(
-                    rect: this.animation.drive(positionTween),
+                    rect: animation.drive(positionTween),
                     child: new FadeTransition(
-                        opacity: this.fadeOutBy(0.2f),
+                        opacity: fadeOutBy(0.2f),
                         child: new DefaultTextStyle(
-                            style: this.bottomBackButtonTextStyle,
+                            style: bottomBackButtonTextStyle,
                             child: bottomBackLabel.child
                         )
                     )
@@ -1502,30 +1502,30 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget bottomMiddle {
             get {
-                KeyedSubtree bottomMiddle = (KeyedSubtree) this.bottomComponents.middleKey.currentWidget;
-                KeyedSubtree topBackLabel = (KeyedSubtree) this.topComponents.backLabelKey.currentWidget;
-                KeyedSubtree topLeading = (KeyedSubtree) this.topComponents.leadingKey.currentWidget;
+                KeyedSubtree bottomMiddle = (KeyedSubtree) bottomComponents.middleKey.currentWidget;
+                KeyedSubtree topBackLabel = (KeyedSubtree) topComponents.backLabelKey.currentWidget;
+                KeyedSubtree topLeading = (KeyedSubtree) topComponents.leadingKey.currentWidget;
 
-                if (this.bottomHasUserMiddle != true && this.bottomLargeExpanded == true) {
+                if (bottomHasUserMiddle != true && bottomLargeExpanded == true) {
                     return null;
                 }
 
                 if (bottomMiddle != null && topBackLabel != null) {
                     return new PositionedTransition(
-                        rect: this.animation.drive(this.slideFromLeadingEdge(
-                            fromKey: this.bottomComponents.middleKey,
-                            fromNavBarBox: this.bottomNavBarBox,
-                            toKey: this.topComponents.backLabelKey,
-                            toNavBarBox: this.topNavBarBox
+                        rect: animation.drive(slideFromLeadingEdge(
+                            fromKey: bottomComponents.middleKey,
+                            fromNavBarBox: bottomNavBarBox,
+                            toKey: topComponents.backLabelKey,
+                            toNavBarBox: topNavBarBox
                         )),
                         child: new FadeTransition(
-                            opacity: this.fadeOutBy(this.bottomHasUserMiddle == true ? 0.4f : 0.7f),
+                            opacity: fadeOutBy(bottomHasUserMiddle == true ? 0.4f : 0.7f),
                             child: new Align(
                                 alignment: Alignment.centerLeft,
                                 child: new DefaultTextStyleTransition(
-                                    style: this.animation.drive(new TextStyleTween(
-                                        begin: this.bottomTitleTextStyle,
-                                        end: this.topBackButtonTextStyle
+                                    style: animation.drive(new TextStyleTween(
+                                        begin: bottomTitleTextStyle,
+                                        end: topBackButtonTextStyle
                                     )),
                                     child: bottomMiddle.child
                                 )
@@ -1536,11 +1536,11 @@ namespace Unity.UIWidgets.cupertino {
 
                 if (bottomMiddle != null && topLeading != null) {
                     return Positioned.fromRelativeRect(
-                        rect: this.positionInTransitionBox(this.bottomComponents.middleKey, from: this.bottomNavBarBox),
+                        rect: positionInTransitionBox(bottomComponents.middleKey, from: bottomNavBarBox),
                         child: new FadeTransition(
-                            opacity: this.fadeOutBy(this.bottomHasUserMiddle == true ? 0.4f : 0.7f),
+                            opacity: fadeOutBy(bottomHasUserMiddle == true ? 0.4f : 0.7f),
                             child: new DefaultTextStyle(
-                                style: this.bottomTitleTextStyle,
+                                style: bottomTitleTextStyle,
                                 child: bottomMiddle.child
                             )
                         )
@@ -1553,30 +1553,30 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget bottomLargeTitle {
             get {
-                KeyedSubtree bottomLargeTitle = (KeyedSubtree) this.bottomComponents.largeTitleKey.currentWidget;
-                KeyedSubtree topBackLabel = (KeyedSubtree) this.topComponents.backLabelKey.currentWidget;
-                KeyedSubtree topLeading = (KeyedSubtree) this.topComponents.leadingKey.currentWidget;
+                KeyedSubtree bottomLargeTitle = (KeyedSubtree) bottomComponents.largeTitleKey.currentWidget;
+                KeyedSubtree topBackLabel = (KeyedSubtree) topComponents.backLabelKey.currentWidget;
+                KeyedSubtree topLeading = (KeyedSubtree) topComponents.leadingKey.currentWidget;
 
-                if (bottomLargeTitle == null || this.bottomLargeExpanded != true) {
+                if (bottomLargeTitle == null || bottomLargeExpanded != true) {
                     return null;
                 }
 
                 if (bottomLargeTitle != null && topBackLabel != null) {
                     return new PositionedTransition(
-                        rect: this.animation.drive(this.slideFromLeadingEdge(
-                            fromKey: this.bottomComponents.largeTitleKey,
-                            fromNavBarBox: this.bottomNavBarBox,
-                            toKey: this.topComponents.backLabelKey,
-                            toNavBarBox: this.topNavBarBox
+                        rect: animation.drive(slideFromLeadingEdge(
+                            fromKey: bottomComponents.largeTitleKey,
+                            fromNavBarBox: bottomNavBarBox,
+                            toKey: topComponents.backLabelKey,
+                            toNavBarBox: topNavBarBox
                         )),
                         child: new FadeTransition(
-                            opacity: this.fadeOutBy(0.6f),
+                            opacity: fadeOutBy(0.6f),
                             child: new Align(
                                 alignment: Alignment.centerLeft,
                                 child: new DefaultTextStyleTransition(
-                                    style: this.animation.drive(new TextStyleTween(
-                                        begin: this.bottomLargeTitleTextStyle,
-                                        end: this.topBackButtonTextStyle
+                                    style: animation.drive(new TextStyleTween(
+                                        begin: bottomLargeTitleTextStyle,
+                                        end: topBackButtonTextStyle
                                     )),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -1588,24 +1588,24 @@ namespace Unity.UIWidgets.cupertino {
                 }
 
                 if (bottomLargeTitle != null && topLeading != null) {
-                    RelativeRect from = this.positionInTransitionBox(this.bottomComponents.largeTitleKey,
-                        from: this.bottomNavBarBox);
+                    RelativeRect from = positionInTransitionBox(bottomComponents.largeTitleKey,
+                        from: bottomNavBarBox);
 
                     RelativeRectTween positionTween = new RelativeRectTween(
                         begin: from,
                         end: from.shift(
-                            new Offset(this.forwardDirection * this.bottomNavBarBox.size.width / 4.0f,
+                            new Offset(forwardDirection * bottomNavBarBox.size.width / 4.0f,
                                 0.0f
                             )
                         )
                     );
 
                     return new PositionedTransition(
-                        rect: this.animation.drive(positionTween),
+                        rect: animation.drive(positionTween),
                         child: new FadeTransition(
-                            opacity: this.fadeOutBy(0.4f),
+                            opacity: fadeOutBy(0.4f),
                             child: new DefaultTextStyle(
-                                style: this.bottomLargeTitleTextStyle,
+                                style: bottomLargeTitleTextStyle,
                                 child: bottomLargeTitle.child
                             )
                         )
@@ -1618,16 +1618,16 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget bottomTrailing {
             get {
-                KeyedSubtree bottomTrailing = (KeyedSubtree) this.bottomComponents.trailingKey.currentWidget;
+                KeyedSubtree bottomTrailing = (KeyedSubtree) bottomComponents.trailingKey.currentWidget;
 
                 if (bottomTrailing == null) {
                     return null;
                 }
 
                 return Positioned.fromRelativeRect(
-                    rect: this.positionInTransitionBox(this.bottomComponents.trailingKey, from: this.bottomNavBarBox),
+                    rect: positionInTransitionBox(bottomComponents.trailingKey, from: bottomNavBarBox),
                     child: new FadeTransition(
-                        opacity: this.fadeOutBy(0.6f),
+                        opacity: fadeOutBy(0.6f),
                         child: bottomTrailing.child
                     )
                 );
@@ -1636,16 +1636,16 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget topLeading {
             get {
-                KeyedSubtree topLeading = (KeyedSubtree) this.topComponents.leadingKey.currentWidget;
+                KeyedSubtree topLeading = (KeyedSubtree) topComponents.leadingKey.currentWidget;
 
                 if (topLeading == null) {
                     return null;
                 }
 
                 return Positioned.fromRelativeRect(
-                    rect: this.positionInTransitionBox(this.topComponents.leadingKey, from: this.topNavBarBox),
+                    rect: positionInTransitionBox(topComponents.leadingKey, from: topNavBarBox),
                     child: new FadeTransition(
-                        opacity: this.fadeInFrom(0.6f),
+                        opacity: fadeInFrom(0.6f),
                         child: topLeading.child
                     )
                 );
@@ -1654,22 +1654,22 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget topBackChevron {
             get {
-                KeyedSubtree topBackChevron = (KeyedSubtree) this.topComponents.backChevronKey.currentWidget;
-                KeyedSubtree bottomBackChevron = (KeyedSubtree) this.bottomComponents.backChevronKey.currentWidget;
+                KeyedSubtree topBackChevron = (KeyedSubtree) topComponents.backChevronKey.currentWidget;
+                KeyedSubtree bottomBackChevron = (KeyedSubtree) bottomComponents.backChevronKey.currentWidget;
 
                 if (topBackChevron == null) {
                     return null;
                 }
 
                 RelativeRect to =
-                    this.positionInTransitionBox(this.topComponents.backChevronKey, from: this.topNavBarBox);
+                    positionInTransitionBox(topComponents.backChevronKey, from: topNavBarBox);
                 RelativeRect from = to;
 
                 if (bottomBackChevron == null) {
                     RenderBox topBackChevronBox =
-                        (RenderBox) this.topComponents.backChevronKey.currentContext.findRenderObject();
+                        (RenderBox) topComponents.backChevronKey.currentContext.findRenderObject();
                     from = to.shift(
-                        new Offset(this.forwardDirection * topBackChevronBox.size.width * 2.0f,
+                        new Offset(forwardDirection * topBackChevronBox.size.width * 2.0f,
                             0.0f
                         )
                     );
@@ -1681,11 +1681,11 @@ namespace Unity.UIWidgets.cupertino {
                 );
 
                 return new PositionedTransition(
-                    rect: this.animation.drive(positionTween),
+                    rect: animation.drive(positionTween),
                     child: new FadeTransition(
-                        opacity: this.fadeInFrom(bottomBackChevron == null ? 0.7f : 0.4f),
+                        opacity: fadeInFrom(bottomBackChevron == null ? 0.7f : 0.4f),
                         child: new DefaultTextStyle(
-                            style: this.topBackButtonTextStyle,
+                            style: topBackButtonTextStyle,
                             child: topBackChevron.child
                         )
                     )
@@ -1695,42 +1695,42 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget topBackLabel {
             get {
-                KeyedSubtree bottomMiddle = (KeyedSubtree) this.bottomComponents.middleKey.currentWidget;
-                KeyedSubtree bottomLargeTitle = (KeyedSubtree) this.bottomComponents.largeTitleKey.currentWidget;
-                KeyedSubtree topBackLabel = (KeyedSubtree) this.topComponents.backLabelKey.currentWidget;
+                KeyedSubtree bottomMiddle = (KeyedSubtree) bottomComponents.middleKey.currentWidget;
+                KeyedSubtree bottomLargeTitle = (KeyedSubtree) bottomComponents.largeTitleKey.currentWidget;
+                KeyedSubtree topBackLabel = (KeyedSubtree) topComponents.backLabelKey.currentWidget;
 
                 if (topBackLabel == null) {
                     return null;
                 }
 
                 RenderAnimatedOpacity topBackLabelOpacity =
-                    (RenderAnimatedOpacity) this.topComponents.backLabelKey.currentContext?.ancestorRenderObjectOfType(
+                    (RenderAnimatedOpacity) topComponents.backLabelKey.currentContext?.ancestorRenderObjectOfType(
                         new TypeMatcher<RenderAnimatedOpacity>()
                     );
 
                 Animation<float> midClickOpacity = null;
                 if (topBackLabelOpacity != null && topBackLabelOpacity.opacity.value < 1.0f) {
-                    midClickOpacity = this.animation.drive(new FloatTween(
+                    midClickOpacity = animation.drive(new FloatTween(
                         begin: 0.0f,
                         end: topBackLabelOpacity.opacity.value
                     ));
                 }
 
                 if (bottomLargeTitle != null &&
-                    topBackLabel != null && this.bottomLargeExpanded.Value) {
+                    topBackLabel != null && bottomLargeExpanded.Value) {
                     return new PositionedTransition(
-                        rect: this.animation.drive(this.slideFromLeadingEdge(
-                            fromKey: this.bottomComponents.largeTitleKey,
-                            fromNavBarBox: this.bottomNavBarBox,
-                            toKey: this.topComponents.backLabelKey,
-                            toNavBarBox: this.topNavBarBox
+                        rect: animation.drive(slideFromLeadingEdge(
+                            fromKey: bottomComponents.largeTitleKey,
+                            fromNavBarBox: bottomNavBarBox,
+                            toKey: topComponents.backLabelKey,
+                            toNavBarBox: topNavBarBox
                         )),
                         child: new FadeTransition(
-                            opacity: midClickOpacity ?? this.fadeInFrom(0.4f),
+                            opacity: midClickOpacity ?? fadeInFrom(0.4f),
                             child: new DefaultTextStyleTransition(
-                                style: this.animation.drive(new TextStyleTween(
-                                    begin: this.bottomLargeTitleTextStyle,
-                                    end: this.topBackButtonTextStyle
+                                style: animation.drive(new TextStyleTween(
+                                    begin: bottomLargeTitleTextStyle,
+                                    end: topBackButtonTextStyle
                                 )),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -1742,18 +1742,18 @@ namespace Unity.UIWidgets.cupertino {
 
                 if (bottomMiddle != null && topBackLabel != null) {
                     return new PositionedTransition(
-                        rect: this.animation.drive(this.slideFromLeadingEdge(
-                            fromKey: this.bottomComponents.middleKey,
-                            fromNavBarBox: this.bottomNavBarBox,
-                            toKey: this.topComponents.backLabelKey,
-                            toNavBarBox: this.topNavBarBox
+                        rect: animation.drive(slideFromLeadingEdge(
+                            fromKey: bottomComponents.middleKey,
+                            fromNavBarBox: bottomNavBarBox,
+                            toKey: topComponents.backLabelKey,
+                            toNavBarBox: topNavBarBox
                         )),
                         child: new FadeTransition(
-                            opacity: midClickOpacity ?? this.fadeInFrom(0.3f),
+                            opacity: midClickOpacity ?? fadeInFrom(0.3f),
                             child: new DefaultTextStyleTransition(
-                                style: this.animation.drive(new TextStyleTween(
-                                    begin: this.bottomTitleTextStyle,
-                                    end: this.topBackButtonTextStyle
+                                style: animation.drive(new TextStyleTween(
+                                    begin: bottomTitleTextStyle,
+                                    end: topBackButtonTextStyle
                                 )),
                                 child: topBackLabel.child
                             )
@@ -1767,21 +1767,21 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget topMiddle {
             get {
-                KeyedSubtree topMiddle = (KeyedSubtree) this.topComponents.middleKey.currentWidget;
+                KeyedSubtree topMiddle = (KeyedSubtree) topComponents.middleKey.currentWidget;
 
                 if (topMiddle == null) {
                     return null;
                 }
 
-                if (this.topHasUserMiddle != true && this.topLargeExpanded == true) {
+                if (topHasUserMiddle != true && topLargeExpanded == true) {
                     return null;
                 }
 
-                RelativeRect to = this.positionInTransitionBox(this.topComponents.middleKey, from: this.topNavBarBox);
+                RelativeRect to = positionInTransitionBox(topComponents.middleKey, from: topNavBarBox);
 
                 RelativeRectTween positionTween = new RelativeRectTween(
                     begin: to.shift(
-                        new Offset(this.forwardDirection * this.topNavBarBox.size.width / 2.0f,
+                        new Offset(forwardDirection * topNavBarBox.size.width / 2.0f,
                             0.0f
                         )
                     ),
@@ -1789,11 +1789,11 @@ namespace Unity.UIWidgets.cupertino {
                 );
 
                 return new PositionedTransition(
-                    rect: this.animation.drive(positionTween),
+                    rect: animation.drive(positionTween),
                     child: new FadeTransition(
-                        opacity: this.fadeInFrom(0.25f),
+                        opacity: fadeInFrom(0.25f),
                         child: new DefaultTextStyle(
-                            style: this.topTitleTextStyle,
+                            style: topTitleTextStyle,
                             child: topMiddle.child
                         )
                     )
@@ -1803,16 +1803,16 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget topTrailing {
             get {
-                KeyedSubtree topTrailing = (KeyedSubtree) this.topComponents.trailingKey.currentWidget;
+                KeyedSubtree topTrailing = (KeyedSubtree) topComponents.trailingKey.currentWidget;
 
                 if (topTrailing == null) {
                     return null;
                 }
 
                 return Positioned.fromRelativeRect(
-                    rect: this.positionInTransitionBox(this.topComponents.trailingKey, from: this.topNavBarBox),
+                    rect: positionInTransitionBox(topComponents.trailingKey, from: topNavBarBox),
                     child: new FadeTransition(
-                        opacity: this.fadeInFrom(0.4f),
+                        opacity: fadeInFrom(0.4f),
                         child: topTrailing.child
                     )
                 );
@@ -1821,18 +1821,18 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget topLargeTitle {
             get {
-                KeyedSubtree topLargeTitle = (KeyedSubtree) this.topComponents.largeTitleKey.currentWidget;
+                KeyedSubtree topLargeTitle = (KeyedSubtree) topComponents.largeTitleKey.currentWidget;
 
-                if (topLargeTitle == null || this.topLargeExpanded != true) {
+                if (topLargeTitle == null || topLargeExpanded != true) {
                     return null;
                 }
 
                 RelativeRect to =
-                    this.positionInTransitionBox(this.topComponents.largeTitleKey, from: this.topNavBarBox);
+                    positionInTransitionBox(topComponents.largeTitleKey, from: topNavBarBox);
 
                 RelativeRectTween positionTween = new RelativeRectTween(
                     begin: to.shift(
-                        new Offset(this.forwardDirection * this.topNavBarBox.size.width,
+                        new Offset(forwardDirection * topNavBarBox.size.width,
                             0.0f
                         )
                     ),
@@ -1840,11 +1840,11 @@ namespace Unity.UIWidgets.cupertino {
                 );
 
                 return new PositionedTransition(
-                    rect: this.animation.drive(positionTween),
+                    rect: animation.drive(positionTween),
                     child: new FadeTransition(
-                        opacity: this.fadeInFrom(0.3f),
+                        opacity: fadeInFrom(0.3f),
                         child: new DefaultTextStyle(
-                            style: this.topLargeTitleTextStyle,
+                            style: topLargeTitleTextStyle,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             child: topLargeTitle.child

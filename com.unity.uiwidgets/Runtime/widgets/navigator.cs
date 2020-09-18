@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.widgets {
         internal NavigatorState _navigator;
 
         public NavigatorState navigator {
-            get { return this._navigator; }
+            get { return _navigator; }
         }
 
         public readonly RouteSettings settings;
@@ -49,7 +49,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public virtual IPromise<RoutePopDisposition> willPop() {
-            return Promise<RoutePopDisposition>.Resolved(this.isFirst
+            return Promise<RoutePopDisposition>.Resolved(isFirst
                 ? RoutePopDisposition.bubble
                 : RoutePopDisposition.pop);
         }
@@ -63,18 +63,18 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public IPromise<object> popped {
-            get { return this._popCompleter; }
+            get { return _popCompleter; }
         }
 
         internal readonly Promise<object> _popCompleter = new Promise<object>();
 
         protected internal virtual bool didPop(object result) {
-            this.didComplete(result);
+            didComplete(result);
             return true;
         }
 
         protected internal virtual void didComplete(object result) {
-            this._popCompleter.Resolve(result);
+            _popCompleter.Resolve(result);
         }
 
         protected internal virtual void didPopNext(Route nextRoute) {
@@ -93,19 +93,19 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected internal virtual void dispose() {
-            this._navigator = null;
+            _navigator = null;
         }
 
         public bool isCurrent {
-            get { return this._navigator != null && this._navigator._history.last() == this; }
+            get { return _navigator != null && _navigator._history.last() == this; }
         }
 
         public bool isFirst {
-            get { return this._navigator != null && this._navigator._history.first() == this; }
+            get { return _navigator != null && _navigator._history.first() == this; }
         }
 
         public bool isActive {
-            get { return this._navigator != null && this._navigator._history.Contains(this); }
+            get { return _navigator != null && _navigator._history.Contains(this); }
         }
     }
 
@@ -131,7 +131,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly object arguments;
 
         public override string ToString() {
-            return $"{this.GetType()}(\"{this.name}\", {this.arguments})";
+            return $"{GetType()}(\"{name}\", {arguments})";
         }
     }
 
@@ -139,7 +139,7 @@ namespace Unity.UIWidgets.widgets {
         internal NavigatorState _navigator;
 
         public NavigatorState navigator {
-            get { return this._navigator; }
+            get { return _navigator; }
         }
 
         public virtual void didPush(Route route, Route previousRoute) {
@@ -292,12 +292,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            foreach (var observer in this.widget.observers) {
+            foreach (var observer in widget.observers) {
                 D.assert(observer.navigator == null);
                 observer._navigator = this;
             }
 
-            var initialRouteName = this.widget.initialRoute ?? Navigator.defaultRouteName;
+            var initialRouteName = widget.initialRoute ?? Navigator.defaultRouteName;
             if (initialRouteName.StartsWith("/") && initialRouteName.Length > 1) {
                 initialRouteName = initialRouteName.Substring(1);
                 D.assert(Navigator.defaultRouteName == "/");
@@ -305,7 +305,7 @@ namespace Unity.UIWidgets.widgets {
                     Navigator.defaultRouteName
                 };
                 var plannedInitialRoutes = new List<Route> {
-                    this._routeNamed(Navigator.defaultRouteName, arguments: null, true)
+                    _routeNamed(Navigator.defaultRouteName, arguments: null, true)
                 };
 
                 var routeParts = initialRouteName.Split('/');
@@ -314,7 +314,7 @@ namespace Unity.UIWidgets.widgets {
                     foreach (var part in routeParts) {
                         routeName += $"/{part}";
                         plannedInitialRouteNames.Add(routeName);
-                        plannedInitialRoutes.Add(this._routeNamed(routeName, arguments: null, true));
+                        plannedInitialRoutes.Add(_routeNamed(routeName, arguments: null, true));
                     }
                 }
 
@@ -332,80 +332,80 @@ namespace Unity.UIWidgets.widgets {
                                 $"ignored and \"{Navigator.defaultRouteName}\" will be used instead.")));
                         return true;
                     });
-                    this.push(this._routeNamed(Navigator.defaultRouteName, arguments: null));
+                    push(_routeNamed(Navigator.defaultRouteName, arguments: null));
                 }
                 else {
-                    plannedInitialRoutes.Each(route => { this.push(route); });
+                    plannedInitialRoutes.Each(route => { push(route); });
                 }
             }
             else {
                 Route route = null;
                 if (initialRouteName != Navigator.defaultRouteName) {
-                    route = this._routeNamed(initialRouteName, arguments: null, true);
+                    route = _routeNamed(initialRouteName, arguments: null, true);
                 }
 
-                route = route ?? this._routeNamed(Navigator.defaultRouteName, arguments: null);
-                this.push(route);
+                route = route ?? _routeNamed(Navigator.defaultRouteName, arguments: null);
+                push(route);
             }
 
-            foreach (var route in this._history) {
-                this._initialOverlayEntries.AddRange(route.overlayEntries);
+            foreach (var route in _history) {
+                _initialOverlayEntries.AddRange(route.overlayEntries);
             }
         }
 
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (((Navigator) oldWidget).observers != this.widget.observers) {
+            if (((Navigator) oldWidget).observers != widget.observers) {
                 foreach (var observer in ((Navigator) oldWidget).observers) {
                     observer._navigator = null;
                 }
 
-                foreach (var observer in this.widget.observers) {
+                foreach (var observer in widget.observers) {
                     D.assert(observer.navigator == null);
                     observer._navigator = this;
                 }
             }
 
-            foreach (var route in this._history) {
+            foreach (var route in _history) {
                 route.changedExternalState();
             }
         }
 
         public override void dispose() {
-            D.assert(!this._debugLocked);
+            D.assert(!_debugLocked);
             D.assert(() => {
-                this._debugLocked = true;
+                _debugLocked = true;
                 return true;
             });
-            foreach (var observer in this.widget.observers) {
+            foreach (var observer in widget.observers) {
                 observer._navigator = null;
             }
 
-            var doomed = this._poppedRoutes.ToList();
-            doomed.AddRange(this._history);
+            var doomed = _poppedRoutes.ToList();
+            doomed.AddRange(_history);
             foreach (var route in doomed) {
                 route.dispose();
             }
 
-            this._poppedRoutes.Clear();
-            this._history.Clear();
-            this.focusScopeNode.detach();
+            _poppedRoutes.Clear();
+            _history.Clear();
+            focusScopeNode.detach();
             base.dispose();
 
             D.assert(() => {
-                this._debugLocked = false;
+                _debugLocked = false;
                 return true;
             });
         }
 
         public OverlayState overlay {
-            get { return this._overlayKey.currentState; }
+            get { return _overlayKey.currentState; }
         }
 
         OverlayEntry _currentOverlayEntry {
             get {
-                var route = this._history.FindLast(r => r.overlayEntries.isNotEmpty());
+                var route = _history.FindLast(r => r.overlayEntries.isNotEmpty());
                 return route?.overlayEntries.last();
             }
         }
@@ -413,18 +413,18 @@ namespace Unity.UIWidgets.widgets {
         bool _debugLocked;
 
         Route _routeNamed(string name, object arguments, bool allowNull = false) {
-            D.assert(!this._debugLocked);
+            D.assert(!_debugLocked);
             D.assert(name != null);
             var settings = new RouteSettings(
                 name: name,
-                isInitialRoute: this._history.isEmpty(),
+                isInitialRoute: _history.isEmpty(),
                 arguments: arguments
             );
 
-            var route = (Route) this.widget.onGenerateRoute(settings);
+            var route = (Route) widget.onGenerateRoute(settings);
             if (route == null && !allowNull) {
                 D.assert(() => {
-                    if (this.widget.onUnknownRoute == null) {
+                    if (widget.onUnknownRoute == null) {
                         throw new UIWidgetsError(
                             "If a Navigator has no onUnknownRoute, then its onGenerateRoute must never return null.\n" +
                             $"When trying to build the route \"{name}\", onGenerateRoute returned null, but there was no " +
@@ -436,7 +436,7 @@ namespace Unity.UIWidgets.widgets {
                     return true;
                 });
 
-                route = (Route) this.widget.onUnknownRoute(settings);
+                route = (Route) widget.onUnknownRoute(settings);
                 D.assert(() => {
                     if (route == null) {
                         throw new UIWidgetsError(
@@ -456,35 +456,35 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public IPromise<object> pushNamed(string routeName, object arguments = null) {
-            return this.push(this._routeNamed(routeName, arguments: arguments));
+            return push(_routeNamed(routeName, arguments: arguments));
         }
 
         public IPromise<object> pushReplacementNamed(string routeName, object result = null, object arguments = null) {
-            return this.pushReplacement(this._routeNamed(routeName, arguments: arguments), result);
+            return pushReplacement(_routeNamed(routeName, arguments: arguments), result);
         }
 
         public IPromise<object> popAndPushNamed(string routeName, object result = null, object arguments = null) {
-            this.pop(result);
-            return this.pushNamed(routeName, arguments: arguments);
+            pop(result);
+            return pushNamed(routeName, arguments: arguments);
         }
 
         public IPromise<object> pushNamedAndRemoveUntil(string newRouteName, RoutePredicate predicate,
             object arguments = null) {
-            return this.pushAndRemoveUntil(this._routeNamed(newRouteName, arguments: arguments), predicate);
+            return pushAndRemoveUntil(_routeNamed(newRouteName, arguments: arguments), predicate);
         }
 
         public IPromise<object> push(Route route) {
-            D.assert(!this._debugLocked);
+            D.assert(!_debugLocked);
             D.assert(() => {
-                this._debugLocked = true;
+                _debugLocked = true;
                 return true;
             });
             D.assert(route != null);
             D.assert(route._navigator == null);
-            var oldRoute = this._history.isNotEmpty() ? this._history.last() : null;
+            var oldRoute = _history.isNotEmpty() ? _history.last() : null;
             route._navigator = this;
-            route.install(this._currentOverlayEntry);
-            this._history.Add(route);
+            route.install(_currentOverlayEntry);
+            _history.Add(route);
             route.didPush();
             route.didChangeNext(null);
             if (oldRoute != null) {
@@ -492,73 +492,73 @@ namespace Unity.UIWidgets.widgets {
                 route.didChangePrevious(oldRoute);
             }
 
-            foreach (var observer in this.widget.observers) {
+            foreach (var observer in widget.observers) {
                 observer.didPush(route, oldRoute);
             }
 
             D.assert(() => {
-                this._debugLocked = false;
+                _debugLocked = false;
                 return true;
             });
-            this._afterNavigation();
+            _afterNavigation();
             return route.popped;
         }
 
         void _afterNavigation() {
-            this._cancelActivePointers();
+            _cancelActivePointers();
         }
 
         public IPromise<object> pushReplacement(Route newRoute, object result = null) {
-            D.assert(!this._debugLocked);
+            D.assert(!_debugLocked);
             D.assert(() => {
-                this._debugLocked = true;
+                _debugLocked = true;
                 return true;
             });
-            var oldRoute = this._history.last();
+            var oldRoute = _history.last();
             D.assert(oldRoute != null && oldRoute._navigator == this);
             D.assert(oldRoute.overlayEntries.isNotEmpty());
             D.assert(newRoute._navigator == null);
             D.assert(newRoute.overlayEntries.isEmpty());
-            var index = this._history.Count - 1;
+            var index = _history.Count - 1;
             D.assert(index >= 0);
-            D.assert(this._history.IndexOf(oldRoute) == index);
+            D.assert(_history.IndexOf(oldRoute) == index);
             newRoute._navigator = this;
-            newRoute.install(this._currentOverlayEntry);
-            this._history[index] = newRoute;
+            newRoute.install(_currentOverlayEntry);
+            _history[index] = newRoute;
             newRoute.didPush().whenCompleteOrCancel(() => {
-                if (this.mounted) {
+                if (mounted) {
                     oldRoute.didComplete(result ?? oldRoute.currentResult);
                     oldRoute.dispose();
                 }
             });
             newRoute.didChangeNext(null);
             if (index > 0) {
-                this._history[index - 1].didChangeNext(newRoute);
-                newRoute.didChangePrevious(this._history[index - 1]);
+                _history[index - 1].didChangeNext(newRoute);
+                newRoute.didChangePrevious(_history[index - 1]);
             }
 
-            foreach (var observer in this.widget.observers) {
+            foreach (var observer in widget.observers) {
                 observer.didReplace(newRoute: newRoute, oldRoute: oldRoute);
             }
 
             D.assert(() => {
-                this._debugLocked = false;
+                _debugLocked = false;
                 return true;
             });
-            this._afterNavigation();
+            _afterNavigation();
             return newRoute.popped;
         }
 
         public IPromise<object> pushAndRemoveUntil(Route newRoute, RoutePredicate predicate) {
-            D.assert(!this._debugLocked);
+            D.assert(!_debugLocked);
             D.assert(() => {
-                this._debugLocked = true;
+                _debugLocked = true;
                 return true;
             });
             var removedRoutes = new List<Route>();
-            while (this._history.isNotEmpty() && !predicate(this._history.last())) {
-                var removedRoute = this._history.last();
-                this._history.RemoveAt(this._history.Count - 1);
+            while (_history.isNotEmpty() && !predicate(_history.last())) {
+                var removedRoute = _history.last();
+                _history.RemoveAt(_history.Count - 1);
                 D.assert(removedRoute != null && removedRoute._navigator == this);
                 D.assert(removedRoute.overlayEntries.isNotEmpty());
                 removedRoutes.Add(removedRoute);
@@ -566,12 +566,12 @@ namespace Unity.UIWidgets.widgets {
 
             D.assert(newRoute._navigator == null);
             D.assert(newRoute.overlayEntries.isEmpty());
-            var oldRoute = this._history.isNotEmpty() ? this._history.last() : null;
+            var oldRoute = _history.isNotEmpty() ? _history.last() : null;
             newRoute._navigator = this;
-            newRoute.install(this._currentOverlayEntry);
-            this._history.Add(newRoute);
+            newRoute.install(_currentOverlayEntry);
+            _history.Add(newRoute);
             newRoute.didPush().whenCompleteOrCancel(() => {
-                if (this.mounted) {
+                if (mounted) {
                     foreach (var route in removedRoutes) {
                         route.dispose();
                     }
@@ -582,7 +582,7 @@ namespace Unity.UIWidgets.widgets {
                 oldRoute.didChangeNext(newRoute);
             }
 
-            foreach (var observer in this.widget.observers) {
+            foreach (var observer in widget.observers) {
                 observer.didPush(newRoute, oldRoute);
                 foreach (var removedRoute in removedRoutes) {
                     observer.didRemove(removedRoute, oldRoute);
@@ -590,15 +590,15 @@ namespace Unity.UIWidgets.widgets {
             }
 
             D.assert(() => {
-                this._debugLocked = false;
+                _debugLocked = false;
                 return true;
             });
-            this._afterNavigation();
+            _afterNavigation();
             return newRoute.popped;
         }
 
         public void replace(Route oldRoute = null, Route newRoute = null) {
-            D.assert(!this._debugLocked);
+            D.assert(!_debugLocked);
             D.assert(oldRoute != null);
             D.assert(newRoute != null);
             if (oldRoute == newRoute) {
@@ -606,40 +606,40 @@ namespace Unity.UIWidgets.widgets {
             }
 
             D.assert(() => {
-                this._debugLocked = true;
+                _debugLocked = true;
                 return true;
             });
             D.assert(oldRoute._navigator == this);
             D.assert(newRoute._navigator == null);
             D.assert(oldRoute.overlayEntries.isNotEmpty());
             D.assert(newRoute.overlayEntries.isEmpty());
-            D.assert(!this.overlay.debugIsVisible(oldRoute.overlayEntries.last()));
-            var index = this._history.IndexOf(oldRoute);
+            D.assert(!overlay.debugIsVisible(oldRoute.overlayEntries.last()));
+            var index = _history.IndexOf(oldRoute);
             D.assert(index >= 0);
             newRoute._navigator = this;
             newRoute.install(oldRoute.overlayEntries.last());
-            this._history[index] = newRoute;
+            _history[index] = newRoute;
             newRoute.didReplace(oldRoute);
-            if (index + 1 < this._history.Count) {
-                newRoute.didChangeNext(this._history[index + 1]);
-                this._history[index + 1].didChangePrevious(newRoute);
+            if (index + 1 < _history.Count) {
+                newRoute.didChangeNext(_history[index + 1]);
+                _history[index + 1].didChangePrevious(newRoute);
             }
             else {
                 newRoute.didChangeNext(null);
             }
 
             if (index > 0) {
-                this._history[index - 1].didChangeNext(newRoute);
-                newRoute.didChangePrevious(this._history[index - 1]);
+                _history[index - 1].didChangeNext(newRoute);
+                newRoute.didChangePrevious(_history[index - 1]);
             }
 
-            foreach (var observer in this.widget.observers) {
+            foreach (var observer in widget.observers) {
                 observer.didReplace(newRoute: newRoute, oldRoute: oldRoute);
             }
 
             oldRoute.dispose();
             D.assert(() => {
-                this._debugLocked = false;
+                _debugLocked = false;
                 return true;
             });
         }
@@ -647,22 +647,22 @@ namespace Unity.UIWidgets.widgets {
         public void replaceRouteBelow(Route anchorRoute = null, Route newRoute = null) {
             D.assert(anchorRoute != null);
             D.assert(anchorRoute._navigator == this);
-            D.assert(this._history.IndexOf(anchorRoute) > 0);
-            this.replace(this._history[this._history.IndexOf(anchorRoute) - 1], newRoute);
+            D.assert(_history.IndexOf(anchorRoute) > 0);
+            replace(_history[_history.IndexOf(anchorRoute) - 1], newRoute);
         }
 
         public bool canPop() {
-            D.assert(this._history.isNotEmpty);
-            return this._history.Count > 1 || this._history[0].willHandlePopInternally;
+            D.assert(_history.isNotEmpty);
+            return _history.Count > 1 || _history[0].willHandlePopInternally;
         }
 
         public IPromise<bool> maybePop(object result = null) {
-            var route = this._history.last();
+            var route = _history.last();
             D.assert(route._navigator == this);
             return route.willPop().Then(disposition => {
-                if (disposition != RoutePopDisposition.bubble && this.mounted) {
+                if (disposition != RoutePopDisposition.bubble && mounted) {
                     if (disposition == RoutePopDisposition.pop) {
-                        this.pop(result);
+                        pop(result);
                     }
 
                     return true;
@@ -673,12 +673,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public bool pop(object result = null) {
-            D.assert(!this._debugLocked);
+            D.assert(!_debugLocked);
             D.assert(() => {
-                this._debugLocked = true;
+                _debugLocked = true;
                 return true;
             });
-            var route = this._history.last();
+            var route = _history.last();
             D.assert(route._navigator == this);
             var debugPredictedWouldPop = false;
             D.assert(() => {
@@ -687,20 +687,20 @@ namespace Unity.UIWidgets.widgets {
             });
             if (route.didPop(result ?? route.currentResult)) {
                 D.assert(debugPredictedWouldPop);
-                if (this._history.Count > 1) {
-                    this._history.removeLast();
+                if (_history.Count > 1) {
+                    _history.removeLast();
                     if (route._navigator != null) {
-                        this._poppedRoutes.Add(route);
+                        _poppedRoutes.Add(route);
                     }
 
-                    this._history.last().didPopNext(route);
-                    foreach (var observer in this.widget.observers) {
-                        observer.didPop(route, this._history.last());
+                    _history.last().didPopNext(route);
+                    foreach (var observer in widget.observers) {
+                        observer.didPop(route, _history.last());
                     }
                 }
                 else {
                     D.assert(() => {
-                        this._debugLocked = false;
+                        _debugLocked = false;
                         return true;
                     });
                     return false;
@@ -711,62 +711,62 @@ namespace Unity.UIWidgets.widgets {
             }
 
             D.assert(() => {
-                this._debugLocked = false;
+                _debugLocked = false;
                 return true;
             });
-            this._afterNavigation();
+            _afterNavigation();
             return true;
         }
 
         public void popUntil(RoutePredicate predicate) {
-            while (!predicate(this._history.last())) {
-                this.pop();
+            while (!predicate(_history.last())) {
+                pop();
             }
         }
 
         public void removeRoute(Route route) {
             D.assert(route != null);
-            D.assert(!this._debugLocked);
+            D.assert(!_debugLocked);
             D.assert(() => {
-                this._debugLocked = true;
+                _debugLocked = true;
                 return true;
             });
             D.assert(route._navigator == this);
-            var index = this._history.IndexOf(route);
+            var index = _history.IndexOf(route);
             D.assert(index != -1);
-            var previousRoute = index > 0 ? this._history[index - 1] : null;
-            var nextRoute = index + 1 < this._history.Count ? this._history[index + 1] : null;
-            this._history.RemoveAt(index);
+            var previousRoute = index > 0 ? _history[index - 1] : null;
+            var nextRoute = index + 1 < _history.Count ? _history[index + 1] : null;
+            _history.RemoveAt(index);
             previousRoute?.didChangeNext(nextRoute);
             nextRoute?.didChangePrevious(previousRoute);
-            foreach (var observer in this.widget.observers) {
+            foreach (var observer in widget.observers) {
                 observer.didRemove(route, previousRoute);
             }
 
             route.dispose();
             D.assert(() => {
-                this._debugLocked = false;
+                _debugLocked = false;
                 return true;
             });
-            this._afterNavigation();
+            _afterNavigation();
         }
 
         public void removeRouteBelow(Route anchorRoute) {
-            D.assert(!this._debugLocked);
+            D.assert(!_debugLocked);
             D.assert(() => {
-                this._debugLocked = true;
+                _debugLocked = true;
                 return true;
             });
             D.assert(anchorRoute._navigator == this);
-            var index = this._history.IndexOf(anchorRoute) - 1;
+            var index = _history.IndexOf(anchorRoute) - 1;
             D.assert(index >= 0);
-            var targetRoute = this._history[index];
+            var targetRoute = _history[index];
             D.assert(targetRoute._navigator == this);
             D.assert(targetRoute.overlayEntries.isEmpty() ||
-                     !this.overlay.debugIsVisible(targetRoute.overlayEntries.last()));
-            this._history.RemoveAt(index);
-            var nextRoute = index < this._history.Count ? this._history[index] : null;
-            var previousRoute = index > 0 ? this._history[index - 1] : null;
+                     !overlay.debugIsVisible(targetRoute.overlayEntries.last()));
+            _history.RemoveAt(index);
+            var nextRoute = index < _history.Count ? _history[index] : null;
+            var previousRoute = index > 0 ? _history[index - 1] : null;
             if (previousRoute != null) {
                 previousRoute.didChangeNext(nextRoute);
             }
@@ -777,41 +777,41 @@ namespace Unity.UIWidgets.widgets {
 
             targetRoute.dispose();
             D.assert(() => {
-                this._debugLocked = false;
+                _debugLocked = false;
                 return true;
             });
         }
 
         public void finalizeRoute(Route route) {
-            this._poppedRoutes.Remove(route);
+            _poppedRoutes.Remove(route);
             route.dispose();
         }
 
         int _userGesturesInProgress = 0;
 
         public bool userGestureInProgress {
-            get { return this._userGesturesInProgress > 0; }
+            get { return _userGesturesInProgress > 0; }
         }
 
         public void didStartUserGesture() {
-            this._userGesturesInProgress += 1;
-            if (this._userGesturesInProgress == 1) {
-                var route = this._history.last();
-                var previousRoute = !route.willHandlePopInternally && this._history.Count > 1
-                    ? this._history[this._history.Count - 2]
+            _userGesturesInProgress += 1;
+            if (_userGesturesInProgress == 1) {
+                var route = _history.last();
+                var previousRoute = !route.willHandlePopInternally && _history.Count > 1
+                    ? _history[_history.Count - 2]
                     : null;
 
-                foreach (var observer in this.widget.observers) {
+                foreach (var observer in widget.observers) {
                     observer.didStartUserGesture(route, previousRoute);
                 }
             }
         }
 
         public void didStopUserGesture() {
-            D.assert(this._userGesturesInProgress > 0);
-            this._userGesturesInProgress -= 1;
-            if (this._userGesturesInProgress == 0) {
-                foreach (var observer in this.widget.observers) {
+            D.assert(_userGesturesInProgress > 0);
+            _userGesturesInProgress -= 1;
+            if (_userGesturesInProgress == 0) {
+                foreach (var observer in widget.observers) {
                     observer.didStopUserGesture();
                 }
             }
@@ -820,11 +820,11 @@ namespace Unity.UIWidgets.widgets {
         readonly HashSet<int> _activePointers = new HashSet<int>();
 
         void _handlePointerDown(PointerDownEvent evt) {
-            this._activePointers.Add(evt.pointer);
+            _activePointers.Add(evt.pointer);
         }
 
         void _handlePointerUpOrCancel(PointerEvent evt) {
-            this._activePointers.Remove(evt.pointer);
+            _activePointers.Remove(evt.pointer);
         }
 
         void _cancelActivePointers() {
@@ -833,35 +833,35 @@ namespace Unity.UIWidgets.widgets {
                 // If we're between frames (SchedulerPhase.idle) then absorb any
                 // subsequent pointers from this frame. The absorbing flag will be
                 // reset in the next frame, see build().
-                var absorber = (RenderAbsorbPointer) this._overlayKey.currentContext?
+                var absorber = (RenderAbsorbPointer) _overlayKey.currentContext?
                     .ancestorRenderObjectOfType(new TypeMatcher<RenderAbsorbPointer>());
-                this.setState(() => {
+                setState(() => {
                     if (absorber != null) {
                         absorber.absorbing = true;
                     }
                 });
             }
 
-            foreach (var pointer in this._activePointers) {
+            foreach (var pointer in _activePointers) {
                 WidgetsBinding.instance.cancelPointer(pointer);
             }
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(!this._debugLocked);
-            D.assert(this._history.isNotEmpty());
+            D.assert(!_debugLocked);
+            D.assert(_history.isNotEmpty());
             return new Listener(
-                onPointerDown: this._handlePointerDown,
-                onPointerUp: this._handlePointerUpOrCancel,
-                onPointerCancel: this._handlePointerUpOrCancel,
+                onPointerDown: _handlePointerDown,
+                onPointerUp: _handlePointerUpOrCancel,
+                onPointerCancel: _handlePointerUpOrCancel,
                 child: new AbsorbPointer(
                     absorbing: false, // it's mutated directly by _cancelActivePointers above
                     child: new FocusScope(
-                        this.focusScopeNode,
+                        focusScopeNode,
                         autofocus: true,
                         child: new Overlay(
-                            key: this._overlayKey,
-                            initialEntries: this._initialOverlayEntries
+                            key: _overlayKey,
+                            initialEntries: _initialOverlayEntries
                         )
                     )
                 )

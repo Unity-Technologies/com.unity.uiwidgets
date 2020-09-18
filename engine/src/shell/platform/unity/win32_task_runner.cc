@@ -45,6 +45,10 @@ std::chrono::nanoseconds Win32TaskRunner::ProcessTasks() {
     }
   }
 
+  for (const auto& observer : task_observers_) {
+    observer.second();
+  }
+	
   // Fire expired tasks.
   {
     // Flushing tasks here without holing onto the task queue mutex.
@@ -57,10 +61,9 @@ std::chrono::nanoseconds Win32TaskRunner::ProcessTasks() {
     }
   }
 
-	if (!expired_tasks.empty())
-	{
+  if (!expired_tasks.empty()) {
     return ProcessTasks();
-	}
+  }
 
   // Calculate duration to sleep for on next iteration.
   {

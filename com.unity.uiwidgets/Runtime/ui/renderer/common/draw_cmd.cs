@@ -33,7 +33,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.rect = null;
+            rect = null;
         }
 
         public uiRect? rect;
@@ -108,7 +108,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.offset = null;
+            offset = null;
         }
 
         public float radians;
@@ -149,7 +149,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.matrix = null;
+            matrix = null;
         }
 
         public uiMatrix3? matrix;
@@ -184,7 +184,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.matrix = null;
+            matrix = null;
         }
 
         public uiMatrix3? matrix;
@@ -205,7 +205,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.rect = null;
+            rect = null;
         }
 
         public uiRect? rect;
@@ -226,7 +226,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.rrect = null;
+            rrect = null;
         }
 
         public RRect rrect;
@@ -248,8 +248,8 @@ namespace Unity.UIWidgets.ui {
 
         public override void clear() {
             //ObjectPool<uiPath>.release(this.path);
-            uiPathCacheManager.putToCache(this.path);
-            this.path = null;
+            uiPathCacheManager.putToCache(path);
+            path = null;
         }
 
         public uiPath path;
@@ -272,8 +272,8 @@ namespace Unity.UIWidgets.ui {
 
         public override void clear() {
             //ObjectPool<uiPath>.release(this.path);
-            uiPathCacheManager.putToCache(this.path);
-            this.path = null;
+            uiPathCacheManager.putToCache(path);
+            path = null;
         }
 
         public uiPath path;
@@ -297,8 +297,8 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.image = null;
-            this.offset = null;
+            image = null;
+            offset = null;
         }
 
         public Image image;
@@ -324,9 +324,9 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.image = null;
-            this.src = null;
-            this.dst = null;
+            image = null;
+            src = null;
+            dst = null;
         }
 
         public Image image;
@@ -354,10 +354,10 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.image = null;
-            this.src = null;
-            this.center = null;
-            this.dst = null;
+            image = null;
+            src = null;
+            center = null;
+            dst = null;
         }
 
         public Image image;
@@ -382,7 +382,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.picture = null;
+            picture = null;
         }
 
         public Picture picture;
@@ -405,8 +405,8 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            this.textBlob = null;
-            this.offset = null;
+            textBlob = null;
+            offset = null;
         }
 
         public TextBlob? textBlob;

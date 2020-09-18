@@ -699,7 +699,7 @@ namespace Unity.UIWidgets.async2 {
             if (error == null)
                 error = new ArgumentNullException(nameof(error));
 
-            async_._schedulePriorityAsyncCallback(() => {
+            _schedulePriorityAsyncCallback(() => {
                 _rethrow(error);
                 return null;
             });
@@ -879,7 +879,7 @@ namespace Unity.UIWidgets.async2 {
 
         public override object runGuarded(ZoneCallback f) {
             try {
-                if (ReferenceEquals(async_._rootZone, Zone._current)) {
+                if (ReferenceEquals(async_._rootZone, _current)) {
                     return f();
                 }
 
@@ -893,7 +893,7 @@ namespace Unity.UIWidgets.async2 {
 
         public override object runUnaryGuarded(ZoneUnaryCallback f, object arg) {
             try {
-                if (ReferenceEquals(async_._rootZone, Zone._current)) {
+                if (ReferenceEquals(async_._rootZone, _current)) {
                     return f(arg);
                 }
 
@@ -907,7 +907,7 @@ namespace Unity.UIWidgets.async2 {
 
         public override object runBinaryGuarded(ZoneBinaryCallback f, object arg1, object arg2) {
             try {
-                if (ReferenceEquals(async_._rootZone, Zone._current)) {
+                if (ReferenceEquals(async_._rootZone, _current)) {
                     return f(arg1, arg2);
                 }
 
@@ -954,17 +954,17 @@ namespace Unity.UIWidgets.async2 {
         }
 
         public override object run(ZoneCallback f) {
-            if (ReferenceEquals(Zone._current, async_._rootZone)) return f();
+            if (ReferenceEquals(_current, async_._rootZone)) return f();
             return async_._rootRun(null, null, this, f);
         }
 
         public override object runUnary(ZoneUnaryCallback f, object arg) {
-            if (ReferenceEquals(Zone._current, async_._rootZone)) return f(arg);
+            if (ReferenceEquals(_current, async_._rootZone)) return f(arg);
             return async_._rootRunUnary(null, null, this, f, arg);
         }
 
         public override object runBinary(ZoneBinaryCallback f, object arg1, object arg2) {
-            if (ReferenceEquals(Zone._current, async_._rootZone)) return f(arg1, arg2);
+            if (ReferenceEquals(_current, async_._rootZone)) return f(arg1, arg2);
             return async_._rootRunBinary(null, null, this, f, arg1, arg2);
         }
 

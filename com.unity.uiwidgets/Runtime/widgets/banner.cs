@@ -69,38 +69,38 @@ namespace Unity.UIWidgets.widgets {
         Paint _paintBanner;
 
         void _prepare() {
-            this._paintShadow = this._shadow.toPaint();
-            this._paintBanner = new Paint();
-            this._paintBanner.color = this.color;
-            this._textPainter = new TextPainter(
-                text: new TextSpan(style: this.textStyle, text: this.message),
+            _paintShadow = _shadow.toPaint();
+            _paintBanner = new Paint();
+            _paintBanner.color = color;
+            _textPainter = new TextPainter(
+                text: new TextSpan(style: textStyle, text: message),
                 textAlign: TextAlign.center
             );
-            this._prepared = true;
+            _prepared = true;
         }
 
         public override void paint(Canvas canvas, Size size) {
-            if (!this._prepared) {
-                this._prepare();
+            if (!_prepared) {
+                _prepare();
             }
 
-            canvas.translate(this._translationX(size.width), this._translationY(size.height));
-            canvas.rotate(this._rotation);
-            canvas.drawRect(BannerConstants._kRect, this._paintShadow);
-            canvas.drawRect(BannerConstants._kRect, this._paintBanner);
+            canvas.translate(_translationX(size.width), _translationY(size.height));
+            canvas.rotate(_rotation);
+            canvas.drawRect(BannerConstants._kRect, _paintShadow);
+            canvas.drawRect(BannerConstants._kRect, _paintBanner);
             const float width = BannerConstants._kOffset * 2.0f;
-            this._textPainter.layout(minWidth: width, maxWidth: width);
-            this._textPainter.paint(canvas,
+            _textPainter.layout(minWidth: width, maxWidth: width);
+            _textPainter.paint(canvas,
                 BannerConstants._kRect.topLeft + new Offset(0.0f,
-                    (BannerConstants._kRect.height - this._textPainter.height) / 2.0f));
+                    (BannerConstants._kRect.height - _textPainter.height) / 2.0f));
         }
 
         public override bool shouldRepaint(CustomPainter _oldDelegate) {
             BannerPainter oldDelegate = _oldDelegate as BannerPainter;
-            return this.message != oldDelegate.message
-                   || this.location != oldDelegate.location
-                   || this.color != oldDelegate.color
-                   || this.textStyle != oldDelegate.textStyle;
+            return message != oldDelegate.message
+                   || location != oldDelegate.location
+                   || color != oldDelegate.color
+                   || textStyle != oldDelegate.textStyle;
         }
 
         public override bool? hitTest(Offset position) {
@@ -108,7 +108,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         float _translationX(float width) {
-            switch (this.location) {
+            switch (location) {
                 case BannerLocation.bottomEnd:
                     return width - BannerConstants._kBottomOffset;
                 case BannerLocation.topEnd:
@@ -118,13 +118,13 @@ namespace Unity.UIWidgets.widgets {
                 case BannerLocation.topStart:
                     return 0.0f;
                 default:
-                    throw new Exception("Unknown location: " + this.location);
+                    throw new Exception("Unknown location: " + location);
             }
         }
 
         float _translationY(float height) {
-            D.assert(this.location != null);
-            switch (this.location) {
+            D.assert(location != null);
+            switch (location) {
                 case BannerLocation.bottomStart:
                 case BannerLocation.bottomEnd:
                     return height - BannerConstants._kBottomOffset;
@@ -132,13 +132,13 @@ namespace Unity.UIWidgets.widgets {
                 case BannerLocation.topEnd:
                     return 0.0f;
                 default:
-                    throw new Exception("Unknown location: " + this.location);
+                    throw new Exception("Unknown location: " + location);
             }
         }
 
         float _rotation {
             get {
-                switch (this.location) {
+                switch (location) {
                     case BannerLocation.bottomStart:
                     case BannerLocation.topEnd:
                         return Mathf.PI / 4.0f;
@@ -146,7 +146,7 @@ namespace Unity.UIWidgets.widgets {
                     case BannerLocation.topStart:
                         return -Mathf.PI / 4.0f;
                     default:
-                        throw new Exception("Unknown location: " + this.location);
+                        throw new Exception("Unknown location: " + location);
                 }
             }
         }
@@ -183,21 +183,21 @@ namespace Unity.UIWidgets.widgets {
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
             return new CustomPaint(
                 foregroundPainter: new BannerPainter(
-                    message: this.message,
-                    location: this.location,
-                    color: this.color,
-                    textStyle: this.textStyle
+                    message: message,
+                    location: location,
+                    color: color,
+                    textStyle: textStyle
                 ),
-                child: this.child
+                child: child
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new StringProperty("message", this.message, showName: false));
-            properties.add(new EnumProperty<BannerLocation?>("location", this.location));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color, showName: false));
-            this.textStyle?.debugFillProperties(properties);
+            properties.add(new StringProperty("message", message, showName: false));
+            properties.add(new EnumProperty<BannerLocation?>("location", location));
+            properties.add(new DiagnosticsProperty<Color>("color", color, showName: false));
+            textStyle?.debugFillProperties(properties);
         }
     }
 
@@ -214,7 +214,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly Widget child;
 
         public override Widget build(BuildContext context) {
-            Widget result = this.child;
+            Widget result = child;
             D.assert(() => {
                 result = new Banner(
                     child: result,

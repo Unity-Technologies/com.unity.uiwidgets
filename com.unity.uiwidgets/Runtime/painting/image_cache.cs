@@ -16,43 +16,43 @@ namespace Unity.UIWidgets.painting {
         int _maximumSize = _kDefaultSize;
 
         public int maximumSize {
-            get { return this._maximumSize; }
+            get { return _maximumSize; }
             set {
                 D.assert(value >= 0);
-                if (value == this._maximumSize) {
+                if (value == _maximumSize) {
                     return;
                 }
 
-                this._maximumSize = value;
-                if (this._maximumSize == 0) {
-                    this.clear();
+                _maximumSize = value;
+                if (_maximumSize == 0) {
+                    clear();
                 }
                 else {
-                    this._checkCacheSize();
+                    _checkCacheSize();
                 }
             }
         }
 
         public int currentSize {
-            get { return this._cache.Count; }
+            get { return _cache.Count; }
         }
 
         int _maximumSizeBytes = _kDefaultSizeBytes;
 
         public int maximumSizeBytes {
-            get { return this._maximumSizeBytes; }
+            get { return _maximumSizeBytes; }
             set {
                 D.assert(value >= 0);
-                if (value == this._maximumSizeBytes) {
+                if (value == _maximumSizeBytes) {
                     return;
                 }
 
-                this._maximumSizeBytes = value;
-                if (this._maximumSizeBytes == 0) {
-                    this.clear();
+                _maximumSizeBytes = value;
+                if (_maximumSizeBytes == 0) {
+                    clear();
                 }
                 else {
-                    this._checkCacheSize();
+                    _checkCacheSize();
                 }
             }
         }
@@ -60,30 +60,30 @@ namespace Unity.UIWidgets.painting {
         int _currentSizeBytes;
 
         public int currentSizeBytes {
-            get { return this._currentSizeBytes; }
+            get { return _currentSizeBytes; }
         }
 
         public void clear() {
-            this._cache.Clear();
-            this._pendingImages.Clear();
-            this._currentSizeBytes = 0;
+            _cache.Clear();
+            _pendingImages.Clear();
+            _currentSizeBytes = 0;
 
-            this._lruKeys.Clear();
+            _lruKeys.Clear();
         }
 
         public bool evict(object key) {
             D.assert(key != null);
 
-            if (this._pendingImages.TryGetValue(key, out var pendingImage)) {
+            if (_pendingImages.TryGetValue(key, out var pendingImage)) {
                 pendingImage.removeListener();
-                this._pendingImages.Remove(key);
+                _pendingImages.Remove(key);
                 return true;
             }
 
-            if (this._cache.TryGetValue(key, out var image)) {
-                this._currentSizeBytes -= image.sizeBytes;
-                this._cache.Remove(key);
-                this._lruKeys.Remove(image.node);
+            if (_cache.TryGetValue(key, out var image)) {
+                _currentSizeBytes -= image.sizeBytes;
+                _cache.Remove(key);
+                _lruKeys.Remove(image.node);
                 return true;
             }
 
@@ -96,15 +96,15 @@ namespace Unity.UIWidgets.painting {
             D.assert(loader != null);
 
             ImageStreamCompleter result = null;
-            if (this._pendingImages.TryGetValue(key, out var pendingImage)) {
+            if (_pendingImages.TryGetValue(key, out var pendingImage)) {
                 result = pendingImage.completer;
                 return result;
             }
 
-            if (this._cache.TryGetValue(key, out var image)) {
+            if (_cache.TryGetValue(key, out var image)) {
                 // put to the MRU position
-                this._lruKeys.Remove(image.node);
-                image.node = this._lruKeys.AddLast(key);
+                _lruKeys.Remove(image.node);
+                image.node = _lruKeys.AddLast(key);
                 return image.completer;
             }
 
@@ -124,25 +124,25 @@ namespace Unity.UIWidgets.painting {
                 int imageSize = info?.image == null ? 0 : info.image.height * info.image.width * 4;
                 _CachedImage cachedImage = new _CachedImage(result, imageSize);
 
-                if (this.maximumSizeBytes > 0 && imageSize > this.maximumSizeBytes) {
-                    this._maximumSizeBytes = imageSize + 1000;
+                if (maximumSizeBytes > 0 && imageSize > maximumSizeBytes) {
+                    _maximumSizeBytes = imageSize + 1000;
                 }
 
-                this._currentSizeBytes += imageSize;
+                _currentSizeBytes += imageSize;
 
-                if (this._pendingImages.TryGetValue(key, out var loadedPendingImage)) {
+                if (_pendingImages.TryGetValue(key, out var loadedPendingImage)) {
                     loadedPendingImage.removeListener();
-                    this._pendingImages.Remove(key);
+                    _pendingImages.Remove(key);
                 }
 
-                D.assert(!this._cache.ContainsKey(key));
-                this._cache[key] = cachedImage;
-                cachedImage.node = this._lruKeys.AddLast(key);
-                this._checkCacheSize();
+                D.assert(!_cache.ContainsKey(key));
+                _cache[key] = cachedImage;
+                cachedImage.node = _lruKeys.AddLast(key);
+                _checkCacheSize();
             }
 
-            if (this.maximumSize > 0 && this.maximumSizeBytes > 0) {
-                this._pendingImages[key] = new _PendingImage(result, listener);
+            if (maximumSize > 0 && maximumSizeBytes > 0) {
+                _pendingImages[key] = new _PendingImage(result, listener);
                 result.addListener(listener);
             }
 
@@ -150,22 +150,22 @@ namespace Unity.UIWidgets.painting {
         }
 
         void _checkCacheSize() {
-            while (this._currentSizeBytes > this._maximumSizeBytes || this._cache.Count > this._maximumSize) {
-                var node = this._lruKeys.First;
+            while (_currentSizeBytes > _maximumSizeBytes || _cache.Count > _maximumSize) {
+                var node = _lruKeys.First;
                 var key = node.Value; // get the LRU item
 
-                D.assert(this._cache.ContainsKey(key));
-                _CachedImage image = this._cache[key];
+                D.assert(_cache.ContainsKey(key));
+                _CachedImage image = _cache[key];
 
                 D.assert(node == image.node);
-                this._currentSizeBytes -= image.sizeBytes;
-                this._cache.Remove(key);
-                this._lruKeys.Remove(image.node);
+                _currentSizeBytes -= image.sizeBytes;
+                _cache.Remove(key);
+                _lruKeys.Remove(image.node);
             }
 
-            D.assert(this._currentSizeBytes >= 0);
-            D.assert(this._cache.Count <= this.maximumSize);
-            D.assert(this._currentSizeBytes <= this.maximumSizeBytes);
+            D.assert(_currentSizeBytes >= 0);
+            D.assert(_cache.Count <= maximumSize);
+            D.assert(_currentSizeBytes <= maximumSizeBytes);
         }
     }
 
@@ -194,7 +194,7 @@ namespace Unity.UIWidgets.painting {
         public readonly ImageListener listener;
 
         public void removeListener() {
-            this.completer.removeListener(this.listener);
+            completer.removeListener(listener);
         }
     }
 }

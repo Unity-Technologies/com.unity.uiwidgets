@@ -10,7 +10,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override Alignment lerp(float t) {
-            return Alignment.lerp(this.begin, this.end, t);
+            return Alignment.lerp(begin, end, t);
         }
     }
 }

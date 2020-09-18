@@ -25,20 +25,20 @@ namespace Unity.UIWidgets.animation {
         public abstract T value { get; }
 
         public bool isDismissed {
-            get { return this.status == AnimationStatus.dismissed; }
+            get { return status == AnimationStatus.dismissed; }
         }
 
         public bool isCompleted {
-            get { return this.status == AnimationStatus.completed; }
+            get { return status == AnimationStatus.completed; }
         }
 
         public override string ToString() {
-            return $"{Diagnostics.describeIdentity(this)}({this.toStringDetails()})";
+            return $"{foundation_.describeIdentity(this)}({toStringDetails()})";
         }
 
         public virtual string toStringDetails() {
             string icon = null;
-            switch (this.status) {
+            switch (status) {
                 case AnimationStatus.forward:
                     icon = "\u25B6"; // >
                     break;

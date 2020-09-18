@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using AOT;
 using RSG;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 using Unity.UIWidgets.ui;
@@ -255,7 +256,7 @@ namespace Unity.UIWidgets.ui2 {
             int backAlpha = background.alpha;
             if (backAlpha == 0xff) {
                 // Opaque background case
-                return Color.fromARGB(
+                return fromARGB(
                     0xff,
                     (alpha * foreground.red + invAlpha * background.red) / 0xff,
                     (alpha * foreground.green + invAlpha * background.green) / 0xff,
@@ -267,7 +268,7 @@ namespace Unity.UIWidgets.ui2 {
                 backAlpha = (backAlpha * invAlpha) / 0xff;
                 int outAlpha = alpha + backAlpha;
                 D.assert(outAlpha != 0x00);
-                return Color.fromARGB(
+                return fromARGB(
                     outAlpha,
                     (foreground.red * alpha + background.red * backAlpha) / outAlpha,
                     (foreground.green * alpha + background.green * backAlpha) / outAlpha,
@@ -485,7 +486,7 @@ namespace Unity.UIWidgets.ui2 {
             }
         }
 
-        float strokeWidth {
+        public float strokeWidth {
             get { return _data.getFloat32(_kStrokeWidthOffset); }
             set {
                 float encoded = value;
@@ -772,13 +773,18 @@ namespace Unity.UIWidgets.ui2 {
             var completer = (Promise<byte[]>) completerHandle.Target;
             completerHandle.Free();
 
-            if (data == IntPtr.Zero || length == 0) {
-                completer.Resolve(new byte[0]);
+            try {
+                if (data == IntPtr.Zero || length == 0) {
+                    completer.Resolve(new byte[0]);
+                }
+                else {
+                    var bytes = new byte[length];
+                    Marshal.Copy(data, bytes, 0, length);
+                    completer.Resolve(bytes);
+                }
             }
-            else {
-                var bytes = new byte[length];
-                Marshal.Copy(data, bytes, 0, length);
-                completer.Resolve(bytes);
+            catch (Exception ex) {
+                Debug.LogException(ex);
             }
         }
 
@@ -2406,37 +2412,38 @@ namespace Unity.UIWidgets.ui2 {
             Picture_dispose(ptr);
         }
 
-        public Promise<Image> toImage(int width, int height) {
+        public Future toImage(int width, int height) {
             if (width <= 0 || height <= 0) {
                 throw new ArgumentException("Invalid image dimensions.");
             }
 
-            var completer = new Promise<Image>(true);
-            GCHandle completerHandle = GCHandle.Alloc(completer);
+            return ui_._futurize(
+                (_Callback<Image> callback) => {
+                    GCHandle callbackHandle = GCHandle.Alloc(callback);
+                    IntPtr error =
+                        Picture_toImage(_ptr, width, height, _toImageCallback,
+                            (IntPtr) callbackHandle);
 
-            IntPtr error =
-                Picture_toImage(_ptr, width, height, _toImageCallback,
-                    (IntPtr) completerHandle);
-            if (error != null) {
-                completerHandle.Free();
-                throw new Exception(Marshal.PtrToStringAnsi(error));
-            }
+                    if (error != IntPtr.Zero) {
+                        callbackHandle.Free();
+                        return Marshal.PtrToStringAnsi(error);
+                    }
 
-            return completer;
+                    return null;
+                });
         }
 
         [MonoPInvokeCallback(typeof(Picture_toImageCallback))]
         static void _toImageCallback(IntPtr callbackHandle, IntPtr result) {
-            GCHandle completerHandle = (GCHandle) callbackHandle;
-            var completer = (Promise<Image>) completerHandle.Target;
-            completerHandle.Free();
+            GCHandle handle = (GCHandle) callbackHandle;
+            var callback = (_Callback<Image>) handle.Target;
+            handle.Free();
 
-            if (result == IntPtr.Zero) {
-                completer.Reject(new Exception("operation failed"));
+            try {
+                callback(result == IntPtr.Zero ? null : new Image(result));
             }
-            else {
-                var image = new Image(result);
-                completer.Resolve(image);
+            catch (Exception ex) {
+                Debug.LogException(ex);
             }
         }
 
@@ -2612,5 +2619,26 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         public override string ToString() => $"TextShadow({color}, {offset}, {blurRadius})";
+    }
+
+    delegate void _Callback<T>(T result);
+
+    delegate string _Callbacker<T>(_Callback<T> callback);
+
+    public static partial class ui_ {
+        internal static Future _futurize<T>(_Callbacker<T> callbacker) {
+            Completer completer = Completer.sync();
+            string error = callbacker(t => {
+                if (t == null) {
+                    completer.completeError(new Exception("operation failed"));
+                }
+                else {
+                    completer.complete(FutureOr.value(t));
+                }
+            });
+            if (error != null)
+                throw new Exception(error);
+            return completer.future;
+        }
     }
 }

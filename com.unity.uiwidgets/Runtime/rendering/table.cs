@@ -25,9 +25,9 @@ namespace Unity.UIWidgets.rendering {
 
         public override string ToString() {
             return
-                base.ToString() + "; " + (this.verticalAlignment == null
+                base.ToString() + "; " + (verticalAlignment == null
                     ? "default vertical alignment"
-                    : this.verticalAlignment.ToString());
+                    : verticalAlignment.ToString());
         }
     }
 
@@ -44,7 +44,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override string ToString() {
-            return this.GetType().ToString();
+            return GetType().ToString();
         }
     }
 
@@ -52,7 +52,7 @@ namespace Unity.UIWidgets.rendering {
     public class IntrinsicColumnWidth : TableColumnWidth {
         public IntrinsicColumnWidth(
             float? flex = null) {
-            this._flex = flex;
+            _flex = flex;
         }
 
         public override float minIntrinsicWidth(List<RenderBox> cells, float containerWidth) {
@@ -74,13 +74,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override float? flex(List<RenderBox> cells) {
-            return this._flex;
+            return _flex;
         }
 
         readonly float? _flex;
 
         public override string ToString() {
-            return $"${this.GetType()}(flex: {this._flex})";
+            return $"${GetType()}(flex: {_flex})";
         }
     }
 
@@ -94,15 +94,15 @@ namespace Unity.UIWidgets.rendering {
         public readonly float value;
 
         public override float minIntrinsicWidth(List<RenderBox> cells, float containerWidth) {
-            return this.value;
+            return value;
         }
 
         public override float maxIntrinsicWidth(List<RenderBox> cells, float containerWidth) {
-            return this.value;
+            return value;
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.value})";
+            return $"{GetType()}({value})";
         }
     }
 
@@ -120,7 +120,7 @@ namespace Unity.UIWidgets.rendering {
                 return 0.0f;
             }
 
-            return this.value * containerWidth;
+            return value * containerWidth;
         }
 
         public override float maxIntrinsicWidth(List<RenderBox> cells, float containerWidth) {
@@ -128,11 +128,11 @@ namespace Unity.UIWidgets.rendering {
                 return 0.0f;
             }
 
-            return this.value * containerWidth;
+            return value * containerWidth;
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.value})";
+            return $"{GetType()}({value})";
         }
     }
 
@@ -152,11 +152,11 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override float? flex(List<RenderBox> cells) {
-            return this.value;
+            return value;
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.value})";
+            return $"{GetType()}({value})";
         }
     }
 
@@ -173,25 +173,25 @@ namespace Unity.UIWidgets.rendering {
 
         public override float minIntrinsicWidth(List<RenderBox> cells, float containerWidth) {
             return Mathf.Max(
-                this.a.minIntrinsicWidth(cells, containerWidth),
-                this.b.minIntrinsicWidth(cells, containerWidth)
+                a.minIntrinsicWidth(cells, containerWidth),
+                b.minIntrinsicWidth(cells, containerWidth)
             );
         }
 
         public override float maxIntrinsicWidth(List<RenderBox> cells, float containerWidth) {
             return Mathf.Max(
-                this.a.maxIntrinsicWidth(cells, containerWidth),
-                this.b.maxIntrinsicWidth(cells, containerWidth)
+                a.maxIntrinsicWidth(cells, containerWidth),
+                b.maxIntrinsicWidth(cells, containerWidth)
             );
         }
 
         public override float? flex(List<RenderBox> cells) {
-            float? aFlex = this.a.flex(cells);
+            float? aFlex = a.flex(cells);
             if (aFlex == null) {
-                return this.b.flex(cells);
+                return b.flex(cells);
             }
 
-            float? bFlex = this.b.flex(cells);
+            float? bFlex = b.flex(cells);
             if (bFlex == null) {
                 return null;
             }
@@ -200,7 +200,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.a}, {this.b})";
+            return $"{GetType()}({a}, {b})";
         }
     }
 
@@ -217,25 +217,25 @@ namespace Unity.UIWidgets.rendering {
 
         public override float minIntrinsicWidth(List<RenderBox> cells, float containerWidth) {
             return Mathf.Min(
-                this.a.minIntrinsicWidth(cells, containerWidth),
-                this.b.minIntrinsicWidth(cells, containerWidth)
+                a.minIntrinsicWidth(cells, containerWidth),
+                b.minIntrinsicWidth(cells, containerWidth)
             );
         }
 
         public override float maxIntrinsicWidth(List<RenderBox> cells, float containerWidth) {
             return Mathf.Min(
-                this.a.maxIntrinsicWidth(cells, containerWidth),
-                this.b.maxIntrinsicWidth(cells, containerWidth)
+                a.maxIntrinsicWidth(cells, containerWidth),
+                b.maxIntrinsicWidth(cells, containerWidth)
             );
         }
 
         public override float? flex(List<RenderBox> cells) {
-            float? aFlex = this.a.flex(cells);
+            float? aFlex = a.flex(cells);
             if (aFlex == null) {
-                return this.b.flex(cells);
+                return b.flex(cells);
             }
 
-            float? bFlex = this.b.flex(cells);
+            float? bFlex = b.flex(cells);
             if (bFlex == null) {
                 return null;
             }
@@ -244,7 +244,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.a}, {this.b})";
+            return $"{GetType()}({a}, {b})";
         }
     }
 
@@ -267,24 +267,24 @@ namespace Unity.UIWidgets.rendering {
             D.assert(rows == null || rows >= 0);
             D.assert(rows == null || children == null);
 
-            this._columns = columns ?? (children != null && children.isNotEmpty() ? children[0].Count : 0);
-            this._rows = rows ?? 0;
-            this._children = new List<RenderBox>();
-            for (int i = 0; i < this._columns * this._rows; i++) {
-                this._children.Add(null);
+            _columns = columns ?? (children != null && children.isNotEmpty() ? children[0].Count : 0);
+            _rows = rows ?? 0;
+            _children = new List<RenderBox>();
+            for (int i = 0; i < _columns * _rows; i++) {
+                _children.Add(null);
             }
 
-            this._columnWidths = columnWidths ?? new Dictionary<int, TableColumnWidth>();
-            this._defaultColumnWidth = defaultColumnWidth;
-            this._border = border;
+            _columnWidths = columnWidths ?? new Dictionary<int, TableColumnWidth>();
+            _defaultColumnWidth = defaultColumnWidth;
+            _border = border;
             this.rowDecorations = rowDecorations;
-            this._configuration = configuration;
-            this._defaultVerticalAlignment = defaultVerticalAlignment;
-            this._textBaseline = textBaseline;
+            _configuration = configuration;
+            _defaultVerticalAlignment = defaultVerticalAlignment;
+            _textBaseline = textBaseline;
 
             if (children != null) {
                 foreach (List<RenderBox> row in children) {
-                    this.addRow(row);
+                    addRow(row);
                 }
             }
         }
@@ -292,115 +292,115 @@ namespace Unity.UIWidgets.rendering {
         List<RenderBox> _children = new List<RenderBox>();
 
         public int columns {
-            get { return this._columns; }
+            get { return _columns; }
             set {
                 D.assert(value >= 0);
-                if (value == this.columns) {
+                if (value == columns) {
                     return;
                 }
 
-                int oldColumns = this.columns;
-                List<RenderBox> oldChildren = this._children;
-                this._columns = value;
-                this._children = new List<RenderBox>();
-                for (int i = 0; i < this.columns * this.rows; i++) {
-                    this._children.Add(null);
+                int oldColumns = columns;
+                List<RenderBox> oldChildren = _children;
+                _columns = value;
+                _children = new List<RenderBox>();
+                for (int i = 0; i < columns * rows; i++) {
+                    _children.Add(null);
                 }
 
-                int columnsToCopy = Mathf.Min(this.columns, oldColumns);
-                for (int y = 0; y < this.rows; y++) {
+                int columnsToCopy = Mathf.Min(columns, oldColumns);
+                for (int y = 0; y < rows; y++) {
                     for (int x = 0; x < columnsToCopy; x++) {
-                        this._children[x + y * this.columns] = oldChildren[x + y * oldColumns];
+                        _children[x + y * columns] = oldChildren[x + y * oldColumns];
                     }
                 }
 
-                if (oldColumns > this.columns) {
-                    for (int y = 0; y < this.rows; y++) {
-                        for (int x = this.columns; x < oldColumns; x++) {
+                if (oldColumns > columns) {
+                    for (int y = 0; y < rows; y++) {
+                        for (int x = columns; x < oldColumns; x++) {
                             int xy = x + y * oldColumns;
                             if (oldChildren[xy] != null) {
-                                this.dropChild(oldChildren[xy]);
+                                dropChild(oldChildren[xy]);
                             }
                         }
                     }
                 }
 
-                this.markNeedsLayout();
+                markNeedsLayout();
             }
         }
 
         int _columns;
 
         public int rows {
-            get { return this._rows; }
+            get { return _rows; }
             set {
                 D.assert(value >= 0);
-                if (value == this.rows) {
+                if (value == rows) {
                     return;
                 }
 
-                if (this._rows > value) {
-                    for (int xy = this.columns * value; xy < this._children.Count; xy++) {
-                        if (this._children[xy] != null) {
-                            this.dropChild(this._children[xy]);
+                if (_rows > value) {
+                    for (int xy = columns * value; xy < _children.Count; xy++) {
+                        if (_children[xy] != null) {
+                            dropChild(_children[xy]);
                         }
                     }
                 }
 
-                this._rows = value;
-                if (this._children.Count > this.columns * this.rows) {
-                    this._children.RemoveRange(this.columns * this.rows,
-                        this._children.Count - this.columns * this.rows);
+                _rows = value;
+                if (_children.Count > columns * rows) {
+                    _children.RemoveRange(columns * rows,
+                        _children.Count - columns * rows);
                 }
-                else if (this._children.Count < this.columns * this.rows) {
-                    while (this._children.Count < this.columns * this.rows) {
-                        this._children.Add(null);
+                else if (_children.Count < columns * rows) {
+                    while (_children.Count < columns * rows) {
+                        _children.Add(null);
                     }
                 }
 
-                D.assert(this._children.Count == this.columns * this.rows);
+                D.assert(_children.Count == columns * rows);
 
-                this.markNeedsLayout();
+                markNeedsLayout();
             }
         }
 
         int _rows;
 
         public Dictionary<int, TableColumnWidth> columnWidths {
-            get { return this._columnWidths; }
+            get { return _columnWidths; }
             set {
                 value = value ?? new Dictionary<int, TableColumnWidth>();
-                if (this._columnWidths == value) {
+                if (_columnWidths == value) {
                     return;
                 }
 
-                this._columnWidths = value;
-                this.markNeedsLayout();
+                _columnWidths = value;
+                markNeedsLayout();
             }
         }
 
         Dictionary<int, TableColumnWidth> _columnWidths;
 
         public void setColumnWidth(int column, TableColumnWidth value) {
-            if (this._columnWidths.getOrDefault(column) == value) {
+            if (_columnWidths.getOrDefault(column) == value) {
                 return;
             }
 
-            this._columnWidths[column] = value;
-            this.markNeedsLayout();
+            _columnWidths[column] = value;
+            markNeedsLayout();
             ;
         }
 
         public TableColumnWidth defaultColumnWidth {
-            get { return this._defaultColumnWidth; }
+            get { return _defaultColumnWidth; }
             set {
                 D.assert(value != null);
-                if (this.defaultColumnWidth == value) {
+                if (defaultColumnWidth == value) {
                     return;
                 }
 
-                this._defaultColumnWidth = value;
-                this.markNeedsLayout();
+                _defaultColumnWidth = value;
+                markNeedsLayout();
             }
         }
 
@@ -408,14 +408,14 @@ namespace Unity.UIWidgets.rendering {
 
 
         public TableBorder border {
-            get { return this._border; }
+            get { return _border; }
             set {
-                if (this.border == value) {
+                if (border == value) {
                     return;
                 }
 
-                this._border = value;
-                this.markNeedsPaint();
+                _border = value;
+                markNeedsPaint();
             }
         }
 
@@ -423,27 +423,27 @@ namespace Unity.UIWidgets.rendering {
 
 
         public List<Decoration> rowDecorations {
-            get { return this._rowDecorations ?? new List<Decoration>(); }
+            get { return _rowDecorations ?? new List<Decoration>(); }
             set {
-                if (this._rowDecorations == value) {
+                if (_rowDecorations == value) {
                     return;
                 }
 
-                this._rowDecorations = value;
-                if (this._rowDecorationPainters != null) {
-                    foreach (BoxPainter painter in this._rowDecorationPainters) {
+                _rowDecorations = value;
+                if (_rowDecorationPainters != null) {
+                    foreach (BoxPainter painter in _rowDecorationPainters) {
                         painter?.Dispose();
                     }
                 }
 
-                if (this._rowDecorations != null) {
-                    this._rowDecorationPainters = new List<BoxPainter>();
-                    for (int i = 0; i < this._rowDecorations.Count; i++) {
-                        this._rowDecorationPainters.Add(null);
+                if (_rowDecorations != null) {
+                    _rowDecorationPainters = new List<BoxPainter>();
+                    for (int i = 0; i < _rowDecorations.Count; i++) {
+                        _rowDecorationPainters.Add(null);
                     }
                 }
                 else {
-                    this._rowDecorationPainters = null;
+                    _rowDecorationPainters = null;
                 }
             }
         }
@@ -452,43 +452,43 @@ namespace Unity.UIWidgets.rendering {
         List<BoxPainter> _rowDecorationPainters;
 
         public ImageConfiguration configuration {
-            get { return this._configuration; }
+            get { return _configuration; }
             set {
                 D.assert(value != null);
-                if (value == this._configuration) {
+                if (value == _configuration) {
                     return;
                 }
 
-                this._configuration = value;
-                this.markNeedsPaint();
+                _configuration = value;
+                markNeedsPaint();
             }
         }
 
         ImageConfiguration _configuration;
 
         public TableCellVerticalAlignment defaultVerticalAlignment {
-            get { return this._defaultVerticalAlignment; }
+            get { return _defaultVerticalAlignment; }
             set {
-                if (this._defaultVerticalAlignment == value) {
+                if (_defaultVerticalAlignment == value) {
                     return;
                 }
 
-                this._defaultVerticalAlignment = value;
-                this.markNeedsLayout();
+                _defaultVerticalAlignment = value;
+                markNeedsLayout();
             }
         }
 
         TableCellVerticalAlignment _defaultVerticalAlignment;
 
         public TextBaseline? textBaseline {
-            get { return this._textBaseline; }
+            get { return _textBaseline; }
             set {
-                if (this._textBaseline == value) {
+                if (_textBaseline == value) {
                     return;
                 }
 
-                this._textBaseline = value;
-                this.markNeedsLayout();
+                _textBaseline = value;
+                markNeedsLayout();
             }
         }
 
@@ -501,7 +501,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void setFlatChildren(int columns, List<RenderBox> cells) {
-            if (cells == this._children && columns == this._columns) {
+            if (cells == _children && columns == _columns) {
                 return;
             }
 
@@ -509,21 +509,21 @@ namespace Unity.UIWidgets.rendering {
 
             if (columns == 0 || cells.isEmpty()) {
                 D.assert(cells == null || cells.isEmpty());
-                this._columns = columns;
-                if (this._children.isEmpty()) {
-                    D.assert(this._rows == 0);
+                _columns = columns;
+                if (_children.isEmpty()) {
+                    D.assert(_rows == 0);
                     return;
                 }
 
-                foreach (RenderBox oldChild in this._children) {
+                foreach (RenderBox oldChild in _children) {
                     if (oldChild != null) {
-                        this.dropChild(oldChild);
+                        dropChild(oldChild);
                     }
                 }
 
-                this._rows = 0;
-                this._children.Clear();
-                this.markNeedsLayout();
+                _rows = 0;
+                _children.Clear();
+                markNeedsLayout();
                 return;
             }
 
@@ -532,13 +532,13 @@ namespace Unity.UIWidgets.rendering {
 
             HashSet<RenderBox> lostChildren = new HashSet<RenderBox>();
             int y, x;
-            for (y = 0; y < this._rows; y++) {
-                for (x = 0; x < this._columns; x++) {
-                    int xyOld = x + y * this._columns;
+            for (y = 0; y < _rows; y++) {
+                for (x = 0; x < _columns; x++) {
+                    int xyOld = x + y * _columns;
                     int xyNew = x + y * columns;
-                    if (this._children[xyOld] != null &&
-                        (x >= columns || xyNew >= cells.Count || this._children[xyOld] != cells[xyNew])) {
-                        lostChildren.Add(this._children[xyOld]);
+                    if (_children[xyOld] != null &&
+                        (x >= columns || xyNew >= cells.Count || _children[xyOld] != cells[xyNew])) {
+                        lostChildren.Add(_children[xyOld]);
                     }
                 }
             }
@@ -547,14 +547,14 @@ namespace Unity.UIWidgets.rendering {
             while (y * columns < cells.Count) {
                 for (x = 0; x < columns; x++) {
                     int xyNew = x + y * columns;
-                    int xyOld = x + y * this._columns;
+                    int xyOld = x + y * _columns;
                     if (cells[xyNew] != null &&
-                        (x >= this._columns || y >= this._rows || this._children[xyOld] != cells[xyNew])) {
+                        (x >= _columns || y >= _rows || _children[xyOld] != cells[xyNew])) {
                         if (lostChildren.Contains(cells[xyNew])) {
                             lostChildren.Remove(cells[xyNew]);
                         }
                         else {
-                            this.adoptChild(cells[xyNew]);
+                            adoptChild(cells[xyNew]);
                         }
                     }
                 }
@@ -563,101 +563,101 @@ namespace Unity.UIWidgets.rendering {
             }
 
             foreach (RenderBox child in lostChildren) {
-                this.dropChild(child);
+                dropChild(child);
             }
 
-            this._columns = columns;
-            this._rows = cells.Count / columns;
-            this._children = cells;
-            D.assert(this._children.Count == this.rows * this.columns);
-            this.markNeedsLayout();
+            _columns = columns;
+            _rows = cells.Count / columns;
+            _children = cells;
+            D.assert(_children.Count == rows * this.columns);
+            markNeedsLayout();
         }
 
 
         void setChildren(List<List<RenderBox>> cells) {
             if (cells == null) {
-                this.setFlatChildren(0, null);
+                setFlatChildren(0, null);
                 return;
             }
 
-            foreach (RenderBox oldChild in this._children) {
+            foreach (RenderBox oldChild in _children) {
                 if (oldChild != null) {
-                    this.dropChild(oldChild);
+                    dropChild(oldChild);
                 }
             }
 
-            this._children.Clear();
-            this._columns = cells.isNotEmpty() ? cells[0].Count : 0;
-            this._rows = 0;
+            _children.Clear();
+            _columns = cells.isNotEmpty() ? cells[0].Count : 0;
+            _rows = 0;
             foreach (List<RenderBox> row in cells) {
-                this.addRow(row);
+                addRow(row);
             }
 
-            D.assert(this._children.Count == this.rows * this.columns);
+            D.assert(_children.Count == rows * columns);
         }
 
 
         void addRow(List<RenderBox> cells) {
-            D.assert(cells.Count == this.columns);
-            D.assert(this._children.Count == this.rows * this.columns);
+            D.assert(cells.Count == columns);
+            D.assert(_children.Count == rows * columns);
 
-            this._rows += 1;
-            this._children.AddRange(cells);
+            _rows += 1;
+            _children.AddRange(cells);
             foreach (RenderBox cell in cells) {
                 if (cell != null) {
-                    this.adoptChild(cell);
+                    adoptChild(cell);
                 }
             }
 
-            this.markNeedsLayout();
+            markNeedsLayout();
         }
 
         public void setChild(int x, int y, RenderBox value) {
-            D.assert(x >= 0 && x < this.columns && y >= 0 && y < this.rows);
-            D.assert(this._children.Count == this.rows * this.columns);
+            D.assert(x >= 0 && x < columns && y >= 0 && y < rows);
+            D.assert(_children.Count == rows * columns);
 
-            int xy = x + y * this.columns;
-            RenderBox oldChild = this._children[xy];
+            int xy = x + y * columns;
+            RenderBox oldChild = _children[xy];
             if (oldChild == value) {
                 return;
             }
 
             if (oldChild != null) {
-                this.dropChild(oldChild);
+                dropChild(oldChild);
             }
 
-            this._children[xy] = value;
+            _children[xy] = value;
             if (value != null) {
-                this.adoptChild(value);
+                adoptChild(value);
             }
         }
 
 
         public override void attach(object owner) {
             base.attach(owner);
-            foreach (RenderBox child in this._children) {
+            foreach (RenderBox child in _children) {
                 child?.attach(owner);
             }
         }
 
         public override void detach() {
             base.detach();
-            if (this._rowDecorationPainters != null) {
-                foreach (BoxPainter painter in this._rowDecorationPainters) {
+            if (_rowDecorationPainters != null) {
+                foreach (BoxPainter painter in _rowDecorationPainters) {
                     painter?.Dispose();
                 }
 
-                this._rowDecorationPainters = null;
+                _rowDecorationPainters = null;
             }
 
-            foreach (RenderBox child in this._children) {
+            foreach (RenderBox child in _children) {
                 child?.detach();
             }
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            D.assert(this._children.Count == this.rows * this.columns);
-            foreach (RenderBox child in this._children) {
+            D.assert(_children.Count == rows * columns);
+            foreach (RenderBox child in _children) {
                 if (child != null) {
                     visitor(child);
                 }
@@ -665,11 +665,11 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            D.assert(this._children.Count == this.rows * this.columns);
+            D.assert(_children.Count == rows * columns);
             float totalMinWidth = 0.0f;
-            for (int x = 0; x < this.columns; x++) {
-                TableColumnWidth columnWidth = this._columnWidths.getOrDefault(x) ?? this.defaultColumnWidth;
-                List<RenderBox> columnCells = this.column(x);
+            for (int x = 0; x < columns; x++) {
+                TableColumnWidth columnWidth = _columnWidths.getOrDefault(x) ?? defaultColumnWidth;
+                List<RenderBox> columnCells = column(x);
                 totalMinWidth += columnWidth.minIntrinsicWidth(columnCells, float.PositiveInfinity);
             }
 
@@ -677,11 +677,11 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            D.assert(this._children.Count == this.rows * this.columns);
+            D.assert(_children.Count == rows * columns);
             float totalMaxWidth = 0.0f;
-            for (int x = 0; x < this.columns; x++) {
-                TableColumnWidth columnWidth = this._columnWidths.getOrDefault(x) ?? this.defaultColumnWidth;
-                List<RenderBox> columnCells = this.column(x);
+            for (int x = 0; x < columns; x++) {
+                TableColumnWidth columnWidth = _columnWidths.getOrDefault(x) ?? defaultColumnWidth;
+                List<RenderBox> columnCells = column(x);
                 totalMaxWidth += columnWidth.maxIntrinsicWidth(columnCells, float.PositiveInfinity);
             }
 
@@ -689,14 +689,14 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            D.assert(this._children.Count == this.rows * this.columns);
-            List<float> widths = this._computeColumnWidths(BoxConstraints.tightForFinite(width: width));
+            D.assert(_children.Count == rows * columns);
+            List<float> widths = _computeColumnWidths(BoxConstraints.tightForFinite(width: width));
             float rowTop = 0.0f;
-            for (int y = 0; y < this.rows; y++) {
+            for (int y = 0; y < rows; y++) {
                 float rowHeight = 0.0f;
-                for (int x = 0; x < this.columns; x++) {
-                    int xy = x + y * this.columns;
-                    RenderBox child = this._children[xy];
+                for (int x = 0; x < columns; x++) {
+                    int xy = x + y * columns;
+                    RenderBox child = _children[xy];
                     if (child != null) {
                         rowHeight = Mathf.Max(rowHeight, child.getMaxIntrinsicHeight(widths[x]));
                     }
@@ -709,20 +709,20 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            return this.computeMinIntrinsicHeight(width);
+            return computeMinIntrinsicHeight(width);
         }
 
         float? _baselineDistance;
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            return this._baselineDistance;
+            return _baselineDistance;
         }
 
         List<RenderBox> column(int x) {
             List<RenderBox> ret = new List<RenderBox>();
-            for (int y = 0; y < this.rows; y++) {
-                int xy = x + y * this.columns;
-                RenderBox child = this._children[xy];
+            for (int y = 0; y < rows; y++) {
+                int xy = x + y * columns;
+                RenderBox child = _children[xy];
                 if (child != null) {
                     ret.Add(child);
                 }
@@ -733,10 +733,10 @@ namespace Unity.UIWidgets.rendering {
 
         List<RenderBox> row(int y) {
             List<RenderBox> ret = new List<RenderBox>();
-            int start = y * this.columns;
-            int end = (y + 1) * this.columns;
+            int start = y * columns;
+            int end = (y + 1) * columns;
             for (int xy = start; xy < end; xy++) {
-                RenderBox child = this._children[xy];
+                RenderBox child = _children[xy];
                 if (child != null) {
                     ret.Add(child);
                 }
@@ -747,13 +747,13 @@ namespace Unity.UIWidgets.rendering {
 
         List<float> _computeColumnWidths(BoxConstraints constraints) {
             D.assert(constraints != null);
-            D.assert(this._children.Count == this.rows * this.columns);
+            D.assert(_children.Count == rows * columns);
 
             List<float> widths = new List<float>();
             List<float> minWidths = new List<float>();
             List<float?> flexes = new List<float?>();
 
-            for (int i = 0; i < this.columns; i++) {
+            for (int i = 0; i < columns; i++) {
                 widths.Add(0.0f);
                 minWidths.Add(0.0f);
                 flexes.Add(null);
@@ -763,9 +763,9 @@ namespace Unity.UIWidgets.rendering {
             float? unflexedTableWidth = 0.0f;
             float totalFlex = 0.0f;
 
-            for (int x = 0; x < this.columns; x++) {
-                TableColumnWidth columnWidth = this._columnWidths.getOrDefault(x) ?? this.defaultColumnWidth;
-                List<RenderBox> columnCells = this.column(x);
+            for (int x = 0; x < columns; x++) {
+                TableColumnWidth columnWidth = _columnWidths.getOrDefault(x) ?? defaultColumnWidth;
+                List<RenderBox> columnCells = column(x);
 
                 float maxIntrinsicWidth = columnWidth.maxIntrinsicWidth(columnCells, constraints.maxWidth);
                 D.assert(maxIntrinsicWidth.isFinite());
@@ -807,7 +807,7 @@ namespace Unity.UIWidgets.rendering {
                     float remainingWidth = targetWidth - unflexedTableWidth.Value;
                     D.assert(remainingWidth.isFinite());
                     D.assert(remainingWidth >= 0.0f);
-                    for (int x = 0; x < this.columns; x++) {
+                    for (int x = 0; x < columns; x++) {
                         if (flexes[x] != null) {
                             float flexedWidth = remainingWidth * flexes[x].Value / totalFlex;
                             D.assert(flexedWidth.isFinite());
@@ -824,8 +824,8 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
             else if (tableWidth < minWidthConstraint) {
-                float delta = (minWidthConstraint - tableWidth) / this.columns;
-                for (int x = 0; x < this.columns; x++) {
+                float delta = (minWidthConstraint - tableWidth) / columns;
+                for (int x = 0; x < columns; x++) {
                     widths[x] += delta;
                 }
 
@@ -840,14 +840,14 @@ namespace Unity.UIWidgets.rendering {
             if (tableWidth > maxWidthConstraint) {
                 float deficit = tableWidth - maxWidthConstraint;
 
-                int availableColumns = this.columns;
+                int availableColumns = columns;
                 
                 //(Xingwei Zhu) this deficit is double and set to be 0.00000001f in flutter.
                 //since we use float by default, making it larger should make sense in most cases
                 float minimumDeficit = 0.0001f;
                 while (deficit > minimumDeficit && totalFlex > minimumDeficit) {
                     float newTotalFlex = 0.0f;
-                    for (int x = 0; x < this.columns; x++) {
+                    for (int x = 0; x < columns; x++) {
                         if (flexes[x] != null) {
                             //(Xingwei Zhu) in case deficit * flexes[x].Value / totalFlex => 0 if deficit is really small, leading to dead loop,
                             //we amend it with a default larger value to ensure that this loop will eventually end
@@ -876,7 +876,7 @@ namespace Unity.UIWidgets.rendering {
                     do {
                         float delta = deficit / availableColumns;
                         int newAvailableColumns = 0;
-                        for (int x = 0; x < this.columns; x++) {
+                        for (int x = 0; x < columns; x++) {
                             float availableDelta = widths[x] - minWidths[x];
                             if (availableDelta > 0.0f) {
                                 if (availableDelta <= delta) {
@@ -904,21 +904,21 @@ namespace Unity.UIWidgets.rendering {
 
         Rect getRowBox(int row) {
             D.assert(row >= 0);
-            D.assert(row < this.rows);
+            D.assert(row < rows);
 
-            return Rect.fromLTRB(0.0f, this._rowTops[row], this.size.width, this._rowTops[row + 1]);
+            return Rect.fromLTRB(0.0f, _rowTops[row], size.width, _rowTops[row + 1]);
         }
 
         protected override void performLayout() {
             int rows = this.rows;
             int columns = this.columns;
-            D.assert(this._children.Count == rows * columns);
+            D.assert(_children.Count == rows * columns);
             if (rows * columns == 0) {
-                this.size = this.constraints.constrain(new Size(0.0f, 0.0f));
+                size = constraints.constrain(new Size(0.0f, 0.0f));
                 return;
             }
 
-            List<float> widths = this._computeColumnWidths(this.constraints);
+            List<float> widths = _computeColumnWidths(constraints);
             List<float> positions = new List<float>();
             float tableWidth = 0.0f;
             positions.Add(0.0f);
@@ -926,15 +926,15 @@ namespace Unity.UIWidgets.rendering {
                 positions.Add(positions[x - 1] + widths[x - 1]);
             }
 
-            this._columnLefts = positions;
+            _columnLefts = positions;
             tableWidth = positions[positions.Count - 1] + widths[widths.Count - 1];
 
-            this._rowTops.Clear();
-            this._baselineDistance = null;
+            _rowTops.Clear();
+            _baselineDistance = null;
 
             float rowTop = 0.0f;
             for (int y = 0; y < rows; y++) {
-                this._rowTops.Add(rowTop);
+                _rowTops.Add(rowTop);
                 float rowHeight = 0.0f;
                 bool haveBaseline = false;
                 float beforeBaselineDistance = 0.0f;
@@ -946,18 +946,18 @@ namespace Unity.UIWidgets.rendering {
 
                 for (int x = 0; x < columns; x++) {
                     int xy = x + y * columns;
-                    RenderBox child = this._children[xy];
+                    RenderBox child = _children[xy];
                     if (child != null) {
                         TableCellParentData childParentData = (TableCellParentData) child.parentData;
                         D.assert(childParentData != null);
                         childParentData.x = x;
                         childParentData.y = y;
-                        switch (childParentData.verticalAlignment ?? this.defaultVerticalAlignment) {
+                        switch (childParentData.verticalAlignment ?? defaultVerticalAlignment) {
                             case TableCellVerticalAlignment.baseline: {
-                                D.assert(this.textBaseline != null);
+                                D.assert(textBaseline != null);
                                 child.layout(BoxConstraints.tightFor(width: widths[x]), parentUsesSize: true);
                                 float? childBaseline =
-                                    child.getDistanceToBaseline(this.textBaseline.Value, onlyReal: true);
+                                    child.getDistanceToBaseline(textBaseline.Value, onlyReal: true);
                                 if (childBaseline != null) {
                                     beforeBaselineDistance = Mathf.Max(beforeBaselineDistance, childBaseline.Value);
                                     afterBaselineDistance = Mathf.Max(afterBaselineDistance,
@@ -988,7 +988,7 @@ namespace Unity.UIWidgets.rendering {
 
                 if (haveBaseline) {
                     if (y == 0) {
-                        this._baselineDistance = beforeBaselineDistance;
+                        _baselineDistance = beforeBaselineDistance;
                     }
 
                     rowHeight = Mathf.Max(rowHeight, beforeBaselineDistance + afterBaselineDistance);
@@ -996,10 +996,10 @@ namespace Unity.UIWidgets.rendering {
 
                 for (int x = 0; x < columns; x++) {
                     int xy = x + y * columns;
-                    RenderBox child = this._children[xy];
+                    RenderBox child = _children[xy];
                     if (child != null) {
                         TableCellParentData childParentData = (TableCellParentData) child.parentData;
-                        switch (childParentData.verticalAlignment ?? this.defaultVerticalAlignment) {
+                        switch (childParentData.verticalAlignment ?? defaultVerticalAlignment) {
                             case TableCellVerticalAlignment.baseline: {
                                 if (baselines[x] != null) {
                                     childParentData.offset = new Offset(positions[x],
@@ -1034,15 +1034,15 @@ namespace Unity.UIWidgets.rendering {
                 rowTop += rowHeight;
             }
 
-            this._rowTops.Add(rowTop);
-            this.size = this.constraints.constrain(new Size(tableWidth, rowTop));
-            D.assert(this._rowTops.Count == rows + 1);
+            _rowTops.Add(rowTop);
+            size = constraints.constrain(new Size(tableWidth, rowTop));
+            D.assert(_rowTops.Count == rows + 1);
         }
 
         protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
-            D.assert(this._children.Count == this.rows * this.columns);
-            for (int index = this._children.Count - 1; index >= 0; index--) {
-                RenderBox child = this._children[index];
+            D.assert(_children.Count == rows * columns);
+            for (int index = _children.Count - 1; index >= 0; index--) {
+                RenderBox child = _children[index];
                 if (child != null) {
                     BoxParentData childParentData = (BoxParentData) child.parentData;
                     if (child.hitTest(result, position: position - childParentData.offset)) {
@@ -1055,78 +1055,78 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            D.assert(this._children.Count == this.rows * this.columns);
+            D.assert(_children.Count == this.rows * this.columns);
             if (this.rows * this.columns == 0) {
-                if (this.border != null) {
-                    Rect borderRect = Rect.fromLTWH(offset.dx, offset.dy, this.size.width, 0.0f);
-                    this.border.paint(context.canvas, borderRect, rows: new List<float>(), columns: new List<float>());
+                if (border != null) {
+                    Rect borderRect = Rect.fromLTWH(offset.dx, offset.dy, size.width, 0.0f);
+                    border.paint(context.canvas, borderRect, rows: new List<float>(), columns: new List<float>());
                 }
 
                 return;
             }
 
-            D.assert(this._rowTops.Count == this.rows + 1);
-            if (this._rowDecorations != null) {
+            D.assert(_rowTops.Count == this.rows + 1);
+            if (_rowDecorations != null) {
                 Canvas canvas = context.canvas;
-                for (int y = 0; y < this.rows; y++) {
-                    if (this._rowDecorations.Count <= y) {
+                for (int y = 0; y < rows; y++) {
+                    if (_rowDecorations.Count <= y) {
                         break;
                     }
 
-                    if (this._rowDecorations[y] != null) {
-                        this._rowDecorationPainters[y] = this._rowDecorationPainters[y] ??
-                                                         this._rowDecorations[y].createBoxPainter(this.markNeedsPaint);
-                        this._rowDecorationPainters[y].paint(
+                    if (_rowDecorations[y] != null) {
+                        _rowDecorationPainters[y] = _rowDecorationPainters[y] ??
+                                                         _rowDecorations[y].createBoxPainter(markNeedsPaint);
+                        _rowDecorationPainters[y].paint(
                             canvas,
-                            new Offset(offset.dx, offset.dy + this._rowTops[y]),
-                            this.configuration.copyWith(
-                                size: new Size(this.size.width, this._rowTops[y + 1] - this._rowTops[y])
+                            new Offset(offset.dx, offset.dy + _rowTops[y]),
+                            configuration.copyWith(
+                                size: new Size(size.width, _rowTops[y + 1] - _rowTops[y])
                             )
                         );
                     }
                 }
             }
 
-            for (int index = 0; index < this._children.Count; index++) {
-                RenderBox child = this._children[index];
+            for (int index = 0; index < _children.Count; index++) {
+                RenderBox child = _children[index];
                 if (child != null) {
                     BoxParentData childParentData = (BoxParentData) child.parentData;
                     context.paintChild(child, childParentData.offset + offset);
                 }
             }
 
-            D.assert(this._rows == this._rowTops.Count - 1);
-            D.assert(this._columns == this._columnLefts.Count);
-            if (this.border != null) {
-                Rect borderRect = Rect.fromLTWH(offset.dx, offset.dy, this.size.width, this._rowTops[this._rowTops.Count - 1]);
-                List<float> rows = this._rowTops.GetRange(1, this._rowTops.Count - 2);
-                List<float> columns = this._columnLefts.GetRange(1, this._columnLefts.Count - 1);
-                this.border.paint(context.canvas, borderRect, rows: rows, columns: columns);
+            D.assert(_rows == _rowTops.Count - 1);
+            D.assert(_columns == _columnLefts.Count);
+            if (border != null) {
+                Rect borderRect = Rect.fromLTWH(offset.dx, offset.dy, size.width, _rowTops[_rowTops.Count - 1]);
+                List<float> rows = _rowTops.GetRange(1, _rowTops.Count - 2);
+                List<float> columns = _columnLefts.GetRange(1, _columnLefts.Count - 1);
+                border.paint(context.canvas, borderRect, rows: rows, columns: columns);
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<TableBorder>("border", this.border, defaultValue: null));
+            properties.add(new DiagnosticsProperty<TableBorder>("border", border, defaultValue: null));
             properties.add(new DiagnosticsProperty<Dictionary<int, TableColumnWidth>>("specified column widths",
-                this._columnWidths,
-                level: this._columnWidths.isEmpty() ? DiagnosticLevel.hidden : DiagnosticLevel.info));
-            properties.add(new DiagnosticsProperty<TableColumnWidth>("default column width", this.defaultColumnWidth));
-            properties.add(new MessageProperty("table size", $"{this.columns}*{this.rows}"));
-            properties.add(new EnumerableProperty<float>("column offsets", this._columnLefts, ifNull: "unknown"));
-            properties.add(new EnumerableProperty<float>("row offsets", this._rowTops, ifNull: "unknown"));
+                _columnWidths,
+                level: _columnWidths.isEmpty() ? DiagnosticLevel.hidden : DiagnosticLevel.info));
+            properties.add(new DiagnosticsProperty<TableColumnWidth>("default column width", defaultColumnWidth));
+            properties.add(new MessageProperty("table size", $"{columns}*{rows}"));
+            properties.add(new EnumerableProperty<float>("column offsets", _columnLefts, ifNull: "unknown"));
+            properties.add(new EnumerableProperty<float>("row offsets", _rowTops, ifNull: "unknown"));
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
-            if (this._children.isEmpty()) {
+            if (_children.isEmpty()) {
                 return new List<DiagnosticsNode> {DiagnosticsNode.message("table is empty")};
             }
 
             List<DiagnosticsNode> children = new List<DiagnosticsNode>();
-            for (int y = 0; y < this.rows; y++) {
-                for (int x = 0; x < this.columns; x++) {
-                    int xy = x + y * this.columns;
-                    RenderBox child = this._children[xy];
+            for (int y = 0; y < rows; y++) {
+                for (int x = 0; x < columns; x++) {
+                    int xy = x + y * columns;
+                    RenderBox child = _children[xy];
                     string name = $"child ({x}, {y})";
                     if (child != null) {
                         children.Add(child.toDiagnosticsNode(name: name));

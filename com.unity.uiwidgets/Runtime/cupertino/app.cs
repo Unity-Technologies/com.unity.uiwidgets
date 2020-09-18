@@ -95,39 +95,39 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            this._heroController = CupertinoApp.createCupertinoHeroController();
-            this._updateNavigator();
+            _heroController = CupertinoApp.createCupertinoHeroController();
+            _updateNavigator();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.navigatorKey != ((CupertinoApp) oldWidget).navigatorKey) {
-                this._heroController = CupertinoApp.createCupertinoHeroController();
+            if (widget.navigatorKey != ((CupertinoApp) oldWidget).navigatorKey) {
+                _heroController = CupertinoApp.createCupertinoHeroController();
             }
 
-            this._updateNavigator();
+            _updateNavigator();
         }
 
         List<NavigatorObserver> _navigatorObservers;
 
         void _updateNavigator() {
-            if (this.widget.home != null || this.widget.routes.isNotEmpty() || this.widget.onGenerateRoute != null ||
-                this.widget.onUnknownRoute != null) {
-                this._navigatorObservers = new List<NavigatorObserver>();
-                foreach (var item in this.widget.navigatorObservers) {
-                    this._navigatorObservers.Add(item);
+            if (widget.home != null || widget.routes.isNotEmpty() || widget.onGenerateRoute != null ||
+                widget.onUnknownRoute != null) {
+                _navigatorObservers = new List<NavigatorObserver>();
+                foreach (var item in widget.navigatorObservers) {
+                    _navigatorObservers.Add(item);
                 }
             }
             else {
-                this._navigatorObservers = new List<NavigatorObserver>();
+                _navigatorObservers = new List<NavigatorObserver>();
             }
         }
         
         List<LocalizationsDelegate> _localizationsDelegates {
             get {
                 var _delegates = new List<LocalizationsDelegate>();
-                if (this.widget.localizationsDelegates != null) {
-                    _delegates.AddRange(this.widget.localizationsDelegates);
+                if (widget.localizationsDelegates != null) {
+                    _delegates.AddRange(widget.localizationsDelegates);
                 }
 
                 _delegates.Add(DefaultCupertinoLocalizations.del);
@@ -137,7 +137,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override Widget build(BuildContext context) {
-            CupertinoThemeData effectiveThemeData = this.widget.theme ?? new CupertinoThemeData();
+            CupertinoThemeData effectiveThemeData = widget.theme ?? new CupertinoThemeData();
 
             return new ScrollConfiguration(
                 behavior: new _AlwaysCupertinoScrollBehavior(),
@@ -146,22 +146,22 @@ namespace Unity.UIWidgets.cupertino {
                     child: new WidgetsApp(
                         pageRouteBuilder: (RouteSettings settings, WidgetBuilder builder) =>
                             new CupertinoPageRoute(settings: settings, builder: builder),
-                        home: this.widget.home,
-                        routes: this.widget.routes,
-                        initialRoute: this.widget.initialRoute,
-                        onGenerateRoute: this.widget.onGenerateRoute,
-                        onUnknownRoute: this.widget.onUnknownRoute,
-                        builder: this.widget.builder,
-                        title: this.widget.title,
-                        onGenerateTitle: this.widget.onGenerateTitle,
+                        home: widget.home,
+                        routes: widget.routes,
+                        initialRoute: widget.initialRoute,
+                        onGenerateRoute: widget.onGenerateRoute,
+                        onUnknownRoute: widget.onUnknownRoute,
+                        builder: widget.builder,
+                        title: widget.title,
+                        onGenerateTitle: widget.onGenerateTitle,
                         textStyle: effectiveThemeData.textTheme.textStyle,
-                        color: this.widget.color ?? CupertinoColors.activeBlue,
-                        locale: this.widget.locale,
-                        localizationsDelegates: this._localizationsDelegates,
-                        localeResolutionCallback: this.widget.localeResolutionCallback,
-                        localeListResolutionCallback: this.widget.localeListResolutionCallback,
-                        supportedLocales: this.widget.supportedLocales,
-                        showPerformanceOverlay: this.widget.showPerformanceOverlay,
+                        color: widget.color ?? CupertinoColors.activeBlue,
+                        locale: widget.locale,
+                        localizationsDelegates: _localizationsDelegates,
+                        localeResolutionCallback: widget.localeResolutionCallback,
+                        localeListResolutionCallback: widget.localeListResolutionCallback,
+                        supportedLocales: widget.supportedLocales,
+                        showPerformanceOverlay: widget.showPerformanceOverlay,
                         inspectorSelectButtonBuilder: (BuildContext _context, VoidCallback onPressed) => {
                             return CupertinoButton.filled(
                                 child: new Icon(

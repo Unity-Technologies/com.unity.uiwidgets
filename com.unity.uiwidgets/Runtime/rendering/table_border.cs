@@ -64,46 +64,46 @@ namespace Unity.UIWidgets.rendering {
 
         public EdgeInsets dimensions {
             get {
-                return EdgeInsets.fromLTRB(this.left.width,
-                    this.top.width,
-                    this.right.width,
-                    this.bottom.width);
+                return EdgeInsets.fromLTRB(left.width,
+                    top.width,
+                    right.width,
+                    bottom.width);
             }
         }
 
         public bool isUniform {
             get {
-                D.assert(this.top != null);
-                D.assert(this.right != null);
-                D.assert(this.bottom != null);
-                D.assert(this.left != null);
-                D.assert(this.horizontalInside != null);
-                D.assert(this.verticalInside != null);
+                D.assert(top != null);
+                D.assert(right != null);
+                D.assert(bottom != null);
+                D.assert(left != null);
+                D.assert(horizontalInside != null);
+                D.assert(verticalInside != null);
 
-                Color topColor = this.top.color;
-                if (this.right.color != topColor ||
-                    this.bottom.color != topColor ||
-                    this.left.color != topColor ||
-                    this.horizontalInside.color != topColor ||
-                    this.verticalInside.color != topColor) {
+                Color topColor = top.color;
+                if (right.color != topColor ||
+                    bottom.color != topColor ||
+                    left.color != topColor ||
+                    horizontalInside.color != topColor ||
+                    verticalInside.color != topColor) {
                     return false;
                 }
 
-                float topWidth = this.top.width;
-                if (this.right.width != topWidth ||
-                    this.bottom.width != topWidth ||
-                    this.left.width != topWidth ||
-                    this.horizontalInside.width != topWidth ||
-                    this.verticalInside.width != topWidth) {
+                float topWidth = top.width;
+                if (right.width != topWidth ||
+                    bottom.width != topWidth ||
+                    left.width != topWidth ||
+                    horizontalInside.width != topWidth ||
+                    verticalInside.width != topWidth) {
                     return false;
                 }
 
-                BorderStyle topStyle = this.top.style;
-                if (this.right.style != topStyle ||
-                    this.bottom.style != topStyle ||
-                    this.left.style != topStyle ||
-                    this.horizontalInside.style != topStyle ||
-                    this.verticalInside.style != topStyle) {
+                BorderStyle topStyle = top.style;
+                if (right.style != topStyle ||
+                    bottom.style != topStyle ||
+                    left.style != topStyle ||
+                    horizontalInside.style != topStyle ||
+                    verticalInside.style != topStyle) {
                     return false;
                 }
 
@@ -113,12 +113,12 @@ namespace Unity.UIWidgets.rendering {
 
         TableBorder scale(float t) {
             return new TableBorder(
-                top: this.top.scale(t),
-                right: this.right.scale(t),
-                bottom: this.bottom.scale(t),
-                left: this.left.scale(t),
-                horizontalInside: this.horizontalInside.scale(t),
-                verticalInside: this.verticalInside.scale(t)
+                top: top.scale(t),
+                right: right.scale(t),
+                bottom: bottom.scale(t),
+                left: left.scale(t),
+                horizontalInside: horizontalInside.scale(t),
+                verticalInside: verticalInside.scale(t)
             );
         }
 
@@ -146,12 +146,12 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void paint(Canvas canvas, Rect rect, List<float> rows, List<float> columns) {
-            D.assert(this.top != null);
-            D.assert(this.right != null);
-            D.assert(this.bottom != null);
-            D.assert(this.left != null);
-            D.assert(this.horizontalInside != null);
-            D.assert(this.verticalInside != null);
+            D.assert(top != null);
+            D.assert(right != null);
+            D.assert(bottom != null);
+            D.assert(left != null);
+            D.assert(horizontalInside != null);
+            D.assert(verticalInside != null);
 
             D.assert(canvas != null);
             D.assert(rect != null);
@@ -164,10 +164,10 @@ namespace Unity.UIWidgets.rendering {
                 Paint paint = new Paint();
 
                 if (columns.isNotEmpty()) {
-                    switch (this.verticalInside.style) {
+                    switch (verticalInside.style) {
                         case BorderStyle.solid: {
-                            paint.color = this.verticalInside.color;
-                            paint.strokeWidth = this.verticalInside.width;
+                            paint.color = verticalInside.color;
+                            paint.strokeWidth = verticalInside.width;
                             paint.style = PaintingStyle.stroke;
                             Path path = new Path();
 
@@ -186,10 +186,10 @@ namespace Unity.UIWidgets.rendering {
                 }
 
                 if (rows.isNotEmpty()) {
-                    switch (this.horizontalInside.style) {
+                    switch (horizontalInside.style) {
                         case BorderStyle.solid: {
-                            paint.color = this.horizontalInside.color;
-                            paint.strokeWidth = this.horizontalInside.width;
+                            paint.color = horizontalInside.color;
+                            paint.strokeWidth = horizontalInside.width;
                             paint.style = PaintingStyle.stroke;
                             Path path = new Path();
 
@@ -207,8 +207,8 @@ namespace Unity.UIWidgets.rendering {
                     }
                 }
 
-                BorderUtils.paintBorder(canvas, rect, top: this.top, right: this.right, bottom: this.bottom,
-                    left: this.left);
+                BorderUtils.paintBorder(canvas, rect, top: top, right: right, bottom: bottom,
+                    left: left);
             }
         }
 
@@ -221,12 +221,12 @@ namespace Unity.UIWidgets.rendering {
                 return true;
             }
 
-            return other.top == this.top &&
-                   other.right == this.right &&
-                   other.bottom == this.bottom &&
-                   other.left == this.left &&
-                   other.horizontalInside == this.horizontalInside &&
-                   other.verticalInside == this.verticalInside;
+            return other.top == top &&
+                   other.right == right &&
+                   other.bottom == bottom &&
+                   other.left == left &&
+                   other.horizontalInside == horizontalInside &&
+                   other.verticalInside == verticalInside;
         }
 
         public override bool Equals(object obj) {
@@ -238,11 +238,11 @@ namespace Unity.UIWidgets.rendering {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TableBorder) obj);
+            return Equals((TableBorder) obj);
         }
 
         public static bool operator ==(TableBorder left, TableBorder right) {
@@ -255,19 +255,19 @@ namespace Unity.UIWidgets.rendering {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.top.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.right.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.bottom.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.left.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.horizontalInside.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.verticalInside.GetHashCode();
+                var hashCode = top.GetHashCode();
+                hashCode = (hashCode * 397) ^ right.GetHashCode();
+                hashCode = (hashCode * 397) ^ bottom.GetHashCode();
+                hashCode = (hashCode * 397) ^ left.GetHashCode();
+                hashCode = (hashCode * 397) ^ horizontalInside.GetHashCode();
+                hashCode = (hashCode * 397) ^ verticalInside.GetHashCode();
                 return hashCode;
             }
         }
 
         public override string ToString() {
             return
-                $"TableBorder({this.top}, {this.right}, {this.bottom}, {this.left}, {this.horizontalInside}, {this.verticalInside})";
+                $"TableBorder({top}, {right}, {bottom}, {left}, {horizontalInside}, {verticalInside})";
         }
     }
 }

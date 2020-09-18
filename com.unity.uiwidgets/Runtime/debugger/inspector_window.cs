@@ -53,26 +53,26 @@ namespace Unity.UIWidgets.debugger {
         }
 
         void OnEnable() {
-            this.titleContent = new GUIContent("UIWidgets Inspector");
+            titleContent = new GUIContent("UIWidgets Inspector");
         }
 
         void OnGUI() {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(true));
-            this.DoSelectDropDown();
+            DoSelectDropDown();
             bool needDebugPaintUpdate = false;
             
-            if (this.m_InspectorService != null && this.m_InspectorService.debugEnabled) {
+            if (m_InspectorService != null && m_InspectorService.debugEnabled) {
                 if (GUILayout.Button("Refersh", EditorStyles.toolbarButton)) {
-                    foreach (var panel in this.m_Panels) {
+                    foreach (var panel in m_Panels) {
                         panel.MarkNeedReload();
                     }
                 }
                 
                 EditorGUI.BeginChangeCheck();
-                var newShowInspect = GUILayout.Toggle(this.m_ShowInspect, new GUIContent("Inspect Element"),
+                var newShowInspect = GUILayout.Toggle(m_ShowInspect, new GUIContent("Inspect Element"),
                     EditorStyles.toolbarButton);
                 if (EditorGUI.EndChangeCheck()) {
-                    this.m_InspectorService.setShowInspect(newShowInspect);
+                    m_InspectorService.setShowInspect(newShowInspect);
                 }
 
                 var style = (GUIStyle) "GV Gizmo DropDown";
@@ -80,24 +80,24 @@ namespace Unity.UIWidgets.debugger {
                 Rect rightRect = new Rect(r.xMax - style.border.right, r.y, style.border.right, r.height);
                 if (EditorGUI.DropdownButton(rightRect, GUIContent.none, FocusType.Passive, GUIStyle.none))
                 {
-                    this.ScheduleUpdateAction(() => {
-                        this.m_ShowDebugPaintToggles = !this.m_ShowDebugPaintToggles;
-                        this.Repaint();
+                    ScheduleUpdateAction(() => {
+                        m_ShowDebugPaintToggles = !m_ShowDebugPaintToggles;
+                        Repaint();
                     });
                 }
 
                 if (Event.current.type == EventType.Repaint) {
-                    this.m_DebugPaintTogglesRect = new Rect(r.xMax - debugPaintToggleGroupWidth, r.yMax + 2, 
+                    m_DebugPaintTogglesRect = new Rect(r.xMax - debugPaintToggleGroupWidth, r.yMax + 2, 
                         debugPaintToggleGroupWidth, debugPaintToggleGroupHeight);
                 }
 
                 EditorGUI.BeginChangeCheck();
-                this.m_DebugPaint = GUI.Toggle(r, this.m_DebugPaint, new GUIContent("Debug Paint"), style);
+                m_DebugPaint = GUI.Toggle(r, m_DebugPaint, new GUIContent("Debug Paint"), style);
                 if (EditorGUI.EndChangeCheck()) {
-                    if (this.m_DebugPaint) {
-                        if (!this.m_DebugPaintSize && !this.m_DebugPaintLayer
-                                                   && !this.m_DebugPaintPointer && !this.m_DebugPaintBaseline) {
-                            this.m_DebugPaintSize = true;
+                    if (m_DebugPaint) {
+                        if (!m_DebugPaintSize && !m_DebugPaintLayer
+                                                   && !m_DebugPaintPointer && !m_DebugPaintBaseline) {
+                            m_DebugPaintSize = true;
                         }
                     }
                     needDebugPaintUpdate = true;
@@ -108,62 +108,62 @@ namespace Unity.UIWidgets.debugger {
 
             EditorGUILayout.Space();
 
-            if (this.m_InspectorService != null && this.m_InspectorService .debugEnabled) {
+            if (m_InspectorService != null && m_InspectorService .debugEnabled) {
                 EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(false));
-                this.m_Panels.Each((pannel, index) => {
-                    if (GUILayout.Toggle(this.m_PanelIndex == index, pannel.title, EditorStyles.toolbarButton,
+                m_Panels.Each((pannel, index) => {
+                    if (GUILayout.Toggle(m_PanelIndex == index, pannel.title, EditorStyles.toolbarButton,
                         GUILayout.ExpandWidth(false), GUILayout.Width(100))) {
-                        this.m_PanelIndex = index;
+                        m_PanelIndex = index;
                     }
                 });
                 EditorGUILayout.EndHorizontal();
 
                 bool shouldHandleGUI = true;
                 if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp) {
-                    if (this.m_ShowDebugPaintToggles && this.m_DebugPaintTogglesRect.Contains(Event.current.mousePosition)) {
+                    if (m_ShowDebugPaintToggles && m_DebugPaintTogglesRect.Contains(Event.current.mousePosition)) {
                         shouldHandleGUI = false;
                     }
                 }
 
                 if (shouldHandleGUI) {
-                    this.m_Panels[this.m_PanelIndex].OnGUI();
+                    m_Panels[m_PanelIndex].OnGUI();
                 }
-            } else if (this.m_InspectorService != null) { // debug not enabled
-                if (this.m_MessageStyle == null) {
-                    this.m_MessageStyle = new GUIStyle(GUI.skin.label);
-                    this.m_MessageStyle.fontSize = 16;
-                    this.m_MessageStyle.alignment = TextAnchor.MiddleCenter;
-                    this.m_MessageStyle.padding = new RectOffset(20, 20, 40, 0);
+            } else if (m_InspectorService != null) { // debug not enabled
+                if (m_MessageStyle == null) {
+                    m_MessageStyle = new GUIStyle(GUI.skin.label);
+                    m_MessageStyle.fontSize = 16;
+                    m_MessageStyle.alignment = TextAnchor.MiddleCenter;
+                    m_MessageStyle.padding = new RectOffset(20, 20, 40, 0);
                 }
                 GUILayout.Label("You're not in UIWidgets Debug Mode.\nPlease define UIWidgets_DEBUG " +
                                 "symbols at \"Player Settings => Scripting Define Symbols\".",
-                    this.m_MessageStyle, GUILayout.ExpandWidth(true));
+                    m_MessageStyle, GUILayout.ExpandWidth(true));
             }
             
-           if (this.m_ShowDebugPaintToggles) {
-               this.DebugPaintToggles(ref needDebugPaintUpdate);
+           if (m_ShowDebugPaintToggles) {
+               DebugPaintToggles(ref needDebugPaintUpdate);
            }
 
            if (needDebugPaintUpdate) {
                D.setDebugPaint(
-                   debugPaintSizeEnabled: this.m_DebugPaint && this.m_DebugPaintSize, 
-                   debugPaintBaselinesEnabled: this.m_DebugPaint && this.m_DebugPaintBaseline,
-                   debugPaintPointersEnabled: this.m_DebugPaint && this.m_DebugPaintPointer,
-                   debugPaintLayerBordersEnabled: this.m_DebugPaint && this.m_DebugPaintLayer,
-                   debugRepaintRainbowEnabled: this.m_DebugPaint && this.m_DebugPaintLayer
+                   debugPaintSizeEnabled: m_DebugPaint && m_DebugPaintSize, 
+                   debugPaintBaselinesEnabled: m_DebugPaint && m_DebugPaintBaseline,
+                   debugPaintPointersEnabled: m_DebugPaint && m_DebugPaintPointer,
+                   debugPaintLayerBordersEnabled: m_DebugPaint && m_DebugPaintLayer,
+                   debugRepaintRainbowEnabled: m_DebugPaint && m_DebugPaintLayer
                    );
            }
         }
 
         void DebugPaintToggles(ref bool needUpdate) {
-            GUILayout.BeginArea(this.m_DebugPaintTogglesRect, GUI.skin.box);
+            GUILayout.BeginArea(m_DebugPaintTogglesRect, GUI.skin.box);
             GUILayout.BeginVertical();
             EditorGUI.BeginChangeCheck();
             GUILayout.Space(4);
-            this.m_DebugPaintSize = GUILayout.Toggle(this.m_DebugPaintSize, new GUIContent("Paint Size"));
-            this.m_DebugPaintBaseline = GUILayout.Toggle(this.m_DebugPaintBaseline, new GUIContent("Paint Baseline"));
-            this.m_DebugPaintPointer = GUILayout.Toggle(this.m_DebugPaintPointer, new GUIContent("Paint Pointer"));
-            this.m_DebugPaintLayer  = GUILayout.Toggle(this.m_DebugPaintLayer, new GUIContent("Paint Layer"));
+            m_DebugPaintSize = GUILayout.Toggle(m_DebugPaintSize, new GUIContent("Paint Size"));
+            m_DebugPaintBaseline = GUILayout.Toggle(m_DebugPaintBaseline, new GUIContent("Paint Baseline"));
+            m_DebugPaintPointer = GUILayout.Toggle(m_DebugPaintPointer, new GUIContent("Paint Pointer"));
+            m_DebugPaintLayer  = GUILayout.Toggle(m_DebugPaintLayer, new GUIContent("Paint Layer"));
             if (EditorGUI.EndChangeCheck()) {
                 needUpdate = true;
             }
@@ -171,16 +171,16 @@ namespace Unity.UIWidgets.debugger {
             GUILayout.EndArea();
 
             if (Event.current.type == EventType.MouseDown && 
-                !this.m_DebugPaintTogglesRect.Contains(Event.current.mousePosition)) {
-                this.ScheduleUpdateAction(() => {
-                    this.m_ShowDebugPaintToggles = false;
-                    this.Repaint();
+                !m_DebugPaintTogglesRect.Contains(Event.current.mousePosition)) {
+                ScheduleUpdateAction(() => {
+                    m_ShowDebugPaintToggles = false;
+                    Repaint();
                 });
             }
         }
         
         void DoSelectDropDown() {
-            var currentWindow = this.m_InspectorService == null ? null : this.m_InspectorService.window;
+            var currentWindow = m_InspectorService == null ? null : m_InspectorService.window;
             if (currentWindow != null && !currentWindow.alive) {
                 currentWindow = null;
             }
@@ -209,12 +209,12 @@ namespace Unity.UIWidgets.debugger {
                     if (selected > 0) {
                         var selectedWindow = windows[selected - 1];
                         if (selectedWindow != currentWindow) {
-                            this.inspect(selectedWindow);
+                            inspect(selectedWindow);
                         }
                     }
                     else {
-                        if (this.m_InspectorService != null) {
-                            this.closeInspect();
+                        if (m_InspectorService != null) {
+                            closeInspect();
                         }
                     }
                 }, null);
@@ -222,78 +222,78 @@ namespace Unity.UIWidgets.debugger {
         }
 
         void inspect(WindowAdapter window) {
-            if (this.m_InspectorService != null) // stop previous inspect
+            if (m_InspectorService != null) // stop previous inspect
             {
-                this.closeInspect();
+                closeInspect();
             }
 
-            this.m_InspectorService = new InspectorService(window);
-            this.m_PanelIndex = 0;
+            m_InspectorService = new InspectorService(window);
+            m_PanelIndex = 0;
 
-            var state = this.m_PanelStates.Find((s) => s.treeType == WidgetTreeType.Widget);
-            this.m_Panels.Add(new InspectorPanel(this, WidgetTreeType.Widget, this.m_InspectorService,
+            var state = m_PanelStates.Find((s) => s.treeType == WidgetTreeType.Widget);
+            m_Panels.Add(new InspectorPanel(this, WidgetTreeType.Widget, m_InspectorService,
                 state == null ? (float?) null : state.splitOffset));
 
-            state = this.m_PanelStates.Find((s) => s.treeType == WidgetTreeType.Render);
-            this.m_Panels.Add(new InspectorPanel(this, WidgetTreeType.Render, this.m_InspectorService,
+            state = m_PanelStates.Find((s) => s.treeType == WidgetTreeType.Render);
+            m_Panels.Add(new InspectorPanel(this, WidgetTreeType.Render, m_InspectorService,
                 state == null ? (float?) null : state.splitOffset));
         }
 
         void closeInspect() {
-            if (this.m_InspectorService == null) {
+            if (m_InspectorService == null) {
                 return;
             }
 
-            this.m_InspectorService.close();
-            this.m_InspectorService = null;
-            foreach (var panel in this.m_Panels) {
+            m_InspectorService.close();
+            m_InspectorService = null;
+            foreach (var panel in m_Panels) {
                 panel.Close();
             }
 
-            this.m_Panels.Clear();
-            this.m_ShowInspect = false;
-            this.m_ShowDebugPaintToggles = false;
+            m_Panels.Clear();
+            m_ShowInspect = false;
+            m_ShowDebugPaintToggles = false;
         }
 
         void ScheduleUpdateAction(Action action) {
-            this.m_UpdateActions.Add(action);
+            m_UpdateActions.Add(action);
         }
 
         void Update() {
-            if (this.m_InspectorService != null && !this.m_InspectorService.active) {
-                this.closeInspect();
-                this.Repaint();
+            if (m_InspectorService != null && !m_InspectorService.active) {
+                closeInspect();
+                Repaint();
             }
 
             bool showInspect = false;
-            if (this.m_InspectorService != null) {
-                showInspect = this.m_InspectorService.getShowInspect();
+            if (m_InspectorService != null) {
+                showInspect = m_InspectorService.getShowInspect();
             }
 
-            if (showInspect != this.m_ShowInspect) {
-                this.Repaint();
+            if (showInspect != m_ShowInspect) {
+                Repaint();
             }
 
-            this.m_ShowInspect = showInspect;
+            m_ShowInspect = showInspect;
 
-            for (int i = 0; i < this.m_Panels.Count; i++) {
-                this.m_Panels[i].visibleToUser = this.m_PanelIndex == i;
-                this.m_Panels[i].Update();
+            for (int i = 0; i < m_Panels.Count; i++) {
+                m_Panels[i].visibleToUser = m_PanelIndex == i;
+                m_Panels[i].Update();
             }
 
-            if (this.m_Panels.Count > 0) {
-                this.m_PanelStates = this.m_Panels.Select(p => p.PanelState).ToList();
+            if (m_Panels.Count > 0) {
+                m_PanelStates = m_Panels.Select(p => p.PanelState).ToList();
             }
 
-            while (this.m_UpdateActions.Count > 0) {
-                this.m_UpdateActions[0]();
-                this.m_UpdateActions.RemoveAt(0);
+            while (m_UpdateActions.Count > 0) {
+                m_UpdateActions[0]();
+                m_UpdateActions.RemoveAt(0);
             }
         }
 
 
         void OnDestroy() {
-            this.closeInspect();
+            closeInspect();
         }
     }
 }

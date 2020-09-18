@@ -15,23 +15,23 @@ namespace Unity.UIWidgets.ui {
         public static readonly uiColor white = new uiColor(0xFFFFFFFF);
 
         public int alpha {
-            get { return (int) ((0xff000000 & this.value) >> 24); }
+            get { return (int) ((0xff000000 & value) >> 24); }
         }
 
         public float opacity {
-            get { return this.alpha / 255.0f; }
+            get { return alpha / 255.0f; }
         }
 
         public int red {
-            get { return (int) ((0x00ff0000 & this.value) >> 16); }
+            get { return (int) ((0x00ff0000 & value) >> 16); }
         }
 
         public int green {
-            get { return (int) ((0x0000ff00 & this.value) >> 8); }
+            get { return (int) ((0x0000ff00 & value) >> 8); }
         }
 
         public int blue {
-            get { return (int) ((0x000000ff & this.value) >> 0); }
+            get { return (int) ((0x000000ff & value) >> 0); }
         }
 
         public static uiColor fromColor(Color color) {
@@ -55,11 +55,11 @@ namespace Unity.UIWidgets.ui {
         }
 
         public uiColor withAlpha(int a) {
-            return fromARGB(a, this.red, this.green, this.blue);
+            return fromARGB(a, red, green, blue);
         }
 
         public uiColor withOpacity(float opacity) {
-            return this.withAlpha((int) (opacity * 255));
+            return withAlpha((int) (opacity * 255));
         }
 
         static float _linearizeColorComponent(float component) {
@@ -71,9 +71,9 @@ namespace Unity.UIWidgets.ui {
         }
 
         public float computeLuminance() {
-            float R = _linearizeColorComponent(this.red / 0xFF);
-            float G = _linearizeColorComponent(this.green / 0xFF);
-            float B = _linearizeColorComponent(this.blue / 0xFF);
+            float R = _linearizeColorComponent(red / 0xFF);
+            float G = _linearizeColorComponent(green / 0xFF);
+            float B = _linearizeColorComponent(blue / 0xFF);
             return 0.2126f * R + 0.7152f * G + 0.0722f * B;
         }
     }

@@ -122,7 +122,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<object>("tag", this.tag));
+            properties.add(new DiagnosticsProperty<object>("tag", tag));
         }
     }
 
@@ -131,36 +131,36 @@ namespace Unity.UIWidgets.widgets {
         Size _placeholderSize;
 
         public void startFlight() {
-            D.assert(this.mounted);
-            RenderBox box = (RenderBox) this.context.findRenderObject();
+            D.assert(mounted);
+            RenderBox box = (RenderBox) context.findRenderObject();
             D.assert(box != null && box.hasSize);
-            this.setState(() => { this._placeholderSize = box.size; });
+            setState(() => { _placeholderSize = box.size; });
         }
 
         public void endFlight() {
-            if (this.mounted) {
-                this.setState(() => { this._placeholderSize = null; });
+            if (mounted) {
+                setState(() => { _placeholderSize = null; });
             }
         }
 
         public override Widget build(BuildContext context) {
             D.assert(context.ancestorWidgetOfExactType(typeof(Hero)) == null,
                 () => "A Hero widget cannot be the descendant of another Hero widget.");
-            if (this._placeholderSize != null) {
-                if (this.widget.placeholderBuilder == null) {
+            if (_placeholderSize != null) {
+                if (widget.placeholderBuilder == null) {
                     return new SizedBox(
-                        width: this._placeholderSize.width,
-                        height: this._placeholderSize.height
+                        width: _placeholderSize.width,
+                        height: _placeholderSize.height
                     );
                 }
                 else {
-                    return this.widget.placeholderBuilder(context, this.widget.child);
+                    return widget.placeholderBuilder(context, widget.child);
                 }
             }
 
             return new KeyedSubtree(
-                key: this._key,
-                child: this.widget.child
+                key: _key,
+                child: widget.child
             );
         }
     }
@@ -203,29 +203,29 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool isUserGestureTransition;
 
         public object tag {
-            get { return this.fromHero.widget.tag; }
+            get { return fromHero.widget.tag; }
         }
 
         public Animation<float> animation {
             get {
                 return new CurvedAnimation(
-                    parent: (this.type == HeroFlightDirection.push) ? this.toRoute.animation : this.fromRoute.animation,
+                    parent: (type == HeroFlightDirection.push) ? toRoute.animation : fromRoute.animation,
                     curve: Curves.fastOutSlowIn
                 );
             }
         }
 
         public override string ToString() {
-            return $"_HeroFlightManifest($type tag: $tag from route: {this.fromRoute.settings} " +
-                   $"to route: {this.toRoute.settings} with hero: {this.fromHero} to {this.toHero})";
+            return $"_HeroFlightManifest($type tag: $tag from route: {fromRoute.settings} " +
+                   $"to route: {toRoute.settings} with hero: {fromHero} to {toHero})";
         }
     }
 
     class _HeroFlight {
         public _HeroFlight(_OnFlightEnded onFlightEnded) {
             this.onFlightEnded = onFlightEnded;
-            this._proxyAnimation = new ProxyAnimation();
-            this._proxyAnimation.addStatusListener(this._handleAnimationUpdate);
+            _proxyAnimation = new ProxyAnimation();
+            _proxyAnimation.addStatusListener(_handleAnimationUpdate);
         }
 
         public readonly _OnFlightEnded onFlightEnded;
@@ -241,7 +241,7 @@ namespace Unity.UIWidgets.widgets {
 
         Tween<Rect> _doCreateRectTween(Rect begin, Rect end) {
             CreateRectTween createRectTween =
-                this.manifest.toHero.widget.createRectTween ?? this.manifest.createRectTween;
+                manifest.toHero.widget.createRectTween ?? manifest.createRectTween;
             if (createRectTween != null) {
                 return createRectTween(begin, end);
             }
@@ -252,37 +252,37 @@ namespace Unity.UIWidgets.widgets {
         static readonly Animatable<float> _reverseTween = new FloatTween(begin: 1.0f, end: 0.0f);
 
         Widget _buildOverlay(BuildContext context) {
-            D.assert(this.manifest != null);
-            this.shuttle = this.shuttle ?? this.manifest.shuttleBuilder(
-                               context, this.manifest.animation, this.manifest.type, this.manifest.fromHero.context,
-                               this.manifest.toHero.context
+            D.assert(manifest != null);
+            shuttle = shuttle ?? manifest.shuttleBuilder(
+                               context, manifest.animation, manifest.type, manifest.fromHero.context,
+                               manifest.toHero.context
                            );
-            D.assert(this.shuttle != null);
+            D.assert(shuttle != null);
 
             return new AnimatedBuilder(
-                animation: this._proxyAnimation,
-                child: this.shuttle,
+                animation: _proxyAnimation,
+                child: shuttle,
                 builder: (BuildContext _, Widget child) => {
-                    RenderBox toHeroBox = (RenderBox) this.manifest.toHero.context?.findRenderObject();
-                    if (this._aborted || toHeroBox == null || !toHeroBox.attached) {
-                        if (this._heroOpacity.isCompleted) {
-                            this._heroOpacity = this._proxyAnimation.drive(
+                    RenderBox toHeroBox = (RenderBox) manifest.toHero.context?.findRenderObject();
+                    if (_aborted || toHeroBox == null || !toHeroBox.attached) {
+                        if (_heroOpacity.isCompleted) {
+                            _heroOpacity = _proxyAnimation.drive(
                                 _reverseTween.chain(
-                                    new CurveTween(curve: new Interval(this._proxyAnimation.value, 1.0f)))
+                                    new CurveTween(curve: new Interval(_proxyAnimation.value, 1.0f)))
                             );
                         }
                     }
                     else if (toHeroBox.hasSize) {
-                        RenderBox finalRouteBox = (RenderBox) this.manifest.toRoute.subtreeContext?.findRenderObject();
+                        RenderBox finalRouteBox = (RenderBox) manifest.toRoute.subtreeContext?.findRenderObject();
                         Offset toHeroOrigin = toHeroBox.localToGlobal(Offset.zero, ancestor: finalRouteBox);
-                        if (toHeroOrigin != this.heroRectTween.end.topLeft) {
-                            Rect heroRectEnd = toHeroOrigin & this.heroRectTween.end.size;
-                            this.heroRectTween = this._doCreateRectTween(this.heroRectTween.begin, heroRectEnd);
+                        if (toHeroOrigin != heroRectTween.end.topLeft) {
+                            Rect heroRectEnd = toHeroOrigin & heroRectTween.end.size;
+                            heroRectTween = _doCreateRectTween(heroRectTween.begin, heroRectEnd);
                         }
                     }
 
-                    Rect rect = this.heroRectTween.evaluate(this._proxyAnimation);
-                    Size size = this.manifest.navigatorRect.size;
+                    Rect rect = heroRectTween.evaluate(_proxyAnimation);
+                    Size size = manifest.navigatorRect.size;
                     RelativeRect offsets = RelativeRect.fromSize(rect, size);
 
                     return new Positioned(
@@ -293,7 +293,7 @@ namespace Unity.UIWidgets.widgets {
                         child: new IgnorePointer(
                             child: new RepaintBoundary(
                                 child: new Opacity(
-                                    opacity: this._heroOpacity.value,
+                                    opacity: _heroOpacity.value,
                                     child: child
                                 )
                             )
@@ -305,20 +305,20 @@ namespace Unity.UIWidgets.widgets {
 
         void _handleAnimationUpdate(AnimationStatus status) {
             if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
-                this._proxyAnimation.parent = null;
+                _proxyAnimation.parent = null;
 
-                D.assert(this.overlayEntry != null);
-                this.overlayEntry.remove();
-                this.overlayEntry = null;
+                D.assert(overlayEntry != null);
+                overlayEntry.remove();
+                overlayEntry = null;
 
-                this.manifest.fromHero.endFlight();
-                this.manifest.toHero.endFlight();
-                this.onFlightEnded(this);
+                manifest.fromHero.endFlight();
+                manifest.toHero.endFlight();
+                onFlightEnded(this);
             }
         }
 
         public void start(_HeroFlightManifest initialManifest) {
-            D.assert(!this._aborted);
+            D.assert(!_aborted);
             D.assert(() => {
                 Animation<float> initial = initialManifest.animation;
                 D.assert(initial != null);
@@ -335,98 +335,98 @@ namespace Unity.UIWidgets.widgets {
                 throw new Exception("Unknown type: " + type);
             });
 
-            this.manifest = initialManifest;
+            manifest = initialManifest;
 
-            if (this.manifest.type == HeroFlightDirection.pop) {
-                this._proxyAnimation.parent = new ReverseAnimation(this.manifest.animation);
+            if (manifest.type == HeroFlightDirection.pop) {
+                _proxyAnimation.parent = new ReverseAnimation(manifest.animation);
             }
             else {
-                this._proxyAnimation.parent = this.manifest.animation;
+                _proxyAnimation.parent = manifest.animation;
             }
 
-            this.manifest.fromHero.startFlight();
-            this.manifest.toHero.startFlight();
+            manifest.fromHero.startFlight();
+            manifest.toHero.startFlight();
 
-            this.heroRectTween = this._doCreateRectTween(
-                HeroUtils._globalBoundingBoxFor(this.manifest.fromHero.context),
-                HeroUtils._globalBoundingBoxFor(this.manifest.toHero.context)
+            heroRectTween = _doCreateRectTween(
+                HeroUtils._globalBoundingBoxFor(manifest.fromHero.context),
+                HeroUtils._globalBoundingBoxFor(manifest.toHero.context)
             );
 
-            this.overlayEntry = new OverlayEntry(builder: this._buildOverlay);
-            this.manifest.overlay.insert(this.overlayEntry);
+            overlayEntry = new OverlayEntry(builder: _buildOverlay);
+            manifest.overlay.insert(overlayEntry);
         }
 
         public void divert(_HeroFlightManifest newManifest) {
-            D.assert(this.manifest.tag == newManifest.tag);
+            D.assert(manifest.tag == newManifest.tag);
 
-            if (this.manifest.type == HeroFlightDirection.push && newManifest.type == HeroFlightDirection.pop) {
+            if (manifest.type == HeroFlightDirection.push && newManifest.type == HeroFlightDirection.pop) {
                 D.assert(newManifest.animation.status == AnimationStatus.reverse);
-                D.assert(this.manifest.fromHero == newManifest.toHero);
-                D.assert(this.manifest.toHero == newManifest.fromHero);
-                D.assert(this.manifest.fromRoute == newManifest.toRoute);
-                D.assert(this.manifest.toRoute == newManifest.fromRoute);
+                D.assert(manifest.fromHero == newManifest.toHero);
+                D.assert(manifest.toHero == newManifest.fromHero);
+                D.assert(manifest.fromRoute == newManifest.toRoute);
+                D.assert(manifest.toRoute == newManifest.fromRoute);
 
-                this._proxyAnimation.parent = new ReverseAnimation(newManifest.animation);
-                this.heroRectTween = new ReverseTween<Rect>(this.heroRectTween);
+                _proxyAnimation.parent = new ReverseAnimation(newManifest.animation);
+                heroRectTween = new ReverseTween<Rect>(heroRectTween);
             }
-            else if (this.manifest.type == HeroFlightDirection.pop && newManifest.type == HeroFlightDirection.push) {
+            else if (manifest.type == HeroFlightDirection.pop && newManifest.type == HeroFlightDirection.push) {
                 D.assert(newManifest.animation.status == AnimationStatus.forward);
-                D.assert(this.manifest.toHero == newManifest.fromHero);
-                D.assert(this.manifest.toRoute == newManifest.fromRoute);
+                D.assert(manifest.toHero == newManifest.fromHero);
+                D.assert(manifest.toRoute == newManifest.fromRoute);
 
-                this._proxyAnimation.parent = newManifest.animation.drive(
+                _proxyAnimation.parent = newManifest.animation.drive(
                     new FloatTween(
-                        begin: this.manifest.animation.value,
+                        begin: manifest.animation.value,
                         end: 1.0f
                     )
                 );
 
-                if (this.manifest.fromHero != newManifest.toHero) {
-                    this.manifest.fromHero.endFlight();
+                if (manifest.fromHero != newManifest.toHero) {
+                    manifest.fromHero.endFlight();
                     newManifest.toHero.startFlight();
-                    this.heroRectTween = this._doCreateRectTween(this.heroRectTween.end,
+                    heroRectTween = _doCreateRectTween(heroRectTween.end,
                         HeroUtils._globalBoundingBoxFor(newManifest.toHero.context));
                 }
                 else {
-                    this.heroRectTween = this._doCreateRectTween(this.heroRectTween.end, this.heroRectTween.begin);
+                    heroRectTween = _doCreateRectTween(heroRectTween.end, heroRectTween.begin);
                 }
             }
             else {
-                D.assert(this.manifest.fromHero != newManifest.fromHero);
-                D.assert(this.manifest.toHero != newManifest.toHero);
+                D.assert(manifest.fromHero != newManifest.fromHero);
+                D.assert(manifest.toHero != newManifest.toHero);
 
-                this.heroRectTween = this._doCreateRectTween(this.heroRectTween.evaluate(this._proxyAnimation),
+                heroRectTween = _doCreateRectTween(heroRectTween.evaluate(_proxyAnimation),
                     HeroUtils._globalBoundingBoxFor(newManifest.toHero.context));
-                this.shuttle = null;
+                shuttle = null;
 
                 if (newManifest.type == HeroFlightDirection.pop) {
-                    this._proxyAnimation.parent = new ReverseAnimation(newManifest.animation);
+                    _proxyAnimation.parent = new ReverseAnimation(newManifest.animation);
                 }
                 else {
-                    this._proxyAnimation.parent = newManifest.animation;
+                    _proxyAnimation.parent = newManifest.animation;
                 }
 
-                this.manifest.fromHero.endFlight();
-                this.manifest.toHero.endFlight();
+                manifest.fromHero.endFlight();
+                manifest.toHero.endFlight();
 
                 newManifest.fromHero.startFlight();
                 newManifest.toHero.startFlight();
 
-                this.overlayEntry.markNeedsBuild();
+                overlayEntry.markNeedsBuild();
             }
 
-            this._aborted = false;
-            this.manifest = newManifest;
+            _aborted = false;
+            manifest = newManifest;
         }
 
         public void abort() {
-            this._aborted = true;
+            _aborted = true;
         }
 
         public override string ToString() {
-            RouteSettings from = this.manifest.fromRoute.settings;
-            RouteSettings to = this.manifest.toRoute.settings;
-            object tag = this.manifest.tag;
+            RouteSettings from = manifest.fromRoute.settings;
+            RouteSettings to = manifest.toRoute.settings;
+            object tag = manifest.tag;
             return "HeroFlight(for: $tag, from: $from, to: $to ${_proxyAnimation.parent})";
         }
     }
@@ -441,30 +441,30 @@ namespace Unity.UIWidgets.widgets {
         Dictionary<object, _HeroFlight> _flights = new Dictionary<object, _HeroFlight>();
 
         public override void didPush(Route route, Route previousRoute) {
-            D.assert(this.navigator != null);
+            D.assert(navigator != null);
             D.assert(route != null);
-            this._maybeStartHeroTransition(previousRoute, route, HeroFlightDirection.push, false);
+            _maybeStartHeroTransition(previousRoute, route, HeroFlightDirection.push, false);
         }
 
         public override void didPop(Route route, Route previousRoute) {
-            D.assert(this.navigator != null);
+            D.assert(navigator != null);
             D.assert(route != null);
-            if (!this.navigator.userGestureInProgress) {
-                this._maybeStartHeroTransition(route, previousRoute, HeroFlightDirection.pop, false);
+            if (!navigator.userGestureInProgress) {
+                _maybeStartHeroTransition(route, previousRoute, HeroFlightDirection.pop, false);
             }
         }
 
         public override void didReplace(Route newRoute = null, Route oldRoute = null) {
-            D.assert(this.navigator != null);
+            D.assert(navigator != null);
             if (newRoute?.isCurrent == true) {
-                this._maybeStartHeroTransition(oldRoute, newRoute, HeroFlightDirection.push, false);
+                _maybeStartHeroTransition(oldRoute, newRoute, HeroFlightDirection.push, false);
             }
         }
 
         public override void didStartUserGesture(Route route, Route previousRoute) {
-            D.assert(this.navigator != null);
+            D.assert(navigator != null);
             D.assert(route != null);
-            this._maybeStartHeroTransition(route, previousRoute, HeroFlightDirection.pop, true);
+            _maybeStartHeroTransition(route, previousRoute, HeroFlightDirection.pop, true);
         }
 
         void _maybeStartHeroTransition(
@@ -494,13 +494,13 @@ namespace Unity.UIWidgets.widgets {
                 }
 
                 if (isUserGestureTransition && flightType == HeroFlightDirection.pop && to.maintainState) {
-                    this._startHeroTransition(from, to, animation, flightType, isUserGestureTransition);
+                    _startHeroTransition(from, to, animation, flightType, isUserGestureTransition);
                 }
                 else {
                     to.offstage = to.animation.value == 0.0f;
 
                     WidgetsBinding.instance.addPostFrameCallback((TimeSpan value) => {
-                        this._startHeroTransition(from, to, animation, flightType, isUserGestureTransition);
+                        _startHeroTransition(from, to, animation, flightType, isUserGestureTransition);
                     });
                 }
             }
@@ -513,17 +513,17 @@ namespace Unity.UIWidgets.widgets {
             HeroFlightDirection flightType,
             bool isUserGestureTransition
         ) {
-            if (this.navigator == null || from.subtreeContext == null || to.subtreeContext == null) {
+            if (navigator == null || from.subtreeContext == null || to.subtreeContext == null) {
                 to.offstage = false; // in case we set this in _maybeStartHeroTransition
                 return;
             }
 
-            Rect navigatorRect = HeroUtils._globalBoundingBoxFor(this.navigator.context);
+            Rect navigatorRect = HeroUtils._globalBoundingBoxFor(navigator.context);
 
             Dictionary<object, _HeroState> fromHeroes =
-                Hero._allHeroesFor(from.subtreeContext, isUserGestureTransition, this.navigator);
+                Hero._allHeroesFor(from.subtreeContext, isUserGestureTransition, navigator);
             Dictionary<object, _HeroState> toHeroes =
-                Hero._allHeroesFor(to.subtreeContext, isUserGestureTransition, this.navigator);
+                Hero._allHeroesFor(to.subtreeContext, isUserGestureTransition, navigator);
 
             to.offstage = false;
 
@@ -534,34 +534,34 @@ namespace Unity.UIWidgets.widgets {
 
                     _HeroFlightManifest manifest = new _HeroFlightManifest(
                         type: flightType,
-                        overlay: this.navigator.overlay,
+                        overlay: navigator.overlay,
                         navigatorRect: navigatorRect,
                         fromRoute: from,
                         toRoute: to,
                         fromHero: fromHeroes[tag],
                         toHero: toHeroes[tag],
-                        createRectTween: this.createRectTween,
+                        createRectTween: createRectTween,
                         shuttleBuilder:
                         toShuttleBuilder ?? fromShuttleBuilder ?? _defaultHeroFlightShuttleBuilder,
                         isUserGestureTransition: isUserGestureTransition
                     );
 
-                    if (this._flights.TryGetValue(tag, out var result)) {
+                    if (_flights.TryGetValue(tag, out var result)) {
                         result.divert(manifest);
                     }
                     else {
-                        this._flights[tag] = new _HeroFlight(this._handleFlightEnded);
-                        this._flights[tag].start(manifest);
+                        _flights[tag] = new _HeroFlight(_handleFlightEnded);
+                        _flights[tag].start(manifest);
                     }
                 }
-                else if (this._flights.TryGetValue(tag, out var result)) {
+                else if (_flights.TryGetValue(tag, out var result)) {
                     result.abort();
                 }
             }
         }
 
         void _handleFlightEnded(_HeroFlight flight) {
-            this._flights.Remove(flight.manifest.tag);
+            _flights.Remove(flight.manifest.tag);
         }
 
         static readonly HeroFlightShuttleBuilder _defaultHeroFlightShuttleBuilder = (

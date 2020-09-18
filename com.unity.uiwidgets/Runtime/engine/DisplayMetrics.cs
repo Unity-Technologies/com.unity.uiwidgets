@@ -52,13 +52,13 @@ namespace Unity.UIWidgets.engine {
 
         public void onViewMetricsChanged() {
             //view metrics marks dirty
-            this._viewMetrics = null;
+            _viewMetrics = null;
         }
 
         public float devicePixelRatio {
             get {
-                if (this._devicePixelRatio > 0) {
-                    return this._devicePixelRatio;
+                if (_devicePixelRatio > 0) {
+                    return _devicePixelRatio;
                 }
 
 #if UNITY_ANDROID
@@ -73,36 +73,36 @@ namespace Unity.UIWidgets.engine {
                 this._devicePixelRatio = IOSDeviceScaleFactor();
 #endif
 
-                if (this._devicePixelRatio <= 0) {
-                    this._devicePixelRatio = 1;
+                if (_devicePixelRatio <= 0) {
+                    _devicePixelRatio = 1;
                 }
 
-                return this._devicePixelRatio;
+                return _devicePixelRatio;
             }
         }
 
         public WindowPadding viewPadding {
             get {
-                return new WindowPadding(this.viewMetrics.padding_left,
-                    this.viewMetrics.padding_top,
-                    this.viewMetrics.padding_right,
-                    this.viewMetrics.padding_bottom);
+                return new WindowPadding(viewMetrics.padding_left,
+                    viewMetrics.padding_top,
+                    viewMetrics.padding_right,
+                    viewMetrics.padding_bottom);
             }
         }
 
         public WindowPadding viewInsets {
             get {
-                return new WindowPadding(this.viewMetrics.insets_left,
-                    this.viewMetrics.insets_top,
-                    this.viewMetrics.insets_right,
-                    this.viewMetrics.insets_bottom);
+                return new WindowPadding(viewMetrics.insets_left,
+                    viewMetrics.insets_top,
+                    viewMetrics.insets_right,
+                    viewMetrics.insets_bottom);
             }
         }
 
         public viewMetrics viewMetrics {
             get {
-                if (this._viewMetrics != null) {
-                    return this._viewMetrics.Value;
+                if (_viewMetrics != null) {
+                    return _viewMetrics.Value;
                 }
 
 #if UNITY_ANDROID
@@ -147,7 +147,7 @@ namespace Unity.UIWidgets.engine {
                 viewMetrics metrics = IOSGetViewportPadding();
                 this._viewMetrics = metrics;
 #else
-                this._viewMetrics = new viewMetrics {
+                _viewMetrics = new viewMetrics {
                     insets_bottom = 0,
                     insets_left = 0,
                     insets_right = 0,
@@ -158,7 +158,7 @@ namespace Unity.UIWidgets.engine {
                     padding_bottom = 0
                 };
 #endif
-                return this._viewMetrics.Value;
+                return _viewMetrics.Value;
             }
         }
 

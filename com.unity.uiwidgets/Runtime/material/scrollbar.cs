@@ -40,12 +40,12 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._fadeoutAnimationController = new AnimationController(
+            _fadeoutAnimationController = new AnimationController(
                 vsync: this,
                 duration: ScrollbarUtils._kScrollbarFadeDuration
             );
-            this._FadeoutOpacityAnimation = new CurvedAnimation(
-                parent: this._fadeoutAnimationController,
+            _FadeoutOpacityAnimation = new CurvedAnimation(
+                parent: _fadeoutAnimationController,
                 curve: Curves.fastOutSlowIn
             );
         }
@@ -53,34 +53,34 @@ namespace Unity.UIWidgets.material {
         public override void didChangeDependencies() {
             base.didChangeDependencies();
 
-            ThemeData theme = Theme.of(this.context);
+            ThemeData theme = Theme.of(context);
 
-            this._themeColor = theme.highlightColor.withOpacity(1.0f);
-            this._textDirection = Directionality.of(this.context);
-            this._materialPainter = this._BuildMaterialScrollbarPainter();
+            _themeColor = theme.highlightColor.withOpacity(1.0f);
+            _textDirection = Directionality.of(context);
+            _materialPainter = _BuildMaterialScrollbarPainter();
         }
 
         public ScrollbarPainter _BuildMaterialScrollbarPainter() {
             return new ScrollbarPainter(
-                color: this._themeColor,
-                textDirection: this._textDirection,
+                color: _themeColor,
+                textDirection: _textDirection,
                 thickness: ScrollbarUtils._kScrollbarThickness,
-                fadeoutOpacityAnimation: this._FadeoutOpacityAnimation
+                fadeoutOpacityAnimation: _FadeoutOpacityAnimation
             );
         }
 
         bool _handleScrollNotification(ScrollNotification notification) {
             if (notification is ScrollUpdateNotification || notification is OverscrollNotification) {
-                if (this._fadeoutAnimationController.status != AnimationStatus.forward) {
-                    this._fadeoutAnimationController.forward();
+                if (_fadeoutAnimationController.status != AnimationStatus.forward) {
+                    _fadeoutAnimationController.forward();
                 }
 
-                this._materialPainter.update(notification.metrics, notification.metrics.axisDirection);
-                this._fadeoutTimer?.cancel();
+                _materialPainter.update(notification.metrics, notification.metrics.axisDirection);
+                _fadeoutTimer?.cancel();
 
-                this._fadeoutTimer = Window.instance.run(ScrollbarUtils._kScrollbarTimeToFade, () => {
-                    this._fadeoutAnimationController.reverse();
-                    this._fadeoutTimer = null;
+                _fadeoutTimer = Window.instance.run(ScrollbarUtils._kScrollbarTimeToFade, () => {
+                    _fadeoutAnimationController.reverse();
+                    _fadeoutTimer = null;
                 });
             }
 
@@ -88,21 +88,21 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void dispose() {
-            this._fadeoutAnimationController.dispose();
-            this._fadeoutTimer?.cancel();
-            this._materialPainter?.dispose();
+            _fadeoutAnimationController.dispose();
+            _fadeoutTimer?.cancel();
+            _materialPainter?.dispose();
 
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
             return new NotificationListener<ScrollNotification>(
-                onNotification: this._handleScrollNotification,
+                onNotification: _handleScrollNotification,
                 child: new RepaintBoundary(
                     child: new CustomPaint(
-                        foregroundPainter: this._materialPainter,
+                        foregroundPainter: _materialPainter,
                         child: new RepaintBoundary(
-                            child: this.widget.child
+                            child: widget.child
                         )
                     )
                 )

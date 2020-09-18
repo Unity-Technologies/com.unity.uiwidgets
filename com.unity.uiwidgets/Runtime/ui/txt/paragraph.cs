@@ -15,8 +15,8 @@ namespace Unity.UIWidgets.ui {
 
         public CodeUnitRun(Range<int> cu, Range<float> xPos, int line,
             TextDirection direction, int start, int count) {
-            this.lineNumber = line;
-            this.codeUnits = cu;
+            lineNumber = line;
+            codeUnits = cu;
             this.xPos = xPos;
             this.direction = direction;
             this.start = start;
@@ -24,8 +24,8 @@ namespace Unity.UIWidgets.ui {
         }
 
         public GlyphPosition get(int i, GlyphPosition[] glyphPositions) {
-            D.assert(i < this.count);
-            return glyphPositions[this.start + i];
+            D.assert(i < count);
+            return glyphPositions[start + i];
         }
     }
 
@@ -52,7 +52,7 @@ namespace Unity.UIWidgets.ui {
             this.underlinePosition = underlinePosition;
             this.strikeoutPosition = strikeoutPosition;
             this.fxHeight = fxHeight;
-            this.leading = 0.0f;
+            leading = 0.0f;
         }
 
         public static FontMetrics fromFont(Font font, int fontSize) {
@@ -78,8 +78,8 @@ namespace Unity.UIWidgets.ui {
         public readonly TextAffinity affinity;
 
         public PositionWithAffinity(int p, TextAffinity a) {
-            this.position = p;
-            this.affinity = a;
+            position = p;
+            affinity = a;
         }
     }
 
@@ -88,12 +88,12 @@ namespace Unity.UIWidgets.ui {
         public readonly int codeUnit;
 
         public GlyphPosition(float start, float advance, int codeUnit) {
-            this.xPos = new Range<float>(start, start + advance);
+            xPos = new Range<float>(start, start + advance);
             this.codeUnit = codeUnit;
         }
 
         public void shiftSelf(float shift) {
-            this.xPos = new Range<float>(this.xPos.start + shift, this.xPos.end + shift);
+            xPos = new Range<float>(xPos.start + shift, xPos.end + shift);
         }
     }
 
@@ -104,8 +104,8 @@ namespace Unity.UIWidgets.ui {
         }
 
         public bool Equals(Range<T> other) {
-            return EqualityComparer<T>.Default.Equals(this.start, other.start) &&
-                   EqualityComparer<T>.Default.Equals(this.end, other.end);
+            return EqualityComparer<T>.Default.Equals(start, other.start) &&
+                   EqualityComparer<T>.Default.Equals(end, other.end);
         }
 
         public override bool Equals(object obj) {
@@ -113,13 +113,13 @@ namespace Unity.UIWidgets.ui {
                 return false;
             }
 
-            return obj is Range<T> && this.Equals((Range<T>) obj);
+            return obj is Range<T> && Equals((Range<T>) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return (EqualityComparer<T>.Default.GetHashCode(this.start) * 397) ^
-                       EqualityComparer<T>.Default.GetHashCode(this.end);
+                return (EqualityComparer<T>.Default.GetHashCode(start) * 397) ^
+                       EqualityComparer<T>.Default.GetHashCode(end);
             }
         }
 
@@ -144,11 +144,11 @@ namespace Unity.UIWidgets.ui {
         }
 
         public GlyphPosition get(int i, GlyphPosition[] glyphPositions) {
-            return glyphPositions[this.start + i];
+            return glyphPositions[start + i];
         }
 
         public GlyphPosition last(GlyphPosition[] glyphPositions) {
-            return glyphPositions[this.start + this.count - 1];
+            return glyphPositions[start + count - 1];
         }
     }
 
@@ -213,37 +213,37 @@ namespace Unity.UIWidgets.ui {
 
         public float height {
             get {
-                if (this._lineHeights == null) {
+                if (_lineHeights == null) {
                     return 0;
                 }
 
-                return this._lineHeights[this.getLineCount() - 1];
+                return _lineHeights[getLineCount() - 1];
             }
         }
 
         public float minIntrinsicWidth {
-            get { return this._minIntrinsicWidth; }
+            get { return _minIntrinsicWidth; }
         }
 
         public float maxIntrinsicWidth {
-            get { return this._maxIntrinsicWidth; }
+            get { return _maxIntrinsicWidth; }
         }
 
         public float width {
-            get { return this._width; }
+            get { return _width; }
         }
 
 
         public float alphabeticBaseline {
-            get { return this._alphabeticBaseline; }
+            get { return _alphabeticBaseline; }
         }
 
         public float ideographicBaseline {
-            get { return this._ideographicBaseline; }
+            get { return _ideographicBaseline; }
         }
 
         public bool didExceedMaxLines {
-            get { return this._didExceedMaxLines; }
+            get { return _didExceedMaxLines; }
         }
 
         static List<Paragraph> _paragraphPool = new List<Paragraph>();
@@ -267,23 +267,23 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void clear() {
-            this._needsLayout = true;
-            this._maxIntrinsicWidth = default;
-            this._minIntrinsicWidth = default;
-            this._alphabeticBaseline = default;
-            this._ideographicBaseline = default;
-            this._lineCount = default;
-            this._paintRecordsCount = default;
-            this._codeUnitRunsCount = default;
-            this._lineRangeCount = default;
-            this._lineWidthCount = default;
-            this._didExceedMaxLines = default;
-            this._width = default;
-            this._text = default;
-            this._ellipsizedText = default;
-            this._ellipsizedLength = default;
-            this._runs = null;
-            this._paragraphStyle = null;
+            _needsLayout = true;
+            _maxIntrinsicWidth = default;
+            _minIntrinsicWidth = default;
+            _alphabeticBaseline = default;
+            _ideographicBaseline = default;
+            _lineCount = default;
+            _paintRecordsCount = default;
+            _codeUnitRunsCount = default;
+            _lineRangeCount = default;
+            _lineWidthCount = default;
+            _didExceedMaxLines = default;
+            _width = default;
+            _text = default;
+            _ellipsizedText = default;
+            _ellipsizedLength = default;
+            _runs = null;
+            _paragraphStyle = null;
         }
 
         Paint _textPaint = new Paint {
@@ -295,93 +295,93 @@ namespace Unity.UIWidgets.ui {
         };
 
         public void paint(Canvas canvas, Offset offset) {
-            for (int i = 0; i < this._paintRecordsCount; i++) {
-                var paintRecord = this._paintRecords[i];
-                this.paintBackground(canvas, paintRecord, offset);
+            for (int i = 0; i < _paintRecordsCount; i++) {
+                var paintRecord = _paintRecords[i];
+                paintBackground(canvas, paintRecord, offset);
             }
 
-            for (int i = 0; i < this._paintRecordsCount; i++) {
-                var paintRecord = this._paintRecords[i];
+            for (int i = 0; i < _paintRecordsCount; i++) {
+                var paintRecord = _paintRecords[i];
                 
                 if (paintRecord.style.foreground != null) {
-                    this._textPaint = paintRecord.style.foreground;
+                    _textPaint = paintRecord.style.foreground;
                 }
                 else {
-                    this._textPaint = this._defaultPaint;
-                    this._textPaint.color = paintRecord.style.color;
+                    _textPaint = _defaultPaint;
+                    _textPaint.color = paintRecord.style.color;
                 }
 
-                canvas.drawTextBlob(paintRecord.text, paintRecord.shiftedOffset(offset), this._textPaint);
+                canvas.drawTextBlob(paintRecord.text, paintRecord.shiftedOffset(offset), _textPaint);
                 
-                this.paintDecorations(canvas, paintRecord, offset);
+                paintDecorations(canvas, paintRecord, offset);
             }
         }
 
         public void layout(ParagraphConstraints constraints) {
-            if (!this._needsLayout && this._width == constraints.width) {
+            if (!_needsLayout && _width == constraints.width) {
                 return;
             }
 
-            this._tabStops.setFont(
+            _tabStops.setFont(
                 FontManager.instance.getOrCreate(
-                    this._paragraphStyle.fontFamily ?? TextStyle.kDefaultFontFamily,
-                    this._paragraphStyle.fontWeight ?? TextStyle.kDefaultFontWeight,
-                    this._paragraphStyle.fontStyle ?? TextStyle.kDefaultfontStyle).font,
-                (int) (this._paragraphStyle.fontSize ?? TextStyle.kDefaultFontSize));
+                    _paragraphStyle.fontFamily ?? TextStyle.kDefaultFontFamily,
+                    _paragraphStyle.fontWeight ?? TextStyle.kDefaultFontWeight,
+                    _paragraphStyle.fontStyle ?? TextStyle.kDefaultfontStyle).font,
+                (int) (_paragraphStyle.fontSize ?? TextStyle.kDefaultFontSize));
 
-            this._needsLayout = false;
-            this._width = Mathf.Floor(constraints.width);
+            _needsLayout = false;
+            _width = Mathf.Floor(constraints.width);
 
-            int lineStyleRunsCount = this._computeLineBreak();
+            int lineStyleRunsCount = _computeLineBreak();
 
-            if (this._glyphLines == null || this._glyphLines.Length < this._lineRangeCount) {
-                this._glyphLines = new GlyphLine[LayoutUtils.minPowerOfTwo(this._lineRangeCount)];
+            if (_glyphLines == null || _glyphLines.Length < _lineRangeCount) {
+                _glyphLines = new GlyphLine[LayoutUtils.minPowerOfTwo(_lineRangeCount)];
             }
 
-            if (this._lineHeights == null || this._lineHeights.Length < this._lineRangeCount) {
-                this._lineHeights = new float[LayoutUtils.minPowerOfTwo(this._lineRangeCount)];
+            if (_lineHeights == null || _lineHeights.Length < _lineRangeCount) {
+                _lineHeights = new float[LayoutUtils.minPowerOfTwo(_lineRangeCount)];
             }
 
-            if (this._paintRecords == null || this._paintRecords.Length < lineStyleRunsCount) {
-                this._paintRecords = new PaintRecord[LayoutUtils.minPowerOfTwo(lineStyleRunsCount)];
+            if (_paintRecords == null || _paintRecords.Length < lineStyleRunsCount) {
+                _paintRecords = new PaintRecord[LayoutUtils.minPowerOfTwo(lineStyleRunsCount)];
             }
 
-            this._paintRecordsCount = 0;
+            _paintRecordsCount = 0;
 
-            if (this._codeUnitRuns == null || this._codeUnitRuns.Length < lineStyleRunsCount) {
-                this._codeUnitRuns = new CodeUnitRun[LayoutUtils.minPowerOfTwo(lineStyleRunsCount)];
+            if (_codeUnitRuns == null || _codeUnitRuns.Length < lineStyleRunsCount) {
+                _codeUnitRuns = new CodeUnitRun[LayoutUtils.minPowerOfTwo(lineStyleRunsCount)];
             }
 
-            this._codeUnitRunsCount = 0;
+            _codeUnitRunsCount = 0;
 
-            int styleMaxLines = this._paragraphStyle.maxLines ?? int.MaxValue;
-            this._didExceedMaxLines = this._lineRangeCount > styleMaxLines;
+            int styleMaxLines = _paragraphStyle.maxLines ?? int.MaxValue;
+            _didExceedMaxLines = _lineRangeCount > styleMaxLines;
 
-            var lineLimit = Mathf.Min(styleMaxLines, this._lineRangeCount);
+            var lineLimit = Mathf.Min(styleMaxLines, _lineRangeCount);
             int styleRunIndex = 0;
             float yOffset = 0;
             float preMaxDescent = 0;
             float maxWordWidth = 0;
 
             TextBlobBuilder builder = new TextBlobBuilder();
-            int ellipsizedLength = this._text.Length + (this._paragraphStyle.ellipsis?.Length ?? 0);
+            int ellipsizedLength = _text.Length + (_paragraphStyle.ellipsis?.Length ?? 0);
 
             // All text blobs share a single position buffer, which is big enough taking ellipsis into consideration
-            if (this._textBlobPositionXs == null || this._textBlobPositionXs.Length < ellipsizedLength) {
-                this._textBlobPositionXs = new float[LayoutUtils.minPowerOfTwo(ellipsizedLength)];
+            if (_textBlobPositionXs == null || _textBlobPositionXs.Length < ellipsizedLength) {
+                _textBlobPositionXs = new float[LayoutUtils.minPowerOfTwo(ellipsizedLength)];
             }
 
-            builder.setPositionXs(this._textBlobPositionXs);
+            builder.setPositionXs(_textBlobPositionXs);
             // this._glyphLines and this._codeUnitRuns will refer to this array for glyph positions
-            if (this._glyphPositions == null || this._glyphPositions.Length < ellipsizedLength) {
-                this._glyphPositions = new GlyphPosition[LayoutUtils.minPowerOfTwo(ellipsizedLength)];
+            if (_glyphPositions == null || _glyphPositions.Length < ellipsizedLength) {
+                _glyphPositions = new GlyphPosition[LayoutUtils.minPowerOfTwo(ellipsizedLength)];
             }
 
             // Pointer to the _glyphPositions array, to keep track of where the next glyph is stored
             int pGlyphPositions = 0;
 
             // Compute max(NumberOfWords(line) for line in lines), to determine the size of word buffers
-            int maxWordCount = this._computeMaxWordCount();
+            int maxWordCount = _computeMaxWordCount();
 
             if (_wordsBuffer == null || _wordsBuffer.Length < maxWordCount) {
                 _wordsBuffer = new Range<int>[maxWordCount < 4 ? 4 : maxWordCount];
@@ -389,32 +389,32 @@ namespace Unity.UIWidgets.ui {
 
             // Iterate through line ranges
             for (int lineNumber = 0; lineNumber < lineLimit; ++lineNumber) {
-                var lineRange = this._lineRanges[lineNumber];
+                var lineRange = _lineRanges[lineNumber];
                 int wordIndex = 0;
                 float runXOffset = 0;
                 float justifyXOffset = 0;
 
                 // Break the line into words if justification should be applied.
-                bool justifyLine = this._paragraphStyle.textAlign == TextAlign.justify &&
+                bool justifyLine = _paragraphStyle.textAlign == TextAlign.justify &&
                                    lineNumber != lineLimit - 1 && !lineRange.hardBreak &&
                                    // Do not apply justify if ellipsis should be added, or the ellipsis may be pushed
                                    // out of the border.
                                    // This is still not taken care of in the flutter engine.
-                                   !(this._paragraphStyle.ellipsized() && this._paragraphStyle.maxLines == null);
+                                   !(_paragraphStyle.ellipsized() && _paragraphStyle.maxLines == null);
 
-                int wordCount = this._findWords(lineRange.start, lineRange.end, _wordsBuffer);
+                int wordCount = _findWords(lineRange.start, lineRange.end, _wordsBuffer);
                 float wordGapWidth = !(justifyLine && wordCount > 1)
                     ? 0
-                    : (this._width - this._lineWidths[lineNumber]) / (wordCount - 1);
+                    : (_width - _lineWidths[lineNumber]) / (wordCount - 1);
 
                 // Count the number of style runs, and compute the character number of the longest run by the way
-                int lineStyleRunCount = this._countLineStyleRuns(lineRange, styleRunIndex, out int maxTextCount);
+                int lineStyleRunCount = _countLineStyleRuns(lineRange, styleRunIndex, out int maxTextCount);
 
-                string ellipsis = this._paragraphStyle.ellipsis;
+                string ellipsis = _paragraphStyle.ellipsis;
                 bool hardBreak = lineRange.hardBreak;
 
-                if (!string.IsNullOrEmpty(ellipsis) && !hardBreak && !this._width.isInfinite() &&
-                    (lineNumber == lineLimit - 1 || this._paragraphStyle.maxLines == null)) {
+                if (!string.IsNullOrEmpty(ellipsis) && !hardBreak && !_width.isInfinite() &&
+                    (lineNumber == lineLimit - 1 || _paragraphStyle.maxLines == null)) {
                     maxTextCount += ellipsis.Length;
                 }
 
@@ -435,23 +435,23 @@ namespace Unity.UIWidgets.ui {
                 if (lineStyleRunCount != 0) {
                     // Exclude trailing whitespace from right-justified lines so the last
                     // visible character in the line will be flush with the right margin.
-                    int lineEndIndex = this._paragraphStyle.textAlign == TextAlign.right ||
-                                       this._paragraphStyle.textAlign == TextAlign.center
+                    int lineEndIndex = _paragraphStyle.textAlign == TextAlign.right ||
+                                       _paragraphStyle.textAlign == TextAlign.center
                         ? lineRange.endExcludingWhitespace
                         : lineRange.end;
                     int lineStyleRunIndex = 0;
 
                     // Instead of computing all lineStyleRuns at once and store into an array and iterate through them,
                     // compute each lineStyleRun and deal with it on the fly, to save the storage for the runs
-                    while (styleRunIndex < this._runs.size) {
-                        var styleRun = this._runs.getRun(styleRunIndex);
+                    while (styleRunIndex < _runs.size) {
+                        var styleRun = _runs.getRun(styleRunIndex);
                         // Compute the intersection between current style run intersects and the line
                         int start = Mathf.Max(styleRun.start, lineRange.start);
                         int end = Mathf.Min(styleRun.end, lineEndIndex);
                         // Make sure that each run is not empty
                         if (start < end) {
                             var style = styleRun.style;
-                            string text = this._text;
+                            string text = _text;
                             int textStart = start;
                             int textEnd = end;
                             int textCount = textEnd - textStart;
@@ -460,38 +460,38 @@ namespace Unity.UIWidgets.ui {
 
                             // Ellipsize the text if ellipsis string is set, and this is the last lineStyleRun of
                             // the current line, and this is the last line or max line is not set
-                            if (!string.IsNullOrEmpty(ellipsis) && !hardBreak && !this._width.isInfinite() &&
+                            if (!string.IsNullOrEmpty(ellipsis) && !hardBreak && !_width.isInfinite() &&
                                 lineStyleRunIndex == lineStyleRunCount - 1 &&
-                                (lineNumber == lineLimit - 1 || this._paragraphStyle.maxLines == null)) {
+                                (lineNumber == lineLimit - 1 || _paragraphStyle.maxLines == null)) {
                                 float ellipsisWidth = Layout.measureText(ellipsis, style);
 
                                 // Find the minimum number of characters to truncate, so that the truncated text
                                 // appended with ellipsis is within the constraints of line width
                                 int truncateCount = Layout.computeTruncateCount(runXOffset, text, textStart,
-                                    textCount, style, this._width - ellipsisWidth, this._tabStops);
+                                    textCount, style, _width - ellipsisWidth, _tabStops);
 
                                 // If all the positions have not changed, use the cached ellipsized text
                                 // else update the cache
-                                if (!(this._ellipsizedText != null &&
-                                      this._ellipsizedLength == textStart + textCount - truncateCount &&
-                                      this._ellipsizedText.Length == this._ellipsizedLength + ellipsis.Length &&
-                                      this._ellipsizedText.EndsWith(ellipsis))) {
-                                    this._ellipsizedText =
+                                if (!(_ellipsizedText != null &&
+                                      _ellipsizedLength == textStart + textCount - truncateCount &&
+                                      _ellipsizedText.Length == _ellipsizedLength + ellipsis.Length &&
+                                      _ellipsizedText.EndsWith(ellipsis))) {
+                                    _ellipsizedText =
                                         text.Substring(0, textStart + textCount - truncateCount) + ellipsis;
-                                    this._ellipsizedLength = this._ellipsizedText.Length - ellipsis.Length;
+                                    _ellipsizedLength = _ellipsizedText.Length - ellipsis.Length;
                                 }
 
-                                text = this._ellipsizedText;
+                                text = _ellipsizedText;
                                 textCount = text.Length - textStart;
                                 D.assert(textCount != 0);
-                                if (this._paragraphStyle.maxLines == null) {
+                                if (_paragraphStyle.maxLines == null) {
                                     lineLimit = lineNumber + 1;
-                                    this._didExceedMaxLines = true;
+                                    _didExceedMaxLines = true;
                                 }
                             }
 
                             float advance = Layout.doLayout(runXOffset, text, textStart, textCount, style,
-                                _advancesBuffer, _positionsBuffer, this._tabStops, out var bounds);
+                                _advancesBuffer, _positionsBuffer, _tabStops, out var bounds);
 
                             builder.allocRunPos(style, text, textStart, textCount);
                             builder.setBounds(bounds);
@@ -503,7 +503,7 @@ namespace Unity.UIWidgets.ui {
                                 float glyphXOffset = _positionsBuffer[glyphIndex] + justifyXOffset;
                                 float glyphAdvance = _advancesBuffer[glyphIndex];
                                 builder.setPositionX(glyphIndex, glyphXOffset);
-                                this._glyphPositions[pGlyphPositions++] = new GlyphPosition(runXOffset + glyphXOffset,
+                                _glyphPositions[pGlyphPositions++] = new GlyphPosition(runXOffset + glyphXOffset,
                                     glyphAdvance, textStart + glyphIndex);
                                 if (wordIndex < wordCount) {
                                     Range<int> word = _wordsBuffer[wordIndex];
@@ -524,7 +524,7 @@ namespace Unity.UIWidgets.ui {
                                         // width of this word, and update the entire word
                                         if (!float.IsNaN(wordStartPosition)) {
                                             maxWordWidth = Mathf.Max(maxWordWidth,
-                                                this._glyphPositions[pGlyphPositions - 1].xPos.end - wordStartPosition);
+                                                _glyphPositions[pGlyphPositions - 1].xPos.end - wordStartPosition);
                                             wordStartPosition = float.NaN;
                                         }
                                     }
@@ -537,14 +537,14 @@ namespace Unity.UIWidgets.ui {
                             var metrics = FontMetrics.fromFont(font, style.UnityFontSize);
                             PaintRecord paintRecord = new PaintRecord(style, runXOffset, 0, builder.make(),
                                 metrics, advance);
-                            this._paintRecords[this._paintRecordsCount++] = paintRecord;
+                            _paintRecords[_paintRecordsCount++] = paintRecord;
                             runXOffset += advance;
 
                             // Create code unit run
-                            this._codeUnitRuns[this._codeUnitRunsCount++] = new CodeUnitRun(
+                            _codeUnitRuns[_codeUnitRunsCount++] = new CodeUnitRun(
                                 new Range<int>(start, end),
-                                new Range<float>(this._glyphPositions[glyphPositionStyleRunStart].xPos.start,
-                                    this._glyphPositions[pGlyphPositions - 1].xPos.end),
+                                new Range<float>(_glyphPositions[glyphPositionStyleRunStart].xPos.start,
+                                    _glyphPositions[pGlyphPositions - 1].xPos.end),
                                 lineNumber, TextDirection.ltr, glyphPositionStyleRunStart, textCount);
 
                             lineStyleRunIndex++;
@@ -568,8 +568,8 @@ namespace Unity.UIWidgets.ui {
                     if (lineSpacing > maxLineSpacing) {
                         maxLineSpacing = lineSpacing;
                         if (lineNumber == 0) {
-                            this._alphabeticBaseline = lineSpacing;
-                            this._ideographicBaseline =
+                            _alphabeticBaseline = lineSpacing;
+                            _ideographicBaseline =
                                 (metrics.underlinePosition ?? 0.0f - metrics.ascent) * styleHeight;
                         }
                     }
@@ -580,64 +580,64 @@ namespace Unity.UIWidgets.ui {
 
                 if (lineStyleRunCount != 0) {
                     for (int i = 0; i < lineStyleRunCount; i++) {
-                        var paintRecord = this._paintRecords[this._paintRecordsCount - i - 1];
+                        var paintRecord = _paintRecords[_paintRecordsCount - i - 1];
                         updateLineMetrics(paintRecord.metrics, paintRecord.style.height);
                     }
                 }
                 else {
                     var defaultFont = FontManager.instance.getOrCreate(
-                        this._paragraphStyle.fontFamily ?? TextStyle.kDefaultFontFamily,
-                        this._paragraphStyle.fontWeight ?? TextStyle.kDefaultFontWeight,
-                        this._paragraphStyle.fontStyle ?? TextStyle.kDefaultfontStyle).font;
+                        _paragraphStyle.fontFamily ?? TextStyle.kDefaultFontFamily,
+                        _paragraphStyle.fontWeight ?? TextStyle.kDefaultFontWeight,
+                        _paragraphStyle.fontStyle ?? TextStyle.kDefaultfontStyle).font;
                     var metrics = FontMetrics.fromFont(defaultFont,
-                        (int) (this._paragraphStyle.fontSize ?? TextStyle.kDefaultFontSize));
-                    updateLineMetrics(metrics, this._paragraphStyle.height ?? TextStyle.kDefaultHeight);
+                        (int) (_paragraphStyle.fontSize ?? TextStyle.kDefaultFontSize));
+                    updateLineMetrics(metrics, _paragraphStyle.height ?? TextStyle.kDefaultHeight);
                 }
 
-                this._lineHeights[lineNumber] = ((lineNumber == 0 ? 0 : this._lineHeights[lineNumber - 1])
+                _lineHeights[lineNumber] = ((lineNumber == 0 ? 0 : _lineHeights[lineNumber - 1])
                                                  + Mathf.Round(maxLineSpacing + maxDescent));
                 yOffset += Mathf.Round(maxLineSpacing + preMaxDescent);
                 preMaxDescent = maxDescent;
-                float lineXOffset = this.getLineXOffset(runXOffset);
+                float lineXOffset = getLineXOffset(runXOffset);
                 int count = pGlyphPositions - glyphPositionLineStart;
-                if (lineXOffset != 0 && this._glyphPositions != null) {
+                if (lineXOffset != 0 && _glyphPositions != null) {
                     for (int i = 0; i < count; ++i) {
-                        this._glyphPositions[this._glyphPositions.Length - i - 1].shiftSelf(lineXOffset);
+                        _glyphPositions[_glyphPositions.Length - i - 1].shiftSelf(lineXOffset);
                     }
                 }
 
-                this._glyphLines[lineNumber] = new GlyphLine(glyphPositionLineStart, count);
+                _glyphLines[lineNumber] = new GlyphLine(glyphPositionLineStart, count);
                 for (int i = 0; i < lineStyleRunCount; i++) {
-                    var paintRecord = this._paintRecords[this._paintRecordsCount - 1 - i];
+                    var paintRecord = _paintRecords[_paintRecordsCount - 1 - i];
                     paintRecord.shift(lineXOffset, yOffset);
-                    this._paintRecords[this._paintRecordsCount - 1 - i] = paintRecord;
+                    _paintRecords[_paintRecordsCount - 1 - i] = paintRecord;
                 }
             }
 
-            this._lineCount = lineLimit;
+            _lineCount = lineLimit;
 
             // min intrinsic width := minimum width this paragraph has to take, which equals the maximum word width
-            if (this._paragraphStyle.maxLines == 1 || (this._paragraphStyle.maxLines == null &&
-                                                       this._paragraphStyle.ellipsized())) {
-                this._minIntrinsicWidth = this.maxIntrinsicWidth;
+            if (_paragraphStyle.maxLines == 1 || (_paragraphStyle.maxLines == null &&
+                                                       _paragraphStyle.ellipsized())) {
+                _minIntrinsicWidth = maxIntrinsicWidth;
             }
             else {
-                this._minIntrinsicWidth = Mathf.Min(maxWordWidth, this.maxIntrinsicWidth);
+                _minIntrinsicWidth = Mathf.Min(maxWordWidth, maxIntrinsicWidth);
             }
         }
 
         int _countLineStyleRuns(LineRange lineRange, int styleRunIndex, out int maxTextCount) {
             // Exclude trailing whitespace from right-justified lines so the last
             // visible character in the line will be flush with the right margin.
-            int lineEndIndex = this._paragraphStyle.textAlign == TextAlign.right ||
-                               this._paragraphStyle.textAlign == TextAlign.center
+            int lineEndIndex = _paragraphStyle.textAlign == TextAlign.right ||
+                               _paragraphStyle.textAlign == TextAlign.center
                 ? lineRange.endExcludingWhitespace
                 : lineRange.end;
 
             maxTextCount = 0;
             int lineStyleRunCount = 0;
-            for (int i = styleRunIndex; i < this._runs.size; i++) {
-                var styleRun = this._runs.getRun(i);
+            for (int i = styleRunIndex; i < _runs.size; i++) {
+                var styleRun = _runs.getRun(i);
                 int start = Mathf.Max(styleRun.start, lineRange.start);
                 int end = Mathf.Min(styleRun.end, lineEndIndex);
                 // Make sure that each line is not empty
@@ -655,28 +655,28 @@ namespace Unity.UIWidgets.ui {
         }
 
         internal int totalCodeUnitsInLine(int lineNumber) {
-            int lineStart = this._lineRanges[lineNumber].start;
-            int nextLineStart = lineNumber < this._lineRangeCount - 1
-                ? this._lineRanges[lineNumber + 1].start
-                : this._text.Length;
+            int lineStart = _lineRanges[lineNumber].start;
+            int nextLineStart = lineNumber < _lineRangeCount - 1
+                ? _lineRanges[lineNumber + 1].start
+                : _text.Length;
             return nextLineStart - lineStart;
         }
 
         internal void setText(string text, StyledRuns runs) {
-            this._text = text;
-            this._runs = runs;
-            this._needsLayout = true;
+            _text = text;
+            _runs = runs;
+            _needsLayout = true;
         }
 
         public void setParagraphStyle(ParagraphStyle style) {
-            this._needsLayout = true;
-            this._paragraphStyle = style;
+            _needsLayout = true;
+            _paragraphStyle = style;
         }
 
         public List<TextBox> getRectsForRange(int start, int end) {
             var lineBoxes = new SplayTree<int, List<TextBox>>();
-            for (int runIndex = 0; runIndex < this._codeUnitRunsCount; runIndex++) {
-                var run = this._codeUnitRuns[runIndex];
+            for (int runIndex = 0; runIndex < _codeUnitRunsCount; runIndex++) {
+                var run = _codeUnitRuns[runIndex];
                 if (run.codeUnits.start >= end) {
                     break;
                 }
@@ -685,8 +685,8 @@ namespace Unity.UIWidgets.ui {
                     continue;
                 }
 
-                float top = (run.lineNumber == 0) ? 0 : this._lineHeights[run.lineNumber - 1];
-                float bottom = this._lineHeights[run.lineNumber];
+                float top = (run.lineNumber == 0) ? 0 : _lineHeights[run.lineNumber - 1];
+                float bottom = _lineHeights[run.lineNumber];
                 float left, right;
                 if (run.codeUnits.start >= start && run.codeUnits.end <= end) {
                     left = run.xPos.start;
@@ -696,7 +696,7 @@ namespace Unity.UIWidgets.ui {
                     left = float.MaxValue;
                     right = float.MinValue;
                     for (int i = 0; i < run.count; i++) {
-                        var gp = run.get(i, this._glyphPositions);
+                        var gp = run.get(i, _glyphPositions);
                         if (gp.codeUnit >= start && gp.codeUnit + 1 <= end) {
                             left = Mathf.Min(left, gp.xPos.start);
                             right = Mathf.Max(right, gp.xPos.end);
@@ -717,8 +717,8 @@ namespace Unity.UIWidgets.ui {
                 boxs.Add(TextBox.fromLTBD(left, top, right, bottom, run.direction));
             }
 
-            for (int lineNumber = 0; lineNumber < this._lineRangeCount; ++lineNumber) {
-                var line = this._lineRanges[lineNumber];
+            for (int lineNumber = 0; lineNumber < _lineRangeCount; ++lineNumber) {
+                var line = _lineRanges[lineNumber];
                 if (line.start >= end) {
                     break;
                 }
@@ -729,9 +729,9 @@ namespace Unity.UIWidgets.ui {
 
                 if (!lineBoxes.ContainsKey(lineNumber)) {
                     if (line.end != line.endIncludingNewLine && line.end >= start && line.endIncludingNewLine <= end) {
-                        var x = this._lineWidths[lineNumber];
-                        var top = (lineNumber > 0) ? this._lineHeights[lineNumber - 1] : 0;
-                        var bottom = this._lineHeights[lineNumber];
+                        var x = _lineWidths[lineNumber];
+                        var top = (lineNumber > 0) ? _lineHeights[lineNumber - 1] : 0;
+                        var bottom = _lineHeights[lineNumber];
                         lineBoxes.Add(lineNumber, new List<TextBox> {
                             TextBox.fromLTBD(
                                 x, top, x, bottom, TextDirection.ltr)
@@ -749,31 +749,31 @@ namespace Unity.UIWidgets.ui {
         }
 
         public float? getNextLineStartRectTop() {
-            if (this._text.Length == 0 || this._text[this._text.Length - 1] != '\n') {
+            if (_text.Length == 0 || _text[_text.Length - 1] != '\n') {
                 return null;
             }
 
-            var lineNumber = this.getLineCount() - 1;
-            return lineNumber > 0 ? this._lineHeights[lineNumber - 1] : 0;
+            var lineNumber = getLineCount() - 1;
+            return lineNumber > 0 ? _lineHeights[lineNumber - 1] : 0;
         }
 
         internal PositionWithAffinity getGlyphPositionAtCoordinate(float dx, float dy) {
-            if (this._lineHeights == null) {
+            if (_lineHeights == null) {
                 return new PositionWithAffinity(0, TextAffinity.downstream);
             }
 
             int yIndex;
-            for (yIndex = 0; yIndex < this.getLineCount() - 1; ++yIndex) {
-                if (dy < this._lineHeights[yIndex]) {
+            for (yIndex = 0; yIndex < getLineCount() - 1; ++yIndex) {
+                if (dy < _lineHeights[yIndex]) {
                     break;
                 }
             }
 
-            GlyphLine glyphLine = this._glyphLines[yIndex];
+            GlyphLine glyphLine = _glyphLines[yIndex];
             if (glyphLine.count == 0) {
                 int lineStartIndex = 0;
                 for (int i = 0; i < yIndex; i++) {
-                    lineStartIndex += this.totalCodeUnitsInLine(i);
+                    lineStartIndex += totalCodeUnitsInLine(i);
                 }
 
                 return new PositionWithAffinity(lineStartIndex, TextAffinity.downstream);
@@ -784,23 +784,23 @@ namespace Unity.UIWidgets.ui {
             bool gpSet = false;
             for (int xIndex = 0; xIndex < glyphLine.count; ++xIndex) {
                 float glyphEnd = xIndex < glyphLine.count - 1
-                    ? glyphLine.get(xIndex + 1, this._glyphPositions).xPos.start
-                    : glyphLine.get(xIndex, this._glyphPositions).xPos.end;
+                    ? glyphLine.get(xIndex + 1, _glyphPositions).xPos.start
+                    : glyphLine.get(xIndex, _glyphPositions).xPos.end;
                 if (dx < glyphEnd) {
-                    gp = glyphLine.get(xIndex, this._glyphPositions);
+                    gp = glyphLine.get(xIndex, _glyphPositions);
                     gpSet = true;
                     break;
                 }
             }
 
             if (!gpSet) {
-                GlyphPosition lastGlyph = glyphLine.last(this._glyphPositions);
+                GlyphPosition lastGlyph = glyphLine.last(_glyphPositions);
                 return new PositionWithAffinity(lastGlyph.codeUnit + 1, TextAffinity.upstream);
             }
 
             TextDirection direction = TextDirection.ltr;
-            for (int runIndex = 0; runIndex < this._codeUnitRunsCount; runIndex++) {
-                var run = this._codeUnitRuns[runIndex];
+            for (int runIndex = 0; runIndex < _codeUnitRunsCount; runIndex++) {
+                var run = _codeUnitRuns[runIndex];
                 if (gp.codeUnit >= run.codeUnits.start && gp.codeUnit + 1 <= run.codeUnits.end) {
                     direction = run.direction;
                     break;
@@ -817,19 +817,19 @@ namespace Unity.UIWidgets.ui {
         }
 
         public int getLine(TextPosition position) {
-            D.assert(!this._needsLayout);
+            D.assert(!_needsLayout);
             if (position.offset < 0) {
                 return 0;
             }
 
             var offset = position.offset;
             if (position.affinity == TextAffinity.upstream && offset > 0) {
-                offset = char.IsSurrogate(this._text[offset - 1]) ? offset - 2 : offset - 1;
+                offset = char.IsSurrogate(_text[offset - 1]) ? offset - 2 : offset - 1;
             }
 
-            var lineCount = this.getLineCount();
+            var lineCount = getLineCount();
             for (int lineIndex = 0; lineIndex < lineCount; ++lineIndex) {
-                var line = this._lineRanges[lineIndex];
+                var line = _lineRanges[lineIndex];
                 if ((offset >= line.start && offset < line.endIncludingNewLine)) {
                     return lineIndex;
                 }
@@ -839,34 +839,34 @@ namespace Unity.UIWidgets.ui {
         }
 
         internal LineRange getLineRange(int lineIndex) {
-            return this._lineRanges[lineIndex];
+            return _lineRanges[lineIndex];
         }
 
         internal Range<int> getWordBoundary(int offset) {
-            WordSeparate s = new WordSeparate(this._text);
+            WordSeparate s = new WordSeparate(_text);
             return s.findWordRange(offset);
         }
 
         public int getLineCount() {
-            return this._lineCount;
+            return _lineCount;
         }
 
         int _computeLineBreak() {
-            this._lineRangeCount = 0;
-            this._lineWidthCount = 0;
-            this._maxIntrinsicWidth = 0;
+            _lineRangeCount = 0;
+            _lineWidthCount = 0;
+            _maxIntrinsicWidth = 0;
 
-            int lineLimit = this._paragraphStyle.ellipsized()
-                ? this._paragraphStyle.maxLines ?? 1
-                : this._paragraphStyle.maxLines ?? 0;
+            int lineLimit = _paragraphStyle.ellipsized()
+                ? _paragraphStyle.maxLines ?? 1
+                : _paragraphStyle.maxLines ?? 0;
 
-            var newLinePositions = LineBreaker.newLinePositions(this._text, out int newLineCount);
+            var newLinePositions = LineBreaker.newLinePositions(_text, out int newLineCount);
 
             var lineBreaker = LineBreaker.instance;
             int runIndex = 0;
             int countRuns = 0;
             for (var newlineIndex = 0; newlineIndex < newLineCount; ++newlineIndex) {
-                if (lineLimit != 0 && this._lineRangeCount >= lineLimit) {
+                if (lineLimit != 0 && _lineRangeCount >= lineLimit) {
                     break;
                 }
 
@@ -874,21 +874,21 @@ namespace Unity.UIWidgets.ui {
                 var blockEnd = newLinePositions[newlineIndex];
                 var blockSize = blockEnd - blockStart;
                 if (blockSize == 0) {
-                    this._addEmptyLine(blockStart, blockEnd);
+                    _addEmptyLine(blockStart, blockEnd);
                     continue;
                 }
 
-                if (lineLimit != 0 && this._lineRangeCount >= lineLimit) {
+                if (lineLimit != 0 && _lineRangeCount >= lineLimit) {
                     break;
                 }
 
-                this._resetLineBreaker(lineBreaker, blockStart, blockSize,
-                    lineLimit == 0 ? 0 : lineLimit - this._lineRangeCount);
-                countRuns += this._addStyleRuns(lineBreaker, ref runIndex, blockStart, blockEnd);
+                _resetLineBreaker(lineBreaker, blockStart, blockSize,
+                    lineLimit == 0 ? 0 : lineLimit - _lineRangeCount);
+                countRuns += _addStyleRuns(lineBreaker, ref runIndex, blockStart, blockEnd);
 
                 int breaksCount = lineBreaker.computeBreaks();
                 countRuns += breaksCount - 1;
-                this._updateBreaks(lineBreaker, breaksCount, blockStart, blockEnd);
+                _updateBreaks(lineBreaker, breaksCount, blockStart, blockEnd);
 
                 lineBreaker.finish();
             }
@@ -897,41 +897,41 @@ namespace Unity.UIWidgets.ui {
         }
 
         void _addLineRangeAndWidth(LineRange lineRange, float width) {
-            if (this._lineRanges.Count <= this._lineRangeCount) {
-                this._lineRanges.Add(lineRange);
-                this._lineRangeCount++;
+            if (_lineRanges.Count <= _lineRangeCount) {
+                _lineRanges.Add(lineRange);
+                _lineRangeCount++;
             }
             else {
-                this._lineRanges[this._lineRangeCount++] = lineRange;
+                _lineRanges[_lineRangeCount++] = lineRange;
             }
 
-            if (this._lineWidths.Count <= this._lineWidthCount) {
-                this._lineWidths.Add(width);
-                this._lineWidthCount++;
+            if (_lineWidths.Count <= _lineWidthCount) {
+                _lineWidths.Add(width);
+                _lineWidthCount++;
             }
             else {
-                this._lineWidths[this._lineWidthCount++] = width;
+                _lineWidths[_lineWidthCount++] = width;
             }
         }
 
         void _addEmptyLine(int blockStart, int blockEnd) {
-            this._addLineRangeAndWidth(new LineRange(blockStart, blockEnd, blockEnd,
-                blockEnd < this._text.Length ? blockEnd + 1 : blockEnd, true), 0);
+            _addLineRangeAndWidth(new LineRange(blockStart, blockEnd, blockEnd,
+                blockEnd < _text.Length ? blockEnd + 1 : blockEnd, true), 0);
         }
 
         void _resetLineBreaker(LineBreaker lineBreaker, int blockStart, int blockSize, int lineLimit) {
-            lineBreaker.setLineWidth(this._width);
+            lineBreaker.setLineWidth(_width);
             lineBreaker.resize(blockSize);
-            lineBreaker.setTabStops(this._tabStops);
-            lineBreaker.setText(this._text, blockStart, blockSize);
+            lineBreaker.setTabStops(_tabStops);
+            lineBreaker.setText(_text, blockStart, blockSize);
             lineBreaker.lineLimit = lineLimit;
         }
 
         int _addStyleRuns(LineBreaker lineBreaker, ref int runIndex, int blockStart, int blockEnd) {
             int countRuns = 0;
             float lineBlockWidth = 0;
-            while (runIndex < this._runs.size) {
-                var run = this._runs.getRun(runIndex);
+            while (runIndex < _runs.size) {
+                var run = _runs.getRun(runIndex);
                 if (run.start >= blockEnd) {
                     break;
                 }
@@ -958,7 +958,7 @@ namespace Unity.UIWidgets.ui {
                 runIndex++;
             }
 
-            this._maxIntrinsicWidth = Mathf.Max(lineBlockWidth, this._maxIntrinsicWidth);
+            _maxIntrinsicWidth = Mathf.Max(lineBlockWidth, _maxIntrinsicWidth);
 
             return countRuns;
         }
@@ -970,25 +970,25 @@ namespace Unity.UIWidgets.ui {
                 var lineEnd = lineBreaker.getBreak(i) + blockStart;
                 bool hardBreak = lineEnd == blockEnd;
                 var lineEndIncludingNewline =
-                    hardBreak && lineEnd < this._text.Length ? lineEnd + 1 : lineEnd;
+                    hardBreak && lineEnd < _text.Length ? lineEnd + 1 : lineEnd;
                 var lineEndExcludingWhitespace = lineEnd;
                 while (lineEndExcludingWhitespace > lineStart &&
-                       LayoutUtils.isLineEndSpace(this._text[lineEndExcludingWhitespace - 1])) {
+                       LayoutUtils.isLineEndSpace(_text[lineEndExcludingWhitespace - 1])) {
                     lineEndExcludingWhitespace--;
                 }
 
-                this._addLineRangeAndWidth(new LineRange(lineStart, lineEnd,
+                _addLineRangeAndWidth(new LineRange(lineStart, lineEnd,
                     lineEndExcludingWhitespace, lineEndIncludingNewline, hardBreak), lineBreaker.getWidth(i));
             }
         }
 
         int _computeMaxWordCount() {
             int max = 0;
-            for (int lineNumber = 0; lineNumber < this._lineRangeCount; lineNumber++) {
+            for (int lineNumber = 0; lineNumber < _lineRangeCount; lineNumber++) {
                 var inWord = false;
-                int wordCount = 0, start = this._lineRanges[lineNumber].start, end = this._lineRanges[lineNumber].end;
+                int wordCount = 0, start = _lineRanges[lineNumber].start, end = _lineRanges[lineNumber].end;
                 for (int i = start; i < end; ++i) {
-                    bool isSpace = LayoutUtils.isWordSpace(this._text[i]);
+                    bool isSpace = LayoutUtils.isWordSpace(_text[i]);
                     if (!inWord && !isSpace) {
                         inWord = true;
                     }
@@ -1016,7 +1016,7 @@ namespace Unity.UIWidgets.ui {
             int wordStart = 0;
 
             for (int i = start; i < end; ++i) {
-                bool isSpace = LayoutUtils.isWordSpace(this._text[i]);
+                bool isSpace = LayoutUtils.isWordSpace(_text[i]);
                 if (!inWord && !isSpace) {
                     wordStart = i;
                     inWord = true;
@@ -1040,18 +1040,18 @@ namespace Unity.UIWidgets.ui {
             }
 
             if (record.style.decorationColor == null) {
-                this._textPaint.color = record.style.color;
+                _textPaint.color = record.style.color;
             }
             else {
-                this._textPaint.color = record.style.decorationColor;
+                _textPaint.color = record.style.decorationColor;
             }
 
 
             var width = record.runWidth;
             var metrics = record.metrics;
             float underLineThickness = metrics.underlineThickness ?? (record.style.fontSize / 14.0f);
-            this._textPaint.style = PaintingStyle.stroke;
-            this._textPaint.strokeWidth = underLineThickness;
+            _textPaint.style = PaintingStyle.stroke;
+            _textPaint.strokeWidth = underLineThickness;
             var recordOffset = record.shiftedOffset(baseOffset);
             var x = recordOffset.dx;
             var y = recordOffset.dy;
@@ -1071,26 +1071,26 @@ namespace Unity.UIWidgets.ui {
                 if (decoration != null && decoration.contains(TextDecoration.underline)) {
                     // underline
                     yOffset += metrics.underlinePosition ?? underLineThickness;
-                    canvas.drawLine(new Offset(x, y + yOffset), new Offset(x + width, y + yOffset), this._textPaint);
+                    canvas.drawLine(new Offset(x, y + yOffset), new Offset(x + width, y + yOffset), _textPaint);
                     yOffset = yOffsetOriginal;
                 }
 
                 if (decoration != null && decoration.contains(TextDecoration.overline)) {
                     yOffset += metrics.ascent;
-                    canvas.drawLine(new Offset(x, y + yOffset), new Offset(x + width, y + yOffset), this._textPaint);
+                    canvas.drawLine(new Offset(x, y + yOffset), new Offset(x + width, y + yOffset), _textPaint);
                     yOffset = yOffsetOriginal;
                 }
 
                 if (decoration != null && decoration.contains(TextDecoration.lineThrough)) {
                     yOffset += (decorationCount - 1.0f) * underLineThickness * kFloatDecorationSpacing / -2.0f;
                     yOffset += metrics.strikeoutPosition ?? (metrics.fxHeight ?? 0) / -2.0f;
-                    canvas.drawLine(new Offset(x, y + yOffset), new Offset(x + width, y + yOffset), this._textPaint);
+                    canvas.drawLine(new Offset(x, y + yOffset), new Offset(x + width, y + yOffset), _textPaint);
                     yOffset = yOffsetOriginal;
                 }
             }
 
-            this._textPaint.style = PaintingStyle.fill;
-            this._textPaint.strokeWidth = 0;
+            _textPaint.style = PaintingStyle.fill;
+            _textPaint.strokeWidth = 0;
         }
 
         void paintBackground(Canvas canvas, PaintRecord record, Offset baseOffset) {
@@ -1105,16 +1105,16 @@ namespace Unity.UIWidgets.ui {
         }
 
         float getLineXOffset(float lineTotalAdvance) {
-            if (this._width.isInfinite()) {
+            if (_width.isInfinite()) {
                 return 0;
             }
 
-            if (this._paragraphStyle.textAlign == TextAlign.right) {
-                return this._width - lineTotalAdvance;
+            if (_paragraphStyle.textAlign == TextAlign.right) {
+                return _width - lineTotalAdvance;
             }
 
-            if (this._paragraphStyle.textAlign == TextAlign.center) {
-                return (this._width - lineTotalAdvance) / 2;
+            if (_paragraphStyle.textAlign == TextAlign.center) {
+                return (_width - lineTotalAdvance) / 2;
             }
 
             return 0;

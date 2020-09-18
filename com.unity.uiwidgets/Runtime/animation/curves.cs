@@ -11,7 +11,7 @@ namespace Unity.UIWidgets.animation {
                 return t;
             }
 
-            return this.transformInternal(t);
+            return transformInternal(t);
         }
 
         protected virtual float transformInternal(float t) {
@@ -23,7 +23,7 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override string ToString() {
-            return this.GetType().ToString();
+            return GetType().ToString();
         }
     }
 
@@ -41,12 +41,12 @@ namespace Unity.UIWidgets.animation {
         public readonly int count;
 
         protected override float transformInternal(float t) {
-            t *= this.count;
+            t *= count;
             return t - (int) t;
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.count})";
+            return $"{GetType()}({count})";
         }
     }
 
@@ -65,25 +65,25 @@ namespace Unity.UIWidgets.animation {
 
         protected override float transformInternal(float t) {
             D.assert(t >= 0.0 && t <= 1.0);
-            D.assert(this.begin >= 0.0);
-            D.assert(this.begin <= 1.0);
-            D.assert(this.end >= 0.0);
-            D.assert(this.end <= 1.0);
-            D.assert(this.end >= this.begin);
-            t = ((t - this.begin) / (this.end - this.begin)).clamp(0.0f, 1.0f);
+            D.assert(begin >= 0.0);
+            D.assert(begin <= 1.0);
+            D.assert(end >= 0.0);
+            D.assert(end <= 1.0);
+            D.assert(end >= begin);
+            t = ((t - begin) / (end - begin)).clamp(0.0f, 1.0f);
             if (t == 0.0 || t == 1.0) {
                 return t;
             }
 
-            return this.curve.transform(t);
+            return curve.transform(t);
         }
 
         public override string ToString() {
-            if (!(this.curve is _Linear)) {
-                return $"{this.GetType()}({this.begin}\u22EF{this.end}\u27A9{this.curve}";
+            if (!(curve is _Linear)) {
+                return $"{GetType()}({begin}\u22EF{end}\u27A9{curve}";
             }
 
-            return $"{this.GetType()}({this.begin}\u22EF{this.end})";
+            return $"{GetType()}({begin}\u22EF{end})";
         }
     }
 
@@ -95,9 +95,9 @@ namespace Unity.UIWidgets.animation {
         public readonly float threshold;
 
         protected override float transformInternal(float t) {
-            D.assert(this.threshold >= 0.0);
-            D.assert(this.threshold <= 1.0);
-            return t < this.threshold ? 0.0f : 1.0f;
+            D.assert(threshold >= 0.0);
+            D.assert(threshold <= 1.0);
+            return t < threshold ? 0.0f : 1.0f;
         }
     }
 
@@ -130,9 +130,9 @@ namespace Unity.UIWidgets.animation {
             float end = 1.0f;
             while (true) {
                 float midpoint = (start + end) / 2;
-                float estimate = this._evaluateCubic(this.a, this.c, midpoint);
+                float estimate = _evaluateCubic(a, c, midpoint);
                 if ((t - estimate).abs() < _cubicErrorBound) {
-                    return this._evaluateCubic(this.b, this.d, midpoint);
+                    return _evaluateCubic(b, d, midpoint);
                 }
 
                 if (estimate < t) {
@@ -145,7 +145,7 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.a:F2}, {this.b:F2}, {this.c:F2}, {this.d:F2})";
+            return $"{GetType()}({a:F2}, {b:F2}, {c:F2}, {d:F2})";
         }
     }
 
@@ -158,11 +158,11 @@ namespace Unity.UIWidgets.animation {
         public readonly Curve curve;
 
         protected override float transformInternal(float t) {
-            return 1.0f - this.curve.transform(1.0f - t);
+            return 1.0f - curve.transform(1.0f - t);
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.curve})";
+            return $"{GetType()}({curve})";
         }
     }
 
@@ -216,13 +216,13 @@ namespace Unity.UIWidgets.animation {
         public readonly float period;
 
         protected override float transformInternal(float t) {
-            float s = this.period / 4.0f;
+            float s = period / 4.0f;
             t = t - 1.0f;
-            return -Mathf.Pow(2.0f, 10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / this.period);
+            return -Mathf.Pow(2.0f, 10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / period);
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.period})";
+            return $"{GetType()}({period})";
         }
     }
 
@@ -234,12 +234,12 @@ namespace Unity.UIWidgets.animation {
         public readonly float period;
 
         protected override float transformInternal(float t) {
-            float s = this.period / 4.0f;
-            return Mathf.Pow(2.0f, -10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / this.period) + 1.0f;
+            float s = period / 4.0f;
+            return Mathf.Pow(2.0f, -10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / period) + 1.0f;
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.period})";
+            return $"{GetType()}({period})";
         }
     }
 
@@ -251,19 +251,19 @@ namespace Unity.UIWidgets.animation {
         public readonly float period;
 
         protected override float transformInternal(float t) {
-            float s = this.period / 4.0f;
+            float s = period / 4.0f;
             t = 2.0f * t - 1.0f;
             if (t < 0.0) {
-                return -0.5f * Mathf.Pow(2.0f, 10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / this.period);
+                return -0.5f * Mathf.Pow(2.0f, 10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / period);
             }
             else {
-                return Mathf.Pow(2.0f, -10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / this.period) * 0.5f +
+                return Mathf.Pow(2.0f, -10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / period) * 0.5f +
                        1.0f;
             }
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.period})";
+            return $"{GetType()}({period})";
         }
     }
 

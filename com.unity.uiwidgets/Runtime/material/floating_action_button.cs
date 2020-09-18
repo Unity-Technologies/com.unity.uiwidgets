@@ -228,40 +228,40 @@ namespace Unity.UIWidgets.material {
             );
             ShapeBorder shape = this.shape
                                 ?? floatingActionButtonTheme.shape
-                                ?? (this.isExtended ? this._defaultExtendedShape : this._defaultShape);
+                                ?? (isExtended ? _defaultExtendedShape : _defaultShape);
 
             Widget result = null;
 
-            if (this.child != null) {
+            if (child != null) {
                 result = IconTheme.merge(
                     data: new IconThemeData(
                         color: foregroundColor),
-                    child: this.child
+                    child: child
                 );
             }
 
             result = new RawMaterialButton(
-                onPressed: this.onPressed,
+                onPressed: onPressed,
                 elevation: elevation,
                 highlightElevation: highlightElevation,
                 disabledElevation: disabledElevation,
-                constraints: this._sizeConstraints,
+                constraints: _sizeConstraints,
                 materialTapTargetSize: materialTapTargetSize,
                 fillColor: backgroundColor,
                 textStyle: textStyle,
                 shape: shape,
-                clipBehavior: this.clipBehavior,
+                clipBehavior: clipBehavior,
                 child: result);
 
-            if (this.tooltip != null) {
+            if (tooltip != null) {
                 result = new Tooltip(
-                    message: this.tooltip,
+                    message: tooltip,
                     child: result);
             }
 
-            if (this.heroTag != null) {
+            if (heroTag != null) {
                 result = new Hero(
-                    tag: this.heroTag,
+                    tag: heroTag,
                     child: result);
             }
 
@@ -298,16 +298,16 @@ namespace Unity.UIWidgets.material {
         }
 
         protected override void performLayout() {
-            if (this.child != null) {
-                this.child.layout(new BoxConstraints(), parentUsesSize: true);
-                this.size = new Size(
-                    Mathf.Max(this.constraints.minWidth, Mathf.Min(this.constraints.maxWidth, this.child.size.width)),
-                    Mathf.Max(this.constraints.minHeight, Mathf.Min(this.constraints.maxHeight, this.child.size.height))
+            if (child != null) {
+                child.layout(new BoxConstraints(), parentUsesSize: true);
+                size = new Size(
+                    Mathf.Max(constraints.minWidth, Mathf.Min(constraints.maxWidth, child.size.width)),
+                    Mathf.Max(constraints.minHeight, Mathf.Min(constraints.maxHeight, child.size.height))
                 );
-                this.alignChild();
+                alignChild();
             }
             else {
-                this.size = this.constraints.biggest;
+                size = constraints.biggest;
             }
         }
     }

@@ -98,41 +98,41 @@ namespace Unity.UIWidgets.material {
             D.assert(color != null);
             D.assert(position != null);
 
-            this._position = position;
-            this._borderRadius = borderRadius ?? BorderRadius.zero;
-            this._customBorder = customBorder;
-            this._targetRadius =
+            _position = position;
+            _borderRadius = borderRadius ?? BorderRadius.zero;
+            _customBorder = customBorder;
+            _targetRadius =
                 radius ?? InkRippleUtils._getTargetRadius(referenceBox, containedInkWell, rectCallback, position);
-            this._clipCallback = InkRippleUtils._getClipCallback(referenceBox, containedInkWell, rectCallback);
+            _clipCallback = InkRippleUtils._getClipCallback(referenceBox, containedInkWell, rectCallback);
 
-            D.assert(this._borderRadius != null);
+            D.assert(_borderRadius != null);
 
-            this._fadeInController =
+            _fadeInController =
                 new AnimationController(duration: InkRippleUtils._kFadeInDuration, vsync: controller.vsync);
-            this._fadeInController.addListener(controller.markNeedsPaint);
-            this._fadeInController.forward();
-            this._fadeIn = this._fadeInController.drive(new IntTween(
+            _fadeInController.addListener(controller.markNeedsPaint);
+            _fadeInController.forward();
+            _fadeIn = _fadeInController.drive(new IntTween(
                 begin: 0,
                 end: color.alpha
             ));
 
-            this._radiusController = new AnimationController(
+            _radiusController = new AnimationController(
                 duration: InkRippleUtils._kUnconfirmedRippleDuration,
                 vsync: controller.vsync);
-            this._radiusController.addListener(controller.markNeedsPaint);
-            this._radiusController.forward();
-            this._radius = this._radiusController.drive(new FloatTween(
-                    begin: this._targetRadius * 0.30f,
-                    end: this._targetRadius + 5.0f
+            _radiusController.addListener(controller.markNeedsPaint);
+            _radiusController.forward();
+            _radius = _radiusController.drive(new FloatTween(
+                    begin: _targetRadius * 0.30f,
+                    end: _targetRadius + 5.0f
                 ).chain(_easeCurveTween)
             );
 
-            this._fadeOutController = new AnimationController(
+            _fadeOutController = new AnimationController(
                 duration: InkRippleUtils._kFadeOutDuration,
                 vsync: controller.vsync);
-            this._fadeOutController.addListener(controller.markNeedsPaint);
-            this._fadeOutController.addStatusListener(this._handleAlphaStatusChanged);
-            this._fadeOut = this._fadeOutController.drive(new IntTween(
+            _fadeOutController.addListener(controller.markNeedsPaint);
+            _fadeOutController.addStatusListener(_handleAlphaStatusChanged);
+            _fadeOut = _fadeOutController.drive(new IntTween(
                     begin: color.alpha,
                     end: 0
                 ).chain(_fadeOutIntervalTween)
@@ -168,41 +168,41 @@ namespace Unity.UIWidgets.material {
             new CurveTween(curve: new Interval(InkRippleUtils._kFadeOutIntervalStart, 1.0f));
 
         public override void confirm() {
-            this._radiusController.duration = InkRippleUtils._kRadiusDuration;
-            this._radiusController.forward();
-            this._fadeInController.forward();
-            this._fadeOutController.animateTo(1.0f, duration: InkRippleUtils._kFadeOutDuration);
+            _radiusController.duration = InkRippleUtils._kRadiusDuration;
+            _radiusController.forward();
+            _fadeInController.forward();
+            _fadeOutController.animateTo(1.0f, duration: InkRippleUtils._kFadeOutDuration);
         }
 
         public override void cancel() {
-            this._fadeInController.stop();
-            float fadeOutValue = 1.0f - this._fadeInController.value;
-            this._fadeOutController.setValue(fadeOutValue);
+            _fadeInController.stop();
+            float fadeOutValue = 1.0f - _fadeInController.value;
+            _fadeOutController.setValue(fadeOutValue);
             if (fadeOutValue < 1.0) {
-                this._fadeOutController.animateTo(1.0f, duration: InkRippleUtils._kCancelDuration);
+                _fadeOutController.animateTo(1.0f, duration: InkRippleUtils._kCancelDuration);
             }
         }
 
         void _handleAlphaStatusChanged(AnimationStatus status) {
             if (status == AnimationStatus.completed) {
-                this.dispose();
+                dispose();
             }
         }
 
         public override void dispose() {
-            this._radiusController.dispose();
-            this._fadeInController.dispose();
-            this._fadeOutController.dispose();
+            _radiusController.dispose();
+            _fadeInController.dispose();
+            _fadeOutController.dispose();
             base.dispose();
         }
 
         protected override void paintFeature(Canvas canvas, Matrix3 transform) {
-            int alpha = this._fadeInController.isAnimating ? this._fadeIn.value : this._fadeOut.value;
-            Paint paint = new Paint {color = this.color.withAlpha(alpha)};
+            int alpha = _fadeInController.isAnimating ? _fadeIn.value : _fadeOut.value;
+            Paint paint = new Paint {color = color.withAlpha(alpha)};
             Offset center = Offset.lerp(
-                this._position,
-                this.referenceBox.size.center(Offset.zero),
-                Curves.ease.transform(this._radiusController.value)
+                _position,
+                referenceBox.size.center(Offset.zero),
+                Curves.ease.transform(_radiusController.value)
             );
             Offset originOffset = transform.getAsTranslation();
             canvas.save();
@@ -213,25 +213,25 @@ namespace Unity.UIWidgets.material {
                 canvas.translate(originOffset.dx, originOffset.dy);
             }
 
-            if (this._clipCallback != null) {
-                Rect rect = this._clipCallback();
-                if (this._customBorder != null) {
-                    canvas.clipPath(this._customBorder.getOuterPath(rect));
+            if (_clipCallback != null) {
+                Rect rect = _clipCallback();
+                if (_customBorder != null) {
+                    canvas.clipPath(_customBorder.getOuterPath(rect));
                 }
-                else if (this._borderRadius != BorderRadius.zero) {
+                else if (_borderRadius != BorderRadius.zero) {
                     canvas.clipRRect(RRect.fromRectAndCorners(
                         rect,
-                        topLeft: this._borderRadius.topLeft,
-                        topRight: this._borderRadius.topRight,
-                        bottomLeft: this._borderRadius.bottomLeft,
-                        bottomRight: this._borderRadius.bottomRight));
+                        topLeft: _borderRadius.topLeft,
+                        topRight: _borderRadius.topRight,
+                        bottomLeft: _borderRadius.bottomLeft,
+                        bottomRight: _borderRadius.bottomRight));
                 }
                 else {
                     canvas.clipRect(rect);
                 }
             }
 
-            canvas.drawCircle(center, this._radius.value, paint);
+            canvas.drawCircle(center, _radius.value, paint);
             canvas.restore();
         }
     }

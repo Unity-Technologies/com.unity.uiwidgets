@@ -51,11 +51,11 @@ namespace Unity.UIWidgets.material {
         public static readonly _UiPathFactory _pathFactory = () => new Path();
 
         public override Widget build(BuildContext context) {
-            _AnimatedIconData iconData = (_AnimatedIconData) this.icon;
+            _AnimatedIconData iconData = (_AnimatedIconData) icon;
             IconThemeData iconTheme = IconTheme.of(context);
-            float iconSize = this.size ?? iconTheme.size ?? 0.0f;
+            float iconSize = size ?? iconTheme.size ?? 0.0f;
             float? iconOpacity = iconTheme.opacity;
-            Color iconColor = this.color ?? iconTheme.color;
+            Color iconColor = color ?? iconTheme.color;
             if (iconOpacity != 1.0f) {
                 iconColor = iconColor.withOpacity(iconColor.opacity * (iconOpacity ?? 1.0f));
             }
@@ -64,7 +64,7 @@ namespace Unity.UIWidgets.material {
                 size: new Size(iconSize, iconSize),
                 painter: new _AnimatedIconPainter(
                     paths: iconData.paths,
-                    progress: this.progress,
+                    progress: progress,
                     color: iconColor,
                     scale: iconSize / iconData.size.width,
                     uiPathFactory: _pathFactory
@@ -100,26 +100,26 @@ namespace Unity.UIWidgets.material {
         public readonly _UiPathFactory uiPathFactory;
 
         public override void paint(Canvas canvas, Size size) {
-            canvas.scale(this.scale ?? 1.0f, this.scale ?? 1.0f);
-            if (this.shouldMirror == true) {
+            canvas.scale(scale ?? 1.0f, scale ?? 1.0f);
+            if (shouldMirror == true) {
                 canvas.rotate(Mathf.PI);
                 canvas.translate(-size.width, -size.height);
             }
 
-            float clampedProgress = this.progress.value.clamp(0.0f, 1.0f);
-            foreach (_PathFrames path in this.paths) {
-                path.paint(canvas, this.color, this.uiPathFactory, clampedProgress);
+            float clampedProgress = progress.value.clamp(0.0f, 1.0f);
+            foreach (_PathFrames path in paths) {
+                path.paint(canvas, color, uiPathFactory, clampedProgress);
             }
         }
 
 
         public override bool shouldRepaint(CustomPainter _oldDelegate) {
             _AnimatedIconPainter oldDelegate = _oldDelegate as _AnimatedIconPainter;
-            return oldDelegate.progress.value != this.progress.value
-                   || oldDelegate.color != this.color
-                   || oldDelegate.paths != this.paths
-                   || oldDelegate.scale != this.scale
-                   || oldDelegate.uiPathFactory != this.uiPathFactory;
+            return oldDelegate.progress.value != progress.value
+                   || oldDelegate.color != color
+                   || oldDelegate.paths != paths
+                   || oldDelegate.scale != scale
+                   || oldDelegate.uiPathFactory != uiPathFactory;
         }
 
         public override bool? hitTest(Offset position) {
@@ -140,12 +140,12 @@ namespace Unity.UIWidgets.material {
         public readonly List<float> opacities;
 
         public void paint(Canvas canvas, Color color, _UiPathFactory uiPathFactory, float progress) {
-            float opacity = AnimatedIconUtils._interpolate<float>(this.opacities, progress, MathUtils.lerpFloat);
+            float opacity = AnimatedIconUtils._interpolate<float>(opacities, progress, MathUtils.lerpFloat);
             Paint paint = new Paint();
             paint.style = PaintingStyle.fill;
             paint.color = color.withOpacity(color.opacity * opacity);
             Path path = uiPathFactory();
-            foreach (_PathCommand command in this.commands) {
+            foreach (_PathCommand command in commands) {
                 command.apply(path, progress);
             }
 
@@ -168,7 +168,7 @@ namespace Unity.UIWidgets.material {
         public readonly List<Offset> points;
 
         public override void apply(Path path, float progress) {
-            Offset offset = AnimatedIconUtils._interpolate<Offset>(this.points, progress, Offset.lerp);
+            Offset offset = AnimatedIconUtils._interpolate<Offset>(points, progress, Offset.lerp);
             path.moveTo(offset.dx, offset.dy);
         }
     }
@@ -185,9 +185,9 @@ namespace Unity.UIWidgets.material {
         public readonly List<Offset> targetPoints;
 
         public override void apply(Path path, float progress) {
-            Offset controlPoint1 = AnimatedIconUtils._interpolate<Offset>(this.controlPoints1, progress, Offset.lerp);
-            Offset controlPoint2 = AnimatedIconUtils._interpolate<Offset>(this.controlPoints2, progress, Offset.lerp);
-            Offset targetPoint = AnimatedIconUtils._interpolate<Offset>(this.targetPoints, progress, Offset.lerp);
+            Offset controlPoint1 = AnimatedIconUtils._interpolate<Offset>(controlPoints1, progress, Offset.lerp);
+            Offset controlPoint2 = AnimatedIconUtils._interpolate<Offset>(controlPoints2, progress, Offset.lerp);
+            Offset targetPoint = AnimatedIconUtils._interpolate<Offset>(targetPoints, progress, Offset.lerp);
             path.cubicTo(
                 controlPoint1.dx, controlPoint1.dy,
                 controlPoint2.dx, controlPoint2.dy,
@@ -204,7 +204,7 @@ namespace Unity.UIWidgets.material {
         List<Offset> points;
 
         public override void apply(Path path, float progress) {
-            Offset point = AnimatedIconUtils._interpolate<Offset>(this.points, progress, Offset.lerp);
+            Offset point = AnimatedIconUtils._interpolate<Offset>(points, progress, Offset.lerp);
             path.lineTo(point.dx, point.dy);
         }
     }

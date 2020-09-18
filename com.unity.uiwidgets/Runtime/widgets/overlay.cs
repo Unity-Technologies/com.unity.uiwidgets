@@ -8,8 +8,8 @@ namespace Unity.UIWidgets.widgets {
     public class OverlayEntry {
         public OverlayEntry(WidgetBuilder builder = null, bool opaque = false, bool maintainState = false) {
             D.assert(builder != null);
-            this._opaque = opaque;
-            this._maintainState = maintainState;
+            _opaque = opaque;
+            _maintainState = maintainState;
             this.builder = builder;
         }
 
@@ -18,30 +18,30 @@ namespace Unity.UIWidgets.widgets {
         bool _opaque;
 
         public bool opaque {
-            get { return this._opaque; }
+            get { return _opaque; }
             set {
-                if (this._opaque == value) {
+                if (_opaque == value) {
                     return;
                 }
 
-                this._opaque = value;
-                D.assert(this._overlay != null);
-                this._overlay._didChangeEntryOpacity();
+                _opaque = value;
+                D.assert(_overlay != null);
+                _overlay._didChangeEntryOpacity();
             }
         }
 
         bool _maintainState;
 
         public bool maintainState {
-            get { return this._maintainState; }
+            get { return _maintainState; }
             set {
-                if (this._maintainState == value) {
+                if (_maintainState == value) {
                     return;
                 }
 
-                this._maintainState = value;
-                D.assert(this._overlay != null);
-                this._overlay._didChangeEntryOpacity();
+                _maintainState = value;
+                D.assert(_overlay != null);
+                _overlay._didChangeEntryOpacity();
             }
         }
 
@@ -50,9 +50,9 @@ namespace Unity.UIWidgets.widgets {
         internal readonly GlobalKey<_OverlayEntryState> _key = new LabeledGlobalKey<_OverlayEntryState>();
 
         public void remove() {
-            D.assert(this._overlay != null);
-            OverlayState overlay = this._overlay;
-            this._overlay = null;
+            D.assert(_overlay != null);
+            OverlayState overlay = _overlay;
+            _overlay = null;
             if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
                 SchedulerBinding.instance.addPostFrameCallback((duration) => { overlay._remove(this); });
             }
@@ -62,11 +62,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void markNeedsBuild() {
-            this._key.currentState?._markNeedsBuild();
+            _key.currentState?._markNeedsBuild();
         }
 
         public override string ToString() {
-            return $"{Diagnostics.describeIdentity(this)}(opaque: {this.opaque}; maintainState: {this.maintainState})";
+            return $"{foundation_.describeIdentity(this)}(opaque: {opaque}; maintainState: {maintainState})";
         }
     }
 
@@ -86,11 +86,11 @@ namespace Unity.UIWidgets.widgets {
 
     class _OverlayEntryState : State<_OverlayEntry> {
         public override Widget build(BuildContext context) {
-            return this.widget.entry.builder(context);
+            return widget.entry.builder(context);
         }
 
         internal void _markNeedsBuild() {
-            this.setState(() => {
+            setState(() => {
                 /* the state that changed is in the builder */
             });
         }
@@ -136,41 +136,41 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            this.insertAll(this.widget.initialEntries);
+            insertAll(widget.initialEntries);
         }
 
         internal int _insertionIndex(OverlayEntry below, OverlayEntry above) {
             D.assert(below == null || above == null);
             if (below != null) {
-                return this._entries.IndexOf(below);
+                return _entries.IndexOf(below);
             }
 
             if (above != null) {
-                return this._entries.IndexOf(above) + 1;
+                return _entries.IndexOf(above) + 1;
             }
 
-            return this._entries.Count;
+            return _entries.Count;
         }
 
         public void insert(OverlayEntry entry, OverlayEntry below = null, OverlayEntry above = null) {
             D.assert(above == null || below == null, () => "Only one of `above` and `below` may be specified.");
-            D.assert(above == null || (above._overlay == this && this._entries.Contains(above)),
+            D.assert(above == null || (above._overlay == this && _entries.Contains(above)),
                 () => "The provided entry for `above` is not present in the Overlay.");
-            D.assert(below == null || (below._overlay == this && this._entries.Contains(below)),
+            D.assert(below == null || (below._overlay == this && _entries.Contains(below)),
                 () => "The provided entry for `below` is not present in the Overlay.");
-            D.assert(!this._entries.Contains(entry), () => "The specified entry is already present in the Overlay.");
+            D.assert(!_entries.Contains(entry), () => "The specified entry is already present in the Overlay.");
             D.assert(entry._overlay == null, () => "The specified entry is already present in another Overlay.");
             entry._overlay = this;
-            this.setState(() => { this._entries.Insert(this._insertionIndex(below, above), entry); });
+            setState(() => { _entries.Insert(_insertionIndex(below, above), entry); });
         }
 
         public void insertAll(ICollection<OverlayEntry> entries, OverlayEntry below = null, OverlayEntry above = null) {
             D.assert(above == null || below == null, () => "Only one of `above` and `below` may be specified.");
-            D.assert(above == null || (above._overlay == this && this._entries.Contains(above)),
+            D.assert(above == null || (above._overlay == this && _entries.Contains(above)),
                 () => "The provided entry for `above` is not present in the Overlay.");
-            D.assert(below == null || (below._overlay == this && this._entries.Contains(below)),
+            D.assert(below == null || (below._overlay == this && _entries.Contains(below)),
                 () => "The provided entry for `below` is not present in the Overlay.");
-            D.assert(entries.All(entry => !this._entries.Contains(entry)),
+            D.assert(entries.All(entry => !_entries.Contains(entry)),
                 () => "One or more of the specified entries are already present in the Overlay.");
             D.assert(entries.All(entry => entry._overlay == null),
                 () => "One or more of the specified entries are already present in another Overlay.");
@@ -183,8 +183,8 @@ namespace Unity.UIWidgets.widgets {
                 entry._overlay = this;
             }
 
-            this.setState(() => {
-                this._entries.InsertRange(this._insertionIndex(below, above), entries);
+            setState(() => {
+                _entries.InsertRange(_insertionIndex(below, above), entries);
             });
         }
 
@@ -192,11 +192,11 @@ namespace Unity.UIWidgets.widgets {
             List<OverlayEntry> newEntriesList =
                 newEntries is List<OverlayEntry> ?(newEntries as List<OverlayEntry>) : newEntries.ToList();
             D.assert(above == null || below == null, () => "Only one of `above` and `below` may be specified.");
-            D.assert(above == null || (above._overlay == this && this._entries.Contains(above)),
+            D.assert(above == null || (above._overlay == this && _entries.Contains(above)),
                 () => "The provided entry for `above` is not present in the Overlay.");
-            D.assert(below == null || (below._overlay == this && this._entries.Contains(below)),
+            D.assert(below == null || (below._overlay == this && _entries.Contains(below)),
                 () => "The provided entry for `below` is not present in the Overlay.");
-            D.assert(newEntriesList.All(entry => !this._entries.Contains(entry)),
+            D.assert(newEntriesList.All(entry => !_entries.Contains(entry)),
                 () => "One or more of the specified entries are already present in the Overlay.");
             D.assert(newEntriesList.All(entry => entry._overlay == null),
                 () => "One or more of the specified entries are already present in another Overlay.");
@@ -204,38 +204,38 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
 
-            if (this._entries.SequenceEqual(newEntriesList)) {
+            if (_entries.SequenceEqual(newEntriesList)) {
                 return;
             }
 
-            HashSet<OverlayEntry> old = new HashSet<OverlayEntry>(this._entries);
+            HashSet<OverlayEntry> old = new HashSet<OverlayEntry>(_entries);
             foreach(OverlayEntry entry in newEntriesList) {
                 entry._overlay = entry._overlay ?? this;
             }
-            this.setState(() => {
-                this._entries.Clear();
-                this._entries.AddRange(newEntriesList);
+            setState(() => {
+                _entries.Clear();
+                _entries.AddRange(newEntriesList);
                 foreach (OverlayEntry entry in newEntriesList) {
                     old.Remove(entry);
                 }
 
-                this._entries.InsertRange(this._insertionIndex(below, above), old);
+                _entries.InsertRange(_insertionIndex(below, above), old);
             });
         }
 
         internal void _remove(OverlayEntry entry) {
-            if (this.mounted) {
-                this.setState(() => { this._entries.Remove(entry); });
+            if (mounted) {
+                setState(() => { _entries.Remove(entry); });
             }
         }
 
         public bool debugIsVisible(OverlayEntry entry) {
             bool result = false;
-            D.assert(this._entries.Contains(entry));
+            D.assert(_entries.Contains(entry));
             D.assert(() => {
-                for (int i = this._entries.Count - 1; i > 0; i -= 1) {
+                for (int i = _entries.Count - 1; i > 0; i -= 1) {
                     // todo why not including 0?
-                    OverlayEntry candidate = this._entries[i];
+                    OverlayEntry candidate = _entries[i];
                     if (candidate == entry) {
                         result = true;
                         break;
@@ -252,15 +252,15 @@ namespace Unity.UIWidgets.widgets {
         }
 
         internal void _didChangeEntryOpacity() {
-            this.setState(() => { });
+            setState(() => { });
         }
 
         public override Widget build(BuildContext context) {
             var onstageChildren = new List<Widget>();
             var offstageChildren = new List<Widget>();
             var onstage = true;
-            for (var i = this._entries.Count - 1; i >= 0; i -= 1) {
-                var entry = this._entries[i];
+            for (var i = _entries.Count - 1; i >= 0; i -= 1) {
+                var entry = _entries[i];
                 if (onstage) {
                     onstageChildren.Add(new _OverlayEntry(entry));
                     if (entry.opaque) {
@@ -325,93 +325,93 @@ namespace Unity.UIWidgets.widgets {
 
 
         protected override void insertChildRenderObject(RenderObject child, object slot) {
-            D.assert(this.renderObject.debugValidateChild(child));
+            D.assert(renderObject.debugValidateChild(child));
             if (slot == _onstageSlot) {
                 D.assert(child is RenderStack);
-                this.renderObject.child = (RenderStack) child;
+                renderObject.child = (RenderStack) child;
             }
             else {
                 D.assert(slot == null || slot is Element);
-                this.renderObject.insert((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
+                renderObject.insert((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
             }
         }
 
         protected override void moveChildRenderObject(RenderObject child, object slot) {
             if (slot == _onstageSlot) {
-                this.renderObject.remove((RenderBox) child);
+                renderObject.remove((RenderBox) child);
                 D.assert(child is RenderStack);
-                this.renderObject.child = (RenderStack) child;
+                renderObject.child = (RenderStack) child;
             }
             else {
                 D.assert(slot == null || slot is Element);
-                if (this.renderObject.child == child) {
-                    this.renderObject.child = null;
-                    this.renderObject.insert((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
+                if (renderObject.child == child) {
+                    renderObject.child = null;
+                    renderObject.insert((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
                 }
                 else {
-                    this.renderObject.move((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
+                    renderObject.move((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
                 }
             }
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
-            if (this.renderObject.child == child) {
-                this.renderObject.child = null;
+            if (renderObject.child == child) {
+                renderObject.child = null;
             }
             else {
-                this.renderObject.remove((RenderBox) child);
+                renderObject.remove((RenderBox) child);
             }
         }
 
         public override void visitChildren(ElementVisitor visitor) {
-            if (this._onstage != null) {
-                visitor(this._onstage);
+            if (_onstage != null) {
+                visitor(_onstage);
             }
 
-            foreach (var child in this._offstage) {
-                if (!this._forgottenOffstageChildren.Contains(child)) {
+            foreach (var child in _offstage) {
+                if (!_forgottenOffstageChildren.Contains(child)) {
                     visitor(child);
                 }
             }
         }
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            if (this._onstage != null) {
-                visitor(this._onstage);
+            if (_onstage != null) {
+                visitor(_onstage);
             }
         }
 
 
         protected override void forgetChild(Element child) {
-            if (child == this._onstage) {
-                this._onstage = null;
+            if (child == _onstage) {
+                _onstage = null;
             }
             else {
-                D.assert(this._offstage.Contains(child));
-                D.assert(!this._forgottenOffstageChildren.Contains(child));
-                this._forgottenOffstageChildren.Add(child);
+                D.assert(_offstage.Contains(child));
+                D.assert(!_forgottenOffstageChildren.Contains(child));
+                _forgottenOffstageChildren.Add(child);
             }
         }
 
         public override void mount(Element parent, object newSlot) {
             base.mount(parent, newSlot);
-            this._onstage = this.updateChild(this._onstage, this.widget.onstage, _onstageSlot);
-            this._offstage = new List<Element>(this.widget.offstage.Count);
+            _onstage = updateChild(_onstage, widget.onstage, _onstageSlot);
+            _offstage = new List<Element>(widget.offstage.Count);
             Element previousChild = null;
-            for (int i = 0; i < this._offstage.Count; i += 1) {
-                var newChild = this.inflateWidget(this.widget.offstage[i], previousChild);
-                this._offstage[i] = newChild;
+            for (int i = 0; i < _offstage.Count; i += 1) {
+                var newChild = inflateWidget(widget.offstage[i], previousChild);
+                _offstage[i] = newChild;
                 previousChild = newChild;
             }
         }
 
         public override void update(Widget newWidget) {
             base.update(newWidget);
-            D.assert(Equals(this.widget, newWidget));
-            this._onstage = this.updateChild(this._onstage, this.widget.onstage, _onstageSlot);
-            this._offstage = this.updateChildren(this._offstage, this.widget.offstage,
-                forgottenChildren: this._forgottenOffstageChildren);
-            this._forgottenOffstageChildren.Clear();
+            D.assert(Equals(widget, newWidget));
+            _onstage = updateChild(_onstage, widget.onstage, _onstageSlot);
+            _offstage = updateChildren(_offstage, widget.offstage,
+                forgottenChildren: _forgottenOffstageChildren);
+            _forgottenOffstageChildren.Clear();
         }
     }
 
@@ -425,16 +425,16 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void redepthChildren() {
-            if (this.child != null) {
-                this.redepthChild(this.child);
+            if (child != null) {
+                redepthChild(child);
             }
 
             base.redepthChildren();
         }
 
         public override void visitChildren(RenderObjectVisitor visitor) {
-            if (this.child != null) {
-                visitor(this.child);
+            if (child != null) {
+                visitor(child);
             }
 
             base.visitChildren(visitor);
@@ -444,11 +444,11 @@ namespace Unity.UIWidgets.widgets {
             var children = new List<DiagnosticsNode>();
 
             if (this.child != null) {
-                children.Add(this.child.toDiagnosticsNode(name: "onstage"));
+                children.Add(child.toDiagnosticsNode(name: "onstage"));
             }
 
-            if (this.firstChild != null) {
-                var child = this.firstChild;
+            if (firstChild != null) {
+                var child = firstChild;
 
                 int count = 1;
                 while (true) {
@@ -458,7 +458,7 @@ namespace Unity.UIWidgets.widgets {
                             style: DiagnosticsTreeStyle.offstage
                         )
                     );
-                    if (child == this.lastChild) {
+                    if (child == lastChild) {
                         break;
                     }
 

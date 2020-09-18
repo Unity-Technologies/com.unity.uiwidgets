@@ -30,14 +30,14 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             return new SizedBox(
-                height: this.height,
+                height: height,
                 child: new Center(
                     child: new Container(
                         height: 0.0f,
-                        margin: EdgeInsets.only(this.indent),
+                        margin: EdgeInsets.only(indent),
                         decoration: new BoxDecoration(
                             border: new Border(
-                                bottom: createBorderSide(context, color: this.color))
+                                bottom: createBorderSide(context, color: color))
                         )
                     )
                 )

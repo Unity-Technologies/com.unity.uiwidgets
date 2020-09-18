@@ -43,69 +43,69 @@ namespace Unity.UIWidgets.material {
         bool _dirty = true;
 
         void _initialze() {
-            D.assert(this.begin != null);
-            D.assert(this.end != null);
+            D.assert(begin != null);
+            D.assert(end != null);
 
-            Offset delta = this.end - this.begin;
+            Offset delta = end - begin;
             float deltaX = delta.dx.abs();
             float deltaY = delta.dy.abs();
             float distanceFromAtoB = delta.distance;
-            Offset c = new Offset(this.end.dx, this.begin.dy);
+            Offset c = new Offset(end.dx, begin.dy);
 
             float sweepAngle() {
-                return 2.0f * Mathf.Asin(distanceFromAtoB / (2.0f * this._radius));
+                return 2.0f * Mathf.Asin(distanceFromAtoB / (2.0f * _radius));
             }
 
             if (deltaX > ArcUtils._kOnAxisDelta && deltaY > ArcUtils._kOnAxisDelta) {
                 if (deltaX < deltaY) {
-                    this._radius = distanceFromAtoB * distanceFromAtoB / (c - this.begin).distance / 2.0f;
-                    this._center = new Offset(this.end.dx + this._radius * (this.begin.dx - this.end.dx).sign(),
-                        this.end.dy);
-                    if (this.begin.dx < this.end.dx) {
-                        this._beginAngle = sweepAngle() * (this.begin.dy - this.end.dy).sign();
-                        this._endAngle = 0.0f;
+                    _radius = distanceFromAtoB * distanceFromAtoB / (c - begin).distance / 2.0f;
+                    _center = new Offset(end.dx + _radius * (begin.dx - end.dx).sign(),
+                        end.dy);
+                    if (begin.dx < end.dx) {
+                        _beginAngle = sweepAngle() * (begin.dy - end.dy).sign();
+                        _endAngle = 0.0f;
                     }
                     else {
-                        this._beginAngle = (Mathf.PI + sweepAngle() * (this.end.dy - this.begin.dy).sign());
-                        this._endAngle = Mathf.PI;
+                        _beginAngle = (Mathf.PI + sweepAngle() * (end.dy - begin.dy).sign());
+                        _endAngle = Mathf.PI;
                     }
                 }
                 else {
-                    this._radius = distanceFromAtoB * distanceFromAtoB / (c - this.end).distance / 2.0f;
-                    this._center = new Offset(this.begin.dx,
-                        this.begin.dy + (this.end.dy - this.begin.dy).sign() * this._radius);
-                    if (this.begin.dy < this.end.dy) {
-                        this._beginAngle = -Mathf.PI / 2.0f;
-                        this._endAngle = this._beginAngle + sweepAngle() * (this.end.dx - this.begin.dx).sign();
+                    _radius = distanceFromAtoB * distanceFromAtoB / (c - end).distance / 2.0f;
+                    _center = new Offset(begin.dx,
+                        begin.dy + (end.dy - begin.dy).sign() * _radius);
+                    if (begin.dy < end.dy) {
+                        _beginAngle = -Mathf.PI / 2.0f;
+                        _endAngle = _beginAngle + sweepAngle() * (end.dx - begin.dx).sign();
                     }
                     else {
-                        this._beginAngle = Mathf.PI / 2.0f;
-                        this._endAngle = this._beginAngle + sweepAngle() * (this.begin.dx - this.end.dx).sign();
+                        _beginAngle = Mathf.PI / 2.0f;
+                        _endAngle = _beginAngle + sweepAngle() * (begin.dx - end.dx).sign();
                     }
                 }
 
-                D.assert(this._beginAngle != null);
-                D.assert(this._endAngle != null);
+                D.assert(_beginAngle != null);
+                D.assert(_endAngle != null);
             }
             else {
-                this._beginAngle = null;
-                this._endAngle = null;
+                _beginAngle = null;
+                _endAngle = null;
             }
 
-            this._dirty = false;
+            _dirty = false;
         }
 
         public Offset center {
             get {
-                if (this.begin == null || this.end == null) {
+                if (begin == null || end == null) {
                     return null;
                 }
 
-                if (this._dirty) {
-                    this._initialze();
+                if (_dirty) {
+                    _initialze();
                 }
 
-                return this._center;
+                return _center;
             }
         }
 
@@ -113,15 +113,15 @@ namespace Unity.UIWidgets.material {
 
         public float? radius {
             get {
-                if (this.begin == null || this.end == null) {
+                if (begin == null || end == null) {
                     return null;
                 }
 
-                if (this._dirty) {
-                    this._initialze();
+                if (_dirty) {
+                    _initialze();
                 }
 
-                return this._radius;
+                return _radius;
             }
         }
 
@@ -129,15 +129,15 @@ namespace Unity.UIWidgets.material {
 
         public float? beginAngle {
             get {
-                if (this.begin == null || this.end == null) {
+                if (begin == null || end == null) {
                     return null;
                 }
 
-                if (this._dirty) {
-                    this._initialze();
+                if (_dirty) {
+                    _initialze();
                 }
 
-                return this._beginAngle;
+                return _beginAngle;
             }
         }
 
@@ -145,15 +145,15 @@ namespace Unity.UIWidgets.material {
 
         public float? endAngle {
             get {
-                if (this.begin == null || this.end == null) {
+                if (begin == null || end == null) {
                     return null;
                 }
 
-                if (this._dirty) {
-                    this._initialze();
+                if (_dirty) {
+                    _initialze();
                 }
 
-                return this._endAngle;
+                return _endAngle;
             }
         }
 
@@ -164,7 +164,7 @@ namespace Unity.UIWidgets.material {
             set {
                 if (value != base.begin) {
                     base.begin = value;
-                    this._dirty = true;
+                    _dirty = true;
                 }
             }
         }
@@ -174,37 +174,37 @@ namespace Unity.UIWidgets.material {
             set {
                 if (value != base.end) {
                     base.end = value;
-                    this._dirty = true;
+                    _dirty = true;
                 }
             }
         }
 
         public override Offset lerp(float t) {
-            if (this._dirty) {
-                this._initialze();
+            if (_dirty) {
+                _initialze();
             }
 
             if (t == 0.0) {
-                return this.begin;
+                return begin;
             }
 
             if (t == 1.0) {
-                return this.end;
+                return end;
             }
 
-            if (this._beginAngle == null || this._endAngle == null) {
-                return Offset.lerp(this.begin, this.end, t);
+            if (_beginAngle == null || _endAngle == null) {
+                return Offset.lerp(begin, end, t);
             }
 
-            float angle = MathUtils.lerpNullableFloat(this._beginAngle, this._endAngle, t) ?? 0.0f;
-            float x = Mathf.Cos(angle) * this._radius;
-            float y = Mathf.Sin(angle) * this._radius;
-            return this._center + new Offset(x, y);
+            float angle = MathUtils.lerpNullableFloat(_beginAngle, _endAngle, t) ?? 0.0f;
+            float x = Mathf.Cos(angle) * _radius;
+            float y = Mathf.Sin(angle) * _radius;
+            return _center + new Offset(x, y);
         }
 
         public override string ToString() {
-            return this.GetType() + "(" + this.begin + "->" + this.end + "); center=" + this.center +
-                   ", radius=" + this.radius + ", beginAngle=" + this.beginAngle + ", endAngle=" + this.endAngle;
+            return GetType() + "(" + begin + "->" + end + "); center=" + center +
+                   ", radius=" + radius + ", beginAngle=" + beginAngle + ", endAngle=" + endAngle;
         }
     }
 
@@ -237,22 +237,22 @@ namespace Unity.UIWidgets.material {
         bool _dirty = true;
 
         void _initialize() {
-            D.assert(this.begin != null);
-            D.assert(this.end != null);
-            Offset centersVector = this.end.center - this.begin.center;
+            D.assert(begin != null);
+            D.assert(end != null);
+            Offset centersVector = end.center - begin.center;
             _Diagonal diagonal = ArcUtils._maxBy(ArcUtils._allDiagonals,
-                (_Diagonal d) => this._diagonalSupport(centersVector, d));
-            this._beginArc = new MaterialPointArcTween(
-                begin: this._cornerFor(this.begin, diagonal.beginId),
-                end: this._cornerFor(this.end, diagonal.beginId));
-            this._endArc = new MaterialPointArcTween(
-                begin: this._cornerFor(this.begin, diagonal.endId),
-                end: this._cornerFor(this.end, diagonal.endId));
-            this._dirty = false;
+                (_Diagonal d) => _diagonalSupport(centersVector, d));
+            _beginArc = new MaterialPointArcTween(
+                begin: _cornerFor(begin, diagonal.beginId),
+                end: _cornerFor(end, diagonal.beginId));
+            _endArc = new MaterialPointArcTween(
+                begin: _cornerFor(begin, diagonal.endId),
+                end: _cornerFor(end, diagonal.endId));
+            _dirty = false;
         }
 
         float _diagonalSupport(Offset centersVector, _Diagonal diagonal) {
-            Offset delta = this._cornerFor(this.begin, diagonal.endId) - this._cornerFor(this.begin, diagonal.beginId);
+            Offset delta = _cornerFor(begin, diagonal.endId) - _cornerFor(begin, diagonal.beginId);
             float length = delta.distance;
             return centersVector.dx * delta.dx / length + centersVector.dy * delta.dy / length;
         }
@@ -270,15 +270,15 @@ namespace Unity.UIWidgets.material {
 
         public MaterialPointArcTween beginArc {
             get {
-                if (this.begin == null) {
+                if (begin == null) {
                     return null;
                 }
 
-                if (this._dirty) {
-                    this._initialize();
+                if (_dirty) {
+                    _initialize();
                 }
 
-                return this._beginArc;
+                return _beginArc;
             }
         }
 
@@ -286,15 +286,15 @@ namespace Unity.UIWidgets.material {
 
         public MaterialPointArcTween endArc {
             get {
-                if (this.end == null) {
+                if (end == null) {
                     return null;
                 }
 
-                if (this._dirty) {
-                    this._initialize();
+                if (_dirty) {
+                    _initialize();
                 }
 
-                return this._endArc;
+                return _endArc;
             }
         }
 
@@ -305,7 +305,7 @@ namespace Unity.UIWidgets.material {
             set {
                 if (value != base.begin) {
                     base.begin = value;
-                    this._dirty = true;
+                    _dirty = true;
                 }
             }
         }
@@ -315,29 +315,29 @@ namespace Unity.UIWidgets.material {
             set {
                 if (value != base.end) {
                     base.end = value;
-                    this._dirty = true;
+                    _dirty = true;
                 }
             }
         }
 
         public override Rect lerp(float t) {
-            if (this._dirty) {
-                this._initialize();
+            if (_dirty) {
+                _initialize();
             }
 
             if (t == 0.0) {
-                return this.begin;
+                return begin;
             }
 
             if (t == 1.0) {
-                return this.end;
+                return end;
             }
 
-            return Rect.fromPoints(this._beginArc.lerp(t), this._endArc.lerp(t));
+            return Rect.fromPoints(_beginArc.lerp(t), _endArc.lerp(t));
         }
 
         public override string ToString() {
-            return this.GetType() + "(" + this.begin + "->" + this.end + ")";
+            return GetType() + "(" + begin + "->" + end + ")";
         }
     }
 
@@ -350,25 +350,25 @@ namespace Unity.UIWidgets.material {
         bool _dirty = true;
 
         void _initialize() {
-            D.assert(this.begin != null);
-            D.assert(this.end != null);
-            this._centerArc = new MaterialPointArcTween(
-                begin: this.begin.center,
-                end: this.end.center);
-            this._dirty = false;
+            D.assert(begin != null);
+            D.assert(end != null);
+            _centerArc = new MaterialPointArcTween(
+                begin: begin.center,
+                end: end.center);
+            _dirty = false;
         }
 
         public MaterialPointArcTween centerArc {
             get {
-                if (this.begin == null || this.end == null) {
+                if (begin == null || end == null) {
                     return null;
                 }
 
-                if (this._dirty) {
-                    this._initialize();
+                if (_dirty) {
+                    _initialize();
                 }
 
-                return this._centerArc;
+                return _centerArc;
             }
         }
 
@@ -380,7 +380,7 @@ namespace Unity.UIWidgets.material {
             set {
                 if (value != base.begin) {
                     base.begin = value;
-                    this._dirty = true;
+                    _dirty = true;
                 }
             }
         }
@@ -390,27 +390,27 @@ namespace Unity.UIWidgets.material {
             set {
                 if (value != base.end) {
                     base.end = value;
-                    this._dirty = true;
+                    _dirty = true;
                 }
             }
         }
 
         public override Rect lerp(float t) {
-            if (this._dirty) {
-                this._initialize();
+            if (_dirty) {
+                _initialize();
             }
 
             if (t == 0.0) {
-                return this.begin;
+                return begin;
             }
 
             if (t == 1.0) {
-                return this.end;
+                return end;
             }
 
-            Offset center = this._centerArc.lerp(t);
-            float width = MathUtils.lerpFloat(this.begin.width, this.end.width, t);
-            float height = MathUtils.lerpFloat(this.begin.height, this.end.height, t);
+            Offset center = _centerArc.lerp(t);
+            float width = MathUtils.lerpFloat(begin.width, end.width, t);
+            float height = MathUtils.lerpFloat(begin.height, end.height, t);
             return Rect.fromLTWH(
                 (center.dx - width / 2.0f),
                 (center.dy - height / 2.0f),
@@ -419,7 +419,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string ToString() {
-            return this.GetType() + "(" + this.begin + "->" + this.end + "); centerArc=" + this.centerArc;
+            return GetType() + "(" + begin + "->" + end + "); centerArc=" + centerArc;
         }
     }
 }

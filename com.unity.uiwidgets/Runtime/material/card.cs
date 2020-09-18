@@ -45,17 +45,17 @@ namespace Unity.UIWidgets.material {
             CardTheme cardTheme = CardTheme.of(context);
 
             return new Container(
-                margin: this.margin ?? cardTheme.margin ?? EdgeInsets.all(4.0f),
+                margin: margin ?? cardTheme.margin ?? EdgeInsets.all(4.0f),
                 child: new Material(
                     type: MaterialType.card,
-                    color: this.color ?? cardTheme.color ?? Theme.of(context).cardColor,
-                    elevation: this.elevation ?? cardTheme.elevation ?? _defaultElevation,
-                    shape: this.shape ?? cardTheme.shape ?? new RoundedRectangleBorder(
+                    color: color ?? cardTheme.color ?? Theme.of(context).cardColor,
+                    elevation: elevation ?? cardTheme.elevation ?? _defaultElevation,
+                    shape: shape ?? cardTheme.shape ?? new RoundedRectangleBorder(
                                borderRadius: BorderRadius.all(Radius.circular(4.0f))
                            ),
-                    borderOnForeground: this.borderOnForeground,
-                    clipBehavior: this.clipBehavior ?? cardTheme.clipBehavior ?? _defaultClipBehavior,
-                    child: this.child)
+                    borderOnForeground: borderOnForeground,
+                    clipBehavior: clipBehavior ?? cardTheme.clipBehavior ?? _defaultClipBehavior,
+                    child: child)
             );
         }
     }

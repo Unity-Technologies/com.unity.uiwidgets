@@ -55,7 +55,7 @@ namespace Unity.UIWidgets.widgets {
 
         protected AxisDirection getDirection(BuildContext context) {
             return LayoutUtils.getAxisDirectionFromAxisReverseAndDirectionality(
-                context, this.scrollDirection, this.reverse);
+                context, scrollDirection, reverse);
         }
 
         protected abstract List<Widget> buildSlivers(BuildContext context);
@@ -66,7 +66,7 @@ namespace Unity.UIWidgets.widgets {
             AxisDirection axisDirection,
             List<Widget> slivers
         ) {
-            if (this.shrinkWrap) {
+            if (shrinkWrap) {
                 return new ShrinkWrappingViewport(
                     axisDirection: axisDirection,
                     offset: offset,
@@ -78,42 +78,42 @@ namespace Unity.UIWidgets.widgets {
                 axisDirection: axisDirection,
                 offset: offset,
                 slivers: slivers,
-                cacheExtent: this.cacheExtent,
-                center: this.center,
-                anchor: this.anchor
+                cacheExtent: cacheExtent,
+                center: center,
+                anchor: anchor
             );
         }
 
         public override Widget build(BuildContext context) {
-            List<Widget> slivers = this.buildSlivers(context);
-            AxisDirection axisDirection = this.getDirection(context);
+            List<Widget> slivers = buildSlivers(context);
+            AxisDirection axisDirection = getDirection(context);
 
-            ScrollController scrollController = this.primary ? PrimaryScrollController.of(context) : this.controller;
+            ScrollController scrollController = primary ? PrimaryScrollController.of(context) : controller;
 
             Scrollable scrollable = new Scrollable(
-                dragStartBehavior: this.dragStartBehavior,
+                dragStartBehavior: dragStartBehavior,
                 axisDirection: axisDirection,
                 controller: scrollController,
-                physics: this.physics,
+                physics: physics,
                 viewportBuilder: (viewportContext, offset) =>
-                    this.buildViewport(viewportContext, offset, axisDirection, slivers)
+                    buildViewport(viewportContext, offset, axisDirection, slivers)
             );
-            return this.primary && scrollController != null
+            return primary && scrollController != null
                 ? (Widget) PrimaryScrollController.none(child: scrollable)
                 : scrollable;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<Axis>("scrollDirection", this.scrollDirection));
-            properties.add(new FlagProperty("reverse", value: this.reverse, ifTrue: "reversed", showName: true));
-            properties.add(new DiagnosticsProperty<ScrollController>("controller", this.controller, showName: false,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FlagProperty("primary", value: this.primary, ifTrue: "using primary controller",
+            properties.add(new EnumProperty<Axis>("scrollDirection", scrollDirection));
+            properties.add(new FlagProperty("reverse", value: reverse, ifTrue: "reversed", showName: true));
+            properties.add(new DiagnosticsProperty<ScrollController>("controller", controller, showName: false,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FlagProperty("primary", value: primary, ifTrue: "using primary controller",
                 showName: true));
-            properties.add(new DiagnosticsProperty<ScrollPhysics>("physics", this.physics, showName: false,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FlagProperty("shrinkWrap", value: this.shrinkWrap, ifTrue: "shrink-wrapping",
+            properties.add(new DiagnosticsProperty<ScrollPhysics>("physics", physics, showName: false,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FlagProperty("shrinkWrap", value: shrinkWrap, ifTrue: "shrink-wrapping",
                 showName: true));
         }
     }
@@ -151,7 +151,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly List<Widget> slivers;
 
         protected override List<Widget> buildSlivers(BuildContext context) {
-            return this.slivers;
+            return slivers;
         }
     }
 
@@ -184,9 +184,9 @@ namespace Unity.UIWidgets.widgets {
         public readonly EdgeInsets padding;
 
         protected override List<Widget> buildSlivers(BuildContext context) {
-            Widget sliver = this.buildChildLayout(context);
+            Widget sliver = buildChildLayout(context);
 
-            EdgeInsets effectivePadding = this.padding; // no need to check MediaQuery for now.
+            EdgeInsets effectivePadding = padding; // no need to check MediaQuery for now.
             if (effectivePadding != null) {
                 sliver = new SliverPadding(padding: effectivePadding, sliver: sliver);
             }
@@ -198,8 +198,8 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding,
+                defaultValue: foundation_.kNullDefaultValue));
         }
     }
 
@@ -232,7 +232,7 @@ namespace Unity.UIWidgets.widgets {
             dragStartBehavior: dragStartBehavior
         ) {
             this.itemExtent = itemExtent;
-            this.childrenDelegate = new SliverChildListDelegate(
+            childrenDelegate = new SliverChildListDelegate(
                 children,
                 addAutomaticKeepAlives: addAutomaticKeepAlives,
                 addRepaintBoundaries: addRepaintBoundaries
@@ -267,7 +267,7 @@ namespace Unity.UIWidgets.widgets {
             dragStartBehavior: dragStartBehavior
         ) {
             this.itemExtent = itemExtent;
-            this.childrenDelegate = new SliverChildBuilderDelegate(
+            childrenDelegate = new SliverChildBuilderDelegate(
                 itemBuilder,
                 childCount: itemCount,
                 addAutomaticKeepAlives: addAutomaticKeepAlives,
@@ -343,8 +343,8 @@ namespace Unity.UIWidgets.widgets {
             D.assert(itemBuilder != null);
             D.assert(separatorBuilder != null);
             D.assert(itemCount >= 0);
-            this.itemExtent = null;
-            this.childrenDelegate = new SliverChildBuilderDelegate(
+            itemExtent = null;
+            childrenDelegate = new SliverChildBuilderDelegate(
                 (context, index) => {
                     int itemIndex = index / 2;
                     return index % 2 == 0
@@ -451,20 +451,20 @@ namespace Unity.UIWidgets.widgets {
         public readonly SliverChildDelegate childrenDelegate;
 
         protected override Widget buildChildLayout(BuildContext context) {
-            if (this.itemExtent != null) {
+            if (itemExtent != null) {
                 return new SliverFixedExtentList(
-                    del: this.childrenDelegate,
-                    itemExtent: this.itemExtent.Value
+                    del: childrenDelegate,
+                    itemExtent: itemExtent.Value
                 );
             }
 
-            return new SliverList(del: this.childrenDelegate);
+            return new SliverList(del: childrenDelegate);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("itemExtent", this.itemExtent,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new FloatProperty("itemExtent", itemExtent,
+                defaultValue: foundation_.kNullDefaultValue));
         }
     }
 
@@ -495,7 +495,7 @@ namespace Unity.UIWidgets.widgets {
             cacheExtent: cacheExtent
         ) {
             D.assert(gridDelegate != null);
-            this.childrenDelegate = new SliverChildListDelegate(
+            childrenDelegate = new SliverChildListDelegate(
                 children ?? new List<Widget>(),
                 addAutomaticKeepAlives: addAutomaticKeepAlives,
                 addRepaintBoundaries: addRepaintBoundaries
@@ -529,7 +529,7 @@ namespace Unity.UIWidgets.widgets {
             cacheExtent: cacheExtent
         ) {
             this.gridDelegate = gridDelegate;
-            this.childrenDelegate = new SliverChildBuilderDelegate(
+            childrenDelegate = new SliverChildBuilderDelegate(
                 itemBuilder,
                 childCount: itemCount,
                 addAutomaticKeepAlives: addAutomaticKeepAlives,
@@ -662,13 +662,13 @@ namespace Unity.UIWidgets.widgets {
             cacheExtent: cacheExtent,
             dragStartBehavior: dragStartBehavior
         ) {
-            this.gridDelegate = new SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate = new SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: crossAxisCount ?? 0,
                 mainAxisSpacing: mainAxisSpacing,
                 crossAxisSpacing: crossAxisSpacing,
                 childAspectRatio: childAspectRatio
             );
-            this.childrenDelegate = new SliverChildListDelegate(
+            childrenDelegate = new SliverChildListDelegate(
                 children ?? new List<Widget>(),
                 addAutomaticKeepAlives: addAutomaticKeepAlives,
                 addRepaintBoundaries: addRepaintBoundaries
@@ -744,13 +744,13 @@ namespace Unity.UIWidgets.widgets {
             padding: padding,
             dragStartBehavior: dragStartBehavior
         ) {
-            this.gridDelegate = new SliverGridDelegateWithMaxCrossAxisExtent(
+            gridDelegate = new SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: maxCrossAxisExtent ?? 0,
                 mainAxisSpacing: mainAxisSpacing,
                 crossAxisSpacing: crossAxisSpacing,
                 childAspectRatio: childAspectRatio
             );
-            this.childrenDelegate = new SliverChildListDelegate(
+            childrenDelegate = new SliverChildListDelegate(
                 children ?? new List<Widget> { },
                 addAutomaticKeepAlives: addAutomaticKeepAlives,
                 addRepaintBoundaries: addRepaintBoundaries
@@ -801,8 +801,8 @@ namespace Unity.UIWidgets.widgets {
 
         protected override Widget buildChildLayout(BuildContext context) {
             return new SliverGrid(
-                layoutDelegate: this.childrenDelegate,
-                gridDelegate: this.gridDelegate
+                layoutDelegate: childrenDelegate,
+                gridDelegate: gridDelegate
             );
         }
     }

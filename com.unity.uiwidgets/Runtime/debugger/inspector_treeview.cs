@@ -21,35 +21,35 @@ namespace Unity.UIWidgets.debugger {
 
         public InspectorTreeView(TreeViewState state) : base(state) {
             // todo better way to enable horizontal scroll in treeview
-            this.setFieldValueRelection(this, new List<string> {"m_GUI", "m_UseHorizontalScroll"}, true);
-            this.useScrollView = true;
-            this.showBorder = true;
+            setFieldValueRelection(this, new List<string> {"m_GUI", "m_UseHorizontalScroll"}, true);
+            useScrollView = true;
+            showBorder = true;
         }
 
         public DiagnosticsNode node {
             set {
-                this.m_Node = value;
-                this.Reload();
+                m_Node = value;
+                Reload();
             }
 
-            get { return this.m_Node; }
+            get { return m_Node; }
         }
 
         public DiagnosticsNode selectedNode {
             get {
-                var selection = this.GetSelection();
+                var selection = GetSelection();
                 if (selection.Count <= 0) {
                     return null;
                 }
 
-                var item = this.FindItem(selection[0], this.rootItem) as InspectorTreeItem;
+                var item = FindItem(selection[0], rootItem) as InspectorTreeItem;
                 return item == null ? null : item.node;
             }
         }
 
         public InspectorTreeItem getTreeItemByValueRef(InspectorInstanceRef instanceRef, TreeViewItem from = null) {
             InspectorTreeItem item;
-            this.m_ValueToNode.TryGetValue(instanceRef, out item);
+            m_ValueToNode.TryGetValue(instanceRef, out item);
             return item;
         }
 
@@ -62,12 +62,12 @@ namespace Unity.UIWidgets.debugger {
 
             var node = item.node;
             var rect = args.rowRect;
-            rect.xMin += this.GetContentIndent(item);
+            rect.xMin += GetContentIndent(item);
 
 
             var xoffset = rect.xMin;
             if (node.showName && !string.IsNullOrEmpty(node.name)) {
-                xoffset = this.labelGUI(xoffset, rect, $"{node.name}{node.separator} ");
+                xoffset = labelGUI(xoffset, rect, $"{node.name}{node.separator} ");
             }
 
             var properties = node.valuePropertiesJson;
@@ -86,31 +86,31 @@ namespace Unity.UIWidgets.debugger {
                 xoffset += iconSize;
             }
 
-            this.labelGUI(xoffset, rect, node.description.Replace("\n", " "));
+            labelGUI(xoffset, rect, node.description.Replace("\n", " "));
         }
 
         protected override void SelectionChanged(IList<int> selectedIds) {
             DiagnosticsNode node = null;
             if (selectedIds.Count > 0) {
                 var id = selectedIds[0];
-                var item = this.FindItem(id, this.rootItem) as InspectorTreeItem;
+                var item = FindItem(id, rootItem) as InspectorTreeItem;
                 if (item != null) {
                     node = item.node;
                 }
             }
 
-            if (this.onNodeSelectionChanged != null) {
-                this.onNodeSelectionChanged(node);
+            if (onNodeSelectionChanged != null) {
+                onNodeSelectionChanged(node);
             }
         }
 
         protected override TreeViewItem BuildRoot() {
             m_NextId = 0;
-            this.m_ValueToNode.Clear();
+            m_ValueToNode.Clear();
             var root = new TreeViewItem(m_NextId++, -1);
             root.children = new List<TreeViewItem>();
-            if (this.m_Node != null) {
-                root.AddChild(this.build(this.m_Node, false));
+            if (m_Node != null) {
+                root.AddChild(build(m_Node, false));
             }
 
             SetupDepthsFromParentsAndChildren(root);
@@ -131,16 +131,16 @@ namespace Unity.UIWidgets.debugger {
             var item = new InspectorTreeItem(node, m_NextId++);
             inProperty = inProperty || node.isProperty;
             if (!inProperty && node.valueRef != null) {
-                this.m_ValueToNode[node.valueRef] = item;
+                m_ValueToNode[node.valueRef] = item;
             }
 
             foreach (var propertyNode in node.inlineProperties) {
-                item.AddChild(this.build(propertyNode, inProperty));
+                item.AddChild(build(propertyNode, inProperty));
             }
 
             var children = node.children;
             foreach (var childNode in children) {
-                item.AddChild(this.build(childNode, inProperty));
+                item.AddChild(build(childNode, inProperty));
             }
 
             return item;
@@ -182,11 +182,11 @@ namespace Unity.UIWidgets.debugger {
 
         public override string displayName {
             get {
-                if (this.node.showName && !string.IsNullOrEmpty(this.node.name)) {
-                    return $"{this.node.name}{this.node.separator} {this.node.description}";
+                if (node.showName && !string.IsNullOrEmpty(node.name)) {
+                    return $"{node.name}{node.separator} {node.description}";
                 }
 
-                return this.node.description;
+                return node.description;
             }
         }
     }

@@ -77,23 +77,23 @@ namespace Unity.UIWidgets.material {
 
         public EdgeInsets _paddingIncludingDecoration {
             get {
-                if (this.decoration == null || this.decoration.padding == null) {
-                    return this.padding;
+                if (decoration == null || decoration.padding == null) {
+                    return padding;
                 }
 
-                EdgeInsets decorationPadding = this.decoration.padding;
-                if (this.padding == null) {
+                EdgeInsets decorationPadding = decoration.padding;
+                if (padding == null) {
                     return decorationPadding;
                 }
 
-                return this.padding.add(decorationPadding);
+                return padding.add(decorationPadding);
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Decoration>("bg", this.decoration, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Decoration>("bg", decoration, defaultValue: null));
         }
 
         public override State createState() {
@@ -106,32 +106,32 @@ namespace Unity.UIWidgets.material {
         InkDecoration _ink;
 
         void _handleRemoved() {
-            this._ink = null;
+            _ink = null;
         }
 
         public override void deactivate() {
-            this._ink?.dispose();
-            D.assert(this._ink == null);
+            _ink?.dispose();
+            D.assert(_ink == null);
             base.deactivate();
         }
 
         public Widget _build(BuildContext context, BoxConstraints constraints) {
-            if (this._ink == null) {
-                this._ink = new InkDecoration(
-                    decoration: this.widget.decoration,
+            if (_ink == null) {
+                _ink = new InkDecoration(
+                    decoration: widget.decoration,
                     configuration: ImageUtils.createLocalImageConfiguration(context),
                     controller: Material.of(context),
                     referenceBox: (RenderBox) context.findRenderObject(),
-                    onRemoved: this._handleRemoved
+                    onRemoved: _handleRemoved
                 );
             }
             else {
-                this._ink.decoration = this.widget.decoration;
-                this._ink.configuration = ImageUtils.createLocalImageConfiguration(context);
+                _ink.decoration = widget.decoration;
+                _ink.configuration = ImageUtils.createLocalImageConfiguration(context);
             }
 
-            Widget current = this.widget.child;
-            EdgeInsets effectivePadding = this.widget._paddingIncludingDecoration;
+            Widget current = widget.child;
+            EdgeInsets effectivePadding = widget._paddingIncludingDecoration;
             if (effectivePadding != null) {
                 current = new Padding(
                     padding: effectivePadding,
@@ -144,12 +144,12 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             Widget result = new LayoutBuilder(
-                builder: this._build
+                builder: _build
             );
-            if (this.widget.width != null || this.widget.height != null) {
+            if (widget.width != null || widget.height != null) {
                 result = new SizedBox(
-                    width: this.widget.width,
-                    height: this.widget.height,
+                    width: widget.width,
+                    height: widget.height,
                     child: result);
             }
 
@@ -170,7 +170,7 @@ namespace Unity.UIWidgets.material {
             D.assert(decoration != null);
             D.assert(controller != null);
             D.assert(referenceBox != null);
-            this._configuration = configuration;
+            _configuration = configuration;
             this.decoration = decoration;
             this.controller.addInkFeature(this);
         }
@@ -178,62 +178,62 @@ namespace Unity.UIWidgets.material {
         BoxPainter _painter;
 
         public Decoration decoration {
-            get { return this._decoration; }
+            get { return _decoration; }
             set {
-                if (value == this._decoration) {
+                if (value == _decoration) {
                     return;
                 }
 
-                this._decoration = value;
-                this._painter?.Dispose();
-                this._painter = this._decoration?.createBoxPainter(this._handleChanged);
-                this.controller.markNeedsPaint();
+                _decoration = value;
+                _painter?.Dispose();
+                _painter = _decoration?.createBoxPainter(_handleChanged);
+                controller.markNeedsPaint();
             }
         }
 
         Decoration _decoration;
 
         public ImageConfiguration configuration {
-            get { return this._configuration; }
+            get { return _configuration; }
             set {
                 D.assert(value != null);
-                if (value == this._configuration) {
+                if (value == _configuration) {
                     return;
                 }
 
-                this._configuration = value;
-                this.controller.markNeedsPaint();
+                _configuration = value;
+                controller.markNeedsPaint();
             }
         }
 
         ImageConfiguration _configuration;
 
         void _handleChanged() {
-            this.controller.markNeedsPaint();
+            controller.markNeedsPaint();
         }
 
         public override void dispose() {
-            this._painter?.Dispose();
+            _painter?.Dispose();
             base.dispose();
         }
 
         protected override void paintFeature(Canvas canvas, Matrix3 transform) {
-            if (this._painter == null) {
+            if (_painter == null) {
                 return;
             }
 
             Offset originOffset = transform.getAsTranslation();
-            ImageConfiguration sizedConfiguration = this.configuration.copyWith(
-                size: this.referenceBox.size);
+            ImageConfiguration sizedConfiguration = configuration.copyWith(
+                size: referenceBox.size);
 
             if (originOffset == null) {
                 canvas.save();
                 canvas.concat(transform);
-                this._painter.paint(canvas, Offset.zero, sizedConfiguration);
+                _painter.paint(canvas, Offset.zero, sizedConfiguration);
                 canvas.restore();
             }
             else {
-                this._painter.paint(canvas, originOffset, sizedConfiguration);
+                _painter.paint(canvas, originOffset, sizedConfiguration);
             }
         }
     }

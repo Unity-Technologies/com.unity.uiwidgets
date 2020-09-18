@@ -70,10 +70,10 @@ namespace Unity.UIWidgets.painting {
         public RRect toRRect(Rect rect) {
             return RRect.fromRectAndCorners(
                 rect,
-                topLeft: this.topLeft,
-                topRight: this.topRight,
-                bottomRight: this.bottomRight,
-                bottomLeft: this.bottomLeft
+                topLeft: topLeft,
+                topRight: topRight,
+                bottomRight: bottomRight,
+                bottomLeft: bottomLeft
             );
         }
 
@@ -161,10 +161,10 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return this.topLeft.Equals(other.topLeft)
-                   && this.topRight.Equals(other.topRight)
-                   && this.bottomRight.Equals(other.bottomRight)
-                   && this.bottomLeft.Equals(other.bottomLeft);
+            return topLeft.Equals(other.topLeft)
+                   && topRight.Equals(other.topRight)
+                   && bottomRight.Equals(other.bottomRight)
+                   && bottomLeft.Equals(other.bottomLeft);
         }
 
         public override bool Equals(object obj) {
@@ -176,19 +176,19 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((BorderRadius) obj);
+            return Equals((BorderRadius) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.topLeft.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.topRight.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.bottomRight.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.bottomLeft.GetHashCode();
+                var hashCode = topLeft.GetHashCode();
+                hashCode = (hashCode * 397) ^ topRight.GetHashCode();
+                hashCode = (hashCode * 397) ^ bottomRight.GetHashCode();
+                hashCode = (hashCode * 397) ^ bottomLeft.GetHashCode();
                 return hashCode;
             }
         }
@@ -203,15 +203,15 @@ namespace Unity.UIWidgets.painting {
 
         public override string ToString() {
             string visual = null;
-            if (this.topLeft == this.topRight &&
-                this.topRight == this.bottomLeft &&
-                this.bottomLeft == this.bottomRight) {
-                if (this.topLeft != Radius.zero) {
-                    if (this.topLeft.x == this.topLeft.y) {
-                        visual = $"BorderRadius.circular({this.topLeft.x:F1})";
+            if (topLeft == topRight &&
+                topRight == bottomLeft &&
+                bottomLeft == bottomRight) {
+                if (topLeft != Radius.zero) {
+                    if (topLeft.x == topLeft.y) {
+                        visual = $"BorderRadius.circular({topLeft.x:F1})";
                     }
                     else {
-                        visual = $"BorderRadius.all({this.topLeft})";
+                        visual = $"BorderRadius.all({topLeft})";
                     }
                 }
             }
@@ -219,35 +219,35 @@ namespace Unity.UIWidgets.painting {
                 var result = new StringBuilder();
                 result.Append("BorderRadius.only(");
                 bool comma = false;
-                if (this.topLeft != Radius.zero) {
-                    result.Append($"topLeft: {this.topLeft}");
+                if (topLeft != Radius.zero) {
+                    result.Append($"topLeft: {topLeft}");
                     comma = true;
                 }
 
-                if (this.topRight != Radius.zero) {
+                if (topRight != Radius.zero) {
                     if (comma) {
                         result.Append(", ");
                     }
 
-                    result.Append($"topRight: {this.topRight}");
+                    result.Append($"topRight: {topRight}");
                     comma = true;
                 }
 
-                if (this.bottomLeft != Radius.zero) {
+                if (bottomLeft != Radius.zero) {
                     if (comma) {
                         result.Append(", ");
                     }
 
-                    result.Append($"bottomLeft: {this.bottomLeft}");
+                    result.Append($"bottomLeft: {bottomLeft}");
                     comma = true;
                 }
 
-                if (this.bottomRight != Radius.zero) {
+                if (bottomRight != Radius.zero) {
                     if (comma) {
                         result.Append(", ");
                     }
 
-                    result.Append($"bottomRight: {this.bottomRight}");
+                    result.Append($"bottomRight: {bottomRight}");
                 }
 
                 result.Append(")");

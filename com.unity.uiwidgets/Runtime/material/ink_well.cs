@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.material {
         ) : base(controller: controller, referenceBox: referenceBox, onRemoved: onRemoved) {
             D.assert(controller != null);
             D.assert(referenceBox != null);
-            this._color = color;
+            _color = color;
         }
 
         public virtual void confirm() {
@@ -26,14 +26,14 @@ namespace Unity.UIWidgets.material {
         }
 
         public Color color {
-            get { return this._color; }
+            get { return _color; }
             set {
-                if (value == this._color) {
+                if (value == _color) {
                     return;
                 }
 
-                this._color = value;
-                this.controller.markNeedsPaint();
+                _color = value;
+                controller.markNeedsPaint();
             }
         }
 
@@ -141,33 +141,33 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             List<string> gestures = new List<string>();
-            if (this.onTap != null) {
+            if (onTap != null) {
                 gestures.Add("tap");
             }
 
-            if (this.onDoubleTap != null) {
+            if (onDoubleTap != null) {
                 gestures.Add("double tap");
             }
 
-            if (this.onLongPress != null) {
+            if (onLongPress != null) {
                 gestures.Add("long press");
             }
 
-            if (this.onTapDown != null) {
+            if (onTapDown != null) {
                 gestures.Add("tap down");
             }
 
-            if (this.onTapCancel != null) {
+            if (onTapCancel != null) {
                 gestures.Add("tap cancel");
             }
 
             properties.add(new EnumerableProperty<string>("gestures", gestures, ifEmpty: "<none>"));
-            properties.add(new DiagnosticsProperty<bool>("containedInkWell", this.containedInkWell,
+            properties.add(new DiagnosticsProperty<bool>("containedInkWell", containedInkWell,
                 level: DiagnosticLevel.fine));
             properties.add(new DiagnosticsProperty<BoxShape>(
                 "highlightShape",
-                this.highlightShape,
-                description: (this.containedInkWell ? "clipped to" : "") + this.highlightShape,
+                highlightShape,
+                description: (containedInkWell ? "clipped to" : "") + highlightShape,
                 showName: false
             ));
         }
@@ -180,79 +180,79 @@ namespace Unity.UIWidgets.material {
         InkHighlight _lastHighlight;
 
         protected override bool wantKeepAlive {
-            get { return this._lastHighlight != null || (this._splashes != null && this._splashes.isNotEmpty()); }
+            get { return _lastHighlight != null || (_splashes != null && _splashes.isNotEmpty()); }
         }
 
         public void updateHighlight(bool value) {
-            if (value == (this._lastHighlight != null && this._lastHighlight.active)) {
+            if (value == (_lastHighlight != null && _lastHighlight.active)) {
                 return;
             }
 
             if (value) {
-                if (this._lastHighlight == null) {
-                    RenderBox referenceBox = (RenderBox) this.context.findRenderObject();
-                    this._lastHighlight = new InkHighlight(
-                        controller: Material.of(this.context),
+                if (_lastHighlight == null) {
+                    RenderBox referenceBox = (RenderBox) context.findRenderObject();
+                    _lastHighlight = new InkHighlight(
+                        controller: Material.of(context),
                         referenceBox: referenceBox,
-                        color: this.widget.highlightColor ?? Theme.of(this.context).highlightColor,
-                        shape: this.widget.highlightShape,
-                        borderRadius: this.widget.borderRadius,
-                        customBorder: this.widget.customBorder,
-                        rectCallback: this.widget.getRectCallback(referenceBox),
-                        onRemoved: this._handleInkHighlightRemoval);
-                    this.updateKeepAlive();
+                        color: widget.highlightColor ?? Theme.of(context).highlightColor,
+                        shape: widget.highlightShape,
+                        borderRadius: widget.borderRadius,
+                        customBorder: widget.customBorder,
+                        rectCallback: widget.getRectCallback(referenceBox),
+                        onRemoved: _handleInkHighlightRemoval);
+                    updateKeepAlive();
                 }
                 else {
-                    this._lastHighlight.activate();
+                    _lastHighlight.activate();
                 }
             }
             else {
-                this._lastHighlight.deactivate();
+                _lastHighlight.deactivate();
             }
 
-            D.assert(value == (this._lastHighlight != null && this._lastHighlight.active));
-            if (this.widget.onHighlightChanged != null) {
-                this.widget.onHighlightChanged(value);
+            D.assert(value == (_lastHighlight != null && _lastHighlight.active));
+            if (widget.onHighlightChanged != null) {
+                widget.onHighlightChanged(value);
             }
         }
 
         void _handleInkHighlightRemoval() {
-            D.assert(this._lastHighlight != null);
-            this._lastHighlight = null;
-            this.updateKeepAlive();
+            D.assert(_lastHighlight != null);
+            _lastHighlight = null;
+            updateKeepAlive();
         }
 
         InteractiveInkFeature _createInkFeature(TapDownDetails details) {
-            MaterialInkController inkController = Material.of(this.context);
-            RenderBox referenceBox = (RenderBox) this.context.findRenderObject();
+            MaterialInkController inkController = Material.of(context);
+            RenderBox referenceBox = (RenderBox) context.findRenderObject();
             Offset position = referenceBox.globalToLocal(details.globalPosition);
-            Color color = this.widget.splashColor ?? Theme.of(this.context).splashColor;
-            RectCallback rectCallback = this.widget.containedInkWell ? this.widget.getRectCallback(referenceBox) : null;
-            BorderRadius borderRadius = this.widget.borderRadius;
-            ShapeBorder customBorder = this.widget.customBorder;
+            Color color = widget.splashColor ?? Theme.of(context).splashColor;
+            RectCallback rectCallback = widget.containedInkWell ? widget.getRectCallback(referenceBox) : null;
+            BorderRadius borderRadius = widget.borderRadius;
+            ShapeBorder customBorder = widget.customBorder;
 
             InteractiveInkFeature splash = null;
 
             void OnRemoved() {
-                if (this._splashes != null) {
-                    D.assert(this._splashes.Contains(splash));
-                    this._splashes.Remove(splash);
-                    if (this._currentSplash == splash) {
-                        this._currentSplash = null;
+                if (_splashes != null) {
+                    D.assert(_splashes.Contains(splash));
+                    _splashes.Remove(splash);
+                    if (_currentSplash == splash) {
+                        _currentSplash = null;
                     }
 
-                    this.updateKeepAlive();
+                    updateKeepAlive();
                 }
             }
 
-            splash = (this.widget.splashFactory ?? Theme.of(this.context).splashFactory).create(
+            splash = (widget.splashFactory ?? Theme.of(context).splashFactory).create(
                 controller: inkController,
                 referenceBox: referenceBox,
                 position: position,
                 color: color,
-                containedInkWell: this.widget.containedInkWell,
+                containedInkWell: widget.containedInkWell,
                 rectCallback: rectCallback,
-                radius: this.widget.radius,
+                radius: widget.radius,
                 borderRadius: borderRadius,
                 customBorder: customBorder,
                 onRemoved: OnRemoved);
@@ -262,97 +262,97 @@ namespace Unity.UIWidgets.material {
 
 
         void _handleTapDown(TapDownDetails details) {
-            InteractiveInkFeature splash = this._createInkFeature(details);
-            this._splashes = this._splashes ?? new HashSet<InteractiveInkFeature>();
-            this._splashes.Add(splash);
-            this._currentSplash = splash;
-            if (this.widget.onTapDown != null) {
-                this.widget.onTapDown(details);
+            InteractiveInkFeature splash = _createInkFeature(details);
+            _splashes = _splashes ?? new HashSet<InteractiveInkFeature>();
+            _splashes.Add(splash);
+            _currentSplash = splash;
+            if (widget.onTapDown != null) {
+                widget.onTapDown(details);
             }
 
-            this.updateKeepAlive();
-            this.updateHighlight(true);
+            updateKeepAlive();
+            updateHighlight(true);
         }
 
         void _handleTap(BuildContext context) {
-            this._currentSplash?.confirm();
-            this._currentSplash = null;
-            this.updateHighlight(false);
-            if (this.widget.onTap != null) {
-                this.widget.onTap();
+            _currentSplash?.confirm();
+            _currentSplash = null;
+            updateHighlight(false);
+            if (widget.onTap != null) {
+                widget.onTap();
             }
         }
 
         void _handleTapCancel() {
-            this._currentSplash?.cancel();
-            this._currentSplash = null;
-            if (this.widget.onTapCancel != null) {
-                this.widget.onTapCancel();
+            _currentSplash?.cancel();
+            _currentSplash = null;
+            if (widget.onTapCancel != null) {
+                widget.onTapCancel();
             }
 
-            this.updateHighlight(false);
+            updateHighlight(false);
         }
 
         void _handleDoubleTap() {
-            this._currentSplash?.confirm();
-            this._currentSplash = null;
-            if (this.widget.onDoubleTap != null) {
-                this.widget.onDoubleTap();
+            _currentSplash?.confirm();
+            _currentSplash = null;
+            if (widget.onDoubleTap != null) {
+                widget.onDoubleTap();
             }
         }
 
         void _handleLongPress(BuildContext context) {
-            this._currentSplash?.confirm();
-            this._currentSplash = null;
-            if (this.widget.onLongPress != null) {
-                this.widget.onLongPress();
+            _currentSplash?.confirm();
+            _currentSplash = null;
+            if (widget.onLongPress != null) {
+                widget.onLongPress();
             }
         }
 
         public override void deactivate() {
-            if (this._splashes != null) {
-                HashSet<InteractiveInkFeature> splashes = this._splashes;
-                this._splashes = null;
+            if (_splashes != null) {
+                HashSet<InteractiveInkFeature> splashes = _splashes;
+                _splashes = null;
                 foreach (InteractiveInkFeature splash in splashes) {
                     splash.dispose();
                 }
 
-                this._currentSplash = null;
+                _currentSplash = null;
             }
 
-            D.assert(this._currentSplash == null);
-            this._lastHighlight?.dispose();
-            this._lastHighlight = null;
+            D.assert(_currentSplash == null);
+            _lastHighlight?.dispose();
+            _lastHighlight = null;
             base.deactivate();
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(this.widget.debugCheckContext(context));
+            D.assert(widget.debugCheckContext(context));
             base.build(context);
             ThemeData themeData = Theme.of(context);
-            if (this._lastHighlight != null) {
-                this._lastHighlight.color = this.widget.highlightColor ?? themeData.highlightColor;
+            if (_lastHighlight != null) {
+                _lastHighlight.color = widget.highlightColor ?? themeData.highlightColor;
             }
 
-            if (this._currentSplash != null) {
-                this._currentSplash.color = this.widget.splashColor ?? themeData.splashColor;
+            if (_currentSplash != null) {
+                _currentSplash.color = widget.splashColor ?? themeData.splashColor;
             }
 
-            bool enabled = this.widget.onTap != null || this.widget.onDoubleTap != null ||
-                           this.widget.onLongPress != null;
+            bool enabled = widget.onTap != null || widget.onDoubleTap != null ||
+                           widget.onLongPress != null;
 
             return new GestureDetector(
-                onTapDown: enabled ? (GestureTapDownCallback) this._handleTapDown : null,
-                onTap: enabled ? (GestureTapCallback) (() => this._handleTap(context)) : null,
-                onTapCancel: enabled ? (GestureTapCancelCallback) this._handleTapCancel : null,
-                onDoubleTap: this.widget.onDoubleTap != null
-                    ? (GestureDoubleTapCallback) (details => this._handleDoubleTap())
+                onTapDown: enabled ? (GestureTapDownCallback) _handleTapDown : null,
+                onTap: enabled ? (GestureTapCallback) (() => _handleTap(context)) : null,
+                onTapCancel: enabled ? (GestureTapCancelCallback) _handleTapCancel : null,
+                onDoubleTap: widget.onDoubleTap != null
+                    ? (GestureDoubleTapCallback) (details => _handleDoubleTap())
                     : null,
-                onLongPress: this.widget.onLongPress != null
-                    ? (GestureLongPressCallback) (() => this._handleLongPress(context))
+                onLongPress: widget.onLongPress != null
+                    ? (GestureLongPressCallback) (() => _handleLongPress(context))
                     : null,
                 behavior: HitTestBehavior.opaque,
-                child: this.widget.child
+                child: widget.child
             );
         }
     }

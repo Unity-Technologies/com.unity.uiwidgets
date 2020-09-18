@@ -104,44 +104,44 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             ButtonThemeData buttonTheme = ButtonTheme.of(context);
             return new _OutlineButton(
-                onPressed: this.onPressed,
+                onPressed: onPressed,
                 brightness: buttonTheme.getBrightness(this),
-                textTheme: this.textTheme,
+                textTheme: textTheme,
                 textColor: buttonTheme.getTextColor(this),
                 disabledTextColor: buttonTheme.getDisabledTextColor(this),
-                color: this.color,
+                color: color,
                 highlightColor: buttonTheme.getHighlightColor(this),
                 splashColor: buttonTheme.getSplashColor(this),
                 highlightElevation: buttonTheme.getHighlightElevation(this),
-                borderSide: this.borderSide,
-                disabledBorderColor: this.disabledBorderColor,
-                highlightedBorderColor: this.highlightedBorderColor ?? buttonTheme.colorScheme.primary,
+                borderSide: borderSide,
+                disabledBorderColor: disabledBorderColor,
+                highlightedBorderColor: highlightedBorderColor ?? buttonTheme.colorScheme.primary,
                 padding: buttonTheme.getPadding(this),
                 shape: buttonTheme.getShape(this),
-                clipBehavior: this.clipBehavior,
-                child: this.child
+                clipBehavior: clipBehavior,
+                child: child
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new ObjectFlagProperty<VoidCallback>("onPressed", this.onPressed, ifNull: "disabled"));
-            properties.add(new DiagnosticsProperty<ButtonTextTheme?>("textTheme", this.textTheme, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("textColor", this.textColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("disabledTextColor", this.disabledTextColor,
+            properties.add(new ObjectFlagProperty<VoidCallback>("onPressed", onPressed, ifNull: "disabled"));
+            properties.add(new DiagnosticsProperty<ButtonTextTheme?>("textTheme", textTheme, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("textColor", textColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("disabledTextColor", disabledTextColor,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("highlightColor", this.highlightColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("splashColor", this.splashColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<float?>("highlightElevation", this.highlightElevation,
+            properties.add(new DiagnosticsProperty<Color>("color", color, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("highlightColor", highlightColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("splashColor", splashColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<float?>("highlightElevation", highlightElevation,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<BorderSide>("borderSide", this.borderSide, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("disabledBorderColor", this.disabledBorderColor,
+            properties.add(new DiagnosticsProperty<BorderSide>("borderSide", borderSide, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("disabledBorderColor", disabledBorderColor,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("highlightedBorderColor", this.highlightedBorderColor,
+            properties.add(new DiagnosticsProperty<Color>("highlightedBorderColor", highlightedBorderColor,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding, defaultValue: null));
-            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", this.shape, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: null));
+            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: null));
         }
     }
 
@@ -254,7 +254,7 @@ namespace Unity.UIWidgets.material {
         public readonly Widget child;
 
         public bool enabled {
-            get { return this.onPressed != null; }
+            get { return onPressed != null; }
         }
 
         public override State createState() {
@@ -273,18 +273,18 @@ namespace Unity.UIWidgets.material {
             base.initState();
 
 
-            this._controller = new AnimationController(
+            _controller = new AnimationController(
                 duration: OutlineButtonConstants._kPressDuration,
                 vsync: this
             );
-            this._fillAnimation = new CurvedAnimation(
-                parent: this._controller,
+            _fillAnimation = new CurvedAnimation(
+                parent: _controller,
                 curve: new Interval(0.0f, 0.5f,
                     curve: Curves.fastOutSlowIn
                 )
             );
-            this._elevationAnimation = new CurvedAnimation(
-                parent: this._controller,
+            _elevationAnimation = new CurvedAnimation(
+                parent: _controller,
                 curve: new Interval(0.5f, 0.5f),
                 reverseCurve: new Interval(1.0f, 1.0f)
             );
@@ -293,101 +293,101 @@ namespace Unity.UIWidgets.material {
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             _OutlineButton oldWidget = _oldWidget as _OutlineButton;
             base.didUpdateWidget(oldWidget);
-            if (this._pressed && !this.widget.enabled) {
-                this._pressed = false;
-                this._controller.reverse();
+            if (_pressed && !widget.enabled) {
+                _pressed = false;
+                _controller.reverse();
             }
         }
 
         void _handleHighlightChanged(bool value) {
-            if (this._pressed == value) {
+            if (_pressed == value) {
                 return;
             }
 
-            this.setState(() => {
-                this._pressed = value;
+            setState(() => {
+                _pressed = value;
                 if (value) {
-                    this._controller.forward();
+                    _controller.forward();
                 }
                 else {
-                    this._controller.reverse();
+                    _controller.reverse();
                 }
             });
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
         Color _getFillColor() {
-            if (this.widget.highlightElevation == null || this.widget.highlightElevation == 0.0) {
+            if (widget.highlightElevation == null || widget.highlightElevation == 0.0) {
                 return Colors.transparent;
             }
 
-            Color color = this.widget.color ?? Theme.of(this.context).canvasColor;
+            Color color = widget.color ?? Theme.of(context).canvasColor;
             ColorTween colorTween = new ColorTween(
                 begin: color.withAlpha(0x00),
                 end: color.withAlpha(0xFF)
             );
-            return colorTween.evaluate(this._fillAnimation);
+            return colorTween.evaluate(_fillAnimation);
         }
 
         BorderSide _getOutline() {
-            if (this.widget.borderSide?.style == BorderStyle.none) {
-                return this.widget.borderSide;
+            if (widget.borderSide?.style == BorderStyle.none) {
+                return widget.borderSide;
             }
 
-            Color specifiedColor = this.widget.enabled
-                ? (this._pressed ? this.widget.highlightedBorderColor : null) ?? this.widget.borderSide?.color
-                : this.widget.disabledBorderColor;
+            Color specifiedColor = widget.enabled
+                ? (_pressed ? widget.highlightedBorderColor : null) ?? widget.borderSide?.color
+                : widget.disabledBorderColor;
 
-            Color themeColor = Theme.of(this.context).colorScheme.onSurface.withOpacity(0.12f);
+            Color themeColor = Theme.of(context).colorScheme.onSurface.withOpacity(0.12f);
 
             return new BorderSide(
                 color: specifiedColor ?? themeColor,
-                width: this.widget.borderSide?.width ?? 1.0f
+                width: widget.borderSide?.width ?? 1.0f
             );
         }
 
         float _getHighlightElevation() {
-            if (this.widget.highlightElevation == null || this.widget.highlightElevation == 0.0f) {
+            if (widget.highlightElevation == null || widget.highlightElevation == 0.0f) {
                 return 0.0f;
             }
 
             return new FloatTween(
                 begin: 0.0f,
-                end: this.widget.highlightElevation ?? 2.0f
-            ).evaluate(this._elevationAnimation);
+                end: widget.highlightElevation ?? 2.0f
+            ).evaluate(_elevationAnimation);
         }
 
         public override Widget build(BuildContext context) {
             return new AnimatedBuilder(
-                animation: this._controller,
+                animation: _controller,
                 builder: (BuildContext _context, Widget child) => {
                     return new RaisedButton(
-                        textColor: this.widget.textColor,
-                        disabledTextColor: this.widget.disabledTextColor,
-                        color: this._getFillColor(),
-                        splashColor: this.widget.splashColor,
-                        highlightColor: this.widget.highlightColor,
+                        textColor: widget.textColor,
+                        disabledTextColor: widget.disabledTextColor,
+                        color: _getFillColor(),
+                        splashColor: widget.splashColor,
+                        highlightColor: widget.highlightColor,
                         disabledColor: Colors.transparent,
-                        onPressed: this.widget.onPressed,
+                        onPressed: widget.onPressed,
                         elevation: 0.0f,
                         disabledElevation: 0.0f,
-                        highlightElevation: this._getHighlightElevation(),
-                        onHighlightChanged: this._handleHighlightChanged,
+                        highlightElevation: _getHighlightElevation(),
+                        onHighlightChanged: _handleHighlightChanged,
                         padding:
-                        this.widget.padding,
+                        widget.padding,
                         shape: new _OutlineBorder(
-                            shape: this.widget.shape,
-                            side: this._getOutline()
+                            shape: widget.shape,
+                            side: _getOutline()
                         ),
                         clipBehavior:
-                        this.widget.clipBehavior,
+                        widget.clipBehavior,
                         animationDuration: OutlineButtonConstants._kElevationDuration,
                         child:
-                        this.widget.child
+                        widget.child
                     );
                 }
             );
@@ -409,21 +409,21 @@ namespace Unity.UIWidgets.material {
         public readonly BorderSide side;
 
         public override EdgeInsets dimensions {
-            get { return EdgeInsets.all(this.side.width); }
+            get { return EdgeInsets.all(side.width); }
         }
 
         public override ShapeBorder scale(float t) {
             return new _OutlineBorder(
-                shape: this.shape.scale(t),
-                side: this.side.scale(t)
+                shape: shape.scale(t),
+                side: side.scale(t)
             );
         }
 
         public override ShapeBorder lerpFrom(ShapeBorder a, float t) {
             if (a is _OutlineBorder) {
                 return new _OutlineBorder(
-                    side: BorderSide.lerp((a as _OutlineBorder).side, this.side, t),
-                    shape: lerp((a as _OutlineBorder).shape, this.shape, t)
+                    side: BorderSide.lerp((a as _OutlineBorder).side, side, t),
+                    shape: lerp((a as _OutlineBorder).shape, shape, t)
                 );
             }
 
@@ -433,8 +433,8 @@ namespace Unity.UIWidgets.material {
         public override ShapeBorder lerpTo(ShapeBorder b, float t) {
             if (b is _OutlineBorder) {
                 return new _OutlineBorder(
-                    side: BorderSide.lerp(this.side, (b as _OutlineBorder).side, t),
-                    shape: lerp(this.shape, (b as _OutlineBorder).shape, t)
+                    side: BorderSide.lerp(side, (b as _OutlineBorder).side, t),
+                    shape: lerp(shape, (b as _OutlineBorder).shape, t)
                 );
             }
 
@@ -442,19 +442,19 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Path getInnerPath(Rect rect) {
-            return this.shape.getInnerPath(rect.deflate(this.side.width));
+            return shape.getInnerPath(rect.deflate(side.width));
         }
 
         public override Path getOuterPath(Rect rect) {
-            return this.shape.getOuterPath(rect);
+            return shape.getOuterPath(rect);
         }
 
         public override void paint(Canvas canvas, Rect rect) {
-            switch (this.side.style) {
+            switch (side.style) {
                 case BorderStyle.none:
                     break;
                 case BorderStyle.solid:
-                    canvas.drawPath(this.shape.getOuterPath(rect), this.side.toPaint());
+                    canvas.drawPath(shape.getOuterPath(rect), side.toPaint());
                     break;
             }
         }
@@ -468,7 +468,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public bool Equals(_OutlineBorder other) {
-            return this.side == other.side && this.shape == other.shape;
+            return side == other.side && shape == other.shape;
         }
 
         public override bool Equals(object obj) {
@@ -480,15 +480,15 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_OutlineBorder) obj);
+            return Equals((_OutlineBorder) obj);
         }
 
         public override int GetHashCode() {
-            return (this.shape.GetHashCode() * 397) ^ this.side.GetHashCode();
+            return (shape.GetHashCode() * 397) ^ side.GetHashCode();
         }
     }
 }

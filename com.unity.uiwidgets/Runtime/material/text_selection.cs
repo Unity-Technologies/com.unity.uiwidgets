@@ -41,22 +41,22 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             List<Widget> items = new List<Widget>();
             MaterialLocalizations localizations = MaterialLocalizations.of(context);
-            if (this.handleCut != null) {
-                items.Add(new FlatButton(child: new Text(localizations.cutButtonLabel), onPressed: this.handleCut));
+            if (handleCut != null) {
+                items.Add(new FlatButton(child: new Text(localizations.cutButtonLabel), onPressed: handleCut));
             }
 
-            if (this.handleCopy != null) {
-                items.Add(new FlatButton(child: new Text(localizations.copyButtonLabel), onPressed: this.handleCopy));
+            if (handleCopy != null) {
+                items.Add(new FlatButton(child: new Text(localizations.copyButtonLabel), onPressed: handleCopy));
             }
 
-            if (this.handlePaste != null) {
+            if (handlePaste != null) {
                 
-                items.Add(new FlatButton(child: new Text(localizations.pasteButtonLabel), onPressed: this.handlePaste));
+                items.Add(new FlatButton(child: new Text(localizations.pasteButtonLabel), onPressed: handlePaste));
             }
 
-            if (this.handleSelectAll != null) {
+            if (handleSelectAll != null) {
                 items.Add(new FlatButton(child: new Text(localizations.selectAllButtonLabel), 
-                    onPressed: this.handleSelectAll));
+                    onPressed: handleSelectAll));
             }
 
             return new Material(
@@ -85,7 +85,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Offset getPositionForChild(Size size, Size childSize) {
-            Offset globalPosition = this.globalEditableRegion.topLeft + this.position;
+            Offset globalPosition = globalEditableRegion.topLeft + position;
 
             float x = globalPosition.dx - childSize.width / 2.0f;
             float y = globalPosition.dy - childSize.height;
@@ -93,22 +93,22 @@ namespace Unity.UIWidgets.material {
             if (x < MaterialUtils._kToolbarScreenPadding) {
                 x = MaterialUtils._kToolbarScreenPadding;
             }
-            else if (x + childSize.width > this.screenSize.width - MaterialUtils._kToolbarScreenPadding) {
-                x = this.screenSize.width - childSize.width - MaterialUtils._kToolbarScreenPadding;
+            else if (x + childSize.width > screenSize.width - MaterialUtils._kToolbarScreenPadding) {
+                x = screenSize.width - childSize.width - MaterialUtils._kToolbarScreenPadding;
             }
 
             if (y < MaterialUtils._kToolbarScreenPadding) {
                 y = MaterialUtils._kToolbarScreenPadding;
             }
-            else if (y + childSize.height > this.screenSize.height - MaterialUtils._kToolbarScreenPadding) {
-                y = this.screenSize.height - childSize.height - MaterialUtils._kToolbarScreenPadding;
+            else if (y + childSize.height > screenSize.height - MaterialUtils._kToolbarScreenPadding) {
+                y = screenSize.height - childSize.height - MaterialUtils._kToolbarScreenPadding;
             }
 
             return new Offset(x, y);
         }
 
         public override bool shouldRelayout(SingleChildLayoutDelegate oldDelegate) {
-            return this.position != ((_TextSelectionToolbarLayout) oldDelegate).position;
+            return position != ((_TextSelectionToolbarLayout) oldDelegate).position;
         }
     }
 
@@ -121,7 +121,7 @@ namespace Unity.UIWidgets.material {
 
         public override void paint(Canvas canvas, Size size) {
             Paint paint = new Paint();
-            paint.color = this.color;
+            paint.color = color;
             float radius = size.width / 2.0f;
             canvas.drawCircle(new Offset(radius, radius), radius, paint);
             canvas.drawRect(Rect.fromLTWH(0.0f, 0.0f, radius, radius), paint);
@@ -129,7 +129,7 @@ namespace Unity.UIWidgets.material {
 
 
         public override bool shouldRepaint(CustomPainter oldPainter) {
-            return this.color != ((_TextSelectionHandlePainter) oldPainter).color;
+            return color != ((_TextSelectionHandlePainter) oldPainter).color;
         }
     }
 
@@ -152,17 +152,17 @@ namespace Unity.UIWidgets.material {
                         position
                     ),
                     child: new _TextSelectionToolbar(
-                        handleCut: this.canCut(selectionDelegate)
-                            ? () => this.handleCut(selectionDelegate)
+                        handleCut: canCut(selectionDelegate)
+                            ? () => handleCut(selectionDelegate)
                             : (VoidCallback) null,
-                        handleCopy: this.canCopy(selectionDelegate)
-                            ? () => this.handleCopy(selectionDelegate)
+                        handleCopy: canCopy(selectionDelegate)
+                            ? () => handleCopy(selectionDelegate)
                             : (VoidCallback) null,
-                        handlePaste: this.canPaste(selectionDelegate)
-                            ? () => this.handlePaste(selectionDelegate)
+                        handlePaste: canPaste(selectionDelegate)
+                            ? () => handlePaste(selectionDelegate)
                             : (VoidCallback) null,
-                        handleSelectAll: this.canSelectAll(selectionDelegate)
-                            ? () => this.handleSelectAll(selectionDelegate)
+                        handleSelectAll: canSelectAll(selectionDelegate)
+                            ? () => handleSelectAll(selectionDelegate)
                             : (VoidCallback) null
                     )
                 )

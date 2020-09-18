@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override AnimationController createAnimationController() {
             var controller = base.createAnimationController();
-            if (this.settings.isInitialRoute) {
+            if (settings.isInitialRoute) {
                 controller.setValue(1.0f);
             }
 
@@ -57,7 +57,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(pageBuilder != null);
             this.opaque = opaque;
             this.pageBuilder = pageBuilder;
-            this.transitionsBuilder = transitionsBuilder ?? this._defaultTransitionsBuilder;
+            this.transitionsBuilder = transitionsBuilder ?? _defaultTransitionsBuilder;
             this.transitionDuration = transitionDuration ?? TimeSpan.FromMilliseconds(300);
             this.barrierColor = barrierColor;
             this.maintainState = maintainState;
@@ -81,12 +81,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            return this.pageBuilder(context, animation, secondaryAnimation);
+            return pageBuilder(context, animation, secondaryAnimation);
         }
 
         public override Widget buildTransitions(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation, Widget child) {
-            return this.transitionsBuilder(context, animation, secondaryAnimation, child);
+            return transitionsBuilder(context, animation, secondaryAnimation, child);
         }
     }
 }

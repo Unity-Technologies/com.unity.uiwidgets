@@ -3,24 +3,36 @@ using System.Collections.Generic;
 
 namespace Unity.UIWidgets.async2 {
     public struct FutureOr {
-        public object value;
-        public Future future;
+        public object v;
+        public Future f;
 
-        public bool isFuture => future != null;
+        public bool isFuture => f != null;
 
-        public static FutureOr withValue(object value) {
-            return new FutureOr {value = value};
+        public static FutureOr value(object value) {
+            return new FutureOr {v = value};
         }
 
-        public static FutureOr withFuture(Future future) {
-            return new FutureOr {future = future};
+        public static FutureOr future(Future future) {
+            return new FutureOr {f = future};
         }
 
-        public static readonly FutureOr nullValue = withValue(null);
+        public static readonly FutureOr nil = value(null);
+        
+        public static implicit operator FutureOr(Future f) => future(f);
+        
+        public static implicit operator FutureOr(bool v) => value(v);
+        
+        public static implicit operator FutureOr(int v) => value(v);
+        
+        public static implicit operator FutureOr(long v) => value(v);
+        
+        public static implicit operator FutureOr(float v) => value(v);
+        
+        public static implicit operator FutureOr(double v) => value(v);
+        
+        public static implicit operator FutureOr(string v) => value(v);
 
-        public static readonly FutureOr trueValue = withValue(true);
-
-        public static readonly FutureOr falseValue = withValue(false);
+        public static implicit operator FutureOr(byte[] v) => value(v);
     }
 
     public abstract class Future {
@@ -62,7 +74,7 @@ namespace Unity.UIWidgets.async2 {
             try {
                 var result = computation();
                 if (result.isFuture) {
-                    return result.future;
+                    return result.f;
                 }
                 else {
                     return _Future.value(result);
@@ -104,7 +116,7 @@ namespace Unity.UIWidgets.async2 {
             _Future result = new _Future();
             Timer.create(duration, () => {
                 if (computation == null) {
-                    result._complete(FutureOr.nullValue);
+                    result._complete();
                 }
                 else {
                     try {
@@ -133,9 +145,9 @@ namespace Unity.UIWidgets.async2 {
                         foreach (var value in values) {
                             if (value != null) {
                                 // Ensure errors from cleanUp are uncaught.
-                                Future.sync(() => {
+                                sync(() => {
                                     cleanUp(value);
-                                    return FutureOr.nullValue;
+                                    return FutureOr.nil;
                                 });
                             }
                         }
@@ -153,7 +165,7 @@ namespace Unity.UIWidgets.async2 {
                     result._completeError(error);
                 }
 
-                return FutureOr.nullValue;
+                return FutureOr.nil;
             };
 
             try {
@@ -172,9 +184,9 @@ namespace Unity.UIWidgets.async2 {
                         else {
                             if (cleanUp != null && value != null) {
                                 // Ensure errors from cleanUp are uncaught.
-                                Future.sync(() => {
+                                sync(() => {
                                     cleanUp((T) value);
-                                    return FutureOr.nullValue;
+                                    return FutureOr.nil;
                                 });
                             }
 
@@ -183,7 +195,7 @@ namespace Unity.UIWidgets.async2 {
                             }
                         }
 
-                        return FutureOr.nullValue;
+                        return FutureOr.nil;
                     }, onError: handleError);
                     // Increment the 'remaining' after the call to 'then'.
                     // If that call throws, we don't expect any future callback from
@@ -192,7 +204,7 @@ namespace Unity.UIWidgets.async2 {
                 }
 
                 if (remaining == 0) {
-                    return Future.value(FutureOr.withValue(new List<T>()));
+                    return value(FutureOr.value(new List<T>()));
                 }
 
                 values = new List<T>(remaining);
@@ -223,13 +235,13 @@ namespace Unity.UIWidgets.async2 {
         public static Future any(IEnumerable<Future> futures) {
             var completer = Completer.sync();
             Func<object, FutureOr> onValue = (object value) => {
-                if (!completer.isCompleted) completer.complete(FutureOr.withValue(value));
-                return FutureOr.nullValue;
+                if (!completer.isCompleted) completer.complete(FutureOr.value(value));
+                return FutureOr.nil;
             };
 
             Func<Exception, FutureOr> onError = (Exception error) => {
                 if (!completer.isCompleted) completer.completeError(error);
-                return FutureOr.nullValue;
+                return FutureOr.nil;
             };
 
             foreach (var future in futures) {
@@ -242,15 +254,15 @@ namespace Unity.UIWidgets.async2 {
         public static Future forEach<T>(IEnumerable<T> elements, Func<T, FutureOr> action) {
             var iterator = elements.GetEnumerator();
             return doWhile(() => {
-                if (!iterator.MoveNext()) return FutureOr.falseValue;
+                if (!iterator.MoveNext()) return false;
 
                 var result = action(iterator.Current);
-                if (result.isFuture) return FutureOr.withFuture(result.future.then(_kTrue));
-                return FutureOr.trueValue;
+                if (result.isFuture) return FutureOr.future(result.f.then(_kTrue));
+                return true;
             });
         }
 
-        static readonly Func<object, FutureOr> _kTrue = (_) => FutureOr.trueValue;
+        static readonly Func<object, FutureOr> _kTrue = (_) => true;
 
         public static Future doWhile(Func<FutureOr> action) {
             _Future doneSignal = new _Future();
@@ -274,20 +286,20 @@ namespace Unity.UIWidgets.async2 {
                     }
 
                     if (result.isFuture) {
-                        result.future.then((value) => {
+                        result.f.then((value) => {
                             nextIteration((bool) value);
-                            return FutureOr.nullValue;
+                            return FutureOr.nil;
                         }, onError: error => {
                             doneSignal._completeError(error);
-                            return FutureOr.nullValue;
+                            return FutureOr.nil;
                         });
                         return null;
                     }
 
-                    keepGoing = (bool) result.value;
+                    keepGoing = (bool) result.v;
                 }
 
-                doneSignal._complete(FutureOr.nullValue);
+                doneSignal._complete();
                 return null;
             });
 
@@ -299,13 +311,48 @@ namespace Unity.UIWidgets.async2 {
 
         public abstract Future catchError(Func<Exception, FutureOr> onError, Func<Exception, bool> test = null);
 
-        public abstract Future whenComplete(Func<object> action);
+        public abstract Future whenComplete(Func<FutureOr> action);
 
         // public abstract Stream asStream();
 
         public abstract Future timeout(TimeSpan timeLimit, Func<FutureOr> onTimeout = null);
+
+        public Future<T> to<T>() {
+            if (this is Future<T>) {
+                return (Future<T>) this;
+            }
+
+            return new Future<T>(this);
+        }
     }
 
+    public class Future<T> : Future {
+        readonly Future _future;
+
+        public Future(Future future) {
+            _future = future;
+        }
+
+        public override Future then(Func<object, FutureOr> onValue, Func<Exception, FutureOr> onError = null) {
+            return _future.then(onValue, onError);
+        }
+
+        public Future<R> then<R>(Func<T, FutureOr> onValue, Func<Exception, FutureOr> onError = null) {
+            return _future.then(obj => onValue((T) obj), onError).to<R>();
+        }
+
+        public override Future catchError(Func<Exception, FutureOr> onError, Func<Exception, bool> test = null) {
+            return _future.catchError(onError, test);
+        }
+
+        public override Future whenComplete(Func<FutureOr> action) {
+            return _future.whenComplete(action);
+        }
+
+        public override Future timeout(TimeSpan timeLimit, Func<FutureOr> onTimeout = null) {
+            return _future.timeout(timeLimit, onTimeout);
+        }
+    }
 
     public class TimeoutException : Exception {
         public readonly TimeSpan? duration;
@@ -328,7 +375,7 @@ namespace Unity.UIWidgets.async2 {
         public static Completer sync() => new _SyncCompleter();
 
         public abstract Future future { get; }
-
+        
         public abstract void complete(FutureOr value = default);
 
         public abstract void completeError(Exception error);

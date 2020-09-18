@@ -12,41 +12,41 @@ namespace Unity.UIWidgets.ui {
             StyledRuns _runs;
 
             public void nextTo(int index) {
-                if (this._charIndex > index) {
+                if (_charIndex > index) {
                     throw new ArgumentException("can to move back");
                 }
 
-                this._charIndex = index;
-                while (this._runIndex < this._runs.size) {
-                    var run = this._runs.getRun(this._runIndex);
-                    if (run.start <= this._charIndex && this._charIndex < run.end) {
+                _charIndex = index;
+                while (_runIndex < _runs.size) {
+                    var run = _runs.getRun(_runIndex);
+                    if (run.start <= _charIndex && _charIndex < run.end) {
                         break;
                     }
 
-                    this._runIndex++;
+                    _runIndex++;
                 }
             }
 
             public Run run {
-                get { return this._runs.getRun(this._runIndex); }
+                get { return _runs.getRun(_runIndex); }
             }
 
             public int charIndex {
-                get { return this._charIndex; }
+                get { return _charIndex; }
             }
 
             public int runIndex {
-                get { return this._runIndex; }
+                get { return _runIndex; }
             }
 
             public bool end {
-                get { return this.runIndex >= this._runs.size; }
+                get { return runIndex >= _runs.size; }
             }
 
             internal RunIterator(StyledRuns runs) {
-                this._charIndex = 0;
-                this._runIndex = 0;
-                this._runs = runs;
+                _charIndex = 0;
+                _runIndex = 0;
+                _runs = runs;
             }
         }
 
@@ -78,34 +78,34 @@ namespace Unity.UIWidgets.ui {
         }
 
         public StyledRuns(StyledRuns other) {
-            this.styles = new List<TextStyle>(other.styles);
-            this.runs = new List<IndexedRun>(other.runs);
+            styles = new List<TextStyle>(other.styles);
+            runs = new List<IndexedRun>(other.runs);
         }
 
         public int addStyle(TextStyle style) {
-            var styleIndex = this.styles.Count;
-            this.styles.Add(style);
+            var styleIndex = styles.Count;
+            styles.Add(style);
             return styleIndex;
         }
 
         public TextStyle getStyle(int index) {
-            return this.styles[index];
+            return styles[index];
         }
 
         public void startRun(int styleIndex, int start) {
-            this.endRunIfNeeded(start);
-            this.runs.Add(new IndexedRun(styleIndex, start, start));
+            endRunIfNeeded(start);
+            runs.Add(new IndexedRun(styleIndex, start, start));
         }
 
         public void endRunIfNeeded(int end) {
-            var lastIndex = this.runs.Count - 1;
+            var lastIndex = runs.Count - 1;
             if (lastIndex < 0) {
                 return;
             }
 
-            var run = this.runs[lastIndex];
+            var run = runs[lastIndex];
             if (run.start == end) {
-                this.runs.RemoveAt(lastIndex);
+                runs.RemoveAt(lastIndex);
             }
             else {
                 run.end = end;
@@ -113,8 +113,8 @@ namespace Unity.UIWidgets.ui {
         }
 
         public Run getRun(int index) {
-            var run = this.runs[index];
-            return new Run(this.styles[run.styleIndex], run.start, run.end);
+            var run = runs[index];
+            return new Run(styles[run.styleIndex], run.start, run.end);
         }
 
         public RunIterator iterator() {
@@ -122,7 +122,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public int size {
-            get { return this.runs.Count; }
+            get { return runs.Count; }
         }
     }
 }

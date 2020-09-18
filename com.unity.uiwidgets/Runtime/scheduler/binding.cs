@@ -29,9 +29,9 @@ namespace Unity.UIWidgets.scheduler {
 
                         return true;
                     });
-                    this.debugStack = debugCurrentCallbackStack;
+                    debugStack = debugCurrentCallbackStack;
                 } else {
-                    this.debugStack = "skipped, use StackTraceUtility.ExtractStackTrace() if you need it"; // StackTraceUtility.ExtractStackTrace();
+                    debugStack = "skipped, use StackTraceUtility.ExtractStackTrace() if you need it"; // StackTraceUtility.ExtractStackTrace();
                 }
 
                 return true;
@@ -76,19 +76,19 @@ namespace Unity.UIWidgets.scheduler {
         internal static SchedulerBinding _instance;
 
         public SchedulerBinding() {
-            Window.instance.onBeginFrame += this._handleBeginFrame;
-            Window.instance.onDrawFrame += this._handleDrawFrame;
+            Window.instance.onBeginFrame += _handleBeginFrame;
+            Window.instance.onDrawFrame += _handleDrawFrame;
         }
 
         public float timeDilation {
-            get { return this._timeDilation; }
+            get { return _timeDilation; }
             set {
-                if (this._timeDilation == value) {
+                if (_timeDilation == value) {
                     return;
                 }
 
-                this.resetEpoch();
-                this._timeDilation = value;
+                resetEpoch();
+                _timeDilation = value;
             }
         }
 
@@ -99,57 +99,57 @@ namespace Unity.UIWidgets.scheduler {
         readonly HashSet<int> _removedIds = new HashSet<int>();
 
         public int transientCallbackCount {
-            get { return this._transientCallbacks.Count; }
+            get { return _transientCallbacks.Count; }
         }
 
         public int scheduleFrameCallback(FrameCallback callback, bool rescheduling = false) {
-            this.scheduleFrame();
-            this._nextFrameCallbackId += 1;
-            this._transientCallbacks[this._nextFrameCallbackId] =
+            scheduleFrame();
+            _nextFrameCallbackId += 1;
+            _transientCallbacks[_nextFrameCallbackId] =
                 new _FrameCallbackEntry(callback, rescheduling: rescheduling);
-            return this._nextFrameCallbackId;
+            return _nextFrameCallbackId;
         }
 
         public void cancelFrameCallbackWithId(int id) {
             D.assert(id > 0);
-            this._transientCallbacks.Remove(id);
-            this._removedIds.Add(id);
+            _transientCallbacks.Remove(id);
+            _removedIds.Add(id);
         }
 
         readonly List<FrameCallback> _persistentCallbacks = new List<FrameCallback>();
 
         public void addPersistentFrameCallback(FrameCallback callback) {
-            this._persistentCallbacks.Add(callback);
+            _persistentCallbacks.Add(callback);
         }
 
         readonly List<FrameCallback> _postFrameCallbacks = new List<FrameCallback>();
 
         public void addPostFrameCallback(FrameCallback callback) {
-            this._postFrameCallbacks.Add(callback);
+            _postFrameCallbacks.Add(callback);
         }
 
         public bool hasScheduledFrame {
-            get { return this._hasScheduledFrame; }
+            get { return _hasScheduledFrame; }
         }
 
         bool _hasScheduledFrame = false;
 
         public SchedulerPhase schedulerPhase {
-            get { return this._schedulerPhase; }
+            get { return _schedulerPhase; }
         }
 
         SchedulerPhase _schedulerPhase = SchedulerPhase.idle;
 
         public bool framesEnabled {
-            get { return this._framesEnabled; }
+            get { return _framesEnabled; }
             set {
-                if (this._framesEnabled == value) {
+                if (_framesEnabled == value) {
                     return;
                 }
 
-                this._framesEnabled = value;
+                _framesEnabled = value;
                 if (value) {
-                    this.scheduleFrame();
+                    scheduleFrame();
                 }
             }
         }
@@ -157,10 +157,10 @@ namespace Unity.UIWidgets.scheduler {
         bool _framesEnabled = true; // todo: set it to false when app switched to background
 
         public void ensureVisualUpdate() {
-            switch (this.schedulerPhase) {
+            switch (schedulerPhase) {
                 case SchedulerPhase.idle:
                 case SchedulerPhase.postFrameCallbacks:
-                    this.scheduleFrame();
+                    scheduleFrame();
                     return;
                 case SchedulerPhase.transientCallbacks:
                 case SchedulerPhase.midFrameMicrotasks:
@@ -170,37 +170,37 @@ namespace Unity.UIWidgets.scheduler {
         }
 
         public void scheduleFrame() {
-            if (this._hasScheduledFrame || !this._framesEnabled) {
+            if (_hasScheduledFrame || !_framesEnabled) {
                 return;
             }
 
             D.assert(() => {
                 if (scheduler_.debugPrintScheduleFrameStacks) {
-                    Debug.LogFormat("scheduleFrame() called. Current phase is {0}.", this.schedulerPhase);
+                    Debug.LogFormat("scheduleFrame() called. Current phase is {0}.", schedulerPhase);
                 }
 
                 return true;
             });
 
             Window.instance.scheduleFrame();
-            this._hasScheduledFrame = true;
+            _hasScheduledFrame = true;
         }
 
         public void scheduleForcedFrame() {
-            if (this._hasScheduledFrame) {
+            if (_hasScheduledFrame) {
                 return;
             }
 
             D.assert(() => {
                 if (scheduler_.debugPrintScheduleFrameStacks) {
-                    Debug.LogFormat("scheduleForcedFrame() called. Current phase is {0}.", this.schedulerPhase);
+                    Debug.LogFormat("scheduleForcedFrame() called. Current phase is {0}.", schedulerPhase);
                 }
 
                 return true;
             });
 
             Window.instance.scheduleFrame();
-            this._hasScheduledFrame = true;
+            _hasScheduledFrame = true;
         }
 
         TimeSpan? _firstRawTimeStampInEpoch;
@@ -208,19 +208,19 @@ namespace Unity.UIWidgets.scheduler {
         TimeSpan _lastRawTimeStamp = TimeSpan.Zero;
 
         public void resetEpoch() {
-            this._epochStart = this._adjustForEpoch(this._lastRawTimeStamp);
-            this._firstRawTimeStampInEpoch = null;
+            _epochStart = _adjustForEpoch(_lastRawTimeStamp);
+            _firstRawTimeStampInEpoch = null;
         }
 
         TimeSpan _adjustForEpoch(TimeSpan rawTimeStamp) {
-            var rawDurationSinceEpoch = this._firstRawTimeStampInEpoch == null
+            var rawDurationSinceEpoch = _firstRawTimeStampInEpoch == null
                 ? TimeSpan.Zero
-                : rawTimeStamp - this._firstRawTimeStampInEpoch.Value;
-            return new TimeSpan((long) (rawDurationSinceEpoch.Ticks / this.timeDilation) + this._epochStart.Ticks);
+                : rawTimeStamp - _firstRawTimeStampInEpoch.Value;
+            return new TimeSpan((long) (rawDurationSinceEpoch.Ticks / timeDilation) + _epochStart.Ticks);
         }
 
         public TimeSpan currentFrameTimeStamp {
-            get { return this._currentFrameTimeStamp.Value; }
+            get { return _currentFrameTimeStamp.Value; }
         }
 
         TimeSpan? _currentFrameTimeStamp;
@@ -229,23 +229,23 @@ namespace Unity.UIWidgets.scheduler {
         string _debugBanner;
 
         void _handleBeginFrame(TimeSpan rawTimeStamp) {
-            this.handleBeginFrame(rawTimeStamp);
+            handleBeginFrame(rawTimeStamp);
         }
 
         void _handleDrawFrame() {
-            this.handleDrawFrame();
+            handleDrawFrame();
         }
 
         public void handleBeginFrame(TimeSpan? rawTimeStamp) {
-            this._firstRawTimeStampInEpoch = this._firstRawTimeStampInEpoch ?? rawTimeStamp;
-            this._currentFrameTimeStamp = this._adjustForEpoch(rawTimeStamp ?? this._lastRawTimeStamp);
+            _firstRawTimeStampInEpoch = _firstRawTimeStampInEpoch ?? rawTimeStamp;
+            _currentFrameTimeStamp = _adjustForEpoch(rawTimeStamp ?? _lastRawTimeStamp);
 
             if (rawTimeStamp != null) {
-                this._lastRawTimeStamp = rawTimeStamp.Value;
+                _lastRawTimeStamp = rawTimeStamp.Value;
             }
 
             D.assert(() => {
-                this._profileFrameNumber += 1;
+                _profileFrameNumber += 1;
                 return true;
             });
 
@@ -254,68 +254,68 @@ namespace Unity.UIWidgets.scheduler {
                     var frameTimeStampDescription = new StringBuilder();
                     if (rawTimeStamp != null) {
                         _debugDescribeTimeStamp(
-                            this._currentFrameTimeStamp.Value, frameTimeStampDescription);
+                            _currentFrameTimeStamp.Value, frameTimeStampDescription);
                     } else {
                         frameTimeStampDescription.Append("(warm-up frame)");
                     }
 
-                    this._debugBanner =
-                        $"▄▄▄▄▄▄▄▄ Frame {this._profileFrameNumber.ToString().PadRight(7)}   {frameTimeStampDescription.ToString().PadLeft(18)} ▄▄▄▄▄▄▄▄";
+                    _debugBanner =
+                        $"▄▄▄▄▄▄▄▄ Frame {_profileFrameNumber.ToString().PadRight(7)}   {frameTimeStampDescription.ToString().PadLeft(18)} ▄▄▄▄▄▄▄▄";
                     if (scheduler_.debugPrintBeginFrameBanner) {
-                        Debug.Log(this._debugBanner);
+                        Debug.Log(_debugBanner);
                     }
                 }
 
                 return true;
             });
 
-            D.assert(this._schedulerPhase == SchedulerPhase.idle);
-            this._hasScheduledFrame = false;
+            D.assert(_schedulerPhase == SchedulerPhase.idle);
+            _hasScheduledFrame = false;
 
             try {
-                this._schedulerPhase = SchedulerPhase.transientCallbacks;
-                var callbacks = this._transientCallbacks;
-                this._transientCallbacks = new Dictionary<int, _FrameCallbackEntry>();
+                _schedulerPhase = SchedulerPhase.transientCallbacks;
+                var callbacks = _transientCallbacks;
+                _transientCallbacks = new Dictionary<int, _FrameCallbackEntry>();
                 foreach (var entry in callbacks) {
-                    if (!this._removedIds.Contains(entry.Key)) {
-                        this._invokeFrameCallback(
-                            entry.Value.callback, this._currentFrameTimeStamp.Value, entry.Value.debugStack);
+                    if (!_removedIds.Contains(entry.Key)) {
+                        _invokeFrameCallback(
+                            entry.Value.callback, _currentFrameTimeStamp.Value, entry.Value.debugStack);
                     }
                 }
 
-                this._removedIds.Clear();
+                _removedIds.Clear();
             } finally {
-                this._schedulerPhase = SchedulerPhase.midFrameMicrotasks;
+                _schedulerPhase = SchedulerPhase.midFrameMicrotasks;
             }
         }
 
 
         public void handleDrawFrame() {
-            D.assert(this._schedulerPhase == SchedulerPhase.midFrameMicrotasks);
+            D.assert(_schedulerPhase == SchedulerPhase.midFrameMicrotasks);
 
             try {
-                this._schedulerPhase = SchedulerPhase.persistentCallbacks;
-                foreach (FrameCallback callback in this._persistentCallbacks) {
-                    this._invokeFrameCallback(callback, this._currentFrameTimeStamp.Value);
+                _schedulerPhase = SchedulerPhase.persistentCallbacks;
+                foreach (FrameCallback callback in _persistentCallbacks) {
+                    _invokeFrameCallback(callback, _currentFrameTimeStamp.Value);
                 }
 
-                this._schedulerPhase = SchedulerPhase.postFrameCallbacks;
-                var localPostFrameCallbacks = new List<FrameCallback>(this._postFrameCallbacks);
-                this._postFrameCallbacks.Clear();
+                _schedulerPhase = SchedulerPhase.postFrameCallbacks;
+                var localPostFrameCallbacks = new List<FrameCallback>(_postFrameCallbacks);
+                _postFrameCallbacks.Clear();
                 foreach (FrameCallback callback in localPostFrameCallbacks) {
-                    this._invokeFrameCallback(callback, this._currentFrameTimeStamp.Value);
+                    _invokeFrameCallback(callback, _currentFrameTimeStamp.Value);
                 }
             } finally {
-                this._schedulerPhase = SchedulerPhase.idle;
+                _schedulerPhase = SchedulerPhase.idle;
                 D.assert(() => {
                     if (scheduler_.debugPrintEndFrameBanner) {
-                        Debug.Log(new string('▀', this._debugBanner.Length));
+                        Debug.Log(new string('▀', _debugBanner.Length));
                     }
 
-                    this._debugBanner = null;
+                    _debugBanner = null;
                     return true;
                 });
-                this._currentFrameTimeStamp = null;
+                _currentFrameTimeStamp = null;
             }
         }
 

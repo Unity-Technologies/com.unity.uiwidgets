@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.image, other.image) && this.scale.Equals(other.scale);
+            return Equals(image, other.image) && scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
@@ -41,16 +41,16 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ImageInfo) obj);
+            return Equals((ImageInfo) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.image != null ? this.image.GetHashCode() : 0) * 397) ^ this.scale.GetHashCode();
+                return ((image != null ? image.GetHashCode() : 0) * 397) ^ scale.GetHashCode();
             }
         }
 
@@ -63,7 +63,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.image} @ {this.scale}x";
+            return $"{image} @ {scale}x";
         }
     }
 
@@ -83,20 +83,20 @@ namespace Unity.UIWidgets.painting {
         ImageStreamCompleter _completer;
 
         public ImageStreamCompleter completer {
-            get { return this._completer; }
+            get { return _completer; }
         }
 
         List<_ImageListenerPair> _listeners;
 
         public void setCompleter(ImageStreamCompleter value) {
-            D.assert(this._completer == null);
+            D.assert(_completer == null);
 
-            this._completer = value;
-            if (this._listeners != null) {
-                var initialListeners = this._listeners;
-                this._listeners = null;
+            _completer = value;
+            if (_listeners != null) {
+                var initialListeners = _listeners;
+                _listeners = null;
                 foreach (_ImageListenerPair listenerPair in initialListeners) {
-                    this._completer.addListener(
+                    _completer.addListener(
                         listenerPair.listener,
                         listenerPair.errorListener
                     );
@@ -105,53 +105,53 @@ namespace Unity.UIWidgets.painting {
         }
 
         public void addListener(ImageListener listener, ImageErrorListener onError = null) {
-            if (this._completer != null) {
-                this._completer.addListener(listener, onError);
+            if (_completer != null) {
+                _completer.addListener(listener, onError);
                 return;
             }
 
-            if (this._listeners == null) {
-                this._listeners = new List<_ImageListenerPair>();
+            if (_listeners == null) {
+                _listeners = new List<_ImageListenerPair>();
             }
 
-            this._listeners.Add(new _ImageListenerPair {listener = listener, errorListener = onError});
+            _listeners.Add(new _ImageListenerPair {listener = listener, errorListener = onError});
         }
 
         public void removeListener(ImageListener listener) {
-            if (this._completer != null) {
-                this._completer.removeListener(listener);
+            if (_completer != null) {
+                _completer.removeListener(listener);
                 return;
             }
 
-            D.assert(this._listeners != null);
-            for (int i = 0; i < this._listeners.Count; i++) {
-                if (this._listeners[i].listener == listener) {
-                    this._listeners.RemoveAt(i);
+            D.assert(_listeners != null);
+            for (int i = 0; i < _listeners.Count; i++) {
+                if (_listeners[i].listener == listener) {
+                    _listeners.RemoveAt(i);
                     break;
                 }
             }
         }
 
         public object key {
-            get { return this._completer != null ? (object) this._completer : this; }
+            get { return _completer != null ? (object) _completer : this; }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new ObjectFlagProperty<ImageStreamCompleter>(
                 "completer",
-                this._completer,
-                ifPresent: this._completer?.toStringShort(),
+                _completer,
+                ifPresent: _completer?.toStringShort(),
                 ifNull: "unresolved"
             ));
             properties.add(new ObjectFlagProperty<List<_ImageListenerPair>>(
                 "listeners",
-                this._listeners,
-                ifPresent: $"{this._listeners?.Count} listener{(this._listeners?.Count == 1 ? "" : "s")}",
+                _listeners,
+                ifPresent: $"{_listeners?.Count} listener{(_listeners?.Count == 1 ? "" : "s")}",
                 ifNull: "no listeners",
-                level: this._completer != null ? DiagnosticLevel.hidden : DiagnosticLevel.info
+                level: _completer != null ? DiagnosticLevel.hidden : DiagnosticLevel.info
             ));
-            this._completer?.debugFillProperties(properties);
+            _completer?.debugFillProperties(properties);
         }
     }
 
@@ -161,27 +161,27 @@ namespace Unity.UIWidgets.painting {
         public UIWidgetsErrorDetails currentError;
 
         protected bool hasListeners {
-            get { return this._listeners.isNotEmpty(); }
+            get { return _listeners.isNotEmpty(); }
         }
 
         public virtual void addListener(ImageListener listener, ImageErrorListener onError = null) {
-            this._listeners.Add(new _ImageListenerPair {listener = listener, errorListener = onError});
+            _listeners.Add(new _ImageListenerPair {listener = listener, errorListener = onError});
 
-            if (this.currentImage != null) {
+            if (currentImage != null) {
                 try {
-                    listener(this.currentImage, true);
+                    listener(currentImage, true);
                 }
                 catch (Exception ex) {
-                    this.reportError(
+                    reportError(
                         context: "by a synchronously-called image listener",
                         exception: ex
                     );
                 }
             }
 
-            if (this.currentError != null && onError != null) {
+            if (currentError != null && onError != null) {
                 try {
-                    onError(this.currentError.exception);
+                    onError(currentError.exception);
                 }
                 catch (Exception ex) {
                     UIWidgetsError.reportError(
@@ -196,27 +196,27 @@ namespace Unity.UIWidgets.painting {
         }
 
         public virtual void removeListener(ImageListener listener) {
-            for (int i = 0; i < this._listeners.Count; i++) {
-                if (this._listeners[i].listener == listener) {
-                    this._listeners.RemoveAt(i);
+            for (int i = 0; i < _listeners.Count; i++) {
+                if (_listeners[i].listener == listener) {
+                    _listeners.RemoveAt(i);
                     break;
                 }
             }
         }
 
         protected void setImage(ImageInfo image) {
-            this.currentImage = image;
-            if (this._listeners.isEmpty()) {
+            currentImage = image;
+            if (_listeners.isEmpty()) {
                 return;
             }
 
-            var localListeners = this._listeners.Select(l => l.listener).ToList();
+            var localListeners = _listeners.Select(l => l.listener).ToList();
             foreach (var listener in localListeners) {
                 try {
                     listener(image, false);
                 }
                 catch (Exception ex) {
-                    this.reportError(
+                    reportError(
                         context: "by an image listener",
                         exception: ex
                     );
@@ -229,7 +229,7 @@ namespace Unity.UIWidgets.painting {
             Exception exception = null,
             InformationCollector informationCollector = null,
             bool silent = false) {
-            this.currentError = new UIWidgetsErrorDetails(
+            currentError = new UIWidgetsErrorDetails(
                 exception: exception,
                 library: "image resource service",
                 context: context,
@@ -237,10 +237,10 @@ namespace Unity.UIWidgets.painting {
                 silent: silent
             );
 
-            var localErrorListeners = this._listeners.Select(l => l.errorListener).Where(l => l != null).ToList();
+            var localErrorListeners = _listeners.Select(l => l.errorListener).Where(l => l != null).ToList();
 
             if (localErrorListeners.isEmpty()) {
-                UIWidgetsError.reportError(this.currentError);
+                UIWidgetsError.reportError(currentError);
             }
             else {
                 foreach (var errorListener in localErrorListeners) {
@@ -263,11 +263,11 @@ namespace Unity.UIWidgets.painting {
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
             description.add(new DiagnosticsProperty<ImageInfo>(
-                "current", this.currentImage, ifNull: "unresolved", showName: false));
+                "current", currentImage, ifNull: "unresolved", showName: false));
             description.add(new ObjectFlagProperty<List<_ImageListenerPair>>(
                 "listeners",
-                this._listeners,
-                ifPresent: $"{this._listeners.Count} listener{(this._listeners.Count == 1 ? "" : "s")}"
+                _listeners,
+                ifPresent: $"{_listeners.Count} listener{(_listeners.Count == 1 ? "" : "s")}"
             ));
         }
     }
@@ -277,8 +277,8 @@ namespace Unity.UIWidgets.painting {
             InformationCollector informationCollector = null) {
             D.assert(image != null);
 
-            image.Then(result => { this.setImage(result); }).Catch(err => {
-                this.reportError(
+            image.Then(result => { setImage(result); }).Catch(err => {
+                reportError(
                     context: "resolving a single-frame image stream",
                     exception: err,
                     informationCollector: informationCollector,
@@ -296,11 +296,11 @@ namespace Unity.UIWidgets.painting {
         ) {
             D.assert(codec != null);
 
-            this._scale = scale;
-            this._informationCollector = informationCollector;
+            _scale = scale;
+            _informationCollector = informationCollector;
 
-            codec.Then((Action<Codec>) this._handleCodecReady, ex => {
-                this.reportError(
+            codec.Then((Action<Codec>) _handleCodecReady, ex => {
+                reportError(
                     context: "resolving an image codec",
                     exception: ex,
                     informationCollector: informationCollector,
@@ -322,77 +322,77 @@ namespace Unity.UIWidgets.painting {
         bool _frameCallbackScheduled = false;
 
         void _handleCodecReady(Codec codec) {
-            this._codec = codec;
-            D.assert(this._codec != null);
+            _codec = codec;
+            D.assert(_codec != null);
 
-            if (this.hasListeners) {
-                this._decodeNextFrameAndSchedule();
+            if (hasListeners) {
+                _decodeNextFrameAndSchedule();
             }
         }
 
         void _handleAppFrame(TimeSpan timestamp) {
-            this._frameCallbackScheduled = false;
-            if (!this.hasListeners) {
+            _frameCallbackScheduled = false;
+            if (!hasListeners) {
                 return;
             }
 
-            if (this._isFirstFrame() || this._hasFrameDurationPassed(timestamp)) {
-                this._emitFrame(new ImageInfo(image: this._nextFrame.image, scale: this._scale));
-                this._shownTimestamp = timestamp;
-                this._frameDuration = this._nextFrame.duration;
-                this._nextFrame = null;
-                int completedCycles = this._codec.frameCount == 0 ? 0 : this._framesEmitted / this._codec.frameCount;
+            if (_isFirstFrame() || _hasFrameDurationPassed(timestamp)) {
+                _emitFrame(new ImageInfo(image: _nextFrame.image, scale: _scale));
+                _shownTimestamp = timestamp;
+                _frameDuration = _nextFrame.duration;
+                _nextFrame = null;
+                int completedCycles = _codec.frameCount == 0 ? 0 : _framesEmitted / _codec.frameCount;
 
-                if (this._codec.repetitionCount == -1 || completedCycles <= this._codec.repetitionCount) {
-                    this._decodeNextFrameAndSchedule();
+                if (_codec.repetitionCount == -1 || completedCycles <= _codec.repetitionCount) {
+                    _decodeNextFrameAndSchedule();
                 }
 
                 return;
             }
 
-            TimeSpan delay = this._frameDuration.Value - (timestamp - this._shownTimestamp.Value);
+            TimeSpan delay = _frameDuration.Value - (timestamp - _shownTimestamp.Value);
             delay = new TimeSpan((long) (delay.Ticks * scheduler_.timeDilation));
-            this._timer = Window.instance.run(delay, this._scheduleAppFrame);
+            _timer = Window.instance.run(delay, _scheduleAppFrame);
         }
 
         bool _isFirstFrame() {
-            return this._frameDuration == null;
+            return _frameDuration == null;
         }
 
         bool _hasFrameDurationPassed(TimeSpan timestamp) {
-            D.assert(this._shownTimestamp != null);
-            return timestamp - this._shownTimestamp >= this._frameDuration;
+            D.assert(_shownTimestamp != null);
+            return timestamp - _shownTimestamp >= _frameDuration;
         }
 
         void _decodeNextFrameAndSchedule() {
-            var frame = this._codec.getNextFrame();
-            this._nextFrame = frame;
+            var frame = _codec.getNextFrame();
+            _nextFrame = frame;
 
-            if (this._codec.frameCount == 1) {
-                this._emitFrame(new ImageInfo(image: this._nextFrame.image, scale: this._scale));
+            if (_codec.frameCount == 1) {
+                _emitFrame(new ImageInfo(image: _nextFrame.image, scale: _scale));
                 return;
             }
 
-            this._scheduleAppFrame();
+            _scheduleAppFrame();
         }
 
         void _scheduleAppFrame() {
-            if (this._frameCallbackScheduled) {
+            if (_frameCallbackScheduled) {
                 return;
             }
 
-            this._frameCallbackScheduled = true;
-            SchedulerBinding.instance.scheduleFrameCallback(this._handleAppFrame);
+            _frameCallbackScheduled = true;
+            SchedulerBinding.instance.scheduleFrameCallback(_handleAppFrame);
         }
 
         void _emitFrame(ImageInfo imageInfo) {
-            this.setImage(imageInfo);
-            this._framesEmitted += 1;
+            setImage(imageInfo);
+            _framesEmitted += 1;
         }
 
         public override void addListener(ImageListener listener, ImageErrorListener onError = null) {
-            if (!this.hasListeners && this._codec != null) {
-                this._decodeNextFrameAndSchedule();
+            if (!hasListeners && _codec != null) {
+                _decodeNextFrameAndSchedule();
             }
 
             base.addListener(listener, onError: onError);
@@ -400,9 +400,9 @@ namespace Unity.UIWidgets.painting {
 
         public override void removeListener(ImageListener listener) {
             base.removeListener(listener);
-            if (!this.hasListeners) {
-                this._timer?.cancel();
-                this._timer = null;
+            if (!hasListeners) {
+                _timer?.cancel();
+                _timer = null;
             }
         }
     }

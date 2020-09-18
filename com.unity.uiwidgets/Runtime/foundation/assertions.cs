@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.foundation {
             Exception exception = null,
             string library = "UIWidgets framework",
             string context = null,
-            EnumerableFilter<string> stackFilter = null,
+            IterableFilter<string> stackFilter = null,
             InformationCollector informationCollector = null,
             bool silent = false
         ) {
@@ -29,15 +29,15 @@ namespace Unity.UIWidgets.foundation {
         public readonly Exception exception;
         public readonly string library;
         public readonly string context;
-        public readonly EnumerableFilter<string> stackFilter;
+        public readonly IterableFilter<string> stackFilter;
         public readonly InformationCollector informationCollector;
         public readonly bool silent;
 
         public string exceptionAsString() {
             string longMessage = null;
 
-            if (this.exception != null) {
-                longMessage = this.exception.Message;
+            if (exception != null) {
+                longMessage = exception.Message;
             }
 
             if (longMessage != null) {
@@ -53,10 +53,10 @@ namespace Unity.UIWidgets.foundation {
 
         public override string ToString() {
             var buffer = new StringBuilder();
-            if (this.library.isNotEmpty() || this.context.isNotEmpty()) {
-                if (this.library.isNotEmpty()) {
-                    buffer.AppendFormat("Error caught by {0}", this.library);
-                    if (this.context.isNotEmpty()) {
+            if (library.isNotEmpty() || context.isNotEmpty()) {
+                if (library.isNotEmpty()) {
+                    buffer.AppendFormat("Error caught by {0}", library);
+                    if (context.isNotEmpty()) {
                         buffer.Append(", ");
                     }
                 }
@@ -64,8 +64,8 @@ namespace Unity.UIWidgets.foundation {
                     buffer.Append("Exception ");
                 }
 
-                if (this.context.isNotEmpty()) {
-                    buffer.AppendFormat("thrown {0}", this.context);
+                if (context.isNotEmpty()) {
+                    buffer.AppendFormat("thrown {0}", context);
                 }
 
                 buffer.Append(". ");
@@ -74,15 +74,15 @@ namespace Unity.UIWidgets.foundation {
                 buffer.Append("An error was caught. ");
             }
 
-            buffer.AppendLine(this.exceptionAsString());
-            if (this.informationCollector != null) {
-                this.informationCollector(buffer);
+            buffer.AppendLine(exceptionAsString());
+            if (informationCollector != null) {
+                informationCollector(buffer);
             }
 
-            if (this.exception.StackTrace != null) {
-                IEnumerable<string> stackLines = this.exception.StackTrace.TrimEnd().Split('\n');
-                if (this.stackFilter != null) {
-                    stackLines = this.stackFilter(stackLines);
+            if (exception.StackTrace != null) {
+                IEnumerable<string> stackLines = exception.StackTrace.TrimEnd().Split('\n');
+                if (stackFilter != null) {
+                    stackLines = stackFilter(stackLines);
                 }
                 else {
                     stackLines = UIWidgetsError.defaultStackFilter(stackLines);

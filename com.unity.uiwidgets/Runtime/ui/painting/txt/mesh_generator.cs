@@ -27,7 +27,7 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return this.textBlobId == other.textBlobId && this.scale.Equals(other.scale);
+            return textBlobId == other.textBlobId && scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
@@ -39,16 +39,16 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((MeshKey) obj);
+            return Equals((MeshKey) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return (this.textBlobId.GetHashCode() * 397) ^ this.scale.GetHashCode();
+                return (textBlobId.GetHashCode() * 397) ^ scale.GetHashCode();
             }
         }
 
@@ -61,7 +61,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override string ToString() {
-            return $"{nameof(this.textBlobId)}: {this.textBlobId}, {nameof(this.scale)}: {this.scale}";
+            return $"{nameof(textBlobId)}: {textBlobId}, {nameof(scale)}: {scale}";
         }
     }
 
@@ -84,16 +84,16 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            ObjectPool<MeshKey>.release(this.key);
-            ObjectPool<uiMeshMesh>.release(this.mesh);
+            ObjectPool<MeshKey>.release(key);
+            ObjectPool<uiMeshMesh>.release(mesh);
         }
 
         public long timeToLive {
-            get { return this._timeToLive; }
+            get { return _timeToLive; }
         }
 
         public void touch(long timeTolive = 5) {
-            this._timeToLive = timeTolive + TextBlobMesh.frameCount;
+            _timeToLive = timeTolive + TextBlobMesh.frameCount;
         }
     }
 
@@ -113,10 +113,10 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override void clear() {
-            ObjectPool<uiMeshMesh>.release(this._mesh);
-            this._mesh = null;
-            this._resolved = false;
-            this.textBlob = null;
+            ObjectPool<uiMeshMesh>.release(_mesh);
+            _mesh = null;
+            _resolved = false;
+            textBlob = null;
         }
 
         public static TextBlobMesh create(TextBlob textBlob, float scale, uiMatrix3 matrix) {
@@ -155,16 +155,16 @@ namespace Unity.UIWidgets.ui {
         }
 
         public uiMeshMesh resolveMesh() {
-            if (this._resolved) {
-                return this._mesh;
+            if (_resolved) {
+                return _mesh;
             }
 
-            this._resolved = true;
+            _resolved = true;
 
-            var style = this.textBlob.Value.style;
+            var style = textBlob.Value.style;
 
-            var text = this.textBlob.Value.text;
-            var key = MeshKey.create(this.textBlob.Value.instanceId, this.scale);
+            var text = textBlob.Value.text;
+            var key = MeshKey.create(textBlob.Value.instanceId, scale);
             var fontInfo = FontManager.instance.getOrCreate(style.fontFamily, style.fontWeight, style.fontStyle);
             var font = fontInfo.font;
 
@@ -172,12 +172,12 @@ namespace Unity.UIWidgets.ui {
             if (meshInfo != null && meshInfo.textureVersion == fontInfo.textureVersion) {
                 ObjectPool<MeshKey>.release(key);
                 meshInfo.touch();
-                this._mesh = meshInfo.mesh.transform(this.matrix);
-                return this._mesh;
+                _mesh = meshInfo.mesh.transform(matrix);
+                return _mesh;
             }
 
             // Handling Emoji
-            char startingChar = text[this.textBlob.Value.textOffset];
+            char startingChar = text[textBlob.Value.textOffset];
             if (char.IsHighSurrogate(startingChar) || EmojiUtils.isSingleCharEmoji(startingChar)) {
                 var vert = ObjectPool<uiList<Vector3>>.alloc();
                 var tri = ObjectPool<uiList<int>>.alloc();
@@ -190,13 +190,13 @@ namespace Unity.UIWidgets.ui {
                 var minY = minMaxRect.top;
                 var maxY = minMaxRect.bottom;
 
-                for (int i = 0; i < this.textBlob.Value.textSize; i++) {
-                    char a = text[this.textBlob.Value.textOffset + i];
+                for (int i = 0; i < textBlob.Value.textSize; i++) {
+                    char a = text[textBlob.Value.textOffset + i];
                     int code = a;
                     if (char.IsHighSurrogate(a)) {
-                        D.assert(i + 1 < this.textBlob.Value.textSize);
-                        D.assert(this.textBlob.Value.textOffset + i + 1 < this.textBlob.Value.text.Length);
-                        char b = text[this.textBlob.Value.textOffset + i + 1];
+                        D.assert(i + 1 < textBlob.Value.textSize);
+                        D.assert(textBlob.Value.textOffset + i + 1 < textBlob.Value.text.Length);
+                        char b = text[textBlob.Value.textOffset + i + 1];
                         D.assert(char.IsLowSurrogate(b));
                         code = char.ConvertToUtf32(a, b);
                     }
@@ -206,7 +206,7 @@ namespace Unity.UIWidgets.ui {
 
                     var uvRect = EmojiUtils.getUVRect(code);
 
-                    var positionX = this.textBlob.Value.getPositionX(i);
+                    var positionX = textBlob.Value.getPositionX(i);
 
                     int baseIndex = vert.Count;
                     vert.Add(new Vector3(positionX + minX, minY, 0));
@@ -238,12 +238,12 @@ namespace Unity.UIWidgets.ui {
 
                 _meshes[key] = MeshInfo.create(key, meshMesh, 0);
 
-                this._mesh = meshMesh.transform(this.matrix);
-                return this._mesh;
+                _mesh = meshMesh.transform(matrix);
+                return _mesh;
             }
 
-            var length = this.textBlob.Value.textSize;
-            var fontSizeToLoad = Mathf.CeilToInt(style.UnityFontSize * this.scale);
+            var length = textBlob.Value.textSize;
+            var fontSizeToLoad = Mathf.CeilToInt(style.UnityFontSize * scale);
 
             var vertices = ObjectPool<uiList<Vector3>>.alloc();
             vertices.SetCapacity(length * 4);
@@ -255,9 +255,9 @@ namespace Unity.UIWidgets.ui {
             uv.SetCapacity(length * 4);
 
             for (int charIndex = 0; charIndex < length; ++charIndex) {
-                var ch = text[charIndex + this.textBlob.Value.textOffset];
+                var ch = text[charIndex + textBlob.Value.textOffset];
                 // first char as origin for mesh position 
-                var positionX = this.textBlob.Value.getPositionX(charIndex);
+                var positionX = textBlob.Value.getPositionX(charIndex);
                 if (LayoutUtils.isWordSpace(ch) || LayoutUtils.isLineEndSpace(ch) || ch == '\t') {
                     continue;
                 }
@@ -268,10 +268,10 @@ namespace Unity.UIWidgets.ui {
 
                 font.getGlyphInfo(ch, out var glyphInfo, fontSizeToLoad, style.UnityFontStyle);
 
-                var minX = glyphInfo.minX / this.scale;
-                var maxX = glyphInfo.maxX / this.scale;
-                var minY = -glyphInfo.maxY / this.scale;
-                var maxY = -glyphInfo.minY / this.scale;
+                var minX = glyphInfo.minX / scale;
+                var maxX = glyphInfo.maxX / scale;
+                var minY = -glyphInfo.maxY / scale;
+                var maxY = -glyphInfo.minY / scale;
 
                 var baseIndex = vertices.Count;
 
@@ -294,7 +294,7 @@ namespace Unity.UIWidgets.ui {
             }
 
             if (vertices.Count == 0) {
-                this._mesh = null;
+                _mesh = null;
                 ObjectPool<uiList<Vector3>>.release(vertices);
                 ObjectPool<uiList<Vector2>>.release(uv);
                 ObjectPool<uiList<int>>.release(triangles);
@@ -311,8 +311,8 @@ namespace Unity.UIWidgets.ui {
 
             _meshes[key] = MeshInfo.create(key, mesh, fontInfo.textureVersion);
 
-            this._mesh = mesh.transform(this.matrix);
-            return this._mesh;
+            _mesh = mesh.transform(matrix);
+            return _mesh;
         }
     }
 }

@@ -9,15 +9,15 @@ namespace Unity.UIWidgets.ui {
 
         public FontInfo(Font font) {
             this.font = font;
-            this._textureVersion = 0;
+            _textureVersion = 0;
         }
 
         public int textureVersion {
-            get { return this._textureVersion; }
+            get { return _textureVersion; }
         }
 
         public void onTextureRebuilt() {
-            this._textureVersion++;
+            _textureVersion++;
         }
     }
 
@@ -30,7 +30,7 @@ namespace Unity.UIWidgets.ui {
         public static readonly FontManager instance = new FontManager();
 
         FontManager() {
-            Font.textureRebuilt += this.onFontTextureRebuilt;
+            Font.textureRebuilt += onFontTextureRebuilt;
         }
 
         public void addFont(Font font, string familyName,
@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.ui {
             D.assert(font.dynamic, () => $"adding font which is not dynamic is not allowed {font.name}");
             font.hideFlags = HideFlags.DontSave & ~HideFlags.DontSaveInBuild;
 
-            var fonts = this._getFonts(fontWeight.index, fontStyle);
+            var fonts = _getFonts(fontWeight.index, fontStyle);
             fonts.TryGetValue(familyName, out var current);
             D.assert(current == null || current.font == font,
                 () => $"font with key {familyName} {fontWeight} {fontStyle} already exists");
@@ -51,9 +51,9 @@ namespace Unity.UIWidgets.ui {
 
         Dictionary<string, FontInfo> _getFonts(int fontWeight, FontStyle fontStyle) {
             var index = fontWeight * 2 + (int) fontStyle;
-            var fonts = this._fonts[index];
+            var fonts = _fonts[index];
             if (fonts == null) {
-                fonts = this._fonts[index] = new Dictionary<string, FontInfo>();
+                fonts = _fonts[index] = new Dictionary<string, FontInfo>();
             }
 
             return fonts;
@@ -62,14 +62,14 @@ namespace Unity.UIWidgets.ui {
         internal FontInfo getOrCreate(string familyName, FontWeight fontWeight, FontStyle fontStyle) {
             fontWeight = fontWeight ?? FontWeight.normal;
 
-            var fonts = this._getFonts(fontWeight.index, fontStyle);
+            var fonts = _getFonts(fontWeight.index, fontStyle);
             if (fonts.TryGetValue(familyName, out var fontInfo)) {
                 return fontInfo;
             }
 
             // fallback to normal weight & style
             if (fontWeight.index != FontWeight.normal.index || fontStyle != FontStyle.normal) {
-                fontInfo = this.getOrCreate(familyName, FontWeight.normal, FontStyle.normal);
+                fontInfo = getOrCreate(familyName, FontWeight.normal, FontStyle.normal);
                 if (fontInfo != null) {
                     return fontInfo;
                 }
@@ -87,7 +87,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         void onFontTextureRebuilt(Font font) {
-            foreach (var fontInfos in this._fonts) {
+            foreach (var fontInfos in _fonts) {
                 if (fontInfos != null) {
                     foreach (var f in fontInfos.Values) {
                         if (f.font == font) {

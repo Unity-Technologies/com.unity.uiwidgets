@@ -16,49 +16,49 @@ namespace Unity.UIWidgets.ui {
             D.assert(!noDispose || !isAsset && bundle == null);
             D.assert(isAsset || bundle == null);
 
-            this._texture = texture;
-            this._noDispose = noDispose;
-            this._isAsset = isAsset;
-            this._bundle = bundle;
-            this._isDynamic = isDynamic;
+            _texture = texture;
+            _noDispose = noDispose;
+            _isAsset = isAsset;
+            _bundle = bundle;
+            _isDynamic = isDynamic;
         }
 
         public bool valid {
-            get { return this._texture != null; }
+            get { return _texture != null; }
         }
 
         public int width {
-            get { return this._texture != null ? this._texture.width : 0; }
+            get { return _texture != null ? _texture.width : 0; }
         }
 
         public int height {
-            get { return this._texture != null ? this._texture.height : 0; }
+            get { return _texture != null ? _texture.height : 0; }
         }
 
         public Texture texture {
-            get { return this._texture; }
+            get { return _texture; }
         }
 
         public bool isDynamic {
-            get { return this._isDynamic; }
+            get { return _isDynamic; }
         }
 
         ~Image() {
-            this._dispose(true);
+            _dispose(true);
         }
 
         void _dispose(bool finalizer) {
-            if (this._noDispose) {
-                this._texture = null;
-                this._bundle = null;
+            if (_noDispose) {
+                _texture = null;
+                _bundle = null;
                 return;
             }
 
-            if (this._isAsset) {
-                var t = this._texture;
-                this._texture = null;
-                var b = this._bundle;
-                this._bundle = null;
+            if (_isAsset) {
+                var t = _texture;
+                _texture = null;
+                var b = _bundle;
+                _bundle = null;
 
                 if (b == null) {
                     if (finalizer) {
@@ -80,8 +80,8 @@ namespace Unity.UIWidgets.ui {
                 }
             }
             else {
-                var t = this._texture;
-                this._texture = null;
+                var t = _texture;
+                _texture = null;
 
                 if (finalizer) {
                     // make sure no ref back to this in finalizer
@@ -94,7 +94,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void Dispose() {
-            this._dispose(false);
+            _dispose(false);
             GC.SuppressFinalize(this);
         }
 
@@ -107,7 +107,7 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            return Equals(this._texture, other._texture);
+            return Equals(_texture, other._texture);
         }
 
         public override bool Equals(object obj) {
@@ -119,15 +119,15 @@ namespace Unity.UIWidgets.ui {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((Image) obj);
+            return Equals((Image) obj);
         }
 
         public override int GetHashCode() {
-            return (this._texture != null ? this._texture.GetHashCode() : 0);
+            return (_texture != null ? _texture.GetHashCode() : 0);
         }
 
         public static bool operator ==(Image left, Image right) {
@@ -139,7 +139,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public override string ToString() {
-            return $"[{this.width}\u00D7{this.height}]";
+            return $"[{width}\u00D7{height}]";
         }
     }
 }

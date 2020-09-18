@@ -12,18 +12,18 @@ namespace Unity.UIWidgets.rendering {
         public RenderPerformanceOverlay(
             int optionsMask = 0
         ) {
-            this._optionMask = optionsMask;
+            _optionMask = optionsMask;
         }
 
         public int optionsMask {
-            get { return this._optionMask; }
+            get { return _optionMask; }
             set {
-                if (value == this._optionMask) {
+                if (value == _optionMask) {
                     return;
                 }
 
-                this._optionMask = value;
-                this.markNeedsPaint();
+                _optionMask = value;
+                markNeedsPaint();
             }
         }
 
@@ -50,7 +50,7 @@ namespace Unity.UIWidgets.rendering {
                 const float kDefaultGraphHeight = 80.0f;
                 float result = 20f;
 
-                if ((this.optionsMask | (1 << (int) PerformanceOverlayOption.drawFrameCost)) > 0) {
+                if ((optionsMask | (1 << (int) PerformanceOverlayOption.drawFrameCost)) > 0) {
                     result += kDefaultGraphHeight;
                 }
 
@@ -59,22 +59,22 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            return this._intrinsicHeight;
+            return _intrinsicHeight;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            return this._intrinsicHeight;
+            return _intrinsicHeight;
         }
 
         protected override void performResize() {
-            this.size = this.constraints.constrain(new Size(float.PositiveInfinity, this._intrinsicHeight));
+            size = constraints.constrain(new Size(float.PositiveInfinity, _intrinsicHeight));
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            D.assert(this.needsCompositing);
+            D.assert(needsCompositing);
             context.addLayer(new PerformanceOverlayLayer(
-                overlayRect: Rect.fromLTWH(offset.dx, offset.dy, this.size.width, this.size.height),
-                optionsMask: this.optionsMask
+                overlayRect: Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
+                optionsMask: optionsMask
             ));
         }
     }

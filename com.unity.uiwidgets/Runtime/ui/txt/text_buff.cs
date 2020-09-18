@@ -13,21 +13,21 @@ namespace Unity.UIWidgets.ui {
         }
 
         public char charAt(int index) {
-            return this.text[this.offset + index];
+            return text[offset + index];
         }
 
         public TextBuff subBuff(int shift, int size) {
             D.assert(shift >= 0 && shift <= this.size);
             D.assert(shift + size <= this.size);
-            return new TextBuff(this.text, this.offset + shift, size);
+            return new TextBuff(text, offset + shift, size);
         }
 
         public override string ToString() {
-            return this.text.Substring(this.offset, this.size);
+            return text.Substring(offset, size);
         }
 
         public string subString(int shift, int size) {
-            return this.text.Substring(this.offset + shift, size);
+            return text.Substring(offset + shift, size);
         }
     }
 }

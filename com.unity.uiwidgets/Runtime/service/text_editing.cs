@@ -22,30 +22,30 @@ namespace Unity.UIWidgets.service {
         }
 
         public bool isValid {
-            get { return this.start >= 0 && this.end >= 0; }
+            get { return start >= 0 && end >= 0; }
         }
 
         public bool isCollapsed {
-            get { return this.start == this.end; }
+            get { return start == end; }
         }
 
         public bool isNormalized {
-            get { return this.start <= this.end; }
+            get { return start <= end; }
         }
 
         public string textBefore(string text) {
-            D.assert(this.isNormalized);
-            return text.Substring(0, this.start);
+            D.assert(isNormalized);
+            return text.Substring(0, start);
         }
 
         public string textAfter(string text) {
-            D.assert(this.isNormalized);
-            return text.Substring(this.end);
+            D.assert(isNormalized);
+            return text.Substring(end);
         }
 
         public string textInside(string text) {
-            D.assert(this.isNormalized);
-            return text.Substring(this.start, this.end - this.start);
+            D.assert(isNormalized);
+            return text.Substring(start, end - start);
         }
 
         public bool Equals(TextRange other) {
@@ -57,7 +57,7 @@ namespace Unity.UIWidgets.service {
                 return true;
             }
 
-            return this.start == other.start && this.end == other.end;
+            return start == other.start && end == other.end;
         }
 
         public override bool Equals(object obj) {
@@ -69,16 +69,16 @@ namespace Unity.UIWidgets.service {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextRange) obj);
+            return Equals((TextRange) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return (this.start * 397) ^ this.end;
+                return (start * 397) ^ end;
             }
         }
 
@@ -91,7 +91,7 @@ namespace Unity.UIWidgets.service {
         }
 
         public override string ToString() {
-            return $"TextRange Start: {this.start}, End: {this.end}";
+            return $"TextRange Start: {start}, End: {end}";
         }
     }
 
@@ -119,19 +119,19 @@ namespace Unity.UIWidgets.service {
         }
 
         public TextPosition basePos {
-            get { return new TextPosition(offset: this.baseOffset, affinity: this.affinity); }
+            get { return new TextPosition(offset: baseOffset, affinity: affinity); }
         }
 
         public TextPosition extendPos {
-            get { return new TextPosition(offset: this.extentOffset, affinity: this.affinity); }
+            get { return new TextPosition(offset: extentOffset, affinity: affinity); }
         }
 
         public TextPosition startPos {
-            get { return new TextPosition(offset: this.start, affinity: this.affinity); }
+            get { return new TextPosition(offset: start, affinity: affinity); }
         }
 
         public TextPosition endPos {
-            get { return new TextPosition(offset: this.end, affinity: this.affinity); }
+            get { return new TextPosition(offset: end, affinity: affinity); }
         }
 
         public bool Equals(TextSelection other) {
@@ -143,8 +143,8 @@ namespace Unity.UIWidgets.service {
                 return true;
             }
 
-            return this.baseOffset == other.baseOffset && this.extentOffset == other.extentOffset &&
-                   this.affinity == other.affinity && this.isDirectional == other.isDirectional;
+            return baseOffset == other.baseOffset && extentOffset == other.extentOffset &&
+                   affinity == other.affinity && isDirectional == other.isDirectional;
         }
 
         public override bool Equals(object obj) {
@@ -156,20 +156,20 @@ namespace Unity.UIWidgets.service {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((TextSelection) obj);
+            return Equals((TextSelection) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
                 var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.baseOffset;
-                hashCode = (hashCode * 397) ^ this.extentOffset;
-                hashCode = (hashCode * 397) ^ (int) this.affinity;
-                hashCode = (hashCode * 397) ^ this.isDirectional.GetHashCode();
+                hashCode = (hashCode * 397) ^ baseOffset;
+                hashCode = (hashCode * 397) ^ extentOffset;
+                hashCode = (hashCode * 397) ^ (int) affinity;
+                hashCode = (hashCode * 397) ^ isDirectional.GetHashCode();
                 return hashCode;
             }
         }
@@ -192,7 +192,7 @@ namespace Unity.UIWidgets.service {
 
         public override string ToString() {
             return
-                $"{base.ToString()}, BaseOffset: {this.baseOffset}, ExtentOffset: {this.extentOffset}, Affinity: {this.affinity}, IsDirectional: {this.isDirectional}";
+                $"{base.ToString()}, BaseOffset: {baseOffset}, ExtentOffset: {extentOffset}, Affinity: {affinity}, IsDirectional: {isDirectional}";
         }
     }
 }

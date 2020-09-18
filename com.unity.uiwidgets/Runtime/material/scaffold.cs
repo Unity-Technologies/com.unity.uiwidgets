@@ -99,15 +99,15 @@ namespace Unity.UIWidgets.material {
         public readonly float progress;
 
         public override Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
-            return this.animator.getOffset(
-                begin: this.begin.getOffset(scaffoldGeometry),
-                end: this.end.getOffset(scaffoldGeometry),
-                progress: this.progress
+            return animator.getOffset(
+                begin: begin.getOffset(scaffoldGeometry),
+                end: end.getOffset(scaffoldGeometry),
+                progress: progress
             );
         }
 
         public override string ToString() {
-            return this.GetType() + "(begin: " + this.begin + ", end: " + this.end + ", progress: " + this.progress;
+            return GetType() + "(begin: " + begin + ", end: " + end + ", progress: " + progress;
         }
     }
 
@@ -130,15 +130,15 @@ namespace Unity.UIWidgets.material {
 
             if (scaleFactor == 0.0f) {
                 return new ScaffoldGeometry(
-                    bottomNavigationBarTop: this.bottomNavigationBarTop);
+                    bottomNavigationBarTop: bottomNavigationBarTop);
             }
 
             Rect scaledButton = Rect.lerp(
-                this.floatingActionButtonArea.center & Size.zero,
-                this.floatingActionButtonArea,
+                floatingActionButtonArea.center & Size.zero,
+                floatingActionButtonArea,
                 scaleFactor);
 
-            return this.copyWith(floatingActionButtonArea: scaledButton);
+            return copyWith(floatingActionButtonArea: scaledButton);
         }
 
         public ScaffoldGeometry copyWith(
@@ -169,7 +169,7 @@ namespace Unity.UIWidgets.material {
         public override ScaffoldGeometry value {
             get {
                 D.assert(() => {
-                    RenderObject renderObject = this.context.findRenderObject();
+                    RenderObject renderObject = context.findRenderObject();
 
                     if (renderObject == null || !renderObject.owner.debugDoingPaint) {
                         throw new UIWidgetsError(
@@ -181,7 +181,7 @@ namespace Unity.UIWidgets.material {
 
                     return true;
                 });
-                return this.geometry._scaleFloatingActionButton(this.floatingActionButtonScale);
+                return geometry._scaleFloatingActionButton(floatingActionButtonScale);
             }
         }
 
@@ -191,10 +191,10 @@ namespace Unity.UIWidgets.material {
             float? floatingActionButtonScale = null
         ) {
             this.floatingActionButtonScale = floatingActionButtonScale ?? this.floatingActionButtonScale;
-            this.geometry = this.geometry.copyWith(
+            geometry = geometry.copyWith(
                 bottomNavigationBarTop: bottomNavigationBarTop,
                 floatingActionButtonArea: floatingActionButtonArea);
-            this.notifyListeners();
+            notifyListeners();
         }
     }
 
@@ -222,7 +222,7 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return this.bottomWidgetsHeight.Equals(other.bottomWidgetsHeight)
+            return bottomWidgetsHeight.Equals(other.bottomWidgetsHeight)
                    && base.Equals(other);
         }
 
@@ -235,17 +235,17 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_BodyBoxConstraints) obj);
+            return Equals((_BodyBoxConstraints) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
                 var hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.bottomWidgetsHeight.GetHashCode();
+                hashCode = (hashCode * 397) ^ bottomWidgetsHeight.GetHashCode();
                 return hashCode;
             }
         }
@@ -277,7 +277,7 @@ namespace Unity.UIWidgets.material {
                                 bottom: Mathf.Max(metrics.padding.bottom, bodyConstraints.bottomWidgetsHeight)
                             )
                         ),
-                        child: this.body
+                        child: body
                     );
                 }
             );
@@ -331,106 +331,106 @@ namespace Unity.UIWidgets.material {
             float contentTop = 0.0f;
             float bottomWidgetsHeight = 0.0f;
 
-            if (this.hasChild(_ScaffoldSlot.appBar)) {
-                contentTop = this.layoutChild(_ScaffoldSlot.appBar, fullWidthConstraints).height;
-                this.positionChild(_ScaffoldSlot.appBar, Offset.zero);
+            if (hasChild(_ScaffoldSlot.appBar)) {
+                contentTop = layoutChild(_ScaffoldSlot.appBar, fullWidthConstraints).height;
+                positionChild(_ScaffoldSlot.appBar, Offset.zero);
             }
 
             float bottomNavigationBarTop = 0.0f;
-            if (this.hasChild(_ScaffoldSlot.bottomNavigationBar)) {
+            if (hasChild(_ScaffoldSlot.bottomNavigationBar)) {
                 float bottomNavigationBarHeight =
-                    this.layoutChild(_ScaffoldSlot.bottomNavigationBar, fullWidthConstraints).height;
+                    layoutChild(_ScaffoldSlot.bottomNavigationBar, fullWidthConstraints).height;
                 bottomWidgetsHeight += bottomNavigationBarHeight;
                 bottomNavigationBarTop = Mathf.Max(0.0f, bottom - bottomWidgetsHeight);
-                this.positionChild(_ScaffoldSlot.bottomNavigationBar, new Offset(0.0f, bottomNavigationBarTop));
+                positionChild(_ScaffoldSlot.bottomNavigationBar, new Offset(0.0f, bottomNavigationBarTop));
             }
 
-            if (this.hasChild(_ScaffoldSlot.persistentFooter)) {
+            if (hasChild(_ScaffoldSlot.persistentFooter)) {
                 BoxConstraints footerConstraints = new BoxConstraints(
                     maxWidth: fullWidthConstraints.maxWidth,
                     maxHeight: Mathf.Max(0.0f, bottom - bottomWidgetsHeight - contentTop)
                 );
                 float persistentFooterHeight =
-                    this.layoutChild(_ScaffoldSlot.persistentFooter, footerConstraints).height;
+                    layoutChild(_ScaffoldSlot.persistentFooter, footerConstraints).height;
                 bottomWidgetsHeight += persistentFooterHeight;
-                this.positionChild(_ScaffoldSlot.persistentFooter,
+                positionChild(_ScaffoldSlot.persistentFooter,
                     new Offset(0.0f, Mathf.Max(0.0f, bottom - bottomWidgetsHeight)));
             }
 
-            float contentBottom = Mathf.Max(0.0f, bottom - Mathf.Max(this.minInsets.bottom, bottomWidgetsHeight));
+            float contentBottom = Mathf.Max(0.0f, bottom - Mathf.Max(minInsets.bottom, bottomWidgetsHeight));
 
-            if (this.hasChild(_ScaffoldSlot.body)) {
+            if (hasChild(_ScaffoldSlot.body)) {
                 float bodyMaxHeight = Mathf.Max(0.0f, contentBottom - contentTop);
-                if (this.extendBody) {
+                if (extendBody) {
                     bodyMaxHeight += bottomWidgetsHeight;
                     D.assert(bodyMaxHeight <= Mathf.Max(0.0f, looseConstraints.maxHeight - contentTop));
                 }
                 BoxConstraints bodyConstraints = new _BodyBoxConstraints(
                     maxWidth: fullWidthConstraints.maxWidth,
                     maxHeight: bodyMaxHeight,
-                    bottomWidgetsHeight: this.extendBody ? bottomWidgetsHeight : 0.0f
+                    bottomWidgetsHeight: extendBody ? bottomWidgetsHeight : 0.0f
                 );
-                this.layoutChild(_ScaffoldSlot.body, bodyConstraints);
-                this.positionChild(_ScaffoldSlot.body, new Offset(0.0f, contentTop));
+                layoutChild(_ScaffoldSlot.body, bodyConstraints);
+                positionChild(_ScaffoldSlot.body, new Offset(0.0f, contentTop));
             }
 
             Size bottomSheetSize = Size.zero;
             Size snackBarSize = Size.zero;
 
-            if (this.hasChild(_ScaffoldSlot.bottomSheet)) {
+            if (hasChild(_ScaffoldSlot.bottomSheet)) {
                 BoxConstraints bottomSheetConstraints = new BoxConstraints(
                     maxWidth: fullWidthConstraints.maxWidth,
                     maxHeight: Mathf.Max(0.0f, contentBottom - contentTop)
                 );
-                bottomSheetSize = this.layoutChild(_ScaffoldSlot.bottomSheet, bottomSheetConstraints);
-                this.positionChild(_ScaffoldSlot.bottomSheet,
+                bottomSheetSize = layoutChild(_ScaffoldSlot.bottomSheet, bottomSheetConstraints);
+                positionChild(_ScaffoldSlot.bottomSheet,
                     new Offset((size.width - bottomSheetSize.width) / 2.0f, contentBottom - bottomSheetSize.height));
             }
 
-            if (this.hasChild(_ScaffoldSlot.snackBar)) {
-                snackBarSize = this.layoutChild(_ScaffoldSlot.snackBar, fullWidthConstraints);
-                this.positionChild(_ScaffoldSlot.snackBar, new Offset(0.0f, contentBottom - snackBarSize.height));
+            if (hasChild(_ScaffoldSlot.snackBar)) {
+                snackBarSize = layoutChild(_ScaffoldSlot.snackBar, fullWidthConstraints);
+                positionChild(_ScaffoldSlot.snackBar, new Offset(0.0f, contentBottom - snackBarSize.height));
             }
 
             Rect floatingActionButtonRect = null;
-            if (this.hasChild(_ScaffoldSlot.floatingActionButton)) {
-                Size fabSize = this.layoutChild(_ScaffoldSlot.floatingActionButton, looseConstraints);
+            if (hasChild(_ScaffoldSlot.floatingActionButton)) {
+                Size fabSize = layoutChild(_ScaffoldSlot.floatingActionButton, looseConstraints);
                 ScaffoldPrelayoutGeometry currentGeometry = new ScaffoldPrelayoutGeometry(
                     bottomSheetSize: bottomSheetSize,
                     contentBottom: contentBottom,
                     contentTop: contentTop,
                     floatingActionButtonSize: fabSize,
-                    minInsets: this.minInsets,
+                    minInsets: minInsets,
                     scaffoldSize: size,
                     snackBarSize: snackBarSize
                 );
-                Offset currentFabOffset = this.currentFloatingActionButtonLocation.getOffset(currentGeometry);
-                Offset previousFabOffset = this.previousFloatingActionButtonLocation.getOffset(currentGeometry);
-                Offset fabOffset = this.floatingActionButtonMotionAnimator.getOffset(
+                Offset currentFabOffset = currentFloatingActionButtonLocation.getOffset(currentGeometry);
+                Offset previousFabOffset = previousFloatingActionButtonLocation.getOffset(currentGeometry);
+                Offset fabOffset = floatingActionButtonMotionAnimator.getOffset(
                     begin: previousFabOffset,
                     end: currentFabOffset,
-                    progress: this.floatingActionButtonMoveAnimationProgress
+                    progress: floatingActionButtonMoveAnimationProgress
                 );
-                this.positionChild(_ScaffoldSlot.floatingActionButton, fabOffset);
+                positionChild(_ScaffoldSlot.floatingActionButton, fabOffset);
                 floatingActionButtonRect = fabOffset & fabSize;
             }
 
-            if (this.hasChild(_ScaffoldSlot.statusBar)) {
-                this.layoutChild(_ScaffoldSlot.statusBar, fullWidthConstraints.tighten(height: this.minInsets.top));
-                this.positionChild(_ScaffoldSlot.statusBar, Offset.zero);
+            if (hasChild(_ScaffoldSlot.statusBar)) {
+                layoutChild(_ScaffoldSlot.statusBar, fullWidthConstraints.tighten(height: minInsets.top));
+                positionChild(_ScaffoldSlot.statusBar, Offset.zero);
             }
 
-            if (this.hasChild(_ScaffoldSlot.drawer)) {
-                this.layoutChild(_ScaffoldSlot.drawer, BoxConstraints.tight(size));
-                this.positionChild(_ScaffoldSlot.drawer, Offset.zero);
+            if (hasChild(_ScaffoldSlot.drawer)) {
+                layoutChild(_ScaffoldSlot.drawer, BoxConstraints.tight(size));
+                positionChild(_ScaffoldSlot.drawer, Offset.zero);
             }
 
-            if (this.hasChild(_ScaffoldSlot.endDrawer)) {
-                this.layoutChild(_ScaffoldSlot.endDrawer, BoxConstraints.tight(size));
-                this.positionChild(_ScaffoldSlot.endDrawer, Offset.zero);
+            if (hasChild(_ScaffoldSlot.endDrawer)) {
+                layoutChild(_ScaffoldSlot.endDrawer, BoxConstraints.tight(size));
+                positionChild(_ScaffoldSlot.endDrawer, Offset.zero);
             }
 
-            this.geometryNotifier._updateWith(
+            geometryNotifier._updateWith(
                 bottomNavigationBarTop: bottomNavigationBarTop,
                 floatingActionButtonArea: floatingActionButtonRect
             );
@@ -438,11 +438,11 @@ namespace Unity.UIWidgets.material {
 
         public override bool shouldRelayout(MultiChildLayoutDelegate oldDelegate) {
             _ScaffoldLayout _oldDelegate = (_ScaffoldLayout) oldDelegate;
-            return _oldDelegate.minInsets != this.minInsets
+            return _oldDelegate.minInsets != minInsets
                    || _oldDelegate.floatingActionButtonMoveAnimationProgress !=
-                   this.floatingActionButtonMoveAnimationProgress
-                   || _oldDelegate.previousFloatingActionButtonLocation != this.previousFloatingActionButtonLocation
-                   || _oldDelegate.currentFloatingActionButtonLocation != this.currentFloatingActionButtonLocation;
+                   floatingActionButtonMoveAnimationProgress
+                   || _oldDelegate.previousFloatingActionButtonLocation != previousFloatingActionButtonLocation
+                   || _oldDelegate.currentFloatingActionButtonLocation != currentFloatingActionButtonLocation;
         }
     }
 
@@ -496,28 +496,28 @@ namespace Unity.UIWidgets.material {
         public override void initState() {
             base.initState();
 
-            this._previousController = new AnimationController(
+            _previousController = new AnimationController(
                 duration: FloatingActionButtonLocationUtils.kFloatingActionButtonSegue,
                 vsync: this);
-            this._previousController.addStatusListener(this._handlePreviousAnimationStatusChanged);
+            _previousController.addStatusListener(_handlePreviousAnimationStatusChanged);
 
-            this._currentController = new AnimationController(
+            _currentController = new AnimationController(
                 duration: FloatingActionButtonLocationUtils.kFloatingActionButtonSegue,
                 vsync: this);
 
-            this._updateAnimations();
+            _updateAnimations();
 
-            if (this.widget.child != null) {
-                this._currentController.setValue(1.0f);
+            if (widget.child != null) {
+                _currentController.setValue(1.0f);
             }
             else {
-                this._updateGeometryScale(0.0f);
+                _updateGeometryScale(0.0f);
             }
         }
 
         public override void dispose() {
-            this._previousController.dispose();
-            this._currentController.dispose();
+            _previousController.dispose();
+            _currentController.dispose();
             base.dispose();
         }
 
@@ -526,30 +526,30 @@ namespace Unity.UIWidgets.material {
 
             _FloatingActionButtonTransition _oldWidget = (_FloatingActionButtonTransition) oldWidget;
             bool oldChildIsNull = _oldWidget.child == null;
-            bool newChildIsNull = this.widget.child == null;
+            bool newChildIsNull = widget.child == null;
 
-            if (oldChildIsNull == newChildIsNull && _oldWidget.child?.key == this.widget.child?.key) {
+            if (oldChildIsNull == newChildIsNull && _oldWidget.child?.key == widget.child?.key) {
                 return;
             }
 
-            if (_oldWidget.fabMotionAnimator != this.widget.fabMotionAnimator ||
-                _oldWidget.fabMoveAnimation != this.widget.fabMoveAnimation) {
-                this._updateAnimations();
+            if (_oldWidget.fabMotionAnimator != widget.fabMotionAnimator ||
+                _oldWidget.fabMoveAnimation != widget.fabMoveAnimation) {
+                _updateAnimations();
             }
 
-            if (this._previousController.status == AnimationStatus.dismissed) {
-                float currentValue = this._currentController.value;
+            if (_previousController.status == AnimationStatus.dismissed) {
+                float currentValue = _currentController.value;
                 if (currentValue == 0.0f || _oldWidget.child == null) {
-                    this._previousChild = null;
-                    if (this.widget.child != null) {
-                        this._currentController.forward();
+                    _previousChild = null;
+                    if (widget.child != null) {
+                        _currentController.forward();
                     }
                 }
                 else {
-                    this._previousChild = _oldWidget.child;
-                    this._previousController.setValue(currentValue);
-                    this._previousController.reverse();
-                    this._currentController.setValue(0.0f);
+                    _previousChild = _oldWidget.child;
+                    _previousController.setValue(currentValue);
+                    _previousController.reverse();
+                    _currentController.setValue(0.0f);
                 }
             }
         }
@@ -561,46 +561,46 @@ namespace Unity.UIWidgets.material {
 
         void _updateAnimations() {
             CurvedAnimation previousExitScaleAnimation = new CurvedAnimation(
-                parent: this._previousController,
+                parent: _previousController,
                 curve: Curves.easeIn
             );
             Animation<float> previousExitRotationAnimation = new FloatTween(begin: 1.0f, end: 1.0f).animate(
                 new CurvedAnimation(
-                    parent: this._previousController,
+                    parent: _previousController,
                     curve: Curves.easeIn
                 )
             );
 
             CurvedAnimation currentEntranceScaleAnimation = new CurvedAnimation(
-                parent: this._currentController,
+                parent: _currentController,
                 curve: Curves.easeIn
             );
-            Animation<float> currentEntranceRotationAnimation = this._currentController.drive(_entranceTurnTween);
+            Animation<float> currentEntranceRotationAnimation = _currentController.drive(_entranceTurnTween);
             Animation<float> moveScaleAnimation =
-                this.widget.fabMotionAnimator.getScaleAnimation(parent: this.widget.fabMoveAnimation);
+                widget.fabMotionAnimator.getScaleAnimation(parent: widget.fabMoveAnimation);
             Animation<float> moveRotationAnimation =
-                this.widget.fabMotionAnimator.getRotationAnimation(parent: this.widget.fabMoveAnimation);
+                widget.fabMotionAnimator.getRotationAnimation(parent: widget.fabMoveAnimation);
 
-            this._previousScaleAnimation = new AnimationMin(moveScaleAnimation, previousExitScaleAnimation);
-            this._currentScaleAnimation = new AnimationMin(moveScaleAnimation, currentEntranceScaleAnimation);
-            this._extendedCurrentScaleAnimation =
-                this._currentScaleAnimation.drive(new CurveTween(curve: new Interval(0.0f, 0.1f)));
+            _previousScaleAnimation = new AnimationMin(moveScaleAnimation, previousExitScaleAnimation);
+            _currentScaleAnimation = new AnimationMin(moveScaleAnimation, currentEntranceScaleAnimation);
+            _extendedCurrentScaleAnimation =
+                _currentScaleAnimation.drive(new CurveTween(curve: new Interval(0.0f, 0.1f)));
 
-            this._previousRotationAnimation =
+            _previousRotationAnimation =
                 new TrainHoppingAnimation(previousExitRotationAnimation, moveRotationAnimation);
-            this._currentRotationAnimation =
+            _currentRotationAnimation =
                 new TrainHoppingAnimation(currentEntranceRotationAnimation, moveRotationAnimation);
 
-            this._currentScaleAnimation.addListener(this._onProgressChanged);
-            this._previousScaleAnimation.addListener(this._onProgressChanged);
+            _currentScaleAnimation.addListener(_onProgressChanged);
+            _previousScaleAnimation.addListener(_onProgressChanged);
         }
 
         void _handlePreviousAnimationStatusChanged(AnimationStatus status) {
-            this.setState(() => {
+            setState(() => {
                 if (status == AnimationStatus.dismissed) {
-                    D.assert(this._currentController.status == AnimationStatus.dismissed);
-                    if (this.widget.child != null) {
-                        this._currentController.forward();
+                    D.assert(_currentController.status == AnimationStatus.dismissed);
+                    if (widget.child != null) {
+                        _currentController.forward();
                     }
                 }
             });
@@ -618,36 +618,36 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             List<Widget> children = new List<Widget>();
 
-            if (this._previousController.status != AnimationStatus.dismissed) {
-                if (this._isExtendedFloatingActionButton(this._previousChild)) {
+            if (_previousController.status != AnimationStatus.dismissed) {
+                if (_isExtendedFloatingActionButton(_previousChild)) {
                     children.Add(new FadeTransition(
-                        opacity: this._previousScaleAnimation,
-                        child: this._previousChild));
+                        opacity: _previousScaleAnimation,
+                        child: _previousChild));
                 }
                 else {
                     children.Add(new ScaleTransition(
-                        scale: this._previousScaleAnimation,
+                        scale: _previousScaleAnimation,
                         child: new RotationTransition(
-                            turns: this._previousRotationAnimation,
-                            child: this._previousChild)));
+                            turns: _previousRotationAnimation,
+                            child: _previousChild)));
                 }
             }
 
-            if (this._isExtendedFloatingActionButton(this.widget.child)) {
+            if (_isExtendedFloatingActionButton(widget.child)) {
                 children.Add(new ScaleTransition(
-                    scale: this._extendedCurrentScaleAnimation,
+                    scale: _extendedCurrentScaleAnimation,
                     child: new FadeTransition(
-                        opacity: this._currentScaleAnimation,
-                        child: this.widget.child
+                        opacity: _currentScaleAnimation,
+                        child: widget.child
                     )
                 ));
             }
             else {
                 children.Add(new ScaleTransition(
-                    scale: this._currentScaleAnimation,
+                    scale: _currentScaleAnimation,
                     child: new RotationTransition(
-                        turns: this._currentRotationAnimation,
-                        child: this.widget.child
+                        turns: _currentRotationAnimation,
+                        child: widget.child
                     )
                 ));
             }
@@ -660,11 +660,11 @@ namespace Unity.UIWidgets.material {
 
 
         void _onProgressChanged() {
-            this._updateGeometryScale(Mathf.Max(this._previousScaleAnimation.value, this._currentScaleAnimation.value));
+            _updateGeometryScale(Mathf.Max(_previousScaleAnimation.value, _currentScaleAnimation.value));
         }
 
         void _updateGeometryScale(float scale) {
-            this.widget.geometryNotifier._updateWith(
+            widget.geometryNotifier._updateWith(
                 floatingActionButtonScale: scale
             );
         }
@@ -811,47 +811,47 @@ namespace Unity.UIWidgets.material {
         public readonly GlobalKey<DrawerControllerState> _endDrawerKey = GlobalKey<DrawerControllerState>.key();
 
         public bool hasDrawer {
-            get { return this.widget.drawer != null; }
+            get { return widget.drawer != null; }
         }
 
         public bool hasEndDrawer {
-            get { return this.widget.endDrawer != null; }
+            get { return widget.endDrawer != null; }
         }
 
         bool _drawerOpened = false;
         bool _endDrawerOpened = false;
 
         public bool isDrawerOpen {
-            get { return this._drawerOpened; }
+            get { return _drawerOpened; }
         }
 
         public bool isEndDrawerOpen {
-            get { return this._endDrawerOpened; }
+            get { return _endDrawerOpened; }
         }
 
         void _drawerOpenedCallback(bool isOpened) {
-            this.setState(() => { this._drawerOpened = isOpened; });
+            setState(() => { _drawerOpened = isOpened; });
         }
 
         void _endDrawerOpenedCallback(bool isOpened) {
-            this.setState(() => { this._endDrawerOpened = isOpened; });
+            setState(() => { _endDrawerOpened = isOpened; });
         }
 
 
         public void openDrawer() {
-            if (this._endDrawerKey.currentState != null && this._endDrawerOpened) {
-                this._endDrawerKey.currentState.close();
+            if (_endDrawerKey.currentState != null && _endDrawerOpened) {
+                _endDrawerKey.currentState.close();
             }
 
-            this._drawerKey.currentState?.open();
+            _drawerKey.currentState?.open();
         }
 
         public void openEndDrawer() {
-            if (this._drawerKey.currentState != null && this._drawerOpened) {
-                this._drawerKey.currentState.close();
+            if (_drawerKey.currentState != null && _drawerOpened) {
+                _drawerKey.currentState.close();
             }
 
-            this._endDrawerKey.currentState?.open();
+            _endDrawerKey.currentState?.open();
         }
 
         // SNACK BAR API
@@ -863,27 +863,27 @@ namespace Unity.UIWidgets.material {
         bool _accessibleNavigation;
 
         public ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBar(SnackBar snackbar) {
-            if (this._snackBarController == null) {
-                this._snackBarController = SnackBar.createAnimationController(vsync: this);
-                this._snackBarController.addStatusListener(this._handleSnackBarStatusChange);
+            if (_snackBarController == null) {
+                _snackBarController = SnackBar.createAnimationController(vsync: this);
+                _snackBarController.addStatusListener(_handleSnackBarStatusChange);
             }
 
-            if (this._snackBars.isEmpty()) {
-                D.assert(this._snackBarController.isDismissed);
-                this._snackBarController.forward();
+            if (_snackBars.isEmpty()) {
+                D.assert(_snackBarController.isDismissed);
+                _snackBarController.forward();
             }
 
             ScaffoldFeatureController<SnackBar, SnackBarClosedReason> controller = null;
             controller = new ScaffoldFeatureController<SnackBar, SnackBarClosedReason>(
-                snackbar.withAnimation(this._snackBarController, fallbackKey: new UniqueKey()),
+                snackbar.withAnimation(_snackBarController, fallbackKey: new UniqueKey()),
                 new Promise<SnackBarClosedReason>(),
                 () => {
-                    D.assert(this._snackBars.First() == controller);
-                    this.hideCurrentSnackBar(reason: SnackBarClosedReason.hide);
+                    D.assert(_snackBars.First() == controller);
+                    hideCurrentSnackBar(reason: SnackBarClosedReason.hide);
                 },
                 null);
 
-            this.setState(() => { this._snackBars.Enqueue(controller); });
+            setState(() => { _snackBars.Enqueue(controller); });
             return controller;
         }
 
@@ -891,16 +891,16 @@ namespace Unity.UIWidgets.material {
         void _handleSnackBarStatusChange(AnimationStatus status) {
             switch (status) {
                 case AnimationStatus.dismissed: {
-                    D.assert(this._snackBars.isNotEmpty());
-                    this.setState(() => { this._snackBars.Dequeue(); });
-                    if (this._snackBars.isNotEmpty()) {
-                        this._snackBarController.forward();
+                    D.assert(_snackBars.isNotEmpty());
+                    setState(() => { _snackBars.Dequeue(); });
+                    if (_snackBars.isNotEmpty()) {
+                        _snackBarController.forward();
                     }
 
                     break;
                 }
                 case AnimationStatus.completed: {
-                    this.setState(() => { D.assert(this._snackBarTimer == null); });
+                    setState(() => { D.assert(_snackBarTimer == null); });
                     break;
                 }
                 case AnimationStatus.forward:
@@ -911,42 +911,42 @@ namespace Unity.UIWidgets.material {
         }
 
         public void removeCurrentSnackBar(SnackBarClosedReason reason = SnackBarClosedReason.remove) {
-            if (this._snackBars.isEmpty()) {
+            if (_snackBars.isEmpty()) {
                 return;
             }
 
-            Promise<SnackBarClosedReason> completer = this._snackBars.First()._completer;
+            Promise<SnackBarClosedReason> completer = _snackBars.First()._completer;
             if (!completer.isCompleted) {
                 completer.Resolve(reason);
             }
 
-            this._snackBarTimer?.cancel();
-            this._snackBarTimer = null;
-            this._snackBarController.setValue(0.0f);
+            _snackBarTimer?.cancel();
+            _snackBarTimer = null;
+            _snackBarController.setValue(0.0f);
         }
 
         public void hideCurrentSnackBar(SnackBarClosedReason reason = SnackBarClosedReason.hide) {
-            if (this._snackBars.isEmpty() || this._snackBarController.status == AnimationStatus.dismissed) {
+            if (_snackBars.isEmpty() || _snackBarController.status == AnimationStatus.dismissed) {
                 return;
             }
 
-            MediaQueryData mediaQuery = MediaQuery.of(this.context);
-            Promise<SnackBarClosedReason> completer = this._snackBars.First()._completer;
+            MediaQueryData mediaQuery = MediaQuery.of(context);
+            Promise<SnackBarClosedReason> completer = _snackBars.First()._completer;
             if (mediaQuery.accessibleNavigation) {
-                this._snackBarController.setValue(0.0f);
+                _snackBarController.setValue(0.0f);
                 completer.Resolve(reason);
             }
             else {
-                this._snackBarController.reverse().Then(() => {
-                    D.assert(this.mounted);
+                _snackBarController.reverse().Then(() => {
+                    D.assert(mounted);
                     if (!completer.isCompleted) {
                         completer.Resolve(reason);
                     }
                 });
             }
 
-            this._snackBarTimer?.cancel();
-            this._snackBarTimer = null;
+            _snackBarTimer?.cancel();
+            _snackBarTimer = null;
         }
 
         // PERSISTENT BOTTOM SHEET API
@@ -954,11 +954,11 @@ namespace Unity.UIWidgets.material {
         PersistentBottomSheetController<object> _currentBottomSheet;
 
         void _maybeBuildCurrentBottomSheet() {
-            if (this.widget.bottomSheet != null) {
+            if (widget.bottomSheet != null) {
                 AnimationController controller = BottomSheet.createAnimationController(this);
                 controller.setValue(1.0f);
-                this._currentBottomSheet = this._buildBottomSheet<object>(
-                    (BuildContext context) => this.widget.bottomSheet,
+                _currentBottomSheet = _buildBottomSheet<object>(
+                    (BuildContext context) => widget.bottomSheet,
                     controller,
                     false,
                     null);
@@ -966,9 +966,9 @@ namespace Unity.UIWidgets.material {
         }
 
         void _closeCurrentBottomSheet() {
-            if (this._currentBottomSheet != null) {
-                this._currentBottomSheet.close();
-                D.assert(this._currentBottomSheet == null);
+            if (_currentBottomSheet != null) {
+                _currentBottomSheet.close();
+                D.assert(_currentBottomSheet == null);
             }
         }
 
@@ -980,14 +980,14 @@ namespace Unity.UIWidgets.material {
             _PersistentBottomSheet bottomSheet = null;
 
             void _removeCurrentBottomSheet() {
-                D.assert(this._currentBottomSheet._widget == bottomSheet);
+                D.assert(_currentBottomSheet._widget == bottomSheet);
                 D.assert(bottomSheetKey.currentState != null);
                 bottomSheetKey.currentState.close();
                 if (controller.status != AnimationStatus.dismissed) {
-                    this._dismissedBottomSheets.Add(bottomSheet);
+                    _dismissedBottomSheets.Add(bottomSheet);
                 }
 
-                this.setState(() => { this._currentBottomSheet = null; });
+                setState(() => { _currentBottomSheet = null; });
                 completer.Resolve(resolveValue);
             }
 
@@ -1000,7 +1000,7 @@ namespace Unity.UIWidgets.material {
                 animationController: controller,
                 enableDrag: isLocalHistoryEntry,
                 onClosing: () => {
-                    D.assert(this._currentBottomSheet._widget == bottomSheet);
+                    D.assert(_currentBottomSheet._widget == bottomSheet);
                     if (isLocalHistoryEntry) {
                         entry.remove();
                     }
@@ -1009,15 +1009,15 @@ namespace Unity.UIWidgets.material {
                     }
                 },
                 onDismissed: () => {
-                    if (this._dismissedBottomSheets.Contains(bottomSheet)) {
+                    if (_dismissedBottomSheets.Contains(bottomSheet)) {
                         bottomSheet.animationController.dispose();
-                        this.setState(() => { this._dismissedBottomSheets.Remove(bottomSheet); });
+                        setState(() => { _dismissedBottomSheets.Remove(bottomSheet); });
                     }
                 },
                 builder: builder);
 
             if (isLocalHistoryEntry) {
-                ModalRoute.of(this.context).addLocalHistoryEntry(entry);
+                ModalRoute.of(context).addLocalHistoryEntry(entry);
             }
 
             return new PersistentBottomSheetController<T>(
@@ -1029,13 +1029,13 @@ namespace Unity.UIWidgets.material {
         }
 
         public PersistentBottomSheetController<object> showBottomSheet(WidgetBuilder builder) {
-            this._closeCurrentBottomSheet();
+            _closeCurrentBottomSheet();
             AnimationController controller = BottomSheet.createAnimationController(this);
             controller.forward();
-            this.setState(() => {
-                this._currentBottomSheet = this._buildBottomSheet<object>(builder, controller, true, null);
+            setState(() => {
+                _currentBottomSheet = _buildBottomSheet<object>(builder, controller, true, null);
             });
-            return this._currentBottomSheet;
+            return _currentBottomSheet;
         }
 
         // FLOATING ACTION BUTTON API
@@ -1045,32 +1045,32 @@ namespace Unity.UIWidgets.material {
         FloatingActionButtonLocation _floatingActionButtonLocation;
 
         void _moveFloatingActionButton(FloatingActionButtonLocation newLocation) {
-            FloatingActionButtonLocation previousLocation = this._floatingActionButtonLocation;
+            FloatingActionButtonLocation previousLocation = _floatingActionButtonLocation;
             float restartAnimationFrom = 0.0f;
-            if (this._floatingActionButtonMoveController.isAnimating) {
-                previousLocation = new _TransitionSnapshotFabLocation(this._previousFloatingActionButtonLocation,
-                    this._floatingActionButtonLocation,
-                    this._floatingActionButtonAnimator,
-                    this._floatingActionButtonMoveController.value);
+            if (_floatingActionButtonMoveController.isAnimating) {
+                previousLocation = new _TransitionSnapshotFabLocation(_previousFloatingActionButtonLocation,
+                    _floatingActionButtonLocation,
+                    _floatingActionButtonAnimator,
+                    _floatingActionButtonMoveController.value);
                 restartAnimationFrom =
-                    this._floatingActionButtonAnimator.getAnimationRestart(this._floatingActionButtonMoveController
+                    _floatingActionButtonAnimator.getAnimationRestart(_floatingActionButtonMoveController
                         .value);
             }
 
-            this.setState(() => {
-                this._previousFloatingActionButtonLocation = previousLocation;
-                this._floatingActionButtonLocation = newLocation;
+            setState(() => {
+                _previousFloatingActionButtonLocation = previousLocation;
+                _floatingActionButtonLocation = newLocation;
             });
 
-            this._floatingActionButtonMoveController.forward(from: restartAnimationFrom);
+            _floatingActionButtonMoveController.forward(from: restartAnimationFrom);
         }
 
         // IOS FEATURES
         readonly ScrollController _primaryScrollController = new ScrollController();
 
         void _handleStatusBarTap() {
-            if (this._primaryScrollController.hasClients) {
-                this._primaryScrollController.animateTo(
+            if (_primaryScrollController.hasClients) {
+                _primaryScrollController.animateTo(
                     to: 0.0f,
                     duration: new TimeSpan(0, 0, 0, 0, 300),
                     curve: Curves.linear);
@@ -1081,18 +1081,18 @@ namespace Unity.UIWidgets.material {
         _ScaffoldGeometryNotifier _geometryNotifier;
 
         bool _resizeToAvoidBottomInset {
-            get { return this.widget.resizeToAvoidBottomInset ?? this.widget.resizeToAvoidBottomPadding ?? true; }
+            get { return widget.resizeToAvoidBottomInset ?? widget.resizeToAvoidBottomPadding ?? true; }
         }
 
         public override void initState() {
             base.initState();
-            this._geometryNotifier = new _ScaffoldGeometryNotifier(new ScaffoldGeometry(), this.context);
-            this._floatingActionButtonLocation = this.widget.floatingActionButtonLocation ??
+            _geometryNotifier = new _ScaffoldGeometryNotifier(new ScaffoldGeometry(), context);
+            _floatingActionButtonLocation = widget.floatingActionButtonLocation ??
                                                  ScaffoldUtils._kDefaultFloatingActionButtonLocation;
-            this._floatingActionButtonAnimator = this.widget.floatingActionButtonAnimator ??
+            _floatingActionButtonAnimator = widget.floatingActionButtonAnimator ??
                                                  ScaffoldUtils._kDefaultFloatingActionButtonAnimator;
-            this._previousFloatingActionButtonLocation = this._floatingActionButtonLocation;
-            this._floatingActionButtonMoveController = new AnimationController(
+            _previousFloatingActionButtonLocation = _floatingActionButtonLocation;
+            _floatingActionButtonMoveController = new AnimationController(
                 vsync: this,
                 lowerBound: 0.0f,
                 upperBound: 1.0f,
@@ -1101,25 +1101,25 @@ namespace Unity.UIWidgets.material {
                           FloatingActionButtonLocationUtils.kFloatingActionButtonSegue
             );
 
-            this._maybeBuildCurrentBottomSheet();
+            _maybeBuildCurrentBottomSheet();
         }
 
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             Scaffold _oldWidget = (Scaffold) oldWidget;
-            if (this.widget.floatingActionButtonAnimator != _oldWidget.floatingActionButtonAnimator) {
-                this._floatingActionButtonAnimator = this.widget.floatingActionButtonAnimator ??
+            if (widget.floatingActionButtonAnimator != _oldWidget.floatingActionButtonAnimator) {
+                _floatingActionButtonAnimator = widget.floatingActionButtonAnimator ??
                                                      ScaffoldUtils._kDefaultFloatingActionButtonAnimator;
             }
 
-            if (this.widget.floatingActionButtonLocation != _oldWidget.floatingActionButtonLocation) {
-                this._moveFloatingActionButton(this.widget.floatingActionButtonLocation ??
+            if (widget.floatingActionButtonLocation != _oldWidget.floatingActionButtonLocation) {
+                _moveFloatingActionButton(widget.floatingActionButtonLocation ??
                                                ScaffoldUtils._kDefaultFloatingActionButtonLocation);
             }
 
-            if (this.widget.bottomSheet != _oldWidget.bottomSheet) {
+            if (widget.bottomSheet != _oldWidget.bottomSheet) {
                 D.assert(() => {
-                    if (this.widget.bottomSheet != null && this._currentBottomSheet?._isLocalHistoryEntry == true) {
+                    if (widget.bottomSheet != null && _currentBottomSheet?._isLocalHistoryEntry == true) {
                         throw new UIWidgetsError(
                             "Scaffold.bottomSheet cannot be specified while a bottom sheet displayed " +
                             "with showBottomSheet() is still visible.\n Use the PersistentBottomSheetController " +
@@ -1129,8 +1129,8 @@ namespace Unity.UIWidgets.material {
 
                     return true;
                 });
-                this._closeCurrentBottomSheet();
-                this._maybeBuildCurrentBottomSheet();
+                _closeCurrentBottomSheet();
+                _maybeBuildCurrentBottomSheet();
             }
 
             base.didUpdateWidget(oldWidget);
@@ -1138,32 +1138,32 @@ namespace Unity.UIWidgets.material {
 
 
         public override void didChangeDependencies() {
-            MediaQueryData mediaQuery = MediaQuery.of(this.context);
+            MediaQueryData mediaQuery = MediaQuery.of(context);
 
-            if (this._accessibleNavigation
+            if (_accessibleNavigation
                 && !mediaQuery.accessibleNavigation
-                && this._snackBarTimer != null) {
-                this.hideCurrentSnackBar(reason: SnackBarClosedReason.timeout);
+                && _snackBarTimer != null) {
+                hideCurrentSnackBar(reason: SnackBarClosedReason.timeout);
             }
 
-            this._accessibleNavigation = mediaQuery.accessibleNavigation;
+            _accessibleNavigation = mediaQuery.accessibleNavigation;
             base.didChangeDependencies();
         }
 
         public override void dispose() {
-            this._snackBarController?.dispose();
-            this._snackBarTimer?.cancel();
-            this._snackBarTimer = null;
-            this._geometryNotifier.dispose();
-            foreach (_PersistentBottomSheet bottomSheet in this._dismissedBottomSheets) {
+            _snackBarController?.dispose();
+            _snackBarTimer?.cancel();
+            _snackBarTimer = null;
+            _geometryNotifier.dispose();
+            foreach (_PersistentBottomSheet bottomSheet in _dismissedBottomSheets) {
                 bottomSheet.animationController.dispose();
             }
 
-            if (this._currentBottomSheet != null) {
-                this._currentBottomSheet._widget.animationController.dispose();
+            if (_currentBottomSheet != null) {
+                _currentBottomSheet._widget.animationController.dispose();
             }
 
-            this._floatingActionButtonMoveController.dispose();
+            _floatingActionButtonMoveController.dispose();
             base.dispose();
         }
 
@@ -1174,7 +1174,7 @@ namespace Unity.UIWidgets.material {
             bool removeBottomPadding,
             bool removeBottomInset = false
         ) {
-            MediaQueryData data = MediaQuery.of(this.context).removePadding(
+            MediaQueryData data = MediaQuery.of(context).removePadding(
                 removeLeft: removeLeftPadding,
                 removeTop: removeTopPadding,
                 removeRight: removeRightPadding,
@@ -1195,16 +1195,16 @@ namespace Unity.UIWidgets.material {
         }
 
         void _buildEndDrawer(List<LayoutId> children) {
-            if (this.widget.endDrawer != null) {
-                D.assert(this.hasEndDrawer);
-                this._addIfNonNull(
+            if (widget.endDrawer != null) {
+                D.assert(hasEndDrawer);
+                _addIfNonNull(
                     children: children,
                     new DrawerController(
-                        key: this._endDrawerKey,
+                        key: _endDrawerKey,
                         alignment: DrawerAlignment.end,
-                        child: this.widget.endDrawer,
-                        drawerCallback: this._endDrawerOpenedCallback,
-                        dragStartBehavior: this.widget.drawerDragStartBehavior
+                        child: widget.endDrawer,
+                        drawerCallback: _endDrawerOpenedCallback,
+                        dragStartBehavior: widget.drawerDragStartBehavior
                     ),
                     childId: _ScaffoldSlot.endDrawer,
                     removeLeftPadding: true,
@@ -1216,16 +1216,16 @@ namespace Unity.UIWidgets.material {
         }
 
         void _buildDrawer(List<LayoutId> children) {
-            if (this.widget.drawer != null) {
-                D.assert(this.hasDrawer);
-                this._addIfNonNull(
+            if (widget.drawer != null) {
+                D.assert(hasDrawer);
+                _addIfNonNull(
                     children: children,
                     new DrawerController(
-                        key: this._drawerKey,
+                        key: _drawerKey,
                         alignment: DrawerAlignment.start,
-                        child: this.widget.drawer,
-                        drawerCallback: this._drawerOpenedCallback,
-                        dragStartBehavior: this.widget.drawerDragStartBehavior
+                        child: widget.drawer,
+                        drawerCallback: _drawerOpenedCallback,
+                        dragStartBehavior: widget.drawerDragStartBehavior
                     ),
                     childId: _ScaffoldSlot.drawer,
                     removeLeftPadding: false,
@@ -1240,57 +1240,57 @@ namespace Unity.UIWidgets.material {
             MediaQueryData mediaQuery = MediaQuery.of(context);
             ThemeData themeData = Theme.of(context);
 
-            this._accessibleNavigation = mediaQuery.accessibleNavigation;
+            _accessibleNavigation = mediaQuery.accessibleNavigation;
 
-            if (this._snackBars.isNotEmpty()) {
+            if (_snackBars.isNotEmpty()) {
                 ModalRoute route = ModalRoute.of(context);
                 if (route == null || route.isCurrent) {
-                    if (this._snackBarController.isCompleted && this._snackBarTimer == null) {
-                        SnackBar snackBar = this._snackBars.First()._widget;
-                        this._snackBarTimer = Window.instance.run(snackBar.duration, () => {
-                            D.assert(this._snackBarController.status == AnimationStatus.forward ||
-                                     this._snackBarController.status == AnimationStatus.completed);
+                    if (_snackBarController.isCompleted && _snackBarTimer == null) {
+                        SnackBar snackBar = _snackBars.First()._widget;
+                        _snackBarTimer = Window.instance.run(snackBar.duration, () => {
+                            D.assert(_snackBarController.status == AnimationStatus.forward ||
+                                     _snackBarController.status == AnimationStatus.completed);
                             MediaQueryData subMediaQuery = MediaQuery.of(context);
                             if (subMediaQuery.accessibleNavigation && snackBar.action != null) {
                                 return;
                             }
 
-                            this.hideCurrentSnackBar(reason: SnackBarClosedReason.timeout);
+                            hideCurrentSnackBar(reason: SnackBarClosedReason.timeout);
                         });
                     }
                 }
                 else {
-                    this._snackBarTimer?.cancel();
-                    this._snackBarTimer = null;
+                    _snackBarTimer?.cancel();
+                    _snackBarTimer = null;
                 }
             }
 
             List<LayoutId> children = new List<LayoutId>();
 
-            this._addIfNonNull(
+            _addIfNonNull(
                 children: children,
-                child: this.widget.body != null && this.widget.extendBody
-                    ? new _BodyBuilder(body: this.widget.body) : this.widget.body,
+                child: widget.body != null && widget.extendBody
+                    ? new _BodyBuilder(body: widget.body) : widget.body,
                 childId: _ScaffoldSlot.body,
                 removeLeftPadding: false,
-                removeTopPadding: this.widget.appBar != null,
+                removeTopPadding: widget.appBar != null,
                 removeRightPadding: false,
-                removeBottomPadding: this.widget.bottomNavigationBar != null ||
-                                     this.widget.persistentFooterButtons != null,
-                removeBottomInset: this._resizeToAvoidBottomInset
+                removeBottomPadding: widget.bottomNavigationBar != null ||
+                                     widget.persistentFooterButtons != null,
+                removeBottomInset: _resizeToAvoidBottomInset
             );
 
-            if (this.widget.appBar != null) {
-                float topPadding = this.widget.primary ? mediaQuery.padding.top : 0.0f;
-                float extent = this.widget.appBar.preferredSize.height + topPadding;
+            if (widget.appBar != null) {
+                float topPadding = widget.primary ? mediaQuery.padding.top : 0.0f;
+                float extent = widget.appBar.preferredSize.height + topPadding;
                 D.assert(extent >= 0.0f && extent.isFinite());
-                this._addIfNonNull(
+                _addIfNonNull(
                     children: children,
                     new ConstrainedBox(
                         constraints: new BoxConstraints(maxHeight: extent),
                         child: FlexibleSpaceBar.createSettings(
                             currentExtent: extent,
-                            child: this.widget.appBar
+                            child: widget.appBar
                         )
                     ),
                     childId: _ScaffoldSlot.appBar,
@@ -1301,21 +1301,21 @@ namespace Unity.UIWidgets.material {
                 );
             }
 
-            if (this._snackBars.isNotEmpty()) {
-                this._addIfNonNull(
+            if (_snackBars.isNotEmpty()) {
+                _addIfNonNull(
                     children: children,
-                    child: this._snackBars.First()._widget,
+                    child: _snackBars.First()._widget,
                     childId: _ScaffoldSlot.snackBar,
                     removeLeftPadding: false,
                     removeTopPadding: true,
                     removeRightPadding: false,
-                    removeBottomPadding: this.widget.bottomNavigationBar != null ||
-                                         this.widget.persistentFooterButtons != null
+                    removeBottomPadding: widget.bottomNavigationBar != null ||
+                                         widget.persistentFooterButtons != null
                 );
             }
 
-            if (this.widget.persistentFooterButtons != null) {
-                this._addIfNonNull(
+            if (widget.persistentFooterButtons != null) {
+                _addIfNonNull(
                     children: children,
                     new Container(
                         decoration: new BoxDecoration(
@@ -1328,7 +1328,7 @@ namespace Unity.UIWidgets.material {
                                 child: new SafeArea(
                                     top: false,
                                     child: new ButtonBar(
-                                        children: this.widget.persistentFooterButtons
+                                        children: widget.persistentFooterButtons
                                     )
                                 )
                             )
@@ -1342,10 +1342,10 @@ namespace Unity.UIWidgets.material {
                 );
             }
 
-            if (this.widget.bottomNavigationBar != null) {
-                this._addIfNonNull(
+            if (widget.bottomNavigationBar != null) {
+                _addIfNonNull(
                     children: children,
-                    child: this.widget.bottomNavigationBar,
+                    child: widget.bottomNavigationBar,
                     childId: _ScaffoldSlot.bottomNavigationBar,
                     removeLeftPadding: false,
                     removeTopPadding: true,
@@ -1354,38 +1354,38 @@ namespace Unity.UIWidgets.material {
                 );
             }
 
-            if (this._currentBottomSheet != null || this._dismissedBottomSheets.isNotEmpty()) {
+            if (_currentBottomSheet != null || _dismissedBottomSheets.isNotEmpty()) {
                 List<Widget> bottomSheets = new List<Widget>();
-                if (this._dismissedBottomSheets.isNotEmpty()) {
-                    bottomSheets.AddRange(this._dismissedBottomSheets);
+                if (_dismissedBottomSheets.isNotEmpty()) {
+                    bottomSheets.AddRange(_dismissedBottomSheets);
                 }
 
-                if (this._currentBottomSheet != null) {
-                    bottomSheets.Add(this._currentBottomSheet._widget);
+                if (_currentBottomSheet != null) {
+                    bottomSheets.Add(_currentBottomSheet._widget);
                 }
 
                 Widget stack = new Stack(
                     children: bottomSheets,
                     alignment: Alignment.bottomCenter
                 );
-                this._addIfNonNull(
+                _addIfNonNull(
                     children: children,
                     child: stack,
                     childId: _ScaffoldSlot.bottomSheet,
                     removeLeftPadding: false,
                     removeTopPadding: true,
                     removeRightPadding: false,
-                    removeBottomPadding: this._resizeToAvoidBottomInset
+                    removeBottomPadding: _resizeToAvoidBottomInset
                 );
             }
 
-            this._addIfNonNull(
+            _addIfNonNull(
                 children: children,
                 new _FloatingActionButtonTransition(
-                    child: this.widget.floatingActionButton,
-                    fabMoveAnimation: this._floatingActionButtonMoveController,
-                    fabMotionAnimator: this._floatingActionButtonAnimator,
-                    geometryNotifier: this._geometryNotifier
+                    child: widget.floatingActionButton,
+                    fabMoveAnimation: _floatingActionButtonMoveController,
+                    fabMotionAnimator: _floatingActionButtonAnimator,
+                    geometryNotifier: _geometryNotifier
                 ),
                 childId: _ScaffoldSlot.floatingActionButton,
                 removeLeftPadding: true,
@@ -1396,11 +1396,11 @@ namespace Unity.UIWidgets.material {
 
             switch (themeData.platform) {
                 case RuntimePlatform.IPhonePlayer:
-                    this._addIfNonNull(
+                    _addIfNonNull(
                         children: children,
                         new GestureDetector(
                             behavior: HitTestBehavior.opaque,
-                            onTap: this._handleStatusBarTap
+                            onTap: _handleStatusBarTap
                         ),
                         childId: _ScaffoldSlot.statusBar,
                         removeLeftPadding: false,
@@ -1411,41 +1411,40 @@ namespace Unity.UIWidgets.material {
                     break;
             }
 
-            if (this._endDrawerOpened) {
-                this._buildDrawer(children);
-                this._buildEndDrawer(children);
+            if (_endDrawerOpened) {
+                _buildDrawer(children);
+                _buildEndDrawer(children);
             }
             else {
-                this._buildEndDrawer(children);
-                this._buildDrawer(children);
+                _buildEndDrawer(children);
+                _buildDrawer(children);
             }
 
             EdgeInsets minInsets = mediaQuery.padding.copyWith(
-                bottom: this._resizeToAvoidBottomInset ? mediaQuery.viewInsets.bottom : 0.0f
+                bottom: _resizeToAvoidBottomInset ? mediaQuery.viewInsets.bottom : 0.0f
             );
 
-            bool _extendBody = !(minInsets.bottom > 0) && this.widget.extendBody;
+            bool _extendBody = !(minInsets.bottom > 0) && widget.extendBody;
             
             return new _ScaffoldScope(
-                hasDrawer: this.hasDrawer,
-                geometryNotifier: this._geometryNotifier,
+                hasDrawer: hasDrawer,
+                geometryNotifier: _geometryNotifier,
                 child: new PrimaryScrollController(
-                    controller: this._primaryScrollController,
+                    controller: _primaryScrollController,
                     child: new Material(
-                        color: this.widget.backgroundColor ?? themeData.scaffoldBackgroundColor,
-                        child: new AnimatedBuilder(animation: this._floatingActionButtonMoveController,
+                        color: widget.backgroundColor ?? themeData.scaffoldBackgroundColor,
+                        child: new AnimatedBuilder(animation: _floatingActionButtonMoveController,
                             builder: (BuildContext subContext, Widget child) => {
                                 return new CustomMultiChildLayout(
                                     children: new List<Widget>(children),
                                     layoutDelegate: new _ScaffoldLayout(
                                         extendBody: _extendBody,
                                         minInsets: minInsets,
-                                        currentFloatingActionButtonLocation: this._floatingActionButtonLocation,
-                                        floatingActionButtonMoveAnimationProgress: this
-                                            ._floatingActionButtonMoveController.value,
-                                        floatingActionButtonMotionAnimator: this._floatingActionButtonAnimator,
-                                        geometryNotifier: this._geometryNotifier,
-                                        previousFloatingActionButtonLocation: this._previousFloatingActionButtonLocation
+                                        currentFloatingActionButtonLocation: _floatingActionButtonLocation,
+                                        floatingActionButtonMoveAnimationProgress: _floatingActionButtonMoveController.value,
+                                        floatingActionButtonMotionAnimator: _floatingActionButtonAnimator,
+                                        geometryNotifier: _geometryNotifier,
+                                        previousFloatingActionButtonLocation: _previousFloatingActionButtonLocation
                                     )
                                 );
                             }
@@ -1473,7 +1472,7 @@ namespace Unity.UIWidgets.material {
         public readonly Promise<U> _completer;
 
         public IPromise<U> closed {
-            get { return this._completer; }
+            get { return _completer; }
         }
 
         public readonly VoidCallback close;
@@ -1517,41 +1516,41 @@ namespace Unity.UIWidgets.material {
     class _PersistentBottomSheetState : State<_PersistentBottomSheet> {
         public override void initState() {
             base.initState();
-            D.assert(this.widget.animationController.status == AnimationStatus.forward
-                     || this.widget.animationController.status == AnimationStatus.completed);
-            this.widget.animationController.addStatusListener(this._handleStatusChange);
+            D.assert(widget.animationController.status == AnimationStatus.forward
+                     || widget.animationController.status == AnimationStatus.completed);
+            widget.animationController.addStatusListener(_handleStatusChange);
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
             _PersistentBottomSheet _oldWidget = (_PersistentBottomSheet) oldWidget;
-            D.assert(this.widget.animationController == _oldWidget.animationController);
+            D.assert(widget.animationController == _oldWidget.animationController);
         }
 
         public void close() {
-            this.widget.animationController.reverse();
+            widget.animationController.reverse();
         }
 
         void _handleStatusChange(AnimationStatus status) {
-            if (status == AnimationStatus.dismissed && this.widget.onDismissed != null) {
-                this.widget.onDismissed();
+            if (status == AnimationStatus.dismissed && widget.onDismissed != null) {
+                widget.onDismissed();
             }
         }
 
         public override Widget build(BuildContext context) {
             return new AnimatedBuilder(
-                animation: this.widget.animationController,
+                animation: widget.animationController,
                 builder: (BuildContext subContext, Widget child) => {
                     return new Align(
                         alignment: Alignment.topLeft,
-                        heightFactor: this.widget.animationController.value,
+                        heightFactor: widget.animationController.value,
                         child: child);
                 },
                 child: new BottomSheet(
-                    animationController: this.widget.animationController,
-                    enableDrag: this.widget.enableDrag,
-                    onClosing: this.widget.onClosing,
-                    builder: this.widget.builder));
+                    animationController: widget.animationController,
+                    enableDrag: widget.enableDrag,
+                    onClosing: widget.onClosing,
+                    builder: widget.builder));
         }
     }
 
@@ -1586,7 +1585,7 @@ namespace Unity.UIWidgets.material {
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
             _ScaffoldScope _oldWidget = (_ScaffoldScope) oldWidget;
-            return this.hasDrawer != _oldWidget.hasDrawer;
+            return hasDrawer != _oldWidget.hasDrawer;
         }
     }
 }

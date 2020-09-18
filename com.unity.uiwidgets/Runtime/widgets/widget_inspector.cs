@@ -86,39 +86,39 @@ namespace Unity.UIWidgets.widgets {
 //        }
 
         public Dictionary<string, object> getRootWidget(string groupName) {
-            return this._nodeToJson(this.widgetsBinding.renderViewElement.toDiagnosticsNode(),
+            return _nodeToJson(widgetsBinding.renderViewElement.toDiagnosticsNode(),
                 new _SerializeConfig(groupName));
         }
 
         public Dictionary<string, object> getRootWidgetSummaryTree(string groupName) {
-            return this._nodeToJson(this.widgetsBinding.renderViewElement.toDiagnosticsNode(),
+            return _nodeToJson(widgetsBinding.renderViewElement.toDiagnosticsNode(),
                 new _SerializeConfig(groupName, subtreeDepth: 1000000, summaryTree: true));
         }
 
         public Dictionary<string, object> getRootRenderObject(string groupName) {
-            return this._nodeToJson(this.widgetsBinding.renderView.toDiagnosticsNode(),
+            return _nodeToJson(widgetsBinding.renderView.toDiagnosticsNode(),
                 new _SerializeConfig(groupName: groupName, subtreeDepth: 1000000));
         }
 
         public Dictionary<string, object> getDetailsSubtree(string id, string groupName) {
-            var root = this.toObject(id) as DiagnosticsNode;
+            var root = toObject(id) as DiagnosticsNode;
             if (root == null) {
                 return null;
             }
 
-            return this._nodeToJson(root,
+            return _nodeToJson(root,
                 new _SerializeConfig(groupName, summaryTree: false, subtreeDepth: 2, includeProperties: true));
         }
 
         public bool setSelectionById(string id, string groupName = "") {
-            return this.setSelection(this.toObject(id), groupName);
+            return setSelection(toObject(id), groupName);
         }
 
 
         public Dictionary<string, object> getSelectedRenderObject(string previousSelectionId, string groupName) {
-            DiagnosticsNode previousSelection = this.toObject(previousSelectionId) as DiagnosticsNode;
-            RenderObject current = this.selection == null ? null : this.selection.current;
-            return this._nodeToJson(
+            DiagnosticsNode previousSelection = toObject(previousSelectionId) as DiagnosticsNode;
+            RenderObject current = selection == null ? null : selection.current;
+            return _nodeToJson(
                 current == (previousSelection == null ? null : previousSelection.valueObject)
                     ? previousSelection
                     : (current == null ? null : current.toDiagnosticsNode()),
@@ -127,13 +127,13 @@ namespace Unity.UIWidgets.widgets {
 
 
         public Dictionary<string, object> getSelectedWidget(string previousSelectionId, string groupName) {
-            DiagnosticsNode previousSelection = (DiagnosticsNode) this.toObject(previousSelectionId);
+            DiagnosticsNode previousSelection = (DiagnosticsNode) toObject(previousSelectionId);
             Element current = null;
-            if (this.selection != null) {
-                current = this.selection.currentElement;
+            if (selection != null) {
+                current = selection.currentElement;
             }
 
-            return this._nodeToJson(
+            return _nodeToJson(
                 current == (previousSelection == null ? null : previousSelection.valueObject)
                     ? previousSelection
                     : (current == null ? null : current.toDiagnosticsNode()),
@@ -141,27 +141,27 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public Dictionary<string, object> getSelectedSummaryWidget(string previousSelectionId, string groupName) {
-            return this.getSelectedWidget(previousSelectionId, groupName);
+            return getSelectedWidget(previousSelectionId, groupName);
         }
 
         public bool debugShowInspector {
-            get { return this._debugShowInspector; }
+            get { return _debugShowInspector; }
             set {
-                var old = this._debugShowInspector;
-                this._debugShowInspector = value;
-                if (this._debugShowInspector != old && this.inspectorShowCallback != null) {
-                    this.inspectorShowCallback();
+                var old = _debugShowInspector;
+                _debugShowInspector = value;
+                if (_debugShowInspector != old && inspectorShowCallback != null) {
+                    inspectorShowCallback();
                 }
             }
         }
 
         public void disposeGroup(string groupName) {
             HashSet<_InspectorReferenceData> references;
-            this._groups.TryGetValue(groupName, out references);
-            this._groups.Remove(groupName);
+            _groups.TryGetValue(groupName, out references);
+            _groups.Remove(groupName);
             if (references != null) {
                 foreach (var r in references) {
-                    this._decrementReferenceCount(r);
+                    _decrementReferenceCount(r);
                 }
             }
 
@@ -177,28 +177,28 @@ namespace Unity.UIWidgets.widgets {
         protected bool setSelection(object obj, string groupName = "") {
             if (obj is Element || obj is RenderObject) {
                 if (obj is Element) {
-                    if (ReferenceEquals(obj, this.selection.currentElement)) {
+                    if (ReferenceEquals(obj, selection.currentElement)) {
                         return false;
                     }
 
-                    this.selection.currentElement = (Element) obj;
+                    selection.currentElement = (Element) obj;
                 }
                 else {
-                    if (obj == this.selection.current) {
+                    if (obj == selection.current) {
                         return false;
                     }
 
-                    this.selection.current = (RenderObject) obj;
+                    selection.current = (RenderObject) obj;
                 }
 
-                if (this.selectionChangedCallback != null) {
+                if (selectionChangedCallback != null) {
                     if (WidgetsBinding.instance.schedulerPhase == SchedulerPhase.idle) {
-                        this.selectionChangedCallback();
+                        selectionChangedCallback();
                     }
                     else {
                         // todo schedule task ?
                         WidgetsBinding.instance.scheduleFrameCallback(
-                            duration => { this.selectionChangedCallback(); }
+                            duration => { selectionChangedCallback(); }
                         );
                     }
                 }
@@ -216,8 +216,8 @@ namespace Unity.UIWidgets.widgets {
 
             var ret = node.toJsonMap();
             var value = node.valueObject;
-            ret["objectId"] = this.toId(node, config.groupName);
-            ret["valueId"] = this.toId(value, config.groupName);
+            ret["objectId"] = toId(node, config.groupName);
+            ret["valueId"] = toId(value, config.groupName);
 
             if (config.summaryTree) {
                 ret["summaryTree"] = config.summaryTree;
@@ -225,11 +225,11 @@ namespace Unity.UIWidgets.widgets {
 
             var createdByLocalProject = true; // todo;
             if (config.subtreeDepth > 0 || (config.pathToInclude != null && config.pathToInclude.Count > 0)) {
-                ret["children"] = this._nodesToJson(this._getChildrenFiltered(node, config), config);
+                ret["children"] = _nodesToJson(_getChildrenFiltered(node, config), config);
             }
 
             if (config.includeProperties) {
-                ret["properties"] = this._nodesToJson(
+                ret["properties"] = _nodesToJson(
                     node.getProperties().Where((n) =>
                         !n.isFiltered(createdByLocalProject ? DiagnosticLevel.fine : DiagnosticLevel.info)).ToList(),
                     new _SerializeConfig(groupName: config.groupName, subtreeDepth: 1, expandPropertyValues: true)
@@ -254,7 +254,7 @@ namespace Unity.UIWidgets.widgets {
                 }
 
                 if (config.expandPropertyValues && value is Diagnosticable) {
-                    ret["properties"] = this._nodesToJson(
+                    ret["properties"] = _nodesToJson(
                         ((Diagnosticable) value).toDiagnosticsNode().getProperties()
                         .Where(n => !n.isFiltered(DiagnosticLevel.info)).ToList(),
                         new _SerializeConfig(groupName: config.groupName, subtreeDepth: 0, expandPropertyValues: false)
@@ -273,16 +273,16 @@ namespace Unity.UIWidgets.widgets {
             return nodes.Select(node => {
                 if (config.pathToInclude != null && config.pathToInclude.Count > 0) {
                     if (config.pathToInclude[0] == node.valueObject) {
-                        return this._nodeToJson(node, _SerializeConfig.merge(config,
+                        return _nodeToJson(node, _SerializeConfig.merge(config,
                             pathToInclude: config.pathToInclude.GetRange(1, config.pathToInclude.Count - 1)));
                     }
                     else {
-                        return this._nodeToJson(node, _SerializeConfig.merge(config));
+                        return _nodeToJson(node, _SerializeConfig.merge(config));
                     }
                 }
 
-                return this._nodeToJson(node,
-                    config.summaryTree || config.subtreeDepth > 1 || this._shouldShowInSummaryTree(node)
+                return _nodeToJson(node,
+                    config.summaryTree || config.subtreeDepth > 1 || _shouldShowInSummaryTree(node)
                         ? _SerializeConfig.merge(config, subtreeDepth: config.subtreeDepth - 1)
                         : config
                 );
@@ -290,8 +290,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public List<Dictionary<string, object>> getProperties(string diagnosticsNodeId, string groupName) {
-            var node = this.toObject(diagnosticsNodeId) as DiagnosticsNode;
-            return this._nodesToJson(node == null ? new List<DiagnosticsNode>() : node.getProperties(),
+            var node = toObject(diagnosticsNodeId) as DiagnosticsNode;
+            return _nodesToJson(node == null ? new List<DiagnosticsNode>() : node.getProperties(),
                 new _SerializeConfig(groupName: groupName));
         }
 
@@ -299,11 +299,11 @@ namespace Unity.UIWidgets.widgets {
             _SerializeConfig config) {
             var children = new List<DiagnosticsNode>();
             foreach (var child in node.getChildren()) {
-                if (!config.summaryTree || this._shouldShowInSummaryTree(child)) {
+                if (!config.summaryTree || _shouldShowInSummaryTree(child)) {
                     children.Add(child);
                 }
                 else {
-                    children.AddRange(this._getChildrenFiltered(child, config));
+                    children.AddRange(_getChildrenFiltered(child, config));
                 }
             }
 
@@ -316,11 +316,11 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            if (!(value is Element) || !this.isWidgetCreationTracked()) {
+            if (!(value is Element) || !isWidgetCreationTracked()) {
                 return true;
             }
 
-            return this._isValueCreatedByLocalProject(value);
+            return _isValueCreatedByLocalProject(value);
         }
 
         string toId(object obj, string groupName) {
@@ -329,26 +329,26 @@ namespace Unity.UIWidgets.widgets {
             }
 
             HashSet<_InspectorReferenceData> group;
-            this._groups.TryGetValue(groupName, out group);
+            _groups.TryGetValue(groupName, out group);
             if (group == null) {
                 group = new HashSet<_InspectorReferenceData>();
-                this._groups.Add(groupName, group);
+                _groups.Add(groupName, group);
             }
 
             string id;
-            this._objectToId.TryGetValue(obj, out id);
+            _objectToId.TryGetValue(obj, out id);
 
             _InspectorReferenceData referenceData;
             if (id == null) {
-                id = $"inspector-{this._nextId}";
-                this._nextId++;
-                this._objectToId[obj] = id;
+                id = $"inspector-{_nextId}";
+                _nextId++;
+                _objectToId[obj] = id;
                 referenceData = new _InspectorReferenceData(obj);
-                this._idToReferenceData[id] = referenceData;
+                _idToReferenceData[id] = referenceData;
                 group.Add(referenceData);
             }
             else {
-                referenceData = this._idToReferenceData[id];
+                referenceData = _idToReferenceData[id];
                 if (group.Add(referenceData)) {
                     referenceData.count += 1;
                 }
@@ -363,7 +363,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             _InspectorReferenceData data;
-            this._idToReferenceData.TryGetValue(id, out data);
+            _idToReferenceData.TryGetValue(id, out data);
             if (data == null) {
                 throw new UIWidgetsError("Id does not exist.");
             }
@@ -384,10 +384,10 @@ namespace Unity.UIWidgets.widgets {
             D.assert(reference.count >= 0);
             if (reference.count == 0) {
                 string id;
-                this._objectToId.TryGetValue(reference.obj, out id);
+                _objectToId.TryGetValue(reference.obj, out id);
                 D.assert(id != null);
-                this._objectToId.Remove(reference.obj);
-                this._idToReferenceData.Remove(id);
+                _objectToId.Remove(reference.obj);
+                _idToReferenceData.Remove(id);
             }
         }
     }
@@ -426,11 +426,11 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            WidgetInspectorService.instance.selectionChangedCallback += this._selectionChangedCallback;
+            WidgetInspectorService.instance.selectionChangedCallback += _selectionChangedCallback;
         }
 
         public override void dispose() {
-            WidgetInspectorService.instance.selectionChangedCallback -= this._selectionChangedCallback;
+            WidgetInspectorService.instance.selectionChangedCallback -= _selectionChangedCallback;
             base.dispose();
         }
 
@@ -468,7 +468,7 @@ namespace Unity.UIWidgets.widgets {
 
                 var childTransform = new Matrix3(transform);
                 renderObject.applyPaintTransform(child, childTransform);
-                if (this._hitTestHelper(hits, edgeHits, position, child, childTransform)) {
+                if (_hitTestHelper(hits, edgeHits, position, child, childTransform)) {
                     hit = true;
                 }
             }
@@ -492,7 +492,7 @@ namespace Unity.UIWidgets.widgets {
             List<RenderObject> regularHits = new List<RenderObject>();
             List<RenderObject> edgeHits = new List<RenderObject>();
 
-            this._hitTestHelper(regularHits, edgeHits, position, root, root.getTransformTo(null));
+            _hitTestHelper(regularHits, edgeHits, position, root, root.getTransformTo(null));
             regularHits.Sort(CompareByArea);
             HashSet<RenderObject> hits = new HashSet<RenderObject>(edgeHits);
             foreach (var obj in regularHits) {
@@ -506,86 +506,86 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _inspectAt(Offset position) {
-            if (!this.isSelectMode) {
+            if (!isSelectMode) {
                 return;
             }
 
             RenderIgnorePointer ignorePointer =
-                (RenderIgnorePointer) this._ignorePointerKey.currentContext.findRenderObject();
+                (RenderIgnorePointer) _ignorePointerKey.currentContext.findRenderObject();
             RenderObject userRender = ignorePointer.child;
-            List<RenderObject> selected = this.hitTest(position, userRender);
-            this.setState(() => { this.selection.candidates = selected; });
+            List<RenderObject> selected = hitTest(position, userRender);
+            setState(() => { selection.candidates = selected; });
         }
 
         void _handlePanDown(DragDownDetails evt) {
-            this._lastPointerLocation = evt.globalPosition;
-            this._inspectAt(evt.globalPosition);
+            _lastPointerLocation = evt.globalPosition;
+            _inspectAt(evt.globalPosition);
         }
 
         void _handlePanUpdate(DragUpdateDetails evt) {
-            this._lastPointerLocation = evt.globalPosition;
-            this._inspectAt(evt.globalPosition);
+            _lastPointerLocation = evt.globalPosition;
+            _inspectAt(evt.globalPosition);
         }
 
         void _handlePanEnd(DragEndDetails details) {
             Rect bounds =
                 (Offset.zero & (Window.instance.physicalSize / Window.instance.devicePixelRatio)).deflate(
                     _kOffScreenMargin);
-            if (!bounds.contains(this._lastPointerLocation)) {
-                this.setState(() => { this.selection.clear(); });
+            if (!bounds.contains(_lastPointerLocation)) {
+                setState(() => { selection.clear(); });
             }
         }
 
         void _handleTap() {
-            if (!this.isSelectMode) {
+            if (!isSelectMode) {
                 return;
             }
 
-            if (this._lastPointerLocation != null) {
-                this._inspectAt(this._lastPointerLocation);
+            if (_lastPointerLocation != null) {
+                _inspectAt(_lastPointerLocation);
 
-                if (this.selection != null) {
+                if (selection != null) {
                     if (WidgetInspectorService.instance.developerInspect != null) {
                         WidgetInspectorService.instance.developerInspect();
                     }
                 }
             }
 
-            this.setState(() => {
-                if (this.widget.selectButtonBuilder != null) {
-                    this.isSelectMode = false;
+            setState(() => {
+                if (widget.selectButtonBuilder != null) {
+                    isSelectMode = false;
                 }
             });
         }
 
         void _handleEnableSelect() {
-            this.setState(() => { this.isSelectMode = true; });
+            setState(() => { isSelectMode = true; });
         }
 
         public override Widget build(BuildContext context) {
             List<Widget> children = new List<Widget>();
             children.Add(new GestureDetector(
-                onTap: this._handleTap,
-                onPanDown: this._handlePanDown,
-                onPanEnd: this._handlePanEnd,
-                onPanUpdate: this._handlePanUpdate,
+                onTap: _handleTap,
+                onPanDown: _handlePanDown,
+                onPanEnd: _handlePanEnd,
+                onPanUpdate: _handlePanUpdate,
                 behavior: HitTestBehavior.opaque,
                 child: new IgnorePointer(
-                    ignoring: this.isSelectMode,
-                    key: this._ignorePointerKey,
-                    child: this.widget.child
+                    ignoring: isSelectMode,
+                    key: _ignorePointerKey,
+                    child: widget.child
                 )
             ));
 
-            if (!this.isSelectMode && this.widget.selectButtonBuilder != null) {
+            if (!isSelectMode && widget.selectButtonBuilder != null) {
                 children.Add(new Positioned(
                     left: _kInspectButtonMargin,
                     bottom: _kInspectButtonMargin,
-                    child: this.widget.selectButtonBuilder(context, this._handleEnableSelect)
+                    child: widget.selectButtonBuilder(context, _handleEnableSelect)
                 ));
             }
 
-            children.Add(new _InspectorOverlay(null, this.selection));
+            children.Add(new _InspectorOverlay(null, selection));
             return new Stack(children: children);
         }
 
@@ -610,7 +610,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _selectionChangedCallback() {
-            this.setState(() => { });
+            setState(() => { });
         }
 
         static int CompareByArea(RenderObject o1, RenderObject o2) {
@@ -635,63 +635,63 @@ namespace Unity.UIWidgets.widgets {
         List<RenderObject> _candidates = new List<RenderObject>();
 
         public List<RenderObject> candidates {
-            get { return this._candidates; }
+            get { return _candidates; }
             set {
-                this._candidates = value;
-                this._index = 0;
-                this._computeCurrent();
+                _candidates = value;
+                _index = 0;
+                _computeCurrent();
             }
         }
 
         int _index = 0;
 
         public int index {
-            get { return this._index; }
+            get { return _index; }
             set {
-                this._index = value;
-                this._computeCurrent();
+                _index = value;
+                _computeCurrent();
             }
         }
 
         public void clear() {
-            this.candidates = new List<RenderObject>();
+            candidates = new List<RenderObject>();
         }
 
         public RenderObject current {
-            get { return this._current; }
+            get { return _current; }
             set {
-                if (this._current != value) {
-                    this._current = value;
+                if (_current != value) {
+                    _current = value;
                     _DebugCreator creator = value.debugCreator as _DebugCreator;
-                    this._currentElement = creator.element;
+                    _currentElement = creator.element;
                 }
             }
         }
 
         public Element currentElement {
-            get { return this._currentElement; }
+            get { return _currentElement; }
             set {
-                if (!ReferenceEquals(this.currentElement, value)) {
-                    this._currentElement = value;
-                    this._current = value.findRenderObject();
+                if (!ReferenceEquals(currentElement, value)) {
+                    _currentElement = value;
+                    _current = value.findRenderObject();
                 }
             }
         }
 
         void _computeCurrent() {
-            if (this._index < this.candidates.Count) {
-                this._current = this.candidates[this.index];
-                this._currentElement = ((_DebugCreator) this._current.debugCreator).element;
+            if (_index < candidates.Count) {
+                _current = candidates[index];
+                _currentElement = ((_DebugCreator) _current.debugCreator).element;
             }
             else {
-                this._current = null;
-                this._currentElement = null;
+                _current = null;
+                _currentElement = null;
             }
         }
 
 
         public bool active {
-            get { return this._current != null && this._current.attached; }
+            get { return _current != null && _current.attached; }
         }
     }
 
@@ -703,28 +703,28 @@ namespace Unity.UIWidgets.widgets {
         public readonly InspectorSelection selection;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new _RenderInspectorOverlay(this.selection);
+            return new _RenderInspectorOverlay(selection);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((_RenderInspectorOverlay) renderObject).selection = this.selection;
+            ((_RenderInspectorOverlay) renderObject).selection = selection;
         }
     }
 
     class _RenderInspectorOverlay : RenderBox {
         public _RenderInspectorOverlay(InspectorSelection selection) {
             D.assert(selection != null);
-            this._selection = selection;
+            _selection = selection;
         }
 
         InspectorSelection _selection;
 
         public InspectorSelection selection {
-            get { return this._selection; }
+            get { return _selection; }
             set {
-                if (value != this._selection) {
-                    this._selection = value;
-                    this.markNeedsPaint();
+                if (value != _selection) {
+                    _selection = value;
+                    markNeedsPaint();
                 }
             }
         }
@@ -738,13 +738,13 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void performResize() {
-            this.size = this.constraints.constrain(new Size(float.PositiveInfinity, float.PositiveInfinity));
+            size = constraints.constrain(new Size(float.PositiveInfinity, float.PositiveInfinity));
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            D.assert(this.needsCompositing);
+            D.assert(needsCompositing);
             context.addLayer(new _InspectorOverlayLayer(
-                Rect.fromLTWH(offset.dx, offset.dy, this.size.width, this.size.height), this.selection
+                Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height), selection
             ));
         }
     }
@@ -754,8 +754,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly Matrix3 transform;
 
         public _TransformedRect(RenderObject obj) {
-            this.rect = obj.semanticBounds;
-            this.transform = obj.getTransformTo(null);
+            rect = obj.semanticBounds;
+            transform = obj.getTransformTo(null);
         }
 
         public bool Equals(_TransformedRect other) {
@@ -767,7 +767,7 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            return Equals(this.rect, other.rect) && this.transform.Equals(other.transform);
+            return Equals(rect, other.rect) && transform.Equals(other.transform);
         }
 
         public override bool Equals(object obj) {
@@ -779,16 +779,16 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_TransformedRect) obj);
+            return Equals((_TransformedRect) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.rect != null ? this.rect.GetHashCode() : 0) * 397) ^ this.transform.GetHashCode();
+                return ((rect != null ? rect.GetHashCode() : 0) * 397) ^ transform.GetHashCode();
             }
         }
 
@@ -826,12 +826,12 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            return Equals(this.overlayRect, other.overlayRect) && Equals(this.selected, other.selected)
-                                                               && string.Equals(this.tooltip, other.tooltip) &&
-                                                               this.textDirection == other.textDirection
-                                                               && (this.candidates == other.candidates ||
-                                                                   (this.candidates != null &&
-                                                                    this.candidates.SequenceEqual(
+            return Equals(overlayRect, other.overlayRect) && Equals(selected, other.selected)
+                                                               && string.Equals(tooltip, other.tooltip) &&
+                                                               textDirection == other.textDirection
+                                                               && (candidates == other.candidates ||
+                                                                   (candidates != null &&
+                                                                    candidates.SequenceEqual(
                                                                         other.candidates)));
         }
 
@@ -844,23 +844,23 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_InspectorOverlayRenderState) obj);
+            return Equals((_InspectorOverlayRenderState) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.overlayRect != null ? this.overlayRect.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.selected != null ? this.selected.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.candidates != null
-                               ? this.candidates.Aggregate(0,
+                var hashCode = (overlayRect != null ? overlayRect.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (selected != null ? selected.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (candidates != null
+                               ? candidates.Aggregate(0,
                                    (hash, rect) => (hash * 397) ^ (rect == null ? 0 : rect.GetHashCode()))
                                : 0);
-                hashCode = (hashCode * 397) ^ (this.tooltip != null ? this.tooltip.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int) this.textDirection;
+                hashCode = (hashCode * 397) ^ (tooltip != null ? tooltip.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (int) textDirection;
                 return hashCode;
             }
         }
@@ -901,13 +901,13 @@ namespace Unity.UIWidgets.widgets {
         internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
             
-            if (!this.selection.active) {
+            if (!selection.active) {
                 return null;
             }
 
-            RenderObject selected = this.selection.current;
+            RenderObject selected = selection.current;
             List<_TransformedRect> candidates = new List<_TransformedRect>();
-            foreach (RenderObject candidate in this.selection.candidates) {
+            foreach (RenderObject candidate in selection.candidates) {
                 if (candidate == selected || !candidate.attached) {
                     continue;
                 }
@@ -915,18 +915,18 @@ namespace Unity.UIWidgets.widgets {
                 candidates.Add(new _TransformedRect(candidate));
             }
 
-            _InspectorOverlayRenderState state = new _InspectorOverlayRenderState(this.overlayRect,
+            _InspectorOverlayRenderState state = new _InspectorOverlayRenderState(overlayRect,
                 new _TransformedRect(selected),
-                candidates, this.selection.currentElement.toStringShort(),
+                candidates, selection.currentElement.toStringShort(),
                 TextDirection.ltr
             );
 
-            if (state != this._lastState) {
-                this._lastState = state;
-                this._picture = this._buildPicture(state);
+            if (state != _lastState) {
+                _lastState = state;
+                _picture = _buildPicture(state);
             }
 
-            builder.addPicture(layerOffset, this._picture);
+            builder.addPicture(layerOffset, _picture);
             return null;
         }
 

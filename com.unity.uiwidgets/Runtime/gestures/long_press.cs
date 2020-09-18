@@ -72,20 +72,20 @@ namespace Unity.UIWidgets.gestures {
         public GestureLongPressEndCallback onLongPressEnd;
 
         protected override void didExceedDeadline() {
-            this.resolve(GestureDisposition.accepted);
-            this._longPressAccepted = true;
-            base.acceptGesture(this.primaryPointer);
-            if (this.onLongPress != null) {
-                this.invokeCallback<object>("onLongPress", () => {
-                    this.onLongPress();
+            resolve(GestureDisposition.accepted);
+            _longPressAccepted = true;
+            base.acceptGesture(primaryPointer);
+            if (onLongPress != null) {
+                invokeCallback<object>("onLongPress", () => {
+                    onLongPress();
                     return null;
                 });
             }
 
-            if (this.onLongPressStart != null) {
-                this.invokeCallback<object>("onLongPressStart",
+            if (onLongPressStart != null) {
+                invokeCallback<object>("onLongPressStart",
                     () => {
-                        this.onLongPressStart(new LongPressStartDetails(globalPosition: this._longPressOrigin));
+                        onLongPressStart(new LongPressStartDetails(globalPosition: _longPressOrigin));
                         return null;
                     });
             }
@@ -93,36 +93,36 @@ namespace Unity.UIWidgets.gestures {
 
         protected override void handlePrimaryPointer(PointerEvent evt) {
             if (evt is PointerUpEvent) {
-                if (this._longPressAccepted) {
-                    if (this.onLongPressUp != null) {
-                        this.invokeCallback<object>("onLongPressUp", () => {
-                            this.onLongPressUp();
+                if (_longPressAccepted) {
+                    if (onLongPressUp != null) {
+                        invokeCallback<object>("onLongPressUp", () => {
+                            onLongPressUp();
                             return null;
                         });
                     }
 
-                    if (this.onLongPressEnd != null) {
-                        this.invokeCallback<object>("onLongPressEnd", () => {
-                            this.onLongPressEnd(new LongPressEndDetails(globalPosition: evt.position));
+                    if (onLongPressEnd != null) {
+                        invokeCallback<object>("onLongPressEnd", () => {
+                            onLongPressEnd(new LongPressEndDetails(globalPosition: evt.position));
                             return null;
                         });
                     }
 
-                    this._longPressAccepted = true;
+                    _longPressAccepted = true;
                 }
                 else {
-                    this.resolve(GestureDisposition.rejected);
+                    resolve(GestureDisposition.rejected);
                 }
             }
             else if (evt is PointerDownEvent || evt is PointerCancelEvent) {
-                this._longPressAccepted = false;
-                this._longPressOrigin = evt.position;
+                _longPressAccepted = false;
+                _longPressOrigin = evt.position;
             }
-            else if (evt is PointerMoveEvent && this._longPressAccepted && this.onLongPressMoveUpdate != null) {
-                this.invokeCallback<object>("onLongPressMoveUpdate", () => {
-                    this.onLongPressMoveUpdate(new LongPressMoveUpdateDetails(
+            else if (evt is PointerMoveEvent && _longPressAccepted && onLongPressMoveUpdate != null) {
+                invokeCallback<object>("onLongPressMoveUpdate", () => {
+                    onLongPressMoveUpdate(new LongPressMoveUpdateDetails(
                         globalPosition: evt.position,
-                        offsetFromOrigin: evt.position - this._longPressOrigin
+                        offsetFromOrigin: evt.position - _longPressOrigin
                     ));
                     return null;
                 });

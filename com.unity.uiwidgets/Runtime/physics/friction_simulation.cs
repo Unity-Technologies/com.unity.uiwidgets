@@ -9,10 +9,10 @@ namespace Unity.UIWidgets.physics {
             float drag, float position, float velocity,
             Tolerance tolerance = null
         ) : base(tolerance: tolerance) {
-            this._drag = drag;
-            this._dragLog = Mathf.Log(drag);
-            this._x = position;
-            this._v = velocity;
+            _drag = drag;
+            _dragLog = Mathf.Log(drag);
+            _x = position;
+            _v = velocity;
         }
 
         public static FrictionSimulation through(float startPosition, float endPosition, float startVelocity,
@@ -39,31 +39,31 @@ namespace Unity.UIWidgets.physics {
         }
 
         public override float x(float time) {
-            return this._x + this._v * Mathf.Pow(this._drag, time) / this._dragLog - this._v / this._dragLog;
+            return _x + _v * Mathf.Pow(_drag, time) / _dragLog - _v / _dragLog;
         }
 
         public override float dx(float time) {
-            return this._v * Mathf.Pow(this._drag, time);
+            return _v * Mathf.Pow(_drag, time);
         }
 
         public float finalX {
-            get { return this._x - this._v / this._dragLog; }
+            get { return _x - _v / _dragLog; }
         }
 
         public float timeAtX(float x) {
-            if (x == this._x) {
+            if (x == _x) {
                 return 0.0f;
             }
 
-            if (this._v == 0.0 || (this._v > 0 ? (x < this._x || x > this.finalX) : (x > this._x || x < this.finalX))) {
+            if (_v == 0.0 || (_v > 0 ? (x < _x || x > finalX) : (x > _x || x < finalX))) {
                 return float.PositiveInfinity;
             }
 
-            return Mathf.Log(this._dragLog * (x - this._x) / this._v + 1.0f) / this._dragLog;
+            return Mathf.Log(_dragLog * (x - _x) / _v + 1.0f) / _dragLog;
         }
 
         public override bool isDone(float time) {
-            return this.dx(time).abs() < this.tolerance.velocity;
+            return dx(time).abs() < tolerance.velocity;
         }
     }
 
@@ -85,13 +85,13 @@ namespace Unity.UIWidgets.physics {
         readonly float _maxX;
 
         public override float x(float time) {
-            return base.x(time).clamp(this._minX, this._maxX);
+            return base.x(time).clamp(_minX, _maxX);
         }
 
         public override bool isDone(float time) {
             return base.isDone(time) ||
-                   (this.x(time) - this._minX).abs() < this.tolerance.distance ||
-                   (this.x(time) - this._maxX).abs() < this.tolerance.distance;
+                   (x(time) - _minX).abs() < tolerance.distance ||
+                   (x(time) - _maxX).abs() < tolerance.distance;
         }
     }
 }

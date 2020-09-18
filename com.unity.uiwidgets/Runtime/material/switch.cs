@@ -76,7 +76,7 @@ namespace Unity.UIWidgets.material {
             this.activeThumbImage = activeThumbImage;
             this.inactiveThumbImage = inactiveThumbImage;
             this.materialTapTargetSize = materialTapTargetSize;
-            this._switchType = switchType;
+            _switchType = switchType;
             this.dragStartBehavior = dragStartBehavior;
         }
 
@@ -135,15 +135,15 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FlagProperty("value", value: this.value, ifTrue: "on", ifFalse: "off", showName: true));
+            properties.add(new FlagProperty("value", value: value, ifTrue: "on", ifFalse: "off", showName: true));
             properties.add(
-                new ObjectFlagProperty<ValueChanged<bool?>>("onChanged", this.onChanged, ifNull: "disabled"));
+                new ObjectFlagProperty<ValueChanged<bool?>>("onChanged", onChanged, ifNull: "disabled"));
         }
     }
 
     class _SwitchState : TickerProviderStateMixin<Switch> {
         Size getSwitchSize(ThemeData theme) {
-            switch (this.widget.materialTapTargetSize ?? theme.materialTapTargetSize) {
+            switch (widget.materialTapTargetSize ?? theme.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
                     return new Size(Switch._kSwitchWidth, Switch._kSwitchHeight);
                 case MaterialTapTargetSize.shrinkWrap:
@@ -159,35 +159,35 @@ namespace Unity.UIWidgets.material {
             ThemeData theme = Theme.of(context);
             bool isDark = theme.brightness == Brightness.dark;
 
-            Color activeThumbColor = this.widget.activeColor ?? theme.toggleableActiveColor;
-            Color activeTrackColor = this.widget.activeTrackColor ?? activeThumbColor.withAlpha(0x80);
+            Color activeThumbColor = widget.activeColor ?? theme.toggleableActiveColor;
+            Color activeTrackColor = widget.activeTrackColor ?? activeThumbColor.withAlpha(0x80);
 
             Color inactiveThumbColor;
             Color inactiveTrackColor;
-            if (this.widget.onChanged != null) {
+            if (widget.onChanged != null) {
                 Color black32 = new Color(0x52000000); // Black with 32% opacity
-                inactiveThumbColor = this.widget.inactiveThumbColor ??
+                inactiveThumbColor = widget.inactiveThumbColor ??
                                      (isDark ? Colors.grey.shade400 : Colors.grey.shade50);
-                inactiveTrackColor = this.widget.inactiveTrackColor ?? (isDark ? Colors.white30 : black32);
+                inactiveTrackColor = widget.inactiveTrackColor ?? (isDark ? Colors.white30 : black32);
             }
             else {
-                inactiveThumbColor = this.widget.inactiveThumbColor ??
+                inactiveThumbColor = widget.inactiveThumbColor ??
                                      (isDark ? Colors.grey.shade800 : Colors.grey.shade400);
-                inactiveTrackColor = this.widget.inactiveTrackColor ?? (isDark ? Colors.white10 : Colors.black12);
+                inactiveTrackColor = widget.inactiveTrackColor ?? (isDark ? Colors.white10 : Colors.black12);
             }
 
             return new _SwitchRenderObjectWidget(
-                dragStartBehavior: this.widget.dragStartBehavior,
-                value: this.widget.value,
+                dragStartBehavior: widget.dragStartBehavior,
+                value: widget.value,
                 activeColor: activeThumbColor,
                 inactiveColor: inactiveThumbColor,
-                activeThumbImage: this.widget.activeThumbImage,
-                inactiveThumbImage: this.widget.inactiveThumbImage,
+                activeThumbImage: widget.activeThumbImage,
+                inactiveThumbImage: widget.inactiveThumbImage,
                 activeTrackColor: activeTrackColor,
                 inactiveTrackColor: inactiveTrackColor,
                 configuration: ImageUtils.createLocalImageConfiguration(context),
-                onChanged: this.widget.onChanged,
-                additionalConstraints: BoxConstraints.tight(this.getSwitchSize(theme)),
+                onChanged: widget.onChanged,
+                additionalConstraints: BoxConstraints.tight(getSwitchSize(theme)),
                 vsync: this
             );
         }
@@ -207,12 +207,12 @@ namespace Unity.UIWidgets.material {
 //        }
 
         public override Widget build(BuildContext context) {
-            switch (this.widget._switchType) {
+            switch (widget._switchType) {
                 case _SwitchType.material:
-                    return this.buildMaterialSwitch(context);
+                    return buildMaterialSwitch(context);
 
                 case _SwitchType.adaptive: {
-                    return this.buildMaterialSwitch(context);
+                    return buildMaterialSwitch(context);
 //                    ThemeData theme = Theme.of(context);
 //                    D.assert(theme.platform != null);
 //                    switch (theme.platform) {
@@ -276,36 +276,36 @@ namespace Unity.UIWidgets.material {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderSwitch(
-                dragStartBehavior: this.dragStartBehavior,
-                value: this.value,
-                activeColor: this.activeColor,
-                inactiveColor: this.inactiveColor,
-                activeThumbImage: this.activeThumbImage,
-                inactiveThumbImage: this.inactiveThumbImage,
-                activeTrackColor: this.activeTrackColor,
-                inactiveTrackColor: this.inactiveTrackColor,
-                configuration: this.configuration,
-                onChanged: this.onChanged,
-                additionalConstraints: this.additionalConstraints,
-                vsync: this.vsync
+                dragStartBehavior: dragStartBehavior,
+                value: value,
+                activeColor: activeColor,
+                inactiveColor: inactiveColor,
+                activeThumbImage: activeThumbImage,
+                inactiveThumbImage: inactiveThumbImage,
+                activeTrackColor: activeTrackColor,
+                inactiveTrackColor: inactiveTrackColor,
+                configuration: configuration,
+                onChanged: onChanged,
+                additionalConstraints: additionalConstraints,
+                vsync: vsync
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             _RenderSwitch renderObject = (_RenderSwitch) renderObjectRaw;
 
-            renderObject.value = this.value;
-            renderObject.activeColor = this.activeColor;
-            renderObject.inactiveColor = this.inactiveColor;
-            renderObject.activeThumbImage = this.activeThumbImage;
-            renderObject.inactiveThumbImage = this.inactiveThumbImage;
-            renderObject.activeTrackColor = this.activeTrackColor;
-            renderObject.inactiveTrackColor = this.inactiveTrackColor;
-            renderObject.configuration = this.configuration;
-            renderObject.onChanged = this.onChanged;
-            renderObject.additionalConstraints = this.additionalConstraints;
-            renderObject.dragStartBehavior = this.dragStartBehavior;
-            renderObject.vsync = this.vsync;
+            renderObject.value = value;
+            renderObject.activeColor = activeColor;
+            renderObject.inactiveColor = inactiveColor;
+            renderObject.activeThumbImage = activeThumbImage;
+            renderObject.inactiveThumbImage = inactiveThumbImage;
+            renderObject.activeTrackColor = activeTrackColor;
+            renderObject.inactiveTrackColor = inactiveTrackColor;
+            renderObject.configuration = configuration;
+            renderObject.onChanged = onChanged;
+            renderObject.additionalConstraints = additionalConstraints;
+            renderObject.dragStartBehavior = dragStartBehavior;
+            renderObject.vsync = vsync;
         }
     }
 
@@ -332,140 +332,140 @@ namespace Unity.UIWidgets.material {
             additionalConstraints: additionalConstraints,
             vsync: vsync
         ) {
-            this._activeThumbImage = activeThumbImage;
-            this._inactiveThumbImage = inactiveThumbImage;
-            this._activeTrackColor = activeTrackColor;
-            this._inactiveTrackColor = inactiveTrackColor;
-            this._configuration = configuration;
-            this._drag = new HorizontalDragGestureRecognizer {
-                onStart = this._handleDragStart,
-                onUpdate = this._handleDragUpdate,
-                onEnd = this._handleDragEnd,
+            _activeThumbImage = activeThumbImage;
+            _inactiveThumbImage = inactiveThumbImage;
+            _activeTrackColor = activeTrackColor;
+            _inactiveTrackColor = inactiveTrackColor;
+            _configuration = configuration;
+            _drag = new HorizontalDragGestureRecognizer {
+                onStart = _handleDragStart,
+                onUpdate = _handleDragUpdate,
+                onEnd = _handleDragEnd,
                 dragStartBehavior = dragStartBehavior ?? DragStartBehavior.down
             };
         }
 
         public ImageProvider activeThumbImage {
-            get { return this._activeThumbImage; }
+            get { return _activeThumbImage; }
             set {
-                if (value == this._activeThumbImage) {
+                if (value == _activeThumbImage) {
                     return;
                 }
 
-                this._activeThumbImage = value;
-                this.markNeedsPaint();
+                _activeThumbImage = value;
+                markNeedsPaint();
             }
         }
 
         ImageProvider _activeThumbImage;
 
         public ImageProvider inactiveThumbImage {
-            get { return this._inactiveThumbImage; }
+            get { return _inactiveThumbImage; }
             set {
-                if (value == this._inactiveThumbImage) {
+                if (value == _inactiveThumbImage) {
                     return;
                 }
 
-                this._inactiveThumbImage = value;
-                this.markNeedsPaint();
+                _inactiveThumbImage = value;
+                markNeedsPaint();
             }
         }
 
         ImageProvider _inactiveThumbImage;
 
         public Color activeTrackColor {
-            get { return this._activeTrackColor; }
+            get { return _activeTrackColor; }
             set {
                 D.assert(value != null);
-                if (value == this._activeTrackColor) {
+                if (value == _activeTrackColor) {
                     return;
                 }
 
-                this._activeTrackColor = value;
-                this.markNeedsPaint();
+                _activeTrackColor = value;
+                markNeedsPaint();
             }
         }
 
         Color _activeTrackColor;
 
         public Color inactiveTrackColor {
-            get { return this._inactiveTrackColor; }
+            get { return _inactiveTrackColor; }
             set {
                 D.assert(value != null);
-                if (value == this._inactiveTrackColor) {
+                if (value == _inactiveTrackColor) {
                     return;
                 }
 
-                this._inactiveTrackColor = value;
-                this.markNeedsPaint();
+                _inactiveTrackColor = value;
+                markNeedsPaint();
             }
         }
 
         Color _inactiveTrackColor;
 
         public ImageConfiguration configuration {
-            get { return this._configuration; }
+            get { return _configuration; }
             set {
                 D.assert(value != null);
-                if (value == this._configuration) {
+                if (value == _configuration) {
                     return;
                 }
 
-                this._configuration = value;
-                this.markNeedsPaint();
+                _configuration = value;
+                markNeedsPaint();
             }
         }
 
         ImageConfiguration _configuration;
 
         public DragStartBehavior? dragStartBehavior {
-            get { return this._drag.dragStartBehavior; }
-            set { this._drag.dragStartBehavior = value ?? DragStartBehavior.down; }
+            get { return _drag.dragStartBehavior; }
+            set { _drag.dragStartBehavior = value ?? DragStartBehavior.down; }
         }
 
 
         public override void detach() {
-            this._cachedThumbPainter?.Dispose();
-            this._cachedThumbPainter = null;
+            _cachedThumbPainter?.Dispose();
+            _cachedThumbPainter = null;
             base.detach();
         }
 
         float _trackInnerLength {
-            get { return this.size.width - 2.0f * Constants.kRadialReactionRadius; }
+            get { return size.width - 2.0f * Constants.kRadialReactionRadius; }
         }
 
         HorizontalDragGestureRecognizer _drag;
 
         void _handleDragStart(DragStartDetails details) {
-            if (this.isInteractive) {
-                this.reactionController.forward();
+            if (isInteractive) {
+                reactionController.forward();
             }
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
-            if (this.isInteractive) {
-                this.position.curve = null;
-                this.position.reverseCurve = null;
-                float delta = details.primaryDelta.Value / this._trackInnerLength;
-                this.positionController.setValue(this.positionController.value + delta);
+            if (isInteractive) {
+                position.curve = null;
+                position.reverseCurve = null;
+                float delta = details.primaryDelta.Value / _trackInnerLength;
+                positionController.setValue(positionController.value + delta);
             }
         }
 
         void _handleDragEnd(DragEndDetails details) {
-            if (this.position.value >= 0.5) {
-                this.positionController.forward();
+            if (position.value >= 0.5) {
+                positionController.forward();
             }
             else {
-                this.positionController.reverse();
+                positionController.reverse();
             }
 
-            this.reactionController.reverse();
+            reactionController.reverse();
         }
 
         public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
-            D.assert(this.debugHandleEvent(evt, entry));
-            if (evt is PointerDownEvent && this.onChanged != null) {
-                this._drag.addPointer((PointerDownEvent) evt);
+            D.assert(debugHandleEvent(evt, entry));
+            if (evt is PointerDownEvent && onChanged != null) {
+                _drag.addPointer((PointerDownEvent) evt);
             }
 
             base.handleEvent(evt, entry);
@@ -487,73 +487,73 @@ namespace Unity.UIWidgets.material {
         bool _isPainting = false;
 
         void _handleDecorationChanged() {
-            if (!this._isPainting) {
-                this.markNeedsPaint();
+            if (!_isPainting) {
+                markNeedsPaint();
             }
         }
 
         public override void paint(PaintingContext context, Offset offset) {
             Canvas canvas = context.canvas;
 
-            bool isEnabled = this.onChanged != null;
-            float currentValue = this.position.value;
+            bool isEnabled = onChanged != null;
+            float currentValue = position.value;
 
             float visualPosition = currentValue;
 
             Color trackColor = isEnabled
-                ? Color.lerp(this.inactiveTrackColor, this.activeTrackColor, currentValue)
-                : this.inactiveTrackColor;
+                ? Color.lerp(inactiveTrackColor, activeTrackColor, currentValue)
+                : inactiveTrackColor;
 
             Color thumbColor = isEnabled
-                ? Color.lerp(this.inactiveColor, this.activeColor, currentValue)
-                : this.inactiveColor;
+                ? Color.lerp(inactiveColor, activeColor, currentValue)
+                : inactiveColor;
 
             ImageProvider thumbImage = isEnabled
-                ? (currentValue < 0.5 ? this.inactiveThumbImage : this.activeThumbImage)
-                : this.inactiveThumbImage;
+                ? (currentValue < 0.5 ? inactiveThumbImage : activeThumbImage)
+                : inactiveThumbImage;
 
             // Paint the track
             Paint paint = new Paint {color = trackColor};
             float trackHorizontalPadding = Constants.kRadialReactionRadius - Switch._kTrackRadius;
             Rect trackRect = Rect.fromLTWH(
                 offset.dx + trackHorizontalPadding,
-                offset.dy + (this.size.height - Switch._kTrackHeight) / 2.0f,
-                this.size.width - 2.0f * trackHorizontalPadding,
+                offset.dy + (size.height - Switch._kTrackHeight) / 2.0f,
+                size.width - 2.0f * trackHorizontalPadding,
                 Switch._kTrackHeight
             );
             RRect trackRRect = RRect.fromRectAndRadius(trackRect, Radius.circular(Switch._kTrackRadius));
             canvas.drawRRect(trackRRect, paint);
 
             Offset thumbPosition = new Offset(
-                Constants.kRadialReactionRadius + visualPosition * this._trackInnerLength,
-                this.size.height / 2.0f
+                Constants.kRadialReactionRadius + visualPosition * _trackInnerLength,
+                size.height / 2.0f
             );
 
-            this.paintRadialReaction(canvas, offset, thumbPosition);
+            paintRadialReaction(canvas, offset, thumbPosition);
 
             try {
-                this._isPainting = true;
+                _isPainting = true;
                 BoxPainter thumbPainter;
-                if (this._cachedThumbPainter == null || thumbColor != this._cachedThumbColor ||
-                    thumbImage != this._cachedThumbImage) {
-                    this._cachedThumbColor = thumbColor;
-                    this._cachedThumbImage = thumbImage;
-                    this._cachedThumbPainter = this._createDefaultThumbDecoration(thumbColor, thumbImage)
-                        .createBoxPainter(this._handleDecorationChanged);
+                if (_cachedThumbPainter == null || thumbColor != _cachedThumbColor ||
+                    thumbImage != _cachedThumbImage) {
+                    _cachedThumbColor = thumbColor;
+                    _cachedThumbImage = thumbImage;
+                    _cachedThumbPainter = _createDefaultThumbDecoration(thumbColor, thumbImage)
+                        .createBoxPainter(_handleDecorationChanged);
                 }
 
-                thumbPainter = this._cachedThumbPainter;
+                thumbPainter = _cachedThumbPainter;
 
                 float inset = 1.0f - (currentValue - 0.5f).abs() * 2.0f;
                 float radius = Switch._kThumbRadius - inset;
                 thumbPainter.paint(
                     canvas,
                     thumbPosition + offset - new Offset(radius, radius),
-                    this.configuration.copyWith(size: Size.fromRadius(radius))
+                    configuration.copyWith(size: Size.fromRadius(radius))
                 );
             }
             finally {
-                this._isPainting = false;
+                _isPainting = false;
             }
         }
     }

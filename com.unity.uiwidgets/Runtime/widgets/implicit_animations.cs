@@ -15,7 +15,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override BoxConstraints lerp(float t) {
-            return BoxConstraints.lerp(this.begin, this.end, t);
+            return BoxConstraints.lerp(begin, end, t);
         }
     }
 
@@ -27,7 +27,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Decoration lerp(float t) {
-            return Decoration.lerp(this.begin, this.end, t);
+            return Decoration.lerp(begin, end, t);
         }
     }
 
@@ -39,7 +39,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override EdgeInsets lerp(float t) {
-            return EdgeInsets.lerp(this.begin, this.end, t);
+            return EdgeInsets.lerp(begin, end, t);
         }
     }
 
@@ -51,7 +51,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override BorderRadius lerp(float t) {
-            return BorderRadius.lerp(this.begin, this.end, t);
+            return BorderRadius.lerp(begin, end, t);
         }
     }
 
@@ -63,7 +63,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Border lerp(float t) {
-            return Border.lerp(this.begin, this.end, t);
+            return Border.lerp(begin, end, t);
         }
     }
 
@@ -76,10 +76,10 @@ namespace Unity.UIWidgets.widgets {
 
         //todo:xingwei.zhu implement full matrix3 lerp
         public override Matrix3 lerp(float t) {
-            D.assert(this.begin != null);
-            D.assert(this.end != null);
+            D.assert(begin != null);
+            D.assert(end != null);
 
-            return t < 0.5 ? this.begin : this.end;
+            return t < 0.5 ? begin : end;
         }
     }
 
@@ -90,7 +90,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override TextStyle lerp(float t) {
-            return TextStyle.lerp(this.begin, this.end, t);
+            return TextStyle.lerp(begin, end, t);
         }
     }
 
@@ -111,7 +111,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new IntProperty("duration", (int) this.duration.TotalMilliseconds, unit: "ms"));
+            properties.add(new IntProperty("duration", (int) duration.TotalMilliseconds, unit: "ms"));
         }
     }
 
@@ -136,7 +136,7 @@ namespace Unity.UIWidgets.widgets {
         public bool shouldStartAnimation;
 
         public TweenVisitorCheckStartAnimation() {
-            this.shouldStartAnimation = false;
+            shouldStartAnimation = false;
         }
 
         public Tween<T> visit<T, T2>(ImplicitlyAnimatedWidgetState<T2> state, Tween<T> tween, T targetValue,
@@ -145,7 +145,7 @@ namespace Unity.UIWidgets.widgets {
             if (targetValue != null) {
                 tween = tween ?? constructor(targetValue);
                 if (state._shouldAnimateTween(tween, targetValue)) {
-                    this.shouldStartAnimation = true;
+                    shouldStartAnimation = true;
                 }
             }
             else {
@@ -160,57 +160,57 @@ namespace Unity.UIWidgets.widgets {
     public abstract class ImplicitlyAnimatedWidgetState<T> : SingleTickerProviderStateMixin<T>
         where T : ImplicitlyAnimatedWidget {
         protected AnimationController controller {
-            get { return this._controller; }
+            get { return _controller; }
         }
 
         AnimationController _controller;
 
         public Animation<float> animation {
-            get { return this._animation; }
+            get { return _animation; }
         }
 
         Animation<float> _animation;
 
         public override void initState() {
             base.initState();
-            this._controller = new AnimationController(
-                duration: this.widget.duration,
-                debugLabel: "{" + this.widget.toStringShort() + "}",
+            _controller = new AnimationController(
+                duration: widget.duration,
+                debugLabel: "{" + widget.toStringShort() + "}",
                 vsync: this
             );
-            this._updateCurve();
-            this._constructTweens();
-            this.didUpdateTweens();
+            _updateCurve();
+            _constructTweens();
+            didUpdateTweens();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
 
-            if (this.widget.curve != ((ImplicitlyAnimatedWidget) oldWidget).curve) {
-                this._updateCurve();
+            if (widget.curve != ((ImplicitlyAnimatedWidget) oldWidget).curve) {
+                _updateCurve();
             }
 
-            this._controller.duration = this.widget.duration;
-            if (this._constructTweens()) {
+            _controller.duration = widget.duration;
+            if (_constructTweens()) {
                 var visitor = new TweenVisitorUpdateTween();
-                this.forEachTween(visitor);
-                this._controller.setValue(0.0f);
-                this._controller.forward();
-                this.didUpdateTweens();
+                forEachTween(visitor);
+                _controller.setValue(0.0f);
+                _controller.forward();
+                didUpdateTweens();
             }
         }
 
         void _updateCurve() {
-            if (this.widget.curve != null) {
-                this._animation = new CurvedAnimation(parent: this._controller, curve: this.widget.curve);
+            if (widget.curve != null) {
+                _animation = new CurvedAnimation(parent: _controller, curve: widget.curve);
             }
             else {
-                this._animation = this._controller;
+                _animation = _controller;
             }
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
@@ -223,13 +223,13 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
 
-            tween.begin = tween.evaluate(this._animation);
+            tween.begin = tween.evaluate(_animation);
             tween.end = targetValue;
         }
 
         bool _constructTweens() {
             var visitor = new TweenVisitorCheckStartAnimation();
-            this.forEachTween(visitor);
+            forEachTween(visitor);
             return visitor.shouldStartAnimation;
         }
 
@@ -244,11 +244,11 @@ namespace Unity.UIWidgets.widgets {
         where T : ImplicitlyAnimatedWidget {
         public override void initState() {
             base.initState();
-            this.controller.addListener(this._handleAnimationChanged);
+            controller.addListener(_handleAnimationChanged);
         }
 
         void _handleAnimationChanged() {
-            this.setState(() => { });
+            setState(() => { });
         }
     }
 
@@ -316,17 +316,17 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment, showName: false,
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment, showName: false,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Decoration>("bg", this.decoration, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Decoration>("bg", decoration, defaultValue: null));
             properties.add(
-                new DiagnosticsProperty<Decoration>("fg", this.foregroundDecoration, defaultValue: null));
-            properties.add(new DiagnosticsProperty<BoxConstraints>("constraints", this.constraints,
+                new DiagnosticsProperty<Decoration>("fg", foregroundDecoration, defaultValue: null));
+            properties.add(new DiagnosticsProperty<BoxConstraints>("constraints", constraints,
                 defaultValue: null,
                 showName: false));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("margin", this.margin, defaultValue: null));
-            properties.add(ObjectFlagProperty<Matrix3>.has("transform", this.transform));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("margin", margin, defaultValue: null));
+            properties.add(ObjectFlagProperty<Matrix3>.has("transform", transform));
         }
     }
 
@@ -341,49 +341,49 @@ namespace Unity.UIWidgets.widgets {
 
 
         protected override void forEachTween(TweenVisitor visitor) {
-            this._alignment = (AlignmentTween) visitor.visit(this, this._alignment, this.widget.alignment,
+            _alignment = (AlignmentTween) visitor.visit(this, _alignment, widget.alignment,
                 (Alignment value) => new AlignmentTween(begin: value));
-            this._padding = (EdgeInsetsTween) visitor.visit(this, this._padding, this.widget.padding,
+            _padding = (EdgeInsetsTween) visitor.visit(this, _padding, widget.padding,
                 (EdgeInsets value) => new EdgeInsetsTween(begin: value));
-            this._decoration = (DecorationTween) visitor.visit(this, this._decoration, this.widget.decoration,
+            _decoration = (DecorationTween) visitor.visit(this, _decoration, widget.decoration,
                 (Decoration value) => new DecorationTween(begin: value));
-            this._foregroundDecoration = (DecorationTween) visitor.visit(this, this._foregroundDecoration,
-                this.widget.foregroundDecoration, (Decoration value) => new DecorationTween(begin: value));
-            this._constraints = (BoxConstraintsTween) visitor.visit(this, this._constraints, this.widget.constraints,
+            _foregroundDecoration = (DecorationTween) visitor.visit(this, _foregroundDecoration,
+                widget.foregroundDecoration, (Decoration value) => new DecorationTween(begin: value));
+            _constraints = (BoxConstraintsTween) visitor.visit(this, _constraints, widget.constraints,
                 (BoxConstraints value) => new BoxConstraintsTween(begin: value));
-            this._margin = (EdgeInsetsTween) visitor.visit(this, this._margin, this.widget.margin,
+            _margin = (EdgeInsetsTween) visitor.visit(this, _margin, widget.margin,
                 (EdgeInsets value) => new EdgeInsetsTween(begin: value));
-            this._transform = (Matrix3Tween) visitor.visit(this, this._transform, this.widget.transform,
+            _transform = (Matrix3Tween) visitor.visit(this, _transform, widget.transform,
                 (Matrix3 value) => new Matrix3Tween(begin: value));
         }
 
 
         public override Widget build(BuildContext context) {
             return new Container(
-                child: this.widget.child,
-                alignment: this._alignment?.evaluate(this.animation),
-                padding: this._padding?.evaluate(this.animation),
-                decoration: this._decoration?.evaluate(this.animation),
-                forgroundDecoration: this._foregroundDecoration?.evaluate(this.animation),
-                constraints: this._constraints?.evaluate(this.animation),
-                margin: this._margin?.evaluate(this.animation),
-                transfrom: this._transform?.evaluate(this.animation)
+                child: widget.child,
+                alignment: _alignment?.evaluate(animation),
+                padding: _padding?.evaluate(animation),
+                decoration: _decoration?.evaluate(animation),
+                forgroundDecoration: _foregroundDecoration?.evaluate(animation),
+                constraints: _constraints?.evaluate(animation),
+                margin: _margin?.evaluate(animation),
+                transfrom: _transform?.evaluate(animation)
             );
         }
 
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new DiagnosticsProperty<AlignmentTween>("alignment", this._alignment, showName: false,
+            description.add(new DiagnosticsProperty<AlignmentTween>("alignment", _alignment, showName: false,
                 defaultValue: null));
-            description.add(new DiagnosticsProperty<EdgeInsetsTween>("padding", this._padding, defaultValue: null));
-            description.add(new DiagnosticsProperty<DecorationTween>("bg", this._decoration, defaultValue: null));
+            description.add(new DiagnosticsProperty<EdgeInsetsTween>("padding", _padding, defaultValue: null));
+            description.add(new DiagnosticsProperty<DecorationTween>("bg", _decoration, defaultValue: null));
             description.add(
-                new DiagnosticsProperty<DecorationTween>("fg", this._foregroundDecoration, defaultValue: null));
-            description.add(new DiagnosticsProperty<BoxConstraintsTween>("constraints", this._constraints,
+                new DiagnosticsProperty<DecorationTween>("fg", _foregroundDecoration, defaultValue: null));
+            description.add(new DiagnosticsProperty<BoxConstraintsTween>("constraints", _constraints,
                 showName: false, defaultValue: null));
-            description.add(new DiagnosticsProperty<EdgeInsetsTween>("margin", this._margin, defaultValue: null));
-            description.add(ObjectFlagProperty<Matrix3Tween>.has("transform", this._transform));
+            description.add(new DiagnosticsProperty<EdgeInsetsTween>("margin", _margin, defaultValue: null));
+            description.add(ObjectFlagProperty<Matrix3Tween>.has("transform", _transform));
         }
     }
 
@@ -411,7 +411,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
         }
     }
 
@@ -419,21 +419,21 @@ namespace Unity.UIWidgets.widgets {
         EdgeInsetsTween _padding;
 
         protected override void forEachTween(TweenVisitor visitor) {
-            this._padding = (EdgeInsetsTween) visitor.visit(this, this._padding, this.widget.padding,
+            _padding = (EdgeInsetsTween) visitor.visit(this, _padding, widget.padding,
                 (EdgeInsets value) => new EdgeInsetsTween(begin: value));
         }
 
         public override Widget build(BuildContext context) {
             return new Padding(
-                padding: this._padding.evaluate(this.animation),
-                child: this.widget.child
+                padding: _padding.evaluate(animation),
+                child: widget.child
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new DiagnosticsProperty<EdgeInsetsTween>("padding", this._padding,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            description.add(new DiagnosticsProperty<EdgeInsetsTween>("padding", _padding,
+                defaultValue: foundation_.kNullDefaultValue));
         }
     }
 
@@ -460,7 +460,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties: properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", value: this.alignment));
+            properties.add(new DiagnosticsProperty<Alignment>("alignment", value: alignment));
         }
     }
 
@@ -468,20 +468,20 @@ namespace Unity.UIWidgets.widgets {
         AlignmentTween _alignment;
 
         protected override void forEachTween(TweenVisitor visitor) {
-            this._alignment = (AlignmentTween) visitor.visit(this, tween: this._alignment,
-                targetValue: this.widget.alignment, constructor: value => new AlignmentTween(begin: value));
+            _alignment = (AlignmentTween) visitor.visit(this, tween: _alignment,
+                targetValue: widget.alignment, constructor: value => new AlignmentTween(begin: value));
         }
 
         public override Widget build(BuildContext context) {
             return new Align(
-                alignment: this._alignment.evaluate(animation: this.animation),
-                child: this.widget.child
+                alignment: _alignment.evaluate(animation: animation),
+                child: widget.child
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(properties: description);
-            description.add(new DiagnosticsProperty<AlignmentTween>("alignment", value: this._alignment, defaultValue: null));
+            description.add(new DiagnosticsProperty<AlignmentTween>("alignment", value: _alignment, defaultValue: null));
         }
     }
 
@@ -550,12 +550,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties: properties);
-            properties.add(new FloatProperty("left", value: this.left, defaultValue: null));
-            properties.add(new FloatProperty("top", value: this.top, defaultValue: null));
-            properties.add(new FloatProperty("right", value: this.right, defaultValue: null));
-            properties.add(new FloatProperty("bottom", value: this.bottom, defaultValue: null));
-            properties.add(new FloatProperty("width", value: this.width, defaultValue: null));
-            properties.add(new FloatProperty("height", value: this.height, defaultValue: null));
+            properties.add(new FloatProperty("left", value: left, defaultValue: null));
+            properties.add(new FloatProperty("top", value: top, defaultValue: null));
+            properties.add(new FloatProperty("right", value: right, defaultValue: null));
+            properties.add(new FloatProperty("bottom", value: bottom, defaultValue: null));
+            properties.add(new FloatProperty("width", value: width, defaultValue: null));
+            properties.add(new FloatProperty("height", value: height, defaultValue: null));
         }
     }
 
@@ -568,40 +568,40 @@ namespace Unity.UIWidgets.widgets {
         Tween<float?> _height;
 
         protected override void forEachTween(TweenVisitor visitor) {
-            this._left = visitor.visit(this, tween: this._left, targetValue: this.widget.left,
+            _left = visitor.visit(this, tween: _left, targetValue: widget.left,
                 constructor: value => new NullableFloatTween(begin: value));
-            this._top = visitor.visit(this, tween: this._top, targetValue: this.widget.top,
+            _top = visitor.visit(this, tween: _top, targetValue: widget.top,
                 constructor: value => new NullableFloatTween(begin: value));
-            this._right = visitor.visit(this, tween: this._right, targetValue: this.widget.right,
+            _right = visitor.visit(this, tween: _right, targetValue: widget.right,
                 constructor: value => new NullableFloatTween(begin: value));
-            this._bottom = visitor.visit(this, tween: this._bottom, targetValue: this.widget.bottom,
+            _bottom = visitor.visit(this, tween: _bottom, targetValue: widget.bottom,
                 constructor: value => new NullableFloatTween(begin: value));
-            this._width = visitor.visit(this, tween: this._width, targetValue: this.widget.width,
+            _width = visitor.visit(this, tween: _width, targetValue: widget.width,
                 constructor: value => new NullableFloatTween(begin: value));
-            this._height = visitor.visit(this, tween: this._height, targetValue: this.widget.height,
+            _height = visitor.visit(this, tween: _height, targetValue: widget.height,
                 constructor: value => new NullableFloatTween(begin: value));
         }
 
         public override Widget build(BuildContext context) {
             return new Positioned(
-                child: this.widget.child,
-                left: this._left?.evaluate(animation: this.animation),
-                top: this._top?.evaluate(animation: this.animation),
-                right: this._right?.evaluate(animation: this.animation),
-                bottom: this._bottom?.evaluate(animation: this.animation),
-                width: this._width?.evaluate(animation: this.animation),
-                height: this._height?.evaluate(animation: this.animation)
+                child: widget.child,
+                left: _left?.evaluate(animation: animation),
+                top: _top?.evaluate(animation: animation),
+                right: _right?.evaluate(animation: animation),
+                bottom: _bottom?.evaluate(animation: animation),
+                width: _width?.evaluate(animation: animation),
+                height: _height?.evaluate(animation: animation)
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(properties: description);
-            description.add(ObjectFlagProperty<Tween<float?>>.has("left", value: this._left));
-            description.add(ObjectFlagProperty<Tween<float?>>.has("top", value: this._top));
-            description.add(ObjectFlagProperty<Tween<float?>>.has("right", value: this._right));
-            description.add(ObjectFlagProperty<Tween<float?>>.has("bottom", value: this._bottom));
-            description.add(ObjectFlagProperty<Tween<float?>>.has("width", value: this._width));
-            description.add(ObjectFlagProperty<Tween<float?>>.has("height", value: this._height));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("left", value: _left));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("top", value: _top));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("right", value: _right));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("bottom", value: _bottom));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("width", value: _width));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("height", value: _height));
         }
     }
 
@@ -649,12 +649,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties: properties);
-            properties.add(new FloatProperty("start", value: this.start, defaultValue: null));
-            properties.add(new FloatProperty("top", value: this.top, defaultValue: null));
-            properties.add(new FloatProperty("end", value: this.end, defaultValue: null));
-            properties.add(new FloatProperty("bottom", value: this.bottom, defaultValue: null));
-            properties.add(new FloatProperty("width", value: this.width, defaultValue: null));
-            properties.add(new FloatProperty("height", value: this.height, defaultValue: null));
+            properties.add(new FloatProperty("start", value: start, defaultValue: null));
+            properties.add(new FloatProperty("top", value: top, defaultValue: null));
+            properties.add(new FloatProperty("end", value: end, defaultValue: null));
+            properties.add(new FloatProperty("bottom", value: bottom, defaultValue: null));
+            properties.add(new FloatProperty("width", value: width, defaultValue: null));
+            properties.add(new FloatProperty("height", value: height, defaultValue: null));
         }
     }
 
@@ -667,17 +667,17 @@ namespace Unity.UIWidgets.widgets {
         Tween<float?> _height;
 
         protected override void forEachTween(TweenVisitor visitor) {
-            this._start = visitor.visit(this, tween: this._start, targetValue: this.widget.start,
+            _start = visitor.visit(this, tween: _start, targetValue: widget.start,
                 constructor: value => new NullableFloatTween(begin: value));
-            this._top = visitor.visit(this, tween: this._top, targetValue: this.widget.top,
+            _top = visitor.visit(this, tween: _top, targetValue: widget.top,
                 constructor: value => new NullableFloatTween(begin: value));
-            this._end = visitor.visit(this, tween: this._end, targetValue: this.widget.end,
+            _end = visitor.visit(this, tween: _end, targetValue: widget.end,
                 constructor: value => new NullableFloatTween(begin: value));
-            this._bottom = visitor.visit(this, tween: this._bottom, targetValue: this.widget.bottom,
+            _bottom = visitor.visit(this, tween: _bottom, targetValue: widget.bottom,
                 constructor: value => new NullableFloatTween(begin: value));
-            this._width = visitor.visit(this, tween: this._width, targetValue: this.widget.width,
+            _width = visitor.visit(this, tween: _width, targetValue: widget.width,
                 constructor: value => new NullableFloatTween(begin: value));
-            this._height = visitor.visit(this, tween: this._height, targetValue: this.widget.height,
+            _height = visitor.visit(this, tween: _height, targetValue: widget.height,
                 constructor: value => new NullableFloatTween(begin: value));
         }
 
@@ -685,24 +685,24 @@ namespace Unity.UIWidgets.widgets {
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
             return Positioned.directional(
                 textDirection: Directionality.of(context: context),
-                child: this.widget.child,
-                start: this._start?.evaluate(animation: this.animation),
-                top: this._top?.evaluate(animation: this.animation),
-                end: this._end?.evaluate(animation: this.animation),
-                bottom: this._bottom?.evaluate(animation: this.animation),
-                width: this._width?.evaluate(animation: this.animation),
-                height: this._height?.evaluate(animation: this.animation)
+                child: widget.child,
+                start: _start?.evaluate(animation: animation),
+                top: _top?.evaluate(animation: animation),
+                end: _end?.evaluate(animation: animation),
+                bottom: _bottom?.evaluate(animation: animation),
+                width: _width?.evaluate(animation: animation),
+                height: _height?.evaluate(animation: animation)
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(properties: description);
-            description.add(ObjectFlagProperty<Tween<float?>>.has("start", value: this._start));
-            description.add(ObjectFlagProperty<Tween<float?>>.has("top", value: this._top));
-            description.add(ObjectFlagProperty<Tween<float?>>.has("end", value: this._end));
-            description.add(ObjectFlagProperty<Tween<float?>>.has("bottom", value: this._bottom));
-            description.add(ObjectFlagProperty<Tween<float?>>.has("width", value: this._width));
-            description.add(ObjectFlagProperty<Tween<float?>>.has("height", value: this._height));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("start", value: _start));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("top", value: _top));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("end", value: _end));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("bottom", value: _bottom));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("width", value: _width));
+            description.add(ObjectFlagProperty<Tween<float?>>.has("height", value: _height));
         }
     }
 
@@ -730,7 +730,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("opacity", this.opacity));
+            properties.add(new FloatProperty("opacity", opacity));
         }
     }
 
@@ -739,20 +739,20 @@ namespace Unity.UIWidgets.widgets {
         Animation<float> _opacityAnimation;
 
         protected override void forEachTween(TweenVisitor visitor) {
-            this._opacity = (NullableFloatTween) visitor.visit(this, this._opacity, this.widget.opacity,
+            _opacity = (NullableFloatTween) visitor.visit(this, _opacity, widget.opacity,
                 (float? value) => new NullableFloatTween(begin: value));
         }
 
         protected override void didUpdateTweens() {
-            float? endValue = this._opacity.end ?? this._opacity.begin ?? null;
+            float? endValue = _opacity.end ?? _opacity.begin ?? null;
             D.assert(endValue != null);
-            this._opacityAnimation = this.animation.drive(new FloatTween(begin: this._opacity.begin.Value, end: endValue.Value));
+            _opacityAnimation = animation.drive(new FloatTween(begin: _opacity.begin.Value, end: endValue.Value));
         }
 
         public override Widget build(BuildContext context) {
             return new FadeTransition(
-                opacity: this._opacityAnimation,
-                child: this.widget.child
+                opacity: _opacityAnimation,
+                child: widget.child
             );
         }
     }
@@ -799,13 +799,13 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            this.style?.debugFillProperties(properties);
-            properties.add(new EnumProperty<TextAlign>("textAlign", this.textAlign ?? TextAlign.center,
+            style?.debugFillProperties(properties);
+            properties.add(new EnumProperty<TextAlign>("textAlign", textAlign ?? TextAlign.center,
                 defaultValue: null));
-            properties.add(new FlagProperty("softWrap", value: this.softWrap, ifTrue: "wrapping at box width",
+            properties.add(new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width",
                 ifFalse: "no wrapping except at line break characters", showName: true));
-            properties.add(new EnumProperty<TextOverflow>("overflow", this.overflow, defaultValue: null));
-            properties.add(new IntProperty("maxLines", this.maxLines, defaultValue: null));
+            properties.add(new EnumProperty<TextOverflow>("overflow", overflow, defaultValue: null));
+            properties.add(new IntProperty("maxLines", maxLines, defaultValue: null));
         }
     }
 
@@ -814,18 +814,18 @@ namespace Unity.UIWidgets.widgets {
         TextStyleTween _style;
 
         protected override void forEachTween(TweenVisitor visitor) {
-            this._style = (TextStyleTween) visitor.visit(this, this._style, this.widget.style,
+            _style = (TextStyleTween) visitor.visit(this, _style, widget.style,
                 (TextStyle value) => new TextStyleTween(begin: value));
         }
 
         public override Widget build(BuildContext context) {
             return new DefaultTextStyle(
-                style: this._style.evaluate(this.animation),
-                textAlign: this.widget.textAlign,
-                softWrap: this.widget.softWrap,
-                overflow: this.widget.overflow,
-                maxLines: this.widget.maxLines,
-                child: this.widget.child);
+                style: _style.evaluate(animation),
+                textAlign: widget.textAlign,
+                softWrap: widget.softWrap,
+                overflow: widget.overflow,
+                maxLines: widget.maxLines,
+                child: widget.child);
         }
     }
 
@@ -886,13 +886,13 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<BoxShape>("shape", this.shape));
-            properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", this.borderRadius));
-            properties.add(new FloatProperty("elevation", this.elevation));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color));
-            properties.add(new DiagnosticsProperty<bool>("animateColor", this.animateColor));
-            properties.add(new DiagnosticsProperty<Color>("shadowColor", this.shadowColor));
-            properties.add(new DiagnosticsProperty<bool>("animateShadowColor", this.animateShadowColor));
+            properties.add(new EnumProperty<BoxShape>("shape", shape));
+            properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", borderRadius));
+            properties.add(new FloatProperty("elevation", elevation));
+            properties.add(new DiagnosticsProperty<Color>("color", color));
+            properties.add(new DiagnosticsProperty<bool>("animateColor", animateColor));
+            properties.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor));
+            properties.add(new DiagnosticsProperty<bool>("animateShadowColor", animateShadowColor));
         }
     }
 
@@ -903,27 +903,27 @@ namespace Unity.UIWidgets.widgets {
         ColorTween _shadowColor;
 
         protected override void forEachTween(TweenVisitor visitor) {
-            this._borderRadius = (BorderRadiusTween) visitor.visit(this, this._borderRadius, this.widget.borderRadius,
+            _borderRadius = (BorderRadiusTween) visitor.visit(this, _borderRadius, widget.borderRadius,
                 (BorderRadius value) => new BorderRadiusTween(begin: value));
-            this._elevation = (FloatTween) visitor.visit(this, this._elevation, this.widget.elevation,
+            _elevation = (FloatTween) visitor.visit(this, _elevation, widget.elevation,
                 (float value) => new FloatTween(begin: value, end: value));
-            this._color = (ColorTween) visitor.visit(this, this._color, this.widget.color,
+            _color = (ColorTween) visitor.visit(this, _color, widget.color,
                 (Color value) => new ColorTween(begin: value));
-            this._shadowColor = (ColorTween) visitor.visit(this, this._shadowColor, this.widget.shadowColor,
+            _shadowColor = (ColorTween) visitor.visit(this, _shadowColor, widget.shadowColor,
                 (Color value) => new ColorTween(begin: value));
         }
 
         public override Widget build(BuildContext context) {
             return new PhysicalModel(
-                child: this.widget.child,
-                shape: this.widget.shape,
-                clipBehavior: this.widget.clipBehavior,
-                borderRadius: this._borderRadius.evaluate(this.animation),
-                elevation: this._elevation.evaluate(this.animation),
-                color: this.widget.animateColor ? this._color.evaluate(this.animation) : this.widget.color,
-                shadowColor: this.widget.animateShadowColor
-                    ? this._shadowColor.evaluate(this.animation)
-                    : this.widget.shadowColor);
+                child: widget.child,
+                shape: widget.shape,
+                clipBehavior: widget.clipBehavior,
+                borderRadius: _borderRadius.evaluate(animation),
+                elevation: _elevation.evaluate(animation),
+                color: widget.animateColor ? _color.evaluate(animation) : widget.color,
+                shadowColor: widget.animateShadowColor
+                    ? _shadowColor.evaluate(animation)
+                    : widget.shadowColor);
         }
     }
 }

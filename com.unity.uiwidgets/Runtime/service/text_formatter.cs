@@ -24,7 +24,7 @@ namespace Unity.UIWidgets.service {
         }
 
         public override TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-            return this.formatFunction(oldValue, newValue);
+            return formatFunction(oldValue, newValue);
         }
     }
 
@@ -45,7 +45,7 @@ namespace Unity.UIWidgets.service {
 
         public override TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
             return Util._selectionAwareTextManipulation(newValue,
-                (substring) => this.blacklistedPattern.Replace(substring, this.replacementString));
+                (substring) => blacklistedPattern.Replace(substring, replacementString));
         }
     }
     
@@ -59,17 +59,17 @@ namespace Unity.UIWidgets.service {
         public readonly int? maxLength;
 
         public override TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-            if (this.maxLength != null && this.maxLength > 0 && newValue.text.Length > this.maxLength) {
+            if (maxLength != null && maxLength > 0 && newValue.text.Length > maxLength) {
                 if (Input.compositionString.Length > 0) {
                     return newValue;
                 }
 
                 TextSelection newSelection = newValue.selection.copyWith(
-                    baseOffset: Mathf.Min(newValue.selection.start, this.maxLength.Value),
-                    extentOffset: Mathf.Min(newValue.selection.end, this.maxLength.Value)
+                    baseOffset: Mathf.Min(newValue.selection.start, maxLength.Value),
+                    extentOffset: Mathf.Min(newValue.selection.end, maxLength.Value)
                 );
                 
-                string truncated = newValue.text.Substring(0, this.maxLength.Value);
+                string truncated = newValue.text.Substring(0, maxLength.Value);
                 return new TextEditingValue(
                     text: truncated,
                     selection: newSelection,
@@ -94,7 +94,7 @@ namespace Unity.UIWidgets.service {
                 value: newValue,
                 substringManipulation: substring => {
                     string groups = "";
-                    foreach (Match match in this.whitelistedPattern.Matches(input: substring)) {
+                    foreach (Match match in whitelistedPattern.Matches(input: substring)) {
                         groups += match.Groups[0].Value;
                     }
 

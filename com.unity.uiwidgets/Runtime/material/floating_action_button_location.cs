@@ -64,7 +64,7 @@ namespace Unity.UIWidgets.material {
         public abstract Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry);
 
         public override string ToString() {
-            return this.GetType().ToString();
+            return GetType().ToString();
         }
     }
 
@@ -161,7 +161,7 @@ namespace Unity.UIWidgets.material {
 
         public override Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
             float fabX = FloatingActionButtonLocationUtils._endOffset(scaffoldGeometry);
-            return new Offset(fabX, this.getDockedY(scaffoldGeometry));
+            return new Offset(fabX, getDockedY(scaffoldGeometry));
         }
 
         public override string ToString() {
@@ -175,7 +175,7 @@ namespace Unity.UIWidgets.material {
 
         public override Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
             float fabX = (scaffoldGeometry.scaffoldSize.width - scaffoldGeometry.floatingActionButtonSize.width) / 2.0f;
-            return new Offset(fabX, this.getDockedY(scaffoldGeometry));
+            return new Offset(fabX, getDockedY(scaffoldGeometry));
         }
 
         public override string ToString() {
@@ -243,7 +243,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string ToString() {
-            return this.GetType().ToString();
+            return GetType().ToString();
         }
     }
 
@@ -307,7 +307,7 @@ namespace Unity.UIWidgets.material {
         public readonly float swapThreshold;
 
         public override T value {
-            get { return this.parent.value < this.swapThreshold ? this.first.value : this.next.value; }
+            get { return parent.value < swapThreshold ? first.value : next.value; }
         }
     }
 }

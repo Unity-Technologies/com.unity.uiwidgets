@@ -30,15 +30,15 @@ namespace Unity.UIWidgets.widgets {
         public readonly List<Widget> children;
 
         public int? estimatedChildCount {
-            get { return this.children.Count; }
+            get { return children.Count; }
         }
 
         public Widget build(BuildContext context, int index) {
-            if (index < 0 || index >= this.children.Count) {
+            if (index < 0 || index >= children.Count) {
                 return null;
             }
 
-            return new Container(child: this.children[index]);
+            return new Container(child: children[index]);
         }
 
         public int trueIndexOf(int index) {
@@ -46,7 +46,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public bool shouldRebuild(ListWheelChildDelegate oldDelegate) {
-            return this.children != ((ListWheelChildListDelegate) oldDelegate).children;
+            return children != ((ListWheelChildListDelegate) oldDelegate).children;
         }
     }
 
@@ -66,26 +66,26 @@ namespace Unity.UIWidgets.widgets {
 
         public int trueIndexOf(int index) {
             while (index < 0) {
-                index += this.children.Count;
+                index += children.Count;
             }
 
-            return index % this.children.Count;
+            return index % children.Count;
         }
 
         public Widget build(BuildContext context, int index) {
-            if (this.children.isEmpty()) {
+            if (children.isEmpty()) {
                 return null;
             }
 
             while (index < 0) {
-                index += this.children.Count;
+                index += children.Count;
             }
 
-            return new Container(child: this.children[index % this.children.Count]);
+            return new Container(child: children[index % children.Count]);
         }
 
         public bool shouldRebuild(ListWheelChildDelegate oldDelegate) {
-            return this.children != ((ListWheelChildLoopingListDelegate) oldDelegate).children;
+            return children != ((ListWheelChildLoopingListDelegate) oldDelegate).children;
         }
     }
 
@@ -104,20 +104,20 @@ namespace Unity.UIWidgets.widgets {
         public readonly int? childCount;
 
         public int? estimatedChildCount {
-            get { return this.childCount; }
+            get { return childCount; }
         }
 
         public Widget build(BuildContext context, int index) {
-            if (this.childCount == null) {
-                Widget child = this.builder(context, index);
+            if (childCount == null) {
+                Widget child = builder(context, index);
                 return child == null ? null : new Container(child: child);
             }
 
-            if (index < 0 || index >= this.childCount) {
+            if (index < 0 || index >= childCount) {
                 return null;
             }
 
-            return new Container(child: this.builder(context, index));
+            return new Container(child: builder(context, index));
         }
 
         public int trueIndexOf(int index) {
@@ -125,8 +125,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public bool shouldRebuild(ListWheelChildDelegate oldDelegate) {
-            return this.builder != ((ListWheelChildBuilderDelegate) oldDelegate).builder ||
-                   this.childCount != ((ListWheelChildBuilderDelegate) oldDelegate).childCount;
+            return builder != ((ListWheelChildBuilderDelegate) oldDelegate).builder ||
+                   childCount != ((ListWheelChildBuilderDelegate) oldDelegate).childCount;
         }
     }
 
@@ -160,11 +160,11 @@ namespace Unity.UIWidgets.widgets {
 
         public int selectedItem {
             get {
-                D.assert(this.positions.isNotEmpty(),
+                D.assert(positions.isNotEmpty(),
                     () =>
                         "FixedExtentScrollController.selectedItem cannot be accessed before a scroll view is built with it."
                 );
-                D.assert(this.positions.Count == 1,
+                D.assert(positions.Count == 1,
                     () =>
                         "The selectedItem property cannot be read when multiple scroll views are attached to the same FixedExtentScrollController."
                 );
@@ -178,12 +178,12 @@ namespace Unity.UIWidgets.widgets {
             TimeSpan duration,
             Curve curve
         ) {
-            if (!this.hasClients) {
+            if (!hasClients) {
                 return Promise.Resolved();
             }
 
             List<IPromise> futures = new List<IPromise>();
-            foreach (_FixedExtentScrollPosition position in this.positions) {
+            foreach (_FixedExtentScrollPosition position in positions) {
                 futures.Add(position.animateTo(
                     itemIndex * position.itemExtent,
                     duration: duration,
@@ -195,7 +195,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void jumpToItem(int itemIndex) {
-            foreach (_FixedExtentScrollPosition position in this.positions) {
+            foreach (_FixedExtentScrollPosition position in positions) {
                 position.jumpTo(itemIndex * position.itemExtent);
             }
         }
@@ -205,7 +205,7 @@ namespace Unity.UIWidgets.widgets {
             return new _FixedExtentScrollPosition(
                 physics: physics,
                 context: context,
-                initialItem: this.initialItem,
+                initialItem: initialItem,
                 oldPosition: oldPosition
             );
         }
@@ -291,17 +291,17 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public float itemExtent {
-            get { return _getItemExtentFromScrollContext(this.context); }
+            get { return _getItemExtentFromScrollContext(context); }
         }
 
 
         public int itemIndex {
             get {
                 return ListWheelScrollViewUtils._getItemFromOffset(
-                    offset: this.pixels,
-                    itemExtent: this.itemExtent,
-                    minScrollExtent: this.minScrollExtent,
-                    maxScrollExtent: this.maxScrollExtent
+                    offset: pixels,
+                    itemExtent: itemExtent,
+                    minScrollExtent: minScrollExtent,
+                    maxScrollExtent: maxScrollExtent
                 );
             }
             set { }
@@ -354,7 +354,7 @@ namespace Unity.UIWidgets.widgets {
     class _FixedExtentScrollableState : ScrollableState {
         public float itemExtent {
             get {
-                _FixedExtentScrollable actualWidget = (_FixedExtentScrollable) this.widget;
+                _FixedExtentScrollable actualWidget = (_FixedExtentScrollable) widget;
                 return actualWidget.itemExtent;
             }
         }
@@ -367,7 +367,7 @@ namespace Unity.UIWidgets.widgets {
         ) : base(parent: parent) { }
 
         public override ScrollPhysics applyTo(ScrollPhysics ancestor) {
-            return new FixedExtentScrollPhysics(parent: this.buildParent(ancestor));
+            return new FixedExtentScrollPhysics(parent: buildParent(ancestor));
         }
 
         public override Simulation createBallisticSimulation(ScrollMetrics position, float velocity) {
@@ -402,24 +402,24 @@ namespace Unity.UIWidgets.widgets {
 
             float settlingPixels = settlingItemIndex * metrics.itemExtent;
 
-            if (velocity.abs() < this.tolerance.velocity
-                && (settlingPixels - metrics.pixels).abs() < this.tolerance.distance) {
+            if (velocity.abs() < tolerance.velocity
+                && (settlingPixels - metrics.pixels).abs() < tolerance.distance) {
                 return null;
             }
 
             if (settlingItemIndex == metrics.itemIndex) {
-                return new SpringSimulation(this.spring,
+                return new SpringSimulation(spring,
                     metrics.pixels,
                     settlingPixels,
                     velocity,
-                    tolerance: this.tolerance
+                    tolerance: tolerance
                 );
             }
 
             return FrictionSimulation.through(
                 metrics.pixels,
                 settlingPixels,
-                velocity, this.tolerance.velocity * velocity.sign()
+                velocity, tolerance.velocity * velocity.sign()
             );
         }
     }
@@ -524,18 +524,18 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            this.scrollController = this.widget.controller ?? new FixedExtentScrollController();
-            if (this.widget.controller is FixedExtentScrollController controller) {
-                this._lastReportedItemIndex = controller.initialItem;
+            scrollController = widget.controller ?? new FixedExtentScrollController();
+            if (widget.controller is FixedExtentScrollController controller) {
+                _lastReportedItemIndex = controller.initialItem;
             }
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.controller != null && this.widget.controller != this.scrollController) {
-                ScrollController oldScrollController = this.scrollController;
+            if (widget.controller != null && widget.controller != scrollController) {
+                ScrollController oldScrollController = scrollController;
                 SchedulerBinding.instance.addPostFrameCallback((_) => { oldScrollController.dispose(); });
-                this.scrollController = this.widget.controller;
+                scrollController = widget.controller;
             }
         }
 
@@ -543,36 +543,36 @@ namespace Unity.UIWidgets.widgets {
             return new NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification notification) => {
                     if (notification.depth == 0
-                        && this.widget.onSelectedItemChanged != null
+                        && widget.onSelectedItemChanged != null
                         && notification is ScrollUpdateNotification
                         && notification.metrics is FixedExtentMetrics metrics) {
                         int currentItemIndex = metrics.itemIndex;
 
-                        if (currentItemIndex != this._lastReportedItemIndex) {
-                            this._lastReportedItemIndex = currentItemIndex;
-                            int trueIndex = this.widget.childDelegate.trueIndexOf(currentItemIndex);
-                            this.widget.onSelectedItemChanged(trueIndex);
+                        if (currentItemIndex != _lastReportedItemIndex) {
+                            _lastReportedItemIndex = currentItemIndex;
+                            int trueIndex = widget.childDelegate.trueIndexOf(currentItemIndex);
+                            widget.onSelectedItemChanged(trueIndex);
                         }
                     }
 
                     return false;
                 },
                 child: new _FixedExtentScrollable(
-                    controller: this.scrollController,
-                    physics: this.widget.physics,
-                    itemExtent: this.widget.itemExtent,
+                    controller: scrollController,
+                    physics: widget.physics,
+                    itemExtent: widget.itemExtent,
                     viewportBuilder: (BuildContext _context, ViewportOffset _offset) => {
                         return new ListWheelViewport(
-                            diameterRatio: this.widget.diameterRatio,
-                            perspective: this.widget.perspective,
-                            offAxisFraction: this.widget.offAxisFraction,
-                            useMagnifier: this.widget.useMagnifier,
-                            magnification: this.widget.magnification,
-                            itemExtent: this.widget.itemExtent,
-                            clipToSize: this.widget.clipToSize,
-                            renderChildrenOutsideViewport: this.widget.renderChildrenOutsideViewport,
+                            diameterRatio: widget.diameterRatio,
+                            perspective: widget.perspective,
+                            offAxisFraction: widget.offAxisFraction,
+                            useMagnifier: widget.useMagnifier,
+                            magnification: widget.magnification,
+                            itemExtent: widget.itemExtent,
+                            clipToSize: widget.clipToSize,
+                            renderChildrenOutsideViewport: widget.renderChildrenOutsideViewport,
                             offset: _offset,
-                            childDelegate: this.widget.childDelegate
+                            childDelegate: widget.childDelegate
                         );
                     }
                 )
@@ -597,77 +597,77 @@ namespace Unity.UIWidgets.widgets {
         readonly SplayTree<int, Element> _childElements = new SplayTree<int, Element>();
 
         public override void update(Widget newWidget) {
-            ListWheelViewport oldWidget = this.widget;
+            ListWheelViewport oldWidget = widget;
             base.update(newWidget);
             ListWheelChildDelegate newDelegate = ((ListWheelViewport) newWidget).childDelegate;
             ListWheelChildDelegate oldDelegate = oldWidget.childDelegate;
             if (newDelegate != oldDelegate &&
                 (newDelegate.GetType() != oldDelegate.GetType() || newDelegate.shouldRebuild(oldDelegate))) {
-                this.performRebuild();
+                performRebuild();
             }
         }
 
         public int? childCount {
-            get { return this.widget.childDelegate.estimatedChildCount; }
+            get { return widget.childDelegate.estimatedChildCount; }
         }
 
         protected override void performRebuild() {
-            this._childWidgets.Clear();
+            _childWidgets.Clear();
             base.performRebuild();
-            if (this._childElements.isEmpty()) {
+            if (_childElements.isEmpty()) {
                 return;
             }
 
-            int firstIndex = this._childElements.First()?.Key ?? 0;
-            int lastIndex = this._childElements.Last()?.Key ?? 0;
+            int firstIndex = _childElements.First()?.Key ?? 0;
+            int lastIndex = _childElements.Last()?.Key ?? 0;
 
             for (int index = firstIndex; index <= lastIndex; ++index) {
-                Element newChild = this.updateChild(this._childElements[index], this.retrieveWidget(index), index);
+                Element newChild = updateChild(_childElements[index], retrieveWidget(index), index);
                 if (newChild != null) {
-                    this._childElements[index] = newChild;
+                    _childElements[index] = newChild;
                 }
                 else {
-                    this._childElements.Remove(index);
+                    _childElements.Remove(index);
                 }
             }
         }
 
         Widget retrieveWidget(int index) {
-            return this._childWidgets.putIfAbsent(index,
-                () => { return this.widget.childDelegate.build(this, index); });
+            return _childWidgets.putIfAbsent(index,
+                () => { return widget.childDelegate.build(this, index); });
         }
 
         public bool childExistsAt(int index) {
-            return this.retrieveWidget(index) != null;
+            return retrieveWidget(index) != null;
         }
 
         public void createChild(int index, RenderBox after) {
-            this.owner.buildScope(this, () => {
+            owner.buildScope(this, () => {
                 bool insertFirst = after == null;
-                D.assert(insertFirst || this._childElements[index - 1] != null);
+                D.assert(insertFirst || _childElements[index - 1] != null);
                 // Debug.Log($"{index}: {this._childElements.getOrDefault(index)}");
 
-                Element newChild = this.updateChild(this._childElements.getOrDefault(index), this.retrieveWidget(index),
+                Element newChild = updateChild(_childElements.getOrDefault(index), retrieveWidget(index),
                     index);
 
                 // Debug.Log(newChild);
                 if (newChild != null) {
-                    this._childElements[index] = newChild;
+                    _childElements[index] = newChild;
                 }
                 else {
-                    this._childElements.Remove(index);
+                    _childElements.Remove(index);
                 }
             });
         }
 
         public void removeChild(RenderBox child) {
-            int index = this.renderObject.indexOf(child);
-            this.owner.buildScope(this, () => {
-                D.assert(this._childElements.ContainsKey(index));
-                Element result = this.updateChild(this._childElements[index], null, index);
+            int index = renderObject.indexOf(child);
+            owner.buildScope(this, () => {
+                D.assert(_childElements.ContainsKey(index));
+                Element result = updateChild(_childElements[index], null, index);
                 D.assert(result == null);
-                this._childElements.Remove(index);
-                D.assert(!this._childElements.ContainsKey(index));
+                _childElements.Remove(index);
+                D.assert(!_childElements.ContainsKey(index));
             });
         }
 
@@ -690,7 +690,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(renderObject.debugValidateChild(child));
 
             renderObject.insert((RenderBox) child,
-                (RenderBox) this._childElements.getOrDefault((int) slot - 1)?.renderObject);
+                (RenderBox) _childElements.getOrDefault((int) slot - 1)?.renderObject);
             // Debug.Log($"insert: {this._childElements.getOrDefault((int) slot - 1)}");
 
 
@@ -705,18 +705,18 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
-            D.assert(child.parent == this.renderObject);
-            this.renderObject.remove((RenderBox) child);
+            D.assert(child.parent == renderObject);
+            renderObject.remove((RenderBox) child);
         }
 
         public override void visitChildren(ElementVisitor visitor) {
-            foreach (var item in this._childElements) {
+            foreach (var item in _childElements) {
                 visitor(item.Value);
             }
         }
 
         protected override void forgetChild(Element child) {
-            this._childElements.Remove((int) (child.slot));
+            _childElements.Remove((int) (child.slot));
         }
     }
 
@@ -776,29 +776,29 @@ namespace Unity.UIWidgets.widgets {
             ListWheelElement childManager = (ListWheelElement) context;
             return new RenderListWheelViewport(
                 childManager: childManager,
-                offset: this.offset,
-                diameterRatio: this.diameterRatio,
-                perspective: this.perspective,
-                offAxisFraction: this.offAxisFraction,
-                useMagnifier: this.useMagnifier,
-                magnification: this.magnification,
-                itemExtent: this.itemExtent,
-                clipToSize: this.clipToSize,
-                renderChildrenOutsideViewport: this.renderChildrenOutsideViewport
+                offset: offset,
+                diameterRatio: diameterRatio,
+                perspective: perspective,
+                offAxisFraction: offAxisFraction,
+                useMagnifier: useMagnifier,
+                magnification: magnification,
+                itemExtent: itemExtent,
+                clipToSize: clipToSize,
+                renderChildrenOutsideViewport: renderChildrenOutsideViewport
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             var viewport = (RenderListWheelViewport) renderObject;
-            viewport.offset = this.offset;
-            viewport.diameterRatio = this.diameterRatio;
-            viewport.perspective = this.perspective;
-            viewport.offAxisFraction = this.offAxisFraction;
-            viewport.useMagnifier = this.useMagnifier;
-            viewport.magnification = this.magnification;
-            viewport.itemExtent = this.itemExtent;
-            viewport.clipToSize = this.clipToSize;
-            viewport.renderChildrenOutsideViewport = this.renderChildrenOutsideViewport;
+            viewport.offset = offset;
+            viewport.diameterRatio = diameterRatio;
+            viewport.perspective = perspective;
+            viewport.offAxisFraction = offAxisFraction;
+            viewport.useMagnifier = useMagnifier;
+            viewport.magnification = magnification;
+            viewport.itemExtent = itemExtent;
+            viewport.clipToSize = clipToSize;
+            viewport.renderChildrenOutsideViewport = renderChildrenOutsideViewport;
         }
     }
 }

@@ -145,10 +145,10 @@ namespace Unity.UIWidgets.ui {
         public GradientBitmapCache(int maxEntries = 32, int resolution = 256) {
             this.maxEntries = maxEntries;
             this.resolution = resolution;
-            this._entryCount = 0;
-            this._head = this._tail = null;
+            _entryCount = 0;
+            _head = _tail = null;
 
-            D.assert(this.validate);
+            D.assert(validate);
         }
 
         public readonly int maxEntries;
@@ -161,39 +161,39 @@ namespace Unity.UIWidgets.ui {
         public Image getGradient(List<Color> colors, List<float> positions) {
             var key = new _Key(colors, positions);
 
-            if (!this.find(key, out var image)) {
-                image = this.fillGradient(colors, positions);
-                this.add(key, image);
+            if (!find(key, out var image)) {
+                image = fillGradient(colors, positions);
+                add(key, image);
             }
 
             return image;
         }
 
         public void Dispose() {
-            D.assert(this.validate);
+            D.assert(validate);
 
             // just remove the references, Image will dispose by themselves.
-            this._entryCount = 0;
-            this._head = this._tail = null;
+            _entryCount = 0;
+            _head = _tail = null;
         }
 
         _Entry release(_Entry entry) {
             if (entry.prev != null) {
-                D.assert(this._head != entry);
+                D.assert(_head != entry);
                 entry.prev.next = entry.next;
             }
             else {
-                D.assert(this._head == entry);
-                this._head = entry.next;
+                D.assert(_head == entry);
+                _head = entry.next;
             }
 
             if (entry.next != null) {
-                D.assert(this._tail != entry);
+                D.assert(_tail != entry);
                 entry.next.prev = entry.prev;
             }
             else {
-                D.assert(this._tail == entry);
-                this._tail = entry.prev;
+                D.assert(_tail == entry);
+                _tail = entry.prev;
             }
 
             return entry;
@@ -201,58 +201,58 @@ namespace Unity.UIWidgets.ui {
 
         void attachToHead(_Entry entry) {
             entry.prev = null;
-            entry.next = this._head;
-            if (this._head != null) {
-                this._head.prev = entry;
+            entry.next = _head;
+            if (_head != null) {
+                _head.prev = entry;
             }
             else {
-                this._tail = entry;
+                _tail = entry;
             }
 
-            this._head = entry;
+            _head = entry;
         }
 
         bool find(_Key key, out Image image) {
-            D.assert(this.validate);
+            D.assert(validate);
 
-            var entry = this._head;
+            var entry = _head;
             while (entry != null) {
                 if (entry.key == key) {
                     image = entry.image;
 
                     // move to the head of our list, so we purge it last
-                    this.release(entry);
-                    this.attachToHead(entry);
-                    D.assert(this.validate);
+                    release(entry);
+                    attachToHead(entry);
+                    D.assert(validate);
                     return true;
                 }
 
                 entry = entry.next;
             }
 
-            D.assert(this.validate);
+            D.assert(validate);
             image = null;
             return false;
         }
 
         void add(_Key key, Image image) {
-            if (this._entryCount == this.maxEntries) {
-                D.assert(this._tail != null);
-                this.release(this._tail);
-                this._entryCount--;
+            if (_entryCount == maxEntries) {
+                D.assert(_tail != null);
+                release(_tail);
+                _entryCount--;
             }
 
             var entry = new _Entry {key = key, image = image};
-            this.attachToHead(entry);
-            this._entryCount++;
+            attachToHead(entry);
+            _entryCount++;
         }
 
         Image fillGradient(List<Color> colors, List<float> positions) {
-            Texture2D tex = new Texture2D(this.resolution, 1, TextureFormat.RGBA32, false);
+            Texture2D tex = new Texture2D(resolution, 1, TextureFormat.RGBA32, false);
             tex.hideFlags = HideFlags.HideAndDontSave;
             tex.wrapMode = TextureWrapMode.Clamp;
 
-            var bytes = new byte[this.resolution * 4];
+            var bytes = new byte[resolution * 4];
 
             int count = colors.Count;
             int prevIndex = 0;
@@ -260,7 +260,7 @@ namespace Unity.UIWidgets.ui {
                 // Historically, stops have been mapped to [0, 256], with 256 then nudged to the next
                 // smaller value, then truncate for the texture index. This seems to produce the best
                 // results for some common distributions, so we preserve the behavior.
-                int nextIndex = (int) Mathf.Min(positions[i] * this.resolution, this.resolution - 1);
+                int nextIndex = (int) Mathf.Min(positions[i] * resolution, resolution - 1);
 
                 if (nextIndex > prevIndex) {
                     var c0 = colors[i - 1];
@@ -285,7 +285,7 @@ namespace Unity.UIWidgets.ui {
                 prevIndex = nextIndex;
             }
 
-            D.assert(prevIndex == this.resolution - 1);
+            D.assert(prevIndex == resolution - 1);
 
             tex.LoadRawTextureData(bytes);
             tex.Apply();
@@ -293,29 +293,29 @@ namespace Unity.UIWidgets.ui {
         }
 
         bool validate() {
-            D.assert(this._entryCount >= 0 && this._entryCount <= this.maxEntries);
+            D.assert(_entryCount >= 0 && _entryCount <= maxEntries);
 
-            if (this._entryCount > 0) {
-                D.assert(null == this._head.prev);
-                D.assert(null == this._tail.next);
+            if (_entryCount > 0) {
+                D.assert(null == _head.prev);
+                D.assert(null == _tail.next);
 
-                if (this._entryCount == 1) {
-                    D.assert(this._head == this._tail);
+                if (_entryCount == 1) {
+                    D.assert(_head == _tail);
                 }
                 else {
-                    D.assert(this._head != this._tail);
+                    D.assert(_head != _tail);
                 }
 
-                var entry = this._head;
+                var entry = _head;
                 int count = 0;
                 while (entry != null) {
                     count += 1;
                     entry = entry.next;
                 }
 
-                D.assert(count == this._entryCount);
+                D.assert(count == _entryCount);
 
-                entry = this._tail;
+                entry = _tail;
                 while (entry != null) {
                     count -= 1;
                     entry = entry.prev;
@@ -324,8 +324,8 @@ namespace Unity.UIWidgets.ui {
                 D.assert(0 == count);
             }
             else {
-                D.assert(null == this._head);
-                D.assert(null == this._tail);
+                D.assert(null == _head);
+                D.assert(null == _tail);
             }
 
             return true;
@@ -347,7 +347,7 @@ namespace Unity.UIWidgets.ui {
 
                 this.colors = colors;
                 this.positions = positions;
-                this._hashCode = _getHashCode(this.colors) ^ _getHashCode(this.positions);
+                _hashCode = _getHashCode(this.colors) ^ _getHashCode(this.positions);
                 ;
             }
 
@@ -366,8 +366,8 @@ namespace Unity.UIWidgets.ui {
                     return true;
                 }
 
-                return _listEquals(this.colors, other.colors) &&
-                       _listEquals(this.positions, other.positions);
+                return _listEquals(colors, other.colors) &&
+                       _listEquals(positions, other.positions);
             }
 
             public override bool Equals(object obj) {
@@ -379,15 +379,15 @@ namespace Unity.UIWidgets.ui {
                     return true;
                 }
 
-                if (obj.GetType() != this.GetType()) {
+                if (obj.GetType() != GetType()) {
                     return false;
                 }
 
-                return this.Equals((_Key) obj);
+                return Equals((_Key) obj);
             }
 
             public override int GetHashCode() {
-                return this._hashCode;
+                return _hashCode;
             }
 
             public static bool operator ==(_Key left, _Key right) {
@@ -437,8 +437,8 @@ namespace Unity.UIWidgets.ui {
             this.colorStops = colorStops;
             this.tileMode = tileMode;
             this.matrix = matrix;
-            this.ptsToUnit = ptsToUnitMatrix(start, end);
-            this.gradientTex = makeTexturedColorizer(colors, colorStops);
+            ptsToUnit = ptsToUnitMatrix(start, end);
+            gradientTex = makeTexturedColorizer(colors, colorStops);
         }
 
         public readonly Offset start;
@@ -451,19 +451,19 @@ namespace Unity.UIWidgets.ui {
         public readonly Image gradientTex;
 
         public Color leftColor {
-            get { return this.colors[0]; }
+            get { return colors[0]; }
         }
 
         public Color rightColor {
-            get { return this.colors[this.colors.Count - 1]; }
+            get { return colors[colors.Count - 1]; }
         }
 
         public uiMatrix3 getGradientMat(uiMatrix3 mat) {
-            if (this.matrix != null) {
-                mat.postConcat(this.matrix.Value);
+            if (matrix != null) {
+                mat.postConcat(matrix.Value);
             }
 
-            mat.postConcat(this.ptsToUnit);
+            mat.postConcat(ptsToUnit);
             return mat;
         }
 
@@ -493,8 +493,8 @@ namespace Unity.UIWidgets.ui {
             this.colorStops = colorStops;
             this.tileMode = tileMode;
             this.matrix = matrix;
-            this.ptsToUnit = radToUnitMatrix(center, radius);
-            this.gradientTex = makeTexturedColorizer(colors, colorStops);
+            ptsToUnit = radToUnitMatrix(center, radius);
+            gradientTex = makeTexturedColorizer(colors, colorStops);
         }
 
         public readonly Offset center;
@@ -507,19 +507,19 @@ namespace Unity.UIWidgets.ui {
         public readonly Image gradientTex;
 
         public Color leftColor {
-            get { return this.colors[0]; }
+            get { return colors[0]; }
         }
 
         public Color rightColor {
-            get { return this.colors[this.colors.Count - 1]; }
+            get { return colors[colors.Count - 1]; }
         }
 
         public uiMatrix3 getGradientMat(uiMatrix3 mat) {
-            if (this.matrix != null) {
-                mat.postConcat(this.matrix.Value);
+            if (matrix != null) {
+                mat.postConcat(matrix.Value);
             }
 
-            mat.postConcat(this.ptsToUnit);
+            mat.postConcat(ptsToUnit);
             return mat;
         }
 
@@ -550,14 +550,14 @@ namespace Unity.UIWidgets.ui {
 
             var t0 = startAngle / (Mathf.PI * 2f);
             var t1 = endAngle / (Mathf.PI * 2f);
-            this.bias = -t0;
-            this.scale = 1f / (t1 - t0);
+            bias = -t0;
+            scale = 1f / (t1 - t0);
 
             var ptsToUnit = uiMatrix3.I();
             ptsToUnit.setTranslate(-center.dx, -center.dy);
             this.ptsToUnit = ptsToUnit;
 
-            this.gradientTex = makeTexturedColorizer(colors, colorStops);
+            gradientTex = makeTexturedColorizer(colors, colorStops);
         }
 
         public readonly Offset center;
@@ -573,19 +573,19 @@ namespace Unity.UIWidgets.ui {
         public readonly float scale;
 
         public Color leftColor {
-            get { return this.colors[0]; }
+            get { return colors[0]; }
         }
 
         public Color rightColor {
-            get { return this.colors[this.colors.Count - 1]; }
+            get { return colors[colors.Count - 1]; }
         }
 
         public uiMatrix3 getGradientMat(uiMatrix3 mat) {
-            if (this.matrix != null) {
-                mat.postConcat(this.matrix.Value);
+            if (matrix != null) {
+                mat.postConcat(matrix.Value);
             }
 
-            mat.postConcat(this.ptsToUnit);
+            mat.postConcat(ptsToUnit);
             return mat;
         }
     }
@@ -603,11 +603,11 @@ namespace Unity.UIWidgets.ui {
         public readonly uiMatrix3? matrix;
 
         public uiMatrix3 getShaderMat(uiMatrix3 mat) {
-            if (this.matrix != null) {
-                mat.postConcat(this.matrix.Value);
+            if (matrix != null) {
+                mat.postConcat(matrix.Value);
             }
 
-            mat.postScale(1f / this.image.width, 1f / this.image.height);
+            mat.postScale(1f / image.width, 1f / image.height);
             return mat;
         }
     }

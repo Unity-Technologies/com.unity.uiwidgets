@@ -47,16 +47,16 @@ namespace Unity.UIWidgets.material {
 
     class _RadioState<T> : TickerProviderStateMixin<Radio<T>> where T : class {
         bool _enabled {
-            get { return this.widget.onChanged != null; }
+            get { return widget.onChanged != null; }
         }
 
         Color _getInactiveColor(ThemeData themeData) {
-            return this._enabled ? themeData.unselectedWidgetColor : themeData.disabledColor;
+            return _enabled ? themeData.unselectedWidgetColor : themeData.disabledColor;
         }
 
         void _handleChanged(bool? selected) {
             if (selected == true) {
-                this.widget.onChanged(this.widget.value);
+                widget.onChanged(widget.value);
             }
         }
 
@@ -64,7 +64,7 @@ namespace Unity.UIWidgets.material {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             ThemeData themeData = Theme.of(context);
             Size size;
-            switch (this.widget.materialTapTargetSize ?? themeData.materialTapTargetSize) {
+            switch (widget.materialTapTargetSize ?? themeData.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
                     size = new Size(2 * Constants.kRadialReactionRadius + 8.0f,
                         2 * Constants.kRadialReactionRadius + 8.0f);
@@ -78,10 +78,10 @@ namespace Unity.UIWidgets.material {
 
             BoxConstraints additionalConstraints = BoxConstraints.tight(size);
             return new _RadioRenderObjectWidget(
-                selected: this.widget.value == this.widget.groupValue,
-                activeColor: this.widget.activeColor ?? themeData.toggleableActiveColor,
-                inactiveColor: this._getInactiveColor(themeData),
-                onChanged: this._enabled ? this._handleChanged : (ValueChanged<bool?>) null,
+                selected: widget.value == widget.groupValue,
+                activeColor: widget.activeColor ?? themeData.toggleableActiveColor,
+                inactiveColor: _getInactiveColor(themeData),
+                onChanged: _enabled ? _handleChanged : (ValueChanged<bool?>) null,
                 additionalConstraints: additionalConstraints,
                 vsync: this
             );
@@ -120,23 +120,23 @@ namespace Unity.UIWidgets.material {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderRadio(
-                value: this.selected,
-                activeColor: this.activeColor,
-                inactiveColor: this.inactiveColor,
-                onChanged: this.onChanged,
-                vsync: this.vsync,
-                additionalConstraints: this.additionalConstraints
+                value: selected,
+                activeColor: activeColor,
+                inactiveColor: inactiveColor,
+                onChanged: onChanged,
+                vsync: vsync,
+                additionalConstraints: additionalConstraints
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             _RenderRadio renderObject = _renderObject as _RenderRadio;
-            renderObject.value = this.selected;
-            renderObject.activeColor = this.activeColor;
-            renderObject.inactiveColor = this.inactiveColor;
-            renderObject.onChanged = this.onChanged;
-            renderObject.additionalConstraints = this.additionalConstraints;
-            renderObject.vsync = this.vsync;
+            renderObject.value = selected;
+            renderObject.activeColor = activeColor;
+            renderObject.inactiveColor = inactiveColor;
+            renderObject.onChanged = onChanged;
+            renderObject.additionalConstraints = additionalConstraints;
+            renderObject.vsync = vsync;
         }
     }
 
@@ -162,20 +162,20 @@ namespace Unity.UIWidgets.material {
         public override void paint(PaintingContext context, Offset offset) {
             Canvas canvas = context.canvas;
 
-            this.paintRadialReaction(canvas, offset, this.size.center(Offset.zero));
+            paintRadialReaction(canvas, offset, size.center(Offset.zero));
 
-            Offset center = (offset & this.size).center;
-            Color radioColor = this.onChanged != null ? this.activeColor : this.inactiveColor;
+            Offset center = (offset & size).center;
+            Color radioColor = onChanged != null ? activeColor : inactiveColor;
 
             Paint paint = new Paint();
-            paint.color = Color.lerp(this.inactiveColor, radioColor, this.position.value);
+            paint.color = Color.lerp(inactiveColor, radioColor, position.value);
             paint.style = PaintingStyle.stroke;
             paint.strokeWidth = 2.0f;
             canvas.drawCircle(center, RadioUtils._kOuterRadius, paint);
 
-            if (!this.position.isDismissed) {
+            if (!position.isDismissed) {
                 paint.style = PaintingStyle.fill;
-                canvas.drawCircle(center, RadioUtils._kInnerRadius * this.position.value, paint);
+                canvas.drawCircle(center, RadioUtils._kInnerRadius * position.value, paint);
             }
         }
     }

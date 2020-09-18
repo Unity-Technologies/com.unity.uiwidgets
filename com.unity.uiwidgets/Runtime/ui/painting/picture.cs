@@ -12,7 +12,7 @@ namespace Unity.UIWidgets.ui {
             List<int> stateUpdatesIndices = null) {
             this.drawCmds = drawCmds;
             this.paintBounds = paintBounds;
-            this._isDynamic = isDynamic;
+            _isDynamic = isDynamic;
             this.bbh = bbh;
             this.stateUpdatesIndices = stateUpdatesIndices;
         }
@@ -23,7 +23,7 @@ namespace Unity.UIWidgets.ui {
         public readonly List<int> stateUpdatesIndices; 
 
         public bool isDynamic {
-            get { return this._isDynamic; }
+            get { return _isDynamic; }
         }
 
         bool _isDynamic;
@@ -41,45 +41,45 @@ namespace Unity.UIWidgets.ui {
         bool _isDynamic;
 
         public PictureRecorder() {
-            this.reset();
+            reset();
         }
 
         CanvasState _getState() {
-            D.assert(this._states.Count > 0);
-            return this._states[this._states.Count - 1];
+            D.assert(_states.Count > 0);
+            return _states[_states.Count - 1];
         }
 
         public Matrix3 getTotalMatrix() {
-            return this._getState().xform;
+            return _getState().xform;
         }
 
         public void reset() {
-            this._drawCmds.Clear();
-            this._isDynamic = false;
-            this._states.Clear();
-            this._states.Add(new CanvasState {
+            _drawCmds.Clear();
+            _isDynamic = false;
+            _states.Clear();
+            _states.Add(new CanvasState {
                 xform = Matrix3.I(),
                 scissor = null,
                 saveLayer = false,
                 layerOffset = null,
                 paintBounds = Rect.zero,
             });
-            this._bbh.Clear();
-            this._stateUpdateIndices.Clear();
+            _bbh.Clear();
+            _stateUpdateIndices.Clear();
         }
 
         void restoreToCount(int count) {
-            count = this._states.Count - count;
+            count = _states.Count - count;
             while (count > 0) {
-                this.addDrawCmd(new DrawRestore());
+                addDrawCmd(new DrawRestore());
                 count--;
             }
         }
 
         void restore() {
-            var stateToRestore = this._getState();
-            this._states.RemoveAt(this._states.Count - 1);
-            var state = this._getState();
+            var stateToRestore = _getState();
+            _states.RemoveAt(_states.Count - 1);
+            var state = _getState();
 
             if (!stateToRestore.saveLayer) {
                 state.paintBounds = stateToRestore.paintBounds;
@@ -87,73 +87,73 @@ namespace Unity.UIWidgets.ui {
             else {
                 var paintBounds = stateToRestore.paintBounds.shift(stateToRestore.layerOffset);
                 paintBounds = state.xform.mapRect(paintBounds);
-                this._addPaintBounds(paintBounds);
+                _addPaintBounds(paintBounds);
             }
         }
 
         public Picture endRecording() {
-            this.restoreToCount(1);
+            restoreToCount(1);
             
-            if (this._states.Count > 1) {
+            if (_states.Count > 1) {
                 throw new Exception("unmatched save/restore commands");
             }
 
-            var state = this._getState();
+            var state = _getState();
             return new Picture(
-                new List<DrawCmd>(this._drawCmds),
+                new List<DrawCmd>(_drawCmds),
                 state.paintBounds,
-                this._isDynamic,
-                this._bbh,
-                this._stateUpdateIndices);
+                _isDynamic,
+                _bbh,
+                _stateUpdateIndices);
         }
 
         public void addDrawCmd(DrawCmd drawCmd) {
-            this._drawCmds.Add(drawCmd);
+            _drawCmds.Add(drawCmd);
 
             switch (drawCmd) {
                 case DrawSave _:
-                    this._states.Add(this._getState().copy());
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _states.Add(_getState().copy());
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 case DrawSaveLayer cmd: {
-                    this._states.Add(new CanvasState {
+                    _states.Add(new CanvasState {
                         xform = Matrix3.I(),
                         scissor = cmd.rect.shift(-cmd.rect.topLeft),
                         saveLayer = true,
                         layerOffset = cmd.rect.topLeft,
                         paintBounds = Rect.zero,
                     });
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawRestore _: {
                     //check for underflow
-                    if (this._states.Count > 1) {
-                        this.restore();
+                    if (_states.Count > 1) {
+                        restore();
                     }
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawTranslate cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     state.xform = new Matrix3(state.xform);
                     state.xform.preTranslate(cmd.dx, cmd.dy);
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawScale cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     state.xform = new Matrix3(state.xform);
                     state.xform.preScale(cmd.sx, (cmd.sy ?? cmd.sx));
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawRotate cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     state.xform = new Matrix3(state.xform);
                     if (cmd.offset == null) {
                         state.xform.preRotate(cmd.radians);
@@ -163,61 +163,61 @@ namespace Unity.UIWidgets.ui {
                             cmd.offset.dx,
                             cmd.offset.dy);
                     }
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
 
                     break;
                 }
 
                 case DrawSkew cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     state.xform = new Matrix3(state.xform);
                     state.xform.preSkew(cmd.sx, cmd.sy);
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawConcat cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     state.xform = new Matrix3(state.xform);
                     state.xform.preConcat(cmd.matrix);
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawResetMatrix _: {
-                    var state = this._getState();
+                    var state = _getState();
                     state.xform = Matrix3.I();
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawSetMatrix cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     state.xform = new Matrix3(cmd.matrix);
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawClipRect cmd: {
-                    var state = this._getState();
+                    var state = _getState();
 
                     var rect = state.xform.mapRect(cmd.rect);
                     state.scissor = state.scissor == null ? rect : state.scissor.intersect(rect);
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawClipRRect cmd: {
-                    var state = this._getState();
+                    var state = _getState();
 
                     var rect = state.xform.mapRect(cmd.rrect.outerRect);
                     state.scissor = state.scissor == null ? rect : state.scissor.intersect(rect);
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawClipPath cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     var scale = XformUtils.getScale(state.xform);
 
                     var cache = cmd.path.flatten(
@@ -226,12 +226,12 @@ namespace Unity.UIWidgets.ui {
                     cache.computeFillMesh(0.0f, out _);
                     var rect = cache.fillMesh.transform(state.xform).bounds;
                     state.scissor = state.scissor == null ? rect : state.scissor.intersect(rect);
-                    this._stateUpdateIndices.Add(this._drawCmds.Count - 1);
+                    _stateUpdateIndices.Add(_drawCmds.Count - 1);
                     break;
                 }
 
                 case DrawPath cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     var scale = XformUtils.getScale(state.xform);
                     var path = cmd.path;
                     var paint = cmd.paint;
@@ -264,75 +264,75 @@ namespace Unity.UIWidgets.ui {
                     if (paint.maskFilter != null && paint.maskFilter.sigma != 0) {
                         float sigma = scale * paint.maskFilter.sigma;
                         float sigma3 = 3 * sigma;
-                        this._addPaintBounds(mesh.bounds.inflate(sigma3));
-                        this._bbh.Insert(new IndexedRect(uiRectHelper.fromRect(mesh.bounds.inflate(sigma3 + 5)).Value,
-                            this._drawCmds.Count - 1));
+                        _addPaintBounds(mesh.bounds.inflate(sigma3));
+                        _bbh.Insert(new IndexedRect(uiRectHelper.fromRect(mesh.bounds.inflate(sigma3 + 5)).Value,
+                            _drawCmds.Count - 1));
                     }
                     else {
-                        this._addPaintBounds(mesh.bounds);
-                        this._bbh.Insert(new IndexedRect(uiRectHelper.fromRect(mesh.bounds.inflate(5)).Value,
-                            this._drawCmds.Count - 1));
+                        _addPaintBounds(mesh.bounds);
+                        _bbh.Insert(new IndexedRect(uiRectHelper.fromRect(mesh.bounds.inflate(5)).Value,
+                            _drawCmds.Count - 1));
                     }
 
                     break;
                 }
 
                 case DrawImage cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     var rect = Rect.fromLTWH(cmd.offset.dx, cmd.offset.dy,
                         cmd.image.width, cmd.image.height);
                     rect = state.xform.mapRect(rect);
-                    this._addPaintBounds(rect);
-                    this._bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(5)).Value,
-                        this._drawCmds.Count - 1));
+                    _addPaintBounds(rect);
+                    _bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(5)).Value,
+                        _drawCmds.Count - 1));
                     if (cmd.image.isDynamic) {
-                        this._isDynamic = true;
+                        _isDynamic = true;
                     }
 
                     break;
                 }
 
                 case DrawImageRect cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     var rect = state.xform.mapRect(cmd.dst);
-                    this._addPaintBounds(rect);
-                    this._bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(5)).Value,
-                        this._drawCmds.Count - 1));
+                    _addPaintBounds(rect);
+                    _bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(5)).Value,
+                        _drawCmds.Count - 1));
                     if (cmd.image.isDynamic) {
-                        this._isDynamic = true;
+                        _isDynamic = true;
                     }
 
                     break;
                 }
 
                 case DrawImageNine cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     var rect = state.xform.mapRect(cmd.dst);
-                    this._addPaintBounds(rect);
-                    this._bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(5)).Value,
-                        this._drawCmds.Count - 1));
+                    _addPaintBounds(rect);
+                    _bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(5)).Value,
+                        _drawCmds.Count - 1));
                     if (cmd.image.isDynamic) {
-                        this._isDynamic = true;
+                        _isDynamic = true;
                     }
 
                     break;
                 }
 
                 case DrawPicture cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     var rect = state.xform.mapRect(cmd.picture.paintBounds);
-                    this._addPaintBounds(rect);
-                    this._bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(5)).Value,
-                        this._drawCmds.Count - 1));
+                    _addPaintBounds(rect);
+                    _bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(5)).Value,
+                        _drawCmds.Count - 1));
                     if (cmd.picture.isDynamic) {
-                        this._isDynamic = true;
+                        _isDynamic = true;
                     }
 
                     break;
                 }
 
                 case DrawTextBlob cmd: {
-                    var state = this._getState();
+                    var state = _getState();
                     var scale = XformUtils.getScale(state.xform);
                     var rect = cmd.textBlob.Value.shiftedBoundsInText(cmd.offset.dx, cmd.offset.dy);
                     rect = state.xform.mapRect(rect);
@@ -341,14 +341,14 @@ namespace Unity.UIWidgets.ui {
                     if (paint.maskFilter != null && paint.maskFilter.sigma != 0) {
                         float sigma = scale * paint.maskFilter.sigma;
                         float sigma3 = 3 * sigma;
-                        this._addPaintBounds(rect.inflate(sigma3));
-                        this._bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(sigma3 + 5)).Value,
-                            this._drawCmds.Count - 1));
+                        _addPaintBounds(rect.inflate(sigma3));
+                        _bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(sigma3 + 5)).Value,
+                            _drawCmds.Count - 1));
                     }
                     else {
-                        this._addPaintBounds(rect);
-                        this._bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(5)).Value,
-                            this._drawCmds.Count - 1));
+                        _addPaintBounds(rect);
+                        _bbh.Insert(new IndexedRect(uiRectHelper.fromRect(rect.inflate(5)).Value,
+                            _drawCmds.Count - 1));
                     }
 
                     break;
@@ -360,7 +360,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         void _addPaintBounds(Rect paintBounds) {
-            var state = this._getState();
+            var state = _getState();
             if (state.scissor != null) {
                 paintBounds = paintBounds.intersect(state.scissor);
             }
@@ -386,11 +386,11 @@ namespace Unity.UIWidgets.ui {
 
             public CanvasState copy() {
                 return new CanvasState {
-                    xform = this.xform,
-                    scissor = this.scissor,
+                    xform = xform,
+                    scissor = scissor,
                     saveLayer = false,
                     layerOffset = null,
-                    paintBounds = this.paintBounds,
+                    paintBounds = paintBounds,
                 };
             }
         }

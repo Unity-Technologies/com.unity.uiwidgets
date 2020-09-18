@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.material {
             Animation<float> resize = null
         ) : base(repaint: resize) {
             D.assert(elevation != null);
-            this._painter = new BoxDecoration(
+            _painter = new BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(2.0f),
                 boxShadow: ShadowConstants.kElevationToShadow[elevation ?? 0]
@@ -55,7 +55,7 @@ namespace Unity.UIWidgets.material {
         public readonly BoxPainter _painter;
 
         public override void paint(Canvas canvas, Size size) {
-            float selectedItemOffset = this.selectedIndex ?? 0 * DropdownConstants._kMenuItemHeight +
+            float selectedItemOffset = selectedIndex ?? 0 * DropdownConstants._kMenuItemHeight +
                                        Constants.kMaterialListPadding.top;
             FloatTween top = new FloatTween(
                 begin: selectedItemOffset.clamp(0.0f, size.height - DropdownConstants._kMenuItemHeight),
@@ -68,17 +68,17 @@ namespace Unity.UIWidgets.material {
                 end: size.height
             );
 
-            Rect rect = Rect.fromLTRB(0.0f, top.evaluate(this.resize), size.width, bottom.evaluate(this.resize));
+            Rect rect = Rect.fromLTRB(0.0f, top.evaluate(resize), size.width, bottom.evaluate(resize));
 
-            this._painter.paint(canvas, rect.topLeft, new ImageConfiguration(size: rect.size));
+            _painter.paint(canvas, rect.topLeft, new ImageConfiguration(size: rect.size));
         }
 
         public override bool shouldRepaint(CustomPainter painter) {
             _DropdownMenuPainter oldPainter = painter as _DropdownMenuPainter;
-            return oldPainter.color != this.color
-                   || oldPainter.elevation != this.elevation
-                   || oldPainter.selectedIndex != this.selectedIndex
-                   || oldPainter.resize != this.resize;
+            return oldPainter.color != color
+                   || oldPainter.elevation != elevation
+                   || oldPainter.selectedIndex != selectedIndex
+                   || oldPainter.resize != resize;
         }
     }
 
@@ -122,13 +122,13 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._fadeOpacity = new CurvedAnimation(
-                parent: this.widget.route.animation,
+            _fadeOpacity = new CurvedAnimation(
+                parent: widget.route.animation,
                 curve: new Interval(0.0f, 0.25f),
                 reverseCurve: new Interval(0.75f, 1.0f)
             );
-            this._resize = new CurvedAnimation(
-                parent: this.widget.route.animation,
+            _resize = new CurvedAnimation(
+                parent: widget.route.animation,
                 curve: new Interval(0.25f, 0.5f),
                 reverseCurve: new Threshold(0.0f)
             );
@@ -137,7 +137,7 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
             MaterialLocalizations localizations = MaterialLocalizations.of(context);
-            _DropdownRoute<T> route = this.widget.route;
+            _DropdownRoute<T> route = widget.route;
             float unit = 0.5f / (route.items.Count + 1.5f);
             List<Widget> children = new List<Widget>();
             for (int itemIndex = 0; itemIndex < route.items.Count; ++itemIndex) {
@@ -156,7 +156,7 @@ namespace Unity.UIWidgets.material {
                     opacity: opacity,
                     child: new InkWell(
                         child: new Container(
-                            padding: this.widget.padding,
+                            padding: widget.padding,
                             child: route.items[itemIndex]
                         ),
                         onTap: () => Navigator.pop(
@@ -168,13 +168,13 @@ namespace Unity.UIWidgets.material {
             }
 
             return new FadeTransition(
-                opacity: this._fadeOpacity,
+                opacity: _fadeOpacity,
                 child: new CustomPaint(
                     painter: new _DropdownMenuPainter(
                         color: Theme.of(context).canvasColor,
                         elevation: route.elevation,
                         selectedIndex: route.selectedIndex,
-                        resize: this._resize
+                        resize: _resize
                     ),
                     child: new Material(
                         type: MaterialType.transparency,
@@ -183,7 +183,7 @@ namespace Unity.UIWidgets.material {
                             behavior: new _DropdownScrollBehavior(),
                             child: new Scrollbar(
                                 child: new ListView(
-                                    controller: this.widget.route.scrollController,
+                                    controller: widget.route.scrollController,
                                     padding: Constants.kMaterialListPadding,
                                     itemExtent: DropdownConstants._kMenuItemHeight,
                                     shrinkWrap: true,
@@ -214,7 +214,7 @@ namespace Unity.UIWidgets.material {
 
         public override BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
             float maxHeight = Mathf.Max(0.0f, constraints.maxHeight - 2 * DropdownConstants._kMenuItemHeight);
-            float width = Mathf.Min(constraints.maxWidth, this.buttonRect.width);
+            float width = Mathf.Min(constraints.maxWidth, buttonRect.width);
             return new BoxConstraints(
                 minWidth: width,
                 maxWidth: width,
@@ -226,22 +226,22 @@ namespace Unity.UIWidgets.material {
         public override Offset getPositionForChild(Size size, Size childSize) {
             D.assert(() => {
                 Rect container = Offset.zero & size;
-                if (container.intersect(this.buttonRect) == this.buttonRect) {
-                    D.assert(this.menuTop >= 0.0f);
-                    D.assert(this.menuTop + this.menuHeight <= size.height);
+                if (container.intersect(buttonRect) == buttonRect) {
+                    D.assert(menuTop >= 0.0f);
+                    D.assert(menuTop + menuHeight <= size.height);
                 }
 
                 return true;
             });
-            float left = this.buttonRect.right.clamp(0.0f, size.width) - childSize.width;
-            return new Offset(left, this.menuTop);
+            float left = buttonRect.right.clamp(0.0f, size.width) - childSize.width;
+            return new Offset(left, menuTop);
         }
 
         public override bool shouldRelayout(SingleChildLayoutDelegate _oldDelegate) {
             _DropdownMenuRouteLayout<T> oldDelegate = _oldDelegate as _DropdownMenuRouteLayout<T>;
-            return this.buttonRect != oldDelegate.buttonRect
-                   || this.menuTop != oldDelegate.menuTop
-                   || this.menuHeight != oldDelegate.menuHeight;
+            return buttonRect != oldDelegate.buttonRect
+                   || menuTop != oldDelegate.menuTop
+                   || menuHeight != oldDelegate.menuHeight;
         }
     }
 
@@ -261,7 +261,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public bool Equals(_DropdownRouteResult<T> other) {
-            return this.result == other.result;
+            return result == other.result;
         }
         
         public override bool Equals(object obj) {
@@ -271,14 +271,14 @@ namespace Unity.UIWidgets.material {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
-            return this.Equals((_DropdownRouteResult<T>) obj);
+            return Equals((_DropdownRouteResult<T>) obj);
         }
 
         public override int GetHashCode() {
-            return this.result.GetHashCode();
+            return result.GetHashCode();
         }
     }
 
@@ -335,20 +335,20 @@ namespace Unity.UIWidgets.material {
                     return new _DropdownRoutePage<T>(
                         route: this,
                         constraints: constraints,
-                        items: this.items,
-                        padding: this.padding,
-                        buttonRect: this.buttonRect,
-                        selectedIndex: this.selectedIndex,
-                        elevation: this.elevation,
-                        theme: this.theme,
-                        style: this.style
+                        items: items,
+                        padding: padding,
+                        buttonRect: buttonRect,
+                        selectedIndex: selectedIndex,
+                        elevation: elevation,
+                        theme: theme,
+                        style: style
                     );
                 }
             );
         }
 
         internal void _dismiss() {
-            this.navigator?.removeRoute(this);
+            navigator?.removeRoute(this);
         }
     }
 
@@ -388,21 +388,21 @@ namespace Unity.UIWidgets.material {
         
         public override Widget build(BuildContext context) {
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
-            float availableHeight = this.constraints.maxHeight;
+            float availableHeight = constraints.maxHeight;
             float maxMenuHeight = availableHeight - 2.0f * DropdownConstants._kMenuItemHeight;
 
-            float buttonTop = this.buttonRect.top;
-            float buttonBottom = Mathf.Min(this.buttonRect.bottom, availableHeight);
+            float buttonTop = buttonRect.top;
+            float buttonBottom = Mathf.Min(buttonRect.bottom, availableHeight);
 
             float topLimit = Mathf.Min(DropdownConstants._kMenuItemHeight, buttonTop);
             float bottomLimit = Mathf.Max(availableHeight - DropdownConstants._kMenuItemHeight, buttonBottom);
 
-            float? selectedItemOffset = this.selectedIndex * DropdownConstants._kMenuItemHeight +
+            float? selectedItemOffset = selectedIndex * DropdownConstants._kMenuItemHeight +
                                         Constants.kMaterialListPadding.top;
 
             float? menuTop = (buttonTop - selectedItemOffset) -
-                             (DropdownConstants._kMenuItemHeight - this.buttonRect.height) / 2.0f;
-            float preferredMenuHeight = (this.items.Count * DropdownConstants._kMenuItemHeight) +
+                             (DropdownConstants._kMenuItemHeight - buttonRect.height) / 2.0f;
+            float preferredMenuHeight = (items.Count * DropdownConstants._kMenuItemHeight) +
                                         Constants.kMaterialListPadding.vertical;
 
             float menuHeight = Mathf.Min(maxMenuHeight, preferredMenuHeight);
@@ -418,20 +418,20 @@ namespace Unity.UIWidgets.material {
                 menuTop = menuBottom - menuHeight;
             }
 
-            if (this.route.scrollController == null) {
+            if (route.scrollController == null) {
                 float scrollOffset = preferredMenuHeight > maxMenuHeight
                     ? Mathf.Max(0.0f, selectedItemOffset ?? 0.0f - (buttonTop - (menuTop ?? 0.0f)))
                     : 0.0f;
-                this.route.scrollController = new ScrollController(initialScrollOffset: scrollOffset);
+                route.scrollController = new ScrollController(initialScrollOffset: scrollOffset);
             }
 
             Widget menu = new _DropdownMenu<T>(
-                route: this.route,
-                padding: this.padding
+                route: route,
+                padding: padding
             );
 
-            if (this.theme != null) {
-                menu = new Theme(data: this.theme, child: menu);
+            if (theme != null) {
+                menu = new Theme(data: theme, child: menu);
             }
 
             return MediaQuery.removePadding(
@@ -444,7 +444,7 @@ namespace Unity.UIWidgets.material {
                     builder: (BuildContext _context) => {
                         return new CustomSingleChildLayout(
                             layoutDelegate: new _DropdownMenuRouteLayout<T>(
-                                buttonRect: this.buttonRect,
+                                buttonRect: buttonRect,
                                 menuTop: menuTop ?? 0.0f,
                                 menuHeight: menuHeight
                             ),
@@ -475,7 +475,7 @@ namespace Unity.UIWidgets.material {
             return new Container(
                 height: DropdownConstants._kMenuItemHeight,
                 alignment: Alignment.centerLeft,
-                child: this.child
+                child: child
             );
         }
     }
@@ -591,98 +591,98 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._updateSelectedIndex();
+            _updateSelectedIndex();
             WidgetsBinding.instance.addObserver(this);
         }
 
         public override void dispose() {
             WidgetsBinding.instance.removeObserver(this);
-            this._removeDropdownRoute();
+            _removeDropdownRoute();
             base.dispose();
         }
 
         public void didChangeMetrics() {
-            this._removeDropdownRoute();
+            _removeDropdownRoute();
         }
 
         void _removeDropdownRoute() {
-            this._dropdownRoute?._dismiss();
-            this._dropdownRoute = null;
+            _dropdownRoute?._dismiss();
+            _dropdownRoute = null;
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            this._updateSelectedIndex();
+            _updateSelectedIndex();
         }
 
         void _updateSelectedIndex() {
-            if (!this._enabled) {
+            if (!_enabled) {
                 return;
             }
 
-            D.assert(this.widget.value == null ||
-                     this.widget.items.Where((DropdownMenuItem<T> item) => item.value.Equals(this.widget.value))
+            D.assert(widget.value == null ||
+                     widget.items.Where((DropdownMenuItem<T> item) => item.value.Equals(widget.value))
                          .ToList().Count == 1);
-            this._selectedIndex = null;
-            for (int itemIndex = 0; itemIndex < this.widget.items.Count; itemIndex++) {
-                if (this.widget.items[itemIndex].value.Equals(this.widget.value)) {
-                    this._selectedIndex = itemIndex;
+            _selectedIndex = null;
+            for (int itemIndex = 0; itemIndex < widget.items.Count; itemIndex++) {
+                if (widget.items[itemIndex].value.Equals(widget.value)) {
+                    _selectedIndex = itemIndex;
                     return;
                 }
             }
         }
 
         TextStyle _textStyle {
-            get { return this.widget.style ?? Theme.of(this.context).textTheme.subhead; }
+            get { return widget.style ?? Theme.of(context).textTheme.subhead; }
         }
 
         void _handleTap() {
-            RenderBox itemBox = (RenderBox) this.context.findRenderObject();
+            RenderBox itemBox = (RenderBox) context.findRenderObject();
             Rect itemRect = itemBox.localToGlobal(Offset.zero) & itemBox.size;
-            EdgeInsets menuMargin = ButtonTheme.of(this.context).alignedDropdown
+            EdgeInsets menuMargin = ButtonTheme.of(context).alignedDropdown
                 ? DropdownConstants._kAlignedMenuMargin
                 : DropdownConstants._kUnalignedMenuMargin;
 
-            D.assert(this._dropdownRoute == null);
-            this._dropdownRoute = new _DropdownRoute<T>(
-                items: this.widget.items,
+            D.assert(_dropdownRoute == null);
+            _dropdownRoute = new _DropdownRoute<T>(
+                items: widget.items,
                 buttonRect: menuMargin.inflateRect(itemRect),
                 padding: DropdownConstants._kMenuItemPadding,
-                selectedIndex: this._selectedIndex ?? 0,
-                elevation: this.widget.elevation,
-                theme: Theme.of(this.context, shadowThemeOnly: true),
-                style: this._textStyle,
-                barrierLabel: MaterialLocalizations.of(this.context).modalBarrierDismissLabel
+                selectedIndex: _selectedIndex ?? 0,
+                elevation: widget.elevation,
+                theme: Theme.of(context, shadowThemeOnly: true),
+                style: _textStyle,
+                barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel
             );
 
-            Navigator.push(this.context, this._dropdownRoute).Then(newValue => {
+            Navigator.push(context, _dropdownRoute).Then(newValue => {
                 _DropdownRouteResult<T> value = newValue as _DropdownRouteResult<T>;
-                this._dropdownRoute = null;
-                if (!this.mounted || newValue == null) {
+                _dropdownRoute = null;
+                if (!mounted || newValue == null) {
                     return;
                 }
 
-                if (this.widget.onChanged != null) {
-                    this.widget.onChanged(value.result);
+                if (widget.onChanged != null) {
+                    widget.onChanged(value.result);
                 }
             });
         }
 
         float? _denseButtonHeight {
             get {
-                return Mathf.Max(this._textStyle.fontSize ?? 0.0f,
-                    Mathf.Max(this.widget.iconSize, DropdownConstants._kDenseButtonHeight));
+                return Mathf.Max(_textStyle.fontSize ?? 0.0f,
+                    Mathf.Max(widget.iconSize, DropdownConstants._kDenseButtonHeight));
             }
         }
 
         Color _iconColor {
             get {
-                if (this._enabled) {
-                    if (this.widget.iconEnabledColor != null) {
-                        return this.widget.iconEnabledColor;
+                if (_enabled) {
+                    if (widget.iconEnabledColor != null) {
+                        return widget.iconEnabledColor;
                     }
 
-                    switch (Theme.of(this.context).brightness) {
+                    switch (Theme.of(context).brightness) {
                         case Brightness.light:
                             return Colors.grey.shade700;
                         case Brightness.dark:
@@ -690,11 +690,11 @@ namespace Unity.UIWidgets.material {
                     }
                 }
                 else {
-                    if (this.widget.iconDisabledColor != null) {
-                        return this.widget.iconDisabledColor;
+                    if (widget.iconDisabledColor != null) {
+                        return widget.iconDisabledColor;
                     }
 
-                    switch (Theme.of(this.context).brightness) {
+                    switch (Theme.of(context).brightness) {
                         case Brightness.light:
                             return Colors.grey.shade400;
                         case Brightness.dark:
@@ -707,23 +707,23 @@ namespace Unity.UIWidgets.material {
         }
 
         bool _enabled {
-            get { return this.widget.items != null && this.widget.items.isNotEmpty() && this.widget.onChanged != null; }
+            get { return widget.items != null && widget.items.isNotEmpty() && widget.onChanged != null; }
         }
 
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
 
-            List<Widget> items = this._enabled ? new List<Widget>(this.widget.items) : new List<Widget>();
+            List<Widget> items = _enabled ? new List<Widget>(widget.items) : new List<Widget>();
             int hintIndex = 0;
-            if (this.widget.hint != null || (!this._enabled && this.widget.disabledHint != null)) {
+            if (widget.hint != null || (!_enabled && widget.disabledHint != null)) {
                 Widget emplacedHint =
-                    this._enabled
-                        ? this.widget.hint
-                        : new DropdownMenuItem<Widget>(child: this.widget.disabledHint ?? this.widget.hint);
+                    _enabled
+                        ? widget.hint
+                        : new DropdownMenuItem<Widget>(child: widget.disabledHint ?? widget.hint);
                 hintIndex = items.Count;
                 items.Add(new DefaultTextStyle(
-                    style: this._textStyle.copyWith(color: Theme.of(context).hintColor),
+                    style: _textStyle.copyWith(color: Theme.of(context).hintColor),
                     child: new IgnorePointer(
                         child: emplacedHint
                     )
@@ -735,28 +735,28 @@ namespace Unity.UIWidgets.material {
                 : DropdownConstants._kUnalignedButtonPadding;
 
             IndexedStack innerItemsWidget = new IndexedStack(
-                index: this._enabled ? (this._selectedIndex ?? hintIndex) : hintIndex,
+                index: _enabled ? (_selectedIndex ?? hintIndex) : hintIndex,
                 alignment: Alignment.centerLeft,
                 children: items
             );
 
             Icon defaultIcon = new Icon(Icons.arrow_drop_down);
             Widget result = new DefaultTextStyle(
-                style: this._textStyle,
+                style: _textStyle,
                 child: new Container(
                     padding: padding,
-                    height: this.widget.isDense ? this._denseButtonHeight : null,
+                    height: widget.isDense ? _denseButtonHeight : null,
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         mainAxisSize: MainAxisSize.min,
                         children: new List<Widget> {
-                            this.widget.isExpanded ? new Expanded(child: innerItemsWidget) : (Widget) innerItemsWidget,
+                            widget.isExpanded ? new Expanded(child: innerItemsWidget) : (Widget) innerItemsWidget,
                             new IconTheme(
                                 data: new IconThemeData(
-                                    color: this._iconColor,
-                                    size: this.widget.iconSize
+                                    color: _iconColor,
+                                    size: widget.iconSize
                                 ),
-                                child: this.widget.icon ?? defaultIcon
+                                child: widget.icon ?? defaultIcon
                             )
                         }
                     )
@@ -764,7 +764,7 @@ namespace Unity.UIWidgets.material {
             );
 
             if (!DropdownButtonHideUnderline.at(context)) {
-                float bottom = this.widget.isDense ? 0.0f : 8.0f;
+                float bottom = widget.isDense ? 0.0f : 8.0f;
                 result = new Stack(
                     children: new List<Widget> {
                         result,
@@ -772,7 +772,7 @@ namespace Unity.UIWidgets.material {
                             left: 0.0f,
                             right: 0.0f,
                             bottom: bottom,
-                            child: this.widget.underline ?? new Container(
+                            child: widget.underline ?? new Container(
                                 height: 1.0f,
                                 decoration: new BoxDecoration(
                                     border: new Border(
@@ -785,7 +785,7 @@ namespace Unity.UIWidgets.material {
             }
 
             return new GestureDetector(
-                onTap: this._enabled ? (GestureTapCallback) this._handleTap : null,
+                onTap: _enabled ? (GestureTapCallback) _handleTap : null,
                 behavior: HitTestBehavior.opaque,
                 child: result
             );
@@ -842,8 +842,8 @@ namespace Unity.UIWidgets.material {
 
         public override void didChange(T value) {
             base.didChange(value);
-            if (this.widget.onChanged != null) {
-                this.widget.onChanged(value);
+            if (widget.onChanged != null) {
+                widget.onChanged(value);
             }
         }
     }

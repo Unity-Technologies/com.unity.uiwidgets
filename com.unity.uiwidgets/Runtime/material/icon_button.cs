@@ -34,7 +34,7 @@ namespace Unity.UIWidgets.material {
             this.color = color;
             this.highlightColor = highlightColor;
             this.splashColor = splashColor;
-            this.disabledColor = disableColor;
+            disabledColor = disableColor;
             this.onPressed = onPressed;
             this.tooltip = tooltip;
         }
@@ -62,60 +62,60 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             D.assert(MaterialD.debugCheckHasMaterial(context));
             Color currentColor;
-            if (this.onPressed != null) {
-                currentColor = this.color;
+            if (onPressed != null) {
+                currentColor = color;
             }
             else {
-                currentColor = this.disabledColor ?? Theme.of(context).disabledColor;
+                currentColor = disabledColor ?? Theme.of(context).disabledColor;
             }
 
             Widget result = new ConstrainedBox(
                 constraints: new BoxConstraints(minWidth: IconButtonUtils._kMinButtonSize,
                     minHeight: IconButtonUtils._kMinButtonSize),
                 child: new Padding(
-                    padding: this.padding,
+                    padding: padding,
                     child: new SizedBox(
-                        height: this.iconSize,
-                        width: this.iconSize,
+                        height: iconSize,
+                        width: iconSize,
                         child: new Align(
-                            alignment: this.alignment,
+                            alignment: alignment,
                             child: IconTheme.merge(
                                 data: new IconThemeData(
-                                    size: this.iconSize,
+                                    size: iconSize,
                                     color: currentColor),
-                                child: this.icon)
+                                child: icon)
                         )
                     )
                 )
             );
 
-            if (this.tooltip != null) {
+            if (tooltip != null) {
                 result = new Tooltip(
-                    message: this.tooltip,
+                    message: tooltip,
                     child: result);
             }
 
             return new InkResponse(
                 onTap: () => {
-                    if (this.onPressed != null) {
-                        this.onPressed();
+                    if (onPressed != null) {
+                        onPressed();
                     }
                 },
                 child: result,
-                highlightColor: this.highlightColor ?? Theme.of(context).highlightColor,
-                splashColor: this.splashColor ?? Theme.of(context).splashColor,
+                highlightColor: highlightColor ?? Theme.of(context).highlightColor,
+                splashColor: splashColor ?? Theme.of(context).splashColor,
                 radius: Mathf.Max(
                     Material.defaultSplashRadius,
-                    (this.iconSize + Mathf.Min(this.padding.horizontal, this.padding.vertical)) * 0.7f)
+                    (iconSize + Mathf.Min(padding.horizontal, padding.vertical)) * 0.7f)
             );
         }
 
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Widget>("icon", this.icon, showName: false));
-            properties.add(new ObjectFlagProperty<VoidCallback>("onPressed", this.onPressed, ifNull: "disabled"));
-            properties.add(new StringProperty("tooltip", this.tooltip, defaultValue: null, quoted: false));
+            properties.add(new DiagnosticsProperty<Widget>("icon", icon, showName: false));
+            properties.add(new ObjectFlagProperty<VoidCallback>("onPressed", onPressed, ifNull: "disabled"));
+            properties.add(new StringProperty("tooltip", tooltip, defaultValue: null, quoted: false));
         }
     }
 }
