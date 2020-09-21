@@ -9,6 +9,7 @@
 #include "runtime/mono_api.h"
 #include "shell/platform/embedder/embedder_engine.h"
 #include "uiwidgets_system.h"
+#include "unity_external_texture_gl.h"
 
 namespace uiwidgets {
 
@@ -226,6 +227,23 @@ void UIWidgetsPanel::OnRenderTexture(void* native_texture_ptr, size_t width,
   reinterpret_cast<EmbedderEngine*>(engine_)->SetViewportMetrics(metrics);
 }
 
+int UIWidgetsPanel::RegisterTexture(void* native_texture_ptr) {
+  int texture_identifier = 0;
+  texture_identifier++;
+
+  auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
+
+  engine->GetShell().GetPlatformView()->RegisterTexture(
+      std::make_unique<UnityExternalTextureGL>(
+          texture_identifier, native_texture_ptr, surface_manager_.get()));
+  return texture_identifier;
+}
+
+void UIWidgetsPanel::UnregisterTexture(int texture_id) {
+  auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
+  engine->GetShell().GetPlatformView()->UnregisterTexture(texture_id);
+}
+
 std::chrono::nanoseconds UIWidgetsPanel::ProcessMessages() {
   return std::chrono::nanoseconds(task_runner_->ProcessTasks().count());
 }
@@ -279,6 +297,17 @@ UIWIDGETS_API(void)
 UIWidgetsPanel_onRenderTexture(UIWidgetsPanel* panel, void* native_texture_ptr,
                                int width, int height, float dpi) {
   panel->OnRenderTexture(native_texture_ptr, width, height, dpi);
+}
+
+UIWIDGETS_API(int)
+UIWidgetsPanel_registerTexture(UIWidgetsPanel* panel,
+                               void* native_texture_ptr) {
+  return panel->RegisterTexture(native_texture_ptr);
+}
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_unregisterTexture(UIWidgetsPanel* panel, int texture_id) {
+  return panel->UnregisterTexture(texture_id);
 }
 
 }  // namespace uiwidgets

@@ -25,10 +25,14 @@ class UnitySurfaceManager {
   void DestroyRenderSurface();
 
   bool ClearCurrent();
-	
+
   bool MakeCurrent(const EGLSurface surface);
 
   bool MakeResourceCurrent();
+
+  EGLDisplay GetEGLDisplay() const { return egl_display_; }
+
+  ID3D11Device* GetD3D11Device() const { return d3d11_device_; }
 
   FML_DISALLOW_COPY_AND_ASSIGN(UnitySurfaceManager);
 

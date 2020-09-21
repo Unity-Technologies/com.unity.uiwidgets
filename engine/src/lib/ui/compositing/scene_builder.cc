@@ -236,4 +236,10 @@ SceneBuilder_addPicture(SceneBuilder* ptr, float dx, float dy, Picture* picture,
   ptr->addPicture(dx, dy, picture, hints);
 }
 
+UIWIDGETS_API(void)
+SceneBuilder_addTexture(SceneBuilder* ptr, float dx, float dy, float width,
+                        float height, int texture_id, bool freeze) {
+  ptr->addTexture(dx, dy, width, height, texture_id, freeze);
+}
+
 }  // namespace uiwidgets

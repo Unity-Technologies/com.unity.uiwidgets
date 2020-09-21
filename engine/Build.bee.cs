@@ -280,12 +280,14 @@ class Build
 
                 "src/shell/platform/unity/gfx_worker_task_runner.cc",
                 "src/shell/platform/unity/gfx_worker_task_runner.h",
-                "src/shell/platform/unity/unity_surface_manager.cc",
-                "src/shell/platform/unity/unity_surface_manager.h",
                 "src/shell/platform/unity/uiwidgets_panel.cc",
                 "src/shell/platform/unity/uiwidgets_panel.h",
                 "src/shell/platform/unity/uiwidgets_system.cc",
                 "src/shell/platform/unity/uiwidgets_system.h",
+                "src/shell/platform/unity/unity_external_texture_gl.cc",
+                "src/shell/platform/unity/unity_external_texture_gl.h",
+                "src/shell/platform/unity/unity_surface_manager.cc",
+                "src/shell/platform/unity/unity_surface_manager.h",
                 "src/shell/platform/unity/win32_task_runner.cc",
                 "src/shell/platform/unity/win32_task_runner.h",
 

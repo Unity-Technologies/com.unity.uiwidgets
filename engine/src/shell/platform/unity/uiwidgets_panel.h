@@ -30,6 +30,10 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
   void OnRenderTexture(void* native_texture_ptr, size_t width, size_t height,
                        float dpi);
 
+  int RegisterTexture(void* native_texture_ptr);
+
+  void UnregisterTexture(int texture_id);
+
   std::chrono::nanoseconds ProcessMessages();
 
   void ProcessVSync();

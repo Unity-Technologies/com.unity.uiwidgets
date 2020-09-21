@@ -270,6 +270,18 @@ namespace Unity.UIWidgets.ui2 {
             SceneBuilder_addPicture(_ptr, offset.dx, offset.dy, picture._ptr, hints);
         }
 
+        public void addTexture(
+            int textureId,
+            Offset offset = null,
+            float width = 0.0f,
+            float height = 0.0f,
+            bool freeze = false
+        ) {
+            offset = offset ?? Offset.zero;
+            SceneBuilder_addTexture(_ptr, offset.dx, offset.dy, width, height, textureId, freeze);
+        }
+
+
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_constructor();
 
@@ -290,6 +302,10 @@ namespace Unity.UIWidgets.ui2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_addPicture(IntPtr ptr, float dx, float dy, IntPtr picture, int hints);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void SceneBuilder_addTexture(IntPtr ptr, float dx, float dy, float width, float height,
+            int textureId, bool freeze);
 
         [DllImport(NativeBindings.dllName)]
         static extern void SceneBuilder_addRetained(IntPtr ptr, IntPtr retainedLayer);

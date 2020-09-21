@@ -57,7 +57,7 @@ namespace Unity.UIWidgets.engine2 {
         protected virtual void main() {
         }
 
-        public void entryPoint() {
+        void _entryPoint() {
             try {
                 isolate = Isolate.current;
                 Window.instance._panel = this;
@@ -132,13 +132,25 @@ namespace Unity.UIWidgets.engine2 {
             _renderTexture = null;
         }
 
+        public int registerTexture(Texture texture) {
+            return UIWidgetsPanel_registerTexture(_ptr, texture.GetNativeTexturePtr());
+        }
+
+        public void unregisterTexture(int textureId) {
+            UIWidgetsPanel_unregisterTexture(_ptr, textureId);
+        }
+
+        public void markNewFrameAvailable(int textureId) {
+            UIWidgetsPanel_markNewFrameAvailable(_ptr, textureId);
+        }
+
         delegate void UIWidgetsPanel_EntrypointCallback(IntPtr handle);
 
         [MonoPInvokeCallback(typeof(UIWidgetsPanel_EntrypointCallback))]
         static void UIWidgetsPanel_entrypoint(IntPtr handle) {
             GCHandle gcHandle = (GCHandle) handle;
             UIWidgetsPanel panel = (UIWidgetsPanel) gcHandle.Target;
-            panel.entryPoint();
+            panel._entryPoint();
         }
 
         [DllImport(NativeBindings.dllName)]
@@ -158,5 +170,14 @@ namespace Unity.UIWidgets.engine2 {
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onRenderTexture(
             IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern int UIWidgetsPanel_registerTexture(IntPtr ptr, IntPtr nativeTexturePtr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_unregisterTexture(IntPtr ptr, int textureId);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_markNewFrameAvailable(IntPtr ptr, int textureId);
     }
 }
