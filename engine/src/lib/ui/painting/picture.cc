@@ -71,8 +71,10 @@ const char* Picture::RasterizeToImage(sk_sp<SkPicture> picture, uint32_t width,
     auto mono_state = mono_state_weak.lock();
     if (!mono_state) {
       // The root isolate could have died in the meantime.
+      raw_image_callback(callback_handle, nullptr);
       return;
     }
+  	
     MonoState::Scope scope(mono_state);
 
     if (!raster_image) {
@@ -82,6 +84,7 @@ const char* Picture::RasterizeToImage(sk_sp<SkPicture> picture, uint32_t width,
 
     auto mono_image = CanvasImage::Create();
     mono_image->set_image({std::move(raster_image), std::move(unref_queue)});
+    mono_image->AddRef();
     auto* raw_mono_image = mono_image.get();
 
     // All done!

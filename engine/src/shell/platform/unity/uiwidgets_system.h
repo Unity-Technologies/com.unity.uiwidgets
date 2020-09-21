@@ -3,6 +3,7 @@
 #include <flutter/fml/closure.h>
 
 #include <chrono>
+#include <cstdarg>
 #include <set>
 #include <unordered_map>
 
@@ -26,6 +27,12 @@ class UIWidgetsSystem {
   void UnregisterPanel(UIWidgetsPanel* panel);
 
   void PostTaskToGfxWorker(const fml::closure& task);
+  void printf_console(const char* log, ...) {
+    va_list vl;
+    va_start(vl, log);
+    unity_uiwidgets_->printf_consolev(log, vl);
+    va_end(vl);
+  }
 
   void BindUnityInterfaces(IUnityInterfaces* unity_interfaces);
   void UnBindUnityInterfaces();

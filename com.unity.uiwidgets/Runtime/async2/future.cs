@@ -17,19 +17,19 @@ namespace Unity.UIWidgets.async2 {
         }
 
         public static readonly FutureOr nil = value(null);
-        
+
         public static implicit operator FutureOr(Future f) => future(f);
-        
+
         public static implicit operator FutureOr(bool v) => value(v);
-        
+
         public static implicit operator FutureOr(int v) => value(v);
-        
+
         public static implicit operator FutureOr(long v) => value(v);
-        
+
         public static implicit operator FutureOr(float v) => value(v);
-        
+
         public static implicit operator FutureOr(double v) => value(v);
-        
+
         public static implicit operator FutureOr(string v) => value(v);
 
         public static implicit operator FutureOr(byte[] v) => value(v);
@@ -309,9 +309,30 @@ namespace Unity.UIWidgets.async2 {
 
         public abstract Future then(Func<object, FutureOr> onValue, Func<Exception, FutureOr> onError = null);
 
+        public Future then(Action<object> onValue, Func<Exception, FutureOr> onError = null) {
+            return then(v => {
+                onValue(v);
+                return FutureOr.nil;
+            }, onError);
+        }
+
         public abstract Future catchError(Func<Exception, FutureOr> onError, Func<Exception, bool> test = null);
 
+        public Future catchError(Action<Exception> onError, Func<Exception, bool> test = null) {
+            return catchError(e => {
+                onError(e);
+                return FutureOr.nil;
+            }, test);
+        }
+
         public abstract Future whenComplete(Func<FutureOr> action);
+
+        public Future whenComplete(Action action) {
+            return whenComplete(() => {
+                action();
+                return FutureOr.nil;
+            });
+        }
 
         // public abstract Stream asStream();
 
@@ -337,8 +358,16 @@ namespace Unity.UIWidgets.async2 {
             return _future.then(onValue, onError);
         }
 
-        public Future<R> then<R>(Func<T, FutureOr> onValue, Func<Exception, FutureOr> onError = null) {
+        public Future then_(Func<T, FutureOr> onValue, Func<Exception, FutureOr> onError = null) {
+            return _future.then(obj => onValue((T) obj), onError);
+        }
+
+        public Future<R> then_<R>(Func<T, FutureOr> onValue, Func<Exception, FutureOr> onError = null) {
             return _future.then(obj => onValue((T) obj), onError).to<R>();
+        }
+
+        public Future then_(Action<T> onValue, Func<Exception, FutureOr> onError = null) {
+            return _future.then(obj => onValue((T) obj), onError);
         }
 
         public override Future catchError(Func<Exception, FutureOr> onError, Func<Exception, bool> test = null) {
@@ -375,7 +404,7 @@ namespace Unity.UIWidgets.async2 {
         public static Completer sync() => new _SyncCompleter();
 
         public abstract Future future { get; }
-        
+
         public abstract void complete(FutureOr value = default);
 
         public abstract void completeError(Exception error);

@@ -16,6 +16,22 @@
 namespace uiwidgets {
 namespace {
 
+void InvokeDataCallback(std::unique_ptr<EncodeImageCallback> callback,
+                        sk_sp<SkData> buffer) {
+  std::shared_ptr<MonoState> mono_state = callback->mono_state.lock();
+  if (!mono_state) {
+    callback->callback(callback->callback_handle, nullptr, 0);
+    return;
+  }
+  MonoState::Scope scope(mono_state);
+  if (!buffer) {
+    callback->callback(callback->callback_handle, nullptr, 0);
+  } else {
+    callback->callback(callback->callback_handle, buffer->bytes(),
+                       buffer->size());
+  }
+}
+
 // This must be kept in sync with the enum in painting.dart
 enum ImageByteFormat {
   kRawRGBA,
@@ -161,7 +177,7 @@ sk_sp<SkData> EncodeImage(sk_sp<SkImage> raster_image, ImageByteFormat format) {
       if (png_image == nullptr) {
         FML_LOG(ERROR) << "Could not convert raster image to PNG.";
         return nullptr;
-      };
+      }
       return png_image;
     } break;
     case kRawRGBA: {
@@ -177,19 +193,18 @@ sk_sp<SkData> EncodeImage(sk_sp<SkImage> raster_image, ImageByteFormat format) {
 }
 
 void EncodeImageAndInvokeDataCallback(
-    sk_sp<SkImage> image, EncodeImageCallback callback,
-    Mono_Handle callback_handle, ImageByteFormat format,
-    fml::RefPtr<fml::TaskRunner> ui_task_runner,
+    sk_sp<SkImage> image, std::unique_ptr<EncodeImageCallback> callback,
+    ImageByteFormat format, fml::RefPtr<fml::TaskRunner> ui_task_runner,
     fml::RefPtr<fml::TaskRunner> raster_task_runner,
     fml::RefPtr<fml::TaskRunner> io_task_runner, GrContext* resource_context,
     fml::WeakPtr<SnapshotDelegate> snapshot_delegate) {
   auto callback_task = fml::MakeCopyable(
-      [callback, callback_handle](sk_sp<SkData> encoded) mutable {
-        callback(callback_handle, encoded->bytes(), encoded->size());
+      [callback = std::move(callback)](sk_sp<SkData> encoded) mutable {
+        InvokeDataCallback(std::move(callback), std::move(encoded));
       });
 
   auto encode_task = [callback_task = std::move(callback_task), format,
-                      ui_task_runner](sk_sp<SkImage> raster_image) {
+                      ui_task_runner](sk_sp<SkImage> raster_image) mutable {
     sk_sp<SkData> encoded = EncodeImage(std::move(raster_image), format);
     ui_task_runner->PostTask(
         [callback_task = std::move(callback_task),
@@ -203,26 +218,29 @@ void EncodeImageAndInvokeDataCallback(
 }  // namespace
 
 const char* EncodeImage(CanvasImage* canvas_image, int format,
-                        EncodeImageCallback callback,
+                        RawEncodeImageCallback raw_callback,
                         Mono_Handle callback_handle) {
   if (!canvas_image) return "encode called with non-genuine Image.";
 
-  if (!callback || !callback_handle) return "Callback must be a function.";
+  if (!raw_callback || !callback_handle) return "Callback must be a function.";
 
   ImageByteFormat image_format = static_cast<ImageByteFormat>(format);
+
+  auto callback = std::make_unique<EncodeImageCallback>(EncodeImageCallback{
+      MonoState::Current()->GetWeakPtr(), raw_callback, callback_handle});
 
   const auto& task_runners = UIMonoState::Current()->GetTaskRunners();
 
   task_runners.GetIOTaskRunner()->PostTask(fml::MakeCopyable(
-      [callback, callback_handle, image = canvas_image->image(), image_format,
-       ui_task_runner = task_runners.GetUITaskRunner(),
+      [callback = std::move(callback), image = canvas_image->image(),
+       image_format, ui_task_runner = task_runners.GetUITaskRunner(),
        raster_task_runner = task_runners.GetRasterTaskRunner(),
        io_task_runner = task_runners.GetIOTaskRunner(),
        io_manager = UIMonoState::Current()->GetIOManager(),
        snapshot_delegate =
            UIMonoState::Current()->GetSnapshotDelegate()]() mutable {
         EncodeImageAndInvokeDataCallback(
-            std::move(image), callback, callback_handle, image_format,
+            std::move(image), std::move(callback), image_format,
             std::move(ui_task_runner), std::move(raster_task_runner),
             std::move(io_task_runner), io_manager->GetResourceContext().get(),
             std::move(snapshot_delegate));

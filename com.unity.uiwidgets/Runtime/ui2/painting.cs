@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using AOT;
-using RSG;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
@@ -392,6 +391,10 @@ namespace Unity.UIWidgets.ui2 {
         antiAliasWithSaveLayer,
     }
 
+    public static partial class ui_ {
+        const int _kDoNotResizeDimension = -1;
+    }
+
     public class Paint {
         internal readonly byte[] _data = new byte[_kDataByteCount];
 
@@ -730,57 +733,74 @@ namespace Unity.UIWidgets.ui2 {
         png,
     }
 
-    enum PixelFormat {
+    public enum PixelFormat {
         rgba8888,
         bgra8888,
     }
 
-    /**
-     * TODO: _ImageInfo
-     */
+    [StructLayout(LayoutKind.Sequential)]
+    struct _ImageInfo {
+        internal _ImageInfo(int width, int height, int format, int? rowBytes = null) {
+            this.width = width;
+            this.height = height;
+            this.format = format;
+            this.rowBytes = rowBytes ?? width * 4;
+        }
+
+        public int width;
+        public int height;
+        public int format;
+        public int rowBytes;
+    }
+
     public class Image : NativeWrapperDisposable {
         internal Image(IntPtr ptr) : base(ptr) {
         }
 
         protected override void DisposePtr(IntPtr ptr) {
-            Image_dispose(_ptr);
+            Image_dispose(ptr);
         }
 
         public int width => Image_width(_ptr);
 
         public int height => Image_height(_ptr);
 
-        public Promise<byte[]> toByteData(
+        public Future<byte[]> toByteData(
             ImageByteFormat format = ImageByteFormat.rawRgba
         ) {
-            var completer = new Promise<byte[]>(true);
-            GCHandle completerHandle = GCHandle.Alloc(completer);
+            return ui_._futurize(
+                (_Callback<byte[]> callback) => {
+                    GCHandle callbackHandle = GCHandle.Alloc(callback);
 
-            IntPtr error =
-                Image_toByteData(_ptr, (int) format, _toByteDataCallback,
-                    (IntPtr) completerHandle);
-            if (error != null) {
-                completerHandle.Free();
-                throw new Exception(Marshal.PtrToStringAnsi(error));
-            }
+                    IntPtr error = Image_toByteData(_ptr,
+                        (int) format, _toByteDataCallback, (IntPtr) callbackHandle);
+                    if (error != IntPtr.Zero) {
+                        callbackHandle.Free();
+                        return Marshal.PtrToStringAnsi(error);
+                    }
 
-            return completer;
+                    return null;
+                });
         }
 
         [MonoPInvokeCallback(typeof(Image_toByteDataCallback))]
         static void _toByteDataCallback(IntPtr callbackHandle, IntPtr data, int length) {
-            GCHandle completerHandle = (GCHandle) callbackHandle;
-            var completer = (Promise<byte[]>) completerHandle.Target;
-            completerHandle.Free();
+            GCHandle handle = (GCHandle) callbackHandle;
+            var callback = (_Callback<byte[]>) handle.Target;
+            handle.Free();
+
+            if (!Isolate.checkExists()) {
+                return;
+            }
 
             try {
                 if (data == IntPtr.Zero || length == 0) {
-                    completer.Resolve(new byte[0]);
+                    callback(new byte[0]);
                 }
                 else {
                     var bytes = new byte[length];
                     Marshal.Copy(data, bytes, 0, length);
-                    completer.Resolve(bytes);
+                    callback(bytes);
                 }
             }
             catch (Exception ex) {
@@ -809,6 +829,171 @@ namespace Unity.UIWidgets.ui2 {
     /*
      * TODO: FrameInfo, Codec
      */
+
+    public delegate void ImageDecoderCallback(Image result);
+
+    public class FrameInfo : NativeWrapper {
+        internal FrameInfo(IntPtr ptr) : base(ptr) {
+        }
+
+        protected override void DisposePtr(IntPtr ptr) {
+            FrameInfo_dispose(ptr);
+        }
+
+        public TimeSpan duration => TimeSpan.FromMilliseconds(_durationMillis);
+        int _durationMillis => FrameInfo_durationMillis(_ptr);
+
+        public Image image => new Image(FrameInfo_image(_ptr));
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void FrameInfo_dispose(IntPtr ptr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern int FrameInfo_durationMillis(IntPtr ptr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr FrameInfo_image(IntPtr ptr);
+    }
+
+    public class Codec : NativeWrapperDisposable {
+        internal Codec(IntPtr ptr) : base(ptr) {
+        }
+
+        protected override void DisposePtr(IntPtr ptr) {
+            Codec_dispose(ptr);
+        }
+
+        public int frameCount => Codec_frameCount(_ptr);
+
+        public int repetitionCount => Codec_repetitionCount(_ptr);
+
+        public Future<FrameInfo> getNextFrame() {
+            return ui_._futurize<FrameInfo>(_getNextFrame);
+        }
+
+        string _getNextFrame(_Callback<FrameInfo> callback) {
+            GCHandle callbackHandle = GCHandle.Alloc(callback);
+
+            IntPtr error = Codec_getNextFrame(_ptr, _getNextFrameCallback, (IntPtr) callbackHandle);
+            if (error != IntPtr.Zero) {
+                callbackHandle.Free();
+                return Marshal.PtrToStringAnsi(error);
+            }
+
+            return null;
+        }
+
+        [MonoPInvokeCallback(typeof(Codec_getNextFrameCallback))]
+        static void _getNextFrameCallback(IntPtr callbackHandle, IntPtr ptr) {
+            GCHandle handle = (GCHandle) callbackHandle;
+            var callback = (_Callback<FrameInfo>) handle.Target;
+            handle.Free();
+
+            if (!Isolate.checkExists()) {
+                return;
+            }
+
+            try {
+                callback(ptr == IntPtr.Zero ? null : new FrameInfo(ptr));
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
+        }
+
+        internal static unsafe string _instantiateImageCodec(byte[] list, _Callback<Codec> callback,
+            _ImageInfo? imageInfo, int targetWidth, int targetHeight) {
+            GCHandle callbackHandle = GCHandle.Alloc(callback);
+
+            fixed (byte* bytes = list) {
+                IntPtr error = Codec_instantiateImageCodec(bytes, list?.Length ?? 0,
+                    _instantiateImageCodecCallback, (IntPtr) callbackHandle,
+                    imageInfo ?? default, imageInfo.HasValue, targetWidth, targetHeight);
+                if (error != IntPtr.Zero) {
+                    callbackHandle.Free();
+                    return Marshal.PtrToStringAnsi(error);
+                }
+            }
+
+            return null;
+        }
+
+
+        [MonoPInvokeCallback(typeof(Codec_instantiateImageCodecCallback))]
+        static void _instantiateImageCodecCallback(IntPtr callbackHandle, IntPtr ptr) {
+            GCHandle handle = (GCHandle) callbackHandle;
+            var callback = (_Callback<Codec>) handle.Target;
+            handle.Free();
+
+            try {
+                D.assert(ptr != IntPtr.Zero);
+                callback(new Codec(ptr));
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
+        }
+
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void Codec_dispose(IntPtr ptr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern int Codec_frameCount(IntPtr ptr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern int Codec_repetitionCount(IntPtr ptr);
+
+        delegate void Codec_getNextFrameCallback(IntPtr callbackHandle, IntPtr ptr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr Codec_getNextFrame(IntPtr ptr, Codec_getNextFrameCallback callback, IntPtr callbackHandle);
+
+        delegate void Codec_instantiateImageCodecCallback(IntPtr callbackHandle, IntPtr ptr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern unsafe IntPtr Codec_instantiateImageCodec(byte* list, int listLength,
+            Codec_instantiateImageCodecCallback callback,
+            IntPtr callbackHandle, _ImageInfo imageInfo, bool hasImageInfo, int targetWidth, int targetHeight);
+    }
+
+    public static partial class ui_ {
+        public static Future<Codec> instantiateImageCodec(byte[] list, int? targetWidth = null,
+            int? targetHeight = null) {
+            return _futurize(
+                (_Callback<Codec> callback) => Codec._instantiateImageCodec(list, callback, null,
+                    targetWidth ?? _kDoNotResizeDimension, targetHeight ?? _kDoNotResizeDimension)
+            );
+        }
+
+        public static void decodeImageFromList(byte[] list, ImageDecoderCallback callback) {
+            _decodeImageFromListAsync(list, callback);
+        }
+
+        static Future _decodeImageFromListAsync(byte[] list, ImageDecoderCallback callback) {
+            return instantiateImageCodec(list).then_(codec => {
+                return codec.getNextFrame().then_(frameInfo => { callback(frameInfo.image); });
+            });
+        }
+
+        public static void decodeImageFromPixels(
+            byte[] pixels,
+            int width,
+            int height,
+            PixelFormat format,
+            ImageDecoderCallback callback,
+            int? rowBytes = null, int? targetWidth = null, int? targetHeight = null
+        ) {
+            _ImageInfo imageInfo = new _ImageInfo(width, height, (int) format, rowBytes);
+            Future<Codec> codecFuture = _futurize(
+                (_Callback<Codec> callback1) => Codec._instantiateImageCodec(pixels, callback1, imageInfo,
+                    targetWidth ?? _kDoNotResizeDimension, targetHeight ?? _kDoNotResizeDimension)
+            );
+            codecFuture.then_<FrameInfo>(codec => codec.getNextFrame())
+                .then_(frameInfo => callback(frameInfo.image));
+        }
+    }
+
     public enum PathFillType {
         nonZero,
         evenOdd,
@@ -827,11 +1012,11 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         protected override void DisposePtr(IntPtr ptr) {
-            Layer_dispose(ptr);
+            EngineLayer_dispose(ptr);
         }
 
         [DllImport(NativeBindings.dllName)]
-        static extern void Layer_dispose(IntPtr ptr);
+        static extern void EngineLayer_dispose(IntPtr ptr);
     }
 
     public class Path : NativeWrapper {
@@ -1902,9 +2087,9 @@ namespace Unity.UIWidgets.ui2 {
             }
 
             cullRect = cullRect ?? Rect.largest;
-            _ptr = Canvas_constructor(recorder._ptr, cullRect.left, cullRect.top,
+            _setPtr(Canvas_constructor(recorder._ptr, cullRect.left, cullRect.top,
                 cullRect.right,
-                cullRect.bottom);
+                cullRect.bottom));
         }
 
         protected override void DisposePtr(IntPtr ptr) {
@@ -2272,137 +2457,137 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         [DllImport(NativeBindings.dllName)]
-        public static extern IntPtr Canvas_constructor(IntPtr recorder,
+        static extern IntPtr Canvas_constructor(IntPtr recorder,
             float left,
             float top,
             float right,
             float bottom);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_dispose(IntPtr ptr);
+        static extern void Canvas_dispose(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_save(IntPtr ptr);
+        static extern void Canvas_save(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void
+        static extern unsafe void
             Canvas_saveLayerWithoutBounds(IntPtr ptr, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_saveLayer(IntPtr ptr,
+        static extern unsafe void Canvas_saveLayer(IntPtr ptr,
             float left, float top, float right, float bottom, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_restore(IntPtr ptr);
+        static extern void Canvas_restore(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern int Canvas_getSaveCount(IntPtr ptr);
+        static extern int Canvas_getSaveCount(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_translate(IntPtr ptr,
+        static extern void Canvas_translate(IntPtr ptr,
             float x, float y);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_scale(IntPtr ptr,
+        static extern void Canvas_scale(IntPtr ptr,
             float sx, float sy);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_rotate(IntPtr ptr,
+        static extern void Canvas_rotate(IntPtr ptr,
             float radians);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_skew(IntPtr ptr,
+        static extern void Canvas_skew(IntPtr ptr,
             float sx, float sy);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_transform(IntPtr ptr,
+        static extern unsafe void Canvas_transform(IntPtr ptr,
             float* matrix4);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_clipRect(IntPtr ptr,
+        static extern void Canvas_clipRect(IntPtr ptr,
             float left, float top, float right, float bottom, int clipOp, bool doAntiAlias);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_clipRRect(IntPtr ptr,
+        static extern unsafe void Canvas_clipRRect(IntPtr ptr,
             float* rrect, bool doAntiAlias);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_clipPath(IntPtr ptr,
+        static extern void Canvas_clipPath(IntPtr ptr,
             IntPtr path, bool doAntiAlias);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_drawColor(IntPtr ptr,
+        static extern void Canvas_drawColor(IntPtr ptr,
             uint color, int blendMode);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawLine(IntPtr ptr,
+        static extern unsafe void Canvas_drawLine(IntPtr ptr,
             float x1, float y1, float x2, float y2, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawPaint(IntPtr ptr,
+        static extern unsafe void Canvas_drawPaint(IntPtr ptr,
             IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawRect(IntPtr ptr,
+        static extern unsafe void Canvas_drawRect(IntPtr ptr,
             float left, float top, float right, float bottom, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawRRect(IntPtr ptr,
+        static extern unsafe void Canvas_drawRRect(IntPtr ptr,
             float* rrect, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawDRRect(IntPtr ptr,
+        static extern unsafe void Canvas_drawDRRect(IntPtr ptr,
             float* outer, float* inner, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawOval(IntPtr ptr,
+        static extern unsafe void Canvas_drawOval(IntPtr ptr,
             float left, float top, float right, float bottom, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawCircle(IntPtr ptr,
+        static extern unsafe void Canvas_drawCircle(IntPtr ptr,
             float x, float y, float radius, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawArc(IntPtr ptr,
+        static extern unsafe void Canvas_drawArc(IntPtr ptr,
             float left, float top, float right, float bottom,
             float startAngle, float sweepAngle, bool useCenter, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawPath(IntPtr ptr,
+        static extern unsafe void Canvas_drawPath(IntPtr ptr,
             IntPtr path, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawImage(IntPtr ptr,
+        static extern unsafe void Canvas_drawImage(IntPtr ptr,
             IntPtr image, float x, float y, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawImageRect(IntPtr ptr,
+        static extern unsafe void Canvas_drawImageRect(IntPtr ptr,
             IntPtr image, float srcLeft, float srcTop, float srcRight, float srcBottom,
             float dstLeft, float dstTop, float dstRight, float dstBottom, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawImageNine(IntPtr ptr,
+        static extern unsafe void Canvas_drawImageNine(IntPtr ptr,
             IntPtr image, float centerLeft, float centerTop, float centerRight, float centerBottom,
             float dstLeft, float dstTop, float dstRight, float dstBottom, IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_drawPicture(IntPtr ptr, IntPtr picture);
+        static extern void Canvas_drawPicture(IntPtr ptr, IntPtr picture);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawPoints(IntPtr ptr,
+        static extern unsafe void Canvas_drawPoints(IntPtr ptr,
             IntPtr* paintObject, byte* paintData, int pointMode, float* points, int pointsLength);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawVertices(IntPtr ptr, IntPtr vertices, int blendMode,
+        static extern unsafe void Canvas_drawVertices(IntPtr ptr, IntPtr vertices, int blendMode,
             IntPtr* paintObject, byte* paintData);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern unsafe void Canvas_drawAtlas(IntPtr ptr, IntPtr* paintObjects, byte* paintData,
+        static extern unsafe void Canvas_drawAtlas(IntPtr ptr, IntPtr* paintObjects, byte* paintData,
             IntPtr atlas, float* rstTransforms, int rstTransformsLength,
             float* rects, int rectsLength, uint* colors, int colorsLength, int blendMode, float* cullRect);
 
         [DllImport(NativeBindings.dllName)]
-        public static extern void Canvas_drawShadow(IntPtr ptr, IntPtr path, uint color, float elevation,
+        static extern void Canvas_drawShadow(IntPtr ptr, IntPtr path, uint color, float elevation,
             bool transparentOccluder);
     }
 
@@ -2414,7 +2599,7 @@ namespace Unity.UIWidgets.ui2 {
             Picture_dispose(ptr);
         }
 
-        public Future toImage(int width, int height) {
+        public Future<Image> toImage(int width, int height) {
             if (width <= 0 || height <= 0) {
                 throw new ArgumentException("Invalid image dimensions.");
             }
@@ -2440,6 +2625,10 @@ namespace Unity.UIWidgets.ui2 {
             GCHandle handle = (GCHandle) callbackHandle;
             var callback = (_Callback<Image>) handle.Target;
             handle.Free();
+
+            if (!Isolate.checkExists()) {
+                return;
+            }
 
             try {
                 callback(result == IntPtr.Zero ? null : new Image(result));
@@ -2500,7 +2689,7 @@ namespace Unity.UIWidgets.ui2 {
     delegate string _Callbacker<T>(_Callback<T> callback);
 
     public static partial class ui_ {
-        internal static Future _futurize<T>(_Callbacker<T> callbacker) {
+        internal static Future<T> _futurize<T>(_Callbacker<T> callbacker) {
             Completer completer = Completer.sync();
             string error = callbacker(t => {
                 if (t == null) {
@@ -2512,7 +2701,7 @@ namespace Unity.UIWidgets.ui2 {
             });
             if (error != null)
                 throw new Exception(error);
-            return completer.future;
+            return completer.future.to<T>();
         }
     }
 }

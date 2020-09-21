@@ -5,6 +5,7 @@
 
 #include "mono_isolate.h"
 #include "mono_state.h"
+#include "shell/platform/unity/uiwidgets_system.h"
 
 namespace uiwidgets {
 
@@ -50,6 +51,7 @@ void Mono_ShutdownIsolate() {
 
   const Mono_Isolate current = *ptr;
   FML_DCHECK(current != nullptr);
+  Mono_Shutdown(current);
 
   *ptr = nullptr;
   delete current;
@@ -68,9 +70,15 @@ typedef void (*Mono_ThrowExceptionCallback)(const char* exception);
 
 static Mono_ThrowExceptionCallback Mono_ThrowExceptionCallback_;
 
+typedef void (*Mono_ShutdownCallback)(Mono_Isolate isolate);
+
+static Mono_ShutdownCallback Mono_ShutdownCallback_;
+
 void Mono_ThrowException(const char* exception) {
   Mono_ThrowExceptionCallback_(exception);
 }
+
+void Mono_Shutdown(Mono_Isolate isolate) { Mono_ShutdownCallback_(isolate); }
 
 int64_t Mono_TimelineGetMicros() {
   return fml::TimePoint::Now().ToEpochDelta().ToMicroseconds();
@@ -79,8 +87,10 @@ int64_t Mono_TimelineGetMicros() {
 void Mono_NotifyIdle(int64_t deadline) {}
 
 UIWIDGETS_API(void)
-Mono_hook(Mono_ThrowExceptionCallback throwException) {
+Mono_hook(Mono_ThrowExceptionCallback throwException,
+          Mono_ShutdownCallback shutdown) {
   Mono_ThrowExceptionCallback_ = throwException;
+  Mono_ShutdownCallback_ = shutdown;
 }
 
 UIWIDGETS_API(Mono_Isolate)
@@ -96,4 +106,52 @@ Isolate_exit() { Mono_ExitIsolate(); }
 
 extern "C" int64_t Dart_TimelineGetMicros() {
   return uiwidgets::Mono_TimelineGetMicros();
+}
+
+inline const char* TimelineEventToString(Dart_Timeline_Event_Type type) {
+  switch (type) {
+    case Dart_Timeline_Event_Begin:
+      return "Begin";
+    case Dart_Timeline_Event_End:
+      return "End";
+    case Dart_Timeline_Event_Instant:
+      return "Instant";
+    case Dart_Timeline_Event_Async_Begin:
+      return "AsyncBegin";
+    case Dart_Timeline_Event_Async_End:
+      return "AsyncEnd";
+    case Dart_Timeline_Event_Async_Instant:
+      return "AsyncInstant";
+    case Dart_Timeline_Event_Counter:
+      return "Counter";
+    case Dart_Timeline_Event_Flow_Begin:
+      return "FlowBegin";
+    case Dart_Timeline_Event_Flow_Step:
+      return "FlowStep";
+    case Dart_Timeline_Event_Flow_End:
+      return "FlowEnd";
+    default:
+      return "";
+  }
+}
+
+extern "C" void Dart_TimelineEvent(const char* label, int64_t timestamp0,
+                                   int64_t timestamp1_or_async_id,
+                                   Dart_Timeline_Event_Type type,
+                                   intptr_t argument_count,
+                                   const char** argument_names,
+                                   const char** argument_values) {
+  static int64_t timestamp_begin = timestamp0;
+
+  if (timestamp1_or_async_id) {
+    uiwidgets::UIWidgetsSystem::GetInstancePtr()->printf_console(
+        "uiwidgets Timeline [Thread:%d] [%lld ms] [%lld] [%s]: %s\n",
+        GetCurrentThreadId(), (timestamp0 - timestamp_begin) / 1000,
+        timestamp1_or_async_id, TimelineEventToString(type), label);
+  } else {
+    uiwidgets::UIWidgetsSystem::GetInstancePtr()->printf_console(
+        "uiwidgets Timeline [Thread:%d] [%d ms] [%s]: %s\n",
+        GetCurrentThreadId(), (timestamp0 - timestamp_begin) / 1000,
+        TimelineEventToString(type), label);
+  }
 }

@@ -26,6 +26,7 @@
 //#include "shell/common/skia_event_tracer_impl.h"
 //#include "shell/common/switches.h"
 #include "shell/common/vsync_waiter.h"
+#include "shell/platform/embedder/embedder_task_runner.h"
 
 namespace uiwidgets {
 
@@ -303,21 +304,30 @@ Shell::~Shell() {
 
   fml::TaskRunner::RunNowOrPostTask(
       task_runners_.GetUITaskRunner(),
-      fml::MakeCopyable([engine = std::move(engine_), &ui_latch]() mutable {
-        engine.reset();
-        ui_latch.Signal();
-      }));
+      fml::MakeCopyable(
+          [engine = std::move(engine_), &ui_latch,
+           task_runner = task_runners_.GetUITaskRunner()]() mutable {
+            engine.reset();
+            ui_latch.Signal();
+
+            // assume it's always EmbedderTaskRunner
+            static_cast<EmbedderTaskRunner*>(task_runner.get())->Terminate();
+          }));
   ui_latch.Wait();
 
   fml::TaskRunner::RunNowOrPostTask(
       task_runners_.GetRasterTaskRunner(),
-      fml::MakeCopyable([rasterizer = std::move(rasterizer_),
-                         weak_factory_gpu = std::move(weak_factory_gpu_),
-                         &gpu_latch]() mutable {
-        rasterizer.reset();
-        weak_factory_gpu.reset();
-        gpu_latch.Signal();
-      }));
+      fml::MakeCopyable(
+          [rasterizer = std::move(rasterizer_),
+           weak_factory_gpu = std::move(weak_factory_gpu_), &gpu_latch,
+           task_runner = task_runners_.GetRasterTaskRunner()]() mutable {
+            rasterizer.reset();
+            weak_factory_gpu.reset();
+            gpu_latch.Signal();
+
+            // assume it's always EmbedderTaskRunner
+            static_cast<EmbedderTaskRunner*>(task_runner.get())->Terminate();
+          }));
   gpu_latch.Wait();
 
   fml::TaskRunner::RunNowOrPostTask(
@@ -599,6 +609,7 @@ void Shell::OnPlatformViewDestroyed() {
     if (rasterizer) {
       rasterizer->Teardown();
     }
+
     // Step 2: Next, tell the IO thread to complete its remaining work.
     fml::TaskRunner::RunNowOrPostTask(io_task_runner, io_task);
   };
@@ -617,11 +628,13 @@ void Shell::OnPlatformViewDestroyed() {
                                  task_runners_.GetPlatformTaskRunner();
 
   auto ui_task = [engine = engine_->GetWeakPtr(),
+                  ui_task_runner = task_runners_.GetUITaskRunner(),
                   raster_task_runner = task_runners_.GetRasterTaskRunner(),
                   raster_task, should_post_raster_task, &latch]() {
     if (engine) {
       engine->OnOutputSurfaceDestroyed();
     }
+
     // Step 1: Next, tell the raster thread that its rasterizer should suspend
     // access to the underlying surface.
     if (should_post_raster_task) {
@@ -637,6 +650,7 @@ void Shell::OnPlatformViewDestroyed() {
   // surface is about to go away.
   fml::TaskRunner::RunNowOrPostTask(task_runners_.GetUITaskRunner(), ui_task);
   latch.Wait();
+
   if (!should_post_raster_task) {
     // See comment on should_post_raster_task, in this case the raster_task
     // wasn't executed, and we just run it here as the platform thread

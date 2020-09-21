@@ -10,7 +10,7 @@ CanvasImage::CanvasImage() = default;
 
 CanvasImage::~CanvasImage() = default;
 
-const char* CanvasImage::toByteData(int format, EncodeImageCallback callback,
+const char* CanvasImage::toByteData(int format, RawEncodeImageCallback callback,
                                     Mono_Handle callback_handle) {
   return EncodeImage(this, format, callback, callback_handle);
 }
@@ -26,6 +26,19 @@ size_t CanvasImage::GetAllocationSize() {
   } else {
     return sizeof(CanvasImage);
   }
+}
+
+UIWIDGETS_API(void) Image_dispose(CanvasImage* ptr) { ptr->Release(); }
+
+UIWIDGETS_API(int) Image_width(CanvasImage* ptr) { return ptr->width(); }
+
+UIWIDGETS_API(int) Image_height(CanvasImage* ptr) { return ptr->height(); }
+
+UIWIDGETS_API(const char*)
+Image_toByteData(CanvasImage* ptr, int format,
+                 RawEncodeImageCallback encode_image_callback,
+                 Mono_Handle callback_handle) {
+  return ptr->toByteData(format, encode_image_callback, callback_handle);
 }
 
 }  // namespace uiwidgets

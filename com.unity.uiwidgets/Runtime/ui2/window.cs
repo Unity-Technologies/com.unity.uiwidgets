@@ -235,6 +235,10 @@ namespace Unity.UIWidgets.ui2 {
             var callback = (PlatformMessageResponseCallback) handle.Target;
             handle.Free();
 
+            if (!Isolate.checkExists()) {
+                return;
+            }
+
             byte[] bytes = null;
             if (data != null && dataLength != 0) {
                 bytes = new byte[dataLength];

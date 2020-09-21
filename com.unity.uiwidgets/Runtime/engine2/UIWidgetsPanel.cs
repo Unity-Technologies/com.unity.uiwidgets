@@ -87,8 +87,7 @@ namespace Unity.UIWidgets.engine2 {
             _handle.Free();
             _handle = default;
 
-            if (isolate != null)
-                Isolate.remove(isolate);
+            D.assert(!isolate.isValid);
 
             base.OnDisable();
         }

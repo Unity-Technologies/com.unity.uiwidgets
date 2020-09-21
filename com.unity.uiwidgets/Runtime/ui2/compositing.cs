@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
-using RSG;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -16,39 +16,39 @@ namespace Unity.UIWidgets.ui2 {
             Scene_dispose(ptr);
         }
 
-        public Promise<Image> toImage(int width, int height) {
+        public Future<Image> toImage(int width, int height) {
             if (width <= 0 || height <= 0) {
                 throw new Exception("Invalid image dimensions.");
             }
 
-            var completer = new Promise<Image>(true);
-            GCHandle completerHandle = GCHandle.Alloc(completer);
+            return ui_._futurize(
+                (_Callback<Image> callback) => {
+                    GCHandle callbackHandle = GCHandle.Alloc(callback);
+                    IntPtr error =
+                        Scene_toImage(_ptr, width, height, _toImageCallback,
+                            (IntPtr) callbackHandle);
 
-            IntPtr error =
-                Scene_toImage(_ptr, width, height, _toImageCallback,
-                    (IntPtr) completerHandle);
-            if (error != null) {
-                completerHandle.Free();
-                throw new Exception(Marshal.PtrToStringAnsi(error));
-            }
+                    if (error != IntPtr.Zero) {
+                        callbackHandle.Free();
+                        return Marshal.PtrToStringAnsi(error);
+                    }
 
-            return completer;
+                    return null;
+                });
         }
 
         [MonoPInvokeCallback(typeof(Scene_toImageCallback))]
         static void _toImageCallback(IntPtr callbackHandle, IntPtr result) {
-            GCHandle completerHandle = (GCHandle) callbackHandle;
-            var completer = (Promise<Image>) completerHandle.Target;
-            completerHandle.Free();
+            GCHandle handle = (GCHandle) callbackHandle;
+            var callback = (_Callback<Image>) handle.Target;
+            handle.Free();
+
+            if (!Isolate.checkExists()) {
+                return;
+            }
 
             try {
-                if (result == IntPtr.Zero) {
-                    completer.Reject(new Exception("operation failed"));
-                }
-                else {
-                    var image = new Image(result);
-                    completer.Resolve(image);
-                }
+                callback(result == IntPtr.Zero ? null : new Image(result));
             }
             catch (Exception ex) {
                 Debug.LogException(ex);

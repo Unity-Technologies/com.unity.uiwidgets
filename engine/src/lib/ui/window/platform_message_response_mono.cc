@@ -26,9 +26,12 @@ void PlatformMessageResponseMono::Complete(std::unique_ptr<fml::Mapping> data) {
       [mono_state_weak = mono_state_weak_, callback = callback_,
        handle = handle_, data = std::move(data)]() {
         const std::shared_ptr<MonoState> mono_state = mono_state_weak.lock();
-        if (!mono_state) return;
+        if (!mono_state) {
+          callback(handle, nullptr, 0);
+          return;
+        }
+      	
         MonoState::Scope scope(mono_state);
-
         callback(handle, data->GetMapping(), static_cast<int>(data->GetSize()));
       }));
 }
@@ -40,9 +43,12 @@ void PlatformMessageResponseMono::CompleteEmpty() {
   ui_task_runner_->PostTask([mono_state_weak = mono_state_weak_,
                              callback = callback_, handle = handle_]() {
     const std::shared_ptr<MonoState> mono_state = mono_state_weak.lock();
-    if (!mono_state) return;
+    if (!mono_state) {
+      callback(handle, nullptr, 0);
+      return;
+    }
+  	
     MonoState::Scope scope(mono_state);
-
     callback(handle, nullptr, 0);
   });
 }

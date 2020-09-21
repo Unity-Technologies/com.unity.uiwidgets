@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Unity.UIWidgets.foundation;
+using UnityEngine;
 
 namespace Unity.UIWidgets.ui2 {
     public class Isolate {
@@ -13,6 +14,28 @@ namespace Unity.UIWidgets.ui2 {
 
         IntPtr _ptr;
 
+        readonly Dictionary<IntPtr, WeakReference<NativeWrapper>> _nativeWrappers =
+            new Dictionary<IntPtr, WeakReference<NativeWrapper>>();
+
+        bool _inShutdown = false;
+
+        internal void addNativeWrapper(NativeWrapper wrapper) {
+            lock (_nativeWrappers) {
+                _nativeWrappers.Add(wrapper._ptr, new WeakReference<NativeWrapper>(wrapper));
+            }
+        }
+
+        internal void removeNativeWrapper(IntPtr ptr) {
+            lock (_nativeWrappers) {
+                if (_inShutdown) {
+                    return;
+                }
+
+                _nativeWrappers.Remove(ptr);
+            }
+        }
+
+
         public bool isValid => _ptr != IntPtr.Zero;
 
         public static Isolate current {
@@ -22,7 +45,7 @@ namespace Unity.UIWidgets.ui2 {
                     D.assert(value.isValid);
                     return value;
                 }
-
+                
                 var isolate = new Isolate(ptr);
                 _isolates.Add(ptr, isolate);
                 return isolate;
@@ -40,9 +63,28 @@ namespace Unity.UIWidgets.ui2 {
             return ptr;
         }
 
-        internal static void remove(Isolate isolate) {
-            D.assert(isolate != null && isolate.isValid);
-            _isolates.Remove(isolate._ptr);
+        public static bool checkExists() {
+            IntPtr ptr = Isolate_current();
+            return ptr != IntPtr.Zero;
+        }
+
+        internal static void shutdown(IntPtr ptr) {
+            var isolate = _isolates[ptr];
+            D.assert(isolate._ptr == ptr);
+
+            lock (isolate._nativeWrappers) {
+                isolate._inShutdown = true;
+                foreach (var entry in isolate._nativeWrappers) {
+                    if (entry.Value.TryGetTarget(out NativeWrapper target)) {
+                        target._dispose();
+                    }
+                }
+
+                isolate._nativeWrappers.Clear();
+                isolate._inShutdown = false;
+            }
+
+            _isolates.Remove(ptr);
             isolate._ptr = IntPtr.Zero;
         }
 

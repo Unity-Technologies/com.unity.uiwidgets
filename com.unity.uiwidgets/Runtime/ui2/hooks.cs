@@ -15,7 +15,8 @@ namespace Unity.UIWidgets.ui2 {
 #endif
         static unsafe void hook() {
             Mono_hook(
-                Mono_throwException);
+                Mono_throwException,
+                Mono_shutdown);
 
             Window_hook(
                 Window_constructor,
@@ -33,8 +34,20 @@ namespace Unity.UIWidgets.ui2 {
             throw new Exception(Marshal.PtrToStringAnsi(exception));
         }
 
+        delegate void Mono_ShutdownCallback(IntPtr isolate);
+
+        [MonoPInvokeCallback(typeof(Mono_ShutdownCallback))]
+        static void Mono_shutdown(IntPtr isolate) {
+            try {
+                Isolate.shutdown(isolate);
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
+        }
+
         [DllImport(NativeBindings.dllName)]
-        static extern void Mono_hook(Mono_ThrowExceptionCallback throwException);
+        static extern void Mono_hook(Mono_ThrowExceptionCallback throwException, Mono_ShutdownCallback shutdown);
 
         delegate IntPtr Window_constructorCallback(IntPtr ptr);
 
