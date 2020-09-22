@@ -76,13 +76,8 @@
     return end ? std::string(path, end - path) : std::string();
 }
 
- static bool inited = false;
-
  bool TestLoadICU()
 {
-    if (inited) {
-        return true;
-    }
     static bool good = false;
     static std::once_flag flag;
     std::call_once(flag, []() {
@@ -98,7 +93,6 @@
             }
         }
     });
-    inited = good;
     return good;
 }
 

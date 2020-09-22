@@ -15,7 +15,6 @@ class RenderAPI {
 	virtual void SetImageTexture(void* ptr) = 0;
 
 	virtual void Draw() = 0;
-	virtual void Draw2(uiwidgets::Paragraph* paragraph) = 0;
 
 	virtual void PreDraw() = 0;
 

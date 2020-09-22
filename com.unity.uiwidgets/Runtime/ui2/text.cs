@@ -6,7 +6,7 @@ using AOT;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
-using RSG;
+using Unity.UIWidgets.async2;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.ui2 {
@@ -297,7 +297,7 @@ namespace Unity.UIWidgets.ui2 {
         }
     }
 
-    public class Utils {
+    public partial class ui_ {
         public static void SetFloat(List<byte> data, int offSet, float value) {
             var bytes = BitConverter.GetBytes(value);
             data[offSet] = bytes[0];
@@ -324,16 +324,16 @@ namespace Unity.UIWidgets.ui2 {
             TextDecoration decoration,
             Color decorationColor,
             TextDecorationStyle? decorationStyle,
-            double? decorationThickness,
+            float? decorationThickness,
             FontWeight fontWeight,
             FontStyle? fontStyle,
             TextBaseline? textBaseline,
             String fontFamily,
             List<String> fontFamilyFallback,
-            double? fontSize,
-            double? letterSpacing,
-            double? wordSpacing,
-            double? height,
+            float? fontSize,
+            float? letterSpacing,
+            float? wordSpacing,
+            float? height,
             Locale locale,
             Paint background,
             Paint foreground,
@@ -438,8 +438,8 @@ namespace Unity.UIWidgets.ui2 {
             TextDirection? textDirection,
             int? maxLines,
             String fontFamily,
-            double? fontSize,
-            double? height,
+            float? fontSize,
+            float? height,
             TextHeightBehavior textHeightBehavior,
             FontWeight fontWeight,
             FontStyle? fontStyle,
@@ -514,9 +514,9 @@ namespace Unity.UIWidgets.ui2 {
         internal static List<byte> _encodeStrut(
             String fontFamily,
             List<String> fontFamilyFallback,
-            double fontSize,
-            double height,
-            double leading,
+            float fontSize,
+            float height,
+            float leading,
             FontWeight fontWeight,
             FontStyle fontStyle,
             bool forceStrutHeight) {
@@ -579,19 +579,30 @@ namespace Unity.UIWidgets.ui2 {
             return data.GetRange(0, byteCount);
         }
 
-        public Promise loadFontFromList(int[] list, string fontFamily = null) {
-            var completer = new Promise(true);
-            GCHandle completerHandle = GCHandle.Alloc(completer);
-            loadFontFromList(list, _toImageCallback, (IntPtr) completerHandle, fontFamily);
-            return completer;
+        public static unsafe Future loadFontFromList(byte[] list, string fontFamily = null) {
+            return ui_._futurize((_Callback<object> callback) => {
+                // var completer = new Promise(true);
+                GCHandle completerHandle = GCHandle.Alloc(callback);
+                fixed (byte* listPtr = list) {
+                    LoadFontFromList(listPtr, list.Length, _loadFontCallback, (IntPtr) completerHandle, fontFamily);
+                }
+
+                return null;
+            });
         }
 
         [MonoPInvokeCallback(typeof(_loadFontFromListCallback))]
-        static void _toImageCallback(IntPtr callbackHandle) {
+        static void _loadFontCallback(IntPtr callbackHandle) {
             GCHandle completerHandle = (GCHandle) callbackHandle;
-            var completer = (Promise) completerHandle.Target;
+            var callback = (_Callback<object>) completerHandle.Target;
             completerHandle.Free();
             _sendFontChangeMessage();
+            try {
+                callback(new object());
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
         }
 
         static byte[] _fontChangeMessage =
@@ -600,7 +611,7 @@ namespace Unity.UIWidgets.ui2 {
         public static async void _sendFontChangeMessage() {
             unsafe {
                 Window window = new Window();
-                window.onPlatformMessage?.Invoke("flutter/system", _fontChangeMessage,
+                window.onPlatformMessage?.Invoke("uiwidgets/system", _fontChangeMessage,
                     (byte[] dataIn) => { });
             }
         }
@@ -608,7 +619,8 @@ namespace Unity.UIWidgets.ui2 {
         delegate void _loadFontFromListCallback(IntPtr callbackHandle);
 
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr loadFontFromList(int[] list, _loadFontFromListCallback callback, IntPtr callbackHandle,
+        static extern unsafe void LoadFontFromList(byte* list, int size, _loadFontFromListCallback callback,
+            IntPtr callbackHandle,
             string fontFamily);
 
         public struct Float32List {
@@ -623,16 +635,16 @@ namespace Unity.UIWidgets.ui2 {
             TextDecoration decoration = null,
             Color decorationColor = null,
             TextDecorationStyle? decorationStyle = null,
-            double? decorationThickness = null,
+            float? decorationThickness = null,
             FontWeight fontWeight = null,
             FontStyle? fontStyle = null,
             TextBaseline? textBaseline = null,
             String fontFamily = null,
             List<String> fontFamilyFallback = null,
-            double? fontSize = null,
-            double? letterSpacing = null,
-            double? wordSpacing = null,
-            double? height = null,
+            float? fontSize = null,
+            float? letterSpacing = null,
+            float? wordSpacing = null,
+            float? height = null,
             Locale locale = null,
             Paint background = null,
             Paint foreground = null,
@@ -643,7 +655,7 @@ namespace Unity.UIWidgets.ui2 {
                 // "Cannot provide both a color and a foreground\n"+
                 // "The color argument is just a shorthand for \"foreground: Paint()..color = color\"."
             );
-            _encoded = Utils._encodeTextStyle(
+            _encoded = ui_._encodeTextStyle(
                 color,
                 decoration,
                 decorationColor,
@@ -682,11 +694,11 @@ namespace Unity.UIWidgets.ui2 {
         public readonly List<int> _encoded;
         public readonly String _fontFamily;
         public readonly List<String> _fontFamilyFallback;
-        public readonly double? _fontSize;
-        public readonly double? _letterSpacing;
-        public readonly double? _wordSpacing;
-        public readonly double? _height;
-        public readonly double? _decorationThickness;
+        public readonly float? _fontSize;
+        public readonly float? _letterSpacing;
+        public readonly float? _wordSpacing;
+        public readonly float? _height;
+        public readonly float? _decorationThickness;
         public readonly Locale _locale;
         public readonly Paint _background;
         public readonly Paint _foreground;
@@ -706,10 +718,10 @@ namespace Unity.UIWidgets.ui2 {
                    && textStyle._locale == _locale
                    && textStyle._background == _background
                    && textStyle._foreground == _foreground
-                   && Utils._listEquals<int>(textStyle._encoded, _encoded)
-                   && Utils._listEquals<Shadow>(textStyle._shadows, _shadows)
-                   && Utils._listEquals<String>(textStyle._fontFamilyFallback, _fontFamilyFallback)
-                   && Utils._listEquals<FontFeature>(textStyle._fontFeatures, _fontFeatures);
+                   && ui_._listEquals<int>(textStyle._encoded, _encoded)
+                   && ui_._listEquals<Shadow>(textStyle._shadows, _shadows)
+                   && ui_._listEquals<String>(textStyle._fontFamilyFallback, _fontFamilyFallback)
+                   && ui_._listEquals<FontFeature>(textStyle._fontFeatures, _fontFeatures);
         }
 
         public override int GetHashCode() {
@@ -808,8 +820,8 @@ namespace Unity.UIWidgets.ui2 {
             TextDirection? textDirection = null,
             int? maxLines = null,
             String fontFamily = null,
-            double? fontSize = null,
-            double? height = null,
+            float? fontSize = null,
+            float? height = null,
             TextHeightBehavior textHeightBehavior = null,
             FontWeight fontWeight = null,
             FontStyle? fontStyle = null,
@@ -817,7 +829,7 @@ namespace Unity.UIWidgets.ui2 {
             string ellipsis = null,
             Locale locale = null
         ) {
-            _encoded = Utils._encodeParagraphStyle(
+            _encoded = ui_._encodeParagraphStyle(
                 textAlign,
                 textDirection,
                 maxLines,
@@ -841,8 +853,8 @@ namespace Unity.UIWidgets.ui2 {
 
         public readonly List<int> _encoded;
         public readonly String _fontFamily;
-        public readonly double? _fontSize;
-        public readonly double? _height;
+        public readonly float? _fontSize;
+        public readonly float? _height;
         public readonly StrutStyle _strutStyle;
         public readonly String _ellipsis;
         public readonly Locale _locale;
@@ -857,7 +869,7 @@ namespace Unity.UIWidgets.ui2 {
                    && otherParagraph._strutStyle == _strutStyle
                    && otherParagraph._ellipsis == _ellipsis
                    && otherParagraph._locale == _locale
-                   && Utils._listEquals<int>(otherParagraph._encoded, _encoded);
+                   && ui_._listEquals<int>(otherParagraph._encoded, _encoded);
         }
 
         public override int GetHashCode() {
@@ -913,14 +925,14 @@ namespace Unity.UIWidgets.ui2 {
         public StrutStyle(
             String fontFamily,
             List<String> fontFamilyFallback,
-            double fontSize,
-            double height,
-            double leading,
+            float fontSize,
+            float height,
+            float leading,
             FontWeight fontWeight,
             FontStyle fontStyle,
             bool forceStrutHeight
         ) {
-            _encoded = Utils._encodeStrut(
+            _encoded = ui_._encodeStrut(
                 fontFamily,
                 fontFamilyFallback,
                 fontSize,
@@ -945,8 +957,8 @@ namespace Unity.UIWidgets.ui2 {
 
             return obj is StrutStyle other
                    && other._fontFamily == _fontFamily
-                   && Utils._listEquals<String>(other._fontFamilyFallback, _fontFamilyFallback)
-                   && Utils._listEquals<byte>(other._encoded, _encoded);
+                   && ui_._listEquals<String>(other._fontFamilyFallback, _fontFamilyFallback)
+                   && ui_._listEquals<byte>(other._encoded, _encoded);
         }
 
         public override int GetHashCode() {
@@ -964,10 +976,10 @@ namespace Unity.UIWidgets.ui2 {
 
     public class TextBox {
         public TextBox(
-            double left,
-            double top,
-            double right,
-            double bottom,
+            float left,
+            float top,
+            float right,
+            float bottom,
             TextDirection direction) {
             this.left = left;
             this.top = top;
@@ -977,31 +989,31 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         public static TextBox fromLTRBD(
-            double left,
-            double top,
-            double right,
-            double bottom,
+            float left,
+            float top,
+            float right,
+            float bottom,
             TextDirection direction) {
             return new TextBox(left, top, right, bottom, direction);
         }
 
-        public readonly double left;
+        public readonly float left;
 
-        public readonly double top;
+        public readonly float top;
 
-        public readonly double right;
+        public readonly float right;
 
-        public readonly double bottom;
+        public readonly float bottom;
 
         public readonly TextDirection direction;
 
         Rect toRect() => Rect.fromLTRB((float) left, (float) top, (float) right, (float) bottom);
 
-        double start {
+        float start {
             get { return (direction == TextDirection.ltr) ? left : right; }
         }
 
-        double end {
+        float end {
             get { return (direction == TextDirection.ltr) ? right : left; }
         }
 
@@ -1131,11 +1143,11 @@ namespace Unity.UIWidgets.ui2 {
     }
 
     public class ParagraphConstraints {
-        public ParagraphConstraints(double width) {
+        public ParagraphConstraints(float width) {
             this.width = width;
         }
 
-        public readonly double width;
+        public readonly float width;
 
         public override bool Equals(object obj) {
             return obj is ui.ParagraphConstraints other && other.width == width;
@@ -1187,13 +1199,13 @@ namespace Unity.UIWidgets.ui2 {
     public class LineMetrics {
         public LineMetrics(
             bool hardBreak,
-            double ascent,
-            double descent,
-            double unscaledAscent,
-            double height,
-            double width,
-            double left,
-            double baseline,
+            float ascent,
+            float descent,
+            float unscaledAscent,
+            float height,
+            float width,
+            float left,
+            float baseline,
             int lineNumber) {
             this.hardBreak = hardBreak;
             this.ascent = ascent;
@@ -1208,19 +1220,19 @@ namespace Unity.UIWidgets.ui2 {
 
         public readonly bool hardBreak;
 
-        public readonly double ascent;
+        public readonly float ascent;
 
-        public readonly double descent;
+        public readonly float descent;
 
-        public readonly double unscaledAscent;
+        public readonly float unscaledAscent;
 
-        public readonly double height;
+        public readonly float height;
 
-        public readonly double width;
+        public readonly float width;
 
-        public readonly double left;
+        public readonly float left;
 
-        public readonly double baseline;
+        public readonly float baseline;
 
         public readonly int lineNumber;
 
@@ -1271,72 +1283,84 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         [DllImport(NativeBindings.dllName)]
-        static extern double Paragraph_width(IntPtr ptr);
+        static extern float Paragraph_width(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern double Paragraph_height(IntPtr ptr);
+        static extern float Paragraph_height(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern double Paragraph_longestLine(IntPtr ptr);
+        static extern float Paragraph_longestLine(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern double Paragraph_minIntrinsicWidth(IntPtr ptr);
+        static extern float Paragraph_minIntrinsicWidth(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern double Paragraph_maxIntrinsicWidth(IntPtr ptr);
+        static extern float Paragraph_maxIntrinsicWidth(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern double Paragraph_alphabeticBaseline(IntPtr ptr);
+        static extern float Paragraph_alphabeticBaseline(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern double Paragraph_ideographicBaseline(IntPtr ptr);
+        static extern float Paragraph_ideographicBaseline(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern bool Paragraph_didExceedMaxLines(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern void Paragraph_layout(IntPtr ptr, double width);
+        static extern void Paragraph_layout(IntPtr ptr, float width);
 
         [DllImport(NativeBindings.dllName)]
-        static extern Utils.Float32List Paragraph_getRectsForRange(IntPtr ptr, int start, int end, int boxHeightStyle,
+        static extern int Paragraph_getRectsForRangeSize(IntPtr ptr, int start, int end,
+            int boxHeightStyle,
             int boxWidthStyle);
 
         [DllImport(NativeBindings.dllName)]
-        static extern Utils.Float32List Paragraph_getRectsForPlaceholders(IntPtr ptr);
+        static extern unsafe void Paragraph_getRectsForRange(IntPtr ptr, float* data, int start, int end,
+            int boxHeightStyle,
+            int boxWidthStyle);
 
         [DllImport(NativeBindings.dllName)]
-        static extern List<int> Paragraph_getPositionForOffset(IntPtr ptr, double dx, double dy);
+        static extern unsafe int Paragraph_getRectsForPlaceholdersSize(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern List<int> Paragraph_getWordBoundary(IntPtr ptr, int offset);
+        static extern unsafe void Paragraph_getRectsForPlaceholders(IntPtr ptr, float* data);
 
         [DllImport(NativeBindings.dllName)]
-        static extern List<int> Paragraph_getLineBoundary(IntPtr ptr, int offset);
+        static extern unsafe void Paragraph_getPositionForOffset(IntPtr ptr, float dx, float dy, int* encodedPtr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern void Paragraph_paint(IntPtr ptr, IntPtr canvas, double x, double y);
+        static extern unsafe void Paragraph_getWordBoundary(IntPtr ptr, int offset, int* boundaryPtr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern Utils.Float32List Paragraph_computeLineMetrics(IntPtr ptr);
+        static extern unsafe void Paragraph_getLineBoundary(IntPtr ptr, int offset, int* boundaryPtr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void Paragraph_paint(IntPtr ptr, IntPtr canvas, float x, float y);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern int Paragraph_computeLineMetricsSize(IntPtr ptr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern unsafe void Paragraph_computeLineMetrics(IntPtr ptr, float* data);
 
         [DllImport(NativeBindings.dllName)]
         static extern void Paragraph_dispose(IntPtr ptr);
 
         public void layout(ParagraphConstraints constraints) => _layout(constraints.width);
-        void _layout(double width) => Paragraph_layout(_ptr, width);
+        void _layout(float width) => Paragraph_layout(_ptr, width);
 
-        List<TextBox> _decodeTextBoxes(Utils.Float32List encoded) {
-            int count = encoded.Length / 5;
+        List<TextBox> _decodeTextBoxes(float[] encoded, int size) {
+            int count = size / 5;
             List<TextBox> boxes = new List<TextBox>();
             int position = 0;
             for (int index = 0; index < count; index += 1) {
                 unsafe {
                     boxes.Add(TextBox.fromLTRBD(
-                        encoded.data[position++],
-                        encoded.data[position++],
-                        encoded.data[position++],
-                        encoded.data[position++],
-                        (TextDirection) encoded.data[position++]
+                        encoded[position++],
+                        encoded[position++],
+                        encoded[position++],
+                        encoded[position++],
+                        (TextDirection) encoded[position++]
                     ));
                 }
             }
@@ -1344,31 +1368,35 @@ namespace Unity.UIWidgets.ui2 {
             return boxes;
         }
 
-        public double width() {
+        protected override void DisposePtr(IntPtr ptr) {
+            Paragraph_dispose(ptr);
+        }
+
+        public float width() {
             return Paragraph_width(_ptr);
         }
 
-        public double height() {
+        public float height() {
             return Paragraph_height(_ptr);
         }
 
-        public double longestLine() {
+        public float longestLine() {
             return Paragraph_longestLine(_ptr);
         }
 
-        public double minIntrinsicWidth() {
+        public float minIntrinsicWidth() {
             return Paragraph_minIntrinsicWidth(_ptr);
         }
 
-        public double maxIntrinsicWidth() {
+        public float maxIntrinsicWidth() {
             return Paragraph_maxIntrinsicWidth(_ptr);
         }
 
-        public double alphabeticBaseline() {
+        public float alphabeticBaseline() {
             return Paragraph_alphabeticBaseline(_ptr);
         }
 
-        public double ideographicBaseline() {
+        public float ideographicBaseline() {
             return Paragraph_ideographicBaseline(_ptr);
         }
 
@@ -1376,64 +1404,97 @@ namespace Unity.UIWidgets.ui2 {
             return Paragraph_didExceedMaxLines(_ptr);
         }
 
-        public List<TextBox> getBoxesForRange(int start, int end, BoxHeightStyle boxHeightStyle = BoxHeightStyle.tight,
+        public unsafe List<TextBox> getBoxesForRange(int start, int end,
+            BoxHeightStyle boxHeightStyle = BoxHeightStyle.tight,
             BoxWidthStyle boxWidthStyle = BoxWidthStyle.tight) {
-            return _decodeTextBoxes(_getBoxesForRange(start, end, (int) boxHeightStyle, (int) boxWidthStyle));
+            int size = Paragraph_getRectsForRangeSize(_ptr, start, end, (int) boxHeightStyle, (int) boxWidthStyle);
+            float[] data = new float[size];
+            fixed (float* dataPtr = data) {
+                _getBoxesForRange(dataPtr, start, end, (int) boxHeightStyle, (int) boxWidthStyle);
+            }
+
+            return _decodeTextBoxes(data, size);
         }
 
         // See paragraph.cc for the layout of this return value.
-        Utils.Float32List _getBoxesForRange(int start, int end, int boxHeightStyle, int boxWidthStyle) =>
-            Paragraph_getRectsForRange(_ptr, start, end, boxHeightStyle, boxWidthStyle);
+        unsafe void _getBoxesForRange(float* data, int start, int end, int boxHeightStyle, int boxWidthStyle) =>
+            Paragraph_getRectsForRange(_ptr, data, start, end, boxHeightStyle, boxWidthStyle);
 
-        public List<TextBox> getBoxesForPlaceholders() {
-            return _decodeTextBoxes(_getBoxesForPlaceholders());
+        public unsafe List<TextBox> getBoxesForPlaceholders() {
+            int size = Paragraph_getRectsForPlaceholdersSize(_ptr);
+            float[] data = new float[size];
+            fixed (float* dataPtr = data) {
+                _getBoxesForPlaceholders(dataPtr);
+            }
+
+            return _decodeTextBoxes(data, size);
         }
 
-        Utils.Float32List _getBoxesForPlaceholders() => Paragraph_getRectsForPlaceholders(_ptr);
+        unsafe void _getBoxesForPlaceholders(float* data) => Paragraph_getRectsForPlaceholders(_ptr, data);
 
-        public TextPosition getPositionForOffset(Offset offset) {
-            List<int> encoded = _getPositionForOffset(offset.dx, offset.dy);
+        public unsafe TextPosition getPositionForOffset(Offset offset) {
+            int[] encoded = new int[2];
+            fixed (int* encodedPtr = encoded) {
+                _getPositionForOffset(offset.dx, offset.dy, encodedPtr);
+            }
+
             return new TextPosition(offset: encoded[0], affinity: (TextAffinity) encoded[1]);
         }
 
-        List<int> _getPositionForOffset(double dx, double dy) => Paragraph_getPositionForOffset(_ptr, dx, dy);
+        unsafe void _getPositionForOffset(float dx, float dy, int* encodedPtr) =>
+            Paragraph_getPositionForOffset(_ptr, dx, dy, encodedPtr);
 
-        public TextRange getWordBoundary(TextPosition position) {
-            List<int> boundary = _getWordBoundary(position.offset);
+        public unsafe TextRange getWordBoundary(TextPosition position) {
+            int[] boundary = new int[2];
+            fixed (int* boundaryPtr = boundary) {
+                _getWordBoundary(position.offset, boundaryPtr);
+            }
+
             return new TextRange(start: boundary[0], end: boundary[1]);
         }
 
-        List<int> _getWordBoundary(int offset) => Paragraph_getWordBoundary(_ptr, offset);
+        unsafe void _getWordBoundary(int offset, int* boundaryPtr) =>
+            Paragraph_getWordBoundary(_ptr, offset, boundaryPtr);
 
-        public TextRange getLineBoundary(TextPosition position) {
-            List<int> boundary = _getLineBoundary(position.offset);
+        public unsafe TextRange getLineBoundary(TextPosition position) {
+            int[] boundary = new int[2];
+            fixed (int* boundaryPtr = boundary) {
+                _getLineBoundary(position.offset, boundaryPtr);
+            }
+
             return new TextRange(start: boundary[0], end: boundary[1]);
         }
 
-        List<int> _getLineBoundary(int offset) => Paragraph_getLineBoundary(_ptr, offset);
+        unsafe void _getLineBoundary(int offset, int* boundaryPtr) =>
+            Paragraph_getLineBoundary(_ptr, offset, boundaryPtr);
 
-        public void _paint(Canvas canvas, double x, double y) {
+        public void _paint(Canvas canvas, float x, float y) {
             Paragraph_paint(_ptr, canvas._ptr, x, y);
         }
 
-        public List<LineMetrics> computeLineMetrics() {
-            Utils.Float32List encoded = _computeLineMetrics();
-            int count = encoded.Length / 9;
+        public unsafe List<LineMetrics> computeLineMetrics() {
+            int size = Paragraph_computeLineMetricsSize(_ptr);
+            float[] data = new float[size];
+            fixed (float* dataPtr = data) {
+                _computeLineMetrics(dataPtr);
+            }
+
+            int count = size / 9;
             int position = 0;
             List<LineMetrics> metrics = new List<LineMetrics>();
 
             for (int index = 0; index < count; index += 1) {
                 unsafe {
                     metrics.Add(new LineMetrics(
-                        hardBreak: encoded.data[position++] != 0,
-                        ascent: encoded.data[position++],
-                        descent: encoded.data[position++],
-                        unscaledAscent: encoded.data[position++],
-                        height: encoded.data[position++],
-                        width: encoded.data[position++],
-                        left: encoded.data[position++],
-                        baseline: encoded.data[position++],
-                        lineNumber: (int) encoded.data[position++]
+                        hardBreak: data[position++] != 0,
+                        ascent: data[position++],
+                        descent: data[position++],
+                        unscaledAscent: data[position++],
+                        height: data[position++],
+                        width: data[position++],
+                        left: data[position++],
+                        baseline: data[position++],
+                        lineNumber: (int) data[position++]
                     ));
                 }
             }
@@ -1441,11 +1502,7 @@ namespace Unity.UIWidgets.ui2 {
             return metrics;
         }
 
-        Utils.Float32List _computeLineMetrics() => Paragraph_computeLineMetrics(_ptr);
-
-        protected override void DisposePtr(IntPtr ptr) {
-            Paragraph_dispose(ptr);
-        }
+        unsafe void _computeLineMetrics(float* data) => Paragraph_computeLineMetrics(_ptr, data);
     }
 
     public class ParagraphBuilder : NativeWrapper {
@@ -1458,8 +1515,8 @@ namespace Unity.UIWidgets.ui2 {
             string fontFamily,
             [In] string[] structFontFamily,
             int structFontFamilySize,
-            double fontSize,
-            double height,
+            float fontSize,
+            float height,
             [MarshalAs(UnmanagedType.LPWStr)] string ellipsis,
             string locale);
 
@@ -1470,11 +1527,11 @@ namespace Unity.UIWidgets.ui2 {
             int encodedSize,
             [In] string[] fontFamilies,
             int fontFamiliesSize,
-            double? fontSize,
-            double? letterSpacing,
-            double? wordSpacing,
-            double? height,
-            double? decorationThickness,
+            float fontSize,
+            float letterSpacing,
+            float wordSpacing,
+            float height,
+            float decorationThickness,
             string locale,
             IntPtr* backgroundObjects,
             byte[] backgroundData,
@@ -1497,7 +1554,7 @@ namespace Unity.UIWidgets.ui2 {
             float baselineOffset, int baseline);
 
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr ParagraphBuilder_build(IntPtr ptr /*, IntPtr outParagraph*/);
+        static extern IntPtr ParagraphBuilder_build(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern void ParagraphBuilder_dispose(IntPtr ptr);
@@ -1531,8 +1588,8 @@ namespace Unity.UIWidgets.ui2 {
             byte[] structData,
             string fontFamily,
             string[] structFontFamily,
-            double fontSize,
-            double height,
+            float fontSize,
+            float height,
             string ellipsis,
             string locale
         ) => ParagraphBuilder_constructor(
@@ -1549,17 +1606,21 @@ namespace Unity.UIWidgets.ui2 {
             locale
         );
 
+        protected override void DisposePtr(IntPtr ptr) {
+            ParagraphBuilder_dispose(ptr);
+        }
+
         public int placeholderCount {
             get { return _placeholderCount; }
         }
 
         int _placeholderCount = 0;
 
-        public List<double> placeholderScales {
+        public List<float> placeholderScales {
             get { return _placeholderScales; }
         }
 
-        List<double> _placeholderScales = new List<double>();
+        List<float> _placeholderScales = new List<float>();
 
         public void pushStyle(TextStyle style) {
             List<String> fullFontFamilies = new List<string>();
@@ -1602,11 +1663,11 @@ namespace Unity.UIWidgets.ui2 {
         unsafe void _pushStyle(
             int[] encoded,
             string[] fontFamilies,
-            double? fontSize,
-            double? letterSpacing,
-            double? wordSpacing,
-            double? height,
-            double? decorationThickness,
+            float? fontSize,
+            float? letterSpacing,
+            float? wordSpacing,
+            float? height,
+            float? decorationThickness,
             string locale,
             IntPtr[] backgroundObjects,
             byte[] backgroundData,
@@ -1622,11 +1683,11 @@ namespace Unity.UIWidgets.ui2 {
                     encoded.Length,
                     fontFamilies,
                     fontFamilies.Length,
-                    fontSize,
-                    letterSpacing,
-                    wordSpacing,
-                    height,
-                    decorationThickness,
+                    fontSize.GetValueOrDefault(0),
+                    letterSpacing.GetValueOrDefault(0),
+                    wordSpacing.GetValueOrDefault(0),
+                    height.GetValueOrDefault(0),
+                    decorationThickness.GetValueOrDefault(0),
                     locale,
                     backgroundObjectsPtr,
                     backgroundData,
@@ -1680,10 +1741,6 @@ namespace Unity.UIWidgets.ui2 {
             return paragraph;
         }
 
-        IntPtr _build( /*IntPtr outParagraph*/) => ParagraphBuilder_build(_ptr /*, outParagraph*/);
-
-        protected override void DisposePtr(IntPtr ptr) {
-            ParagraphBuilder_dispose(ptr);
-        }
+        IntPtr _build() => ParagraphBuilder_build(_ptr);
     }
 }

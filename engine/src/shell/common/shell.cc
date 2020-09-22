@@ -1,6 +1,7 @@
 #define RAPIDJSON_HAS_STDSTRING 1
 #include "shell.h"
 
+#include <filesystem>
 #include <future>
 #include <memory>
 #include <sstream>
@@ -16,9 +17,9 @@
 #include "flutter/fml/paths.h"
 #include "flutter/fml/trace_event.h"
 #include "flutter/fml/unique_fd.h"
-#include "lib/ui/txt/icu_util.h"
 #include "include/core/SkGraphics.h"
 #include "include/utils/SkBase64.h"
+#include "lib/ui/txt/icu_util.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 #include "runtime/start_up.h"
@@ -216,8 +217,9 @@ static void PerformInitializationTasks(const Settings& settings) {
     }
 
     if (settings.icu_initialization_required) {
-        char* icudata = std::getenv("UIWIDGETS_ICUDATA");
-        fml::icu2::InitializeICU(icudata);
+      if (settings.icu_data_path.length() > 0) {
+        uiwidgets::icu::InitializeICU(settings.icu_data_path);
+      }
     }
   });
 }
@@ -423,11 +425,11 @@ bool Shell::Setup(std::unique_ptr<PlatformView> platform_view,
   weak_platform_view_ = platform_view_->GetWeakPtr();
 
   fml::TaskRunner::RunNowOrPostTask(task_runners_.GetUITaskRunner(),
-      [engine = weak_engine_] {
-          if (engine) {
-              engine->SetupDefaultFontManager();
-          }
-      });
+                                    [engine = weak_engine_] {
+                                      if (engine) {
+                                        engine->SetupDefaultFontManager();
+                                      }
+                                    });
 
   is_setup_ = true;
 

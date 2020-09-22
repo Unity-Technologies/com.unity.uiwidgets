@@ -4,12 +4,12 @@
 #include "flutter/fml/macros.h"
 #include "flutter/fml/mapping.h"
 
-namespace fml {
-	namespace icu2 {
+namespace uiwidgets {
+namespace icu {
 
-		void InitializeICU(const std::string& icu_data_path = "");
+void InitializeICU(const std::string& icu_data_path = "");
 
-		void InitializeICUFromMapping(std::unique_ptr<Mapping> mapping);
+void InitializeICUFromMapping(std::unique_ptr<fml::Mapping> mapping);
 
-	} 
-}
+}  // namespace icu
+}  // namespace uiwidgets

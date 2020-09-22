@@ -120,7 +120,6 @@ class Build
                 "src/lib/ui/compositing/scene_builder.cc",
                 "src/lib/ui/compositing/scene_builder.h",
                 
-                "src/lib/ui/txt/utils.h",
                 "src/lib/ui/txt/icu_util.h",
                 "src/lib/ui/txt/icu_util.cc",
                 "src/lib/ui/txt/asset_manager_font_provider.cc",
@@ -340,41 +339,7 @@ class Build
 
             builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64");
         }
-
-        //CopyTool.Instance().Setup(new NPath("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64").Combine("icudtl.dat"), new NPath("").Combine(skiaRoot, "third_party/externals/icu/common/icudtl.dat"));
-        //
-        // var npAndroid = new NativeProgram("libUIWidgets")
-        // {
-        //     Sources =
-        //     {
-        //         "src/engine.cc",
-        //         "src/platform_base.h",
-        //         "src/render_api.cc",
-        //         "src/render_api.h",
-        //         "src/render_api_vulkan.cc",
-        //         "src/render_api_opengles.cc",
-        //     },
-        //     OutputName = {c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}"},
-        // };
-        //
-        // npAndroid.Defines.Add("SUPPORT_VULKAN");
-        // npAndroid.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
-        // npAndroid.IncludeDirectories.Add("third_party");
-        //
-        // SetupSkiaAndroid(npAndroid);
-        //
-        // var androidToolchain = ToolChain.Store.Android().r19().Arm64();
-        //
-        // foreach (var codegen in codegens)
-        // {
-        //     var config = new NativeProgramConfiguration(codegen, androidToolchain, lump: true);
-        //
-        //     // var builtNP = npAndroid.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat)
-        //     //     .DeployTo("build_android_arm64");
-        //     //
-        //     // builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/Android/arm64");
-        //     // builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/BuildAndroid/unityLibrary/src/main/jniLibs/arm64-v8a/");
-        // }
+        CopyTool.Instance().Setup(new NPath("../Samples/UIWidgetsSamples_2019_4/Assets/StreamingAssets/").Combine("icudtl.dat"), new NPath("").Combine(skiaRoot, "out/Debug/icudtl.dat"));
 
         return np;
     }

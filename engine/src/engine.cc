@@ -79,14 +79,6 @@ extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API Draw123() {
   s_CurrentAPI->Draw();
 }
 
-extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API DrawParagraph(uiwidgets::Paragraph* paragraph) {
-    if (s_CurrentAPI == NULL) {
-        return;
-    }
-
-    s_CurrentAPI->Draw2(paragraph);
-}
-
 static void UNITY_INTERFACE_API OnRenderEvent(int eventID) {
   // Unknown / unsupported graphics device type? Do nothing
   if (s_CurrentAPI == NULL) {

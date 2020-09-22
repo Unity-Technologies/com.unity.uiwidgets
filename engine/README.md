@@ -119,14 +119,3 @@ header file in flutter engine, instead of headers in skia repo.
 ```
 bee
 ```
-
-## Set ICU Data Enviroment Varaible
-cmd
-```
-set UIWIDGETS_ICUDATA=<SKIA_ROOT>/out/Debug/icudtl.dat
-```
-powershell
-```
-$env:UIWIDGETS_ICUDATA="$env:SKIA_ROOT/out/Debug/icudtl.dat"
-```
-Unity Editor need to run with those environment variables set.
