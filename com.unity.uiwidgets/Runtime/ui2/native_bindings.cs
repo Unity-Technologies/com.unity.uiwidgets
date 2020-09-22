@@ -13,10 +13,6 @@ namespace Unity.UIWidgets.ui2 {
 
     public abstract class NativeWrapper {
         protected internal IntPtr _ptr { get; protected set; }
-        
-        public IntPtr ptr {
-            get { return _ptr; }
-        }
 
         protected NativeWrapper() {
         }
