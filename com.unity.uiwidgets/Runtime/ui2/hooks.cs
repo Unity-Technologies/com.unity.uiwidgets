@@ -228,7 +228,6 @@ namespace Unity.UIWidgets.ui2 {
         internal static unsafe void _dispatchPointerDataPacket(byte* bytes, int length) {
             try {
                 var window = Window.instance;
-                Debug.Log(_unpackPointerDataPacket(bytes, length));
                 if (window.onPointerDataPacket != null)
                     _invoke1<PointerDataPacket>(
                         p => window.onPointerDataPacket(p),
