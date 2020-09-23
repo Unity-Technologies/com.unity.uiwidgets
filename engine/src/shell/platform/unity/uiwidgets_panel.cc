@@ -172,6 +172,8 @@ void UIWidgetsPanel::OnEnable(void* native_texture_ptr, size_t width,
   UIWidgetsEngineRunInitialized(engine);
 
   UIWidgetsSystem::GetInstancePtr()->RegisterPanel(this);
+
+  process_events_ = true;
 }
 
 void UIWidgetsPanel::MonoEntrypoint() { entrypoint_callback_(handle_); }
@@ -182,6 +184,8 @@ void UIWidgetsPanel::OnDisable() {
 
   // drain pending vsync batons
   ProcessVSync();
+
+  process_events_ = false;
 
   UIWidgetsSystem::GetInstancePtr()->UnregisterPanel(this);
 
@@ -264,9 +268,138 @@ void UIWidgetsPanel::VSyncCallback(intptr_t baton) {
   vsync_batons_.push_back(baton);
 }
 
-using TimePoint = std::chrono::steady_clock::time_point;
+void UIWidgetsPanel::SetEventPhaseFromCursorButtonState(
+    UIWidgetsPointerEvent* event_data) {
+  MouseState state = GetMouseState();
+  event_data->phase = state.buttons == 0
+                          ? state.state_is_down ? UIWidgetsPointerPhase::kUp
+                                                : UIWidgetsPointerPhase::kHover
+                          : state.state_is_down ? UIWidgetsPointerPhase::kMove
+                                                : UIWidgetsPointerPhase::kDown;
+}
 
-TimePoint next_flutter_event_time = TimePoint::clock::now();
+void UIWidgetsPanel::SendMouseMove(float x, float y) {
+  UIWidgetsPointerEvent event = {};
+  event.x = x;
+  event.y = y;
+  SetEventPhaseFromCursorButtonState(&event);
+  SendPointerEventWithData(event);
+}
+
+void UIWidgetsPanel::SendMouseDown(float x, float y) {
+  UIWidgetsPointerEvent event = {};
+  SetEventPhaseFromCursorButtonState(&event);
+  event.x = x;
+  event.y = y;
+  SendPointerEventWithData(event);
+  SetMouseStateDown(true);
+}
+
+void UIWidgetsPanel::SendMouseUp(float x, float y) {
+  UIWidgetsPointerEvent event = {};
+  SetEventPhaseFromCursorButtonState(&event);
+  event.x = x;
+  event.y = y;
+  SendPointerEventWithData(event);
+  if (event.phase == UIWidgetsPointerPhase::kUp) {
+    SetMouseStateDown(false);
+  }
+}
+
+void UIWidgetsPanel::SendMouseLeave() {
+  UIWidgetsPointerEvent event = {};
+  event.phase = UIWidgetsPointerPhase::kRemove;
+  SendPointerEventWithData(event);
+}
+
+void UIWidgetsPanel::SendPointerEventWithData(
+    const UIWidgetsPointerEvent& event_data) {
+  MouseState mouse_state = GetMouseState();
+  // If sending anything other than an add, and the pointer isn't already added,
+  // synthesize an add to satisfy Flutter's expectations about events.
+  if (!mouse_state.state_is_added &&
+      event_data.phase != UIWidgetsPointerPhase::kAdd) {
+    UIWidgetsPointerEvent event = {};
+    event.phase = UIWidgetsPointerPhase::kAdd;
+    event.x = event_data.x;
+    event.y = event_data.y;
+    event.buttons = 0;
+    SendPointerEventWithData(event);
+  }
+  // Don't double-add (e.g., if events are delivered out of order, so an add has
+  // already been synthesized).
+  if (mouse_state.state_is_added &&
+      event_data.phase == UIWidgetsPointerPhase::kAdd) {
+    return;
+  }
+
+  UIWidgetsPointerEvent event = event_data;
+  event.device_kind = kUIWidgetsPointerDeviceKindMouse;
+  event.buttons = mouse_state.buttons;
+
+  // Set metadata that's always the same regardless of the event.
+  event.struct_size = sizeof(event);
+  event.timestamp =
+      std::chrono::duration_cast<std::chrono::microseconds>(
+          std::chrono::high_resolution_clock::now().time_since_epoch())
+          .count();
+
+  UIWidgetsEngineSendPointerEvent(engine_, &event, 1);
+
+  if (event_data.phase == UIWidgetsPointerPhase::kAdd) {
+    SetMouseStateAdded(true);
+  } else if (event_data.phase == UIWidgetsPointerPhase::kRemove) {
+    SetMouseStateAdded(false);
+    ResetMouseState();
+  }
+}
+
+void UIWidgetsPanel::OnMouseMove(float x, float y) {
+  if (process_events_) {
+    SendMouseMove(x, y);
+  }
+}
+
+static uint64_t ConvertToUIWidgetsButton(int button) {
+  switch (button) {
+    case -1:
+      return kUIWidgetsPointerButtonMousePrimary;
+    case -2:
+      return kUIWidgetsPointerButtonMouseSecondary;
+    case -3:
+      return kUIWidgetsPointerButtonMouseMiddle;
+  }
+  std::cerr << "Mouse button not recognized: " << button << std::endl;
+  return 0;
+}
+
+void UIWidgetsPanel::OnMouseDown(float x, float y, int button) {
+  if (process_events_) {
+    uint64_t uiwidgets_button = ConvertToUIWidgetsButton(button);
+    if (uiwidgets_button != 0) {
+      uint64_t mouse_buttons = GetMouseState().buttons | uiwidgets_button;
+      SetMouseButtons(mouse_buttons);
+      SendMouseDown(x, y);
+    }
+  }
+}
+
+void UIWidgetsPanel::OnMouseUp(float x, float y, int button) {
+  if (process_events_) {
+    uint64_t uiwidgets_button = ConvertToUIWidgetsButton(button);
+    if (uiwidgets_button != 0) {
+      uint64_t mouse_buttons = GetMouseState().buttons & ~uiwidgets_button;
+      SetMouseButtons(mouse_buttons);
+      SendMouseUp(x, y);
+    }
+  }
+}
+
+void UIWidgetsPanel::OnMouseLeave() {
+  if (process_events_) {
+    SendMouseLeave();
+  }
+}
 
 UIWIDGETS_API(UIWidgetsPanel*)
 UIWidgetsPanel_constructor(
@@ -307,7 +440,26 @@ UIWidgetsPanel_registerTexture(UIWidgetsPanel* panel,
 
 UIWIDGETS_API(void)
 UIWidgetsPanel_unregisterTexture(UIWidgetsPanel* panel, int texture_id) {
-  return panel->UnregisterTexture(texture_id);
+  panel->UnregisterTexture(texture_id);
 }
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onMouseDown(UIWidgetsPanel* panel, float x, float y,
+                           int button) {
+  panel->OnMouseDown(x, y, button);
+}
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onMouseUp(UIWidgetsPanel* panel, float x, float y, int button) {
+  panel->OnMouseUp(x, y, button);
+}
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onMouseMove(UIWidgetsPanel* panel, float x, float y) {
+  panel->OnMouseMove(x, y);
+}
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onMouseLeave(UIWidgetsPanel* panel) { panel->OnMouseLeave(); }
 
 }  // namespace uiwidgets

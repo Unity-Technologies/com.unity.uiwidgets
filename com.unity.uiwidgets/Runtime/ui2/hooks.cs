@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.async2;
@@ -24,7 +25,8 @@ namespace Unity.UIWidgets.ui2 {
                 Window_updateWindowMetrics,
                 Window_beginFrame,
                 Window_drawFrame,
-                ui_._dispatchPlatformMessage);
+                ui_._dispatchPlatformMessage,
+                ui_._dispatchPointerDataPacket);
         }
 
         delegate void Mono_ThrowExceptionCallback(IntPtr exception);
@@ -175,7 +177,8 @@ namespace Unity.UIWidgets.ui2 {
             Window_updateWindowMetricsCallback Window_updateWindowMetrics,
             Window_beginFrameCallback Window_beginFrame,
             Window_drawFrameCallback Window_drawFrame,
-            ui_.Window_dispatchPlatformMessageCallback Window_dispatchPlatformMessage);
+            ui_.Window_dispatchPlatformMessageCallback Window_dispatchPlatformMessage,
+            ui_.Window_dispatchPointerDataPacketCallback Window_dispatchPointerDataPacket);
     }
 
     public static partial class ui_ {
@@ -186,6 +189,8 @@ namespace Unity.UIWidgets.ui2 {
         internal static unsafe void _dispatchPlatformMessage(
             string name, byte* dataRaw, int dataLength, int responseId) {
             try {
+                var window = Window.instance;
+
                 var data = new byte[dataLength];
                 Marshal.Copy((IntPtr) dataRaw, data, 0, dataLength);
 
@@ -197,24 +202,58 @@ namespace Unity.UIWidgets.ui2 {
                         Debug.LogError($"Message to \"{name}\" caused exception {ex}");
                     }
                     finally {
-                        Window.instance._respondToPlatformMessage(responseId, null);
+                        window._respondToPlatformMessage(responseId, null);
                     }
                 }
-                else if (Window.instance.onPlatformMessage != null) {
+                else if (window.onPlatformMessage != null) {
                     _invoke3<string, byte[], PlatformMessageResponseCallback>(
-                        (name1, data1, callback1) => Window.instance.onPlatformMessage(name1, data1, callback1),
-                        Window.instance._onPlatformMessageZone,
-                        name, data, responseData =>
-                            Window.instance._respondToPlatformMessage(responseId, responseData)
+                        (name1, data1, callback1) => window.onPlatformMessage(name1, data1, callback1),
+                        window._onPlatformMessageZone,
+                        name, data, responseData => window._respondToPlatformMessage(responseId, responseData)
                     );
                 }
                 else {
                     channelBuffers.push(name, data, responseData
-                        => Window.instance._respondToPlatformMessage(responseId, responseData));
+                        => window._respondToPlatformMessage(responseId, responseData));
                 }
             }
             catch (Exception ex) {
                 Debug.LogException(ex);
+            }
+        }
+
+        internal unsafe delegate void Window_dispatchPointerDataPacketCallback(byte* bytes, int length);
+
+        [MonoPInvokeCallback(typeof(Window_dispatchPointerDataPacketCallback))]
+        internal static unsafe void _dispatchPointerDataPacket(byte* bytes, int length) {
+            try {
+                var window = Window.instance;
+                Debug.Log(_unpackPointerDataPacket(bytes, length));
+                if (window.onPointerDataPacket != null)
+                    _invoke1<PointerDataPacket>(
+                        p => window.onPointerDataPacket(p),
+                        window._onPointerDataPacketZone,
+                        _unpackPointerDataPacket(bytes, length));
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
+        }
+
+        internal static void _invoke1<A>(Action<A> callback, Zone zone, A arg) {
+            if (callback == null)
+                return;
+
+            D.assert(zone != null);
+
+            if (ReferenceEquals(zone, Zone.current)) {
+                callback(arg);
+            }
+            else {
+                zone.runUnaryGuarded((a) => {
+                    callback((A) a);
+                    return null;
+                }, arg);
             }
         }
 
@@ -233,6 +272,53 @@ namespace Unity.UIWidgets.ui2 {
                     return null;
                 });
             }
+        }
+
+        const int _kPointerDataFieldCount = 28;
+
+        static unsafe PointerDataPacket _unpackPointerDataPacket(byte* packet, int packetLength) {
+            const int kStride = 8;
+            const int kBytesPerPointerData = _kPointerDataFieldCount * kStride;
+            int length = packetLength / kBytesPerPointerData;
+            D.assert(length * kBytesPerPointerData == packetLength);
+
+            List<PointerData> data = new List<PointerData>(length);
+            for (int i = 0; i < length; ++i) {
+                int offset = i * _kPointerDataFieldCount;
+                data.Add(new PointerData(
+                    timeStamp: TimeSpan.FromMilliseconds(*(long*) (packet + kStride * offset++)),
+                    change: (PointerChange) (*(long*) (packet + kStride * offset++)),
+                    kind: (PointerDeviceKind) (*(long*) (packet + kStride * offset++)),
+                    signalKind: (PointerSignalKind) (*(long*) (packet + kStride * offset++)),
+                    device: (int) *(long*) (packet + kStride * offset++),
+                    pointerIdentifier: (int) (*(long*) (packet + kStride * offset++)),
+                    physicalX: (float) *(double*) (packet + kStride * offset++),
+                    physicalY: (float) *(double*) (packet + kStride * offset++),
+                    physicalDeltaX: (float) *(double*) (packet + kStride * offset++),
+                    physicalDeltaY: (float) *(double*) (packet + kStride * offset++),
+                    buttons: (int) *(long*) (packet + kStride * offset++),
+                    obscured: *(long*) (packet + kStride * offset++) != 0,
+                    synthesized: *(long*) (packet + kStride * offset++) != 0,
+                    pressure: (float) *(double*) (packet + kStride * offset++),
+                    pressureMin: (float) *(double*) (packet + kStride * offset++),
+                    pressureMax: (float) *(double*) (packet + kStride * offset++),
+                    distance: (float) *(double*) (packet + kStride * offset++),
+                    distanceMax: (float) *(double*) (packet + kStride * offset++),
+                    size: (float) *(double*) (packet + kStride * offset++),
+                    radiusMajor: (float) *(double*) (packet + kStride * offset++),
+                    radiusMinor: (float) *(double*) (packet + kStride * offset++),
+                    radiusMin: (float) *(double*) (packet + kStride * offset++),
+                    radiusMax: (float) *(double*) (packet + kStride * offset++),
+                    orientation: (float) *(double*) (packet + kStride * offset++),
+                    tilt: (float) *(double*) (packet + kStride * offset++),
+                    platformData: (int) *(long*) (packet + kStride * offset++),
+                    scrollDeltaX: (float) *(double*) (packet + kStride * offset++),
+                    scrollDeltaY: (float) *(double*) (packet + kStride * offset++)
+                ));
+                D.assert(offset == (i + 1) * _kPointerDataFieldCount);
+            }
+
+            return new PointerDataPacket(data: data);
         }
     }
 }

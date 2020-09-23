@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui2;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using NativeBindings = Unity.UIWidgets.ui2.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
-    public class UIWidgetsPanel : RawImage {
+    public partial class UIWidgetsPanel : RawImage {
         public static UIWidgetsPanel current {
             get { return Window.instance._panel; }
         }
@@ -52,6 +54,8 @@ namespace Unity.UIWidgets.engine2 {
             _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, UIWidgetsPanel_entrypoint);
             UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
                 _width, _height, _devicePixelRatio, Application.streamingAssetsPath);
+
+            Input_OnEnable();
         }
 
         protected virtual void main() {
@@ -80,6 +84,8 @@ namespace Unity.UIWidgets.engine2 {
         }
 
         protected override void OnDisable() {
+            Input_OnDisable();
+
             UIWidgetsPanel_onDisable(_ptr);
             UIWidgetsPanel_dispose(_ptr);
             _ptr = IntPtr.Zero;
@@ -132,6 +138,14 @@ namespace Unity.UIWidgets.engine2 {
             _renderTexture = null;
         }
 
+        protected virtual void Update() {
+            Input_Update();
+        }
+
+        protected virtual void OnGUI() {
+            Input_OnGUI();
+        }
+
         public int registerTexture(Texture texture) {
             return UIWidgetsPanel_registerTexture(_ptr, texture.GetNativeTexturePtr());
         }
@@ -143,6 +157,7 @@ namespace Unity.UIWidgets.engine2 {
         public void markNewFrameAvailable(int textureId) {
             UIWidgetsPanel_markNewFrameAvailable(_ptr, textureId);
         }
+
 
         delegate void UIWidgetsPanel_EntrypointCallback(IntPtr handle);
 
@@ -179,5 +194,132 @@ namespace Unity.UIWidgets.engine2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_markNewFrameAvailable(IntPtr ptr, int textureId);
+    }
+
+    public partial class UIWidgetsPanel : IPointerDownHandler, IPointerUpHandler,
+        IPointerEnterHandler, IPointerExitHandler, IDragHandler {
+        bool _isEntered;
+        Vector2 _lastMousePosition;
+
+        void Input_OnEnable() {
+        }
+
+        void Input_OnDisable() {
+        }
+
+        void Input_Update() {
+            if (Input.touchCount == 0 && Input.mousePresent) {
+                if (_isEntered) {
+                    if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1) && !Input.GetMouseButton(2)) {
+                        if (_lastMousePosition.x != Input.mousePosition.x ||
+                            _lastMousePosition.y != Input.mousePosition.y) {
+                            _lastMousePosition = Input.mousePosition;
+                            _onMouseMove();
+                        }
+                    }
+                    else {
+                        _lastMousePosition = Input.mousePosition;
+                    }
+                }
+            }
+        }
+
+        void Input_OnGUI() {
+            Event e = Event.current;
+            if (e.isKey) {
+                UIWidgetsPanel_onKey(_ptr, e.keyCode, e.type == EventType.KeyDown);
+                if (e.character != 0) {
+                    UIWidgetsPanel_onChar(_ptr, e.character);
+                }
+            }
+        }
+
+        Vector2? _getPointerPosition(Vector2 position) {
+            Camera worldCamera = canvas.worldCamera;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                rectTransform, position, worldCamera, out var localPoint)) {
+                var scaleFactor = canvas.scaleFactor;
+                localPoint.x = (localPoint.x - rectTransform.rect.min.x) * scaleFactor;
+                localPoint.y = (rectTransform.rect.max.y - localPoint.y) * scaleFactor;
+                return localPoint;
+            }
+
+            return null;
+        }
+
+        void _onMouseMove() {
+            var pos = _getPointerPosition(Input.mousePosition);
+            if (pos == null) {
+                return;
+            }
+
+            UIWidgetsPanel_onMouseMove(_ptr, pos.Value.x, pos.Value.y);
+        }
+
+        public void OnPointerDown(PointerEventData eventData) {
+            var pos = _getPointerPosition(Input.mousePosition);
+            if (pos == null) {
+                return;
+            }
+
+            // mouse event
+            if (eventData.pointerId < 0) {
+                UIWidgetsPanel_onMouseDown(_ptr, pos.Value.x, pos.Value.y, eventData.pointerId);
+            }
+        }
+
+        public void OnPointerUp(PointerEventData eventData) {
+            var pos = _getPointerPosition(Input.mousePosition);
+            if (pos == null) {
+                return;
+            }
+
+            // mouse event
+            if (eventData.pointerId < 0) {
+                UIWidgetsPanel_onMouseUp(_ptr, pos.Value.x, pos.Value.y, eventData.pointerId);
+            }
+        }
+
+        public void OnPointerEnter(PointerEventData eventData) {
+            D.assert(eventData.pointerId < 0);
+            _isEntered = true;
+            _lastMousePosition = Input.mousePosition;
+        }
+
+        public void OnPointerExit(PointerEventData eventData) {
+            D.assert(eventData.pointerId < 0);
+            _isEntered = false;
+            UIWidgetsPanel_onMouseLeave(_ptr);
+        }
+
+        public void OnDrag(PointerEventData eventData) {
+            var pos = _getPointerPosition(Input.mousePosition);
+            if (pos == null) {
+                return;
+            }
+
+            // mouse event
+            if (eventData.pointerId < 0) {
+                UIWidgetsPanel_onMouseMove(_ptr, pos.Value.x, pos.Value.y);
+            }
+        }
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onChar(IntPtr ptr, char c);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onKey(IntPtr ptr, KeyCode keyCode, bool isKeyDown);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onMouseDown(IntPtr ptr, float x, float y, int button);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onMouseUp(IntPtr ptr, float x, float y, int button);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onMouseMove(IntPtr ptr, float x, float y);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onMouseLeave(IntPtr ptr);
     }
 }

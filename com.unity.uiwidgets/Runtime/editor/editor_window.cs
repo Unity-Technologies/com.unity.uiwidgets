@@ -380,7 +380,7 @@ namespace Unity.UIWidgets.editor {
             }
 
             if (onPointerEvent != null) {
-                PointerData pointerData = null;
+                PointerData pointerData = new PointerData();
 
                 if (evt.type == EventType.MouseDown) {
                     pointerData = new PointerData(
@@ -430,32 +430,32 @@ namespace Unity.UIWidgets.editor {
                         InputUtils.getScrollButtonKey()
                     );
                 }
-                else if (evt.type == EventType.DragUpdated) {
-                    pointerData = new PointerData(
-                        timeStamp: Timer.timespanSinceStartup,
-                        change: PointerChange.dragFromEditorMove,
-                        kind: PointerDeviceKind.mouse,
-                        device: InputUtils.getMouseButtonKey(evt.button),
-                        physicalX: evt.mousePosition.x * _devicePixelRatio,
-                        physicalY: evt.mousePosition.y * _devicePixelRatio
-                    );
-                }
-                else if (evt.type == EventType.DragPerform) {
-                    pointerData = new PointerData(
-                        timeStamp: Timer.timespanSinceStartup,
-                        change: PointerChange.dragFromEditorRelease,
-                        kind: PointerDeviceKind.mouse,
-                        device: InputUtils.getMouseButtonKey(evt.button),
-                        physicalX: evt.mousePosition.x * _devicePixelRatio,
-                        physicalY: evt.mousePosition.y * _devicePixelRatio
-                    );
-                }
-
-                if (pointerData != null) {
-                    onPointerEvent(new PointerDataPacket(new List<PointerData> {
-                        pointerData
-                    }));
-                }
+                // else if (evt.type == EventType.DragUpdated) {
+                //     pointerData = new PointerData(
+                //         timeStamp: Timer.timespanSinceStartup,
+                //         change: PointerChange.dragFromEditorMove,
+                //         kind: PointerDeviceKind.mouse,
+                //         device: InputUtils.getMouseButtonKey(evt.button),
+                //         physicalX: evt.mousePosition.x * _devicePixelRatio,
+                //         physicalY: evt.mousePosition.y * _devicePixelRatio
+                //     );
+                // }
+                // else if (evt.type == EventType.DragPerform) {
+                //     pointerData = new PointerData(
+                //         timeStamp: Timer.timespanSinceStartup,
+                //         change: PointerChange.dragFromEditorRelease,
+                //         kind: PointerDeviceKind.mouse,
+                //         device: InputUtils.getMouseButtonKey(evt.button),
+                //         physicalX: evt.mousePosition.x * _devicePixelRatio,
+                //         physicalY: evt.mousePosition.y * _devicePixelRatio
+                //     );
+                // }
+                //
+                // if (pointerData != null) {
+                //     onPointerEvent(new PointerDataPacket(new List<PointerData> {
+                //         pointerData
+                //     }));
+                // }
             }
 
             RawKeyboard.instance._handleKeyEvent(Event.current);
@@ -478,20 +478,20 @@ namespace Unity.UIWidgets.editor {
                 return;
             }
 
-            PointerData pointerData = new ScrollData(
-                timeStamp: Timer.timespanSinceStartup,
-                change: PointerChange.scroll,
-                kind: PointerDeviceKind.mouse,
-                device: _scrollInput.getDeviceId(),
-                physicalX: _scrollInput.getPointerPosX(),
-                physicalY: _scrollInput.getPointerPosY(),
-                scrollX: deltaScroll.x,
-                scrollY: deltaScroll.y
-            );
-
-            onPointerEvent(new PointerDataPacket(new List<PointerData> {
-                pointerData
-            }));
+            // PointerData pointerData = new ScrollData(
+            //     timeStamp: Timer.timespanSinceStartup,
+            //     change: PointerChange.scroll,
+            //     kind: PointerDeviceKind.mouse,
+            //     device: _scrollInput.getDeviceId(),
+            //     physicalX: _scrollInput.getPointerPosX(),
+            //     physicalY: _scrollInput.getPointerPosY(),
+            //     scrollX: deltaScroll.x,
+            //     scrollY: deltaScroll.y
+            // );
+            //
+            // onPointerEvent(new PointerDataPacket(new List<PointerData> {
+            //     pointerData
+            // }));
         }
 
         public void Update() {

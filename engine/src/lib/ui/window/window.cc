@@ -37,6 +37,10 @@ typedef void (*Window_dispatchPlatformMessageCallback)(const char* name,
                                                        int response_id);
 Window_dispatchPlatformMessageCallback Window_dispatchPlatformMessage_;
 
+typedef void (*Window_dispatchPointerDataPacketCallback)(const uint8_t* data,
+                                                         int data_length);
+Window_dispatchPointerDataPacketCallback Window_dispatchPointerDataPacket_;
+
 UIWIDGETS_API(void)
 Window_hook(
     Window_constructorCallback Window_constructor,
@@ -44,13 +48,15 @@ Window_hook(
     Window_updateWindowMetricsCallback Window_updateWindowMetrics,
     Window_beginFrameCallback Window_beginFrame,
     Window_drawFrameCallback Window_drawFrame,
-    Window_dispatchPlatformMessageCallback Window_dispatchPlatformMessage) {
+    Window_dispatchPlatformMessageCallback Window_dispatchPlatformMessage,
+    Window_dispatchPointerDataPacketCallback Window_dispatchPointerDataPacket) {
   Window_constructor_ = Window_constructor;
   Window_dispose_ = Window_dispose;
   Window_updateWindowMetrics_ = Window_updateWindowMetrics;
   Window_beginFrame_ = Window_beginFrame;
   Window_drawFrame_ = Window_drawFrame;
   Window_dispatchPlatformMessage_ = Window_dispatchPlatformMessage;
+  Window_dispatchPointerDataPacket_ = Window_dispatchPointerDataPacket;
 }
 
 UIWIDGETS_API(Mono_Handle) Window_instance() {
@@ -194,7 +200,14 @@ void Window::DispatchPlatformMessage(fml::RefPtr<PlatformMessage> message) {
                                   response_id);
 }
 
-void Window::DispatchPointerDataPacket(const PointerDataPacket& packet) {}
+void Window::DispatchPointerDataPacket(const PointerDataPacket& packet) {
+  std::shared_ptr<MonoState> mono_state = mono_state_.lock();
+  if (!mono_state) return;
+  MonoState::Scope scope(mono_state);
+
+  const auto& buffer = packet.data();
+  Window_dispatchPointerDataPacket_(buffer.data(), buffer.size());
+}
 
 void Window::BeginFrame(fml::TimePoint frameTime) {
   std::shared_ptr<MonoState> mono_state = mono_state_.lock();
