@@ -9,7 +9,7 @@
 #include "flutter/fml/memory/weak_ptr.h"
 #include "lib/ui/painting/image_decoder.h"
 #include "lib/ui/snapshot_delegate.h"
-#include "lib/ui/txt/font_collection.h"
+#include "lib/ui/text/font_collection.h"
 #include <flutter/fml/concurrent_message_loop.h>
 
 #include "include/core/SkPicture.h"

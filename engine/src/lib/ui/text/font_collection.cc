@@ -8,7 +8,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
-#include "lib/ui/txt/asset_manager_font_provider.h"
+#include "asset_manager_font_provider.h"
 #include "lib/ui/ui_mono_state.h"
 #include "lib/ui/window/window.h"
 #include "rapidjson/document.h"
@@ -21,7 +21,7 @@ namespace {
 typedef void (*LoadFontCallback)(Mono_Handle callback_handle);
 
 UIWIDGETS_API(void)
-LoadFontFromList(uint8_t* font_data, int size,
+Font_LoadFontFromList(uint8_t* font_data, int size,
                  LoadFontCallback loadFontCallback, Mono_Handle callbackHandle,
                  char* family_name) {
   FontCollection& font_collection =
@@ -107,7 +107,7 @@ void FontCollection::RegisterFonts(
                                    font_asset->value.GetString());
     }
   }
-
+ 
   collection_->SetAssetFontManager(
       sk_make_sp<txt::AssetFontManager>(std::move(font_provider)));
 }

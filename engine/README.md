@@ -91,12 +91,6 @@ cd engine/src
 python ./flutter/tools/gn --unoptimized
 ninja -C .\out\host_debug_unopt\ flutter/fml:fml_lib
 ```
-powershell 
-```
-$env:GYP_MSVS_OVERRIDE_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community"
-$env:FLUTTER_ROOT="E:\c\src" # target to flutter
-$env:SKIA_ROOT="C:\Users\siyao\skia_repo\skia\" # target to skia
-```
 
 ## Create symbolic
 
@@ -105,12 +99,6 @@ cmd
 cd <uiwidigets_dir>\engine
 cd third_party   \\ create the directory if not exists
 mklink /D skia <SKIA_ROOT>
-```
-powershell (run as administrator)
-```
-cd <uiwidigets_dir>\engine
-cd third_party   # create the directory if not exists
-New-Item -Path skia -ItemType SymbolicLink -Value C:\Users\siyao\skia_repo\skia\ 
 ```
 Flutter engine txt include skia header in this pattern 'third_party/skia/*', so without symbolic, the txt lib will include skia
 header file in flutter engine, instead of headers in skia repo.

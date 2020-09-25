@@ -1,7 +1,5 @@
+#pragma once
 #include "paragraph.h"
-
-#include "flutter/third_party/txt/src/txt/paragraph.h"
-#include "lib/ui/ui_mono_state.h"
 
 namespace uiwidgets {
 Paragraph::Paragraph(std::unique_ptr<txt::Paragraph> paragraph)
@@ -48,6 +46,26 @@ void Paragraph::paint(Canvas* canvas, float x, float y) {
   m_paragraph->Paint(sk_canvas, x, y);
 }
 
+static Float32List EncodeTextBoxes(
+    const std::vector<txt::Paragraph::TextBox>& boxes) {
+  // Layout:
+  // First value is the number of values.
+  // Then there are boxes.size() groups of 5 which are LTRBD, where D is the
+  // text direction index.
+
+  Float32List result = {new float[boxes.size() * 5], boxes.size() * 5};
+  unsigned long position = 0;
+  for (unsigned long i = 0; i < boxes.size(); i++) {
+    const txt::Paragraph::TextBox& box = boxes[i];
+    result.data[position++] = box.rect.fLeft;
+    result.data[position++] = box.rect.fTop;
+    result.data[position++] = box.rect.fRight;
+    result.data[position++] = box.rect.fBottom;
+    result.data[position++] = static_cast<float>(box.direction);
+  }
+  return result;
+}
+
 static void EncodeTextBoxes(const std::vector<txt::Paragraph::TextBox>& boxes,
                             float* result) {
   // Layout:
@@ -66,34 +84,19 @@ static void EncodeTextBoxes(const std::vector<txt::Paragraph::TextBox>& boxes,
   }
 }
 
-int Paragraph::getRectsForRangeSize(unsigned start, unsigned end,
-                                    unsigned boxHeightStyle,
-                                    unsigned boxWidthStyle) {
+Float32List* Paragraph::getRectsForRange(unsigned start, unsigned end,
+                                         unsigned boxHeightStyle,
+                                         unsigned boxWidthStyle) {
   std::vector<txt::Paragraph::TextBox> boxes = m_paragraph->GetRectsForRange(
       start, end, static_cast<txt::Paragraph::RectHeightStyle>(boxHeightStyle),
       static_cast<txt::Paragraph::RectWidthStyle>(boxWidthStyle));
-  return boxes.size() * 5;
+  return &EncodeTextBoxes(boxes);
 }
 
-void Paragraph::getRectsForRange(float* data, unsigned start, unsigned end,
-                                 unsigned boxHeightStyle,
-                                 unsigned boxWidthStyle) {
-  std::vector<txt::Paragraph::TextBox> boxes = m_paragraph->GetRectsForRange(
-      start, end, static_cast<txt::Paragraph::RectHeightStyle>(boxHeightStyle),
-      static_cast<txt::Paragraph::RectWidthStyle>(boxWidthStyle));
-  EncodeTextBoxes(boxes, data);
-}
-
-int Paragraph::getRectsForPlaceholdersSize() {
+Float32List* Paragraph::getRectsForPlaceholders() {
   std::vector<txt::Paragraph::TextBox> boxes =
       m_paragraph->GetRectsForPlaceholders();
-  return boxes.size() * 5;
-}
-
-void Paragraph::getRectsForPlaceholders(float* data) {
-  std::vector<txt::Paragraph::TextBox> boxes =
-      m_paragraph->GetRectsForPlaceholders();
-  return EncodeTextBoxes(boxes, data);
+  return &EncodeTextBoxes(boxes);
 }
 
 void Paragraph::getPositionForOffset(float dx, float dy, int* offset) {
@@ -124,37 +127,31 @@ void Paragraph::getLineBoundary(unsigned offset, int* boundaryPtr) {
   boundaryPtr[1] = line_end;
 }
 
-int Paragraph::computeLineMetricsSize() {
+Float32List* Paragraph::computeLineMetrics() {
   std::vector<txt::LineMetrics> metrics = m_paragraph->GetLineMetrics();
 
   // Layout:
   // boxes.size() groups of 9 which are the line metrics
   // properties
-  return metrics.size() * 9;
-}
-
-void Paragraph::computeLineMetrics(float* result) {
-  std::vector<txt::LineMetrics> metrics = m_paragraph->GetLineMetrics();
-
-  // Layout:
-  // boxes.size() groups of 9 which are the line metrics
-  // properties
+  int size = metrics.size() * 9;
+  Float32List result = {new float[size], size};
   unsigned long position = 0;
   for (unsigned long i = 0; i < metrics.size(); i++) {
     const txt::LineMetrics& line = metrics[i];
-    result[position++] = static_cast<float>(line.hard_break);
-    result[position++] = line.ascent;
-    result[position++] = line.descent;
-    result[position++] = line.unscaled_ascent;
+    result.data[position++] = static_cast<float>(line.hard_break);
+    result.data[position++] = line.ascent;
+    result.data[position++] = line.descent;
+    result.data[position++] = line.unscaled_ascent;
     // We add then round to get the height. The
     // definition of height here is different
     // than the one in LibTxt.
-    result[position++] = round(line.ascent + line.descent);
-    result[position++] = line.width;
-    result[position++] = line.left;
-    result[position++] = line.baseline;
-    result[position++] = static_cast<float>(line.line_number);
+    result.data[position++] = round(line.ascent + line.descent);
+    result.data[position++] = line.width;
+    result.data[position++] = line.left;
+    result.data[position++] = line.baseline;
+    result.data[position++] = static_cast<float>(line.line_number);
   }
+  return &result;
 }
 
 UIWIDGETS_API(float) Paragraph_width(Paragraph* ptr) { return ptr->width(); }
@@ -189,26 +186,15 @@ UIWIDGETS_API(void) Paragraph_layout(Paragraph* ptr, float width) {
   ptr->layout(width);
 }
 
-UIWIDGETS_API(int)
-Paragraph_getRectsForRangeSize(Paragraph* ptr, int start, int end,
-                               int boxHeightStyle, int boxWidthStyle) {
-  return ptr->getRectsForRangeSize(start, end, boxHeightStyle, boxWidthStyle);
-}
-
-UIWIDGETS_API(void)
-Paragraph_getRectsForRange(Paragraph* ptr, float* data, int start, int end,
+UIWIDGETS_API(Float32List*)
+Paragraph_getRectsForRange(Paragraph* ptr, int start, int end,
                            int boxHeightStyle, int boxWidthStyle) {
-  ptr->getRectsForRange(data, start, end, boxHeightStyle, boxWidthStyle);
+  return ptr->getRectsForRange(start, end, boxHeightStyle, boxWidthStyle);
 }
 
-UIWIDGETS_API(int)
-Paragraph_getRectsForPlaceholdersSize(Paragraph* ptr) {
-  return ptr->getRectsForPlaceholdersSize();
-}
-
-UIWIDGETS_API(void)
-Paragraph_getRectsForPlaceholders(Paragraph* ptr, float* data) {
-  ptr->getRectsForPlaceholders(data);
+UIWIDGETS_API(Float32List*)
+Paragraph_getRectsForPlaceholders(Paragraph* ptr) {
+  return ptr->getRectsForPlaceholders();
 }
 
 UIWIDGETS_API(void)
@@ -232,12 +218,9 @@ Paragraph_paint(Paragraph* ptr, Canvas* canvas, float x, float y) {
   ptr->paint(canvas, x, y);
 }
 
-UIWIDGETS_API(int) Paragraph_computeLineMetricsSize(Paragraph* ptr) {
-  return ptr->computeLineMetricsSize();
-}
-
-UIWIDGETS_API(void) Paragraph_computeLineMetrics(Paragraph* ptr, float* data) {
-  ptr->computeLineMetrics(data);
+UIWIDGETS_API(Float32List*)
+Paragraph_computeLineMetrics(Paragraph* ptr, float* data) {
+  return ptr->computeLineMetrics();
 }
 
 UIWIDGETS_API(void) Paragraph_dispose(Paragraph* ptr) { ptr->Release(); }

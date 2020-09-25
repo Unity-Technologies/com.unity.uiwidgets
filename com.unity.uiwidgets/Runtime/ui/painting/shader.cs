@@ -366,8 +366,8 @@ namespace Unity.UIWidgets.ui {
                     return true;
                 }
 
-                return _listEquals(colors, other.colors) &&
-                       _listEquals(positions, other.positions);
+                return colors.equalsList(other.colors) &&
+                       positions.equalsList(other.positions);
             }
 
             public override bool Equals(object obj) {
@@ -407,20 +407,6 @@ namespace Unity.UIWidgets.ui {
 
                     return hashCode;
                 }
-            }
-
-            static bool _listEquals<T>(List<T> left, List<T> right) {
-                if (left.Count != right.Count) {
-                    return false;
-                }
-
-                for (int i = 0; i < left.Count; i++) {
-                    if (!left[i].Equals(right[i])) {
-                        return false;
-                    }
-                }
-
-                return true;
             }
         }
     }

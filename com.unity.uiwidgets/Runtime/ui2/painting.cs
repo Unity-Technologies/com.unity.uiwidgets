@@ -104,6 +104,13 @@ namespace Unity.UIWidgets.ui2 {
             }
         }
 
+        internal static T[] range<T>(this T[] data, int index, int length)
+        {
+            T[] result = new T[length];
+            Array.Copy(data, index, result, 0, length);
+            return result;
+        }
+
         internal static uint[] _encodeColorList(List<Color> colors) {
             int colorCount = colors.Count;
             var result = new uint[colorCount];
@@ -2489,7 +2496,7 @@ namespace Unity.UIWidgets.ui2 {
         static extern IntPtr PictureRecorder_endRecording(IntPtr ptr);
     }
 
-    public class Shadow {
+    public class Shadow : IEquatable<Shadow> {
         public Shadow(
             Color color,
             Offset offset,
@@ -2511,13 +2518,13 @@ namespace Unity.UIWidgets.ui2 {
         static readonly int _kYOffset = 2 << 2;
         static readonly int _kBlurOffset = 3 << 2;
 
-        readonly Color color;
+        public readonly Color color;
 
-        readonly Offset offset;
+        public readonly Offset offset;
 
-        readonly float blurRadius;
+        public readonly float blurRadius;
 
-        static float convertRadiusToSigma(float radius) {
+        public static float convertRadiusToSigma(float radius) {
             return radius * 0.57735f + 0.5f;
         }
 
@@ -2571,24 +2578,8 @@ namespace Unity.UIWidgets.ui2 {
                 result.Add(b[i].scale(t));
             return result;
         }
-
-        public override bool Equals(object obj) {
-            if (ReferenceEquals(this, obj))
-                return true;
-            return obj is Shadow other
-                   && other.color == color
-                   && other.offset == offset
-                   && other.blurRadius == blurRadius;
-        }
-
-        public override int GetHashCode() {
-            int hashcode = color.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ offset.GetHashCode();
-            hashcode = (hashcode ^ 397) ^ blurRadius.GetHashCode();
-            return hashcode;
-        }
-
-        public static byte[] _encodeShadows(List<Shadow> shadows) {
+        
+        internal static byte[] _encodeShadows(List<Shadow> shadows) {
             if (shadows == null)
                 return new byte[0];
 
@@ -2619,6 +2610,47 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         public override string ToString() => $"TextShadow({color}, {offset}, {blurRadius})";
+
+        public bool Equals(Shadow other)
+        {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return Equals(color, other.color) && Equals(offset, other.offset) && blurRadius.Equals(other.blurRadius);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((Shadow) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (color != null ? color.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (offset != null ? offset.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ blurRadius.GetHashCode();
+                return hashCode;
+            }
+        }
     }
 
     delegate void _Callback<T>(T result);

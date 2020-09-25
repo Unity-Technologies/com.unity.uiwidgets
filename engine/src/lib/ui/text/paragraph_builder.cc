@@ -1,3 +1,4 @@
+#pragma once
 #include "paragraph_builder.h"
 
 #include "lib/ui/ui_mono_state.h"
@@ -254,13 +255,9 @@ ParagraphBuilder::ParagraphBuilder(
 
   FontCollection& font_collection =
       UIMonoState::Current()->window()->client()->GetFontCollection();
-#if FLUTTER_ENABLE_SKSHAPER
-#define FLUTTER_PARAGRAPH_BUILDER txt::ParagraphBuilder::CreateSkiaBuilder
-#else
-#define FLUTTER_PARAGRAPH_BUILDER txt::ParagraphBuilder::CreateTxtBuilder
-#endif
-  m_paragraphBuilder =
-      FLUTTER_PARAGRAPH_BUILDER(style, font_collection.GetFontCollection());
+
+  m_paragraphBuilder = txt::ParagraphBuilder::CreateTxtBuilder(
+      style, font_collection.GetFontCollection());
 }
 
 ParagraphBuilder::~ParagraphBuilder() = default;
@@ -484,7 +481,7 @@ ParagraphBuilder_addPlaceholder(ParagraphBuilder* ptr, float width,
 }
 
 UIWIDGETS_API(Paragraph*)
-ParagraphBuilder_build(ParagraphBuilder* ptr /*, IntPtr outParagraph*/) {
+ParagraphBuilder_build(ParagraphBuilder* ptr) {
   auto paragraph = ptr->build();
   paragraph->AddRef();
   return paragraph.get();

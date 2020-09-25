@@ -2,7 +2,9 @@
 
 #include "flutter/fml/memory/ref_counted.h"
 #include "flutter/third_party/txt/src/txt/paragraph.h"
+#include "shell/common/lists.h"
 #include "src/lib/ui/painting/canvas.h"
+#include "lib/ui/ui_mono_state.h"
 
 namespace uiwidgets {
 
@@ -30,18 +32,13 @@ class Paragraph : public fml::RefCountedThreadSafe<Paragraph> {
 
   void layout(float width);
   void paint(Canvas* canvas, float x, float y);
-
-  int getRectsForRangeSize(unsigned start, unsigned end,
-                           unsigned boxHeightStyle, unsigned boxWidthStyle);
-  void getRectsForRange(float* data, unsigned start, unsigned end,
+  Float32List* getRectsForRange(unsigned start, unsigned end,
                         unsigned boxHeightStyle, unsigned boxWidthStyle);
-  int getRectsForPlaceholdersSize();
-  void getRectsForPlaceholders(float* data);
+  Float32List* getRectsForPlaceholders();
   void getPositionForOffset(float dx, float dy, int* offset);
   void getWordBoundary(unsigned offset, int* boundaryPtr);
   void getLineBoundary(unsigned offset, int* boundaryPtr);
-  int computeLineMetricsSize();
-  void computeLineMetrics(float* data);
+  Float32List* computeLineMetrics();
 
   size_t GetAllocationSize();
   std::unique_ptr<txt::Paragraph> m_paragraph;

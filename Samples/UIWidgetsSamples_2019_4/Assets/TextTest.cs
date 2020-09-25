@@ -15,6 +15,7 @@ using Picture = Unity.UIWidgets.ui2.Picture;
 using PictureRecorder = Unity.UIWidgets.ui2.PictureRecorder;
 using Rect = Unity.UIWidgets.ui.Rect;
 using SceneBuilder = Unity.UIWidgets.ui2.SceneBuilder;
+using TextBaseline = Unity.UIWidgets.ui2.TextBaseline;
 using TextDecoration = Unity.UIWidgets.ui2.TextDecoration;
 using TextDecorationStyle = Unity.UIWidgets.ui2.TextDecorationStyle;
 using TextPosition = Unity.UIWidgets.ui2.TextPosition;
@@ -152,6 +153,7 @@ class TextTest : UIWidgetsPanel
         pb.addText("test push one more style");
         pb.pop();
         pb.addText("test pop style");
+        pb.addPlaceholder(10, 10, PlaceholderAlignment.baseline, TextBaseline.alphabetic);
         var p = pb.build();
         p.layout(new ParagraphConstraints(300));
         var wordBoundary = p.getWordBoundary(new TextPosition(10));
@@ -164,12 +166,11 @@ class TextTest : UIWidgetsPanel
         {
             Debug.Log($"{textBox.bottom} {textBox.direction} {textBox.left} {textBox.right}");
         }
-
         foreach (var textBox in p.getBoxesForRange(1, 20))
         {
             Debug.Log($"{textBox.bottom} {textBox.direction} {textBox.left} {textBox.right}");
         }
-
+        
         foreach (var lineMetrics in p.computeLineMetrics())
         {
             Debug.Log($"{lineMetrics.height} {lineMetrics.lineNumber}");

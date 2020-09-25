@@ -19,7 +19,7 @@
 #include "flutter/fml/unique_fd.h"
 #include "include/core/SkGraphics.h"
 #include "include/utils/SkBase64.h"
-#include "lib/ui/txt/icu_util.h"
+#include "lib/ui/text/icu_util.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 #include "runtime/start_up.h"

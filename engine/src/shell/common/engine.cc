@@ -12,7 +12,7 @@
 #include "flutter/fml/paths.h"
 #include "flutter/fml/trace_event.h"
 #include "flutter/fml/unique_fd.h"
-#include "lib/ui/txt/font_collection.h"
+#include "lib/ui/text/font_collection.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPictureRecorder.h"
 #include "rapidjson/document.h"

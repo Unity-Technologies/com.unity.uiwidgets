@@ -3,7 +3,7 @@
 #include "flutter/fml/memory/ref_counted.h"
 #include "flutter/third_party/txt/src/txt/paragraph.h"
 #include "flutter/third_party/txt/src/txt/paragraph_builder.h"
-#include "lib/ui/txt/font_collection.h"
+#include "font_collection.h"
 #include "paragraph.h"
 #include "src/lib/ui/painting/canvas.h"
 
