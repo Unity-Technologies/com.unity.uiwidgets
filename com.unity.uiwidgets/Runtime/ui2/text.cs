@@ -1523,12 +1523,12 @@ namespace Unity.UIWidgets.ui2 {
         static extern void Paragraph_layout(IntPtr ptr, float width);
 
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr Paragraph_getRectsForRange(IntPtr ptr, int start, int end,
+        static extern ui_.BaseList Paragraph_getRectsForRange(IntPtr ptr, int start, int end,
             int boxHeightStyle,
             int boxWidthStyle);
 
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr Paragraph_getRectsForPlaceholders(IntPtr ptr);
+        static extern ui_.BaseList Paragraph_getRectsForPlaceholders(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern unsafe void Paragraph_getPositionForOffset(IntPtr ptr, float dx, float dy, int* encodedPtr);
@@ -1543,7 +1543,7 @@ namespace Unity.UIWidgets.ui2 {
         static extern void Paragraph_paint(IntPtr ptr, IntPtr canvas, float x, float y);
 
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr Paragraph_computeLineMetrics(IntPtr ptr);
+        static extern ui_.BaseList Paragraph_computeLineMetrics(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern void Paragraph_dispose(IntPtr ptr);
@@ -1609,23 +1609,21 @@ namespace Unity.UIWidgets.ui2 {
         public List<TextBox> getBoxesForRange(int start, int end,
             BoxHeightStyle boxHeightStyle = BoxHeightStyle.tight,
             BoxWidthStyle boxWidthStyle = BoxWidthStyle.tight) {
-            var data = Marshal.PtrToStructure<ui_.BaseList>(_getBoxesForRange( start, end, (int) boxHeightStyle, (int) boxWidthStyle)).toFloatArrayAndFree();
+            var data = _getBoxesForRange( start, end, (int) boxHeightStyle, (int) boxWidthStyle).toFloatArrayAndFree();
             return _decodeTextBoxes(data, data.Length);
         }
 
         // See paragraph.cc for the layout of this return value.
-        IntPtr _getBoxesForRange(int start, int end, int boxHeightStyle, int boxWidthStyle) =>
+        ui_.BaseList _getBoxesForRange(int start, int end, int boxHeightStyle, int boxWidthStyle) =>
             Paragraph_getRectsForRange(_ptr, start, end, boxHeightStyle, boxWidthStyle);
 
 
         public List<TextBox> getBoxesForPlaceholders() {
-            var dataPtr = _getBoxesForPlaceholders();
-            ui_.BaseList data2 = Marshal.PtrToStructure<ui_.BaseList>(dataPtr);
-            float[] data = data2.toFloatArrayAndFree();
-            return _decodeTextBoxes(data, data2.length);
+            float[] data = _getBoxesForPlaceholders().toFloatArrayAndFree();
+            return _decodeTextBoxes(data, data.Length);
         }
 
-        unsafe IntPtr _getBoxesForPlaceholders() => Paragraph_getRectsForPlaceholders(_ptr);
+        ui_.BaseList _getBoxesForPlaceholders() => Paragraph_getRectsForPlaceholders(_ptr);
 
         public unsafe TextPosition getPositionForOffset(Offset offset) {
             int[] encoded = new int[2];
@@ -1668,7 +1666,7 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         public List<LineMetrics> computeLineMetrics() {
-            var data = Marshal.PtrToStructure<ui_.BaseList>(_computeLineMetrics()).toFloatArrayAndFree();
+            var data = _computeLineMetrics().toFloatArrayAndFree();
             int count = data.Length / 9;
             int position = 0;
             List<LineMetrics> metrics = new List<LineMetrics>();
@@ -1691,7 +1689,7 @@ namespace Unity.UIWidgets.ui2 {
 
             return metrics;
         }
-        IntPtr _computeLineMetrics() => Paragraph_computeLineMetrics(_ptr);
+        ui_.BaseList _computeLineMetrics() => Paragraph_computeLineMetrics(_ptr);
     }
 
     public class ParagraphBuilder : NativeWrapper {

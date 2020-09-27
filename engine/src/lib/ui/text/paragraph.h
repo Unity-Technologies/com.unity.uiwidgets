@@ -32,13 +32,13 @@ class Paragraph : public fml::RefCountedThreadSafe<Paragraph> {
 
   void layout(float width);
   void paint(Canvas* canvas, float x, float y);
-  Float32List* getRectsForRange(unsigned start, unsigned end,
+  Float32List getRectsForRange(unsigned start, unsigned end,
                         unsigned boxHeightStyle, unsigned boxWidthStyle);
-  Float32List* getRectsForPlaceholders();
+  Float32List getRectsForPlaceholders();
   void getPositionForOffset(float dx, float dy, int* offset);
   void getWordBoundary(unsigned offset, int* boundaryPtr);
   void getLineBoundary(unsigned offset, int* boundaryPtr);
-  Float32List* computeLineMetrics();
+  Float32List computeLineMetrics();
 
   size_t GetAllocationSize();
   std::unique_ptr<txt::Paragraph> m_paragraph;

@@ -52,8 +52,9 @@ static Float32List EncodeTextBoxes(
   // First value is the number of values.
   // Then there are boxes.size() groups of 5 which are LTRBD, where D is the
   // text direction index.
-
-  Float32List result = {new float[boxes.size() * 5], boxes.size() * 5};
+  int size = boxes.size() * 5;
+  Float32List result = {(float*)malloc(sizeof(float) * size),
+                        boxes.size() * size};
   unsigned long position = 0;
   for (unsigned long i = 0; i < boxes.size(); i++) {
     const txt::Paragraph::TextBox& box = boxes[i];
@@ -84,19 +85,19 @@ static void EncodeTextBoxes(const std::vector<txt::Paragraph::TextBox>& boxes,
   }
 }
 
-Float32List* Paragraph::getRectsForRange(unsigned start, unsigned end,
+Float32List Paragraph::getRectsForRange(unsigned start, unsigned end,
                                          unsigned boxHeightStyle,
                                          unsigned boxWidthStyle) {
   std::vector<txt::Paragraph::TextBox> boxes = m_paragraph->GetRectsForRange(
       start, end, static_cast<txt::Paragraph::RectHeightStyle>(boxHeightStyle),
       static_cast<txt::Paragraph::RectWidthStyle>(boxWidthStyle));
-  return &EncodeTextBoxes(boxes);
+  return EncodeTextBoxes(boxes);
 }
 
-Float32List* Paragraph::getRectsForPlaceholders() {
+Float32List Paragraph::getRectsForPlaceholders() {
   std::vector<txt::Paragraph::TextBox> boxes =
       m_paragraph->GetRectsForPlaceholders();
-  return &EncodeTextBoxes(boxes);
+  return EncodeTextBoxes(boxes);
 }
 
 void Paragraph::getPositionForOffset(float dx, float dy, int* offset) {
@@ -127,14 +128,14 @@ void Paragraph::getLineBoundary(unsigned offset, int* boundaryPtr) {
   boundaryPtr[1] = line_end;
 }
 
-Float32List* Paragraph::computeLineMetrics() {
+Float32List Paragraph::computeLineMetrics() {
   std::vector<txt::LineMetrics> metrics = m_paragraph->GetLineMetrics();
 
   // Layout:
   // boxes.size() groups of 9 which are the line metrics
   // properties
   int size = metrics.size() * 9;
-  Float32List result = {new float[size], size};
+  Float32List result = {(float*)malloc(sizeof(float) * size), size};
   unsigned long position = 0;
   for (unsigned long i = 0; i < metrics.size(); i++) {
     const txt::LineMetrics& line = metrics[i];
@@ -151,7 +152,7 @@ Float32List* Paragraph::computeLineMetrics() {
     result.data[position++] = line.baseline;
     result.data[position++] = static_cast<float>(line.line_number);
   }
-  return &result;
+  return result;
 }
 
 UIWIDGETS_API(float) Paragraph_width(Paragraph* ptr) { return ptr->width(); }
@@ -186,13 +187,13 @@ UIWIDGETS_API(void) Paragraph_layout(Paragraph* ptr, float width) {
   ptr->layout(width);
 }
 
-UIWIDGETS_API(Float32List*)
+UIWIDGETS_API(Float32List)
 Paragraph_getRectsForRange(Paragraph* ptr, int start, int end,
                            int boxHeightStyle, int boxWidthStyle) {
   return ptr->getRectsForRange(start, end, boxHeightStyle, boxWidthStyle);
 }
 
-UIWIDGETS_API(Float32List*)
+UIWIDGETS_API(Float32List)
 Paragraph_getRectsForPlaceholders(Paragraph* ptr) {
   return ptr->getRectsForPlaceholders();
 }
@@ -218,7 +219,7 @@ Paragraph_paint(Paragraph* ptr, Canvas* canvas, float x, float y) {
   ptr->paint(canvas, x, y);
 }
 
-UIWIDGETS_API(Float32List*)
+UIWIDGETS_API(Float32List)
 Paragraph_computeLineMetrics(Paragraph* ptr, float* data) {
   return ptr->computeLineMetrics();
 }
