@@ -48,10 +48,10 @@ ninja -C out/Debug -k 0
 ```
 Ignore this error: "lld-link: error: could not open 'EGL': no such file or directory"
 
-convert icudtl.dat to object file
+convert icudtl.dat to object file in skia
 ```
-cd out/Debug
-ld -r -b binary -o .\icudtl.o .\icudtl.dat
+cd SkiaRoot/third_party/externals/icu/flutter/icudtl.dat
+ld -r -b binary -o icudtl.o icudtl.dat
 ```
 ### Build flutter fml
 

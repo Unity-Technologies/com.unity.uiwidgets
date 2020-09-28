@@ -71,8 +71,6 @@ void FontCollection::RegisterFonts(
     return;
   }
 
-  // Structure described in https://flutter.io/custom-fonts/
-
   if (!document.IsArray()) {
     return;
   }

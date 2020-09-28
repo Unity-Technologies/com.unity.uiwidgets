@@ -436,7 +436,7 @@ namespace Unity.UIWidgets.ui2 {
         // If you add more fields, remember to update _kDataByteCount.
         const int _kDataByteCount = 56;
 
-        public object[] _objects;
+        object[] _objects;
         internal IntPtr[] _objectPtrs;
         const int _kShaderIndex = 0;
         const int _kColorFilterIndex = 1;

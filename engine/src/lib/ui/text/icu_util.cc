@@ -71,7 +71,6 @@ class ICUContext {
     UErrorCode err_code = U_ZERO_ERROR;
     udata_setCommonData(GetMapping(), &err_code);
     return (err_code == U_ZERO_ERROR);
-    // return true;
   }
 
   const uint8_t* GetMapping() const {

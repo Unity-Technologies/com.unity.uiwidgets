@@ -8,6 +8,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.external.simplejson;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.ui2 {
@@ -645,12 +646,22 @@ namespace Unity.UIWidgets.ui2 {
             }
         }
 
-        static byte[] _fontChangeMessage =
-            Encoding.ASCII.GetBytes(JsonUtility.ToJson(new Dictionary<string, dynamic>() {{"type", "fontsChange"}}));
+        static byte[] _fontChangeMessageData;
+
+        static byte[] _fontChangeMessage {
+            get {
+                if (_fontChangeMessageData != null) {
+                    return _fontChangeMessageData;
+                }
+                JSONObject message = new JSONObject();
+                message["type"] = "fontsChange";
+                _fontChangeMessageData = Encoding.ASCII.GetBytes(message.ToString());
+                return _fontChangeMessageData;
+            }
+        }
 
         static void _sendFontChangeMessage() {
-            Window window = new Window();
-            window.onPlatformMessage?.Invoke("uiwidgets/system", _fontChangeMessage,
+            Window.instance.onPlatformMessage?.Invoke("uiwidgets/system", _fontChangeMessage,
                 (_) => { });
         }
 
@@ -661,12 +672,12 @@ namespace Unity.UIWidgets.ui2 {
             IntPtr callbackHandle,
             string fontFamily);
 
-        public struct BaseList {
+        public struct Float32List {
             public IntPtr data;
             public int length;
         }
 
-        public static float[] toFloatArrayAndFree(this BaseList data) {
+        public static float[] toFloatArrayAndFree(this Float32List data) {
             float[] result = new float[data.length];
             Marshal.Copy(data.data, result, 0, data.length);
             ui_.Lists_Free(data.data);
@@ -699,9 +710,9 @@ namespace Unity.UIWidgets.ui2 {
             List<Shadow> shadows = null,
             List<FontFeature> fontFeatures = null
         ) {
-            D.assert(color == null || foreground == null
-                // "Cannot provide both a color and a foreground\n"+
-                // "The color argument is just a shorthand for \"foreground: Paint()..color = color\"."
+            D.assert(color == null || foreground == null, () =>
+                "Cannot provide both a color and a foreground\n"+
+                "The color argument is just a shorthand for \"foreground: Paint()..color = color\"."
             );
             _encoded = ui_._encodeTextStyle(
                 color,
@@ -1523,12 +1534,12 @@ namespace Unity.UIWidgets.ui2 {
         static extern void Paragraph_layout(IntPtr ptr, float width);
 
         [DllImport(NativeBindings.dllName)]
-        static extern ui_.BaseList Paragraph_getRectsForRange(IntPtr ptr, int start, int end,
+        static extern ui_.Float32List Paragraph_getRectsForRange(IntPtr ptr, int start, int end,
             int boxHeightStyle,
             int boxWidthStyle);
 
         [DllImport(NativeBindings.dllName)]
-        static extern ui_.BaseList Paragraph_getRectsForPlaceholders(IntPtr ptr);
+        static extern ui_.Float32List Paragraph_getRectsForPlaceholders(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern unsafe void Paragraph_getPositionForOffset(IntPtr ptr, float dx, float dy, int* encodedPtr);
@@ -1543,7 +1554,7 @@ namespace Unity.UIWidgets.ui2 {
         static extern void Paragraph_paint(IntPtr ptr, IntPtr canvas, float x, float y);
 
         [DllImport(NativeBindings.dllName)]
-        static extern ui_.BaseList Paragraph_computeLineMetrics(IntPtr ptr);
+        static extern ui_.Float32List Paragraph_computeLineMetrics(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern void Paragraph_dispose(IntPtr ptr);
@@ -1614,7 +1625,7 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         // See paragraph.cc for the layout of this return value.
-        ui_.BaseList _getBoxesForRange(int start, int end, int boxHeightStyle, int boxWidthStyle) =>
+        ui_.Float32List _getBoxesForRange(int start, int end, int boxHeightStyle, int boxWidthStyle) =>
             Paragraph_getRectsForRange(_ptr, start, end, boxHeightStyle, boxWidthStyle);
 
 
@@ -1623,7 +1634,7 @@ namespace Unity.UIWidgets.ui2 {
             return _decodeTextBoxes(data, data.Length);
         }
 
-        ui_.BaseList _getBoxesForPlaceholders() => Paragraph_getRectsForPlaceholders(_ptr);
+        ui_.Float32List _getBoxesForPlaceholders() => Paragraph_getRectsForPlaceholders(_ptr);
 
         public unsafe TextPosition getPositionForOffset(Offset offset) {
             int[] encoded = new int[2];
@@ -1689,7 +1700,7 @@ namespace Unity.UIWidgets.ui2 {
 
             return metrics;
         }
-        ui_.BaseList _computeLineMetrics() => Paragraph_computeLineMetrics(_ptr);
+        ui_.Float32List _computeLineMetrics() => Paragraph_computeLineMetrics(_ptr);
     }
 
     public class ParagraphBuilder : NativeWrapper {

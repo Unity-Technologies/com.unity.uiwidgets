@@ -1,7 +1,6 @@
 #define RAPIDJSON_HAS_STDSTRING 1
 #include "shell.h"
 
-#include <filesystem>
 #include <future>
 #include <memory>
 #include <sstream>
@@ -219,8 +218,10 @@ static void PerformInitializationTasks(const Settings& settings) {
     if (settings.icu_initialization_required) {
       if (settings.icu_data_path.length() > 0) {
         uiwidgets::icu::InitializeICU(settings.icu_data_path);
-      } else {
+      } else if (settings.icu_mapper) {
         uiwidgets::icu::InitializeICUFromMapping(settings.icu_mapper());
+      } else {
+        FML_DLOG(WARNING) << "Skipping ICU initialization in the shell.";
       }
     }
   });

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "flutter/fml/memory/ref_counted.h"
-#include "flutter/third_party/txt/src/txt/paragraph.h"
+#include "txt/paragraph.h"
 #include "shell/common/lists.h"
-#include "src/lib/ui/painting/canvas.h"
+#include "lib/ui/painting/canvas.h"
 #include "lib/ui/ui_mono_state.h"
 
 namespace uiwidgets {

@@ -8,7 +8,7 @@
 #include "lib/ui/window/viewport_metrics.h"
 #include "runtime/mono_api.h"
 #include "shell/platform/embedder/embedder_engine.h"
-#include "src/shell/common/switches.h"
+#include "shell/common/switches.h"
 #include "uiwidgets_system.h"
 
 namespace uiwidgets {
