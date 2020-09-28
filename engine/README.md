@@ -48,6 +48,11 @@ ninja -C out/Debug -k 0
 ```
 Ignore this error: "lld-link: error: could not open 'EGL': no such file or directory"
 
+convert icudtl.dat to object file
+```
+cd out/Debug
+ld -r -b binary -o .\icudtl.o .\icudtl.dat
+```
 ### Build flutter fml
 
 1. Setting up the Engine development environment

@@ -219,6 +219,8 @@ static void PerformInitializationTasks(const Settings& settings) {
     if (settings.icu_initialization_required) {
       if (settings.icu_data_path.length() > 0) {
         uiwidgets::icu::InitializeICU(settings.icu_data_path);
+      } else {
+        uiwidgets::icu::InitializeICUFromMapping(settings.icu_mapper());
       }
     }
   });

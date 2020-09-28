@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "src/common/settings.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -357,6 +358,7 @@ typedef struct {
   size_t struct_size;
   const char* assets_path;
   const char* icu_data_path;
+  uiwidgets::MappingCallback icu_mapper;
   int command_line_argc;
   const char* const* command_line_argv;
   UIWidgetsPlatformMessageCallback platform_message_callback;

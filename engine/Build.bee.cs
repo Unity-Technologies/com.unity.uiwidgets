@@ -234,6 +234,8 @@ class Build
                 "src/shell/common/shell_io_manager.h",
                 "src/shell/common/surface.cc",
                 "src/shell/common/surface.h",
+                "src/shell/common/switches.cc",
+                "src/shell/common/switches.h",
                 "src/shell/common/thread_host.cc",
                 "src/shell/common/thread_host.h",
                 "src/shell/common/vsync_waiter.cc",
@@ -310,6 +312,10 @@ class Build
             },
             OutputName = {c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}"},
         };
+        np.Libraries.Add(new BagOfObjectFilesLibrary(
+            new NPath[]{
+                skiaRoot+"out/Debug/icudtl.o"
+        }));
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
         
         np.IncludeDirectories.Add("third_party");
@@ -342,8 +348,6 @@ class Build
 
             builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64");
         }
-        CopyTool.Instance().Setup(new NPath("../Samples/UIWidgetsSamples_2019_4/Assets/StreamingAssets/").Combine("icudtl.dat"), new NPath("").Combine(skiaRoot, "out/Debug/icudtl.dat"));
-
         return np;
     }
 
