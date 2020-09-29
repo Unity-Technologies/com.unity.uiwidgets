@@ -361,10 +361,10 @@ namespace Unity.UIWidgets.ui2 {
         public IntPtr data;
         public int length;
     }
-    
+
     public static partial class ui_ {
         static readonly object VoidObject = new object();
-        
+
         internal static int[] _encodeTextStyle(
             Color color,
             TextDecoration decoration,
@@ -676,7 +676,7 @@ namespace Unity.UIWidgets.ui2 {
             IntPtr callbackHandle,
             string fontFamily);
 
-        
+
         public static float[] toFloatArrayAndFree(this Float32List data) {
             float[] result = new float[data.length];
             Marshal.Copy(data.data, result, 0, data.length);
@@ -1503,7 +1503,7 @@ namespace Unity.UIWidgets.ui2 {
 
     public class Paragraph : NativeWrapper {
         internal Paragraph(IntPtr ptr) {
-            _ptr = ptr;
+            _setPtr(ptr);
         }
 
         [DllImport(NativeBindings.dllName)]
@@ -1770,7 +1770,7 @@ namespace Unity.UIWidgets.ui2 {
                     strutFontFamilies.AddRange(strutStyle._fontFamilyFallback);
             }
 
-            _ptr = _constructor(
+            _setPtr(_constructor(
                 style._encoded.ToArray(),
                 strutStyle?._encoded.ToArray(),
                 style._fontFamily,
@@ -1779,7 +1779,7 @@ namespace Unity.UIWidgets.ui2 {
                 style._height ?? 0,
                 style._ellipsis,
                 _encodeLocale(style._locale)
-            );
+            ));
         }
 
         IntPtr _constructor(
