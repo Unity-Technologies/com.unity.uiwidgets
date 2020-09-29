@@ -2509,7 +2509,7 @@ namespace Unity.UIWidgets.ui2 {
             this.blurRadius = blurRadius;
         }
 
-        public static readonly uint _kColorDefault = 0xFF000000;
+        static readonly uint _kColorDefault = 0xFF000000;
 
         // Constants for shadow encoding.
         static readonly int _kBytesPerShadow = 16;

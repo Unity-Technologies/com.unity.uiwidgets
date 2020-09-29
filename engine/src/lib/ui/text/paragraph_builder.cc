@@ -2,7 +2,7 @@
 #include "paragraph_builder.h"
 
 #include "lib/ui/ui_mono_state.h"
-#include "third_party/icu/source/common/unicode/ustring.h"
+#include "unicode/ustring.h"
 
 namespace uiwidgets {
 namespace {

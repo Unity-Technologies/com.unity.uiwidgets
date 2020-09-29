@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using AOT;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Unity.UIWidgets.async2;
-using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.services;
 using Rect = Unity.UIWidgets.ui.Rect;
 
@@ -318,8 +316,8 @@ namespace Unity.UIWidgets.ui2 {
 
         public override string ToString() {
             return "TextHeightBehavior(\n" +
-                   " applyHeightToFirstAscent: $applyHeightToFirstAscent, \n" +
-                   " applyHeightToLastDescent: $applyHeightToLastDescent \n" +
+                   $" applyHeightToFirstAscent: {applyHeightToFirstAscent}, \n" +
+                   $" applyHeightToLastDescent: {applyHeightToLastDescent} \n" +
                    ")";
         }
 
@@ -359,7 +357,14 @@ namespace Unity.UIWidgets.ui2 {
         }
     }
 
-    public partial class ui_ {
+    public struct Float32List {
+        public IntPtr data;
+        public int length;
+    }
+    
+    public static partial class ui_ {
+        static readonly object VoidObject = new object();
+        
         internal static int[] _encodeTextStyle(
             Color color,
             TextDecoration decoration,
@@ -552,6 +557,13 @@ namespace Unity.UIWidgets.ui2 {
             return result;
         }
 
+        internal static unsafe void setFloat(this byte[] bytes, int byteOffset, float value) {
+            D.assert(byteOffset >= 0 && byteOffset + 4 < bytes.Length);
+            fixed (byte* b = &bytes[byteOffset]) {
+                *(float*) b = value;
+            }
+        }
+
         internal static byte[] _encodeStrut(
             string fontFamily,
             List<string> fontFamilyFallback,
@@ -593,19 +605,19 @@ namespace Unity.UIWidgets.ui2 {
 
             if (fontSize != null) {
                 bitmask |= 1 << 3;
-                data.setFloat32(byteCount, (float) fontSize);
+                data.setFloat(byteCount, (float) fontSize);
                 byteCount += 4;
             }
 
             if (height != null) {
                 bitmask |= 1 << 4;
-                data.setFloat32(byteCount, (float) height);
+                data.setFloat(byteCount, (float) height);
                 byteCount += 4;
             }
 
             if (leading != null) {
                 bitmask |= 1 << 5;
-                data.setFloat32(byteCount, (float) leading);
+                data.setFloat(byteCount, (float) leading);
                 byteCount += 4;
             }
 
@@ -640,7 +652,7 @@ namespace Unity.UIWidgets.ui2 {
             completerHandle.Free();
             _sendFontChangeMessage();
             try {
-                callback(new object());
+                callback(VoidObject);
             }
             catch (Exception ex) {
                 Debug.LogException(ex);
@@ -664,20 +676,16 @@ namespace Unity.UIWidgets.ui2 {
             IntPtr callbackHandle,
             string fontFamily);
 
-        public struct Float32List {
-            public IntPtr data;
-            public int length;
-        }
-
+        
         public static float[] toFloatArrayAndFree(this Float32List data) {
             float[] result = new float[data.length];
             Marshal.Copy(data.data, result, 0, data.length);
-            ui_.Lists_Free(data.data);
+            Lists_Free(data.data);
             return result;
         }
 
         [DllImport(NativeBindings.dllName)]
-        public static unsafe extern void Lists_Free(IntPtr data);
+        public static extern void Lists_Free(IntPtr data);
     }
 
     public class TextStyle : IEquatable<TextStyle> {
@@ -1012,14 +1020,14 @@ namespace Unity.UIWidgets.ui2 {
 
     public class StrutStyle : IEquatable<StrutStyle> {
         public StrutStyle(
-            string fontFamily,
-            List<string> fontFamilyFallback,
-            float? fontSize,
-            float? height,
-            float? leading,
-            FontWeight fontWeight,
-            FontStyle? fontStyle,
-            bool? forceStrutHeight
+            string fontFamily = null,
+            List<string> fontFamilyFallback = null,
+            float? fontSize = null,
+            float? height = null,
+            float? leading = null,
+            FontWeight fontWeight = null,
+            FontStyle? fontStyle = null,
+            bool? forceStrutHeight = null
         ) {
             _encoded = ui_._encodeStrut(
                 fontFamily,
@@ -1085,7 +1093,7 @@ namespace Unity.UIWidgets.ui2 {
     }
 
     public class TextBox : IEquatable<TextBox> {
-        public TextBox(
+        TextBox(
             float left,
             float top,
             float right,
@@ -1526,12 +1534,12 @@ namespace Unity.UIWidgets.ui2 {
         static extern void Paragraph_layout(IntPtr ptr, float width);
 
         [DllImport(NativeBindings.dllName)]
-        static extern ui_.Float32List Paragraph_getRectsForRange(IntPtr ptr, int start, int end,
+        static extern Float32List Paragraph_getRectsForRange(IntPtr ptr, int start, int end,
             int boxHeightStyle,
             int boxWidthStyle);
 
         [DllImport(NativeBindings.dllName)]
-        static extern ui_.Float32List Paragraph_getRectsForPlaceholders(IntPtr ptr);
+        static extern Float32List Paragraph_getRectsForPlaceholders(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern unsafe void Paragraph_getPositionForOffset(IntPtr ptr, float dx, float dy, int* encodedPtr);
@@ -1546,7 +1554,7 @@ namespace Unity.UIWidgets.ui2 {
         static extern void Paragraph_paint(IntPtr ptr, IntPtr canvas, float x, float y);
 
         [DllImport(NativeBindings.dllName)]
-        static extern ui_.Float32List Paragraph_computeLineMetrics(IntPtr ptr);
+        static extern Float32List Paragraph_computeLineMetrics(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern void Paragraph_dispose(IntPtr ptr);
@@ -1617,7 +1625,7 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         // See paragraph.cc for the layout of this return value.
-        ui_.Float32List _getBoxesForRange(int start, int end, int boxHeightStyle, int boxWidthStyle) =>
+        Float32List _getBoxesForRange(int start, int end, int boxHeightStyle, int boxWidthStyle) =>
             Paragraph_getRectsForRange(_ptr, start, end, boxHeightStyle, boxWidthStyle);
 
 
@@ -1626,7 +1634,7 @@ namespace Unity.UIWidgets.ui2 {
             return _decodeTextBoxes(data, data.Length);
         }
 
-        ui_.Float32List _getBoxesForPlaceholders() => Paragraph_getRectsForPlaceholders(_ptr);
+        Float32List _getBoxesForPlaceholders() => Paragraph_getRectsForPlaceholders(_ptr);
 
         public unsafe TextPosition getPositionForOffset(Offset offset) {
             int[] encoded = new int[2];
@@ -1693,30 +1701,30 @@ namespace Unity.UIWidgets.ui2 {
             return metrics;
         }
 
-        ui_.Float32List _computeLineMetrics() => Paragraph_computeLineMetrics(_ptr);
+        Float32List _computeLineMetrics() => Paragraph_computeLineMetrics(_ptr);
     }
 
     public class ParagraphBuilder : NativeWrapper {
-        [DllImport(NativeBindings.dllName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(NativeBindings.dllName)]
         static extern IntPtr ParagraphBuilder_constructor(
             int[] encoded,
             int encodeSize,
             byte[] strutData,
             int structDataSize,
             string fontFamily,
-            [In] string[] structFontFamily,
+            string[] structFontFamily,
             int structFontFamilySize,
             float fontSize,
             float height,
             [MarshalAs(UnmanagedType.LPWStr)] string ellipsis,
             string locale);
 
-        [DllImport(NativeBindings.dllName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(NativeBindings.dllName)]
         static unsafe extern void ParagraphBuilder_pushStyle(
             IntPtr ptr,
             int[] encoded,
             int encodedSize,
-            [In] string[] fontFamilies,
+            string[] fontFamilies,
             int fontFamiliesSize,
             float fontSize,
             float letterSpacing,
@@ -1737,7 +1745,7 @@ namespace Unity.UIWidgets.ui2 {
         [DllImport(NativeBindings.dllName)]
         static extern void ParagraphBuilder_pop(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(NativeBindings.dllName)]
         static extern IntPtr ParagraphBuilder_addText(IntPtr ptr, [MarshalAs(UnmanagedType.LPWStr)] string text);
 
         [DllImport(NativeBindings.dllName)]

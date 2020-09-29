@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.engine2;
@@ -91,14 +92,24 @@ class TextTest : UIWidgetsPanel
             check = false;
         }
 
-        var style = new ParagraphStyle(fontFamily: "Arial", height: 4);
+        var style = new ParagraphStyle(
+            fontFamily: "Arial",
+            height: 4,
+            strutStyle: new StrutStyle(fontFamily: "ranchers",
+                fontFamilyFallback: new List<string>() {"Roboto-RegularB"}, 
+                fontSize: 30),
+            ellipsis: "and so on..."
+        );
+
 
         var pb = new ParagraphBuilder(style);
+        pb.addText("just for testxxx\n");
         var ts_roboto_regular = new TextStyle(
             color: new Color(0xF000000F),
             decoration: TextDecoration.lineThrough,
             decorationStyle: TextDecorationStyle.doubleLine,
             fontFamily: "Roboto-Regular",
+            fontFamilyFallback: new List<string>() {"ranchers"},
             fontSize: 30,
             height: 1.5f
         );

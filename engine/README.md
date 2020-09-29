@@ -50,7 +50,7 @@ Ignore this error: "lld-link: error: could not open 'EGL': no such file or direc
 
 convert icudtl.dat to object file in skia
 ```
-cd SkiaRoot/third_party/externals/icu/flutter/icudtl.dat
+cd SkiaRoot/third_party/externals/icu/flutter/
 ld -r -b binary -o icudtl.o icudtl.dat
 ```
 ### Build flutter fml

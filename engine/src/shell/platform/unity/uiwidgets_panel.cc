@@ -128,6 +128,8 @@ void UIWidgetsPanel::OnEnable(void* native_texture_ptr, size_t width,
   // args.icu_data_path = icu_path.c_str();
 
   args.icu_mapper = GetICUStaticMapping;
+
+  // Used for IOS build
   // std::string icu_symbol_prefix = "_binary_icudtl_dat_start";
   // std::string native_lib_path =
   // "pathtodll/Plugins/x86_64/libUIWidgets_d.dll"; args.icu_mapper =
