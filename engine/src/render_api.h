@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Unity/IUnityGraphics.h"
-
 class RenderAPI {
  public:
   virtual ~RenderAPI() {}
@@ -14,7 +13,7 @@ class RenderAPI {
 
 	virtual void SetImageTexture(void* ptr) = 0;
 
-  virtual void Draw() = 0;
+	virtual void Draw() = 0;
 
 	virtual void PreDraw() = 0;
 

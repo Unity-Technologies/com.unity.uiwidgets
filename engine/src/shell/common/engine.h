@@ -9,7 +9,7 @@
 #include "flutter/fml/memory/weak_ptr.h"
 #include "lib/ui/painting/image_decoder.h"
 #include "lib/ui/snapshot_delegate.h"
-//#include "lib/ui/text/font_collection.h"
+#include "lib/ui/text/font_collection.h"
 #include <flutter/fml/concurrent_message_loop.h>
 
 #include "include/core/SkPicture.h"
@@ -59,6 +59,8 @@ class Engine final : public RuntimeDelegate, PointerDataDispatcher::Delegate {
 
   [[nodiscard]] bool Restart(RunConfiguration configuration);
 
+  void SetupDefaultFontManager();
+
   bool UpdateAssetManager(std::shared_ptr<AssetManager> asset_manager);
 
   void BeginFrame(fml::TimePoint frame_time);
@@ -82,7 +84,7 @@ class Engine final : public RuntimeDelegate, PointerDataDispatcher::Delegate {
   void ScheduleFrame(bool regenerate_layer_tree = true) override;
 
   // |RuntimeDelegate|
-  // FontCollection& GetFontCollection() override;
+  FontCollection& GetFontCollection() override;
 
   // |PointerDataDispatcher::Delegate|
   void DoDispatchPacket(std::unique_ptr<PointerDataPacket> packet,
@@ -110,7 +112,7 @@ class Engine final : public RuntimeDelegate, PointerDataDispatcher::Delegate {
   std::shared_ptr<AssetManager> asset_manager_;
   bool activity_running_;
   bool have_surface_;
-  // FontCollection font_collection_;
+  FontCollection font_collection_;
   ImageDecoder image_decoder_;
   TaskRunners task_runners_;
   fml::WeakPtrFactory<Engine> weak_factory_;

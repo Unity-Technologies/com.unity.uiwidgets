@@ -8,6 +8,7 @@
 #include "lib/ui/window/viewport_metrics.h"
 #include "runtime/mono_api.h"
 #include "shell/platform/embedder/embedder_engine.h"
+#include "shell/common/switches.h"
 #include "uiwidgets_system.h"
 #include "unity_external_texture_gl.h"
 
@@ -124,8 +125,18 @@ void UIWidgetsPanel::OnEnable(void* native_texture_ptr, size_t width,
   args.struct_size = sizeof(UIWidgetsProjectArgs);
 
   args.assets_path = streaming_assets_path;
-  args.icu_data_path = "";
+  // std::string icu_path = std::string(streaming_assets_path) + "/icudtl.dat";
+  // args.icu_data_path = icu_path.c_str();
 
+  args.icu_mapper = GetICUStaticMapping;
+
+  // Used for IOS build
+  // std::string icu_symbol_prefix = "_binary_icudtl_dat_start";
+  // std::string native_lib_path =
+  // "pathtodll/Plugins/x86_64/libUIWidgets_d.dll"; args.icu_mapper =
+  // [icu_symbol_prefix, native_lib_path] {
+  //  return GetSymbolMapping(icu_symbol_prefix, native_lib_path);
+  // };
   args.command_line_argc = 0;
   args.command_line_argv = nullptr;
 

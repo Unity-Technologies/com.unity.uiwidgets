@@ -119,6 +119,18 @@ class Build
                 "src/lib/ui/compositing/scene.h",
                 "src/lib/ui/compositing/scene_builder.cc",
                 "src/lib/ui/compositing/scene_builder.h",
+                
+
+                "src/lib/ui/text/icu_util.h",
+                "src/lib/ui/text/icu_util.cc",
+                "src/lib/ui/text/asset_manager_font_provider.cc",
+                "src/lib/ui/text/asset_manager_font_provider.h",
+                "src/lib/ui/text/paragraph_builder.cc",
+                "src/lib/ui/text/paragraph_builder.h",
+                "src/lib/ui/text/font_collection.cc",
+                "src/lib/ui/text/font_collection.h",
+                "src/lib/ui/text/paragraph.cc",
+                "src/lib/ui/text/paragraph.h",
 
                 "src/lib/ui/painting/canvas.cc",
                 "src/lib/ui/painting/canvas.h",
@@ -210,6 +222,8 @@ class Build
                 "src/shell/common/canvas_spy.h",
                 "src/shell/common/engine.cc",
                 "src/shell/common/engine.h",
+                "src/shell/common/lists.h",
+                "src/shell/common/lists.cc",
                 "src/shell/common/persistent_cache.cc",
                 "src/shell/common/persistent_cache.h",
                 "src/shell/common/pipeline.cc",
@@ -228,6 +242,8 @@ class Build
                 "src/shell/common/shell_io_manager.h",
                 "src/shell/common/surface.cc",
                 "src/shell/common/surface.h",
+                "src/shell/common/switches.cc",
+                "src/shell/common/switches.h",
                 "src/shell/common/thread_host.cc",
                 "src/shell/common/thread_host.h",
                 "src/shell/common/vsync_waiter.cc",
@@ -306,10 +322,14 @@ class Build
             },
             OutputName = {c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}"},
         };
+        np.Libraries.Add(new BagOfObjectFilesLibrary(
+            new NPath[]{
+                skiaRoot+"third_party/externals/icu/flutter/icudtl.o"
+        }));
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
-
-        np.IncludeDirectories.Add("src");
+        
         np.IncludeDirectories.Add("third_party");
+        np.IncludeDirectories.Add("src");
 
         np.Defines.Add("UIWIDGETS_ENGINE_VERSION=\\\"0.0\\\"", "SKIA_VERSION=\\\"0.0\\\"");
         
@@ -338,42 +358,6 @@ class Build
 
             builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64");
         }
-
-        //CopyTool.Instance().Setup(new NPath("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64").Combine("icudtl.dat"), new NPath("").Combine(skiaRoot, "third_party/externals/icu/common/icudtl.dat"));
-        //
-        // var npAndroid = new NativeProgram("libUIWidgets")
-        // {
-        //     Sources =
-        //     {
-        //         "src/engine.cc",
-        //         "src/platform_base.h",
-        //         "src/render_api.cc",
-        //         "src/render_api.h",
-        //         "src/render_api_vulkan.cc",
-        //         "src/render_api_opengles.cc",
-        //     },
-        //     OutputName = {c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}"},
-        // };
-        //
-        // npAndroid.Defines.Add("SUPPORT_VULKAN");
-        // npAndroid.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
-        // npAndroid.IncludeDirectories.Add("third_party");
-        //
-        // SetupSkiaAndroid(npAndroid);
-        //
-        // var androidToolchain = ToolChain.Store.Android().r19().Arm64();
-        //
-        // foreach (var codegen in codegens)
-        // {
-        //     var config = new NativeProgramConfiguration(codegen, androidToolchain, lump: true);
-        //
-        //     // var builtNP = npAndroid.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat)
-        //     //     .DeployTo("build_android_arm64");
-        //     //
-        //     // builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/Android/arm64");
-        //     // builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/BuildAndroid/unityLibrary/src/main/jniLibs/arm64-v8a/");
-        // }
-
         return np;
     }
 
@@ -489,7 +473,6 @@ class Build
                 new StaticLibrary(basePath + "/skottie.lib"),
                 new StaticLibrary(basePath + "/sksg.lib"),
                 new StaticLibrary(basePath + "/skshaper.lib"),
-                new StaticLibrary(basePath + "/icu.lib"),
                 new StaticLibrary(basePath + "/harfbuzz.lib"),
                 new StaticLibrary(basePath + "/libEGL.dll.lib"),
                 new StaticLibrary(basePath + "/libGLESv2.dll.lib"),
@@ -520,7 +503,6 @@ class Build
             "U_ENABLE_DYLOAD=0", "USE_CHROMIUM_ICU=1", "U_STATIC_IMPLEMENTATION",
             "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_STATIC"
         });
-
         np.IncludeDirectories.Add(flutterRoot + "/flutter/third_party/txt/src");
         np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/harfbuzz/src");
         np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/icu/source/common");

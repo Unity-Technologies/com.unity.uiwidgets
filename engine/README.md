@@ -48,6 +48,11 @@ ninja -C out/Debug -k 0
 ```
 Ignore this error: "lld-link: error: could not open 'EGL': no such file or directory"
 
+convert icudtl.dat to object file in skia
+```
+cd SkiaRoot/third_party/externals/icu/flutter/
+ld -r -b binary -o icudtl.o icudtl.dat
+```
 ### Build flutter fml
 
 1. Setting up the Engine development environment
@@ -84,7 +89,7 @@ index 9b5626e78..da1322ce5 100644
 +  ]
 +}
 ```
-
+cmd
 ```
 set GYP_MSVS_OVERRIDE_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community
 cd engine/src
@@ -92,12 +97,13 @@ python ./flutter/tools/gn --unoptimized
 ninja -C .\out\host_debug_unopt\ flutter/fml:fml_lib
 ```
 
+## Create symbolic
 
-### Create symbolic
+cmd
 ```
-cd <uiwidigets_dir>\engine
-cd third_party   \\ create the directory if not exists
-mklink /D skia <SKIA_ROOT>
+cd <uiwidigets_dir>\engine
+cd third_party   \\ create the directory if not exists
+mklink /D skia <SKIA_ROOT>
 ```
 Flutter engine txt include skia header in this pattern 'third_party/skia/*', so without symbolic, the txt lib will include skia
 header file in flutter engine, instead of headers in skia repo.
@@ -106,9 +112,3 @@ header file in flutter engine, instead of headers in skia repo.
 ```
 bee
 ```
-
-## Set ICU Data Enviroment Varaible
-```
-set UIWIDGETS_ICUDATA=<SKIA_ROOT>/out/Debug/icudtl.dat
-```
-Unity Editor need to run with those environment variables set.

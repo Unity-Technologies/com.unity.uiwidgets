@@ -76,7 +76,7 @@
     return end ? std::string(path, end - path) : std::string();
 }
 
-bool TestLoadICU()
+ bool TestLoadICU()
 {
     static bool good = false;
     static std::once_flag flag;
@@ -93,7 +93,6 @@ bool TestLoadICU()
             }
         }
     });
-
     return good;
 }
 
