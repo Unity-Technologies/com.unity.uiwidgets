@@ -9,6 +9,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.external.simplejson;
+using Unity.UIWidgets.services;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.ui2 {
@@ -646,19 +647,10 @@ namespace Unity.UIWidgets.ui2 {
             }
         }
 
-        static byte[] _fontChangeMessageData;
-
-        static byte[] _fontChangeMessage {
-            get {
-                if (_fontChangeMessageData != null) {
-                    return _fontChangeMessageData;
-                }
-                JSONObject message = new JSONObject();
-                message["type"] = "fontsChange";
-                _fontChangeMessageData = Encoding.ASCII.GetBytes(message.ToString());
-                return _fontChangeMessageData;
-            }
-        }
+        static byte[] _fontChangeMessage = JSONMessageCodec.instance.encodeMessage(
+            new Dictionary<string, string>() {
+                {"type", "fontsChange"}
+            });
 
         static void _sendFontChangeMessage() {
             Window.instance.onPlatformMessage?.Invoke("uiwidgets/system", _fontChangeMessage,
@@ -711,7 +703,7 @@ namespace Unity.UIWidgets.ui2 {
             List<FontFeature> fontFeatures = null
         ) {
             D.assert(color == null || foreground == null, () =>
-                "Cannot provide both a color and a foreground\n"+
+                "Cannot provide both a color and a foreground\n" +
                 "The color argument is just a shorthand for \"foreground: Paint()..color = color\"."
             );
             _encoded = ui_._encodeTextStyle(
@@ -1620,7 +1612,7 @@ namespace Unity.UIWidgets.ui2 {
         public List<TextBox> getBoxesForRange(int start, int end,
             BoxHeightStyle boxHeightStyle = BoxHeightStyle.tight,
             BoxWidthStyle boxWidthStyle = BoxWidthStyle.tight) {
-            var data = _getBoxesForRange( start, end, (int) boxHeightStyle, (int) boxWidthStyle).toFloatArrayAndFree();
+            var data = _getBoxesForRange(start, end, (int) boxHeightStyle, (int) boxWidthStyle).toFloatArrayAndFree();
             return _decodeTextBoxes(data, data.Length);
         }
 
@@ -1700,6 +1692,7 @@ namespace Unity.UIWidgets.ui2 {
 
             return metrics;
         }
+
         ui_.Float32List _computeLineMetrics() => Paragraph_computeLineMetrics(_ptr);
     }
 
