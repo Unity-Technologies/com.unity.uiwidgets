@@ -10,14 +10,14 @@ namespace Unity.UIWidgets.ui {
         down,
         move,
         up,
-        scroll,
-        dragFromEditorMove,
-        dragFromEditorRelease
     }
 
     public enum PointerDeviceKind {
         touch,
         mouse,
+        stylus,
+        invertedStylus,
+        unknown
     }
 
     public enum PointerSignalKind {
@@ -26,17 +26,21 @@ namespace Unity.UIWidgets.ui {
         unknown,
     }
 
-    public class PointerData {
+    public readonly struct PointerData {
         public PointerData(
-            TimeSpan timeStamp,
-            PointerChange change,
-            PointerDeviceKind kind,
+            TimeSpan? timeStamp = null,
+            PointerChange change = PointerChange.cancel,
+            PointerDeviceKind kind = PointerDeviceKind.touch,
             PointerSignalKind signalKind = PointerSignalKind.none,
             int device = 0,
+            int pointerIdentifier = 0,
             float physicalX = 0.0f,
             float physicalY = 0.0f,
+            float physicalDeltaX = 0.0f,
+            float physicalDeltaY = 0.0f,
             int buttons = 0,
             bool obscured = false,
+            bool synthesized = false,
             float pressure = 0.0f,
             float pressureMin = 0.0f,
             float pressureMax = 0.0f,
@@ -52,15 +56,19 @@ namespace Unity.UIWidgets.ui {
             int platformData = 0,
             float scrollDeltaX = 0.0f,
             float scrollDeltaY = 0.0f) {
-            this.timeStamp = timeStamp;
+            this.timeStamp = timeStamp ?? TimeSpan.Zero;
             this.change = change;
             this.kind = kind;
             this.signalKind = signalKind;
             this.device = device;
+            this.pointerIdentifier = pointerIdentifier;
             this.physicalX = physicalX;
             this.physicalY = physicalY;
+            this.physicalDeltaX = physicalDeltaX;
+            this.physicalDeltaY = physicalDeltaY;
             this.buttons = buttons;
             this.obscured = obscured;
+            this.synthesized = synthesized;
             this.pressure = pressure;
             this.pressureMin = pressureMin;
             this.pressureMax = pressureMax;
@@ -83,10 +91,14 @@ namespace Unity.UIWidgets.ui {
         public readonly PointerDeviceKind kind;
         public readonly PointerSignalKind signalKind;
         public readonly int device;
+        public readonly int pointerIdentifier;
         public readonly float physicalX;
         public readonly float physicalY;
+        public readonly float physicalDeltaX;
+        public readonly float physicalDeltaY;
         public readonly int buttons;
         public readonly bool obscured;
+        public readonly bool synthesized;
         public readonly float pressure;
         public readonly float pressureMin;
         public readonly float pressureMax;
@@ -102,30 +114,32 @@ namespace Unity.UIWidgets.ui {
         public readonly int platformData;
         public readonly float scrollDeltaX;
         public readonly float scrollDeltaY;
+
+        public override string ToString() => $"PointerData(x: {physicalX}, y: {physicalY})";
     }
 
-    public class ScrollData : PointerData {
-        public ScrollData(
-            TimeSpan timeStamp,
-            PointerChange change,
-            PointerDeviceKind kind,
-            PointerSignalKind signalKind = PointerSignalKind.none,
-            int device = 0,
-            float physicalX = 0.0f,
-            float physicalY = 0.0f,
-            float scrollX = 0.0f,
-            float scrollY = 0.0f) : base(timeStamp, change, kind, signalKind, device, physicalX, physicalY) {
-            this.scrollX = scrollX;
-            this.scrollY = scrollY;
-        }
+    // public class ScrollData : PointerData {
+    //     public ScrollData(
+    //         TimeSpan timeStamp,
+    //         PointerChange change,
+    //         PointerDeviceKind kind,
+    //         PointerSignalKind signalKind = PointerSignalKind.none,
+    //         int device = 0,
+    //         float physicalX = 0.0f,
+    //         float physicalY = 0.0f,
+    //         float scrollX = 0.0f,
+    //         float scrollY = 0.0f) : base(timeStamp, change, kind, signalKind, device, physicalX, physicalY) {
+    //         this.scrollX = scrollX;
+    //         this.scrollY = scrollY;
+    //     }
+    //
+    //     public float scrollX;
+    //     public float scrollY;
+    // }
 
-        public float scrollX;
-        public float scrollY;
-    }
-
-    public class PointerDataPacket {
-        public PointerDataPacket(List<PointerData> data) {
-            this.data = data;
+    public struct PointerDataPacket {
+        public PointerDataPacket(List<PointerData> data = null) {
+            this.data = data ?? new List<PointerData>();
         }
 
         public readonly List<PointerData> data;

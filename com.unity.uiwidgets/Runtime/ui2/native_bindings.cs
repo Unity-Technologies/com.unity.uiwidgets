@@ -8,57 +8,60 @@ namespace Unity.UIWidgets.ui2 {
 #else
         internal const string dllName = "libUIWidgets_d";
 #endif
-
     }
 
     public abstract class NativeWrapper {
-        protected internal IntPtr _ptr { get; protected set; }
+        protected internal IntPtr _ptr { get; private set; }
 
         protected NativeWrapper() {
         }
 
+        Isolate _isolate;
+
         protected NativeWrapper(IntPtr ptr) {
+            _setPtr(ptr);
+        }
+
+        protected void _setPtr(IntPtr ptr) {
             D.assert(ptr != IntPtr.Zero);
             _ptr = ptr;
+
+            _isolate = Isolate.current;
+            _isolate.addNativeWrapper(this);
+        }
+
+        internal void _dispose(bool finalizer = false) {
+            if (_ptr != IntPtr.Zero) {
+            
+                D.assert(_isolate.isValid);
+                _isolate.removeNativeWrapper(_ptr);
+
+                DisposePtr(_ptr);
+
+                _ptr = IntPtr.Zero;
+
+                if (!finalizer) {
+                    GC.SuppressFinalize(this);
+                }
+            }
         }
 
         ~NativeWrapper() {
-            if (_ptr != IntPtr.Zero) {
-                DisposePtr(_ptr);
-                _ptr = IntPtr.Zero;
-            }
+            _dispose(true);
         }
 
         protected abstract void DisposePtr(IntPtr ptr);
     }
 
-    public abstract class NativeWrapperDisposable : IDisposable {
-        protected internal IntPtr _ptr { get; protected set; }
-
+    public abstract class NativeWrapperDisposable : NativeWrapper, IDisposable {
         protected NativeWrapperDisposable() {
         }
 
-        protected NativeWrapperDisposable(IntPtr ptr) {
-            D.assert(ptr != IntPtr.Zero);
-            _ptr = ptr;
+        protected NativeWrapperDisposable(IntPtr ptr) : base(ptr) {
         }
-
-        ~NativeWrapperDisposable() {
-            if (_ptr != IntPtr.Zero) {
-                DisposePtr(_ptr);
-                _ptr = IntPtr.Zero;
-            }
-        }
-
-        protected abstract void DisposePtr(IntPtr ptr);
 
         public void Dispose() {
-            if (_ptr != IntPtr.Zero) {
-                DisposePtr(_ptr);
-                _ptr = IntPtr.Zero;
-            }
-
-            GC.SuppressFinalize(this);
+            _dispose();
         }
     }
 }

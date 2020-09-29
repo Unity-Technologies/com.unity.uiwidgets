@@ -87,7 +87,7 @@ bool MonoIsolate::Shutdown() {
     FML_DCHECK(Mono_CurrentIsolate() == nullptr);
   }
 
-	return true;
+  return true;
 }
 
 MonoIsolate::AutoFireClosure::AutoFireClosure(const fml::closure& closure)

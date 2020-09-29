@@ -173,26 +173,26 @@ namespace Unity.UIWidgets.gestures {
                         break;
                     }
 
-                    case PointerChange.scroll: {
-                        var _scrollData = (ScrollData) datum;
-                        _PointerState state = _ensureStateForPointer(datum, position);
-                        state.initScrollPointer();
-
-                        if (state.lastPosition != position) {
-                            state.lastPosition = position;
-                        }
-
-                        Offset scrollDelta = new Offset(_scrollData.scrollX, _scrollData.scrollY) / devicePixelRatio;
-                        yield return new PointerScrollEvent(
-                            timeStamp: timeStamp,
-                            pointer: state.pointer,
-                            kind: kind,
-                            device: _scrollData.device,
-                            position: position,
-                            scrollDelta: scrollDelta
-                        );
-                        break;
-                    }
+                    // case PointerChange.scroll: {
+                    //     var _scrollData = (ScrollData) datum;
+                    //     _PointerState state = _ensureStateForPointer(datum, position);
+                    //     state.initScrollPointer();
+                    //
+                    //     if (state.lastPosition != position) {
+                    //         state.lastPosition = position;
+                    //     }
+                    //
+                    //     Offset scrollDelta = new Offset(_scrollData.scrollX, _scrollData.scrollY) / devicePixelRatio;
+                    //     yield return new PointerScrollEvent(
+                    //         timeStamp: timeStamp,
+                    //         pointer: state.pointer,
+                    //         kind: kind,
+                    //         device: _scrollData.device,
+                    //         position: position,
+                    //         scrollDelta: scrollDelta
+                    //     );
+                    //     break;
+                    // }
 
                     case PointerChange.up:
                     case PointerChange.cancel: {
@@ -239,30 +239,30 @@ namespace Unity.UIWidgets.gestures {
                     }
                         break;
 #if UNITY_EDITOR
-                    case PointerChange.dragFromEditorMove: {
-                        _PointerState state = _ensureStateForPointer(datum, position);
-                        state.startNewPointer();
-                        yield return new PointerDragFromEditorHoverEvent(
-                            timeStamp: timeStamp,
-                            pointer: state.pointer,
-                            kind: kind,
-                            device: datum.device,
-                            position: position
-                        );
-                    }
-                        break;
-                    case PointerChange.dragFromEditorRelease: {
-                        _PointerState state = _ensureStateForPointer(datum, position);
-                        state.startNewPointer();
-                        yield return new PointerDragFromEditorReleaseEvent(
-                            timeStamp: timeStamp,
-                            pointer: state.pointer,
-                            kind: kind,
-                            device: datum.device,
-                            position: position
-                        );
-                    }
-                        break;
+                    // case PointerChange.dragFromEditorMove: {
+                    //     _PointerState state = _ensureStateForPointer(datum, position);
+                    //     state.startNewPointer();
+                    //     yield return new PointerDragFromEditorHoverEvent(
+                    //         timeStamp: timeStamp,
+                    //         pointer: state.pointer,
+                    //         kind: kind,
+                    //         device: datum.device,
+                    //         position: position
+                    //     );
+                    // }
+                    //     break;
+                    // case PointerChange.dragFromEditorRelease: {
+                    //     _PointerState state = _ensureStateForPointer(datum, position);
+                    //     state.startNewPointer();
+                    //     yield return new PointerDragFromEditorReleaseEvent(
+                    //         timeStamp: timeStamp,
+                    //         pointer: state.pointer,
+                    //         kind: kind,
+                    //         device: datum.device,
+                    //         position: position
+                    //     );
+                    // }
+                    //     break;
 #endif
                 }
             }

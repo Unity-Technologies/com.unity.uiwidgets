@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.services {
         public abstract Future<byte[]> load(string key);
 
         public virtual Future<string> loadString(string key, bool cache = true) {
-            return load(key).then<string>(data => {
+            return load(key).then_<string>(data => {
                 if (data == null)
                     throw new UIWidgetsError($"Unable to load asset: {key}");
 
@@ -82,7 +82,7 @@ namespace Unity.UIWidgets.services {
         public override Future<T> loadStructuredData<T>(string key, Func<string, Future<T>> parser) {
             D.assert(key != null);
             D.assert(parser != null);
-            return loadString(key).then<T>(value => parser(value));
+            return loadString(key).then_<T>(value => parser(value));
         }
 
         public override string ToString() => $"{foundation_.describeIdentity(this)}({_baseUrl})";
@@ -107,7 +107,7 @@ namespace Unity.UIWidgets.services {
 
             Completer completer = null;
             Future<T> result = null;
-            loadString(key, cache: false).then<T>(value => parser(value)).then<object>((T value) => {
+            loadString(key, cache: false).then_<T>(value => parser(value)).then_<object>((T value) => {
                 result = new SynchronousFuture<T>(value);
                 _structuredDataCache[key] = result;
                 if (completer != null) {
@@ -143,7 +143,7 @@ namespace Unity.UIWidgets.services {
         public override Future<byte[]> load(string key) {
             byte[] encoded = Encoding.UTF8.GetBytes(key);
             return ServicesBinding.instance.defaultBinaryMessenger.send(
-                "uiwidgets/assets", encoded).then<byte[]>(asset => {
+                "uiwidgets/assets", encoded).then_<byte[]>(asset => {
                 if (asset == null)
                     throw new UIWidgetsError($"Unable to load asset: {key}");
                 return asset;

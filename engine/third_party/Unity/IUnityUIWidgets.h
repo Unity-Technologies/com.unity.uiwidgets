@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IUnityInterface.h"
 #include "IUnityGraphics.h"
+#include "IUnityInterface.h"
 
 namespace UnityUIWidgets {
 typedef void (*VoidCallback)();
@@ -16,6 +16,7 @@ UNITY_DECLARE_INTERFACE(IUnityUIWidgets) {
   virtual void SetWakeUpCallback(VoidCallback callback) = 0;
   virtual void IssuePluginEventAndData(UnityRenderingEventAndData callback,
                                        int eventId, void* data) = 0;
+  virtual void printf_consolev(const char* log, va_list alist) = 0;
 };
 }  // namespace UnityUIWidgets
 

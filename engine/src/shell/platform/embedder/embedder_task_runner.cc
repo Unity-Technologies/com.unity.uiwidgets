@@ -37,6 +37,10 @@ void EmbedderTaskRunner::PostTaskForTime(const fml::closure& task,
   {
     // Release the lock before the jump via the dispatch table.
     std::scoped_lock lock(tasks_mutex_);
+    if (terminated_) {
+      return;
+    }
+
     baton = ++last_baton_;
     pending_tasks_[baton] = task;
   }
@@ -72,6 +76,18 @@ bool EmbedderTaskRunner::PostTask(uint64_t baton) {
   FML_DCHECK(task);
   task();
   return true;
+}
+
+void EmbedderTaskRunner::Terminate() {
+  FML_DCHECK(RunsTasksOnCurrentThread());
+
+  std::unordered_map<uint64_t, fml::closure> local_tasks;
+
+  {
+    std::scoped_lock lock(tasks_mutex_);
+    terminated_ = true;
+    pending_tasks_.swap(local_tasks);
+  }
 }
 
 // |fml::TaskRunner|

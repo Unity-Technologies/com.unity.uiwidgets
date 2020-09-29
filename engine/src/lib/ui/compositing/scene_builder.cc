@@ -207,14 +207,18 @@ UIWIDGETS_API(SceneBuilder*) SceneBuilder_constructor() {
 
 UIWIDGETS_API(void) SceneBuilder_dispose(SceneBuilder* ptr) { ptr->Release(); }
 
-UIWIDGETS_API(void)
+UIWIDGETS_API(EngineLayer*)
 SceneBuilder_pushTransform(SceneBuilder* ptr, const float* matrix4) {
-  ptr->pushTransform(matrix4);
+  const auto layer = ptr->pushTransform(matrix4);
+  layer->AddRef();
+  return layer.get();
 }
 
-UIWIDGETS_API(void)
+UIWIDGETS_API(EngineLayer*)
 SceneBuilder_pushOffset(SceneBuilder* ptr, float dx, float dy) {
-  ptr->pushOffset(dx, dy);
+  const auto layer = ptr->pushOffset(dx, dy);
+  layer->AddRef();
+  return layer.get();
 }
 
 UIWIDGETS_API(void)
@@ -230,6 +234,12 @@ UIWIDGETS_API(void)
 SceneBuilder_addPicture(SceneBuilder* ptr, float dx, float dy, Picture* picture,
                         int hints) {
   ptr->addPicture(dx, dy, picture, hints);
+}
+
+UIWIDGETS_API(void)
+SceneBuilder_addTexture(SceneBuilder* ptr, float dx, float dy, float width,
+                        float height, int texture_id, bool freeze) {
+  ptr->addTexture(dx, dy, width, height, texture_id, freeze);
 }
 
 }  // namespace uiwidgets

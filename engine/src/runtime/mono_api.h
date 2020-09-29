@@ -36,6 +36,7 @@ void* Mono_IsolateData(Mono_Isolate isolate);
 void* Mono_CurrentIsolateData();
 
 void Mono_ThrowException(const char* exception);
+void Mono_Shutdown(Mono_Isolate isolate);
 int64_t Mono_TimelineGetMicros();
 
 void Mono_NotifyIdle(int64_t deadline);

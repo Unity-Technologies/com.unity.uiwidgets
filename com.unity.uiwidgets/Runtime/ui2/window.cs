@@ -157,7 +157,16 @@ namespace Unity.UIWidgets.ui2 {
             }
         }
 
-        public PointerDataPacketCallback onPointerDataPacket { get; set; }
+        public PointerDataPacketCallback onPointerDataPacket {
+            get { return _onPointerDataPacket; }
+            set {
+                _onPointerDataPacket = value;
+                _onPointerDataPacketZone = Zone.current;
+            }
+        }
+
+        PointerDataPacketCallback _onPointerDataPacket;
+        internal Zone _onPointerDataPacketZone;
 
         public string defaultRouteName {
             get {
@@ -222,7 +231,7 @@ namespace Unity.UIWidgets.ui2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern void Window_freeDefaultRouteName(IntPtr routeNamePtr);
-
+        
         [DllImport(NativeBindings.dllName)]
         static extern void Window_scheduleFrame(IntPtr ptr);
 
@@ -234,6 +243,10 @@ namespace Unity.UIWidgets.ui2 {
             GCHandle handle = (GCHandle) callbackHandle;
             var callback = (PlatformMessageResponseCallback) handle.Target;
             handle.Free();
+
+            if (!Isolate.checkExists()) {
+                return;
+            }
 
             byte[] bytes = null;
             if (data != null && dataLength != 0) {

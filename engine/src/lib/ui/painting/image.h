@@ -19,7 +19,7 @@ class CanvasImage final : public fml::RefCountedThreadSafe<CanvasImage> {
 
   int height() { return image_.get()->height(); }
 
-  const char* toByteData(int format, EncodeImageCallback callback,
+  const char* toByteData(int format, RawEncodeImageCallback callback,
                          Mono_Handle callback_handle);
 
   void dispose();

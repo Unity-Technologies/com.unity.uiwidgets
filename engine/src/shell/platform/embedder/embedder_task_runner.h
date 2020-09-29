@@ -26,6 +26,8 @@ class EmbedderTaskRunner final : public fml::TaskRunner {
 
   bool PostTask(uint64_t baton);
 
+  void Terminate();
+
  private:
   const size_t embedder_identifier_;
   DispatchTable dispatch_table_;
@@ -33,6 +35,7 @@ class EmbedderTaskRunner final : public fml::TaskRunner {
   uint64_t last_baton_;
   std::unordered_map<uint64_t, fml::closure> pending_tasks_;
   fml::TaskQueueId placeholder_id_;
+  bool terminated_ = false;
 
   void PostTask(const fml::closure& task) override;
 
