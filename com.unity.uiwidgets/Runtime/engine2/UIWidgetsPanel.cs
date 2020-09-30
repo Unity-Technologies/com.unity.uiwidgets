@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.foundation;
@@ -7,10 +6,32 @@ using Unity.UIWidgets.ui2;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Canvas = UnityEngine.Canvas;
 using NativeBindings = Unity.UIWidgets.ui2.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
-    public partial class UIWidgetsPanel : RawImage {
+    public partial class UIWidgetsPanel : MonoBehaviour {
+        public class UIWidgetRawImage : RawImage {
+            UIWidgetsPanel _uiWidgetsPanel;
+
+            protected override void OnRectTransformDimensionsChange() {
+                _uiWidgetsPanel.OnRectTransformDimensionsChange();
+            }
+        }
+        
+        UIWidgetRawImage _rawImage;
+        RectTransform rectTransform {
+            get { return _rawImage.rectTransform; }
+        }
+
+        Canvas canvas {
+            get { return _rawImage.canvas; }
+        }
+
+        Texture texture {
+            set { _rawImage.texture = value; }
+        }
+        
         public static UIWidgetsPanel current {
             get { return Window.instance._panel; }
         }
@@ -44,9 +65,8 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
-        protected override void OnEnable() {
-            base.OnEnable();
-
+        void OnEnable() {
+            _rawImage = gameObject.AddComponent<UIWidgetRawImage>();
             _recreateRenderTexture(_currentWidth, _currentHeight, _currentDevicePixelRatio);
 
             _handle = GCHandle.Alloc(this);
@@ -73,7 +93,7 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
-        protected override void OnRectTransformDimensionsChange() {
+        protected void OnRectTransformDimensionsChange() {
             if (_ptr != IntPtr.Zero) {
                 if (_recreateRenderTexture(_currentWidth, _currentHeight, _currentDevicePixelRatio)) {
                     UIWidgetsPanel_onRenderTexture(_ptr,
@@ -83,7 +103,7 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
-        protected override void OnDisable() {
+        protected void OnDisable() {
             Input_OnDisable();
 
             UIWidgetsPanel_onDisable(_ptr);
@@ -92,10 +112,9 @@ namespace Unity.UIWidgets.engine2 {
 
             _handle.Free();
             _handle = default;
-
+            _destroyRenderTexture();
+            Destroy(_rawImage);
             D.assert(!isolate.isValid);
-
-            base.OnDisable();
         }
 
         bool _recreateRenderTexture(int width, int height, float devicePixelRatio) {
