@@ -304,12 +304,12 @@ namespace Unity.UIWidgets.rendering {
                     new TransformLayer(effectiveTransform),
                     painter,
                     offset,
-                    childPaintBounds:  MatrixUtils.inverseTransformRect(effectiveTransform, this.estimatedBounds)
+                    childPaintBounds:  MatrixUtils.inverseTransformRect(effectiveTransform, estimatedBounds)
                 );
             }
             else {
-                this.canvas.save();
-                this.canvas.concat(effectiveTransform.toMatrix3());
+                canvas.save();
+                canvas.concat(effectiveTransform.toMatrix3());
                 painter(this, offset);
                 canvas.restore();
             }
@@ -1270,7 +1270,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public Matrix4 getTransformTo(RenderObject ancestor) {
-            D.assert(this.attached);
+            D.assert(attached);
 
             if (ancestor == null) {
                 var rootNode = owner.rootNode;

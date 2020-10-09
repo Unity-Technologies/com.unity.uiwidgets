@@ -63,8 +63,8 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            if (this.child != null) {
-                return this.child.hitTest(result, position);
+            if (child != null) {
+                return child.hitTest(result, position);
             }
 
             return false;

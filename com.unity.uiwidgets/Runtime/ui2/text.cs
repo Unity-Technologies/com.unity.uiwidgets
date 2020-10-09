@@ -235,11 +235,11 @@ namespace Unity.UIWidgets.ui2 {
             }
 
             List<string> values = new List<string>();
-            if ((_mask & TextDecoration.underline._mask) != 0)
+            if ((_mask & underline._mask) != 0)
                 values.Add("underline");
-            if ((_mask & TextDecoration.overline._mask) != 0)
+            if ((_mask & overline._mask) != 0)
                 values.Add("overline");
-            if ((_mask & TextDecoration.lineThrough._mask) != 0)
+            if ((_mask & lineThrough._mask) != 0)
                 values.Add("lineThrough");
             if (values.Count == 1)
                 return $"TextDecoration.{values[0]}";
@@ -633,7 +633,7 @@ namespace Unity.UIWidgets.ui2 {
         }
 
         public static unsafe Future loadFontFromList(byte[] list, string fontFamily = null) {
-            return ui_._futurize((_Callback<object> callback) => {
+            return _futurize((_Callback<object> callback) => {
                 // var completer = new Promise(true);
                 GCHandle completerHandle = GCHandle.Alloc(callback);
                 fixed (byte* listPtr = list) {

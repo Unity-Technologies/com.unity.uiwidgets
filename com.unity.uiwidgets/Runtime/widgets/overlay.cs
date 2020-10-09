@@ -27,8 +27,8 @@ namespace Unity.UIWidgets.widgets {
                     return;
                 }
 
-                this._opaque = value;
-                this._overlay?._didChangeEntryOpacity();
+                _opaque = value;
+                _overlay?._didChangeEntryOpacity();
             }
         }
 
@@ -188,7 +188,7 @@ namespace Unity.UIWidgets.widgets {
                 entry._overlay = this;
             }
 
-            this.setState(() => { this._entries.InsertRange(this._insertionIndex(below, above), entries); });
+            setState(() => { _entries.InsertRange(_insertionIndex(below, above), entries); });
         }
 
         public void rearrange(IEnumerable<OverlayEntry> newEntries, OverlayEntry below = null,
@@ -212,14 +212,14 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
 
-            HashSet<OverlayEntry> old = new HashSet<OverlayEntry>(this._entries);
+            HashSet<OverlayEntry> old = new HashSet<OverlayEntry>(_entries);
             foreach (OverlayEntry entry in newEntriesList) {
                 entry._overlay = entry._overlay ?? this;
             }
 
-            this.setState(() => {
-                this._entries.Clear();
-                this._entries.AddRange(newEntriesList);
+            setState(() => {
+                _entries.Clear();
+                _entries.AddRange(newEntriesList);
                 foreach (OverlayEntry entry in newEntriesList) {
                     old.Remove(entry);
                 }
@@ -318,12 +318,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderTheatre(
-                skipCount: this.skipCount,
+                skipCount: skipCount,
                 textDirection: Directionality.of(context));
         }
 
         public void updateRenderObject(BuildContext context, _RenderTheatre renderObject) {
-            renderObject.skipCount = this.skipCount;
+            renderObject.skipCount = skipCount;
             renderObject.textDirection = Directionality.of(context);
         }
     }
@@ -341,8 +341,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            D.assert(this.children.Count() >= this.widget.skipCount);
-            foreach (var item in this.children.Skip(this.widget.skipCount)) {
+            D.assert(children.Count() >= widget.skipCount);
+            foreach (var item in children.Skip(widget.skipCount)) {
                 visitor(item);
             }
         }
@@ -456,9 +456,9 @@ namespace Unity.UIWidgets.widgets {
             D.assert(skipCount != null);
             D.assert(skipCount >= 0);
             D.assert(textDirection != null);
-            this._textDirection = textDirection;
-            this._skipCount = skipCount;
-            this.addAll(children);
+            _textDirection = textDirection;
+            _skipCount = skipCount;
+            addAll(children);
         }
 
         bool _hasVisualOverflow = false;
@@ -466,44 +466,44 @@ namespace Unity.UIWidgets.widgets {
         Alignment _resolvedAlignment;
 
         void _resolve() {
-            if (this._resolvedAlignment != null)
+            if (_resolvedAlignment != null)
                 return;
             // TODO: AlignmentDirectional
             Alignment al = Alignment.topLeft;
-            switch (this.textDirection) {
+            switch (textDirection) {
                 case TextDirection.rtl:
-                    this._resolvedAlignment = new Alignment(-1, -1);
+                    _resolvedAlignment = new Alignment(-1, -1);
                     break;
                 case TextDirection.ltr:
-                    this._resolvedAlignment = new Alignment(1, -1);
+                    _resolvedAlignment = new Alignment(1, -1);
                     break;
             }
         }
 
         void _markNeedResolution() {
-            this._resolvedAlignment = null;
-            this.markNeedsLayout();
+            _resolvedAlignment = null;
+            markNeedsLayout();
         }
 
         public TextDirection textDirection {
-            get { return this._textDirection; }
+            get { return _textDirection; }
             set {
-                if (this._textDirection == value)
+                if (_textDirection == value)
                     return;
-                this._textDirection = value;
-                this._markNeedResolution();
+                _textDirection = value;
+                _markNeedResolution();
             }
         }
 
         TextDirection _textDirection;
 
         public int skipCount {
-            get { return this._skipCount; }
+            get { return _skipCount; }
             set {
                 D.assert(value != null);
-                if (this._skipCount != value) {
-                    this._skipCount = value;
-                    this.markNeedsLayout();
+                if (_skipCount != value) {
+                    _skipCount = value;
+                    markNeedsLayout();
                 }
             }
         }
@@ -512,12 +512,12 @@ namespace Unity.UIWidgets.widgets {
 
         RenderBox _firstOnstageChild {
             get {
-                if (this.skipCount == base.childCount) {
+                if (skipCount == childCount) {
                     return null;
                 }
 
-                RenderBox child = base.firstChild;
-                for (int toSkip = this.skipCount; toSkip > 0; toSkip--) {
+                RenderBox child = firstChild;
+                for (int toSkip = skipCount; toSkip > 0; toSkip--) {
                     StackParentData childParentData = child.parentData as StackParentData;
                     child = childParentData.nextSibling;
                     D.assert(child != null);
@@ -589,37 +589,37 @@ namespace Unity.UIWidgets.widgets {
         }
 
         RenderBox _lastOnstageChild {
-            get { return this.skipCount == this.childCount ? null : this.lastChild; }
+            get { return skipCount == childCount ? null : lastChild; }
         }
 
         int _onstageChildCount {
-            get { return this.childCount - this.skipCount; }
+            get { return childCount - skipCount; }
         }
 
         protected override float computeMinIntrinsicWidth(float height) {
-            return RenderStack.getIntrinsicDimension(this._firstOnstageChild,
+            return RenderStack.getIntrinsicDimension(_firstOnstageChild,
                 (RenderBox child) => child.getMinIntrinsicWidth(height));
         }
 
         protected override float computeMaxIntrinsicWidth(float height) {
-            return RenderStack.getIntrinsicDimension(this._firstOnstageChild,
+            return RenderStack.getIntrinsicDimension(_firstOnstageChild,
                 (RenderBox child) => child.getMaxIntrinsicWidth(height));
         }
 
         protected override float computeMinIntrinsicHeight(float width) {
-            return RenderStack.getIntrinsicDimension(this._firstOnstageChild,
+            return RenderStack.getIntrinsicDimension(_firstOnstageChild,
                 (RenderBox child) => child.getMinIntrinsicHeight(width));
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            return RenderStack.getIntrinsicDimension(this._firstOnstageChild,
+            return RenderStack.getIntrinsicDimension(_firstOnstageChild,
                 (RenderBox child) => child.getMaxIntrinsicHeight(width));
         }
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            D.assert(!this.debugNeedsLayout);
+            D.assert(!debugNeedsLayout);
             float? result = null;
-            RenderBox child = this._firstOnstageChild;
+            RenderBox child = _firstOnstageChild;
             while (child != null) {
                 D.assert(!child.debugNeedsLayout);
                 StackParentData childParentData = child.parentData as StackParentData;
@@ -645,34 +645,34 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void performResize() {
-            this.size = this.constraints.biggest;
-            D.assert(this.size.isFinite);
+            size = constraints.biggest;
+            D.assert(size.isFinite);
         }
 
         protected override void performLayout() {
-            this._hasVisualOverflow = false;
+            _hasVisualOverflow = false;
 
-            if (this._onstageChildCount == 0) {
+            if (_onstageChildCount == 0) {
                 return;
             }
 
-            this._resolve();
-            D.assert(this._resolvedAlignment != null);
+            _resolve();
+            D.assert(_resolvedAlignment != null);
 
             // Same BoxConstraints as used by RenderStack for StackFit.expand.
-            BoxConstraints nonPositionedConstraints = BoxConstraints.tight(this.constraints.biggest);
+            BoxConstraints nonPositionedConstraints = BoxConstraints.tight(constraints.biggest);
 
-            RenderBox child = this._firstOnstageChild;
+            RenderBox child = _firstOnstageChild;
             while (child != null) {
                 StackParentData childParentData = child.parentData as StackParentData;
 
                 if (!childParentData.isPositioned) {
                     child.layout(nonPositionedConstraints, parentUsesSize: true);
-                    childParentData.offset = this._resolvedAlignment.alongOffset(this.size - child.size as Offset);
+                    childParentData.offset = _resolvedAlignment.alongOffset(size - child.size as Offset);
                 }
                 else {
-                    this._hasVisualOverflow =
-                        RenderStack.layoutPositionedChild(child, childParentData, this.size, this._resolvedAlignment) ||
+                    _hasVisualOverflow =
+                        RenderStack.layoutPositionedChild(child, childParentData, size, _resolvedAlignment) ||
                         _hasVisualOverflow;
                 }
 
@@ -682,8 +682,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            RenderBox child = this._lastOnstageChild;
-            for (int i = 0; i < this._onstageChildCount; i++) {
+            RenderBox child = _lastOnstageChild;
+            for (int i = 0; i < _onstageChildCount; i++) {
                 D.assert(child != null);
                 StackParentData childParentData = child.parentData as StackParentData;
 
@@ -708,7 +708,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void paintStack(PaintingContext context, Offset offset) {
-            RenderBox child = this._firstOnstageChild;
+            RenderBox child = _firstOnstageChild;
             while (child != null) {
                 StackParentData childParentData = child.parentData as StackParentData;
                 context.paintChild(child, childParentData.offset + offset);
@@ -717,16 +717,16 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this._hasVisualOverflow) {
-                context.pushClipRect(this.needsCompositing, offset, Offset.zero & this.size, this.paintStack);
+            if (_hasVisualOverflow) {
+                context.pushClipRect(needsCompositing, offset, Offset.zero & size, paintStack);
             }
             else {
-                this.paintStack(context, offset);
+                paintStack(context, offset);
             }
         }
 
         void visitChildrenForSemantics(RenderObjectVisitor visitor) {
-            RenderBox child = this._firstOnstageChild;
+            RenderBox child = _firstOnstageChild;
             while (child != null) {
                 visitor(child);
                 StackParentData childParentData = child.parentData as StackParentData;
@@ -735,12 +735,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Rect describeApproximatePaintClip(RenderObject child) =>
-            this._hasVisualOverflow ? Offset.zero & this.size : null;
+            _hasVisualOverflow ? Offset.zero & size : null;
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new IntProperty("skipCount", this.skipCount));
-            properties.add(new EnumProperty<TextDirection>("textDirection", this.textDirection));
+            properties.add(new IntProperty("skipCount", skipCount));
+            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection));
         }
     }
 }

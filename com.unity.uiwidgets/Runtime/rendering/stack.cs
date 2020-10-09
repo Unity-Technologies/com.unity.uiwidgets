@@ -497,7 +497,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            return this.defaultHitTestChildren(result, position: position);
+            return defaultHitTestChildren(result, position: position);
         }
 
         public virtual void paintStack(PaintingContext context, Offset offset) {
@@ -562,7 +562,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
-            if (this.firstChild == null || this.index == null) {
+            if (firstChild == null || index == null) {
                 return false;
             }
 

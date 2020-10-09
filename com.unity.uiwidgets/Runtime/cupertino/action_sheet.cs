@@ -611,20 +611,20 @@ namespace Unity.UIWidgets.cupertino {
             MultiChildLayoutParentData contentSectionParentData =
                 contentSection.parentData as MultiChildLayoutParentData;
             MultiChildLayoutParentData actionsSectionParentData =
-                this.actionsSection.parentData as MultiChildLayoutParentData;
+                actionsSection.parentData as MultiChildLayoutParentData;
             return result.addWithPaintOffset(
                 offset: contentSectionParentData.offset,
                 position: position,
                 hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
                     D.assert(transformed == position - contentSectionParentData.offset);
-                    return this.contentSection.hitTest(resultIn, position: transformed);
+                    return contentSection.hitTest(resultIn, position: transformed);
                 }
             ) || result.addWithPaintOffset(
                 offset: actionsSectionParentData.offset,
                 position: position,
                 hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
                     D.assert(transformed == position - actionsSectionParentData.offset);
-                    return this.actionsSection.hitTest(resultIn, position: transformed);
+                    return actionsSection.hitTest(resultIn, position: transformed);
                 }
             );
         }
@@ -1097,7 +1097,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            return this.defaultHitTestChildren(result, position: position);
+            return defaultHitTestChildren(result, position: position);
         }
     }
 }

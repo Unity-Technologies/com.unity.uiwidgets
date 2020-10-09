@@ -136,7 +136,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
-            if (this._foregroundPainter != null && ((this._foregroundPainter.hitTest(position)) ?? false)) {
+            if (_foregroundPainter != null && ((_foregroundPainter.hitTest(position)) ?? false)) {
                 return true;
             }
 

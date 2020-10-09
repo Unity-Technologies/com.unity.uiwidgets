@@ -784,7 +784,7 @@ namespace Unity.UIWidgets.material {
             bool isTwoLine = !isThreeLine && hasSubtitle;
             bool isOneLine = !isThreeLine && !hasSubtitle;
             BoxConstraints maxIconHeightConstrains = new BoxConstraints(
-                maxHeight: this.isDense ? 48.0f : 56.0f
+                maxHeight: isDense ? 48.0f : 56.0f
             );
             BoxConstraints looseConstraints = constraints.loosen();
             BoxConstraints iconConstraints = looseConstraints.enforce(maxIconHeightConstrains);
@@ -903,7 +903,7 @@ namespace Unity.UIWidgets.material {
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
             D.assert(position != null);
-            foreach (RenderBox child in this._children) {
+            foreach (RenderBox child in _children) {
                 BoxParentData parentData = child.parentData as BoxParentData;
                 bool isHit = result.addWithPaintOffset(
                     offset: parentData.offset,

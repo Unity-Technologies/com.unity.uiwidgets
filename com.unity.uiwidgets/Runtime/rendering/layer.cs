@@ -575,7 +575,7 @@ namespace Unity.UIWidgets.rendering {
         public override void applyTransform(Layer child, Matrix4 transform) {
             D.assert(child != null);
             D.assert(transform != null);
-            transform.translate(this.offset.dx, this.offset.dy);
+            transform.translate(offset.dx, offset.dy);
         }
 
         public Scene buildScene(SceneBuilder builder) {
@@ -832,11 +832,11 @@ namespace Unity.UIWidgets.rendering {
 
     public class TransformLayer : OffsetLayer {
         public TransformLayer(Matrix4 transform = null, Offset offset = null) : base(offset) {
-            this._transform = transform ?? new Matrix4().identity();
+            _transform = transform ?? new Matrix4().identity();
         }
 
         public Matrix4 transform {
-            get { return this._transform; }
+            get { return _transform; }
         }
 
         Matrix4 _transform;
@@ -846,18 +846,18 @@ namespace Unity.UIWidgets.rendering {
         bool _inverseDirty = true;
 
         internal override S find<S>(Offset regionOffset) {
-            if (this._inverseDirty) {
-                this._invertedTransform = Matrix4.tryInvert(
-                    PointerEvent.removePerspectiveTransform(this.transform)
+            if (_inverseDirty) {
+                _invertedTransform = Matrix4.tryInvert(
+                    PointerEvent.removePerspectiveTransform(transform)
                 );
-                this._inverseDirty = false;
+                _inverseDirty = false;
             }
 
             if (_invertedTransform == null) {
                 return null;
             }
             Vector4 vector = new Vector4(regionOffset.dx, regionOffset.dy, 0, 1);
-            Vector4 result = this._invertedTransform.transform(vector);
+            Vector4 result = _invertedTransform.transform(vector);
             return base.find<S>(new Offset(result[0], result[1]));
         }
 
@@ -868,12 +868,12 @@ namespace Unity.UIWidgets.rendering {
 
             var totalOffset = offset + layerOffset;
             if (totalOffset != Offset.zero) {
-                this._lastEffectiveTransform = new Matrix4().translationValues(totalOffset.dx, totalOffset.dy, 0);
-                this._lastEffectiveTransform.multiply(this.transform);
+                _lastEffectiveTransform = new Matrix4().translationValues(totalOffset.dx, totalOffset.dy, 0);
+                _lastEffectiveTransform.multiply(transform);
             }
 
-            builder.pushTransform(this._lastEffectiveTransform.toMatrix3());
-            this.addChildrenToScene(builder);
+            builder.pushTransform(_lastEffectiveTransform.toMatrix3());
+            addChildrenToScene(builder);
             builder.pop();
             return null;
         }
@@ -881,18 +881,18 @@ namespace Unity.UIWidgets.rendering {
         public override void applyTransform(Layer child, Matrix4 transform) {
             D.assert(child != null);
             D.assert(transform != null);
-            D.assert(this._lastEffectiveTransform != null || this.transform != null);
-            if (this._lastEffectiveTransform == null) {
+            D.assert(_lastEffectiveTransform != null || this.transform != null);
+            if (_lastEffectiveTransform == null) {
                 transform.multiply(this.transform);
             }
             else {
-                transform.multiply(this._lastEffectiveTransform);
+                transform.multiply(_lastEffectiveTransform);
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Matrix4>("transform", this.transform));
+            properties.add(new DiagnosticsProperty<Matrix4>("transform", transform));
         }
     }
 
@@ -1031,11 +1031,11 @@ namespace Unity.UIWidgets.rendering {
         internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
-            D.assert(this.offset != null);
-            this._lastOffset = this.offset + layerOffset;
-            if (this._lastOffset != Offset.zero) {
+            D.assert(offset != null);
+            _lastOffset = offset + layerOffset;
+            if (_lastOffset != Offset.zero) {
                 builder.pushTransform(new Matrix4()
-                    .translationValues(this._lastOffset.dx, this._lastOffset.dy,0)
+                    .translationValues(_lastOffset.dx, _lastOffset.dy,0)
                     .toMatrix3());
             }
 
@@ -1048,9 +1048,9 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void applyTransform(Layer child, Matrix4 transform) {
-            D.assert(this._lastOffset != null);
-            if (this._lastOffset != Offset.zero) {
-                transform.translate(this._lastOffset.dx, this._lastOffset.dy);
+            D.assert(_lastOffset != null);
+            if (_lastOffset != Offset.zero) {
+                transform.translate(_lastOffset.dx, _lastOffset.dy);
             }
         }
 
@@ -1091,9 +1091,9 @@ namespace Unity.UIWidgets.rendering {
                 return showWhenUnlinked ? base.find<S>(regionOffset - unlinkedOffset) : null;
             }
 
-            if (this._inverseDirty) {
-                this._invertedTransform = Matrix4.tryInvert(this.getLastTransform());
-                this._inverseDirty = false;
+            if (_inverseDirty) {
+                _invertedTransform = Matrix4.tryInvert(getLastTransform());
+                _inverseDirty = false;
             }
 
             if (_invertedTransform == null) {
@@ -1101,17 +1101,17 @@ namespace Unity.UIWidgets.rendering {
             }
 
             Vector4 vector = new Vector4(regionOffset.dx, regionOffset.dy, 0, 1);
-            Vector4 result = this._invertedTransform.transform(vector);
-            return base.find<S>(new Offset(result[0] - this.linkedOffset.dx, result[1] - this.linkedOffset.dy));
+            Vector4 result = _invertedTransform.transform(vector);
+            return base.find<S>(new Offset(result[0] - linkedOffset.dx, result[1] - linkedOffset.dy));
         }
 
         public Matrix4 getLastTransform() {
-            if (this._lastTransform == null) {
+            if (_lastTransform == null) {
                 return null;
             }
 
-            Matrix4 result = new Matrix4().translationValues(-this._lastOffset.dx, -this._lastOffset.dy,0 );
-            result.multiply(this._lastTransform);
+            Matrix4 result = new Matrix4().translationValues(-_lastOffset.dx, -_lastOffset.dy,0 );
+            result.multiply(_lastTransform);
             return result;
         }
 
@@ -1159,16 +1159,16 @@ namespace Unity.UIWidgets.rendering {
                 inverseLayers.Add(layer);
             } while (layer != ancestor);
 
-            Matrix4 forwardTransform = this._collectTransformForLayerChain(forwardLayers);
-            Matrix4 inverseTransform = this._collectTransformForLayerChain(inverseLayers);
+            Matrix4 forwardTransform = _collectTransformForLayerChain(forwardLayers);
+            Matrix4 inverseTransform = _collectTransformForLayerChain(inverseLayers);
             if (inverseTransform.invert() == 0) {
                 return;
             }
 
             inverseTransform.multiply(forwardTransform);
-            inverseTransform.translate(this.linkedOffset.dx, this.linkedOffset.dy);
-            this._lastTransform = inverseTransform;
-            this._inverseDirty = true;
+            inverseTransform.translate(linkedOffset.dx, linkedOffset.dy);
+            _lastTransform = inverseTransform;
+            _inverseDirty = true;
         }
 
         protected override bool alwaysNeedsAddToScene {
@@ -1187,18 +1187,18 @@ namespace Unity.UIWidgets.rendering {
                 return null;
             }
 
-            this._establishTransform();
-            if (this._lastTransform != null) {
-                builder.pushTransform(this._lastTransform.toMatrix3());
-                this.addChildrenToScene(builder);
+            _establishTransform();
+            if (_lastTransform != null) {
+                builder.pushTransform(_lastTransform.toMatrix3());
+                addChildrenToScene(builder);
                 builder.pop();
                 _lastOffset = unlinkedOffset + layerOffset;
             }
             else {
-                this._lastOffset = null;
-                var matrix = new Matrix4().translationValues(this.unlinkedOffset.dx, this.unlinkedOffset.dy, 0);
+                _lastOffset = null;
+                var matrix = new Matrix4().translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
                 builder.pushTransform(matrix.toMatrix3());
-                this.addChildrenToScene(builder);
+                addChildrenToScene(builder);
                 builder.pop();
             }
 
@@ -1209,11 +1209,11 @@ namespace Unity.UIWidgets.rendering {
         public override void applyTransform(Layer child, Matrix4 transform) {
             D.assert(child != null);
             D.assert(transform != null);
-            if (this._lastTransform != null) {
-                transform.multiply(this._lastTransform);
+            if (_lastTransform != null) {
+                transform.multiply(_lastTransform);
             }
             else {
-                transform.multiply(new Matrix4().translationValues(this.unlinkedOffset.dx, this.unlinkedOffset.dy, 0));
+                transform.multiply(new Matrix4().translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
             }
         }
 
@@ -1350,14 +1350,14 @@ namespace Unity.UIWidgets.rendering {
 
         internal Path _debugTransformedClipPath {
             get {
-                ContainerLayer ancestor = this.parent;
+                ContainerLayer ancestor = parent;
                 Matrix4 matrix = new Matrix4().identity();
                 while (ancestor != null && ancestor.parent != null) {
                     ancestor.applyTransform(this, matrix);
                     ancestor = ancestor.parent;
                 }
 
-                return this.clipPath.transform(matrix.toMatrix3());
+                return clipPath.transform(matrix.toMatrix3());
             }
         }
 

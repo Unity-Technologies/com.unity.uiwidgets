@@ -34,7 +34,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public Matrix4 transform {
-            get { return this._transform; }
+            get { return _transform; }
         }
 
         internal Matrix4 _transform;
@@ -42,13 +42,13 @@ namespace Unity.UIWidgets.gestures {
 
     public class HitTestResult {
         public HitTestResult() {
-            this._path = new List<HitTestEntry>();
-            this._transforms = new LinkedList<Matrix4>();
+            _path = new List<HitTestEntry>();
+            _transforms = new LinkedList<Matrix4>();
         }
 
         public HitTestResult(HitTestResult result) {
-            this._path = result._path;
-            this._transforms = result._transforms;
+            _path = result._path;
+            _transforms = result._transforms;
         }
 
         public IList<HitTestEntry> path {
@@ -60,24 +60,24 @@ namespace Unity.UIWidgets.gestures {
 
         public void add(HitTestEntry entry) {
             D.assert(entry.transform == null);
-            entry._transform = this._transforms.isEmpty() ? null : this._transforms.Last();
-            this._path.Add(entry);
+            entry._transform = _transforms.isEmpty() ? null : _transforms.Last();
+            _path.Add(entry);
         }
 
         protected void pushTransform(Matrix4 transform) {
             D.assert(transform != null);
             D.assert(
-                this._debugVectorMoreOrLessEquals(transform.getRow(2), new Vector4(0, 0, 1, 0)) &&
-                this._debugVectorMoreOrLessEquals(transform.getColumn(2), new Vector4(0, 0, 1, 0))
+                _debugVectorMoreOrLessEquals(transform.getRow(2), new Vector4(0, 0, 1, 0)) &&
+                _debugVectorMoreOrLessEquals(transform.getColumn(2), new Vector4(0, 0, 1, 0))
             );
-            this._transforms.AddLast(this._transforms.isEmpty()
+            _transforms.AddLast(_transforms.isEmpty()
                 ? transform
-                : (transform * this._transforms.Last() as Matrix4));
+                : (transform * _transforms.Last() as Matrix4));
         }
 
         protected void popTransform() {
-            D.assert(this._transforms.isNotEmpty);
-            this._transforms.RemoveLast();
+            D.assert(_transforms.isNotEmpty);
+            _transforms.RemoveLast();
         }
 
         bool _debugVectorMoreOrLessEquals(Vector4 a, Vector4 b,

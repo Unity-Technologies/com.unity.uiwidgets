@@ -71,14 +71,14 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            if (this.child != null) {
-                var childParentData = (BoxParentData) this.child.parentData;
+            if (child != null) {
+                var childParentData = (BoxParentData) child.parentData;
                 return result.addWithPaintOffset(
                     offset: childParentData.offset,
                     position: position,
                     hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
                         D.assert(transformed == position - childParentData.offset);
-                        return this.child.hitTest(resultIn, position: transformed);
+                        return child.hitTest(resultIn, position: transformed);
                     }
                 );
             }
@@ -331,7 +331,7 @@ namespace Unity.UIWidgets.rendering {
                         path.lineTo(x += -headSize, y += -headSize);
                         path.lineTo(x += 0.0f, y += headSize);
 
-                        path.moveTo(x = offset.dx + this.size.width, y = offset.dy + this.size.height / 2.0f);
+                        path.moveTo(x = offset.dx + size.width, y = offset.dy + size.height / 2.0f);
                         path.lineTo(x += -childParentData.offset.dx + headSize, y += 0.0f);
                         path.lineTo(x += 0.0f, y += headSize);
                         path.lineTo(x += -headSize, y += -headSize);
@@ -532,8 +532,8 @@ namespace Unity.UIWidgets.rendering {
 
             context.pushClipRect(needsCompositing, offset, Offset.zero & size, base.paint);
             D.assert(() => {
-                DebugOverflowIndicatorMixin.paintOverflowIndicator(this, context, offset, this._overflowContainerRect,
-                    this._overflowChildRect);
+                DebugOverflowIndicatorMixin.paintOverflowIndicator(this, context, offset, _overflowContainerRect,
+                    _overflowChildRect);
                 return true;
             });
         }

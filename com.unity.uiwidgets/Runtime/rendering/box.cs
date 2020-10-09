@@ -609,7 +609,7 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
 
-            return this.addWithRawTransform(
+            return addWithRawTransform(
                 transform: transform,
                 position: position,
                 hitTest: hitTest
@@ -622,7 +622,7 @@ namespace Unity.UIWidgets.rendering {
             BoxHitTest hitTest
         ) {
             D.assert(hitTest != null);
-            return this.addWithRawTransform(
+            return addWithRawTransform(
                 transform: offset != null ? new Matrix4().translationValues(-offset.dx, -offset.dy, 0) : null,
                 position: position,
                 hitTest: hitTest
@@ -639,12 +639,12 @@ namespace Unity.UIWidgets.rendering {
                 ? position
                 : MatrixUtils.transformPoint(transform, position);
             if (transform != null) {
-                this.pushTransform(transform);
+                pushTransform(transform);
             }
 
             bool isHit = hitTest(this, transformedPosition);
             if (transform != null) {
-                this.popTransform();
+                popTransform();
             }
 
             return isHit;
@@ -653,8 +653,8 @@ namespace Unity.UIWidgets.rendering {
 
     public class BoxParentData : ParentData {
         public Offset offset {
-            get { return this._offset; }
-            set { this._offset = value; }
+            get { return _offset; }
+            set { _offset = value; }
         }
 
         Offset _offset = Offset.zero;
@@ -1003,7 +1003,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(!_debugDoingBaseline,
                 () =>
                     "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
-            D.assert(!this.debugNeedsLayout);
+            D.assert(!debugNeedsLayout);
             D.assert(() => {
                 RenderObject parent = (RenderObject) this.parent;
                 if (owner.debugDoingLayout) {
@@ -1313,7 +1313,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public Offset globalToLocal(Offset point, RenderObject ancestor = null) {
-            var transform = this.getTransformTo(ancestor);
+            var transform = getTransformTo(ancestor);
             float det = transform.invert();
             if (det == 0) {
                 return Offset.zero;
@@ -1328,7 +1328,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public Offset localToGlobal(Offset point, RenderObject ancestor = null) {
-            return MatrixUtils.transformPoint(this.getTransformTo(ancestor), point);
+            return MatrixUtils.transformPoint(getTransformTo(ancestor), point);
         }
 
         public override Rect paintBounds {
@@ -1487,7 +1487,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public bool defaultHitTestChildren(BoxHitTestResult result, Offset position = null) {
-            ChildType child = this.lastChild;
+            ChildType child = lastChild;
             while (child != null) {
                 ParentDataType childParentData = child.parentData as ParentDataType;
                 bool isHit = result.addWithPaintOffset(

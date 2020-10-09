@@ -223,15 +223,15 @@ namespace Unity.UIWidgets.rendering {
 
         protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f,
             float crossAxisPosition = 0.0f) {
-            if (this.child != null && this.child.geometry.hitTestExtent > 0.0) {
-                SliverPhysicalParentData childParentData = this.child.parentData as SliverPhysicalParentData;
+            if (child != null && child.geometry.hitTestExtent > 0.0) {
+                SliverPhysicalParentData childParentData = child.parentData as SliverPhysicalParentData;
                 result.addWithAxisOffset(
                     mainAxisPosition: mainAxisPosition,
                     crossAxisPosition: crossAxisPosition,
-                    mainAxisOffset: this.childMainAxisPosition(this.child),
-                    crossAxisOffset: this.childCrossAxisPosition(this.child),
+                    mainAxisOffset: childMainAxisPosition(child),
+                    crossAxisOffset: childCrossAxisPosition(child),
                     paintOffset: childParentData.paintOffset,
-                    hitTest: this.child.hitTest
+                    hitTest: child.hitTest
                 );
             }
 

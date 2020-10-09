@@ -117,7 +117,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly Widget child;
 
         protected internal override Widget build(BuildContext context) {
-            float scaleValue = this.scale.value;
+            float scaleValue = scale.value;
             Matrix4 transform = new Matrix4().diagonal3Values(scaleValue, scaleValue, 1);
             return new Transform(
                 transform: transform,
@@ -148,7 +148,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly Widget child;
 
         protected internal override Widget build(BuildContext context) {
-            float turnsValue = this.turns.value;
+            float turnsValue = turns.value;
             Matrix4 transform = new Matrix4().rotationZ((turnsValue * Mathf.PI * 2.0f));
             return new Transform(
                 transform: transform,

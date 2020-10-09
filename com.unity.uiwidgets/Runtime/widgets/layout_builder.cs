@@ -176,7 +176,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            return this.child?.hitTest(result, position: position) ?? false;
+            return child?.hitTest(result, position: position) ?? false;
         }
 
         public override void paint(PaintingContext context, Offset offset) {

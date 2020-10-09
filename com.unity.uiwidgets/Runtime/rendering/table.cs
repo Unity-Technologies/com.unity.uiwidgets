@@ -840,7 +840,7 @@ namespace Unity.UIWidgets.rendering {
             if (tableWidth > maxWidthConstraint) {
                 float deficit = tableWidth - maxWidthConstraint;
 
-                int availableColumns = this.columns;
+                int availableColumns = columns;
 
                 //(Xingwei Zhu) this deficit is double and set to be 0.00000001f in flutter.
                 //since we use float by default, making it larger should make sense in most cases
@@ -1041,9 +1041,9 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            D.assert(this._children.Count == this.rows * this.columns);
-            for (int index = this._children.Count - 1; index >= 0; index--) {
-                RenderBox child = this._children[index];
+            D.assert(_children.Count == rows * columns);
+            for (int index = _children.Count - 1; index >= 0; index--) {
+                RenderBox child = _children[index];
                 if (child != null) {
                     BoxParentData childParentData = (BoxParentData) child.parentData;
                     bool isHit = result.addWithPaintOffset(
@@ -1104,14 +1104,14 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
 
-            D.assert(this._rows == this._rowTops.Count - 1);
-            D.assert(this._columns == this._columnLefts.Count);
-            if (this.border != null) {
-                Rect borderRect = Rect.fromLTWH(offset.dx, offset.dy, this.size.width,
-                    this._rowTops[this._rowTops.Count - 1]);
-                List<float> rows = this._rowTops.GetRange(1, this._rowTops.Count - 2);
-                List<float> columns = this._columnLefts.GetRange(1, this._columnLefts.Count - 1);
-                this.border.paint(context.canvas, borderRect, rows: rows, columns: columns);
+            D.assert(_rows == _rowTops.Count - 1);
+            D.assert(_columns == _columnLefts.Count);
+            if (border != null) {
+                Rect borderRect = Rect.fromLTWH(offset.dx, offset.dy, size.width,
+                    _rowTops[_rowTops.Count - 1]);
+                List<float> rows = _rowTops.GetRange(1, _rowTops.Count - 2);
+                List<float> columns = _columnLefts.GetRange(1, _columnLefts.Count - 1);
+                border.paint(context.canvas, borderRect, rows: rows, columns: columns);
             }
         }
 

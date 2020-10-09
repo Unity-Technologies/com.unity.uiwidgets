@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.gestures {
         readonly Dictionary<PointerRoute, Matrix4> _globalRoutes = new Dictionary<PointerRoute, Matrix4>();
 
         public void addRoute(int pointer, PointerRoute route, Matrix4 transform = null) {
-            var routes = this._routeMap.putIfAbsent(
+            var routes = _routeMap.putIfAbsent(
                 pointer, 
                 () => new Dictionary<PointerRoute, Matrix4>()
             );
@@ -31,13 +31,13 @@ namespace Unity.UIWidgets.gestures {
         }
         
         public void addGlobalRoute(PointerRoute route, Matrix4 transform = null) {
-            D.assert(!this._globalRoutes.ContainsKey(route));
-            this._globalRoutes[route] = transform;
+            D.assert(!_globalRoutes.ContainsKey(route));
+            _globalRoutes[route] = transform;
         }
         
         public void removeGlobalRoute(PointerRoute route) {
-            D.assert(this._globalRoutes.ContainsKey(route));
-            this._globalRoutes.Remove(route);
+            D.assert(_globalRoutes.ContainsKey(route));
+            _globalRoutes.Remove(route);
         }
 
         public bool acceptScroll() {
@@ -64,18 +64,18 @@ namespace Unity.UIWidgets.gestures {
         public void route(PointerEvent evt) {
             // TODO: update this to latest version
             Dictionary<PointerRoute, Matrix4> routes;
-            this._routeMap.TryGetValue(evt.pointer, out routes);
+            _routeMap.TryGetValue(evt.pointer, out routes);
 
-            Dictionary<PointerRoute, Matrix4> copiedGlobalRoutes = new Dictionary<PointerRoute, Matrix4>(this._globalRoutes);
+            Dictionary<PointerRoute, Matrix4> copiedGlobalRoutes = new Dictionary<PointerRoute, Matrix4>(_globalRoutes);
 
             if (routes != null) {
-                this._dispatchEventToRoutes(
+                _dispatchEventToRoutes(
                     evt,
                     routes,
                     new Dictionary<PointerRoute, Matrix4>(routes)
                 );
             }
-            this._dispatchEventToRoutes(evt, this._globalRoutes, copiedGlobalRoutes);
+            _dispatchEventToRoutes(evt, _globalRoutes, copiedGlobalRoutes);
         }
         
         public void _dispatchEventToRoutes(
@@ -87,7 +87,7 @@ namespace Unity.UIWidgets.gestures {
                 var route = item.Key;
                 var transform = item.Value;
                 if (referenceRoutes.ContainsKey(route)) {
-                    this._dispatch(evt, route, transform);
+                    _dispatch(evt, route, transform);
                 }
             }
         }

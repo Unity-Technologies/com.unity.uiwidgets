@@ -202,7 +202,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected override void handleTapDown(PointerDownEvent down) {
-            if (this.onTapDown != null) {
+            if (onTapDown != null) {
                 TapDownDetails details = new TapDownDetails(
                     globalPosition: down.position,
                     localPosition: down.localPosition,

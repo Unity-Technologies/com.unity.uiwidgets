@@ -84,9 +84,9 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition, float crossAxisPosition) {
-            D.assert(this.geometry.hitTestExtent > 0.0f);
-            if (this.child != null) {
-                return RenderSliverHelpers.hitTestBoxChild(this, new BoxHitTestResult(result), this.child, mainAxisPosition: mainAxisPosition,
+            D.assert(geometry.hitTestExtent > 0.0f);
+            if (child != null) {
+                return RenderSliverHelpers.hitTestBoxChild(this, new BoxHitTestResult(result), child, mainAxisPosition: mainAxisPosition,
                     crossAxisPosition: crossAxisPosition);
             }
 

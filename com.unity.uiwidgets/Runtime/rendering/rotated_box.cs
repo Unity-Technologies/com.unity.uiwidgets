@@ -76,16 +76,16 @@ namespace UIWidgets.Runtime.rendering {
         Matrix4 _paintTransform;
 
         protected override void performLayout() {
-            this._paintTransform = null;
-            if (this.child != null) {
-                this.child.layout(this._isVertical ? this.constraints.flipped : this.constraints, parentUsesSize: true);
-                this.size = this._isVertical
-                    ? new Size(this.child.size.height, this.child.size.width)
-                    : this.child.size;
-                this._paintTransform = new Matrix4().identity();
-                this._paintTransform.translate(this.size.width / 2.0f, this.size.height / 2.0f);
-                this._paintTransform.rotateZ(RotatedBoxUtils._kQuarterTurnsInRadians * (this.quarterTurns % 4));
-                this._paintTransform.translate(-this.child.size.width / 2.0f, -this.child.size.height / 2.0f);
+            _paintTransform = null;
+            if (child != null) {
+                child.layout(_isVertical ? constraints.flipped : constraints, parentUsesSize: true);
+                size = _isVertical
+                    ? new Size(child.size.height, child.size.width)
+                    : child.size;
+                _paintTransform = new Matrix4().identity();
+                _paintTransform.translate(size.width / 2.0f, size.height / 2.0f);
+                _paintTransform.rotateZ(RotatedBoxUtils._kQuarterTurnsInRadians * (quarterTurns % 4));
+                _paintTransform.translate(-child.size.width / 2.0f, -child.size.height / 2.0f);
             }
             else {
                 performResize();
@@ -102,10 +102,10 @@ namespace UIWidgets.Runtime.rendering {
             }
 
             return result.addWithPaintTransform(
-                transform: this._paintTransform,
+                transform: _paintTransform,
                 position: position,
                 hitTest: (BoxHitTestResult resultIn, Offset positionIn) => {
-                    return this.child.hitTest(resultIn, position: positionIn);
+                    return child.hitTest(resultIn, position: positionIn);
                 }
             );
         }
@@ -121,8 +121,8 @@ namespace UIWidgets.Runtime.rendering {
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
-            if (this._paintTransform != null) {
-                transform.multiply(this._paintTransform);
+            if (_paintTransform != null) {
+                transform.multiply(_paintTransform);
             }
 
             base.applyPaintTransform(child, transform);

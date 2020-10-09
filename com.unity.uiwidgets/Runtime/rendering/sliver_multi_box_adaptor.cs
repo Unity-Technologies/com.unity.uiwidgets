@@ -288,7 +288,7 @@ namespace Unity.UIWidgets.rendering {
 
         protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f,
             float crossAxisPosition = 0.0f) {
-            RenderBox child = this.lastChild;
+            RenderBox child = lastChild;
             BoxHitTestResult boxResult = new BoxHitTestResult(result);
 
             while (child != null) {

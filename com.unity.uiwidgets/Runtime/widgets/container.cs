@@ -159,8 +159,8 @@ namespace Unity.UIWidgets.widgets {
                 current = new Padding(padding: margin, child: current);
             }
 
-            if (this.transform != null) {
-                current = new Transform(transform: new Matrix4(this.transform), child: current);
+            if (transform != null) {
+                current = new Transform(transform: new Matrix4(transform), child: current);
             }
 
             return current;
@@ -179,9 +179,9 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new DiagnosticsProperty<BoxConstraints>("constraints",
                 constraints, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<EdgeInsets>("margin",
-                this.margin, defaultValue: Diagnostics.kNullDefaultValue));
+                margin, defaultValue: foundation_.kNullDefaultValue));
             properties.add(ObjectFlagProperty<Matrix4>.has("transform",
-                this.transform));
+                transform));
         }
     }
 }

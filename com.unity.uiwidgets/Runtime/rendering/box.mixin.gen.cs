@@ -61,7 +61,7 @@ namespace Unity.UIWidgets.rendering {
 
        public bool defaultHitTestChildren(BoxHitTestResult result, Offset position) {
             // the x, y parameters have the top left of the node's box as the origin4
-            ChildType child = this.lastChild;
+            ChildType child = lastChild;
             while (child != null) {
                 ParentDataType childParentData = child.parentData as ParentDataType;
                 bool isHit = result.addWithPaintOffset(

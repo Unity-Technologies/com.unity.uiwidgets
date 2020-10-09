@@ -52,8 +52,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly DragStartBehavior dragStartBehavior;
 
         AxisDirection _getDirection(BuildContext context) {
-            return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, this.scrollDirection,
-                this.reverse) ?? AxisDirection.down;
+            return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, scrollDirection,
+                reverse) ?? AxisDirection.down;
         }
 
         public override Widget build(BuildContext context) {
@@ -361,7 +361,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
-            Offset paintOffset = this._paintOffset;
+            Offset paintOffset = _paintOffset;
             transform.translate(paintOffset.dx, paintOffset.dy);
         }
 
@@ -374,13 +374,13 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            if (this.child != null) {
+            if (child != null) {
                 return result.addWithPaintOffset(
-                    offset: this._paintOffset,
+                    offset: _paintOffset,
                     position: position,
                     hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
-                        D.assert(transformed == position + (-this._paintOffset));
-                        return this.child.hitTest(result, position: transformed);
+                        D.assert(transformed == position + (-_paintOffset));
+                        return child.hitTest(result, position: transformed);
                     }
                 );
             }
@@ -398,7 +398,7 @@ namespace Unity.UIWidgets.widgets {
             RenderBox targetBox = (RenderBox) target;
             Matrix4 transform = targetBox.getTransformTo(this);
             Rect bounds = MatrixUtils.transformRect(transform, rect);
-            Size contentSize = this.child.size;
+            Size contentSize = child.size;
 
             float leadingScrollOffset = 0.0f;
             float targetMainAxisExtent = 0.0f;

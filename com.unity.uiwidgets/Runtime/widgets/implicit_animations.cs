@@ -78,8 +78,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Matrix4 lerp(float t) {
-            D.assert(this.begin != null);
-            D.assert(this.end != null);
+            D.assert(begin != null);
+            D.assert(end != null);
 
             Vector3 beginTranslation = Vector3.zero;
             Vector3 endTranslation = Vector3.zero;
@@ -87,8 +87,8 @@ namespace Unity.UIWidgets.widgets {
             Quaternion endRotation = Quaternion.identity;
             Vector3 beginScale = Vector3.zero;
             Vector3 endScale = Vector3.zero;
-            this.begin.decompose(ref beginTranslation, ref beginRotation, ref beginScale);
-            this.end.decompose(ref endTranslation, ref endRotation, ref endScale);
+            begin.decompose(ref beginTranslation, ref beginRotation, ref beginScale);
+            end.decompose(ref endTranslation, ref endRotation, ref endScale);
             Vector3 lerpTranslation =
                 beginTranslation * (1.0f - t) + endTranslation * t;
             // TODO(alangardner): Implement slerp for constant rotation
@@ -343,8 +343,8 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new DiagnosticsProperty<BoxConstraints>("constraints", constraints,
                 defaultValue: null,
                 showName: false));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("margin", this.margin, defaultValue: null));
-            properties.add(ObjectFlagProperty<Matrix4>.has("transform", this.transform));
+            properties.add(new DiagnosticsProperty<EdgeInsets>("margin", margin, defaultValue: null));
+            properties.add(ObjectFlagProperty<Matrix4>.has("transform", transform));
         }
     }
 
@@ -371,7 +371,7 @@ namespace Unity.UIWidgets.widgets {
                 (BoxConstraints value) => new BoxConstraintsTween(begin: value));
             _margin = (EdgeInsetsTween) visitor.visit(this, _margin, widget.margin,
                 (EdgeInsets value) => new EdgeInsetsTween(begin: value));
-            this._transform = (Matrix4Tween) visitor.visit(this, this._transform, this.widget.transform,
+            _transform = (Matrix4Tween) visitor.visit(this, _transform, widget.transform,
                 (Matrix4 value) => new Matrix4Tween(begin: value));
         }
 
@@ -400,8 +400,8 @@ namespace Unity.UIWidgets.widgets {
                 new DiagnosticsProperty<DecorationTween>("fg", _foregroundDecoration, defaultValue: null));
             description.add(new DiagnosticsProperty<BoxConstraintsTween>("constraints", _constraints,
                 showName: false, defaultValue: null));
-            description.add(new DiagnosticsProperty<EdgeInsetsTween>("margin", this._margin, defaultValue: null));
-            description.add(ObjectFlagProperty<Matrix4Tween>.has("transform", this._transform));
+            description.add(new DiagnosticsProperty<EdgeInsetsTween>("margin", _margin, defaultValue: null));
+            description.add(ObjectFlagProperty<Matrix4Tween>.has("transform", _transform));
         }
     }
 

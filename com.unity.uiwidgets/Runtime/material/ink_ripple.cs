@@ -197,8 +197,8 @@ namespace Unity.UIWidgets.material {
         }
 
         protected override void paintFeature(Canvas canvas, Matrix4 transform) {
-            int alpha = this._fadeInController.isAnimating ? this._fadeIn.value : this._fadeOut.value;
-            Paint paint = new Paint {color = this.color.withAlpha(alpha)};
+            int alpha = _fadeInController.isAnimating ? _fadeIn.value : _fadeOut.value;
+            Paint paint = new Paint {color = color.withAlpha(alpha)};
             Offset center = Offset.lerp(
                 _position,
                 referenceBox.size.center(Offset.zero),

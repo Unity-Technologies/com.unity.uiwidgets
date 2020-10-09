@@ -271,8 +271,8 @@ namespace Unity.UIWidgets.material {
 
         protected internal override Widget build(BuildContext context) {
             return new Transform(
-                transform: new Matrix4().translationValues(this.translateX, 0, 0),
-                child: this.child
+                transform: new Matrix4().translationValues(translateX, 0, 0),
+                child: child
             );
         }
     }
@@ -943,32 +943,32 @@ namespace Unity.UIWidgets.material {
                 boxToBaseline[prefix] = _layoutLineBox(prefix, boxConstraints);
             }
 
-            if (this.suffix != null) {
-                boxToBaseline[this.suffix] = this._layoutLineBox(this.suffix, boxConstraints);
+            if (suffix != null) {
+                boxToBaseline[suffix] = _layoutLineBox(suffix, boxConstraints);
             }
 
-            if (this.icon != null) {
-                boxToBaseline[this.icon] = this._layoutLineBox(this.icon, boxConstraints);
+            if (icon != null) {
+                boxToBaseline[icon] = _layoutLineBox(icon, boxConstraints);
             }
 
-            if (this.prefixIcon != null) {
-                boxToBaseline[this.prefixIcon] = this._layoutLineBox(this.prefixIcon, boxConstraints);
+            if (prefixIcon != null) {
+                boxToBaseline[prefixIcon] = _layoutLineBox(prefixIcon, boxConstraints);
             }
 
-            if (this.suffixIcon != null) {
-                boxToBaseline[this.suffixIcon] = this._layoutLineBox(this.suffixIcon, boxConstraints);
+            if (suffixIcon != null) {
+                boxToBaseline[suffixIcon] = _layoutLineBox(suffixIcon, boxConstraints);
             }
 
-            float inputWidth = Math.Max(0.0f, this.constraints.maxWidth - (
-                _boxSize(this.icon).width
-                + this.contentPadding.left
-                + _boxSize(this.prefixIcon).width
-                + _boxSize(this.prefix).width
-                + _boxSize(this.suffix).width
-                + _boxSize(this.suffixIcon).width
-                + this.contentPadding.right));
-            if (this.label != null) {
-                boxToBaseline[this.label] = this._layoutLineBox(this.label,
+            float inputWidth = Math.Max(0.0f, constraints.maxWidth - (
+                _boxSize(icon).width
+                + contentPadding.left
+                + _boxSize(prefixIcon).width
+                + _boxSize(prefix).width
+                + _boxSize(suffix).width
+                + _boxSize(suffixIcon).width
+                + contentPadding.right));
+            if (label != null) {
+                boxToBaseline[label] = _layoutLineBox(label,
                     boxConstraints.copyWith(maxWidth: inputWidth)
                 );
             }
@@ -1215,7 +1215,7 @@ namespace Unity.UIWidgets.material {
             float right = overallWidth - contentPadding.right;
 
             height = layout.containerHeight ?? 0.0f;
-            baseline = (this.decoration.isCollapsed || !this.decoration.border.isOutline
+            baseline = (decoration.isCollapsed || !decoration.border.isOutline
                 ? layout.inputBaseline
                 : layout.outlineBaseline) ?? 0.0f;
 
@@ -1313,10 +1313,10 @@ namespace Unity.UIWidgets.material {
                 float scale = MathUtils.lerpFloat(1.0f, 0.75f, t);
                 float dx = labelOffset.dx;
                 float dy = MathUtils.lerpFloat(0.0f, floatingY - labelOffset.dy, t);
-                this._labelTransform = new Matrix4().identity();
-                this._labelTransform.translate(dx, labelOffset.dy + dy);
-                this._labelTransform.scale(scale, scale, 1);
-                context.pushTransform(this.needsCompositing, offset, this._labelTransform, this._paintLabel);
+                _labelTransform = new Matrix4().identity();
+                _labelTransform.translate(dx, labelOffset.dy + dy);
+                _labelTransform.scale(scale, scale, 1);
+                context.pushTransform(needsCompositing, offset, _labelTransform, _paintLabel);
             }
 
             doPaint(icon);
@@ -1336,7 +1336,7 @@ namespace Unity.UIWidgets.material {
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
             D.assert(position != null);
-            foreach (RenderBox child in this._children) {
+            foreach (RenderBox child in _children) {
                 Offset offset = _boxParentData(child).offset;
                 bool isHit = result.addWithPaintOffset(
                     offset: offset,
@@ -1355,9 +1355,9 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
-            if (child == this.label && this._labelTransform != null) {
-                Offset labelOffset = _boxParentData(this.label).offset;
-                transform.multiply(this._labelTransform);
+            if (child == label && _labelTransform != null) {
+                Offset labelOffset = _boxParentData(label).offset;
+                transform.multiply(_labelTransform);
                 transform.translate(-labelOffset.dx, -labelOffset.dy);
             }
 
@@ -1686,10 +1686,10 @@ namespace Unity.UIWidgets.material {
 
         public InputDecoration decoration {
             get {
-                this._effectiveDecoration = this._effectiveDecoration ?? this.widget.decoration.applyDefaults(
-                    Theme.of(this.context).inputDecorationTheme
+                _effectiveDecoration = _effectiveDecoration ?? widget.decoration.applyDefaults(
+                    Theme.of(context).inputDecorationTheme
                 );
-                return this._effectiveDecoration;
+                return _effectiveDecoration;
             }
         }
 

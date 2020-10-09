@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.gestures {
     public abstract class GestureRecognizer : DiagnosticableTree, GestureArenaMember {
         protected GestureRecognizer(object debugOwner = null, PointerDeviceKind? kind = null) {
             this.debugOwner = debugOwner;
-            this._kindFilter = kind;
+            _kindFilter = kind;
         }
 
         public readonly object debugOwner;
@@ -26,9 +26,9 @@ namespace Unity.UIWidgets.gestures {
         readonly Dictionary<int, PointerDeviceKind> _pointerToKind = new Dictionary<int, PointerDeviceKind>{};
 
         public void addPointer(PointerDownEvent evt) {
-            this._pointerToKind[evt.pointer] = evt.kind;
-            if (this.isPointerAllowed(evt)) {
-                this.addAllowedPointer(evt);
+            _pointerToKind[evt.pointer] = evt.kind;
+            if (isPointerAllowed(evt)) {
+                addAllowedPointer(evt);
             }
             else {
                 handleNonAllowedPointer(evt);
@@ -41,12 +41,12 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected virtual bool isPointerAllowed(PointerDownEvent evt) {
-            return this._kindFilter == null || this._kindFilter == evt.kind;
+            return _kindFilter == null || _kindFilter == evt.kind;
         }
 
         protected virtual PointerDeviceKind getKindForPointer(int pointer) {
-            D.assert(this._pointerToKind.ContainsKey(pointer));
-            return this._pointerToKind[pointer];
+            D.assert(_pointerToKind.ContainsKey(pointer));
+            return _pointerToKind[pointer];
         }
 
         public virtual void addScrollPointer(PointerScrollEvent evt) {
@@ -184,10 +184,10 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected void startTrackingPointer(int pointer, Matrix4 transform = null) {
-            GestureBinding.instance.pointerRouter.addRoute(pointer, this.handleEvent, transform);
-            this._trackedPointers.Add(pointer);
-            D.assert(!this._entries.ContainsKey(pointer));
-            this._entries[pointer] = this._addPointerToArena(pointer);
+            GestureBinding.instance.pointerRouter.addRoute(pointer, handleEvent, transform);
+            _trackedPointers.Add(pointer);
+            D.assert(!_entries.ContainsKey(pointer));
+            _entries[pointer] = _addPointerToArena(pointer);
         }
 
         protected void stopTrackingPointer(int pointer) {
@@ -248,13 +248,13 @@ namespace Unity.UIWidgets.gestures {
         Timer _timer;
 
         public override void addAllowedPointer(PointerDownEvent evt) {
-            this.startTrackingPointer(evt.pointer, evt.transform);
-            if (this.state == GestureRecognizerState.ready) {
-                this.state = GestureRecognizerState.possible;
-                this.primaryPointer = evt.pointer;
-                this.initialPosition = new OffsetPair(local: evt.localPosition, global: evt.position);
-                if (this.deadline != null) {
-                    this._timer = Window.instance.run(this.deadline.Value, () => didExceedDeadlineWithEvent(evt));
+            startTrackingPointer(evt.pointer, evt.transform);
+            if (state == GestureRecognizerState.ready) {
+                state = GestureRecognizerState.possible;
+                primaryPointer = evt.pointer;
+                initialPosition = new OffsetPair(local: evt.localPosition, global: evt.position);
+                if (deadline != null) {
+                    _timer = Window.instance.run(deadline.Value, () => didExceedDeadlineWithEvent(evt));
                 }
             }
         }
@@ -262,13 +262,13 @@ namespace Unity.UIWidgets.gestures {
         protected override void handleEvent(PointerEvent evt) {
             D.assert(state != GestureRecognizerState.ready);
 
-            if (evt.pointer == this.primaryPointer) {
-                bool isPreAcceptSlopPastTolerance = this.state == GestureRecognizerState.possible &&
-                                                    this.preAcceptSlopTolerance != null &&
-                                                    this._getGlobalDistance(evt) > this.preAcceptSlopTolerance;
-                bool isPostAcceptSlopPastTolerance = this.state == GestureRecognizerState.accepted &&
-                                                     this.postAcceptSlopTolerance != null &&
-                                                     this._getGlobalDistance(evt) > this.postAcceptSlopTolerance;
+            if (evt.pointer == primaryPointer) {
+                bool isPreAcceptSlopPastTolerance = state == GestureRecognizerState.possible &&
+                                                    preAcceptSlopTolerance != null &&
+                                                    _getGlobalDistance(evt) > preAcceptSlopTolerance;
+                bool isPostAcceptSlopPastTolerance = state == GestureRecognizerState.accepted &&
+                                                     postAcceptSlopTolerance != null &&
+                                                     _getGlobalDistance(evt) > postAcceptSlopTolerance;
 
                 if (evt is PointerMoveEvent && (isPreAcceptSlopPastTolerance || isPostAcceptSlopPastTolerance)) {
                     resolve(GestureDisposition.rejected);
@@ -289,13 +289,13 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected virtual void didExceedDeadlineWithEvent(PointerDownEvent evt) {
-            this.didExceedDeadline();
+            didExceedDeadline();
         }
 
         public override void acceptGesture(int pointer) {
-            if (pointer == this.primaryPointer && this.state == GestureRecognizerState.possible) {
-                this._stopTimer();
-                this.state = GestureRecognizerState.accepted;
+            if (pointer == primaryPointer && state == GestureRecognizerState.possible) {
+                _stopTimer();
+                state = GestureRecognizerState.accepted;
             }
         }
 
@@ -325,7 +325,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         float _getGlobalDistance(PointerEvent evt) {
-            Offset offset = evt.position - this.initialPosition.global;
+            Offset offset = evt.position - initialPosition.global;
             return offset.distance;
         }
 
@@ -384,7 +384,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override string ToString() {
-            return $"runtimeType(local: ${this.local}, global: ${this.global})";
+            return $"runtimeType(local: ${local}, global: ${global})";
         }
     }
 }

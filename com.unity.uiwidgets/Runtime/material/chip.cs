@@ -1635,7 +1635,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override bool hitTest(BoxHitTestResult result, Offset position = null) {
-            if (!this.size.contains(position)) {
+            if (!size.contains(position)) {
                 return false;
             }
 
@@ -2189,7 +2189,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override bool hitTest(BoxHitTestResult result, Offset position = null) {
-            if (!this.size.contains(position)) {
+            if (!size.contains(position)) {
                 return false;
             }
 

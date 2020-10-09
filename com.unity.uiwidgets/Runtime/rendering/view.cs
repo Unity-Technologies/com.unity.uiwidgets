@@ -94,8 +94,8 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public bool hitTest(HitTestResult result, Offset position = null) {
-            if (this.child != null) {
-                this.child.hitTest(new BoxHitTestResult(result), position: position);
+            if (child != null) {
+                child.hitTest(new BoxHitTestResult(result), position: position);
             }
 
             result.add(new HitTestEntry(this));
@@ -113,7 +113,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
-            transform.multiply(this._rootTransform);
+            transform.multiply(_rootTransform);
             base.applyPaintTransform(child, transform);
         }
 
@@ -138,8 +138,8 @@ namespace Unity.UIWidgets.rendering {
 
         public override Rect semanticBounds {
             get {
-                D.assert(this._rootTransform != null);
-                return MatrixUtils.transformRect(this._rootTransform, Offset.zero & this.size);
+                D.assert(_rootTransform != null);
+                return MatrixUtils.transformRect(_rootTransform, Offset.zero & size);
             }
         }
 

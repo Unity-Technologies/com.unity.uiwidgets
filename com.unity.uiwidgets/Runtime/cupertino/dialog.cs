@@ -589,21 +589,21 @@ namespace Unity.UIWidgets.cupertino {
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null
         ) {
-            BoxParentData contentSectionParentData = this.contentSection.parentData as BoxParentData;
-            BoxParentData actionsSectionParentData = this.actionsSection.parentData as BoxParentData;
+            BoxParentData contentSectionParentData = contentSection.parentData as BoxParentData;
+            BoxParentData actionsSectionParentData = actionsSection.parentData as BoxParentData;
             return result.addWithPaintOffset(
                 offset: contentSectionParentData.offset,
                 position: position,
                 hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
                     D.assert(transformed == position - contentSectionParentData.offset);
-                    return this.contentSection.hitTest(resultIn, position: transformed);
+                    return contentSection.hitTest(resultIn, position: transformed);
                 }
             ) || result.addWithPaintOffset(
                 offset: actionsSectionParentData.offset,
                 position: position,
                 hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
                     D.assert(transformed == position - actionsSectionParentData.offset);
-                    return this.actionsSection.hitTest(resultIn, position: transformed);
+                    return actionsSection.hitTest(resultIn, position: transformed);
                 }
             );
         }

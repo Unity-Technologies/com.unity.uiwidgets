@@ -381,19 +381,19 @@ namespace Unity.UIWidgets.rendering {
             }
 
             SliverHitTestResult sliverResult = new SliverHitTestResult(result);
-            foreach (RenderSliver child in this.childrenInHitTestOrder) {
+            foreach (RenderSliver child in childrenInHitTestOrder) {
                 if (!child.geometry.visible) {
                     continue;
                 }
                 Matrix4 transform = new Matrix4().identity();
-                this.applyPaintTransform(child, transform);
+                applyPaintTransform(child, transform);
                 bool isHit = result.addWithPaintTransform(
                     transform: transform,
                     position: null, // Manually adapting from box to sliver position below.
                     hitTest: (BoxHitTestResult resultIn, Offset _) => {
                         return child.hitTest(
                             sliverResult,
-                            mainAxisPosition: this.computeChildMainAxisPosition(child, mainAxisPosition),
+                            mainAxisPosition: computeChildMainAxisPosition(child, mainAxisPosition),
                             crossAxisPosition: crossAxisPosition
                         );
                     }
@@ -521,7 +521,7 @@ namespace Unity.UIWidgets.rendering {
             float offsetDifference = this.offset.pixels - targetOffset;
 
             transform = target.getTransformTo(this);
-            this.applyPaintTransform(child, transform);
+            applyPaintTransform(child, transform);
             Rect targetRect = MatrixUtils.transformRect(transform, rect);
 
             switch (axisDirection) {
@@ -1363,7 +1363,7 @@ namespace Unity.UIWidgets.rendering {
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             D.assert(child != null);
 
-            Offset offset = this.paintOffsetOf((RenderSliver) child);
+            Offset offset = paintOffsetOf((RenderSliver) child);
             transform.translate(offset.dx, offset.dy);
         }
 
