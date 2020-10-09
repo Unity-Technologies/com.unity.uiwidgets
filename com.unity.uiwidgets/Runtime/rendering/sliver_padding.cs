@@ -221,12 +221,18 @@ namespace Unity.UIWidgets.rendering {
             D.assert(crossAxisPadding == this.crossAxisPadding);
         }
 
-        protected override bool hitTestChildren(HitTestResult result, float mainAxisPosition = 0.0f,
+        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f,
             float crossAxisPosition = 0.0f) {
-            if (child != null && child.geometry.hitTestExtent > 0.0) {
-                return child.hitTest(result,
-                    mainAxisPosition: mainAxisPosition - childMainAxisPosition(child),
-                    crossAxisPosition: crossAxisPosition - childCrossAxisPosition(child));
+            if (this.child != null && this.child.geometry.hitTestExtent > 0.0) {
+                SliverPhysicalParentData childParentData = this.child.parentData as SliverPhysicalParentData;
+                result.addWithAxisOffset(
+                    mainAxisPosition: mainAxisPosition,
+                    crossAxisPosition: crossAxisPosition,
+                    mainAxisOffset: this.childMainAxisPosition(this.child),
+                    crossAxisOffset: this.childCrossAxisPosition(this.child),
+                    paintOffset: childParentData.paintOffset,
+                    hitTest: this.child.hitTest
+                );
             }
 
             return false;
@@ -263,7 +269,7 @@ namespace Unity.UIWidgets.rendering {
             return beforePadding;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             D.assert(child != null);
             D.assert(child == this.child);
 

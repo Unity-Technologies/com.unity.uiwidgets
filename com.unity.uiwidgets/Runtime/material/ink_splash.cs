@@ -179,17 +179,17 @@ namespace Unity.UIWidgets.material {
             base.dispose();
         }
 
-        protected override void paintFeature(Canvas canvas, Matrix3 transform) {
-            Paint paint = new Paint {color = color.withAlpha(_alpha.value)};
-            Offset center = _position;
-            if (_repositionToReferenceBox) {
-                center = Offset.lerp(center, referenceBox.size.center(Offset.zero), _radiusController.value);
+        protected override void paintFeature(Canvas canvas, Matrix4 transform) {
+            Paint paint = new Paint {color = this.color.withAlpha(this._alpha.value)};
+            Offset center = this._position;
+            if (this._repositionToReferenceBox) {
+                center = Offset.lerp(center, this.referenceBox.size.center(Offset.zero), this._radiusController.value);
             }
 
             Offset originOffset = transform.getAsTranslation();
             canvas.save();
             if (originOffset == null) {
-                canvas.concat(transform);
+                canvas.concat(transform.toMatrix3());
             }
             else {
                 canvas.translate(originOffset.dx, originOffset.dy);

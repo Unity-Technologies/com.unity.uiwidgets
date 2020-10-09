@@ -1634,8 +1634,8 @@ namespace Unity.UIWidgets.material {
             additionalConstraints: additionalConstraints) {
         }
 
-        public override bool hitTest(HitTestResult result, Offset position = null) {
-            if (!size.contains(position)) {
+        public override bool hitTest(BoxHitTestResult result, Offset position = null) {
+            if (!this.size.contains(position)) {
                 return false;
             }
 
@@ -2188,8 +2188,8 @@ namespace Unity.UIWidgets.material {
             return new Size(deleteIconWidth, deleteIconHeight);
         }
 
-        public override bool hitTest(HitTestResult result, Offset position = null) {
-            if (!size.contains(position)) {
+        public override bool hitTest(BoxHitTestResult result, Offset position = null) {
+            if (!this.size.contains(position)) {
                 return false;
             }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
@@ -439,17 +440,17 @@ namespace Unity.UIWidgets.widgets {
             List<RenderObject> edgeHits,
             Offset position,
             RenderObject renderObject,
-            Matrix3 transform
+            Matrix4 transform
         ) {
             var hit = false;
+            
 
-            var inverse = Matrix3.I();
-            var invertible = transform.invert(inverse);
-            if (!invertible) {
+            var inverse = new Matrix4().inverted(transform);
+            if (inverse == null) {
                 return false;
             }
 
-            var localPosition = inverse.mapPoint(position);
+            var localPosition = MatrixUtils.transformPoint(inverse, position);
 
             List<DiagnosticsNode> children = renderObject.debugDescribeChildren();
             for (int i = children.Count - 1; i >= 0; --i) {
@@ -466,7 +467,7 @@ namespace Unity.UIWidgets.widgets {
                     continue;
                 }
 
-                var childTransform = new Matrix3(transform);
+                var childTransform = new Matrix4(transform);
                 renderObject.applyPaintTransform(child, childTransform);
                 if (_hitTestHelper(hits, edgeHits, position, child, childTransform)) {
                     hit = true;
@@ -751,7 +752,7 @@ namespace Unity.UIWidgets.widgets {
 
     class _TransformedRect : IEquatable<_TransformedRect> {
         public readonly Rect rect;
-        public readonly Matrix3 transform;
+        public readonly Matrix4 transform;
 
         public _TransformedRect(RenderObject obj) {
             rect = obj.semanticBounds;
@@ -943,14 +944,14 @@ namespace Unity.UIWidgets.widgets {
             };
             Rect selectedPaintRect = state.selected.rect.deflate(0.5f);
             canvas.save();
-            canvas.setMatrix(state.selected.transform);
+            canvas.setMatrix(state.selected.transform.toMatrix3());
             canvas.drawRect(selectedPaintRect, fillPaint);
             canvas.drawRect(selectedPaintRect, borderPaint);
             canvas.restore();
 
             foreach (var transformedRect in state.candidates) {
                 canvas.save();
-                canvas.setMatrix(transformedRect.transform);
+                canvas.setMatrix(transformedRect.transform.toMatrix3());
                 canvas.drawRect(transformedRect.rect.deflate(0.5f), borderPaint);
                 canvas.restore();
             }

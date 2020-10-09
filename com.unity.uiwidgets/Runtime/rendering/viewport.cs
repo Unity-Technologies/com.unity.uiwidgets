@@ -365,7 +365,7 @@ namespace Unity.UIWidgets.rendering {
             });
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             D.assert(position != null);
 
             float mainAxisPosition = 0, crossAxisPosition = 0;
@@ -380,12 +380,25 @@ namespace Unity.UIWidgets.rendering {
                     break;
             }
 
-            foreach (RenderSliver child in childrenInHitTestOrder) {
-                if (child.geometry.visible && child.hitTest(
-                        result,
-                        mainAxisPosition: computeChildMainAxisPosition(child, mainAxisPosition),
-                        crossAxisPosition: crossAxisPosition
-                    )) {
+            SliverHitTestResult sliverResult = new SliverHitTestResult(result);
+            foreach (RenderSliver child in this.childrenInHitTestOrder) {
+                if (!child.geometry.visible) {
+                    continue;
+                }
+                Matrix4 transform = new Matrix4().identity();
+                this.applyPaintTransform(child, transform);
+                bool isHit = result.addWithPaintTransform(
+                    transform: transform,
+                    position: null, // Manually adapting from box to sliver position below.
+                    hitTest: (BoxHitTestResult resultIn, Offset _) => {
+                        return child.hitTest(
+                            sliverResult,
+                            mainAxisPosition: this.computeChildMainAxisPosition(child, mainAxisPosition),
+                            crossAxisPosition: crossAxisPosition
+                        );
+                    }
+                );
+                if (isHit) {
                     return true;
                 }
             }
@@ -398,7 +411,7 @@ namespace Unity.UIWidgets.rendering {
             float targetMainAxisExtent = 0.0f;
             rect = rect ?? target.paintBounds;
 
-            Matrix3 transform;
+            Matrix4 transform;
 
             RenderObject child = target;
             RenderBox pivot = null;
@@ -430,7 +443,7 @@ namespace Unity.UIWidgets.rendering {
                 RenderSliver pivotParent = (RenderSliver) pivot.parent;
 
                 transform = target.getTransformTo(pivot);
-                Rect bounds = transform.mapRect(rect);
+                Rect bounds = MatrixUtils.transformRect(transform, rect);
 
                 float offset = 0.0f;
 
@@ -508,8 +521,8 @@ namespace Unity.UIWidgets.rendering {
             float offsetDifference = this.offset.pixels - targetOffset;
 
             transform = target.getTransformTo(this);
-            applyPaintTransform(child, transform);
-            Rect targetRect = transform.mapRect(rect);
+            this.applyPaintTransform(child, transform);
+            Rect targetRect = MatrixUtils.transformRect(transform, rect);
 
             switch (axisDirection) {
                 case AxisDirection.down:
@@ -671,7 +684,7 @@ namespace Unity.UIWidgets.rendering {
             }
             else {
                 var transform = descendant.getTransformTo(viewport.parent);
-                return transform.mapRect(rect ?? descendant.paintBounds);
+                return MatrixUtils.transformRect(transform, rect ?? descendant.paintBounds);
             }
 
             D.assert(targetOffset != null);
@@ -1050,7 +1063,7 @@ namespace Unity.UIWidgets.rendering {
             return 0.0f;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             D.assert(child != null);
 
             var childParentData = (SliverPhysicalParentData) child.parentData;
@@ -1347,11 +1360,11 @@ namespace Unity.UIWidgets.rendering {
             return pinnedExtent;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             D.assert(child != null);
 
-            Offset offset = paintOffsetOf((RenderSliver) child);
-            transform.preTranslate(offset.dx, offset.dy);
+            Offset offset = this.paintOffsetOf((RenderSliver) child);
+            transform.translate(offset.dx, offset.dy);
         }
 
         protected override float computeChildMainAxisPosition(RenderSliver child, float parentMainAxisPosition) {

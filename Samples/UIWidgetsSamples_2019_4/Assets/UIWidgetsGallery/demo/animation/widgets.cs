@@ -75,11 +75,12 @@ namespace UIWidgetsGallery.gallery {
         );
 
         public override Widget build(BuildContext context) {
+            var scale = this.scale ?? 1.0f;
             return new IgnorePointer(
                 child: new Opacity(
                     opacity: this.opacity ?? 1.0f,
                     child: new Transform(
-                        transform: Matrix3.makeScale(this.scale ?? 1.0f),
+                        transform: new Matrix4().diagonal3Values(scale, scale, scale),
                         alignment: Alignment.center,
                         child: new Stack(
                             children: new List<Widget> {

@@ -271,8 +271,8 @@ namespace Unity.UIWidgets.material {
 
         protected internal override Widget build(BuildContext context) {
             return new Transform(
-                transform: Matrix3.makeTrans(translateX, 0.0f),
-                child: child
+                transform: new Matrix4().translationValues(this.translateX, 0, 0),
+                child: this.child
             );
         }
     }
@@ -942,29 +942,33 @@ namespace Unity.UIWidgets.material {
             if (prefix != null) {
                 boxToBaseline[prefix] = _layoutLineBox(prefix, boxConstraints);
             }
-            if (suffix != null) {
-                boxToBaseline[suffix] = _layoutLineBox(suffix, boxConstraints);
-            }
-            if (icon != null) {
-                boxToBaseline[icon] = _layoutLineBox(icon, boxConstraints);
-            }
-            if (prefixIcon != null) {
-                boxToBaseline[prefixIcon] = _layoutLineBox(prefixIcon, boxConstraints);
-            }
-            if (suffixIcon != null) {
-                boxToBaseline[suffixIcon] = _layoutLineBox(suffixIcon, boxConstraints);
+
+            if (this.suffix != null) {
+                boxToBaseline[this.suffix] = this._layoutLineBox(this.suffix, boxConstraints);
             }
 
-            float inputWidth = Math.Max(0.0f, constraints.maxWidth - (
-                                                  _boxSize(icon).width
-                                                  + contentPadding.left
-                                                  + _boxSize(prefixIcon).width
-                                                  + _boxSize(prefix).width
-                                                  + _boxSize(suffix).width
-                                                  + _boxSize(suffixIcon).width
-                                                  + contentPadding.right));
-            if (label != null) {
-                boxToBaseline[label] = _layoutLineBox(label,
+            if (this.icon != null) {
+                boxToBaseline[this.icon] = this._layoutLineBox(this.icon, boxConstraints);
+            }
+
+            if (this.prefixIcon != null) {
+                boxToBaseline[this.prefixIcon] = this._layoutLineBox(this.prefixIcon, boxConstraints);
+            }
+
+            if (this.suffixIcon != null) {
+                boxToBaseline[this.suffixIcon] = this._layoutLineBox(this.suffixIcon, boxConstraints);
+            }
+
+            float inputWidth = Math.Max(0.0f, this.constraints.maxWidth - (
+                _boxSize(this.icon).width
+                + this.contentPadding.left
+                + _boxSize(this.prefixIcon).width
+                + _boxSize(this.prefix).width
+                + _boxSize(this.suffix).width
+                + _boxSize(this.suffixIcon).width
+                + this.contentPadding.right));
+            if (this.label != null) {
+                boxToBaseline[this.label] = this._layoutLineBox(this.label,
                     boxConstraints.copyWith(maxWidth: inputWidth)
                 );
             }
@@ -1174,7 +1178,7 @@ namespace Unity.UIWidgets.material {
             return _boxParentData(input).offset.dy + input.getDistanceToActualBaseline(baseline);
         }
 
-        Matrix3 _labelTransform;
+        Matrix4 _labelTransform;
 
         protected override void performLayout() {
             _labelTransform = null;
@@ -1211,9 +1215,9 @@ namespace Unity.UIWidgets.material {
             float right = overallWidth - contentPadding.right;
 
             height = layout.containerHeight ?? 0.0f;
-            baseline = (decoration.isCollapsed || !decoration.border.isOutline
-                           ? layout.inputBaseline
-                           : layout.outlineBaseline) ?? 0.0f;
+            baseline = (this.decoration.isCollapsed || !this.decoration.border.isOutline
+                ? layout.inputBaseline
+                : layout.outlineBaseline) ?? 0.0f;
 
             if (icon != null) {
                 float x = 0.0f;
@@ -1309,10 +1313,10 @@ namespace Unity.UIWidgets.material {
                 float scale = MathUtils.lerpFloat(1.0f, 0.75f, t);
                 float dx = labelOffset.dx;
                 float dy = MathUtils.lerpFloat(0.0f, floatingY - labelOffset.dy, t);
-                _labelTransform = Matrix3.I();
-                _labelTransform.preTranslate(dx, labelOffset.dy + dy);
-                _labelTransform.preScale(scale, scale);
-                context.pushTransform(needsCompositing, offset, _labelTransform, _paintLabel);
+                this._labelTransform = new Matrix4().identity();
+                this._labelTransform.translate(dx, labelOffset.dy + dy);
+                this._labelTransform.scale(scale, scale, 1);
+                context.pushTransform(this.needsCompositing, offset, this._labelTransform, this._paintLabel);
             }
 
             doPaint(icon);
@@ -1330,10 +1334,19 @@ namespace Unity.UIWidgets.material {
             return true;
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
             D.assert(position != null);
-            foreach (RenderBox child in _children) {
-                if (child.hitTest(result, position: position - _boxParentData(child).offset)) {
+            foreach (RenderBox child in this._children) {
+                Offset offset = _boxParentData(child).offset;
+                bool isHit = result.addWithPaintOffset(
+                    offset: offset,
+                    position: position,
+                    hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                        D.assert(transformed == position - offset);
+                        return child.hitTest(resultIn, position: transformed);
+                    }
+                );
+                if (isHit) {
                     return true;
                 }
             }
@@ -1341,11 +1354,11 @@ namespace Unity.UIWidgets.material {
             return false;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
-            if (child == label && _labelTransform != null) {
-                Offset labelOffset = _boxParentData(label).offset;
-                transform.preConcat(_labelTransform);
-                transform.preTranslate(-labelOffset.dx, -labelOffset.dy);
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
+            if (child == this.label && this._labelTransform != null) {
+                Offset labelOffset = _boxParentData(this.label).offset;
+                transform.multiply(this._labelTransform);
+                transform.translate(-labelOffset.dx, -labelOffset.dy);
             }
 
             base.applyPaintTransform(child, transform);
@@ -1601,7 +1614,7 @@ namespace Unity.UIWidgets.material {
         public readonly TextAlign? textAlign;
 
         public readonly bool isFocused;
-        
+
         public readonly bool expands;
 
         public readonly bool isEmpty;
@@ -1673,10 +1686,10 @@ namespace Unity.UIWidgets.material {
 
         public InputDecoration decoration {
             get {
-                _effectiveDecoration = _effectiveDecoration ?? widget.decoration.applyDefaults(
-                                                Theme.of(context).inputDecorationTheme
-                                            );
-                return _effectiveDecoration;
+                this._effectiveDecoration = this._effectiveDecoration ?? this.widget.decoration.applyDefaults(
+                    Theme.of(this.context).inputDecorationTheme
+                );
+                return this._effectiveDecoration;
             }
         }
 
@@ -2000,20 +2013,20 @@ namespace Unity.UIWidgets.material {
                     (4.0f + 0.75f * inlineLabelStyle.fontSize) * MediaQuery.textScaleFactorOf(context);
                 if (decoration.filled == true) {
                     contentPadding = decorationContentPadding ?? (decorationIsDense
-                                         ? EdgeInsets.fromLTRB(12.0f, 8.0f, 12.0f, 8.0f)
-                                         : EdgeInsets.fromLTRB(12.0f, 12.0f, 12.0f, 12.0f));
+                        ? EdgeInsets.fromLTRB(12.0f, 8.0f, 12.0f, 8.0f)
+                        : EdgeInsets.fromLTRB(12.0f, 12.0f, 12.0f, 12.0f));
                 }
                 else {
                     contentPadding = decorationContentPadding ?? (decorationIsDense
-                                         ? EdgeInsets.fromLTRB(0.0f, 8.0f, 0.0f, 8.0f)
-                                         : EdgeInsets.fromLTRB(0.0f, 12.0f, 0.0f, 12.0f));
+                        ? EdgeInsets.fromLTRB(0.0f, 8.0f, 0.0f, 8.0f)
+                        : EdgeInsets.fromLTRB(0.0f, 12.0f, 0.0f, 12.0f));
                 }
             }
             else {
                 floatingLabelHeight = 0.0f;
                 contentPadding = decorationContentPadding ?? (decorationIsDense
-                                     ? EdgeInsets.fromLTRB(12.0f, 20.0f, 12.0f, 12.0f)
-                                     : EdgeInsets.fromLTRB(12.0f, 24.0f, 12.0f, 16.0f));
+                    ? EdgeInsets.fromLTRB(12.0f, 20.0f, 12.0f, 12.0f)
+                    : EdgeInsets.fromLTRB(12.0f, 24.0f, 12.0f, 16.0f));
             }
 
             return new _Decorator(

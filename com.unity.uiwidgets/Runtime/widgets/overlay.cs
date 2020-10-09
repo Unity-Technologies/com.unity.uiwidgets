@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     public class OverlayEntry {
@@ -24,9 +27,8 @@ namespace Unity.UIWidgets.widgets {
                     return;
                 }
 
-                _opaque = value;
-                D.assert(_overlay != null);
-                _overlay._didChangeEntryOpacity();
+                this._opaque = value;
+                this._overlay?._didChangeEntryOpacity();
             }
         }
 
@@ -47,7 +49,7 @@ namespace Unity.UIWidgets.widgets {
 
         internal OverlayState _overlay;
 
-        internal readonly GlobalKey<_OverlayEntryState> _key = new LabeledGlobalKey<_OverlayEntryState>();
+        internal readonly GlobalKey<_OverlayEntryWidgetState> _key = new LabeledGlobalKey<_OverlayEntryWidgetState>();
 
         public void remove() {
             D.assert(_overlay != null);
@@ -71,20 +73,23 @@ namespace Unity.UIWidgets.widgets {
     }
 
 
-    class _OverlayEntry : StatefulWidget {
-        internal _OverlayEntry(OverlayEntry entry) : base(key: entry._key) {
+    class _OverlayEntryWidget : StatefulWidget {
+        internal _OverlayEntryWidget(Key key, OverlayEntry entry, bool tickerEnabled = true) : base(key: key) {
+            D.assert(key != null);
             D.assert(entry != null);
             this.entry = entry;
+            this.tickerEnabled = tickerEnabled;
         }
 
         public readonly OverlayEntry entry;
+        public readonly bool tickerEnabled;
 
         public override State createState() {
-            return new _OverlayEntryState();
+            return new _OverlayEntryWidgetState();
         }
     }
 
-    class _OverlayEntryState : State<_OverlayEntry> {
+    class _OverlayEntryWidgetState : State<_OverlayEntryWidget> {
         public override Widget build(BuildContext context) {
             return widget.entry.builder(context);
         }
@@ -183,14 +188,13 @@ namespace Unity.UIWidgets.widgets {
                 entry._overlay = this;
             }
 
-            setState(() => {
-                _entries.InsertRange(_insertionIndex(below, above), entries);
-            });
+            this.setState(() => { this._entries.InsertRange(this._insertionIndex(below, above), entries); });
         }
 
-        public void rearrange(IEnumerable<OverlayEntry> newEntries, OverlayEntry below = null, OverlayEntry above = null) {
+        public void rearrange(IEnumerable<OverlayEntry> newEntries, OverlayEntry below = null,
+            OverlayEntry above = null) {
             List<OverlayEntry> newEntriesList =
-                newEntries is List<OverlayEntry> ?(newEntries as List<OverlayEntry>) : newEntries.ToList();
+                newEntries is List<OverlayEntry> ? (newEntries as List<OverlayEntry>) : newEntries.ToList();
             D.assert(above == null || below == null, () => "Only one of `above` and `below` may be specified.");
             D.assert(above == null || (above._overlay == this && _entries.Contains(above)),
                 () => "The provided entry for `above` is not present in the Overlay.");
@@ -208,13 +212,14 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
 
-            HashSet<OverlayEntry> old = new HashSet<OverlayEntry>(_entries);
-            foreach(OverlayEntry entry in newEntriesList) {
+            HashSet<OverlayEntry> old = new HashSet<OverlayEntry>(this._entries);
+            foreach (OverlayEntry entry in newEntriesList) {
                 entry._overlay = entry._overlay ?? this;
             }
-            setState(() => {
-                _entries.Clear();
-                _entries.AddRange(newEntriesList);
+
+            this.setState(() => {
+                this._entries.Clear();
+                this._entries.AddRange(newEntriesList);
                 foreach (OverlayEntry entry in newEntriesList) {
                     old.Remove(entry);
                 }
@@ -256,40 +261,52 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            var onstageChildren = new List<Widget>();
-            var offstageChildren = new List<Widget>();
+            var children = new List<Widget>();
+            int onstageCount = 0;
             var onstage = true;
             for (var i = _entries.Count - 1; i >= 0; i -= 1) {
                 var entry = _entries[i];
                 if (onstage) {
-                    onstageChildren.Add(new _OverlayEntry(entry));
+                    onstageCount += 1;
+                    children.Add(new _OverlayEntryWidget(entry._key, entry));
                     if (entry.opaque) {
                         onstage = false;
                     }
                 }
                 else if (entry.maintainState) {
-                    offstageChildren.Add(new TickerMode(enabled: false, child: new _OverlayEntry(entry)));
+                    children.Add(new _OverlayEntryWidget(
+                        key: entry._key,
+                        entry: entry,
+                        tickerEnabled: false
+                    ));
                 }
             }
 
-            onstageChildren.Reverse();
+            children.Reverse();
             return new _Theatre(
-                onstage: new Stack(
-                    fit: StackFit.expand,
-                    children: onstageChildren
-                ),
-                offstage: offstageChildren
+                skipCount: children.Count - onstageCount,
+                children: children.ToList()
+                // onstage: new Stack(
+                //     fit: StackFit.expand,
+                //     children: onstageChildren
+                // ),
+                // offstage: offstageChildren
             );
         }
     }
 
-    class _Theatre : RenderObjectWidget {
-        internal _Theatre(Stack onstage = null, List<Widget> offstage = null) {
-            D.assert(offstage != null);
-            D.assert(!offstage.Any((child) => child == null));
-            this.onstage = onstage;
-            this.offstage = offstage;
+    class _Theatre : MultiChildRenderObjectWidget {
+        internal _Theatre(Key key = null,
+            int skipCount = 0,
+            List<Widget> children = null) : base(key, children) {
+            D.assert(skipCount != null);
+            D.assert(skipCount >= 0);
+            D.assert(children != null);
+            D.assert(children.Count() >= skipCount);
+            this.skipCount = skipCount;
         }
+
+        public readonly int skipCount;
 
         public readonly Stack onstage;
 
@@ -300,13 +317,19 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new _RenderTheatre();
+            return new _RenderTheatre(
+                skipCount: this.skipCount,
+                textDirection: Directionality.of(context));
+        }
+
+        public void updateRenderObject(BuildContext context, _RenderTheatre renderObject) {
+            renderObject.skipCount = this.skipCount;
+            renderObject.textDirection = Directionality.of(context);
         }
     }
 
-    class _TheatreElement : RenderObjectElement {
-        public _TheatreElement(RenderObjectWidget widget) : base(widget) {
-            D.assert(!WidgetsD.debugChildrenHaveDuplicateKeys(widget, ((_Theatre) widget).offstage));
+    class _TheatreElement : MultiChildRenderObjectElement {
+        public _TheatreElement(_Theatre widget) : base(widget) {
         }
 
         public new _Theatre widget {
@@ -317,107 +340,193 @@ namespace Unity.UIWidgets.widgets {
             get { return (_RenderTheatre) base.renderObject; }
         }
 
-        Element _onstage;
-        static readonly object _onstageSlot = new object();
-
-        List<Element> _offstage;
-        readonly HashSet<Element> _forgottenOffstageChildren = new HashSet<Element>();
-
-
-        protected override void insertChildRenderObject(RenderObject child, object slot) {
-            D.assert(renderObject.debugValidateChild(child));
-            if (slot == _onstageSlot) {
-                D.assert(child is RenderStack);
-                renderObject.child = (RenderStack) child;
-            }
-            else {
-                D.assert(slot == null || slot is Element);
-                renderObject.insert((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
-            }
-        }
-
-        protected override void moveChildRenderObject(RenderObject child, object slot) {
-            if (slot == _onstageSlot) {
-                renderObject.remove((RenderBox) child);
-                D.assert(child is RenderStack);
-                renderObject.child = (RenderStack) child;
-            }
-            else {
-                D.assert(slot == null || slot is Element);
-                if (renderObject.child == child) {
-                    renderObject.child = null;
-                    renderObject.insert((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
-                }
-                else {
-                    renderObject.move((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
-                }
-            }
-        }
-
-        protected override void removeChildRenderObject(RenderObject child) {
-            if (renderObject.child == child) {
-                renderObject.child = null;
-            }
-            else {
-                renderObject.remove((RenderBox) child);
-            }
-        }
-
-        public override void visitChildren(ElementVisitor visitor) {
-            if (_onstage != null) {
-                visitor(_onstage);
-            }
-
-            foreach (var child in _offstage) {
-                if (!_forgottenOffstageChildren.Contains(child)) {
-                    visitor(child);
-                }
-            }
-        }
-
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            if (_onstage != null) {
-                visitor(_onstage);
+            D.assert(this.children.Count() >= this.widget.skipCount);
+            foreach (var item in this.children.Skip(this.widget.skipCount)) {
+                visitor(item);
             }
-        }
-
-
-        protected override void forgetChild(Element child) {
-            if (child == _onstage) {
-                _onstage = null;
-            }
-            else {
-                D.assert(_offstage.Contains(child));
-                D.assert(!_forgottenOffstageChildren.Contains(child));
-                _forgottenOffstageChildren.Add(child);
-            }
-        }
-
-        public override void mount(Element parent, object newSlot) {
-            base.mount(parent, newSlot);
-            _onstage = updateChild(_onstage, widget.onstage, _onstageSlot);
-            _offstage = new List<Element>(widget.offstage.Count);
-            Element previousChild = null;
-            for (int i = 0; i < _offstage.Count; i += 1) {
-                var newChild = inflateWidget(widget.offstage[i], previousChild);
-                _offstage[i] = newChild;
-                previousChild = newChild;
-            }
-        }
-
-        public override void update(Widget newWidget) {
-            base.update(newWidget);
-            D.assert(Equals(widget, newWidget));
-            _onstage = updateChild(_onstage, widget.onstage, _onstageSlot);
-            _offstage = updateChildren(_offstage, widget.offstage,
-                forgottenChildren: _forgottenOffstageChildren);
-            _forgottenOffstageChildren.Clear();
         }
     }
+
+    // Element _onstage;
+    //     static readonly object _onstageSlot = new object();
+    //
+    //     List<Element> _offstage;
+    //     readonly HashSet<Element> _forgottenOffstageChildren = new HashSet<Element>();
+    //
+    //     protected override void insertChildRenderObject(RenderObject child, object slot) {
+    //         D.assert(this.renderObject.debugValidateChild(child));
+    //         if (slot == _onstageSlot) {
+    //             D.assert(child is RenderStack);
+    //             this.renderObject.child = (RenderStack) child;
+    //         }
+    //         else {
+    //             D.assert(slot == null || slot is Element);
+    //             this.renderObject.insert((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
+    //         }
+    //     }
+    //
+    //     protected override void moveChildRenderObject(RenderObject child, object slot) {
+    //         if (slot == _onstageSlot) {
+    //             this.renderObject.remove((RenderBox) child);
+    //             D.assert(child is RenderStack);
+    //             this.renderObject.child = (RenderStack) child;
+    //         }
+    //         else {
+    //             D.assert(slot == null || slot is Element);
+    //             if (this.renderObject.child == child) {
+    //                 this.renderObject.child = null;
+    //                 this.renderObject.insert((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
+    //             }
+    //             else {
+    //                 this.renderObject.move((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
+    //             }
+    //         }
+    //     }
+    //
+    //     protected override void removeChildRenderObject(RenderObject child) {
+    //         if (this.renderObject.child == child) {
+    //             this.renderObject.child = null;
+    //         }
+    //         else {
+    //             this.renderObject.remove((RenderBox) child);
+    //         }
+    //     }
+    //
+    //     public override void visitChildren(ElementVisitor visitor) {
+    //         if (this._onstage != null) {
+    //             visitor(this._onstage);
+    //         }
+    //
+    //         foreach (var child in this._offstage) {
+    //             if (!this._forgottenOffstageChildren.Contains(child)) {
+    //                 visitor(child);
+    //             }
+    //         }
+    //     }
+    //
+    //     // public override void debugVisitOnstageChildren(ElementVisitor visitor) {
+    //     //     if (this._onstage != null) {
+    //     //         visitor(this._onstage);
+    //     //     }
+    //     // }
+    //
+    //
+    //     protected override void forgetChild(Element child) {
+    //         if (child == this._onstage) {
+    //             this._onstage = null;
+    //         }
+    //         else {
+    //             D.assert(this._offstage.Contains(child));
+    //             D.assert(!this._forgottenOffstageChildren.Contains(child));
+    //             this._forgottenOffstageChildren.Add(child);
+    //         }
+    //     }
+    //
+    //     public override void mount(Element parent, object newSlot) {
+    //         base.mount(parent, newSlot);
+    //         this._onstage = this.updateChild(this._onstage, this.widget.onstage, _onstageSlot);
+    //         this._offstage = new List<Element>(this.widget.offstage.Count);
+    //         Element previousChild = null;
+    //         for (int i = 0; i < this._offstage.Count; i += 1) {
+    //             var newChild = this.inflateWidget(this.widget.offstage[i], previousChild);
+    //             this._offstage[i] = newChild;
+    //             previousChild = newChild;
+    //         }
+    //     }
+    //
+    //     public override void update(Widget newWidget) {
+    //         base.update(newWidget);
+    //         D.assert(Equals(this.widget, newWidget));
+    //         this._onstage = this.updateChild(this._onstage, this.widget.onstage, _onstageSlot);
+    //         this._offstage = this.updateChildren(this._offstage, this.widget.offstage,
+    //             forgottenChildren: this._forgottenOffstageChildren);
+    //         this._forgottenOffstageChildren.Clear();
+    //     }
+    // }
 
     class _RenderTheatre :
         ContainerRenderObjectMixinRenderProxyBoxMixinRenderObjectWithChildMixinRenderBoxRenderStack<
             RenderBox, StackParentData> {
+        internal _RenderTheatre(
+            TextDirection textDirection,
+            List<RenderBox> children = null,
+            int skipCount = 0
+        ) {
+            D.assert(skipCount != null);
+            D.assert(skipCount >= 0);
+            D.assert(textDirection != null);
+            this._textDirection = textDirection;
+            this._skipCount = skipCount;
+            this.addAll(children);
+        }
+
+        bool _hasVisualOverflow = false;
+
+        Alignment _resolvedAlignment;
+
+        void _resolve() {
+            if (this._resolvedAlignment != null)
+                return;
+            // TODO: AlignmentDirectional
+            Alignment al = Alignment.topLeft;
+            switch (this.textDirection) {
+                case TextDirection.rtl:
+                    this._resolvedAlignment = new Alignment(-1, -1);
+                    break;
+                case TextDirection.ltr:
+                    this._resolvedAlignment = new Alignment(1, -1);
+                    break;
+            }
+        }
+
+        void _markNeedResolution() {
+            this._resolvedAlignment = null;
+            this.markNeedsLayout();
+        }
+
+        public TextDirection textDirection {
+            get { return this._textDirection; }
+            set {
+                if (this._textDirection == value)
+                    return;
+                this._textDirection = value;
+                this._markNeedResolution();
+            }
+        }
+
+        TextDirection _textDirection;
+
+        public int skipCount {
+            get { return this._skipCount; }
+            set {
+                D.assert(value != null);
+                if (this._skipCount != value) {
+                    this._skipCount = value;
+                    this.markNeedsLayout();
+                }
+            }
+        }
+
+        int _skipCount;
+
+        RenderBox _firstOnstageChild {
+            get {
+                if (this.skipCount == base.childCount) {
+                    return null;
+                }
+
+                RenderBox child = base.firstChild;
+                for (int toSkip = this.skipCount; toSkip > 0; toSkip--) {
+                    StackParentData childParentData = child.parentData as StackParentData;
+                    child = childParentData.nextSibling;
+                    D.assert(child != null);
+                }
+
+                return child;
+            }
+        }
+
         public override void setupParentData(RenderObject child) {
             if (!(child.parentData is StackParentData)) {
                 child.parentData = new StackParentData();
@@ -477,6 +586,161 @@ namespace Unity.UIWidgets.widgets {
             }
 
             return children;
+        }
+
+        RenderBox _lastOnstageChild {
+            get { return this.skipCount == this.childCount ? null : this.lastChild; }
+        }
+
+        int _onstageChildCount {
+            get { return this.childCount - this.skipCount; }
+        }
+
+        protected override float computeMinIntrinsicWidth(float height) {
+            return RenderStack.getIntrinsicDimension(this._firstOnstageChild,
+                (RenderBox child) => child.getMinIntrinsicWidth(height));
+        }
+
+        protected override float computeMaxIntrinsicWidth(float height) {
+            return RenderStack.getIntrinsicDimension(this._firstOnstageChild,
+                (RenderBox child) => child.getMaxIntrinsicWidth(height));
+        }
+
+        protected override float computeMinIntrinsicHeight(float width) {
+            return RenderStack.getIntrinsicDimension(this._firstOnstageChild,
+                (RenderBox child) => child.getMinIntrinsicHeight(width));
+        }
+
+        protected internal override float computeMaxIntrinsicHeight(float width) {
+            return RenderStack.getIntrinsicDimension(this._firstOnstageChild,
+                (RenderBox child) => child.getMaxIntrinsicHeight(width));
+        }
+
+        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+            D.assert(!this.debugNeedsLayout);
+            float? result = null;
+            RenderBox child = this._firstOnstageChild;
+            while (child != null) {
+                D.assert(!child.debugNeedsLayout);
+                StackParentData childParentData = child.parentData as StackParentData;
+                float? candidate = child.getDistanceToActualBaseline(baseline);
+                if (candidate != null) {
+                    candidate += childParentData.offset.dy;
+                    if (result != null) {
+                        result = Math.Min(result.Value, candidate.Value);
+                    }
+                    else {
+                        result = candidate;
+                    }
+                }
+
+                child = childParentData.nextSibling;
+            }
+
+            return result;
+        }
+
+        protected override bool sizedByParent {
+            get { return true; }
+        }
+
+        protected override void performResize() {
+            this.size = this.constraints.biggest;
+            D.assert(this.size.isFinite);
+        }
+
+        protected override void performLayout() {
+            this._hasVisualOverflow = false;
+
+            if (this._onstageChildCount == 0) {
+                return;
+            }
+
+            this._resolve();
+            D.assert(this._resolvedAlignment != null);
+
+            // Same BoxConstraints as used by RenderStack for StackFit.expand.
+            BoxConstraints nonPositionedConstraints = BoxConstraints.tight(this.constraints.biggest);
+
+            RenderBox child = this._firstOnstageChild;
+            while (child != null) {
+                StackParentData childParentData = child.parentData as StackParentData;
+
+                if (!childParentData.isPositioned) {
+                    child.layout(nonPositionedConstraints, parentUsesSize: true);
+                    childParentData.offset = this._resolvedAlignment.alongOffset(this.size - child.size as Offset);
+                }
+                else {
+                    this._hasVisualOverflow =
+                        RenderStack.layoutPositionedChild(child, childParentData, this.size, this._resolvedAlignment) ||
+                        _hasVisualOverflow;
+                }
+
+                D.assert(child.parentData == childParentData);
+                child = childParentData.nextSibling;
+            }
+        }
+
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
+            RenderBox child = this._lastOnstageChild;
+            for (int i = 0; i < this._onstageChildCount; i++) {
+                D.assert(child != null);
+                StackParentData childParentData = child.parentData as StackParentData;
+
+                if (childParentData.offset.dx != 0 || childParentData.offset.dy != 0) {
+                    i = i;
+                }
+
+                bool isHit = result.addWithPaintOffset(
+                    offset: childParentData.offset,
+                    position: position,
+                    hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                        D.assert(transformed == position - childParentData.offset);
+                        return child.hitTest(resultIn, position: transformed);
+                    }
+                );
+                if (isHit)
+                    return true;
+                child = childParentData.previousSibling;
+            }
+
+            return false;
+        }
+
+        void paintStack(PaintingContext context, Offset offset) {
+            RenderBox child = this._firstOnstageChild;
+            while (child != null) {
+                StackParentData childParentData = child.parentData as StackParentData;
+                context.paintChild(child, childParentData.offset + offset);
+                child = childParentData.nextSibling;
+            }
+        }
+
+        public override void paint(PaintingContext context, Offset offset) {
+            if (this._hasVisualOverflow) {
+                context.pushClipRect(this.needsCompositing, offset, Offset.zero & this.size, this.paintStack);
+            }
+            else {
+                this.paintStack(context, offset);
+            }
+        }
+
+        void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+            RenderBox child = this._firstOnstageChild;
+            while (child != null) {
+                visitor(child);
+                StackParentData childParentData = child.parentData as StackParentData;
+                child = childParentData.nextSibling;
+            }
+        }
+
+        public override Rect describeApproximatePaintClip(RenderObject child) =>
+            this._hasVisualOverflow ? Offset.zero & this.size : null;
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new IntProperty("skipCount", this.skipCount));
+            properties.add(new EnumProperty<TextDirection>("textDirection", this.textDirection));
         }
     }
 }

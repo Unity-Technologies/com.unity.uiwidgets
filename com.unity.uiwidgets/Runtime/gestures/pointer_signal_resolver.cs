@@ -27,9 +27,9 @@ namespace Unity.UIWidgets.gestures {
                 return;
             }
 
-            D.assert(_currentEvent == evt);
+            D.assert((_currentEvent.original ?? this._currentEvent) == evt);
             try {
-                _firstRegisteredCallback(evt);
+                this._firstRegisteredCallback(_currentEvent);
             }
             catch (Exception exception) {
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(

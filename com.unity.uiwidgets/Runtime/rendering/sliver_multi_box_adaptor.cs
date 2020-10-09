@@ -286,11 +286,13 @@ namespace Unity.UIWidgets.rendering {
             return 0.0f;
         }
 
-        protected override bool hitTestChildren(HitTestResult result, float mainAxisPosition = 0.0f,
+        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f,
             float crossAxisPosition = 0.0f) {
-            RenderBox child = lastChild;
+            RenderBox child = this.lastChild;
+            BoxHitTestResult boxResult = new BoxHitTestResult(result);
+
             while (child != null) {
-                if (this.hitTestBoxChild(result, child, mainAxisPosition: mainAxisPosition,
+                if (this.hitTestBoxChild(boxResult, child, mainAxisPosition: mainAxisPosition,
                     crossAxisPosition: crossAxisPosition)) {
                     return true;
                 }
@@ -313,7 +315,7 @@ namespace Unity.UIWidgets.rendering {
             return childParentData.layoutOffset;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             this.applyPaintTransformForBoxChild((RenderBox) child, transform);
         }
 

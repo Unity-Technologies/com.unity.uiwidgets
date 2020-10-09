@@ -276,8 +276,8 @@ namespace Unity.UIWidgets.rendering {
         }
 
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
-            return defaultHitTestChildren(result, position: position);
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
+            return this.defaultHitTestChildren(result, position: position);
         }
     }
 }

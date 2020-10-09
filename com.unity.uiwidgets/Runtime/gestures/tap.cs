@@ -1,5 +1,6 @@
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 
 namespace Unity.UIWidgets.gestures {
     public class TapDownDetails {
@@ -201,10 +202,10 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected override void handleTapDown(PointerDownEvent down) {
-            
-            if (onTapDown != null) {
+            if (this.onTapDown != null) {
                 TapDownDetails details = new TapDownDetails(
-                    globalPosition: down.position,                
+                    globalPosition: down.position,
+                    localPosition: down.localPosition,
                     kind: down.kind,
                     device: down.device
                 );
@@ -219,6 +220,7 @@ namespace Unity.UIWidgets.gestures {
         protected override void handleTapUp(PointerDownEvent down, PointerUpEvent up) {
             TapUpDetails details = new TapUpDetails(
                 globalPosition: up.position,
+                localPosition: up.localPosition,
                 kind: up.kind,
                 device: up.device
                 );
