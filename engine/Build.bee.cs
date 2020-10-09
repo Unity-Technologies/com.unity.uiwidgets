@@ -324,7 +324,7 @@ class Build
         };
         np.Libraries.Add(new BagOfObjectFilesLibrary(
             new NPath[]{
-                skiaRoot+"third_party/externals/icu/flutter/icudtl.o"
+                skiaRoot+"/third_party/externals/icu/flutter/icudtl.o"
         }));
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
         
