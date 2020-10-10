@@ -262,20 +262,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db61290d6ca38264995f5749021d562c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Texture: {fileID: 0}
-  m_UVRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
+  fonts:
+  - path: Roboto-BlackItalic.ttf
+    name: Roboto-RegularB
+  - path: Roboto-Italic.ttf
+    name: Roboto-Regular
+  - path: Ranchers-Regular.ttf
+    name: ranchers
 --- !u!222 &847097471
 CanvasRenderer:
   m_ObjectHideFlags: 0

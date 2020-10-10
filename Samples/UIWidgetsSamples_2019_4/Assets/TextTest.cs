@@ -12,6 +12,7 @@ using Paint = Unity.UIWidgets.ui2.Paint;
 using ParagraphBuilder = Unity.UIWidgets.ui2.ParagraphBuilder;
 using ParagraphConstraints = Unity.UIWidgets.ui2.ParagraphConstraints;
 using ParagraphStyle = Unity.UIWidgets.ui2.ParagraphStyle;
+using Path = System.IO.Path;
 using Picture = Unity.UIWidgets.ui2.Picture;
 using PictureRecorder = Unity.UIWidgets.ui2.PictureRecorder;
 using Rect = Unity.UIWidgets.ui.Rect;
@@ -79,16 +80,16 @@ class TextTest : UIWidgetsPanel
     {
         if (check)
         {
-            var robot_regular_bold = File.ReadAllBytes("./Assets/StreamingAssets/Roboto-BlackItalic.ttf");
-            ui_.loadFontFromList(robot_regular_bold, "Roboto-RegularB").then(value =>
+            foreach (var font in fonts)
             {
-                Debug.Log("finish loading");
-                return FutureOr.nil;
-            });
-            var robot_regular = File.ReadAllBytes("./Assets/StreamingAssets/Roboto-Italic.ttf");
-            ui_.loadFontFromList(robot_regular, "Roboto-Regular");
-            var ranchers = File.ReadAllBytes("./Assets/StreamingAssets/Ranchers-Regular.ttf");
-            ui_.loadFontFromList(ranchers, "ranchers");
+                var path = Path.Combine(Application.streamingAssetsPath, font.path);
+                var fontFile = File.ReadAllBytes(path);
+                ui_.loadFontFromList(fontFile, font.name).then(value =>
+                {
+                    Debug.Log("finish loading");
+                    return FutureOr.nil;
+                });
+            }
             check = false;
         }
 

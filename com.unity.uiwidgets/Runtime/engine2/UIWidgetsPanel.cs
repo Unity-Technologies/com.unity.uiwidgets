@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.foundation;
@@ -11,6 +12,14 @@ using NativeBindings = Unity.UIWidgets.ui2.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
     public partial class UIWidgetsPanel : MonoBehaviour {
+        [Serializable]
+        public class TextFont {
+            public string path;
+            public string name;
+        }
+        
+        public List<TextFont> fonts;
+
         public class UIWidgetRawImage : RawImage {
             UIWidgetsPanel _uiWidgetsPanel;
 
