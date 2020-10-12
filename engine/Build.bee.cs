@@ -119,7 +119,7 @@ class Build
                 "src/lib/ui/compositing/scene.h",
                 "src/lib/ui/compositing/scene_builder.cc",
                 "src/lib/ui/compositing/scene_builder.h",
-                
+
 
                 "src/lib/ui/text/icu_util.h",
                 "src/lib/ui/text/icu_util.cc",
@@ -196,7 +196,7 @@ class Build
                 "src/lib/ui/snapshot_delegate.h",
                 "src/lib/ui/ui_mono_state.cc",
                 "src/lib/ui/ui_mono_state.h",
-                
+
                 "src/runtime/mono_api.cc",
                 "src/runtime/mono_api.h",
                 "src/runtime/mono_isolate.cc",
@@ -309,7 +309,7 @@ class Build
 
                 "src/shell/version/version.cc",
                 "src/shell/version/version.h",
-                
+
                 "src/engine.cc",
                 "src/platform_base.h",
                 "src/render_api.cc",
@@ -320,26 +320,26 @@ class Build
                 //"src/render_api_vulkan.cc",
                 //"src/render_api_opengles.cc",
             },
-            OutputName = {c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}"},
+            OutputName = { c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}" },
         };
         np.Libraries.Add(new BagOfObjectFilesLibrary(
             new NPath[]{
-                skiaRoot+"third_party/externals/icu/flutter/icudtl.o"
+                skiaRoot + "/third_party/externals/icu/flutter/icudtl.o"
         }));
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
-        
+
         np.IncludeDirectories.Add("third_party");
         np.IncludeDirectories.Add("src");
 
         np.Defines.Add("UIWIDGETS_ENGINE_VERSION=\\\"0.0\\\"", "SKIA_VERSION=\\\"0.0\\\"");
-        
+
         np.Defines.Add(c => c.CodeGen == CodeGen.Debug,
-            new[] {"_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1"});
+            new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });
 
         np.Defines.Add(c => c.CodeGen == CodeGen.Release,
-            new[] {"UIWidgets_RELEASE=1"});
+            new[] { "UIWidgets_RELEASE=1" });
 
-        np.LinkerSettings().Add(l => l.WithCustomFlags_workaround(new[] {"/DEBUG:FULL"}));
+        np.LinkerSettings().Add(l => l.WithCustomFlags_workaround(new[] { "/DEBUG:FULL" }));
 
         SetupFml(np);
         SetupRadidJson(np);
@@ -348,7 +348,7 @@ class Build
 
         var toolchain = ToolChain.Store.Windows().VS2019().Sdk_17134().x64();
 
-        var codegens = new[] {CodeGen.Debug};
+        var codegens = new[] { CodeGen.Debug };
         foreach (var codegen in codegens)
         {
             var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
@@ -363,7 +363,7 @@ class Build
 
     static void SetupFml(NativeProgram np)
     {
-        
+
         np.Defines.Add(new[]
         {
             // gn desc out\host_debug_unopt\ //flutter/fml:fml_lib defines
@@ -608,12 +608,12 @@ class Build
                 skiaRoot,
             },
         };
-        
+
         SetupTxtDependency(txtLib);
 
-        var ignoreWarnigs = new string[] { "4091", "4722", "4312", "4838", "4172", "4005", "4311", "4477"}; // todo comparing the list with engine
+        var ignoreWarnigs = new string[] { "4091", "4722", "4312", "4838", "4172", "4005", "4311", "4477" }; // todo comparing the list with engine
 
-        txtLib.CompilerSettings().Add(s => s.WithWarningPolicies(ignoreWarnigs.Select((code) => new WarningAndPolicy(code, WarningPolicy.Silent)).ToArray())) ;
+        txtLib.CompilerSettings().Add(s => s.WithWarningPolicies(ignoreWarnigs.Select((code) => new WarningAndPolicy(code, WarningPolicy.Silent)).ToArray()));
 
         txtLib.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });

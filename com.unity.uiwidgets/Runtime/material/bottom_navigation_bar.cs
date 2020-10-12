@@ -335,9 +335,7 @@ namespace Unity.UIWidgets.material {
                     color: colorTween.evaluate(animation)
                 ),
                 child: new Transform(
-                    transform: Matrix3.makeAll(t, 0, 0,
-                                               0, t, 0,
-                                               0, 0, 1),
+                    transform: new Matrix4().diagonal3Values(t, t, t),
                     alignment: Alignment.bottomCenter,
                     child: item.title
                 )

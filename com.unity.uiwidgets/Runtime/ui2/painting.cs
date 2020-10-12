@@ -2760,7 +2760,7 @@ namespace Unity.UIWidgets.ui2 {
             List<Shadow> result = new List<Shadow>();
             int commonLength = Math.Min(a.Count, b.Count);
             for (int i = 0; i < commonLength; i += 1)
-                result.Add(Shadow.lerp(a[i], b[i], t));
+                result.Add(lerp(a[i], b[i], t));
             for (int i = commonLength; i < a.Count; i += 1)
                 result.Add(a[i].scale(1.0f - t));
             for (int i = commonLength; i < b.Count; i += 1)
@@ -2783,7 +2783,7 @@ namespace Unity.UIWidgets.ui2 {
                 shadowOffset = shadowIndex * _kBytesPerShadow;
 
                 shadowsData.setInt32(_kColorOffset + shadowOffset,
-                    (int) (shadow.color.value ^ Shadow._kColorDefault));
+                    (int) (shadow.color.value ^ _kColorDefault));
 
                 shadowsData.setFloat32(_kXOffset + shadowOffset,
                     shadow.offset.dx);

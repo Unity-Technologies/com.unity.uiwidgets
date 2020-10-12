@@ -5,12 +5,15 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.gestures {
     public class DragDownDetails {
         public DragDownDetails(
-            Offset globalPosition = null
+            Offset globalPosition = null,
+            Offset localPosition = null
         ) {
             this.globalPosition = globalPosition ?? Offset.zero;
+            this.localPosition = localPosition ?? this.globalPosition;
         }
 
         public readonly Offset globalPosition;
+        public readonly Offset localPosition;
 
         public override string ToString() {
             return GetType() + "(" + globalPosition + ")";
@@ -20,14 +23,20 @@ namespace Unity.UIWidgets.gestures {
     public delegate void GestureDragDownCallback(DragDownDetails details);
 
     public class DragStartDetails {
-        public DragStartDetails(TimeSpan sourceTimeStamp, Offset globalPosition = null) {
+        public DragStartDetails(
+            TimeSpan sourceTimeStamp, 
+            Offset globalPosition = null,
+            Offset localPosition = null
+        ) {
             this.sourceTimeStamp = sourceTimeStamp;
             this.globalPosition = globalPosition ?? Offset.zero;
+            this.localPosition = localPosition ?? this.globalPosition;
         }
 
         public readonly TimeSpan sourceTimeStamp;
 
         public readonly Offset globalPosition;
+        public readonly Offset localPosition;
 
         public override string ToString() {
             return GetType() + "(" + globalPosition + ")";
@@ -42,11 +51,13 @@ namespace Unity.UIWidgets.gestures {
             Offset delta = null,
             float? primaryDelta = null,
             Offset globalPosition = null,
+            Offset localPosition = null,
             bool isScroll = false) {
             this.sourceTimeStamp = sourceTimeStamp;
             this.delta = delta ?? Offset.zero;
             this.primaryDelta = primaryDelta;
             this.globalPosition = globalPosition ?? Offset.zero;
+            this.localPosition = localPosition ?? this.globalPosition;
             this.isScroll = isScroll;
             D.assert(primaryDelta == null
                      || primaryDelta == this.delta.dx && this.delta.dy == 0.0
@@ -60,6 +71,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly float? primaryDelta;
 
         public readonly Offset globalPosition;
+        public readonly Offset localPosition;
 
         public readonly bool isScroll;
 

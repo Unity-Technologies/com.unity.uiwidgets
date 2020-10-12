@@ -83,17 +83,17 @@ namespace Unity.UIWidgets.rendering {
             return base.childMainAxisPosition(this.child);
         }
 
-        protected override bool hitTestChildren(HitTestResult result, float mainAxisPosition, float crossAxisPosition) {
+        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition, float crossAxisPosition) {
             D.assert(geometry.hitTestExtent > 0.0f);
             if (child != null) {
-                return RenderSliverHelpers.hitTestBoxChild(this, result, child, mainAxisPosition: mainAxisPosition,
+                return RenderSliverHelpers.hitTestBoxChild(this, new BoxHitTestResult(result), child, mainAxisPosition: mainAxisPosition,
                     crossAxisPosition: crossAxisPosition);
             }
 
             return false;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             D.assert(child != null);
             D.assert(child == this.child);
             RenderSliverHelpers.applyPaintTransformForBoxChild(this, this.child, transform);

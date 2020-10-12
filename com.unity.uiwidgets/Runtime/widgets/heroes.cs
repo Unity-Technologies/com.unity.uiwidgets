@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 
@@ -27,7 +28,7 @@ namespace Unity.UIWidgets.widgets {
         public static Rect _globalBoundingBoxFor(BuildContext context) {
             RenderBox box = (RenderBox) context.findRenderObject();
             D.assert(box != null && box.hasSize);
-            return box.getTransformTo(null).mapRect(Offset.zero & box.size);
+            return MatrixUtils.transformRect( box.getTransformTo(null), Offset.zero & box.size);
         }
     }
 

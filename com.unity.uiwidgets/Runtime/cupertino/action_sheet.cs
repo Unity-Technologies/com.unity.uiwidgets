@@ -312,7 +312,8 @@ namespace Unity.UIWidgets.cupertino {
     }
 
     class _CupertinoAlertRenderElement : RenderObjectElement {
-        public _CupertinoAlertRenderElement(_CupertinoAlertRenderWidget widget) : base(widget) { }
+        public _CupertinoAlertRenderElement(_CupertinoAlertRenderWidget widget) : base(widget) {
+        }
 
         Element _contentElement;
         Element _actionsElement;
@@ -606,22 +607,26 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
-            bool isHit = false;
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             MultiChildLayoutParentData contentSectionParentData =
                 contentSection.parentData as MultiChildLayoutParentData;
             MultiChildLayoutParentData actionsSectionParentData =
                 actionsSection.parentData as MultiChildLayoutParentData;
-            ;
-            if (contentSection.hitTest(result, position: position - contentSectionParentData.offset)) {
-                isHit = true;
-            }
-            else if (actionsSection.hitTest(result,
-                position: position - actionsSectionParentData.offset)) {
-                isHit = true;
-            }
-
-            return isHit;
+            return result.addWithPaintOffset(
+                offset: contentSectionParentData.offset,
+                position: position,
+                hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                    D.assert(transformed == position - contentSectionParentData.offset);
+                    return contentSection.hitTest(resultIn, position: transformed);
+                }
+            ) || result.addWithPaintOffset(
+                offset: actionsSectionParentData.offset,
+                position: position,
+                hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                    D.assert(transformed == position - actionsSectionParentData.offset);
+                    return actionsSection.hitTest(resultIn, position: transformed);
+                }
+            );
         }
     }
 
@@ -1091,7 +1096,7 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             return defaultHitTestChildren(result, position: position);
         }
     }

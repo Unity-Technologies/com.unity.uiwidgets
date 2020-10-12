@@ -22,8 +22,9 @@ namespace Unity.UIWidgets.widgets {
             DragStartBehavior dragStartBehavior = DragStartBehavior.start
         ) : base(key: key) {
             D.assert(!(controller != null && primary == true),
-                () => "Primary ScrollViews obtain their ScrollController via inheritance from a PrimaryScrollController widget. " +
-                "You cannot both set primary to true and pass an explicit controller.");
+                () =>
+                    "Primary ScrollViews obtain their ScrollController via inheritance from a PrimaryScrollController widget. " +
+                    "You cannot both set primary to true and pass an explicit controller.");
             this.scrollDirection = scrollDirection;
             this.reverse = reverse;
             this.padding = padding;
@@ -52,7 +53,7 @@ namespace Unity.UIWidgets.widgets {
 
         AxisDirection _getDirection(BuildContext context) {
             return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, scrollDirection,
-                       reverse) ?? AxisDirection.down;
+                reverse) ?? AxisDirection.down;
         }
 
         public override Widget build(BuildContext context) {
@@ -359,9 +360,9 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             Offset paintOffset = _paintOffset;
-            transform.preTranslate(paintOffset.dx, paintOffset.dy);
+            transform.translate(paintOffset.dx, paintOffset.dy);
         }
 
         public override Rect describeApproximatePaintClip(RenderObject child) {
@@ -372,10 +373,16 @@ namespace Unity.UIWidgets.widgets {
             return null;
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             if (child != null) {
-                Offset transformed = position + (-_paintOffset);
-                return child.hitTest(result, position: transformed);
+                return result.addWithPaintOffset(
+                    offset: _paintOffset,
+                    position: position,
+                    hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                        D.assert(transformed == position + (-_paintOffset));
+                        return child.hitTest(result, position: transformed);
+                    }
+                );
             }
 
             return false;
@@ -389,8 +396,8 @@ namespace Unity.UIWidgets.widgets {
             }
 
             RenderBox targetBox = (RenderBox) target;
-            Matrix3 transform = targetBox.getTransformTo(this);
-            Rect bounds = transform.mapRect(rect);
+            Matrix4 transform = targetBox.getTransformTo(this);
+            Rect bounds = MatrixUtils.transformRect(transform, rect);
             Size contentSize = child.size;
 
             float leadingScrollOffset = 0.0f;

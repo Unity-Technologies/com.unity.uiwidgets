@@ -4,6 +4,9 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
+using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.widgets {
@@ -68,18 +71,33 @@ namespace Unity.UIWidgets.widgets {
     }
 
 
-    public class Matrix3Tween : Tween<Matrix3> {
-        public Matrix3Tween(
-            Matrix3 begin = null,
-            Matrix3 end = null) : base(begin: begin, end: end) {
+    public class Matrix4Tween : Tween<Matrix4> {
+        public Matrix4Tween(
+            Matrix4 begin = null,
+            Matrix4 end = null) : base(begin: begin, end: end) {
         }
 
-        //todo:xingwei.zhu implement full matrix3 lerp
-        public override Matrix3 lerp(float t) {
+        public override Matrix4 lerp(float t) {
             D.assert(begin != null);
             D.assert(end != null);
 
-            return t < 0.5 ? begin : end;
+            Vector3 beginTranslation = Vector3.zero;
+            Vector3 endTranslation = Vector3.zero;
+            Quaternion beginRotation = Quaternion.identity;
+            Quaternion endRotation = Quaternion.identity;
+            Vector3 beginScale = Vector3.zero;
+            Vector3 endScale = Vector3.zero;
+            begin.decompose(ref beginTranslation, ref beginRotation, ref beginScale);
+            end.decompose(ref endTranslation, ref endRotation, ref endScale);
+            Vector3 lerpTranslation =
+                beginTranslation * (1.0f - t) + endTranslation * t;
+            // TODO(alangardner): Implement slerp for constant rotation
+            Quaternion lerpRotation =
+                beginRotation
+                    .scaled(1.0f - t)
+                    .add(endRotation.scaled(t)).normalized;
+            Vector3 lerpScale = beginScale * (1.0f - t) + endScale * t;
+            return new Matrix4().compose(lerpTranslation, lerpRotation, lerpScale);
         }
     }
 
@@ -265,7 +283,7 @@ namespace Unity.UIWidgets.widgets {
             float? height = null,
             BoxConstraints constraints = null,
             EdgeInsets margin = null,
-            Matrix3 transform = null,
+            Matrix4 transform = null,
             Widget child = null,
             Curve curve = null,
             TimeSpan? duration = null
@@ -306,7 +324,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly EdgeInsets margin;
 
-        public readonly Matrix3 transform;
+        public readonly Matrix4 transform;
 
 
         public override State createState() {
@@ -326,7 +344,7 @@ namespace Unity.UIWidgets.widgets {
                 defaultValue: null,
                 showName: false));
             properties.add(new DiagnosticsProperty<EdgeInsets>("margin", margin, defaultValue: null));
-            properties.add(ObjectFlagProperty<Matrix3>.has("transform", transform));
+            properties.add(ObjectFlagProperty<Matrix4>.has("transform", transform));
         }
     }
 
@@ -337,7 +355,7 @@ namespace Unity.UIWidgets.widgets {
         DecorationTween _foregroundDecoration;
         BoxConstraintsTween _constraints;
         EdgeInsetsTween _margin;
-        Matrix3Tween _transform;
+        Matrix4Tween _transform;
 
 
         protected override void forEachTween(TweenVisitor visitor) {
@@ -353,8 +371,8 @@ namespace Unity.UIWidgets.widgets {
                 (BoxConstraints value) => new BoxConstraintsTween(begin: value));
             _margin = (EdgeInsetsTween) visitor.visit(this, _margin, widget.margin,
                 (EdgeInsets value) => new EdgeInsetsTween(begin: value));
-            _transform = (Matrix3Tween) visitor.visit(this, _transform, widget.transform,
-                (Matrix3 value) => new Matrix3Tween(begin: value));
+            _transform = (Matrix4Tween) visitor.visit(this, _transform, widget.transform,
+                (Matrix4 value) => new Matrix4Tween(begin: value));
         }
 
 
@@ -383,7 +401,7 @@ namespace Unity.UIWidgets.widgets {
             description.add(new DiagnosticsProperty<BoxConstraintsTween>("constraints", _constraints,
                 showName: false, defaultValue: null));
             description.add(new DiagnosticsProperty<EdgeInsetsTween>("margin", _margin, defaultValue: null));
-            description.add(ObjectFlagProperty<Matrix3Tween>.has("transform", _transform));
+            description.add(ObjectFlagProperty<Matrix4Tween>.has("transform", _transform));
         }
     }
 

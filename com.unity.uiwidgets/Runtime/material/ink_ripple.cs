@@ -196,7 +196,7 @@ namespace Unity.UIWidgets.material {
             base.dispose();
         }
 
-        protected override void paintFeature(Canvas canvas, Matrix3 transform) {
+        protected override void paintFeature(Canvas canvas, Matrix4 transform) {
             int alpha = _fadeInController.isAnimating ? _fadeIn.value : _fadeOut.value;
             Paint paint = new Paint {color = color.withAlpha(alpha)};
             Offset center = Offset.lerp(
@@ -207,7 +207,7 @@ namespace Unity.UIWidgets.material {
             Offset originOffset = transform.getAsTranslation();
             canvas.save();
             if (originOffset == null) {
-                canvas.concat(transform);
+                canvas.concat(transform.toMatrix3());
             }
             else {
                 canvas.translate(originOffset.dx, originOffset.dy);

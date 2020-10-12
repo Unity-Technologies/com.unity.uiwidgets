@@ -1,5 +1,6 @@
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -72,7 +73,7 @@ namespace UIWidgets.Runtime.rendering {
             return _isVertical ? child.getMaxIntrinsicWidth(width) : child.getMaxIntrinsicHeight(width);
         }
 
-        Matrix3 _paintTransform;
+        Matrix4 _paintTransform;
 
         protected override void performLayout() {
             _paintTransform = null;
@@ -81,10 +82,10 @@ namespace UIWidgets.Runtime.rendering {
                 size = _isVertical
                     ? new Size(child.size.height, child.size.width)
                     : child.size;
-                _paintTransform = Matrix3.I();
-                _paintTransform.preTranslate(size.width / 2.0f, size.height / 2.0f);
-                _paintTransform.preRotate(RotatedBoxUtils._kQuarterTurnsInRadians * (quarterTurns % 4));
-                _paintTransform.preTranslate(-child.size.width / 2.0f, -child.size.height / 2.0f);
+                _paintTransform = new Matrix4().identity();
+                _paintTransform.translate(size.width / 2.0f, size.height / 2.0f);
+                _paintTransform.rotateZ(RotatedBoxUtils._kQuarterTurnsInRadians * (quarterTurns % 4));
+                _paintTransform.translate(-child.size.width / 2.0f, -child.size.height / 2.0f);
             }
             else {
                 performResize();
@@ -92,7 +93,7 @@ namespace UIWidgets.Runtime.rendering {
         }
 
         protected override bool hitTestChildren(
-            HitTestResult result,
+            BoxHitTestResult result,
             Offset position = null
         ) {
             D.assert(_paintTransform != null || debugNeedsLayout || child == null);
@@ -100,10 +101,13 @@ namespace UIWidgets.Runtime.rendering {
                 return false;
             }
 
-
-            Matrix3 inverse = Matrix3.I();
-            _paintTransform.invert(inverse);
-            return child.hitTest(result, position: inverse.mapPoint(position));
+            return result.addWithPaintTransform(
+                transform: _paintTransform,
+                position: position,
+                hitTest: (BoxHitTestResult resultIn, Offset positionIn) => {
+                    return child.hitTest(resultIn, position: positionIn);
+                }
+            );
         }
 
         void _paintChild(PaintingContext context, Offset offset) {
@@ -116,9 +120,9 @@ namespace UIWidgets.Runtime.rendering {
             }
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             if (_paintTransform != null) {
-                transform.preConcat(_paintTransform);
+                transform.multiply(_paintTransform);
             }
 
             base.applyPaintTransform(child, transform);

@@ -43,14 +43,16 @@ namespace Unity.UIWidgets.gestures {
         public float? maxFlingVelocity;
 
         _DragState _state = _DragState.ready;
-        Offset _initialPosition;
-        protected Offset _pendingDragOffset;
+        OffsetPair _initialPosition;
+        protected OffsetPair _pendingDragOffset;
         TimeSpan _lastPendingEventTimestamp;
+        Matrix4 _lastTransform;
+        protected float _globalDistanceMoved;
 
         protected abstract bool _isFlingGesture(VelocityEstimate estimate);
         protected abstract Offset _getDeltaForDetails(Offset delta);
         protected abstract float? _getPrimaryValueFromOffset(Offset value);
-        protected abstract bool _hasSufficientPendingDragDeltaToAccept { get; }
+        protected abstract bool _hasSufficientGlobalDistanceToAccept { get; }
 
         readonly Dictionary<int, VelocityTracker> _velocityTrackers = new Dictionary<int, VelocityTracker>();
 
@@ -58,12 +60,13 @@ namespace Unity.UIWidgets.gestures {
             startTrackingScrollerPointer(evt.pointer);
             if (_state == _DragState.ready) {
                 _state = _DragState.possible;
-                _initialPosition = evt.position;
+                _initialPosition = new OffsetPair(global: evt.position, local: evt.localPosition);
                 if (onStart != null) {
                     invokeCallback<object>("onStart", () => {
                         onStart(new DragStartDetails(
                             sourceTimeStamp: evt.timeStamp,
-                            globalPosition: _initialPosition
+                            globalPosition: _initialPosition.global,
+                            localPosition: _initialPosition.local
                         ));
                         return null;
                     });
@@ -72,17 +75,21 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override void addAllowedPointer(PointerDownEvent evt) {
-            startTrackingPointer(evt.pointer);
+            startTrackingPointer(evt.pointer, evt.transform);
             _velocityTrackers[evt.pointer] = new VelocityTracker();
             if (_state == _DragState.ready) {
                 _state = _DragState.possible;
-                _initialPosition = evt.position;
-                _pendingDragOffset = Offset.zero;
+                _initialPosition = new OffsetPair(global: evt.position, local: evt.localPosition);
+                _pendingDragOffset = OffsetPair.zero;
+                _globalDistanceMoved = 0f;
                 _lastPendingEventTimestamp = evt.timeStamp;
+                _lastTransform = evt.transform;
                 if (onDown != null) {
                     invokeCallback<object>("onDown",
                         () => {
-                            onDown(new DragDownDetails(globalPosition: _initialPosition));
+                            onDown(new DragDownDetails(
+                                globalPosition: _initialPosition.global,
+                                localPosition: _initialPosition.local));
                             return null;
                         });
                 }
@@ -104,6 +111,7 @@ namespace Unity.UIWidgets.gestures {
                             delta: _getDeltaForDetails(delta),
                             primaryDelta: _getPrimaryValueFromOffset(delta),
                             globalPosition: evt.position,
+                            localPosition: evt.localPosition,
                             isScroll: true
                         ));
                         return null;
@@ -118,28 +126,36 @@ namespace Unity.UIWidgets.gestures {
                 && (evt is PointerDownEvent || evt is PointerMoveEvent)) {
                 var tracker = _velocityTrackers[evt.pointer];
                 D.assert(tracker != null);
-                tracker.addPosition(evt.timeStamp, evt.position);
+                tracker.addPosition(evt.timeStamp, evt.localPosition);
             }
 
             if (evt is PointerMoveEvent) {
-                Offset delta = evt.delta;
                 if (_state == _DragState.accepted) {
                     if (onUpdate != null) {
                         invokeCallback<object>("onUpdate", () => {
                             onUpdate(new DragUpdateDetails(
                                 sourceTimeStamp: evt.timeStamp,
-                                delta: _getDeltaForDetails(delta),
-                                primaryDelta: _getPrimaryValueFromOffset(delta),
-                                globalPosition: evt.position
+                                delta: _getDeltaForDetails(evt.localDelta),
+                                primaryDelta: _getPrimaryValueFromOffset(evt.localDelta),
+                                globalPosition: evt.position,
+                                localPosition: evt.localPosition
                             ));
                             return null;
                         });
                     }
                 }
                 else {
-                    _pendingDragOffset += delta;
+                    _pendingDragOffset += new OffsetPair(local: evt.localDelta, global: evt.delta);
                     _lastPendingEventTimestamp = evt.timeStamp;
-                    if (_hasSufficientPendingDragDeltaToAccept) {
+                    _lastTransform = evt.transform;
+                    Offset movedLocally = _getDeltaForDetails(evt.localDelta);
+                    Matrix4 localToGlobalTransform = evt.transform == null ? null : Matrix4.tryInvert(evt.transform);
+                    _globalDistanceMoved += PointerEvent.transformDeltaViaPositions(
+                        transform: localToGlobalTransform,
+                        untransformedDelta: movedLocally,
+                        untransformedEndPosition: evt.localPosition
+                        ).distance * (_getPrimaryValueFromOffset(movedLocally) ?? 1).sign();
+                    if (_hasSufficientGlobalDistanceToAccept) {
                         resolve(GestureDisposition.accepted);
                     }
                 }
@@ -151,41 +167,54 @@ namespace Unity.UIWidgets.gestures {
         public override void acceptGesture(int pointer) {
             if (_state != _DragState.accepted) {
                 _state = _DragState.accepted;
-                Offset delta = _pendingDragOffset;
+                OffsetPair delta = _pendingDragOffset;
                 var timestamp = _lastPendingEventTimestamp;
+                Matrix4 transform = _lastTransform;
 
-                Offset updateDelta = null;
+                Offset localUpdateDelta = null;
                 switch (dragStartBehavior) {
                     case DragStartBehavior.start:
                         _initialPosition = _initialPosition + delta;
-                        updateDelta = Offset.zero;
+                        localUpdateDelta = Offset.zero;
                         break;
                     case DragStartBehavior.down:
-                        updateDelta = _getDeltaForDetails(delta);
+                        localUpdateDelta = _getDeltaForDetails(delta.local);
                         break;
                 }
 
-                D.assert(updateDelta != null);
+                D.assert(localUpdateDelta != null);
 
-                _pendingDragOffset = Offset.zero;
+                _pendingDragOffset = OffsetPair.zero;
                 _lastPendingEventTimestamp = default(TimeSpan);
+                _lastTransform = null;
                 if (onStart != null) {
                     invokeCallback<object>("onStart", () => {
                         onStart(new DragStartDetails(
                             sourceTimeStamp: timestamp,
-                            globalPosition: _initialPosition
+                            globalPosition: _initialPosition.global,
+                            localPosition: _initialPosition.local
                         ));
                         return null;
                     });
                 }
 
-                if (updateDelta != Offset.zero && onUpdate != null) {
+                if (localUpdateDelta != Offset.zero && onUpdate != null) {
+                    Matrix4 localToGlobal = transform != null ? Matrix4.tryInvert(transform) : null;
+                    Offset correctedLocalPosition = _initialPosition.local + localUpdateDelta;
+                    Offset globalUpdateDelta = PointerEvent.transformDeltaViaPositions(
+                        untransformedEndPosition: correctedLocalPosition,
+                        untransformedDelta: localUpdateDelta,
+                        transform: localToGlobal
+                    );
+                    OffsetPair updateDelta = new OffsetPair(local: localUpdateDelta, global: globalUpdateDelta);
+                    OffsetPair correctedPosition = _initialPosition + updateDelta; // Only adds delta for down behaviour
                     invokeCallback<object>("onUpdate", () => {
                         onUpdate(new DragUpdateDetails(
                             sourceTimeStamp: timestamp,
-                            delta: updateDelta,
-                            primaryDelta: _getPrimaryValueFromOffset(updateDelta),
-                            globalPosition: _initialPosition + updateDelta
+                            delta: localUpdateDelta,
+                            primaryDelta: _getPrimaryValueFromOffset(localUpdateDelta),
+                            globalPosition: _initialPosition.global,
+                            localPosition: _initialPosition.local
                         ));
                         return null;
                     });
@@ -283,8 +312,8 @@ namespace Unity.UIWidgets.gestures {
             return Mathf.Abs(estimate.pixelsPerSecond.dy) > minVelocity && Mathf.Abs(estimate.offset.dy) > minDistance;
         }
 
-        protected override bool _hasSufficientPendingDragDeltaToAccept {
-            get { return Mathf.Abs(_pendingDragOffset.dy) > Constants.kTouchSlop; }
+        protected override bool _hasSufficientGlobalDistanceToAccept {
+            get { return Mathf.Abs(_globalDistanceMoved) > Constants.kTouchSlop; }
         }
 
         protected override Offset _getDeltaForDetails(Offset delta) {
@@ -311,8 +340,8 @@ namespace Unity.UIWidgets.gestures {
             return Mathf.Abs(estimate.pixelsPerSecond.dx) > minVelocity && Mathf.Abs(estimate.offset.dx) > minDistance;
         }
 
-        protected override bool _hasSufficientPendingDragDeltaToAccept {
-            get { return Mathf.Abs(_pendingDragOffset.dx) > Constants.kTouchSlop; }
+        protected override bool _hasSufficientGlobalDistanceToAccept {
+            get { return Mathf.Abs(_globalDistanceMoved) > Constants.kTouchSlop; }
         }
 
         protected override Offset _getDeltaForDetails(Offset delta) {
@@ -340,8 +369,8 @@ namespace Unity.UIWidgets.gestures {
                    && estimate.offset.distanceSquared > minDistance * minDistance;
         }
 
-        protected override bool _hasSufficientPendingDragDeltaToAccept {
-            get { return _pendingDragOffset.distance > Constants.kPanSlop; }
+        protected override bool _hasSufficientGlobalDistanceToAccept {
+            get { return Math.Abs(_globalDistanceMoved) > Constants.kPanSlop; }
         }
 
         protected override Offset _getDeltaForDetails(Offset delta) {

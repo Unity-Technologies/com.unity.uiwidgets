@@ -268,6 +268,20 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
+        public static float getIntrinsicDimension(RenderBox firstChild, mainChildSizeGetter getter) {
+            float extent = 0;
+            RenderBox child = firstChild;
+            while (child != null) {
+                StackParentData childParentData = child.parentData as StackParentData;
+                if (!childParentData.isPositioned)
+                    extent = Math.Max(extent, getter(child));
+                D.assert(child.parentData == childParentData);
+                child = childParentData.nextSibling;
+            }
+
+            return extent;
+        }
+
         public delegate float mainChildSizeGetter(RenderBox child);
 
         float _getIntrinsicDimension(mainChildSizeGetter getter) {
@@ -306,6 +320,61 @@ namespace Unity.UIWidgets.rendering {
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             return defaultComputeDistanceToHighestActualBaseline(baseline);
+        }
+
+        public static bool layoutPositionedChild(RenderBox child, StackParentData childParentData, Size size,
+            Alignment alignment) {
+            D.assert(childParentData.isPositioned);
+            D.assert(child.parentData == childParentData);
+
+            bool hasVisualOverflow = false;
+            BoxConstraints childConstraints = new BoxConstraints();
+
+            if (childParentData.left != null && childParentData.right != null)
+                childConstraints =
+                    childConstraints.tighten(width: size.width - childParentData.right - childParentData.left);
+            else if (childParentData.width != null)
+                childConstraints = childConstraints.tighten(width: childParentData.width);
+
+            if (childParentData.top != null && childParentData.bottom != null)
+                childConstraints =
+                    childConstraints.tighten(height: size.height - childParentData.bottom - childParentData.top);
+            else if (childParentData.height != null)
+                childConstraints = childConstraints.tighten(height: childParentData.height);
+
+            child.layout(childConstraints, parentUsesSize: true);
+
+            float? x;
+            if (childParentData.left != null) {
+                x = childParentData.left;
+            }
+            else if (childParentData.right != null) {
+                x = size.width - childParentData.right - child.size.width;
+            }
+            else {
+                x = alignment.alongOffset(size - child.size as Offset).dx;
+            }
+
+            if (x < 0.0 || x + child.size.width > size.width)
+                hasVisualOverflow = true;
+
+            float? y;
+            if (childParentData.top != null) {
+                y = childParentData.top;
+            }
+            else if (childParentData.bottom != null) {
+                y = size.height - childParentData.bottom - child.size.height;
+            }
+            else {
+                y = alignment.alongOffset(size - child.size as Offset).dy;
+            }
+
+            if (y < 0.0 || y + child.size.height > size.height)
+                hasVisualOverflow = true;
+
+            childParentData.offset = new Offset(x ?? 0, y ?? 0);
+
+            return hasVisualOverflow;
         }
 
         protected override void performLayout() {
@@ -427,7 +496,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             return defaultHitTestChildren(result, position: position);
         }
 
@@ -492,7 +561,7 @@ namespace Unity.UIWidgets.rendering {
             return child;
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
             if (firstChild == null || index == null) {
                 return false;
             }
@@ -500,7 +569,14 @@ namespace Unity.UIWidgets.rendering {
             D.assert(position != null);
             RenderBox child = _childAtIndex();
             StackParentData childParentData = (StackParentData) child.parentData;
-            return child.hitTest(result, position: position - childParentData.offset);
+            return result.addWithPaintOffset(
+                offset: childParentData.offset,
+                position: position,
+                hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
+                    D.assert(transformed == position - childParentData.offset);
+                    return child.hitTest(resultIn, position: transformed);
+                }
+            );
         }
 
         public override void paintStack(PaintingContext context, Offset offset) {

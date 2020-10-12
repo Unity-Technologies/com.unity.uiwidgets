@@ -410,7 +410,7 @@ namespace Unity.UIWidgets.material {
                 descendants.Add(node);
             }
 
-            Matrix3 transform = Matrix3.I();
+            Matrix4 transform = new Matrix4().identity();
             D.assert(descendants.Count >= 2);
             for (int index = descendants.Count - 1; index > 0; index -= 1) {
                 descendants[index].applyPaintTransform(descendants[index - 1], transform);
@@ -419,7 +419,7 @@ namespace Unity.UIWidgets.material {
             paintFeature(canvas, transform);
         }
 
-        protected abstract void paintFeature(Canvas canvas, Matrix3 transform);
+        protected abstract void paintFeature(Canvas canvas, Matrix4 transform);
 
         public override string ToString() {
             return GetType() + "";
