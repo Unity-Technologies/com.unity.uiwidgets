@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public enum TileMode : int {
         clamp = 0,
         mirror = 1,

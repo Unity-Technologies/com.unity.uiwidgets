@@ -4,7 +4,7 @@ using System.Text;
 using Unity.UIWidgets.async2;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     readonly struct _StoredMessage {
         internal _StoredMessage(byte[] data, PlatformMessageResponseCallback callback) {
             _data = data;

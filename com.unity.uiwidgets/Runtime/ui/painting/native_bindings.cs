@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Unity.UIWidgets.foundation;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     class NativeBindings {
 #if (UNITY_IOS || UNITY_TVOS || UNITY_WEBGL) && !UNITY_EDITOR
         const string dllName = "__Internal";

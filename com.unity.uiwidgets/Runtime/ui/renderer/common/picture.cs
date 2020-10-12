@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.external;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public class uiPicture : PoolObject {
         public uiPicture() {
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     class MeshKey : PoolObject, IEquatable<MeshKey> {
         public long textBlobId;
         public float scale;

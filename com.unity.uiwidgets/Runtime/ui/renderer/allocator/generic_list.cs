@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public class uiList<T> : PoolObject {
         List<T> list;
 

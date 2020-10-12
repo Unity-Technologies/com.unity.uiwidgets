@@ -1,4 +1,4 @@
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public partial class uiPath {
 
         public enum uiPathShapeHint {

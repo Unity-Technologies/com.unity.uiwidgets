@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public class CommandBufferCanvas : uiRecorderCanvas {
         readonly PictureFlusher _flusher;
 

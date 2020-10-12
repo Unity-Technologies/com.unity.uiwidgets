@@ -1,4 +1,4 @@
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public struct uiOffset {
         public uiOffset(float dx, float dy) {
             this.dx = dx;

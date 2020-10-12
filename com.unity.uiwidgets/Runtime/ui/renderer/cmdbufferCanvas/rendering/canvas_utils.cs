@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     static class BlurUtils {
         static readonly Dictionary<int, float[]> _gaussianKernels
             = new Dictionary<int, float[]>();

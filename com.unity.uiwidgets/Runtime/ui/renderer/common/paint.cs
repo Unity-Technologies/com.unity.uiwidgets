@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public struct uiMaskFilter {
         uiMaskFilter(BlurStyle style, float sigma) {
             this.style = style;

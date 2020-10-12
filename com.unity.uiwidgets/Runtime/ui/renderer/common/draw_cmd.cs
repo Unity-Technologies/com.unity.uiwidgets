@@ -1,4 +1,4 @@
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public abstract class uiDrawCmd : PoolObject {
         public abstract void release();
     }

@@ -5,7 +5,7 @@ using System.Text;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
 
     public enum PathOperation {
         difference,

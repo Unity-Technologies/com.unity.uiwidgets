@@ -3,7 +3,7 @@ using Unity.UIWidgets.flow;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public class SceneBuilder {
         ContainerLayer _rootLayer;
         ContainerLayer _currentLayer;

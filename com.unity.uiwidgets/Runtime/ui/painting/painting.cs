@@ -3,7 +3,7 @@ using System.Linq;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     class PaintingUtils {
         internal static bool _offsetIsValid(Offset offset) {
             D.assert(offset != null, () => "Offset argument was null.");

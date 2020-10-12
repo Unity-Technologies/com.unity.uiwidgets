@@ -4,7 +4,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.external;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     struct CodeUnitRun {
         public readonly int lineNumber;
         public readonly TextDirection direction;

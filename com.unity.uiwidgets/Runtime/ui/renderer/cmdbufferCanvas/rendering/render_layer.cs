@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public partial class PictureFlusher {
         internal class RenderLayer : PoolObject {
             public int rtID;

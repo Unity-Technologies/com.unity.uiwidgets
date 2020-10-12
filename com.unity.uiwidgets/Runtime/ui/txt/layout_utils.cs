@@ -1,4 +1,4 @@
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     static class LayoutUtils {
         public const char CHAR_NBSP = '\u00A0';
 

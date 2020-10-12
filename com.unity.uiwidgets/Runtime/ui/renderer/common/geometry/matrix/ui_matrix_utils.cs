@@ -2,7 +2,7 @@ using System;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public partial struct uiMatrix3 {
         public void mapPoints(ref uiOffset[] dst, ref uiOffset[] src) {
             D.assert(dst != null && src != null && dst.Length == src.Length);

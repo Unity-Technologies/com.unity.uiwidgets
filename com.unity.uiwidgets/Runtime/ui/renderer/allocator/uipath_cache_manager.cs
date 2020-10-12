@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public static class uiPathCacheManager {
         static readonly Dictionary<uint, uiPath> cache = new Dictionary<uint, uiPath>(256);
 

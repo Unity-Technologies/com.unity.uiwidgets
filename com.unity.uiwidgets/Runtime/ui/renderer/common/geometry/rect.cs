@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public struct uiRect {
         public uiRect(float left, float top, float right, float bottom) {
             this.left = left;

@@ -1,4 +1,4 @@
-﻿namespace Unity.UIWidgets.ui {
+﻿namespace Unity.UIWidgets.uiOld{
     public struct TextBlob {
         internal TextBlob(string text, int textOffset, int textSize, float[] positionXs,
             UnityEngine.Rect bounds, TextStyle style) {

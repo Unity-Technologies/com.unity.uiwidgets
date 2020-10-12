@@ -1,4 +1,4 @@
-﻿namespace Unity.UIWidgets.ui {
+﻿namespace Unity.UIWidgets.uiOld{
     struct WordSeparate {
         internal enum CharacterType {
             LetterLike,

@@ -2,7 +2,7 @@ using Unity.UIWidgets.editor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     static partial class CanvasShader {
         const bool enableDebugLog = false;
 

@@ -10,7 +10,7 @@ using Unity.UIWidgets.async2;
 using Unity.UIWidgets.services;
 using Rect = Unity.UIWidgets.ui.Rect;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     public enum FontStyle {
         normal,
 

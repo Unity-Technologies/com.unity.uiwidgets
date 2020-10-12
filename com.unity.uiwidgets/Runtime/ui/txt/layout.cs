@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     static class Layout {
         // Measure the length of the span of the text. Currently, this is only used to compute the length
         // of ellipsis, assuming that the ellipsis does not contain any tab, tab is not considered for simplicity

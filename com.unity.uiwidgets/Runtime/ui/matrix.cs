@@ -2,7 +2,7 @@ using System;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public class Matrix3 : IEquatable<Matrix3> {
         public static Matrix3 makeScale(float sx, float sy) {
             var m = new Matrix3();

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     static class XformUtils {
         public static float getAverageScale(Matrix3 matrix) {
             return (getScaleX(matrix) + getScaleY(matrix)) * 0.5f;

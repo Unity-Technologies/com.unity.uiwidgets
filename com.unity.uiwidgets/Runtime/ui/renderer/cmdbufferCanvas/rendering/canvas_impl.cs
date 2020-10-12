@@ -6,7 +6,7 @@ using Unity.UIWidgets.external;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public partial class PictureFlusher {
         readonly RenderTexture _renderTexture;
         readonly float _fringeWidth;

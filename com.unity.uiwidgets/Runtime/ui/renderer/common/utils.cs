@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     static class uiXformUtils {
         public static float getScaleX(uiMatrix3 matrix) {
             // ignore perspective parameters for now.

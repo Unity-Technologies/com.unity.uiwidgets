@@ -3,7 +3,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.ui{
     public class Matrix4 : IEquatable<Matrix4> {
         internal readonly float[] _m4storage;
 

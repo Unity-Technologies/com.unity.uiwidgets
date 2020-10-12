@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public class ParagraphBuilder {
         StringBuilder _text = new StringBuilder();
         ParagraphStyle _paragraphStyle;

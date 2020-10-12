@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public enum uiPathWinding {
         counterClockwise = 1, // which just means the order as the input is.
         clockwise = 2, // which just means the reversed order.

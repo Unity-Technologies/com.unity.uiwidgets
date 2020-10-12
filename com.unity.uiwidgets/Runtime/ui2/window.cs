@@ -8,7 +8,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     public delegate void VoidCallback();
 
     public delegate void FrameCallback(TimeSpan duration);
@@ -87,6 +87,79 @@ namespace Unity.UIWidgets.ui2 {
         }
     }
 
+    
+    public class Locale : IEquatable<Locale> {
+        public Locale(string languageCode, string countryCode = null) {
+            D.assert(languageCode != null);
+            _languageCode = languageCode;
+            _countryCode = countryCode;
+        }
+
+        readonly string _languageCode;
+
+        public string languageCode {
+            get { return _languageCode; }
+        }
+
+        readonly string _countryCode;
+
+        public string countryCode {
+            get { return _countryCode; }
+        }
+
+        public bool Equals(Locale other) {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return string.Equals(_languageCode, other._languageCode) &&
+                   string.Equals(_countryCode, other._countryCode);
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((Locale) obj);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                return ((_languageCode != null ? _languageCode.GetHashCode() : 0) * 397) ^
+                       (_countryCode != null ? _countryCode.GetHashCode() : 0);
+            }
+        }
+
+        public static bool operator ==(Locale left, Locale right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Locale left, Locale right) {
+            return !Equals(left, right);
+        }
+
+        public override string ToString() {
+            if (countryCode == null) {
+                return languageCode;
+            }
+
+            return $"{languageCode}_{countryCode}";
+        }
+    }
+    
     public class Window {
         internal IntPtr _ptr;
         internal object _binding;

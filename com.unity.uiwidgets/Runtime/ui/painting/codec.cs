@@ -3,7 +3,7 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public class FrameInfo {
         public Image image;
         public TimeSpan duration;

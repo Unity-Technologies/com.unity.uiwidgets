@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     class TessellationKey : IEquatable<TessellationKey> {
         public readonly float x2;
         public readonly float y2;

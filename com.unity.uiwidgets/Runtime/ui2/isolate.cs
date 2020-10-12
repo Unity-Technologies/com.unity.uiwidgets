@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     public class Isolate {
         static Dictionary<IntPtr, Isolate> _isolates = new Dictionary<IntPtr, Isolate>();
 

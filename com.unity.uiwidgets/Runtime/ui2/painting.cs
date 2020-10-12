@@ -10,7 +10,7 @@ using UnityEngine;
 using Unity.UIWidgets.ui;
 using Rect = Unity.UIWidgets.ui.Rect;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     public static class Conversions {
         public static UnityEngine.Color toColor(this Color color) {
             return new UnityEngine.Color(

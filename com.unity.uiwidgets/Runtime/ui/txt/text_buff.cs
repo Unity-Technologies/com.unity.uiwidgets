@@ -1,6 +1,6 @@
 using Unity.UIWidgets.foundation;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     struct TextBuff {
         public readonly string text;
         public readonly int offset;

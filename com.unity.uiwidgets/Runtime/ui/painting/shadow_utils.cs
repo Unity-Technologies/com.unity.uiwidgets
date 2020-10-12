@@ -1,7 +1,7 @@
 using Unity.UIWidgets.material;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     static class ShadowUtils {
         public const bool kUseFastShadow = true;
 

@@ -2,7 +2,7 @@
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     class FontInfo {
         public readonly Font font;
         int _textureVersion;

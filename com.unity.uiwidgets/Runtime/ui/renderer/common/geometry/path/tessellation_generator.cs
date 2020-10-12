@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     class uiTessellationKey : PoolObject, IEquatable<uiTessellationKey> {
         public float x2;
         public float y2;

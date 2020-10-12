@@ -3,7 +3,7 @@ using Unity.UIWidgets.flow;
 using UnityEngine;
 using Unity.UIWidgets.foundation;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public interface Canvas {
         void save();
 

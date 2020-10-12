@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     // from https://github.com/avianbc/NGif/blob/master/Components/GifDecoder.cs
     // https://gist.github.com/devunwired/4479231
     // No DISPOSAL_PREVIOUS as its not actually widely used.

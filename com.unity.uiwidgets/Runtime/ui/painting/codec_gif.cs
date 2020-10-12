@@ -4,7 +4,7 @@ using System.IO;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public class GifCodec : Codec {
         public static bool isGif(byte[] bytes) {
             return bytes != null && bytes.Length >= 3 && bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F';

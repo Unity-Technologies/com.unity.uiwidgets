@@ -3,7 +3,7 @@ using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public class Image : IEquatable<Image>, IDisposable {
         Texture _texture;
         readonly bool _noDispose;

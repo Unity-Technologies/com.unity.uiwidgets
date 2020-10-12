@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     class StyledRuns {
         readonly List<TextStyle> styles = new List<TextStyle>();
         readonly List<IndexedRun> runs = new List<IndexedRun>();

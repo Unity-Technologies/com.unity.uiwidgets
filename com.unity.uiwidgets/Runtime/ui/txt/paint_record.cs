@@ -1,4 +1,4 @@
-﻿namespace Unity.UIWidgets.ui {
+﻿namespace Unity.UIWidgets.uiOld{
     struct PaintRecord {
         public PaintRecord(TextStyle style, float dx, float dy, TextBlob text, FontMetrics metrics, float runWidth) {
             _style = style;

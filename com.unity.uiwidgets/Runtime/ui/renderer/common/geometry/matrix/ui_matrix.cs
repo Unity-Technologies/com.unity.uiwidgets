@@ -1,7 +1,7 @@
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public partial struct uiMatrix3 {
         //Constants
         enum TypeMask {

@@ -3,7 +3,7 @@ using Unity.UIWidgets.foundation;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     static class MaterialProps {
         static readonly int _srcBlend = Shader.PropertyToID("_SrcBlend");
         static readonly int _dstBlend = Shader.PropertyToID("_DstBlend");

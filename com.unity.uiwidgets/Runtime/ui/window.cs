@@ -6,7 +6,7 @@ using Unity.UIWidgets.foundation;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     public delegate void VoidCallback();
 
     public delegate void FrameCallback(TimeSpan duration);

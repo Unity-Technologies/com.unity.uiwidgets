@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.ui{
     public static class MathUtils {
         const float _valueNearlyZero = 1f / (1 << 12);
 

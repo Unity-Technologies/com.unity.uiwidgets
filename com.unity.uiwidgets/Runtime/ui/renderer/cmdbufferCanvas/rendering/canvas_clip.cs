@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui {
+namespace Unity.UIWidgets.uiOld{
     class ClipElement : PoolObject {
         public int saveCount;
         public uiMeshMesh mesh;

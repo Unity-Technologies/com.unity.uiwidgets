@@ -1,7 +1,7 @@
 ﻿using System;
 using Unity.UIWidgets.foundation;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     public class NativeBindings {
 #if (UNITY_IOS || UNITY_TVOS || UNITY_WEBGL) && !UNITY_EDITOR
         internal const string dllName = "__Internal";
