@@ -1,19 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RSG;
-using RSG.Promises;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
+using SchedulerBinding = Unity.UIWidgets.scheduler.SchedulerBinding;
+using SchedulerPhase = Unity.UIWidgets.scheduler.SchedulerPhase;
 
 namespace Unity.UIWidgets.widgets {
     public delegate Route RouteFactory(RouteSettings settings);
 
     public delegate bool RoutePredicate(Route route);
 
-    public delegate IPromise<bool> WillPopCallback();
+    public delegate Future<bool> WillPopCallback();
 
     public enum RoutePopDisposition {
         pop,
@@ -42,16 +43,20 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected internal virtual TickerFuture didPush() {
-            return TickerFutureImpl.complete();
+            var future = TickerFuture.complete();
+            future.then(o => {
+                navigator?.focusScopeNode?.requestFocus();
+            });
+            return future;
         }
 
         protected internal virtual void didReplace(Route oldRoute) {
         }
 
-        public virtual IPromise<RoutePopDisposition> willPop() {
-            return Promise<RoutePopDisposition>.Resolved(isFirst
+        public virtual Future<RoutePopDisposition> willPop() {
+            return Future<RoutePopDisposition>.value(isFirst
                 ? RoutePopDisposition.bubble
-                : RoutePopDisposition.pop);
+                : RoutePopDisposition.pop).to<RoutePopDisposition>();
         }
 
         public virtual bool willHandlePopInternally {
@@ -62,11 +67,11 @@ namespace Unity.UIWidgets.widgets {
             get { return null; }
         }
 
-        public IPromise<object> popped {
-            get { return _popCompleter; }
+        public Future popped {
+            get { return _popCompleter.future; }
         }
 
-        internal readonly Promise<object> _popCompleter = new Promise<object>();
+        internal readonly Completer _popCompleter = Completer.create();
 
         protected internal virtual bool didPop(object result) {
             didComplete(result);
@@ -74,7 +79,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected internal virtual void didComplete(object result) {
-            _popCompleter.Resolve(result);
+            _popCompleter.complete(FutureOr.value(result ?? currentResult));
         }
 
         protected internal virtual void didPopNext(Route nextRoute) {
@@ -185,34 +190,34 @@ namespace Unity.UIWidgets.widgets {
 
         public static readonly string defaultRouteName = "/";
 
-        public static IPromise<object> pushNamed(BuildContext context, string routeName, object arguments = null) {
+        public static Future pushNamed(BuildContext context, string routeName, object arguments = null) {
             return of(context).pushNamed(routeName, arguments: arguments);
         }
 
-        public static IPromise<object> pushReplacementNamed(BuildContext context, string routeName,
+        public static Future pushReplacementNamed(BuildContext context, string routeName,
             object result = null, object arguments = null) {
             return of(context).pushReplacementNamed(routeName, result: result, arguments: arguments);
         }
 
-        public static IPromise<object> popAndPushNamed(BuildContext context, string routeName, object result = null,
+        public static Future popAndPushNamed(BuildContext context, string routeName, object result = null,
             object arguments = null) {
             return of(context).popAndPushNamed(routeName, result: result, arguments: arguments);
         }
 
-        public static IPromise<object> pushNamedAndRemoveUntil(BuildContext context, string newRouteName,
+        public static Future pushNamedAndRemoveUntil(BuildContext context, string newRouteName,
             RoutePredicate predicate, object arguments = null) {
             return of(context).pushNamedAndRemoveUntil(newRouteName, predicate, arguments: arguments);
         }
 
-        public static IPromise<object> push(BuildContext context, Route route) {
+        public static Future push(BuildContext context, Route route) {
             return of(context).push(route);
         }
 
-        public static IPromise<object> pushReplacement(BuildContext context, Route newRoute, object result = null) {
+        public static Future pushReplacement(BuildContext context, Route newRoute, object result = null) {
             return of(context).pushReplacement(newRoute, result);
         }
 
-        public static IPromise<object> pushAndRemoveUntil(BuildContext context, Route newRoute,
+        public static Future pushAndRemoveUntil(BuildContext context, Route newRoute,
             RoutePredicate predicate) {
             return of(context).pushAndRemoveUntil(newRoute, predicate);
         }
@@ -234,7 +239,7 @@ namespace Unity.UIWidgets.widgets {
             return navigator != null && navigator.canPop();
         }
 
-        public static IPromise<bool> maybePop(BuildContext context, object result = null) {
+        public static Future<bool> maybePop(BuildContext context, object result = null) {
             return of(context).maybePop(result);
         }
 
@@ -455,25 +460,25 @@ namespace Unity.UIWidgets.widgets {
             return route;
         }
 
-        public IPromise<object> pushNamed(string routeName, object arguments = null) {
+        public Future pushNamed(string routeName, object arguments = null) {
             return push(_routeNamed(routeName, arguments: arguments));
         }
 
-        public IPromise<object> pushReplacementNamed(string routeName, object result = null, object arguments = null) {
+        public Future pushReplacementNamed(string routeName, object result = null, object arguments = null) {
             return pushReplacement(_routeNamed(routeName, arguments: arguments), result);
         }
 
-        public IPromise<object> popAndPushNamed(string routeName, object result = null, object arguments = null) {
+        public Future popAndPushNamed(string routeName, object result = null, object arguments = null) {
             pop(result);
             return pushNamed(routeName, arguments: arguments);
         }
 
-        public IPromise<object> pushNamedAndRemoveUntil(string newRouteName, RoutePredicate predicate,
+        public Future pushNamedAndRemoveUntil(string newRouteName, RoutePredicate predicate,
             object arguments = null) {
             return pushAndRemoveUntil(_routeNamed(newRouteName, arguments: arguments), predicate);
         }
 
-        public IPromise<object> push(Route route) {
+        public Future push(Route route) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
@@ -508,7 +513,7 @@ namespace Unity.UIWidgets.widgets {
             _cancelActivePointers();
         }
 
-        public IPromise<object> pushReplacement(Route newRoute, object result = null) {
+        public Future pushReplacement(Route newRoute, object result = null) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
@@ -549,7 +554,7 @@ namespace Unity.UIWidgets.widgets {
             return newRoute.popped;
         }
 
-        public IPromise<object> pushAndRemoveUntil(Route newRoute, RoutePredicate predicate) {
+        public Future pushAndRemoveUntil(Route newRoute, RoutePredicate predicate) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
@@ -656,10 +661,10 @@ namespace Unity.UIWidgets.widgets {
             return _history.Count > 1 || _history[0].willHandlePopInternally;
         }
 
-        public IPromise<bool> maybePop(object result = null) {
+        public Future<bool> maybePop(object result = null) {
             var route = _history.last();
             D.assert(route._navigator == this);
-            return route.willPop().Then(disposition => {
+            return route.willPop().then_(disposition => {
                 if (disposition != RoutePopDisposition.bubble && mounted) {
                     if (disposition == RoutePopDisposition.pop) {
                         pop(result);
@@ -669,7 +674,7 @@ namespace Unity.UIWidgets.widgets {
                 }
 
                 return false;
-            });
+            }).to<bool>();
         }
 
         public bool pop(object result = null) {

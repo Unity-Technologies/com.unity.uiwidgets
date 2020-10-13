@@ -2,7 +2,11 @@ using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.physics;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
+using Ticker = Unity.UIWidgets.scheduler.Ticker;
+using TickerFuture = Unity.UIWidgets.scheduler2.TickerFuture;
+using TickerProvider = Unity.UIWidgets.scheduler.TickerProvider;
 
 namespace Unity.UIWidgets.animation {
     enum _AnimationDirection {

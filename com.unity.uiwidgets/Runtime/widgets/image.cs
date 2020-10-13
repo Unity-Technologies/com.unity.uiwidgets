@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using RSG;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
@@ -20,23 +21,29 @@ namespace Unity.UIWidgets.widgets {
             );
         }
 
-        public IPromise precacheImage(
+        public Future precacheImage(
             ImageProvider provider,
             BuildContext context,
             Size size = null,
             ImageErrorListener onError = null
         ) {
             ImageConfiguration config = createLocalImageConfiguration(context, size: size);
-            var completer = new Promise();
+            var completer = Completer.create();
             ImageStream stream = provider.resolve(config);
 
             void listener(ImageInfo image, bool sync) {
-                completer.Resolve();
-                stream.removeListener(listener);
+                if (!completer.isCompleted) {
+                    stream.removeListener(listener);
+                }
+
+                SchedulerBinding.instance.addPostFrameCallback(timeStamp => { stream.removeListener(listener); });
             }
 
             void errorListener(Exception exception) {
-                completer.Resolve();
+                if (!completer.isCompleted) {
+                    completer.complete();
+                }
+
                 stream.removeListener(listener);
                 if (onError != null) {
                     onError(exception);
@@ -52,7 +59,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             stream.addListener(listener, onError: errorListener);
-            return completer;
+            return completer.future;
         }
     }
 

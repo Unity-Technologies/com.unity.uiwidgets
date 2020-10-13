@@ -189,7 +189,7 @@ namespace Unity.UIWidgets.painting {
             return stream;
         }
 
-        public IPromise<bool> evict(ImageCache cache = null, ImageConfiguration configuration = null) {
+        public Future<bool> evict(ImageCache cache = null, ImageConfiguration configuration = null) {
             configuration = configuration ?? ImageConfiguration.empty;
             cache = cache ?? PaintingBinding.instance.imageCache;
 
@@ -198,7 +198,7 @@ namespace Unity.UIWidgets.painting {
 
         protected abstract ImageStreamCompleter load(T key);
 
-        protected abstract IPromise<T> obtainKey(ImageConfiguration configuration);
+        protected abstract Future<T> obtainKey(ImageConfiguration configuration);
     }
 
     public class AssetBundleImageKey : IEquatable<AssetBundleImageKey> {
@@ -287,7 +287,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        IPromise<Codec> _loadAsync(AssetBundleImageKey key) {
+        Future<Codec> _loadAsync(AssetBundleImageKey key) {
             var coroutine = Window.instance.startCoroutine(_loadAssetAsync(key));
             return coroutine.promise.Then(result => {
                 if (result == null) {
@@ -355,7 +355,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly IDictionary<string, string> headers;
 
-        protected override IPromise<NetworkImage> obtainKey(ImageConfiguration configuration) {
+        protected override Future<NetworkImage> obtainKey(ImageConfiguration configuration) {
             return Promise<NetworkImage>.Resolved(this);
         }
 
@@ -370,7 +370,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        IPromise<Codec> _loadAsync(NetworkImage key) {
+        Future<Codec> _loadAsync(NetworkImage key) {
             var coroutine = Window.instance.startCoroutine(_loadBytes(key));
             return coroutine.promise.Then(obj => {
                 if (obj is byte[] bytes) {
@@ -482,7 +482,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float scale;
 
-        protected override IPromise<FileImage> obtainKey(ImageConfiguration configuration) {
+        protected override Future<FileImage> obtainKey(ImageConfiguration configuration) {
             return Promise<FileImage>.Resolved(this);
         }
 
@@ -492,7 +492,7 @@ namespace Unity.UIWidgets.painting {
                 informationCollector: information => { information.AppendLine($"Path: {file}"); });
         }
 
-        IPromise<Codec> _loadAsync(FileImage key) {
+        Future<Codec> _loadAsync(FileImage key) {
             var coroutine = Window.instance.startCoroutine(_loadBytes(key));
             return coroutine.promise.Then(obj => {
                 if (obj is byte[] bytes) {
@@ -592,7 +592,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float scale;
 
-        protected override IPromise<MemoryImage> obtainKey(ImageConfiguration configuration) {
+        protected override Future<MemoryImage> obtainKey(ImageConfiguration configuration) {
             return Promise<MemoryImage>.Resolved(this);
         }
 
@@ -602,7 +602,7 @@ namespace Unity.UIWidgets.painting {
                 scale: key.scale);
         }
 
-        IPromise<Codec> _loadAsync(MemoryImage key) {
+        Future<Codec> _loadAsync(MemoryImage key) {
             D.assert(key == this);
 
             return CodecUtils.getCodec(bytes);
@@ -673,7 +673,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly AssetBundle bundle;
 
-        protected override IPromise<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
+        protected override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
             return Promise<AssetBundleImageKey>.Resolved(new AssetBundleImageKey(
                 bundle: bundle ? bundle : configuration.bundle,
                 name: assetName,

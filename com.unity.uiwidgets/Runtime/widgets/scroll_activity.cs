@@ -1,6 +1,6 @@
 using System;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -400,7 +400,7 @@ namespace Unity.UIWidgets.widgets {
             );
 
             _controller.addListener(_tick);
-            _controller.animateWith(simulation).Then(() => _end());
+            _controller.animateWith(simulation).then(o => _end());
         }
 
         public override float velocity {
@@ -469,7 +469,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(duration > TimeSpan.Zero);
             D.assert(curve != null);
 
-            _completer = new Promise();
+            _completer = Completer.create();
             _controller = AnimationController.unbounded(
                 value: from,
                 debugLabel: GetType().ToString(),
@@ -477,14 +477,14 @@ namespace Unity.UIWidgets.widgets {
             );
             _controller.addListener(_tick);
             _controller.animateTo(to, duration: duration, curve: curve)
-                .Then(() => _end());
+                .then(o => _end());
         }
 
-        readonly Promise _completer;
+        readonly Completer _completer;
         readonly AnimationController _controller;
 
-        public IPromise done {
-            get { return _completer; }
+        public Future done {
+            get { return _completer.future; }
         }
 
         public override float velocity {
@@ -518,7 +518,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void dispose() {
-            _completer.Resolve();
+            _completer.complete();
             _controller.dispose();
             base.dispose();
         }

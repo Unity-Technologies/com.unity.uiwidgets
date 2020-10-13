@@ -1,21 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RSG;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     class _Pending {
-        public _Pending(LocalizationsDelegate del, IPromise<object> futureValue) {
+        public _Pending(LocalizationsDelegate del, Future<object> futureValue) {
             this.del = del;
             this.futureValue = futureValue;
         }
 
         public readonly LocalizationsDelegate del;
-        public readonly IPromise<object> futureValue;
+        public readonly Future<object> futureValue;
 
-        internal static IPromise<Dictionary<Type, object>> _loadAll(Locale locale,
+        internal static Future<Dictionary<Type, object>> _loadAll(Locale locale,
             IEnumerable<LocalizationsDelegate> allDelegates) {
             Dictionary<Type, object> output = new Dictionary<Type, object>();
             List<_Pending> pendingList = null;
@@ -30,9 +30,12 @@ namespace Unity.UIWidgets.widgets {
             }
 
             foreach (LocalizationsDelegate del in delegates) {
-                IPromise<object> inputValue = del.load(locale);
+                Future<WidgetsLocalizations> inputValue = del.load(locale);
                 object completedValue = null;
-                IPromise<object> futureValue = inputValue.Then(value => { return completedValue = value; });
+                Future<object> futureValue = inputValue.then_(value => {
+                     completedValue = value;
+                     return FutureOr.value(completedValue);
+                }).to<object>();
                 if (completedValue != null) {
                     Type type = del.type;
                     D.assert(!output.ContainsKey(type));
@@ -45,12 +48,13 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (pendingList == null) {
-                return Promise<Dictionary<Type, object>>.Resolved(output);
+                return Future<Dictionary<Type, object>>.value(output).to<Dictionary<Type, object>>();
             }
 
-            return Promise<object>.All(pendingList.Select(p => p.futureValue))
-                .Then(values => {
-                    var list = values.ToList();
+            return Future<object>.wait<object>(pendingList.Select(p => p.futureValue))
+                .then(values => {
+                    //TODO : check values is list
+                    var list = (List<object>)values;
                     D.assert(list.Count == pendingList.Count);
                     for (int i = 0; i < list.Count; i += 1) {
                         Type type = pendingList[i].del.type;
@@ -59,7 +63,7 @@ namespace Unity.UIWidgets.widgets {
                     }
 
                     return output;
-                });
+                }).to<Dictionary<Type, object>>();
         }
     }
 
@@ -69,7 +73,7 @@ namespace Unity.UIWidgets.widgets {
 
         public abstract bool isSupported(Locale locale);
 
-        public abstract IPromise<object> load(Locale locale);
+        public abstract Future<WidgetsLocalizations> load(Locale locale);
 
         public abstract bool shouldReload(LocalizationsDelegate old);
 
@@ -100,7 +104,7 @@ namespace Unity.UIWidgets.widgets {
             return true;
         }
 
-        public override IPromise<object> load(Locale locale) {
+        public override Future<WidgetsLocalizations> load(Locale locale) {
             return DefaultWidgetsLocalizations.load(locale);
         }
 
@@ -117,8 +121,8 @@ namespace Unity.UIWidgets.widgets {
         public DefaultWidgetsLocalizations() {
         }
 
-        public static IPromise<object> load(Locale locale) {
-            return Promise<object>.Resolved(new DefaultWidgetsLocalizations());
+        public static Future<WidgetsLocalizations> load(Locale locale) {
+            return new SynchronousFuture<WidgetsLocalizations>(new DefaultWidgetsLocalizations());
         }
 
         public static readonly LocalizationsDelegate<WidgetsLocalizations> del = new _WidgetsLocalizationsDelegate();
@@ -288,8 +292,8 @@ namespace Unity.UIWidgets.widgets {
             }
 
             Dictionary<Type, object> typeToResources = null;
-            IPromise<Dictionary<Type, object>> typeToResourcesFuture = _Pending._loadAll(locale, delegates)
-                .Then(value => { return typeToResources = value; });
+            Future<Dictionary<Type, object>> typeToResourcesFuture = _Pending._loadAll(locale, delegates)
+                .then(value => { return FutureOr.value(typeToResources = (Dictionary<Type, object>)value); }).to<Dictionary<Type, object>>();
 
             if (typeToResources != null) {
                 _typeToResources = typeToResources;
@@ -297,14 +301,14 @@ namespace Unity.UIWidgets.widgets {
             }
             else {
                 // WidgetsBinding.instance.deferFirstFrameReport();
-                typeToResourcesFuture.Then(value => {
+                typeToResourcesFuture.then(value => {
                     // WidgetsBinding.instance.allowFirstFrameReport();
                     if (!mounted) {
                         return;
                     }
 
                     setState(() => {
-                        _typeToResources = value;
+                        _typeToResources = (Dictionary<Type, object>)value;
                         _locale = locale;
                     });
                 });

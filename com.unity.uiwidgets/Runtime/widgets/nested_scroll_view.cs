@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -540,7 +540,7 @@ namespace Unity.UIWidgets.widgets {
             _outerPosition.updateCanDrag(maxInnerExtent);
         }
 
-        public IPromise animateTo(float to,
+        public Future animateTo(float to,
             TimeSpan duration,
             Curve curve
         ) {
@@ -549,7 +549,7 @@ namespace Unity.UIWidgets.widgets {
                 duration,
                 curve
             );
-            List<IPromise> resultFutures = new List<IPromise> {outerActivity.done};
+            List<Future> resultFutures = new List<Future> {outerActivity.done};
             beginActivity(
                 outerActivity,
                 (_NestedScrollPosition position) => {
@@ -562,7 +562,7 @@ namespace Unity.UIWidgets.widgets {
                     return innerActivity;
                 }
             );
-            return Promise.All(resultFutures);
+            return Future.wait<object>(resultFutures);
         }
 
         public void jumpTo(float to) {
@@ -900,7 +900,7 @@ namespace Unity.UIWidgets.widgets {
             return null;
         }
 
-        public override IPromise animateTo(float to,
+        public override Future animateTo(float to,
             TimeSpan duration,
             Curve curve
         ) {

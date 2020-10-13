@@ -198,8 +198,9 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public void requestFocus(FocusNode node) {
-            D.assert(node != null);
+        // TODO: need update
+        public void requestFocus(FocusNode node = null) {
+            // D.assert(node != null);
             var focusPath = _manager?._getCurrentFocusPath();
             if (_focus == node &&
                 (_focusPath == focusPath || (focusPath != null && _focusPath != null &&
@@ -214,7 +215,7 @@ namespace Unity.UIWidgets.widgets {
             node._hasKeyboardToken = true;
             _setFocus(node);
         }
-
+        
         public void autofocus(FocusNode node) {
             D.assert(node != null);
             if (_focus == null) {

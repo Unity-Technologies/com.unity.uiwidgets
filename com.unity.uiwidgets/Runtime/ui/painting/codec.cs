@@ -50,7 +50,7 @@ namespace Unity.UIWidgets.uiOld{
 
 
     public static class CodecUtils {
-        public static IPromise<Codec> getCodec(byte[] bytes) {
+        public static Future<Codec> getCodec(byte[] bytes) {
             if (GifCodec.isGif(bytes)) {
                 return Promise<Codec>.Resolved(new GifCodec(bytes));
             }
@@ -61,7 +61,7 @@ namespace Unity.UIWidgets.uiOld{
             return Promise<Codec>.Resolved(new ImageCodec(new Image(texture)));
         }
 
-        public static IPromise<Codec> getCodec(Image image) {
+        public static Future<Codec> getCodec(Image image) {
             return Promise<Codec>.Resolved(new ImageCodec(image));
         }
     }

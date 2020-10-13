@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -139,13 +139,13 @@ namespace Unity.UIWidgets.widgets {
             didUpdateScrollDirection(value);
         }
 
-        public override IPromise animateTo(float to,
+        public override Future animateTo(float to,
             TimeSpan duration,
             Curve curve
         ) {
             if (PhysicsUtils.nearEqual(to, pixels, physics.tolerance.distance)) {
                 jumpTo(to);
-                return Promise.Resolved();
+                return Future.value();
             }
 
             DrivenScrollActivity activity = new DrivenScrollActivity(

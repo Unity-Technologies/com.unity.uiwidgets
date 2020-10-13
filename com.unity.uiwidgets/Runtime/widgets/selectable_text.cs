@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -188,12 +187,12 @@ namespace Unity.UIWidgets.widgets {
         public void didChangeLocales(List<Locale> locale) {
         }
 
-        public IPromise<bool> didPopRoute() {
-            return Promise<bool>.Resolved(false);
+        public Future<bool> didPopRoute() {
+            return Future<bool>.value(false).to<bool>();
         }
 
-        public IPromise<bool> didPushRoute(string route) {
-            return Promise<bool>.Resolved(false);
+        public Future<bool> didPushRoute(string route) {
+            return Future<bool>.value(false).to<bool>();
         }
 
         void _handleTapDown(TapDownDetails details) {

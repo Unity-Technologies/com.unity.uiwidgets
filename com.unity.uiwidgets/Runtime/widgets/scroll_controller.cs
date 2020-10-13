@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
@@ -51,17 +51,17 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        public IPromise animateTo(float to,
+        public Future animateTo(float to,
             TimeSpan duration,
             Curve curve
         ) {
             D.assert(_positions.isNotEmpty(), () => "ScrollController not attached to any scroll views.");
-            List<IPromise> animations = CollectionUtils.CreateRepeatedList<IPromise>(null, _positions.Count);
+            List<Future> animations = CollectionUtils.CreateRepeatedList<Future>(null, _positions.Count);
             for (int i = 0; i < _positions.Count; i += 1) {
                 animations[i] = _positions[i].animateTo(to, duration: duration, curve: curve);
             }
 
-            return Promise.All(animations);
+            return Future.wait<object>(animations);
         }
 
         public void jumpTo(float value) {

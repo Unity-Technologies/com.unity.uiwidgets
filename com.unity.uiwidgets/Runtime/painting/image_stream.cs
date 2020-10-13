@@ -273,7 +273,7 @@ namespace Unity.UIWidgets.painting {
     }
 
     public class OneFrameImageStreamCompleter : ImageStreamCompleter {
-        public OneFrameImageStreamCompleter(IPromise<ImageInfo> image,
+        public OneFrameImageStreamCompleter(Future<ImageInfo> image,
             InformationCollector informationCollector = null) {
             D.assert(image != null);
 
@@ -290,7 +290,7 @@ namespace Unity.UIWidgets.painting {
 
     public class MultiFrameImageStreamCompleter : ImageStreamCompleter {
         public MultiFrameImageStreamCompleter(
-            IPromise<Codec> codec,
+            Future<Codec> codec,
             float scale,
             InformationCollector informationCollector = null
         ) {

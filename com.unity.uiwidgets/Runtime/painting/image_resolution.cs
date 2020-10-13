@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.painting {
         public readonly string assetName;
         public readonly AssetBundle bundle;
 
-        protected override IPromise<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
+        protected override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
             AssetImageConfiguration assetConfig = new AssetImageConfiguration(configuration, assetName);
             AssetBundleImageKey key;
             var cache = AssetBundleCache.instance.get(configuration.bundle);

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
@@ -62,14 +61,14 @@ namespace Unity.UIWidgets.widgets {
             return widget == null ? null : widget.scrollable;
         }
 
-        public static IPromise ensureVisible(BuildContext context,
+        public static Future ensureVisible(BuildContext context,
             float alignment = 0.0f,
             TimeSpan? duration = null,
             Curve curve = null
         ) {
             duration = duration ?? TimeSpan.Zero;
             curve = curve ?? Curves.ease;
-            List<IPromise> futures = new List<IPromise>();
+            List<Future> futures = new List<Future>();
 
             ScrollableState scrollable = of(context);
             while (scrollable != null) {
@@ -84,14 +83,14 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (futures.isEmpty() || duration == TimeSpan.Zero) {
-                return Promise.Resolved();
+                return Future.value();
             }
 
             if (futures.Count == 1) {
                 return futures.Single();
             }
 
-            return Promise.All(futures);
+            return Future.wait<object>(futures);
         }
     }
 

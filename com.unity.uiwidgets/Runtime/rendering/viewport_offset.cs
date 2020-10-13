@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.rendering {
@@ -46,9 +47,9 @@ namespace Unity.UIWidgets.rendering {
         public abstract void correctBy(float correction);
         public abstract void jumpTo(float pixels);
 
-        public abstract IPromise animateTo(float to, TimeSpan duration, Curve curve);
+        public abstract Future animateTo(float to, TimeSpan duration, Curve curve);
 
-        public virtual IPromise moveTo(float to, TimeSpan? duration, Curve curve = null, bool clamp = true) {
+        public virtual Future moveTo(float to, TimeSpan? duration, Curve curve = null, bool clamp = true) {
             if (duration == null || duration.Value == TimeSpan.Zero) {
                 jumpTo(to);
                 return Promise.Resolved();
@@ -102,7 +103,7 @@ namespace Unity.UIWidgets.rendering {
         public override void jumpTo(float pixels) {
         }
 
-        public override IPromise animateTo(float to, TimeSpan duration, Curve curve) {
+        public override Future animateTo(float to, TimeSpan duration, Curve curve) {
             return Promise.Resolved();
         }
 
