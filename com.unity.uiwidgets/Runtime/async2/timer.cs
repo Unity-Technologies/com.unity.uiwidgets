@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using AOT;
-using Unity.UIWidgets.ui2;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.async2 {
@@ -13,6 +13,13 @@ namespace Unity.UIWidgets.async2 {
 
             return Zone.current
                 .createTimer(duration, Zone.current.bindCallbackGuarded(callback));
+        }
+
+        public static Timer create(TimeSpan duration, Action callback) {
+            return create(duration, () => {
+                callback.Invoke();
+                return null;
+            });
         }
 
         public static Timer periodic(TimeSpan duration, ZoneUnaryCallback callback) {
@@ -61,6 +68,11 @@ namespace Unity.UIWidgets.async2 {
             _wakeupTime = wakeupTime;
             _milliSeconds = milliSeconds;
             _repeating = repeating;
+        }
+        
+                
+        public static TimeSpan timespanSinceStartup {
+            get { return TimeSpan.FromMilliseconds(UIMonoState_timerMillisecondClock()); }
         }
 
         internal static _Timer _createTimer(ZoneUnaryCallback callback, int milliSeconds, bool repeating) {

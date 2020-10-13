@@ -6,9 +6,9 @@ using developer;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.ui2;
+using Unity.UIWidgets.ui;
 using UnityEngine;
-using FrameTiming = Unity.UIWidgets.ui2.FrameTiming;
+using FrameTiming = Unity.UIWidgets.ui.FrameTiming;
 using Timer = Unity.UIWidgets.async2.Timer;
 
 namespace Unity.UIWidgets.scheduler2 {

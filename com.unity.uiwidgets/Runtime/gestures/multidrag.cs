@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
@@ -346,7 +346,7 @@ namespace Unity.UIWidgets.gestures {
             TimeSpan? delay = null)
             : base(initialPosition) {
             D.assert(delay != null);
-            _timer = Window.instance.run(delay ?? Constants.kLongPressTimeout, _delayPassed, false);
+            _timer = Timer.create(delay ?? Constants.kLongPressTimeout, _delayPassed);
         }
 
         Timer _timer;

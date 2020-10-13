@@ -254,6 +254,13 @@ namespace Unity.UIWidgets.ui {
             Window_scheduleFrame(_ptr);
         }
 
+        public void scheduleMicrotask(Action callback) {
+            async_.scheduleMicrotask(() => {
+                callback.Invoke();
+                return null;
+            });
+        }
+
         public void render(Scene scene) {
             Window_render(_ptr, scene._ptr);
         }
