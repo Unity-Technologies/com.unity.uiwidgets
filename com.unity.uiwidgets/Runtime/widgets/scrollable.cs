@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -145,7 +146,10 @@ namespace Unity.UIWidgets.widgets {
                     controller.detach(oldPosition);
                 }
 
-                Window.instance.scheduleMicrotask(oldPosition.dispose);
+                async_.scheduleMicrotask(()=> {
+                    oldPosition.dispose();
+                    return null;
+                });
             }
 
             _position = controller == null

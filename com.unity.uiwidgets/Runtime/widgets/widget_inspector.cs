@@ -934,7 +934,7 @@ namespace Unity.UIWidgets.widgets {
 
         Picture _buildPicture(_InspectorOverlayRenderState state) {
             PictureRecorder recorder = new PictureRecorder();
-            Canvas canvas = new RecorderCanvas(recorder);
+            Canvas canvas = new Canvas(recorder, state.overlayRect);
             Size size = state.overlayRect.size;
 
             var fillPaint = new Paint() {color = _kHighlightedRenderObjectFillColor};
@@ -944,14 +944,14 @@ namespace Unity.UIWidgets.widgets {
             };
             Rect selectedPaintRect = state.selected.rect.deflate(0.5f);
             canvas.save();
-            canvas.setMatrix(state.selected.transform.toMatrix3());
+            canvas.transform(state.selected.transform._m4storage);
             canvas.drawRect(selectedPaintRect, fillPaint);
             canvas.drawRect(selectedPaintRect, borderPaint);
             canvas.restore();
 
             foreach (var transformedRect in state.candidates) {
                 canvas.save();
-                canvas.setMatrix(transformedRect.transform.toMatrix3());
+                canvas.transform(transformedRect.transform._m4storage);
                 canvas.drawRect(transformedRect.rect.deflate(0.5f), borderPaint);
                 canvas.restore();
             }
