@@ -55,6 +55,8 @@ namespace Unity.UIWidgets.foundation {
 
         public static bool debugDisableOpacityLayers = false;
 
+        public static bool debugDisablePhysicalShapeLayers = false;
+
         public static bool debugPrintMarkNeedsPaintStacks = false;
 
         public static bool debugCheckIntrinsicSizes = false;
