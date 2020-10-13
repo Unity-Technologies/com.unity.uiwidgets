@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.ui2;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Canvas = UnityEngine.Canvas;
-using NativeBindings = Unity.UIWidgets.ui2.NativeBindings;
+using NativeBindings = Unity.UIWidgets.ui.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
     public partial class UIWidgetsPanel : MonoBehaviour {

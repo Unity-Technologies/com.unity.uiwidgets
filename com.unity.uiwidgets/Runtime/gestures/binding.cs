@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public GestureBinding() {
-            Window.instance.onPointerEvent += _handlePointerDataPacket;
+            Window.instance.onPointerDataPacket += _handlePointerDataPacket;
 
             gestureArena = new GestureArenaManager();
         }
@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.gestures {
             foreach (var pointerEvent in PointerEventConverter.expand(packet.data, Window.instance.devicePixelRatio)) {
                 _pendingPointerEvents.Enqueue(pointerEvent);
             }
-
+ 
             _flushPointerEventQueue();
         }
 
@@ -35,7 +35,7 @@ namespace Unity.UIWidgets.gestures {
             }
 
             _pendingPointerEvents.Enqueue(
-                new PointerCancelEvent(timeStamp: Timer.timespanSinceStartup, pointer: pointer));
+                new PointerCancelEvent(timeStamp: _Timer.timespanSinceStartup, pointer: pointer));
         }
 
         void _flushPointerEventQueue() {

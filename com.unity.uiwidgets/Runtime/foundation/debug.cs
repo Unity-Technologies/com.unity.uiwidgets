@@ -66,9 +66,9 @@ namespace Unity.UIWidgets.foundation {
 
         public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) {
             Path path = new Path();
+            path.fillType = PathFillType.evenOdd;
             path.addRect(outerRect);
             path.addRect(innerRect);
-            path.winding(PathWinding.clockwise);
             var paint = new Paint {
                 color = color
             };
