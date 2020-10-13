@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
@@ -115,10 +116,11 @@ namespace Unity.UIWidgets.widgets {
                     }
                     else {
                         _keepingAlive = false;
-                        Window.instance.scheduleMicrotask(() => {
+                        async_.scheduleMicrotask(() => {
                             if (mounted && _handles.isEmpty()) {
                                 setState(() => { D.assert(!_keepingAlive); });
                             }
+                            return null;
                         });
                     }
                 }

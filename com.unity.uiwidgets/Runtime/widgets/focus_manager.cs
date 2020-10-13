@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
@@ -202,7 +203,7 @@ namespace Unity.UIWidgets.widgets {
             var focusPath = _manager?._getCurrentFocusPath();
             if (_focus == node &&
                 (_focusPath == focusPath || (focusPath != null && _focusPath != null &&
-                                                  _focusPath.SequenceEqual(focusPath)))) {
+                                             _focusPath.SequenceEqual(focusPath)))) {
                 return;
             }
 
@@ -353,7 +354,10 @@ namespace Unity.UIWidgets.widgets {
             }
 
             _haveScheduledUpdate = true;
-            Window.instance.scheduleMicrotask(_update);
+            async_.scheduleMicrotask(() => {
+                _update();
+                return null;
+            });
         }
 
         internal FocusNode _findNextFocus() {

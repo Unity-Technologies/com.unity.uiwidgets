@@ -9,6 +9,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
+using StrutStyle = Unity.UIWidgets.painting.StrutStyle;
 
 namespace Unity.UIWidgets.widgets {
     public class Directionality : InheritedWidget {

@@ -31,12 +31,12 @@ namespace Unity.UIWidgets.widgets {
             buildOwner.onBuildScheduled = _handleBuildScheduled;
             Window.instance.onLocaleChanged += handleLocaleChanged;
             widgetInspectorService = new WidgetInspectorService(this);
-            addPersistentFrameCallback((duration) => {
-                TextBlobMesh.tickNextFrame();
-                TessellationGenerator.tickNextFrame();
-                uiTessellationGenerator.tickNextFrame();
-                uiPathCacheManager.tickNextFrame();
-            });
+            // addPersistentFrameCallback((duration) => {
+            //     TextBlobMesh.tickNextFrame();
+            //     TessellationGenerator.tickNextFrame();
+            //     uiTessellationGenerator.tickNextFrame();
+            //     uiPathCacheManager.tickNextFrame();
+            // });
         }
 
         public BuildOwner buildOwner {

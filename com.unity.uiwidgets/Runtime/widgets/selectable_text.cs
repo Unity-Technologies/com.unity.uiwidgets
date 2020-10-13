@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RSG;
-using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
@@ -181,7 +181,7 @@ namespace Unity.UIWidgets.widgets {
 
         public void didChangeTextScaleFactor() {
         }
-        
+
         public void didChangePlatformBrightness() {
         }
 
@@ -359,7 +359,7 @@ namespace Unity.UIWidgets.widgets {
                 }
 
                 _lastTapOffset = details.globalPosition;
-                _doubleTapTimer = Window.instance.run(Constants.kDoubleTapTimeout, _doubleTapTimeout);
+                _doubleTapTimer = Timer.create(Constants.kDoubleTapTimeout, _doubleTapTimeout);
             }
 
             _isDoubleTap = false;
@@ -386,11 +386,11 @@ namespace Unity.UIWidgets.widgets {
         void _handleDragUpdate(DragUpdateDetails details) {
             _lastDragUpdateDetails = details;
             _dragUpdateThrottleTimer = _dragUpdateThrottleTimer ??
-                                            Window.instance.run(TextSelectionUtils._kDragSelectionUpdateThrottle,
-                                                _handleDragUpdateThrottled);
+                                       Timer.create(TextSelectionUtils._kDragSelectionUpdateThrottle,
+                                           _handleDragUpdateThrottled);
         }
 
-        void _handleDragUpdateThrottled() {
+        object _handleDragUpdateThrottled() {
             D.assert(_lastDragStartDetails != null);
             D.assert(_lastDragUpdateDetails != null);
             if (widget.onDragSelectionUpdate != null) {
@@ -399,6 +399,7 @@ namespace Unity.UIWidgets.widgets {
 
             _dragUpdateThrottleTimer = null;
             _lastDragUpdateDetails = null;
+            return null;
         }
 
         void _handleDragEnd(DragEndDetails details) {
@@ -423,9 +424,10 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        void _doubleTapTimeout() {
+        object _doubleTapTimeout() {
             _doubleTapTimer = null;
             _lastTapOffset = null;
+            return null;
         }
 
         bool _isWithinDoubleTapTolerance(Offset secondTapOffset) {

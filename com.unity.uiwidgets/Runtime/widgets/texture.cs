@@ -9,7 +9,8 @@ namespace Unity.UIWidgets.widgets {
             if (instance == null) {
                 WindowAdapter.windowAdapters.ForEach(w => w.scheduleFrame(false));
             } else {
-                instance.scheduleFrame(false);
+                // TODO: check whether following is needed 
+                // instance.scheduleFrame(false);
             }
         }
         

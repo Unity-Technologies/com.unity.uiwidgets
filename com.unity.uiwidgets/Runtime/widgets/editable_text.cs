@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using RSG;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
@@ -12,8 +12,10 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using Brightness = Unity.UIWidgets.ui.Brightness;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
+using StrutStyle = Unity.UIWidgets.painting.StrutStyle;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.widgets {
@@ -771,7 +773,7 @@ namespace Unity.UIWidgets.widgets {
         int _obscureShowCharTicksPending = 0;
         int _obscureLatestCharIndex;
 
-        void _cursorTick() {
+        object _cursorTick(object timer) {
             _targetCursorVisibility = !_unityKeyboard() && !_targetCursorVisibility;
             float targetOpacity = _targetCursorVisibility ? 1.0f : 0.0f;
             if (widget.cursorOpacityAnimates) {
@@ -784,12 +786,15 @@ namespace Unity.UIWidgets.widgets {
             if (_obscureShowCharTicksPending > 0) {
                 setState(() => { _obscureShowCharTicksPending--; });
             }
+
+            return null;
         }
 
-        void _cursorWaitForStart() {
+        object _cursorWaitForStart(object timer) {
             D.assert(_kCursorBlinkHalfPeriod > _fadeDuration);
             _cursorTimer?.cancel();
-            _cursorTimer = Window.instance.run(_kCursorBlinkHalfPeriod, _cursorTick, periodic: true);
+            _cursorTimer = Timer.periodic(_kCursorBlinkHalfPeriod, _cursorTick);
+            return null;
         }
 
         void _startCursorTimer() {
@@ -801,10 +806,10 @@ namespace Unity.UIWidgets.widgets {
 
             if (widget.cursorOpacityAnimates) {
                 _cursorTimer =
-                    Window.instance.run(_kCursorBlinkWaitForStart, _cursorWaitForStart, periodic: true);
+                    Timer.periodic(_kCursorBlinkWaitForStart, _cursorWaitForStart);
             }
             else {
-                _cursorTimer = Window.instance.run(_kCursorBlinkHalfPeriod, _cursorTick, periodic: true);
+                _cursorTimer = Timer.periodic(_kCursorBlinkHalfPeriod, _cursorTick);
             }
         }
 
