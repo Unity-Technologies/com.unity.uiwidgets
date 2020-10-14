@@ -1794,7 +1794,7 @@ namespace Unity.UIWidgets.ui {
         internal const int _kTypeBlur = 0;
         internal const int _kTypeMatrix = 1;
 
-        public _ImageFilter _toNativeImageFilter() => _nativeFilter = _nativeFilter ?? _makeNativeImageFilter();
+        internal _ImageFilter _toNativeImageFilter() => _nativeFilter = _nativeFilter ?? _makeNativeImageFilter();
 
         _ImageFilter _makeNativeImageFilter() {
             if (_data == null) {
@@ -1868,7 +1868,7 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
-    public class _ImageFilter : NativeWrapper {
+    internal class _ImageFilter : NativeWrapper {
         _ImageFilter(IntPtr ptr, ImageFilter creator) : base(ptr) {
             this.creator = creator;
         }
