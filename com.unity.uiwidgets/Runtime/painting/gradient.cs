@@ -7,6 +7,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
+using Shader = Unity.UIWidgets.ui.Shader;
 
 namespace Unity.UIWidgets.painting {
     class _ColorsAndStops {
@@ -34,7 +35,7 @@ namespace Unity.UIWidgets.painting {
 
             int index = stops.FindLastIndex((float s) => { return s <= t; });
             D.assert(index != -1);
-            return Color.lerp(colors[index], colors[index + 1], 
+            return Color.lerp(colors[index], colors[index + 1],
                 (t - stops[index]) / (stops[index + 1] - stops[index]));
         }
 
@@ -88,7 +89,7 @@ namespace Unity.UIWidgets.painting {
             return Enumerable.Range(0, colors.Count).Select(i => i * separation).ToList();
         }
 
-        public abstract PaintShader createShader(Rect rect);
+        public abstract Shader createShader(Rect rect, TextDirection? textDirection = null);
 
         public abstract Gradient scale(float factor);
 
@@ -152,7 +153,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly TileMode tileMode;
 
-        public override PaintShader createShader(Rect rect) {
+        public override Shader createShader(Rect rect, TextDirection? textDirection = null) {
             return ui.Gradient.linear(
                 begin.withinRect(rect),
                 end.withinRect(rect),
@@ -160,7 +161,7 @@ namespace Unity.UIWidgets.painting {
                 tileMode
             );
         }
-
+        
         public override Gradient scale(float factor) {
             return new LinearGradient(
                 begin: begin,
@@ -293,7 +294,7 @@ namespace Unity.UIWidgets.painting {
         public readonly TileMode tileMode;
 
 
-        public override PaintShader createShader(Rect rect) {
+        public override Shader createShader(Rect rect,  TextDirection? textDirection = null) {
             return ui.Gradient.radial(
                 center.withinRect(rect),
                 radius * rect.shortestSide,
@@ -438,7 +439,7 @@ namespace Unity.UIWidgets.painting {
         public readonly TileMode tileMode;
 
 
-        public override PaintShader createShader(Rect rect) {
+        public override Shader createShader(Rect rect,  TextDirection? textDirection = null) {
             return ui.Gradient.sweep(
                 center.withinRect(rect),
                 colors, _impliedStops(),

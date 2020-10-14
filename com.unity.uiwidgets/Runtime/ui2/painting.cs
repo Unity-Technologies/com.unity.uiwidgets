@@ -1151,7 +1151,7 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        public unsafe void addPath(Path path, Offset offset, float[] matrix4) {
+        public unsafe void addPath(Path path, Offset offset, float[] matrix4 = null) {
             D.assert(path != null); // path is checked on the engine side
             D.assert(PaintingUtils._offsetIsValid(offset));
 

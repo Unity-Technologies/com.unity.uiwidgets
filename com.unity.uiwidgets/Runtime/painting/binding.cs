@@ -3,7 +3,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
-using Window = Unity.UIWidgets.ui2.Window;
 
 namespace Unity.UIWidgets.painting {
     public class PaintingBinding : GestureBinding {
