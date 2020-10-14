@@ -16,9 +16,13 @@ namespace Unity.UIWidgets.rendering {
             get { return (ContainerLayer) base.parent; }
         }
 
-        bool _needsAddToScene = true;
+        public bool _needsAddToScene = true;
 
         protected void markNeedsAddToScene() {
+            if (_needsAddToScene) {
+                return;
+            }
+            
             _needsAddToScene = true;
         }
 
@@ -43,7 +47,7 @@ namespace Unity.UIWidgets.rendering {
         EngineLayer _engineLayer;
 
         internal virtual void updateSubtreeNeedsAddToScene() {
-            _subtreeNeedsAddToScene = _needsAddToScene || alwaysNeedsAddToScene;
+            _needsAddToScene = _needsAddToScene || alwaysNeedsAddToScene;
         }
 
         public Layer nextSibling {
@@ -59,12 +63,18 @@ namespace Unity.UIWidgets.rendering {
         internal Layer _previousSibling;
 
         protected override void dropChild(AbstractNodeMixinDiagnosticableTree child) {
-            markNeedsAddToScene();
+            if (!alwaysNeedsAddToScene) {
+                markNeedsAddToScene();
+            }
+
             base.dropChild(child);
         }
 
         protected override void adoptChild(AbstractNodeMixinDiagnosticableTree child) {
-            markNeedsAddToScene();
+            if (!alwaysNeedsAddToScene) {
+                markNeedsAddToScene();
+            }
+
             base.adoptChild(child);
         }
 
@@ -124,7 +134,7 @@ namespace Unity.UIWidgets.rendering {
         internal abstract void addToScene(SceneBuilder builder, Offset layerOffset = null);
 
         internal void _addToSceneWithRetainedRendering(SceneBuilder builder) {
-            if (!_subtreeNeedsAddToScene && _engineLayer != null) {
+            if (!_needsAddToScene && _engineLayer != null) {
                 builder.addRetained(_engineLayer);
                 return;
             }
@@ -387,7 +397,7 @@ namespace Unity.UIWidgets.rendering {
             Layer child = firstChild;
             while (child != null) {
                 child.updateSubtreeNeedsAddToScene();
-                _subtreeNeedsAddToScene = _subtreeNeedsAddToScene || child._subtreeNeedsAddToScene;
+                _needsAddToScene = _needsAddToScene || child._needsAddToScene;
                 child = child.nextSibling;
             }
         }
@@ -897,7 +907,10 @@ namespace Unity.UIWidgets.rendering {
                 _lastEffectiveTransform.multiply(transform);
             }
 
-            builder.pushTransform(_lastEffectiveTransform.toMatrix3());
+            engineLayer = builder.pushTransform(
+                _lastEffectiveTransform._m4storage,
+                oldLayer: engineLayer as TransformEngineLayer);
+            
             addChildrenToScene(builder);
             builder.pop();
         }
@@ -959,6 +972,7 @@ namespace Unity.UIWidgets.rendering {
                 enabled = !D.debugDisableOpacityLayers;
                 return true;
             });
+            
             if (enabled) {
                 engineLayer = builder.pushOpacity(
                     alpha, 
@@ -1065,9 +1079,11 @@ namespace Unity.UIWidgets.rendering {
             D.assert(offset != null);
             _lastOffset = offset + layerOffset;
             if (_lastOffset != Offset.zero) {
-                builder.pushTransform(new Matrix4()
+                engineLayer = builder.pushTransform(
+                    new Matrix4()
                     .translationValues(_lastOffset.dx, _lastOffset.dy,0)
-                    .toMatrix3());
+                    ._m4storage,
+                    oldLayer: engineLayer as TransformEngineLayer);
             }
 
             addChildrenToScene(builder, Offset.zero);
@@ -1213,11 +1229,14 @@ namespace Unity.UIWidgets.rendering {
                 _lastTransform = null;
                 _lastOffset = null;
                 _inverseDirty = true;
+                engineLayer = null;
             }
 
             _establishTransform();
             if (_lastTransform != null) {
-                builder.pushTransform(_lastTransform.toMatrix3());
+                engineLayer = builder.pushTransform(
+                    _lastTransform._m4storage,
+                    oldLayer: engineLayer as TransformEngineLayer);
                 addChildrenToScene(builder);
                 builder.pop();
                 _lastOffset = unlinkedOffset + layerOffset;
@@ -1225,7 +1244,9 @@ namespace Unity.UIWidgets.rendering {
             else {
                 _lastOffset = null;
                 var matrix = new Matrix4().translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
-                builder.pushTransform(matrix.toMatrix3());
+                engineLayer = builder.pushTransform(
+                    matrix._m4storage,
+                    oldLayer: engineLayer as TransformEngineLayer);
                 addChildrenToScene(builder);
                 builder.pop();
             }
@@ -1390,7 +1411,7 @@ namespace Unity.UIWidgets.rendering {
                     ancestor = ancestor.parent;
                 }
 
-                return clipPath.transform(matrix.toMatrix3());
+                return clipPath.transform(matrix._m4storage);
             }
         }
 

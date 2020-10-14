@@ -1442,7 +1442,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         PathMetric _pathMetric;
-        _PathMeasure _pathMeasure;
+        readonly _PathMeasure _pathMeasure;
         
         public bool MoveNext() {
             if (_pathMeasure._nextContour()) {
@@ -1476,7 +1476,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void Dispose() {
-            //do nothing
+            _pathMeasure._dispose();
         }
     }
 
@@ -1501,7 +1501,6 @@ namespace Unity.UIWidgets.ui {
 
     public class _PathMeasure : NativeWrapper {
         public _PathMeasure(Path path, bool forceClosed) : base(PathMeasure_constructor(path._ptr, forceClosed)) {
-            
         }
 
         protected override void DisposePtr(IntPtr ptr) {
