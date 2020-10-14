@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -1227,6 +1228,10 @@ namespace Unity.UIWidgets.ui {
                 "Path.combine() failed.  This may be due an invalid path; in particular, check for NaN values.");
         }
 
+        public PathMetrics computeMetrics(bool forceClose = false) {
+            return new PathMetrics(this, forceClose);
+        }
+
 
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr Path_constructor();
@@ -1411,6 +1416,160 @@ namespace Unity.UIWidgets.ui {
 
         public override string ToString() {
             return $"MaskFilter.blur(${_style}, ${_sigma:F1})";
+        }
+    }
+
+    public class PathMetrics : IEnumerable<PathMetric> {
+        public PathMetrics(Path path, bool forceClosed) {
+            _iterator = new PathMetricIterator(new _PathMeasure(path, forceClosed));
+        }
+
+        readonly IEnumerator<PathMetric> _iterator;
+
+        public IEnumerator<PathMetric> GetEnumerator() {
+            return _iterator;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
+    }
+
+    public class PathMetricIterator : IEnumerator<PathMetric> {
+        public PathMetricIterator(_PathMeasure pathMeasure) {
+            D.assert(pathMeasure != null);
+            _pathMeasure = pathMeasure;
+        }
+
+        PathMetric _pathMetric;
+        _PathMeasure _pathMeasure;
+        
+        public bool MoveNext() {
+            if (_pathMeasure._nextContour()) {
+                _pathMetric = new PathMetric(_pathMeasure);
+                return true;
+            }
+
+            _pathMetric = null;
+            return false;
+        }
+
+        public void Reset() {
+            D.assert(false, () => "PathMetricIterator.Reset is not implemented yet !");
+        }
+
+        public PathMetric Current {
+            get {
+                PathMetric currentMetric = _pathMetric;
+                if (currentMetric == null) {
+                    throw new Exception("PathMetricIterator is not pointing to a PathMetric. This can happen in two situations:\n" +
+                    "- The iteration has not started yet. If so, call \"moveNext\" to start iteration." + 
+                    "- The iterator ran out of elements. If so, check that \"moveNext\" returns true prior to calling \"current\".");
+                }
+
+                return currentMetric;
+            }
+        }
+
+        object IEnumerator.Current {
+            get { return Current; }
+        }
+
+        public void Dispose() {
+            //do nothing
+        }
+    }
+
+    public class PathMetric {
+        public PathMetric(_PathMeasure measure) {
+            D.assert(measure != null);
+            _measure = measure;
+            length = _measure.length(_measure.currentContourIndex);
+            isClosed = _measure.isClosed(_measure.currentContourIndex);
+            contourIndex = _measure.currentContourIndex;
+        }
+
+        public readonly float length;
+
+        public readonly bool isClosed;
+
+        public readonly int contourIndex;
+
+        readonly _PathMeasure _measure;
+    }
+
+
+    public class _PathMeasure : NativeWrapper {
+        public _PathMeasure(Path path, bool forceClosed) : base(PathMeasure_constructor(path._ptr, forceClosed)) {
+            
+        }
+
+        protected override void DisposePtr(IntPtr ptr) {
+            PathMeasure_dispose(ptr);
+        }
+
+        public int currentContourIndex = -1;
+
+        public float length(int contourIndex) {
+            D.assert(contourIndex <= currentContourIndex, () => $"Iterator must be advanced before index {contourIndex} can be used.");
+            return PathMeasure_length(contourIndex);
+        }
+
+        public bool isClosed(int contourIndex) {
+            D.assert(contourIndex <= currentContourIndex, () => $"Iterator must be advanced before index {contourIndex} can be used.");
+            return PathMeasure_isClosed(contourIndex);
+        }
+
+        public bool _nextContour() {
+            bool next = PathMeasure_nativeNextContour();
+            if (next) {
+                currentContourIndex++;
+            }
+            return next;
+        }
+
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr PathMeasure_constructor(IntPtr path, bool forcedClosed);*/
+
+        static IntPtr PathMeasure_constructor(IntPtr path, bool forcedClosed) {
+            D.assert(false, () => "PathMeasure_constructor is not implemented yet!");
+            return IntPtr.Zero;
+        }
+
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern void PathMeasure_dispose(IntPtr ptr);*/
+
+        static void PathMeasure_dispose(IntPtr ptr) {
+            D.assert(false, () => "PathMeasure_dispose is not implemented yet!");
+        }
+
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern float PathMeasure_length(int contourIndex);*/
+
+        static float PathMeasure_length(int contourIndex) {
+            D.assert(false, () => "PathMeasure_length is not implemented yet!");
+            return 0;
+        }
+        
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern bool PathMeasure_isClosed(int contourIndex);*/
+
+        static bool PathMeasure_isClosed(int contourIndex) {
+            D.assert(false, () => "PathMeasure_isClosed is not implemented yet!");
+            return true;
+        }
+        
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern bool PathMeasure_nativeNextContour();*/
+
+        static bool PathMeasure_nativeNextContour() {
+            D.assert(false, () => "PathMeasure_nativeNextContour is not implemented yet!");
+            return false;
         }
     }
 
