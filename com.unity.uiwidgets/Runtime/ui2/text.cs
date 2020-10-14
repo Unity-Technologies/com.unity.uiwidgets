@@ -1125,7 +1125,7 @@ namespace Unity.UIWidgets.ui {
 
         public readonly TextDirection direction;
 
-        Rect toRect() => Rect.fromLTRB((float) left, (float) top, (float) right, (float) bottom);
+        public Rect toRect() => Rect.fromLTRB((float) left, (float) top, (float) right, (float) bottom);
 
         public float start {
             get { return (direction == TextDirection.ltr) ? left : right; }

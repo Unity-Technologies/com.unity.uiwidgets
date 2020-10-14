@@ -6,23 +6,23 @@ using Rect = Unity.UIWidgets.ui.Rect;
 namespace Unity.UIWidgets.rendering {
     public class TextureBox : RenderBox {
 
-        public TextureBox(Texture texture = null) {
-            D.assert(texture != null);
-            _texture = texture;
+        public TextureBox(int textureId) {
+            D.assert(textureId != null);
+            _textureId = textureId;
         }
 
-        public Texture texture {
-            get { return _texture; }
+        public int textureId {
+            get { return _textureId; }
             set {
                 D.assert(value != null);
-                if (value != _texture) {
-                    _texture = value;
+                if (value != _textureId) {
+                    _textureId = value;
                     markNeedsPaint();
                 }                
             }
         }
         
-        Texture _texture;
+        int _textureId;
 
         protected override bool sizedByParent {
             get { return true; }
@@ -45,13 +45,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (_texture == null) {
+            if (_textureId == null) {
                 return;
             }
             
             context.addLayer(new TextureLayer(
                 rect: Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
-                texture: _texture
+                textureId: _textureId
             ));
         }
     }

@@ -9,6 +9,8 @@ using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
+using StrutStyle = Unity.UIWidgets.ui.StrutStyle;
+using TextRange = Unity.UIWidgets.ui.TextRange;
 
 namespace Unity.UIWidgets.rendering {
     class EditableUtils {
