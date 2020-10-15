@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 
 namespace Unity.UIWidgets.widgets {
     public class TickerMode : InheritedWidget {
@@ -48,13 +48,8 @@ namespace Unity.UIWidgets.widgets {
                     "mixing in a SingleTickerProviderStateMixin, use a regular TickerProviderStateMixin."
                 );
             });
-            
-            Func<string> debugLabel = null;
-            D.assert(() => {
-                debugLabel = () => "created by " + this;
-                return true;
-            });
-            _ticker = new Ticker(onTick, debugLabel: debugLabel);
+
+            _ticker = new Ticker(onTick, debugLabel: foundation_.kDebugMode ? $"created by {this}" : null);
             return _ticker;
         }
 
@@ -115,13 +110,9 @@ namespace Unity.UIWidgets.widgets {
 
         public Ticker createTicker(TickerCallback onTick) {
             _tickers = _tickers ?? new HashSet<Ticker>();
-
-            Func<string> debugLabel = null;
-            D.assert(() => {
-                debugLabel = () => "created by " + this;
-                return true;
-            });
-            var result = new _WidgetTicker<T>(onTick, this, debugLabel: debugLabel);
+            
+            var result = new _WidgetTicker<T>(onTick, this,
+                debugLabel: foundation_.kDebugMode ? "created by " + this : null);
             _tickers.Add(result);
             return result;
         }
@@ -182,16 +173,16 @@ namespace Unity.UIWidgets.widgets {
         internal _WidgetTicker(
             TickerCallback onTick,
             TickerProviderStateMixin<T> creator,
-            Func<string> debugLabel = null) :
+            string debugLabel = null) :
             base(onTick: onTick, debugLabel: debugLabel) {
             _creator = creator;
         }
 
         readonly TickerProviderStateMixin<T> _creator;
 
-        public override void dispose() {
+        public override void Dispose() {
             _creator._removeTicker(this);
-            base.dispose();
+            base.Dispose();
         }
     }
 }

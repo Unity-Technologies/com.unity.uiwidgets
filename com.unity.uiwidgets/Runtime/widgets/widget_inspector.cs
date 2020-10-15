@@ -6,7 +6,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
@@ -899,11 +899,11 @@ namespace Unity.UIWidgets.widgets {
             return null;
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
             
             if (!selection.active) {
-                return null;
+                return;
             }
 
             RenderObject selected = selection.current;
@@ -928,7 +928,6 @@ namespace Unity.UIWidgets.widgets {
             }
 
             builder.addPicture(layerOffset, _picture);
-            return null;
         }
 
 

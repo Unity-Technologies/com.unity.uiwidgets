@@ -6,8 +6,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
-using SchedulerBinding = Unity.UIWidgets.scheduler.SchedulerBinding;
-using SchedulerPhase = Unity.UIWidgets.scheduler.SchedulerPhase;
+using SchedulerBinding = Unity.UIWidgets.scheduler2.SchedulerBinding;
+using SchedulerPhase = Unity.UIWidgets.scheduler2.SchedulerPhase;
 
 namespace Unity.UIWidgets.widgets {
     public delegate Route RouteFactory(RouteSettings settings);
