@@ -5,7 +5,7 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.material {
     public class MaterialColor : ColorSwatch<int> {
         public MaterialColor(
-            long primary,
+            uint primary,
             Dictionary<int, Color> swatch) : base(primary: primary, swatch: swatch) {
         }
 
@@ -53,7 +53,7 @@ namespace Unity.UIWidgets.material {
 
     public class MaterialAccentColor : ColorSwatch<int> {
         public MaterialAccentColor(
-            long primary,
+            uint primary,
             Dictionary<int, Color> swatch) : base(primary: primary, swatch: swatch) {
         }
 

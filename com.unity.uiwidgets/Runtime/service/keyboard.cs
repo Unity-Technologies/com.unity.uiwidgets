@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -86,7 +87,7 @@ namespace Unity.UIWidgets.service {
         }
 
         public void setIMEPos(Offset imeGlobalPos) {
-            var uiWidgetWindowAdapter = Window.instance as UIWidgetWindowAdapter;
+            var uiWidgetWindowAdapter = Window.instance;
             Offset screenPos = uiWidgetWindowAdapter != null 
                 ? uiWidgetWindowAdapter.windowPosToScreenPos(imeGlobalPos) 
                 : _editorWindowPosToScreenPos(imeGlobalPos);
@@ -341,7 +342,9 @@ namespace Unity.UIWidgets.service {
         }
 
         void _handleMethodCall(string method, List<JSONNode> args) {
-            if (TextInput._currentConnection == null) {
+            D.assert(false, () => "keyboard.handleMethodCall is not implemented yet!");
+            
+            /*if (TextInput._currentConnection == null) {
                 return;
             }
             int client = args[0].AsInt;
@@ -360,7 +363,7 @@ namespace Unity.UIWidgets.service {
                     default:
                         throw new UIWidgetsError($"unknown method ${method}");
                 }
-            }
+            }*/
         } 
     }
     

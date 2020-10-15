@@ -310,6 +310,16 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
+        public Offset windowPosToScreenPos(Offset offset) {
+            D.assert(false, () => "window.windowPosToScreenPos is not implemented yet!");
+            return offset;
+        }
+
+        public void run(Action callback) {
+            //Fixme: do nothing now
+            D.assert(false, () => "window.run is not implemented yet!");
+        }
+
         public PointerDataPacketCallback onPointerDataPacket {
             get { return _onPointerDataPacket; }
             set {
