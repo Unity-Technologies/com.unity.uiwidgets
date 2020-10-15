@@ -76,7 +76,7 @@ namespace Unity.UIWidgets.widgets {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool gaplessPlayback = false,
-            FilterMode filterMode = FilterMode.Bilinear
+            FilterQuality filterQuality = FilterQuality.low
         ) : base(key) {
             D.assert(image != null);
             this.image = image;
@@ -89,7 +89,7 @@ namespace Unity.UIWidgets.widgets {
             this.repeat = repeat;
             this.centerSlice = centerSlice;
             this.gaplessPlayback = gaplessPlayback;
-            this.filterMode = filterMode;
+            this.filterQuality = filterQuality;
         }
 
         public static Image network(
@@ -105,7 +105,7 @@ namespace Unity.UIWidgets.widgets {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool gaplessPlayback = false,
-            FilterMode filterMode = FilterMode.Bilinear,
+            FilterQuality filterQuality = FilterQuality.low,
             IDictionary<string, string> headers = null
         ) {
             var networkImage = new NetworkImage(src, scale, headers);
@@ -121,7 +121,7 @@ namespace Unity.UIWidgets.widgets {
                 repeat,
                 centerSlice,
                 gaplessPlayback,
-                filterMode
+                filterQuality
             );
         }
 
@@ -138,7 +138,7 @@ namespace Unity.UIWidgets.widgets {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool gaplessPlayback = false,
-            FilterMode filterMode = FilterMode.Bilinear
+            FilterQuality filterQuality = FilterQuality.low
         ) {
             var fileImage = new FileImage(file, scale);
             return new Image(
@@ -153,7 +153,7 @@ namespace Unity.UIWidgets.widgets {
                 repeat,
                 centerSlice,
                 gaplessPlayback,
-                filterMode
+                filterQuality
             );
         }
 
@@ -171,7 +171,7 @@ namespace Unity.UIWidgets.widgets {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool gaplessPlayback = false,
-            FilterMode filterMode = FilterMode.Bilinear
+            FilterQuality filterQuality = FilterQuality.low
         ) {
             var image = scale != null
                 ? (AssetBundleImageProvider) new ExactAssetImage(name, bundle: bundle, scale: scale.Value)
@@ -189,7 +189,7 @@ namespace Unity.UIWidgets.widgets {
                 repeat,
                 centerSlice,
                 gaplessPlayback,
-                filterMode
+                filterQuality
             );
         }
 
@@ -206,7 +206,7 @@ namespace Unity.UIWidgets.widgets {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool gaplessPlayback = false,
-            FilterMode filterMode = FilterMode.Bilinear
+            FilterQuality filterQuality = FilterQuality.low
         ) {
             var memoryImage = new MemoryImage(bytes, scale);
             return new Image(
@@ -221,7 +221,7 @@ namespace Unity.UIWidgets.widgets {
                 repeat,
                 centerSlice,
                 gaplessPlayback,
-                filterMode
+                filterQuality
             );
         }
 
@@ -229,7 +229,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly float? width;
         public readonly float? height;
         public readonly Color color;
-        public readonly FilterMode filterMode;
+        public readonly FilterQuality filterQuality;
         public readonly BlendMode colorBlendMode;
         public readonly BoxFit? fit;
         public readonly Alignment alignment;
@@ -257,7 +257,7 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new EnumProperty<ImageRepeat>("repeat", repeat, defaultValue: ImageRepeat.noRepeat));
             properties.add(new DiagnosticsProperty<Rect>("centerSlice", centerSlice,
                 defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new EnumProperty<FilterMode>("filterMode", filterMode, foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<FilterQuality>("filterQuality", filterQuality, foundation_.kNullDefaultValue));
         }
     }
 
@@ -363,7 +363,7 @@ namespace Unity.UIWidgets.widgets {
                 repeat: widget.repeat,
                 centerSlice: widget.centerSlice,
                 invertColors: _invertColors,
-                filterMode: widget.filterMode
+                filterQuality: widget.filterQuality
             );
 
             return image;

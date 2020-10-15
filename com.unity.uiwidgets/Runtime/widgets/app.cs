@@ -147,8 +147,13 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public static Window of(GameObject gameObject) {
+            D.assert(false, () => "window.Of is not implemented yet!");
+            return null;
+            
+            /*
             var panel = gameObject.GetComponent<UIWidgetsPanel>();
             return panel == null ? null : panel.window;
+            */
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {

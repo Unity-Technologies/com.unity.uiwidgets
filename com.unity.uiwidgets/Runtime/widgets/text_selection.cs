@@ -88,7 +88,7 @@ namespace Unity.UIWidgets.widgets {
 
         public void handlePaste(TextSelectionDelegate selectionDelegate) {
             TextEditingValue value = selectionDelegate.textEditingValue; // Snapshot the input before using `await`.
-            Clipboard.getData(Clipboard.kTextPlain).Then((data) => {
+            Clipboard.getData(Clipboard.kTextPlain).then_((data) => {
                 if (data != null) {
                     selectionDelegate.textEditingValue = new TextEditingValue(
                         text: value.selection.textBefore(value.text)

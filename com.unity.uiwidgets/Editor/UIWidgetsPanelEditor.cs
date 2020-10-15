@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.Editor {
             var antiAliasingProperty = serializedObject.FindProperty("hardwareAntiAliasing");
             EditorGUILayout.PropertyField(pixelRatioProperty);
             EditorGUILayout.PropertyField(antiAliasingProperty);
-            serializedObject.ApplyModifiedProperties();
+            serializedObject.ApplyModifiedProperties(); 
         }
     }
 }
