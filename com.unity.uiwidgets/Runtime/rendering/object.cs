@@ -174,7 +174,7 @@ namespace Unity.UIWidgets.rendering {
 
             _currentLayer = new PictureLayer(estimatedBounds);
             _recorder = new PictureRecorder();
-            _canvas = new RecorderCanvas(_recorder);
+            _canvas = new Canvas(_recorder);
             _containerLayer.append(_currentLayer);
         }
 
@@ -309,7 +309,7 @@ namespace Unity.UIWidgets.rendering {
             }
             else {
                 canvas.save();
-                canvas.concat(effectiveTransform.toMatrix3());
+                canvas.transform(effectiveTransform._m4storage);
                 painter(this, offset);
                 canvas.restore();
             }

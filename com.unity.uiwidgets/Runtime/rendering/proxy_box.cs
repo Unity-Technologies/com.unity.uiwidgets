@@ -1091,9 +1091,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(() => {
                 if (child != null) {
                     base.debugPaintSize(context, offset);
-                    Path offsetPath = new Path();
-                    offsetPath.addPath(_clip, offset);
-                    context.canvas.drawPath(offsetPath, _debugPaint);
+                    context.canvas.drawPath(_clip.shift(offset), _debugPaint);
                     _debugText.paint(context.canvas, offset);
                 }
 
@@ -1327,8 +1325,7 @@ namespace Unity.UIWidgets.rendering {
             if (child != null) {
                 _updateClip();
                 Rect offsetBounds = offset & size;
-                Path offsetPath = new Path();
-                offsetPath.addPath(_clip, offset);
+                Path offsetPath = _clip.shift(offset);
 
                 PhysicalModelLayer physicalModel = new PhysicalModelLayer(
                     clipPath: offsetPath,
@@ -1336,6 +1333,7 @@ namespace Unity.UIWidgets.rendering {
                     elevation: elevation,
                     color: color,
                     shadowColor: shadowColor);
+                
                 context.pushLayer(physicalModel, base.paint, offset, childPaintBounds: offsetBounds);
             }
         }

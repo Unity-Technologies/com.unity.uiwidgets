@@ -6,6 +6,7 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
@@ -15,9 +16,13 @@ namespace Unity.UIWidgets.rendering {
             get { return (ContainerLayer) base.parent; }
         }
 
-        bool _needsAddToScene = true;
+        public bool _needsAddToScene = true;
 
         protected void markNeedsAddToScene() {
+            if (_needsAddToScene) {
+                return;
+            }
+            
             _needsAddToScene = true;
         }
 
@@ -26,11 +31,23 @@ namespace Unity.UIWidgets.rendering {
         }
 
         internal bool _subtreeNeedsAddToScene;
-
-        flow.Layer _engineLayer;
+        
+        protected EngineLayer engineLayer {
+            get { return _engineLayer; }
+            set {
+                _engineLayer = value;
+                if (!alwaysNeedsAddToScene) {
+                    if (parent != null && !parent.alwaysNeedsAddToScene) {
+                        parent.markNeedsAddToScene();
+                    }
+                }
+            }
+        }
+        
+        EngineLayer _engineLayer;
 
         internal virtual void updateSubtreeNeedsAddToScene() {
-            _subtreeNeedsAddToScene = _needsAddToScene || alwaysNeedsAddToScene;
+            _needsAddToScene = _needsAddToScene || alwaysNeedsAddToScene;
         }
 
         public Layer nextSibling {
@@ -46,12 +63,18 @@ namespace Unity.UIWidgets.rendering {
         internal Layer _previousSibling;
 
         protected override void dropChild(AbstractNodeMixinDiagnosticableTree child) {
-            markNeedsAddToScene();
+            if (!alwaysNeedsAddToScene) {
+                markNeedsAddToScene();
+            }
+
             base.dropChild(child);
         }
 
         protected override void adoptChild(AbstractNodeMixinDiagnosticableTree child) {
-            markNeedsAddToScene();
+            if (!alwaysNeedsAddToScene) {
+                markNeedsAddToScene();
+            }
+
             base.adoptChild(child);
         }
 
@@ -108,15 +131,15 @@ namespace Unity.UIWidgets.rendering {
 
         internal abstract S find<S>(Offset regionOffset) where S : class;
 
-        internal abstract flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null);
+        internal abstract void addToScene(SceneBuilder builder, Offset layerOffset = null);
 
         internal void _addToSceneWithRetainedRendering(SceneBuilder builder) {
-            if (!_subtreeNeedsAddToScene && _engineLayer != null) {
+            if (!_needsAddToScene && _engineLayer != null) {
                 builder.addRetained(_engineLayer);
                 return;
             }
 
-            _engineLayer = addToScene(builder);
+            addToScene(builder);
             _needsAddToScene = false;
         }
 
@@ -181,12 +204,11 @@ namespace Unity.UIWidgets.rendering {
             return null;
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
             builder.addPicture(layerOffset, picture,
                 isComplexHint: isComplexHint, willChangeHint: willChangeHint);
-            return null;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -198,20 +220,19 @@ namespace Unity.UIWidgets.rendering {
     public class TextureLayer : Layer {
         public TextureLayer(
             Rect rect,
-            Texture texture,
+            int textureId,
             bool freeze = false
         ) {
             D.assert(rect != null);
-            D.assert(texture != null);
 
             this.rect = rect;
-            this.texture = texture;
+            this.textureId = textureId;
             this.freeze = freeze;
         }
 
         public readonly Rect rect;
 
-        public readonly Texture texture;
+        public readonly int textureId;
 
         public readonly bool freeze;
 
@@ -219,18 +240,17 @@ namespace Unity.UIWidgets.rendering {
             return null;
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
             Rect shiftedRect = rect.shift(layerOffset);
             builder.addTexture(
-                texture,
+                textureId,
                 offset: shiftedRect.topLeft,
                 width: shiftedRect.width,
                 height: shiftedRect.height,
                 freeze: freeze
             );
-            return null;
         }
     }
 
@@ -285,7 +305,7 @@ namespace Unity.UIWidgets.rendering {
 
         PictureLayer _highlightConflictingLayer(PhysicalModelLayer child) {
             PictureRecorder recorder = new PictureRecorder();
-            var canvas = new RecorderCanvas(recorder);
+            var canvas = new Canvas(recorder);
             canvas.drawPath(child.clipPath, new Paint() {
                 color = new Color(0xFFAA0000),
                 style = PaintingStyle.stroke,
@@ -377,7 +397,7 @@ namespace Unity.UIWidgets.rendering {
             Layer child = firstChild;
             while (child != null) {
                 child.updateSubtreeNeedsAddToScene();
-                _subtreeNeedsAddToScene = _subtreeNeedsAddToScene || child._subtreeNeedsAddToScene;
+                _needsAddToScene = _needsAddToScene || child._needsAddToScene;
                 child = child.nextSibling;
             }
         }
@@ -485,9 +505,8 @@ namespace Unity.UIWidgets.rendering {
             _lastChild = null;
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             addChildrenToScene(builder, layerOffset);
-            return null;
         }
 
         public void addChildrenToScene(SceneBuilder builder, Offset childOffset = null) {
@@ -602,15 +621,15 @@ namespace Unity.UIWidgets.rendering {
             return scene;
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
-            var engineLayer = builder.pushOffset(
+            engineLayer = builder.pushOffset(
                 (float) (layerOffset.dx + offset.dx),
-                (float) (layerOffset.dy + offset.dy));
+                (float) (layerOffset.dy + offset.dy),
+                oldLayer: engineLayer as OffsetEngineLayer);
             addChildrenToScene(builder);
             builder.pop();
-            return engineLayer;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -663,7 +682,7 @@ namespace Unity.UIWidgets.rendering {
             return base.find<S>(regionOffset);
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
             bool enabled = true;
@@ -673,7 +692,14 @@ namespace Unity.UIWidgets.rendering {
             });
 
             if (enabled) {
-                builder.pushClipRect(clipRect.shift(layerOffset));
+                var shiftedClipRect = layerOffset == Offset.zero ? clipRect : clipRect.shift(layerOffset);
+                engineLayer = builder.pushClipRect(
+                    rect: shiftedClipRect,
+                    clipBehavior: clipBehavior,
+                    oldLayer: engineLayer as ClipRectEngineLayer);
+            }
+            else {
+                engineLayer = null;
             }
 
             addChildrenToScene(builder, layerOffset);
@@ -681,8 +707,6 @@ namespace Unity.UIWidgets.rendering {
             if (enabled) {
                 builder.pop();
             }
-
-            return null;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -735,7 +759,7 @@ namespace Unity.UIWidgets.rendering {
             return base.find<S>(regionOffset);
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
             bool enabled = true;
@@ -745,7 +769,15 @@ namespace Unity.UIWidgets.rendering {
             });
 
             if (enabled) {
-                builder.pushClipRRect(clipRRect.shift(layerOffset));
+                var shiftedClipRRect = layerOffset == Offset.zero ? clipRRect : clipRRect.shift(layerOffset);
+                engineLayer = builder.pushClipRRect(
+                    shiftedClipRRect,
+                    clipBehavior: clipBehavior,
+                    oldLayer: engineLayer as ClipRRectEngineLayer
+                    );
+            }
+            else {
+                engineLayer = null;
             }
 
             addChildrenToScene(builder, layerOffset);
@@ -753,8 +785,6 @@ namespace Unity.UIWidgets.rendering {
             if (enabled) {
                 builder.pop();
             }
-
-            return null;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -807,7 +837,7 @@ namespace Unity.UIWidgets.rendering {
             return base.find<S>(regionOffset);
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
             bool enabled = true;
@@ -817,7 +847,14 @@ namespace Unity.UIWidgets.rendering {
             });
 
             if (enabled) {
-                builder.pushClipPath(clipPath.shift(layerOffset));
+                var shiftedPath = layerOffset == Offset.zero ? clipPath : clipPath.shift(layerOffset);
+                engineLayer = builder.pushClipPath(
+                    shiftedPath,
+                    clipBehavior: clipBehavior,
+                    oldLayer: engineLayer as ClipPathEngineLayer);
+            }
+            else {
+                engineLayer = null;
             }
 
             addChildrenToScene(builder, layerOffset);
@@ -825,8 +862,6 @@ namespace Unity.UIWidgets.rendering {
             if (enabled) {
                 builder.pop();
             }
-
-            return null;
         }
     }
 
@@ -861,7 +896,7 @@ namespace Unity.UIWidgets.rendering {
             return base.find<S>(new Offset(result[0], result[1]));
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
             _lastEffectiveTransform = _transform;
@@ -872,10 +907,12 @@ namespace Unity.UIWidgets.rendering {
                 _lastEffectiveTransform.multiply(transform);
             }
 
-            builder.pushTransform(_lastEffectiveTransform.toMatrix3());
+            engineLayer = builder.pushTransform(
+                _lastEffectiveTransform._m4storage,
+                oldLayer: engineLayer as TransformEngineLayer);
+            
             addChildrenToScene(builder);
             builder.pop();
-            return null;
         }
 
         public override void applyTransform(Layer child, Matrix4 transform) {
@@ -927,7 +964,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
             bool enabled = true;
@@ -935,16 +972,21 @@ namespace Unity.UIWidgets.rendering {
                 enabled = !D.debugDisableOpacityLayers;
                 return true;
             });
+            
             if (enabled) {
-                builder.pushOpacity(alpha, offset: offset + layerOffset);
+                engineLayer = builder.pushOpacity(
+                    alpha, 
+                    offset: offset + layerOffset,
+                    oldLayer: engineLayer as OpacityEngineLayer);
+            }
+            else {
+                engineLayer = null;
             }
 
             addChildrenToScene(builder, layerOffset);
             if (enabled) {
                 builder.pop();
             }
-
-            return null;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -972,11 +1014,14 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
-            builder.pushBackdropFilter(filter);
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+            D.assert(filter != null);
+            engineLayer = builder.pushBackdropFilter(
+                filter: filter,
+                oldLayer: engineLayer as BackdropFilterEngineLayer);
+            
             addChildrenToScene(builder, layerOffset);
             builder.pop();
-            return null;
         }
     }
 
@@ -1028,23 +1073,23 @@ namespace Unity.UIWidgets.rendering {
             return base.find<S>(regionOffset - offset);
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
             D.assert(offset != null);
             _lastOffset = offset + layerOffset;
             if (_lastOffset != Offset.zero) {
-                builder.pushTransform(new Matrix4()
+                engineLayer = builder.pushTransform(
+                    new Matrix4()
                     .translationValues(_lastOffset.dx, _lastOffset.dy,0)
-                    .toMatrix3());
+                    ._m4storage,
+                    oldLayer: engineLayer as TransformEngineLayer);
             }
 
             addChildrenToScene(builder, Offset.zero);
             if (_lastOffset != Offset.zero) {
                 builder.pop();
             }
-
-            return null;
         }
 
         public override void applyTransform(Layer child, Matrix4 transform) {
@@ -1176,7 +1221,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
             D.assert(link != null);
@@ -1184,12 +1229,14 @@ namespace Unity.UIWidgets.rendering {
                 _lastTransform = null;
                 _lastOffset = null;
                 _inverseDirty = true;
-                return null;
+                engineLayer = null;
             }
 
             _establishTransform();
             if (_lastTransform != null) {
-                builder.pushTransform(_lastTransform.toMatrix3());
+                engineLayer = builder.pushTransform(
+                    _lastTransform._m4storage,
+                    oldLayer: engineLayer as TransformEngineLayer);
                 addChildrenToScene(builder);
                 builder.pop();
                 _lastOffset = unlinkedOffset + layerOffset;
@@ -1197,13 +1244,14 @@ namespace Unity.UIWidgets.rendering {
             else {
                 _lastOffset = null;
                 var matrix = new Matrix4().translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
-                builder.pushTransform(matrix.toMatrix3());
+                engineLayer = builder.pushTransform(
+                    matrix._m4storage,
+                    oldLayer: engineLayer as TransformEngineLayer);
                 addChildrenToScene(builder);
                 builder.pop();
             }
 
             _inverseDirty = true;
-            return null;
         }
 
         public override void applyTransform(Layer child, Matrix4 transform) {
@@ -1254,11 +1302,17 @@ namespace Unity.UIWidgets.rendering {
             return null;
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
-            layerOffset = layerOffset ?? Offset.zero;
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+            D.assert(optionsMask != null);
 
-            builder.addPerformanceOverlay(optionsMask, overlayRect.shift(layerOffset));
-            return null;
+            layerOffset = layerOffset ?? Offset.zero;
+            
+            var shiftedOverlayRect = layerOffset == Offset.zero ? overlayRect : overlayRect.shift(layerOffset);
+            builder.addPerformanceOverlay(optionsMask, shiftedOverlayRect);
+            //TODO: add implementations
+            //builder.setRasterizerTracingThreshold(rasterizerThreshold);
+            //builder.setCheckerboardRasterCacheImages(checkerboardRasterCacheImages);
+            //builder.setCheckerboardOffscreenLayers(checkerboardOffscreenLayers);
         }
     }
 
@@ -1357,7 +1411,7 @@ namespace Unity.UIWidgets.rendering {
                     ancestor = ancestor.parent;
                 }
 
-                return clipPath.transform(matrix.toMatrix3());
+                return clipPath.transform(matrix._m4storage);
             }
         }
 
@@ -1408,20 +1462,36 @@ namespace Unity.UIWidgets.rendering {
             return base.find<S>(regionOffset);
         }
 
-        internal override flow.Layer addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
+            
+            D.assert(clipPath != null);
+            D.assert(color != null);
+            D.assert(shadowColor != null);
 
-            builder.pushPhysicalShape(
-                path: clipPath.shift(layerOffset),
-                elevation: elevation,
-                color: color,
-                shadowColor: shadowColor,
-                clipBehavior: clipBehavior);
+            bool enabled = true;
+            D.assert(() => {
+                enabled = !D.debugDisablePhysicalShapeLayers;
+                return true;
+            });
 
+            if (enabled) {
+                engineLayer = builder.pushPhysicalShape(
+                    path: layerOffset == Offset.zero ? clipPath : clipPath.shift(layerOffset),
+                    elevation: elevation,
+                    color: color,
+                    shadowColor: shadowColor,
+                    clipBehavior: clipBehavior,
+                    oldLayer: engineLayer as PhysicalShapeEngineLayer);
+            }
+            else {
+                engineLayer = null;
+            }
+            
             addChildrenToScene(builder, layerOffset);
-
-            builder.pop();
-            return null;
+            if (enabled) {
+                builder.pop();
+            }
         }
 
 

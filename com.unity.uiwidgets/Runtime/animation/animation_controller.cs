@@ -1,12 +1,11 @@
 using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.physics;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
-using Ticker = Unity.UIWidgets.scheduler.Ticker;
+using Ticker = Unity.UIWidgets.scheduler2.Ticker;
 using TickerFuture = Unity.UIWidgets.scheduler2.TickerFuture;
-using TickerProvider = Unity.UIWidgets.scheduler.TickerProvider;
+using TickerProvider = Unity.UIWidgets.scheduler2.TickerProvider;
 
 namespace Unity.UIWidgets.animation {
     enum _AnimationDirection {
@@ -257,7 +256,7 @@ namespace Unity.UIWidgets.animation {
                     ? AnimationStatus.completed
                     : AnimationStatus.dismissed;
                 _checkStatusChanged();
-                return TickerFutureImpl.complete();
+                return TickerFuture.complete();
             }
 
             D.assert(simulationDuration > TimeSpan.Zero);
@@ -348,7 +347,6 @@ namespace Unity.UIWidgets.animation {
 
                 return true;
             });
-            _ticker.dispose();
             _ticker = null;
             base.dispose();
         }

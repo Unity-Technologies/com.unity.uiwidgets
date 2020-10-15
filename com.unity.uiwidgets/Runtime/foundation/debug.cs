@@ -54,6 +54,8 @@ namespace Unity.UIWidgets.foundation {
 
         public static bool debugDisableOpacityLayers = false;
 
+        public static bool debugDisablePhysicalShapeLayers = false;
+
         public static bool debugPrintMarkNeedsPaintStacks = false;
 
         public static bool debugCheckIntrinsicSizes = false;
@@ -124,9 +126,9 @@ namespace Unity.UIWidgets.foundation {
             }
 
             if (needRepaint) {
-                foreach (var adapter in WindowAdapter.windowAdapters) {
+                /*foreach (var adapter in WindowAdapter.windowAdapters) {
                     adapter._forceRepaint();
-                }
+                }*/
             }
         }
     }

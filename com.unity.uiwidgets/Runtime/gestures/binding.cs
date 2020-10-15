@@ -2,15 +2,21 @@ using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.gestures {
     public class GestureBinding : SchedulerBinding, HitTestable, HitTestDispatcher, HitTestTarget {
-        public new static GestureBinding instance {
-            get { return (GestureBinding) SchedulerBinding.instance; }
-            set { SchedulerBinding.instance = value; }
+
+        protected override void initInstances() {
+            base.initInstances();
+            instance = this;
+        }
+
+        public static GestureBinding instance {
+            get { return (GestureBinding) Window.instance._binding; }
+            private set { Window.instance._binding = value; }
         }
 
         public GestureBinding() {

@@ -223,6 +223,75 @@ namespace Unity.UIWidgets.ui {
             return layer;
         }
 
+        public ClipRectEngineLayer pushClipRect(
+            Rect rect,
+            Clip clipBehavior = Clip.antiAlias,
+            ClipRectEngineLayer oldLayer = null) {
+            D.assert(clipBehavior != Clip.none);
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushClipRect"));
+            ClipRectEngineLayer layer = new ClipRectEngineLayer(SceneBuilder_pushClipRect(_ptr, rect.left, rect.right, rect.top, rect.bottom, (int)clipBehavior));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
+
+        public unsafe ClipRRectEngineLayer pushClipRRect(
+            RRect rrect,
+            Clip clipBehavior = Clip.antiAlias,
+            ClipRRectEngineLayer oldLayer = null) {
+            D.assert(clipBehavior != Clip.none);
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushClipRRect"));
+            fixed (float* rrectPtr = rrect._value32) {
+                ClipRRectEngineLayer layer =
+                    new ClipRRectEngineLayer(SceneBuilder_pushClipRRect(_ptr, rrectPtr, (int) clipBehavior));
+                D.assert(_debugPushLayer(layer));
+                return layer;
+            }
+        }
+
+        public ClipPathEngineLayer pushClipPath(
+            Path path,
+            Clip clipBehavior = Clip.antiAlias,
+            ClipPathEngineLayer oldLayer = null) {
+            D.assert(clipBehavior != Clip.none);
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushClipPath"));
+            ClipPathEngineLayer layer = new ClipPathEngineLayer(SceneBuilder_pushClipPath(_ptr, path._ptr, (int)clipBehavior));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
+
+        public OpacityEngineLayer pushOpacity(
+            int alpha,
+            Offset offset = null,
+            OpacityEngineLayer oldLayer = null) {
+            offset = offset ?? Offset.zero;
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushOpacity"));
+            OpacityEngineLayer layer = new OpacityEngineLayer(SceneBuilder_pushOpacity(_ptr, alpha, offset.dx, offset.dy));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
+
+        public BackdropFilterEngineLayer pushBackdropFilter(
+            ImageFilter filter,
+            BackdropFilterEngineLayer oldLayer = null) {
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushBackdropFilter"));
+            BackdropFilterEngineLayer layer = new BackdropFilterEngineLayer(SceneBuilder_pushBackdropFilter(_ptr, filter._toNativeImageFilter()._ptr));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
+
+        public PhysicalShapeEngineLayer pushPhysicalShape(
+            Path path,
+            float elevation,
+            Color color,
+            Color shadowColor,
+            Clip clipBehavior = Clip.none,
+            PhysicalShapeEngineLayer oldLayer = null) {
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "PhysicalShapeEngineLayer"));
+            PhysicalShapeEngineLayer layer = new PhysicalShapeEngineLayer(SceneBuilder_pushPhysicalShape(_ptr, path._ptr, elevation, color.value, shadowColor?.value ?? 0xFF000000, (int)clipBehavior));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
+
         public void pop() {
             if (_layerStack.isNotEmpty()) {
                 _layerStack.removeLast();
@@ -260,6 +329,10 @@ namespace Unity.UIWidgets.ui {
             SceneBuilder_addRetained(_ptr, wrapper._ptr);
         }
 
+        public void addPerformanceOverlay(int enabledOptions, Rect bounds) {
+            SceneBuilder_addPerformanceOverlay(enabledOptions, bounds.left, bounds.right, bounds.top, bounds.bottom);
+        }
+
         public void addPicture(
             Offset offset,
             Picture picture,
@@ -293,6 +366,71 @@ namespace Unity.UIWidgets.ui {
 
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_pushOffset(IntPtr ptr, float dx, float dy);
+
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushClipRect(IntPtr ptr, float left, float right, float top, float bottom,
+            int clipBehavior);*/
+        static IntPtr SceneBuilder_pushClipRect(IntPtr ptr, float left, float right, float top, float bottom,
+            int clipBehavior) {
+            D.assert(false, () => "SceneBuilder_pushClipRect is not implemented yet!");
+            return IntPtr.Zero;
+        }
+
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern unsafe IntPtr SceneBuilder_pushClipRRect(IntPtr ptr, float* rrect, int clipBehavior);*/
+        static unsafe IntPtr SceneBuilder_pushClipRRect(IntPtr ptr, float* rrect, int clipBehavior) {
+            D.assert(false, () => "SceneBuilder_pushClipRRect is not implemented yet!");
+            return IntPtr.Zero;
+        }
+
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushClipPath(IntPtr ptr, IntPtr path, int clipBehavior);*/
+        static unsafe IntPtr SceneBuilder_pushClipPath(IntPtr ptr, IntPtr path, int clipBehavior) {
+            D.assert(false, () => "SceneBuilder_pushClipPath is not implemented yet!");
+            return IntPtr.Zero;
+        }
+
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushOpacity(IntPtr ptr, int alpha, float dx, float dy);*/
+        static IntPtr SceneBuilder_pushOpacity(IntPtr ptr, int alpha, float dx, float dy) {
+            D.assert(false, () => "SceneBuilder_pushOpacity is not implemented yet!");
+            return IntPtr.Zero;
+        }
+
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushBackdropFilter(IntPtr ptr, IntPtr filter);*/
+
+        static IntPtr SceneBuilder_pushBackdropFilter(IntPtr ptr, IntPtr filter) {
+            D.assert(false, () => "SceneBuilder_pushBackdropFilter is not implemented yet!");
+            return IntPtr.Zero;
+        }
+        
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern void SceneBuilder_addPerformanceOverlay(int enabledOptions, float left, float right, float top,
+            float bottom);*/
+
+        static void SceneBuilder_addPerformanceOverlay(int enabledOptions, float left, float right, float top,
+            float bottom) {
+            D.assert(false, () => "SceneBuilder_addPerformanceOverlay is not implemented yet!");
+        }
+
+        /*
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushPhysicalShape(IntPtr ptr, IntPtr path, float evelation, uint color,
+            uint shadowColor, int clipBehavior);*/
+
+        static IntPtr SceneBuilder_pushPhysicalShape(IntPtr ptr, IntPtr path, float elevation, uint color,
+            uint shadowColor, int clipBehavior) {
+            D.assert(false, () => "SceneBuilder_pushPhysicalShape is not implemented yet!");
+            return IntPtr.Zero;
+        }
+        
 
         [DllImport(NativeBindings.dllName)]
         static extern void SceneBuilder_pop(IntPtr ptr);
