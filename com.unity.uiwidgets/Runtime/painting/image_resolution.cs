@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using RSG;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -24,7 +24,7 @@ namespace Unity.UIWidgets.painting {
             AssetBundleImageKey key;
             var cache = AssetBundleCache.instance.get(configuration.bundle);
             if (cache.TryGetValue(assetConfig, out key)) {
-                return Promise<AssetBundleImageKey>.Resolved(key);
+                return Future<AssetBundleImageKey>.value(FutureOr.value(key)).to<AssetBundleImageKey>();
             }
 
             AssetBundle chosenBundle = bundle ? bundle : configuration.bundle;
@@ -32,7 +32,7 @@ namespace Unity.UIWidgets.painting {
             key = _loadAsset(chosenBundle, devicePixelRatio);
             cache[assetConfig] = key;
             
-            return Promise<AssetBundleImageKey>.Resolved(key);
+            return Future<AssetBundleImageKey>.value(FutureOr.value(key)).to<AssetBundleImageKey>();
         }
 
         AssetBundleImageKey _loadAsset(AssetBundle bundle, float devicePixelRatio) {

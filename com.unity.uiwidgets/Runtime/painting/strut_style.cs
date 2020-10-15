@@ -190,7 +190,7 @@ namespace Unity.UIWidgets.painting {
                 defaultValue: foundation_.kNullDefaultValue));
             string weightDescription = "";
             if (fontWeight != null) {
-                weightDescription = fontWeight.weightValue.ToString();
+                weightDescription = $"w${fontWeight.index + 1}00";
             }
 
             styles.Add(new DiagnosticsProperty<FontWeight>(

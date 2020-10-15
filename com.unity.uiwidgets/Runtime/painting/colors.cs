@@ -55,7 +55,7 @@ namespace Unity.UIWidgets.painting {
 
     public class ColorSwatch<T> : Color {
         public ColorSwatch(
-            long primary,
+            uint primary,
             Dictionary<T, Color> swatch) : base(primary) {
             _swatch = swatch;
         }

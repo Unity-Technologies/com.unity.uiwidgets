@@ -8,59 +8,140 @@ using Unity.UIWidgets.ui;
 using UnityEngine.Assertions;
 
 namespace Unity.UIWidgets.painting {
-    public class TextSpan : DiagnosticableTree, IEquatable<TextSpan> {
+    public class TextSpan : InlineSpan, IEquatable<TextSpan> {
         public delegate bool Visitor(TextSpan span);
 
         public readonly TextStyle style;
         public readonly string text;
-        public List<string> splitedText;
         public readonly List<TextSpan> children;
         public readonly GestureRecognizer recognizer;
         public readonly HoverRecognizer hoverRecognizer;
+        public readonly string semanticsLabel;
 
-        public TextSpan(string text = "", TextStyle style = null, List<TextSpan> children = null,
-            GestureRecognizer recognizer = null, HoverRecognizer hoverRecognizer = null) {
+        public TextSpan(
+            string text = "",
+            TextStyle style = null,
+            List<TextSpan> children = null,
+            GestureRecognizer recognizer = null,
+            HoverRecognizer hoverRecognizer = null,
+            string semanticsLabel = null) : base(style) {
             this.text = text;
-            splitedText = !string.IsNullOrEmpty(text) ? EmojiUtils.splitByEmoji(text) : null;
             this.style = style;
             this.children = children;
             this.recognizer = recognizer;
             this.hoverRecognizer = hoverRecognizer;
+            this.semanticsLabel = semanticsLabel;
         }
 
-        public void build(ParagraphBuilder builder, float textScaleFactor = 1.0f) {
-            var hasStyle = this.style != null;
+        public override void build(ParagraphBuilder builder, float textScaleFactor = 1.0f,
+            List<PlaceholderDimensions> dimensions = null) {
+            D.assert(debugAssertIsValid());
+            var hasStyle = style != null;
 
             if (hasStyle) {
-                builder.pushStyle(style, textScaleFactor);
+                builder.pushStyle(style.getTextStyle(textScaleFactor: textScaleFactor));
             }
 
-            if (splitedText != null) {
-                if (splitedText.Count == 1 && !char.IsHighSurrogate(splitedText[0][0]) &&
-                    !EmojiUtils.isSingleCharEmoji(splitedText[0][0])) {
-                    builder.addText(splitedText[0]);
-                }
-                else {
-                    TextStyle style = this.style ?? new TextStyle();
-                    for (int i = 0; i < splitedText.Count; i++) {
-                        builder.pushStyle(style, textScaleFactor);
-                        builder.addText(splitedText[i]);
-                        builder.pop();
-                    }
-                }
-            }
-
-
+            if (text != null)
+                builder.addText(text);
             if (children != null) {
-                foreach (var child in children) {
-                    Assert.IsNotNull(child);
-                    child.build(builder, textScaleFactor);
+                foreach (InlineSpan child in children) {
+                    D.assert(child != null);
+                    child.build(
+                        builder,
+                        textScaleFactor: textScaleFactor,
+                        dimensions: dimensions
+                    );
                 }
             }
 
             if (hasStyle) {
                 builder.pop();
             }
+        }
+
+        public override bool visitChildren(InlineSpanVisitor visitor) {
+            if (text != null) {
+                if (!visitor(this))
+                    return false;
+            }
+
+            if (children != null) {
+                foreach (InlineSpan child in children) {
+                    if (!child.visitChildren(visitor))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        protected override InlineSpan getSpanForPositionVisitor(TextPosition position, Accumulator offset) {
+            if (text == null) {
+                return null;
+            }
+
+            TextAffinity affinity = position.affinity;
+            int targetOffset = position.offset;
+            int endOffset = offset.value + text.Length;
+            if (offset.value == targetOffset && affinity == TextAffinity.downstream ||
+                offset.value < targetOffset && targetOffset < endOffset ||
+                endOffset == targetOffset && affinity == TextAffinity.upstream) {
+                return this;
+            }
+
+            offset.increment(text.Length);
+            return null;
+        }
+
+        public override void computeToPlainText(StringBuilder buffer, bool includeSemanticsLabels = true,
+            bool includePlaceholders = true) {
+            D.assert(debugAssertIsValid());
+            if (semanticsLabel != null && includeSemanticsLabels) {
+                buffer.Append(semanticsLabel);
+            }
+            else if (text != null) {
+                buffer.Append(text);
+            }
+
+            if (children != null) {
+                foreach (InlineSpan child in children) {
+                    child.computeToPlainText(buffer,
+                        includeSemanticsLabels: includeSemanticsLabels,
+                        includePlaceholders: includePlaceholders
+                    );
+                }
+            }
+        }
+
+        public override void computeSemanticsInformation(List<InlineSpanSemanticsInformation> collector) {
+            D.assert(debugAssertIsValid());
+            if (text != null || semanticsLabel != null) {
+                collector.Add(new InlineSpanSemanticsInformation(
+                    text,
+                    semanticsLabel: semanticsLabel,
+                    recognizer: recognizer
+                ));
+            }
+
+            if (children != null) {
+                foreach (InlineSpan child in children) {
+                    child.computeSemanticsInformation(collector);
+                }
+            }
+        }
+
+        protected override int? codeUnitAtVisitor(int index, Accumulator offset) {
+            if (text == null) {
+                return null;
+            }
+
+            if (index - offset.value < text.Length) {
+                return text[index - offset.value];
+            }
+
+            offset.increment(text.Length);
+            return null;
         }
 
         public bool hasHoverRecognizer {
@@ -117,15 +198,6 @@ namespace Unity.UIWidgets.painting {
             return result;
         }
 
-        public string toPlainText() {
-            var sb = new StringBuilder();
-            visitTextSpan((span) => {
-                sb.Append(span.text);
-                return true;
-            });
-            return sb.ToString();
-        }
-
         public int? codeUnitAt(int index) {
             if (index < 0) {
                 return null;
@@ -169,51 +241,35 @@ namespace Unity.UIWidgets.painting {
             return true;
         }
 
-        public RenderComparison compareTo(TextSpan other) {
-            if (Equals(other)) {
+        public override RenderComparison compareTo(InlineSpan other) {
+            if (Equals(this, other))
                 return RenderComparison.identical;
-            }
-
-            if (other.text != text
-                || ((children == null) != (other.children == null))
-                || (children != null && other.children != null && children.Count != other.children.Count)
-                || ((style == null) != (other.style != null))
-            ) {
+            if (other.GetType()!= GetType())
                 return RenderComparison.layout;
-            }
-
-            RenderComparison result = Equals(recognizer, other.recognizer)
-                ? RenderComparison.identical
-                : RenderComparison.metadata;
-
-            if (!Equals(hoverRecognizer, other.hoverRecognizer)) {
-                result = RenderComparison.function > result ? RenderComparison.function : result;
-            }
-
+            TextSpan textSpan = other as TextSpan;
+            if (textSpan.text != text ||
+                children?.Count != textSpan.children?.Count ||
+                (style == null) != (textSpan.style == null))
+                return RenderComparison.layout;
+            RenderComparison result = recognizer == textSpan.recognizer ?
+                RenderComparison.identical :
+                RenderComparison.metadata;
             if (style != null) {
-                var candidate = style.compareTo(other.style);
-                if (candidate > result) {
+                RenderComparison candidate = style.compareTo(textSpan.style);
+                if (candidate > result)
                     result = candidate;
-                }
-
-                if (result == RenderComparison.layout) {
+                if (result == RenderComparison.layout)
                     return result;
-                }
             }
-
             if (children != null) {
-                for (var index = 0; index < children.Count; index++) {
-                    var candidate = children[index].compareTo(other.children[index]);
-                    if (candidate > result) {
+                for (int index = 0; index < children.Count; index += 1) {
+                    RenderComparison candidate = children[index].compareTo(textSpan.children[index]);
+                    if (candidate > result)
                         result = candidate;
-                    }
-
-                    if (result == RenderComparison.layout) {
+                    if (result == RenderComparison.layout)
                         return result;
-                    }
                 }
             }
-
             return result;
         }
 

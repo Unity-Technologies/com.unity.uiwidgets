@@ -1,4 +1,4 @@
-﻿﻿using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -7,6 +7,40 @@ using Canvas = Unity.UIWidgets.ui.Canvas;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
+    public class PlaceholderDimensions {
+        public PlaceholderDimensions(
+            Size size,
+            PlaceholderAlignment alignment,
+            TextBaseline baseline,
+            float baselineOffset
+        ) {
+            D.assert(size != null);
+            D.assert(alignment != null);
+            this.size = size;
+            this.alignment = alignment;
+            this.baseline = baseline;
+            this.baselineOffset = baselineOffset;
+        }
+
+        public readonly Size size;
+
+        public readonly PlaceholderAlignment alignment;
+
+        public readonly float baselineOffset;
+
+        public readonly TextBaseline baseline;
+
+        public override string ToString() {
+            return $"PlaceholderDimensions({size}, {baseline})";
+        }
+    }
+
+    public enum TextWidthBasis {
+        parent,
+
+        longestLine,
+    }
+
     class _CaretMetrics {
         public _CaretMetrics(Offset offset, float? fullHeight) {
             this.offset = offset;
@@ -18,7 +52,7 @@ namespace Unity.UIWidgets.painting {
     }
 
     public class TextPainter {
-        TextSpan _text;
+        InlineSpan _text;
         TextAlign _textAlign;
         TextDirection? _textDirection;
         float _textScaleFactor;
@@ -29,14 +63,20 @@ namespace Unity.UIWidgets.painting {
         string _ellipsis;
         float _lastMinWidth;
         float _lastMaxWidth;
+        TextWidthBasis _textWidthBasis;
+        TextHeightBehavior _textHeightBehavior;
 
-        public TextPainter(TextSpan text = null,
+        public TextPainter(InlineSpan text = null,
             TextAlign textAlign = TextAlign.left,
             TextDirection textDirection = TextDirection.ltr,
             float textScaleFactor = 1.0f,
             int? maxLines = null,
             string ellipsis = "",
-            StrutStyle strutStyle = null) {
+            StrutStyle strutStyle = null,
+            TextWidthBasis textWidthBasis = TextWidthBasis.parent,
+            TextHeightBehavior textHeightBehavior = null) {
+            D.assert(text == null || text.debugAssertIsValid());
+            D.assert(maxLines == null || maxLines > 0);
             _text = text;
             _textAlign = textAlign;
             _textDirection = textDirection;
@@ -44,6 +84,15 @@ namespace Unity.UIWidgets.painting {
             _maxLines = maxLines;
             _ellipsis = ellipsis;
             _strutStyle = strutStyle;
+            _textWidthBasis = textWidthBasis;
+            _textHeightBehavior = textHeightBehavior;
+        }
+
+        void markNeedsLayout() {
+            _paragraph = null;
+            _needsLayout = true;
+            _previousCaretPosition = null;
+            _previousCaretPrototype = null;
         }
 
         public float textScaleFactor {
@@ -54,9 +103,8 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 _textScaleFactor = value;
+                markNeedsLayout();
                 _layoutTemplate = null;
-                _needsLayout = true;
-                Paragraph.release(ref _paragraph);
             }
         }
 
@@ -68,14 +116,14 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 _ellipsis = value;
-                Paragraph.release(ref _paragraph);
-                _needsLayout = true;
+                markNeedsLayout();
             }
         }
 
-        public TextSpan text {
+        public InlineSpan text {
             get { return _text; }
             set {
+                D.assert(value == null || value.debugAssertIsValid());
                 if ((_text == null && value == null) || (_text != null && text.Equals(value))) {
                     return;
                 }
@@ -85,8 +133,7 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 _text = value;
-                Paragraph.release(ref _paragraph);
-                _needsLayout = true;
+                markNeedsLayout();
             }
         }
 
@@ -105,9 +152,8 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 _textDirection = value;
-                Paragraph.release(ref _paragraph);
+                markNeedsLayout();
                 _layoutTemplate = null;
-                _needsLayout = true;
             }
         }
 
@@ -119,15 +165,14 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 _textAlign = value;
-                Paragraph.release(ref _paragraph);
-                _needsLayout = true;
+                markNeedsLayout();
             }
         }
 
         public bool didExceedMaxLines {
             get {
                 Debug.Assert(!_needsLayout);
-                return _paragraph.didExceedMaxLines;
+                return _paragraph.didExceedMaxLines();
             }
         }
 
@@ -139,8 +184,7 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 _maxLines = value;
-                Paragraph.release(ref _paragraph);
-                _needsLayout = true;
+                markNeedsLayout();
             }
         }
 
@@ -152,38 +196,58 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 _strutStyle = value;
-                _paragraph = null;
-                _needsLayout = true;
+                markNeedsLayout();
             }
         }
 
         StrutStyle _strutStyle;
 
+        public TextWidthBasis textWidthBasis {
+            get { return _textWidthBasis; }
+            set {
+                D.assert(value != null);
+                if (_textWidthBasis == value)
+                    return;
+                _textWidthBasis = value;
+                markNeedsLayout();
+            }
+        }
+
+        public TextHeightBehavior textHeightBehavior {
+            get { return textHeightBehavior; }
+            set {
+                if (_textHeightBehavior == value)
+                    return;
+                _textHeightBehavior = value;
+                markNeedsLayout();
+            }
+        }
+
         public float minIntrinsicWidth {
             get {
                 Debug.Assert(!_needsLayout);
-                return _applyFloatingPointHack(_paragraph.minIntrinsicWidth);
+                return _applyFloatingPointHack(_paragraph.minIntrinsicWidth());
             }
         }
 
         public float maxIntrinsicWidth {
             get {
                 Debug.Assert(!_needsLayout);
-                return _applyFloatingPointHack(_paragraph.maxIntrinsicWidth);
+                return _applyFloatingPointHack(_paragraph.maxIntrinsicWidth());
             }
         }
 
         public float height {
             get {
                 Debug.Assert(!_needsLayout);
-                return _applyFloatingPointHack(_paragraph.height);
+                return _applyFloatingPointHack(_paragraph.height());
             }
         }
 
         public float width {
             get {
                 Debug.Assert(!_needsLayout);
-                return _applyFloatingPointHack(_paragraph.width);
+                return _applyFloatingPointHack(_paragraph.width());
             }
         }
 
@@ -191,9 +255,9 @@ namespace Unity.UIWidgets.painting {
             Debug.Assert(!_needsLayout);
             switch (baseline) {
                 case TextBaseline.alphabetic:
-                    return _paragraph.alphabeticBaseline;
+                    return _paragraph.alphabeticBaseline();
                 case TextBaseline.ideographic:
-                    return _paragraph.ideographicBaseline;
+                    return _paragraph.ideographicBaseline();
             }
 
             return 0.0f;
@@ -229,7 +293,7 @@ namespace Unity.UIWidgets.painting {
 
         public void paint(Canvas canvas, Offset offset) {
             Debug.Assert(!_needsLayout);
-            _paragraph.paint(canvas, offset);
+            canvas.drawParagraph(_paragraph, offset);
         }
 
         public Offset getOffsetForCaret(TextPosition position, Rect caretPrototype) {
@@ -271,109 +335,56 @@ namespace Unity.UIWidgets.painting {
             _caretMetrics = new _CaretMetrics(
                 offset: rect != null ? new Offset(rect.left, rect.top) : _emptyOffset,
                 fullHeight: rect != null ? (float?) (rect.bottom - rect.top) : null);
-            
+
             // Cache the caret position. This was forgot in flutter until https://github.com/flutter/flutter/pull/38821
             _previousCaretPosition = position;
             _previousCaretPrototype = caretPrototype;
         }
 
-        public Paragraph.LineRange getLineRange(int lineNumber) {
+        public List<TextBox> getBoxesForSelection(TextSelection selection,
+            ui.BoxHeightStyle boxHeightStyle = ui.BoxHeightStyle.tight,
+            ui.BoxWidthStyle boxWidthStyle = ui.BoxWidthStyle.tight) {
             D.assert(!_needsLayout);
-            return _paragraph.getLineRange(lineNumber);
-        }
-
-        public Paragraph.LineRange getLineRange(TextPosition textPosition) {
-            return getLineRange(getLineIndex(textPosition));
-        }
-
-        public List<TextBox> getBoxesForSelection(TextSelection selection) {
-            D.assert(!_needsLayout);
-            var results = _paragraph.getRectsForRange(selection.start, selection.end);
+            var results = _paragraph.getBoxesForRange(selection.start, selection.end, boxHeightStyle: boxHeightStyle,
+                boxWidthStyle: boxWidthStyle);
             return results;
         }
 
         public TextPosition getPositionForOffset(Offset offset) {
             D.assert(!_needsLayout);
-            var result = _paragraph.getGlyphPositionAtCoordinate(offset.dx, offset.dy);
-            return new TextPosition(result.position, result.affinity);
+            return _paragraph.getPositionForOffset(offset);
         }
 
         public TextRange getWordBoundary(TextPosition position) {
             D.assert(!_needsLayout);
-            var range = _paragraph.getWordBoundary(position.offset);
-            return new TextRange(range.start, range.end);
+            return _paragraph.getWordBoundary(position);
         }
-
-        public TextPosition getPositionVerticalMove(TextPosition position, int move) {
+        
+        TextRange getLineBoundary(TextPosition position) {
             D.assert(!_needsLayout);
-            var offset = getOffsetForCaret(position, Rect.zero);
-            var lineIndex = Mathf.Min(Mathf.Max(_paragraph.getLine(position) + move, 0),
-                _paragraph.getLineCount() - 1);
-            var targetLineStart = _paragraph.getLineRange(lineIndex).start;
-            var newLineOffset = getOffsetForCaret(new TextPosition(targetLineStart), Rect.zero);
-            return getPositionForOffset(new Offset(offset.dx, newLineOffset.dy));
-        }
-
-        public int getLineIndex(TextPosition position) {
-            D.assert(!_needsLayout);
-            return _paragraph.getLine(position);
-        }
-
-        public int getLineCount() {
-            D.assert(!_needsLayout);
-            return _paragraph.getLineCount();
-        }
-
-        public TextPosition getWordRight(TextPosition position) {
-            D.assert(!_needsLayout);
-            var offset = position.offset;
-            while (true) {
-                var range = _paragraph.getWordBoundary(offset);
-                if (range.end == range.start) {
-                    break;
-                }
-
-                if (!char.IsWhiteSpace((char) (text.codeUnitAt(range.start) ?? 0))) {
-                    return new TextPosition(range.end);
-                }
-
-                offset = range.end;
-            }
-
-            return new TextPosition(offset, position.affinity);
-        }
-
-        public TextPosition getWordLeft(TextPosition position) {
-            D.assert(!_needsLayout);
-            var offset = Mathf.Max(position.offset - 1, 0);
-            while (true) {
-                var range = _paragraph.getWordBoundary(offset);
-                if (!char.IsWhiteSpace((char) (text.codeUnitAt(range.start) ?? 0))) {
-                    return new TextPosition(range.start);
-                }
-
-                offset = Mathf.Max(range.start - 1, 0);
-                if (offset == 0) {
-                    break;
-                }
-            }
-
-            return new TextPosition(offset, position.affinity);
+            return _paragraph.getLineBoundary(position);
         }
 
         ParagraphStyle _createParagraphStyle(TextDirection defaultTextDirection = TextDirection.ltr) {
-            if (_text.style == null) {
-                return new ParagraphStyle(
-                    textAlign: textAlign,
-                    textDirection: textDirection ?? defaultTextDirection,
-                    maxLines: maxLines,
-                    ellipsis: ellipsis,
-                    strutStyle: _strutStyle
-                );
-            }
-
-            return _text.style.getParagraphStyle(textAlign, textDirection ?? defaultTextDirection,
-                ellipsis, maxLines, textScaleFactor);
+            D.assert(textAlign != null);
+            D.assert(textDirection != null, () => "TextPainter.textDirection must be set to a non-null value before using the TextPainter.");
+            return _text.style?.getParagraphStyle(
+                textAlign: textAlign,
+                textDirection: textDirection ?? defaultTextDirection,
+                textScaleFactor: textScaleFactor,
+                maxLines: _maxLines,
+                // textHeightBehavior: _textHeightBehavior,
+                ellipsis: _ellipsis
+                // locale: _locale,
+                // strutStyle: _strutStyle,
+            ) ?? new ui.ParagraphStyle(
+                textAlign: textAlign,
+                textDirection: textDirection ?? defaultTextDirection,
+                maxLines: maxLines,
+                textHeightBehavior: _textHeightBehavior,
+                ellipsis: ellipsis
+                // locale: locale,
+            );
         }
 
         public float preferredLineHeight {
@@ -382,7 +393,7 @@ namespace Unity.UIWidgets.painting {
                     var builder = new ParagraphBuilder(_createParagraphStyle(TextDirection.ltr)
                     ); // direction doesn't matter, text is just a space
                     if (text != null && text.style != null) {
-                        builder.pushStyle(text.style, textScaleFactor);
+                        builder.pushStyle(text.style.getTextStyle(textScaleFactor: textScaleFactor));
                     }
 
                     builder.addText(" ");
@@ -390,7 +401,7 @@ namespace Unity.UIWidgets.painting {
                     _layoutTemplate.layout(new ParagraphConstraints(float.PositiveInfinity));
                 }
 
-                return _layoutTemplate.height;
+                return _layoutTemplate.height();
             }
         }
 
@@ -412,7 +423,7 @@ namespace Unity.UIWidgets.painting {
             List<TextBox> boxes = null;
             while ((boxes == null || boxes.isEmpty()) && flattenedText != null) {
                 int prevRuneOffset = offset - graphemeClusterLength;
-                boxes = _paragraph.getRectsForRange(prevRuneOffset, offset);
+                boxes = _paragraph.getBoxesForRange(prevRuneOffset, offset);
                 if (boxes.isEmpty()) {
                     if (!needsSearch) {
                         break;
@@ -455,7 +466,7 @@ namespace Unity.UIWidgets.painting {
             List<TextBox> boxes = null;
             while ((boxes == null || boxes.isEmpty()) && flattenedText != null) {
                 int nextRuneOffset = offset + graphemeClusterLength;
-                boxes = _paragraph.getRectsForRange(offset, nextRuneOffset);
+                boxes = _paragraph.getBoxesForRange(offset, nextRuneOffset);
                 if (boxes.isEmpty()) {
                     if (!needsSearch) {
                         break;

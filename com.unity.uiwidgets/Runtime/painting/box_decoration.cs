@@ -239,7 +239,7 @@ namespace Unity.UIWidgets.painting {
 
         Rect _rectForCachedBackgroundPaint;
 
-        Paint _getBackgroundPaint(Rect rect) {
+        Paint _getBackgroundPaint(Rect rect, TextDirection textDirection) {
             D.assert(rect != null);
             D.assert(_decoration.gradient != null || _rectForCachedBackgroundPaint == null);
 
@@ -255,7 +255,7 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 if (_decoration.gradient != null) {
-                    paint.shader = _decoration.gradient.createShader(rect);
+                    paint.shader = _decoration.gradient.createShader(rect, textDirection: textDirection);
                     _rectForCachedBackgroundPaint = rect;
                 }
 
@@ -265,7 +265,7 @@ namespace Unity.UIWidgets.painting {
             return _cachedBackgroundPaint;
         }
 
-        void _paintBox(Canvas canvas, Rect rect, Paint paint) {
+        void _paintBox(Canvas canvas, Rect rect, Paint paint, TextDirection textDirection) {
             switch (_decoration.shape) {
                 case BoxShape.circle:
                     D.assert(_decoration.borderRadius == null);
@@ -285,7 +285,7 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        void _paintShadows(Canvas canvas, Rect rect) {
+        void _paintShadows(Canvas canvas, Rect rect, TextDirection textDirection) {
             if (_decoration.boxShadow == null) {
                 return;
             }
@@ -293,13 +293,13 @@ namespace Unity.UIWidgets.painting {
             foreach (BoxShadow boxShadow in _decoration.boxShadow) {
                 Paint paint = boxShadow.toPaint();
                 Rect bounds = rect.shift(boxShadow.offset).inflate(boxShadow.spreadRadius);
-                _paintBox(canvas, bounds, paint);
+                _paintBox(canvas, bounds, paint, textDirection);
             }
         }
 
-        void _paintBackgroundColor(Canvas canvas, Rect rect) {
+        void _paintBackgroundColor(Canvas canvas, Rect rect, TextDirection textDirection) {
             if (_decoration.color != null || _decoration.gradient != null) {
-                _paintBox(canvas, rect, _getBackgroundPaint(rect));
+                _paintBox(canvas, rect, _getBackgroundPaint(rect, textDirection), textDirection);
             }
         }
 
@@ -340,9 +340,10 @@ namespace Unity.UIWidgets.painting {
             D.assert(configuration.size != null);
 
             Rect rect = offset & configuration.size;
+            TextDirection textDirection = configuration.textDirection;
 
-            _paintShadows(canvas, rect);
-            _paintBackgroundColor(canvas, rect);
+            _paintShadows(canvas, rect, textDirection);
+            _paintBackgroundColor(canvas, rect, textDirection);
             _paintBackgroundImage(canvas, rect, configuration);
             _decoration.border?.paint(
                 canvas,

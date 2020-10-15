@@ -2,12 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using RSG;
-using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.Networking;
+using Codec = Unity.UIWidgets.ui.Codec;
+using Image = Unity.UIWidgets.ui.Image;
+using Locale = Unity.UIWidgets.ui.Locale;
+using Object = UnityEngine.Object;
+using TextDirection = Unity.UIWidgets.ui.TextDirection;
+using Window = Unity.UIWidgets.ui.Window;
 
 namespace Unity.UIWidgets.painting {
     public class ImageConfiguration : IEquatable<ImageConfiguration> {
@@ -46,6 +51,8 @@ namespace Unity.UIWidgets.painting {
         public readonly float? devicePixelRatio;
 
         public readonly Locale locale;
+
+        public readonly TextDirection textDirection;
 
         public readonly Size size;
 
@@ -156,6 +163,8 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+    public delegate Future<ui.Codec> DecoderCallback(byte[] bytes, int cacheWidth = 0, int cacheHeight = 0);
+
     public abstract class ImageProvider {
         public abstract ImageStream resolve(ImageConfiguration configuration);
     }
@@ -167,10 +176,12 @@ namespace Unity.UIWidgets.painting {
             ImageStream stream = new ImageStream();
             T obtainedKey = default;
 
-            obtainKey(configuration).Then(key => {
+            obtainKey(configuration).then_((T key) => {
                 obtainedKey = key;
-                stream.setCompleter(PaintingBinding.instance.imageCache.putIfAbsent(key, () => load(key)));
-            }).Catch(ex => {
+                // TODO : how to load
+                // stream.setCompleter(PaintingBinding.instance.imageCache.putIfAbsent(key, () => load(key)));
+                D.assert(false, () => "load image from ImageStream is not implemented yet");
+            }).catchError(ex => {
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                     exception: ex,
                     library: "services library",
@@ -193,10 +204,10 @@ namespace Unity.UIWidgets.painting {
             configuration = configuration ?? ImageConfiguration.empty;
             cache = cache ?? PaintingBinding.instance.imageCache;
 
-            return obtainKey(configuration).Then(key => cache.evict(key));
+            return obtainKey(configuration).then(key => cache.evict(key)).to<bool>();
         }
 
-        protected abstract ImageStreamCompleter load(T key);
+        protected abstract ImageStreamCompleter load(T assetBundleImageKey, DecoderCallback decode);
 
         protected abstract Future<T> obtainKey(ImageConfiguration configuration);
     }
@@ -276,9 +287,9 @@ namespace Unity.UIWidgets.painting {
         protected AssetBundleImageProvider() {
         }
 
-        protected override ImageStreamCompleter load(AssetBundleImageKey key) {
+        protected override ImageStreamCompleter load(AssetBundleImageKey key, DecoderCallback decode) {
             return new MultiFrameImageStreamCompleter(
-                codec: _loadAsync(key),
+                codec: _loadAsync(key, decode),
                 scale: key.scale,
                 informationCollector: information => {
                     information.AppendLine($"Image provider: {this}");
@@ -287,35 +298,25 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        Future<Codec> _loadAsync(AssetBundleImageKey key) {
-            var coroutine = Window.instance.startCoroutine(_loadAssetAsync(key));
-            return coroutine.promise.Then(result => {
-                if (result == null) {
-                    if (key.bundle == null) {
-                        throw new Exception($"Unable to find asset \"{key.name}\" from Resources folder");
-                    }
+        Future<Codec> _loadAsync(AssetBundleImageKey key, DecoderCallback decode) {
+            Object data;
+            // Hot reload/restart could change whether an asset bundle or key in a
+            // bundle are available, or if it is a network backed bundle.
+            try {
+                data = key.bundle.LoadAsset(key.name);
+            }
+            catch (Exception e) {
+                PaintingBinding.instance.imageCache.evict(key);
+                throw e;
+            }
 
-                    throw new Exception($"Unable to find asset \"{key.name}\" from asset bundle \"{key.bundle}\"");
-                }
-
-                if (result is Texture2D texture) {
-                    return CodecUtils.getCodec(new Image(texture, isAsset: true, bundle: key.bundle));
-                }
-                else if (result is TextAsset text) {
-                    var bytes = text.bytes;
-                    if (key.bundle == null) {
-                        Resources.UnloadAsset(text);
-                    }
-                    else {
-                        key.bundle.Unload(text);
-                    }
-
-                    return CodecUtils.getCodec(bytes);
-                }
-                else {
-                    throw new Exception($"Unknown type for asset \"{key.name}\": \"{result.GetType()}\"");
-                }
-            });
+            if (data != null && data is Texture2D textureData) {
+                return decode(textureData.EncodeToPNG());
+            }
+            else {
+                PaintingBinding.instance.imageCache.evict(key);
+                throw new Exception("Unable to read data");
+            }
         }
 
         IEnumerator _loadAssetAsync(AssetBundleImageKey key) {
@@ -323,7 +324,8 @@ namespace Unity.UIWidgets.painting {
                 ResourceRequest request = Resources.LoadAsync(key.name);
                 if (request.asset) {
                     yield return request.asset;
-                } else {
+                }
+                else {
                     yield return request;
                     yield return request.asset;
                 }
@@ -332,7 +334,8 @@ namespace Unity.UIWidgets.painting {
                 AssetBundleRequest request = key.bundle.LoadAssetAsync(key.name);
                 if (request.asset) {
                     yield return request.asset;
-                } else {
+                }
+                else {
                     yield return request.asset;
                 }
             }
@@ -356,12 +359,12 @@ namespace Unity.UIWidgets.painting {
         public readonly IDictionary<string, string> headers;
 
         protected override Future<NetworkImage> obtainKey(ImageConfiguration configuration) {
-            return Promise<NetworkImage>.Resolved(this);
+            return new SynchronousFuture<NetworkImage>(this);
         }
 
-        protected override ImageStreamCompleter load(NetworkImage key) {
+        protected override ImageStreamCompleter load(NetworkImage key, DecoderCallback decode) {
             return new MultiFrameImageStreamCompleter(
-                codec: _loadAsync(key),
+                codec: _loadAsync(key, decode),
                 scale: key.scale,
                 informationCollector: information => {
                     information.AppendLine($"Image provider: {this}");
@@ -370,15 +373,13 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        Future<Codec> _loadAsync(NetworkImage key) {
-            var coroutine = Window.instance.startCoroutine(_loadBytes(key));
-            return coroutine.promise.Then(obj => {
-                if (obj is byte[] bytes) {
-                    return CodecUtils.getCodec(bytes);
-                }
+        Future<Codec> _loadAsync(NetworkImage key, DecoderCallback decode) {
+            var loaded = _loadBytes(key);
+            if (loaded.Current is byte[] bytes) {
+                return decode(bytes);
+            }
 
-                return CodecUtils.getCodec(new Image((Texture2D) obj));
-            });
+            throw new Exception("not loaded");
         }
 
         IEnumerator _loadBytes(NetworkImage key) {
@@ -483,24 +484,21 @@ namespace Unity.UIWidgets.painting {
         public readonly float scale;
 
         protected override Future<FileImage> obtainKey(ImageConfiguration configuration) {
-            return Promise<FileImage>.Resolved(this);
+            return Future<FileImage>.value(FutureOr.value(this)).to<FileImage>();
         }
 
-        protected override ImageStreamCompleter load(FileImage key) {
-            return new MultiFrameImageStreamCompleter(_loadAsync(key),
+        protected override ImageStreamCompleter load(FileImage key, DecoderCallback decode) {
+            return new MultiFrameImageStreamCompleter(_loadAsync(key, decode),
                 scale: key.scale,
                 informationCollector: information => { information.AppendLine($"Path: {file}"); });
         }
 
-        Future<Codec> _loadAsync(FileImage key) {
-            var coroutine = Window.instance.startCoroutine(_loadBytes(key));
-            return coroutine.promise.Then(obj => {
-                if (obj is byte[] bytes) {
-                    return CodecUtils.getCodec(bytes);
-                }
-
-                return CodecUtils.getCodec(new Image((Texture2D) obj));
-            });
+        Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
+            var loaded = _loadBytes(key);
+            if (loaded.Current is byte[] bytes) {
+                return decode(bytes);
+            }
+            throw new Exception("not loaded");
         }
 
         IEnumerator _loadBytes(FileImage key) {
@@ -593,19 +591,19 @@ namespace Unity.UIWidgets.painting {
         public readonly float scale;
 
         protected override Future<MemoryImage> obtainKey(ImageConfiguration configuration) {
-            return Promise<MemoryImage>.Resolved(this);
+            return Future<MemoryImage>.value(FutureOr.value(this)).to<MemoryImage>();
         }
 
-        protected override ImageStreamCompleter load(MemoryImage key) {
+        protected override ImageStreamCompleter load(MemoryImage key, DecoderCallback decode) {
             return new MultiFrameImageStreamCompleter(
-                _loadAsync(key),
+                _loadAsync(key, decode),
                 scale: key.scale);
         }
 
-        Future<Codec> _loadAsync(MemoryImage key) {
+        Future<Codec> _loadAsync(MemoryImage key, DecoderCallback decode) {
             D.assert(key == this);
 
-            return CodecUtils.getCodec(bytes);
+            return decode(bytes);
         }
 
         public bool Equals(MemoryImage other) {
@@ -674,11 +672,11 @@ namespace Unity.UIWidgets.painting {
         public readonly AssetBundle bundle;
 
         protected override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
-            return Promise<AssetBundleImageKey>.Resolved(new AssetBundleImageKey(
+            return Future<AssetBundleImageKey>.value(FutureOr.value(new AssetBundleImageKey(
                 bundle: bundle ? bundle : configuration.bundle,
                 name: assetName,
                 scale: scale
-            ));
+            ))).to<AssetBundleImageKey>();
         }
 
         public bool Equals(ExactAssetImage other) {
