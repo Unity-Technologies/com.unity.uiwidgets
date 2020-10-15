@@ -1860,9 +1860,7 @@ namespace Unity.UIWidgets.widgets {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool invertColors = false,
-            FilterMode filterMode = FilterMode.Bilinear ,
             FilterQuality filterQuality = FilterQuality.low
-
         ) : base(key) {
             this.image = image;
             this.width = width;

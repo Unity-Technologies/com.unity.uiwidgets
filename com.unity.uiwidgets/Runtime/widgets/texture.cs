@@ -15,9 +15,7 @@ namespace Unity.UIWidgets.widgets {
 
         public Texture( Key key = null, int? textureId = null) : base(key: key) {
             D.assert(textureId != null);
-            if (textureId != null) {
-                this.textureId = textureId.Value;
-            }
+            this.textureId = textureId.Value;
         }
 
         public readonly int textureId;
