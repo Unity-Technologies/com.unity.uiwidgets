@@ -6,7 +6,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
@@ -93,16 +94,16 @@ namespace Unity.UIWidgets.widgets {
         internal _AutomaticWidgetTicker(
             TickerCallback onTick,
             AutomaticKeepAliveClientWithTickerProviderStateMixin<T> creator,
-            Func<string> debugLabel = null) :
+            string debugLabel = null) :
             base(onTick: onTick, debugLabel: debugLabel) {
             _creator = creator;
         }
 
         readonly AutomaticKeepAliveClientWithTickerProviderStateMixin<T> _creator;
 
-        public override void dispose() {
+        public override void Dispose() {
             _creator._removeTicker(this);
-            base.dispose();
+            base.Dispose();
         }
     }
 

@@ -12,20 +12,20 @@ namespace Unity.UIWidgets.widgets {
         //         instance.scheduleFrame(false);
         //     }
         // }
-        
-        public Texture(Key key = null, UnityEngine.Texture texture = null) : base(key: key) {
-            D.assert(texture != null);
-            this.texture = texture;
+
+        public Texture(int textureId, Key key = null) : base(key: key) {
+            D.assert(textureId != null);
+            this.textureId = textureId;
         }
 
-        public readonly UnityEngine.Texture texture;
+        public readonly int textureId;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new TextureBox(texture: texture);
+            return new TextureBox(textureId: textureId);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((TextureBox) renderObject).texture = texture;
+            ((TextureBox) renderObject).textureId = textureId;
         }
     }
 }

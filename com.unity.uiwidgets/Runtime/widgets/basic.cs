@@ -1901,8 +1901,8 @@ namespace Unity.UIWidgets.widgets {
                 alignment: alignment,
                 repeat: repeat,
                 centerSlice: centerSlice,
-                invertColors: invertColors,
-                filterMode: filterMode
+                invertColors: invertColors
+                // filterMode: filterMode
             );
         }
 
@@ -1920,7 +1920,7 @@ namespace Unity.UIWidgets.widgets {
             renderImage.repeat = repeat;
             renderImage.centerSlice = centerSlice;
             renderImage.invertColors = invertColors;
-            renderImage.filterMode = filterMode;
+            // renderImage.filterMode = filterMode;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {

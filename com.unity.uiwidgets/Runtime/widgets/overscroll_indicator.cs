@@ -6,7 +6,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.physics;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
@@ -289,7 +289,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void dispose() {
             _glowController.dispose();
-            _displacementTicker.dispose();
+            _displacementTicker.Dispose();
             _pullRecedeTimer?.cancel();
             base.dispose();
         }
