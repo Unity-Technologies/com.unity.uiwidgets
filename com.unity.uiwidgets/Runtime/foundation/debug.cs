@@ -126,9 +126,9 @@ namespace Unity.UIWidgets.foundation {
             }
 
             if (needRepaint) {
-                foreach (var adapter in WindowAdapter.windowAdapters) {
+                /*foreach (var adapter in WindowAdapter.windowAdapters) {
                     adapter._forceRepaint();
-                }
+                }*/
             }
         }
     }
