@@ -1476,7 +1476,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void Dispose() {
-            _pathMeasure._dispose();
+            
         }
     }
 
