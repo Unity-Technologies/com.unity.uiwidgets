@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -12,7 +12,7 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.widgets {
     public delegate void DismissDirectionCallback(DismissDirection? direction);
 
-    public delegate Promise<bool> ConfirmDismissCallback(DismissDirection? direction);
+    public delegate Future<bool> ConfirmDismissCallback(DismissDirection? direction);
 
     public enum DismissDirection {
         vertical,
@@ -373,7 +373,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             _dragUnderway = false;
-            _confirmStartResizeAnimation().Then((value) => {
+            _confirmStartResizeAnimation().then_((value) => {
                 if (_moveController.isCompleted && value) {
                     _startResizeAnimation();
                 }
@@ -421,7 +421,7 @@ namespace Unity.UIWidgets.widgets {
 
         void _handleDismissStatusChanged(AnimationStatus status) {
             if (status == AnimationStatus.completed && !_dragUnderway) {
-                _confirmStartResizeAnimation().Then((value) => {
+                _confirmStartResizeAnimation().then_((value) => {
                     if (value) {
                         _startResizeAnimation();
                     }
@@ -434,14 +434,14 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        IPromise<bool> _confirmStartResizeAnimation() {
+        Future<bool> _confirmStartResizeAnimation() {
             if (widget.confirmDismiss != null) {
                 DismissDirection? direction = _dismissDirection;
                 D.assert(direction != null);
                 return widget.confirmDismiss(direction);
             }
 
-            return Promise<bool>.Resolved(true);
+            return Future<bool>.value(true).to<bool>();
         }
 
         void _startResizeAnimation() {

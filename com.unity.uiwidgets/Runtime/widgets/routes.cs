@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
@@ -58,11 +58,11 @@ namespace Unity.UIWidgets.widgets {
         ) : base(settings) {
         }
 
-        public IPromise<object> completed {
-            get { return _transitionCompleter; }
+        public Future completed {
+            get { return _transitionCompleter.future; }
         }
 
-        internal readonly Promise<object> _transitionCompleter = new Promise<object>();
+        internal readonly Completer _transitionCompleter = Completer.create();
 
         public virtual TimeSpan transitionDuration { get; }
 
@@ -86,7 +86,7 @@ namespace Unity.UIWidgets.widgets {
         internal AnimationController _controller;
 
         public virtual AnimationController createAnimationController() {
-            D.assert(_transitionCompleter.CurState == PromiseState.Pending,
+            D.assert(!_transitionCompleter.isCompleted,
                 () => $"Cannot reuse a {GetType()} after disposing it.");
             TimeSpan duration = transitionDuration;
             D.assert(duration >= TimeSpan.Zero);
@@ -98,7 +98,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public virtual Animation<float> createAnimation() {
-            D.assert(_transitionCompleter.CurState == PromiseState.Pending,
+            D.assert(!_transitionCompleter.isCompleted,
                 () => $"Cannot reuse a {GetType()} after disposing it.");
             D.assert(_controller != null);
             return _controller.view;
@@ -243,7 +243,7 @@ namespace Unity.UIWidgets.widgets {
         protected internal override void dispose() {
             D.assert(!_transitionCompleter.isCompleted, () => $"Cannot dispose a {GetType()} twice.");
             _controller?.dispose();
-            _transitionCompleter.Resolve(_result);
+            _transitionCompleter.complete(FutureOr.value(_result));
             base.dispose();
         }
 
@@ -313,9 +313,9 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public override IPromise<RoutePopDisposition> willPop() {
+        public override Future<RoutePopDisposition> willPop() {
             if (willHandlePopInternally) {
-                return Promise<RoutePopDisposition>.Resolved(RoutePopDisposition.pop);
+                return Future<RoutePopDisposition>.value(RoutePopDisposition.pop).to<RoutePopDisposition>();
             }
 
             return base.willPop();
@@ -427,14 +427,14 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             _page = _page ?? new RepaintBoundary(
-                             key: widget.route._subtreeKey, // immutable
-                             child: new Builder(
-                                 builder: (BuildContext _context) => widget.route.buildPage(
-                                     _context,
-                                     widget.route.animation,
-                                     widget.route.secondaryAnimation
-                                 ))
-                         );
+                key: widget.route._subtreeKey, // immutable
+                child: new Builder(
+                    builder: (BuildContext _context) => widget.route.buildPage(
+                        _context,
+                        widget.route.animation,
+                        widget.route.secondaryAnimation
+                    ))
+            );
 
             return new _ModalScopeStatus(
                 route: widget.route,
@@ -471,9 +471,11 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public abstract class ModalRoute : LocalHistoryRouteTransitionRoute {
-        
-        protected ModalRoute() {}
-        protected ModalRoute(RouteSettings settings) : base(settings) { }
+        protected ModalRoute() {
+        }
+
+        protected ModalRoute(RouteSettings settings) : base(settings) {
+        }
 
         public static Color _kTransparent = new Color(0x00000000);
 
@@ -568,30 +570,39 @@ namespace Unity.UIWidgets.widgets {
 
         readonly List<WillPopCallback> _willPopCallbacks = new List<WillPopCallback>();
 
-        public override IPromise<RoutePopDisposition> willPop() {
+        public override Future<RoutePopDisposition> willPop() {
             _ModalScopeState scope = _scopeKey.currentState;
             D.assert(scope != null);
 
-            var callbacks = new List<WillPopCallback>(_willPopCallbacks);
-            Promise<RoutePopDisposition> result = new Promise<RoutePopDisposition>();
-            Action<int> fn = null;
-            fn = (int index) => {
-                if (index < callbacks.Count) {
-                    callbacks[index]().Then((pop) => {
-                        if (!pop) {
-                            result.Resolve(RoutePopDisposition.doNotPop);
-                        }
-                        else {
-                            fn(index + 1);
-                        }
-                    });
+            bool result = false;
+            foreach (WillPopCallback callback in _willPopCallbacks) {
+                callback.Invoke().then(v => result = !(bool)v);
+                if (result) {
+                    return  Future<RoutePopDisposition>.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
                 }
-                else {
-                    base.willPop().Then((pop) => result.Resolve(pop));
-                }
-            };
-            fn(0);
-            return result;
+            }
+            return base.willPop();
+            
+            // var callbacks = new List<WillPopCallback>(_willPopCallbacks);
+            // Promise<RoutePopDisposition> result = new Promise<RoutePopDisposition>();
+            // Action<int> fn = null;
+            // fn = (int index) => {
+            //     if (index < callbacks.Count) {
+            //         callbacks[index]().Then((pop) => {
+            //             if (!pop) {
+            //                 result.Resolve(RoutePopDisposition.doNotPop);
+            //             }
+            //             else {
+            //                 fn(index + 1);
+            //             }
+            //         });
+            //     }
+            //     else {
+            //         base.willPop().Then((pop) => result.Resolve(pop));
+            //     }
+            // };
+            // fn(0);
+            // return result;
         }
 
         public void addScopedWillPopCallback(WillPopCallback callback) {
@@ -670,10 +681,10 @@ namespace Unity.UIWidgets.widgets {
 
         Widget _buildModalScope(BuildContext context) {
             return _modalScopeCache = _modalScopeCache ?? new _ModalScope(
-                                               key: _scopeKey,
-                                               route: this
-                                               // _ModalScope calls buildTransitions() and buildChild(), defined above
-                                           );
+                key: _scopeKey,
+                route: this
+                // _ModalScope calls buildTransitions() and buildChild(), defined above
+            );
         }
 
         public override ICollection<OverlayEntry> createOverlayEntries() {
@@ -811,7 +822,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public static class DialogUtils {
-        public static IPromise<object> showGeneralDialog(
+        public static Future<object> showGeneralDialog(
             BuildContext context = null,
             RoutePageBuilder pageBuilder = null,
             bool barrierDismissible = false,
@@ -826,7 +837,7 @@ namespace Unity.UIWidgets.widgets {
                 barrierColor: barrierColor,
                 transitionDuration: transitionDuration,
                 transitionBuilder: transitionBuilder
-            ));
+            )).to<object>();
         }
     }
 

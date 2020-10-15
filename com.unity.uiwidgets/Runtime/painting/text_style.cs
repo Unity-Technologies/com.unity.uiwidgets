@@ -107,9 +107,10 @@ namespace Unity.UIWidgets.painting {
         public ParagraphStyle getParagraphStyle(TextAlign textAlign,
             TextDirection textDirection, string ellipsis, int? maxLines, float textScaleFactor = 1.0f) {
             return new ParagraphStyle(
-                textAlign, textDirection, fontWeight, fontStyle,
-                maxLines, (fontSize ?? _defaultFontSize) * textScaleFactor, fontFamily, height,
-                ellipsis
+                textAlign: textAlign, textDirection: textDirection, fontWeight: fontWeight, fontStyle: fontStyle,
+                maxLines: maxLines, fontSize: (fontSize ?? _defaultFontSize) * textScaleFactor, fontFamily: fontFamily,
+                height: height,
+                ellipsis: ellipsis
             );
         }
 
@@ -379,6 +380,37 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
+        public ui.TextStyle getTextStyle(float textScaleFactor = 1.0f ) {
+            var backgroundPaint = new Paint();
+            if (background != null) {
+                backgroundPaint = new Paint();
+                backgroundPaint.color = backgroundColor;
+            }
+            return new ui.TextStyle(
+                color: color,
+                decoration: decoration,
+                decorationColor: decorationColor,
+                decorationStyle: decorationStyle,
+                decorationThickness: decorationThickness,
+                fontWeight: fontWeight,
+                fontStyle: fontStyle,
+                textBaseline: textBaseline,
+                fontFamily: fontFamily,
+                fontFamilyFallback: fontFamilyFallback,
+                fontSize: fontSize == null ? null : fontSize * textScaleFactor,
+                letterSpacing: letterSpacing,
+                wordSpacing: wordSpacing,
+                height: height,
+                // locale: locale,
+                foreground: foreground,
+                background: background ?? (backgroundColor != null
+                    ? backgroundPaint : null
+                ),
+                shadows: shadows.Cast<Shadow>().ToList()
+                // fontFeatures: fontFeatures,
+            );
+        }
+        
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
 
@@ -395,7 +427,7 @@ namespace Unity.UIWidgets.painting {
                 defaultValue: foundation_.kNullDefaultValue));
             string weightDescription = "";
             if (fontWeight != null) {
-                weightDescription = fontWeight.weightValue.ToString();
+                weightDescription = $"{fontWeight.index + 1}00";
             }
 
             styles.Add(new DiagnosticsProperty<FontWeight>(

@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Unity.UIWidgets.editor;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Canvas = Unity.UIWidgets.ui.Canvas;

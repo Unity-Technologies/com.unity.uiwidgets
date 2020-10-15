@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -44,7 +44,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public IPromise animateToPage(int page, TimeSpan duration, Curve curve) {
+        public Future animateToPage(int page, TimeSpan duration, Curve curve) {
             _PagePosition position = (_PagePosition) this.position;
             return position.animateTo(
                 position.getPixelsFromPage(page),
@@ -58,11 +58,11 @@ namespace Unity.UIWidgets.widgets {
             position.jumpTo(position.getPixelsFromPage(page));
         }
 
-        public IPromise nextPage(TimeSpan duration, Curve curve) {
+        public Future nextPage(TimeSpan duration, Curve curve) {
             return animateToPage(page.round() + 1, duration: duration, curve: curve);
         }
 
-        public IPromise previousPage(TimeSpan duration, Curve curve) {
+        public Future previousPage(TimeSpan duration, Curve curve) {
             return animateToPage(page.round() - 1, duration: duration, curve: curve);
         }
 

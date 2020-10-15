@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RSG;
-using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
@@ -273,11 +272,11 @@ namespace Unity.UIWidgets.painting {
     }
 
     public class OneFrameImageStreamCompleter : ImageStreamCompleter {
-        public OneFrameImageStreamCompleter(IPromise<ImageInfo> image,
+        public OneFrameImageStreamCompleter(Future<ImageInfo> image,
             InformationCollector informationCollector = null) {
             D.assert(image != null);
 
-            image.Then(result => { setImage(result); }).Catch(err => {
+            image.then_(result => { setImage(result); }).catchError(err => {
                 reportError(
                     context: "resolving a single-frame image stream",
                     exception: err,
@@ -290,7 +289,7 @@ namespace Unity.UIWidgets.painting {
 
     public class MultiFrameImageStreamCompleter : ImageStreamCompleter {
         public MultiFrameImageStreamCompleter(
-            IPromise<Codec> codec,
+            Future<Codec> codec,
             float scale,
             InformationCollector informationCollector = null
         ) {
@@ -299,13 +298,14 @@ namespace Unity.UIWidgets.painting {
             _scale = scale;
             _informationCollector = informationCollector;
 
-            codec.Then((Action<Codec>) _handleCodecReady, ex => {
+            codec.then_((Action<Codec>) _handleCodecReady, ex => {
                 reportError(
                     context: "resolving an image codec",
                     exception: ex,
                     informationCollector: informationCollector,
                     silent: true
                 );
+                return FutureOr.nil;
             });
         }
 
@@ -352,7 +352,8 @@ namespace Unity.UIWidgets.painting {
 
             TimeSpan delay = _frameDuration.Value - (timestamp - _shownTimestamp.Value);
             delay = new TimeSpan((long) (delay.Ticks * scheduler_.timeDilation));
-            _timer = Window.instance.run(delay, _scheduleAppFrame);
+            // TODO: time dilation 
+            _timer = Timer.create(delay , ()=>  _scheduleAppFrame());
         }
 
         bool _isFirstFrame() {
@@ -364,16 +365,17 @@ namespace Unity.UIWidgets.painting {
             return timestamp - _shownTimestamp >= _frameDuration;
         }
 
-        void _decodeNextFrameAndSchedule() {
+        Future _decodeNextFrameAndSchedule() {
             var frame = _codec.getNextFrame();
-            _nextFrame = frame;
+            return frame.then_(info => {
+                _nextFrame = info;
+                if (_codec.frameCount == 1) {
+                    _emitFrame(new ImageInfo(image: _nextFrame.image, scale: _scale));
+                    return;
+                }
 
-            if (_codec.frameCount == 1) {
-                _emitFrame(new ImageInfo(image: _nextFrame.image, scale: _scale));
-                return;
-            }
-
-            _scheduleAppFrame();
+                _scheduleAppFrame();
+            });
         }
 
         void _scheduleAppFrame() {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.async2 {
     public struct FutureOr {
@@ -33,6 +34,9 @@ namespace Unity.UIWidgets.async2 {
         public static implicit operator FutureOr(string v) => value(v);
 
         public static implicit operator FutureOr(byte[] v) => value(v);
+        
+        public static implicit operator FutureOr(RoutePopDisposition v) => value(v);
+        public static implicit operator FutureOr(Dictionary<Type, object> v) => value(v);
     }
 
     public abstract class Future {

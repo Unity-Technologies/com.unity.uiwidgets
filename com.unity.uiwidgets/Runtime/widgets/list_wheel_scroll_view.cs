@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.physics;
@@ -173,16 +173,15 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public IPromise animateToItem(
+        public Future animateToItem(
             int itemIndex,
             TimeSpan duration,
             Curve curve
         ) {
             if (!hasClients) {
-                return Promise.Resolved();
+                return null;
             }
-
-            List<IPromise> futures = new List<IPromise>();
+            List<Future> futures = new List<Future>();
             foreach (_FixedExtentScrollPosition position in positions) {
                 futures.Add(position.animateTo(
                     itemIndex * position.itemExtent,
@@ -191,7 +190,7 @@ namespace Unity.UIWidgets.widgets {
                 ));
             }
 
-            return Promise.All(futures);
+            return Future.wait<object>(futures);
         }
 
         public void jumpToItem(int itemIndex) {

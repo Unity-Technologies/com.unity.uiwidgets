@@ -1,13 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.ui;
-using Canvas = Unity.UIWidgets.ui2.Canvas;
-using Paint = Unity.UIWidgets.ui2.Paint;
-using PaintingStyle = Unity.UIWidgets.ui2.PaintingStyle;
-using Path = Unity.UIWidgets.ui2.Path;
-using Picture = Unity.UIWidgets.ui2.Picture;
-using PictureRecorder = Unity.UIWidgets.ui2.PictureRecorder;
-using Color = Unity.UIWidgets.ui2.Color;
 
 namespace Unity.UIWidgets.painting {
     public abstract class ShaderWarmUp {

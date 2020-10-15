@@ -126,7 +126,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _redPrimaryValue = 0xFFF44336;
+        const uint _redPrimaryValue = 0xFFF44336;
 
         public static readonly MaterialAccentColor redAccent = new MaterialAccentColor(
             _redAccentValue,
@@ -138,7 +138,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _redAccentValue = 0xFFFF5252;
+        const uint _redAccentValue = 0xFFFF5252;
 
         public static readonly MaterialColor pink = new MaterialColor(
             _pinkPrimaryValue,
@@ -156,7 +156,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _pinkPrimaryValue = 0xFFE91E63;
+        const uint _pinkPrimaryValue = 0xFFE91E63;
 
 
         public static readonly MaterialAccentColor pinkAccent = new MaterialAccentColor(
@@ -169,7 +169,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _pinkAccentPrimaryValue = 0xFFFF4081;
+        const uint _pinkAccentPrimaryValue = 0xFFFF4081;
 
         public static readonly MaterialColor purple = new MaterialColor(
             _purplePrimaryValue,
@@ -187,7 +187,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _purplePrimaryValue = 0xFF9C27B0;
+        const uint _purplePrimaryValue = 0xFF9C27B0;
 
         public static readonly MaterialAccentColor purpleAccent = new MaterialAccentColor(
             _purpleAccentPrimaryValue,
@@ -199,7 +199,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _purpleAccentPrimaryValue = 0xFFE040FB;
+        const uint _purpleAccentPrimaryValue = 0xFFE040FB;
 
         public static readonly MaterialColor deepPurple = new MaterialColor(
             _deepPurplePrimaryValue,
@@ -217,7 +217,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _deepPurplePrimaryValue = 0xFF673AB7;
+        const uint _deepPurplePrimaryValue = 0xFF673AB7;
 
         public static readonly MaterialAccentColor deepPurpleAccent = new MaterialAccentColor(
             _deepPurpleAccentPrimaryValue,
@@ -229,7 +229,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _deepPurpleAccentPrimaryValue = 0xFF7C4DFF;
+        const uint _deepPurpleAccentPrimaryValue = 0xFF7C4DFF;
 
 
         public static readonly MaterialColor indigo = new MaterialColor(
@@ -248,7 +248,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _indigoPrimaryValue = 0xFF3F51B5;
+        const uint _indigoPrimaryValue = 0xFF3F51B5;
 
         public static readonly MaterialAccentColor indigoAccent = new MaterialAccentColor(
             _indigoAccentPrimaryValue,
@@ -260,7 +260,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _indigoAccentPrimaryValue = 0xFF536DFE;
+        const uint _indigoAccentPrimaryValue = 0xFF536DFE;
 
         public static readonly MaterialColor blue = new MaterialColor(
             _bluePrimaryValue,
@@ -278,7 +278,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _bluePrimaryValue = 0xFF2196F3;
+        const uint _bluePrimaryValue = 0xFF2196F3;
 
         public static readonly MaterialAccentColor blueAccent = new MaterialAccentColor(
             _blueAccentPrimaryValue,
@@ -290,7 +290,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _blueAccentPrimaryValue = 0xFF448AFF;
+        const uint _blueAccentPrimaryValue = 0xFF448AFF;
 
         public static readonly MaterialColor lightBlue = new MaterialColor(
             _lightBluePrimaryValue,
@@ -308,7 +308,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _lightBluePrimaryValue = 0xFF03A9F4;
+        const uint _lightBluePrimaryValue = 0xFF03A9F4;
 
         public static readonly MaterialAccentColor lightBlueAccent = new MaterialAccentColor(
             _lightBlueAccentPrimaryValue,
@@ -320,7 +320,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _lightBlueAccentPrimaryValue = 0xFF40C4FF;
+        const uint _lightBlueAccentPrimaryValue = 0xFF40C4FF;
 
         public static readonly MaterialColor cyan = new MaterialColor(
             _cyanPrimaryValue,
@@ -338,7 +338,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _cyanPrimaryValue = 0xFF00BCD4;
+        const uint _cyanPrimaryValue = 0xFF00BCD4;
 
         public static readonly MaterialAccentColor cyanAccent = new MaterialAccentColor(
             _cyanAccentPrimaryValue,
@@ -350,7 +350,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _cyanAccentPrimaryValue = 0xFF18FFFF;
+        const uint _cyanAccentPrimaryValue = 0xFF18FFFF;
 
         public static readonly MaterialColor teal = new MaterialColor(
             _tealPrimaryValue,
@@ -368,7 +368,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _tealPrimaryValue = 0xFF009688;
+        const uint _tealPrimaryValue = 0xFF009688;
 
         public static readonly MaterialAccentColor tealAccent = new MaterialAccentColor(
             _tealAccentPrimaryValue,
@@ -380,7 +380,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _tealAccentPrimaryValue = 0xFF64FFDA;
+        const uint _tealAccentPrimaryValue = 0xFF64FFDA;
 
         public static readonly MaterialColor green = new MaterialColor(
             _greenPrimaryValue,
@@ -398,7 +398,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _greenPrimaryValue = 0xFF4CAF50;
+        const uint _greenPrimaryValue = 0xFF4CAF50;
 
         public static readonly MaterialAccentColor greenAccent = new MaterialAccentColor(
             _greenAccentPrimaryValue,
@@ -410,7 +410,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _greenAccentPrimaryValue = 0xFF69F0AE;
+        const uint _greenAccentPrimaryValue = 0xFF69F0AE;
 
         public static readonly MaterialColor lightGreen = new MaterialColor(
             _lightGreenPrimaryValue,
@@ -428,7 +428,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _lightGreenPrimaryValue = 0xFF8BC34A;
+        const uint _lightGreenPrimaryValue = 0xFF8BC34A;
 
         public static readonly MaterialAccentColor lightGreenAccent = new MaterialAccentColor(
             _lightGreenAccentPrimaryValue,
@@ -440,7 +440,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _lightGreenAccentPrimaryValue = 0xFFB2FF59;
+        const uint _lightGreenAccentPrimaryValue = 0xFFB2FF59;
 
         public static readonly MaterialColor lime = new MaterialColor(
             _limePrimaryValue,
@@ -458,7 +458,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _limePrimaryValue = 0xFFCDDC39;
+        const uint _limePrimaryValue = 0xFFCDDC39;
 
         public static readonly MaterialAccentColor limeAccent = new MaterialAccentColor(
             _limeAccentPrimaryValue,
@@ -470,7 +470,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _limeAccentPrimaryValue = 0xFFEEFF41;
+        const uint _limeAccentPrimaryValue = 0xFFEEFF41;
 
         public static readonly MaterialColor yellow = new MaterialColor(
             _yellowPrimaryValue,
@@ -488,7 +488,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _yellowPrimaryValue = 0xFFFFEB3B;
+        const uint _yellowPrimaryValue = 0xFFFFEB3B;
 
         public static readonly MaterialAccentColor yellowAccent = new MaterialAccentColor(
             _yellowAccentPrimaryValue,
@@ -500,7 +500,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _yellowAccentPrimaryValue = 0xFFFFFF00;
+        const uint _yellowAccentPrimaryValue = 0xFFFFFF00;
 
         public static readonly MaterialColor amber = new MaterialColor(
             _amberPrimaryValue,
@@ -518,7 +518,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _amberPrimaryValue = 0xFFFFC107;
+        const uint _amberPrimaryValue = 0xFFFFC107;
 
         public static readonly MaterialAccentColor amberAccent = new MaterialAccentColor(
             _amberAccentPrimaryValue,
@@ -530,7 +530,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _amberAccentPrimaryValue = 0xFFFFD740;
+        const uint _amberAccentPrimaryValue = 0xFFFFD740;
 
         public static readonly MaterialColor orange = new MaterialColor(
             _orangePrimaryValue,
@@ -548,7 +548,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _orangePrimaryValue = 0xFFFF9800;
+        const uint _orangePrimaryValue = 0xFFFF9800;
 
         public static readonly MaterialAccentColor orangeAccent = new MaterialAccentColor(
             _orangeAccentPrimaryValue,
@@ -560,7 +560,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _orangeAccentPrimaryValue = 0xFFFFAB40;
+        const uint _orangeAccentPrimaryValue = 0xFFFFAB40;
 
         public static readonly MaterialColor deepOrange = new MaterialColor(
             _deepOrangePrimaryValue,
@@ -578,7 +578,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _deepOrangePrimaryValue = 0xFFFF5722;
+        const uint _deepOrangePrimaryValue = 0xFFFF5722;
 
 
         public static readonly MaterialAccentColor deepOrangeAccent = new MaterialAccentColor(
@@ -591,7 +591,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _deepOrangeAccentPrimaryValue = 0xFFFF6E40;
+        const uint _deepOrangeAccentPrimaryValue = 0xFFFF6E40;
 
         public static readonly MaterialColor brown = new MaterialColor(
             _brownPrimaryValue,
@@ -609,7 +609,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _brownPrimaryValue = 0xFF795548;
+        const uint _brownPrimaryValue = 0xFF795548;
 
         public static readonly MaterialColor grey = new MaterialColor(
             _greyPrimaryValue,
@@ -629,7 +629,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _greyPrimaryValue = 0xFF9E9E9E;
+        const uint _greyPrimaryValue = 0xFF9E9E9E;
 
         public static readonly MaterialColor blueGrey = new MaterialColor(
             _blueGreyPrimaryValue,
@@ -647,7 +647,7 @@ namespace Unity.UIWidgets.material {
             }
         );
 
-        const long _blueGreyPrimaryValue = 0xFF607D8B;
+        const uint _blueGreyPrimaryValue = 0xFF607D8B;
 
 
         public static readonly List<MaterialColor> primaries = new List<MaterialColor> {

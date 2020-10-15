@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using RSG;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -16,9 +16,35 @@ namespace Unity.UIWidgets.widgets {
 
         void didChangeLocales(List<Locale> locale);
 
-        IPromise<bool> didPopRoute();
+        Future<bool> didPopRoute();
 
-        IPromise<bool> didPushRoute(string route);
+        Future<bool> didPushRoute(string route);
+    }
+    
+    public static partial class ui_ {
+        public static void Each<T>(this IEnumerable<T> source, Action<T> fn) {
+            foreach (var item in source) {
+                fn.Invoke(item);
+            }
+        }
+
+        public static void Each<T>(this IEnumerable<T> source, Action<T, int> fn) {
+            int index = 0;
+
+            foreach (T item in source) {
+                fn.Invoke(item, index);
+                index++;
+            }
+        }
+
+        /// <summary>
+        /// Convert a variable length argument list of items to an enumerable.
+        /// </summary>
+        public static IEnumerable<T> FromItems<T>(params T[] items) {
+            foreach (var item in items) {
+                yield return item;
+            }
+        }
     }
 
     public class WidgetsBinding : RendererBinding {
@@ -31,12 +57,12 @@ namespace Unity.UIWidgets.widgets {
             buildOwner.onBuildScheduled = _handleBuildScheduled;
             Window.instance.onLocaleChanged += handleLocaleChanged;
             widgetInspectorService = new WidgetInspectorService(this);
-            addPersistentFrameCallback((duration) => {
-                TextBlobMesh.tickNextFrame();
-                TessellationGenerator.tickNextFrame();
-                uiTessellationGenerator.tickNextFrame();
-                uiPathCacheManager.tickNextFrame();
-            });
+            // addPersistentFrameCallback((duration) => {
+            //     TextBlobMesh.tickNextFrame();
+            //     TessellationGenerator.tickNextFrame();
+            //     uiTessellationGenerator.tickNextFrame();
+            //     uiPathCacheManager.tickNextFrame();
+            // });
         }
 
         public BuildOwner buildOwner {
@@ -69,7 +95,7 @@ namespace Unity.UIWidgets.widgets {
                         Application.Quit();
                         return;
                     }
-                    _observers[idx].didPopRoute().Then((Action<bool>) _handlePopRouteSub);
+                    _observers[idx].didPopRoute().then_(_handlePopRouteSub);
                 }
             }
             

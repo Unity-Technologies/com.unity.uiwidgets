@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -244,7 +244,7 @@ namespace Unity.UIWidgets.widgets {
             activity.applyNewDimensions();
         }
 
-        public IPromise ensureVisible(RenderObject renderObject,
+        public Future ensureVisible(RenderObject renderObject,
             float alignment = 0.0f,
             TimeSpan? duration = null,
             Curve curve = null
@@ -257,13 +257,13 @@ namespace Unity.UIWidgets.widgets {
                 minScrollExtent, maxScrollExtent);
 
             if (target == pixels) {
-                return Promise.Resolved();
+                return Future.value();
             }
 
             duration = duration ?? TimeSpan.Zero;
             if (duration == TimeSpan.Zero) {
                 jumpTo(target);
-                return Promise.Resolved();
+                return Future.value();
             }
 
             curve = curve ?? Curves.ease;
@@ -272,7 +272,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly ValueNotifier<bool> isScrollingNotifier = new ValueNotifier<bool>(false);
 
-        public override IPromise moveTo(float to, TimeSpan? duration, Curve curve = null, bool clamp = true) {
+        public override Future moveTo(float to, TimeSpan? duration, Curve curve = null, bool clamp = true) {
             if (clamp) {
                 to = to.clamp(minScrollExtent, maxScrollExtent);
             }
