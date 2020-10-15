@@ -63,6 +63,36 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+    public abstract class GradientTransform {
+        public GradientTransform() {
+        }
+
+        public abstract Matrix4 transform(Rect bounds, TextDirection? textDirection = null);
+    }
+
+    public class GradientRotation : GradientTransform {
+        public GradientRotation(float radians) {
+            this.radians = radians;
+        }
+
+        public readonly float radians;
+
+        public override
+            Matrix4 transform(Rect bounds,
+                TextDirection? textDirection = null
+            ) {
+            D.assert(bounds != null);
+            float sinRadians = Mathf.Sin(radians);
+            float oneMinusCosRadians = 1 - Mathf.Cos(radians);
+            Offset center = bounds.center;
+            float originX = sinRadians * center.dy + oneMinusCosRadians * center.dx;
+            float originY = -sinRadians * center.dx + oneMinusCosRadians * center.dy;
+            var result = new Matrix4().identity();
+            result.translate(originX, originY);
+            result.rotateZ(radians);
+            return result;
+        }
+    }
 
     public abstract class Gradient {
         public Gradient(
@@ -77,6 +107,8 @@ namespace Unity.UIWidgets.painting {
         public readonly List<Color> colors;
 
         public readonly List<float> stops;
+
+        public readonly GradientTransform transform;
 
         protected List<float> _impliedStops() {
             if (stops != null) {
@@ -131,6 +163,10 @@ namespace Unity.UIWidgets.painting {
             D.assert(a != null && b != null);
             return t < 0.5 ? a.scale(1.0f - (t * 2.0f)) : b.scale((t - 0.5f) * 2.0f);
         }
+
+        protected float[] _resolveTransform(Rect bounds, TextDirection? textDirection) {
+            return transform?.transform(bounds, textDirection: textDirection)?._m4storage;
+        }
     }
 
 
@@ -158,10 +194,10 @@ namespace Unity.UIWidgets.painting {
                 begin.withinRect(rect),
                 end.withinRect(rect),
                 colors, _impliedStops(),
-                tileMode
+                tileMode, _resolveTransform(rect, textDirection)
             );
         }
-        
+
         public override Gradient scale(float factor) {
             return new LinearGradient(
                 begin: begin,
@@ -293,13 +329,19 @@ namespace Unity.UIWidgets.painting {
 
         public readonly TileMode tileMode;
 
+        public readonly AlignmentGeometry focal;
 
-        public override Shader createShader(Rect rect,  TextDirection? textDirection = null) {
+        public readonly float focalRadius;
+
+        public override Shader createShader(Rect rect, TextDirection? textDirection = null) {
             return ui.Gradient.radial(
                 center.withinRect(rect),
                 radius * rect.shortestSide,
                 colors, _impliedStops(),
-                tileMode
+                tileMode,
+                _resolveTransform(rect, textDirection),
+                focal == null ? null : focal.resolve(textDirection).withinRect(rect),
+                focalRadius * rect.shortestSide
             );
         }
 
@@ -439,12 +481,12 @@ namespace Unity.UIWidgets.painting {
         public readonly TileMode tileMode;
 
 
-        public override Shader createShader(Rect rect,  TextDirection? textDirection = null) {
+        public override Shader createShader(Rect rect, TextDirection? textDirection = null) {
             return ui.Gradient.sweep(
                 center.withinRect(rect),
                 colors, _impliedStops(),
                 tileMode,
-                startAngle, endAngle
+                startAngle, endAngle, _resolveTransform(rect, textDirection)
             );
         }
 

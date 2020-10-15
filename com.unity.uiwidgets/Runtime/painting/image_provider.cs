@@ -180,6 +180,7 @@ namespace Unity.UIWidgets.painting {
                 obtainedKey = key;
                 // TODO : how to load
                 // stream.setCompleter(PaintingBinding.instance.imageCache.putIfAbsent(key, () => load(key)));
+                D.assert(false, () => "load image from ImageStream is not implemented yet");
             }).catchError(ex => {
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                     exception: ex,
