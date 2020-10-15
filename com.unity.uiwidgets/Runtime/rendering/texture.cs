@@ -11,7 +11,7 @@ namespace Unity.UIWidgets.rendering {
             _textureId = textureId;
         }
 
-        public int textureId {
+        public int? textureId {
             get { return _textureId; }
             set {
                 D.assert(value != null);
@@ -22,7 +22,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
         
-        int _textureId;
+        int? _textureId;
 
         protected override bool sizedByParent {
             get { return true; }
@@ -51,7 +51,7 @@ namespace Unity.UIWidgets.rendering {
             
             context.addLayer(new TextureLayer(
                 rect: Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
-                textureId: _textureId
+                textureId: _textureId.Value
             ));
         }
     }

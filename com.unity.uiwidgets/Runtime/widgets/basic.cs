@@ -1860,7 +1860,9 @@ namespace Unity.UIWidgets.widgets {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool invertColors = false,
-            FilterMode filterMode = FilterMode.Bilinear
+            FilterMode filterMode = FilterMode.Bilinear ,
+            FilterQuality filterQuality = FilterQuality.low
+
         ) : base(key) {
             this.image = image;
             this.width = width;
@@ -1874,6 +1876,7 @@ namespace Unity.UIWidgets.widgets {
             this.centerSlice = centerSlice;
             this.invertColors = invertColors;
             this.filterMode = filterMode;
+            this.filterQuality = filterQuality;
         }
 
         public readonly ui.Image image;
@@ -1888,6 +1891,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly ImageRepeat repeat;
         public readonly Rect centerSlice;
         public readonly bool invertColors;
+        public readonly FilterQuality filterQuality;
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderImage(
@@ -1901,8 +1905,8 @@ namespace Unity.UIWidgets.widgets {
                 alignment: alignment,
                 repeat: repeat,
                 centerSlice: centerSlice,
-                invertColors: invertColors
-                // filterMode: filterMode
+                invertColors: invertColors,
+                filterQuality:  filterQuality
             );
         }
 
@@ -1920,7 +1924,7 @@ namespace Unity.UIWidgets.widgets {
             renderImage.repeat = repeat;
             renderImage.centerSlice = centerSlice;
             renderImage.invertColors = invertColors;
-            // renderImage.filterMode = filterMode;
+            renderImage.filterQuality = filterQuality;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
