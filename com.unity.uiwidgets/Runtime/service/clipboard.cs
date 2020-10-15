@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using RSG;
+using Unity.UIWidgets.async2;
 using UnityEngine;
 
 namespace Unity.UIWidgets.service {
@@ -36,12 +36,12 @@ namespace Unity.UIWidgets.service {
             GUIUtility.systemCopyBuffer = data.text;
 #endif
             
-            return Promise.Resolved();
+            return Future.value();
         }
 
         protected override Future<ClipboardData> getClipboardData(string format) {
             var data = new ClipboardData(text: GUIUtility.systemCopyBuffer);
-            return Promise<ClipboardData>.Resolved(data);
+            return Future.value(FutureOr.value(data)).to<ClipboardData>();
         }
         
 #if UNITY_WEBGL

@@ -450,7 +450,7 @@ namespace Unity.UIWidgets.rendering {
                     break;
                 case KeyCommand.Paste:
                     TextEditingValue value = textSelectionDelegate.textEditingValue;
-                    Clipboard.getData(Clipboard.kTextPlain).Then(data => {
+                    Clipboard.getData(Clipboard.kTextPlain).then_(data => {
                         if (data != null) {
                             textSelectionDelegate.textEditingValue = new TextEditingValue(
                                 text: value.selection.textBefore(value.text)
