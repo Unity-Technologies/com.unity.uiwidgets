@@ -11,7 +11,7 @@ using Canvas = UnityEngine.Canvas;
 using NativeBindings = Unity.UIWidgets.ui.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
-    public partial class UIWidgetsPanel : MonoBehaviour {
+    public partial class UIWidgetsPanel : MonoBehaviour{
         [Serializable]
         public class TextFont {
             public string path;
@@ -21,6 +21,10 @@ namespace Unity.UIWidgets.engine2 {
         public List<TextFont> fonts;
 
         public class UIWidgetRawImage : RawImage {
+            public void SetPanel(UIWidgetsPanel panel) {
+                _uiWidgetsPanel = panel;
+            }
+            
             UIWidgetsPanel _uiWidgetsPanel;
 
             protected override void OnRectTransformDimensionsChange() {
@@ -28,7 +32,7 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
         
-        UIWidgetRawImage _rawImage;
+        RawImage _rawImage;
         RectTransform rectTransform {
             get { return _rawImage.rectTransform; }
         }
@@ -74,8 +78,13 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
-        void OnEnable() {
-            _rawImage = gameObject.AddComponent<UIWidgetRawImage>();
+        protected void OnEnable() {
+            _rawImage = gameObject.GetComponent<RawImage>();
+            if (_rawImage == null) {
+                _rawImage = gameObject.AddComponent<UIWidgetRawImage>();
+                ((UIWidgetRawImage)_rawImage).SetPanel(this);
+            }
+
             _recreateRenderTexture(_currentWidth, _currentHeight, _currentDevicePixelRatio);
 
             _handle = GCHandle.Alloc(this);

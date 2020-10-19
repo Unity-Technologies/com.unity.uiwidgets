@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -20,7 +21,7 @@ namespace Unity.UIWidgets.widgets {
 
         Future<bool> didPushRoute(string route);
     }
-    
+
     public static partial class ui_ {
         public static void Each<T>(this IEnumerable<T> source, Action<T> fn) {
             foreach (var item in source) {
@@ -44,6 +45,12 @@ namespace Unity.UIWidgets.widgets {
             foreach (var item in items) {
                 yield return item;
             }
+        }
+
+        public static void runApp(Widget app) {
+            var instance = WidgetsFlutterBinding.ensureInitialized();
+            instance.scheduleAttachRootWidget(app);
+            instance.scheduleWarmUpFrame();
         }
     }
 
@@ -87,7 +94,7 @@ namespace Unity.UIWidgets.widgets {
 
         public void handlePopRoute() {
             var idx = -1;
-            
+
             void _handlePopRouteSub(bool result) {
                 if (!result) {
                     idx++;
@@ -95,10 +102,11 @@ namespace Unity.UIWidgets.widgets {
                         Application.Quit();
                         return;
                     }
+
                     _observers[idx].didPopRoute().then_(_handlePopRouteSub);
                 }
             }
-            
+
             _handlePopRouteSub(false);
         }
 
@@ -117,7 +125,7 @@ namespace Unity.UIWidgets.widgets {
                 observer.didChangeTextScaleFactor();
             }
         }
-        
+
         protected override void handlePlatformBrightnessChanged() {
             base.handlePlatformBrightnessChanged();
             foreach (WidgetsBindingObserver observer in _observers) {
@@ -197,17 +205,24 @@ namespace Unity.UIWidgets.widgets {
             if (_renderViewElement == null) {
                 return;
             }
-            
+
             //The former widget tree must be layout first before its destruction
             drawFrame();
             attachRootWidget(null);
             buildOwner.buildScope(_renderViewElement);
             buildOwner.finalizeTree();
-            
+
             pipelineOwner.rootNode = null;
             _renderViewElement.deactivate();
             _renderViewElement.unmount();
             _renderViewElement = null;
+        }
+
+        internal void scheduleAttachRootWidget(Widget rootWidget) {
+            Timer.run(() => {
+                attachRootWidget(rootWidget);
+                return null;
+            });
         }
 
         public void attachRootWidget(Widget rootWidget) {
@@ -355,6 +370,14 @@ namespace Unity.UIWidgets.widgets {
         protected override void removeChildRenderObject(RenderObject child) {
             D.assert(renderObject.child == child);
             renderObject.child = null;
+        }
+    }
+
+    public class WidgetsFlutterBinding : WidgetsBinding {
+        public static WidgetsBinding ensureInitialized() {
+            if (WidgetsBinding.instance == null)
+                new WidgetsFlutterBinding();
+            return WidgetsBinding.instance;
         }
     }
 }

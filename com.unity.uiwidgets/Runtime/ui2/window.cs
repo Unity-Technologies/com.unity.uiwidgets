@@ -280,7 +280,7 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        string _initialLifecycleState;
+        string _initialLifecycleState = "AppLifecycleState.resumed";
         bool _initialLifecycleStateAccessed = false;
         public float textScaleFactor { get; internal set; } = 1.0f;
 
