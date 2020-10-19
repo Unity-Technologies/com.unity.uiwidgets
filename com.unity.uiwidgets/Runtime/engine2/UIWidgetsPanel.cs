@@ -11,39 +11,29 @@ using Canvas = UnityEngine.Canvas;
 using NativeBindings = Unity.UIWidgets.ui.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
-    public partial class UIWidgetsPanel : MonoBehaviour{
+    public partial class UIWidgetsPanel : RawImage{
         [Serializable]
-        public class TextFont {
+        public struct TextFont {
             public string path;
             public string name;
         }
         
-        public List<TextFont> fonts;
+        public TextFont[] fonts;
 
-        public class UIWidgetRawImage : RawImage {
-            public void SetPanel(UIWidgetsPanel panel) {
-                _uiWidgetsPanel = panel;
-            }
-            
-            UIWidgetsPanel _uiWidgetsPanel;
+        public float devicePixelRatioOverride;
 
-            protected override void OnRectTransformDimensionsChange() {
-                _uiWidgetsPanel.OnRectTransformDimensionsChange();
-            }
-        }
-        
-        RawImage _rawImage;
-        RectTransform rectTransform {
-            get { return _rawImage.rectTransform; }
-        }
+        public float hardwareAntiAliasing;
+        // RectTransform rectTransform {
+        //     get { return rectTransform; }
+        // }
 
-        Canvas canvas {
-            get { return _rawImage.canvas; }
-        }
+        // Canvas canvas {
+        //     get { return canvas; }
+        // }
 
-        Texture texture {
-            set { _rawImage.texture = value; }
-        }
+        // Texture texture {
+        //     set { texture = value; }
+        // }
         
         public static UIWidgetsPanel current {
             get { return Window.instance._panel; }
@@ -79,12 +69,7 @@ namespace Unity.UIWidgets.engine2 {
         }
 
         protected void OnEnable() {
-            _rawImage = gameObject.GetComponent<RawImage>();
-            if (_rawImage == null) {
-                _rawImage = gameObject.AddComponent<UIWidgetRawImage>();
-                ((UIWidgetRawImage)_rawImage).SetPanel(this);
-            }
-
+            base.OnEnable();
             _recreateRenderTexture(_currentWidth, _currentHeight, _currentDevicePixelRatio);
 
             _handle = GCHandle.Alloc(this);
@@ -111,7 +96,7 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
-        protected void OnRectTransformDimensionsChange() {
+        protected override void OnRectTransformDimensionsChange() {
             if (_ptr != IntPtr.Zero) {
                 if (_recreateRenderTexture(_currentWidth, _currentHeight, _currentDevicePixelRatio)) {
                     UIWidgetsPanel_onRenderTexture(_ptr,
@@ -121,7 +106,7 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
-        protected void OnDisable() {
+        protected override void OnDisable() {
             Input_OnDisable();
 
             UIWidgetsPanel_onDisable(_ptr);
@@ -130,9 +115,10 @@ namespace Unity.UIWidgets.engine2 {
 
             _handle.Free();
             _handle = default;
-            _destroyRenderTexture();
-            Destroy(_rawImage);
+            // _destroyRenderTexture();
+            // Destroy(_rawImage);
             D.assert(!isolate.isValid);
+            base.OnDisable();
         }
 
         bool _recreateRenderTexture(int width, int height, float devicePixelRatio) {
