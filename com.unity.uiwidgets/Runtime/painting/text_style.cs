@@ -406,7 +406,7 @@ namespace Unity.UIWidgets.painting {
                 background: background ?? (backgroundColor != null
                     ? backgroundPaint : null
                 ),
-                shadows: shadows.Cast<Shadow>().ToList()
+                shadows: shadows?.Cast<Shadow>().ToList()
                 // fontFeatures: fontFeatures,
             );
         }

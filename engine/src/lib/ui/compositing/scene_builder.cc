@@ -222,6 +222,11 @@ SceneBuilder_pushOffset(SceneBuilder* ptr, float dx, float dy) {
 }
 
 UIWIDGETS_API(void)
+SceneBuilder_addRetained(SceneBuilder* ptr, EngineLayer* retainedLayer) {
+  ptr->addRetained(static_cast<fml::RefPtr<EngineLayer>>(retainedLayer));
+}
+
+UIWIDGETS_API(void)
 SceneBuilder_pop(SceneBuilder* ptr) { ptr->pop(); }
 
 UIWIDGETS_API(Scene*) SceneBuilder_build(SceneBuilder* ptr) {
