@@ -995,18 +995,30 @@ void Shell::OnFrameRasterized(const FrameTiming& timing) {
     // second. Otherwise, the timings of last few frames of an animation may
     // never be reported until the next animation starts.
     frame_timings_report_scheduled_ = true;
-    task_runners_.GetRasterTaskRunner()->PostDelayedTask(
-        [self = weak_factory_gpu_->GetWeakPtr()]() {
-          if (!self.get()) {
-            return;
-          }
-          self->frame_timings_report_scheduled_ = false;
-          if (self->UnreportedFramesCount() > 0) {
-            self->ReportTimings();
-          }
-        },
-        fml::TimeDelta::FromMilliseconds(kBatchTimeInMilliseconds));
+	
+	task_runners_.GetUITaskRunner()->PostDelayedTask(
+		[self = this]() {
+			self->PostReportTiming();
+		},
+		fml::TimeDelta::FromMilliseconds(kBatchTimeInMilliseconds)
+	);   
   }
+}
+
+
+void Shell::PostReportTiming()
+{
+	task_runners_.GetRasterTaskRunner()->PostDelayedTask(
+		[self = weak_factory_gpu_->GetWeakPtr()]() {
+		if (!self.get()) {
+			return;
+		}
+		self->frame_timings_report_scheduled_ = false;
+		if (self->UnreportedFramesCount() > 0) {
+			self->ReportTimings();
+		}
+	},
+	fml::TimeDelta::FromMilliseconds(0));
 }
 
 fml::Milliseconds Shell::GetFrameBudget() {
