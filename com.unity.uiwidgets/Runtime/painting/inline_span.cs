@@ -202,5 +202,13 @@ namespace Unity.UIWidgets.painting {
         public override int GetHashCode() {
             return (style != null ? style.GetHashCode() : 0);
         }
+        
+        public static bool operator ==(InlineSpan left, InlineSpan right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(InlineSpan left, InlineSpan right) {
+            return !Equals(left, right);
+        }
     }
 }
