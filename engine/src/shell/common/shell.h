@@ -133,8 +133,6 @@ class Shell final : public PlatformView::Delegate,
 
   void ReportTimings();
 
-  void PostReportTiming();
-
   // |PlatformView::Delegate|
   void OnPlatformViewCreated(std::unique_ptr<Surface> surface) override;
 
