@@ -124,7 +124,7 @@ namespace Unity.UIWidgets.painting {
             get { return _text; }
             set {
                 D.assert(value == null || value.debugAssertIsValid());
-                if ((_text == null && value == null) || (_text != null && text.Equals(value))) {
+                if (_text == value) {
                     return;
                 }
 
