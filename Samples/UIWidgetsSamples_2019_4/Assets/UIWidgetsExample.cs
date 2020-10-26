@@ -8,6 +8,7 @@
  using Unity.UIWidgets.ui;
  using Unity.UIWidgets.widgets;
  using UnityEngine;
+ using Color = Unity.UIWidgets.ui.Color;
  using FontStyle = Unity.UIWidgets.ui.FontStyle;
  using ui_ = Unity.UIWidgets.widgets.ui_;
 
@@ -75,7 +76,9 @@
              int counter = 0;
 
              public override Widget build(BuildContext context) {
-                 return new Column(
+                 return new Container(
+                     color: Colors.green,
+                     child: new Column(
                      children: new List<Widget> {
                          new Text("Counter: " + this.counter),
                          new GestureDetector(
@@ -87,12 +90,13 @@
                              },
                              child: new Container(
                                  padding: EdgeInsets.symmetric(20, 20),
-                                 color: Colors.blue,
+                                 color: this.counter % 2 == 0 ? Colors.blue : Colors.red,
                                  child: new Text("Click Me")
                              )
                          )
                      }
-                 );
+                    )
+                     );
              }
          }
      }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 
 namespace Unity.UIWidgets.gestures {
     class _PointerState {
@@ -93,6 +94,7 @@ namespace Unity.UIWidgets.gestures {
                 switch (datum.change) {
                     case PointerChange.add: {
                         D.assert(!_pointers.ContainsKey(datum.device));
+                        
                         _PointerState state = _ensureStateForPointer(datum, position);
                         D.assert(state.lastPosition == position);
                         yield return new PointerAddedEvent(
@@ -238,6 +240,38 @@ namespace Unity.UIWidgets.gestures {
                         }
                     }
                         break;
+                    case PointerChange.remove: {
+                        D.assert(_pointers.ContainsKey(datum.device));
+                        
+                        _PointerState state = _pointers[datum.device];
+                        if (state.down) {
+                            yield return new PointerCancelEvent(
+                                timeStamp: timeStamp,
+                                pointer: state.pointer,
+                                kind: kind,
+                                device: datum.device,
+                                position: position
+                            );
+                        }
+
+                        if (position != state.lastPosition) {
+                            yield return new PointerHoverEvent(
+                                timeStamp: timeStamp,
+                                kind: kind,
+                                device: datum.device,
+                                position: position
+                            );
+                        }
+
+                        _pointers.Remove(datum.device);
+                        yield return new PointerRemovedEvent(
+                            timeStamp: timeStamp,
+                            kind: kind,
+                            device: datum.device,
+                            position: position
+                            );
+                        break;
+                    }
 #if UNITY_EDITOR
                     // case PointerChange.dragFromEditorMove: {
                     //     _PointerState state = _ensureStateForPointer(datum, position);
