@@ -97,7 +97,7 @@ namespace Unity.UIWidgets.engine2 {
         }
 
         protected override void OnRectTransformDimensionsChange() {
-            if (_ptr != IntPtr.Zero) {
+            if (_ptr != IntPtr.Zero  && _renderTexture) {
                 if (_recreateRenderTexture(_currentWidth, _currentHeight, _currentDevicePixelRatio)) {
                     UIWidgetsPanel_onRenderTexture(_ptr,
                         _renderTexture.GetNativeTexturePtr(),

@@ -48,7 +48,7 @@ std::chrono::nanoseconds Win32TaskRunner::ProcessTasks() {
   for (const auto& observer : task_observers_) {
     observer.second();
   }
-	
+
   // Fire expired tasks.
   {
     // Flushing tasks here without holing onto the task queue mutex.
@@ -77,10 +77,12 @@ std::chrono::nanoseconds Win32TaskRunner::ProcessTasks() {
 
 Win32TaskRunner::TaskTimePoint Win32TaskRunner::TimePointFromUIWidgetsTime(
     uint64_t uiwidgets_target_time_nanos) {
+  const auto fml_now = fml::TimePoint::Now().ToEpochDelta().ToNanoseconds();
+  if (uiwidgets_target_time_nanos <= fml_now) {
+    return {};
+  }
+  const auto uiwidgets_duration = uiwidgets_target_time_nanos - fml_now;
   const auto now = TaskTimePoint::clock::now();
-  const auto uiwidgets_duration =
-      uiwidgets_target_time_nanos -
-      fml::TimePoint::Now().ToEpochDelta().ToNanoseconds();
   return now + std::chrono::nanoseconds(uiwidgets_duration);
 }
 
