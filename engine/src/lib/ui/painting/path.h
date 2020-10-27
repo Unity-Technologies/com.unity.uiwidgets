@@ -18,6 +18,12 @@ class CanvasPath : public fml::RefCountedThreadSafe<CanvasPath> {
     return fml::MakeRefCounted<CanvasPath>();
   }
 
+  static fml::RefPtr<CanvasPath> CreateFrom(const SkPath& src) {
+    fml::RefPtr<CanvasPath> path = CanvasPath::CreateNew();
+    path->path_ = src;
+    return path;
+  }
+
   int getFillType();
   void setFillType(int fill_type);
 
