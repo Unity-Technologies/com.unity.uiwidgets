@@ -1527,49 +1527,22 @@ namespace Unity.UIWidgets.ui {
             return next;
         }
 
-        /*
-        [DllImport(NativeBindings.dllName)]
-        static extern IntPtr PathMeasure_constructor(IntPtr path, bool forcedClosed);*/
-
-        static IntPtr PathMeasure_constructor(IntPtr path, bool forcedClosed) {
-            D.assert(false, () => "PathMeasure_constructor is not implemented yet!");
-            return IntPtr.Zero;
-        }
-
-        /*
-        [DllImport(NativeBindings.dllName)]
-        static extern void PathMeasure_dispose(IntPtr ptr);*/
-
-        static void PathMeasure_dispose(IntPtr ptr) {
-            D.assert(false, () => "PathMeasure_dispose is not implemented yet!");
-        }
-
-        /*
-        [DllImport(NativeBindings.dllName)]
-        static extern float PathMeasure_length(int contourIndex);*/
-
-        static float PathMeasure_length(int contourIndex) {
-            D.assert(false, () => "PathMeasure_length is not implemented yet!");
-            return 0;
-        }
         
-        /*
         [DllImport(NativeBindings.dllName)]
-        static extern bool PathMeasure_isClosed(int contourIndex);*/
+        static extern IntPtr PathMeasure_constructor(IntPtr path, bool forcedClosed);
 
-        static bool PathMeasure_isClosed(int contourIndex) {
-            D.assert(false, () => "PathMeasure_isClosed is not implemented yet!");
-            return true;
-        }
+        [DllImport(NativeBindings.dllName)]
+        static extern void PathMeasure_dispose(IntPtr ptr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern float PathMeasure_length(int contourIndex);
+
         
-        /*
         [DllImport(NativeBindings.dllName)]
-        static extern bool PathMeasure_nativeNextContour();*/
-
-        static bool PathMeasure_nativeNextContour() {
-            D.assert(false, () => "PathMeasure_nativeNextContour is not implemented yet!");
-            return false;
-        }
+        static extern bool PathMeasure_isClosed(int contourIndex);
+        
+        [DllImport(NativeBindings.dllName)]
+        static extern bool PathMeasure_nativeNextContour();
     }
 
     public class ColorFilter : IEquatable<ColorFilter> {
