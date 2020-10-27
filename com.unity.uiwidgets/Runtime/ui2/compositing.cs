@@ -287,7 +287,7 @@ namespace Unity.UIWidgets.ui {
             Clip clipBehavior = Clip.none,
             PhysicalShapeEngineLayer oldLayer = null) {
             D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "PhysicalShapeEngineLayer"));
-            PhysicalShapeEngineLayer layer = new PhysicalShapeEngineLayer(SceneBuilder_pushPhysicalShape(_ptr, path._ptr, elevation, color.value, shadowColor?.value ?? 0xFF000000, (int)clipBehavior));
+            PhysicalShapeEngineLayer layer = new PhysicalShapeEngineLayer(SceneBuilder_pushPhysicalShape(_ptr, path._ptr, elevation, (int)color.value, (int)(shadowColor?.value ?? 0xFF000000), (int)clipBehavior));
             D.assert(_debugPushLayer(layer));
             return layer;
         }
@@ -367,70 +367,29 @@ namespace Unity.UIWidgets.ui {
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_pushOffset(IntPtr ptr, float dx, float dy);
 
-        /*
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_pushClipRect(IntPtr ptr, float left, float right, float top, float bottom,
-            int clipBehavior);*/
-        static IntPtr SceneBuilder_pushClipRect(IntPtr ptr, float left, float right, float top, float bottom,
-            int clipBehavior) {
-            D.assert(false, () => "SceneBuilder_pushClipRect is not implemented yet!");
-            return IntPtr.Zero;
-        }
+            int clipBehavior);
 
-        /*
         [DllImport(NativeBindings.dllName)]
-        static extern unsafe IntPtr SceneBuilder_pushClipRRect(IntPtr ptr, float* rrect, int clipBehavior);*/
-        static unsafe IntPtr SceneBuilder_pushClipRRect(IntPtr ptr, float* rrect, int clipBehavior) {
-            D.assert(false, () => "SceneBuilder_pushClipRRect is not implemented yet!");
-            return IntPtr.Zero;
-        }
+        static extern unsafe IntPtr SceneBuilder_pushClipRRect(IntPtr ptr, float* rrect, int clipBehavior);
 
-        /*
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr SceneBuilder_pushClipPath(IntPtr ptr, IntPtr path, int clipBehavior);*/
-        static unsafe IntPtr SceneBuilder_pushClipPath(IntPtr ptr, IntPtr path, int clipBehavior) {
-            D.assert(false, () => "SceneBuilder_pushClipPath is not implemented yet!");
-            return IntPtr.Zero;
-        }
+        static extern IntPtr SceneBuilder_pushClipPath(IntPtr ptr, IntPtr path, int clipBehavior);
 
-        /*
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr SceneBuilder_pushOpacity(IntPtr ptr, int alpha, float dx, float dy);*/
-        static IntPtr SceneBuilder_pushOpacity(IntPtr ptr, int alpha, float dx, float dy) {
-            D.assert(false, () => "SceneBuilder_pushOpacity is not implemented yet!");
-            return IntPtr.Zero;
-        }
+        static extern IntPtr SceneBuilder_pushOpacity(IntPtr ptr, int alpha, float dx, float dy);
 
-        /*
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr SceneBuilder_pushBackdropFilter(IntPtr ptr, IntPtr filter);*/
+        static extern IntPtr SceneBuilder_pushBackdropFilter(IntPtr ptr, IntPtr filter);
 
-        static IntPtr SceneBuilder_pushBackdropFilter(IntPtr ptr, IntPtr filter) {
-            D.assert(false, () => "SceneBuilder_pushBackdropFilter is not implemented yet!");
-            return IntPtr.Zero;
-        }
-        
-        /*
         [DllImport(NativeBindings.dllName)]
         static extern void SceneBuilder_addPerformanceOverlay(int enabledOptions, float left, float right, float top,
-            float bottom);*/
+            float bottom);
 
-        static void SceneBuilder_addPerformanceOverlay(int enabledOptions, float left, float right, float top,
-            float bottom) {
-            D.assert(false, () => "SceneBuilder_addPerformanceOverlay is not implemented yet!");
-        }
-
-        /*
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr SceneBuilder_pushPhysicalShape(IntPtr ptr, IntPtr path, float evelation, uint color,
-            uint shadowColor, int clipBehavior);*/
-
-        static IntPtr SceneBuilder_pushPhysicalShape(IntPtr ptr, IntPtr path, float elevation, uint color,
-            uint shadowColor, int clipBehavior) {
-            D.assert(false, () => "SceneBuilder_pushPhysicalShape is not implemented yet!");
-            return IntPtr.Zero;
-        }
-        
+        static extern IntPtr SceneBuilder_pushPhysicalShape(IntPtr ptr, IntPtr path, float evelation, int color,
+            int shadowColor, int clipBehavior);
 
         [DllImport(NativeBindings.dllName)]
         static extern void SceneBuilder_pop(IntPtr ptr);
