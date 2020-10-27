@@ -138,134 +138,141 @@ void SceneBuilder::addPicture(float dx, float dy, Picture* picture, int hints) {
 }
 
 void SceneBuilder::addTexture(float dx, float dy, float width, float height,
-	int64_t textureId, bool freeze) {
-	auto layer = std::make_unique<TextureLayer>(
-		SkPoint::Make(dx, dy), SkSize::Make(width, height), textureId, freeze);
-	AddLayer(std::move(layer));
+                              int64_t textureId, bool freeze) {
+  auto layer = std::make_unique<TextureLayer>(
+      SkPoint::Make(dx, dy), SkSize::Make(width, height), textureId, freeze);
+  AddLayer(std::move(layer));
 }
 
 void SceneBuilder::addPlatformView(float dx, float dy, float width,
-	float height, int64_t viewId) {
-	auto layer = std::make_unique<PlatformViewLayer>(
-		SkPoint::Make(dx, dy), SkSize::Make(width, height), viewId);
-	AddLayer(std::move(layer));
+                                   float height, int64_t viewId) {
+  auto layer = std::make_unique<PlatformViewLayer>(
+      SkPoint::Make(dx, dy), SkSize::Make(width, height), viewId);
+  AddLayer(std::move(layer));
 }
 
 void SceneBuilder::addPerformanceOverlay(uint64_t enabledOptions, float left,
-	float right, float top, float bottom) {
-	SkRect rect = SkRect::MakeLTRB(left, top, right, bottom);
-	auto layer = std::make_unique<PerformanceOverlayLayer>(enabledOptions);
-	layer->set_paint_bounds(rect);
-	AddLayer(std::move(layer));
+                                         float right, float top, float bottom) {
+  SkRect rect = SkRect::MakeLTRB(left, top, right, bottom);
+  auto layer = std::make_unique<PerformanceOverlayLayer>(enabledOptions);
+  layer->set_paint_bounds(rect);
+  AddLayer(std::move(layer));
 }
 
 void SceneBuilder::setRasterizerTracingThreshold(uint32_t frameInterval) {
-	rasterizer_tracing_threshold_ = frameInterval;
+  rasterizer_tracing_threshold_ = frameInterval;
 }
 
 void SceneBuilder::setCheckerboardRasterCacheImages(bool checkerboard) {
-	checkerboard_raster_cache_images_ = checkerboard;
+  checkerboard_raster_cache_images_ = checkerboard;
 }
 
 void SceneBuilder::setCheckerboardOffscreenLayers(bool checkerboard) {
-	checkerboard_offscreen_layers_ = checkerboard;
+  checkerboard_offscreen_layers_ = checkerboard;
 }
 
 fml::RefPtr<Scene> SceneBuilder::build() {
-	FML_DCHECK(layer_stack_.size() >= 1);
+  FML_DCHECK(layer_stack_.size() >= 1);
 
-	return Scene::create(layer_stack_[0], rasterizer_tracing_threshold_,
-		checkerboard_raster_cache_images_,
-		checkerboard_offscreen_layers_);
+  return Scene::create(layer_stack_[0], rasterizer_tracing_threshold_,
+                       checkerboard_raster_cache_images_,
+                       checkerboard_offscreen_layers_);
 }
 
 void SceneBuilder::AddLayer(std::shared_ptr<Layer> layer) {
-	FML_DCHECK(layer);
+  FML_DCHECK(layer);
 
-	if (!layer_stack_.empty()) {
-		layer_stack_.back()->Add(std::move(layer));
-	}
+  if (!layer_stack_.empty()) {
+    layer_stack_.back()->Add(std::move(layer));
+  }
 }
 
 void SceneBuilder::PushLayer(std::shared_ptr<ContainerLayer> layer) {
-	AddLayer(layer);
-	layer_stack_.push_back(std::move(layer));
+  AddLayer(layer);
+  layer_stack_.push_back(std::move(layer));
 }
 
 void SceneBuilder::PopLayer() {
-	// We never pop the root layer, so that AddLayer operations are always valid.
-	if (layer_stack_.size() > 1) {
-		layer_stack_.pop_back();
-	}
+  // We never pop the root layer, so that AddLayer operations are always valid.
+  if (layer_stack_.size() > 1) {
+    layer_stack_.pop_back();
+  }
 }
 
 UIWIDGETS_API(SceneBuilder*) SceneBuilder_constructor() {
-	const auto builder = fml::MakeRefCounted<SceneBuilder>();
-	builder->AddRef();
-	return builder.get();
+  const auto builder = fml::MakeRefCounted<SceneBuilder>();
+  builder->AddRef();
+  return builder.get();
 }
 
 UIWIDGETS_API(void) SceneBuilder_dispose(SceneBuilder* ptr) { ptr->Release(); }
 
 UIWIDGETS_API(EngineLayer*)
 SceneBuilder_pushTransform(SceneBuilder* ptr, const float* matrix4) {
-	const auto layer = ptr->pushTransform(matrix4);
-	layer->AddRef();
-	return layer.get();
+  const auto layer = ptr->pushTransform(matrix4);
+  layer->AddRef();
+  return layer.get();
 }
 
 UIWIDGETS_API(EngineLayer*)
 SceneBuilder_pushOffset(SceneBuilder* ptr, float dx, float dy) {
-	const auto layer = ptr->pushOffset(dx, dy);
-	layer->AddRef();
-	return layer.get();
+  const auto layer = ptr->pushOffset(dx, dy);
+  layer->AddRef();
+  return layer.get();
 }
 
 UIWIDGETS_API(EngineLayer*)
-SceneBuilder_pushClipRect(SceneBuilder* ptr, float left, float right, float top, float bottom, int clipBehavior) {
-	const auto layer = ptr->pushClipRect(left, right, top, bottom, clipBehavior);
-	layer->AddRef();
-	return layer.get();
+SceneBuilder_pushClipRect(SceneBuilder* ptr, float left, float right, float top,
+                          float bottom, int clipBehavior) {
+  const auto layer = ptr->pushClipRect(left, right, top, bottom, clipBehavior);
+  layer->AddRef();
+  return layer.get();
 }
 
 UIWIDGETS_API(EngineLayer*)
 SceneBuilder_pushClipRRect(SceneBuilder* ptr, float* rrect, int clipBehavior) {
-	const auto layer = ptr->pushClipRRect(RRect(rrect), clipBehavior);
-	layer->AddRef();
-	return layer.get();
+  const auto layer = ptr->pushClipRRect(RRect(rrect), clipBehavior);
+  layer->AddRef();
+  return layer.get();
 }
 
 UIWIDGETS_API(EngineLayer*)
-SceneBuilder_pushClipPath(SceneBuilder* ptr, CanvasPath* path, int clipBehavior) {
-	const auto layer = ptr->pushClipPath(path, clipBehavior);
-	layer->AddRef();
-	return layer.get();
+SceneBuilder_pushClipPath(SceneBuilder* ptr, CanvasPath* path,
+                          int clipBehavior) {
+  const auto layer = ptr->pushClipPath(path, clipBehavior);
+  layer->AddRef();
+  return layer.get();
 }
 
 UIWIDGETS_API(EngineLayer*)
 SceneBuilder_pushOpacity(SceneBuilder* ptr, int alpha, float dx, float dy) {
-	const auto layer = ptr->pushOpacity(alpha, dx, dy);
-	layer->AddRef();
-	return layer.get();
+  const auto layer = ptr->pushOpacity(alpha, dx, dy);
+  layer->AddRef();
+  return layer.get();
 }
 
 UIWIDGETS_API(EngineLayer*)
 SceneBuilder_pushBackdropFilter(SceneBuilder* ptr, ImageFilter* filter) {
-	const auto layer = ptr->pushBackdropFilter(filter);
-	layer->AddRef();
-	return layer.get();
+  const auto layer = ptr->pushBackdropFilter(filter);
+  layer->AddRef();
+  return layer.get();
 }
 
 UIWIDGETS_API(EngineLayer*)
-SceneBuilder_pushPhysicalShape(SceneBuilder* ptr, CanvasPath* path, float elevation, int color, int shadowColor, int clipBehavior) {
-	const auto layer = ptr->pushPhysicalShape(path, elevation, color, shadowColor, clipBehavior);
-	layer->AddRef();
-	return layer.get();
+SceneBuilder_pushPhysicalShape(SceneBuilder* ptr, CanvasPath* path,
+                               float elevation, int color, int shadowColor,
+                               int clipBehavior) {
+  const auto layer =
+      ptr->pushPhysicalShape(path, elevation, color, shadowColor, clipBehavior);
+  layer->AddRef();
+  return layer.get();
 }
 
 UIWIDGETS_API(void)
-SceneBuilder_addPerformanceOverlay(SceneBuilder* ptr, int enabledOptions, float left, float right, float top, float bottom) {
-	ptr->addPerformanceOverlay(enabledOptions, left, right, top, bottom);
+SceneBuilder_addPerformanceOverlay(SceneBuilder* ptr, int enabledOptions,
+                                   float left, float right, float top,
+                                   float bottom) {
+  ptr->addPerformanceOverlay(enabledOptions, left, right, top, bottom);
 }
 
 UIWIDGETS_API(void)
