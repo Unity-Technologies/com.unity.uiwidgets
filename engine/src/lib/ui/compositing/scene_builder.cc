@@ -221,6 +221,65 @@ SceneBuilder_pushOffset(SceneBuilder* ptr, float dx, float dy) {
   return layer.get();
 }
 
+UIWIDGETS_API(EngineLayer*)
+SceneBuilder_pushClipRect(SceneBuilder* ptr, float left, float right, float top,
+                          float bottom, int clipBehavior) {
+  const auto layer = ptr->pushClipRect(left, right, top, bottom, clipBehavior);
+  layer->AddRef();
+  return layer.get();
+}
+
+UIWIDGETS_API(EngineLayer*)
+SceneBuilder_pushClipRRect(SceneBuilder* ptr, float* rrect, int clipBehavior) {
+  const auto layer = ptr->pushClipRRect(RRect(rrect), clipBehavior);
+  layer->AddRef();
+  return layer.get();
+}
+
+UIWIDGETS_API(EngineLayer*)
+SceneBuilder_pushClipPath(SceneBuilder* ptr, CanvasPath* path,
+                          int clipBehavior) {
+  const auto layer = ptr->pushClipPath(path, clipBehavior);
+  layer->AddRef();
+  return layer.get();
+}
+
+UIWIDGETS_API(EngineLayer*)
+SceneBuilder_pushOpacity(SceneBuilder* ptr, int alpha, float dx, float dy) {
+  const auto layer = ptr->pushOpacity(alpha, dx, dy);
+  layer->AddRef();
+  return layer.get();
+}
+
+UIWIDGETS_API(EngineLayer*)
+SceneBuilder_pushBackdropFilter(SceneBuilder* ptr, ImageFilter* filter) {
+  const auto layer = ptr->pushBackdropFilter(filter);
+  layer->AddRef();
+  return layer.get();
+}
+
+UIWIDGETS_API(EngineLayer*)
+SceneBuilder_pushPhysicalShape(SceneBuilder* ptr, CanvasPath* path,
+                               float elevation, int color, int shadowColor,
+                               int clipBehavior) {
+  const auto layer =
+      ptr->pushPhysicalShape(path, elevation, color, shadowColor, clipBehavior);
+  layer->AddRef();
+  return layer.get();
+}
+
+UIWIDGETS_API(void)
+SceneBuilder_addPerformanceOverlay(SceneBuilder* ptr, int enabledOptions,
+                                   float left, float right, float top,
+                                   float bottom) {
+  ptr->addPerformanceOverlay(enabledOptions, left, right, top, bottom);
+}
+
+UIWIDGETS_API(void)
+SceneBuilder_addRetained(SceneBuilder* ptr, EngineLayer* retainedLayer) {
+  ptr->addRetained(static_cast<fml::RefPtr<EngineLayer>>(retainedLayer));
+}
+
 UIWIDGETS_API(void)
 SceneBuilder_pop(SceneBuilder* ptr) { ptr->pop(); }
 

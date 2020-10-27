@@ -89,8 +89,16 @@ UIMonoState_scheduleMicrotask(MonoMicrotaskQueue::CallbackFunc callback,
 UIWIDGETS_API(void)
 UIMonoState_postTaskForTime(MonoMicrotaskQueue::CallbackFunc callback,
                             Mono_Handle handle, int64_t target_time_nanos) {
+  auto const weak_mono_state = MonoState::Current()->GetWeakPtr();
+
   UIMonoState::Current()->GetTaskRunners().GetUITaskRunner()->PostTaskForTime(
-      [callback, handle]() -> void { callback(handle); },
+      [callback, handle, weak_mono_state]() -> void {
+        if (auto mono_state = weak_mono_state.lock()) {
+          MonoState::Scope mono_scope(mono_state.get());
+
+          callback(handle);
+        }
+      },
       fml::TimePoint::FromEpochDelta(
           fml::TimeDelta::FromNanoseconds(target_time_nanos)));
 }

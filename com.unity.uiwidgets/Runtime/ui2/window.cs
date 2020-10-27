@@ -8,7 +8,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     public delegate void VoidCallback();
 
     public delegate void FrameCallback(TimeSpan duration);
@@ -87,6 +87,102 @@ namespace Unity.UIWidgets.ui2 {
         }
     }
 
+
+    public class Locale : IEquatable<Locale> {
+        public Locale(string languageCode, string countryCode = null) {
+            D.assert(languageCode != null);
+            _languageCode = languageCode;
+            _countryCode = countryCode;
+        }
+
+        public Locale(string languageCode, string countryCode = null, string scriptCode = null) {
+            D.assert(languageCode != null);
+            _languageCode = languageCode;
+            _countryCode = countryCode;
+            _scriptCode = scriptCode;
+        }
+
+        public static Locale fromSubtags(
+            string languageCode = "und",
+            string scriptCode = null,
+            string countryCode = null
+        ) {
+            D.assert(languageCode != null); // ignore: unnecessary_null_comparison
+            D.assert(languageCode != "");
+            D.assert(scriptCode != "");
+            D.assert(countryCode != "");
+            return new Locale(languageCode, countryCode, scriptCode);
+        }
+
+        readonly string _languageCode;
+
+        public string languageCode {
+            get { return _languageCode; }
+        }
+
+        readonly string _countryCode;
+
+        public string countryCode {
+            get { return _countryCode; }
+        }
+
+        readonly string _scriptCode;
+
+        public string scriptCode { get; }
+
+        public bool Equals(Locale other) {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return string.Equals(_languageCode, other._languageCode) &&
+                   string.Equals(_countryCode, other._countryCode);
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((Locale) obj);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                return ((_languageCode != null ? _languageCode.GetHashCode() : 0) * 397) ^
+                       (_countryCode != null ? _countryCode.GetHashCode() : 0);
+            }
+        }
+
+        public static bool operator ==(Locale left, Locale right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Locale left, Locale right) {
+            return !Equals(left, right);
+        }
+
+        public override string ToString() {
+            if (countryCode == null) {
+                return languageCode;
+            }
+
+            return $"{languageCode}_{countryCode}";
+        }
+    }
+
     public class Window {
         internal IntPtr _ptr;
         internal object _binding;
@@ -120,6 +216,63 @@ namespace Unity.UIWidgets.ui2 {
 
         public VoidCallback onMetricsChanged { get; set; }
 
+        public Locale locale {
+            get {
+                if (_locales != null && _locales.isNotEmpty()) {
+                    return _locales.first();
+                }
+
+                return null;
+            }
+        }
+
+        List<Locale> _locales;
+
+        public List<Locale> locales { get; }
+
+        Locale computePlatformResolvedLocale(List<Locale> supportedLocales) {
+            List<string> supportedLocalesData = new List<string>();
+            foreach (Locale locale in supportedLocales) {
+                supportedLocalesData.Add(locale.languageCode);
+                supportedLocalesData.Add(locale.countryCode);
+                supportedLocalesData.Add(locale.scriptCode);
+            }
+
+            List<string> result = _computePlatformResolvedLocale(supportedLocalesData);
+
+            if (result.isNotEmpty()) {
+                return Locale.fromSubtags(
+                    languageCode: result[0],
+                    countryCode: result[1] == "" ? null : result[1],
+                    scriptCode: result[2] == "" ? null : result[2]);
+            }
+
+            return null;
+        }
+
+        List<string> _computePlatformResolvedLocale(List<string> supportedLocalesData) =>
+            Window_computePlatformResolvedLocale(supportedLocalesData);
+
+        /// A callback that is invoked whenever [locale] changes value.
+        ///
+        /// The framework invokes this callback in the same zone in which the
+        /// callback was set.
+        ///
+        /// See also:
+        ///
+        ///  * [WidgetsBindingObserver], for a mechanism at the widgets layer to
+        ///    observe when this callback is invoked.
+        public VoidCallback onLocaleChanged {
+            get { return _onLocaleChanged; }
+            set {
+                _onLocaleChanged = value;
+                _onLocaleChangedZone = Zone.current;
+            }
+        }
+
+        VoidCallback _onLocaleChanged;
+        Zone _onLocaleChangedZone = Zone.root;
+
         public string initialLifecycleState {
             get {
                 _initialLifecycleStateAccessed = true;
@@ -127,7 +280,7 @@ namespace Unity.UIWidgets.ui2 {
             }
         }
 
-        string _initialLifecycleState;
+        string _initialLifecycleState = "AppLifecycleState.resumed";
         bool _initialLifecycleStateAccessed = false;
         public float textScaleFactor { get; internal set; } = 1.0f;
 
@@ -157,6 +310,16 @@ namespace Unity.UIWidgets.ui2 {
             }
         }
 
+        public Offset windowPosToScreenPos(Offset offset) {
+            D.assert(false, () => "window.windowPosToScreenPos is not implemented yet!");
+            return offset;
+        }
+
+        public void run(Action callback) {
+            //Fixme: do nothing now
+            D.assert(false, () => "window.run is not implemented yet!");
+        }
+
         public PointerDataPacketCallback onPointerDataPacket {
             get { return _onPointerDataPacket; }
             set {
@@ -179,6 +342,13 @@ namespace Unity.UIWidgets.ui2 {
 
         public void scheduleFrame() {
             Window_scheduleFrame(_ptr);
+        }
+
+        public void scheduleMicrotask(Action callback) {
+            async_.scheduleMicrotask(() => {
+                callback.Invoke();
+                return null;
+            });
         }
 
         public void render(Scene scene) {
@@ -231,12 +401,15 @@ namespace Unity.UIWidgets.ui2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern void Window_freeDefaultRouteName(IntPtr routeNamePtr);
-        
+
         [DllImport(NativeBindings.dllName)]
         static extern void Window_scheduleFrame(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern void Window_render(IntPtr ptr, IntPtr scene);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern List<string> Window_computePlatformResolvedLocale(List<string> supportedLocalesData);
 
         [MonoPInvokeCallback(typeof(Window_sendPlatformMessageCallback))]
         static unsafe void _sendPlatformMessageCallback(IntPtr callbackHandle, byte* data, int dataLength) {

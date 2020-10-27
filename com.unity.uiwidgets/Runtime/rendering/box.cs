@@ -1421,7 +1421,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(() => {
                 if (_debugActivePointers > 0) {
                     var paint = new Paint {
-                        color = new Color(0x00BBBB | ((0x04000000 * depth) & 0xFF000000)),
+                        color = new Color((uint)(0x00BBBB | ((0x04000000 * depth) & 0xFF000000))),
                     };
                     context.canvas.drawRect(offset & size, paint);
                 }

@@ -477,7 +477,7 @@ namespace Unity.UIWidgets.service {
     class TextInputConfiguration {
         public TextInputConfiguration(TextInputType inputType = null,
             bool obscureText = false, bool autocorrect = true, TextInputAction inputAction = TextInputAction.done,
-            Brightness keyboardAppearance = Brightness.light,
+            ui.Brightness keyboardAppearance = ui.Brightness.light,
             TextCapitalization textCapitalization = TextCapitalization.none,
             bool unityTouchKeyboard = false) {
             this.inputType = inputType ?? TextInputType.text;
@@ -494,7 +494,7 @@ namespace Unity.UIWidgets.service {
         public readonly bool autocorrect;
         public readonly TextInputAction inputAction;
         public readonly TextCapitalization textCapitalization;
-        public readonly Brightness keyboardAppearance;
+        public readonly ui.Brightness keyboardAppearance;
         public readonly bool unityTouchKeyboard;
 
         public JSONNode toJson() {

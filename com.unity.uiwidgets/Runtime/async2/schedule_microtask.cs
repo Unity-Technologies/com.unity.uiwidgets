@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using AOT;
-using Unity.UIWidgets.ui2;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.async2 {

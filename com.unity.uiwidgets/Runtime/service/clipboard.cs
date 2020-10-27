@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using RSG;
+using Unity.UIWidgets.async2;
 using UnityEngine;
 
 namespace Unity.UIWidgets.service {
@@ -16,32 +16,32 @@ namespace Unity.UIWidgets.service {
 
         public static readonly string kTextPlain = "text/plain";
 
-        public static IPromise setData(ClipboardData data) {
+        public static Future setData(ClipboardData data) {
             return _instance.setClipboardData(data);
         }
 
-        public static IPromise<ClipboardData> getData(string format) {
+        public static Future<ClipboardData> getData(string format) {
             return _instance.getClipboardData(format);
         }
 
-        protected abstract IPromise setClipboardData(ClipboardData data);
-        protected abstract IPromise<ClipboardData> getClipboardData(string format);
+        protected abstract Future setClipboardData(ClipboardData data);
+        protected abstract Future<ClipboardData> getClipboardData(string format);
     }
 
     public class UnityGUIClipboard : Clipboard {
-        protected override IPromise setClipboardData(ClipboardData data) {
+        protected override Future setClipboardData(ClipboardData data) {
 #if UNITY_WEBGL
             UIWidgetsCopyTextToClipboard(data.text);
 #else
             GUIUtility.systemCopyBuffer = data.text;
 #endif
             
-            return Promise.Resolved();
+            return Future.value();
         }
 
-        protected override IPromise<ClipboardData> getClipboardData(string format) {
+        protected override Future<ClipboardData> getClipboardData(string format) {
             var data = new ClipboardData(text: GUIUtility.systemCopyBuffer);
-            return Promise<ClipboardData>.Resolved(data);
+            return Future.value(FutureOr.value(data)).to<ClipboardData>();
         }
         
 #if UNITY_WEBGL

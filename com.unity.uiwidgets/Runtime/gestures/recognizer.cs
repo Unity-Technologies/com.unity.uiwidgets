@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -254,7 +254,7 @@ namespace Unity.UIWidgets.gestures {
                 primaryPointer = evt.pointer;
                 initialPosition = new OffsetPair(local: evt.localPosition, global: evt.position);
                 if (deadline != null) {
-                    _timer = Window.instance.run(deadline.Value, () => didExceedDeadlineWithEvent(evt));
+                    _timer = Timer.create(deadline.Value, () => didExceedDeadlineWithEvent(evt));
                 }
             }
         }

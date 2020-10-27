@@ -7,7 +7,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     public class Scene : NativeWrapperDisposable {
         internal Scene(IntPtr ptr) : base(ptr) {
         }
@@ -223,6 +223,75 @@ namespace Unity.UIWidgets.ui2 {
             return layer;
         }
 
+        public ClipRectEngineLayer pushClipRect(
+            Rect rect,
+            Clip clipBehavior = Clip.antiAlias,
+            ClipRectEngineLayer oldLayer = null) {
+            D.assert(clipBehavior != Clip.none);
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushClipRect"));
+            ClipRectEngineLayer layer = new ClipRectEngineLayer(SceneBuilder_pushClipRect(_ptr, rect.left, rect.right, rect.top, rect.bottom, (int)clipBehavior));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
+
+        public unsafe ClipRRectEngineLayer pushClipRRect(
+            RRect rrect,
+            Clip clipBehavior = Clip.antiAlias,
+            ClipRRectEngineLayer oldLayer = null) {
+            D.assert(clipBehavior != Clip.none);
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushClipRRect"));
+            fixed (float* rrectPtr = rrect._value32) {
+                ClipRRectEngineLayer layer =
+                    new ClipRRectEngineLayer(SceneBuilder_pushClipRRect(_ptr, rrectPtr, (int) clipBehavior));
+                D.assert(_debugPushLayer(layer));
+                return layer;
+            }
+        }
+
+        public ClipPathEngineLayer pushClipPath(
+            Path path,
+            Clip clipBehavior = Clip.antiAlias,
+            ClipPathEngineLayer oldLayer = null) {
+            D.assert(clipBehavior != Clip.none);
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushClipPath"));
+            ClipPathEngineLayer layer = new ClipPathEngineLayer(SceneBuilder_pushClipPath(_ptr, path._ptr, (int)clipBehavior));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
+
+        public OpacityEngineLayer pushOpacity(
+            int alpha,
+            Offset offset = null,
+            OpacityEngineLayer oldLayer = null) {
+            offset = offset ?? Offset.zero;
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushOpacity"));
+            OpacityEngineLayer layer = new OpacityEngineLayer(SceneBuilder_pushOpacity(_ptr, alpha, offset.dx, offset.dy));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
+
+        public BackdropFilterEngineLayer pushBackdropFilter(
+            ImageFilter filter,
+            BackdropFilterEngineLayer oldLayer = null) {
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushBackdropFilter"));
+            BackdropFilterEngineLayer layer = new BackdropFilterEngineLayer(SceneBuilder_pushBackdropFilter(_ptr, filter._toNativeImageFilter()._ptr));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
+
+        public PhysicalShapeEngineLayer pushPhysicalShape(
+            Path path,
+            float elevation,
+            Color color,
+            Color shadowColor,
+            Clip clipBehavior = Clip.none,
+            PhysicalShapeEngineLayer oldLayer = null) {
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "PhysicalShapeEngineLayer"));
+            PhysicalShapeEngineLayer layer = new PhysicalShapeEngineLayer(SceneBuilder_pushPhysicalShape(_ptr, path._ptr, elevation, (int)color.value, (int)(shadowColor?.value ?? 0xFF000000), (int)clipBehavior));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
+
         public void pop() {
             if (_layerStack.isNotEmpty()) {
                 _layerStack.removeLast();
@@ -260,6 +329,10 @@ namespace Unity.UIWidgets.ui2 {
             SceneBuilder_addRetained(_ptr, wrapper._ptr);
         }
 
+        public void addPerformanceOverlay(int enabledOptions, Rect bounds) {
+            SceneBuilder_addPerformanceOverlay(enabledOptions, bounds.left, bounds.right, bounds.top, bounds.bottom);
+        }
+
         public void addPicture(
             Offset offset,
             Picture picture,
@@ -293,6 +366,30 @@ namespace Unity.UIWidgets.ui2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_pushOffset(IntPtr ptr, float dx, float dy);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushClipRect(IntPtr ptr, float left, float right, float top, float bottom,
+            int clipBehavior);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern unsafe IntPtr SceneBuilder_pushClipRRect(IntPtr ptr, float* rrect, int clipBehavior);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushClipPath(IntPtr ptr, IntPtr path, int clipBehavior);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushOpacity(IntPtr ptr, int alpha, float dx, float dy);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushBackdropFilter(IntPtr ptr, IntPtr filter);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void SceneBuilder_addPerformanceOverlay(int enabledOptions, float left, float right, float top,
+            float bottom);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushPhysicalShape(IntPtr ptr, IntPtr path, float evelation, int color,
+            int shadowColor, int clipBehavior);
 
         [DllImport(NativeBindings.dllName)]
         static extern void SceneBuilder_pop(IntPtr ptr);

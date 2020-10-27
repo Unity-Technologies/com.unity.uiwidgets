@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.physics;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
@@ -289,7 +289,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void dispose() {
             _glowController.dispose();
-            _displacementTicker.dispose();
+            _displacementTicker.Dispose();
             _pullRecedeTimer?.cancel();
             base.dispose();
         }
@@ -346,7 +346,10 @@ namespace Unity.UIWidgets.widgets {
             }
 
             _pullRecedeTimer =
-                Window.instance.run(_pullHoldTime, () => _recede(_pullDecayTime));
+                Timer.create(_pullHoldTime, () => {
+                    _recede(_pullDecayTime);
+                    return null;
+                });
         }
 
         public void scrollEnd() {
@@ -394,7 +397,7 @@ namespace Unity.UIWidgets.widgets {
             if (_displacementTickerLastElapsed != null) {
                 float? t = elapsed.Milliseconds - _displacementTickerLastElapsed?.Milliseconds;
                 _displacement = _displacementTarget - (_displacementTarget - _displacement) *
-                                     Mathf.Pow(2.0f, (-t ?? 0.0f) / _crossAxisHalfTime.Milliseconds);
+                    Mathf.Pow(2.0f, (-t ?? 0.0f) / _crossAxisHalfTime.Milliseconds);
                 notifyListeners();
             }
 

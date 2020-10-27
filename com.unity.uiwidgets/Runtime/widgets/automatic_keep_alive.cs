@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
@@ -70,6 +71,7 @@ namespace Unity.UIWidgets.widgets {
                         if (!mounted) {
                             return;
                         }
+
                         ParentDataElement childElement1 = _getChildElement();
                         D.assert(childElement1 != null);
                         _updateParentDataOfChild(childElement1);
@@ -115,10 +117,12 @@ namespace Unity.UIWidgets.widgets {
                     }
                     else {
                         _keepingAlive = false;
-                        Window.instance.scheduleMicrotask(() => {
+                        async_.scheduleMicrotask(() => {
                             if (mounted && _handles.isEmpty()) {
                                 setState(() => { D.assert(!_keepingAlive); });
                             }
+
+                            return null;
                         });
                     }
                 }
@@ -215,8 +219,8 @@ namespace Unity.UIWidgets.widgets {
             return null;
         }
     }
-    
-    
+
+
     public abstract class AutomaticKeepAliveClientWithTickerProviderStateMixin<T> : State<T>, TickerProvider
         where T : StatefulWidget {
         HashSet<Ticker> _tickers;
@@ -224,12 +228,8 @@ namespace Unity.UIWidgets.widgets {
         public Ticker createTicker(TickerCallback onTick) {
             _tickers = _tickers ?? new HashSet<Ticker>();
 
-            Func<string> debugLabel = null;
-            D.assert(() => {
-                debugLabel = () => "created by " + this;
-                return true;
-            });
-            var result = new _AutomaticWidgetTicker<T>(onTick, this, debugLabel: debugLabel);
+            var result = new _AutomaticWidgetTicker<T>(onTick, this,
+                debugLabel: foundation_.kDebugMode ? "created by " + this : null);
             _tickers.Add(result);
             return result;
         }

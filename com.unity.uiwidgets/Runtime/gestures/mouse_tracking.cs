@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.gestures {
@@ -100,7 +100,7 @@ namespace Unity.UIWidgets.gestures {
             _scheduleMousePositionCheck();
 
 #if UNITY_EDITOR
-            _scheduleDragFromEditorMousePositionCheck();
+            //_scheduleDragFromEditorMousePositionCheck();
 #endif
         }
 
@@ -112,7 +112,7 @@ namespace Unity.UIWidgets.gestures {
                         PointerExitEvent.fromMouseEvent(_lastMouseEvent[deviceId]));
                 }
 #if UNITY_EDITOR
-                detachDragFromEditorAnnotation(annotation, deviceId);
+                //detachDragFromEditorAnnotation(annotation, deviceId);
 #endif
             }
 
@@ -157,7 +157,7 @@ namespace Unity.UIWidgets.gestures {
             }
 
 #if UNITY_EDITOR
-            _handleDragFromEditorEvent(evt, deviceId);
+            //_handleDragFromEditorEvent(evt, deviceId);
 #endif
         }
 

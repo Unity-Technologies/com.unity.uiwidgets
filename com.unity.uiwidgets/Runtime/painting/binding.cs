@@ -3,23 +3,22 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
-using Window = Unity.UIWidgets.ui2.Window;
 
 namespace Unity.UIWidgets.painting {
     public class PaintingBinding : GestureBinding {
-        // protected override void initInstances() {
-        //     base.initInstances();
-        //     instance = this;
-        //     _imageCache = createImageCache();
-        //
-        //     if (shaderWarmUp != null) {
-        //         shaderWarmUp.execute();
-        //     }
-        // }
+         protected override void initInstances() {
+             base.initInstances();
+             instance = this;
+             _imageCache = createImageCache();
+        
+             if (shaderWarmUp != null) {
+                 shaderWarmUp.execute();
+             }
+         }
 
         public new static PaintingBinding instance {
             get { return (PaintingBinding) GestureBinding.instance; }
-            set { GestureBinding.instance = value; }
+            set { Window.instance._binding = value; }
         }
 
         public static ShaderWarmUp shaderWarmUp = new DefaultShaderWarmUp();

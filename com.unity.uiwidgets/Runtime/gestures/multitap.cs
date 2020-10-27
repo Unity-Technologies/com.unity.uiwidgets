@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
@@ -18,7 +18,7 @@ namespace Unity.UIWidgets.gestures {
     class _CountdownZoned {
         public _CountdownZoned(TimeSpan duration) {
             D.assert(duration != null);
-            _timer = Window.instance.run(duration, _onTimeout);
+            _timer = Timer.create(duration, _onTimeout);
         }
 
         public bool _timeout = false;
@@ -218,7 +218,7 @@ namespace Unity.UIWidgets.gestures {
         void _startDoubleTapTimer() {
             _doubleTapTimer =
                 _doubleTapTimer
-                ?? Window.instance.run(Constants.kDoubleTapTimeout, _reset);
+                ?? Timer.create(Constants.kDoubleTapTimeout, _reset);
         }
 
         void _stopDoubleTapTimer() {
@@ -247,7 +247,7 @@ namespace Unity.UIWidgets.gestures {
             _lastPosition = OffsetPair.fromEventPosition(evt);
             startTrackingPointer(handleEvent, evt.transform);
             if (longTapDelay > TimeSpan.Zero) {
-                _timer = Window.instance.run(longTapDelay, () => {
+                _timer = Timer.create(longTapDelay, () => {
                     _timer = null;
                     this.gestureRecognizer._dispatchLongTap(evt.pointer, _lastPosition);
                 });

@@ -1,7 +1,78 @@
 using System;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.painting {
+    public abstract class AlignmentGeometry {
+        public AlignmentGeometry() {
+        }
+
+        float _x { get; }
+
+        float _start { get; }
+
+        float _y { get; }
+
+        // public static AlignmentGeometry add(AlignmentGeometry other) {
+        //   return new _MixedAlignment(
+        //     _x + other._x,
+        //     _start + other._start,
+        //     _y + other._y,
+        //   );
+        // }
+
+        // public abstract AlignmentGeometry operator -();
+        //
+        // public abstract AlignmentGeometry operator *(double other);
+        //
+        // public abstract AlignmentGeometry operator /(double other);
+        //
+        // public abstract AlignmentGeometry operator ~/(double other);
+        //
+        // public abstract AlignmentGeometry operator %(double other);
+
+        // static AlignmentGeometry lerp(AlignmentGeometry a, AlignmentGeometry b, float t) {
+        //   D.assert(t != null);
+        //   if (a == null && b == null)
+        //     return null;
+        //   if (a == null)
+        //     return b * t;
+        //   if (b == null)
+        //     return a * (1.0 - t);
+        //   if (a is Alignment && b is Alignment)
+        //     return Alignment.lerp(a, b, t);
+        //   if (a is AlignmentDirectional && b is AlignmentDirectional)
+        //     return AlignmentDirectional.lerp(a, b, t);
+        //   return _MixedAlignment(
+        //     ui.lerpDouble(a._x, b._x, t),
+        //     ui.lerpDouble(a._start, b._start, t),
+        //     ui.lerpDouble(a._y, b._y, t),
+        //   );
+        // }
+        //
+        public abstract Alignment resolve(TextDirection? direction);
+        //
+        // @override
+        // String toString() {
+        //   if (_start == 0.0)
+        //     return Alignment._stringify(_x, _y);
+        //   if (_x == 0.0)
+        //     return AlignmentDirectional._stringify(_start, _y);
+        //   return Alignment._stringify(_x, _y) + ' + ' + AlignmentDirectional._stringify(_start, 0.0);
+        // }
+        //
+        // @override
+        // bool operator ==(Object other) {
+        //   return other is AlignmentGeometry
+        //       && other._x == _x
+        //       && other._start == _start
+        //       && other._y == _y;
+        // }
+        //
+        // @override
+        // int get hashCode => hashValues(_x, _start, _y);
+    }
+
     public class Alignment : IEquatable<Alignment> {
         public Alignment(float x, float y) {
             this.x = x;

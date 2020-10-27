@@ -4,24 +4,11 @@ using System.IO;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.ui2;
 using UnityEngine;
-using Canvas = Unity.UIWidgets.ui2.Canvas;
-using Color = Unity.UIWidgets.ui2.Color;
-using Paint = Unity.UIWidgets.ui2.Paint;
-using ParagraphBuilder = Unity.UIWidgets.ui2.ParagraphBuilder;
-using ParagraphConstraints = Unity.UIWidgets.ui2.ParagraphConstraints;
-using ParagraphStyle = Unity.UIWidgets.ui2.ParagraphStyle;
+using Canvas = Unity.UIWidgets.ui.Canvas;
+using Color = Unity.UIWidgets.ui.Color;
 using Path = System.IO.Path;
-using Picture = Unity.UIWidgets.ui2.Picture;
-using PictureRecorder = Unity.UIWidgets.ui2.PictureRecorder;
 using Rect = Unity.UIWidgets.ui.Rect;
-using SceneBuilder = Unity.UIWidgets.ui2.SceneBuilder;
-using TextBaseline = Unity.UIWidgets.ui2.TextBaseline;
-using TextDecoration = Unity.UIWidgets.ui2.TextDecoration;
-using TextDecorationStyle = Unity.UIWidgets.ui2.TextDecorationStyle;
-using TextPosition = Unity.UIWidgets.ui2.TextPosition;
-using Window = Unity.UIWidgets.ui2.Window;
 
 class TextTest : UIWidgetsPanel
 {

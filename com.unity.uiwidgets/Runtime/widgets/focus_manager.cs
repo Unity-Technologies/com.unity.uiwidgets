@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
@@ -197,12 +198,13 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public void requestFocus(FocusNode node) {
-            D.assert(node != null);
+        // TODO: need update
+        public void requestFocus(FocusNode node = null) {
+            // D.assert(node != null);
             var focusPath = _manager?._getCurrentFocusPath();
             if (_focus == node &&
                 (_focusPath == focusPath || (focusPath != null && _focusPath != null &&
-                                                  _focusPath.SequenceEqual(focusPath)))) {
+                                             _focusPath.SequenceEqual(focusPath)))) {
                 return;
             }
 
@@ -213,7 +215,7 @@ namespace Unity.UIWidgets.widgets {
             node._hasKeyboardToken = true;
             _setFocus(node);
         }
-
+        
         public void autofocus(FocusNode node) {
             D.assert(node != null);
             if (_focus == null) {
@@ -353,7 +355,10 @@ namespace Unity.UIWidgets.widgets {
             }
 
             _haveScheduledUpdate = true;
-            Window.instance.scheduleMicrotask(_update);
+            async_.scheduleMicrotask(() => {
+                _update();
+                return null;
+            });
         }
 
         internal FocusNode _findNextFocus() {

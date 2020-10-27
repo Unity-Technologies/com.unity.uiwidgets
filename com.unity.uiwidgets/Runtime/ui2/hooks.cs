@@ -7,7 +7,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     public static class Hooks {
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]

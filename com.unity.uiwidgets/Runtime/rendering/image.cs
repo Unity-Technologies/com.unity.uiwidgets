@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.rendering {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool invertColors = false,
-            FilterMode filterMode = FilterMode.Bilinear
+            FilterQuality filterQuality = FilterQuality.low
         ) {
             _image = image;
             _width = width;
@@ -32,7 +32,7 @@ namespace Unity.UIWidgets.rendering {
             _centerSlice = centerSlice;
             _alignment = alignment ?? Alignment.center;
             _invertColors = invertColors;
-            _filterMode = filterMode;
+            _filterQuality = filterQuality;
             _updateColorFilter();
         }
 
@@ -136,16 +136,16 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        FilterMode _filterMode;
+        FilterQuality _filterQuality;
 
-        public FilterMode filterMode {
-            get { return _filterMode; }
+        public FilterQuality filterQuality {
+            get { return _filterQuality; }
             set {
-                if (value == _filterMode) {
+                if (value == _filterQuality) {
                     return;
                 }
 
-                _filterMode = value;
+                _filterQuality = value;
                 markNeedsPaint();
             }
         }
@@ -288,7 +288,7 @@ namespace Unity.UIWidgets.rendering {
                 centerSlice: _centerSlice,
                 repeat: _repeat,
                 invertColors: _invertColors,
-                filterMode: _filterMode
+                filterQuality: _filterQuality
             );
         }
 
@@ -309,7 +309,7 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new DiagnosticsProperty<Rect>("centerSlice", centerSlice,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<bool>("invertColors", invertColors));
-            properties.add(new EnumProperty<FilterMode>("filterMode", filterMode));
+            properties.add(new EnumProperty<FilterQuality>("filterMode", filterQuality));
         }
     }
 }

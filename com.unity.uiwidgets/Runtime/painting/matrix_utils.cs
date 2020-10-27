@@ -126,42 +126,6 @@ namespace Unity.UIWidgets.painting {
         static float _max4(float a, float b, float c, float d) {
             return Mathf.Max(a, Mathf.Max(b, Mathf.Max(c, d)));
         }
-
-        public static Matrix4x4 toMatrix4x4(this Matrix3 matrix3) {
-            var matrix = Matrix4x4.identity;
-
-            matrix[0, 0] = matrix3[0]; // row 0
-            matrix[0, 1] = matrix3[1];
-            matrix[0, 3] = matrix3[2];
-
-            matrix[1, 0] = matrix3[3]; // row 1
-            matrix[1, 1] = matrix3[4];
-            matrix[1, 3] = matrix3[5];
-
-            matrix[3, 0] = matrix3[6]; // row 2
-            matrix[3, 1] = matrix3[7];
-            matrix[3, 3] = matrix3[8];
-
-            return matrix;
-        }
-        
-        public static Matrix3 toMatrix3(this Matrix4 matrix4) {
-            var matrix = Matrix3.I();
-
-            matrix[0] = matrix4.entry(0, 0);
-            matrix[1] = matrix4.entry(0, 1);
-            matrix[2] = matrix4.entry(0, 3);
-
-            matrix[3] = matrix4.entry(1, 0);
-            matrix[4] = matrix4.entry(1, 1);
-            matrix[5] = matrix4.entry(1, 3);
-
-            matrix[6] = matrix4.entry(3, 0);
-            matrix[7] = matrix4.entry(3, 1);
-            matrix[8] = matrix4.entry(3, 3);
-
-            return matrix;
-        }
     }
 
     public class TransformProperty : DiagnosticsProperty<Matrix4> {

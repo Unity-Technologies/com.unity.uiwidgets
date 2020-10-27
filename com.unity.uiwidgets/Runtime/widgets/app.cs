@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
-using RSG;
-using Unity.UIWidgets.editor;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -148,15 +147,14 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public static Window of(GameObject gameObject) {
+            D.assert(false, () => "window.Of is not implemented yet!");
+            return null;
+            
+            /*
             var panel = gameObject.GetComponent<UIWidgetsPanel>();
             return panel == null ? null : panel.window;
+            */
         }
-
-#if UNITY_EDITOR
-        public static Window of(UIWidgetsEditorWindow editorWindow) {
-            return editorWindow.window;
-        }
-#endif
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
             D.assert(window == ((WindowProvider) oldWidget).window);
@@ -167,25 +165,25 @@ namespace Unity.UIWidgets.widgets {
     class _WidgetsAppState : State<WidgetsApp>, WidgetsBindingObserver {
         GlobalKey<NavigatorState> _navigator;
 
-        public IPromise<bool> didPopRoute() {
+        public Future<bool> didPopRoute() {
             D.assert(mounted);
             var navigator = _navigator?.currentState;
             if (navigator == null) {
-                return Promise<bool>.Resolved(false);
+                return Future<bool>.value(false).to<bool>();
             }
 
             return navigator.maybePop();
         }
 
-        public IPromise<bool> didPushRoute(string route) {
+        public Future<bool> didPushRoute(string route) {
             D.assert(mounted);
             var navigator = _navigator?.currentState;
             if (navigator == null) {
-                return Promise<bool>.Resolved(false);
+                return Future<bool>.value(false).to<bool>();
             }
 
             navigator.pushNamed(route);
-            return Promise<bool>.Resolved(true);
+            return Future<bool>.value(true).to<bool>();
         }
 
         public void didChangeMetrics() {

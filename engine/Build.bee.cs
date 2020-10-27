@@ -160,6 +160,8 @@ class Build
                 "src/lib/ui/painting/multi_frame_codec.h",
                 "src/lib/ui/painting/path.cc",
                 "src/lib/ui/painting/path.h",
+                "src/lib/ui/painting/path_measure.cc",
+                "src/lib/ui/painting/path_measure.h",
                 "src/lib/ui/painting/paint.cc",
                 "src/lib/ui/painting/paint.h",
                 "src/lib/ui/painting/picture.cc",

@@ -1,6 +1,6 @@
 ﻿using System;
 using Unity.UIWidgets.async2;
-using Unity.UIWidgets.ui2;
+using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.services {
     public delegate Future<byte[]> MessageHandler(byte[] message);

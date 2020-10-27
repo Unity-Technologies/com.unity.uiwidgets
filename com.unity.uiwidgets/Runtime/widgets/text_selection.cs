@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Rect = Unity.UIWidgets.ui.Rect;
+using TextRange = Unity.UIWidgets.ui.TextRange;
 
 namespace Unity.UIWidgets.widgets {
     static class TextSelectionUtils {
@@ -87,7 +88,7 @@ namespace Unity.UIWidgets.widgets {
 
         public void handlePaste(TextSelectionDelegate selectionDelegate) {
             TextEditingValue value = selectionDelegate.textEditingValue; // Snapshot the input before using `await`.
-            Clipboard.getData(Clipboard.kTextPlain).Then((data) => {
+            Clipboard.getData(Clipboard.kTextPlain).then_((data) => {
                 if (data != null) {
                     selectionDelegate.textEditingValue = new TextEditingValue(
                         text: value.selection.textBefore(value.text)
@@ -97,7 +98,7 @@ namespace Unity.UIWidgets.widgets {
                             offset: value.selection.start + data.text.Length
                         )
                     );
-                    
+
                     selectionDelegate.bringIntoView(selectionDelegate.textEditingValue.selection.extendPos);
                     selectionDelegate.hideToolbar();
                 }
@@ -403,7 +404,7 @@ namespace Unity.UIWidgets.widgets {
 
         void _handleDragStart(DragStartDetails details) {
             _dragPosition = details.globalPosition +
-                                 new Offset(0.0f, -widget.selectionControls.handleSize.height);
+                            new Offset(0.0f, -widget.selectionControls.handleSize.height);
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
@@ -609,7 +610,7 @@ namespace Unity.UIWidgets.widgets {
                 }
 
                 _lastTapOffset = details.globalPosition;
-                _doubleTapTimer = Window.instance.run(Constants.kDoubleTapTimeout, _doubleTapTimeout);
+                _doubleTapTimer = Timer.create(Constants.kDoubleTapTimeout, _doubleTapTimeout);
             }
 
             _isDoubleTap = false;
@@ -635,12 +636,11 @@ namespace Unity.UIWidgets.widgets {
 
         void _handleDragUpdate(DragUpdateDetails details) {
             _lastDragUpdateDetails = details;
-            _dragUpdateThrottleTimer = _dragUpdateThrottleTimer ??
-                                            Window.instance.run(TextSelectionUtils._kDragSelectionUpdateThrottle,
-                                                _handleDragUpdateThrottled);
+            _dragUpdateThrottleTimer =
+                _dragUpdateThrottleTimer ?? Timer.create(TextSelectionUtils._kDragSelectionUpdateThrottle, _handleDragUpdateThrottled);
         }
 
-        void _handleDragUpdateThrottled() {
+        object _handleDragUpdateThrottled() {
             D.assert(_lastDragStartDetails != null);
             D.assert(_lastDragUpdateDetails != null);
             if (widget.onDragSelectionUpdate != null) {
@@ -649,6 +649,7 @@ namespace Unity.UIWidgets.widgets {
 
             _dragUpdateThrottleTimer = null;
             _lastDragUpdateDetails = null;
+            return null;
         }
 
         void _handleDragEnd(DragEndDetails details) {
@@ -687,9 +688,10 @@ namespace Unity.UIWidgets.widgets {
             _isDoubleTap = false;
         }
 
-        void _doubleTapTimeout() {
+        object _doubleTapTimeout() {
             _doubleTapTimer = null;
             _lastTapOffset = null;
+            return null;
         }
 
         bool _isWithinDoubleTapTolerance(Offset secondTapOffset) {

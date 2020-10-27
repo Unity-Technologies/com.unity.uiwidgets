@@ -10,7 +10,7 @@ using Unity.UIWidgets.async2;
 using Unity.UIWidgets.services;
 using Rect = Unity.UIWidgets.ui.Rect;
 
-namespace Unity.UIWidgets.ui2 {
+namespace Unity.UIWidgets.ui {
     public enum FontStyle {
         normal,
 
@@ -1125,7 +1125,7 @@ namespace Unity.UIWidgets.ui2 {
 
         public readonly TextDirection direction;
 
-        Rect toRect() => Rect.fromLTRB((float) left, (float) top, (float) right, (float) bottom);
+        public Rect toRect() => Rect.fromLTRB((float) left, (float) top, (float) right, (float) bottom);
 
         public float start {
             get { return (direction == TextDirection.ltr) ? left : right; }

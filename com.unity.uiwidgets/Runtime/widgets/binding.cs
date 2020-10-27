@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
-using RSG;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -16,9 +17,41 @@ namespace Unity.UIWidgets.widgets {
 
         void didChangeLocales(List<Locale> locale);
 
-        IPromise<bool> didPopRoute();
+        Future<bool> didPopRoute();
 
-        IPromise<bool> didPushRoute(string route);
+        Future<bool> didPushRoute(string route);
+    }
+
+    public static partial class ui_ {
+        public static void Each<T>(this IEnumerable<T> source, Action<T> fn) {
+            foreach (var item in source) {
+                fn.Invoke(item);
+            }
+        }
+
+        public static void Each<T>(this IEnumerable<T> source, Action<T, int> fn) {
+            int index = 0;
+
+            foreach (T item in source) {
+                fn.Invoke(item, index);
+                index++;
+            }
+        }
+
+        /// <summary>
+        /// Convert a variable length argument list of items to an enumerable.
+        /// </summary>
+        public static IEnumerable<T> FromItems<T>(params T[] items) {
+            foreach (var item in items) {
+                yield return item;
+            }
+        }
+
+        public static void runApp(Widget app) {
+            var instance = WidgetsFlutterBinding.ensureInitialized();
+            instance.scheduleAttachRootWidget(app);
+            instance.scheduleWarmUpFrame();
+        }
     }
 
     public class WidgetsBinding : RendererBinding {
@@ -31,12 +64,12 @@ namespace Unity.UIWidgets.widgets {
             buildOwner.onBuildScheduled = _handleBuildScheduled;
             Window.instance.onLocaleChanged += handleLocaleChanged;
             widgetInspectorService = new WidgetInspectorService(this);
-            addPersistentFrameCallback((duration) => {
-                TextBlobMesh.tickNextFrame();
-                TessellationGenerator.tickNextFrame();
-                uiTessellationGenerator.tickNextFrame();
-                uiPathCacheManager.tickNextFrame();
-            });
+            // addPersistentFrameCallback((duration) => {
+            //     TextBlobMesh.tickNextFrame();
+            //     TessellationGenerator.tickNextFrame();
+            //     uiTessellationGenerator.tickNextFrame();
+            //     uiPathCacheManager.tickNextFrame();
+            // });
         }
 
         public BuildOwner buildOwner {
@@ -61,7 +94,7 @@ namespace Unity.UIWidgets.widgets {
 
         public void handlePopRoute() {
             var idx = -1;
-            
+
             void _handlePopRouteSub(bool result) {
                 if (!result) {
                     idx++;
@@ -69,10 +102,11 @@ namespace Unity.UIWidgets.widgets {
                         Application.Quit();
                         return;
                     }
-                    _observers[idx].didPopRoute().Then((Action<bool>) _handlePopRouteSub);
+
+                    _observers[idx].didPopRoute().then_(_handlePopRouteSub);
                 }
             }
-            
+
             _handlePopRouteSub(false);
         }
 
@@ -91,7 +125,7 @@ namespace Unity.UIWidgets.widgets {
                 observer.didChangeTextScaleFactor();
             }
         }
-        
+
         protected override void handlePlatformBrightnessChanged() {
             base.handlePlatformBrightnessChanged();
             foreach (WidgetsBindingObserver observer in _observers) {
@@ -171,17 +205,24 @@ namespace Unity.UIWidgets.widgets {
             if (_renderViewElement == null) {
                 return;
             }
-            
+
             //The former widget tree must be layout first before its destruction
             drawFrame();
             attachRootWidget(null);
             buildOwner.buildScope(_renderViewElement);
             buildOwner.finalizeTree();
-            
+
             pipelineOwner.rootNode = null;
             _renderViewElement.deactivate();
             _renderViewElement.unmount();
             _renderViewElement = null;
+        }
+
+        internal void scheduleAttachRootWidget(Widget rootWidget) {
+            Timer.run(() => {
+                attachRootWidget(rootWidget);
+                return null;
+            });
         }
 
         public void attachRootWidget(Widget rootWidget) {
@@ -329,6 +370,14 @@ namespace Unity.UIWidgets.widgets {
         protected override void removeChildRenderObject(RenderObject child) {
             D.assert(renderObject.child == child);
             renderObject.child = null;
+        }
+    }
+
+    public class WidgetsFlutterBinding : WidgetsBinding {
+        public static WidgetsBinding ensureInitialized() {
+            if (WidgetsBinding.instance == null)
+                new WidgetsFlutterBinding();
+            return WidgetsBinding.instance;
         }
     }
 }

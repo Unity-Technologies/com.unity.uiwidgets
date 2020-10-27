@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Text;
 using RSG;
@@ -295,4 +296,4 @@ namespace Unity.UIWidgets.scheduler {
             return "The ticker was canceled before the \"orCancel\" property was first used.";
         }
     }
-}
+}*/

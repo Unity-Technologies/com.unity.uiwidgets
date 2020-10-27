@@ -71,7 +71,7 @@ namespace UIWidgets.Runtime.rendering {
             );
             _labelBackgroundPaint.color = new Color(0xFFFFFFFF);
             for (int i = 0; i < 4; i++) {
-                _indicatorLabel.Add(new TextPainter(new TextSpan(""), textDirection: TextDirection.ltr));
+                _indicatorLabel.Add(new TextPainter(textDirection: TextDirection.ltr));
             }
         }
 
@@ -244,8 +244,10 @@ namespace UIWidgets.Runtime.rendering {
             List<_OverflowRegionData> overflowRegions = _calculateOverflowRegions(overflow, containerRect);
             foreach (_OverflowRegionData region in overflowRegions) {
                 context.canvas.drawRect(region.rect.shift(offset), _indicatorPaint);
+                
+                TextSpan textSpan = _indicatorLabel[(int) region.side].text as TextSpan;
 
-                if (_indicatorLabel[(int) region.side].text?.text != region.label) {
+                if (textSpan?.text != region.label) {
                     _indicatorLabel[(int) region.side].text = new TextSpan(
                         text: region.label,
                         style: _indicatorTextStyle

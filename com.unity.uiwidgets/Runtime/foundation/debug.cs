@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Unity.UIWidgets.editor;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Canvas = Unity.UIWidgets.ui.Canvas;
@@ -55,6 +54,8 @@ namespace Unity.UIWidgets.foundation {
 
         public static bool debugDisableOpacityLayers = false;
 
+        public static bool debugDisablePhysicalShapeLayers = false;
+
         public static bool debugPrintMarkNeedsPaintStacks = false;
 
         public static bool debugCheckIntrinsicSizes = false;
@@ -66,9 +67,9 @@ namespace Unity.UIWidgets.foundation {
 
         public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) {
             Path path = new Path();
+            path.fillType = PathFillType.evenOdd;
             path.addRect(outerRect);
             path.addRect(innerRect);
-            path.winding(PathWinding.clockwise);
             var paint = new Paint {
                 color = color
             };
@@ -125,9 +126,9 @@ namespace Unity.UIWidgets.foundation {
             }
 
             if (needRepaint) {
-                foreach (var adapter in WindowAdapter.windowAdapters) {
+                /*foreach (var adapter in WindowAdapter.windowAdapters) {
                     adapter._forceRepaint();
-                }
+                }*/
             }
         }
     }
