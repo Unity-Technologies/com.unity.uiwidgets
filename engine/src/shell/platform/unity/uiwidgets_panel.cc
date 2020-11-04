@@ -2,13 +2,15 @@
 
 #include <Windows.h>
 #include <flutter/fml/synchronization/waitable_event.h>
+#include <include\utils\SkBase64.h>
 
+#include <fstream>
 #include <iostream>
 
 #include "lib/ui/window/viewport_metrics.h"
 #include "runtime/mono_api.h"
-#include "shell/platform/embedder/embedder_engine.h"
 #include "shell/common/switches.h"
+#include "shell/platform/embedder/embedder_engine.h"
 #include "uiwidgets_system.h"
 #include "unity_external_texture_gl.h"
 
@@ -27,7 +29,8 @@ UIWidgetsPanel::~UIWidgetsPanel() = default;
 
 void UIWidgetsPanel::OnEnable(void* native_texture_ptr, size_t width,
                               size_t height, float device_pixel_ratio,
-                              const char* streaming_assets_path) {
+                              const char* streaming_assets_path,
+                              const char* settings) {
   surface_manager_ = std::make_unique<UnitySurfaceManager>(
       UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
 
@@ -125,6 +128,8 @@ void UIWidgetsPanel::OnEnable(void* native_texture_ptr, size_t width,
   args.struct_size = sizeof(UIWidgetsProjectArgs);
 
   args.assets_path = streaming_assets_path;
+  args.font_asset = settings;
+
   // std::string icu_path = std::string(streaming_assets_path) + "/icudtl.dat";
   // args.icu_data_path = icu_path.c_str();
 
@@ -412,6 +417,25 @@ void UIWidgetsPanel::OnMouseLeave() {
   }
 }
 
+void UIWidgetsPanel::TakeScreenShot() {
+  if (process_events_) {
+    auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
+    Rasterizer::Screenshot screenshot = engine->GetShell().Screenshot(
+        Rasterizer::ScreenshotType::SkiaPicture, true);
+    const char* screenshot_char =
+        static_cast<const char*>(screenshot.data->data());
+    int size = screenshot.data->size();
+    SkBase64 temp;
+    temp.decode(screenshot_char, screenshot.data->size());
+    char* decoded = temp.getData();
+
+    std::ofstream myfile;
+    myfile.open("example.txt");
+    myfile.write(decoded, temp.getDataSize());
+    myfile.close();
+  }
+}
+
 UIWIDGETS_API(UIWidgetsPanel*)
 UIWidgetsPanel_constructor(
     Mono_Handle handle,
@@ -428,9 +452,10 @@ UIWIDGETS_API(void) UIWidgetsPanel_dispose(UIWidgetsPanel* panel) {
 UIWIDGETS_API(void)
 UIWidgetsPanel_onEnable(UIWidgetsPanel* panel, void* native_texture_ptr,
                         size_t width, size_t height, float device_pixel_ratio,
-                        const char* streaming_assets_path) {
+                        const char* streaming_assets_path,
+                        const char* settings) {
   panel->OnEnable(native_texture_ptr, width, height, device_pixel_ratio,
-                  streaming_assets_path);
+                  streaming_assets_path, settings);
 }
 
 UIWIDGETS_API(void) UIWidgetsPanel_onDisable(UIWidgetsPanel* panel) {
@@ -473,4 +498,8 @@ UIWidgetsPanel_onMouseMove(UIWidgetsPanel* panel, float x, float y) {
 UIWIDGETS_API(void)
 UIWidgetsPanel_onMouseLeave(UIWidgetsPanel* panel) { panel->OnMouseLeave(); }
 
+UIWIDGETS_API(void)
+UIWidgetsPanel_takeScreenShot(UIWidgetsPanel* panel) {
+  panel->TakeScreenShot();
+}
 }  // namespace uiwidgets

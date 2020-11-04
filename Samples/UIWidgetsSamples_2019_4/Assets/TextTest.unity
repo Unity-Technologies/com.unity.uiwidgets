@@ -245,10 +245,10 @@ RectTransform:
   m_Father: {fileID: 2122288190}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.3, y: 0.8}
-  m_SizeDelta: {x: 483, y: 399}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &847097471
 CanvasRenderer:
@@ -267,7 +267,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 847097468}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84eecb3d75338e24185f4fcd9d813a55, type: 3}
+  m_Script: {fileID: 11500000, guid: 169ec79ce040653478e1a7725f34bbe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -284,7 +284,25 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
-  fonts: []
+  fonts:
+  - family: racher
+    fonts:
+    - asset: Ranchers-Regular.ttf
+      weight: 0
+  - family: roboto
+    fonts:
+    - asset: Roboto-Italic.ttf
+      weight: 0
+    - asset: Roboto-BlackItalic.ttf
+      weight: 900
+  - family: CupertinoIcons
+    fonts:
+    - asset: CupertinoIcons.ttf
+      weight: 0
+  - family: robotox
+    fonts:
+    - asset: Roboto-Italic.ttf
+      weight: 0
   devicePixelRatioOverride: 0
   hardwareAntiAliasing: 0
 --- !u!1 &1548023132

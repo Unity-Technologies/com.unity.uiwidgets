@@ -179,6 +179,7 @@ struct Settings {
   fml::UniqueFD::element_type assets_dir =
       fml::UniqueFD::traits_type::InvalidValue();
   std::string assets_path;
+  std::string font_data;
 
   // Callback to handle the timings of a rasterized frame. This is called as
   // soon as a frame is rasterized.

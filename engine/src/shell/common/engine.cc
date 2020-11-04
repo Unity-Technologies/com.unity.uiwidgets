@@ -12,9 +12,9 @@
 #include "flutter/fml/paths.h"
 #include "flutter/fml/trace_event.h"
 #include "flutter/fml/unique_fd.h"
-#include "lib/ui/text/font_collection.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPictureRecorder.h"
+#include "lib/ui/text/font_collection.h"
 #include "rapidjson/document.h"
 #include "shell/common/animator.h"
 #include "shell/common/platform_view.h"
@@ -83,11 +83,19 @@ bool Engine::UpdateAssetManager(
   if (!asset_manager_) {
     return false;
   }
-
-  //// Using libTXT as the text engine.
+  rapidjson::Document document;
+  document.Parse(settings_.font_data);
+  if (!document.HasParseError()) {
+    auto settings = document.GetObject();
+    auto fontSettings = settings.FindMember("fonts");
+    if (fontSettings != settings.MemberEnd() && fontSettings->value.IsArray()) {
+      rapidjson::Value::Array fontArray = fontSettings->value.GetArray();
+      font_collection_.RegisterFonts(asset_manager_, fontArray);
+      return true;
+    }
+  } 
   font_collection_.RegisterFonts(asset_manager_);
-
-
+  
   return true;
 }
 
@@ -104,8 +112,8 @@ bool Engine::Restart(RunConfiguration configuration) {
 }
 
 void Engine::SetupDefaultFontManager() {
-    TRACE_EVENT0("uiwidgets", "Engine::SetupDefaultFontManager");
-    font_collection_.SetupDefaultFontManager();
+  TRACE_EVENT0("uiwidgets", "Engine::SetupDefaultFontManager");
+  font_collection_.SetupDefaultFontManager();
 }
 
 Engine::RunStatus Engine::Run(RunConfiguration configuration) {
