@@ -104,7 +104,7 @@ namespace UIWidgetsSample
                                 style: new TextStyle(fontFamily: "robotox", fontSize: 18, fontWeight: FontWeight.w800)),
                             new Text("Counter: " + counter,
                                 style: new TextStyle(fontFamily: "robotox", fontSize: 18, fontWeight: FontWeight.w900)),
-                            new Text("Counter: " + counter,
+                            new Text("Counter: " + counter + (char) 0xf472 + (char) 0xf442 + (char) 0xf43b,
                                 style: new TextStyle(fontFamily: "robotox", fontSize: 18, fontWeight: FontWeight.w900,
                                     fontStyle: FontStyle.italic)),
                             new Text("Counter: " + counter + (char) 0xf472 + (char) 0xf442 + (char) 0xf43b,
