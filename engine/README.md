@@ -33,6 +33,7 @@ bin/gn gen out/Debug
 Update out/Debug/args.gn with the following content:
 ```
 clang_win = "C:\Program Files\LLVM"
+win_vc = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC"
 cc = "clang"
 cxx = "clang++"
 is_debug = true
