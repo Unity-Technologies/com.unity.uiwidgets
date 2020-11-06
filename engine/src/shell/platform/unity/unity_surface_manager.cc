@@ -61,6 +61,9 @@ GLuint UnitySurfaceManager::CreateRenderSurface(void* native_texture_ptr) {
 
   image_texture->Release();
 
+  GLint old_texture_binding_2d;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture_binding_2d);
+
   FML_DCHECK(fbo_texture_ == 0);
   glGenTextures(1, &fbo_texture_);
   glBindTexture(GL_TEXTURE_2D, fbo_texture_);
@@ -69,6 +72,10 @@ GLuint UnitySurfaceManager::CreateRenderSurface(void* native_texture_ptr) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, fbo_egl_image_);
+  glBindTexture(GL_TEXTURE_2D, old_texture_binding_2d);
+
+  GLint old_framebuffer_binding;
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
 
   FML_DCHECK(fbo_ == 0);
   glGenFramebuffers(1, &fbo_);
@@ -77,6 +84,7 @@ GLuint UnitySurfaceManager::CreateRenderSurface(void* native_texture_ptr) {
                          fbo_texture_, 0);
   FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
             GL_FRAMEBUFFER_COMPLETE);
+  glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
 
   return fbo_;
 }
