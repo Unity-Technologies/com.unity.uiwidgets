@@ -63,18 +63,12 @@ GLuint UnitySurfaceManager::CreateRenderSurface(void* native_texture_ptr) {
 
   FML_DCHECK(fbo_texture_ == 0);
   glGenTextures(1, &fbo_texture_);
-
-  GLint oldId;
-  glGetIntegerv(GL_TEXTURE_BINDING_2D, &oldId);
-
   glBindTexture(GL_TEXTURE_2D, fbo_texture_);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, fbo_egl_image_);
-
- glBindTexture(GL_TEXTURE_2D, oldId);
 
   FML_DCHECK(fbo_ == 0);
   glGenFramebuffers(1, &fbo_);
