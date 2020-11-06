@@ -1031,7 +1031,7 @@ namespace Unity.UIWidgets.ui {
         public Path() : base(Path_constructor()) {
         }
 
-        private Path(IntPtr ptr) : base(ptr) {
+        public Path(IntPtr ptr) : base(ptr) {
         }
 
         protected override void DisposePtr(IntPtr ptr) {
@@ -1480,6 +1480,26 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
+    public class Tangent {
+        public Tangent(Offset position, Offset vector) {
+            D.assert(position != null);
+            D.assert(vector != null);
+
+            this.position = position;
+            this.vector = vector;
+        }
+
+        public static Tangent fromAngle(Offset position, float angle) {
+            return new Tangent(position, new Offset(Mathf.Cos(angle), Mathf.Sin(angle)));
+        }
+
+        public readonly Offset position;
+
+        public readonly Offset vector;
+
+        public float angle => -Mathf.Atan2(vector.dy, vector.dx);
+    }
+
     public class PathMetric {
         public PathMetric(_PathMeasure measure) {
             D.assert(measure != null);
@@ -1496,6 +1516,18 @@ namespace Unity.UIWidgets.ui {
         public readonly int contourIndex;
 
         readonly _PathMeasure _measure;
+
+        public Tangent getTangentForOffset(float distance) {
+            return _measure.getTangentForOffset(contourIndex, distance);
+        }
+
+        public Path extractPath(float start, float end, bool startWithMoveTo = true) {
+            return _measure.extractPath(contourIndex, start, end, startWithMoveTo);
+        }
+
+        public override string ToString() {
+            return $"{GetType()}: length: {length}, isClosed: {isClosed}, contourIndex: {contourIndex}";
+        }
     }
 
 
@@ -1512,6 +1544,31 @@ namespace Unity.UIWidgets.ui {
         public float length(int contourIndex) {
             D.assert(contourIndex <= currentContourIndex, () => $"Iterator must be advanced before index {contourIndex} can be used.");
             return PathMeasure_length(contourIndex);
+        }
+
+        public unsafe Tangent getTangentForOffset(int contourIndex, float distance) {
+            D.assert(contourIndex <= currentContourIndex, () => $"Iterator must be advanced before index {contourIndex} can be used.");
+            float[] posTan = new float[5];
+            fixed (float* posTanPtr = posTan) {
+                PathMeasure_getPosTan(contourIndex, distance, posTanPtr);
+            }
+
+            if (posTan[0] == 0.0f) {
+                return null;
+            }
+            else {
+                return new Tangent(
+                    new Offset(posTan[1], posTan[2]),
+                    new Offset(posTan[3], posTan[4])
+                    );
+            }
+        }
+
+        public Path extractPath(int contourIndex, float start, float end, bool startWithMoveTo = true) {
+            D.assert(contourIndex <= currentContourIndex,
+                () => $"Iterator must be advanced before index {contourIndex} can be used.");
+            IntPtr pathPtr = PathMeasure_getSegment(contourIndex, start, end, startWithMoveTo);
+            return new Path(pathPtr);
         }
 
         public bool isClosed(int contourIndex) {
@@ -1536,6 +1593,13 @@ namespace Unity.UIWidgets.ui {
 
         [DllImport(NativeBindings.dllName)]
         static extern float PathMeasure_length(int contourIndex);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern unsafe void PathMeasure_getPosTan(int contourIndex, float distance, float* posTan);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr PathMeasure_getSegment(int contourIndex, float start, float end,
+            bool startWithMoveTo);
 
         
         [DllImport(NativeBindings.dllName)]
