@@ -150,6 +150,10 @@ namespace Unity.UIWidgets.widgets {
             return children != ((SliverChildListDelegate) oldDelegate).children;
         }
     }
+    public abstract class SliverWithKeepAliveWidget : RenderObjectWidget
+    {
+        public SliverWithKeepAliveWidget(Key key = null) : base(key: key) { }
+    }
 
     public abstract class SliverMultiBoxAdaptorWidget : RenderObjectWidget {
         protected SliverMultiBoxAdaptorWidget(
