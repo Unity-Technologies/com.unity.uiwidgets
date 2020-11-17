@@ -1300,6 +1300,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected virtual Element updateChild(Element child, Widget newWidget, object newSlot) {
+            int p = 1;
             D.assert(() => {
                 if (newWidget != null && newWidget.key is GlobalKey) {
                     GlobalKey key = (GlobalKey) newWidget.key;
@@ -2109,8 +2110,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return null;
-            // return new RenderErrorBox(message);
+            //return null;
+            return new RenderErrorBox(message);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -2611,6 +2612,10 @@ namespace Unity.UIWidgets.widgets {
 
         void _debugUpdateRenderObjectOwner() {
             D.assert(() => {
+                if (_renderObject == null) {
+                    int i = 0;
+                }
+
                 _renderObject.debugCreator = new _DebugCreator(this);
                 return true;
             });

@@ -268,7 +268,7 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-        protected internal override void didChangePrevious(Route previousRoute) {
+        protected internal  override void didChangePrevious(Route previousRoute) {
             string previousTitleString = previousRoute is CupertinoPageRoute
                 ? ((CupertinoPageRoute) previousRoute).title
                 : null;
@@ -418,10 +418,10 @@ namespace Unity.UIWidgets.cupertino {
 
     class CupertinoPageTransition : StatelessWidget {
         public CupertinoPageTransition(
-            Animation<float> primaryRouteAnimation,
-            Animation<float> secondaryRouteAnimation,
-            Widget child,
-            bool linearTransition,
+            Animation<float> primaryRouteAnimation = null,
+            Animation<float> secondaryRouteAnimation = null,
+            Widget child = null,
+            bool linearTransition = default,
             Key key = null
         ) : base(key: key) {
             _primaryPositionAnimation =
