@@ -400,7 +400,7 @@ namespace Unity.UIWidgets.ui {
     }
 
     public static partial class ui_ {
-        const int _kDoNotResizeDimension = -1;
+        internal const int _kDoNotResizeDimension = -1;
     }
 
     public class Paint {
