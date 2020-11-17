@@ -4,6 +4,10 @@ namespace Unity.UIWidgets.rendering {
     public class RenderErrorBox : RenderBox {
         const string _kLine = "\n\n────────────────────\n\n";
 
+        protected override bool sizedByParent
+        {
+            get { return true; }
+        }
         public RenderErrorBox(string message = "") {
             this.message = message;
             if (message == "") {

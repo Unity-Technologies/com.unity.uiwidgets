@@ -93,7 +93,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _updateParentDataOfChild(ParentDataElement childElement) {
-            childElement.applyWidgetOutOfTurn((ParentDataWidget) build(context));
+            childElement.applyWidgetOutOfTurn((ParentDataWidget<SliverWithKeepAliveWidget>) build(context));
         }
 
         VoidCallback _createCallback(Listenable handle) {
