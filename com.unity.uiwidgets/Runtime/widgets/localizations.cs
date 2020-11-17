@@ -30,13 +30,8 @@ namespace Unity.UIWidgets.widgets {
             }
 
             foreach (LocalizationsDelegate del in delegates) {
-                //Future<WidgetsLocalizations> inputValue = del.load(locale);
-                Future<object> inputValue = del.load(locale).to<object>();
+                Future<WidgetsLocalizations> inputValue = del.load(locale);
                 object completedValue = null;
-               /* Future<object> futureValue = inputValue.then_<object>(value => {
-                    completedValue = value;
-                    return FutureOr.value(completedValue);
-                })();*/
                 Future<object> futureValue = inputValue.then_(value => {
                      completedValue = value;
                      return FutureOr.value(completedValue);

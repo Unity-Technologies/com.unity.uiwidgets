@@ -1852,10 +1852,10 @@ namespace Unity.UIWidgets.ui {
 
         public static _ImageFilter blur(ImageFilter creator) {
             D.assert(creator != null);
-            D.assert(creator._type == ImageFilter._kTypeBlur);
-            /*if (creator._data.Length != 16) {
+            D.assert(creator._type == ImageFilter._kTypeMatrix);
+            if (creator._data.Length != 16) {
                 throw new ArgumentException("\"matrix4\" must have 16 entries.");
-            }*/
+            }
 
             var filter = new _ImageFilter(ImageFilter_constructor(), creator);
             ImageFilter_initBlur(filter._ptr, creator._data[0], creator._data[1]);
