@@ -15,6 +15,17 @@ ImageFilter::ImageFilter() = default;
 
 ImageFilter::~ImageFilter() = default;
 
+UIWIDGETS_API(ImageFilter*)
+ImageFilter_constructor() {
+  const auto panel = ImageFilter::Create();
+  panel->AddRef();
+  return panel.get();
+}
+UIWIDGETS_API(void)
+ImageFilter_dispose(ImageFilter* panel) {
+  panel->Release();
+}
+
 void ImageFilter::initImage(CanvasImage* image) {
   filter_ = SkImageSource::Make(image->image());
 }
