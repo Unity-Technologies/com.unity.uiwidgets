@@ -16,7 +16,7 @@ ImageFilter::ImageFilter() = default;
 ImageFilter::~ImageFilter() = default;
 
 UIWIDGETS_API(ImageFilter*)
-ImageFilter_constructor() {
+ImageFilter_constructor(){
   const auto panel = ImageFilter::Create();
   panel->AddRef();
   return panel.get();
@@ -24,6 +24,16 @@ ImageFilter_constructor() {
 UIWIDGETS_API(void)
 ImageFilter_dispose(ImageFilter* panel) {
   panel->Release();
+}
+UIWIDGETS_API(void)
+ImageFilter_initPicture(Picture* picture) {
+  filter_ = SkPictureImageFilter::Make(picture->picture());
+}
+UIWIDGETS_API(void)
+ImageFilter_initMatrix(const float* matrix4, int filterQuality) {
+  filter_ = SkImageFilter::MakeMatrixFilter(
+      ToSkMatrix(matrix4), static_cast<SkFilterQuality>(filterQuality),
+      nullptr);
 }
 
 void ImageFilter::initImage(CanvasImage* image) {
