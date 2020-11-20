@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using FontStyle = Unity.UIWidgets.ui.FontStyle;
+using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 using ui_ = Unity.UIWidgets.widgets.ui_;
 
@@ -53,6 +56,8 @@ namespace UIWidgetsSample
         {
             int counter;
 
+            private float frame = 0;
+
             public override Widget build(BuildContext context)
             {
                 return new Container(
@@ -60,6 +65,25 @@ namespace UIWidgetsSample
                     child: new Column(
                         children: new List<Widget>
                         {
+                            AnimatedLottie.file("wine.json", frame: frame, curve: Curves.linear),
+                            new Container(
+                                width: 100,
+                                height: 100,
+                                decoration: new BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(8))
+                                ),
+                                child: Image.file("test.gif", gaplessPlayback: true)
+                            ),
+                            new Container(
+                                width: 200,
+                                height: 100,
+                                decoration: new BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(8))
+                                ),
+                                child: Image.network(
+                                    "https://unity-cn-cms-prd-1254078910.cos.ap-shanghai.myqcloud.com/assetstore-cms-media/img-7dfe215f-0075-4f9c-9b5a-be5ee88b866b",
+                                    gaplessPlayback: true)
+                            ),
                             new Text("Counter: " + counter,
                                 style: new TextStyle(fontSize: 18, fontWeight: FontWeight.w100)),
                             new Text("Counter: " + counter,
@@ -113,10 +137,10 @@ namespace UIWidgetsSample
                             new GestureDetector(
                                 onTap: () =>
                                 {
-                                    setState(()
-                                        =>
+                                    setState(() =>
                                     {
                                         counter++;
+                                        frame += 1;
                                     });
                                 },
                                 child: new Container(
