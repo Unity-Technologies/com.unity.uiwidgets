@@ -22,18 +22,16 @@ ImageFilter_constructor(){
   return panel.get();
 }
 UIWIDGETS_API(void)
-ImageFilter_dispose(ImageFilter* panel) {
-  panel->Release();
+ImageFilter_dispose(ImageFilter* ptr) {
+  ptr->Release();
 }
 UIWIDGETS_API(void)
-ImageFilter_initPicture(Picture* picture) {
-  filter_ = SkPictureImageFilter::Make(picture->picture());
+ImageFilter_initBlur(ImageFilter* ptr,double sigma_x, double sigma_y) {
+  ptr->initBlur(sigma_x, sigma_y);
 }
 UIWIDGETS_API(void)
-ImageFilter_initMatrix(const float* matrix4, int filterQuality) {
-  filter_ = SkImageFilter::MakeMatrixFilter(
-      ToSkMatrix(matrix4), static_cast<SkFilterQuality>(filterQuality),
-      nullptr);
+ImageFilter_initMatrix(ImageFilter* ptr,const float* matrix4, int filterQuality) {
+  ptr->initMatrix( matrix4, filterQuality);
 }
 
 void ImageFilter::initImage(CanvasImage* image) {
