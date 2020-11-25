@@ -200,6 +200,8 @@ namespace Unity.UIWidgets.painting {
         public static bool operator !=(BorderRadius a, BorderRadius b) {
             return !Equals(a, b);
         }
+        
+        public BorderRadius resolve(TextDirection direction) => this;
 
         public override string ToString() {
             string visual = null;

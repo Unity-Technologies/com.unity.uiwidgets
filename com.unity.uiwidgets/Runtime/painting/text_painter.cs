@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -223,12 +224,42 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
+        List<TextBox> _inlinePlaceholderBoxes;
+
+        List<float> inlinePlaceholderScales {
+            get { return _inlinePlaceholderScales; }
+        }
+
+        List<float> _inlinePlaceholderScales;
+
         public float minIntrinsicWidth {
             get {
                 Debug.Assert(!_needsLayout);
                 return _applyFloatingPointHack(_paragraph.minIntrinsicWidth());
             }
         }
+
+        void setPlaceholderDimensions(List<PlaceholderDimensions> value) {
+            if (value == null || value.isEmpty() || value.SequenceEqual(_placeholderDimensions)) {
+                return;
+            }
+
+            D.assert(() => {
+                int placeholderCount = 0;
+                text.visitChildren((InlineSpan span) => {
+                    if (span is PlaceholderSpan) {
+                        placeholderCount += 1;
+                    }
+
+                    return true;
+                });
+                return placeholderCount == value.Count;
+            });
+            _placeholderDimensions = value;
+            markNeedsLayout();
+        }
+
+        List<PlaceholderDimensions> _placeholderDimensions;
 
         public float maxIntrinsicWidth {
             get {
@@ -247,7 +278,9 @@ namespace Unity.UIWidgets.painting {
         public float width {
             get {
                 Debug.Assert(!_needsLayout);
-                return _applyFloatingPointHack(_paragraph.width());
+                return _applyFloatingPointHack(textWidthBasis == TextWidthBasis.longestLine
+                    ? _paragraph.longestLine()
+                    : _paragraph.width());
             }
         }
 
@@ -275,7 +308,9 @@ namespace Unity.UIWidgets.painting {
             _needsLayout = false;
             if (_paragraph == null) {
                 var builder = new ParagraphBuilder(_createParagraphStyle());
-                _text.build(builder, textScaleFactor);
+                _text.build(builder, textScaleFactor: textScaleFactor,
+                    dimensions: _placeholderDimensions);
+                _inlinePlaceholderScales = builder.placeholderScales;
                 _paragraph = builder.build();
             }
 
@@ -289,6 +324,8 @@ namespace Unity.UIWidgets.painting {
                     _paragraph.layout(new ParagraphConstraints(newWidth));
                 }
             }
+
+            _inlinePlaceholderBoxes = _paragraph.getBoxesForPlaceholders();
         }
 
         public void paint(Canvas canvas, Offset offset) {
@@ -341,7 +378,8 @@ namespace Unity.UIWidgets.painting {
             _previousCaretPrototype = caretPrototype;
         }
 
-        public List<TextBox> getBoxesForSelection(TextSelection selection,
+        public List<TextBox> getBoxesForSelection(
+            TextSelection selection,
             ui.BoxHeightStyle boxHeightStyle = ui.BoxHeightStyle.tight,
             ui.BoxWidthStyle boxWidthStyle = ui.BoxWidthStyle.tight) {
             D.assert(!_needsLayout);
@@ -359,7 +397,7 @@ namespace Unity.UIWidgets.painting {
             D.assert(!_needsLayout);
             return _paragraph.getWordBoundary(position);
         }
-        
+
         TextRange getLineBoundary(TextPosition position) {
             D.assert(!_needsLayout);
             return _paragraph.getLineBoundary(position);
@@ -367,7 +405,8 @@ namespace Unity.UIWidgets.painting {
 
         ParagraphStyle _createParagraphStyle(TextDirection defaultTextDirection = TextDirection.ltr) {
             D.assert(textAlign != null);
-            D.assert(textDirection != null, () => "TextPainter.textDirection must be set to a non-null value before using the TextPainter.");
+            D.assert(textDirection != null,
+                () => "TextPainter.textDirection must be set to a non-null value before using the TextPainter.");
             return _text.style?.getParagraphStyle(
                 textAlign: textAlign,
                 textDirection: textDirection ?? defaultTextDirection,
@@ -377,7 +416,7 @@ namespace Unity.UIWidgets.painting {
                 ellipsis: _ellipsis
                 // locale: _locale,
                 // strutStyle: _strutStyle,
-            ) ?? new ui.ParagraphStyle(
+            ) ?? new ParagraphStyle(
                 textAlign: textAlign,
                 textDirection: textDirection ?? defaultTextDirection,
                 maxLines: maxLines,
@@ -412,18 +451,19 @@ namespace Unity.UIWidgets.painting {
         const int _zwjUtf16 = 0x200d;
 
         Rect _getRectFromUpstream(int offset, Rect caretPrototype) {
-            string flattenedText = _text.toPlainText();
+            string flattenedText = _text.toPlainText(includePlaceholders: false);
             var prevCodeUnit = _text.codeUnitAt(Mathf.Max(0, offset - 1));
             if (prevCodeUnit == null) {
                 return null;
             }
 
-            bool needsSearch = _isUtf16Surrogate(prevCodeUnit.Value) || _text.codeUnitAt(offset) == _zwjUtf16;
+            bool needsSearch = _isUtf16Surrogate(prevCodeUnit.Value) || _text.codeUnitAt(offset) == _zwjUtf16 ||
+                               _isUnicodeDirectionality(prevCodeUnit);
             int graphemeClusterLength = needsSearch ? 2 : 1;
             List<TextBox> boxes = null;
             while ((boxes == null || boxes.isEmpty()) && flattenedText != null) {
                 int prevRuneOffset = offset - graphemeClusterLength;
-                boxes = _paragraph.getBoxesForRange(prevRuneOffset, offset);
+                boxes = _paragraph.getBoxesForRange(prevRuneOffset, offset, boxHeightStyle: ui.BoxHeightStyle.strut);
                 if (boxes.isEmpty()) {
                     if (!needsSearch) {
                         break;
@@ -446,15 +486,15 @@ namespace Unity.UIWidgets.painting {
 
                 float caretEnd = box.end;
                 float dx = box.direction == TextDirection.rtl ? caretEnd - caretPrototype.width : caretEnd;
-                return Rect.fromLTRB(Mathf.Min(dx, width), box.top,
-                    Mathf.Min(dx, width), box.bottom);
+                return Rect.fromLTRB(Mathf.Min(dx, _paragraph.width()), box.top,
+                    Mathf.Min(dx, _paragraph.width()), box.bottom);
             }
 
             return null;
         }
 
         Rect _getRectFromDownStream(int offset, Rect caretPrototype) {
-            string flattenedText = _text.toPlainText();
+            string flattenedText = _text.toPlainText(includePlaceholders: false);
             var nextCodeUnit =
                 _text.codeUnitAt(Mathf.Min(offset, flattenedText == null ? 0 : flattenedText.Length - 1));
             if (nextCodeUnit == null) {
@@ -466,7 +506,7 @@ namespace Unity.UIWidgets.painting {
             List<TextBox> boxes = null;
             while ((boxes == null || boxes.isEmpty()) && flattenedText != null) {
                 int nextRuneOffset = offset + graphemeClusterLength;
-                boxes = _paragraph.getBoxesForRange(offset, nextRuneOffset);
+                boxes = _paragraph.getBoxesForRange(offset, nextRuneOffset, boxHeightStyle: ui.BoxHeightStyle.strut);
                 if (boxes.isEmpty()) {
                     if (!needsSearch) {
                         break;
@@ -483,8 +523,8 @@ namespace Unity.UIWidgets.painting {
                 TextBox box = boxes[boxes.Count - 1];
                 float caretStart = box.start;
                 float dx = box.direction == TextDirection.rtl ? caretStart - caretPrototype.width : caretStart;
-                return Rect.fromLTRB(Mathf.Min(dx, width), box.top,
-                    Mathf.Min(dx, width), box.bottom);
+                return Rect.fromLTRB(Mathf.Min(dx, _paragraph.width()), box.top,
+                    Mathf.Min(dx, _paragraph.width()), box.bottom);
             }
 
             return null;
@@ -514,6 +554,10 @@ namespace Unity.UIWidgets.painting {
 
         static bool _isUtf16Surrogate(int value) {
             return (value & 0xF800) == 0xD800;
+        }
+
+        bool _isUnicodeDirectionality(int? value) {
+            return value == 0x200F || value == 0x200E;
         }
     }
 }

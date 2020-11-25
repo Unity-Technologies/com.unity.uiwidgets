@@ -1538,15 +1538,19 @@ namespace Unity.UIWidgets.rendering {
         Matrix4 _transform;
 
         public void setIdentity() {
-            _transform = new Matrix4().identity();
+            _transform = Matrix4.identity();
             markNeedsPaint();
         }
 
         public void rotateX(float degrees) {
+            _transform.rotateX(degrees);
+            markNeedsPaint();
             //2D, do nothing
         }
 
         public void rotateY(float degrees) {
+            _transform.rotateY(degrees);
+            markNeedsPaint();
             //2D, do nothing
         }
 
@@ -1556,7 +1560,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void translate(float x, float y = 0.0f, float z = 0.0f) {
-            _transform.translationValues(x, y, 0);
+            _transform.translate(x, y, z);
             markNeedsPaint();
         }
 
@@ -1572,7 +1576,7 @@ namespace Unity.UIWidgets.rendering {
                     return _transform;
                 }
 
-                var result = new Matrix4().identity();
+                var result = Matrix4.identity();
                 if (_origin != null) {
                     result.translate(_origin.dx, _origin.dy);
                 }
@@ -1721,7 +1725,7 @@ namespace Unity.UIWidgets.rendering {
 
             if (child == null) {
                 _hasVisualOverflow = false;
-                _transform = new Matrix4().identity();
+                _transform = Matrix4.identity();
             }
             else {
                 _resolve();
@@ -1732,7 +1736,7 @@ namespace Unity.UIWidgets.rendering {
                 Rect sourceRect = _resolvedAlignment.inscribe(sizes.source, Offset.zero & childSize);
                 Rect destinationRect = _resolvedAlignment.inscribe(sizes.destination, Offset.zero & size);
                 _hasVisualOverflow = sourceRect.width < childSize.width || sourceRect.height < childSize.height;
-                _transform = new Matrix4().translationValues(destinationRect.left, destinationRect.top, 0);
+                _transform = Matrix4.translationValues(destinationRect.left, destinationRect.top, 0);
                 _transform.scale(scaleX, scaleY, 1);
                 _transform.translate(-sourceRect.left, -sourceRect.top);
             }
@@ -2575,7 +2579,7 @@ namespace Unity.UIWidgets.rendering {
         new FollowerLayer _layer;
 
         Matrix4 getCurrentTransform() {
-            return _layer?.getLastTransform() ?? new Matrix4().identity();
+            return _layer?.getLastTransform() ?? Matrix4.identity();
         }
 
         public override bool hitTest(BoxHitTestResult result, Offset position) {

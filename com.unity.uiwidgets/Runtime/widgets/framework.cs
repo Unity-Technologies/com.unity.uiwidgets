@@ -564,11 +564,11 @@ namespace Unity.UIWidgets.widgets {
             : base(key: key, child: child) {
         }
 
-        public abstract bool debugIsValidAncestor(RenderObjectWidget ancestor);
+        public abstract bool debugIsValidRenderObject(RenderObject renderObject);
 
         public abstract string debugDescribeInvalidAncestorChain(
             string description = null,
-            string ownershipChain = null,
+            DiagnosticsNode ownershipChain = null,
             bool foundValidAncestor = false,
             IEnumerable<Widget> badAncestors = null
         );
@@ -589,14 +589,14 @@ namespace Unity.UIWidgets.widgets {
             return new ParentDataElement(this);
         }
 
-        public override bool debugIsValidAncestor(RenderObjectWidget ancestor) {
+        public override bool debugIsValidRenderObject(RenderObject renderObject) {
             D.assert(typeof(T) != typeof(RenderObjectWidget));
-            return ancestor is T;
+            return renderObject is T;
         }
 
         public override string debugDescribeInvalidAncestorChain(
             string description = null,
-            string ownershipChain = null,
+            DiagnosticsNode ownershipChain = null,
             bool foundValidAncestor = false,
             IEnumerable<Widget> badAncestors = null
         ) {
@@ -1949,7 +1949,8 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new FlagProperty("dirty", value: dirty, ifTrue: "dirty"));
             if (_dependencies != null && _dependencies.isNotEmpty()) {
                 List<DiagnosticsNode> diagnosticsDependencies = _dependencies
-                    .Select((InheritedElement element) => element.widget.toDiagnosticsNode(style: DiagnosticsTreeStyle.sparse))
+                    .Select((InheritedElement element) =>
+                        element.widget.toDiagnosticsNode(style: DiagnosticsTreeStyle.sparse))
                     .ToList();
                 properties.add(new DiagnosticsProperty<List<DiagnosticsNode>>("dependencies", diagnosticsDependencies));
             }
@@ -2124,8 +2125,9 @@ namespace Unity.UIWidgets.widgets {
     public delegate Widget IndexedWidgetBuilder(BuildContext context, int index);
 
     public delegate Widget TransitionBuilder(BuildContext context, Widget child);
-    
-    public delegate Widget ControlsWidgetBuilder(BuildContext context, VoidCallback onStepContinue = null, VoidCallback onStepCancel = null);
+
+    public delegate Widget ControlsWidgetBuilder(BuildContext context, VoidCallback onStepContinue = null,
+        VoidCallback onStepCancel = null);
 
     public abstract class ComponentElement : Element {
         protected ComponentElement(Widget widget) : base(widget) {
@@ -2404,43 +2406,6 @@ namespace Unity.UIWidgets.widgets {
         public new ParentDataWidget widget {
             get { return (ParentDataWidget) base.widget; }
         }
-
-        public override void mount(Element parent, object newSlot) {
-            D.assert(() => {
-                var badAncestors = new List<Widget>();
-                Element ancestor = parent;
-                while (ancestor != null) {
-                    if (ancestor is ParentDataElement) {
-                        badAncestors.Add(ancestor.widget);
-                    }
-                    else if (ancestor is RenderObjectElement) {
-                        if (widget.debugIsValidAncestor(((RenderObjectElement) ancestor).widget)) {
-                            break;
-                        }
-
-                        badAncestors.Add(ancestor.widget);
-                    }
-
-                    ancestor = ancestor._parent;
-                }
-
-                if (ancestor != null && badAncestors.isEmpty()) {
-                    return true;
-                }
-
-                throw new UIWidgetsError(
-                    "Incorrect use of ParentDataWidget.\n" +
-                    widget.debugDescribeInvalidAncestorChain(
-                        description: ToString(),
-                        ownershipChain: parent.debugGetCreatorChain(10),
-                        foundValidAncestor: ancestor != null,
-                        badAncestors: badAncestors
-                    )
-                );
-            });
-            base.mount(parent, newSlot);
-        }
-
         void _applyParentData(ParentDataWidget widget) {
             ElementVisitor applyParentDataToChild = null;
             applyParentDataToChild = child => {
@@ -2463,7 +2428,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void notifyClients(ProxyWidget oldWidget) {
-            _applyParentData(widget);
+            _applyParentData((ParentDataWidget) widget);
         }
     }
 
@@ -2755,19 +2720,45 @@ namespace Unity.UIWidgets.widgets {
             base.deactivate();
             D.assert(!renderObject.attached,
                 () => "A RenderObject was still attached when attempting to deactivate its " +
-                "RenderObjectElement: " + renderObject);
+                      "RenderObjectElement: " + renderObject);
         }
 
         public override void unmount() {
             base.unmount();
             D.assert(!renderObject.attached,
                 () => "A RenderObject was still attached when attempting to unmount its " +
-                "RenderObjectElement: " + renderObject);
+                      "RenderObjectElement: " + renderObject);
             widget.didUnmountRenderObject(renderObject);
         }
 
-        internal void _updateParentData(ParentDataWidget parentData) {
-            parentData.applyParentData(renderObject);
+        internal void _updateParentData(ParentDataWidget parentDataWidget) {
+            bool applyParentData = true;
+            D.assert(() => {
+                try {
+                    if (!parentDataWidget.debugIsValidRenderObject(renderObject)) {
+                        applyParentData = false;
+                        throw new UIWidgetsError(
+                            "Incorrect use of ParentDataWidget.\n" +
+                            parentDataWidget.debugDescribeInvalidAncestorChain(
+                                description: ToString(),
+                                ownershipChain: new ErrorDescription(debugGetCreatorChain(10)),
+                                foundValidAncestor: _ancestorRenderObjectElement.widget != null
+                                // badAncestors: badAncestors
+                            )
+                        );
+                    }
+                }
+                catch (UIWidgetsError e) {
+                    UIWidgetsError.reportError(new UIWidgetsErrorDetails(
+                        context: "while apply parent data",
+                        exception: e
+                    ));
+                }
+
+                return true;
+            });
+            if (applyParentData)
+                parentDataWidget.applyParentData(renderObject);
         }
 
         internal override void _updateSlot(object newSlot) {

@@ -1390,7 +1390,7 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null,
             float degree = 0.0f
         ) : base(key: key, child: child) {
-            transform = new Matrix4().rotationZ(degree);
+            transform = Matrix4.rotationZ(degree);
             this.origin = origin;
             this.alignment = alignment;
             this.transformHitTests = transformHitTests;
@@ -1414,7 +1414,7 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) : base(key: key, child: child) {
             D.assert(offset != null);
-            transform = new Matrix4().translationValues(offset.dx, offset.dy, 0);
+            transform = Matrix4.translationValues(offset.dx, offset.dy, 0);
             origin = null;
             alignment = null;
             this.transformHitTests = transformHitTests;
@@ -1437,7 +1437,7 @@ namespace Unity.UIWidgets.widgets {
             bool transformHitTests = true,
             Widget child = null
         ) : base(key: key, child: child) {
-            transform = new Matrix4().translationValues(scale, scale, scale);
+            transform = Matrix4.translationValues(scale, scale, scale);
             this.origin = origin;
             this.alignment = alignment;
             this.transformHitTests = transformHitTests;

@@ -15,6 +15,13 @@ namespace Unity.UIWidgets.painting {
         public readonly float top;
         public readonly float bottom;
 
+        public static EdgeInsets infinity = fromLTRB(
+            float.PositiveInfinity,
+            float.PositiveInfinity,
+            float.PositiveInfinity,
+            float.PositiveInfinity
+        );
+        
         public bool isNonNegative {
             get {
                 return left >= 0.0
@@ -132,6 +139,15 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
+        public EdgeInsets clamp(EdgeInsets min, EdgeInsets max) {
+            return fromLTRB(
+                left.clamp(min.left, min.left),
+                top.clamp(min.top, min.top),
+                right.clamp(min.right, min.right),
+                bottom.clamp(min.bottom, min.bottom)
+            );
+        }
+        
         public static EdgeInsets operator -(EdgeInsets a, EdgeInsets b) {
             return fromLTRB(
                 a.left - b.left,

@@ -445,7 +445,7 @@ namespace Unity.UIWidgets.widgets {
             var hit = false;
             
 
-            var inverse = new Matrix4().inverted(transform);
+            var inverse = Matrix4.inverted(transform);
             if (inverse == null) {
                 return false;
             }

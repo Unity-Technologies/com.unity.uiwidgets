@@ -62,6 +62,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         public abstract BoxPainter createBoxPainter(VoidCallback onChanged = null);
+        
+        public virtual Path getClipPath(Rect rect, TextDirection textDirection) => null;
     }
 
     public abstract class BoxPainter : IDisposable {

@@ -207,7 +207,7 @@ namespace Unity.UIWidgets.foundation {
         /// kernel transformer is used. The kernel transformer is required so that
         /// debugging tools can provide interactive displays of objects described by
         /// the error.
-        public ErrorDescription(String message) : base(message, level: DiagnosticLevel.info) {
+        public ErrorDescription(string message) : base(message, level: DiagnosticLevel.info) {
         }
 
         /// Calls to the default constructor may be rewritten to use this constructor

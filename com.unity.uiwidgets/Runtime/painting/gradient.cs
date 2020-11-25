@@ -87,7 +87,7 @@ namespace Unity.UIWidgets.painting {
             Offset center = bounds.center;
             float originX = sinRadians * center.dy + oneMinusCosRadians * center.dx;
             float originY = -sinRadians * center.dx + oneMinusCosRadians * center.dy;
-            var result = new Matrix4().identity();
+            var result = Matrix4.identity();
             result.translate(originX, originY);
             result.rotateZ(radians);
             return result;
@@ -97,15 +97,17 @@ namespace Unity.UIWidgets.painting {
     public abstract class Gradient {
         public Gradient(
             List<Color> colors = null,
-            List<float> stops = null
+            List<float> stops = null,
+            GradientTransform transform = null
         ) {
             D.assert(colors != null);
             this.colors = colors;
             this.stops = stops;
+            this.transform = transform;
         }
 
         public readonly List<Color> colors;
-
+        
         public readonly List<float> stops;
 
         public readonly GradientTransform transform;
@@ -165,7 +167,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         protected float[] _resolveTransform(Rect bounds, TextDirection? textDirection) {
-            return transform?.transform(bounds, textDirection: textDirection)?._m4storage;
+            return transform?.transform(bounds, textDirection: textDirection)?.storage;
         }
     }
 
@@ -176,8 +178,9 @@ namespace Unity.UIWidgets.painting {
             Alignment end = null,
             List<Color> colors = null,
             List<float> stops = null,
-            TileMode tileMode = TileMode.clamp
-        ) : base(colors: colors, stops: stops) {
+            TileMode tileMode = TileMode.clamp,
+            GradientTransform transform = null
+        ) : base(colors: colors, stops: stops, transform: transform) {
             this.begin = begin ?? Alignment.centerLeft;
             this.end = end ?? Alignment.centerRight;
             this.tileMode = tileMode;
@@ -316,8 +319,9 @@ namespace Unity.UIWidgets.painting {
             float radius = 0.5f,
             List<Color> colors = null,
             List<float> stops = null,
-            TileMode tileMode = TileMode.clamp
-        ) : base(colors: colors, stops: stops) {
+            TileMode tileMode = TileMode.clamp,
+            GradientTransform transform = null
+        ) : base(colors: colors, stops: stops, transform: transform) {
             this.center = center ?? Alignment.center;
             this.radius = radius;
             this.tileMode = tileMode;
@@ -464,8 +468,9 @@ namespace Unity.UIWidgets.painting {
             float endAngle = Mathf.PI * 2,
             List<Color> colors = null,
             List<float> stops = null,
-            TileMode tileMode = TileMode.clamp
-        ) : base(colors: colors, stops: stops) {
+            TileMode tileMode = TileMode.clamp,
+            GradientTransform transform = null
+        ) : base(colors: colors, stops: stops, transform: transform) {
             this.center = center ?? Alignment.center;
             this.startAngle = startAngle;
             this.endAngle = endAngle;
