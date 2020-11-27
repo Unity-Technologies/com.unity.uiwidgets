@@ -145,12 +145,12 @@ namespace Unity.UIWidgets.widgets {
 
         readonly static Dictionary<Element, Dictionary<Element, GlobalKey>> _debugReservations =
             new Dictionary<Element, Dictionary<Element, GlobalKey>>();
-
+        
         internal static void _debugRemoveReservationFor(Element parent, Element child) {
             D.assert(() => {
                 D.assert(parent != null); 
                 D.assert(child != null);
-
+    
                 if (_debugReservations.ContainsKey(parent) && _debugReservations[parent].ContainsKey(child)) {
                     _debugReservations[parent]?.Remove(child);
                 }
@@ -637,7 +637,7 @@ namespace Unity.UIWidgets.widgets {
             DiagnosticsNode ownershipChain = null
         );
 
-        public Type debugTypicalAncestorWidgetClass { get; }
+        public virtual Type debugTypicalAncestorWidgetClass { get; }
 
         public abstract void applyParentData(RenderObject renderObject);
 
@@ -660,7 +660,7 @@ namespace Unity.UIWidgets.widgets {
             return renderObject.parentData is T;
         }
 
-        public Type debugTypicalAncestorWidgetClass { get; }
+        public override Type debugTypicalAncestorWidgetClass { get; }
 
         internal override string _debugDescribeIncorrectParentDataType(
             ParentData parentData,
@@ -1336,7 +1336,7 @@ namespace Unity.UIWidgets.widgets {
 
         internal Widget _widget;
 
-        public bool debugDoingBuild { get; }
+        public virtual bool debugDoingBuild { get; }
 
         public Widget widget {
             get { return _widget; }
@@ -1963,7 +1963,7 @@ namespace Unity.UIWidgets.widgets {
             return ancestor.widget;
         }
 
-        public InheritedWidget dependOnInheritedElement(InheritedElement ancestor, object aspect = null) {
+        public virtual InheritedWidget dependOnInheritedElement(InheritedElement ancestor, object aspect = null) {
             D.assert(ancestor != null);
             _dependencies = _dependencies ?? new HashSet<InheritedElement>();
             _dependencies.Add(ancestor);
@@ -2417,8 +2417,8 @@ namespace Unity.UIWidgets.widgets {
         readonly UIWidgetsError _uiWidgetsError;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return null;
-            // return new RenderErrorBox(message);
+            // return null;
+            return new RenderErrorBox(message);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -2450,7 +2450,7 @@ namespace Unity.UIWidgets.widgets {
 
         bool _debugDoingBuild = false;
 
-        new bool debugDoingBuild {
+        public override bool debugDoingBuild {
             get => _debugDoingBuild;
         }
 
@@ -2654,7 +2654,7 @@ namespace Unity.UIWidgets.widgets {
             return dependOnInheritedElement(ancestor, aspect);
         }
 
-        public new InheritedWidget dependOnInheritedElement(InheritedElement ancestor, object aspect = null) {
+        public override InheritedWidget dependOnInheritedElement(InheritedElement ancestor, object aspect = null) {
             D.assert(ancestor != null);
             D.assert(() => {
                 Type targetType = ancestor.widget.GetType();
@@ -2880,7 +2880,7 @@ namespace Unity.UIWidgets.widgets {
 
         bool _debugDoingBuild = false;
 
-        new bool debugDoingBuild {
+        public override bool debugDoingBuild {
             get { return _debugDoingBuild; }
         }
 

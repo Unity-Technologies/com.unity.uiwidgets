@@ -685,17 +685,24 @@ namespace Unity.UIWidgets.foundation {
             _description = description;
             _children = children ?? new List<DiagnosticsNode>();
             _properties = properties ?? new List<DiagnosticsNode>();
+            this.level = level;
+            valueObject = value;
+            this.allowTruncate = allowTruncate;
         }
 
         readonly List<DiagnosticsNode> _children;
         readonly List<DiagnosticsNode> _properties;
 
 
-        new readonly DiagnosticLevel level;
+        public override DiagnosticLevel level {
+            get;
+        }
+        
         readonly string _description;
+        
         public override object valueObject { get; }
 
-        readonly bool allowTruncate;
+        public readonly bool allowTruncate;
 
         public override List<DiagnosticsNode> getChildren() => _children;
 
