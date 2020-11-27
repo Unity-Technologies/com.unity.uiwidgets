@@ -663,7 +663,7 @@ namespace Unity.UIWidgets.widgets {
             set {
                 if (_current != value) {
                     _current = value;
-                    _DebugCreator creator = value.debugCreator as _DebugCreator;
+                    DebugCreator creator = value.debugCreator as DebugCreator;
                     _currentElement = creator.element;
                 }
             }
@@ -682,7 +682,7 @@ namespace Unity.UIWidgets.widgets {
         void _computeCurrent() {
             if (_index < candidates.Count) {
                 _current = candidates[index];
-                _currentElement = ((_DebugCreator) _current.debugCreator).element;
+                _currentElement = ((DebugCreator) _current.debugCreator).element;
             }
             else {
                 _current = null;
