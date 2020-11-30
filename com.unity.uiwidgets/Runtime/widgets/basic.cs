@@ -1002,6 +1002,8 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
+        public override Type debugTypicalAncestorWidgetClass { get => typeof(Stack); }
+
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new FloatProperty("left", left, defaultValue: null));
@@ -1098,6 +1100,8 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
         }
+
+        public override Type debugTypicalAncestorWidgetClass { get => typeof(Flex); }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
@@ -1694,6 +1698,8 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
         }
+
+        public override Type debugTypicalAncestorWidgetClass { get => typeof(CustomMultiChildLayout); }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);

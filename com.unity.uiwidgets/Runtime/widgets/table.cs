@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
@@ -384,6 +385,8 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
         }
+
+        public override Type debugTypicalAncestorWidgetClass { get => typeof(Table); }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
