@@ -608,7 +608,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class KeepAlive : ParentDataWidget<SliverWithKeepAliveWidget> {
+    public class KeepAlive : ParentDataWidget<KeepAliveParentDataMixin> {
         public KeepAlive(
             Key key = null,
             bool keepAlive = true,

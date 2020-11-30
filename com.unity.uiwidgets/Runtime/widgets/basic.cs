@@ -898,7 +898,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class Positioned : ParentDataWidget<Stack> {
+    public class Positioned : ParentDataWidget<StackParentData> {
         public Positioned(Widget child, Key key = null, float? left = null, float? top = null,
             float? right = null, float? bottom = null, float? width = null, float? height = null) :
             base(key, child) {
@@ -1063,7 +1063,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class Flexible : ParentDataWidget<Flex> {
+    public class Flexible : ParentDataWidget<FlexParentData> {
         public Flexible(
             Key key = null,
             int flex = 1,
@@ -1674,7 +1674,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class LayoutId : ParentDataWidget<CustomMultiChildLayout> {
+    public class LayoutId : ParentDataWidget<MultiChildLayoutParentData> {
         public LayoutId(
             Key key = null,
             object id = null,
