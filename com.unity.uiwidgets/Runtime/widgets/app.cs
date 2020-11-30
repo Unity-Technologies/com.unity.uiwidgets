@@ -17,6 +17,8 @@ namespace Unity.UIWidgets.widgets {
     public delegate string GenerateAppTitle(BuildContext context);
 
     public delegate PageRoute PageRouteFactory(RouteSettings settings, WidgetBuilder builder);
+    
+    public delegate List<Route> InitialRouteListFactory(string initialRoute);
 
     public class WidgetsApp : StatefulWidget {
         public readonly TransitionBuilder builder;
@@ -26,6 +28,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly GlobalKey<NavigatorState> navigatorKey;
         public readonly List<NavigatorObserver> navigatorObservers;
         public readonly RouteFactory onGenerateRoute;
+        public readonly InitialRouteListFactory onGenerateInitialRoutes;
         public readonly RouteFactory onUnknownRoute;
         public readonly PageRouteFactory pageRouteBuilder;
         public readonly Dictionary<string, WidgetBuilder> routes;
@@ -47,6 +50,7 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             GlobalKey<NavigatorState> navigatorKey = null,
             RouteFactory onGenerateRoute = null,
+            InitialRouteListFactory onGenerateInitialRoutes = null,
             RouteFactory onUnknownRoute = null,
             PageRouteFactory pageRouteBuilder = null,
             List<NavigatorObserver> navigatorObservers = null,
@@ -72,6 +76,7 @@ namespace Unity.UIWidgets.widgets {
             this.home = home;
             this.navigatorKey = navigatorKey;
             this.onGenerateRoute = onGenerateRoute;
+            this.onGenerateInitialRoutes = onGenerateInitialRoutes;
             this.onUnknownRoute = onUnknownRoute;
             this.pageRouteBuilder = pageRouteBuilder;
             this.routes = routes;
@@ -90,7 +95,12 @@ namespace Unity.UIWidgets.widgets {
             this.title = title;
             this.color = color;
             this.inspectorSelectButtonBuilder = inspectorSelectButtonBuilder;
-
+            
+            D.assert(
+                home == null ||
+                onGenerateInitialRoutes == null,
+                () => "If onGenerateInitialRoutes is specifiied, the home argument will be redundant."
+                );
             D.assert(
                 home == null ||
                 !this.routes.ContainsKey(Navigator.defaultRouteName),
@@ -166,13 +176,13 @@ namespace Unity.UIWidgets.widgets {
         GlobalKey<NavigatorState> _navigator;
 
         public Future<bool> didPopRoute() {
+            ///async
             D.assert(mounted);
             var navigator = _navigator?.currentState;
             if (navigator == null) {
                 return Future<bool>.value(false).to<bool>();
             }
-
-            return navigator.maybePop();
+            return navigator.maybePop<bool>();
         }
 
         public Future<bool> didPushRoute(string route) {
@@ -182,7 +192,7 @@ namespace Unity.UIWidgets.widgets {
                 return Future<bool>.value(false).to<bool>();
             }
 
-            navigator.pushNamed(route);
+            navigator.pushNamed<bool>(route);
             return Future<bool>.value(true).to<bool>();
         }
 
@@ -398,8 +408,18 @@ namespace Unity.UIWidgets.widgets {
             if (_navigator != null) {
                 navigator = new Navigator(
                     key: _navigator,
-                    initialRoute: widget.initialRoute ?? Navigator.defaultRouteName,
+                    //initialRoute: widget.initialRoute ?? Navigator.defaultRouteName,
+                    //onGenerateRoute: _onGenerateRoute,
+                    initialRoute: WidgetsBinding.instance.window.defaultRouteName != Navigator.defaultRouteName
+                        ? WidgetsBinding.instance.window.defaultRouteName
+                        : widget.initialRoute ?? WidgetsBinding.instance.window.defaultRouteName,
                     onGenerateRoute: _onGenerateRoute,
+                    onGenerateInitialRoutes: 
+                        widget.onGenerateInitialRoutes == null
+                        ? Navigator.defaultGenerateInitialRoutes
+                        : (NavigatorState navigator1, string initialRouteName) => {
+                        return widget.onGenerateInitialRoutes(initialRouteName);
+                    },
                     onUnknownRoute: _onUnknownRoute,
                     observers: widget.navigatorObservers
                 );

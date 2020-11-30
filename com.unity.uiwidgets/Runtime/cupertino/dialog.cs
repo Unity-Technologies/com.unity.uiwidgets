@@ -14,19 +14,20 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace Unity.UIWidgets.cupertino {
     class CupertinoDialogUtils {
         public static readonly TextStyle _kCupertinoDialogTitleStyle = new TextStyle(
+            inherit:false,
             fontFamily: ".SF UI Display",
             fontSize: 18.0f,
             fontWeight: FontWeight.w600,
-            color: CupertinoColors.black,
             letterSpacing: 0.48f,
             textBaseline: TextBaseline.alphabetic
         );
 
         public static readonly TextStyle _kCupertinoDialogContentStyle = new TextStyle(
             fontFamily: ".SF UI Text",
+            inherit:false,
             fontSize: 13.4f,
             fontWeight: FontWeight.w400,
-            color: CupertinoColors.black,
+            //color: CupertinoColors.black,
             height: 1.036f,
             letterSpacing: -0.25f,
             textBaseline: TextBaseline.alphabetic
@@ -34,6 +35,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public static readonly TextStyle _kCupertinoDialogActionStyle = new TextStyle(
             fontFamily: ".SF UI Text",
+            inherit:false,
             fontSize: 16.8f,
             fontWeight: FontWeight.w400,
             color: CupertinoColors.activeBlue,
@@ -56,9 +58,18 @@ namespace Unity.UIWidgets.cupertino {
         public const float _kDividerThickness = 1.0f;
         public const float _kMaxRegularTextScaleFactor = 1.4f;
 
-        public static readonly Color _kDialogColor = new Color(0xC0FFFFFF);
-        public static readonly Color _kDialogPressedColor = new Color(0x90FFFFFF);
+        //public static readonly Color _kDialogColor = new Color(0xC0FFFFFF);
+        //public static readonly Color _kDialogPressedColor = new Color(0x90FFFFFF);
         public static readonly Color _kButtonDividerColor = new Color(0x40FFFFFF);
+
+        public static readonly Color _kDialogColor = CupertinoDynamicColor.withBrightness(
+            color: new Color(0xCCF2F2F2),
+            darkColor: new Color(0xBF1E1E1E)
+            );
+        public static readonly Color _kDialogPressedColor = CupertinoDynamicColor.withBrightness(
+            color: new Color(0xFFE1E1E1),
+            darkColor: new Color(0xFF2E2E2E)
+        );
 
         public static bool _isInAccessibilityMode(BuildContext context) {
             MediaQueryData data = MediaQuery.of(context, nullOk: true);
@@ -300,7 +311,7 @@ namespace Unity.UIWidgets.cupertino {
                 _AlertDialogSections.actionsSection);
         }
 
-        protected override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(child == _contentElement || child == _actionsElement);
             if (_contentElement == child) {
                 _contentElement = null;

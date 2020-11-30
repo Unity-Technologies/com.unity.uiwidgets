@@ -42,8 +42,9 @@ namespace Unity.UIWidgets.cupertino {
         
         AnimationController _fadeoutAnimationController;
         Animation<float> _fadeoutOpacityAnimation;
-        double _dragScrollbarPositionY;
+        float _dragScrollbarPositionY;
         Timer _fadeoutTimer;
+        
         
 
         public override void initState() {
@@ -90,7 +91,7 @@ namespace Unity.UIWidgets.cupertino {
                 _painter.update(notification.metrics, notification.metrics.axisDirection);
             }
             else if (notification is ScrollEndNotification) {
-                if (_dragScrollbarPositionY == null) {
+                if (_dragScrollbarPositionY.Equals(0f)) {
                     _startFadeoutTimer();
                 }
 

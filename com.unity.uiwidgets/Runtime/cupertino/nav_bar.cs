@@ -222,7 +222,7 @@ namespace Unity.UIWidgets.cupertino {
         }
     }
 
-    public class CupertinoNavigationBar : StatefulWidget {
+    public class CupertinoNavigationBar : ObstructingPreferredSizeWidget {
         public CupertinoNavigationBar(
             Key key = null,
             Widget leading = null,
@@ -238,10 +238,6 @@ namespace Unity.UIWidgets.cupertino {
             bool transitionBetweenRoutes = true,
             object heroTag = null
         ) : base(key: key) {
-            //D.assert(automaticallyImplyLeading != null);
-            //D.assert(automaticallyImplyMiddle != null);
-            //D.assert(transitionBetweenRoutes != null);
-
             this.leading = leading;
             this.automaticallyImplyLeading = automaticallyImplyLeading;
             this.automaticallyImplyMiddle = automaticallyImplyMiddle;
@@ -254,17 +250,18 @@ namespace Unity.UIWidgets.cupertino {
             this.actionsForegroundColor = actionsForegroundColor;
             this.transitionBetweenRoutes = transitionBetweenRoutes;
             this.heroTag = heroTag ?? NavBarUtils._defaultHeroTag;
+
             D.assert(
                 this.heroTag != null,
                 () => "heroTag cannot be null. Use transitionBetweenRoutes = false to " +
                       "disable Hero transition on this navigation bar."
             );
+
             D.assert(
                 !transitionBetweenRoutes || ReferenceEquals(this.heroTag, NavBarUtils._defaultHeroTag),
                 () => "Cannot specify a heroTag override if this navigation bar does not " +
                       "transition due to transitionBetweenRoutes = false."
             );
-
         }
 
         public readonly Widget leading;
@@ -292,13 +289,11 @@ namespace Unity.UIWidgets.cupertino {
 
         public readonly object heroTag;
 
-        //public override bool? fullObstruction {
-        public  bool? fullObstruction {
+        public override bool? fullObstruction {
             get { return backgroundColor == null ? null : (bool?) (backgroundColor.alpha == 0xFF); }
         }
 
-       //public override Size preferredSize {
-        public Size preferredSize {
+        public override Size preferredSize {
             get { return Size.fromHeight(NavBarUtils._kNavBarPersistentHeight); }
         }
 
@@ -1709,9 +1704,10 @@ namespace Unity.UIWidgets.cupertino {
                 }
 
                 RenderAnimatedOpacity topBackLabelOpacity =
-                    (RenderAnimatedOpacity) topComponents.backLabelKey.currentContext?.ancestorRenderObjectOfType(
+                    (RenderAnimatedOpacity) topComponents.backLabelKey.currentContext?.findAncestorRenderObjectOfType<RenderAnimatedOpacity>();
+                /*ancestorRenderObjectOfType(
                         new TypeMatcher<RenderAnimatedOpacity>()
-                    );
+                    );*/
 
                 Animation<float> midClickOpacity = null;
                 if (topBackLabelOpacity != null && topBackLabelOpacity.opacity.value < 1.0f) {

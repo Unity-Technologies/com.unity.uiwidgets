@@ -146,7 +146,8 @@ namespace UIWidgetsGallery.gallery {
                 padding: EdgeInsets.symmetric(horizontal: 6.0f, vertical: 12.0f),
                 decoration: new BoxDecoration(
                     border: new Border(bottom: new BorderSide(width: 0.0f, color: CupertinoColors.inactiveGray))
-                )
+                ),
+                placeholder:"test"
             );
         }
 
@@ -159,29 +160,37 @@ namespace UIWidgetsGallery.gallery {
                     color: CupertinoColors.black
                 ),
                 child: new CupertinoPageScaffold(
-                    navigationBar: new CupertinoNavigationBar(
+                    /*navigationBar: new CupertinoNavigationBar(
                         previousPageTitle: "Cupertino",
                         middle: new Text("Text Fields")
-                    ),
-                    child: new SafeArea(
-                        child: new ListView(
+                    ),*/
+                    child: 
+                    /*new Padding(
+                        padding: EdgeInsets.symmetric(vertical: 32.0f, horizontal: 16.0f),
+                        child: this._buildTagsField()//_buildChatTextField()
+                    )*/
+                    new SafeArea(
+                        child: 
+                        
+                        
+                        new ListView(
                             children: new List<Widget> {
                                 new Padding(
                                     padding: EdgeInsets.symmetric(vertical: 32.0f, horizontal: 16.0f),
                                     child: new Column(
                                         children: new List<Widget> {
-                                            this._buildNameField(),
-                                            this._buildEmailField(),
-                                            this._buildLocationField(),
-                                            this._buildPinField(),
-                                            this._buildTagsField(),
+                                            //this._buildNameField(),
+                                            //this._buildEmailField(),// !点击crash!
+                                            this._buildLocationField()//, // !点击crash!
+                                            //this._buildPinField(),// !点击crash!
+                                            //this._buildTagsField()
                                         }
                                     )
                                 ),
                                 new Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 32.0f, horizontal: 16.0f),
-                                    child: this._buildChatTextField()
-                                ),
+                                    padding: EdgeInsets.symmetric(vertical: 32.0f, horizontal: 16.0f)//,
+                                    //child: this._buildChatTextField()
+                                )
                             }
                         )
                     )

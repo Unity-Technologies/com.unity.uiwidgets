@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -10,11 +12,20 @@ using Color = Unity.UIWidgets.ui.Color;
 namespace Unity.UIWidgets.cupertino {
     static class CupertinoActivityIndicatorUtils {
         public const float _kDefaultIndicatorRadius = 10.0f;
+        public const Color _kActiveTickColor = CupertinoDynamicColor.withBrightness(
+            color: Color(0xFF3C3C44),
+            darkColor: Color(0xFFEBEBF5)
+        );
+
         public const float _kTwoPI = Mathf.PI * 2.0f;
         public const int _kTickCount = 12;
+        // list
+        public static int[] _alphaValues = {    
+            147, 131, 114, 97, 81, 64, 47, 47, 47, 47, 47, 47
+        };
         public const int _kHalfTickCount = _kTickCount / 2;
         public static readonly Color _kTickColor = CupertinoColors.lightBackgroundGray;
-        public static readonly Color _kActiveTickColor = new Color(0xFF9D9D9D);
+        
     }
 
     public class CupertinoActivityIndicator : StatefulWidget {
@@ -23,6 +34,8 @@ namespace Unity.UIWidgets.cupertino {
             bool animating = true,
             float radius = CupertinoActivityIndicatorUtils._kDefaultIndicatorRadius
         ) : base(key: key) {
+            D.assert(animating != null);
+            D.assert(radius != null);
             D.assert(radius > 0);
             this.animating = animating;
             this.radius = radius;
@@ -77,6 +90,7 @@ namespace Unity.UIWidgets.cupertino {
                 child: new CustomPaint(
                     painter: new _CupertinoActivityIndicatorPainter(
                         position: _controller,
+                        activeColor: CupertinoDynamicColor.resolve(CupertinoActivityIndicatorUtils._kActiveTickColor, context),
                         radius: widget.radius
                     )
                 )
@@ -84,24 +98,29 @@ namespace Unity.UIWidgets.cupertino {
         }
     }
 
-    class _CupertinoActivityIndicatorPainter : AbstractCustomPainter {
+    class _CupertinoActivityIndicatorPainter : CustomPainter {
+        //AbstractCustomPainter {
         public _CupertinoActivityIndicatorPainter(
-            Animation<float> position,
-            float radius
+            Animation<float> position = null,
+            Color activeColor = null,
+            float radius =0f
         ) : base(repaint: position) {
+            
             tickFundamentalRRect = RRect.fromLTRBXY(
                 left: -radius,
                 top: 1.0f * radius / CupertinoActivityIndicatorUtils._kDefaultIndicatorRadius,
                 right: -radius / 2.0f,
                 bottom: -1.0f * radius / CupertinoActivityIndicatorUtils._kDefaultIndicatorRadius,
-                radiusX: 1.0f,
-                radiusY: 1.0f
+                radiusX: 1.0f * radius / CupertinoActivityIndicatorUtils._kDefaultIndicatorRadius,
+                radiusY: 1.0f * radius / CupertinoActivityIndicatorUtils._kDefaultIndicatorRadius
             );
             this.position = position;
+            this.activeColor = activeColor;
         }
-
-        readonly Animation<float> position;
-        readonly RRect tickFundamentalRRect;
+        
+        public readonly Animation<float> position;
+        public readonly RRect tickFundamentalRRect;
+        public readonly Color activeColor;
 
         public override void paint(Canvas canvas, Size size) {
             Paint paint = new Paint();
@@ -112,10 +131,8 @@ namespace Unity.UIWidgets.cupertino {
             int activeTick = (CupertinoActivityIndicatorUtils._kTickCount * position.value).floor();
 
             for (int i = 0; i < CupertinoActivityIndicatorUtils._kTickCount; ++i) {
-                float t = (((i + activeTick) % CupertinoActivityIndicatorUtils._kTickCount) /
-                           CupertinoActivityIndicatorUtils._kHalfTickCount).clamp(0, 1);
-                paint.color = Color.lerp(a: CupertinoActivityIndicatorUtils._kActiveTickColor,
-                    b: CupertinoActivityIndicatorUtils._kTickColor, t: t);
+                int t = ((i + activeTick) % CupertinoActivityIndicatorUtils._kTickCount);
+                paint.color = activeColor.withAlpha(CupertinoActivityIndicatorUtils._alphaValues[t]);
                 canvas.drawRRect(tickFundamentalRRect,paint);
                 canvas.rotate(-CupertinoActivityIndicatorUtils._kTwoPI / CupertinoActivityIndicatorUtils._kTickCount);
             }
@@ -124,7 +141,8 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override bool shouldRepaint(CustomPainter oldPainter) {
-            return (oldPainter as _CupertinoActivityIndicatorPainter).position != position;
+            return ((oldPainter as _CupertinoActivityIndicatorPainter).position != position) || 
+                   ((oldPainter as _CupertinoActivityIndicatorPainter).activeColor != activeColor);
         }
     }
 }

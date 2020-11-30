@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -10,35 +11,37 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace Unity.UIWidgets.cupertino {
     class CupertinoActionSheetUtils {
         public static readonly TextStyle _kActionSheetActionStyle = new TextStyle(
-            // fontFamily: ".SF UI Text",
-            fontFamily: ".SF Pro Text",
+            fontFamily: ".SF UI Text",
             inherit: false,
             fontSize: 20.0f,
             fontWeight: FontWeight.w400,
-            color: CupertinoColors.activeBlue,
             textBaseline: TextBaseline.alphabetic
         );
 
         public static readonly TextStyle _kActionSheetContentStyle = new TextStyle(
-            // fontFamily: ".SF UI Text",
-            fontFamily: ".SF Pro Text",
+            fontFamily: ".SF UI Text",
             inherit: false,
             fontSize: 13.0f,
             fontWeight: FontWeight.w400,
             color: _kContentTextColor,
             textBaseline: TextBaseline.alphabetic
         );
-
-        public static readonly BoxDecoration _kAlertBlurOverlayDecoration = new BoxDecoration(
-            color: CupertinoColors.white,
-            backgroundBlendMode: BlendMode.overlay
+        public static readonly Color _kBackgroundColor = CupertinoDynamicColor.withBrightness(
+            color: new Color(0xC7F9F9F9),
+            darkColor: new Color(0xC7252525)
+        );
+        public static readonly Color _kPressedColor =  CupertinoDynamicColor.withBrightness(
+            color: new Color(0xFFE1E1E1),
+            darkColor: new Color(0xFF2E2E2E)
         );
 
-        public static readonly Color _kBackgroundColor = new Color(0xD1F8F8F8);
-        public static readonly Color _kPressedColor = new Color(0xA6E5E5EA);
-        public static readonly Color _kButtonDividerColor = new Color(0x403F3F3F);
+        public static readonly Color _kCancelPressedColor = CupertinoDynamicColor.withBrightness(
+            color: new Color(0xFFECECEC),
+            darkColor: new Color(0xFF49494B)
+        );
+        
         public static readonly Color _kContentTextColor = new Color(0xFF8F8F8F);
-        public static readonly Color _kCancelButtonPressedColor = new Color(0xFFEAEAEA);
+        public static readonly Color _kButtonDividerColor = _kContentTextColor;
 
         public const float _kBlurAmount = 20.0f;
         public const float _kEdgeHorizontalPadding = 8.0f;
@@ -79,7 +82,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly ScrollController actionScrollController;
         public readonly Widget cancelButton;
 
-        Widget _buildContent() {
+        Widget _buildContent( BuildContext context ) {
             List<Widget> content = new List<Widget>();
             if (title != null || message != null) {
                 Widget titleSection = new _CupertinoAlertContentSection(
@@ -91,7 +94,7 @@ namespace Unity.UIWidgets.cupertino {
             }
 
             return new Container(
-                color: CupertinoActionSheetUtils._kBackgroundColor,
+                color:  CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kBackgroundColor, context),//CupertinoActionSheetUtils._kBackgroundColor,
                 child: new Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -131,15 +134,20 @@ namespace Unity.UIWidgets.cupertino {
                 new Flexible(child: new ClipRRect(
                         borderRadius: BorderRadius.circular(12.0f),
                         child: new BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: CupertinoActionSheetUtils._kBlurAmount,
+                            filter: ImageFilter.blur(
+                                sigmaX: CupertinoActionSheetUtils._kBlurAmount,
                                 sigmaY: CupertinoActionSheetUtils._kBlurAmount),
-                            child: new Container(
+                            child: new _CupertinoAlertRenderWidget(
+                                contentSection: new Builder(builder: _buildContent),
+                                actionsSection: _buildActions()
+                            )
+                            /*new Container(
                                 decoration: CupertinoActionSheetUtils._kAlertBlurOverlayDecoration,
                                 child: new _CupertinoAlertRenderWidget(
                                     contentSection: _buildContent(),
                                     actionsSection: _buildActions()
                                 )
-                            )
+                            )*/
                         )
                     )
                 ),
@@ -161,7 +169,30 @@ namespace Unity.UIWidgets.cupertino {
                 actionSheetWidth = MediaQuery.of(context).size.height -
                                    (CupertinoActionSheetUtils._kEdgeHorizontalPadding * 2);
             }
-
+/// tbc semantics
+            /*return new SafeArea(
+                child: new Semantics(
+                    namesRoute: true,
+                    scopesRoute: true,
+                    explicitChildNodes: true,
+                    label: "Alert",
+                    child: new CupertinoUserInterfaceLevel(
+                        data: CupertinoUserInterfaceLevelData.elevated,
+                        child: new Container(
+                            width: actionSheetWidth,
+                            margin: EdgeInsets.symmetric(
+                                horizontal: CupertinoActionSheetUtils._kEdgeHorizontalPadding,
+                                vertical: CupertinoActionSheetUtils._kEdgeVerticalPadding
+                            ),
+                            child: new Column(
+                                children: children,
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch
+                            )
+                        )
+                    )
+                )
+            );*/
             return new SafeArea(
                 child: new Container(
                     width: actionSheetWidth,
@@ -182,11 +213,13 @@ namespace Unity.UIWidgets.cupertino {
 
     public class CupertinoActionSheetAction : StatelessWidget {
         public CupertinoActionSheetAction(
-            Widget child,
-            VoidCallback onPressed,
+            Key key = null,
+            VoidCallback onPressed = null,
             bool isDefaultAction = false,
-            bool isDestructiveAction = false
-        ) {
+            bool isDestructiveAction = false,
+            Widget child = null
+        ):base(key:key)
+        {
             D.assert(child != null);
             D.assert(onPressed != null);
             this.child = child;
@@ -201,14 +234,14 @@ namespace Unity.UIWidgets.cupertino {
         public readonly Widget child;
 
         public override Widget build(BuildContext context) {
-            TextStyle style = CupertinoActionSheetUtils._kActionSheetActionStyle;
+            TextStyle style =CupertinoActionSheetUtils. _kActionSheetActionStyle.copyWith(
+                color: isDestructiveAction
+                    ? CupertinoDynamicColor.resolve(CupertinoColors.systemRed, context)
+                    : CupertinoTheme.of(context).primaryColor);
+                //CupertinoActionSheetUtils._kActionSheetActionStyle;
 
             if (isDefaultAction) {
                 style = style.copyWith(fontWeight: FontWeight.w600);
-            }
-
-            if (isDestructiveAction) {
-                style = style.copyWith(color: CupertinoColors.destructiveRed);
             }
 
             return new GestureDetector(
@@ -218,6 +251,7 @@ namespace Unity.UIWidgets.cupertino {
                     constraints: new BoxConstraints(
                         minHeight: CupertinoActionSheetUtils._kButtonHeight
                     ),
+                    ////tbc semantics
                     child: new Container(
                         alignment: Alignment.center,
                         padding: EdgeInsets.symmetric(
@@ -251,33 +285,30 @@ namespace Unity.UIWidgets.cupertino {
     }
 
     class _CupertinoActionSheetCancelButtonState : State<_CupertinoActionSheetCancelButton> {
-        Color _backgroundColor;
-
-        public override void initState() {
-            _backgroundColor = CupertinoColors.white;
-            base.initState();
-        }
-
+        bool isBeingPressed = false;
         void _onTapDown(TapDownDetails evt) {
-            setState(() => { _backgroundColor = CupertinoActionSheetUtils._kCancelButtonPressedColor; });
+            setState(() => { isBeingPressed = true; });
         }
 
         void _onTapUp(TapUpDetails evt) {
-            setState(() => { _backgroundColor = CupertinoColors.white; });
+            setState(() => { isBeingPressed = false; });
         }
 
         void _onTapCancel() {
-            setState(() => { _backgroundColor = CupertinoColors.white; });
+           setState(() => { isBeingPressed = false; });
         }
 
         public override Widget build(BuildContext context) {
+            Color backgroundColor = isBeingPressed
+                ? CupertinoActionSheetUtils._kCancelPressedColor
+                : CupertinoColors.secondarySystemGroupedBackground;
             return new GestureDetector(
                 onTapDown: _onTapDown,
                 onTapUp: _onTapUp,
                 onTapCancel: _onTapCancel,
                 child: new Container(
                     decoration: new BoxDecoration(
-                        color: _backgroundColor,
+                        color: CupertinoDynamicColor.resolve(backgroundColor, context),
                         borderRadius: BorderRadius.circular(CupertinoActionSheetUtils._kCornerRadius)
                     ),
                     child: widget.child
@@ -288,9 +319,10 @@ namespace Unity.UIWidgets.cupertino {
 
     class _CupertinoAlertRenderWidget : RenderObjectWidget {
         public _CupertinoAlertRenderWidget(
-            Widget contentSection,
-            Widget actionsSection,
-            Key key = null
+            Key key = null,
+            Widget contentSection = null,
+            Widget actionsSection = null
+            
         ) : base(key: key) {
             this.contentSection = contentSection;
             this.actionsSection = actionsSection;
@@ -302,13 +334,20 @@ namespace Unity.UIWidgets.cupertino {
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderCupertinoAlert(
                 dividerThickness: CupertinoActionSheetUtils._kDividerThickness /
-                                  MediaQuery.of(context).devicePixelRatio
+                                  MediaQuery.of(context).devicePixelRatio,
+                dividerColor: CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kButtonDividerColor, context)
             );
+        }
+
+        public override void updateRenderObject(BuildContext context, _RenderCupertinoAlert renderObject) {
+            base.updateRenderObject(context, renderObject);
+            renderObject.dividerColor = CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kButtonDividerColor, context);
         }
 
         public override Element createElement() {
             return new _CupertinoAlertRenderElement(this);
         }
+
     }
 
     class _CupertinoAlertRenderElement : RenderObjectElement {
@@ -318,11 +357,11 @@ namespace Unity.UIWidgets.cupertino {
         Element _contentElement;
         Element _actionsElement;
 
-        public new _CupertinoAlertRenderWidget widget {
+        public override _CupertinoAlertRenderWidget widget {
             get { return base.widget as _CupertinoAlertRenderWidget; }
         }
 
-        public new _RenderCupertinoAlert renderObject {
+        public override _RenderCupertinoAlert renderObject {
             get { return base.renderObject as _RenderCupertinoAlert; }
         }
 
@@ -360,7 +399,7 @@ namespace Unity.UIWidgets.cupertino {
                 _AlertSections.actionsSection);
         }
 
-        protected override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(child == _contentElement || child == _actionsElement);
             if (_contentElement == child) {
                 _contentElement = null;
@@ -368,6 +407,7 @@ namespace Unity.UIWidgets.cupertino {
             else if (_actionsElement == child) {
                 _actionsElement = null;
             }
+            base.forgetChild(child);
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
@@ -381,6 +421,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         void _placeChildInSlot(RenderObject child, object slot) {
+            D.assert(slot != null);
             switch ((_AlertSections) slot) {
                 case _AlertSections.contentSection:
                     renderObject.contentSection = child as RenderBox;
@@ -398,11 +439,16 @@ namespace Unity.UIWidgets.cupertino {
         public _RenderCupertinoAlert(
             RenderBox contentSection = null,
             RenderBox actionsSection = null,
-            float dividerThickness = 0.0f
+            float dividerThickness = 0.0f,
+            Color dividerColor = null
         ) {
+            D.assert(dividerColor != null);
             _contentSection = contentSection;
             _actionsSection = actionsSection;
             _dividerThickness = dividerThickness;
+            _dividerPaint = new Paint();
+            _dividerPaint.color = CupertinoActionSheetUtils._kButtonDividerColor;
+            _dividerPaint.style = PaintingStyle.fill;
         }
 
         public RenderBox contentSection {
@@ -422,8 +468,6 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         RenderBox _contentSection;
-
-
         public RenderBox actionsSection {
             get { return _actionsSection; }
             set {
@@ -442,12 +486,19 @@ namespace Unity.UIWidgets.cupertino {
 
         RenderBox _actionsSection;
 
-        readonly float _dividerThickness;
+        public Color dividerColor {
+            get { return _dividerPaint.color; }
+            set {
+                if (value == _dividerPaint.color) {
+                    return;
+                }
+                _dividerPaint.color = value;
+                markNeedsPaint();
+            }
+        }
 
-        readonly Paint _dividerPaint = new Paint() {
-            color = CupertinoActionSheetUtils._kButtonDividerColor,
-            style = PaintingStyle.fill
-        };
+        public readonly float _dividerThickness;
+        public readonly Paint _dividerPaint;
 
         public override void attach(object owner) {
             base.attach(owner);
@@ -535,7 +586,7 @@ namespace Unity.UIWidgets.cupertino {
             return 0.0f;
         }
 
-        protected internal override float computeMaxIntrinsicHeight(float width) {
+        protected override float computeMaxIntrinsicHeight(float width) {
             float contentHeight = contentSection.getMaxIntrinsicHeight(width);
             float actionsHeight = actionsSection.getMaxIntrinsicHeight(width);
             bool hasDivider = contentHeight > 0.0f && actionsHeight > 0.0f;
@@ -552,7 +603,7 @@ namespace Unity.UIWidgets.cupertino {
             return 0.0f;
         }
 
-        protected override void performLayout() {
+        public override void performLayout() {
             bool hasDivider = contentSection.getMaxIntrinsicHeight(constraints.maxWidth) > 0.0f
                               && actionsSection.getMaxIntrinsicHeight(constraints.maxWidth) > 0.0f;
             float dividerThickness = hasDivider ? _dividerThickness : 0.0f;
@@ -572,7 +623,6 @@ namespace Unity.UIWidgets.cupertino {
                 parentUsesSize: true
             );
             Size actionsSize = actionsSection.size;
-
 
             float actionSheetHeight = contentSize.height + dividerThickness + actionsSize.height;
 
@@ -598,16 +648,18 @@ namespace Unity.UIWidgets.cupertino {
             actionsSection.paint(context, offset + actionsParentData.offset);
         }
 
-        void _paintDividerBetweenContentAndActions(Canvas canvas, Offset offset) {
+        public void _paintDividerBetweenContentAndActions(Canvas canvas, Offset offset) {
             canvas.drawRect(
                 Rect.fromLTWH(
                     offset.dx,
-                    offset.dy + contentSection.size.height, size.width, _dividerThickness
+                    offset.dy + contentSection.size.height,
+                    size.width, 
+                    _dividerThickness
                 ), _dividerPaint
             );
         }
 
-        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
+        public override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             MultiChildLayoutParentData contentSectionParentData =
                 contentSection.parentData as MultiChildLayoutParentData;
             MultiChildLayoutParentData actionsSectionParentData =
@@ -725,8 +777,8 @@ namespace Unity.UIWidgets.cupertino {
 
     class _CupertinoAlertActionSection : StatefulWidget {
         public _CupertinoAlertActionSection(
-            List<Widget> children,
             Key key = null,
+            List<Widget> children = null,
             ScrollController scrollController = null,
             bool hasCancelButton = false
         ) : base(key: key) {
@@ -788,7 +840,7 @@ namespace Unity.UIWidgets.cupertino {
         bool _isPressed = false;
 
         public override Widget build(BuildContext context) {
-            return new _ActionSheetActionButtonParentDataWidget(
+            return new _ActionButtonParentDataWidget(
                 isPressed: _isPressed,
                 child: new GestureDetector(
                     behavior: HitTestBehavior.opaque,
@@ -801,8 +853,8 @@ namespace Unity.UIWidgets.cupertino {
         }
     }
 
-    class _ActionSheetActionButtonParentDataWidget : ParentDataWidget<_CupertinoAlertActionsRenderWidget> {
-        public _ActionSheetActionButtonParentDataWidget(
+    class _ActionButtonParentDataWidget : ParentDataWidget<_ActionButtonParentData> {
+        public _ActionButtonParentDataWidget(
             Widget child,
             bool isPressed = false,
             Key key = null
@@ -813,21 +865,29 @@ namespace Unity.UIWidgets.cupertino {
         public readonly bool isPressed;
 
         public override void applyParentData(RenderObject renderObject) {
-            D.assert(renderObject.parentData is _ActionSheetActionButtonParentData);
-            _ActionSheetActionButtonParentData parentData =
-                renderObject.parentData as _ActionSheetActionButtonParentData;
+            D.assert(renderObject.parentData is _ActionButtonParentData);
+            _ActionButtonParentData parentData =
+                renderObject.parentData as _ActionButtonParentData;
             if (parentData.isPressed != isPressed) {
                 parentData.isPressed = isPressed;
                 AbstractNodeMixinDiagnosticableTree targetParent = renderObject.parent;
+                // AbstractNode targetParent = renderObject.parent;
+                // tbc
                 if (targetParent is RenderObject) {
                     ((RenderObject) targetParent).markNeedsPaint();
                 }
             }
         }
+
+        public new Type debugTypicalAncestorWidgetClass {
+            get {
+                return typeof(_CupertinoAlertActionsRenderWidget);
+            }
+        } 
     }
 
-    class _ActionSheetActionButtonParentData : MultiChildLayoutParentData {
-        public _ActionSheetActionButtonParentData(
+    public class _ActionButtonParentData : MultiChildLayoutParentData {
+        public _ActionButtonParentData(
             bool isPressed = false
         ) {
             this.isPressed = isPressed;
@@ -835,11 +895,11 @@ namespace Unity.UIWidgets.cupertino {
 
         public bool isPressed;
     }
-
+    
     class _CupertinoAlertActionsRenderWidget : MultiChildRenderObjectWidget {
         public _CupertinoAlertActionsRenderWidget(
-            List<Widget> actionButtons,
             Key key = null,
+            List<Widget> actionButtons = null,
             float dividerThickness = 0.0f,
             bool hasCancelButton = false
         ) : base(key: key, children: actionButtons) {
@@ -853,13 +913,21 @@ namespace Unity.UIWidgets.cupertino {
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderCupertinoAlertActions(
                 dividerThickness: _dividerThickness,
-                hasCancelButton: _hasCancelButton
+                dividerColor: CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kButtonDividerColor, context),
+                hasCancelButton: _hasCancelButton,
+                backgroundColor: CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kBackgroundColor, context),
+                pressedColor: CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kPressedColor, context)
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             ((_RenderCupertinoAlertActions) renderObject).dividerThickness = _dividerThickness;
+            ((_RenderCupertinoAlertActions) renderObject).dividerColor =
+                CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kButtonDividerColor, context);
             ((_RenderCupertinoAlertActions) renderObject).hasCancelButton = _hasCancelButton;
+            ((_RenderCupertinoAlertActions) renderObject).backgroundColor =
+                CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kBackgroundColor, context);
+            ((_RenderCupertinoAlertActions) renderObject).pressedColor = CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kPressedColor, context);
         }
     }
 
@@ -868,13 +936,32 @@ namespace Unity.UIWidgets.cupertino {
         public _RenderCupertinoAlertActions(
             List<RenderBox> children = null,
             float dividerThickness = 0.0f,
-            bool hasCancelButton = false
+            Color dividerColor = null,
+            bool hasCancelButton = false,
+            Color backgroundColor = null,
+            Color pressedColor = null
         ) {
             _dividerThickness = dividerThickness;
             _hasCancelButton = hasCancelButton;
-            addAll(children ?? new List<RenderBox>());
+            
+            _buttonBackgroundPaint = new Paint() {
+                color = CupertinoActionSheetUtils._kBackgroundColor,
+                style = PaintingStyle.fill
+            };
+
+            _pressedButtonBackgroundPaint = new Paint() {
+                color = CupertinoActionSheetUtils._kPressedColor,
+                style = PaintingStyle.fill
+            };
+
+            _dividerPaint = new Paint() {
+                color = CupertinoActionSheetUtils._kButtonDividerColor,
+                style = PaintingStyle.fill
+            };
+            addAll(children);
         }
 
+        float _dividerThickness;
         public float dividerThickness {
             get { return _dividerThickness; }
             set {
@@ -887,10 +974,40 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-        float _dividerThickness;
+        public Color backgroundColor {
+            get { return _buttonBackgroundPaint.color; }
+            set {
+                if (value == _buttonBackgroundPaint.color) {
+                    return;
+                }
+                _buttonBackgroundPaint.color = value;
+                markNeedsPaint();
+            }
+        }
+        
+        public Color dividerColor {
+            get { return  _dividerPaint.color; }
+            set {
+                if (value ==  _dividerPaint.color) {
+                    return;
+                }
+                _dividerPaint.color = value;
+                markNeedsPaint();
+            }
+        }
+        
+        public Color pressedColor {
+            get { return _pressedButtonBackgroundPaint.color; }
+            set {
+                if (value == _pressedButtonBackgroundPaint.color) {
+                    return;
+                }
+                _pressedButtonBackgroundPaint.color = value;
+                markNeedsPaint();
+            }
+        }
 
         bool _hasCancelButton;
-
         public bool hasCancelButton {
             get { return _hasCancelButton; }
             set {
@@ -903,25 +1020,13 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-
-        readonly Paint _buttonBackgroundPaint = new Paint() {
-            color = CupertinoActionSheetUtils._kBackgroundColor,
-            style = PaintingStyle.fill
-        };
-
-        readonly Paint _pressedButtonBackgroundPaint = new Paint() {
-            color = CupertinoActionSheetUtils._kPressedColor,
-            style = PaintingStyle.fill
-        };
-
-        readonly Paint _dividerPaint = new Paint() {
-            color = CupertinoActionSheetUtils._kButtonDividerColor,
-            style = PaintingStyle.fill
-        };
+        public readonly Paint _buttonBackgroundPaint;
+        public readonly Paint _pressedButtonBackgroundPaint; 
+        public readonly Paint _dividerPaint;
 
         public override void setupParentData(RenderObject child) {
-            if (!(child.parentData is _ActionSheetActionButtonParentData)) {
-                child.parentData = new _ActionSheetActionButtonParentData();
+            if (!(child.parentData is _ActionButtonParentData)) {
+                child.parentData = new _ActionButtonParentData();
             }
         }
 
@@ -970,7 +1075,7 @@ namespace Unity.UIWidgets.cupertino {
                    + (0.5f * childAfter(firstChild).getMinIntrinsicHeight(width));
         }
 
-        protected internal override float computeMaxIntrinsicHeight(float width) {
+        protected override float computeMaxIntrinsicHeight(float width) {
             if (childCount == 0) {
                 return 0.0f;
             }
@@ -1034,7 +1139,7 @@ namespace Unity.UIWidgets.cupertino {
         void _drawButtonBackgroundsAndDividersStacked(Canvas canvas, Offset offset) {
             Offset dividerOffset = new Offset(0.0f, dividerThickness);
             Path backgroundFillPath = new Path();
-            // fillType = PathFillType.evenOdd
+            backgroundFillPath.fillType = PathFillType.evenOdd;
             backgroundFillPath.addRect(Rect.fromLTWH(0.0f, 0.0f, size.width, size.height));
 
             Path pressedBackgroundFillPath = new Path();
@@ -1042,16 +1147,19 @@ namespace Unity.UIWidgets.cupertino {
             Offset accumulatingOffset = offset;
             RenderBox child = firstChild;
             RenderBox prevChild = null;
+
             while (child != null) {
-                D.assert(child.parentData is _ActionSheetActionButtonParentData);
-                _ActionSheetActionButtonParentData currentButtonParentData =
-                    child.parentData as _ActionSheetActionButtonParentData;
+                D.assert(child.parentData is _ActionButtonParentData);
+                _ActionButtonParentData currentButtonParentData =
+                    child.parentData as _ActionButtonParentData;
                 bool isButtonPressed = currentButtonParentData.isPressed;
+
                 bool isPrevButtonPressed = false;
+                
                 if (prevChild != null) {
-                    D.assert(prevChild.parentData is _ActionSheetActionButtonParentData);
-                    _ActionSheetActionButtonParentData previousButtonParentData =
-                        prevChild.parentData as _ActionSheetActionButtonParentData;
+                    D.assert(prevChild.parentData is _ActionButtonParentData);
+                    _ActionButtonParentData previousButtonParentData =
+                        prevChild.parentData as _ActionButtonParentData;
                     isPrevButtonPressed = previousButtonParentData.isPressed;
                 }
 
@@ -1059,12 +1167,15 @@ namespace Unity.UIWidgets.cupertino {
                 bool isDividerPainted = isDividerPresent && !(isButtonPressed || isPrevButtonPressed);
                 Rect dividerRect = Rect.fromLTWH(
                     accumulatingOffset.dx,
-                    accumulatingOffset.dy, size.width, _dividerThickness
+                    accumulatingOffset.dy, 
+                        size.width, 
+                    _dividerThickness
                 );
                 Rect buttonBackgroundRect = Rect.fromLTWH(
                     accumulatingOffset.dx,
-                    accumulatingOffset.dy + (isDividerPresent ? dividerThickness : 0.0f), size.width,
-                    child.size.height
+                    accumulatingOffset.dy + (isDividerPresent ? dividerThickness : 0.0f),
+                        size.width,
+                        child.size.height
                 );
                 if (isButtonPressed) {
                     backgroundFillPath.addRect(buttonBackgroundRect);

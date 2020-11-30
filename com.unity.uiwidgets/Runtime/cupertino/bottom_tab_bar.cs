@@ -10,11 +10,18 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace Unity.UIWidgets.cupertino {
     class BottomAppBarUtils {
         public const float _kTabBarHeight = 50.0f;
-        public static readonly Color _kDefaultTabBarBorderColor = new Color(0x4C000000);
+
+        public static readonly Color _kDefaultTabBarBorderColor = 
+            CupertinoDynamicColor.withBrightness(
+                color: new Color(0x4C000000),
+                darkColor: new Color(0x29000000)
+            );
+        public static readonly Color _kDefaultTabBarInactiveColor = CupertinoColors.inactiveGray;
     }
 
 
-    public class CupertinoTabBar : StatelessWidget {
+    public class CupertinoTabBar : StatelessWidget{ 
+
         public CupertinoTabBar(
             Key key = null,
             List<BottomNavigationBarItem> items = null,
@@ -26,20 +33,19 @@ namespace Unity.UIWidgets.cupertino {
             float iconSize = 30.0f,
             Border border = null
         ) : base(key: key) {
+
             D.assert(items != null);
             D.assert(items.Count >= 2,
                 () => "Tabs need at least 2 items to conform to Apple's HIG"
             );
             D.assert(0 <= currentIndex && currentIndex < items.Count);
-            
 
             this.items = items;
             this.onTap = onTap;
             this.currentIndex = currentIndex;
-
             this.backgroundColor = backgroundColor;
             this.activeColor = activeColor;
-            this.inactiveColor = inactiveColor ?? CupertinoColors.inactiveGray;
+            this.inactiveColor = inactiveColor ?? BottomAppBarUtils._kDefaultTabBarInactiveColor;
             this.iconSize = iconSize;
             this.border = border ?? new Border(
                               top: new BorderSide(
@@ -73,16 +79,34 @@ namespace Unity.UIWidgets.cupertino {
         public bool opaque(BuildContext context) {
             Color backgroundColor =
                 this.backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor;
-            return backgroundColor.alpha == 0xFF;
+            return CupertinoDynamicColor.resolve(backgroundColor, context).alpha == 0xFF;
         }
 
         public override Widget build(BuildContext context) {
             float bottomPadding = MediaQuery.of(context).padding.bottom;
+            Color backgroundColor = CupertinoDynamicColor.resolve(
+                this.backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor,
+                context
+            );
+            BorderSide resolveBorderSide(BorderSide side) {
+                return side == BorderSide.none
+                    ? side
+                    : side.copyWith(color: CupertinoDynamicColor.resolve(side.color, context));
+            }
+             Border resolvedBorder = border == null || border.GetType() != typeof(Border)
+                ? border
+                : new Border(
+                    top: resolveBorderSide(border.top),
+                    left: resolveBorderSide(border.left),
+                    bottom: resolveBorderSide(border.bottom),
+                    right: resolveBorderSide(border.right)
+                );
 
+            Color inactive = CupertinoDynamicColor.resolve(inactiveColor, context);
             Widget result = new DecoratedBox(
                 decoration: new BoxDecoration(
-                    border: border,
-                    color: backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor
+                    border: resolvedBorder,//border,
+                    color: backgroundColor //?? CupertinoTheme.of(context).barBackgroundColor
                 ),
                 child: new SizedBox(
                     height: BottomAppBarUtils._kTabBarHeight + bottomPadding,
@@ -92,8 +116,8 @@ namespace Unity.UIWidgets.cupertino {
                             size: iconSize
                         ),
                         child: new DefaultTextStyle( // Default with the inactive state.
-                            style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle
-                                .copyWith(color: inactiveColor),
+                            style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(color: inactive),
+                                //CupertinoTheme.of(context).textTheme.tabLabelTextStyle
                             child: new Padding(
                                 padding: EdgeInsets.only(bottom: bottomPadding),
                                 child: new Row(
@@ -128,6 +152,7 @@ namespace Unity.UIWidgets.cupertino {
                     _wrapActiveItem(
                         context,
                         new Expanded(
+                            //// ??? semantics tbc ???
                             child: new GestureDetector(
                                 behavior: HitTestBehavior.opaque,
                                 onTap: onTap == null ? null : (GestureTapCallback) (() => { onTap(tabIndex); }),
@@ -167,7 +192,11 @@ namespace Unity.UIWidgets.cupertino {
                 return item;
             }
 
-            Color activeColor = this.activeColor ?? CupertinoTheme.of(context).primaryColor;
+            //Color activeColor = this.activeColor ?? CupertinoTheme.of(context).primaryColor;
+            Color activeColor = CupertinoDynamicColor.resolve(
+                this.activeColor ?? CupertinoTheme.of(context).primaryColor,
+                context
+            );
             return IconTheme.merge(
                 data: new IconThemeData(color: activeColor),
                 child: DefaultTextStyle.merge(

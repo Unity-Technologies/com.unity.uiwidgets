@@ -14,7 +14,6 @@ namespace Unity.UIWidgets.widgets {
             RouteSettings settings = null
         ) : base(settings) {
         }
-
         public override List<OverlayEntry> overlayEntries {
             get { return _overlayEntries; }
         }
@@ -376,23 +375,24 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class _ModalScope : StatefulWidget {
-        public _ModalScope(Key key = null, ModalRoute route = null) : base(key) {
+    public class _ModalScope<T> : StatefulWidget {
+        public _ModalScope(Key key = null, ModalRoute<T> route = null) : base(key) {
             this.route = route;
         }
 
-        public readonly ModalRoute route;
+        public readonly ModalRoute<T> route;
 
         public override State createState() {
-            return new _ModalScopeState();
+            return new _ModalScopeState<T>();
         }
     }
 
-    public class _ModalScopeState : State<_ModalScope> {
+    public class _ModalScopeState<T> : State<_ModalScope<T>> {
         Widget _page;
 
         Listenable _listenable;
 
+        //public readonly FocusScopeNode focusScopeNode = new FocusScopeNode(debugLabel: "$_ModalScopeState Focus Scope");
         public override void initState() {
             base.initState();
             var animations = new List<Listenable> { };
@@ -409,7 +409,10 @@ namespace Unity.UIWidgets.widgets {
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            D.assert(widget.route == ((_ModalScope) oldWidget).route);
+            D.assert(widget.route == ((_ModalScope<T>) oldWidget).route);
+            /*if (widget.route.isCurrent) {
+                widget.route.navigator.focusScopeNode.setFirstFocus(focusScopeNode);
+            }*/
         }
 
         public override void didChangeDependencies() {
@@ -470,7 +473,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public abstract class ModalRoute : LocalHistoryRouteTransitionRoute {
+    public abstract class ModalRoute<T> : LocalHistoryRouteTransitionRoute {
         protected ModalRoute() {
         }
 
@@ -479,10 +482,10 @@ namespace Unity.UIWidgets.widgets {
 
         public static Color _kTransparent = new Color(0x00000000);
 
-        public static ModalRoute of(BuildContext context) {
+        public static ModalRoute<T> of(BuildContext context) {
             _ModalScopeStatus widget =
                 (_ModalScopeStatus) context.inheritFromWidgetOfExactType(typeof(_ModalScopeStatus));
-            return (ModalRoute) widget?.route;
+            return (ModalRoute<T>) widget?.route;
         }
 
         protected virtual void setState(VoidCallback fn) {
@@ -571,7 +574,7 @@ namespace Unity.UIWidgets.widgets {
         readonly List<WillPopCallback> _willPopCallbacks = new List<WillPopCallback>();
 
         public override Future<RoutePopDisposition> willPop() {
-            _ModalScopeState scope = _scopeKey.currentState;
+            _ModalScopeState<T> scope = _scopeKey.currentState as _ModalScopeState<T> ;
             D.assert(scope != null);
 
             bool result = false;
@@ -642,8 +645,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        readonly GlobalKey<_ModalScopeState> _scopeKey = new LabeledGlobalKey<_ModalScopeState>();
-        internal readonly GlobalKey _subtreeKey = new LabeledGlobalKey<_ModalScopeState>();
+        readonly GlobalKey<_ModalScopeState<T>> _scopeKey = new LabeledGlobalKey<_ModalScopeState<T>>();
+        internal readonly GlobalKey _subtreeKey = new LabeledGlobalKey<T>();
         internal readonly PageStorageBucket _storageBucket = new PageStorageBucket();
 
         static readonly Animatable<float> _easeCurveTween = new CurveTween(curve: Curves.ease);
@@ -680,7 +683,7 @@ namespace Unity.UIWidgets.widgets {
         Widget _modalScopeCache;
 
         Widget _buildModalScope(BuildContext context) {
-            return _modalScopeCache = _modalScopeCache ?? new _ModalScope(
+            return _modalScopeCache = _modalScopeCache ?? new _ModalScope<T>(
                 key: _scopeKey,
                 route: this
                 // _ModalScope calls buildTransitions() and buildChild(), defined above
@@ -700,7 +703,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public abstract class PopupRoute : ModalRoute {
+    public abstract class PopupRoute<T> : ModalRoute<T> {
         protected PopupRoute(
             RouteSettings settings = null
         ) : base(settings: settings) {
@@ -778,7 +781,7 @@ namespace Unity.UIWidgets.widgets {
         void didPushNext();
     }
 
-    class _DialogRoute : PopupRoute {
+    class _DialogRoute<T> : PopupRoute<T> {
         internal _DialogRoute(RoutePageBuilder pageBuilder = null, bool barrierDismissible = true,
             Color barrierColor = null,
             TimeSpan? transitionDuration = null,
@@ -822,7 +825,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public static class DialogUtils {
-        public static Future<object> showGeneralDialog(
+        public static Future<T> showGeneralDialog<T>(
             BuildContext context = null,
             RoutePageBuilder pageBuilder = null,
             bool barrierDismissible = false,
@@ -831,13 +834,13 @@ namespace Unity.UIWidgets.widgets {
             RouteTransitionsBuilder transitionBuilder = null
         ) {
             D.assert(pageBuilder != null);
-            return Navigator.of(context, rootNavigator: true).push(new _DialogRoute(
+            return Navigator.of(context, rootNavigator: true).push<T>(new _DialogRoute(
                 pageBuilder: pageBuilder,
                 barrierDismissible: barrierDismissible,
                 barrierColor: barrierColor,
                 transitionDuration: transitionDuration,
                 transitionBuilder: transitionBuilder
-            )).to<object>();
+            )); //.to<object>();
         }
     }
 

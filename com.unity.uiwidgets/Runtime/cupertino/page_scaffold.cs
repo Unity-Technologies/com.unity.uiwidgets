@@ -12,21 +12,18 @@ namespace Unity.UIWidgets.cupertino {
         public CupertinoPageScaffold(
             Widget child,
             Key key = null,
-            //ObstructingPreferredSizeWidget navigationBar = null,
-            CupertinoNavigationBar navigationBar = null,
+            ObstructingPreferredSizeWidget navigationBar = null,
             Color backgroundColor = null,
             bool resizeToAvoidBottomInset = true
         ) : base(key: key) {
             D.assert(child != null);
-
             this.child = child;
             this.navigationBar = navigationBar;
             this.backgroundColor = backgroundColor;
             this.resizeToAvoidBottomInset = resizeToAvoidBottomInset;
         }
 
-        //public readonly ObstructingPreferredSizeWidget navigationBar;
-        public readonly CupertinoNavigationBar navigationBar;
+        public readonly ObstructingPreferredSizeWidget navigationBar;
         public readonly Widget child;
         public readonly Color backgroundColor;
         public readonly bool resizeToAvoidBottomInset;
@@ -122,7 +119,6 @@ namespace Unity.UIWidgets.cupertino {
                     right: 0.0f,
                     height: existingMediaQuery.padding.top,
                     child: new GestureDetector(
-                        //excludeFromSemantics: true,
                         onTap: _handleStatusBarTap
                     )
                 )
@@ -141,10 +137,8 @@ namespace Unity.UIWidgets.cupertino {
 
     public abstract class ObstructingPreferredSizeWidget : PreferredSizeWidget {
 
-        protected ObstructingPreferredSizeWidget(Key key = null) : base(key: key) {}
-        //public virtual Size preferredSize { get; }
-        public virtual bool? fullObstruction { get; }
+        ///protected ObstructingPreferredSizeWidget(Key key = null) : base(key: key) {}
+       // public virtual bool? fullObstruction { get; }
+        public abstract bool shouldFullyObstruct(BuildContext context);
     }
-
-   
 }

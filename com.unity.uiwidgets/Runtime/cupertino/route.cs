@@ -70,7 +70,7 @@ namespace Unity.UIWidgets.cupertino {
                 )
             );
         }
-
+        
 
         public static readonly Animatable<float> _dialogScaleTween = new FloatTween(begin: 1.3f, end: 1.0f)
             .chain(new CurveTween(curve: Curves.linearToEaseOut));
@@ -98,12 +98,12 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
 
-        public static Future<object> showCupertinoDialog(
+        public static Future showCupertinoDialog(
             BuildContext context,
             WidgetBuilder builder
         ) {
             D.assert(builder != null);
-            return DialogUtils.showGeneralDialog(
+            return _DialogRoute.showGeneralDialog(
                 context: context,
                 barrierDismissible: false,
                 barrierColor: _kModalBarrierColor,
@@ -268,7 +268,7 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-        protected internal  override void didChangePrevious(Route previousRoute) {
+        protected internal override void didChangePrevious(Route previousRoute) {
             string previousTitleString = previousRoute is CupertinoPageRoute
                 ? ((CupertinoPageRoute) previousRoute).title
                 : null;
@@ -299,14 +299,13 @@ namespace Unity.UIWidgets.cupertino {
         }
 
 
-        public override bool canTransitionFrom(TransitionRoute previousRoute) {
-            return previousRoute is CupertinoPageRoute;
-        }
+        /*public override bool canTransitionFrom(TransitionRoute<object> previousRoute) {
+            return previousRoute is CupertinoPageRoute<object>;
+        }*/
 
-
-        public override bool canTransitionTo(TransitionRoute nextRoute) {
-            return nextRoute is CupertinoPageRoute && !((CupertinoPageRoute) nextRoute).fullscreenDialog;
-        }
+        /*public override bool canTransitionTo(TransitionRoute<object> nextRoute) {
+            return nextRoute is CupertinoPageRoute<object> && !((CupertinoPageRoute<object>) nextRoute).fullscreenDialog;
+        }*/
 
         static bool isPopGestureInProgress(PageRoute route) {
             return route.navigator.userGestureInProgress;
@@ -314,11 +313,11 @@ namespace Unity.UIWidgets.cupertino {
 
 
         public bool popGestureInProgress {
-            get { return isPopGestureInProgress(this); }
+            get { return isPopGestureInProgress(this as PageRoute); }
         }
 
         public bool popGestureEnabled {
-            get { return _isPopGestureEnabled(this); }
+            get { return _isPopGestureEnabled(this as PageRoute); }
         }
 
         static bool _isPopGestureEnabled(PageRoute route) {
@@ -346,7 +345,7 @@ namespace Unity.UIWidgets.cupertino {
                 return false;
             }
 
-            if (isPopGestureInProgress(route)) {
+            if (isPopGestureInProgress(route )) {
                 return false;
             }
 
@@ -385,6 +384,7 @@ namespace Unity.UIWidgets.cupertino {
             Animation<float> secondaryAnimation,
             Widget child
         ) {
+            bool linearTransition = isPopGestureInProgress(route);
             if (route.fullscreenDialog) {
                 return new CupertinoFullscreenDialogTransition(
                     animation: animation,
@@ -396,7 +396,7 @@ namespace Unity.UIWidgets.cupertino {
                 return new CupertinoPageTransition(
                     primaryRouteAnimation: animation,
                     secondaryRouteAnimation: secondaryAnimation,
-                    linearTransition: isPopGestureInProgress(route),
+                    linearTransition: linearTransition,
                     child: new _CupertinoBackGestureDetector(
                         enabledCallback: () => _isPopGestureEnabled(route),
                         onStartPopGesture: () => _startPopGesture(route),
@@ -418,10 +418,10 @@ namespace Unity.UIWidgets.cupertino {
 
     class CupertinoPageTransition : StatelessWidget {
         public CupertinoPageTransition(
-            Animation<float> primaryRouteAnimation = null,
-            Animation<float> secondaryRouteAnimation = null,
-            Widget child = null,
-            bool linearTransition = default,
+            Animation<float> primaryRouteAnimation,
+            Animation<float> secondaryRouteAnimation,
+            Widget child,
+            bool linearTransition,
             Key key = null
         ) : base(key: key) {
             _primaryPositionAnimation =
@@ -687,7 +687,7 @@ namespace Unity.UIWidgets.cupertino {
         }
     }
 
-    class _CupertinoModalPopupRoute : PopupRoute {
+    class _CupertinoModalPopupRoute : PopupRoute{
         public _CupertinoModalPopupRoute(
             WidgetBuilder builder = null,
             string barrierLabel = null,
@@ -754,4 +754,6 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
     }
+    
+
 }

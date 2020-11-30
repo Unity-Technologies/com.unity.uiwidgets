@@ -258,10 +258,24 @@ namespace Unity.UIWidgets.ui{
         }
 
         public static Offset operator -(Offset a, Offset b) {
+            if (a == null) {
+                return new Offset(-b.dx, -b.dy);
+            
+            }
+            else if (b == null) {
+                return new Offset(-a.dx, -a.dy);
+            }
             return new Offset(a.dx - b.dx, a.dy - b.dy);
         }
 
         public static Offset operator +(Offset a, Offset b) {
+            if (a == null) {
+                return b;
+            }
+            else if (b == null) {
+                return a;
+            }
+
             return new Offset(a.dx + b.dx, a.dy + b.dy);
         }
 

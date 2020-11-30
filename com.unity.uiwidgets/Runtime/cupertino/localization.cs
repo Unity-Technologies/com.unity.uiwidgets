@@ -79,10 +79,7 @@ namespace Unity.UIWidgets.cupertino {
             return locale.languageCode == "en";
         }
 
-       /* public override Future<CupertinoLocalizations> loadT(Locale locale) {
-            return DefaultCupertinoLocalizations.load(locale);
-        }*/
-        //public override Future<> load(Locale locale) {
+      
         public override Future<WidgetsLocalizations> load(Locale locale) {
             return DefaultCupertinoLocalizations.load(locale).to<WidgetsLocalizations>();
         }
