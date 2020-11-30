@@ -82,7 +82,7 @@ namespace UIWidgets.Runtime.rendering {
                 size = _isVertical
                     ? new Size(child.size.height, child.size.width)
                     : child.size;
-                _paintTransform = new Matrix4().identity();
+                _paintTransform = Matrix4.identity();
                 _paintTransform.translate(size.width / 2.0f, size.height / 2.0f);
                 _paintTransform.rotateZ(RotatedBoxUtils._kQuarterTurnsInRadians * (quarterTurns % 4));
                 _paintTransform.translate(-child.size.width / 2.0f, -child.size.height / 2.0f);

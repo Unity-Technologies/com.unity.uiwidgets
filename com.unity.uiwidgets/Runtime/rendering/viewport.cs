@@ -385,7 +385,7 @@ namespace Unity.UIWidgets.rendering {
                 if (!child.geometry.visible) {
                     continue;
                 }
-                Matrix4 transform = new Matrix4().identity();
+                Matrix4 transform = Matrix4.identity();
                 applyPaintTransform(child, transform);
                 bool isHit = result.addWithPaintTransform(
                     transform: transform,

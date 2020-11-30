@@ -1390,7 +1390,7 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null,
             float degree = 0.0f
         ) : base(key: key, child: child) {
-            transform = new Matrix4().rotationZ(degree);
+            transform = Matrix4.rotationZ(degree);
             this.origin = origin;
             this.alignment = alignment;
             this.transformHitTests = transformHitTests;
@@ -1414,7 +1414,7 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) : base(key: key, child: child) {
             D.assert(offset != null);
-            transform = new Matrix4().translationValues(offset.dx, offset.dy, 0);
+            transform = Matrix4.translationValues(offset.dx, offset.dy, 0);
             origin = null;
             alignment = null;
             this.transformHitTests = transformHitTests;
@@ -1437,7 +1437,7 @@ namespace Unity.UIWidgets.widgets {
             bool transformHitTests = true,
             Widget child = null
         ) : base(key: key, child: child) {
-            transform = new Matrix4().translationValues(scale, scale, scale);
+            transform = Matrix4.translationValues(scale, scale, scale);
             this.origin = origin;
             this.alignment = alignment;
             this.transformHitTests = transformHitTests;
@@ -1873,7 +1873,6 @@ namespace Unity.UIWidgets.widgets {
             this.repeat = repeat;
             this.centerSlice = centerSlice;
             this.invertColors = invertColors;
-            this.filterMode = filterMode;
             this.filterQuality = filterQuality;
         }
 
@@ -1882,7 +1881,6 @@ namespace Unity.UIWidgets.widgets {
         public readonly float? height;
         public readonly float scale;
         public readonly Color color;
-        public readonly FilterMode filterMode;
         public readonly BlendMode colorBlendMode;
         public readonly BoxFit? fit;
         public readonly Alignment alignment;
@@ -1942,7 +1940,7 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new DiagnosticsProperty<Rect>("centerSlice", centerSlice,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<bool>("invertColors", invertColors));
-            properties.add(new EnumProperty<FilterMode>("filterMode", filterMode));
+            properties.add(new EnumProperty<FilterQuality>("filterMode", filterQuality));
         }
     }
 

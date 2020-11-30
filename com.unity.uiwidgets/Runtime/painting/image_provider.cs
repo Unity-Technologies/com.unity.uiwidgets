@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -15,6 +18,12 @@ using TextDirection = Unity.UIWidgets.ui.TextDirection;
 using Window = Unity.UIWidgets.ui.Window;
 
 namespace Unity.UIWidgets.painting {
+    public static partial class painting_ {
+        internal delegate void _KeyAndErrorHandlerCallback<T>(T key, Action<Exception> handleError);
+
+        internal delegate Future _AsyncKeyErrorHandler<T>(T key, Exception exception);
+    }
+
     public class ImageConfiguration : IEquatable<ImageConfiguration> {
         public ImageConfiguration(
             AssetBundle bundle = null,
@@ -163,10 +172,18 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
-    public delegate Future<ui.Codec> DecoderCallback(byte[] bytes, int cacheWidth = 0, int cacheHeight = 0);
+    public delegate Future<ui.Codec> DecoderCallback(byte[] bytes, int? cacheWidth = 0, int? cacheHeight = 0);
 
     public abstract class ImageProvider {
         public abstract ImageStream resolve(ImageConfiguration configuration);
+        
+        public static bool operator ==(ImageProvider left, ImageProvider right) {
+            return Equals(left, right);
+        }
+        
+        public static bool operator !=(ImageProvider left, ImageProvider right) {
+            return !Equals(left, right);
+        }
     }
 
     public abstract class ImageProvider<T> : ImageProvider {
@@ -174,30 +191,62 @@ namespace Unity.UIWidgets.painting {
             D.assert(configuration != null);
 
             ImageStream stream = new ImageStream();
-            T obtainedKey = default;
-
-            obtainKey(configuration).then_((T key) => {
-                obtainedKey = key;
-                // TODO : how to load
-                // stream.setCompleter(PaintingBinding.instance.imageCache.putIfAbsent(key, () => load(key)));
-                D.assert(false, () => "load image from ImageStream is not implemented yet");
-            }).catchError(ex => {
-                UIWidgetsError.reportError(new UIWidgetsErrorDetails(
-                    exception: ex,
-                    library: "services library",
-                    context: "while resolving an image",
-                    silent: true,
-                    informationCollector: information => {
-                        information.AppendLine($"Image provider: {this}");
-                        information.AppendLine($"Image configuration: {configuration}");
-                        if (obtainedKey != null) {
-                            information.AppendLine($"Image key: {obtainedKey}");
-                        }
-                    }
-                ));
-            });
+            _createErrorHandlerAndKey(
+                configuration,
+                (T successKey, Action<Exception> errorHandler) => {
+                    resolveStreamForKey(configuration, stream, successKey, (Exception e) => errorHandler(e));
+                },
+                (T key, Exception exception) => {
+                    // await null; // wait an event turn in case a listener has been added to the image stream.
+                    _ErrorImageCompleter imageCompleter = new _ErrorImageCompleter();
+                    stream.setCompleter(imageCompleter);
+                    InformationCollector collector = null;
+                    D.assert(() => {
+                        collector = (sb) => {
+                            sb.Append(new DiagnosticsProperty<ImageProvider>("Image provider", this));
+                            sb.Append(new DiagnosticsProperty<ImageConfiguration>("Image configuration",
+                                configuration));
+                            sb.Append(new DiagnosticsProperty<T>("Image key", key, defaultValue: null));
+                        };
+                        return true;
+                    });
+                    imageCompleter.setError(
+                        exception: exception,
+                        stack: exception.StackTrace,
+                        context: new ErrorDescription("while resolving an image"),
+                        silent: true, // could be a network error or whatnot
+                        informationCollector: collector
+                    );
+                    return Future.value();
+                }
+            );
 
             return stream;
+        }
+
+        void resolveStreamForKey(ImageConfiguration configuration, ImageStream stream, T key,
+            ImageErrorListener handleError) {
+            // This is an unusual edge case where someone has told us that they found
+            // the image we want before getting to this method. We should avoid calling
+            // load again, but still update the image cache with LRU information.
+            if (stream.completer != null) {
+                ImageStreamCompleter completerEdge = PaintingBinding.instance.imageCache.putIfAbsent(
+                    key,
+                    () => stream.completer,
+                    onError: handleError
+                );
+                D.assert(Equals(completerEdge, stream.completer));
+                return;
+            }
+
+            ImageStreamCompleter completer = PaintingBinding.instance.imageCache.putIfAbsent(
+                key,
+                () => load(key, ui_.instantiateImageCodec),
+                onError: handleError
+            );
+            if (completer != null) {
+                stream.setCompleter(completer);
+            }
         }
 
         public Future<bool> evict(ImageCache cache = null, ImageConfiguration configuration = null) {
@@ -210,6 +259,64 @@ namespace Unity.UIWidgets.painting {
         protected abstract ImageStreamCompleter load(T assetBundleImageKey, DecoderCallback decode);
 
         protected abstract Future<T> obtainKey(ImageConfiguration configuration);
+
+        private void _createErrorHandlerAndKey(
+            ImageConfiguration configuration,
+            painting_._KeyAndErrorHandlerCallback<T> successCallback,
+            painting_._AsyncKeyErrorHandler<T> errorCallback
+        ) {
+            T obtainedKey = default;
+            bool didError = false;
+
+            Action<Exception> handleError = (Exception exception) => {
+                if (didError) {
+                    return;
+                }
+
+                if (!didError) {
+                    errorCallback(obtainedKey, exception);
+                }
+
+                didError = true;
+            };
+
+            // If an error is added to a synchronous completer before a listener has been
+            // added, it can throw an error both into the zone and up the stack. Thus, it
+            // looks like the error has been caught, but it is in fact also bubbling to the
+            // zone. Since we cannot prevent all usage of Completer.sync here, or rather
+            // that changing them would be too breaking, we instead hook into the same
+            // zone mechanism to intercept the uncaught error and deliver it to the
+            // image stream's error handler. Note that these errors may be duplicated,
+            // hence the need for the `didError` flag.
+            Zone dangerZone = Zone.current.fork(
+                specification: new ZoneSpecification(
+                    handleUncaughtError: (Zone self, ZoneDelegate parent, Zone zone, Exception error) => {
+                        handleError(error);
+                    }
+                )
+            );
+            dangerZone.runGuarded(() => {
+                Future<T> key;
+                try {
+                    key = obtainKey(configuration);
+                }
+                catch (Exception error) {
+                    handleError(error);
+                    return null;
+                }
+
+                key.then_((T reusltKey) => {
+                    obtainedKey = reusltKey;
+                    try {
+                        successCallback(reusltKey, handleError);
+                    }
+                    catch (Exception error) {
+                        handleError(error);
+                    }
+                }).catchError(handleError);
+                return null;
+            });
+        }
     }
 
     public class AssetBundleImageKey : IEquatable<AssetBundleImageKey> {
@@ -374,12 +481,40 @@ namespace Unity.UIWidgets.painting {
         }
 
         Future<Codec> _loadAsync(NetworkImage key, DecoderCallback decode) {
-            var loaded = _loadBytes(key);
-            if (loaded.Current is byte[] bytes) {
-                return decode(bytes);
-            }
+            var completer = Completer.create();
+            var isolate = Isolate.current;
+            var panel = UIWidgetsPanel.current;
+            panel.StartCoroutine(_loadCoroutine(key.url, completer, isolate)); 
+            return completer.future.to<byte[]>().then_<byte[]>(data => {
+                if (data != null && data.Length > 0) {
+                    return decode(data);
+                }
+                throw new Exception("not loaded");
+            }).to<Codec>();
+        }
+        
+        IEnumerator _loadCoroutine(string key, Completer completer, Isolate isolate) {
+            var url = new Uri(key);
+            using (var www = UnityWebRequest.Get(url)) {
+                if (headers != null) {
+                    foreach (var header in headers) {
+                        www.SetRequestHeader(header.Key, header.Value);
+                    }
+                }
 
-            throw new Exception("not loaded");
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError) {
+                    completer.completeError(new Exception($"Failed to load from url \"{url}\": {www.error}"));
+                    yield break;
+                }
+
+                var data = www.downloadHandler.data;
+
+                using (Isolate.getScope(isolate)) {
+                    completer.complete(data);
+                }
+            }
         }
 
         IEnumerator _loadBytes(NetworkImage key) {
@@ -494,8 +629,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
-            var loaded = _loadBytes(key);
-            if (loaded.Current is byte[] bytes) {
+            byte[] bytes = File.ReadAllBytes("Assets/StreamingAssets/" + key.file);
+            if (bytes != null && bytes.Length > 0 ) {
                 return decode(bytes);
             }
             throw new Exception("not loaded");
@@ -727,6 +862,26 @@ namespace Unity.UIWidgets.painting {
 
         public override string ToString() {
             return $"{GetType()}(name: \"{assetName}\", scale: {scale}, bundle: {bundle})";
+        }
+    }
+
+    internal class _ErrorImageCompleter : ImageStreamCompleter {
+        internal _ErrorImageCompleter() {
+        }
+
+        public void setError(
+            DiagnosticsNode context,
+            Exception exception,
+            string stack,
+            InformationCollector informationCollector,
+            bool silent = false
+        ) {
+            reportError(
+                context: context.toDescription(),
+                exception: exception,
+                informationCollector: informationCollector,
+                silent: silent
+            );
         }
     }
 }

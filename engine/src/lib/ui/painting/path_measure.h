@@ -19,6 +19,9 @@ class CanvasPathMeasure : public fml::RefCountedThreadSafe<CanvasPathMeasure> {
 
   void setPath(const CanvasPath* path, bool isClosed);
   float getLength(int contour_index);
+  void getPosTan(int contour_index, float distance, float* posTan);
+  fml::RefPtr<CanvasPath> getSegment(int contour_index, float start_d,
+                  float stop_d, bool start_with_move_to);
   bool isClosed(int contour_index);
   bool nextContour();
 

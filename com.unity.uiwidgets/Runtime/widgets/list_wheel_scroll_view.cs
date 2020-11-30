@@ -714,7 +714,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        protected override void forgetChild(Element child) {
+        internal override void forgetChild(Element child) {
             _childElements.Remove((int) (child.slot));
         }
     }

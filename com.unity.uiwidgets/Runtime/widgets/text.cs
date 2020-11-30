@@ -201,7 +201,7 @@ namespace Unity.UIWidgets.widgets {
                 text: new TextSpan(
                     style: effectiveTextStyle,
                     text: data,
-                    children: textSpan != null ? new List<TextSpan> {textSpan} : null
+                    children: textSpan != null ? new List<InlineSpan> {textSpan} : null
                 )
             );
         }

@@ -623,7 +623,7 @@ namespace Unity.UIWidgets.rendering {
         ) {
             D.assert(hitTest != null);
             return addWithRawTransform(
-                transform: offset != null ? new Matrix4().translationValues(-offset.dx, -offset.dy, 0) : null,
+                transform: offset != null ? Matrix4.translationValues(-offset.dx, -offset.dy, 0) : null,
                 position: position,
                 hitTest: hitTest
             );

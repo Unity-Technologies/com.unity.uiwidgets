@@ -243,7 +243,7 @@ namespace Unity.UIWidgets.widgets {
                 text: new TextSpan(
                     style: effectiveTextStyle,
                     text: widget.data,
-                    children: widget.textSpan != null ? new List<TextSpan> {widget.textSpan} : null
+                    children: widget.textSpan != null ? new List<InlineSpan> {widget.textSpan} : null
                 ),
                 onSelectionChanged: () => {
                     if (_hasFocus) {
