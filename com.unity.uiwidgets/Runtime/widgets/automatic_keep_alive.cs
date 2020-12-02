@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
@@ -93,8 +94,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _updateParentDataOfChild(ParentDataElement childElement) {
-            //childElement.applyWidgetOutOfTurn((ParentDataWidget<SliverWithKeepAliveWidget>) build(context));
-            childElement.applyWidgetOutOfTurn((ParentDataWidget)build(context));
+            childElement.applyWidgetOutOfTurn((ParentDataWidget<KeepAliveParentDataMixin>) build(context));
         }
 
         VoidCallback _createCallback(Listenable handle) {

@@ -967,9 +967,9 @@ namespace Unity.UIWidgets.rendering {
         internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
-            bool enabled = true;
+            bool enabled = firstChild != null;
             D.assert(() => {
-                enabled = !D.debugDisableOpacityLayers;
+                enabled = enabled && !D.debugDisableOpacityLayers;
                 return true;
             });
             

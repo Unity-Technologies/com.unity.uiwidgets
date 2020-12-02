@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
@@ -362,32 +363,34 @@ namespace Unity.UIWidgets.widgets {
     }
 
 
-    public class TableCell : ParentDataWidget<Table> {
-        public TableCell(
-            Key key = null,
-            TableCellVerticalAlignment? verticalAlignment = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
-            this.verticalAlignment = verticalAlignment;
-        }
-
-        public readonly TableCellVerticalAlignment? verticalAlignment;
-
-        public override void applyParentData(RenderObject renderObject) {
-            TableCellParentData parentData = (TableCellParentData) renderObject.parentData;
-            if (parentData.verticalAlignment != verticalAlignment) {
-                parentData.verticalAlignment = verticalAlignment;
-
-                AbstractNodeMixinDiagnosticableTree targetParent = renderObject.parent;
-                if (targetParent is RenderObject) {
-                    ((RenderObject) targetParent).markNeedsLayout();
-                }
-            }
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new EnumProperty<TableCellVerticalAlignment?>("verticalAlignment", verticalAlignment));
-        }
-    }
+    // public class TableCell : ParentDataWidget<Table> {
+    //     public TableCell(
+    //         Key key = null,
+    //         TableCellVerticalAlignment? verticalAlignment = null,
+    //         Widget child = null
+    //     ) : base(key: key, child: child) {
+    //         this.verticalAlignment = verticalAlignment;
+    //     }
+    //
+    //     public readonly TableCellVerticalAlignment? verticalAlignment;
+    //
+    //     public override void applyParentData(RenderObject renderObject) {
+    //         TableCellParentData parentData = (TableCellParentData) renderObject.parentData;
+    //         if (parentData.verticalAlignment != verticalAlignment) {
+    //             parentData.verticalAlignment = verticalAlignment;
+    //
+    //             AbstractNodeMixinDiagnosticableTree targetParent = renderObject.parent;
+    //             if (targetParent is RenderObject) {
+    //                 ((RenderObject) targetParent).markNeedsLayout();
+    //             }
+    //         }
+    //     }
+    //
+    //     public override Type debugTypicalAncestorWidgetClass { get => typeof(Table); }
+    //
+    //     public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    //         base.debugFillProperties(properties);
+    //         properties.add(new EnumProperty<TableCellVerticalAlignment?>("verticalAlignment", verticalAlignment));
+    //     }
+    // }
 }

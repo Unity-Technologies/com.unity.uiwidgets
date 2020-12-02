@@ -646,7 +646,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public abstract class ParentDataWidget<T> : ParentDataWidget where T : RenderObjectWidget {
+    public abstract class ParentDataWidget<T> : ParentDataWidget where T : ParentData {
         public ParentDataWidget(Key key = null, Widget child = null)
             : base(key: key, child: child) {
         }
