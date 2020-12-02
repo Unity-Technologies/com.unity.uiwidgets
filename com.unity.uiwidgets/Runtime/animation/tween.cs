@@ -5,7 +5,15 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.animation {
     public abstract class Animatable<T> {
-        public abstract T evaluate(Animation<float> animation);
+        public Animatable() {
+        }
+
+        public abstract T transform(float t);
+
+
+        public  T evaluate(Animation<float> animation) {
+            return transform(animation.value);
+        }
 
         public Animation<T> animate(Animation<float> parent) {
             return new _AnimatedEvaluation<T>(parent, this);
@@ -53,11 +61,14 @@ namespace Unity.UIWidgets.animation {
         readonly Animatable<float> _parent;
 
         readonly Animatable<T> _evaluatable;
-
-        public override T evaluate(Animation<float> animation) {
+        public override T transform(float t) {
+            return _evaluatable.transform(_parent.transform(t));
+        }
+        
+        /*public override T evaluate(Animation<float> animation) {
             float value = _parent.evaluate(animation);
             return _evaluatable.evaluate(new AlwaysStoppedAnimation<float>(value));
-        }
+        }*/
 
         public override string ToString() {
             return $"{_parent}\u27A9{_evaluatable}";
@@ -65,7 +76,7 @@ namespace Unity.UIWidgets.animation {
     }
 
     public abstract class Tween<T> : Animatable<T>, IEquatable<Tween<T>> {
-        protected Tween(T begin, T end) {
+        public Tween(T begin, T end) {
             this.begin = begin;
             this.end = end;
         }
@@ -75,8 +86,17 @@ namespace Unity.UIWidgets.animation {
         public virtual T end { get; set; }
 
         public abstract T lerp(float t);
+        
+        public override T transform(float t) {
+            if (t == 0.0)
+                return begin;
+            if (t == 1.0)
+                return end;
+            return lerp(t);
+        }
 
-        public override T evaluate(Animation<float> animation) {
+
+        /*public override T evaluate(Animation<float> animation) {
             float t = animation.value;
             if (t == 0.0) {
                 return begin;
@@ -87,7 +107,7 @@ namespace Unity.UIWidgets.animation {
             }
 
             return lerp(t);
-        }
+        }*/
 
         public override string ToString() {
             return $"{GetType()}({begin} \u2192 {end})";
@@ -244,8 +264,16 @@ namespace Unity.UIWidgets.animation {
         }
 
         public readonly Curve curve;
+        
+        public override float transform(float t) {
+            if (t == 0.0 || t == 1.0) {
+                D.assert(curve.transform(t).round() == t);
+                return t;
+            }
+            return curve.transform(t);
+        }
 
-        public override float evaluate(Animation<float> animation) {
+        /*public override float evaluate(Animation<float> animation) {
             float t = animation.value;
             if (t == 0.0 || t == 1.0) {
                 D.assert(curve.transform(t).round() == t);
@@ -253,7 +281,7 @@ namespace Unity.UIWidgets.animation {
             }
 
             return curve.transform(t);
-        }
+        }*/
 
         public override string ToString() {
             return $"{GetType()}(curve: {curve})";

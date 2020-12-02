@@ -311,7 +311,7 @@ namespace Unity.UIWidgets.cupertino {
                 _AlertDialogSections.actionsSection);
         }
 
-        public override void forgetChild(Element child) {
+        internal override void forgetChild(Element child) {
             D.assert(child == _contentElement || child == _actionsElement);
             if (_contentElement == child) {
                 _contentElement = null;

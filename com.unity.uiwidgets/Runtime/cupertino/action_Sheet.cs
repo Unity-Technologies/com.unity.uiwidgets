@@ -339,9 +339,11 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
 
-        public override void updateRenderObject(BuildContext context, _RenderCupertinoAlert renderObject) {
+        public override void updateRenderObject(BuildContext context,RenderObject renderObject ) {
+            //RenderObject renderObject
+            renderObject = (_RenderCupertinoAlert) renderObject;
             base.updateRenderObject(context, renderObject);
-            renderObject.dividerColor = CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kButtonDividerColor, context);
+            ((_RenderCupertinoAlert) renderObject).dividerColor = CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kButtonDividerColor, context);
         }
 
         public override Element createElement() {
@@ -357,12 +359,12 @@ namespace Unity.UIWidgets.cupertino {
         Element _contentElement;
         Element _actionsElement;
 
-        public override _CupertinoAlertRenderWidget widget {
-            get { return base.widget as _CupertinoAlertRenderWidget; }
+        public new _CupertinoAlertRenderWidget widget {
+            get { return base.widget as  _CupertinoAlertRenderWidget; }
         }
 
-        public override _RenderCupertinoAlert renderObject {
-            get { return base.renderObject as _RenderCupertinoAlert; }
+        public new _RenderCupertinoAlert renderObject {
+            get { return base.renderObject as   _RenderCupertinoAlert; }
         }
 
         public override void visitChildren(ElementVisitor visitor) {
@@ -399,7 +401,7 @@ namespace Unity.UIWidgets.cupertino {
                 _AlertSections.actionsSection);
         }
 
-        public override void forgetChild(Element child) {
+        internal override void forgetChild(Element child) {
             D.assert(child == _contentElement || child == _actionsElement);
             if (_contentElement == child) {
                 _contentElement = null;
@@ -586,7 +588,7 @@ namespace Unity.UIWidgets.cupertino {
             return 0.0f;
         }
 
-        protected override float computeMaxIntrinsicHeight(float width) {
+        protected internal override float computeMaxIntrinsicHeight(float width) {
             float contentHeight = contentSection.getMaxIntrinsicHeight(width);
             float actionsHeight = actionsSection.getMaxIntrinsicHeight(width);
             bool hasDivider = contentHeight > 0.0f && actionsHeight > 0.0f;
@@ -603,7 +605,7 @@ namespace Unity.UIWidgets.cupertino {
             return 0.0f;
         }
 
-        public override void performLayout() {
+        protected override void performLayout() {
             bool hasDivider = contentSection.getMaxIntrinsicHeight(constraints.maxWidth) > 0.0f
                               && actionsSection.getMaxIntrinsicHeight(constraints.maxWidth) > 0.0f;
             float dividerThickness = hasDivider ? _dividerThickness : 0.0f;
@@ -659,7 +661,7 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
 
-        public override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             MultiChildLayoutParentData contentSectionParentData =
                 contentSection.parentData as MultiChildLayoutParentData;
             MultiChildLayoutParentData actionsSectionParentData =
@@ -1075,7 +1077,7 @@ namespace Unity.UIWidgets.cupertino {
                    + (0.5f * childAfter(firstChild).getMinIntrinsicHeight(width));
         }
 
-        protected override float computeMaxIntrinsicHeight(float width) {
+        protected internal override float computeMaxIntrinsicHeight(float width) {
             if (childCount == 0) {
                 return 0.0f;
             }

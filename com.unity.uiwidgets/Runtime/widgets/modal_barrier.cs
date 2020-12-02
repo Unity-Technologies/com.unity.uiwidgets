@@ -18,7 +18,7 @@ namespace Unity.UIWidgets.widgets {
             return new GestureDetector(
                 onTapDown: details => {
                     if (dismissible) {
-                        Navigator.maybePop(context);
+                        Navigator.maybePop<object>(context);
                     }
                 },
                 behavior: HitTestBehavior.opaque,

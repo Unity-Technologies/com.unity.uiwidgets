@@ -39,7 +39,7 @@ namespace Unity.UIWidgets.cupertino {
         }
     
     }
-    public delegate Widget _DismissCallback(
+    public delegate void _DismissCallback(
         BuildContext context,
         float scale,
         float opacity
@@ -88,16 +88,16 @@ namespace Unity.UIWidgets.cupertino {
 
     }
 
-    public class _CupertinoContextMenuState : State<CupertinoContextMenu> , TickerProviderStateMixin { 
+    public class _CupertinoContextMenuState :  TickerProviderStateMixin<CupertinoContextMenu> { 
 
         public readonly GlobalKey _childGlobalKey = new LabeledGlobalKey<State<StatefulWidget>>();
         //GlobalKey();//GlobalKey();
         static readonly TimeSpan  kLongPressTimeout = new TimeSpan(0, 0, 0, 0, 500);
         public bool _childHidden = false;
- \      public AnimationController _openController;
+        public AnimationController _openController;
         public Rect _decoyChildEndRect;
         public OverlayEntry _lastOverlayEntry;
-        public _ContextMenuRoute<void> _route;
+        public _ContextMenuRoute _route;
 
         public override void initState() {
             base.initState();
@@ -132,7 +132,7 @@ namespace Unity.UIWidgets.cupertino {
               _childHidden = true;
             });
 
-            _route = new _ContextMenuRoute<void>(
+            _route = new _ContextMenuRoute(
                 actions: widget.actions,
                 barrierLabel: "Dismiss",
                 filter: ui.ImageFilter.blur(
@@ -278,7 +278,7 @@ namespace Unity.UIWidgets.cupertino {
             return new _DecoyChildState();
         }
     }
-    public class _DecoyChildState : State<_DecoyChild> , TickerProviderStateMixin {
+    public class _DecoyChildState : TickerProviderStateMixin<_DecoyChild> {
   
         public static readonly Color _lightModeMaskColor = new Color(0xFF888888);
         public static readonly Color _masklessColor = new Color(0xFFFFFFFF);
@@ -341,9 +341,10 @@ namespace Unity.UIWidgets.cupertino {
           colors.Add(color);
           return Positioned.fromRect(
             rect: _rect.value,
-            child: kIsweb
-              ? new Container(key: _childGlobalKey, child: widget.child)
-              : new ShaderMask(
+            child: //kIsweb?
+            new Container(key: _childGlobalKey, child: widget.child)
+            
+              /*: new ShaderMask(
                 key: _childGlobalKey,
                 shaderCallback: (Rect bounds) => {
                   return new LinearGradient(
@@ -353,7 +354,7 @@ namespace Unity.UIWidgets.cupertino {
                 ).createShader(bounds);
                 },
                 child: widget.child
-              )
+              )*/
           );
         }
         public override Widget build(BuildContext context) {
@@ -367,7 +368,7 @@ namespace Unity.UIWidgets.cupertino {
           );
         }
     }
-    public class _ContextMenuRoute<T> : PopupRoute<T> {
+    public class _ContextMenuRoute : PopupRoute {
       public _ContextMenuRoute(
         List<Widget> actions = null,
         _ContextMenuLocation contextMenuLocation = default,
@@ -414,10 +415,10 @@ namespace Unity.UIWidgets.cupertino {
       public readonly static RectTween _sheetRectTween = new RectTween();
       public readonly Animatable<Rect> _sheetRectAnimatable = _sheetRectTween.chain(_curve);
       public readonly Animatable<Rect> _sheetRectAnimatableReverse = _sheetRectTween.chain(_curveReverse);
-      public readonly static  Tween< float> _sheetScaleTween = new Tween<float>(0.0f,0.0f);
+      public readonly static  Tween< float> _sheetScaleTween = new FloatTween(0.0f,0.0f);
       public readonly static  Animatable< float> _sheetScaleAnimatable = _sheetScaleTween.chain(_curve);
       public readonly static  Animatable< float> _sheetScaleAnimatableReverse = _sheetScaleTween.chain(_curveReverse);
-      public readonly Tween< float> _opacityTween = new Tween< float>(begin: 0.0f, end: 1.0f);
+      public readonly Tween< float> _opacityTween = new FloatTween(begin: 0.0f, end: 1.0f);
       public Animation< float> _sheetOpacity;
       public readonly string barrierLabel;
 
@@ -447,7 +448,7 @@ namespace Unity.UIWidgets.cupertino {
         );
         return offsetScaled & sizeScaled;
       }
-      public static AlignmentDirectional getSheetAlignment(_ContextMenuLocation contextMenuLocation) {
+      /*public static AlignmentDirectional getSheetAlignment(_ContextMenuLocation contextMenuLocation) {
         switch (contextMenuLocation) {
           case _ContextMenuLocation.center:
             return AlignmentDirectional.topCenter;
@@ -456,7 +457,7 @@ namespace Unity.UIWidgets.cupertino {
           default:
             return AlignmentDirectional.topStart;
         }
-      }
+      }*/
       public static Rect _getSheetRectBegin(Orientation orientation, _ContextMenuLocation contextMenuLocation, Rect childRect, Rect sheetRect) {
         switch (contextMenuLocation) {
           case _ContextMenuLocation.center:
@@ -485,7 +486,7 @@ namespace Unity.UIWidgets.cupertino {
             parent: animation,
             curve: new Interval(0.9f, 1.0f)
         ));
-        Navigator.of(context).pop();
+        Navigator.of(context).pop<object>();
       }
 
       public void _updateTweenRects() {
@@ -517,16 +518,18 @@ namespace Unity.UIWidgets.cupertino {
         base.offstage = _externalOffstage || _internalOffstage;
         changedInternalState();
       }
-      public bool didPop(T result) {
+      public bool didPop(object result) {
         _updateTweenRects();
         return base.didPop(result);
       }
 
-        /*public set offstage(bool value) {
-            _externalOffstage = value;
-            _setOffstageInternally();
-        }*/
-        // tbc ???
+        public bool offstage{
+           set{
+               _externalOffstage = value;
+               _setOffstageInternally();
+           }
+        }
+        
       
       public TickerFuture didPush() {
         _internalOffstage = true;
@@ -572,7 +575,7 @@ namespace Unity.UIWidgets.cupertino {
                   child: new Opacity(
                     opacity: _sheetOpacity.value,
                     child: Transform.scale(
-                      alignment: getSheetAlignment(_contextMenuLocation),
+                      //alignment: getSheetAlignment(_contextMenuLocation),
                       scale: sheetScale,
                       child: new _ContextMenuSheet(
                         key: _sheetGlobalKey,
@@ -642,7 +645,7 @@ namespace Unity.UIWidgets.cupertino {
     }
   }
 
-  public class _ContextMenuRouteStaticState : State<_ContextMenuRouteStatic> ,TickerProviderStateMixin {
+  public class _ContextMenuRouteStaticState : TickerProviderStateMixin<_ContextMenuRouteStatic> {
     public readonly static  float _kMinScale = 0.8f;
     public readonly static  float _kSheetScaleThreshold = 0.9f;
     public readonly static  float _kPadding = 20.0f;
@@ -681,7 +684,7 @@ namespace Unity.UIWidgets.cupertino {
           _sheetController.reverse();
         }
 
-        _moveAnimation = new Tween<Offset>(
+        _moveAnimation = new OffsetTween(
           begin: new Offset(0.0f, _moveAnimation.value.dy),
           end:new  Offset(0.0f, finalPosition)
         ).animate(_moveController);
@@ -747,7 +750,7 @@ namespace Unity.UIWidgets.cupertino {
         : _kPadding * dragOffset.dy / _kDamping;
       setState(() =>{
         _dragOffset = dragOffset;
-        _moveAnimation = new Tween<Offset>(
+        _moveAnimation = new OffsetTween(
           begin: Offset.zero,
           end: new Offset(
             endX.clamp(-_kPadding, _kPadding) ,
@@ -865,10 +868,10 @@ namespace Unity.UIWidgets.cupertino {
       );
       _sheetController = new AnimationController(
         duration: new TimeSpan(0,0,0,100),
-        reverseDuration: new TimeSpan(0,0,0,300),/// TBC ???
+        //reverseDuration: new TimeSpan(0,0,0,300),/// TBC ???
         vsync: this
       );
-      _sheetScaleAnimation = new Tween< float>(
+      _sheetScaleAnimation = new FloatTween(
         begin: 1.0f,
         end: 0.0f
       ).animate(
@@ -878,7 +881,7 @@ namespace Unity.UIWidgets.cupertino {
           reverseCurve: Curves.easeInBack
         )
       );
-      _sheetOpacityAnimation = new Tween< float>(
+      _sheetOpacityAnimation = new FloatTween(
         begin: 1.0f,
         end: 0.0f
       ).animate(_sheetController);

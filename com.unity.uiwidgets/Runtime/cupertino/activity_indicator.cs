@@ -12,9 +12,10 @@ using Color = Unity.UIWidgets.ui.Color;
 namespace Unity.UIWidgets.cupertino {
     static class CupertinoActivityIndicatorUtils {
         public const float _kDefaultIndicatorRadius = 10.0f;
-        public const Color _kActiveTickColor = CupertinoDynamicColor.withBrightness(
-            color: Color(0xFF3C3C44),
-            darkColor: Color(0xFFEBEBF5)
+
+        public static readonly Color _kActiveTickColor = CupertinoDynamicColor.withBrightness(
+            color: new Color(0xFF3C3C44),
+            darkColor: new Color(0xFFEBEBF5)
         );
 
         public const float _kTwoPI = Mathf.PI * 2.0f;
@@ -98,7 +99,8 @@ namespace Unity.UIWidgets.cupertino {
         }
     }
 
-    class _CupertinoActivityIndicatorPainter : CustomPainter {
+    class _CupertinoActivityIndicatorPainter : AbstractCustomPainter
+    {//CustomPainter {
         //AbstractCustomPainter {
         public _CupertinoActivityIndicatorPainter(
             Animation<float> position = null,

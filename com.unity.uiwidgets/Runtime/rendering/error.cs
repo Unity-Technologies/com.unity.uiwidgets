@@ -41,9 +41,9 @@ namespace Unity.UIWidgets.rendering {
             return rendering_._kMaxHeight;
         }
 
-        protected override bool sizedByParent {
+        /*protected override bool sizedByParent {
             get => true;
-        }
+        }*/
 
         protected override bool hitTestSelf(Offset position) => true;
 

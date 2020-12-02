@@ -14,13 +14,13 @@ namespace Unity.UIWidgets.widgets {
 
     public delegate Route<T> RouteBuilder<T>(BuildContext context, RouteSettings settings);
 
-    public delegate List<Route<object>> RouteListFactory(NavigatorState navigator, string initialRoute);
+    public delegate List<Route> RouteListFactory(NavigatorState navigator, string initialRoute);
 
-    //public delegate bool RoutePredicate(Route<object> route);
+    //public delegate bool RoutePredicate(Route route);
 
     public delegate bool RoutePredicate(Route route);
 
-    public delegate bool PopPageCallback(Route<object> route, object result);
+    public delegate bool PopPageCallback(Route route, object result);
 
     public delegate Future<bool> WillPopCallback();
 
@@ -87,7 +87,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public List<OverlayEntry> overlayEntries {
+        public virtual List<OverlayEntry> overlayEntries {
             get { return new List<OverlayEntry>(); }
         }
 
@@ -105,8 +105,7 @@ namespace Unity.UIWidgets.widgets {
             TickerFuture.complete().then(_ => { navigator.focusScopeNode.requestFocus(); });
         }
 
-        protected internal virtual void didReplace(Route oldRoute) {
-        }
+        
 
         public virtual Future<RoutePopDisposition> willPop() {
             /// async
@@ -122,22 +121,22 @@ namespace Unity.UIWidgets.widgets {
         public virtual object currentResult {
             get { return null; }
         }
-
         public Future popped {
             get { return _popCompleter.future; }
         }
-
-        internal readonly Completer _popCompleter = Completer.create();
-
         protected internal virtual bool didPop(object result) {
             didComplete(result);
             return true;
         }
-
-        protected internal virtual void didComplete(object result) {
+        protected internal virtual void didComplete(object result ) {
             _popCompleter.complete(FutureOr.value(result ?? currentResult));
         }
+       
 
+        internal readonly Completer _popCompleter = Completer.create();
+
+        protected internal virtual void didReplace(Route oldRoute) {
+        }
         protected internal virtual void didPopNext(Route nextRoute) {
         }
 
@@ -199,7 +198,7 @@ namespace Unity.UIWidgets.widgets {
                 _RouteEntry routeEntry = null;
                 foreach (var historyEntry in _navigator._history) {
                      if (_RouteEntry.isRoutePredicate(this)(historyEntry)) {
-                         //Route<object>
+                         //Route
                          routeEntry = historyEntry;
                          break;
                      }
@@ -210,14 +209,28 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class Route<T> : Route {
-
-        readonly Route _route;
-
-        public Route(Route route) {
-            _route = route;
+        public Route(RouteSettings settings = null) {
+            _settings = settings ?? new RouteSettings();
         }
-
-
+        public T currentResult {
+            get { return default(T); }
+        }
+        public Future<T> popped {
+            get { return _popCompleter.future.to<T>(); }
+        }
+        protected internal virtual bool didPop(T result) {
+            didComplete(result);
+            return true;
+        }
+        protected internal void didComplete(T result ) {
+            if (default(T) == null) {
+                _popCompleter.complete(FutureOr.value(currentResult));
+            }
+            else {
+                _popCompleter.complete(FutureOr.value(result));
+            }
+            
+        }
     }
 
     public class RouteSettings {
@@ -343,7 +356,7 @@ namespace Unity.UIWidgets.widgets {
 
     public abstract class RouteTransitionRecord {
 
-        public Route<object> route;
+        public Route route;
 
         public bool isEntering;
 
@@ -567,11 +580,11 @@ namespace Unity.UIWidgets.widgets {
             return Navigator.of(context).pushAndRemoveUntil<T>(newRoute, predicate);
          }
 
-        public static void replace<T>(BuildContext context,  Route<object> oldRoute,  Route<T> newRoute ) {
+        public static void replace<T>(BuildContext context,  Route oldRoute,  Route<T> newRoute ) {
              Navigator.of(context).replace<T>(oldRoute: oldRoute, newRoute: newRoute);
         }
 
-        public static void replaceRouteBelow<T>(BuildContext context,  Route<object> anchorRoute, Route<T> newRoute ) {
+        public static void replaceRouteBelow<T>(BuildContext context,  Route anchorRoute, Route<T> newRoute ) {
             Navigator.of(context).replaceRouteBelow<T>(anchorRoute: anchorRoute, newRoute: newRoute);
           }
 
@@ -579,9 +592,12 @@ namespace Unity.UIWidgets.widgets {
             NavigatorState navigator = Navigator.of(context, nullOk: true);
             return navigator != null && navigator.canPop();
         }
-        public static Future<bool> maybePop<T>(BuildContext context,  T result ) {
+        public static Future<bool> maybePop<T>(BuildContext context,  T result = default(T)) {
             return Navigator.of(context).maybePop<T>(result);
         }
+        /*public static Future<bool> maybePop(BuildContext context,  object result = null) {
+            return Navigator.of(context).maybePop(result);
+        }*/
 
         public static void pop<T>(BuildContext context, T result ) {
             Navigator.of(context).pop<T>(result);
@@ -591,12 +607,12 @@ namespace Unity.UIWidgets.widgets {
             Navigator.of(context).popUntil(predicate);
           }
 
-        public static void removeRoute(BuildContext context, Route<object> route) {
+        public static void removeRoute(BuildContext context, Route route) {
              Navigator.of(context).removeRoute(route);
         }
 
           
-        public static void removeRouteBelow(BuildContext context, Route<object> anchorRoute) {
+        public static void removeRouteBelow(BuildContext context, Route anchorRoute) {
              Navigator.of(context).removeRouteBelow(anchorRoute);
           }
         /*public static void replace(BuildContext context, Route oldRoute = null, Route newRoute = null) {
@@ -658,8 +674,8 @@ namespace Unity.UIWidgets.widgets {
             return navigator;
         }
 
-        public static List<Route<object>> defaultGenerateInitialRoutes(NavigatorState navigator, string initialRouteName) {
-            List<Route<object>> result = new List<Route<object>>();
+        public static List<Route> defaultGenerateInitialRoutes(NavigatorState navigator, string initialRouteName) {
+            List<Route> result = new List<Route>();
             if (initialRouteName.StartsWith("/") && initialRouteName.Length > 1) {
                 initialRouteName = initialRouteName.Substring(1); // strip leading "/"
                 D.assert(Navigator.defaultRouteName == "/");
@@ -719,7 +735,7 @@ namespace Unity.UIWidgets.widgets {
 
     public class _RouteEntry : RouteTransitionRecord {
         public _RouteEntry(
-            Route<object> route,
+            Route route,
             _RouteLifecycle initialState
 
         ) {
@@ -736,12 +752,12 @@ namespace Unity.UIWidgets.widgets {
             currentState = initialState;
         }
 
-        public Route<object> route;
+        public Route route;
 
         public _RouteLifecycle currentState;
-        public Route<object> lastAnnouncedPreviousRoute; // last argument to Route.didChangePrevious
-        public Route<object> lastAnnouncedPoppedNextRoute; // last argument to Route.didPopNext
-        public Route<object> lastAnnouncedNextRoute; // last argument to Route.didChangeNext
+        public Route lastAnnouncedPreviousRoute; // last argument to Route.didChangePrevious
+        public Route lastAnnouncedPoppedNextRoute; // last argument to Route.didPopNext
+        public Route lastAnnouncedNextRoute; // last argument to Route.didChangeNext
 
         public bool hasPage {
             get { return route.settings is Page<object>; }
@@ -767,8 +783,8 @@ namespace Unity.UIWidgets.widgets {
             currentState = _RouteLifecycle.adding;
         }
 
-        public void handlePush(NavigatorState navigator, bool isNewFirst, Route<object> previous = null,
-            Route<object> previousPresent = null) {
+        public void handlePush(NavigatorState navigator, bool isNewFirst, Route previous = null,
+            Route previousPresent = null) {
             D.assert(currentState == _RouteLifecycle.push || currentState == _RouteLifecycle.pushReplace ||
                      currentState == _RouteLifecycle.replace);
             D.assert(navigator != null);
@@ -818,12 +834,12 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public void handleDidPopNext(Route<object> poppedRoute) {
+        public void handleDidPopNext(Route poppedRoute) {
             route.didPopNext(poppedRoute);
             lastAnnouncedPoppedNextRoute = poppedRoute;
         }
 
-        public void handlePop(NavigatorState navigator, Route<object> previousPresent) {
+        public void handlePop(NavigatorState navigator, Route previousPresent) {
             D.assert(navigator != null);
             D.assert(navigator._debugLocked);
             D.assert(route._navigator == navigator);
@@ -832,7 +848,7 @@ namespace Unity.UIWidgets.widgets {
                 observer.didPop(route, previousPresent);
         }
 
-        public void handleRemoval(NavigatorState navigator, Route<object> previousPresent) {
+        public void handleRemoval(NavigatorState navigator, Route previousPresent) {
             D.assert(navigator != null);
             D.assert(navigator._debugLocked);
             D.assert(route._navigator == navigator);
@@ -845,7 +861,7 @@ namespace Unity.UIWidgets.widgets {
 
         public bool doingPop = false;
 
-        public void didAdd(NavigatorState navigator, bool isNewFirst, Route<object> previous, Route<object> previousPresent) {
+        public void didAdd(NavigatorState navigator, bool isNewFirst, Route previous, Route previousPresent) {
             route.didAdd();
             currentState = _RouteLifecycle.idle;
             if (isNewFirst) {
@@ -939,7 +955,7 @@ namespace Unity.UIWidgets.widgets {
 
         }
 
-        public bool shouldAnnounceChangeToNext(Route<object> nextRoute) {
+        public bool shouldAnnounceChangeToNext(Route nextRoute) {
             D.assert(nextRoute != lastAnnouncedNextRoute);
             return !(
                 nextRoute == null &&
@@ -955,7 +971,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly static _RouteEntryPredicate willBePresentPredicate = (_RouteEntry entry) => entry.willBePresent;
 
-        public static _RouteEntryPredicate isRoutePredicate(Route<object> route) {
+        public static _RouteEntryPredicate isRoutePredicate(Route route) {
             return (_RouteEntry entry) => entry.route == route;
         }
 
@@ -1052,7 +1068,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (initialRoute != null) {
-                foreach (Route<object> route in 
+                foreach (Route route in 
                     (widget.onGenerateInitialRoutes(this, widget.initialRoute 
                                                           ?? Navigator.defaultRouteName))) {
                     _history.Add(
@@ -1128,7 +1144,7 @@ namespace Unity.UIWidgets.widgets {
             });
             foreach (NavigatorObserver observer in widget.observers)
                 observer._navigator = null;
-            focusScopeNode.dispose();/// focus manager
+            focusScopeNode.detach();/// focus manager dispose
             foreach (_RouteEntry entry in _history)
                 entry.dispose();
             base.dispose();
@@ -1140,18 +1156,18 @@ namespace Unity.UIWidgets.widgets {
             get { return _overlayKey.currentState; }
         }
 
-        public IEnumerable<OverlayEntry> _allRouteOverlayEntries { ///sync 
+        public List<OverlayEntry> _allRouteOverlayEntries { ///sync 
             get {
-                List<OverlayEntry> entries = new List<OverlayEntry>();
+                List<OverlayEntry> overlayEntries = new  List<OverlayEntry>();
                 foreach (var historyEntry in _history) {
-                    yield* entry.route.overlayEntries;
-                    //entries.Add(historyEntry.route.overlayEntries);
-                    /*foreach (var overlayEntry in historyEntry.route.overlayEntries) {
-                        entries.Add(overlayEntry);
+                    //yield* entry.route.overlayEntries;
+                    /*foreach (var historyOverlayEntry in historyEntry.route.overlayEntries) {
+                        yield return historyOverlayEntry;
                     }*/
+                    overlayEntries.AddRange(historyEntry.route.overlayEntries);
+                    
                 }
-
-                return entries;
+                return overlayEntries;
             }
         }
 
@@ -1422,7 +1438,7 @@ namespace Unity.UIWidgets.widgets {
             bool
                 canRemoveOrAdd =
                     false; // Whether there is a fully opaque route on top to silently remove or add route underneath.
-            Route<object> poppedRoute = null; // The route that should trigger didPopNext on the top active route.
+            Route poppedRoute = null; // The route that should trigger didPopNext on the top active route.
             bool seenTopActiveRoute = false; // Whether we"ve seen the route that would get didPopNext.
             List<_RouteEntry> toBeDisposed = new List<_RouteEntry>();
             while (index >= 0) {
@@ -1545,9 +1561,9 @@ namespace Unity.UIWidgets.widgets {
                     lastEntry = historyEntry;
                 }
             }
-            String routeName = lastEntry?.route?.settings?.name;
+            string routeName = lastEntry?.route?.settings?.name;
             if (routeName != _lastAnnouncedRouteName) {
-                RouteNotificationMessages.maybeNotifyRouteChange(routeName, _lastAnnouncedRouteName);
+                //RouteNotificationMessages.maybeNotifyRouteChange(routeName, _lastAnnouncedRouteName);
                 _lastAnnouncedRouteName = routeName;
             }
 
@@ -1701,7 +1717,23 @@ namespace Unity.UIWidgets.widgets {
         ) {
             return pushAndRemoveUntil<T>(_routeNamed<T>(newRouteName, arguments: arguments), predicate);
         }
-
+        public Future push(Route route) {
+            D.assert(!_debugLocked);
+            D.assert(() => {
+                _debugLocked = true;
+                return true;
+            });
+            D.assert(route != null);
+            D.assert(route._navigator == null);
+            _history.Add(new _RouteEntry(route, initialState: _RouteLifecycle.push));
+            _flushHistoryUpdates();
+            D.assert(() => {
+                _debugLocked = false;
+                return true;
+            });
+            _afterNavigation(route);
+            return route.popped;
+        }
 
         public Future<T> push<T>(Route<T> route) {
             D.assert(!_debugLocked);
@@ -1721,7 +1753,7 @@ namespace Unity.UIWidgets.widgets {
             return route.popped.to<T>();
         }
 
-        void _afterNavigation<T>(Route<T> route) {
+        void _afterNavigation(Route route) {
             /*if (!kReleaseMode) {
                 Dictionary<string, object> routeJsonable = new Dictionary<string, object>();
                 if (route != null) {
@@ -1826,7 +1858,7 @@ namespace Unity.UIWidgets.widgets {
             return newRoute.popped.to<T>();
         }
 
-        public void replace<T>(Route<object> oldRoute, Route<T> newRoute) {
+        public void replace<T>(Route oldRoute, Route<T> newRoute) {
             D.assert(!_debugLocked);
             D.assert(oldRoute != null);
             D.assert(newRoute != null);
@@ -1862,7 +1894,7 @@ namespace Unity.UIWidgets.widgets {
                 _afterNavigation(newRoute);
         }
 
-        public void replaceRouteBelow<T>(Route<object> anchorRoute, Route<T> newRoute) {
+        public void replaceRouteBelow<T>(Route anchorRoute, Route<T> newRoute) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
@@ -1917,45 +1949,48 @@ namespace Unity.UIWidgets.widgets {
             return true; // there"s at least two routes, so we can pop
         }
 
-        public Future<bool> maybePop<T>(T result = default) {
+        public Future<bool> maybePop<T>(T result = default(T)) {
             ///asyn
-            var popResult = false;
             _RouteEntry lastEntry = null; //_history.Where(_RouteEntry.isPresentPredicate);
             foreach (_RouteEntry routeEntry in _history) {
                 if (_RouteEntry.isPresentPredicate(routeEntry)) {
                     lastEntry = routeEntry;
                 }
             }
-            if (lastEntry == null) {
-                popResult = false;
-                return false;
-            }
+            
             D.assert(lastEntry.route._navigator == this);
-            RoutePopDisposition disposition = lastEntry.route.willPop(); // this is asynchronous // await
-            D.assert(disposition != null);
-            if (!mounted)
-                return true; // forget about this pop, we were disposed in the meantime
-            _RouteEntry newLastEntry = null;
+            // this is asynchronous // await
+             return lastEntry.route.willPop().then_(disposition => {
+                 if (lastEntry == null) {
+                     return false;
+                 }
+                 D.assert(disposition != null);
+                 if (!mounted)
+                     return true; // forget about this pop, we were disposed in the meantime
+                 _RouteEntry newLastEntry = null;
 
-            foreach (_RouteEntry history in _history) {
-                if (_RouteEntry.isPresentPredicate(history)) {
-                    newLastEntry = history;
-                }
-            }
+                 foreach (_RouteEntry history in _history) {
+                     if (_RouteEntry.isPresentPredicate(history)) {
+                         newLastEntry = history;
+                     }
+                 }
 
-            if (lastEntry != newLastEntry)
-                return true; // forget about this pop, something happened to our history in the meantime
-            switch (disposition) {
-                case RoutePopDisposition.bubble:
-                    return false;
-                case RoutePopDisposition.pop:
-                    pop(result);
-                    return true;
-                case RoutePopDisposition.doNotPop:
-                    return true;
-            }
+                 if (lastEntry != newLastEntry)
+                     return true; // forget about this pop, something happened to our history in the meantime
+                 switch (disposition) {
+                     case RoutePopDisposition.bubble:
+                         return false;
+                     case RoutePopDisposition.pop:
+                         pop(result);
+                         return true;
+                     case RoutePopDisposition.doNotPop:
+                         return true;
+                 }
 
-            return null;
+                 return false;
+
+             }).to<bool>(); 
+           
         }
 
         public void pop<T>(T result = default) {
@@ -1990,7 +2025,7 @@ namespace Unity.UIWidgets.widgets {
                 _debugLocked = false;
                 return true;
             });
-            _afterNavigation<object>(entry.route);
+            _afterNavigation(entry.route);
         }
 
 
@@ -2007,7 +2042,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public void removeRoute(Route<object> route) {
+        public void removeRoute(Route route) {
             D.assert(route != null);
             D.assert(!_debugLocked);
             D.assert(() => {
@@ -2039,7 +2074,7 @@ namespace Unity.UIWidgets.widgets {
                     }
                 }
 
-                _afterNavigation<object>(
+                _afterNavigation(
                     lastEntry?.route
                 );
             }
@@ -2048,7 +2083,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        public void removeRouteBelow(Route<object> anchorRoute) {
+        public void removeRouteBelow(Route anchorRoute) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
@@ -2083,7 +2118,7 @@ namespace Unity.UIWidgets.widgets {
             });
         }
 
-        public void finalizeRoute(Route<object> route) {
+        public void finalizeRoute(Route route) {
 
             bool wasDebugLocked;
             D.assert(() => {
@@ -2139,11 +2174,10 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
+        public ValueNotifier<bool> userGestureInProgressNotifier = new ValueNotifier<bool>(false);
 
-        ValueNotifier<bool> userGestureInProgressNotifier = new ValueNotifier<bool>(false);
 
-
-        void didStartUserGesture() {
+        public void didStartUserGesture() {
             _userGesturesInProgress += 1;
             if (_userGesturesInProgress == 1) {
                 int routeIndex = _getIndexBefore(
@@ -2151,10 +2185,10 @@ namespace Unity.UIWidgets.widgets {
                     _RouteEntry.willBePresentPredicate
                 );
                 D.assert(routeIndex != null);
-                Route<object> route = _history[routeIndex].route;
-                Route<object> previousRoute = null;
+                Route route = _history[routeIndex].route;
+                Route previousRoute = null;
                 if (!route.willHandlePopInternally && routeIndex > 0) {
-                    previousRoute = _getRouteBefore(
+                    previousRoute = (Route) _getRouteBefore(
                         routeIndex - 1,
                         _RouteEntry.willBePresentPredicate
                     ).route;
@@ -2165,7 +2199,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        void didStopUserGesture() {
+        public void didStopUserGesture() {
             D.assert(_userGesturesInProgress > 0);
             _userGesturesInProgress -= 1;
             if (_userGesturesInProgress == 0) {

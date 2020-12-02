@@ -396,7 +396,11 @@ namespace Unity.UIWidgets.widgets {
     public class WidgetInspector : StatefulWidget {
         public readonly Widget child;
 
-        public WidgetInspector(Key key, Widget child, InspectorSelectButtonBuilder selectButtonBuilder) : base(key) {
+        public WidgetInspector(
+            Key key,
+            Widget child,
+            InspectorSelectButtonBuilder selectButtonBuilder
+            ) : base(key) {
             D.assert(child != null);
             this.child = child;
             this.selectButtonBuilder = selectButtonBuilder;

@@ -174,18 +174,18 @@ namespace Unity.UIWidgets.cupertino {
                                 return new WidgetsApp(
                                     key: new GlobalObjectKey<State<StatefulWidget>>(value: this),
                                     navigatorKey: widget.navigatorKey,
-                                    onGenerateRoute: widget.onGenerateRoute,
-                                    onGenerateInitialRoutes: widget.onGenerateInitialRoutes,
-                                    onUnknownRoute: widget.onUnknownRoute,
                                     navigatorObservers: _navigatorObservers,
-                                    initialRoute: widget.initialRoute,
-                                    pageRouteBuilder: (RouteSettings settings, WidgetBuilder builder) =>
+                                    pageRouteBuilder:(RouteSettings settings, WidgetBuilder builder) =>
                                         new CupertinoPageRoute(settings: settings, builder: builder),
                                     home: widget.home,
                                     routes: widget.routes,
-                                    builder: widget.builder, 
+                                    initialRoute: widget.initialRoute,
+                                    onGenerateRoute: widget.onGenerateRoute,
+                                    onGenerateInitialRoutes: widget.onGenerateInitialRoutes,
+                                    onUnknownRoute: widget.onUnknownRoute,
+                                    builder: widget.builder,
                                     title: widget.title,
-                                    onGenerateTitle: widget.onGenerateTitle, 
+                                    onGenerateTitle: widget.onGenerateTitle,
                                     textStyle: CupertinoTheme.of(context).textTheme.textStyle,
                                     color: CupertinoDynamicColor.resolve(widget.color ?? effectiveThemeData.primaryColor, context),
                                     locale: widget.locale,
@@ -198,21 +198,20 @@ namespace Unity.UIWidgets.cupertino {
                                     checkerboardOffscreenLayers: widget.checkerboardOffscreenLayers,
                                     showSemanticsDebugger: widget.showSemanticsDebugger,
                                     debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,
-                                    inspectorSelectButtonBuilder: (BuildContext context2, VoidCallback onPressed)=>{
-                                        return CupertinoButton.filled(
-                                            child: new Icon(
-                                                CupertinoIcons.search,
-                                                size: 28.0f,
-                                                color: CupertinoColors.white
-                                                ),
-                                                padding: EdgeInsets.zero,
-                                                onPressed: onPressed
-                                            );
-                                    }
-                                            ///TBC????
-                                            //shortcuts: widget.shortcuts,
-                                            //actions: widget.actions
-                                );            
+                                    inspectorSelectButtonBuilder: (BuildContext context3, VoidCallback onPressed) => {
+                                      return CupertinoButton.filled(
+                                        child: new Icon(
+                                          CupertinoIcons.search,
+                                          size: 28.0f,
+                                          color: CupertinoColors.white
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                        onPressed: onPressed
+                                      );
+                                    }//,
+                                    //shortcuts: widget.shortcuts,
+                                    //actions: widget.actions,
+                                  );  
                             }
                         )
                     )

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -8,7 +9,11 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     public delegate Tween<Rect> CreateRectTween(Rect begin, Rect end);
-
+    public delegate Widget HeroPlaceholderBuilder(
+        BuildContext context,
+        Size heroSize,
+        Widget child
+    );
     public delegate Widget HeroFlightShuttleBuilder(
         BuildContext flightContext,
         Animation<float> animation,
@@ -25,10 +30,18 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class HeroUtils {
-        public static Rect _globalBoundingBoxFor(BuildContext context) {
+        /*public static Rect _globalBoundingBoxFor(BuildContext context) {
             RenderBox box = (RenderBox) context.findRenderObject();
             D.assert(box != null && box.hasSize);
             return MatrixUtils.transformRect( box.getTransformTo(null), Offset.zero & box.size);
+        }*/
+        public  static Rect _boundingBoxFor(BuildContext context, BuildContext ancestorContext = null) {
+            RenderBox box = context.findRenderObject() as RenderBox;
+            D.assert(box != null && box.hasSize);
+            return MatrixUtils.transformRect(
+                box.getTransformTo(ancestorContext?.findRenderObject()),
+                Offset.zero & box.size
+            );
         }
     }
 
@@ -39,7 +52,7 @@ namespace Unity.UIWidgets.widgets {
             object tag = null,
             CreateRectTween createRectTween = null,
             HeroFlightShuttleBuilder flightShuttleBuilder = null,
-            TransitionBuilder placeholderBuilder = null,
+            HeroPlaceholderBuilder placeholderBuilder = null,
             bool transitionOnUserGestures = false,
             Widget child = null
         ) : base(key: key) {
@@ -61,8 +74,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly Widget child;
 
         public readonly HeroFlightShuttleBuilder flightShuttleBuilder;
-
-        public readonly TransitionBuilder placeholderBuilder;
+        public readonly HeroPlaceholderBuilder placeholderBuilder;
+        //public readonly TransitionBuilder placeholderBuilder;
 
         public readonly bool transitionOnUserGestures;
 
@@ -72,7 +85,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(navigator != null);
             Dictionary<object, _HeroState> result = new Dictionary<object, _HeroState> { };
 
-            void addHero(StatefulElement hero, object tag) {
+            /*void addHero(StatefulElement hero, object tag) {
                 D.assert(() => {
                     if (result.ContainsKey(tag)) {
                         throw new UIWidgetsError(
@@ -89,10 +102,34 @@ namespace Unity.UIWidgets.widgets {
                 });
                 _HeroState heroState = (_HeroState) hero.state;
                 result[tag] = heroState;
+            }*/
+            void inviteHero(StatefulElement hero, object tag) {
+                D.assert(()=> {
+                    if (result.ContainsKey(tag)) {
+                        throw new UIWidgetsError(
+                            "There are multiple heroes that share the same tag within a subtree.\n" +
+                            "Within each subtree for which heroes are to be animated (typically a PageRoute subtree), " +
+                            "each Hero must have a unique non-null tag.\n" +
+                            $"In this case, multiple heroes had the following tag: {tag}\n" +
+                            "Here is the subtree for one of the offending heroes:\n" +
+                            $"{hero.toStringDeep(prefixLineOne: "# ")}"
+                        );
+                    }
+                    return true;
+                });
+                Hero heroWidget = hero.widget as Hero;
+                _HeroState heroState = hero.state as _HeroState;
+                if (!isUserGestureTransition || heroWidget.transitionOnUserGestures) {
+                    result[tag] = heroState;
+                } else {
+                    // If transition is not allowed, we need to make sure hero is not hidden.
+                    // A hero can be hidden previously due to hero transition.
+                    heroState.ensurePlaceholderIsHidden();
+                }
             }
 
             void visitor(Element element) {
-                if (element.widget is Hero) {
+                /*if (element.widget is Hero) {
                     StatefulElement hero = (StatefulElement) element;
                     Hero heroWidget = (Hero) element.widget;
                     if (!isUserGestureTransition || heroWidget.transitionOnUserGestures) {
@@ -106,6 +143,20 @@ namespace Unity.UIWidgets.widgets {
                             if (heroRoute != null && heroRoute is PageRoute && heroRoute.isCurrent) {
                                 addHero(hero, tag);
                             }
+                        }
+                    }
+                }*/
+                Widget widget = element.widget;
+                if (widget is Hero) {
+                    StatefulElement hero = element as StatefulElement;
+                    object tag = ((Hero)widget).tag;
+                    D.assert(tag != null);
+                    if (Navigator.of(hero) == navigator) {
+                        inviteHero(hero, tag);
+                    } else {
+                        ModalRoute heroRoute = ModalRoute.of(hero);
+                        if (heroRoute != null && heroRoute is PageRoute && heroRoute.isCurrent) {
+                            inviteHero(hero, tag);
                         }
                     }
                 }
@@ -130,54 +181,82 @@ namespace Unity.UIWidgets.widgets {
     class _HeroState : State<Hero> {
         GlobalKey _key = GlobalKey.key();
         Size _placeholderSize;
-
-        public void startFlight() {
+        bool _shouldIncludeChild = true;
+        //public void startFlight() {
+        public void startFlight( bool shouldIncludedChildInPlaceholder = false ) {
+            _shouldIncludeChild = shouldIncludedChildInPlaceholder;
             D.assert(mounted);
             RenderBox box = (RenderBox) context.findRenderObject();
             D.assert(box != null && box.hasSize);
             setState(() => { _placeholderSize = box.size; });
         }
 
-        public void endFlight() {
+        //public void endFlight() {
+        public void ensurePlaceholderIsHidden() {
             if (mounted) {
                 setState(() => { _placeholderSize = null; });
             }
         }
-
+        public void endFlight(bool keepPlaceholder = false ) {
+            if (!keepPlaceholder) {
+                ensurePlaceholderIsHidden();
+            }
+        }
         public override Widget build(BuildContext context) {
-            D.assert(context.ancestorWidgetOfExactType(typeof(Hero)) == null,
+            D.assert(
+                //context.ancestorWidgetOfExactType(typeof(Hero)) == null,
+                context.findAncestorWidgetOfExactType<Hero>() == null,
                 () => "A Hero widget cannot be the descendant of another Hero widget.");
-            if (_placeholderSize != null) {
-                if (widget.placeholderBuilder == null) {
+            //if (_placeholderSize != null) {
+            //    if (widget.placeholderBuilder == null) {
+            bool showPlaceholder = _placeholderSize != null;
+
+            if (showPlaceholder && widget.placeholderBuilder != null) {
+                return widget.placeholderBuilder(context, _placeholderSize, widget.child);
+            }
+
+            if (showPlaceholder && !_shouldIncludeChild) {
                     return new SizedBox(
                         width: _placeholderSize.width,
                         height: _placeholderSize.height
                     );
                 }
-                else {
+            return new SizedBox(
+                width: _placeholderSize?.width,
+                height: _placeholderSize?.height,
+                child: new Offstage(
+                    offstage: showPlaceholder,
+                    child: new TickerMode(
+                        enabled: !showPlaceholder,
+                        child: new KeyedSubtree(key: _key, child: widget.child)
+                    )
+                )
+            );
+                /*else {
                     return widget.placeholderBuilder(context, widget.child);
-                }
-            }
+                }*/
+            
 
-            return new KeyedSubtree(
+            /*return new KeyedSubtree(
                 key: _key,
                 child: widget.child
-            );
+            );*/
         }
     }
 
     class _HeroFlightManifest {
         public _HeroFlightManifest(
-            HeroFlightDirection type,
-            OverlayState overlay,
-            Rect navigatorRect,
-            PageRoute fromRoute,
-            PageRoute toRoute,
-            _HeroState fromHero,
-            _HeroState toHero,
-            CreateRectTween createRectTween,
-            HeroFlightShuttleBuilder shuttleBuilder,
-            bool isUserGestureTransition
+            HeroFlightDirection type = default,
+            OverlayState overlay = null ,
+            Rect navigatorRect = null,
+            PageRoute fromRoute = null,
+            PageRoute toRoute = null,
+            _HeroState fromHero = null, 
+            _HeroState toHero = null,
+            CreateRectTween createRectTween = null,
+            HeroFlightShuttleBuilder shuttleBuilder = null,
+            bool isUserGestureTransition = false,
+            bool isDiverted = false
         ) {
             D.assert(fromHero.widget.tag.Equals(toHero.widget.tag));
             this.type = type;
@@ -202,6 +281,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly CreateRectTween createRectTween;
         public readonly HeroFlightShuttleBuilder shuttleBuilder;
         public readonly bool isUserGestureTransition;
+        public readonly bool isDiverted;
 
         public object tag {
             get { return fromHero.widget.tag; }
@@ -212,6 +292,7 @@ namespace Unity.UIWidgets.widgets {
                 return new CurvedAnimation(
                     parent: (type == HeroFlightDirection.push) ? toRoute.animation : fromRoute.animation,
                     curve: Curves.fastOutSlowIn
+                    , reverseCurve: isDiverted ? null : Curves.fastOutSlowIn.flipped
                 );
             }
         }
@@ -235,7 +316,7 @@ namespace Unity.UIWidgets.widgets {
         Widget shuttle;
 
         Animation<float> _heroOpacity = Animations.kAlwaysCompleteAnimation;
-        ProxyAnimation _proxyAnimation;
+        public ProxyAnimation _proxyAnimation;
         public _HeroFlightManifest manifest;
         public OverlayEntry overlayEntry;
         bool _aborted = false;
@@ -264,7 +345,8 @@ namespace Unity.UIWidgets.widgets {
                 animation: _proxyAnimation,
                 child: shuttle,
                 builder: (BuildContext _, Widget child) => {
-                    RenderBox toHeroBox = (RenderBox) manifest.toHero.context?.findRenderObject();
+                    //RenderBox toHeroBox = (RenderBox) manifest.toHero.context?.findRenderObject();
+                    RenderBox toHeroBox = manifest.toHero.context?.findRenderObject() as RenderBox;
                     if (_aborted || toHeroBox == null || !toHeroBox.attached) {
                         if (_heroOpacity.isCompleted) {
                             _heroOpacity = _proxyAnimation.drive(
@@ -274,7 +356,8 @@ namespace Unity.UIWidgets.widgets {
                         }
                     }
                     else if (toHeroBox.hasSize) {
-                        RenderBox finalRouteBox = (RenderBox) manifest.toRoute.subtreeContext?.findRenderObject();
+                        //RenderBox finalRouteBox = (RenderBox) manifest.toRoute.subtreeContext?.findRenderObject();
+                        RenderBox finalRouteBox = manifest.toRoute.subtreeContext?.findRenderObject() as RenderBox;
                         Offset toHeroOrigin = toHeroBox.localToGlobal(Offset.zero, ancestor: finalRouteBox);
                         if (toHeroOrigin != heroRectTween.end.topLeft) {
                             Rect heroRectEnd = toHeroOrigin & heroRectTween.end.size;
@@ -304,16 +387,18 @@ namespace Unity.UIWidgets.widgets {
             );
         }
 
-        void _handleAnimationUpdate(AnimationStatus status) {
+        public void _handleAnimationUpdate(AnimationStatus status) {
             if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
                 _proxyAnimation.parent = null;
 
                 D.assert(overlayEntry != null);
                 overlayEntry.remove();
                 overlayEntry = null;
+                manifest.fromHero.endFlight(keepPlaceholder: status == AnimationStatus.completed);
+                manifest.toHero.endFlight(keepPlaceholder: status == AnimationStatus.dismissed);
 
-                manifest.fromHero.endFlight();
-                manifest.toHero.endFlight();
+                //manifest.fromHero.endFlight();
+                //manifest.toHero.endFlight();
                 onFlightEnded(this);
             }
         }
@@ -344,13 +429,16 @@ namespace Unity.UIWidgets.widgets {
             else {
                 _proxyAnimation.parent = manifest.animation;
             }
-
-            manifest.fromHero.startFlight();
+            manifest.fromHero.startFlight(shouldIncludedChildInPlaceholder: manifest.type == HeroFlightDirection.push);
+//manifest.fromHero.startFlight();
             manifest.toHero.startFlight();
 
             heroRectTween = _doCreateRectTween(
-                HeroUtils._globalBoundingBoxFor(manifest.fromHero.context),
-                HeroUtils._globalBoundingBoxFor(manifest.toHero.context)
+                //HeroUtils._globalBoundingBoxFor(manifest.fromHero.context),
+                //HeroUtils._globalBoundingBoxFor(manifest.toHero.context)
+                HeroUtils._boundingBoxFor(manifest.fromHero.context, manifest.fromRoute.subtreeContext),
+                HeroUtils._boundingBoxFor(manifest.toHero.context, manifest.toRoute.subtreeContext)
+
             );
 
             overlayEntry = new OverlayEntry(builder: _buildOverlay);
@@ -383,10 +471,14 @@ namespace Unity.UIWidgets.widgets {
                 );
 
                 if (manifest.fromHero != newManifest.toHero) {
-                    manifest.fromHero.endFlight();
+                    //manifest.fromHero.endFlight();
+                    manifest.fromHero.endFlight(keepPlaceholder: true);
                     newManifest.toHero.startFlight();
-                    heroRectTween = _doCreateRectTween(heroRectTween.end,
-                        HeroUtils._globalBoundingBoxFor(newManifest.toHero.context));
+                    //heroRectTween = _doCreateRectTween(heroRectTween.end, HeroUtils._globalBoundingBoxFor(newManifest.toHero.context));
+                    heroRectTween = _doCreateRectTween(
+                        heroRectTween.end,
+                        HeroUtils._boundingBoxFor(newManifest.toHero.context, newManifest.toRoute.subtreeContext)
+                    );
                 }
                 else {
                     heroRectTween = _doCreateRectTween(heroRectTween.end, heroRectTween.begin);
@@ -396,8 +488,11 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(manifest.fromHero != newManifest.fromHero);
                 D.assert(manifest.toHero != newManifest.toHero);
 
-                heroRectTween = _doCreateRectTween(heroRectTween.evaluate(_proxyAnimation),
-                    HeroUtils._globalBoundingBoxFor(newManifest.toHero.context));
+                //heroRectTween = _doCreateRectTween(heroRectTween.evaluate(_proxyAnimation), HeroUtils._globalBoundingBoxFor(newManifest.toHero.context));
+                heroRectTween = _doCreateRectTween(
+                    heroRectTween.evaluate(_proxyAnimation),
+                    HeroUtils._boundingBoxFor(newManifest.toHero.context, newManifest.toRoute.subtreeContext)
+                );
                 shuttle = null;
 
                 if (newManifest.type == HeroFlightDirection.pop) {
@@ -406,11 +501,17 @@ namespace Unity.UIWidgets.widgets {
                 else {
                     _proxyAnimation.parent = newManifest.animation;
                 }
+                manifest.fromHero.endFlight(keepPlaceholder: true);
+                manifest.toHero.endFlight(keepPlaceholder: true);
 
-                manifest.fromHero.endFlight();
-                manifest.toHero.endFlight();
+                // Let the heroes in each of the routes rebuild with their placeholders.
+                newManifest.fromHero.startFlight(shouldIncludedChildInPlaceholder: newManifest.type == HeroFlightDirection.push);
 
-                newManifest.fromHero.startFlight();
+
+                //manifest.fromHero.endFlight();
+                //manifest.toHero.endFlight();
+
+                //newManifest.fromHero.startFlight();
                 newManifest.toHero.startFlight();
 
                 overlayEntry.markNeedsBuild();
@@ -467,6 +568,27 @@ namespace Unity.UIWidgets.widgets {
             D.assert(route != null);
             _maybeStartHeroTransition(route, previousRoute, HeroFlightDirection.pop, true);
         }
+        void didStopUserGesture() {
+            if (navigator.userGestureInProgress)
+                return;
+
+            bool isInvalidFlight(_HeroFlight flight) {
+                return flight.manifest.isUserGestureTransition
+                       && flight.manifest.type == HeroFlightDirection.pop
+                       && flight._proxyAnimation.isDismissed;
+            }
+
+             List<_HeroFlight> invalidFlights = _flights.Values
+                .Where(isInvalidFlight)
+                .ToList();
+
+            // Treat these invalidated flights as dismissed. Calling _handleAnimationUpdate
+            // will also remove the flight from _flights.
+            foreach ( _HeroFlight flight in invalidFlights) {
+                flight._handleAnimationUpdate(AnimationStatus.dismissed);
+            }
+        }
+
 
         void _maybeStartHeroTransition(
             Route fromRoute,
@@ -519,7 +641,7 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
 
-            Rect navigatorRect = HeroUtils._globalBoundingBoxFor(navigator.context);
+            Rect navigatorRect = HeroUtils._boundingBoxFor(navigator.context);//_globalBoundingBoxFor(navigator.context);
 
             Dictionary<object, _HeroState> fromHeroes =
                 Hero._allHeroesFor(from.subtreeContext, isUserGestureTransition, navigator);
@@ -532,7 +654,7 @@ namespace Unity.UIWidgets.widgets {
                 if (toHeroes.ContainsKey(tag)) {
                     HeroFlightShuttleBuilder fromShuttleBuilder = fromHeroes[tag].widget.flightShuttleBuilder;
                     HeroFlightShuttleBuilder toShuttleBuilder = toHeroes[tag].widget.flightShuttleBuilder;
-
+                    bool isDiverted = _flights[tag] != null;
                     _HeroFlightManifest manifest = new _HeroFlightManifest(
                         type: flightType,
                         overlay: navigator.overlay,
@@ -544,11 +666,13 @@ namespace Unity.UIWidgets.widgets {
                         createRectTween: createRectTween,
                         shuttleBuilder:
                         toShuttleBuilder ?? fromShuttleBuilder ?? _defaultHeroFlightShuttleBuilder,
-                        isUserGestureTransition: isUserGestureTransition
+                        isUserGestureTransition: isUserGestureTransition,
+                        isDiverted: isDiverted
                     );
 
-                    if (_flights.TryGetValue(tag, out var result)) {
-                        result.divert(manifest);
+                    //if (_flights.TryGetValue(tag, out var result)) {
+                    if (isDiverted){
+                        _flights[tag].divert(manifest);
                     }
                     else {
                         _flights[tag] = new _HeroFlight(_handleFlightEnded);
@@ -558,6 +682,10 @@ namespace Unity.UIWidgets.widgets {
                 else if (_flights.TryGetValue(tag, out var result)) {
                     result.abort();
                 }
+            }
+            foreach (object tag in toHeroes.Keys) {
+                if (fromHeroes[tag] == null)
+                    toHeroes[tag].ensurePlaceholderIsHidden();
             }
         }
 

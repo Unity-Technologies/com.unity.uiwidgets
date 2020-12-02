@@ -4,6 +4,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.animation {
+    
     class _AlwaysCompleteAnimation : Animation<float> {
         internal _AlwaysCompleteAnimation() {
         }
@@ -475,7 +476,6 @@ namespace Unity.UIWidgets.animation {
                 _nextTrain.removeListener(_valueChangeHandler);
                 _nextTrain = null;
             }
-
             base.dispose();
         }
 

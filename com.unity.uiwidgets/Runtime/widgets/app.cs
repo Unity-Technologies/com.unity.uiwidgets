@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
@@ -45,6 +46,15 @@ namespace Unity.UIWidgets.widgets {
         public readonly GenerateAppTitle onGenerateTitle;
         public readonly Color color;
         public readonly InspectorSelectButtonBuilder inspectorSelectButtonBuilder;
+        
+        public static bool showPerformanceOverlayOverride = false;
+        public static bool debugShowWidgetInspectorOverride = false;
+        public static bool debugAllowBannerOverride = true;
+        public readonly bool debugShowCheckedModeBanner;
+        public readonly bool checkerboardRasterCacheImages;
+        public readonly bool checkerboardOffscreenLayers;
+        public readonly bool showSemanticsDebugger;
+        public readonly bool debugShowWidgetInspector;
 
         public WidgetsApp(
             Key key = null,
@@ -52,27 +62,37 @@ namespace Unity.UIWidgets.widgets {
             RouteFactory onGenerateRoute = null,
             InitialRouteListFactory onGenerateInitialRoutes = null,
             RouteFactory onUnknownRoute = null,
-            PageRouteFactory pageRouteBuilder = null,
             List<NavigatorObserver> navigatorObservers = null,
             string initialRoute = null,
+            PageRouteFactory pageRouteBuilder = null,
+            Widget home = null,
             Dictionary<string, WidgetBuilder> routes = null,
             TransitionBuilder builder = null,
+            string title = "",
+            GenerateAppTitle onGenerateTitle = null,
             TextStyle textStyle = null,
-            Widget home = null,
+            Color color = null,
             Locale locale = null,
             List<LocalizationsDelegate> localizationsDelegates = null,
             LocaleListResolutionCallback localeListResolutionCallback = null,
             LocaleResolutionCallback localeResolutionCallback = null,
             List<Locale> supportedLocales = null,
             bool showPerformanceOverlay = false,
-            GenerateAppTitle onGenerateTitle = null,
-            string title = "",
-            Color color = null,
+            bool checkerboardRasterCacheImages = false,
+            bool checkerboardOffscreenLayers = false,
+            bool showSemanticsDebugger = false,
+            bool debugShowWidgetInspector = false,
+            bool debugShowCheckedModeBanner = true,
             InspectorSelectButtonBuilder inspectorSelectButtonBuilder = null
+            //shortcuts
+            //actions
         ) : base(key) {
+            
             routes = routes ?? new Dictionary<string, WidgetBuilder>();
             supportedLocales = supportedLocales ?? new List<Locale> {new Locale("en", "US")};
             window = Window.instance;
+            D.assert(navigatorObservers != null);
+            D.assert(routes != null);
             this.home = home;
             this.navigatorKey = navigatorKey;
             this.onGenerateRoute = onGenerateRoute;
@@ -90,6 +110,10 @@ namespace Unity.UIWidgets.widgets {
             this.localeResolutionCallback = localeResolutionCallback;
             this.supportedLocales = supportedLocales;
             this.showPerformanceOverlay = showPerformanceOverlay;
+            this.checkerboardOffscreenLayers = checkerboardOffscreenLayers;
+            this.checkerboardRasterCacheImages = checkerboardRasterCacheImages;
+            this.showSemanticsDebugger = showSemanticsDebugger;
+            this.debugShowWidgetInspector = debugShowWidgetInspector;
 
             this.onGenerateTitle = onGenerateTitle;
             this.title = title;
@@ -122,6 +146,23 @@ namespace Unity.UIWidgets.widgets {
                       "because otherwise there is nothing to fall back on if the " +
                       "app is started with an intent that specifies an unknown route."
             );
+            D.assert(
+                (home != null ||
+                 routes.isNotEmpty() ||
+                 onGenerateRoute != null ||
+                 onUnknownRoute != null)
+                ||
+                (builder != null &&
+                 navigatorKey == null &&
+                 initialRoute == null &&
+                 navigatorObservers.isEmpty()),()=>
+                "If no route is provided using " +
+                "home, routes, onGenerateRoute, or onUnknownRoute, " +
+                "a non-null callback for the builder property must be provided, " +
+                "and the other navigator-related properties, " +
+                "navigatorKey, initialRoute, and navigatorObservers, " +
+                "must have their initial values " +
+                "(null, null, and the empty list, respectively).");
 
             D.assert(
                 builder != null ||
@@ -173,29 +214,6 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class _WidgetsAppState : State<WidgetsApp>, WidgetsBindingObserver {
-        GlobalKey<NavigatorState> _navigator;
-
-        public Future<bool> didPopRoute() {
-            ///async
-            D.assert(mounted);
-            var navigator = _navigator?.currentState;
-            if (navigator == null) {
-                return Future<bool>.value(false).to<bool>();
-            }
-            return navigator.maybePop<bool>();
-        }
-
-        public Future<bool> didPushRoute(string route) {
-            D.assert(mounted);
-            var navigator = _navigator?.currentState;
-            if (navigator == null) {
-                return Future<bool>.value(false).to<bool>();
-            }
-
-            navigator.pushNamed<bool>(route);
-            return Future<bool>.value(true).to<bool>();
-        }
-
         public void didChangeMetrics() {
             setState();
         }
@@ -235,10 +253,10 @@ namespace Unity.UIWidgets.widgets {
             _locale =
                 _resolveLocales(new List<Locale> {new Locale("en", "US")}, widget.supportedLocales);
 
-            D.assert(() => {
+            /*D.assert(() => {
                 WidgetInspectorService.instance.inspectorShowCallback += inspectorShowChanged;
                 return true;
-            });
+            });*/
 
             WidgetsBinding.instance.addObserver(this);
         }
@@ -253,12 +271,14 @@ namespace Unity.UIWidgets.widgets {
         public override void dispose() {
             WidgetsBinding.instance.removeObserver(this);
 
-            D.assert(() => {
+            /*D.assert(() => {
                 WidgetInspectorService.instance.inspectorShowCallback -= inspectorShowChanged;
                 return true;
-            });
+            });*/
             base.dispose();
         }
+
+        GlobalKey<NavigatorState> _navigator;
 
         void _updateNavigator() {
             _navigator = widget.navigatorKey ?? new GlobalObjectKey<NavigatorState>(this);
@@ -288,6 +308,28 @@ namespace Unity.UIWidgets.widgets {
             }
 
             return null;
+        }
+
+        public Future<bool> didPopRoute() {
+            ///async
+            D.assert(mounted);
+            var navigator = _navigator?.currentState;
+            if (navigator == null) {
+                return Future<bool>.value(false).to<bool>();
+            }
+
+            return navigator.maybePop<bool>();
+        }
+
+        public Future<bool> didPushRoute(string route) {
+            D.assert(mounted);
+            var navigator = _navigator?.currentState;
+            if (navigator == null) {
+                return Future<bool>.value(false).to<bool>();
+            }
+
+            navigator.pushNamed<bool>(route);
+            return Future<bool>.value(true).to<bool>();
         }
 
         Route _onUnknownRoute(RouteSettings settings) {
@@ -355,12 +397,18 @@ namespace Unity.UIWidgets.widgets {
             }
 
             Dictionary<string, Locale> allSupportedLocales = new Dictionary<string, Locale>();
+            Dictionary<string, Locale> languageAndCountryLocales = new Dictionary<string, Locale>();
+            Dictionary<string, Locale> languageAndScriptLocales = new Dictionary<string, Locale>();
             Dictionary<string, Locale> languageLocales = new Dictionary<string, Locale>();
             Dictionary<string, Locale> countryLocales = new Dictionary<string, Locale>();
             foreach (Locale locale in supportedLocales) {
-                allSupportedLocales.putIfAbsent(locale.languageCode + "_" + locale.countryCode, () => locale);
+                allSupportedLocales.putIfAbsent(
+                    locale.languageCode + "_" + locale.scriptCode + "_" + locale.countryCode, () => locale);
                 languageLocales.putIfAbsent(locale.languageCode, () => locale);
                 countryLocales.putIfAbsent(locale.countryCode, () => locale);
+                languageAndScriptLocales.putIfAbsent(locale.languageCode + "_" + locale.scriptCode, () => locale);
+                languageAndCountryLocales.putIfAbsent(locale.languageCode + "_" + locale.countryCode, () => locale);
+
             }
 
             Locale matchesLanguageCode = null;
@@ -368,8 +416,30 @@ namespace Unity.UIWidgets.widgets {
 
             for (int localeIndex = 0; localeIndex < preferredLocales.Count; localeIndex++) {
                 Locale userLocale = preferredLocales[localeIndex];
-                if (allSupportedLocales.ContainsKey(userLocale.languageCode + "_" + userLocale.countryCode)) {
+                if (allSupportedLocales.ContainsKey(userLocale.languageCode + "_" + userLocale.scriptCode + "_" +
+                                                    userLocale.countryCode)) {
                     return userLocale;
+                }
+
+                if (userLocale.scriptCode != null) {
+                    Locale match = null;
+                    if (languageAndScriptLocales.TryGetValue(userLocale.languageCode + "_" + userLocale.scriptCode,
+                        out match)) {
+                        if (match != null) {
+                            return match;
+                        }
+                    }
+                }
+
+                if (userLocale.countryCode != null) {
+                    //Locale match = languageAndCountryLocales['${userLocale.languageCode}_${userLocale.countryCode}'];
+                    Locale match = null;
+                    if (languageAndCountryLocales.TryGetValue(userLocale.languageCode + "_" + userLocale.countryCode,
+                        out match)) {
+                        if (match != null) {
+                            return match;
+                        }
+                    }
                 }
 
                 if (matchesLanguageCode != null) {
@@ -381,7 +451,7 @@ namespace Unity.UIWidgets.widgets {
 
                     if (localeIndex == 0 &&
                         !(localeIndex + 1 < preferredLocales.Count && preferredLocales[localeIndex + 1].languageCode ==
-                          userLocale.languageCode)) {
+                            userLocale.languageCode)) {
                         return matchesLanguageCode;
                     }
                 }
@@ -403,9 +473,54 @@ namespace Unity.UIWidgets.widgets {
             setState();
         }
 
+        /*bool _debugCheckLocalizations(Locale appLocale) {
+            D.assert(() =>{
+                Set<Type> unsupportedTypes =
+                    _localizationsDelegates.map<Type>((LocalizationsDelegate delegate) => delegate.type).toSet();
+                foreach ( LocalizationsDelegate<dynamic> delegate in _localizationsDelegates) {
+                    if (!unsupportedTypes.contains(delegate.type))
+                        continue;
+                    if (delegate.isSupported(appLocale))
+                        unsupportedTypes.remove(delegate.type);
+                }
+                if (unsupportedTypes.isEmpty)
+                    return true;
+
+                if (listEquals(unsupportedTypes.map((Type type) => type.toString()).toList(), <String>['CupertinoLocalizations']))
+                return true;
+
+                StringBuffer message = new StringBuffer();
+                message.writeln('\u2550' * 8);
+                message.writeln(
+                    "Warning: This application's locale, $appLocale, is not supported by all of its\n"
+                'localization delegates.'
+                    );
+                foreach ( Type unsupportedType in unsupportedTypes) {
+                    // Currently the Cupertino library only provides english localizations.
+                    // Remove this when https://github.com/flutter/flutter/issues/23847
+                    // is fixed.
+                    if (unsupportedType.toString() == 'CupertinoLocalizations')
+                        continue;
+                    message.writeln(
+                        '> A $unsupportedType delegate that supports the $appLocale locale was not found.'
+                    );
+                }
+                message.writeln(
+                    'See https://flutter.dev/tutorials/internationalization/ for more\n'
+                "information about configuring an app's locale, supportedLocales,\n"
+                'and localizationsDelegates parameters.'
+                    );
+                message.writeln('\u2550' * 8);
+                debugPrint(message.toString());
+                return true;
+            });
+            return true;
+        }*/
+
         public override Widget build(BuildContext context) {
             Widget navigator = null;
             if (_navigator != null) {
+                RouteListFactory routeListFactory = (state, route) => {return widget.onGenerateInitialRoutes(route); };
                 navigator = new Navigator(
                     key: _navigator,
                     //initialRoute: widget.initialRoute ?? Navigator.defaultRouteName,
@@ -414,12 +529,11 @@ namespace Unity.UIWidgets.widgets {
                         ? WidgetsBinding.instance.window.defaultRouteName
                         : widget.initialRoute ?? WidgetsBinding.instance.window.defaultRouteName,
                     onGenerateRoute: _onGenerateRoute,
-                    onGenerateInitialRoutes: 
-                        widget.onGenerateInitialRoutes == null
+                    onGenerateInitialRoutes:
+                    
+                    widget.onGenerateInitialRoutes == null
                         ? Navigator.defaultGenerateInitialRoutes
-                        : (NavigatorState navigator1, string initialRouteName) => {
-                        return widget.onGenerateInitialRoutes(initialRouteName);
-                    },
+                        : routeListFactory,
                     onUnknownRoute: _onUnknownRoute,
                     observers: widget.navigatorObservers
                 );
@@ -448,6 +562,17 @@ namespace Unity.UIWidgets.widgets {
             if (widget.showPerformanceOverlay) {
                 performanceOverlay = PerformanceOverlay.allEnabled();
             }
+            /*if (widget.showPerformanceOverlay || WidgetsApp.showPerformanceOverlayOverride) {
+                performanceOverlay = PerformanceOverlay.allEnabled(
+                    checkerboardRasterCacheImages: widget.checkerboardRasterCacheImages,
+                    checkerboardOffscreenLayers: widget.checkerboardOffscreenLayers
+                );
+            } else if (widget.checkerboardRasterCacheImages || widget.checkerboardOffscreenLayers) {
+                performanceOverlay = new PerformanceOverlay(
+                    checkerboardRasterCacheImages: widget.checkerboardRasterCacheImages,
+                    checkerboardOffscreenLayers: widget.checkerboardOffscreenLayers
+                );
+            }*/
 
             if (performanceOverlay != null) {
                 result = new Stack(
@@ -460,11 +585,27 @@ namespace Unity.UIWidgets.widgets {
                     });
             }
 
+            /*if (widget.showSemanticsDebugger) {
+                result = SemanticsDebugger(
+                    child: result,
+                );
+            }*/
             D.assert(() => {
                 if (WidgetInspectorService.instance.debugShowInspector) {
                     result = new WidgetInspector(null, result, _InspectorSelectButtonBuilder);
                 }
 
+                /*if (widget.debugShowWidgetInspector || WidgetsApp.debugShowWidgetInspectorOverride) {
+                    result = new WidgetInspector(
+                        child: result,
+                        selectButtonBuilder: widget.inspectorSelectButtonBuilder
+                    );
+                }
+                if (widget.debugShowCheckedModeBanner && WidgetsApp.debugAllowBannerOverride) {
+                    result = new CheckedModeBanner(
+                        child: result
+                    );
+                }*/
                 return true;
             });
 
@@ -473,6 +614,26 @@ namespace Unity.UIWidgets.widgets {
                 window: widget.window,
                 child: result
             );
+            /*Widget title = null;
+            if (widget.onGenerateTitle != null) {
+                title = new Builder(
+                    builder: (BuildContext context1)=> {
+                    string title1 = widget.onGenerateTitle(context1);
+                    D.assert(title1 != null,()=> "onGenerateTitle must return a non-null String");
+                    return new Title(
+                        title: title1,
+                        color: widget.color,
+                        child: result
+                    );
+                }
+                );
+            } else {
+                title = new Title(
+                    title: widget.title,
+                    color: widget.color,
+                    child: result
+                );
+            }*/
 
             Locale appLocale = widget.locale != null
                 ? _resolveLocales(new List<Locale> {widget.locale}, widget.supportedLocales)
@@ -485,12 +646,89 @@ namespace Unity.UIWidgets.widgets {
                     delegates: _localizationsDelegates,
                     child: result)
             );
+            /////todo
+            /// 
+            /*result = new Shortcuts(
+                shortcuts: widget.shortcuts ?? WidgetsApp.defaultShortcuts,
+                debugLabel: "<Default WidgetsApp Shortcuts>",
+                child: new Actions(
+                    actions: widget.actions ?? WidgetsApp.defaultActions,
+                    child: FocusTraversalGroup(
+                        policy: ReadingOrderTraversalPolicy(),
+                        child: _MediaQueryFromWindow(
+                            child: new Localizations(
+                                locale: appLocale,
+                                delegates: _localizationsDelegates,
+                                child: title
+                            )
+                        )
+                    )
+                )
+            );*/
 
             return result;
         }
 
         Widget _InspectorSelectButtonBuilder(BuildContext context, VoidCallback onPressed) {
             return new _InspectorSelectButton(onPressed);
+        }
+    }
+
+    public class _MediaQueryFromWindow : StatefulWidget {
+        public _MediaQueryFromWindow(Key key = null, Widget child = null) : base(key: key) {
+        }
+        public readonly Widget child;
+
+        public override State createState() {
+            return new _MediaQueryFromWindowsState();
+        }
+    
+    }
+
+    class _MediaQueryFromWindowsState : State<_MediaQueryFromWindow>,WidgetsBindingObserver {
+        public override void initState() {
+            base.initState();
+            WidgetsBinding.instance.addObserver(this);
+        }
+        public  void didChangeAccessibilityFeatures() {
+            setState(()=> {
+            });
+        }
+        public  void didChangeMetrics() {
+            setState(()=>{
+              
+            });
+        }
+        public  void didChangeTextScaleFactor() {
+            setState(()=> {
+            });
+        }
+        public void didChangePlatformBrightness() {
+            setState(()=> {
+            });
+        }
+
+        public void didChangeLocales(List<Locale> locale) {
+            throw new NotImplementedException();
+        }
+
+        public Future<bool> didPopRoute() {
+            throw new NotImplementedException();
+        }
+
+        public Future<bool> didPushRoute(string route) {
+            throw new NotImplementedException();
+        }
+
+        public override Widget build(BuildContext context) {
+            return new MediaQuery(
+                data: MediaQueryData.fromWindow(WidgetsBinding.instance.window),
+                child: widget.child
+            );
+        }
+        public override void dispose() {
+            WidgetsBinding.instance.removeObserver(this);
+            base.dispose();
         }
     }
 

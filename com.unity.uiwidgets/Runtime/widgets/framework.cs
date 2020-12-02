@@ -1459,15 +1459,14 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected virtual Element updateChild(Element child, Widget newWidget, object newSlot) {
-            int p = 1;
-            D.assert(() => {
+            /*D.assert(() => {
                 if (newWidget != null && newWidget.key is GlobalKey) {
                     GlobalKey key = (GlobalKey) newWidget.key;
                     key._debugReserveFor(this);
                 }
 
                 return true;
-            });
+            });*/
 
             if (newWidget == null) {
                 if (child != null)

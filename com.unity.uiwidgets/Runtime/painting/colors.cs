@@ -115,7 +115,40 @@ namespace Unity.UIWidgets.painting {
             return GetType() + "(primary value: " + base.ToString() + ")";
         }
     }
+    class ColorProperty : DiagnosticsProperty<Color> {
+        public ColorProperty(
+            string name = "",
+            Color value = null,
+            bool showName = true,
+            object defaultValue = null,
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
+            DiagnosticLevel level = DiagnosticLevel.info
+        ) : base(name, value,
+            defaultValue: defaultValue,
+            showName: showName,
+            style: style,
+            level: level
+        ) {
+            D.assert(showName != null);
+            D.assert(style != null);
+            D.assert(level != null);
+            
+        }
 
+       
+        public override Dictionary<string, object> toJsonMap() {
+            Dictionary<string, object> json = base.toJsonMap();
+            if (value != null) {
+                json["valueProperties"] = new Dictionary<string, object> {
+                    {"red", value.red},
+                    {"green", value.green},
+                    {"blue", value.blue},
+                    {"alpha", value.alpha}
+                };
+            }
+            return json;
+            }
+        }
     public static class ColorUtils {
         internal static Color _colorFromHue(
             float alpha,

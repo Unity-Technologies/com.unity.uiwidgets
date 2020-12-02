@@ -6,7 +6,7 @@ namespace Unity.UIWidgets.widgets {
         Size preferredSize { get; }
     }
 
-    public abstract class PreferredSizeWidget : Widget{ //StatefulWidget, SizePreferred {
+    public abstract class PreferredSizeWidget : StatefulWidget{//Widget{ //StatefulWidget, SizePreferred {
         protected PreferredSizeWidget(Key key = null) : base(key: key) {
         }
 

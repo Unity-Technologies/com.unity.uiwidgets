@@ -2,13 +2,15 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.animation {
+    
+
     public enum AnimationStatus {
         dismissed,
         forward,
         reverse,
         completed,
     }
-
+    
     public delegate void AnimationStatusListener(AnimationStatus status);
 
     public abstract class Animation<T> : ValueListenable<T> {

@@ -59,7 +59,7 @@ namespace Unity.UIWidgets.cupertino {
         );
 
 
-        public static Future showCupertinoModalPopup(
+        /*public static Future showCupertinoModalPopup(
             BuildContext context,
             WidgetBuilder builder
         ) {
@@ -67,6 +67,24 @@ namespace Unity.UIWidgets.cupertino {
                 new _CupertinoModalPopupRoute(
                     builder: builder,
                     barrierLabel: "Dismiss"
+                )
+            );
+        }*/
+        Future showCupertinoModalPopup<T>(
+            BuildContext context = null,
+            WidgetBuilder builder = null,
+            ImageFilter filter = null,
+            bool useRootNavigator = true,
+            bool? semanticsDismissible =null
+        ) {
+            D.assert(useRootNavigator != null);
+            return Navigator.of(context, rootNavigator: useRootNavigator).push(
+                new _CupertinoModalPopupRoute(
+                    barrierColor: CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
+                    barrierLabel: "Dismiss",
+                    builder: builder,
+                    filter: filter,
+                    semanticsDismissible: semanticsDismissible
                 )
             );
         }
@@ -99,11 +117,27 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public static Future showCupertinoDialog(
-            BuildContext context,
-            WidgetBuilder builder
+            BuildContext context = null,
+            WidgetBuilder builder =null,
+            bool useRootNavigator = true,
+            RouteSettings routeSettings = null
         ) {
             D.assert(builder != null);
-            return _DialogRoute.showGeneralDialog(
+            D.assert(useRootNavigator != null);
+            return DialogUtils.showGeneralDialog<object>(
+                context: context,
+                barrierDismissible: false,
+                barrierColor: CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
+                // This transition duration was eyeballed comparing with iOS
+                transitionDuration: new TimeSpan(0, 0, 0, 0, 250),
+                pageBuilder: (BuildContext context1, Animation<float> animation, Animation<float> secondaryAnimation)=> {
+                return builder(context1);
+            },
+            transitionBuilder: _buildCupertinoDialogTransitions,
+            useRootNavigator: useRootNavigator,
+            routeSettings: routeSettings
+                );
+            /*return _DialogRoute.showGeneralDialog(
                 context: context,
                 barrierDismissible: false,
                 barrierColor: _kModalBarrierColor,
@@ -113,7 +147,7 @@ namespace Unity.UIWidgets.cupertino {
                     return builder(_context);
                 },
                 transitionBuilder: _buildCupertinoDialogTransitions
-            );
+            );*/
         }
     }
 
@@ -176,7 +210,7 @@ namespace Unity.UIWidgets.cupertino {
                 return true;
             }
 
-            return Equals(edgeGradient, other.edgeGradient);
+            return  other is _CupertinoEdgeShadowDecoration && Equals(edgeGradient, other.edgeGradient);
         }
 
         public override bool Equals(object obj) {
@@ -387,8 +421,12 @@ namespace Unity.UIWidgets.cupertino {
             bool linearTransition = isPopGestureInProgress(route);
             if (route.fullscreenDialog) {
                 return new CupertinoFullscreenDialogTransition(
-                    animation: animation,
-                    child: child
+                    //animation: animation,
+                    //child: child
+                    primaryRouteAnimation: animation,
+                    secondaryRouteAnimation: secondaryAnimation,
+                    child: child,
+                    linearTransition: linearTransition
                 );
             }
 
@@ -481,26 +519,49 @@ namespace Unity.UIWidgets.cupertino {
 
     class CupertinoFullscreenDialogTransition : StatelessWidget {
         public CupertinoFullscreenDialogTransition(
-            Animation<float> animation,
-            Widget child,
-            Key key = null
+            Key key = null,
+            Animation<float> primaryRouteAnimation = null,
+            Animation<float> secondaryRouteAnimation = null,
+            Widget child = null,
+            bool linearTransition =false
+            
         ) : base(key: key) {
             _positionAnimation = new CurvedAnimation(
-                parent: animation,
+                parent: primaryRouteAnimation,
                 curve: Curves.linearToEaseOut,
                 reverseCurve: Curves.linearToEaseOut.flipped
             ).drive(CupertinoRouteUtils._kBottomUpTween);
             this.child = child;
+            _secondaryPositionAnimation =
+                (linearTransition
+                    ? secondaryRouteAnimation
+                    : new CurvedAnimation(
+                        parent: secondaryRouteAnimation,
+                        curve: Curves.linearToEaseOut,
+                        reverseCurve: Curves.easeInToLinear
+                    )
+                ).drive(CupertinoRouteUtils._kMiddleLeftTween);
         }
 
-        readonly Animation<Offset> _positionAnimation;
-
+        public readonly Animation<Offset> _positionAnimation;
+        public readonly Animation<Offset> _secondaryPositionAnimation;
         public readonly Widget child;
 
         public override Widget build(BuildContext context) {
-            return new SlideTransition(
+            /*return new SlideTransition(
                 position: _positionAnimation,
                 child: child
+            );*/
+            D.assert(WidgetsD.debugCheckHasDirectionality(context));
+            TextDirection textDirection = Directionality.of(context);
+            return new SlideTransition(
+                position: _secondaryPositionAnimation,
+                textDirection: textDirection,
+                transformHitTests: false,
+                child: new SlideTransition(
+                    position: _positionAnimation,
+                    child: child
+                )
             );
         }
     }
@@ -646,11 +707,16 @@ namespace Unity.UIWidgets.cupertino {
             bool animateForward;
 
             if (velocity.abs() >= CupertinoRouteUtils._kMinFlingVelocity) {
-                animateForward = velocity > 0 ? false : true;
+                animateForward = velocity <= 0;
+            }
+            else {
+                animateForward = controller.value > 0.5;
+            }
+            /*    animateForward = velocity > 0 ? false : true;
             }
             else {
                 animateForward = controller.value > 0.5 ? true : false;
-            }
+            }*/
 
             if (animateForward) {
                 int droppedPageForwardAnimationTime = Mathf.Min(
@@ -662,7 +728,7 @@ namespace Unity.UIWidgets.cupertino {
                     curve: animationCurve);
             }
             else {
-                navigator.pop();
+                navigator.pop<object>();
 
                 if (controller.isAnimating) {
                     int droppedPageBackAnimationTime =
@@ -689,29 +755,35 @@ namespace Unity.UIWidgets.cupertino {
 
     class _CupertinoModalPopupRoute : PopupRoute{
         public _CupertinoModalPopupRoute(
-            WidgetBuilder builder = null,
+            Color barrierColor = null,
             string barrierLabel = null,
+            WidgetBuilder builder = null,
+            bool? semanticsDismissible = null,
+            ImageFilter filter = null,
             RouteSettings settings = null
-        ) : base(settings: settings) {
+        ) : base(filter:filter,settings: settings) {
+            this.barrierColor = barrierColor;
             this.builder = builder;
             this.barrierLabel = barrierLabel;
+            _semanticsDismissible = semanticsDismissible;
         }
 
         public readonly WidgetBuilder builder;
 
         public readonly string barrierLabel;
 
-
-        public override Color barrierColor {
+        public bool? _semanticsDismissible;
+        public new Color barrierColor;
+        /*{
             get { return CupertinoRouteUtils._kModalBarrierColor; }
-        }
+        }*/
 
         public override bool barrierDismissible {
             get { return true; }
         }
 
         public bool semanticsDismissible {
-            get { return false; }
+            get { return _semanticsDismissible ?? false; }
         }
 
         public override TimeSpan transitionDuration {
@@ -739,7 +811,11 @@ namespace Unity.UIWidgets.cupertino {
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            return builder(context);
+            //return builder(context);
+            return new CupertinoUserInterfaceLevel(
+                data: CupertinoUserInterfaceLevelData.elevatedlayer,
+                child: new Builder(builder: builder)
+            );
         }
 
 

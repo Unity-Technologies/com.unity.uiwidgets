@@ -49,7 +49,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override Widget build(BuildContext context) {
-            List<Widget> stacked = new List<Widget>();
+            //List<Widget> stacked = new List<Widget>();
 
             Widget paddedContent = widget.child;
 
@@ -65,10 +65,10 @@ namespace Unity.UIWidgets.cupertino {
                     ? existingMediaQuery.viewInsets.copyWith(bottom: 0.0f)
                     : existingMediaQuery.viewInsets;
 
-                bool? fullObstruction =
-                    widget.navigationBar.fullObstruction == false
+                bool fullObstruction = widget.navigationBar.shouldFullyObstruct(context);
+                    /*widget.navigationBar.fullObstruction == false
                         ? CupertinoTheme.of(context).barBackgroundColor.alpha == 0xFF
-                        : widget.navigationBar.fullObstruction;
+                        : widget.navigationBar.fullObstruction;*/
 
                 if (fullObstruction == true) {
                     paddedContent = new MediaQuery(
@@ -98,46 +98,59 @@ namespace Unity.UIWidgets.cupertino {
                     );
                 }
             }
-
-            stacked.Add(new PrimaryScrollController(
+            else {
+                float bottomPadding = widget.resizeToAvoidBottomInset
+                    ? existingMediaQuery.viewInsets.bottom
+                    : 0.0f;
+                paddedContent = new Padding(
+                    padding: EdgeInsets.only(bottom: bottomPadding),
+                    child: paddedContent
+                );
+            }
+            List<Widget> childrenWigets = new List<Widget>();
+            childrenWigets.Add( new PrimaryScrollController(
                 controller: _primaryScrollController,
                 child: paddedContent
             ));
-
             if (widget.navigationBar != null) {
-                stacked.Add(new Positioned(
+                childrenWigets.Add(new Positioned(
                     top: 0.0f,
                     left: 0.0f,
                     right: 0.0f,
-                    child: widget.navigationBar
+                    child: new MediaQuery(
+                        data: existingMediaQuery.copyWith(textScaleFactor: 1),
+                        child: widget.navigationBar
+                    )
                 ));
             }
-
-            stacked.Add(new Positioned(
+            childrenWigets.Add(new Positioned(
                     top: 0.0f,
                     left: 0.0f,
                     right: 0.0f,
                     height: existingMediaQuery.padding.top,
                     child: new GestureDetector(
+                        //excludeFromSemantics: true,
                         onTap: _handleStatusBarTap
                     )
-                )
-            );
+                
+            ));
 
             return new DecoratedBox(
                 decoration: new BoxDecoration(
-                    color: widget.backgroundColor ?? CupertinoTheme.of(context).scaffoldBackgroundColor
+                    color: CupertinoDynamicColor.resolve(widget.backgroundColor, context)
+                           ?? CupertinoTheme.of(context).scaffoldBackgroundColor
                 ),
                 child: new Stack(
-                    children: stacked
-                )
-            );
+                    children: childrenWigets));
         }
     }
 
-    public abstract class ObstructingPreferredSizeWidget : PreferredSizeWidget {
+    public abstract class ObstructingPreferredSizeStateWidget : StatefulWidget {
+        
+    }
 
-        ///protected ObstructingPreferredSizeWidget(Key key = null) : base(key: key) {}
+    public abstract class ObstructingPreferredSizeWidget : PreferredSizeWidget {
+        protected ObstructingPreferredSizeWidget(Key key = null) : base(key: key) {}
        // public virtual bool? fullObstruction { get; }
         public abstract bool shouldFullyObstruct(BuildContext context);
     }

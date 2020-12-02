@@ -8,6 +8,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using StrutStyle = Unity.UIWidgets.painting.StrutStyle;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
+using Brightness = Unity.UIWidgets.ui.Brightness;
 
 namespace Unity.UIWidgets.cupertino {
     class CupertinoTextFieldUtils {
@@ -499,7 +500,7 @@ namespace Unity.UIWidgets.cupertino {
             CupertinoThemeData themeData = CupertinoTheme.of(context);
             TextStyle textStyle = themeData.textTheme.textStyle.merge(widget.style);
             TextStyle placeholderStyle = textStyle.merge(widget.placeholderStyle);
-            ui.Brightness keyboardAppearance = widget.keyboardAppearance ?? themeData.brightness;
+            Brightness? keyboardAppearance = widget.keyboardAppearance ?? themeData.brightness;
             Color cursorColor = widget.cursorColor ?? themeData.primaryColor;
 
             Widget paddedEditable = new Padding(

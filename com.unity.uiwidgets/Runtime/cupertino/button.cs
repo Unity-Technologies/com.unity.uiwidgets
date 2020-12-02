@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.cupertino {
             EdgeInsets padding = null,
             Color color = null,
             Color disabledColor = null,
-            float minSize = CupertinoButtonUtils.kMinInteractiveDimensionCupertino,
+            float minSize = 44.0f,
             float pressedOpacity = 0.4f,
             BorderRadius borderRadius = null,
             VoidCallback onPressed = null
@@ -48,7 +48,7 @@ namespace Unity.UIWidgets.cupertino {
             Widget child = null,
             EdgeInsets padding = null,
             Color disabledColor = null,
-            float minSize = CupertinoButtonUtils.kMinInteractiveDimensionCupertino,
+            float minSize = 44.0f,
             float pressedOpacity = 0.4f,
             BorderRadius borderRadius = null,
             VoidCallback onPressed = null
@@ -105,7 +105,7 @@ namespace Unity.UIWidgets.cupertino {
     class _CupertinoButtonState : SingleTickerProviderStateMixin<CupertinoButton> {
         static readonly TimeSpan kFadeOutDuration = new TimeSpan(0, 0, 0, 0, 10);
         static readonly TimeSpan kFadeInDuration = new TimeSpan(0, 0, 0, 0, 100);
-        public readonly Tween<float> _opacityTween = new Tween<float>(begin: 1.0f, end: 0.0f);
+        public readonly Tween<float> _opacityTween = new FloatTween(begin: 1.0f, end: 0.0f);//Tween<Float>
         AnimationController _animationController;
         Animation<float> _opacityAnimation;
 
@@ -129,7 +129,10 @@ namespace Unity.UIWidgets.cupertino {
 
         void _setTween() {
             if (widget != null) {
-                _opacityTween.end = widget.pressedOpacity ?? 1.0f;
+                _opacityTween.end = 1.0f;
+                if (!widget.pressedOpacity.Equals(0f)) {
+                    _opacityTween.end = widget.pressedOpacity;
+                }
             }
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.ui;
@@ -368,7 +369,7 @@ namespace Unity.UIWidgets.cupertino {
         );
     }
 
-    public class CupertinoDynamicColor : Color, Diagnosticable {
+    public class CupertinoDynamicColor : Color,Diagnosticable {
 
         public CupertinoDynamicColor(
             string debugLabel = null,
@@ -748,7 +749,6 @@ namespace Unity.UIWidgets.cupertino {
                 );
             }
             else {
-
                 return new ColorProperty(
                     name,
                     value,
@@ -760,4 +760,7 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
     }
+
+   
+
 }
