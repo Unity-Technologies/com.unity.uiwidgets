@@ -1,4 +1,3 @@
-#pragma once
 #include "paragraph_builder.h"
 
 #include "lib/ui/ui_mono_state.h"

@@ -110,7 +110,7 @@ namespace Unity.UIWidgets.async2 {
             Isolate.ensureExists();
             
             GCHandle callabackHandle = GCHandle.Alloc(this);
-            UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callabackHandle, _wakeupTime * 1000L);
+            UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callabackHandle, _wakeupTime * 1000000L);
         }
 
         [MonoPInvokeCallback(typeof(UIMonoState_postTaskForTimeCallback))]

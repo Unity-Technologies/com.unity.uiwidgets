@@ -4,9 +4,10 @@
 #include "Unity/IUnityUIWidgets.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "render_api.h"
+
 #include "shell/platform/unity/uiwidgets_system.h"
 
+/*
 static IUnityInterfaces* s_UnityInterfaces = NULL;
 static IUnityGraphics* s_Graphics = NULL;
 static UnityGfxRenderer s_DeviceType = kUnityGfxRendererNull;
@@ -29,7 +30,7 @@ OnGraphicsDeviceEvent(UnityGfxDeviceEventType eventType) {
     s_CurrentAPI = NULL;
     s_DeviceType = kUnityGfxRendererNull;
   }
-}
+}*/
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
 UnityPluginLoad(IUnityInterfaces* unityInterfaces) {
@@ -44,6 +45,7 @@ extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginUnload() {
 // SetTextureFromUnity, an example function we export which is called by one of
 // the scripts.
 
+/*
 extern "C" UNITY_INTERFACE_EXPORT void* UNITY_INTERFACE_API
 CreateTexture(int w, int h) {
   if (s_CurrentAPI == NULL) {
@@ -97,5 +99,5 @@ static void UNITY_INTERFACE_API OnRenderEvent(int eventID) {
 extern "C" UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
 GetRenderEventFunc() {
   return OnRenderEvent;
-}
+}*/
 

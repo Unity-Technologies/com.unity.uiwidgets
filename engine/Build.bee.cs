@@ -298,32 +298,40 @@ class Build
 
                 "src/shell/platform/unity/gfx_worker_task_runner.cc",
                 "src/shell/platform/unity/gfx_worker_task_runner.h",
-                "src/shell/platform/unity/uiwidgets_panel.cc",
-                "src/shell/platform/unity/uiwidgets_panel.h",
-                "src/shell/platform/unity/uiwidgets_system.cc",
-                "src/shell/platform/unity/uiwidgets_system.h",
-                "src/shell/platform/unity/unity_external_texture_gl.cc",
-                "src/shell/platform/unity/unity_external_texture_gl.h",
-                "src/shell/platform/unity/unity_surface_manager.cc",
-                "src/shell/platform/unity/unity_surface_manager.h",
-                "src/shell/platform/unity/win32_task_runner.cc",
-                "src/shell/platform/unity/win32_task_runner.h",
+                
 
                 "src/shell/version/version.cc",
                 "src/shell/version/version.h",
 
                 "src/engine.cc",
                 "src/platform_base.h",
-                "src/render_api.cc",
-                "src/render_api.h",
-                "src/render_api_d3d11.cc",
+                //Test APIs
+                //"src/render_api.cc",
+                //"src/render_api.h",
+                //"src/render_api_d3d11.cc",
 
-                "src/TestLoadICU.cpp", // load icu temp solution
+                //"src/TestLoadICU.cpp", // load icu temp solution
                 //"src/render_api_vulkan.cc",
                 //"src/render_api_opengles.cc",
             },
             OutputName = { c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}" },
         };
+
+        var winSources = new NPath[] {
+                "src/shell/platform/unity/windows/uiwidgets_panel.cc",
+                "src/shell/platform/unity/windowsuiwidgets_panel.h",
+                "src/shell/platform/unity/windows/uiwidgets_system.cc",
+                "src/shell/platform/unity/windows/uiwidgets_system.h",
+                "src/shell/platform/unity/windows/unity_external_texture_gl.cc",
+                "src/shell/platform/unity/windows/unity_external_texture_gl.h",
+                "src/shell/platform/unity/windows/unity_surface_manager.cc",
+                "src/shell/platform/unity/windows/unity_surface_manager.h",
+                "src/shell/platform/unity/windows/win32_task_runner.cc",
+                "src/shell/platform/unity/windows/win32_task_runner.h",
+        };
+
+        np.Sources.Add(c => IsWindows(c), winSources);
+
         np.Libraries.Add(new BagOfObjectFilesLibrary(
             new NPath[]{
                 skiaRoot + "/third_party/externals/icu/flutter/icudtl.o"

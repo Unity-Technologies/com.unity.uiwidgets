@@ -5,7 +5,12 @@
 
 #include "mono_isolate.h"
 #include "mono_state.h"
+
 #include "shell/platform/unity/uiwidgets_system.h"
+
+#ifdef __APPLE__
+inline const int GetCurrentThreadId() { return 1; }
+#endif
 
 namespace uiwidgets {
 
