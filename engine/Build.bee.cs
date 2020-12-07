@@ -42,18 +42,29 @@ class Build
             flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
         }
 
-
         var libUIWidgets = SetupLibUIWidgets();
 
-        var builder = new VisualStudioNativeProjectFileBuilder(libUIWidgets);
-        builder = libUIWidgets.SetupConfigurations.Aggregate(
-            builder,
-            (current, c) => current.AddProjectConfiguration(c));
+        //create ide projects
+        if (BuildUtils.IsHostWindows())
+        {
+            //create vs project
+            var builder = new VisualStudioNativeProjectFileBuilder(libUIWidgets);
+            builder = libUIWidgets.SetupConfigurations.Aggregate(
+                builder,
+                (current, c) => current.AddProjectConfiguration(c));
 
-        var sln = new VisualStudioSolution();
-        sln.Path = "libUIWidgets.gen.sln";
-        sln.Projects.Add(builder.DeployTo("libUIWidgets.gen.vcxproj"));
-        Backend.Current.AddAliasDependency("ProjectFiles", sln.Setup());
+            var sln = new VisualStudioSolution();
+            sln.Path = "libUIWidgets.gen.sln";
+            sln.Projects.Add(builder.DeployTo("libUIWidgets.gen.vcxproj"));
+            Backend.Current.AddAliasDependency("ProjectFiles", sln.Setup());
+        }
+        else if (BuildUtils.IsHostMac())
+        {
+            //create xcode project
+            var nativePrograms = new List<NativeProgram>();
+            nativePrograms.Add(libUIWidgets);
+            var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgets.xcodeproj/project.pbxproj"));
+        }
     }
 
     private static string skiaRoot;
@@ -407,14 +418,12 @@ class Build
                 var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
                 validConfigurations.Add(config);
 
-                np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat).DeployTo("build");
+                var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat).DeployTo("build");
+
+                builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/osx");
             }
 
             np.ValidConfigurations = validConfigurations;
-            var nativePrograms = new List<NativeProgram>();
-            nativePrograms.Add(np);
-
-            var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgets.xcodeproj/project.pbxproj"));
         }
 
         return np;
