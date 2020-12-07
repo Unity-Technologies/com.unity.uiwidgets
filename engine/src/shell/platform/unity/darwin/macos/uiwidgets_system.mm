@@ -29,7 +29,8 @@ void UIWidgetsSystem::Wait(std::chrono::nanoseconds max_duration) {
 
   wait_duration = std::min(max_duration, wait_duration);
 
-  //TODO: find the proper api to notify os to wait for the given duration
+  //TODO: find a proper api similar to MsgWaitForMultipleObjects on Windows
+  //      which will notify os to wait for the given period of time
 }
 
 void UIWidgetsSystem::Update() {
