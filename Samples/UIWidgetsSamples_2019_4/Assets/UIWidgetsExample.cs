@@ -80,7 +80,7 @@
                      color: Colors.green,
                      child: new Column(
                      children: new List<Widget> {
-                         //new Text("Counter: " + this.counter),
+                         new Text("Counter: " + this.counter),
                          new GestureDetector(
                              onTap: () => {
                                  this.setState(()
@@ -90,8 +90,8 @@
                              },
                              child: new Container(
                                  padding: EdgeInsets.symmetric(20, 20),
-                                 color: this.counter % 2 == 0 ? Colors.blue : Colors.red
-                                 //child: new Text("Click Me")
+                                 color: this.counter % 2 == 0 ? Colors.blue : Colors.red,
+                                 child: new Text("Click Me")
                              )
                          )
                      }
