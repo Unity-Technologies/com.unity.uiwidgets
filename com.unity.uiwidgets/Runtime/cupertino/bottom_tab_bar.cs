@@ -77,8 +77,10 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public bool opaque(BuildContext context) {
+            
             Color backgroundColor =
                 this.backgroundColor ?? CupertinoTheme.of(context).barBackgroundColor;
+           
             return CupertinoDynamicColor.resolve(backgroundColor, context).alpha == 0xFF;
         }
 

@@ -654,7 +654,8 @@ namespace Unity.UIWidgets.widgets {
                 if (toHeroes.ContainsKey(tag)) {
                     HeroFlightShuttleBuilder fromShuttleBuilder = fromHeroes[tag].widget.flightShuttleBuilder;
                     HeroFlightShuttleBuilder toShuttleBuilder = toHeroes[tag].widget.flightShuttleBuilder;
-                    bool isDiverted = _flights[tag] != null;
+                    //bool isDiverted = _flights[tag] != null;
+                    bool isDiverted = _flights.ContainsKey(tag);
                     _HeroFlightManifest manifest = new _HeroFlightManifest(
                         type: flightType,
                         overlay: navigator.overlay,

@@ -174,7 +174,7 @@ namespace Unity.UIWidgets.ui {
                         (b & 0xff)));
         }
 
-        public readonly uint value;
+        public uint value;
 
         public int alpha {
             get { return (int) ((0xff000000 & value) >> 24); }

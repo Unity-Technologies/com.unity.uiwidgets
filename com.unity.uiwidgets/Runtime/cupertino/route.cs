@@ -70,7 +70,7 @@ namespace Unity.UIWidgets.cupertino {
                 )
             );
         }*/
-        Future showCupertinoModalPopup<T>(
+        public static Future showCupertinoModalPopup(
             BuildContext context = null,
             WidgetBuilder builder = null,
             ImageFilter filter = null,

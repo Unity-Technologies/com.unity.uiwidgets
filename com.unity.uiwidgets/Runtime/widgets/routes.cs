@@ -41,11 +41,10 @@ namespace Unity.UIWidgets.widgets {
             return returnValue;
         }
 
-        protected internal override void dispose() {
-            foreach (var entry in _overlayEntries) {
+        public override void dispose() {
+            /*foreach (var entry in _overlayEntries) {
                 entry.remove();
-            }
-
+            }*/
             _overlayEntries.Clear();
             base.dispose();
         }
@@ -296,7 +295,7 @@ namespace Unity.UIWidgets.widgets {
             return true;
         }
 
-        protected internal override void dispose() {
+        public override void dispose() {
             D.assert(!_transitionCompleter.isCompleted, () => $"Cannot dispose a {GetType()} twice.");
             _controller?.dispose();
             _transitionCompleter.complete(FutureOr.value(_result));
@@ -665,10 +664,10 @@ namespace Unity.UIWidgets.widgets {
             }
             base.didAdd();
         }
-        protected internal override void dispose() {
+        /*public override void dispose() {
             focusScopeNode.detach();
             base.dispose();
-        }
+        }*/
 
         public virtual bool barrierDismissible { get; }
         

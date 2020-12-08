@@ -150,10 +150,6 @@ namespace Unity.UIWidgets.widgets {
             return children != ((SliverChildListDelegate) oldDelegate).children;
         }
     }
-    public abstract class SliverWithKeepAliveWidget : RenderObjectWidget
-    {
-        public SliverWithKeepAliveWidget(Key key = null) : base(key: key) { }
-    }
 
     public abstract class SliverWithKeepAliveWidget : RenderObjectWidget {
         /// Initializes fields for subclasses.
@@ -374,7 +370,7 @@ namespace Unity.UIWidgets.widgets {
                         index);
                     if (newChild != null) {
                         _childElements[index] = newChild;
-                        var parentData = (SliverMultiBoxAdaptorParentData) newChild.renderObject.parentData;
+                        SliverMultiBoxAdaptorParentData parentData = (SliverMultiBoxAdaptorParentData) newChild.renderObject.parentData;
                         if (!parentData.keptAlive) {
                             _currentBeforeChild = (RenderBox) newChild.renderObject;
                         }
@@ -552,7 +548,6 @@ namespace Unity.UIWidgets.widgets {
         protected override void insertChildRenderObject(RenderObject child, object slotRaw) {
             D.assert(slotRaw != null);
             int slot = (int) slotRaw;
-
             D.assert(_currentlyUpdatingChildIndex == slot);
             D.assert(renderObject.debugValidateChild(child));
             renderObject.insert((RenderBox) child, after: _currentBeforeChild);
@@ -564,7 +559,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void moveChildRenderObject(RenderObject child, object slotRaw) {
-            D.assert(false);
+            //D.assert(false);
+            D.assert(slotRaw != null);
+            int slot = (int) slotRaw;
+            D.assert(_currentlyUpdatingChildIndex == slot);
+            renderObject.move(child as RenderBox, after: _currentBeforeChild);
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
@@ -626,8 +625,10 @@ namespace Unity.UIWidgets.widgets {
 
         public override void applyParentData(RenderObject renderObject) {
             D.assert(renderObject.parentData is SliverMultiBoxAdaptorParentData);
-            SliverMultiBoxAdaptorParentData parentData = (SliverMultiBoxAdaptorParentData) renderObject.parentData;
-            if (parentData.keepAlive != keepAlive) {
+           // SliverMultiBoxAdaptorParentData parentData = (SliverMultiBoxAdaptorParentData) renderObject.parentData;
+            KeepAliveParentDataMixin parentData = (KeepAliveParentDataMixin) renderObject.parentData ;
+   
+            if (((KeepAliveParentDataMixin)parentData).keepAlive != keepAlive) {
                 parentData.keepAlive = keepAlive;
                 var targetParent = renderObject.parent;
                 if (targetParent is RenderObject && !keepAlive) {

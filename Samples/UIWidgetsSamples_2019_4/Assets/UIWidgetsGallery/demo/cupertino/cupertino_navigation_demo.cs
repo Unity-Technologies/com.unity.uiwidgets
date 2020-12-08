@@ -173,7 +173,7 @@ namespace UIWidgetsGallery.gallery {
             return new CupertinoButton(
                 padding: EdgeInsets.zero,
                 child:  new Text("Exit"),
-                onPressed: () => { Navigator.of(context, rootNavigator: true).pop(); }
+                onPressed: () => { Navigator.of(context, rootNavigator: true).pop<object>(); }
             );
         }
     }
@@ -820,7 +820,7 @@ namespace UIWidgetsGallery.gallery {
                             new Padding(padding: EdgeInsets.only(top: 18.0f)),
                             CupertinoButton.filled(
                                 child: new Text("Sign in"),
-                                onPressed: () => { Navigator.pop(context); }
+                                onPressed: () => { Navigator.pop<object>(context); }
                             ),
                         }
                     )

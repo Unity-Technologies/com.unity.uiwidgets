@@ -1,4 +1,5 @@
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -7,76 +8,7 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.cupertino {
     static class CupertinoTextThemeDataUtils {
-        /*public static readonly TextStyle _kDefaultLightTextStyle = new TextStyle(
-            inherit: false,
-            fontFamily: ".SF Pro Text",
-            fontSize: 17.0f,
-            letterSpacing: -0.41f,
-            color: CupertinoColors.black,
-            decoration: TextDecoration.none
-        );
-
-        public static readonly TextStyle _kDefaultDarkTextStyle = new TextStyle(
-            inherit: false,
-            fontFamily: ".SF Pro Text",
-            fontSize: 17.0f,
-            letterSpacing: -0.41f,
-            color: CupertinoColors.white,
-            decoration: TextDecoration.none
-        );
-
-        public static readonly TextStyle _kDefaultActionTextStyle = new TextStyle(
-            inherit: false,
-            fontFamily: ".SF Pro Text",
-            fontSize: 17.0f,
-            letterSpacing: -0.41f,
-            color: CupertinoColors.activeBlue,
-            decoration: TextDecoration.none
-        );
-
-        public static readonly TextStyle _kDefaultTabLabelTextStyle = new TextStyle(
-            inherit: false,
-            fontFamily: ".SF Pro Text",
-            fontSize: 10.0f,
-            letterSpacing: -0.24f,
-            color: CupertinoColors.inactiveGray
-        );
-
-        public static readonly TextStyle _kDefaultMiddleTitleLightTextStyle = new TextStyle(
-            inherit: false,
-            fontFamily: ".SF Pro Text",
-            fontSize: 17.0f,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.41f,
-            color: CupertinoColors.black
-        );
-
-        public static readonly TextStyle _kDefaultMiddleTitleDarkTextStyle = new TextStyle(
-            inherit: false,
-            fontFamily: ".SF Pro Text",
-            fontSize: 17.0f,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.41f,
-            color: CupertinoColors.white
-        );
-
-        public static readonly TextStyle _kDefaultLargeTitleLightTextStyle = new TextStyle(
-            inherit: false,
-            fontFamily: ".SF Pro Display",
-            fontSize: 34.0f,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.41f,
-            color: CupertinoColors.black
-        );
-
-        public static readonly TextStyle _kDefaultLargeTitleDarkTextStyle = new TextStyle(
-            inherit: false,
-            fontFamily: ".SF Pro Display",
-            fontSize: 34.0f,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.41f,
-            color: CupertinoColors.white
-        );*/
+        
         public static readonly TextStyle _kDefaultTextStyle = new TextStyle(
           inherit: false,
           fontFamily: ".SF Pro Text",
@@ -148,8 +80,8 @@ namespace Unity.UIWidgets.cupertino {
 
     public class CupertinoTextThemeData : Diagnosticable {
         public CupertinoTextThemeData(
+            _TextThemeDefaultsBuilder defaults = null,
             Color primaryColor = null,
-            Brightness? brightness = null,
             TextStyle textStyle = null,
             TextStyle actionTextStyle = null,
             TextStyle tabLabelTextStyle = null,
@@ -159,19 +91,24 @@ namespace Unity.UIWidgets.cupertino {
             TextStyle pickerTextStyle = null,
             TextStyle dateTimePickerTextStyle = null
         ) {
-            _primaryColor = primaryColor ?? CupertinoColors.activeBlue;
-            _brightness = brightness;
+            _primaryColor = primaryColor ?? CupertinoColors.systemBlue;
             _textStyle = textStyle;
             _actionTextStyle = actionTextStyle;
             _tabLabelTextStyle = tabLabelTextStyle;
             _navTitleTextStyle = navTitleTextStyle;
             _navLargeTitleTextStyle = navLargeTitleTextStyle;
             _navActionTextStyle = navActionTextStyle;
-            _defaults = new _TextThemeDefaultsBuilder(CupertinoColors.label, CupertinoColors.inactiveGray);
+            _pickerTextStyle = pickerTextStyle;
+            _dateTimePickerTextStyle = dateTimePickerTextStyle;
+            _defaults = defaults ??
+                        //new _TextThemeDefaultsBuilder(Color.white,Color.white);
+                        new _TextThemeDefaultsBuilder(CupertinoColors.label, CupertinoColors.inactiveGray);
+            D.assert((_navActionTextStyle != null && _actionTextStyle != null) || _primaryColor != null);
+
         }
-        public static CupertinoTextThemeData _raw(
+        /*public static CupertinoTextThemeData _raw(
             _TextThemeDefaultsBuilder _defaults,
-            Color primaryColor ,
+            Color primaryColor,
             TextStyle textStyle = null,
             TextStyle actionTextStyle = null,
             TextStyle tabLabelTextStyle = null,
@@ -196,9 +133,9 @@ namespace Unity.UIWidgets.cupertino {
             textThemeData._defaults = _defaults;
             return textThemeData;
 
-        }
+        }*/
 
-        _TextThemeDefaultsBuilder _defaults;
+        public readonly _TextThemeDefaultsBuilder _defaults;
         readonly Color _primaryColor;
         readonly Brightness? _brightness;
         
@@ -266,7 +203,7 @@ namespace Unity.UIWidgets.cupertino {
         }
         
         public CupertinoTextThemeData resolveFrom(BuildContext context,  bool nullOk = false ) {
-            return CupertinoTextThemeData._raw(
+            return new CupertinoTextThemeData(
                 _defaults?.resolveFrom(context, nullOk),
                 CupertinoDynamicColor.resolve(_primaryColor, context, nullOk: nullOk),
                 CupertinoTextThemeDataUtils._resolveTextStyle(_textStyle, context, nullOk),
@@ -283,7 +220,6 @@ namespace Unity.UIWidgets.cupertino {
 
         public new CupertinoTextThemeData copyWith(
             Color primaryColor,
-            Brightness? brightness,
             TextStyle textStyle,
             TextStyle actionTextStyle,
             TextStyle tabLabelTextStyle,
@@ -294,8 +230,8 @@ namespace Unity.UIWidgets.cupertino {
             TextStyle dateTimePickerTextStyle
         ) {
             return new CupertinoTextThemeData(
+                _defaults,
                 primaryColor: primaryColor ?? _primaryColor,
-                brightness: brightness ?? _brightness,
                 textStyle: textStyle ?? _textStyle,
                 actionTextStyle: actionTextStyle ?? _actionTextStyle,
                 tabLabelTextStyle: tabLabelTextStyle ?? _tabLabelTextStyle,

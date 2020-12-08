@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -7,29 +8,33 @@ using Brightness = Unity.UIWidgets.ui.Brightness;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.cupertino {
-    static class CupertinoThemeDataUtils {
-        public static readonly Color _kDefaultBarLightBackgroundColor = new Color(0xCCF8F8F8);
-        public static readonly Color _kDefaultBarDarkBackgroundColor = new Color(0xB7212121);
-        public static readonly _CupertinoThemeDefaults _kDefaultTheme = new _CupertinoThemeDefaults(
-            null,
-            CupertinoColors.systemBlue,
-            CupertinoColors.systemBackground,
-            CupertinoDynamicColor.withBrightness(
-                debugLabel : "",
-                color: new Color(0xF0F9F9F9),
-                darkColor: new Color(0xF01D1D1D)
-             ),
-            CupertinoColors.systemBackground,
-            new _CupertinoTextThemeDefaults(CupertinoColors.label, CupertinoColors.inactiveGray)
-        );
+    class CupertinoThemeDataUtils {
+        
+        public static readonly _CupertinoThemeDefaults _kDefaultTheme = 
+            new _CupertinoThemeDefaults(
+                brightness:null,
+                CupertinoColors.systemBlue,
+                CupertinoColors.systemBackground,
+                CupertinoDynamicColor.withBrightness(
+                         color: new Color(0xF0F9F9F9),
+                        darkColor: new Color(0xF01D1D1D)
+                 ),
+                CupertinoColors.systemBackground,
+                textThemeDefaults  : 
+                //new _CupertinoTextThemeDefaults(Color.black,Color.white)
+                new _CupertinoTextThemeDefaults(CupertinoColors.label, CupertinoColors.inactiveGray)
+            );
+        
+
 
     }
 
     public class CupertinoTheme : StatelessWidget {
         public CupertinoTheme(
+            Key key = null,
             CupertinoThemeData data = null,
-            Widget child = null,
-            Key key = null
+            Widget child = null
+            
         ) : base(key: key) {
             D.assert(child != null);
             D.assert(data != null);
@@ -41,19 +46,15 @@ namespace Unity.UIWidgets.cupertino {
 
         public readonly Widget child;
 
-        public static CupertinoThemeData of(BuildContext context) {
-            _InheritedCupertinoTheme inheritedTheme =
-                (_InheritedCupertinoTheme) context.dependOnInheritedWidgetOfExactType<_InheritedCupertinoTheme>(null);
-            //context.inheritFromWidgetOfExactType(typeof(_InheritedCupertinoTheme));
-            return inheritedTheme?.theme?.data ?? new CupertinoThemeData();
+        public static CupertinoThemeData of(BuildContext context) { 
+            _InheritedCupertinoTheme inheritedTheme = context.dependOnInheritedWidgetOfExactType<_InheritedCupertinoTheme>();
+            return ((inheritedTheme?.theme?.data) ?? new CupertinoThemeData()).resolveFrom(context, nullOk: true);
+        
         }
 
         public static Brightness? brightnessOf(BuildContext context, bool nullOk = false) {
-            _InheritedCupertinoTheme inheritedTheme =
-                context.dependOnInheritedWidgetOfExactType<_InheritedCupertinoTheme>(null);
-            var brightness = inheritedTheme?.theme?.data?.brightness;
-            var platformBrightness = MediaQuery.of(context, nullOk: nullOk)?.platformBrightness;
-            return brightness ?? platformBrightness;
+            _InheritedCupertinoTheme inheritedTheme = context.dependOnInheritedWidgetOfExactType<_InheritedCupertinoTheme>();
+            return (inheritedTheme?.theme?.data?.brightness) ?? MediaQuery.of(context, nullOk: nullOk)?.platformBrightness;
         }
 
         public override Widget build(BuildContext context) {
@@ -97,6 +98,7 @@ namespace Unity.UIWidgets.cupertino {
             CupertinoTextThemeData textTheme = null,
             Color barBackgroundColor = null,
             Color scaffoldBackgroundColor = null
+            //,_CupertinoThemeDefaults defaults = null
         ) {
             this.brightness = brightness;// ?? Brightness.light;
             _primaryColor = primaryColor;
@@ -104,43 +106,11 @@ namespace Unity.UIWidgets.cupertino {
             _textTheme = textTheme;
             _barBackgroundColor = barBackgroundColor;
             _scaffoldBackgroundColor = scaffoldBackgroundColor;
-            _defaults = CupertinoThemeDataUtils._kDefaultTheme;
-           
+            _defaults =  CupertinoThemeDataUtils._kDefaultTheme;
+
         }
 
-        /*public static CupertinoThemeData raw(
-            Brightness brightness ,
-            Color primaryColor ,
-            Color primaryContrastingColor ,
-            CupertinoTextThemeData textTheme,
-            Color barBackgroundColor ,
-            Color scaffoldBackgroundColor 
-        ) {
-           /* D.assert(brightness != null);
-            D.assert(primaryColor != null);
-            D.assert(primaryContrastingColor != null);
-            D.assert(textTheme != null);
-            D.assert(barBackgroundColor != null);
-            D.assert(scaffoldBackgroundColor != null);
-            return new CupertinoThemeData(
-                brightness: brightness,
-                primaryColor: primaryColor,
-                primaryContrastingColor: primaryContrastingColor,
-                textTheme: textTheme,
-                barBackgroundColor: barBackgroundColor,
-                scaffoldBackgroundColor: scaffoldBackgroundColor
-            );*/
-           /*return _rawWithDefaults(
-               brightness,
-               primaryColor,
-               primaryContrastingColor,
-               textTheme,
-               barBackgroundColor,
-               scaffoldBackgroundColor,
-               _kDefaultTheme
-           );
-        }*/
-
+        
         public static CupertinoThemeData _rawWithDefaults(
             Brightness? brightness,
             Color primaryColor,
@@ -158,17 +128,23 @@ namespace Unity.UIWidgets.cupertino {
                 barBackgroundColor: barBackgroundColor,
                 scaffoldBackgroundColor: scaffoldBackgroundColor);
             themeData._defaults = defaults;
+                //, defaults : defaults);
             return themeData;
         }
 
-        public _CupertinoThemeDefaults _defaults;
+        public  _CupertinoThemeDefaults _defaults;
 
         public readonly Brightness? brightness;
+
+        /*public bool _isLight {
+            get { return brightness == Brightness.light; }
+        }*/
 
         public Color primaryColor {
             get {
                 return _primaryColor ?? _defaults.primaryColor;
-                //(_isLight ? CupertinoColors.activeBlue : CupertinoColors.activeOrange);
+                
+                //return (_isLight ? CupertinoColors.activeBlue : CupertinoColors.activeOrange);
             }
         }
 
@@ -177,7 +153,7 @@ namespace Unity.UIWidgets.cupertino {
         public Color primaryContrastingColor {
             get {
                 return _primaryContrastingColor ?? _defaults.primaryContrastingColor;
-                       //(_isLight ? CupertinoColors.white : CupertinoColors.black);
+                 // return (_isLight ? CupertinoColors.white : CupertinoColors.black);
             }
         }
 
@@ -186,7 +162,7 @@ namespace Unity.UIWidgets.cupertino {
         public CupertinoTextThemeData textTheme {
             get {
                 return _textTheme ?? _defaults.textThemeDefaults.createDefaults(primaryColor: primaryColor);
-                       /*new CupertinoTextThemeData(
+                /*       return new CupertinoTextThemeData(
                            brightness: brightness,
                            primaryColor: primaryColor
                        );*/
@@ -198,9 +174,6 @@ namespace Unity.UIWidgets.cupertino {
         public Color barBackgroundColor {
             get {
                 return _barBackgroundColor ?? _defaults.barBackgroundColor;
-                       /*(_isLight
-                           ? CupertinoThemeDataUtils._kDefaultBarLightBackgroundColor
-                           : CupertinoThemeDataUtils._kDefaultBarDarkBackgroundColor);*/
             }
         }
 
@@ -209,7 +182,7 @@ namespace Unity.UIWidgets.cupertino {
         public Color scaffoldBackgroundColor {
             get {
                 return _scaffoldBackgroundColor ??  _defaults.scaffoldBackgroundColor;
-                      // (_isLight ? CupertinoColors.white : CupertinoColors.black);
+                  //return    (_isLight ? CupertinoColors.white : CupertinoColors.black);
             }
         }
 
@@ -226,17 +199,17 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
 
-        protected CupertinoThemeData resolveFrom(BuildContext context,  bool nullOk = false ) {
+        public CupertinoThemeData resolveFrom(BuildContext context,  bool nullOk = false ) {
             Color convertColor(Color color) => CupertinoDynamicColor.resolve(color, context, nullOk: nullOk);
 
             return CupertinoThemeData._rawWithDefaults(
-                brightness,
-                convertColor(_primaryColor),
-                convertColor(_primaryContrastingColor),
-                _textTheme?.resolveFrom(context, nullOk: nullOk),
-                convertColor(_barBackgroundColor),
-                convertColor(_scaffoldBackgroundColor),
-                _defaults.resolveFrom(context, _textTheme == null, nullOk: nullOk)
+                brightness:brightness,
+                primaryColor:convertColor(_primaryColor),
+                primaryContrastingColor:convertColor(_primaryContrastingColor),
+                textTheme:_textTheme?.resolveFrom(context, nullOk: nullOk),
+                barBackgroundColor:convertColor(_barBackgroundColor),
+                scaffoldBackgroundColor:convertColor(_scaffoldBackgroundColor),
+                defaults:_defaults.resolveFrom(context, _textTheme == null, nullOk: nullOk)
             );
         }
         public CupertinoThemeData copyWith(
@@ -287,7 +260,17 @@ namespace Unity.UIWidgets.cupertino {
             CupertinoTextThemeData textTheme,
             Color barBackgroundColor,
             Color scaffoldBackgroundColor
-        ) {
+
+        ) : base(
+            brightness,
+            primaryColor,
+            primaryContrastingColor,
+            textTheme,
+            barBackgroundColor,
+            scaffoldBackgroundColor) {
+            _defaults = null;
+        }
+        /*{
             this.brightness = brightness;
             this.primaryColor = primaryColor;
             this.primaryContrastingColor = primaryContrastingColor;
@@ -295,7 +278,7 @@ namespace Unity.UIWidgets.cupertino {
             this.barBackgroundColor = barBackgroundColor;
             this.scaffoldBackgroundColor = scaffoldBackgroundColor;
             _defaults = null;
-        }
+        }*/
 
         public new readonly Brightness? brightness;
 
@@ -344,12 +327,12 @@ namespace Unity.UIWidgets.cupertino {
 
     public class _CupertinoThemeDefaults {
         public _CupertinoThemeDefaults(
-            Brightness? brightness = null,
-            Color primaryColor = null,
-            Color primaryContrastingColor = null,
-            Color barBackgroundColor = null,
-            Color scaffoldBackgroundColor = null,
-            _CupertinoTextThemeDefaults textThemeDefaults = null
+            Brightness? brightness ,
+            Color primaryColor ,
+            Color primaryContrastingColor ,
+            Color barBackgroundColor ,
+            Color scaffoldBackgroundColor ,
+            _CupertinoTextThemeDefaults textThemeDefaults 
             ) 
         {
             this.brightness = brightness;
@@ -372,12 +355,12 @@ namespace Unity.UIWidgets.cupertino {
             Color convertColor(Color color) => CupertinoDynamicColor.resolve(color, context, nullOk: nullOk);
 
             return new _CupertinoThemeDefaults(
-                brightness,
-                convertColor(primaryColor),
-                convertColor(primaryContrastingColor),
-                convertColor(barBackgroundColor),
-                convertColor(scaffoldBackgroundColor),
-                resolveTextTheme ? textThemeDefaults?.resolveFrom(context, nullOk: nullOk) : textThemeDefaults
+                brightness:brightness,
+                primaryColor:convertColor(primaryColor),
+                primaryContrastingColor:convertColor(primaryContrastingColor),
+                barBackgroundColor:convertColor(barBackgroundColor),
+                scaffoldBackgroundColor:convertColor(scaffoldBackgroundColor),
+                textThemeDefaults:resolveTextTheme ? textThemeDefaults?.resolveFrom(context, nullOk: nullOk) : textThemeDefaults
             );
         }
     }
@@ -385,8 +368,8 @@ namespace Unity.UIWidgets.cupertino {
   
     public class _CupertinoTextThemeDefaults {
         public _CupertinoTextThemeDefaults(
-        Color labelColor = null,
-        Color inactiveGray = null
+            Color labelColor = null,
+            Color inactiveGray = null
         ) {
             this.labelColor = labelColor;
             this.inactiveGray = inactiveGray;
@@ -402,7 +385,7 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
 
-        public CupertinoTextThemeData createDefaults(Color primaryColor  = null) {
+        public CupertinoTextThemeData createDefaults(Color primaryColor ) {
             D.assert(primaryColor != null);
             return new _DefaultCupertinoTextThemeData(
                 primaryColor: primaryColor,
@@ -417,10 +400,12 @@ namespace Unity.UIWidgets.cupertino {
             Color labelColor = null,
             Color inactiveGray = null,
             Color primaryColor = null
-        ) : base(primaryColor: primaryColor) {
+        ) : base(primaryColor: primaryColor) 
+        {
             D.assert(labelColor != null);
             D.assert(inactiveGray != null);
             D.assert(primaryColor != null);
+            
             this.labelColor = labelColor;
             this.inactiveGray = inactiveGray;
 

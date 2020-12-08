@@ -771,8 +771,8 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
     }
-
-    class _DialogActionButtonParentDataWidget : ParentDataWidget<_CupertinoDialogActionsRenderWidget> {
+//ParentDataWidget<_DialogActionButtonParentData>
+    class _DialogActionButtonParentDataWidget : ParentDataWidget<_ActionButtonParentData> {
         public _DialogActionButtonParentDataWidget(
             Widget child,
             bool isPressed = false,

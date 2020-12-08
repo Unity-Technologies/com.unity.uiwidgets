@@ -92,7 +92,7 @@ namespace Unity.UIWidgets.widgets {
             supportedLocales = supportedLocales ?? new List<Locale> {new Locale("en", "US")};
             window = Window.instance;
             D.assert(navigatorObservers != null);
-            D.assert(routes != null);
+            //D.assert(routes != null);
             this.home = home;
             this.navigatorKey = navigatorKey;
             this.onGenerateRoute = onGenerateRoute;
@@ -114,7 +114,7 @@ namespace Unity.UIWidgets.widgets {
             this.checkerboardRasterCacheImages = checkerboardRasterCacheImages;
             this.showSemanticsDebugger = showSemanticsDebugger;
             this.debugShowWidgetInspector = debugShowWidgetInspector;
-
+            this.debugShowCheckedModeBanner = debugShowCheckedModeBanner;
             this.onGenerateTitle = onGenerateTitle;
             this.title = title;
             this.color = color;
@@ -332,7 +332,7 @@ namespace Unity.UIWidgets.widgets {
             return Future<bool>.value(true).to<bool>();
         }
 
-        Route _onUnknownRoute(RouteSettings settings) {
+        Route<object> _onUnknownRoute(RouteSettings settings) {
             D.assert(() => {
                 if (widget.onUnknownRoute == null) {
                     throw new UIWidgetsError(
@@ -350,7 +350,7 @@ namespace Unity.UIWidgets.widgets {
 
                 return true;
             });
-            var result = widget.onUnknownRoute(settings);
+            var result = widget.onUnknownRoute(settings) as Route<object>;
             D.assert(() => {
                 if (result == null) {
                     throw new UIWidgetsError(
@@ -472,10 +472,11 @@ namespace Unity.UIWidgets.widgets {
         void inspectorShowChanged() {
             setState();
         }
+        
 
         /*bool _debugCheckLocalizations(Locale appLocale) {
             D.assert(() =>{
-                Set<Type> unsupportedTypes =
+                HashSet<Type> unsupportedTypes =
                     _localizationsDelegates.map<Type>((LocalizationsDelegate delegate) => delegate.type).toSet();
                 foreach ( LocalizationsDelegate<dynamic> delegate in _localizationsDelegates) {
                     if (!unsupportedTypes.contains(delegate.type))
@@ -483,7 +484,7 @@ namespace Unity.UIWidgets.widgets {
                     if (delegate.isSupported(appLocale))
                         unsupportedTypes.remove(delegate.type);
                 }
-                if (unsupportedTypes.isEmpty)
+                if (unsupportedTypes.isEmpty())
                     return true;
 
                 if (listEquals(unsupportedTypes.map((Type type) => type.toString()).toList(), <String>['CupertinoLocalizations']))
@@ -523,15 +524,12 @@ namespace Unity.UIWidgets.widgets {
                 RouteListFactory routeListFactory = (state, route) => {return widget.onGenerateInitialRoutes(route); };
                 navigator = new Navigator(
                     key: _navigator,
-                    //initialRoute: widget.initialRoute ?? Navigator.defaultRouteName,
-                    //onGenerateRoute: _onGenerateRoute,
-                    initialRoute: WidgetsBinding.instance.window.defaultRouteName != Navigator.defaultRouteName
+                    initialRoute: widget.initialRoute ?? Navigator.defaultRouteName,
+                    /*WidgetsBinding.instance.window.defaultRouteName != Navigator.defaultRouteName
                         ? WidgetsBinding.instance.window.defaultRouteName
-                        : widget.initialRoute ?? WidgetsBinding.instance.window.defaultRouteName,
+                        : widget.initialRoute ?? WidgetsBinding.instance.window.defaultRouteName,*/
                     onGenerateRoute: _onGenerateRoute,
-                    onGenerateInitialRoutes:
-                    
-                    widget.onGenerateInitialRoutes == null
+                    onGenerateInitialRoutes: widget.onGenerateInitialRoutes == null
                         ? Navigator.defaultGenerateInitialRoutes
                         : routeListFactory,
                     onUnknownRoute: _onUnknownRoute,
@@ -638,7 +636,7 @@ namespace Unity.UIWidgets.widgets {
             Locale appLocale = widget.locale != null
                 ? _resolveLocales(new List<Locale> {widget.locale}, widget.supportedLocales)
                 : _locale;
-
+            //D.assert(_debugCheckLocalizations(appLocale));
             result = new MediaQuery(
                 data: MediaQueryData.fromWindow(widget.window),
                 child: new Localizations(
@@ -674,7 +672,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class _MediaQueryFromWindow : StatefulWidget {
+    /*public class _MediaQueryFromWindow : StatefulWidget {
         public _MediaQueryFromWindow(Key key = null, Widget child = null) : base(key: key) {
         }
         public readonly Widget child;
@@ -731,7 +729,7 @@ namespace Unity.UIWidgets.widgets {
             base.dispose();
         }
     }
-
+*/
     class _InspectorSelectButton : StatelessWidget {
         public readonly GestureTapCallback onPressed;
 

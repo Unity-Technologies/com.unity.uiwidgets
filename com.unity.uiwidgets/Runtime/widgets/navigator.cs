@@ -152,7 +152,7 @@ namespace Unity.UIWidgets.widgets {
         protected internal virtual void changedExternalState() {
         }
 
-        protected internal virtual void dispose() {
+        public virtual void dispose() {
             _navigator = null;
         }
 
@@ -511,19 +511,16 @@ namespace Unity.UIWidgets.widgets {
             RouteFactory onUnknownRoute = null,
             TransitionDelegate<object> transitionDelegate = null,
             List<NavigatorObserver> observers = null) : base(key) {
-            D.assert(pages != null);
-            D.assert(onGenerateInitialRoutes != null);
-            D.assert(transitionDelegate != null);
-            D.assert(observers != null);
 
-            this.pages = pages;
+            this.pages = pages ?? new List<Page<object>>();
             this.onPopPage = onPopPage;
             this.initialRoute = initialRoute;
             this.onGenerateInitialRoutes = onGenerateInitialRoutes ?? Navigator.defaultGenerateInitialRoutes;
             this.onGenerateRoute = onGenerateRoute;
             this.onUnknownRoute = onUnknownRoute;
-            this.transitionDelegate = transitionDelegate;
+            this.transitionDelegate = transitionDelegate ?? new DefaultTransitionDelegate<object>();
             this.observers = observers ?? new List<NavigatorObserver>();
+            
         }
 
         public readonly List<Page<object>> pages;
@@ -599,7 +596,7 @@ namespace Unity.UIWidgets.widgets {
             return Navigator.of(context).maybePop(result);
         }*/
 
-        public static void pop<T>(BuildContext context, T result ) {
+        public static void pop<T>(BuildContext context, T result = default(T) ) {
             Navigator.of(context).pop<T>(result);
         }
 
@@ -657,9 +654,9 @@ namespace Unity.UIWidgets.widgets {
             bool rootNavigator = false,
             bool nullOk = false
         ) {
-            var navigator = rootNavigator
-                ? (NavigatorState) context.rootAncestorStateOfType(new TypeMatcher<NavigatorState>())
-                : (NavigatorState) context.ancestorStateOfType(new TypeMatcher<NavigatorState>());
+            NavigatorState navigator = rootNavigator
+                ? context.findRootAncestorStateOfType<NavigatorState>()
+                : context.findAncestorStateOfType<NavigatorState>();
             D.assert(() => {
                 if (navigator == null && !nullOk) {
                     throw new UIWidgetsError(
@@ -684,7 +681,7 @@ namespace Unity.UIWidgets.widgets {
                     debugRouteNames = new List<string> {Navigator.defaultRouteName};
                     return true;
                 });
-                result.Add(navigator._routeNamed<object>(Navigator.defaultRouteName, arguments: null, allowNull: true));
+                result.Add(navigator._routeNamed(Navigator.defaultRouteName, arguments: null, allowNull: true));
                 string[] routeParts = initialRouteName.Split('/');
                 if (initialRouteName.isNotEmpty()) {
                     string routeName = "";
@@ -694,7 +691,7 @@ namespace Unity.UIWidgets.widgets {
                             debugRouteNames.Add(routeName);
                             return true;
                         });
-                        result.Add(navigator._routeNamed<object>(routeName, arguments: null, allowNull: true));
+                        result.Add(navigator._routeNamed(routeName, arguments: null, allowNull: true));
                     }
                 }
 
@@ -712,7 +709,7 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
             else if (initialRouteName != Navigator.defaultRouteName) {
-                result.Add(navigator._routeNamed<object>(initialRouteName, arguments: null, allowNull: true));
+                result.Add(navigator._routeNamed(initialRouteName, arguments: null, allowNull: true));
             }
 
             //result.RemoveWhere((Route<object> route) => route == null);
@@ -722,7 +719,10 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
             if (result.isEmpty())
-                result.Add(navigator._routeNamed<object>(Navigator.defaultRouteName, arguments: null));
+                result.Add(
+                    navigator._routeNamed(
+                        name:Navigator.defaultRouteName,
+                        arguments: null));
             return result;
         }
 
@@ -921,7 +921,8 @@ namespace Unity.UIWidgets.widgets {
 
         public void dispose() {
             D.assert(currentState.GetHashCode() < _RouteLifecycle.disposed.GetHashCode());
-            route.dispose();
+            ((Route)route).dispose();
+            //route._navigator = null;
             currentState = _RouteLifecycle.disposed;
         }
 
@@ -1093,8 +1094,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        public override void didUpdateWidget(StatefulWidget oldWidget) {
-            oldWidget = (Navigator) oldWidget;
+        public new void didUpdateWidget(Navigator oldWidget) {
+           // oldWidget = (Navigator) oldWidget;
             base.didUpdateWidget(oldWidget);
             D.assert(
                 widget.pages.isEmpty() || widget.onPopPage != null, () =>
@@ -1111,7 +1112,7 @@ namespace Unity.UIWidgets.widgets {
 
             if (((Navigator)oldWidget).pages != widget.pages) {
                 D.assert(
-                    widget.pages.isNotEmpty, () =>
+                    widget.pages.isNotEmpty(), () =>
                         "To use the Navigator.pages, there must be at least one page in the list."
                 );
                 _updatePages();
@@ -1435,9 +1436,7 @@ namespace Unity.UIWidgets.widgets {
             _RouteEntry next = null;
             _RouteEntry entry = _history[index];
             _RouteEntry previous = index > 0 ? _history[index - 1] : null;
-            bool
-                canRemoveOrAdd =
-                    false; // Whether there is a fully opaque route on top to silently remove or add route underneath.
+            bool canRemoveOrAdd = false; // Whether there is a fully opaque route on top to silently remove or add route underneath.
             Route poppedRoute = null; // The route that should trigger didPopNext on the top active route.
             bool seenTopActiveRoute = false; // Whether we"ve seen the route that would get didPopNext.
             List<_RouteEntry> toBeDisposed = new List<_RouteEntry>();
@@ -1479,7 +1478,6 @@ namespace Unity.UIWidgets.widgets {
                         if (entry.currentState == _RouteLifecycle.idle) {
                             continue;
                         }
-
                         break;
                     case _RouteLifecycle.pushing: // Will exit this state when animation completes.
                         if (!seenTopActiveRoute && poppedRoute != null)
@@ -1490,8 +1488,6 @@ namespace Unity.UIWidgets.widgets {
                         if (!seenTopActiveRoute && poppedRoute != null)
                             entry.handleDidPopNext(poppedRoute);
                         seenTopActiveRoute = true;
-                        // This route is idle, so we are allowed to remove subsequent (earlier)
-                        // routes that are waiting to be removed silently:
                         canRemoveOrAdd = true;
                         break;
                     case _RouteLifecycle.pop:
@@ -1500,7 +1496,6 @@ namespace Unity.UIWidgets.widgets {
                                 entry.handleDidPopNext(poppedRoute);
                             poppedRoute = entry.route;
                         }
-
                         entry.handlePop(
                             navigator: this,
                             previousPresent: _getRouteBefore(index, _RouteEntry.willBePresentPredicate)?.route
@@ -1549,13 +1544,10 @@ namespace Unity.UIWidgets.widgets {
                 entry = previous;
                 previous = index > 0 ? _history[index - 1] : null;
             }
-
-            // Now that the list is clean, send the didChangeNext/didChangePrevious
-            // notifications.
             _flushRouteAnnouncement();
 
-            // Announces route name changes.
-            _RouteEntry lastEntry = null;//_history.lastWhere(_RouteEntry.isPresentPredicate, orElse: () => null);
+           
+           /* _RouteEntry lastEntry = null;//_history.lastWhere(_RouteEntry.isPresentPredicate, orElse: () => null);
             foreach (var historyEntry in _history) {
                 if (_RouteEntry.isPresentPredicate(historyEntry)) {
                     lastEntry = historyEntry;
@@ -1565,16 +1557,16 @@ namespace Unity.UIWidgets.widgets {
             if (routeName != _lastAnnouncedRouteName) {
                 //RouteNotificationMessages.maybeNotifyRouteChange(routeName, _lastAnnouncedRouteName);
                 _lastAnnouncedRouteName = routeName;
-            }
+            }*/
 
             // Lastly, removes the overlay entries of all marked entries and disposes
             // them.
             foreach (_RouteEntry routeEntry in toBeDisposed) {
-                foreach (OverlayEntry overlayEntry in routeEntry.route.overlayEntries)
+                foreach (OverlayEntry overlayEntry in routeEntry.route.overlayEntries) {
                     overlayEntry.remove();
+                }
                 routeEntry.dispose();
             }
-
             if (rearrangeOverlay)
                 overlay?.rearrange(_allRouteOverlayEntries);
         }
@@ -1627,6 +1619,63 @@ namespace Unity.UIWidgets.widgets {
             }
 
             return index < _history.Count ? _history[index] : null;
+        }
+        
+        public Route _routeNamed(string name, object arguments, bool allowNull = false) {
+            D.assert(!_debugLocked);
+            D.assert(name != null);
+            if (allowNull && widget.onGenerateRoute == null)
+                return null;
+            D.assert(() => {
+                if (widget.onGenerateRoute == null) {
+                    throw new UIWidgetsError(
+                        "Navigator.onGenerateRoute was null, but the route named " + $"{name} was referenced.\n" +
+                        "To use the Navigator API with named routes (pushNamed, pushReplacementNamed, or " +
+                        "pushNamedAndRemoveUntil), the Navigator must be provided with an " +
+                        "onGenerateRoute handler.\n" +
+                        "The Navigator was:\n" +
+                        $"  {this}"
+                    );
+                }
+
+                return true;
+            });
+            RouteSettings settings = new RouteSettings(
+                name: name,
+                arguments: arguments
+            );
+            Route route = widget.onGenerateRoute(settings) as Route;
+            if (route == null && !allowNull) {
+                D.assert(() => {
+                    if (widget.onUnknownRoute == null) {
+                        throw new UIWidgetsError(
+                            "Navigator.onGenerateRoute returned null when requested to build route " + $"{name}." +
+                            "The onGenerateRoute callback must never return null, unless an onUnknownRoute " +
+                            "callback is provided as well." +
+                            new DiagnosticsProperty<NavigatorState>("The Navigator was", this,
+                                style: DiagnosticsTreeStyle.errorProperty)
+                        );
+                    }
+
+                    return true;
+                });
+                route = widget.onUnknownRoute(settings) as Route;
+                D.assert(() => {
+                    if (route == null) {
+                        throw new UIWidgetsError(
+                            "Navigator.onUnknownRoute returned null when requested to build route " + $"{name}." +
+                            "The onUnknownRoute callback must never return null." +
+                            new DiagnosticsProperty<NavigatorState>("The Navigator was", this,
+                                style: DiagnosticsTreeStyle.errorProperty)
+                        );
+                    }
+
+                    return true;
+                });
+            }
+
+            D.assert(route != null || allowNull);
+            return route;
         }
 
         public Route<T> _routeNamed<T>(string name, object arguments, bool allowNull = false) {
@@ -1837,7 +1886,7 @@ namespace Unity.UIWidgets.widgets {
             });
             D.assert(newRoute != null);
             D.assert(newRoute._navigator == null);
-            D.assert(newRoute.overlayEntries.isEmpty);
+            D.assert(newRoute.overlayEntries.isEmpty());
             D.assert(predicate != null);
             int index = _history.Count - 1;
             _history.Add(new _RouteEntry(newRoute, initialState: _RouteLifecycle.push));
@@ -2119,8 +2168,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void finalizeRoute(Route route) {
-
-            bool wasDebugLocked;
+            bool wasDebugLocked = false;
             D.assert(() => {
                 wasDebugLocked = _debugLocked;
                 _debugLocked = true;
@@ -2133,8 +2181,8 @@ namespace Unity.UIWidgets.widgets {
                     routeEntries.Add(historyEntry);
                 }
             }
-
             D.assert(routeEntries.Count == 1);
+            
             _RouteEntry entry = null;
             foreach (var historyEntry in _history) {
                 if (_RouteEntry.isRoutePredicate(route)(historyEntry)) {
@@ -2232,7 +2280,7 @@ namespace Unity.UIWidgets.widgets {
 
 
         public override Widget build(BuildContext context) {
-            D.assert(!_debugLocked);
+            D.assert(!_debugLocked);//_debuglocked = false;
             D.assert(_history.isNotEmpty());
             return new Listener(
                 onPointerDown: _handlePointerDown,

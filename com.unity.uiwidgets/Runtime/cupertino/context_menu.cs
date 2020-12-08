@@ -420,8 +420,9 @@ namespace Unity.UIWidgets.cupertino {
       public readonly static  Animatable< float> _sheetScaleAnimatableReverse = _sheetScaleTween.chain(_curveReverse);
       public readonly Tween< float> _opacityTween = new FloatTween(begin: 0.0f, end: 1.0f);
       public Animation< float> _sheetOpacity;
+      
       public readonly string barrierLabel;
-
+      //public override string barrierLabel;
       public Color barrierColor {
         get { return _kModalBarrierColor; }
       }

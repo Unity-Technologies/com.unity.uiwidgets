@@ -7,9 +7,9 @@ using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.painting;
 namespace Unity.UIWidgets.cupertino {
     public class CupertinoColors {
-        public static CupertinoDynamicColor activeBlue = systemBlue;
-        public static CupertinoDynamicColor activeGreen = systemGreen;
-        public static CupertinoDynamicColor activeOrange = systemOrange;
+        public static readonly CupertinoDynamicColor activeBlue = systemBlue;
+        public static readonly CupertinoDynamicColor activeGreen = systemGreen;
+        public static readonly CupertinoDynamicColor activeOrange = systemOrange;
 
         public static Color white = new Color(0xFFFFFFFF);
         public static Color black = new Color(0xFF000000);
@@ -17,15 +17,15 @@ namespace Unity.UIWidgets.cupertino {
         public static Color extraLightBackgroundGray = new Color(0xFFEFEFF4);
         public static Color darkBackgroundGray = new Color(0xFF171717);
 
-        public static CupertinoDynamicColor inactiveGray = CupertinoDynamicColor.withBrightness(
+        public static readonly CupertinoDynamicColor inactiveGray = CupertinoDynamicColor.withBrightness(
             debugLabel: "inactiveGray",
             color: new Color(0xFF999999),
             darkColor: new Color(0xFF757575)
         );
 
-        public static CupertinoDynamicColor destructiveRed = systemRed;
+        public static readonly CupertinoDynamicColor destructiveRed = systemRed;
 
-        public static CupertinoDynamicColor systemBlue = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemBlue = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemBlue",
             color: Color.fromARGB(255, 0, 122, 255),
             darkColor: Color.fromARGB(255, 10, 132, 255),
@@ -33,7 +33,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 64, 156, 255)
         );
 
-        public static CupertinoDynamicColor systemGreen = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemGreen = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemGreen",
             color: Color.fromARGB(255, 52, 199, 89),
             darkColor: Color.fromARGB(255, 48, 209, 88),
@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 48, 219, 91)
         );
 
-        public static CupertinoDynamicColor systemIndigo = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemIndigo = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemIndigo",
             color: Color.fromARGB(255, 88, 86, 214),
             darkColor: Color.fromARGB(255, 94, 92, 230),
@@ -49,7 +49,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 125, 122, 255)
         );
 
-        public static CupertinoDynamicColor systemOrange = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemOrange = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemOrange",
             color: Color.fromARGB(255, 255, 149, 0),
             darkColor: Color.fromARGB(255, 255, 159, 10),
@@ -57,7 +57,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 255, 179, 64)
         );
 
-        public static CupertinoDynamicColor systemPink = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemPink = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemPink",
             color: Color.fromARGB(255, 255, 45, 85),
             darkColor: Color.fromARGB(255, 255, 55, 95),
@@ -65,7 +65,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 255, 100, 130)
         );
 
-        public static CupertinoDynamicColor systemPurple = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemPurple = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemPurple",
             color: Color.fromARGB(255, 175, 82, 222),
             darkColor: Color.fromARGB(255, 191, 90, 242),
@@ -73,7 +73,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 218, 143, 255)
         );
 
-        public static CupertinoDynamicColor systemRed = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemRed = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemRed",
             color: Color.fromARGB(255, 255, 59, 48),
             darkColor: Color.fromARGB(255, 255, 69, 58),
@@ -81,7 +81,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 255, 105, 97)
         );
 
-        public static CupertinoDynamicColor systemTeal = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemTeal = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemTeal",
             color: Color.fromARGB(255, 90, 200, 250),
             darkColor: Color.fromARGB(255, 100, 210, 255),
@@ -89,7 +89,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 112, 215, 255)
         );
 
-        public static CupertinoDynamicColor systemYellow = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemYellow = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemYellow",
             color: Color.fromARGB(255, 255, 204, 0),
             darkColor: Color.fromARGB(255, 255, 214, 10),
@@ -97,7 +97,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 255, 212, 38)
         );
 
-        public static CupertinoDynamicColor systemGrey = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemGrey = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemGrey",
             color: Color.fromARGB(255, 142, 142, 147),
             darkColor: Color.fromARGB(255, 142, 142, 147),
@@ -105,7 +105,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 174, 174, 178)
         );
 
-        public static CupertinoDynamicColor systemGrey2 = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemGrey2 = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemGrey2",
             color: Color.fromARGB(255, 174, 174, 178),
             darkColor: Color.fromARGB(255, 99, 99, 102),
@@ -113,7 +113,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 124, 124, 128)
         );
 
-        public static CupertinoDynamicColor systemGrey3 = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemGrey3 = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemGrey3",
             color: Color.fromARGB(255, 199, 199, 204),
             darkColor: Color.fromARGB(255, 72, 72, 74),
@@ -121,7 +121,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 84, 84, 86)
         );
 
-        public static CupertinoDynamicColor systemGrey4 = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemGrey4 = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemGrey4",
             color: Color.fromARGB(255, 209, 209, 214),
             darkColor: Color.fromARGB(255, 58, 58, 60),
@@ -129,7 +129,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 68, 68, 70)
         );
 
-        public static CupertinoDynamicColor systemGrey5 = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemGrey5 = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemGrey5",
             color: Color.fromARGB(255, 229, 229, 234),
             darkColor: Color.fromARGB(255, 44, 44, 46),
@@ -137,7 +137,7 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 54, 54, 56)
         );
 
-        public static CupertinoDynamicColor systemGrey6 = CupertinoDynamicColor.withBrightnessAndContrast(
+        public static readonly CupertinoDynamicColor systemGrey6 = CupertinoDynamicColor.withBrightnessAndContrast(
             debugLabel: "systemGrey6",
             color: Color.fromARGB(255, 242, 242, 247),
             darkColor: Color.fromARGB(255, 28, 28, 30),
@@ -145,8 +145,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastColor: Color.fromARGB(255, 36, 36, 38)
         );
 
-        public static CupertinoDynamicColor label = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor label = new CupertinoDynamicColor(
             debugLabel: "label",
+            //effectiveColor:Color.fromARGB(255, 0, 0, 0),
             color: Color.fromARGB(255, 0, 0, 0),
             darkColor: Color.fromARGB(255, 255, 255, 255),
             highContrastColor: Color.fromARGB(255, 0, 0, 0),
@@ -157,8 +158,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(255, 255, 255, 255)
         );
 
-        public static CupertinoDynamicColor secondaryLabel = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor secondaryLabel = new CupertinoDynamicColor(
             debugLabel: "secondaryLabel",
+            //effectiveColor:Color.fromARGB(153, 60, 60, 67),
             color: Color.fromARGB(153, 60, 60, 67),
             darkColor: Color.fromARGB(153, 235, 235, 245),
             highContrastColor: Color.fromARGB(173, 60, 60, 67),
@@ -171,8 +173,9 @@ namespace Unity.UIWidgets.cupertino {
 
         /// The color for text labels containing tertiary content, equivalent to
         /// [UIColor.tertiaryLabel](https://developer.apple.com/documentation/uikit/uicolor/3173153-tertiarylabel).
-        public static CupertinoDynamicColor tertiaryLabel = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor tertiaryLabel = new CupertinoDynamicColor(
             debugLabel: "tertiaryLabel",
+            //effectiveColor: Color.fromARGB(76, 60, 60, 67),
             color: Color.fromARGB(76, 60, 60, 67),
             darkColor: Color.fromARGB(76, 235, 235, 245),
             highContrastColor: Color.fromARGB(96, 60, 60, 67),
@@ -183,8 +186,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(96, 235, 235, 245)
         );
 
-        public static CupertinoDynamicColor quaternaryLabel = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor quaternaryLabel = new CupertinoDynamicColor(
             debugLabel: "quaternaryLabel",
+            //effectiveColor:Color.fromARGB(45, 60, 60, 67),
             color: Color.fromARGB(45, 60, 60, 67),
             darkColor: Color.fromARGB(40, 235, 235, 245),
             highContrastColor: Color.fromARGB(66, 60, 60, 67),
@@ -195,8 +199,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(61, 235, 235, 245)
         );
 
-        public static CupertinoDynamicColor systemFill = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor systemFill = new CupertinoDynamicColor(
             debugLabel: "systemFill",
+            //effectiveColor:Color.fromARGB(51, 120, 120, 128),
             color: Color.fromARGB(51, 120, 120, 128),
             darkColor: Color.fromARGB(91, 120, 120, 128),
             highContrastColor: Color.fromARGB(71, 120, 120, 128),
@@ -207,8 +212,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(112, 120, 120, 128)
         );
 
-        public static CupertinoDynamicColor secondarySystemFill = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor secondarySystemFill = new CupertinoDynamicColor(
             debugLabel: "secondarySystemFill",
+            //effectiveColor: Color.fromARGB(40, 120, 120, 128),
             color: Color.fromARGB(40, 120, 120, 128),
             darkColor: Color.fromARGB(81, 120, 120, 128),
             highContrastColor: Color.fromARGB(61, 120, 120, 128),
@@ -219,8 +225,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(102, 120, 120, 128)
         );
 
-        public static CupertinoDynamicColor tertiarySystemFill = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor tertiarySystemFill = new CupertinoDynamicColor(
             debugLabel: "tertiarySystemFill",
+            //effectiveColor:Color.fromARGB(30, 118, 118, 128),
             color: Color.fromARGB(30, 118, 118, 128),
             darkColor: Color.fromARGB(61, 118, 118, 128),
             highContrastColor: Color.fromARGB(51, 118, 118, 128),
@@ -231,8 +238,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(81, 118, 118, 128)
         );
 
-        public static CupertinoDynamicColor quaternarySystemFill = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor quaternarySystemFill = new CupertinoDynamicColor(
             debugLabel: "quaternarySystemFill",
+            //effectiveColor:Color.fromARGB(20, 116, 116, 128),
             color: Color.fromARGB(20, 116, 116, 128),
             darkColor: Color.fromARGB(45, 118, 118, 128),
             highContrastColor: Color.fromARGB(40, 116, 116, 128),
@@ -245,8 +253,9 @@ namespace Unity.UIWidgets.cupertino {
 
         /// The color for placeholder text in controls or text views, equivalent to
         /// [UIColor.placeholderText](https://developer.apple.com/documentation/uikit/uicolor/3173134-placeholdertext).
-        public static CupertinoDynamicColor placeholderText = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor placeholderText = new CupertinoDynamicColor(
             debugLabel: "placeholderText",
+            //effectiveColor:Color.fromARGB(76, 60, 60, 67),
             color: Color.fromARGB(76, 60, 60, 67),
             darkColor: Color.fromARGB(76, 235, 235, 245),
             highContrastColor: Color.fromARGB(96, 60, 60, 67),
@@ -257,8 +266,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(96, 235, 235, 245)
         );
 
-        public static CupertinoDynamicColor systemBackground = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor systemBackground = new CupertinoDynamicColor(
             debugLabel: "systemBackground",
+            //effectiveColor:Color.fromARGB(255, 255, 255, 255),
             color: Color.fromARGB(255, 255, 255, 255),
             darkColor: Color.fromARGB(255, 0, 0, 0),
             highContrastColor: Color.fromARGB(255, 255, 255, 255),
@@ -269,8 +279,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(255, 36, 36, 38)
         );
 
-        public static CupertinoDynamicColor secondarySystemBackground = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor secondarySystemBackground = new CupertinoDynamicColor(
             debugLabel: "secondarySystemBackground",
+            //effectiveColor:Color.fromARGB(255, 242, 242, 247),
             color: Color.fromARGB(255, 242, 242, 247),
             darkColor: Color.fromARGB(255, 28, 28, 30),
             highContrastColor: Color.fromARGB(255, 235, 235, 240),
@@ -281,8 +292,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(255, 54, 54, 56)
         );
 
-        public static CupertinoDynamicColor tertiarySystemBackground = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor tertiarySystemBackground = new CupertinoDynamicColor(
             debugLabel: "tertiarySystemBackground",
+            //effectiveColor:Color.fromARGB(255, 255, 255, 255),
             color: Color.fromARGB(255, 255, 255, 255),
             darkColor: Color.fromARGB(255, 44, 44, 46),
             highContrastColor: Color.fromARGB(255, 255, 255, 255),
@@ -293,8 +305,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(255, 68, 68, 70)
         );
 
-        public static CupertinoDynamicColor systemGroupedBackground = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor systemGroupedBackground = new CupertinoDynamicColor(
             debugLabel: "systemGroupedBackground",
+            //effectiveColor:Color.fromARGB(255, 242, 242, 247),
             color: Color.fromARGB(255, 242, 242, 247),
             darkColor: Color.fromARGB(255, 0, 0, 0),
             highContrastColor: Color.fromARGB(255, 235, 235, 240),
@@ -305,8 +318,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(255, 36, 36, 38)
         );
 
-        public static CupertinoDynamicColor secondarySystemGroupedBackground = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor secondarySystemGroupedBackground = new CupertinoDynamicColor(
             debugLabel: "secondarySystemGroupedBackground",
+            //effectiveColor:Color.fromARGB(255, 255, 255, 255),
             color: Color.fromARGB(255, 255, 255, 255),
             darkColor: Color.fromARGB(255, 28, 28, 30),
             highContrastColor: Color.fromARGB(255, 255, 255, 255),
@@ -317,8 +331,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(255, 54, 54, 56)
         );
 
-        public static CupertinoDynamicColor tertiarySystemGroupedBackground = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor tertiarySystemGroupedBackground = new CupertinoDynamicColor(
             debugLabel: "tertiarySystemGroupedBackground",
+            //effectiveColor:Color.fromARGB(255, 242, 242, 247),
             color: Color.fromARGB(255, 242, 242, 247),
             darkColor: Color.fromARGB(255, 44, 44, 46),
             highContrastColor: Color.fromARGB(255, 235, 235, 240),
@@ -329,8 +344,9 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(255, 68, 68, 70)
         );
 
-        public static CupertinoDynamicColor separator = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor separator = new CupertinoDynamicColor(
             debugLabel: "separator",
+            //effectiveColor:Color.fromARGB(73, 60, 60, 67),
             color: Color.fromARGB(73, 60, 60, 67),
             darkColor: Color.fromARGB(153, 84, 84, 88),
             highContrastColor: Color.fromARGB(94, 60, 60, 67),
@@ -343,8 +359,9 @@ namespace Unity.UIWidgets.cupertino {
 
         /// The color for borders or divider lines that hide any underlying content,
         /// equivalent to [UIColor.opaqueSeparator](https://developer.apple.com/documentation/uikit/uicolor/3173133-opaqueseparator).
-        public static CupertinoDynamicColor opaqueSeparator = new CupertinoDynamicColor(
+        public static readonly CupertinoDynamicColor opaqueSeparator = new CupertinoDynamicColor(
             debugLabel: "opaqueSeparator",
+            //effectiveColor:Color.fromARGB(255, 198, 198, 200),
             color: Color.fromARGB(255, 198, 198, 200),
             darkColor: Color.fromARGB(255, 56, 56, 58),
             highContrastColor: Color.fromARGB(255, 198, 198, 200),
@@ -355,9 +372,10 @@ namespace Unity.UIWidgets.cupertino {
             darkHighContrastElevatedColor: Color.fromARGB(255, 56, 56, 58)
         );
 
-        public static CupertinoDynamicColor link = 
+        public static readonly CupertinoDynamicColor link = 
             new CupertinoDynamicColor(
             debugLabel: "link",
+            //effectiveColor:Color.fromARGB(255, 0, 122, 255),
             color: Color.fromARGB(255, 0, 122, 255),
             darkColor: Color.fromARGB(255, 9, 132, 255),
             highContrastColor: Color.fromARGB(255, 0, 122, 255),
@@ -369,10 +387,10 @@ namespace Unity.UIWidgets.cupertino {
         );
     }
 
-    public class CupertinoDynamicColor : Color,Diagnosticable {
-
+    public class CupertinoDynamicColor : Color { //, Diagnosticable {
         public CupertinoDynamicColor(
             string debugLabel = null,
+            Color effectiveColor = null,
             Color color = null,
             Color darkColor = null,
             Color highContrastColor = null,
@@ -380,19 +398,21 @@ namespace Unity.UIWidgets.cupertino {
             Color elevatedColor = null,
             Color darkElevatedColor = null,
             Color highContrastElevatedColor = null,
-            Color darkHighContrastElevatedColor = null
-            ) : base(0) {
-            /// ._
-            D.assert(color != null);
-            D.assert(darkColor != null);
-            D.assert(highContrastColor != null);
-            D.assert(darkHighContrastColor != null);
-            D.assert(elevatedColor != null);
-            D.assert(darkElevatedColor != null);
-            D.assert(highContrastElevatedColor != null);
-            D.assert(darkHighContrastElevatedColor != null);
-            D.assert(_effectiveColor != null);
-            _effectiveColor = color;
+            Color darkHighContrastElevatedColor = null,
+            Element debugResolveContext = null 
+            ): base(0) 
+        {
+            D.assert(color != null,()=>"color8 == null");
+            D.assert(darkColor != null,()=>"color7 == null");
+            D.assert(highContrastColor != null,()=>"color6 == null");
+            D.assert(darkHighContrastColor != null,()=>"color5 == null");
+            D.assert(elevatedColor != null,()=>"color4 == null");
+            D.assert(darkElevatedColor != null,()=>"color3 == null");
+            D.assert(highContrastElevatedColor != null,()=>"color2 == null");
+            D.assert(darkHighContrastElevatedColor != null,()=>"color1 == null");
+            //D.assert(effectiveColor != null);
+
+            _effectiveColor = effectiveColor ?? color;
             this.color = color;
             this.darkColor = darkColor;
             this.highContrastColor = highContrastColor;
@@ -401,48 +421,21 @@ namespace Unity.UIWidgets.cupertino {
             this.darkElevatedColor = darkElevatedColor;
             this.highContrastElevatedColor = highContrastElevatedColor;
             this.darkHighContrastElevatedColor = darkHighContrastElevatedColor;
-            _debugResolveContext = null;
+            _debugResolveContext = debugResolveContext;
             _debugLabel = debugLabel;
+            base.value = _effectiveColor.value;
+            //base(_effectiveColor.value);
         }
 
-        public static CupertinoDynamicColor create(
-            Color _effectiveColor,
-            Color color,
-            Color darkColor ,
-            Color highContrastColor ,
-            Color darkHighContrastColor ,
-            Color elevatedColor ,
-            Color darkElevatedColor ,
-            Color highContrastElevatedColor ,
-            Color darkHighContrastElevatedColor ,
-            Element _debugResolveContext ,
-            string _debugLabel 
-        ) {
-            var dynamicColor = new CupertinoDynamicColor(
-                debugLabel: _debugLabel,
-                color: color,
-                darkColor: darkColor,
-                highContrastColor: color,
-                darkHighContrastColor: darkColor,
-                elevatedColor: color,
-                darkElevatedColor: darkColor,
-                highContrastElevatedColor: color,
-                darkHighContrastElevatedColor: darkColor
-            );
-            dynamicColor._effectiveColor = _effectiveColor;
-            dynamicColor._debugResolveContext = _debugResolveContext;
-            return dynamicColor;
-
-        }
+        
 
         public static CupertinoDynamicColor withBrightnessAndContrast(
-            string debugLabel = null,
-            Color color = null,
-            Color darkColor = null,
-            Color highContrastColor = null,
-            Color darkHighContrastColor = null
+            string debugLabel ,
+            Color color ,
+            Color darkColor ,
+            Color highContrastColor ,
+            Color darkHighContrastColor 
         ) {
-
             return new CupertinoDynamicColor(
                 debugLabel: debugLabel,
                 color: color,
@@ -452,7 +445,8 @@ namespace Unity.UIWidgets.cupertino {
                 elevatedColor: color,
                 darkElevatedColor: darkColor,
                 highContrastElevatedColor: highContrastColor,
-                darkHighContrastElevatedColor: darkHighContrastColor
+                darkHighContrastElevatedColor: darkHighContrastColor,
+                debugResolveContext: null
             );
         }
 
@@ -470,20 +464,22 @@ namespace Unity.UIWidgets.cupertino {
                 elevatedColor: color,
                 darkElevatedColor: darkColor,
                 highContrastElevatedColor: color,
-                darkHighContrastElevatedColor: darkColor);
+                darkHighContrastElevatedColor: darkColor,
+                debugResolveContext: null
+                );
         }
 
-        public Color _effectiveColor;
-
-
-        public int value {
-            get { return (int) _effectiveColor.value; }
+        public readonly Color _effectiveColor; 
+        public uint value {
+            get {
+                return _effectiveColor.value;
+            }
         }
 
 
         public readonly string _debugLabel;
-
-        public Element _debugResolveContext;
+        public readonly Element _debugResolveContext;
+        
         public readonly Color color;
 
         public readonly Color darkColor;
@@ -502,9 +498,11 @@ namespace Unity.UIWidgets.cupertino {
             if (resolvable == null)
                 return null;
             D.assert(context != null);
-            return (resolvable is CupertinoDynamicColor)
-                ? ((CupertinoDynamicColor) resolvable).resolveFrom(context, nullOk: nullOk)
+            
+            var resolveColor =  (resolvable is CupertinoDynamicColor)
+                ? ((CupertinoDynamicColor)resolvable).resolveFrom(context, nullOk: nullOk)
                 : resolvable;
+            return resolveColor;
         }
 
         public bool _isPlatformBrightnessDependent {
@@ -536,17 +534,15 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public CupertinoDynamicColor resolveFrom(BuildContext context, bool nullOk = true) {
-            Brightness brightness = _isPlatformBrightnessDependent
-                ? CupertinoTheme.brightnessOf(context, nullOk: nullOk) ?? Brightness.light
+            Brightness brightness = _isPlatformBrightnessDependent 
+                ? CupertinoTheme.brightnessOf(context, nullOk: nullOk) ?? Brightness.light 
                 : Brightness.light;
 
             bool isHighContrastEnabled = _isHighContrastDependent
                                          && (MediaQuery.of(context, nullOk: nullOk)?.highContrast ?? false);
 
-            CupertinoUserInterfaceLevelData? CupertinoUserInterfacelevel =
-                CupertinoUserInterfaceLevel.of(context, nullOk: nullOk);
             CupertinoUserInterfaceLevelData level = _isInterfaceElevationDependent
-                ? CupertinoUserInterfacelevel ?? CupertinoUserInterfaceLevelData.baselayer
+                ? CupertinoUserInterfaceLevel.of(context, nullOk: nullOk) ?? CupertinoUserInterfaceLevelData.baselayer
                 : CupertinoUserInterfaceLevelData.baselayer;
 
             Color resolved = null;
@@ -581,20 +577,20 @@ namespace Unity.UIWidgets.cupertino {
                     return true;
                 }
             );
-            return create(
-                resolved,
-                color,
-                darkColor,
-                highContrastColor,
-                darkHighContrastColor,
-                elevatedColor,
-                darkElevatedColor,
-                highContrastElevatedColor,
-                darkHighContrastElevatedColor,
-                _debugContext,
-                _debugLabel
-               
-            );
+           
+            return new CupertinoDynamicColor(
+                debugLabel: _debugLabel,
+                effectiveColor: resolved,
+                color: color,
+                darkColor: darkColor,
+                highContrastColor: highContrastColor,
+                darkHighContrastColor: darkHighContrastColor,
+                elevatedColor: color,
+                darkElevatedColor: darkColor,
+                highContrastElevatedColor: highContrastColor,
+                darkHighContrastElevatedColor: darkHighContrastColor,
+                debugResolveContext: null
+                );
         }
 
         public bool Equals(CupertinoDynamicColor other) {
@@ -606,8 +602,10 @@ namespace Unity.UIWidgets.cupertino {
                 return true;
             }
 
-            return Equals(value, other.value) && Equals(darkColor, other.darkColor) &&
-                   Equals(highContrastColor, other.highContrastColor)
+            return Equals(value, other.value) 
+                   && Equals(color, other.color) 
+                   && Equals(darkColor, other.darkColor) 
+                   && Equals(highContrastColor, other.highContrastColor)
                    && Equals(darkHighContrastColor, other.darkHighContrastColor)
                    && Equals(elevatedColor, other.elevatedColor)
                    && Equals(darkElevatedColor, other.darkElevatedColor)
@@ -664,6 +662,10 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public string toString(DiagnosticLevel minLevel = DiagnosticLevel.debug) {
+            /*string toString(string name, Color color) {
+                string marker = color == _effectiveColor ? "*" : "";
+                return marker+ name+" = " + color + marker;
+            }*/
             List<string> xs = new List<string>();
             xs.Add(toStringColor("color",color));
             if (_isPlatformBrightnessDependent)
@@ -703,7 +705,7 @@ namespace Unity.UIWidgets.cupertino {
 
 
         public new void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
+            //base.debugFillProperties(properties);
             if (_debugLabel != null)
                 properties.add(new MessageProperty("debugLabel", _debugLabel));
             properties.add(createCupertinoColorProperty("color", color));
@@ -741,7 +743,7 @@ namespace Unity.UIWidgets.cupertino {
                 return new DiagnosticsProperty<Color>(
                     name: name,
                     value: value,
-                    // description: value._debugLabel,
+                    description: ((CupertinoDynamicColor)value)._debugLabel,
                     showName: showName,
                     defaultValue: defaultValue,
                     style: style,

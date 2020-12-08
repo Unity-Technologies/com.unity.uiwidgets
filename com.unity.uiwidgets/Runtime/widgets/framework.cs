@@ -654,6 +654,7 @@ namespace Unity.UIWidgets.widgets {
         public override Element createElement() {
             return new ParentDataElement(this);
         }
+        
 
         public override bool debugIsValidRenderObject(RenderObject renderObject) {
             D.assert(typeof(T) != typeof(ParentData));
@@ -894,10 +895,11 @@ namespace Unity.UIWidgets.widgets {
         T findAncestorWidgetOfExactType<T>() where T : Widget;
 
         State ancestorStateOfType(TypeMatcher matcher);
-
+        T findAncestorStateOfType<T>() where T : State; 
+        
         State rootAncestorStateOfType(TypeMatcher matcher);
 
-        T findRootAncestorStateOfType<T>() where T : State<StatefulWidget>;
+        T findRootAncestorStateOfType<T>() where T: State ;//: State<StatefulWidget>;
 
         RenderObject ancestorRenderObjectOfType(TypeMatcher matcher);
 
@@ -1998,6 +2000,7 @@ namespace Unity.UIWidgets.widgets {
         public T dependOnInheritedWidgetOfExactType<T>(object aspect = null) where T : InheritedWidget {
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
             InheritedElement ancestor = _inheritedWidgets == null ? null : _inheritedWidgets[typeof(T)];
+            
             if (ancestor != null) {
                 D.assert(ancestor is InheritedElement);
                 return dependOnInheritedElement(ancestor, aspect: aspect) as T;
@@ -2062,7 +2065,7 @@ namespace Unity.UIWidgets.widgets {
             return statefulAncestor == null ? null : statefulAncestor.state;
         }
 
-        public T findAncestorStateOfType<T>() where T : State<StatefulWidget> {
+        public T findAncestorStateOfType<T>() where T : State{
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
             Element ancestor = _parent;
             while (ancestor != null) {
@@ -2091,7 +2094,7 @@ namespace Unity.UIWidgets.widgets {
             return statefulAncestor == null ? null : statefulAncestor.state;
         }
 
-        public T findRootAncestorStateOfType<T>() where T : State<StatefulWidget> {
+        public T findRootAncestorStateOfType<T>() where T : State{//<StatefulWidget> {
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
             Element ancestor = _parent;
             StatefulElement statefulAncestor = null;
@@ -2797,6 +2800,41 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    public class ParentDataElement<T> : ParentDataElement where T : ParentData {
+        public ParentDataElement(ParentDataWidget<T> widget) : base(widget)
+        {
+        }
+        public new ParentDataWidget<T> widget {
+            get { return (ParentDataWidget<T>) base.widget; }
+        }
+        void _applyParentData(ParentDataWidget<T> widget) {
+            ElementVisitor applyParentDataToChild = null;
+            applyParentDataToChild = child => {
+                if (child is RenderObjectElement) {
+                    ((RenderObjectElement) child)._updateParentData(widget);
+                }
+                else {
+                    D.assert(!(child is ParentDataElement<ParentData>));
+                    child.visitChildren(applyParentDataToChild);
+                }
+            };
+            visitChildren(applyParentDataToChild);
+        }
+        
+
+        public new void applyWidgetOutOfTurn(ParentDataWidget<T> newWidget) {
+            D.assert(newWidget != null);
+            D.assert(newWidget.debugCanApplyOutOfTurn());
+            D.assert(newWidget.child == widget.child);
+            _applyParentData(newWidget);
+        }
+
+        protected override void notifyClients(ProxyWidget oldWidget) {
+            _applyParentData((ParentDataWidget<T>) widget);
+        }
+
+    }
+
     public class InheritedElement : ProxyElement {
         public InheritedElement(Widget widget) : base(widget) {
         }
@@ -2818,6 +2856,7 @@ namespace Unity.UIWidgets.widgets {
                 _inheritedWidgets = new Dictionary<Type, InheritedElement>();
             }
 
+            
             _inheritedWidgets[widget.GetType()] = this;
         }
 
@@ -2911,6 +2950,7 @@ namespace Unity.UIWidgets.widgets {
         ParentDataElement _findAncestorParentDataElement() {
             Element ancestor = _parent;
             ParentDataElement result = null;
+            //ParentData> 
             while (ancestor != null && !(ancestor is RenderObjectElement)) {
                 if (ancestor is ParentDataElement parentDataElement) {
                     result = parentDataElement;

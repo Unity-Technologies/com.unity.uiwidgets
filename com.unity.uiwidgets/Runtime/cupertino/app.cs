@@ -35,8 +35,8 @@ namespace Unity.UIWidgets.cupertino {
             //Dictionary<LogicalKeySet, Intent> shortcuts = null,
             //Dictionary<LocalKey, ActionFactory> actions = null
         ) : base(key: key) {
-            D.assert(routes != null);
-            D.assert(navigatorObservers != null);
+            //D.assert(routes != null);
+            //D.assert(navigatorObservers != null);
             D.assert(title != null);
             D.assert(showPerformanceOverlay != null);
             D.assert(checkerboardRasterCacheImages != null);
@@ -186,8 +186,8 @@ namespace Unity.UIWidgets.cupertino {
                                     builder: widget.builder,
                                     title: widget.title,
                                     onGenerateTitle: widget.onGenerateTitle,
-                                    textStyle: CupertinoTheme.of(context).textTheme.textStyle,
-                                    color: CupertinoDynamicColor.resolve(widget.color ?? effectiveThemeData.primaryColor, context),
+                                    textStyle: CupertinoTheme.of(context1).textTheme.textStyle,
+                                    color: CupertinoDynamicColor.resolve(widget.color ?? effectiveThemeData.primaryColor, context1),
                                     locale: widget.locale,
                                     localizationsDelegates: _localizationsDelegates,
                                     localeResolutionCallback: widget.localeResolutionCallback,

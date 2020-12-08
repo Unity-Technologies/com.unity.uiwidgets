@@ -21,31 +21,21 @@ namespace Unity.UIWidgets.widgets {
             Brightness platformBrightness = Brightness.light,
             EdgeInsets padding = null,
             EdgeInsets viewInsets = null,
+            
             EdgeInsets systemGestureInsets = null,
             EdgeInsets viewPadding = null,
             float physicalDepth = float.MaxValue,
+            
             bool alwaysUse24HourFormat = false,
             bool accessibleNavigation = false,
             bool invertColors = false,
+            
             bool highContrast = false,
+            
             bool disableAnimations = false,
             bool boldText = false
         ) {
-            D.assert(size != null);
-            D.assert(devicePixelRatio != null);
-            D.assert(textScaleFactor != null);
-            D.assert(platformBrightness != null);
-            D.assert(padding != null);
-            D.assert(viewInsets != null);
-            D.assert(systemGestureInsets != null);
-            D.assert(viewPadding != null);
-            D.assert(physicalDepth != null);
-            D.assert(alwaysUse24HourFormat != null);
-            D.assert(accessibleNavigation != null);
-            D.assert(invertColors != null);
-            D.assert(highContrast != null);
-            D.assert(disableAnimations != null);
-            D.assert(boldText != null);
+            
             this.size = size ?? Size.zero;
             this.devicePixelRatio = devicePixelRatio;
             this.textScaleFactor = textScaleFactor;
@@ -68,18 +58,18 @@ namespace Unity.UIWidgets.widgets {
                 size: window.physicalSize / window.devicePixelRatio,
                 devicePixelRatio: window.devicePixelRatio,
                 textScaleFactor: window.textScaleFactor,
-                platformBrightness: window.platformBrightness, // TODO: remove comment when window.platformBrightness is ready
+                //platformBrightness: window.platformBrightness, // TODO: remove comment when window.platformBrightness is ready
                 padding: EdgeInsets.fromWindowPadding(window.padding, window.devicePixelRatio),
                 viewPadding : EdgeInsets.fromWindowPadding(window.viewPadding, window.devicePixelRatio),
                 viewInsets: EdgeInsets.fromWindowPadding(window.viewInsets, window.devicePixelRatio),
                 systemGestureInsets : EdgeInsets.fromWindowPadding(window.systemGestureInsets, window.devicePixelRatio),
-                physicalDepth : window.physicalDepth,
-                accessibleNavigation: window.accessibilityFeatures.accessibleNavigation,
-                invertColors: window.accessibilityFeatures.invertColors,
-                disableAnimations: window.accessibilityFeatures.disableAnimations,
-                boldText: window.accessibilityFeatures.boldText,
-                highContrast : window.accessibilityFeatures.highContrast,
-                alwaysUse24HourFormat: window.alwaysUse24HourFormat
+                physicalDepth : window.physicalDepth
+               // accessibleNavigation: window.accessibilityFeatures.accessibleNavigation,
+               // invertColors: window.accessibilityFeatures.invertColors,
+               // disableAnimations: window.accessibilityFeatures.disableAnimations,
+               // boldText: window.accessibilityFeatures.boldText,
+               // highContrast : window.accessibilityFeatures.highContrast,
+                //alwaysUse24HourFormat: window.alwaysUse24HourFormat
             );
         }
 
@@ -127,11 +117,12 @@ namespace Unity.UIWidgets.widgets {
             EdgeInsets viewInsets = null,
             EdgeInsets systemGestureInsets = null,
             float? physicalDepth = null,
+            
             bool? alwaysUse24HourFormat = null,
-            bool? highContrast =null,
-            bool? disableAnimations = null,
-            bool? invertColors = null,
             bool? accessibleNavigation = null,
+            bool? invertColors = null,
+            bool? highContrast = null,
+            bool? disableAnimations = null,
             bool? boldText = null
         ) {
             return new MediaQueryData(
@@ -206,17 +197,17 @@ namespace Unity.UIWidgets.widgets {
                 textScaleFactor: textScaleFactor,
                 platformBrightness: platformBrightness,
                 padding: padding,
-                viewInsets: viewInsets.copyWith(
-                    left: removeLeft ? (float?) 0.0 : null,
-                    top: removeTop ? (float?) 0.0 : null,
-                    right: removeRight ? (float?) 0.0 : null,
-                    bottom: removeBottom ? (float?) 0.0 : null
-                ),
                 viewPadding: viewPadding.copyWith(
                     left: removeLeft ? (float?)Mathf.Max(0.0f, viewPadding.left - viewInsets.left) : null,
                     top: removeTop ? (float?)Mathf.Max(0.0f, viewPadding.top - viewInsets.top) : null,
                     right: removeRight ? (float?)Mathf.Max(0.0f, viewPadding.right - viewInsets.right) : null,
                     bottom: removeBottom ? (float?)Mathf.Max(0.0f, viewPadding.bottom - viewInsets.bottom) : null
+                ),
+                viewInsets: viewInsets.copyWith(
+                    left: removeLeft ? (float?) 0.0f : null,
+                    top: removeTop ? (float?) 0.0f : null,
+                    right: removeRight ? (float?) 0.0f : null,
+                    bottom: removeBottom ? (float?) 0.0f : null
                 ),
                 alwaysUse24HourFormat: alwaysUse24HourFormat,
                 highContrast: highContrast,
@@ -241,17 +232,17 @@ namespace Unity.UIWidgets.widgets {
                 textScaleFactor: textScaleFactor,
                 platformBrightness: platformBrightness,
                 padding: padding.copyWith(
-                    left: removeLeft ?(float?) 0.0 : null,
-                    top: removeTop ? (float?)0.0 : null,
-                    right: removeRight ? (float?)0.0 : null,
-                    bottom: removeBottom ?(float?) 0.0 : null
+                    left: removeLeft ?(float?) 0.0f : null,
+                    top: removeTop ? (float?) 0.0f : null,
+                    right: removeRight ? (float?) 0.0f : null,
+                    bottom: removeBottom ?(float?)0.0f : null
                 ),
                 viewInsets: viewInsets,
                 viewPadding: viewPadding.copyWith(
-                    left: removeLeft ? (float?)0.0 : null,
-                    top: removeTop ? (float?)0.0 : null,
-                    right: removeRight ? (float?)0.0 : null,
-                    bottom: removeBottom ? (float?)0.0 : null
+                    left: removeLeft ? (float?) 0.0f : null,
+                    top: removeTop ? (float?) 0.0f : null,
+                    right: removeRight ? (float?) 0.0f : null,
+                    bottom: removeBottom ? (float?) 0.0f : null
                 ),
                 alwaysUse24HourFormat: alwaysUse24HourFormat,
                 highContrast: highContrast,
@@ -279,7 +270,7 @@ namespace Unity.UIWidgets.widgets {
                    && Equals(padding, other.padding)
                    && Equals(viewPadding, other.viewPadding)
                    && Equals(viewInsets, other.viewInsets) 
-                   && physicalDepth == other.physicalDepth
+                   && Equals(physicalDepth,other.physicalDepth)
                    && alwaysUse24HourFormat == other.alwaysUse24HourFormat 
                    && highContrast == other.highContrast
                    && accessibleNavigation == other.accessibleNavigation 
@@ -431,9 +422,9 @@ namespace Unity.UIWidgets.widgets {
 
         public static MediaQueryData of(BuildContext context, bool nullOk = false) {
             D.assert(context != null);
-            MediaQuery query = context.dependOnInheritedWidgetOfExactType<MediaQuery>();
+            //MediaQuery query = context.dependOnInheritedWidgetOfExactType<MediaQuery>();
 
-            //MediaQuery query = (MediaQuery) context.inheritFromWidgetOfExactType(typeof(MediaQuery));
+            MediaQuery query = (MediaQuery) context.inheritFromWidgetOfExactType(typeof(MediaQuery));
             if (query != null) {
                 return query.data;
             }

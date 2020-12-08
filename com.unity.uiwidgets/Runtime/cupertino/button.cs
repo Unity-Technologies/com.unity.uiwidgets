@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.cupertino {
             VoidCallback onPressed = null
         ) : base(key: key) {
             D.assert((pressedOpacity >= 0.0 && pressedOpacity <= 1.0) || pressedOpacity == null );
-            D.assert(disabledColor != null);
+            //D.assert(disabledColor != null);
             _filled = false;
             this.child = child;
             this.onPressed = onPressed;
@@ -53,6 +53,8 @@ namespace Unity.UIWidgets.cupertino {
             BorderRadius borderRadius = null,
             VoidCallback onPressed = null
         ) {
+            disabledColor = disabledColor ?? CupertinoColors.quaternarySystemFill;
+            
             D.assert(pressedOpacity >= 0.0 && pressedOpacity <= 1.0);
             D.assert(disabledColor != null);
 
