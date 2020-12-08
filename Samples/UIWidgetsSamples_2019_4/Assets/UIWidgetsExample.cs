@@ -12,21 +12,39 @@
  using FontStyle = Unity.UIWidgets.ui.FontStyle;
  using ui_ = Unity.UIWidgets.widgets.ui_;
 
- namespace UIWidgetsSample {
+ using AOT;
+ using System;
+ using System.Runtime.InteropServices;
+
+namespace UIWidgetsSample {
      public class UIWidgetsExample : UIWidgetsPanel {
-        
-         
-         protected void OnEnable() {
-             // if you want to use your own font or font icons.
-             // FontManager.instance.addFont(Resources.Load<Font>(path: "path to your font"), "font family name");
 
-             // load custom font with weight & style. The font weight & style corresponds to fontWeight, fontStyle of
-             // a TextStyle object
-             // FontManager.instance.addFont(Resources.Load<Font>(path: "path to your font"), "Roboto", FontWeight.w500,
-             //    FontStyle.italic);
+        public delegate void LogDelegate(IntPtr message, int iSize);
 
-             // add material icons, familyName must be "Material Icons"
-             // FontManager.instance.addFont(Resources.Load<Font>(path: "path to material icons"), "Material Icons");
+        [DllImport("libUIWidgets_d.dll")]
+        public static extern void InitCSharpDelegate(LogDelegate log);
+
+        //C# Function for C++'s call
+        [MonoPInvokeCallback(typeof(LogDelegate))]
+        public static void LogMessageFromCpp(IntPtr message, int iSize)
+        {
+            Debug.Log(Marshal.PtrToStringAnsi(message, iSize));
+        }
+
+        protected void OnEnable() {
+            // if you want to use your own font or font icons.
+            // FontManager.instance.addFont(Resources.Load<Font>(path: "path to your font"), "font family name");
+
+            // load custom font with weight & style. The font weight & style corresponds to fontWeight, fontStyle of
+            // a TextStyle object
+            // FontManager.instance.addFont(Resources.Load<Font>(path: "path to your font"), "Roboto", FontWeight.w500,
+            //    FontStyle.italic);
+
+            // add material icons, familyName must be "Material Icons"
+            // FontManager.instance.addFont(Resources.Load<Font>(path: "path to material icons"), "Material Icons");
+
+            // Pass the C# Debug function reference to C++ to save, and then C++ calls C# through the function pointer
+             UIWidgetsExample.InitCSharpDelegate(UIWidgetsExample.LogMessageFromCpp);
 
              base.OnEnable();
          }
