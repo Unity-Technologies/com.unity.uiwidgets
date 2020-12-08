@@ -4,7 +4,7 @@
 
 This is the engine code of UIWidgets.
 
-## How to Build Depedencies (Windows)
+## How to Build (Windows)
 
 ### Build Skia
 
@@ -109,12 +109,14 @@ mklink /D skia <SKIA_ROOT>
 Flutter engine txt include skia header in this pattern 'third_party/skia/*', so without symbolic, the txt lib will include skia
 header file in flutter engine, instead of headers in skia repo.
 
-### How to Build Engine
+### Build Engine
+
 ```
+cd <uiwidigets_dir>\engine
 bee
 ```
 
-## How to Build Depedencies (Mac)
+## How to Build (Mac)
 
 ### Install Depot_tools
 ```
@@ -198,5 +200,11 @@ cd third_party   \\ create the directory if not exists
 ln -s <SKIA_ROOT> skia
 ```
 
+### Build Engine
+
+```
+cd <uiwidigets_dir>\engine
+mono bee.exe
+```
 
 
