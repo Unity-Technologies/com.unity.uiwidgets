@@ -325,6 +325,7 @@ class Build
 
                 "src/shell/platform/unity/gfx_worker_task_runner.cc",
                 "src/shell/platform/unity/gfx_worker_task_runner.h",
+                "src/shell/platform/unity/uiwidgets_system.h",
                 
 
                 "src/shell/version/version.cc",
@@ -346,7 +347,7 @@ class Build
 
         var winSources = new NPath[] {
                 "src/shell/platform/unity/windows/uiwidgets_panel.cc",
-                "src/shell/platform/unity/windowsuiwidgets_panel.h",
+                "src/shell/platform/unity/windows/uiwidgets_panel.h",
                 "src/shell/platform/unity/windows/uiwidgets_system.cc",
                 "src/shell/platform/unity/windows/uiwidgets_system.h",
                 "src/shell/platform/unity/windows/unity_external_texture_gl.cc",

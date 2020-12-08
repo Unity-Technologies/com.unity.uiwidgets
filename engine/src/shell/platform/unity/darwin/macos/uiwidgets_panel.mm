@@ -26,7 +26,8 @@ UIWidgetsPanel::UIWidgetsPanel(Mono_Handle handle,
 
 UIWidgetsPanel::~UIWidgetsPanel() = default;
 
-void UIWidgetsPanel::CreateRenderingContext(size_t width, size_t height)
+
+void UIWidgetsPanel::CreateRenderTexture(size_t width, size_t height)
 {
   //Constants
   const MTLPixelFormat ConstMetalViewPixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
@@ -35,34 +36,13 @@ void UIWidgetsPanel::CreateRenderingContext(size_t width, size_t height)
   const GLuint ConstGLFormat = GL_BGRA;
   const GLuint ConstGLType = GL_UNSIGNED_INT_8_8_8_8_REV;
 
-  //get main gfx device (metal)
-  auto* graphics = UIWidgetsSystem::GetInstancePtr()
-                    ->GetUnityInterfaces()
-                    ->Get<IUnityGraphics>();
-    
-  FML_DCHECK(graphics->GetRenderer() == kUnityGfxRendererMetal);
+  //render context must be available
+  FML_DCHECK(metal_device_ != nullptr && gl_context_ != nullptr && gl_resource_context_ != nullptr);
 
-  auto* metalGraphics = UIWidgetsSystem::GetInstancePtr()
-                    ->GetUnityInterfaces()
-                    ->Get<IUnityGraphicsMetalV1>();
-
-  metal_device_ = metalGraphics->MetalDevice();
-
-  //create opengl context
-  FML_DCHECK(!gl_context_);
-
-  NSOpenGLPixelFormatAttribute attrs[] =
-    {
-      NSOpenGLPFAAccelerated,
-      0
-    };
-
-  NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
-  gl_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
-  gl_resource_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl_context_];
-
+  //render textures must be released already
+  FML_DCHECK(pixelbuffer_ref == nullptr && default_fbo_ == 0 && gl_tex_ == 0 && gl_tex_cache_ref_ == nullptr && gl_tex_ref_ == nullptr && metal_tex_ == nullptr && metal_tex_ref_ == nullptr && metal_tex_cache_ref_ == nullptr);
   //create pixel buffer
-  gl_pixelformat_ = gl_context_.pixelFormat.CGLPixelFormatObj;
+  auto gl_pixelformat_ = gl_context_.pixelFormat.CGLPixelFormatObj;
 
   NSDictionary* cvBufferProperties = @{
     (__bridge NSString*)kCVPixelBufferOpenGLCompatibilityKey : @YES,
@@ -126,6 +106,40 @@ void UIWidgetsPanel::CreateRenderingContext(size_t width, size_t height)
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texType, gl_tex_, 0);
 }
 
+void UIWidgetsPanel::CreateRenderingContext()
+{
+  FML_DCHECK(metal_device_ == nullptr);
+
+  //get main gfx device (metal)
+  auto* graphics = UIWidgetsSystem::GetInstancePtr()
+                    ->GetUnityInterfaces()
+                    ->Get<IUnityGraphics>();
+    
+  FML_DCHECK(graphics->GetRenderer() == kUnityGfxRendererMetal);
+
+  auto* metalGraphics = UIWidgetsSystem::GetInstancePtr()
+                    ->GetUnityInterfaces()
+                    ->Get<IUnityGraphicsMetalV1>();
+
+  metal_device_ = metalGraphics->MetalDevice();
+
+  //create opengl context
+  FML_DCHECK(!gl_context_);
+  FML_DCHECK(!gl_resource_context_);
+
+  NSOpenGLPixelFormatAttribute attrs[] =
+    {
+      NSOpenGLPFAAccelerated,
+      0
+    };
+
+  NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+  gl_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+  gl_resource_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl_context_];
+
+  FML_DCHECK(gl_context_ != nullptr && gl_resource_context_ != nullptr);
+}
+
 bool UIWidgetsPanel::ClearCurrentContext()
 {
   [NSOpenGLContext clearCurrentContext];
@@ -151,8 +165,10 @@ uint32_t UIWidgetsPanel::GetFbo()
 
 void* UIWidgetsPanel::OnEnable(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path)
 {
-  CreateRenderingContext(width, height);
+  CreateRenderingContext();
+  CreateRenderTexture(width, height);
   CreateInternalUIWidgetsEngine(width, height, device_pixel_ratio, streaming_assets_path);
+
   return (__bridge void*)metal_tex_;
 }
 
@@ -405,32 +421,71 @@ void UIWidgetsPanel::OnDisable() {
 
   gfx_worker_task_runner_ = nullptr;
 
+  //release all resources
   if (default_fbo_) {
-    default_fbo_ = 0;
+    ReleaseNativeRenderTexture();
+    ReleaseNativeRenderContext();
   }
 }
 
-void UIWidgetsPanel::OnRenderTexture(void* native_texture_ptr, size_t width,
+void UIWidgetsPanel::ReleaseNativeRenderContext()
+{
+  FML_DCHECK(gl_resource_context_);
+  CGLReleaseContext(gl_resource_context_.CGLContextObj);
+  gl_resource_context_ = nullptr;
+
+  FML_DCHECK(gl_context_);
+  CGLReleaseContext(gl_context_.CGLContextObj);
+  gl_context_ = nullptr;
+
+  FML_DCHECK(metal_device_ != nullptr);
+  metal_device_ = nullptr;
+}
+
+bool UIWidgetsPanel::ReleaseNativeRenderTexture()
+{
+  //release gl resources
+  FML_DCHECK(default_fbo_ != 0);
+  glDeleteFramebuffers(1, &default_fbo_);
+  default_fbo_ = 0;
+
+  FML_DCHECK(gl_tex_ != 0);
+  glDeleteTextures(1, &gl_tex_);
+  gl_tex_ = 0;
+
+  CFRelease(gl_tex_cache_ref_);
+  gl_tex_cache_ref_ = nullptr;
+
+  CFRelease(gl_tex_ref_);
+  gl_tex_ref_ = nullptr;
+
+  //release metal resources
+  //since ARC is enabled by default, no need to release the texture
+  metal_tex_ = nullptr;
+
+  CFRelease(metal_tex_ref_);
+  metal_tex_ref_ = nullptr;
+
+  CFRelease(metal_tex_cache_ref_);
+  metal_tex_cache_ref_ = nullptr;
+
+  //release cv pixelbuffer
+  CVPixelBufferRelease(pixelbuffer_ref);
+  pixelbuffer_ref = nullptr;
+
+  return true;
+}
+
+void* UIWidgetsPanel::OnRenderTexture(size_t width,
                                      size_t height, float device_pixel_ratio) {
-                                       /*
-  reinterpret_cast<EmbedderEngine*>(engine_)->PostRenderThreadTask(
-      [this, native_texture_ptr]() -> void {
-        surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
-
-        if (fbo_) {
-          surface_manager_->DestroyRenderSurface();
-          fbo_ = 0;
-        }
-        fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr);
-
-        surface_manager_->ClearCurrent();
-      });
-
   ViewportMetrics metrics;
   metrics.physical_width = static_cast<float>(width);
   metrics.physical_height = static_cast<float>(height);
   metrics.device_pixel_ratio = device_pixel_ratio;
-  reinterpret_cast<EmbedderEngine*>(engine_)->SetViewportMetrics(metrics);*/
+  reinterpret_cast<EmbedderEngine*>(engine_)->SetViewportMetrics(metrics);
+
+  CreateRenderTexture(width, height);
+  return (__bridge void*)metal_tex_;
 }
 
 int UIWidgetsPanel::RegisterTexture(void* native_texture_ptr) {
@@ -631,10 +686,14 @@ UIWIDGETS_API(void) UIWidgetsPanel_onDisable(UIWidgetsPanel* panel) {
   panel->OnDisable();
 }
 
-UIWIDGETS_API(void)
-UIWidgetsPanel_onRenderTexture(UIWidgetsPanel* panel, void* native_texture_ptr,
+UIWIDGETS_API(bool) UIWidgetsPanel_releaseNativeTexture(UIWidgetsPanel* panel) {
+  return panel->ReleaseNativeRenderTexture();
+}
+
+UIWIDGETS_API(void*)
+UIWidgetsPanel_onRenderTexture(UIWidgetsPanel* panel,
                                int width, int height, float dpi) {
-  panel->OnRenderTexture(native_texture_ptr, width, height, dpi);
+  return panel->OnRenderTexture(width, height, dpi);
 }
 
 UIWIDGETS_API(int)
