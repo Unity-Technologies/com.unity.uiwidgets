@@ -226,9 +226,7 @@ namespace Unity.UIWidgets.painting {
 
         void resolveStreamForKey(ImageConfiguration configuration, ImageStream stream, T key,
             ImageErrorListener handleError) {
-            // This is an unusual edge case where someone has told us that they found
-            // the image we want before getting to this method. We should avoid calling
-            // load again, but still update the image cache with LRU information.
+            
             if (stream.completer != null) {
                 ImageStreamCompleter completerEdge = PaintingBinding.instance.imageCache.putIfAbsent(
                     key,
@@ -280,14 +278,6 @@ namespace Unity.UIWidgets.painting {
                 didError = true;
             };
 
-            // If an error is added to a synchronous completer before a listener has been
-            // added, it can throw an error both into the zone and up the stack. Thus, it
-            // looks like the error has been caught, but it is in fact also bubbling to the
-            // zone. Since we cannot prevent all usage of Completer.sync here, or rather
-            // that changing them would be too breaking, we instead hook into the same
-            // zone mechanism to intercept the uncaught error and deliver it to the
-            // image stream's error handler. Note that these errors may be duplicated,
-            // hence the need for the `didError` flag.
             Zone dangerZone = Zone.current.fork(
                 specification: new ZoneSpecification(
                     handleUncaughtError: (Zone self, ZoneDelegate parent, Zone zone, Exception error) => {

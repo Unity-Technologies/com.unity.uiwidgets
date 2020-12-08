@@ -103,7 +103,9 @@ namespace Unity.UIWidgets.engine2 {
 
             _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, UIWidgetsPanel_entrypoint);
             var settings = new Dictionary<string, object>();
-            settings.Add("fonts", fontsToObject(fonts));
+            if (fonts != null && fonts.Length > 0) {
+                settings.Add("fonts", fontsToObject(fonts));
+            }
             UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
                 _width, _height, _devicePixelRatio, Application.streamingAssetsPath,
                 JSONMessageCodec.instance.toJson(settings));

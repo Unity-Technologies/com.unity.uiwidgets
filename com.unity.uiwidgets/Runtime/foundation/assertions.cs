@@ -134,9 +134,6 @@ namespace Unity.UIWidgets.foundation {
     }
 
     internal abstract class _ErrorDiagnostic : DiagnosticsProperty<List<object>> {
-        /// This constructor provides a reliable hook for a kernel transformer to find
-        /// error messages that need to be rewritten to include object references for
-        /// interactive display of errors.
         internal _ErrorDiagnostic(
             String message,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse, //  DiagnosticsTreeStyle.flat
@@ -152,31 +149,6 @@ namespace Unity.UIWidgets.foundation {
             D.assert(message != null);
         }
 
-        /// In debug builds, a kernel transformer rewrites calls to the default
-        /// constructors for [ErrorSummary], [ErrorDetails], and [ErrorHint] to use
-        /// this constructor.
-        //
-        // ```dart
-        // _ErrorDiagnostic('Element $element must be $color')
-        // ```
-        // Desugars to:
-        // ```dart
-        // _ErrorDiagnostic.fromParts(<Object>['Element ', element, ' must be ', color])
-        // ```
-        //
-        // Slightly more complex case:
-        // ```dart
-        // _ErrorDiagnostic('Element ${element.runtimeType} must be $color')
-        // ```
-        // Desugars to:
-        //```dart
-        // _ErrorDiagnostic.fromParts(<Object>[
-        //   'Element ',
-        //   DiagnosticsProperty(null, element, description: element.runtimeType?.toString()),
-        //   ' must be ',
-        //   color,
-        // ])
-        // ```
         internal _ErrorDiagnostic(
             List<object> messageParts,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse,
@@ -198,21 +170,9 @@ namespace Unity.UIWidgets.foundation {
     }
 
     internal class ErrorDescription : _ErrorDiagnostic {
-        /// A lint enforces that this constructor can only be called with a string
-        /// literal to match the limitations of the Dart Kernel transformer that
-        /// optionally extracts out objects referenced using string interpolation in
-        /// the message passed in.
-        ///
-        /// The message will display with the same text regardless of whether the
-        /// kernel transformer is used. The kernel transformer is required so that
-        /// debugging tools can provide interactive displays of objects described by
-        /// the error.
         public ErrorDescription(string message) : base(message, level: DiagnosticLevel.info) {
         }
-
-        /// Calls to the default constructor may be rewritten to use this constructor
-        /// in debug mode using a kernel transformer.
-        // ignore: unused_element
+        
         public ErrorDescription(List<object> messageParts) : base(messageParts, level: DiagnosticLevel.info) {
         }
     }

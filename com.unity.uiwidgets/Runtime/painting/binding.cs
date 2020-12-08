@@ -1,8 +1,4 @@
-using System;
-using Unity.UIWidgets.async2;
-using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.painting {
