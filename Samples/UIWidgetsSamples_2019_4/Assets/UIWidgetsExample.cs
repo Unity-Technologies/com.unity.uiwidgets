@@ -12,24 +12,8 @@
  using FontStyle = Unity.UIWidgets.ui.FontStyle;
  using ui_ = Unity.UIWidgets.widgets.ui_;
 
- using AOT;
- using System;
- using System.Runtime.InteropServices;
-
 namespace UIWidgetsSample {
      public class UIWidgetsExample : UIWidgetsPanel {
-
-        public delegate void LogDelegate(IntPtr message, int iSize);
-
-        [DllImport("libUIWidgets_d.dll")]
-        public static extern void InitCSharpDelegate(LogDelegate log);
-
-        //C# Function for C++'s call
-        [MonoPInvokeCallback(typeof(LogDelegate))]
-        public static void LogMessageFromCpp(IntPtr message, int iSize)
-        {
-            Debug.Log(Marshal.PtrToStringAnsi(message, iSize));
-        }
 
         protected void OnEnable() {
             // if you want to use your own font or font icons.
@@ -44,9 +28,9 @@ namespace UIWidgetsSample {
             // FontManager.instance.addFont(Resources.Load<Font>(path: "path to material icons"), "Material Icons");
 
             // Pass the C# Debug function reference to C++ to save, and then C++ calls C# through the function pointer
-             UIWidgetsExample.InitCSharpDelegate(UIWidgetsExample.LogMessageFromCpp);
-
-             base.OnEnable();
+            NativeConsole.InitLogMessageFromCppDelegate(NativeConsole.LogMessageFromCpp);
+             
+            base.OnEnable();
          }
 
          protected override void main()
