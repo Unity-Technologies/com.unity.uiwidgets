@@ -12,22 +12,23 @@
  using FontStyle = Unity.UIWidgets.ui.FontStyle;
  using ui_ = Unity.UIWidgets.widgets.ui_;
 
-namespace UIWidgetsSample {
+ namespace UIWidgetsSample {
      public class UIWidgetsExample : UIWidgetsPanel {
+        
+         
+         protected void OnEnable() {
+             // if you want to use your own font or font icons.
+             // FontManager.instance.addFont(Resources.Load<Font>(path: "path to your font"), "font family name");
 
-        protected void OnEnable() {
-            // if you want to use your own font or font icons.
-            // FontManager.instance.addFont(Resources.Load<Font>(path: "path to your font"), "font family name");
+             // load custom font with weight & style. The font weight & style corresponds to fontWeight, fontStyle of
+             // a TextStyle object
+             // FontManager.instance.addFont(Resources.Load<Font>(path: "path to your font"), "Roboto", FontWeight.w500,
+             //    FontStyle.italic);
 
-            // load custom font with weight & style. The font weight & style corresponds to fontWeight, fontStyle of
-            // a TextStyle object
-            // FontManager.instance.addFont(Resources.Load<Font>(path: "path to your font"), "Roboto", FontWeight.w500,
-            //    FontStyle.italic);
+             // add material icons, familyName must be "Material Icons"
+             // FontManager.instance.addFont(Resources.Load<Font>(path: "path to material icons"), "Material Icons");
 
-            // add material icons, familyName must be "Material Icons"
-            // FontManager.instance.addFont(Resources.Load<Font>(path: "path to material icons"), "Material Icons");
-
-            base.OnEnable();
+             base.OnEnable();
          }
 
          protected override void main()
