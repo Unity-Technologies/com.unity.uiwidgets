@@ -141,10 +141,10 @@ namespace Unity.UIWidgets.painting {
 
         public EdgeInsets clamp(EdgeInsets min, EdgeInsets max) {
             return fromLTRB(
-                left.clamp(min.left, min.left),
-                top.clamp(min.top, min.top),
-                right.clamp(min.right, min.right),
-                bottom.clamp(min.bottom, min.bottom)
+                left.clamp(min.left, max.left),
+                top.clamp(min.top, max.top),
+                right.clamp(min.right, max.right),
+                bottom.clamp(min.bottom, max.bottom)
             );
         }
         

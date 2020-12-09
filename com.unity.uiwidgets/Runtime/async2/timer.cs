@@ -105,16 +105,14 @@ namespace Unity.UIWidgets.async2 {
                 _wakeupTime = UIMonoState_timerMillisecondClock();
             }
         }
-        
-        static long _millisecondToNanosecond(long millisecond) {
-            return millisecond * 1000000L;
-        } 
 
+        static long MILLI_TO_NANO = 1000000L;
+        
         void _enqueue() {
             Isolate.ensureExists();
             
             GCHandle callabackHandle = GCHandle.Alloc(this);
-            UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callabackHandle, _millisecondToNanosecond(_wakeupTime));
+            UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callabackHandle, _wakeupTime * MILLI_TO_NANO);
         }
 
         [MonoPInvokeCallback(typeof(UIMonoState_postTaskForTimeCallback))]

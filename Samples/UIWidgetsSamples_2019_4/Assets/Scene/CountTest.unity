@@ -259,7 +259,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 847097468}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7e1083a82b756840b36958a76a3e6f3, type: 3}
+  m_Script: {fileID: 11500000, guid: 169ec79ce040653478e1a7725f34bbe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -276,11 +276,7 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
-  fonts:
-  - family: CupertinoIcons
-    fonts:
-    - asset: CupertinoIcons.ttf
-      weight: 0
+  fonts: []
   devicePixelRatioOverride: 0
   hardwareAntiAliasing: 0
 --- !u!222 &847097471

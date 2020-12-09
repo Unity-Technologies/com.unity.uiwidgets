@@ -13,7 +13,7 @@ using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample
 {
-    public class UIWidgetsExample : UIWidgetsPanel
+    public class CountTest : UIWidgetsPanel
     {
         protected void OnEnable()
         {

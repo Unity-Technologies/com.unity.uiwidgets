@@ -14,6 +14,7 @@ using Codec = Unity.UIWidgets.ui.Codec;
 using Image = Unity.UIWidgets.ui.Image;
 using Locale = Unity.UIWidgets.ui.Locale;
 using Object = UnityEngine.Object;
+using Path = System.IO.Path;
 using TextDirection = Unity.UIWidgets.ui.TextDirection;
 using Window = Unity.UIWidgets.ui.Window;
 
@@ -197,27 +198,29 @@ namespace Unity.UIWidgets.painting {
                     resolveStreamForKey(configuration, stream, successKey, (Exception e) => errorHandler(e));
                 },
                 (T key, Exception exception) => {
-                    // await null; // wait an event turn in case a listener has been added to the image stream.
-                    _ErrorImageCompleter imageCompleter = new _ErrorImageCompleter();
-                    stream.setCompleter(imageCompleter);
-                    InformationCollector collector = null;
-                    D.assert(() => {
-                        collector = (sb) => {
-                            sb.Append(new DiagnosticsProperty<ImageProvider>("Image provider", this));
-                            sb.Append(new DiagnosticsProperty<ImageConfiguration>("Image configuration",
-                                configuration));
-                            sb.Append(new DiagnosticsProperty<T>("Image key", key, defaultValue: null));
-                        };
-                        return true;
+                    Timer.run(() => {
+                        _ErrorImageCompleter imageCompleter = new _ErrorImageCompleter();
+                        stream.setCompleter(imageCompleter);
+                        InformationCollector collector = null;
+                        D.assert(() => {
+                            collector = (sb) => {
+                                sb.Append(new DiagnosticsProperty<ImageProvider>("Image provider", this));
+                                sb.Append(new DiagnosticsProperty<ImageConfiguration>("Image configuration",
+                                    configuration));
+                                sb.Append(new DiagnosticsProperty<T>("Image key", key, defaultValue: null));
+                            };
+                            return true;
+                        });
+                        imageCompleter.setError(
+                            exception: exception,
+                            stack: exception.StackTrace,
+                            context: new ErrorDescription("while resolving an image"),
+                            silent: true, // could be a network error or whatnot
+                            informationCollector: collector
+                        );
+                        return null;
                     });
-                    imageCompleter.setError(
-                        exception: exception,
-                        stack: exception.StackTrace,
-                        context: new ErrorDescription("while resolving an image"),
-                        silent: true, // could be a network error or whatnot
-                        informationCollector: collector
-                    );
-                    return Future.value();
+                   return null;
                 }
             );
 
@@ -619,7 +622,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
-            byte[] bytes = File.ReadAllBytes("Assets/StreamingAssets/" + key.file);
+            byte[] bytes = File.ReadAllBytes(Path.Combine(Application.streamingAssetsPath, key.file));
             if (bytes != null && bytes.Length > 0 ) {
                 return decode(bytes);
             }

@@ -19,10 +19,7 @@ namespace Unity.UIWidgets.Editor {
             EditorGUILayout.PropertyField(pixelRatioProperty);
             EditorGUILayout.PropertyField(antiAliasingProperty);
             UIWidgetsPanel panel = (UIWidgetsPanel)target;
-
-            if (GUILayout.Button("Take Screenshot")) {
-                panel.TakeScreenshot();
-            }
+            
             serializedObject.ApplyModifiedProperties(); 
         }
     }

@@ -13,15 +13,15 @@ using NativeBindings = Unity.UIWidgets.ui.NativeBindings;
 namespace Unity.UIWidgets.engine2 {
     public partial class UIWidgetsPanel : RawImage {
         [Serializable]
-        public struct TextFont {
-            public string family;
-            [SerializeField] public Font[] fonts;
-        }
-
-        [Serializable]
         public struct Font {
             public string asset;
             public int weight;
+        }
+        
+        [Serializable]
+        public struct TextFont {
+            public string family;
+            [SerializeField] public Font[] fonts;
         }
 
         public TextFont[] fonts;
@@ -346,11 +346,7 @@ namespace Unity.UIWidgets.engine2 {
             _isEntered = false;
             UIWidgetsPanel_onMouseLeave(_ptr);
         }
-
-        public void TakeScreenshot() {
-            UIWidgetsPanel_takeScreenShot(_ptr);
-        }
-
+        
         public void OnDrag(PointerEventData eventData) {
             var pos = _getPointerPosition(Input.mousePosition);
             if (pos == null) {
@@ -380,8 +376,5 @@ namespace Unity.UIWidgets.engine2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onMouseLeave(IntPtr ptr);
-
-        [DllImport(NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_takeScreenShot(IntPtr ptr);
     }
 }

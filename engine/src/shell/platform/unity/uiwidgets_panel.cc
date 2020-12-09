@@ -417,25 +417,6 @@ void UIWidgetsPanel::OnMouseLeave() {
   }
 }
 
-void UIWidgetsPanel::TakeScreenShot() {
-  if (process_events_) {
-    auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
-    Rasterizer::Screenshot screenshot = engine->GetShell().Screenshot(
-        Rasterizer::ScreenshotType::SkiaPicture, true);
-    const char* screenshot_char =
-        static_cast<const char*>(screenshot.data->data());
-    int size = screenshot.data->size();
-    SkBase64 temp;
-    temp.decode(screenshot_char, screenshot.data->size());
-    char* decoded = temp.getData();
-
-    std::ofstream myfile;
-    myfile.open("example.txt");
-    myfile.write(decoded, temp.getDataSize());
-    myfile.close();
-  }
-}
-
 UIWIDGETS_API(UIWidgetsPanel*)
 UIWidgetsPanel_constructor(
     Mono_Handle handle,
@@ -497,9 +478,4 @@ UIWidgetsPanel_onMouseMove(UIWidgetsPanel* panel, float x, float y) {
 
 UIWIDGETS_API(void)
 UIWidgetsPanel_onMouseLeave(UIWidgetsPanel* panel) { panel->OnMouseLeave(); }
-
-UIWIDGETS_API(void)
-UIWidgetsPanel_takeScreenShot(UIWidgetsPanel* panel) {
-  panel->TakeScreenShot();
-}
 }  // namespace uiwidgets
