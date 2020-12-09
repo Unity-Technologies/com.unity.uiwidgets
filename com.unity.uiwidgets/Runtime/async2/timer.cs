@@ -106,7 +106,7 @@ namespace Unity.UIWidgets.async2 {
             }
         }
 
-        static long MILLI_TO_NANO = 1000000L;
+        const long MILLI_TO_NANO = 1000000L;
         
         void _enqueue() {
             Isolate.ensureExists();
