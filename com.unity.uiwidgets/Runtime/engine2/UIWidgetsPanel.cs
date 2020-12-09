@@ -79,6 +79,7 @@ namespace Unity.UIWidgets.engine2 {
                 _width, _height, _devicePixelRatio, Application.streamingAssetsPath);
 
             Input_OnEnable();
+            NativeConsole.InitNativeConsoleDelegate(NativeConsole.LogMessageFromCpp);
         }
 
         protected virtual void main() {

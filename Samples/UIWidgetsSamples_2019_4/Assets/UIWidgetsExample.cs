@@ -27,9 +27,6 @@ namespace UIWidgetsSample {
             // add material icons, familyName must be "Material Icons"
             // FontManager.instance.addFont(Resources.Load<Font>(path: "path to material icons"), "Material Icons");
 
-            // Pass the C# Debug function reference to C++ to save, and then C++ calls C# through the function pointer
-            NativeConsole.InitLogMessageFromCppDelegate(NativeConsole.LogMessageFromCpp);
-             
             base.OnEnable();
          }
 
