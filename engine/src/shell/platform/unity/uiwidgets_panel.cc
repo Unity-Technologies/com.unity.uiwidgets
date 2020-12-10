@@ -11,7 +11,6 @@
 #include "shell/common/switches.h"
 #include "uiwidgets_system.h"
 #include "unity_external_texture_gl.h"
-#include "unity_console.h"
 
 namespace uiwidgets {
 
@@ -459,13 +458,11 @@ UIWIDGETS_API(void)
 UIWidgetsPanel_onMouseDown(UIWidgetsPanel* panel, float x, float y,
                            int button) {
   panel->OnMouseDown(x, y, button);
-  UnityConsole::WriteLine("OnMouseDown");
 }
 
 UIWIDGETS_API(void)
 UIWidgetsPanel_onMouseUp(UIWidgetsPanel* panel, float x, float y, int button) {
   panel->OnMouseUp(x, y, button);
-  UnityConsole::WriteLine("OnMouseUp");
 }
 
 UIWIDGETS_API(void)

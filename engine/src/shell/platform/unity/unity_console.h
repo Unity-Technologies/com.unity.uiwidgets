@@ -1,27 +1,26 @@
+#pragma once
 #include "runtime/mono_api.h"
 
 namespace uiwidgets {
 
 typedef void (*LogDelegate)(char* message, int iSize);
 
-extern "C"{
+
 class UnityConsole{
  public:
-   static void (*Log)(char* message,int iSize);
-   /*
+  static LogDelegate _log;
+
+   /**
    output the log to unity editor console window
+    @param fmt   log format
+    @param ...   log args
+    @return      null
+
+    example: 
+      UnityConsole::WriteLine("output log without fmt param");
+      UnityConsole::WriteLine("%s: %d + %d = %d","output log with param", 1, 2, 3);
    */
-   static void WriteLine(const char* fmt, ...){ 
-   char log_str[512] = { 0 };
-   va_list ap;
-   va_start(ap, fmt);
-   sprintf_s(log_str, fmt, ap);
-   Log(log_str, strlen(log_str));
-   va_end(ap);
-  }
+  static void WriteLine(const char* fmt, ...);
 };
-  void (*UnityConsole::Log)(char* message, int iSize);
-  UIWIDGETS_API(void) 
-  InitNativeConsoleDelegate(LogDelegate Log){ UnityConsole::Log = Log; }
-}
+
 } // namespace uiwidgets
