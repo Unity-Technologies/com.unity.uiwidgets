@@ -111,6 +111,7 @@ namespace Unity.UIWidgets.engine2 {
                 JSONMessageCodec.instance.toJson(settings));
 
             Input_OnEnable();
+            NativeConsole.OnEnable();
         }
 
         protected virtual void main() {

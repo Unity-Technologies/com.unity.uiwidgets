@@ -310,6 +310,8 @@ class Build
                 "src/shell/platform/unity/unity_surface_manager.h",
                 "src/shell/platform/unity/win32_task_runner.cc",
                 "src/shell/platform/unity/win32_task_runner.h",
+                "src/shell/platform/unity/unity_console.cc",
+                "src/shell/platform/unity/unity_console.h",
 
                 "src/shell/version/version.cc",
                 "src/shell/version/version.h",
