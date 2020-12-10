@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.ui {
 
         internal void addNativeWrapper(NativeWrapper wrapper) {
             lock (_nativeWrappers) {
-                _nativeWrappers.Add(wrapper._ptr, new WeakReference<NativeWrapper>(wrapper));
+                _nativeWrappers.putIfAbsent(wrapper._ptr, ()=>new WeakReference<NativeWrapper>(wrapper));
             }
         }
 

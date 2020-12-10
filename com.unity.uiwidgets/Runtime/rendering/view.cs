@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.rendering {
         public readonly float devicePixelRatio;
 
         public Matrix4 toMatrix() {
-            return new Matrix4().diagonal3Values(this.devicePixelRatio, this.devicePixelRatio, 0);
+            return Matrix4.diagonal3Values(devicePixelRatio, devicePixelRatio, 0);
             //return new Matrix4().identity();
         }
 
@@ -102,6 +102,15 @@ namespace Unity.UIWidgets.rendering {
             return true;
         }
 
+        public MouseTrackerAnnotation hitTestMouseTrackers(Offset position) {
+            // Layer hit testing is done using device pixels, so we have to convert
+            // the logical coordinates of the event location back to device pixels
+            // here.
+            return layer.find<MouseTrackerAnnotation>(
+                position * configuration.devicePixelRatio
+            );
+        }
+
         public override bool isRepaintBoundary {
             get { return true; }
         }
@@ -125,7 +134,8 @@ namespace Unity.UIWidgets.rendering {
 
             D.assert(() => {
                 if (D.debugRepaintRainbowEnabled || D.debugRepaintTextRainbowEnabled) {
-                    D.debugCurrentRepaintColor = D.debugCurrentRepaintColor.withHue((D.debugCurrentRepaintColor.hue + 2.0f) % 360.0f);
+                    D.debugCurrentRepaintColor =
+                        D.debugCurrentRepaintColor.withHue((D.debugCurrentRepaintColor.hue + 2.0f) % 360.0f);
                 }
 
                 return true;

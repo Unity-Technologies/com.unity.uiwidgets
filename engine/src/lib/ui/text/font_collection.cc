@@ -11,8 +11,6 @@
 #include "asset_manager_font_provider.h"
 #include "lib/ui/ui_mono_state.h"
 #include "lib/ui/window/window.h"
-#include "rapidjson/document.h"
-#include "rapidjson/rapidjson.h"
 #include "txt/asset_font_manager.h"
 #include "txt/test_font_manager.h"
 
@@ -71,14 +69,18 @@ void FontCollection::RegisterFonts(
     return;
   }
 
-  if (!document.IsArray()) {
-    return;
+  if (document.IsArray()) {
+    RegisterFonts(asset_manager, document.GetArray());
   }
+}
 
+void FontCollection::RegisterFonts(
+    std::shared_ptr<AssetManager> asset_manager, rapidjson::Value::Array fonts) {
+  
   auto font_provider =
       std::make_unique<AssetManagerFontProvider>(asset_manager);
 
-  for (const auto& family : document.GetArray()) {
+  for (const auto& family : fonts) {
     auto family_name = family.FindMember("family");
     if (family_name == family.MemberEnd() || !family_name->value.IsString()) {
       continue;
@@ -105,7 +107,7 @@ void FontCollection::RegisterFonts(
                                    font_asset->value.GetString());
     }
   }
- 
+
   collection_->SetAssetFontManager(
       sk_make_sp<txt::AssetFontManager>(std::move(font_provider)));
 }

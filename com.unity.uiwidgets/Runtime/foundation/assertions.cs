@@ -132,4 +132,48 @@ namespace Unity.UIWidgets.foundation {
             }
         }
     }
+
+    internal abstract class _ErrorDiagnostic : DiagnosticsProperty<List<object>> {
+        internal _ErrorDiagnostic(
+            String message,
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse, //  DiagnosticsTreeStyle.flat
+            DiagnosticLevel level = DiagnosticLevel.info
+        ) : base(
+            name: null,
+            value: new List<object>() {message},
+            showName: false,
+            showSeparator: false,
+            defaultValue: null,
+            style: style,
+            level: level) {
+            D.assert(message != null);
+        }
+
+        internal _ErrorDiagnostic(
+            List<object> messageParts,
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse,
+            DiagnosticLevel level = DiagnosticLevel.info
+        ) : base(
+            name: null,
+            value: messageParts,
+            showName: false,
+            showSeparator: false,
+            defaultValue: null,
+            style: style,
+            level: level) {
+            D.assert(messageParts != null);
+        }
+
+        protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
+            return String.Join("", value);
+        }
+    }
+
+    internal class ErrorDescription : _ErrorDiagnostic {
+        public ErrorDescription(string message) : base(message, level: DiagnosticLevel.info) {
+        }
+        
+        public ErrorDescription(List<object> messageParts) : base(messageParts, level: DiagnosticLevel.info) {
+        }
+    }
 }

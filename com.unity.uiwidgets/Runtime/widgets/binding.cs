@@ -48,7 +48,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public static void runApp(Widget app) {
-            var instance = WidgetsFlutterBinding.ensureInitialized();
+            var instance = UiWidgetsBinding.ensureInitialized();
             instance.scheduleAttachRootWidget(app);
             instance.scheduleWarmUpFrame();
         }
@@ -60,23 +60,30 @@ namespace Unity.UIWidgets.widgets {
             set { RendererBinding.instance = value; }
         }
 
-        public WidgetsBinding(bool inEditorWindow = false) : base(inEditorWindow) {
+        protected override void initInstances() {
+            base.initInstances();
+            instance = this;
+
+            D.assert(() => {
+                // _debugAddStackFilters();
+                return true;
+            });
+
+            _buildOwner = new BuildOwner();
             buildOwner.onBuildScheduled = _handleBuildScheduled;
-            Window.instance.onLocaleChanged += handleLocaleChanged;
+            window.onLocaleChanged += handleLocaleChanged;
             widgetInspectorService = new WidgetInspectorService(this);
-            // addPersistentFrameCallback((duration) => {
-            //     TextBlobMesh.tickNextFrame();
-            //     TessellationGenerator.tickNextFrame();
-            //     uiTessellationGenerator.tickNextFrame();
-            //     uiPathCacheManager.tickNextFrame();
-            // });
+
+            // window.onAccessibilityFeaturesChanged = handleAccessibilityFeaturesChanged;
+            // SystemChannels.navigation.setMethodCallHandler(_handleNavigationInvocation);
+            // FlutterErrorDetails.propertiesTransformers.add(transformDebugCreator);
         }
 
         public BuildOwner buildOwner {
             get { return _buildOwner; }
         }
 
-        readonly BuildOwner _buildOwner = new BuildOwner();
+        BuildOwner _buildOwner = new BuildOwner();
 
         public FocusManager focusManager {
             get { return _buildOwner.focusManager; }
@@ -110,7 +117,7 @@ namespace Unity.UIWidgets.widgets {
             _handlePopRouteSub(false);
         }
 
-        public readonly WidgetInspectorService widgetInspectorService;
+        public WidgetInspectorService widgetInspectorService;
 
         protected override void handleMetricsChanged() {
             base.handleMetricsChanged();
@@ -304,7 +311,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        protected override void forgetChild(Element child) {
+        internal override void forgetChild(Element child) {
             D.assert(child == _child);
             _child = null;
         }
@@ -373,10 +380,10 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class WidgetsFlutterBinding : WidgetsBinding {
+    public class UiWidgetsBinding : WidgetsBinding {
         public static WidgetsBinding ensureInitialized() {
             if (WidgetsBinding.instance == null)
-                new WidgetsFlutterBinding();
+                new UiWidgetsBinding();
             return WidgetsBinding.instance;
         }
     }

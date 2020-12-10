@@ -531,7 +531,7 @@ namespace Unity.UIWidgets.rendering {
             var radius = size.height * _diameterRatio / 2.0f;
             var deltaY = radius * Mathf.Sin(angle);
 
-            Matrix4 transform = new Matrix4().identity();
+            Matrix4 transform = Matrix4.identity();
             // Matrix4x4 transform2 = MatrixUtils.createCylindricalProjectionTransform(
             //     radius: this.size.height * this._diameterRatio / 2.0f,
             //     angle: angle,

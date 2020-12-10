@@ -2,6 +2,7 @@ using Unity.UIWidgets.engine;
 using Unity.UIWidgets.engine2;
 using UnityEditor;
 using UnityEditor.UI;
+using UnityEngine;
 
 namespace Unity.UIWidgets.Editor {
     [CustomEditor(typeof(UIWidgetsPanel), true)]
@@ -17,6 +18,8 @@ namespace Unity.UIWidgets.Editor {
 
             EditorGUILayout.PropertyField(pixelRatioProperty);
             EditorGUILayout.PropertyField(antiAliasingProperty);
+            UIWidgetsPanel panel = (UIWidgetsPanel)target;
+            
             serializedObject.ApplyModifiedProperties(); 
         }
     }

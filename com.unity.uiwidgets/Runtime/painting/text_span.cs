@@ -11,25 +11,21 @@ namespace Unity.UIWidgets.painting {
     public class TextSpan : InlineSpan, IEquatable<TextSpan> {
         public delegate bool Visitor(TextSpan span);
 
-        public readonly TextStyle style;
         public readonly string text;
-        public readonly List<TextSpan> children;
+        public readonly List<InlineSpan> children;
         public readonly GestureRecognizer recognizer;
-        public readonly HoverRecognizer hoverRecognizer;
         public readonly string semanticsLabel;
 
         public TextSpan(
             string text = "",
             TextStyle style = null,
-            List<TextSpan> children = null,
+            List<InlineSpan> children = null,
             GestureRecognizer recognizer = null,
             HoverRecognizer hoverRecognizer = null,
-            string semanticsLabel = null) : base(style) {
+            string semanticsLabel = null) : base(style: style, hoverRecognizer: hoverRecognizer) {
             this.text = text;
-            this.style = style;
             this.children = children;
             this.recognizer = recognizer;
-            this.hoverRecognizer = hoverRecognizer;
             this.semanticsLabel = semanticsLabel;
         }
 
@@ -144,116 +140,39 @@ namespace Unity.UIWidgets.painting {
             return null;
         }
 
-        public bool hasHoverRecognizer {
-            get {
-                bool need = false;
-                visitTextSpan((text) => {
-                    if (text.hoverRecognizer != null) {
-                        need = true;
-                        return false;
-                    }
-
-                    return true;
-                });
-                return need;
-            }
-        }
-
-        bool visitTextSpan(Visitor visitor) {
-            if (!string.IsNullOrEmpty(text)) {
-                if (!visitor.Invoke(this)) {
-                    return false;
-                }
-            }
-
-            if (children != null) {
-                foreach (var child in children) {
-                    if (!child.visitTextSpan(visitor)) {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        public TextSpan getSpanForPosition(TextPosition position) {
-            D.assert(debugAssertIsValid());
-            var offset = 0;
-            var targetOffset = position.offset;
-            var affinity = position.affinity;
-            TextSpan result = null;
-            visitTextSpan((span) => {
-                var endOffset = offset + span.text.Length;
-                if ((targetOffset == offset && affinity == TextAffinity.downstream) ||
-                    (targetOffset > offset && targetOffset < endOffset) ||
-                    (targetOffset == endOffset && affinity == TextAffinity.upstream)) {
-                    result = span;
-                    return false;
-                }
-
-                offset = endOffset;
-                return true;
-            });
-            return result;
-        }
-
-        public int? codeUnitAt(int index) {
-            if (index < 0) {
-                return null;
-            }
-
-            var offset = 0;
-            int? result = null;
-            visitTextSpan(span => {
-                if (index - offset < span.text.Length) {
-                    result = span.text[index - offset];
-                    return false;
-                }
-
-                offset += span.text.Length;
-                return true;
-            });
-            return result;
-        }
-
         bool debugAssertIsValid() {
             D.assert(() => {
-                if (!visitTextSpan(span => {
-                    if (span.children != null) {
-                        foreach (TextSpan child in span.children) {
-                            if (child == null) {
-                                return false;
-                            }
+                if (children != null) {
+                    foreach (InlineSpan child in children) {
+                        if (child == null) {
+                            throw new UIWidgetsError(
+                                "A TextSpan object with a non-null child list should not have any nulls in its child list.\n" +
+                                "The full text in question was:\n" +
+                                toStringDeep(prefixLineOne: "  "));
                         }
-                    }
 
-                    return true;
-                })) {
-                    throw new UIWidgetsError(
-                        "A TextSpan object with a non-null child list should not have any nulls in its child list.\n" +
-                        "The full text in question was:\n" +
-                        toStringDeep(prefixLineOne: "  "));
+                        D.assert(child.debugAssertIsValid());
+                    }
                 }
 
                 return true;
             });
-            return true;
+            return base.debugAssertIsValid();
         }
 
         public override RenderComparison compareTo(InlineSpan other) {
             if (Equals(this, other))
                 return RenderComparison.identical;
-            if (other.GetType()!= GetType())
+            if (other.GetType() != GetType())
                 return RenderComparison.layout;
             TextSpan textSpan = other as TextSpan;
             if (textSpan.text != text ||
                 children?.Count != textSpan.children?.Count ||
                 (style == null) != (textSpan.style == null))
                 return RenderComparison.layout;
-            RenderComparison result = recognizer == textSpan.recognizer ?
-                RenderComparison.identical :
-                RenderComparison.metadata;
+            RenderComparison result = recognizer == textSpan.recognizer
+                ? RenderComparison.identical
+                : RenderComparison.metadata;
             if (style != null) {
                 RenderComparison candidate = style.compareTo(textSpan.style);
                 if (candidate > result)
@@ -261,6 +180,7 @@ namespace Unity.UIWidgets.painting {
                 if (result == RenderComparison.layout)
                     return result;
             }
+
             if (children != null) {
                 for (int index = 0; index < children.Count; index += 1) {
                     RenderComparison candidate = children[index].compareTo(textSpan.children[index]);
@@ -270,6 +190,7 @@ namespace Unity.UIWidgets.painting {
                         return result;
                 }
             }
+
             return result;
         }
 
@@ -291,22 +212,25 @@ namespace Unity.UIWidgets.painting {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (style != null ? style.GetHashCode() : 0);
+                var hashCode = base.GetHashCode();
                 hashCode = (hashCode * 397) ^ (text != null ? text.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (children != null ? children.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (recognizer != null ? recognizer.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (childHash());
+                hashCode = (hashCode * 397) ^ (semanticsLabel != null ? semanticsLabel.GetHashCode() : 0);
                 return hashCode;
             }
         }
 
-        public bool Equals(TextSpan other) {
-            if (ReferenceEquals(null, other)) {
+        public bool Equals(InlineSpan otherInline) {
+            if (ReferenceEquals(null, otherInline)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, other)) {
+            if (ReferenceEquals(this, otherInline)) {
                 return true;
             }
+
+            TextSpan other = otherInline as TextSpan;
 
             return Equals(style, other.style) && string.Equals(text, other.text) &&
                    childEquals(children, other.children) && recognizer == other.recognizer;
@@ -333,7 +257,7 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        static bool childEquals(List<TextSpan> left, List<TextSpan> right) {
+        static bool childEquals(List<InlineSpan> left, List<InlineSpan> right) {
             if (ReferenceEquals(left, right)) {
                 return true;
             }
@@ -380,6 +304,19 @@ namespace Unity.UIWidgets.painting {
                     return DiagnosticsNode.message("<null child>");
                 }
             }).ToList();
+        }
+
+        public bool Equals(TextSpan other) {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return base.Equals(other) && text == other.text && Equals(children, other.children) &&
+                   Equals(recognizer, other.recognizer) && semanticsLabel == other.semanticsLabel;
         }
     }
 }

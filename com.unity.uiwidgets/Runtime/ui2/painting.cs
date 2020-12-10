@@ -400,7 +400,7 @@ namespace Unity.UIWidgets.ui {
     }
 
     public static partial class ui_ {
-        const int _kDoNotResizeDimension = -1;
+        internal const int _kDoNotResizeDimension = -1;
     }
 
     public class Paint {
@@ -3035,6 +3035,37 @@ namespace Unity.UIWidgets.ui {
                 return hashCode;
             }
         }
+    }
+    
+    public class Skottie : NativeWrapper {
+        public Skottie(string path) {
+            _setPtr(Skottie_Construct(path));
+        }
+
+        protected override void DisposePtr(IntPtr ptr) {
+            Skottie_Dispose(ptr);
+        }
+
+        public void paint(Canvas canvas, Offset offset, float width, float height, float frame) {
+            Skottie_Paint(_ptr, canvas._ptr, offset.dx, offset.dy, width, height, frame);
+        }
+        
+        public float duration() {
+            return Skottie_Duration(_ptr);
+        }
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr Skottie_Construct(string path);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void Skottie_Dispose(IntPtr skottie);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void Skottie_Paint(IntPtr skottie, IntPtr canvas, float x, float y, float width, float height,
+            float frame);
+        
+        [DllImport(NativeBindings.dllName)]
+        static extern float Skottie_Duration(IntPtr skottie);
     }
 
     delegate void _Callback<T>(T result);

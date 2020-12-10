@@ -125,7 +125,7 @@ namespace Unity.UIWidgets.widgets {
                 });
         }
 
-        protected override void forgetChild(Element child) {
+        internal override void forgetChild(Element child) {
             D.assert(child == this.child);
             this.child = null;
         }

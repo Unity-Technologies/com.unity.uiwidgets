@@ -174,6 +174,8 @@ class Build
                 "src/lib/ui/painting/shader.h",
                 "src/lib/ui/painting/single_frame_codec.cc",
                 "src/lib/ui/painting/single_frame_codec.h",
+                "src/lib/ui/painting/skottie.cc",
+                "src/lib/ui/painting/skottie.h",
                 "src/lib/ui/painting/vertices.cc",
                 "src/lib/ui/painting/vertices.h",
 

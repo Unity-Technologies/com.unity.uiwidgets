@@ -3,22 +3,49 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using Canvas = UnityEngine.Canvas;
 using NativeBindings = Unity.UIWidgets.ui.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
-    public partial class UIWidgetsPanel : RawImage{
+    public partial class UIWidgetsPanel : RawImage {
         [Serializable]
-        public struct TextFont {
-            public string path;
-            public string name;
+        public struct Font {
+            public string asset;
+            public int weight;
         }
         
+        [Serializable]
+        public struct TextFont {
+            public string family;
+            [SerializeField] public Font[] fonts;
+        }
+
         public TextFont[] fonts;
+
+        static object fontsToObject(TextFont[] textFont) {
+            var result = new object[textFont.Length];
+            for (int i = 0; i < textFont.Length; i++) {
+                var font = new Dictionary<string, object>();
+                font.Add("family", textFont[i].family);
+                var dic = new Dictionary<string, object>[textFont[i].fonts.Length];
+                for (int j = 0; j < textFont[i].fonts.Length; j++) {
+                    dic[j] = new Dictionary<string, object>();
+                    if (textFont[i].fonts[j].asset.Length > 0) {
+                        dic[j].Add("asset", textFont[i].fonts[j].asset);
+                    }
+                    if (textFont[i].fonts[j].weight > 0) {
+                        dic[j].Add("weight", textFont[i].fonts[j].weight);
+                    }
+                }
+                font.Add("fonts", dic);
+                result[i] = font;
+            }
+            return result;
+        }
 
         public float devicePixelRatioOverride;
 
@@ -34,7 +61,7 @@ namespace Unity.UIWidgets.engine2 {
         // Texture texture {
         //     set { texture = value; }
         // }
-        
+
         public static UIWidgetsPanel current {
             get { return Window.instance._panel; }
         }
@@ -75,8 +102,13 @@ namespace Unity.UIWidgets.engine2 {
             _handle = GCHandle.Alloc(this);
 
             _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, UIWidgetsPanel_entrypoint);
+            var settings = new Dictionary<string, object>();
+            if (fonts != null && fonts.Length > 0) {
+                settings.Add("fonts", fontsToObject(fonts));
+            }
             UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
-                _width, _height, _devicePixelRatio, Application.streamingAssetsPath);
+                _width, _height, _devicePixelRatio, Application.streamingAssetsPath,
+                JSONMessageCodec.instance.toJson(settings));
 
             Input_OnEnable();
         }
@@ -97,7 +129,7 @@ namespace Unity.UIWidgets.engine2 {
         }
 
         protected override void OnRectTransformDimensionsChange() {
-            if (_ptr != IntPtr.Zero  && _renderTexture) {
+            if (_ptr != IntPtr.Zero && _renderTexture) {
                 if (_recreateRenderTexture(_currentWidth, _currentHeight, _currentDevicePixelRatio)) {
                     UIWidgetsPanel_onRenderTexture(_ptr,
                         _renderTexture.GetNativeTexturePtr(),
@@ -200,7 +232,7 @@ namespace Unity.UIWidgets.engine2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onEnable(IntPtr ptr,
-            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath);
+            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath, string settings);
 
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onDisable(IntPtr ptr);
@@ -314,7 +346,7 @@ namespace Unity.UIWidgets.engine2 {
             _isEntered = false;
             UIWidgetsPanel_onMouseLeave(_ptr);
         }
-
+        
         public void OnDrag(PointerEventData eventData) {
             var pos = _getPointerPosition(Input.mousePosition);
             if (pos == null) {

@@ -7,6 +7,8 @@
 #include "flutter/fml/macros.h"
 #include "flutter/fml/memory/ref_ptr.h"
 #include "txt/font_collection.h"
+#include "rapidjson/document.h"
+#include "rapidjson/rapidjson.h"
 
 namespace uiwidgets {
 
@@ -21,6 +23,7 @@ class FontCollection {
   void SetupDefaultFontManager();
 
   void RegisterFonts(std::shared_ptr<AssetManager> asset_manager);
+  void RegisterFonts(std::shared_ptr<AssetManager> asset_manager, rapidjson::Value::Array fonts);
 
   void LoadFontFromList(const uint8_t* font_data, int length,
                         std::string family_name);

@@ -867,7 +867,7 @@ namespace Unity.UIWidgets.rendering {
 
     public class TransformLayer : OffsetLayer {
         public TransformLayer(Matrix4 transform = null, Offset offset = null) : base(offset) {
-            _transform = transform ?? new Matrix4().identity();
+            _transform = transform ?? Matrix4.identity();
         }
 
         public Matrix4 transform {
@@ -903,7 +903,7 @@ namespace Unity.UIWidgets.rendering {
 
             var totalOffset = offset + layerOffset;
             if (totalOffset != Offset.zero) {
-                _lastEffectiveTransform = new Matrix4().translationValues(totalOffset.dx, totalOffset.dy, 0);
+                _lastEffectiveTransform = Matrix4.translationValues(totalOffset.dx, totalOffset.dy, 0);
                 _lastEffectiveTransform.multiply(transform);
             }
 
@@ -967,9 +967,9 @@ namespace Unity.UIWidgets.rendering {
         internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
-            bool enabled = true;
+            bool enabled = firstChild != null;
             D.assert(() => {
-                enabled = !D.debugDisableOpacityLayers;
+                enabled = enabled && !D.debugDisableOpacityLayers;
                 return true;
             });
             
@@ -1080,8 +1080,7 @@ namespace Unity.UIWidgets.rendering {
             _lastOffset = offset + layerOffset;
             if (_lastOffset != Offset.zero) {
                 engineLayer = builder.pushTransform(
-                    new Matrix4()
-                    .translationValues(_lastOffset.dx, _lastOffset.dy,0)
+                     Matrix4.translationValues(_lastOffset.dx, _lastOffset.dy,0)
                     ._m4storage,
                     oldLayer: engineLayer as TransformEngineLayer);
             }
@@ -1128,7 +1127,7 @@ namespace Unity.UIWidgets.rendering {
         Offset _lastOffset;
         Matrix4 _lastTransform;
 
-        Matrix4 _invertedTransform = new Matrix4().identity();
+        Matrix4 _invertedTransform = Matrix4.identity();
         bool _inverseDirty = true;
 
         internal override S find<S>(Offset regionOffset) {
@@ -1155,13 +1154,13 @@ namespace Unity.UIWidgets.rendering {
                 return null;
             }
 
-            Matrix4 result = new Matrix4().translationValues(-_lastOffset.dx, -_lastOffset.dy,0 );
+            Matrix4 result = Matrix4.translationValues(-_lastOffset.dx, -_lastOffset.dy,0 );
             result.multiply(_lastTransform);
             return result;
         }
 
         Matrix4 _collectTransformForLayerChain(List<ContainerLayer> layers) {
-            Matrix4 result = new Matrix4().identity();
+            Matrix4 result = Matrix4.identity();
             for (int index = layers.Count - 1; index > 0; index -= 1) {
                 layers[index].applyTransform(layers[index - 1], result);
             }
@@ -1243,7 +1242,7 @@ namespace Unity.UIWidgets.rendering {
             }
             else {
                 _lastOffset = null;
-                var matrix = new Matrix4().translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
+                var matrix = Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
                 engineLayer = builder.pushTransform(
                     matrix._m4storage,
                     oldLayer: engineLayer as TransformEngineLayer);
@@ -1261,7 +1260,7 @@ namespace Unity.UIWidgets.rendering {
                 transform.multiply(_lastTransform);
             }
             else {
-                transform.multiply(new Matrix4().translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
+                transform.multiply(Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
             }
         }
 
@@ -1405,7 +1404,7 @@ namespace Unity.UIWidgets.rendering {
         internal Path _debugTransformedClipPath {
             get {
                 ContainerLayer ancestor = parent;
-                Matrix4 matrix = new Matrix4().identity();
+                Matrix4 matrix = Matrix4.identity();
                 while (ancestor != null && ancestor.parent != null) {
                     ancestor.applyTransform(this, matrix);
                     ancestor = ancestor.parent;

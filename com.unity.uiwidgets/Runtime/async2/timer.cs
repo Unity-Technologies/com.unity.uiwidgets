@@ -106,11 +106,13 @@ namespace Unity.UIWidgets.async2 {
             }
         }
 
+        const long MILLI_TO_NANO = 1000000L;
+        
         void _enqueue() {
             Isolate.ensureExists();
             
             GCHandle callabackHandle = GCHandle.Alloc(this);
-            UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callabackHandle, _wakeupTime * 1000L);
+            UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callabackHandle, _wakeupTime * MILLI_TO_NANO);
         }
 
         [MonoPInvokeCallback(typeof(UIMonoState_postTaskForTimeCallback))]

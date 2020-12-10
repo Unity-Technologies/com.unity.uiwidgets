@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
@@ -356,38 +357,41 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        protected override void forgetChild(Element child) {
+        internal override void forgetChild(Element child) {
             _forgottenChildren.Add(child);
         }
     }
 
-
-    public class TableCell : ParentDataWidget<Table> {
+    class TableCell : ParentDataWidget<TableCellParentData> {
         public TableCell(
+            Widget child,
             Key key = null,
-            TableCellVerticalAlignment? verticalAlignment = null,
-            Widget child = null
+            TableCellVerticalAlignment verticalAlignment = TableCellVerticalAlignment.baseline
         ) : base(key: key, child: child) {
             this.verticalAlignment = verticalAlignment;
         }
 
-        public readonly TableCellVerticalAlignment? verticalAlignment;
+        public readonly TableCellVerticalAlignment verticalAlignment;
 
         public override void applyParentData(RenderObject renderObject) {
-            TableCellParentData parentData = (TableCellParentData) renderObject.parentData;
+            TableCellParentData parentData = renderObject.parentData as TableCellParentData;
             if (parentData.verticalAlignment != verticalAlignment) {
                 parentData.verticalAlignment = verticalAlignment;
-
                 AbstractNodeMixinDiagnosticableTree targetParent = renderObject.parent;
-                if (targetParent is RenderObject) {
-                    ((RenderObject) targetParent).markNeedsLayout();
+                if (targetParent is RenderObject targetParentRenderObject) {
+                    targetParentRenderObject.markNeedsLayout();
                 }
             }
         }
 
+        public override Type debugTypicalAncestorWidgetClass {
+            get => typeof(Table);
+        }
+
+
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<TableCellVerticalAlignment?>("verticalAlignment", verticalAlignment));
+            properties.add(new EnumProperty<TableCellVerticalAlignment>("verticalAlignment", verticalAlignment));
         }
     }
 }

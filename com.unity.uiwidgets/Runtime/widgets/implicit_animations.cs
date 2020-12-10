@@ -97,7 +97,7 @@ namespace Unity.UIWidgets.widgets {
                     .scaled(1.0f - t)
                     .add(endRotation.scaled(t)).normalized;
             Vector3 lerpScale = beginScale * (1.0f - t) + endScale * t;
-            return new Matrix4().compose(lerpTranslation, lerpRotation, lerpScale);
+            return Matrix4.compose(lerpTranslation, lerpRotation, lerpScale);
         }
     }
 
