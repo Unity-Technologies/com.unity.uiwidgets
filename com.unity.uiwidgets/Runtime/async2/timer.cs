@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.async2 {
             cancel();
         }
 
-        public abstract int tick { get; }
+        public abstract long tick { get; }
 
         public abstract bool isActive { get; }
 
@@ -56,14 +56,14 @@ namespace Unity.UIWidgets.async2 {
     }
 
     class _Timer : Timer {
-        int _tick = 0;
+        long _tick = 0;
 
         ZoneUnaryCallback _callback;
-        int _wakeupTime;
+        long _wakeupTime;
         readonly int _milliSeconds;
         readonly bool _repeating;
 
-        _Timer(ZoneUnaryCallback callback, int wakeupTime, int milliSeconds, bool repeating) {
+        _Timer(ZoneUnaryCallback callback, long wakeupTime, int milliSeconds, bool repeating) {
             _callback = callback;
             _wakeupTime = wakeupTime;
             _milliSeconds = milliSeconds;
@@ -80,8 +80,8 @@ namespace Unity.UIWidgets.async2 {
                 milliSeconds = 0;
             }
 
-            int now = UIMonoState_timerMillisecondClock();
-            int wakeupTime = (milliSeconds == 0) ? now : (now + 1 + milliSeconds);
+            long now = UIMonoState_timerMillisecondClock();
+            long wakeupTime = (milliSeconds == 0) ? now : (now + 1 + milliSeconds);
 
             _Timer timer = new _Timer(callback, wakeupTime, milliSeconds, repeating);
             timer._enqueue();
@@ -95,7 +95,7 @@ namespace Unity.UIWidgets.async2 {
 
         public override bool isActive => _callback != null;
 
-        public override int tick => _tick;
+        public override long tick => _tick;
 
         void _advanceWakeupTime() {
             if (_milliSeconds > 0) {
@@ -109,8 +109,8 @@ namespace Unity.UIWidgets.async2 {
         void _enqueue() {
             Isolate.ensureExists();
             
-            GCHandle callabackHandle = GCHandle.Alloc(this);
-            UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callabackHandle, _wakeupTime * 1000000L);
+            GCHandle callbackHandle = GCHandle.Alloc(this);
+            UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callbackHandle, _wakeupTime * 1000000L);
         }
 
         [MonoPInvokeCallback(typeof(UIMonoState_postTaskForTimeCallback))]
@@ -127,9 +127,9 @@ namespace Unity.UIWidgets.async2 {
                     }
                     else if (timer._milliSeconds > 0) {
                         var ms = timer._milliSeconds;
-                        int overdue = UIMonoState_timerMillisecondClock() - timer._wakeupTime;
+                        long overdue = UIMonoState_timerMillisecondClock() - timer._wakeupTime;
                         if (overdue > ms) {
-                            int missedTicks = overdue / ms;
+                            long missedTicks = overdue / ms;
                             timer._wakeupTime += missedTicks * ms;
                             timer._tick += missedTicks;
                         }
@@ -151,7 +151,7 @@ namespace Unity.UIWidgets.async2 {
         }
 
         [DllImport(NativeBindings.dllName)]
-        static extern int UIMonoState_timerMillisecondClock();
+        static extern long UIMonoState_timerMillisecondClock();
 
         delegate void UIMonoState_postTaskForTimeCallback(IntPtr callbackHandle);
 

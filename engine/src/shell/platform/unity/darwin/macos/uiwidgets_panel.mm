@@ -7,8 +7,6 @@
 #include "shell/platform/embedder/embedder_engine.h"
 #include "shell/platform/embedder/embedder.h"
 #include "shell/common/switches.h"
-#include "Unity/IUnityGraphics.h"
-#include "Unity/IUnityGraphicsMetal.h"
 
 #include "uiwidgets_system.h"
 #include "uiwidgets_panel.h"
@@ -26,150 +24,15 @@ UIWidgetsPanel::UIWidgetsPanel(Mono_Handle handle,
 
 UIWidgetsPanel::~UIWidgetsPanel() = default;
 
-
-void UIWidgetsPanel::CreateRenderTexture(size_t width, size_t height)
-{
-  //Constants
-  const MTLPixelFormat ConstMetalViewPixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
-  const int ConstCVPixelFormat = kCVPixelFormatType_32BGRA;
-  const GLuint ConstGLInternalFormat = GL_SRGB8_ALPHA8;
-  const GLuint ConstGLFormat = GL_BGRA;
-  const GLuint ConstGLType = GL_UNSIGNED_INT_8_8_8_8_REV;
-
-  //render context must be available
-  FML_DCHECK(metal_device_ != nullptr && gl_context_ != nullptr && gl_resource_context_ != nullptr);
-
-  //render textures must be released already
-  FML_DCHECK(pixelbuffer_ref == nullptr && default_fbo_ == 0 && gl_tex_ == 0 && gl_tex_cache_ref_ == nullptr && gl_tex_ref_ == nullptr && metal_tex_ == nullptr && metal_tex_ref_ == nullptr && metal_tex_cache_ref_ == nullptr);
-  //create pixel buffer
-  auto gl_pixelformat_ = gl_context_.pixelFormat.CGLPixelFormatObj;
-
-  NSDictionary* cvBufferProperties = @{
-    (__bridge NSString*)kCVPixelBufferOpenGLCompatibilityKey : @YES,
-    (__bridge NSString*)kCVPixelBufferMetalCompatibilityKey : @YES,
-  };
-
-  CVReturn cvret = CVPixelBufferCreate(kCFAllocatorDefault,
-            width, height,
-            ConstCVPixelFormat,
-            (__bridge CFDictionaryRef)cvBufferProperties,
-            &pixelbuffer_ref);
-  FML_DCHECK(cvret == kCVReturnSuccess);
-
-  //create metal texture
-  cvret = CVMetalTextureCacheCreate(
-            kCFAllocatorDefault,
-            nil,
-            metal_device_,
-            nil,
-            &metal_tex_cache_ref_);
-  FML_DCHECK(cvret == kCVReturnSuccess);
-
-  cvret = CVMetalTextureCacheCreateTextureFromImage(
-            kCFAllocatorDefault,
-            metal_tex_cache_ref_,
-            pixelbuffer_ref, nil,
-            ConstMetalViewPixelFormat,
-            width, height,
-            0,
-            &metal_tex_ref_);
-  FML_DCHECK(cvret == kCVReturnSuccess);
-
-  metal_tex_ = CVMetalTextureGetTexture(metal_tex_ref_);
-
-  //create opengl texture
-  cvret  = CVOpenGLTextureCacheCreate(
-            kCFAllocatorDefault,
-            nil,
-            gl_context_.CGLContextObj,
-            gl_pixelformat_,
-            nil,
-            &gl_tex_cache_ref_);
-  FML_DCHECK(cvret == kCVReturnSuccess);
-
-  cvret = CVOpenGLTextureCacheCreateTextureFromImage(
-            kCFAllocatorDefault,
-            gl_tex_cache_ref_,
-            pixelbuffer_ref,
-            nil,
-            &gl_tex_ref_);
-  FML_DCHECK(cvret == kCVReturnSuccess);
-
-  gl_tex_ = CVOpenGLTextureGetName(gl_tex_ref_);
-
-  //initialize gl renderer
-  [gl_context_ makeCurrentContext];
-  glGenFramebuffers(1, &default_fbo_);
-  glBindFramebuffer(GL_FRAMEBUFFER, default_fbo_);
-
-  const GLenum texType = GL_TEXTURE_RECTANGLE;
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texType, gl_tex_, 0);
-}
-
-void UIWidgetsPanel::CreateRenderingContext()
-{
-  FML_DCHECK(metal_device_ == nullptr);
-
-  //get main gfx device (metal)
-  auto* graphics = UIWidgetsSystem::GetInstancePtr()
-                    ->GetUnityInterfaces()
-                    ->Get<IUnityGraphics>();
-    
-  FML_DCHECK(graphics->GetRenderer() == kUnityGfxRendererMetal);
-
-  auto* metalGraphics = UIWidgetsSystem::GetInstancePtr()
-                    ->GetUnityInterfaces()
-                    ->Get<IUnityGraphicsMetalV1>();
-
-  metal_device_ = metalGraphics->MetalDevice();
-
-  //create opengl context
-  FML_DCHECK(!gl_context_);
-  FML_DCHECK(!gl_resource_context_);
-
-  NSOpenGLPixelFormatAttribute attrs[] =
-    {
-      NSOpenGLPFAAccelerated,
-      0
-    };
-
-  NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
-  gl_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
-  gl_resource_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl_context_];
-
-  FML_DCHECK(gl_context_ != nullptr && gl_resource_context_ != nullptr);
-}
-
-bool UIWidgetsPanel::ClearCurrentContext()
-{
-  [NSOpenGLContext clearCurrentContext];
-  return true;
-}
-
-bool UIWidgetsPanel::MakeCurrentContext()
-{
-  [gl_context_ makeCurrentContext];
-  return true;
-}
-
-bool UIWidgetsPanel::MakeCurrentResourceContext()
-{
-  [gl_resource_context_ makeCurrentContext];
-  return true;
-}
-
-uint32_t UIWidgetsPanel::GetFbo()
-{
-  return default_fbo_;
-}
-
 void* UIWidgetsPanel::OnEnable(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path)
 {
-  CreateRenderingContext();
-  CreateRenderTexture(width, height);
+  surface_manager_ = std::make_unique<UnitySurfaceManager>(
+      UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
+  void* metal_tex = surface_manager_->CreateRenderTexture(width, height);
+
   CreateInternalUIWidgetsEngine(width, height, device_pixel_ratio, streaming_assets_path);
 
-  return (__bridge void*)metal_tex_;
+  return metal_tex;
 }
 
 void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path)
@@ -213,35 +76,41 @@ void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, 
   config.open_gl.struct_size = sizeof(config.open_gl);
   config.open_gl.clear_current = [](void* user_data) -> bool {
     auto* panel = static_cast<UIWidgetsPanel*>(user_data);
-    return panel->ClearCurrentContext();
+    return panel->surface_manager_->ClearCurrentContext();
   };
   config.open_gl.make_current = [](void* user_data) -> bool {
     auto* panel = static_cast<UIWidgetsPanel*>(user_data);
-    return panel->MakeCurrentContext();
+    return panel->surface_manager_->MakeCurrentContext();
   };
   config.open_gl.make_resource_current = [](void* user_data) -> bool {
     auto* panel = static_cast<UIWidgetsPanel*>(user_data);
-    return panel->MakeCurrentResourceContext();
+    return panel->surface_manager_->MakeCurrentResourceContext();
   };
   config.open_gl.fbo_callback = [](void* user_data) -> uint32_t {
     auto* panel = static_cast<UIWidgetsPanel*>(user_data);
-    return panel->GetFbo();
+    return panel->surface_manager_->GetFbo();
   };
   config.open_gl.present = [](void* user_data) -> bool { return true; };
   config.open_gl.fbo_reset_after_present = true;
 
   //main thread task runner
+  task_runner_ = std::make_unique<CocoaTaskRunner>(
+    [this](const auto* task) {
+        if (UIWidgetsEngineRunTask(engine_, task) != kSuccess) {
+          std::cerr << "Could not post an engine task." << std::endl;
+        }
+  });
+
   UIWidgetsTaskRunnerDescription main_task_runner = {};
   main_task_runner.struct_size = sizeof(UIWidgetsTaskRunnerDescription);
   main_task_runner.identifier = 2;
-  main_task_runner.user_data = static_cast<void*>(this);
+  main_task_runner.user_data = task_runner_.get();
   main_task_runner.runs_task_on_current_thread_callback = [](void* user_data) -> bool {
     return [[NSThread currentThread] isMainThread];
   };
   main_task_runner.post_task_callback = [](UIWidgetsTask task, uint64_t target_time_nanos,
                             void* user_data) -> void {
-    UIWidgetsPanel* panel = static_cast<UIWidgetsPanel*>(user_data);
-    panel->PostTask(task, target_time_nanos);
+    static_cast<CocoaTaskRunner*>(user_data)->PostTask(task, target_time_nanos);
   };
 
   //setup custom task runners
@@ -266,11 +135,11 @@ void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, 
   args.task_observer_add = [](intptr_t key, void* callback,
                               void* user_data) -> void {
     auto* panel = static_cast<UIWidgetsPanel*>(user_data);
-    panel->AddTaskObserver(key, *static_cast<fml::closure*>(callback));
+    panel->task_runner_->AddTaskObserver(key, *static_cast<fml::closure*>(callback));
   };
   args.task_observer_remove = [](intptr_t key, void* user_data) -> void {
     auto* panel = static_cast<UIWidgetsPanel*>(user_data);
-    panel->RemoveTaskObserver(key);
+    panel->task_runner_->RemoveTaskObserver(key);
   };
 
   args.custom_mono_entrypoint = [](void* user_data) -> void {
@@ -302,104 +171,6 @@ void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, 
   process_events_ = true;
 }
 
-TaskTimePoint UIWidgetsPanel::TimePointFromUIWidgetsTime(
-    uint64_t uiwidgets_target_time_nanos) {
-  const auto fml_now = fml::TimePoint::Now().ToEpochDelta().ToNanoseconds();
-  if (uiwidgets_target_time_nanos <= fml_now) {
-    return {};
-  }
-  const auto uiwidgets_duration = uiwidgets_target_time_nanos - fml_now;
-  const auto now = TaskTimePoint::clock::now();
-  return now + std::chrono::nanoseconds(uiwidgets_duration);
-}
-
-void UIWidgetsPanel::AddTaskObserver(intptr_t key,
-                                      const fml::closure& callback) {
-  task_observers_[key] = callback;
-}
-
-void UIWidgetsPanel::RemoveTaskObserver(intptr_t key) {
-  task_observers_.erase(key);
-}
-
-void UIWidgetsPanel::PostTask(UIWidgetsTask uiwidgets_task,
-                               uint64_t uiwidgets_target_time_nanos) {
-  static std::atomic_uint64_t sGlobalTaskOrder(0);
-
-  Task task;
-  task.order = ++sGlobalTaskOrder;
-  task.fire_time = TimePointFromUIWidgetsTime(uiwidgets_target_time_nanos);
-  task.task = uiwidgets_task;
-
-  {
-    std::lock_guard<std::mutex> lock(task_queue_mutex_);
-    task_queue_.push(task);
-    // Make sure the queue mutex is unlocked before waking up the loop. In case
-    // the wake causes this thread to be descheduled for the primary thread to
-    // process tasks, the acquisition of the lock on that thread while holding
-    // the lock here momentarily till the end of the scope is a pessimization.
-  }
-}
-
-std::chrono::nanoseconds UIWidgetsPanel::ProcessTasks() {
-  const TaskTimePoint now = TaskTimePoint::clock::now();
-
-  std::vector<Task> expired_tasks;
-  // Process expired tasks.
-  {
-    std::lock_guard<std::mutex> lock(task_queue_mutex_);
-    while (!task_queue_.empty()) {
-      const auto& top = task_queue_.top();
-      // If this task (and all tasks after this) has not yet expired, there is
-      // nothing more to do. Quit iterating.
-      if (top.fire_time > now) {
-        break;
-      }
-
-      // Make a record of the expired task. Do NOT service the task here
-      // because we are still holding onto the task queue mutex. We don't want
-      // other threads to block on posting tasks onto this thread till we are
-      // done processing expired tasks.
-      expired_tasks.push_back(task_queue_.top());
-
-      // Remove the tasks from the delayed tasks queue.
-      task_queue_.pop();
-    }
-  }
-
-  for (const auto& observer : task_observers_) {
-    observer.second();
-  }
-
-  // Fire expired tasks.
-  {
-    // Flushing tasks here without holing onto the task queue mutex.
-    for (const auto& task : expired_tasks) {
-      auto result = UIWidgetsEngineRunTask(engine_, &(task.task));
-      if (result != kSuccess) {
-          //TODO: error message
-      }
-
-      for (const auto& observer : task_observers_) {
-        observer.second();
-      }
-    }
-  }
-
-  if (!expired_tasks.empty()) {
-    return ProcessTasks();
-  }
-
-  // Calculate duration to sleep for on next iteration.
-  {
-    std::lock_guard<std::mutex> lock(task_queue_mutex_);
-    const auto next_wake = task_queue_.empty() ? TaskTimePoint::max()
-                                               : task_queue_.top().fire_time;
-
-    return std::min(next_wake - now, std::chrono::nanoseconds::max());
-  }
-}
-
 void UIWidgetsPanel::MonoEntrypoint() { entrypoint_callback_(handle_); }
 
 void UIWidgetsPanel::OnDisable() {
@@ -420,60 +191,14 @@ void UIWidgetsPanel::OnDisable() {
   }
 
   gfx_worker_task_runner_ = nullptr;
+  task_runner_ = nullptr;
 
   //release all resources
-  if (default_fbo_) {
-    ReleaseNativeRenderTexture();
-    ReleaseNativeRenderContext();
+  if (surface_manager_)
+  {
+    surface_manager_->ReleaseNativeRenderTexture();
+    surface_manager_ = nullptr;
   }
-}
-
-void UIWidgetsPanel::ReleaseNativeRenderContext()
-{
-  FML_DCHECK(gl_resource_context_);
-  CGLReleaseContext(gl_resource_context_.CGLContextObj);
-  gl_resource_context_ = nullptr;
-
-  FML_DCHECK(gl_context_);
-  CGLReleaseContext(gl_context_.CGLContextObj);
-  gl_context_ = nullptr;
-
-  FML_DCHECK(metal_device_ != nullptr);
-  metal_device_ = nullptr;
-}
-
-bool UIWidgetsPanel::ReleaseNativeRenderTexture()
-{
-  //release gl resources
-  FML_DCHECK(default_fbo_ != 0);
-  glDeleteFramebuffers(1, &default_fbo_);
-  default_fbo_ = 0;
-
-  FML_DCHECK(gl_tex_ != 0);
-  glDeleteTextures(1, &gl_tex_);
-  gl_tex_ = 0;
-
-  CFRelease(gl_tex_cache_ref_);
-  gl_tex_cache_ref_ = nullptr;
-
-  CFRelease(gl_tex_ref_);
-  gl_tex_ref_ = nullptr;
-
-  //release metal resources
-  //since ARC is enabled by default, no need to release the texture
-  metal_tex_ = nullptr;
-
-  CFRelease(metal_tex_ref_);
-  metal_tex_ref_ = nullptr;
-
-  CFRelease(metal_tex_cache_ref_);
-  metal_tex_cache_ref_ = nullptr;
-
-  //release cv pixelbuffer
-  CVPixelBufferRelease(pixelbuffer_ref);
-  pixelbuffer_ref = nullptr;
-
-  return true;
 }
 
 void* UIWidgetsPanel::OnRenderTexture(size_t width,
@@ -484,32 +209,22 @@ void* UIWidgetsPanel::OnRenderTexture(size_t width,
   metrics.device_pixel_ratio = device_pixel_ratio;
   reinterpret_cast<EmbedderEngine*>(engine_)->SetViewportMetrics(metrics);
 
-  CreateRenderTexture(width, height);
-  return (__bridge void*)metal_tex_;
+  return surface_manager_->CreateRenderTexture(width, height);
 }
 
+bool UIWidgetsPanel::ReleaseNativeRenderTexture() { return surface_manager_->ReleaseNativeRenderTexture(); }
+
 int UIWidgetsPanel::RegisterTexture(void* native_texture_ptr) {
-  /*
-  int texture_identifier = 0;
-  texture_identifier++;
-
-  auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
-
-  engine->GetShell().GetPlatformView()->RegisterTexture(
-      std::make_unique<UnityExternalTextureGL>(
-          texture_identifier, native_texture_ptr, surface_manager_.get()));
-  return texture_identifier;*/
-    return 0;
+  //TODO: add implementation
+  return 0;
 }
 
 void UIWidgetsPanel::UnregisterTexture(int texture_id) {
-  /*
-  auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
-  engine->GetShell().GetPlatformView()->UnregisterTexture(texture_id);*/
+  //TODO: add implementation
 }
 
 std::chrono::nanoseconds UIWidgetsPanel::ProcessMessages() {
-  return std::chrono::nanoseconds(ProcessTasks().count());
+  return std::chrono::nanoseconds(task_runner_->ProcessTasks().count());
 }
 
 void UIWidgetsPanel::ProcessVSync() {
