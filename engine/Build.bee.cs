@@ -333,16 +333,20 @@ class Build
 
                 "src/engine.cc",
                 "src/platform_base.h",
-                //Test APIs
-                //"src/render_api.cc",
-                //"src/render_api.h",
-                //"src/render_api_d3d11.cc",
-
-                //"src/TestLoadICU.cpp", // load icu temp solution
-                //"src/render_api_vulkan.cc",
-                //"src/render_api_opengles.cc",
             },
             OutputName = { c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}" },
+        };
+
+        // include these files for test only
+        var testSources = new NPath[] {
+                "src/render_engine.cc",
+                "src/render_api.cc",
+                "src/render_api.h",
+                "src/render_api_d3d11.cc",      // test d3d rendering
+                "src/render_api_vulkan.cc",     // test vulkan rendering 
+                "src/render_api_opengles.cc",   // test opengles rendering
+
+                "src/TestLoadICU.cpp",          // test ICU
         };
 
         var winSources = new NPath[] {
@@ -584,7 +588,6 @@ class Build
             "SK_CODEC_DECODES_WEBP",
             "SK_ENCODE_WEBP",
             "SK_XML"
-            // bin\gn desc out\Debug\ //third_party/angle2:libEGL defines
         });
 
         np.IncludeDirectories.Add(skiaRoot);
