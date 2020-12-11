@@ -339,14 +339,13 @@ class Build
 
         // include these files for test only
         var testSources = new NPath[] {
-                "src/render_engine.cc",
-                "src/render_api.cc",
-                "src/render_api.h",
-                "src/render_api_d3d11.cc",      // test d3d rendering
-                "src/render_api_vulkan.cc",     // test vulkan rendering 
-                "src/render_api_opengles.cc",   // test opengles rendering
-
-                "src/TestLoadICU.cpp",          // test ICU
+                "src/tests/render_engine.cc",
+                "src/tests/render_api.cc",
+                "src/tests/render_api.h",
+                "src/tests/render_api_d3d11.cc",      // test d3d rendering
+                "src/tests/render_api_vulkan.cc",     // test vulkan rendering 
+                "src/tests/render_api_opengles.cc",   // test opengles rendering
+                "src/tests/TestLoadICU.cpp",          // test ICU
         };
 
         var winSources = new NPath[] {
