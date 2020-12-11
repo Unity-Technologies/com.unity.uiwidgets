@@ -4,15 +4,11 @@
 #include <queue>
 #include <map>
 
-#include <OpenGL/gl3.h>
-#include <AppKit/AppKit.h>
-#include <Metal/Metal.h>
-#include <CoreVideo/CoreVideo.h>
-
 #include <flutter/fml/memory/ref_counted.h>
 #include "shell/platform/unity/gfx_worker_task_runner.h"
 #include "runtime/mono_api.h"
 #include "cocoa_task_runner.h"
+#include "unity_surface_manager.h"
 
 namespace uiwidgets {
 
@@ -39,10 +35,10 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void OnDisable();
 
-  bool ReleaseNativeRenderTexture();
-
   void* OnRenderTexture(size_t width, size_t height,
                        float dpi);
+  
+  bool ReleaseNativeRenderTexture();
 
   int RegisterTexture(void* native_texture_ptr);
 
@@ -64,12 +60,6 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
  private:
   UIWidgetsPanel(Mono_Handle handle, EntrypointCallback entrypoint_callback);
-
-  void CreateRenderingContext();
-
-  void CreateRenderTexture(size_t width, size_t height);
-
-  void ReleaseNativeRenderContext();
 
   void CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path);
 
@@ -97,35 +87,10 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void SendPointerEventWithData(const UIWidgetsPointerEvent& event_data);
 
-  //renderer apis
-  bool ClearCurrentContext();
-
-  bool MakeCurrentContext();
-
-  bool MakeCurrentResourceContext();
-  
-  uint32_t GetFbo();
-
   Mono_Handle handle_;
   EntrypointCallback entrypoint_callback_;
 
-  //pixel buffer handles
-  CVPixelBufferRef pixelbuffer_ref = nullptr;
-
-  //openGL handlers
-  NSOpenGLContext *gl_context_ = NULL;
-  NSOpenGLContext *gl_resource_context_ = NULL;
-  GLuint default_fbo_ = 0;
-  GLuint gl_tex_ = 0;
-  CVOpenGLTextureCacheRef gl_tex_cache_ref_ = nullptr;
-  CVOpenGLTextureRef gl_tex_ref_ = nullptr;
-  //CGLPixelFormatObj gl_pixelformat_ = nullptr;
-
-  //metal handlers
-  id<MTLDevice> metal_device_;
-  id<MTLTexture> metal_tex_;
-  CVMetalTextureRef metal_tex_ref_ = nullptr;
-  CVMetalTextureCacheRef metal_tex_cache_ref_ = nullptr;
+  std::unique_ptr<UnitySurfaceManager> surface_manager_;
 
   std::unique_ptr<GfxWorkerTaskRunner> gfx_worker_task_runner_;
   std::unique_ptr<CocoaTaskRunner> task_runner_;

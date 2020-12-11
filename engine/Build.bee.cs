@@ -364,7 +364,9 @@ class Build
                 "src/shell/platform/unity/darwin/macos/uiwidgets_system.mm",
                 "src/shell/platform/unity/darwin/macos/uiwidgets_system.h",
                 "src/shell/platform/unity/darwin/macos/cocoa_task_runner.cc",
-                "src/shell/platform/unity/darwin/macos/cocoa_task_runner.h"
+                "src/shell/platform/unity/darwin/macos/cocoa_task_runner.h",
+                "src/shell/platform/unity/darwin/macos/unity_surface_manager.mm",
+                "src/shell/platform/unity/darwin/macos/unity_surface_manager.h",
         };
 
         np.Sources.Add(c => IsWindows(c), winSources);
