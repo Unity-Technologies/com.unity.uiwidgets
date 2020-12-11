@@ -11,22 +11,26 @@ namespace Unity.UIWidgets.rendering {
             set { PaintingBinding.instance = value; }
         }
 
-        public RendererBinding(bool inEditorWindow = false) {
+        protected override void initInstances() {
+            base.initInstances();
+            instance = this;
             _pipelineOwner = new PipelineOwner(
                 onNeedVisualUpdate: ensureVisualUpdate
+                // onSemanticsOwnerCreated: _handleSemanticsOwnerCreated,
+                // onSemanticsOwnerDisposed: _handleSemanticsOwnerDisposed,
             );
-
             Window.instance.onMetricsChanged += handleMetricsChanged;
             Window.instance.onTextScaleFactorChanged += handleTextScaleFactorChanged;
             Window.instance.onPlatformBrightnessChanged += handlePlatformBrightnessChanged;
+                // ..onSemanticsEnabledChanged = _handleSemanticsEnabledChanged
+                // ..onSemanticsAction = _handleSemanticsAction;
             initRenderView();
+            // _handleSemanticsEnabledChanged();
             D.assert(renderView != null);
             addPersistentFrameCallback(_handlePersistentFrameCallback);
-
-            this.inEditorWindow = inEditorWindow;
-            _mouseTracker = _createMouseTracker();
+            initMouseTracker();
         }
-
+        
         public void initRenderView() {
             D.assert(renderView == null);
             renderView = new RenderView(configuration: createViewConfiguration());
@@ -43,7 +47,7 @@ namespace Unity.UIWidgets.rendering {
             get { return _pipelineOwner; }
         }
 
-        readonly PipelineOwner _pipelineOwner;
+        PipelineOwner _pipelineOwner;
 
         public RenderView renderView {
             get { return (RenderView) _pipelineOwner.rootNode; }
@@ -67,6 +71,12 @@ namespace Unity.UIWidgets.rendering {
                 size: Window.instance.physicalSize / devicePixelRatio,
                 devicePixelRatio: devicePixelRatio
             );
+        }
+        
+        
+        public void initMouseTracker(MouseTracker tracker  = null) {
+            // _mouseTracker?.dispose();
+            _mouseTracker = tracker ?? new MouseTracker(pointerRouter, renderView.hitTestMouseTrackers);
         }
 
         void _handlePersistentFrameCallback(TimeSpan timeStamp) {

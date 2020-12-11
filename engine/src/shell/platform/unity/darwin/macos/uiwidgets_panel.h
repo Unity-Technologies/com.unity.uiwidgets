@@ -29,7 +29,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   ~UIWidgetsPanel();
 
-  void* OnEnable(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path);
+  void* OnEnable(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path, const char* settings);
 
   void MonoEntrypoint();
 
@@ -61,7 +61,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
  private:
   UIWidgetsPanel(Mono_Handle handle, EntrypointCallback entrypoint_callback);
 
-  void CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path);
+  void CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path, const char* settings);
 
   MouseState GetMouseState() { return mouse_state_; }
 

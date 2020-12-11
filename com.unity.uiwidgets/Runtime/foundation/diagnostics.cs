@@ -216,6 +216,7 @@ namespace Unity.UIWidgets.foundation {
             prefixOtherLinesRootNode: ""
         );
     }
+
     class _PrefixedStringBuilder {
         internal _PrefixedStringBuilder(string prefixLineOne, string prefixOtherLines) {
             this.prefixLineOne = prefixLineOne;
@@ -315,14 +316,13 @@ namespace Unity.UIWidgets.foundation {
         internal _NoDefaultValue() {
         }
     }
-    
+
     class _NullDefaultValue {
         internal _NullDefaultValue() {
         }
     }
 
     public static partial class foundation_ {
-
         public static readonly object kNoDefaultValue = new _NoDefaultValue();
 
         public static readonly object kNullDefaultValue = new _NullDefaultValue();
@@ -333,6 +333,7 @@ namespace Unity.UIWidgets.foundation {
         protected DiagnosticsNode(
             string name = null,
             DiagnosticsTreeStyle? style = null,
+            String linePrefix = null,
             bool showName = true,
             bool showSeparator = true
         ) {
@@ -342,6 +343,7 @@ namespace Unity.UIWidgets.foundation {
             _style = style;
             _showName = showName;
             this.showSeparator = showSeparator;
+            this.linePrefix = linePrefix;
         }
 
         public static DiagnosticsNode message(
@@ -385,6 +387,8 @@ namespace Unity.UIWidgets.foundation {
             get { return null; }
         }
 
+        readonly string linePrefix;
+
         public abstract object valueObject { get; }
 
         public virtual DiagnosticsTreeStyle? style {
@@ -392,6 +396,18 @@ namespace Unity.UIWidgets.foundation {
         }
 
         readonly DiagnosticsTreeStyle? _style;
+
+        public bool allowWrap {
+            get { return false; }
+        }
+
+        public bool allowNameWrap {
+            get { return false; }
+        }
+
+        public bool allowTruncate {
+            get { return false; }
+        }
 
         public abstract List<DiagnosticsNode> getProperties();
 
@@ -644,6 +660,55 @@ namespace Unity.UIWidgets.foundation {
 
             return builder.ToString();
         }
+    }
+
+    public class DiagnosticsBlock : DiagnosticsNode {
+        public DiagnosticsBlock(
+            string name,
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.whitespace,
+            bool showName = true,
+            bool showSeparator = true,
+            string linePrefix = null,
+            object value = null,
+            string description = null,
+            DiagnosticLevel level = DiagnosticLevel.info,
+            bool allowTruncate = false,
+            List<DiagnosticsNode> children = null,
+            List<DiagnosticsNode> properties = null
+        ) : base(
+            name: name,
+            style: style,
+            showName: showName && name != null,
+            showSeparator: showSeparator,
+            linePrefix: linePrefix
+        ) {
+            _description = description;
+            _children = children ?? new List<DiagnosticsNode>();
+            _properties = properties ?? new List<DiagnosticsNode>();
+            this.level = level;
+            valueObject = value;
+            this.allowTruncate = allowTruncate;
+        }
+
+        readonly List<DiagnosticsNode> _children;
+        readonly List<DiagnosticsNode> _properties;
+
+
+        public override DiagnosticLevel level {
+            get;
+        }
+        
+        readonly string _description;
+        
+        public override object valueObject { get; }
+
+        public readonly bool allowTruncate;
+
+        public override List<DiagnosticsNode> getChildren() => _children;
+
+        public override List<DiagnosticsNode> getProperties() => _properties;
+
+        public override string toDescription(TextTreeConfiguration parentConfiguration = null) => _description;
     }
 
     public class MessageProperty : DiagnosticsProperty<object> {
@@ -1492,7 +1557,7 @@ namespace Unity.UIWidgets.foundation {
             return new List<DiagnosticsNode>();
         }
     }
-    
+
     public static partial class foundation_ {
         public static string shortHash(object o) {
             return (o.GetHashCode() & 0xFFFFF).ToString("X").PadLeft(5, '0');

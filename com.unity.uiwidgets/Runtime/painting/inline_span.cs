@@ -100,9 +100,27 @@ namespace Unity.UIWidgets.painting {
 
     public abstract class InlineSpan : DiagnosticableTree, IEquatable<InlineSpan> {
         public InlineSpan(
-            TextStyle style = null
+            TextStyle style , HoverRecognizer hoverRecognizer
         ) {
             this.style = style;
+            this.hoverRecognizer = hoverRecognizer;
+        }
+        
+        public readonly HoverRecognizer hoverRecognizer;
+
+        public bool hasHoverRecognizer {
+            get {
+                bool need = false;
+                visitChildren((text) => {
+                    if (text.hoverRecognizer != null) {
+                        need = true;
+                        return false;
+                    }
+
+                    return true;
+                });
+                return need;
+            }
         }
 
         public readonly TextStyle style;

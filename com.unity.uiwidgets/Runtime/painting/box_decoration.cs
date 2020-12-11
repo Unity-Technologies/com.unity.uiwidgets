@@ -35,6 +35,28 @@ namespace Unity.UIWidgets.painting {
             this.shape = shape;
         }
 
+        public BoxDecoration copyWith(
+            Color color,
+            DecorationImage image,
+            Border border,
+            BorderRadius borderRadius,
+            List<BoxShadow> boxShadow,
+            Gradient gradient,
+            BlendMode? backgroundBlendMode,
+            BoxShape? shape
+        ) {
+            return new BoxDecoration(
+                color: color ?? this.color,
+                image: image ?? this.image,
+                border: border ?? this.border,
+                borderRadius: borderRadius ?? this.borderRadius,
+                boxShadow: boxShadow ?? this.boxShadow,
+                gradient: gradient ?? this.gradient,
+                backgroundBlendMode: backgroundBlendMode ?? this.backgroundBlendMode,
+                shape: shape ?? this.shape
+            );
+        }
+        
         public override bool debugAssertIsValid() {
             D.assert(shape != BoxShape.circle || borderRadius == null);
             return base.debugAssertIsValid();
@@ -51,6 +73,24 @@ namespace Unity.UIWidgets.painting {
 
         public override EdgeInsets padding {
             get { return border?.dimensions; }
+        }
+        
+        public override Path getClipPath(Rect rect, TextDirection textDirection) {
+            Path clipPath = null;
+            switch (shape) {
+                case BoxShape.circle:
+                    clipPath = new Path();
+                    clipPath.addOval(rect);
+                    break;
+                case BoxShape.rectangle:
+                    if (borderRadius != null) {
+                        clipPath = new Path();
+                        clipPath.addRRect(borderRadius.resolve(textDirection).toRRect(rect));
+                    }
+
+                    break;
+            }
+            return clipPath;
         }
 
         public BoxDecoration scale(float factor) {

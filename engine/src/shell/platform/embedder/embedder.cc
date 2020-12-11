@@ -561,6 +561,7 @@ UIWidgetsEngineResult UIWidgetsEngineInitialize(
   settings.icu_data_path = icu_data_path;
   settings.icu_mapper = args->icu_mapper;
   settings.assets_path = args->assets_path;
+  settings.font_data = args->font_asset;
 
   settings.task_observer_add = [task_observer_add = args->task_observer_add,
                                 user_data](intptr_t key,

@@ -24,18 +24,20 @@ UIWidgetsPanel::UIWidgetsPanel(Mono_Handle handle,
 
 UIWidgetsPanel::~UIWidgetsPanel() = default;
 
-void* UIWidgetsPanel::OnEnable(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path)
+void* UIWidgetsPanel::OnEnable(size_t width, size_t height, float device_pixel_ratio, 
+                               const char* streaming_assets_path, const char* settings)
 {
   surface_manager_ = std::make_unique<UnitySurfaceManager>(
       UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
   void* metal_tex = surface_manager_->CreateRenderTexture(width, height);
 
-  CreateInternalUIWidgetsEngine(width, height, device_pixel_ratio, streaming_assets_path);
+  CreateInternalUIWidgetsEngine(width, height, device_pixel_ratio, streaming_assets_path, settings);
 
   return metal_tex;
 }
 
-void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path)
+void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, 
+                                                   const char* streaming_assets_path, const char* settings)
 {
   fml::AutoResetWaitableEvent latch;
   std::thread::id gfx_worker_thread_id;
@@ -123,6 +125,7 @@ void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, 
   UIWidgetsProjectArgs args = {};
   args.struct_size = sizeof(UIWidgetsProjectArgs);
   args.assets_path = streaming_assets_path;
+  args.font_asset = settings;
   //TODO: not support icu yet
   //args.icu_mapper = GetICUStaticMapping;
   args.command_line_argc = 0;
@@ -392,9 +395,10 @@ UIWIDGETS_API(void) UIWidgetsPanel_dispose(UIWidgetsPanel* panel) {
 UIWIDGETS_API(void*)
 UIWidgetsPanel_onEnable(UIWidgetsPanel* panel,
                         size_t width, size_t height, float device_pixel_ratio,
-                        const char* streaming_assets_path) {
+                        const char* streaming_assets_path, 
+                        const char* settings) {
   return panel->OnEnable(width, height, device_pixel_ratio,
-                  streaming_assets_path);
+                  streaming_assets_path, settings);
 }
 
 UIWIDGETS_API(void) UIWidgetsPanel_onDisable(UIWidgetsPanel* panel) {

@@ -77,10 +77,17 @@ namespace Unity.UIWidgets.gestures {
             MouseDetectorAnnotationFinder annotationFinder,
             bool inEditorWindow = false
         ) {
+            _router = router;
             router.addGlobalRoute(_handleEvent);
             this.annotationFinder = annotationFinder;
             this.inEditorWindow = inEditorWindow;
         }
+
+        ~MouseTracker() {
+            _router.removeGlobalRoute(_handleEvent);
+        }
+
+        readonly PointerRouter _router;
 
         readonly bool inEditorWindow;
 

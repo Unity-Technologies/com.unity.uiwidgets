@@ -6,6 +6,12 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.rendering {
+    public class KeepAliveParentDataMixin : ParentData {
+        bool keepAlive = false;
+
+        bool keptAlive { get; }
+    }
+
     public interface RenderSliverBoxChildManager {
         void createChild(int index, RenderBox after = null);
 

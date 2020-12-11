@@ -43,12 +43,17 @@ namespace Unity.UIWidgets.services {
         public static readonly JSONMessageCodec instance = new JSONMessageCodec();
 
         public byte[] encodeMessage(object message) {
+            var json = toJson(message);
+            return StringCodec.instance.encodeMessage(json);
+        }
+
+        public string toJson(object message) {
             if (message == null)
                 return null;
 
             var sb = new StringBuilder();
             _writeToStringBuilder(message, sb);
-            return StringCodec.instance.encodeMessage(sb.ToString());
+            return sb.ToString();
         }
 
         public object decodeMessage(byte[] message) {

@@ -27,6 +27,15 @@ namespace Unity.UIWidgets.painting {
             return new Border(top: side, right: side, bottom: side, left: side);
         }
 
+        public static Border symmetric(
+            BorderSide vertical = null,
+            BorderSide horizontal = null
+        ) {
+            vertical = vertical ?? BorderSide.none;
+            horizontal = horizontal ?? BorderSide.none;
+            return new Border(top: vertical, left: horizontal, right: horizontal, bottom: vertical);
+        }
+
         public static Border all(
             Color color = null,
             float width = 1.0f,
