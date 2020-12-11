@@ -15,21 +15,22 @@ git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
 Add ${PWD}/depot_tools to PATH
 
 2. Clone the skia Repo
-
+```
 git clone https://skia.googlesource.com/skia.git
 cd skia
 git checkout chrome/m85
 python2 tools/git-sync-deps
+```
 
 3. Install LLVM
 
 https://clang.llvm.org/get_started.html
 
 4. Build skia
-
 ```
 bin/gn gen out/Debug
 ```
+
 Update out/Debug/args.gn with the following content:
 ```
 clang_win = "C:\Program Files\LLVM"

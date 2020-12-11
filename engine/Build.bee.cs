@@ -201,6 +201,8 @@ class Build
                 "src/lib/ui/painting/shader.h",
                 "src/lib/ui/painting/single_frame_codec.cc",
                 "src/lib/ui/painting/single_frame_codec.h",
+                "src/lib/ui/painting/skottie.cc",
+                "src/lib/ui/painting/skottie.h",
                 "src/lib/ui/painting/vertices.cc",
                 "src/lib/ui/painting/vertices.h",
 
@@ -327,6 +329,8 @@ class Build
                 "src/shell/platform/unity/gfx_worker_task_runner.h",
                 "src/shell/platform/unity/uiwidgets_system.h",
                 
+                "src/shell/platform/unity/unity_console.cc",
+                "src/shell/platform/unity/unity_console.h",
 
                 "src/shell/version/version.cc",
                 "src/shell/version/version.h",

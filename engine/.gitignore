@@ -4,3 +4,4 @@ artifacts
 build
 obj
 *.gen.*
+third_party/skia

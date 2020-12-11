@@ -7,6 +7,7 @@ using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Unity.UIWidgets.ui {
     public delegate void VoidCallback();
@@ -310,9 +311,26 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
+        protected float queryDevicePixelRatio() {
+            return _panel.devicePixelRatioOverride;
+        }
+        
         public Offset windowPosToScreenPos(Offset offset) {
-            D.assert(false, () => "window.windowPosToScreenPos is not implemented yet!");
-            return offset;
+            Camera camera = null;
+            var canvas = _panel.canvas;
+            if (canvas.renderMode != RenderMode.ScreenSpaceCamera) {
+                camera = canvas.GetComponent<GraphicRaycaster>().eventCamera;
+            }
+
+            var pos = new Vector2(offset.dx, offset.dy);
+            pos = pos * queryDevicePixelRatio() / _panel.canvas.scaleFactor;
+            var rectTransform = _panel.rectTransform;
+            var rect = rectTransform.rect;
+            pos.x += rect.min.x;
+            pos.y = rect.max.y - pos.y;
+            var worldPos = rectTransform.TransformPoint(new Vector2(pos.x, pos.y));
+            var screenPos = RectTransformUtility.WorldToScreenPoint(camera, worldPos);
+            return new Offset(screenPos.x, Screen.height - screenPos.y);
         }
 
         public void run(Action callback) {

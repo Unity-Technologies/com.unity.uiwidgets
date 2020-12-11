@@ -461,7 +461,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(crossAxisPosition != null);
             D.assert(hitTest != null);
             if (paintOffset != null) {
-                pushTransform(new Matrix4().translationValues(-paintOffset.dx, -paintOffset.dy, 0));
+                pushTransform(Matrix4.translationValues(-paintOffset.dx, -paintOffset.dy, 0));
             }
             bool isHit = hitTest(
                 this,

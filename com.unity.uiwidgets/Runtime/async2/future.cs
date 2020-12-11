@@ -180,7 +180,7 @@ namespace Unity.UIWidgets.async2 {
                     future.then((object value) => {
                         remaining--;
                         if (values != null) {
-                            values[pos] = (T) value;
+                            values.Insert(pos, (T)value);
                             if (remaining == 0) {
                                 result._completeWithValue(values);
                             }

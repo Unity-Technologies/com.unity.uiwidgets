@@ -151,7 +151,15 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public abstract class SliverMultiBoxAdaptorWidget : RenderObjectWidget {
+    public abstract class SliverWithKeepAliveWidget : RenderObjectWidget {
+        /// Initializes fields for subclasses.
+        public SliverWithKeepAliveWidget(Key key = null) : base(key: key) {
+        }
+
+        public abstract override RenderObject createRenderObject(BuildContext context);
+    }
+
+    public abstract class SliverMultiBoxAdaptorWidget : SliverWithKeepAliveWidget {
         protected SliverMultiBoxAdaptorWidget(
             Key key = null,
             SliverChildDelegate del = null
@@ -291,13 +299,13 @@ namespace Unity.UIWidgets.widgets {
             float trailingScrollOffset
         ) {
             return base.estimateMaxScrollOffset(
-                       constraints,
-                       firstIndex,
-                       lastIndex,
-                       leadingScrollOffset,
-                       trailingScrollOffset
-                   ) ?? gridDelegate.getLayout(constraints)
-                       .computeMaxScrollOffset(del.estimatedChildCount ?? 0);
+                constraints,
+                firstIndex,
+                lastIndex,
+                leadingScrollOffset,
+                trailingScrollOffset
+            ) ?? gridDelegate.getLayout(constraints)
+                .computeMaxScrollOffset(del.estimatedChildCount ?? 0);
         }
     }
 
@@ -371,6 +379,7 @@ namespace Unity.UIWidgets.widgets {
                         _childElements.Remove(index);
                     }
                 }
+
                 // processElement may modify the Map - need to do a .toList() here.
                 _childElements.Keys.ToList().ForEach(action: processElement);
                 if (_didUnderflow) {
@@ -432,7 +441,7 @@ namespace Unity.UIWidgets.widgets {
             return newChild;
         }
 
-        protected override void forgetChild(Element child) {
+        internal override void forgetChild(Element child) {
             D.assert(child != null);
             D.assert(child.slot != null);
             D.assert(_childElements.ContainsKey((int) child.slot));
@@ -488,18 +497,18 @@ namespace Unity.UIWidgets.widgets {
             }
 
             return widget.estimateMaxScrollOffset(
-                       constraints,
-                       firstIndex,
-                       lastIndex,
-                       leadingScrollOffset,
-                       trailingScrollOffset
-                   ) ?? _extrapolateMaxScrollOffset(
-                       firstIndex,
-                       lastIndex,
-                       leadingScrollOffset,
-                       trailingScrollOffset,
-                       childCount.Value
-                   );
+                constraints,
+                firstIndex,
+                lastIndex,
+                leadingScrollOffset,
+                trailingScrollOffset
+            ) ?? _extrapolateMaxScrollOffset(
+                firstIndex,
+                lastIndex,
+                leadingScrollOffset,
+                trailingScrollOffset,
+                childCount.Value
+            );
         }
 
         public int? childCount {
@@ -599,7 +608,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class KeepAlive : ParentDataWidget<SliverMultiBoxAdaptorWidget> {
+    public class KeepAlive : ParentDataWidget<KeepAliveParentDataMixin> {
         public KeepAlive(
             Key key = null,
             bool keepAlive = true,
@@ -625,6 +634,10 @@ namespace Unity.UIWidgets.widgets {
 
         public override bool debugCanApplyOutOfTurn() {
             return keepAlive;
+        }
+
+        public override Type debugTypicalAncestorWidgetClass {
+            get => typeof(SliverWithKeepAliveWidget);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {

@@ -357,6 +357,7 @@ typedef void (*UIWidgetsMonoEntrypointCallback)(void* user_data);
 typedef struct {
   size_t struct_size;
   const char* assets_path;
+  const char* font_asset;
   const char* icu_data_path;
   uiwidgets::MappingCallback icu_mapper;
   int command_line_argc;

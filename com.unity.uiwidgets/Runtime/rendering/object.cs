@@ -291,7 +291,7 @@ namespace Unity.UIWidgets.rendering {
                 effectiveTransform = transform;
             }
             else {
-                effectiveTransform = new Matrix4().translationValues(offset.dx, offset.dy, 0);
+                effectiveTransform = Matrix4.translationValues(offset.dx, offset.dy, 0);
                 effectiveTransform.multiply(transform);
                 effectiveTransform.translate(-offset.dx, -offset.dy);
             }
@@ -1285,7 +1285,7 @@ namespace Unity.UIWidgets.rendering {
                 renderers.Add(renderer);
             }
 
-            var transform = new Matrix4().identity();
+            var transform = Matrix4.identity();
             for (int index = renderers.Count - 1; index > 0; index -= 1) {
                 renderers[index].applyPaintTransform(renderers[index - 1], transform);
             }
