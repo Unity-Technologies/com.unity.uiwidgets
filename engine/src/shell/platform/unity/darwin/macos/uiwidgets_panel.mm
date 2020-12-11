@@ -231,17 +231,23 @@ void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, 
   config.open_gl.fbo_reset_after_present = true;
 
   //main thread task runner
+  task_runner_ = std::make_unique<CocoaTaskRunner>(
+    [this](const auto* task) {
+        if (UIWidgetsEngineRunTask(engine_, task) != kSuccess) {
+          std::cerr << "Could not post an engine task." << std::endl;
+        }
+  });
+
   UIWidgetsTaskRunnerDescription main_task_runner = {};
   main_task_runner.struct_size = sizeof(UIWidgetsTaskRunnerDescription);
   main_task_runner.identifier = 2;
-  main_task_runner.user_data = static_cast<void*>(this);
+  main_task_runner.user_data = task_runner_.get();
   main_task_runner.runs_task_on_current_thread_callback = [](void* user_data) -> bool {
     return [[NSThread currentThread] isMainThread];
   };
   main_task_runner.post_task_callback = [](UIWidgetsTask task, uint64_t target_time_nanos,
                             void* user_data) -> void {
-    UIWidgetsPanel* panel = static_cast<UIWidgetsPanel*>(user_data);
-    panel->PostTask(task, target_time_nanos);
+    static_cast<CocoaTaskRunner*>(user_data)->PostTask(task, target_time_nanos);
   };
 
   //setup custom task runners
@@ -266,11 +272,11 @@ void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, 
   args.task_observer_add = [](intptr_t key, void* callback,
                               void* user_data) -> void {
     auto* panel = static_cast<UIWidgetsPanel*>(user_data);
-    panel->AddTaskObserver(key, *static_cast<fml::closure*>(callback));
+    panel->task_runner_->AddTaskObserver(key, *static_cast<fml::closure*>(callback));
   };
   args.task_observer_remove = [](intptr_t key, void* user_data) -> void {
     auto* panel = static_cast<UIWidgetsPanel*>(user_data);
-    panel->RemoveTaskObserver(key);
+    panel->task_runner_->RemoveTaskObserver(key);
   };
 
   args.custom_mono_entrypoint = [](void* user_data) -> void {
@@ -302,104 +308,6 @@ void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, 
   process_events_ = true;
 }
 
-TaskTimePoint UIWidgetsPanel::TimePointFromUIWidgetsTime(
-    uint64_t uiwidgets_target_time_nanos) {
-  const auto fml_now = fml::TimePoint::Now().ToEpochDelta().ToNanoseconds();
-  if (uiwidgets_target_time_nanos <= fml_now) {
-    return {};
-  }
-  const auto uiwidgets_duration = uiwidgets_target_time_nanos - fml_now;
-  const auto now = TaskTimePoint::clock::now();
-  return now + std::chrono::nanoseconds(uiwidgets_duration);
-}
-
-void UIWidgetsPanel::AddTaskObserver(intptr_t key,
-                                      const fml::closure& callback) {
-  task_observers_[key] = callback;
-}
-
-void UIWidgetsPanel::RemoveTaskObserver(intptr_t key) {
-  task_observers_.erase(key);
-}
-
-void UIWidgetsPanel::PostTask(UIWidgetsTask uiwidgets_task,
-                               uint64_t uiwidgets_target_time_nanos) {
-  static std::atomic_uint64_t sGlobalTaskOrder(0);
-
-  Task task;
-  task.order = ++sGlobalTaskOrder;
-  task.fire_time = TimePointFromUIWidgetsTime(uiwidgets_target_time_nanos);
-  task.task = uiwidgets_task;
-
-  {
-    std::lock_guard<std::mutex> lock(task_queue_mutex_);
-    task_queue_.push(task);
-    // Make sure the queue mutex is unlocked before waking up the loop. In case
-    // the wake causes this thread to be descheduled for the primary thread to
-    // process tasks, the acquisition of the lock on that thread while holding
-    // the lock here momentarily till the end of the scope is a pessimization.
-  }
-}
-
-std::chrono::nanoseconds UIWidgetsPanel::ProcessTasks() {
-  const TaskTimePoint now = TaskTimePoint::clock::now();
-
-  std::vector<Task> expired_tasks;
-  // Process expired tasks.
-  {
-    std::lock_guard<std::mutex> lock(task_queue_mutex_);
-    while (!task_queue_.empty()) {
-      const auto& top = task_queue_.top();
-      // If this task (and all tasks after this) has not yet expired, there is
-      // nothing more to do. Quit iterating.
-      if (top.fire_time > now) {
-        break;
-      }
-
-      // Make a record of the expired task. Do NOT service the task here
-      // because we are still holding onto the task queue mutex. We don't want
-      // other threads to block on posting tasks onto this thread till we are
-      // done processing expired tasks.
-      expired_tasks.push_back(task_queue_.top());
-
-      // Remove the tasks from the delayed tasks queue.
-      task_queue_.pop();
-    }
-  }
-
-  for (const auto& observer : task_observers_) {
-    observer.second();
-  }
-
-  // Fire expired tasks.
-  {
-    // Flushing tasks here without holing onto the task queue mutex.
-    for (const auto& task : expired_tasks) {
-      auto result = UIWidgetsEngineRunTask(engine_, &(task.task));
-      if (result != kSuccess) {
-          //TODO: error message
-      }
-
-      for (const auto& observer : task_observers_) {
-        observer.second();
-      }
-    }
-  }
-
-  if (!expired_tasks.empty()) {
-    return ProcessTasks();
-  }
-
-  // Calculate duration to sleep for on next iteration.
-  {
-    std::lock_guard<std::mutex> lock(task_queue_mutex_);
-    const auto next_wake = task_queue_.empty() ? TaskTimePoint::max()
-                                               : task_queue_.top().fire_time;
-
-    return std::min(next_wake - now, std::chrono::nanoseconds::max());
-  }
-}
-
 void UIWidgetsPanel::MonoEntrypoint() { entrypoint_callback_(handle_); }
 
 void UIWidgetsPanel::OnDisable() {
@@ -420,6 +328,7 @@ void UIWidgetsPanel::OnDisable() {
   }
 
   gfx_worker_task_runner_ = nullptr;
+  task_runner_ = nullptr;
 
   //release all resources
   if (default_fbo_) {
@@ -509,7 +418,7 @@ void UIWidgetsPanel::UnregisterTexture(int texture_id) {
 }
 
 std::chrono::nanoseconds UIWidgetsPanel::ProcessMessages() {
-  return std::chrono::nanoseconds(ProcessTasks().count());
+  return std::chrono::nanoseconds(task_runner_->ProcessTasks().count());
 }
 
 void UIWidgetsPanel::ProcessVSync() {

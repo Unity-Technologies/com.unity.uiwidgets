@@ -12,6 +12,7 @@
 #include <flutter/fml/memory/ref_counted.h>
 #include "shell/platform/unity/gfx_worker_task_runner.h"
 #include "runtime/mono_api.h"
+#include "cocoa_task_runner.h"
 
 namespace uiwidgets {
 
@@ -19,24 +20,6 @@ struct MouseState {
   bool state_is_down = false;
   bool state_is_added = false;
   uint64_t buttons = 0;
-};
-
-// ------- task runner -------
-using TaskTimePoint = std::chrono::steady_clock::time_point;
-
-struct Task {
-  uint64_t order;
-  TaskTimePoint fire_time;
-  UIWidgetsTask task;
-
-  struct Comparer {
-    bool operator()(const Task& a, const Task& b) {
-      if (a.fire_time == b.fire_time) {
-        return a.order > b.order;
-      }
-      return a.fire_time > b.fire_time;
-    }
-  };
 };
 
 class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
@@ -123,19 +106,6 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
   
   uint32_t GetFbo();
 
-  //task runner
-  void PostTask(UIWidgetsTask uiwidgets_task,
-                               uint64_t uiwidgets_target_time_nanos);
-
-  static TaskTimePoint TimePointFromUIWidgetsTime(
-    uint64_t uiwidgets_target_time_nanos);
-
-  std::chrono::nanoseconds ProcessTasks();
-
-  void AddTaskObserver(intptr_t key, const fml::closure& callback);
-
-  void RemoveTaskObserver(intptr_t key);
-
   Mono_Handle handle_;
   EntrypointCallback entrypoint_callback_;
 
@@ -157,13 +127,8 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
   CVMetalTextureRef metal_tex_ref_ = nullptr;
   CVMetalTextureCacheRef metal_tex_cache_ref_ = nullptr;
 
-  //task runner
-  using TaskObservers = std::map<intptr_t, fml::closure>;
-  TaskObservers task_observers_;
-  std::mutex task_queue_mutex_;
-  std::priority_queue<Task, std::deque<Task>, Task::Comparer> task_queue_;
-
   std::unique_ptr<GfxWorkerTaskRunner> gfx_worker_task_runner_;
+  std::unique_ptr<CocoaTaskRunner> task_runner_;
   UIWidgetsEngine engine_ = nullptr;
 
   std::vector<intptr_t> vsync_batons_;
