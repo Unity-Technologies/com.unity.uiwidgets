@@ -29,7 +29,7 @@ void* UIWidgetsPanel::OnEnable(size_t width, size_t height, float device_pixel_r
   surface_manager_ = std::make_unique<UnitySurfaceManager>(
       UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
   void* metal_tex = surface_manager_->CreateRenderTexture(width, height);
-  
+
   CreateInternalUIWidgetsEngine(width, height, device_pixel_ratio, streaming_assets_path);
 
   return metal_tex;
@@ -215,23 +215,12 @@ void* UIWidgetsPanel::OnRenderTexture(size_t width,
 bool UIWidgetsPanel::ReleaseNativeRenderTexture() { return surface_manager_->ReleaseNativeRenderTexture(); }
 
 int UIWidgetsPanel::RegisterTexture(void* native_texture_ptr) {
-  /*
-  int texture_identifier = 0;
-  texture_identifier++;
-
-  auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
-
-  engine->GetShell().GetPlatformView()->RegisterTexture(
-      std::make_unique<UnityExternalTextureGL>(
-          texture_identifier, native_texture_ptr, surface_manager_.get()));
-  return texture_identifier;*/
-    return 0;
+  //TODO: add implementation
+  return 0;
 }
 
 void UIWidgetsPanel::UnregisterTexture(int texture_id) {
-  /*
-  auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
-  engine->GetShell().GetPlatformView()->UnregisterTexture(texture_id);*/
+  //TODO: add implementation
 }
 
 std::chrono::nanoseconds UIWidgetsPanel::ProcessMessages() {
