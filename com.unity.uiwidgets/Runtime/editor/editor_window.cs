@@ -90,6 +90,15 @@ namespace Unity.UIWidgets.editor {
         public Window window {
             get { return this._windowAdapter; }
         }
+
+        public void forceUpdate() {
+            Widget root;
+            using (this._windowAdapter.getScope()) {
+                root = this.createWidget();
+            }
+
+            this._windowAdapter.attachRootWidget(root);
+        }
     }
 
     public class EditorWindowAdapter : WindowAdapter {
