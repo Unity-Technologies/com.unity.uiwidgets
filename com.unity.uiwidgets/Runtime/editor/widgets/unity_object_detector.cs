@@ -11,6 +11,11 @@ namespace Unity.UIWidgets.editor {
 
     public delegate void DragFromEditorExitCallback();
 
+    public delegate void DragFromEditorStartCallback();
+
+    public delegate void DragFromEditorCancelCallback();
+
+
     public delegate void DragFromEditorReleaseCallback(DragFromEditorDetails details);
 
     public class DragFromEditorDetails {
@@ -29,6 +34,8 @@ namespace Unity.UIWidgets.editor {
             DragFromEditorHoverCallback onHover = null,
             DragFromEditorExitCallback onExit = null,
             DragFromEditorReleaseCallback onRelease = null,
+            DragFromEditorStartCallback onStart = null,
+            DragFromEditorCancelCallback onCancel = null,
             HitTestBehavior? behavior = null
         ) : base(key: key) {
             this.child = child;
@@ -36,6 +43,8 @@ namespace Unity.UIWidgets.editor {
             this.onDragFromEditorHover = onHover;
             this.onDragFromEditorExit = onExit;
             this.onDragFromEditorRelease = onRelease;
+            this.onDragFromEditorStart = onStart;
+            this.onDragFromEditorCancel = onCancel;
             this.behavior = behavior;
         }
 
@@ -45,6 +54,8 @@ namespace Unity.UIWidgets.editor {
         public readonly DragFromEditorHoverCallback onDragFromEditorHover;
         public readonly DragFromEditorExitCallback onDragFromEditorExit;
         public readonly DragFromEditorReleaseCallback onDragFromEditorRelease;
+        public readonly DragFromEditorStartCallback onDragFromEditorStart;
+        public readonly DragFromEditorCancelCallback onDragFromEditorCancel;
 
         public readonly HitTestBehavior? behavior;
 
@@ -61,6 +72,15 @@ namespace Unity.UIWidgets.editor {
         public override Widget build(BuildContext context) {
             Widget result = new Listener(
                 child: this.widget.child,
+                onPointerDown: (evt) => {
+                    this.widget.onDragFromEditorStart?.Invoke();
+                    },
+                onPointerUp: (evt) => {
+                    this.widget.onDragFromEditorCancel?.Invoke();
+                    },
+                onPointerCancel: (evt) => {
+                    this.widget.onDragFromEditorCancel?.Invoke();
+                    },
                 onPointerDragFromEditorEnter: this.widget.onDragFromEditorEnter == null
                     ? ((PointerDragFromEditorEnterEventListener) null)
                     : (evt) => { this.widget.onDragFromEditorEnter.Invoke(); },

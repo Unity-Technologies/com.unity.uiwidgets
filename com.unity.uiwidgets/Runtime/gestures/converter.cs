@@ -241,7 +241,7 @@ namespace Unity.UIWidgets.gestures {
 #if UNITY_EDITOR
                     case PointerChange.dragFromEditorMove: {
                         _PointerState state = _ensureStateForPointer(datum, position);
-                        state.startNewPointer();
+                        //state.startNewPointer();
                         yield return new PointerDragFromEditorHoverEvent(
                             timeStamp: timeStamp,
                             pointer: state.pointer,
@@ -253,7 +253,7 @@ namespace Unity.UIWidgets.gestures {
                         break;
                     case PointerChange.dragFromEditorRelease: {
                         _PointerState state = _ensureStateForPointer(datum, position);
-                        state.startNewPointer();
+                        //state.startNewPointer();
                         yield return new PointerDragFromEditorReleaseEvent(
                             timeStamp: timeStamp,
                             pointer: state.pointer,

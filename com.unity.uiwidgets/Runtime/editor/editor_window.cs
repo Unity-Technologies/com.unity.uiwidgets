@@ -401,7 +401,8 @@ namespace Unity.UIWidgets.editor {
                         physicalY: evt.mousePosition.y * this._devicePixelRatio
                     );
                 }
-                else if (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp) {
+                else if (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp ||
+                        evt.type == EventType.DragExited) {
                     pointerData = new PointerData(
                         timeStamp: Timer.timespanSinceStartup,
                         change: PointerChange.up,
