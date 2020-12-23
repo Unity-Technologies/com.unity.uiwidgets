@@ -150,7 +150,7 @@ namespace Unity.UIWidgets.widgets {
                     this.buildOwner.buildScope(this.renderViewElement);
                 }
 
-                base.drawFrame();
+                base.drawFrame(layoutOnly);
                 this.buildOwner.finalizeTree();
             }
             finally {
