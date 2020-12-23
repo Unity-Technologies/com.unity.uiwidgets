@@ -408,7 +408,7 @@ namespace Unity.UIWidgets.widgets {
         ) {
             return new MediaQuery(
                 key: key,
-                data: MediaQuery.of(context).removeViewPadding(
+                data: of(context).removeViewPadding(
                     removeLeft: removeLeft,
                     removeTop: removeTop,
                     removeRight: removeRight,

@@ -633,7 +633,7 @@ namespace Unity.UIWidgets.cupertino {
         public override int GetHashCode() {
             unchecked {
                 var hashCode = (value != null ? value.GetHashCode() : 0);
-                hashCode = (color != null ? color.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^(color != null ? color.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (darkColor != null ? darkColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (highContrastColor != null ? highContrastColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (elevatedColor != null ? elevatedColor.GetHashCode() : 0);

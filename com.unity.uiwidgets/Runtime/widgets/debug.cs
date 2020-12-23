@@ -126,6 +126,17 @@ namespace Unity.UIWidgets.widgets {
             return true;
         }
 
+        /*static int debugDoublePrecision;
+        public static string debugFormatDouble(float value) {
+            if (value == null) {
+                return "null";
+            }
+            if (debugDoublePrecision != null) {
+                return value.toStringAsPrecision(debugDoublePrecision);
+            }
+            return value.toStringAsFixed(1);
+        }*/
+
         internal static UIWidgetsErrorDetails _debugReportException(
             string context,
             Exception exception,

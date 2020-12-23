@@ -53,10 +53,10 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (pendingList == null) {
-                return Future<Dictionary<Type, object>>.value(output).to<Dictionary<Type, object>>();
+                return Future.value(output).to<Dictionary<Type, object>>();
             }
 
-            return Future<object>.wait<object>(pendingList.Select(p => p.futureValue))
+            return Future.wait<object>(pendingList.Select(p => p.futureValue))
                 .then(values => {
                     //TODO : check values is list
                     var list = (List<object>)values;

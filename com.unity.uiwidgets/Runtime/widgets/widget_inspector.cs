@@ -215,7 +215,7 @@ namespace Unity.UIWidgets.widgets {
                 return null;
             }
 
-            var ret = node.toJsonMap();
+            var ret = node.toJsonMap( new DiagnosticsSerializationDelegate());
             var value = node.valueObject;
             ret["objectId"] = toId(node, config.groupName);
             ret["valueId"] = toId(value, config.groupName);

@@ -42,12 +42,17 @@ namespace Unity.UIWidgets.service {
         void hide();
         void setEditingState(TextEditingValue value);
 
+        void setEditableSizeAndTransform(Dictionary<string, object> args);
+        
+        void setStyle(Dictionary<string, object> args);
         void setIMEPos(Offset imeGlobalPos);
 
         void setClient(int client, TextInputConfiguration configuration);
         void clearClient();
 
         bool imeRequired();
+        
+        
     }
 
     public interface TextInputUpdateListener {
@@ -73,7 +78,15 @@ namespace Unity.UIWidgets.service {
         public void setEditingState(TextEditingValue value) {
             _value = value;
         }
-        
+
+        public void setEditableSizeAndTransform(Dictionary<string, object> args) {
+             todo
+        }
+
+        public void setStyle(Dictionary<string, object> args) {
+             todo 
+        }
+
         Offset _editorWindowPosToScreenPos(Offset position) {
 #if UNITY_EDITOR_WIN
             return position * EditorGUIUtility.pixelsPerPoint;
@@ -254,6 +267,10 @@ namespace Unity.UIWidgets.service {
             return false;
         }
 
+        public void setStyle(Dictionary<string, object> args) {
+            throw new NotImplementedException();
+        }
+
         public void setIMEPos(Offset imeGlobalPos) {
         }
 
@@ -289,7 +306,11 @@ namespace Unity.UIWidgets.service {
                 }
             }
         }
-        
+
+        public void setEditableSizeAndTransform(Dictionary<string, object> args) {
+            throw new NotImplementedException();
+        }
+
         static TouchScreenKeyboardType getKeyboardTypeForConfiguration(TextInputConfiguration config) {
             var inputType = config.inputType;
 
@@ -333,6 +354,14 @@ namespace Unity.UIWidgets.service {
         public abstract void hide();
 
         public abstract void setEditingState(TextEditingValue value);
+        public void setEditableSizeAndTransform(Dictionary<string, object> args) {
+            throw new NotImplementedException();
+        }
+
+        public void setStyle(Dictionary<string, object> args) {
+            throw new NotImplementedException();
+        }
+
         public abstract void setIMEPos(Offset imeGlobalPos);
         public abstract void setClient(int client, TextInputConfiguration configuration);
 

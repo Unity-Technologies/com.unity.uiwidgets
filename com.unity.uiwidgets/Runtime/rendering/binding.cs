@@ -75,23 +75,25 @@ namespace Unity.UIWidgets.rendering {
         
         
         public void initMouseTracker(MouseTracker tracker  = null) {
-            // _mouseTracker?.dispose();
+            _mouseTracker?.dispose();
             _mouseTracker = tracker ?? new MouseTracker(pointerRouter, renderView.hitTestMouseTrackers);
         }
 
         void _handlePersistentFrameCallback(TimeSpan timeStamp) {
             drawFrame();
+            _mouseTracker.schedulePostFrameCheck();
         }
 
         readonly protected bool inEditorWindow;
+        
 
-        MouseTracker _createMouseTracker() {
+       /* MouseTracker _createMouseTracker() {
             return new MouseTracker(pointerRouter, (Offset offset) => {
                 return renderView.layer.find<MouseTrackerAnnotation>(
                     offset
                 );
             }, inEditorWindow);
-        }
+        }*/
 
         protected virtual void drawFrame() {
             pipelineOwner.flushLayout();

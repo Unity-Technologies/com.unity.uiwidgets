@@ -115,7 +115,7 @@ namespace Unity.UIWidgets.painting {
             return GetType() + "(primary value: " + base.ToString() + ")";
         }
     }
-    class ColorProperty : DiagnosticsProperty<Color> {
+    public class ColorProperty : DiagnosticsProperty<Color> {
         public ColorProperty(
             string name = "",
             Color value = null,
@@ -133,11 +133,9 @@ namespace Unity.UIWidgets.painting {
             D.assert(style != null);
             D.assert(level != null);
             
-        }
-
-       
-        public override Dictionary<string, object> toJsonMap() {
-            Dictionary<string, object> json = base.toJsonMap();
+        } 
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate  Delegate) {
+            Dictionary<string, object> json = base.toJsonMap(Delegate);
             if (value != null) {
                 json["valueProperties"] = new Dictionary<string, object> {
                     {"red", value.red},

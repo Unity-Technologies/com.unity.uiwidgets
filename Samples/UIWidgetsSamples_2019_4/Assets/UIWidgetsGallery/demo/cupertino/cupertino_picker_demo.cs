@@ -39,7 +39,7 @@ namespace UIWidgetsGallery.gallery {
         Widget _buildMenu(List<Widget> children) {
             return new Container(
                 decoration: new BoxDecoration(
-                    color: CupertinoTheme.of(this.context).scaffoldBackgroundColor,
+                    color: CupertinoTheme.of(context).scaffoldBackgroundColor,
                     border: new Border(
                         top: new BorderSide(color: new Color(0xFFBCBBC1), width: 0.0f),
                         bottom: new BorderSide(color: new Color(0xFFBCBBC1), width: 0.0f)
@@ -84,7 +84,7 @@ namespace UIWidgetsGallery.gallery {
 
         Widget _buildColorPicker(BuildContext context) {
             FixedExtentScrollController scrollController =
-                new FixedExtentScrollController(initialItem: this._selectedColorIndex);
+                new FixedExtentScrollController(initialItem: _selectedColorIndex);
 
             List<Widget> generateList() {
                 var list = new List<Widget>();
@@ -103,13 +103,13 @@ namespace UIWidgetsGallery.gallery {
                     CupertinoRouteUtils.showCupertinoModalPopup(
                         context: context,
                         builder: (BuildContext _context) => {
-                            return this._buildBottomPicker(
+                            return _buildBottomPicker(
                                 new CupertinoPicker(
                                     scrollController: scrollController,
                                     itemExtent: CupertinoPickerDemoUtils._kPickerItemHeight,
                                     backgroundColor: CupertinoColors.white,
                                     onSelectedItemChanged: (int index) => {
-                                        this.setState(() => this._selectedColorIndex = index);
+                                        setState(() => _selectedColorIndex = index);
                                     },
                                     children: generateList()
                                 )
@@ -117,10 +117,10 @@ namespace UIWidgetsGallery.gallery {
                         }
                     );
                 },
-                child: this._buildMenu(new List<Widget> {
+                child: _buildMenu(new List<Widget> {
                         new Text("Favorite Color"),
                         new Text(
-                            CupertinoNavigationDemoUtils.coolColorNames[this._selectedColorIndex],
+                            CupertinoNavigationDemoUtils.coolColorNames[_selectedColorIndex],
                             style: new TextStyle(
                                 color: CupertinoColors.inactiveGray
                             )
@@ -136,23 +136,23 @@ namespace UIWidgetsGallery.gallery {
                     CupertinoRouteUtils.showCupertinoModalPopup(
                         context: context,
                         builder: (BuildContext _context) => {
-                            return this._buildBottomPicker(
+                            return _buildBottomPicker(
                                 new CupertinoTimerPicker(
-                                    initialTimerDuration: this.timer,
+                                    initialTimerDuration: timer,
                                     onTimerDurationChanged: (TimeSpan newTimer) => {
-                                        this.setState(() => this.timer = newTimer);
+                                        setState(() => timer = newTimer);
                                     }
                                 )
                             );
                         }
                     );
                 },
-                child: this._buildMenu(new List<Widget> {
+                child: _buildMenu(new List<Widget> {
                         new Text("Countdown Timer"),
                         new Text(
-                            $"{this.timer.Hours}:" +
-                            $"{(this.timer.Minutes % 60).ToString("00")}:" +
-                            $"{(this.timer.Seconds % 60).ToString("00")}",
+                            $"{timer.Hours}:" +
+                            $"{(timer.Minutes % 60).ToString("00")}:" +
+                            $"{(timer.Seconds % 60).ToString("00")}",
                             style: new TextStyle(color: CupertinoColors.inactiveGray)
                         )
                     }
@@ -166,22 +166,22 @@ namespace UIWidgetsGallery.gallery {
                     CupertinoRouteUtils.showCupertinoModalPopup(
                         context: context,
                         builder: (BuildContext _context) => {
-                            return this._buildBottomPicker(
+                            return _buildBottomPicker(
                                 new CupertinoDatePicker(
                                     mode: CupertinoDatePickerMode.date,
-                                    initialDateTime: this.date,
+                                    initialDateTime: date,
                                     onDateTimeChanged: (DateTime newDateTime) => {
-                                        this.setState(() => this.date = newDateTime);
+                                        setState(() => date = newDateTime);
                                     }
                                 )
                             );
                         }
                     );
                 },
-                child: this._buildMenu(new List<Widget> {
+                child: _buildMenu(new List<Widget> {
                         new Text("Date"),
                         new Text(
-                            this.date.ToString("MMMM dd, yyyy"),
+                            date.ToString("MMMM dd, yyyy"),
                             style: new TextStyle(color: CupertinoColors.inactiveGray)
                         )
                     }
@@ -195,22 +195,22 @@ namespace UIWidgetsGallery.gallery {
                     CupertinoRouteUtils.showCupertinoModalPopup(
                         context: context,
                         builder: (BuildContext _context) => {
-                            return this._buildBottomPicker(
+                            return _buildBottomPicker(
                                 new CupertinoDatePicker(
                                     mode: CupertinoDatePickerMode.time,
-                                    initialDateTime: this.time,
+                                    initialDateTime: time,
                                     onDateTimeChanged: (DateTime newDateTime) => {
-                                        this.setState(() => this.time = newDateTime);
+                                        setState(() => time = newDateTime);
                                     }
                                 )
                             );
                         }
                     );
                 },
-                child: this._buildMenu(new List<Widget> {
+                child: _buildMenu(new List<Widget> {
                         new Text("Time"),
                         new Text(
-                            this.time.ToString("h:mm tt"),
+                            time.ToString("h:mm tt"),
                             style: new TextStyle(color: CupertinoColors.inactiveGray)
                         )
                     }
@@ -224,22 +224,22 @@ namespace UIWidgetsGallery.gallery {
                     CupertinoRouteUtils.showCupertinoModalPopup(
                         context: context,
                         builder: (BuildContext _context) => {
-                            return this._buildBottomPicker(
+                            return _buildBottomPicker(
                                 new CupertinoDatePicker(
                                     mode: CupertinoDatePickerMode.dateAndTime,
-                                    initialDateTime: this.dateTime,
+                                    initialDateTime: dateTime,
                                     onDateTimeChanged: (DateTime newDateTime) => {
-                                        this.setState(() => this.dateTime = newDateTime);
+                                        setState(() => dateTime = newDateTime);
                                     }
                                 )
                             );
                         }
                     );
                 },
-                child: this._buildMenu(new List<Widget> {
+                child: _buildMenu(new List<Widget> {
                         new Text("Date and Time"),
                         new Text(
-                            this.dateTime.ToString("MMMM dd, yyyy h:mm tt"),
+                            dateTime.ToString("MMMM dd, yyyy h:mm tt"),
                             style: new TextStyle(color: CupertinoColors.inactiveGray)
                         )
                     }
@@ -269,11 +269,11 @@ namespace UIWidgetsGallery.gallery {
                             child: new ListView(
                                 children: new List<Widget> {
                                     new Padding(padding: EdgeInsets.only(top: 32.0f)),
-                                    this._buildColorPicker(context),
-                                    this._buildCountdownTimerPicker(context),
-                                    this._buildDatePicker(context),
-                                    this._buildTimePicker(context),
-                                    this._buildDateAndTimePicker(context)
+                                    _buildColorPicker(context),
+                                    _buildCountdownTimerPicker(context),
+                                    _buildDatePicker(context),
+                                    _buildTimePicker(context),
+                                    _buildDateAndTimePicker(context)
                                 }
                             )
                         )

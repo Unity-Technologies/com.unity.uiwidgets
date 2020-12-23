@@ -223,7 +223,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public static Matrix4 inverted(Matrix4 other) {
-            var result = Matrix4.zero();
+            var result = zero();
             float determinant = result.copyInverse(other);
             if (Math.Abs(determinant) < TOLERANCE) {
                 // throw new Exception("input matrix cannot be inverted");
@@ -946,7 +946,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public static Matrix4 diagonal3Values(float x, float y, float z) {
-            Matrix4 result = Matrix4.zero();
+            Matrix4 result = zero();
             result._m4storage[15] = 1;
             result._m4storage[10] = z;
             result._m4storage[5] = y;
@@ -1003,7 +1003,7 @@ namespace Unity.UIWidgets.ui {
         }
 
         public static Matrix4 translationValues(float x, float y, float z) {
-            var result = Matrix4.identity();
+            var result = identity();
             result.setTranslationRaw(x, y, z);
             return result;
         }
@@ -1018,26 +1018,26 @@ namespace Unity.UIWidgets.ui {
         }
 
         public static Matrix4 skewX(float alpha) {
-            var result = Matrix4.identity();
+            var result = identity();
             result._m4storage[4] = Mathf.Tan(alpha);
             return result;
         }
 
         public static Matrix4 skewY(float beta) {
-            var result = Matrix4.identity();
+            var result = identity();
             result._m4storage[1] = Mathf.Tan(beta);
             return result;
         }
 
         public static Matrix4 skew(float alpha, float beta) {
-            var result = Matrix4.identity();
+            var result = identity();
             result._m4storage[1] = Mathf.Tan(beta);
             result._m4storage[4] = Mathf.Tan(alpha);
             return result;
         }
 
         public static Matrix4 compose(Vector3 translation, Quaternion rotation, Vector3 scale) {
-            var result = Matrix4.zero();
+            var result = zero();
             result.setFromTranslationRotationScale(translation, rotation, scale);
             return result;
         }

@@ -536,7 +536,7 @@ namespace Unity.UIWidgets.widgets {
         public void setState(VoidCallback fn = null) {
             D.assert(() => {
                 if (_debugLifecycleState == _StateLifecycle.defunct) {
-                    throw new UIWidgetsError(
+                      throw new UIWidgetsError(
                         "setState() called after dispose(): " + this + "\n" +
                         "This error happens if you call setState() on a State object for a widget that " +
                         "no longer appears in the widget tree (e.g., whose parent widget no longer " +
@@ -1481,7 +1481,7 @@ namespace Unity.UIWidgets.widgets {
                 bool hasSameSuperclass = true;
 
                 D.assert(() => {
-                    int oldElementClass = Element._debugConcreteSubtype(child);
+                    int oldElementClass = _debugConcreteSubtype(child);
                     int newWidgetClass = Widget._debugConcreteSubtype(newWidget);
                     hasSameSuperclass = oldElementClass == newWidgetClass;
                     return true;
@@ -2382,8 +2382,15 @@ namespace Unity.UIWidgets.widgets {
 
         readonly bool stateful;
 
-        public override Dictionary<string, object> toJsonMap() {
+        /*public override Dictionary<string, object> toJsonMap() {
             Dictionary<string, object> json = base.toJsonMap();
+            Element element = value as Element;
+            json["widgetRuntimeType"] = element.widget?.GetType()?.ToString();
+            json["stateful"] = stateful;
+            return json;
+        }*/
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
+            Dictionary<string, object> json = base.toJsonMap(Delegate);
             Element element = value as Element;
             json["widgetRuntimeType"] = element.widget?.GetType()?.ToString();
             json["stateful"] = stateful;
@@ -2411,7 +2418,7 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             });
             object exception = details.exception;
-            return ErrorWidget.withDetails(message: message,
+            return withDetails(message: message,
                 error: exception is UIWidgetsError uiWidgetsError ? uiWidgetsError : null);
         }
 

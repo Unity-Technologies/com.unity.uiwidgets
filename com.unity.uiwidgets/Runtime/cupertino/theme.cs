@@ -202,7 +202,7 @@ namespace Unity.UIWidgets.cupertino {
         public CupertinoThemeData resolveFrom(BuildContext context,  bool nullOk = false ) {
             Color convertColor(Color color) => CupertinoDynamicColor.resolve(color, context, nullOk: nullOk);
 
-            return CupertinoThemeData._rawWithDefaults(
+            return _rawWithDefaults(
                 brightness:brightness,
                 primaryColor:convertColor(_primaryColor),
                 primaryContrastingColor:convertColor(_primaryContrastingColor),
@@ -221,7 +221,7 @@ namespace Unity.UIWidgets.cupertino {
             Color scaffoldBackgroundColor = null
         ) {
             //return new CupertinoThemeData(
-                return CupertinoThemeData._rawWithDefaults(
+                return _rawWithDefaults(
                 brightness: brightness ?? this.brightness,
                 primaryColor: primaryColor ?? _primaryColor,
                 primaryContrastingColor: primaryContrastingColor ?? _primaryContrastingColor,

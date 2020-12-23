@@ -103,7 +103,7 @@ namespace Unity.UIWidgets.rendering {
                         left += padding.left;
                     }
 
-                    _paragraph.layout(new ui.ParagraphConstraints(width: width));
+                    _paragraph.layout(new ParagraphConstraints(width: width));
                     if (size.height > padding.top + _paragraph.height() + padding.bottom) {
                         top += padding.top;
                     }

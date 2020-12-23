@@ -11,6 +11,44 @@ using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
+    public class AnnotationEntry<T> {
+        
+        public AnnotationEntry(
+             T annotation = default(T),
+             Offset localPosition = null
+        ) {
+            D.assert(localPosition != null);
+            this.annotation = annotation;
+            this.localPosition = localPosition;
+        }
+
+        public readonly  T annotation;
+        public readonly  Offset localPosition;
+        public override string ToString() {
+            return $"{GetType()}"+ $"(annotation: {annotation}, localPostion: {localPosition})";
+        }
+    }
+    public class AnnotationResult<T> {
+        public readonly  List<AnnotationEntry<T>> _entries = new List<AnnotationEntry<T>>();
+
+        void add(AnnotationEntry<T> entry) {
+             _entries.Add(entry);
+        } 
+        IEnumerable<AnnotationEntry<T>> entries {
+            get {
+                return _entries;
+            }
+        }
+
+        public IEnumerable<T> annotations  {
+            get{
+                List<T> results = new List<T>();
+                foreach (AnnotationEntry<T> entry in _entries)
+                    results.Add(entry.annotation);
+                return results;
+            }
+        }
+    }
     public abstract class Layer : AbstractNodeMixinDiagnosticableTree {
         public new ContainerLayer parent {
             get { return (ContainerLayer) base.parent; }
@@ -278,6 +316,43 @@ namespace Unity.UIWidgets.rendering {
 
             return null;
         }
+        internal bool findAnnotations<S>(
+            AnnotationResult<S> result,
+            Offset localPosition, 
+            bool onlyFirst = false
+        ) {
+            return false;
+        }
+        public AnnotationResult<S> findAllAnnotations<S>(Offset localPosition) {
+            AnnotationResult<S> result = new AnnotationResult<S>();
+            findAnnotations<S>(result, localPosition, onlyFirst: false);
+            return result;
+            
+        }
+        public ui.Scene buildScene(ui.SceneBuilder builder) {
+            List<PictureLayer> temporaryLayers =  new List<PictureLayer>();
+            D.assert(()=> {
+                if (RenderingDebugUtils.debugCheckElevationsEnabled) {
+                    temporaryLayers = _debugCheckElevations();
+                }
+                return true;
+            });
+            updateSubtreeNeedsAddToScene();
+            addToScene(builder);
+            
+            _needsAddToScene = false;
+            ui.Scene scene = builder.build();
+            D.assert(()=>{
+                if (temporaryLayers != null) {
+                    foreach ( PictureLayer temporaryLayer in temporaryLayers) {
+                        temporaryLayer.remove();
+                    }
+                }
+                return true;
+            });
+            return scene;
+        }
+
 
         internal Layer _lastChild;
 
@@ -673,7 +748,7 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
-
+       
         internal override S find<S>(Offset regionOffset) {
             if (!clipRect.contains(regionOffset)) {
                 return null;
@@ -681,6 +756,8 @@ namespace Unity.UIWidgets.rendering {
 
             return base.find<S>(regionOffset);
         }
+       
+
 
         internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;

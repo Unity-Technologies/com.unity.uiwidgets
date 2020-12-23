@@ -335,7 +335,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void dispose() {
             foreach(FocusScopeNode focusScopeNode in tabFocusNodes) {
-                focusScopeNode.detach();
+                focusScopeNode.dispose();
             }
 
             base.dispose();

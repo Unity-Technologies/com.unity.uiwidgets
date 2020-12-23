@@ -89,18 +89,18 @@ namespace UIWidgetsGallery.gallery {
 
     public class CupertinoNavigationDemo : StatelessWidget {
         public CupertinoNavigationDemo() {
-            this.colorItems = new List<Color>();
+            colorItems = new List<Color>();
 
             for (int i = 0; i < CupertinoNavigationDemoUtils._kChildCount; i++) {
-                this.colorItems.Add(CupertinoNavigationDemoUtils.coolColors[
+                colorItems.Add(CupertinoNavigationDemoUtils.coolColors[
                     Random.Range(0, CupertinoNavigationDemoUtils.coolColors.Count)
                 ]);
             }
 
-            this.colorNameItems = new List<string>();
+            colorNameItems = new List<string>();
 
             for (int i = 0; i < CupertinoNavigationDemoUtils._kChildCount; i++) {
-                this.colorNameItems.Add(CupertinoNavigationDemoUtils.coolColorNames[
+                colorNameItems.Add(CupertinoNavigationDemoUtils.coolColorNames[
                     Random.Range(0, CupertinoNavigationDemoUtils.coolColorNames.Count)
                 ]);
             }
@@ -140,8 +140,8 @@ namespace UIWidgetsGallery.gallery {
                                     return new CupertinoTabView(
                                         builder: (BuildContext _context1) => {
                                             return new CupertinoDemoTab1(
-                                                colorItems: this.colorItems,
-                                                colorNameItems: this.colorNameItems
+                                                colorItems: colorItems,
+                                                colorNameItems: colorNameItems
                                             );
                                         },
                                         defaultTitle: "Colors"
@@ -210,8 +210,8 @@ namespace UIWidgetsGallery.gallery {
                                         return new Tab1RowItem(
                                             index: index,
                                             lastItem: index == CupertinoNavigationDemoUtils._kChildCount - 1,
-                                            color: this.colorItems[index],
-                                            colorName: this.colorNameItems[index]
+                                            color: colorItems[index],
+                                            colorName: colorNameItems[index]
                                         );
                                     },
                                     childCount: CupertinoNavigationDemoUtils._kChildCount
@@ -247,11 +247,11 @@ namespace UIWidgetsGallery.gallery {
                 behavior: HitTestBehavior.opaque,
                 onTap: () => {
                     Navigator.of(context).push(new CupertinoPageRoute(
-                        title: this.colorName,
+                        title: colorName,
                         builder: (BuildContext _context) => new Tab1ItemPage(
-                            color: this.color,
-                            colorName: this.colorName,
-                            index: this.index
+                            color: color,
+                            colorName: colorName,
+                            index: index
                         )
                     ));
                 },
@@ -266,7 +266,7 @@ namespace UIWidgetsGallery.gallery {
                                     height: 60.0f,
                                     width: 60.0f,
                                     decoration: new BoxDecoration(
-                                        color: this.color,
+                                        color: color,
                                         borderRadius: BorderRadius.circular(8.0f)
                                     )
                                 ),
@@ -276,7 +276,7 @@ namespace UIWidgetsGallery.gallery {
                                         child: new Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: new List<Widget> {
-                                                new Text(this.colorName),
+                                                new Text(colorName),
                                                 new Padding(padding: EdgeInsets.only(top: 8.0f)),
                                                 new Text(
                                                     "Buy this cool color",
@@ -307,7 +307,7 @@ namespace UIWidgetsGallery.gallery {
                     )
                 )
             );
-            if (this.lastItem) {
+            if (lastItem) {
                 return row;
             }
 
@@ -347,13 +347,13 @@ namespace UIWidgetsGallery.gallery {
         public override void initState() {
             base.initState();
 
-            this.relatedColors = new List<Color>();
+            relatedColors = new List<Color>();
             for (int i = 0; i < 10; i++) {
-                this.relatedColors.Add(Color.fromARGB(
+                relatedColors.Add(Color.fromARGB(
                     255,
-                    (this.widget.color.red + Random.Range(-50, 50)).clamp(0, 255),
-                    (this.widget.color.green + Random.Range(-50, 50)).clamp(0, 255),
-                    (this.widget.color.blue + Random.Range(-50, 50)).clamp(0, 255)
+                    (widget.color.red + Random.Range(-50, 50)).clamp(0, 255),
+                    (widget.color.green + Random.Range(-50, 50)).clamp(0, 255),
+                    (widget.color.blue + Random.Range(-50, 50)).clamp(0, 255)
                 ));
             }
         }
@@ -379,7 +379,7 @@ namespace UIWidgetsGallery.gallery {
                                             height: 128.0f,
                                             width: 128.0f,
                                             decoration: new BoxDecoration(
-                                                color: this.widget.color,
+                                                color: widget.color,
                                                 borderRadius: BorderRadius.circular(24.0f)
                                             )
                                         ),
@@ -389,13 +389,13 @@ namespace UIWidgetsGallery.gallery {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: new List<Widget> {
-                                                    new Text(this.widget.colorName,
+                                                    new Text(widget.colorName,
                                                         style: new TextStyle(fontSize: 24.0f,
                                                             fontWeight: FontWeight.bold)
                                                     ),
                                                     new Padding(padding: EdgeInsets.only(top: 6.0f)),
                                                     new Text(
-                                                        $"Item number {this.widget.index}",
+                                                        $"Item number {widget.index}",
                                                         style: new TextStyle(
                                                             color: new Color(0xFF8E8E93),
                                                             fontSize: 16.0f,
@@ -459,7 +459,7 @@ namespace UIWidgetsGallery.gallery {
                                             child: new Container(
                                                 decoration: new BoxDecoration(
                                                     borderRadius: BorderRadius.circular(8.0f),
-                                                    color: this.relatedColors[index]
+                                                    color: relatedColors[index]
                                                 ),
                                                 child: new Center(
                                                     child: new CupertinoButton(
@@ -638,15 +638,15 @@ namespace UIWidgetsGallery.gallery {
             return new Container(
                 decoration: new BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(18.0f)),
-                    color: this.color == Tab2ConversationBubbleColor.blue
+                    color: color == Tab2ConversationBubbleColor.blue
                         ? CupertinoColors.activeBlue
                         : CupertinoColors.lightBackgroundGray
                 ),
                 margin: EdgeInsets.symmetric(horizontal: 8.0f, vertical: 8.0f),
                 padding: EdgeInsets.symmetric(horizontal: 14.0f, vertical: 10.0f),
-                child: new Text(this.text,
+                child: new Text(text,
                     style: new TextStyle(
-                        color: this.color == Tab2ConversationBubbleColor.blue
+                        color: color == Tab2ConversationBubbleColor.blue
                             ? CupertinoColors.white
                             : CupertinoColors.black,
                         letterSpacing: -0.4f,
@@ -678,18 +678,18 @@ namespace UIWidgetsGallery.gallery {
                         begin: Alignment.topCenter, // FractionalOfset.topCenter,
                         end: Alignment.bottomCenter, // FractionalOfset.bottomCenter,
                         colors: new List<Color> {
-                            this.color,
-                            Color.fromARGB(this.color.alpha,
-                                (this.color.red - 60).clamp(0, 255),
-                                (this.color.green - 60).clamp(0, 255),
-                                (this.color.blue - 60).clamp(0, 255)
+                            color,
+                            Color.fromARGB(color.alpha,
+                                (color.red - 60).clamp(0, 255),
+                                (color.green - 60).clamp(0, 255),
+                                (color.blue - 60).clamp(0, 255)
                             )
                         }
                     )
                 ),
                 margin: EdgeInsets.only(left: 8.0f, bottom: 8.0f),
                 padding: EdgeInsets.all(12.0f),
-                child: new Text(this.text,
+                child: new Text(text,
                     style: new TextStyle(
                         color: CupertinoColors.white,
                         fontSize: 13.0f,
@@ -715,14 +715,14 @@ namespace UIWidgetsGallery.gallery {
         public override Widget build(BuildContext context) {
             List<Widget> children = new List<Widget>();
 
-            if (this.avatar != null) {
-                children.Add(this.avatar);
+            if (avatar != null) {
+                children.Add(avatar);
             }
 
-            bool isSelf = this.avatar == null;
+            bool isSelf = avatar == null;
             children.Add(
                 new Tab2ConversationBubble(
-                    text: this.text,
+                    text: text,
                     color: isSelf
                         ? Tab2ConversationBubbleColor.blue
                         : Tab2ConversationBubbleColor.gray

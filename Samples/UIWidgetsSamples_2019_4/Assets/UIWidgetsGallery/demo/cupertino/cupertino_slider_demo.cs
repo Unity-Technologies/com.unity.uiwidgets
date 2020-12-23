@@ -34,29 +34,29 @@ namespace UIWidgetsGallery.gallery {
                                         mainAxisSize: MainAxisSize.min,
                                         children: new List<Widget> {
                                             new CupertinoSlider(
-                                                value: this._value,
+                                                value: _value,
                                                 min: 0.0f,
                                                 max: 100.0f,
                                                 onChanged: (float value) => {
-                                                    this.setState(() => { this._value = value; });
+                                                    setState(() => { _value = value; });
                                                 }
                                             ),
-                                            new Text($"Cupertino Continuous: {this._value.ToString("F1")}"),
+                                            new Text($"Cupertino Continuous: {_value.ToString("F1")}"),
                                         }
                                     ),
                                     new Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: new List<Widget> {
                                             new CupertinoSlider(
-                                                value: this._discreteValue,
+                                                value: _discreteValue,
                                                 min: 0.0f,
                                                 max: 100.0f,
                                                 divisions: 5,
                                                 onChanged: (float value) => {
-                                                    this.setState(() => { this._discreteValue = value; });
+                                                    setState(() => { _discreteValue = value; });
                                                 }
                                             ),
-                                            new Text($"Cupertino Discrete: {this._discreteValue}"),
+                                            new Text($"Cupertino Discrete: {_discreteValue}"),
                                         }
                                     ),
                                 }

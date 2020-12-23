@@ -19,13 +19,13 @@ namespace UIWidgetsGallery.gallery {
 
         public override void initState() {
             base.initState();
-            this._chatTextController = new TextEditingController();
-            this._locationTextController = new TextEditingController(text: "Montreal, Canada");
+            _chatTextController = new TextEditingController();
+            _locationTextController = new TextEditingController(text: "Montreal, Canada");
         }
 
         Widget _buildChatTextField() {
             return new CupertinoTextField(
-                controller: this._chatTextController,
+                controller: _chatTextController,
                 textCapitalization: TextCapitalization.sentences,
                 placeholder: "Text Message",
                 decoration: new BoxDecoration(
@@ -52,12 +52,12 @@ namespace UIWidgetsGallery.gallery {
                         padding: EdgeInsets.all(2.0f),
                         borderRadius:
                         BorderRadius.circular(15.0f),
-                        onPressed: () => this.setState(() => this._chatTextController.clear())
+                        onPressed: () => setState(() => _chatTextController.clear())
                     )
                 ),
                 autofocus: true,
                 suffixMode: OverlayVisibilityMode.editing,
-                onSubmitted: (string text) => this.setState(() => this._chatTextController.clear())
+                onSubmitted: (string text) => setState(() => _chatTextController.clear())
             );
         }
 
@@ -99,7 +99,7 @@ namespace UIWidgetsGallery.gallery {
 
         Widget _buildLocationField() {
             return new CupertinoTextField(
-                controller: this._locationTextController,
+                controller: _locationTextController,
                 prefix: new Icon(
                     CupertinoIcons.location_solid,
                     color: CupertinoColors.lightBackgroundGray,
@@ -181,7 +181,7 @@ namespace UIWidgetsGallery.gallery {
                                         children: new List<Widget> {
                                             //this._buildNameField(),
                                             //this._buildEmailField(),// !点击crash!
-                                            this._buildLocationField()//, // !点击crash!
+                                            _buildLocationField()//, // !点击crash!
                                             //this._buildPinField(),// !点击crash!
                                             //this._buildTagsField()
                                         }

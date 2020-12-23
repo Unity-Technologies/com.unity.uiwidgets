@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
+using UnityEditor.Experimental.GraphView;
 
 namespace Unity.UIWidgets.foundation {
     public enum DiagnosticLevel {
@@ -23,6 +25,18 @@ namespace Unity.UIWidgets.foundation {
         whitespace,
         singleLine,
         errorProperty,
+    }
+
+    public class DiagnosticUtils {
+        public static bool _isSingleLine(DiagnosticsTreeStyle style) {
+            return style == DiagnosticsTreeStyle.singleLine;
+        }
+        public static string describeEnum(object enumEntry) {
+            string description = enumEntry.ToString();
+            int indexOfDot = description.IndexOf(".");
+            D.assert(indexOfDot != -1 && indexOfDot < description.Length - 1);
+            return description.Substring(indexOfDot + 1);
+        }
     }
 
     public class TextTreeConfiguration {
@@ -372,6 +386,8 @@ namespace Unity.UIWidgets.foundation {
         public bool isFiltered(DiagnosticLevel minLevel) {
             return level < minLevel;
         }
+        
+        
 
         public virtual DiagnosticLevel level {
             get { return DiagnosticLevel.info; }
@@ -416,21 +432,76 @@ namespace Unity.UIWidgets.foundation {
         string _separator {
             get { return showSeparator ? ":" : ""; }
         }
+        public virtual Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
+            Dictionary<string, object> result = new Dictionary<string, object>();
+            D.assert(()=> {
+                bool hasChildren = getChildren().isNotEmpty();
+                result = new Dictionary<string, object>{ };
+                result["description"] = toDescription();
+                result["type"] = GetType().ToString();
+                if (name != null)
+                    result["name"] = name;
+                if (!showSeparator)
+                    result["showSeparator"] = showSeparator;
+                if (level != DiagnosticLevel.info)
+                    result["level"] = DiagnosticUtils.describeEnum(level);
+                if (showName == false)
+                    result["showName"] = showName;
+                if (emptyBodyDescription != null)
+                    result["emptyBodyDescription"] = emptyBodyDescription;
+                if (style != DiagnosticsTreeStyle.sparse)
+                    result["style"] = DiagnosticUtils.describeEnum(style);
+                if (allowTruncate)
+                    result["allowTruncate"] = allowTruncate;
+                if (hasChildren)
+                    result["hasChildren"] = hasChildren;
+                if (linePrefix?.isNotEmpty() == true)
+                    result["linePrefix"] = linePrefix;
+                if (!allowWrap)
+                    result["allowWrap"] = allowWrap;
+                if (allowNameWrap)
+                    result["allowNameWrap"] = allowNameWrap;
+                Delegate.additionalNodeProperties(this);
+                if (Delegate.includeProperties)
+                    result["properties"] = toJsonList(
+                        Delegate.filterProperties(getProperties(), this),
+                        this,
+                        Delegate
+                    );
+                if (Delegate.subtreeDepth > 0)
+                    result["children"] = toJsonList(
+                    Delegate.filterChildren(getChildren(), this),
+                    this,
+                    Delegate
+                );
+                return true;
+            });
+            return result;
+        }
 
-        public virtual Dictionary<string, object> toJsonMap() {
-            var data = new Dictionary<string, object> {
-                {"name", name},
-                {"showSeparator", showSeparator},
-                {"description", toDescription()},
-                {"level", Convert.ToString(level)},
-                {"showName", showName},
-                {"emptyBodyDescription", emptyBodyDescription},
-                {"style", Convert.ToString(style)},
-                {"valueToString", Convert.ToString(valueObject)},
-                {"type", GetType().ToString()},
-                {"hasChildren", getChildren().isNotEmpty()}
-            };
-            return data;
+        
+        public static List<Dictionary<string, object>> toJsonList(
+            List<DiagnosticsNode> nodes,
+            DiagnosticsNode parent,
+            DiagnosticsSerializationDelegate Delegate
+            ) {
+            bool truncated = false;
+            if (nodes == null)
+                return new List<Dictionary<string, object>>();
+            int originalNodeCount = nodes.Count;
+            nodes = Delegate.truncateNodesList(nodes, parent);
+            if (nodes.Count != originalNodeCount) {
+                nodes.Add(DiagnosticsNode.message("..."));
+                truncated = true;
+            }
+            List<Dictionary<string, object>> json = new List<Dictionary<string, object>>();
+            foreach (var node in nodes) {
+                json.Add(node.toJsonMap(Delegate.delegateForNode(node)));
+            }
+            json.ToList();
+            if (truncated)
+                json.Last()["truncated"] = true;
+            return json;
         }
 
         public override string ToString() {
@@ -742,8 +813,8 @@ namespace Unity.UIWidgets.foundation {
 
         public readonly bool quoted;
 
-        public override Dictionary<string, object> toJsonMap() {
-            var json = base.toJsonMap();
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
+            var json = base.toJsonMap(Delegate);
             json["quoted"] = quoted;
             return json;
         }
@@ -809,8 +880,8 @@ namespace Unity.UIWidgets.foundation {
             this.unit = unit;
         }
 
-        public override Dictionary<string, object> toJsonMap() {
-            var json = base.toJsonMap();
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
+            var json = base.toJsonMap(Delegate);
             if (unit != null) {
                 json["unit"] = unit;
             }
@@ -983,8 +1054,8 @@ namespace Unity.UIWidgets.foundation {
             D.assert(ifTrue != null || ifFalse != null);
         }
 
-        public override Dictionary<string, object> toJsonMap() {
-            var json = base.toJsonMap();
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
+            var json = base.toJsonMap(Delegate);
             if (ifTrue != null) {
                 json["ifTrue"] = ifTrue;
             }
@@ -1096,8 +1167,8 @@ namespace Unity.UIWidgets.foundation {
             }
         }
 
-        public override Dictionary<string, object> toJsonMap() {
-            var json = base.toJsonMap();
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
+            var json = base.toJsonMap(Delegate);
             if (value != null) {
                 json["values"] = value.Select(v => v.ToString()).ToList();
             }
@@ -1211,8 +1282,8 @@ namespace Unity.UIWidgets.foundation {
             }
         }
 
-        public override Dictionary<string, object> toJsonMap() {
-            var json = base.toJsonMap();
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
+            var json = base.toJsonMap(Delegate);
             if (ifPresent != null) {
                 json["ifPresent"] = ifPresent;
             }
@@ -1220,7 +1291,152 @@ namespace Unity.UIWidgets.foundation {
             return json;
         }
     }
+    public abstract class DiagnosticsSerializationDelegate {
+        public DiagnosticsSerializationDelegate(
+            int subtreeDepth = 0,
+            bool includeProperties = false
+        ) { 
+            new _DefaultDiagnosticsSerializationDelegate(includeProperties,subtreeDepth);
+        }
+        public abstract Dictionary<string, object> additionalNodeProperties(DiagnosticsNode node);
+        public abstract List<DiagnosticsNode> filterChildren(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
 
+        public abstract List<DiagnosticsNode> filterProperties(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
+
+        public abstract List<DiagnosticsNode> truncateNodesList(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
+
+        public abstract DiagnosticsSerializationDelegate delegateForNode(DiagnosticsNode node);
+
+        public int subtreeDepth {
+            get { return 0; }
+        }
+        public bool includeProperties {
+            get { return false; }
+        }
+        public bool expandPropertyValues {
+
+            get { return false; }
+        }
+        public abstract DiagnosticsSerializationDelegate copyWith(
+            int? subtreeDepth = null,
+            bool? includeProperties = null
+          );
+    }
+
+    class _DefaultDiagnosticsSerializationDelegate : DiagnosticsSerializationDelegate {
+        public _DefaultDiagnosticsSerializationDelegate(
+            bool includeProperties = false,
+            int subtreeDepth = 0
+        ) {
+            this.includeProperties = includeProperties;
+            this.subtreeDepth = subtreeDepth;
+        }
+        public override Dictionary<string, object> additionalNodeProperties(DiagnosticsNode node) {
+            return new Dictionary<string, object>();
+        }
+        public  override  DiagnosticsSerializationDelegate delegateForNode(DiagnosticsNode node) {
+            return subtreeDepth > 0 ? copyWith(subtreeDepth: subtreeDepth - 1) : this;
+        }
+        bool  expandPropertyValues  {
+            get { return false; }
+        }
+        public  override List<DiagnosticsNode> filterChildren(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
+            return nodes;
+        }
+        public override List<DiagnosticsNode> filterProperties(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
+            return nodes;
+        }
+
+        public readonly  bool includeProperties;
+
+        public readonly int subtreeDepth;
+
+        public override List<DiagnosticsNode> truncateNodesList(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
+            return nodes;
+        }
+
+        public override DiagnosticsSerializationDelegate copyWith( int? subtreeDepth = null, bool? includeProperties = null) {
+            return new _DefaultDiagnosticsSerializationDelegate(
+                subtreeDepth: subtreeDepth ?? this.subtreeDepth,
+            includeProperties: includeProperties ?? this.includeProperties
+            );
+        }
+    }
+
+    class FlagsSummary<T> : DiagnosticsProperty<Dictionary<String, T>> { 
+        public FlagsSummary(
+            string name = null,
+            Dictionary<string, T> value = null, 
+            string ifEmpty = null,
+            bool showName = true,
+            bool showSeparator = true,
+            DiagnosticLevel level  = DiagnosticLevel.info
+        ) : base(
+            name,
+            value,
+            ifEmpty: ifEmpty,
+            showName: showName,
+            showSeparator: showSeparator,
+            level: level
+        ){
+            D.assert(value != null);
+            D.assert(showName != null);
+            D.assert(showSeparator != null);
+            D.assert(level != null);
+            
+        }
+
+        protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
+            D.assert(value != null);
+            if (!_hasNonNullEntry() && ifEmpty != null)
+              return ifEmpty;
+
+            IEnumerable<string> formattedValues = _formattedValues();
+            if (parentConfiguration != null && !parentConfiguration.lineBreakProperties) {
+              
+              return $"{string.Join(",",formattedValues)}";
+            }
+            return string.Join((DiagnosticUtils._isSingleLine((DiagnosticsTreeStyle)style) ? "," : "\n"),formattedValues);
+        }
+
+        
+        DiagnosticLevel level {
+            get{
+                if (!_hasNonNullEntry() && ifEmpty == null)
+                    return DiagnosticLevel.hidden;
+                return base.level;
+            }
+        }
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) 
+        {
+            Dictionary<string, object> json = base.toJsonMap(Delegate);
+            if (value.isNotEmpty())
+              json["values"] = _formattedValues().ToList();
+            return json;
+        }
+
+        bool _hasNonNullEntry() {
+            bool result = false;
+            foreach (var o in value.Values) {
+                if (o != null) {
+                    result = true;
+                    return true;
+                }
+
+            }
+            return result;
+        }
+       
+        IEnumerable<string> _formattedValues() {
+            List<string> results = new List<string>();
+            foreach (var o in value.Keys) {
+                if (value[o] != null) {
+                    results.Add(o);
+                }
+            }
+            return results;
+        }
+    }
     public delegate T ComputePropertyValueCallback<T>();
 
     public class DiagnosticsProperty<T> : DiagnosticsNode {
@@ -1329,8 +1545,22 @@ namespace Unity.UIWidgets.foundation {
 
         internal readonly string _description;
 
-        public override Dictionary<string, object> toJsonMap() {
-            var json = base.toJsonMap();
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate  Delegate){
+            T v = value;
+            List<Dictionary<string, object>> properties = new List<Dictionary<string, object>>();
+            if (Delegate.expandPropertyValues && Delegate.includeProperties && v is Diagnosticable vDiagnosticable && getProperties().isEmpty()) {
+                // Exclude children for expanded nodes to avoid cycles.
+                Delegate = Delegate.copyWith(subtreeDepth: 0, includeProperties: false);
+                properties = DiagnosticsNode.toJsonList(
+                    Delegate.filterProperties(vDiagnosticable.toDiagnosticsNode().getProperties(), this),
+                    this,
+                    Delegate
+                );
+            }
+            var json = base.toJsonMap(Delegate);
+            if (properties != null) {
+                json["properties"] = properties;
+            }
             if (defaultValue != foundation_.kNoDefaultValue) {
                 json["defaultValue"] = Convert.ToString(defaultValue);
             }
@@ -1346,18 +1576,23 @@ namespace Unity.UIWidgets.foundation {
             if (tooltip != null) {
                 json["tooltip"] = tooltip;
             }
-
             json["missingIfNull"] = missingIfNull;
             if (exception != null) {
                 json["exception"] = exception.ToString();
             }
-
             json["propertyType"] = propertyType.ToString();
-            json["valueToString"] = valueToString();
-            json["defaultLevel"] = Convert.ToString(_defaultLevel);
-            if (typeof(Diagnosticable).IsAssignableFrom(typeof(T))) {
+            json["defaultLevel"] = DiagnosticUtils.describeEnum(_defaultLevel);
+            
+            if (value is Diagnosticable || value is DiagnosticsNode)
                 json["isDiagnosticableValue"] = true;
+            if (v is int)
+                json["value"] = Convert.ToInt32(v);
+            else if (v is float) {
+                json["value"] = float.Parse(v.ToString());
             }
+
+            if (value is string || value is bool || value == null)
+                json["value"] = value;
 
             return json;
         }

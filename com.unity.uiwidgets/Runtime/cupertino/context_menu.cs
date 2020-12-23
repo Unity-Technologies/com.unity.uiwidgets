@@ -135,7 +135,7 @@ namespace Unity.UIWidgets.cupertino {
             _route = new _ContextMenuRoute(
                 actions: widget.actions,
                 barrierLabel: "Dismiss",
-                filter: ui.ImageFilter.blur(
+                filter: ImageFilter.blur(
                 sigmaX: 5.0f,
                 sigmaY: 5.0f
                 ),
@@ -374,7 +374,7 @@ namespace Unity.UIWidgets.cupertino {
         _ContextMenuLocation contextMenuLocation = default,
         string barrierLabel = null,
         _ContextMenuPreviewBuilderChildless builder = null,
-        ui.ImageFilter filter = null,
+        ImageFilter filter = null,
         Rect previousChildRect = null,
         RouteSettings settings = null
       ) : base(

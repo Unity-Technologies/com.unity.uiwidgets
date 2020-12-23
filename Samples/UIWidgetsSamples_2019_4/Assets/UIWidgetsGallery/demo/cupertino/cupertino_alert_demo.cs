@@ -25,7 +25,7 @@ namespace UIWidgetsGallery.gallery {
                 builder: (BuildContext _context) => child
             ).then((object value) => {
                 if (value != null) {
-                    this.setState(() => { this.lastSelectedValue = value as string; });
+                    setState(() => { lastSelectedValue = value as string; });
                 }
             });
         }
@@ -39,7 +39,7 @@ namespace UIWidgetsGallery.gallery {
                 builder: (BuildContext _context) => child
             ).then((object value) => {
                 if (value != null) {
-                    this.setState(() => { this.lastSelectedValue = value as string; });
+                    setState(() => { lastSelectedValue = value as string; });
                 }
             });
         }
@@ -64,7 +64,7 @@ namespace UIWidgetsGallery.gallery {
                                         CupertinoButton.filled(
                                             child: new Text("Alert"),
                                             onPressed: () => {
-                                                this.showDemoDialog(
+                                                showDemoDialog(
                                                     context: _context,
                                                     child:
                                                     new CupertinoAlertDialog(
@@ -90,7 +90,7 @@ namespace UIWidgetsGallery.gallery {
                                             child: new Text("Alert with Title"),
                                             padding: EdgeInsets.symmetric(vertical: 16.0f, horizontal: 36.0f),
                                             onPressed: () => {
-                                                this.showDemoDialog(
+                                                showDemoDialog(
                                                     context: _context,
                                                     child: new CupertinoAlertDialog(
                                                         title: new Text(
@@ -121,7 +121,7 @@ namespace UIWidgetsGallery.gallery {
                                             child: new Text("Alert with Buttons"),
                                             padding: EdgeInsets.symmetric(vertical: 16.0f, horizontal: 36.0f),
                                             onPressed: () => {
-                                                this.showDemoDialog(
+                                                showDemoDialog(
                                                     context: _context,
                                                     child: new CupertinoDessertDialog(
                                                         title: new Text("Select Favorite Dessert"),
@@ -138,7 +138,7 @@ namespace UIWidgetsGallery.gallery {
                                             child: new Text("Alert Buttons Only"),
                                             padding: EdgeInsets.symmetric(vertical: 16.0f, horizontal: 36.0f),
                                             onPressed: () => {
-                                                this.showDemoDialog(
+                                                showDemoDialog(
                                                     context: _context,
                                                     child: new CupertinoDessertDialog()
                                                 );
@@ -150,7 +150,7 @@ namespace UIWidgetsGallery.gallery {
                                             child: new Text("Action Sheet"),
                                             padding: EdgeInsets.symmetric(vertical: 16.0f, horizontal: 36.0f),
                                             onPressed: () => {
-                                                this.showDemoActionSheet(
+                                                showDemoActionSheet(
                                                     context: _context,
                                                     child: new CupertinoActionSheet(
                                                         title: new Text("Favorite Dessert"),
@@ -187,11 +187,11 @@ namespace UIWidgetsGallery.gallery {
                                 )
                             };
 
-                            if (this.lastSelectedValue != null) {
+                            if (lastSelectedValue != null) {
                                 stackChildren.Add(
                                     new Positioned(
                                         bottom: 32.0f,
-                                        child: new Text($"You selected: {this.lastSelectedValue}")
+                                        child: new Text($"You selected: {lastSelectedValue}")
                                     )
                                 );
                             }
@@ -222,8 +222,8 @@ namespace UIWidgetsGallery.gallery {
 
         public override Widget build(BuildContext context) {
             return new CupertinoAlertDialog(
-                title: this.title,
-                content: this.content,
+                title: title,
+                content: content,
                 actions: new List<Widget> {
                     new CupertinoDialogAction(
                         child: new Text("Cheesecake"),

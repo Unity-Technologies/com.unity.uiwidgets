@@ -441,7 +441,7 @@ namespace Unity.UIWidgets.widgets {
                 return widget.confirmDismiss(direction);
             }
 
-            return Future<bool>.value(true).to<bool>();
+            return Future.value(true).to<bool>();
         }
 
         void _startResizeAnimation() {

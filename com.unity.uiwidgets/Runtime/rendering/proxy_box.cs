@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -1878,8 +1879,9 @@ namespace Unity.UIWidgets.rendering {
     public delegate void PointerSignalEventListener(PointerSignalEvent evt);
 
     public delegate void PointerScrollEventListener(PointerScrollEvent evt);
-
-    public class RenderPointerListener : RenderProxyBoxWithHitTestBehavior {
+    
+    
+    /*public class RenderPointerListener : RenderProxyBoxWithHitTestBehavior {
         public RenderPointerListener(
             PointerDownEventListener onPointerDown = null,
             PointerMoveEventListener onPointerMove = null,
@@ -2188,7 +2190,243 @@ namespace Unity.UIWidgets.rendering {
 
             properties.add(new EnumerableProperty<string>("listeners", listeners));
         }
+    }*/
+    class RenderPointerListener : RenderProxyBoxWithHitTestBehavior {
+        public RenderPointerListener(
+            PointerDownEventListener onPointerDown = null,
+            PointerMoveEventListener onPointerMove = null,
+            PointerUpEventListener onPointerUp =null,
+            PointerCancelEventListener onPointerCancel = null,
+            PointerSignalEventListener onPointerSignal =null,
+            HitTestBehavior behavior = HitTestBehavior.deferToChild,
+            RenderBox child = null
+        ) : base(behavior: behavior, child: child) {
+
+            this.onPointerDown = onPointerDown;
+            this.onPointerMove = onPointerMove;
+            this.onPointerUp = onPointerUp;
+            this.onPointerCancel = onPointerCancel;
+            this.onPointerSignal = onPointerSignal;
+
+        }
+
+        public PointerDownEventListener onPointerDown;
+        public PointerMoveEventListener onPointerMove;
+        public PointerUpEventListener onPointerUp;
+        public PointerCancelEventListener onPointerCancel;
+        public PointerSignalEventListener onPointerSignal;
+
+        protected override void performResize() {
+            size = constraints.biggest;
+        }
+        public override void handleEvent(PointerEvent Event, HitTestEntry entry) {
+            D.assert(debugHandleEvent(Event, entry));
+            if (onPointerDown != null && Event is PointerDownEvent) {
+                onPointerDown(( PointerDownEvent)Event);
+                return;
+            }
+
+            if (onPointerMove != null && Event is PointerMoveEvent) {
+                onPointerMove((PointerMoveEvent)Event);
+                return;
+            }
+
+            if (onPointerUp != null && Event is PointerUpEvent) {
+                onPointerUp((PointerUpEvent)Event);
+                return;
+            }
+
+            if (onPointerCancel != null && Event is PointerCancelEvent) {
+                onPointerCancel((PointerCancelEvent)Event);
+                return;
+            }
+
+            if (onPointerSignal != null && Event is PointerSignalEvent) {
+                onPointerSignal((PointerSignalEvent)Event);
+            }
+        }
+        public override  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            //new FlagsSummary<Delegate>() 
+            properties.add(new FlagsSummary<Delegate>(
+                "listeners",
+                new Dictionary<string, Delegate> {
+                    {"down", onPointerDown},
+                    {"move", onPointerMove},
+                    {"up", onPointerUp},
+                    {"cancel", onPointerCancel},
+                    {"signal", onPointerSignal}
+                },
+                ifEmpty: "<none>"));
+        }
     }
+
+    public class RenderMouseRegion : RenderProxyBox {
+        public RenderMouseRegion(
+            PointerEnterEventListener onEnter = null,
+            PointerHoverEventListener onHover = null,
+            PointerExitEventListener onExit = null,
+            bool opaque = true,
+            RenderBox child = null
+        ) : base(child) {
+            D.assert(opaque != null);
+            _onEnter = onEnter;
+            _onHover = onHover;
+            _onExit = onExit;
+            _opaque = opaque;
+            _annotationIsActive = false;
+            _hoverAnnotation = new MouseTrackerAnnotation(
+              onEnter: _handleEnter,
+              onHover: _handleHover,
+              onExit: _handleExit
+            );
+        }
+
+        public bool opaque {
+            get {
+                return _opaque;
+            }
+            set {
+                if (_opaque != value) {
+                    _opaque = value;
+                    _markPropertyUpdated(mustRepaint: true);
+                }
+            }
+        }
+        bool _opaque;
+
+        public PointerEnterEventListener onEnter {
+            get {
+                return _onEnter;
+            }
+            set {
+                if (_onEnter != value) {
+                    _onEnter = value;
+                    _markPropertyUpdated(mustRepaint: false);
+                }
+            }
+        }
+        PointerEnterEventListener _onEnter; 
+        public void _handleEnter(PointerEnterEvent Event) { 
+            if (_onEnter != null)
+              _onEnter(Event);
+        }
+
+        public PointerHoverEventListener onHover {
+            get {
+                return _onHover;
+            }
+            set {
+                if (_onHover != value) {
+                    _onHover = value;
+                    _markPropertyUpdated(mustRepaint: false);
+                }
+            }
+        }
+
+        PointerHoverEventListener _onHover; 
+        void _handleHover(PointerHoverEvent Event) {
+            if (_onHover != null)
+                _onHover(Event);
+        }
+
+        public PointerExitEventListener onExit {
+            get {
+                return _onExit;
+            }
+            set {
+                if (_onExit != value) {
+                    _onExit = value;
+                    _markPropertyUpdated(mustRepaint: false);
+                }
+            }
+        }
+
+        PointerExitEventListener _onExit; 
+        void _handleExit(PointerExitEvent Event) {
+            if (_onExit != null)
+                _onExit(Event);
+        }
+        
+        MouseTrackerAnnotation _hoverAnnotation;
+        MouseTrackerAnnotation hoverAnnotation {
+            get {
+                return _hoverAnnotation;
+            }
+        }
+        public void _markPropertyUpdated( bool mustRepaint ) {
+            D.assert(owner == null || !owner.debugDoingPaint);
+            bool newAnnotationIsActive = (
+                _onEnter != null ||
+                _onHover != null ||
+                _onExit != null ||
+                opaque) && RendererBinding.instance.mouseTracker.mouseIsConnected;
+            _setAnnotationIsActive(newAnnotationIsActive);
+            if (mustRepaint)
+                markNeedsPaint();
+        } 
+        void _setAnnotationIsActive(bool value) {
+            bool annotationWasActive = _annotationIsActive;
+            _annotationIsActive = value;
+            if (annotationWasActive != value) {
+                markNeedsPaint();
+                markNeedsCompositingBitsUpdate();
+            }
+        }
+        void _handleUpdatedMouseIsConnected() { 
+            _markPropertyUpdated(mustRepaint: false);
+        }
+        public override void attach(object owner) {
+            owner = (PipelineOwner)owner;
+            base.attach(owner);
+            // todo
+            //RendererBinding.instance.mouseTracker.addListener(_handleUpdatedMouseIsConnected);
+            _markPropertyUpdated(mustRepaint: false);
+        }
+        public override void detach() {
+           // RendererBinding.instance.mouseTracker.removeListener(_handleUpdatedMouseIsConnected);
+            base.detach();
+        }
+        public bool _annotationIsActive;
+
+        public bool needsCompositing {
+            get {
+                return base.needsCompositing || _annotationIsActive;
+            }
+        }
+        public override void paint(PaintingContext context, Offset offset) {
+            if (_annotationIsActive) {
+              AnnotatedRegionLayer<MouseTrackerAnnotation> layer = new AnnotatedRegionLayer<MouseTrackerAnnotation>(
+                _hoverAnnotation,
+                size: size,
+                offset: offset
+                //opaque: opaque  // todo
+              );
+              context.pushLayer(layer, base.paint, offset);
+            } else {
+              base.paint(context, offset);
+            }
+        }
+
+        protected override void performResize() {
+            size = constraints.biggest;
+        } 
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            // todo
+           /* properties.add(FlagsSummary<Function>(
+              "listeners",
+              <string, Function>{
+                "enter": onEnter,
+                "hover": onHover,
+                "exit": onExit,
+              }
+              ifEmpty: "<none>",
+            ));*/
+            properties.add(new DiagnosticsProperty<bool>("opaque", opaque, defaultValue: true));
+        }
+    }
+
 
     public class RenderRepaintBoundary : RenderProxyBox {
         public RenderRepaintBoundary(

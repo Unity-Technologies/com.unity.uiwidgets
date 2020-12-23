@@ -39,9 +39,9 @@ namespace UIWidgetsGallery.gallery {
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: new List<Widget> {
-                                            new Text(this._pressedCount > 0
-                                                ? $"Button pressed {this._pressedCount} time" +
-                                                  (this._pressedCount == 1 ? "" : "s")
+                                            new Text(_pressedCount > 0
+                                                ? $"Button pressed {_pressedCount} time" +
+                                                  (_pressedCount == 1 ? "" : "s")
                                                 : " "),
                                             new Padding(padding: EdgeInsets.all(12.0f)),
                                             new Align(
@@ -53,7 +53,7 @@ namespace UIWidgetsGallery.gallery {
                                                         new CupertinoButton(
                                                             child: new Text("Cupertino Button"),
                                                             onPressed:
-                                                            () => { this.setState(() => { this._pressedCount += 1; }); }
+                                                            () => { setState(() => { _pressedCount += 1; }); }
                                                         ),
                                                         new CupertinoButton(
                                                             child: new Text("Disabled"),
@@ -66,7 +66,7 @@ namespace UIWidgetsGallery.gallery {
                                             CupertinoButton.filled(
                                                 child: new Text("With Background"),
                                                 onPressed:
-                                                () => { this.setState(() => { this._pressedCount += 1; }); }
+                                                () => { setState(() => { _pressedCount += 1; }); }
                                             ),
                                             new Padding(padding: EdgeInsets.all(12.0f)),
                                             CupertinoButton.filled(

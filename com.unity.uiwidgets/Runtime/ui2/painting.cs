@@ -1191,17 +1191,17 @@ namespace Unity.UIWidgets.ui {
         }
 
         public bool contains(Offset point) {
-            D.assert(ui.PaintingUtils._offsetIsValid(point));
+            D.assert(PaintingUtils._offsetIsValid(point));
             return Path_contains(_ptr, point.dx, point.dy);
         }
 
         public Path shift(Offset offset) {
-            D.assert(ui.PaintingUtils._offsetIsValid(offset));
+            D.assert(PaintingUtils._offsetIsValid(offset));
             return new Path(Path_shift(_ptr, offset.dx, offset.dy));
         }
 
         public unsafe Path transform(float[] matrix4) {
-            D.assert(ui.PaintingUtils._matrix4IsValid(matrix4));
+            D.assert(PaintingUtils._matrix4IsValid(matrix4));
             fixed (float* matrixPtr = matrix4) {
                 return new Path(Path_transform(_ptr, matrixPtr));
             }

@@ -97,6 +97,8 @@ namespace Unity.UIWidgets.material {
         public static readonly Color black12 = new Color(0x1F000000);
 
         public static readonly Color white = new Color(0xFFFFFFFF);
+        
+        public static readonly Color white38 = new Color(0x62FFFFFF);
 
         public static readonly Color white70 = new Color(0xB3FFFFFF);
 

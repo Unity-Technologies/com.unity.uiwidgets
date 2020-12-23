@@ -82,7 +82,7 @@ namespace Unity.UIWidgets.cupertino {
             float cursorWidth = 2.0f,
             Radius cursorRadius = null,
             Color cursorColor = null,
-            ui.Brightness? keyboardAppearance = null,
+            Brightness? keyboardAppearance = null,
             EdgeInsets scrollPadding = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start,
             ScrollPhysics scrollPhysics = null) : base(key: key) {
@@ -202,7 +202,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public readonly Color cursorColor;
 
-        public readonly ui.Brightness? keyboardAppearance;
+        public readonly Brightness? keyboardAppearance;
 
         public readonly EdgeInsets scrollPadding;
 
@@ -552,7 +552,7 @@ namespace Unity.UIWidgets.cupertino {
                     child: new Container(
                         color: enabled
                             ? null
-                            : CupertinoTheme.of(context).brightness == ui.Brightness.light
+                            : CupertinoTheme.of(context).brightness == Brightness.light
                                 ? CupertinoTextFieldUtils._kDisabledBackground
                                 : CupertinoColors.darkBackgroundGray,
                         child: new TextSelectionGestureDetector(

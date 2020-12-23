@@ -1,18 +1,20 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Color = Unity.UIWidgets.ui.Color;
 using Constants = Unity.UIWidgets.gestures.Constants;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.widgets {
-    public class SelectableText : StatefulWidget {
+    /*public class SelectableText : StatefulWidget {
         public SelectableText(string data,
             Key key = null,
             TextStyle style = null,
@@ -188,11 +190,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public Future<bool> didPopRoute() {
-            return Future<bool>.value(false).to<bool>();
+            return Future.value(false).to<bool>();
         }
 
         public Future<bool> didPushRoute(string route) {
-            return Future<bool>.value(false).to<bool>();
+            return Future.value(false).to<bool>();
         }
 
         void _handleTapDown(TapDownDetails details) {
@@ -225,6 +227,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
+            
             FocusScope.of(context).reparentIfNeeded(widget.focusNode);
 
             DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
@@ -481,5 +484,5 @@ namespace Unity.UIWidgets.widgets {
                 child: widget.child
             );
         }
-    }
+    }*/
 }

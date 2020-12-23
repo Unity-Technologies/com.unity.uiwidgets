@@ -378,7 +378,7 @@ namespace Unity.UIWidgets.widgets {
         public override Future<RoutePopDisposition> willPop() {
             //async
             if (willHandlePopInternally) {
-                return Future<RoutePopDisposition>.value(RoutePopDisposition.pop).to<RoutePopDisposition>();
+                return Future.value(RoutePopDisposition.pop).to<RoutePopDisposition>();
             }
 
             return base.willPop();
@@ -513,7 +513,7 @@ namespace Unity.UIWidgets.widgets {
             setState(() => { _page = null; });
         }
         public override void dispose() {
-            focusScopeNode.detach();//todo : dispose
+            focusScopeNode.dispose();
             base.dispose();
         }
         bool _shouldIgnoreFocusRequest {
@@ -724,7 +724,7 @@ namespace Unity.UIWidgets.widgets {
             foreach (WillPopCallback callback in _willPopCallbacks) {
                 callback.Invoke().then(v => result = !(bool)v);
                 if (result) {
-                    return  Future<RoutePopDisposition>.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
+                    return  Future.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
                 }
             }
             return base.willPop();
@@ -861,7 +861,7 @@ namespace Unity.UIWidgets.widgets {
             foreach (WillPopCallback callback in _willPopCallbacks) {
                 callback.Invoke().then(v => result = !(bool)v);
                 if (result) {
-                    return  Future<RoutePopDisposition>.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
+                    return  Future.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
                 }
             }
             return base.willPop();
@@ -879,7 +879,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public abstract class PopupRoute : ModalRoute {
-        protected PopupRoute(
+        public PopupRoute(
             RouteSettings settings = null,
             ImageFilter filter = null
         ) : base(settings: settings,filter:filter) {
@@ -893,7 +893,23 @@ namespace Unity.UIWidgets.widgets {
             get { return true; }
         }
     }
-    
+
+    public abstract class PopupRoute<T> : ModalRoute<T> {
+        public PopupRoute(
+            RouteSettings settings = null,
+            ImageFilter filter = null
+        ) : base(settings: settings,filter:filter) {
+        }
+
+        public override bool opaque {
+            get { return false; }
+        }
+
+        public override bool maintainState {
+            get { return true; }
+        }
+    }
+
 
     public class RouteObserve<R> : NavigatorObserver where R : Route {
         readonly Dictionary<R, HashSet<RouteAware>> _listeners = new Dictionary<R, HashSet<RouteAware>>();

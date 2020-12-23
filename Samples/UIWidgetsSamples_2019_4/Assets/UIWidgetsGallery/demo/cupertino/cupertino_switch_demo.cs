@@ -30,13 +30,13 @@ namespace UIWidgetsGallery.gallery {
                                     new Column(
                                         children: new List<Widget> {
                                             new CupertinoSwitch(
-                                                value: this._switchValue,
+                                                value: _switchValue,
                                                 onChanged: (bool value) => {
-                                                    this.setState(() => { this._switchValue = value; });
+                                                    setState(() => { _switchValue = value; });
                                                 }
                                             ),
                                             new Text(
-                                                "Enabled - " + (this._switchValue ? "On" : "Off")
+                                                "Enabled - " + (_switchValue ? "On" : "Off")
                                             ),
                                         }
                                     ),

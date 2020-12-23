@@ -382,9 +382,9 @@ namespace Unity.UIWidgets.widgets {
 
     public class UiWidgetsBinding : WidgetsBinding {
         public static WidgetsBinding ensureInitialized() {
-            if (WidgetsBinding.instance == null)
+            if (instance == null)
                 new UiWidgetsBinding();
-            return WidgetsBinding.instance;
+            return instance;
         }
     }
 }

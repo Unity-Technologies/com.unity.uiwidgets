@@ -14,7 +14,6 @@ using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace Unity.UIWidgets.cupertino {
     public static class CupertinoTextSelectionUtils {
-        //public static readonly TextSelectionControls cupertinoTextSelectionControls = new _CupertinoTextSelectionControls();
         public static readonly TextSelectionControls cupertinoTextSelectionControls = new _CupertinoTextSelectionControls();
 
         public const float _kSelectionHandleOverlap = 1.5f;

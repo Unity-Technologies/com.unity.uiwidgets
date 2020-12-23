@@ -109,7 +109,7 @@ namespace Unity.UIWidgets.widgets {
 
         public virtual Future<RoutePopDisposition> willPop() {
             /// async
-            return Future<RoutePopDisposition>.value(isFirst
+            return Future.value(isFirst
                 ? RoutePopDisposition.bubble
                 : RoutePopDisposition.pop).to<RoutePopDisposition>();
         }
@@ -515,7 +515,7 @@ namespace Unity.UIWidgets.widgets {
             this.pages = pages ?? new List<Page<object>>();
             this.onPopPage = onPopPage;
             this.initialRoute = initialRoute;
-            this.onGenerateInitialRoutes = onGenerateInitialRoutes ?? Navigator.defaultGenerateInitialRoutes;
+            this.onGenerateInitialRoutes = onGenerateInitialRoutes ?? defaultGenerateInitialRoutes;
             this.onGenerateRoute = onGenerateRoute;
             this.onUnknownRoute = onUnknownRoute;
             this.transitionDelegate = transitionDelegate ?? new DefaultTransitionDelegate<object>();
@@ -574,43 +574,43 @@ namespace Unity.UIWidgets.widgets {
 
        
         public static Future<T> pushAndRemoveUntil<T>(BuildContext context, Route<T> newRoute, RoutePredicate predicate) {
-            return Navigator.of(context).pushAndRemoveUntil<T>(newRoute, predicate);
+            return of(context).pushAndRemoveUntil<T>(newRoute, predicate);
          }
 
         public static void replace<T>(BuildContext context,  Route oldRoute,  Route<T> newRoute ) {
-             Navigator.of(context).replace<T>(oldRoute: oldRoute, newRoute: newRoute);
+             of(context).replace<T>(oldRoute: oldRoute, newRoute: newRoute);
         }
 
         public static void replaceRouteBelow<T>(BuildContext context,  Route anchorRoute, Route<T> newRoute ) {
-            Navigator.of(context).replaceRouteBelow<T>(anchorRoute: anchorRoute, newRoute: newRoute);
+            of(context).replaceRouteBelow<T>(anchorRoute: anchorRoute, newRoute: newRoute);
           }
 
         public static bool canPop(BuildContext context) {
-            NavigatorState navigator = Navigator.of(context, nullOk: true);
+            NavigatorState navigator = of(context, nullOk: true);
             return navigator != null && navigator.canPop();
         }
         public static Future<bool> maybePop<T>(BuildContext context,  T result = default(T)) {
-            return Navigator.of(context).maybePop<T>(result);
+            return of(context).maybePop<T>(result);
         }
-        /*public static Future<bool> maybePop(BuildContext context,  object result = null) {
-            return Navigator.of(context).maybePop(result);
-        }*/
+        public static Future<bool> maybePop(BuildContext context,  object result = null) {
+            return of(context).maybePop(result);
+        }
 
         public static void pop<T>(BuildContext context, T result = default(T) ) {
-            Navigator.of(context).pop<T>(result);
+            of(context).pop<T>(result);
         }
 
         public static void popUntil(BuildContext context, RoutePredicate predicate) {
-            Navigator.of(context).popUntil(predicate);
+            of(context).popUntil(predicate);
           }
 
         public static void removeRoute(BuildContext context, Route route) {
-             Navigator.of(context).removeRoute(route);
+             of(context).removeRoute(route);
         }
 
           
         public static void removeRouteBelow(BuildContext context, Route anchorRoute) {
-             Navigator.of(context).removeRouteBelow(anchorRoute);
+             of(context).removeRouteBelow(anchorRoute);
           }
         /*public static void replace(BuildContext context, Route oldRoute = null, Route newRoute = null) {
             D.assert(oldRoute != null);
@@ -675,13 +675,13 @@ namespace Unity.UIWidgets.widgets {
             List<Route> result = new List<Route>();
             if (initialRouteName.StartsWith("/") && initialRouteName.Length > 1) {
                 initialRouteName = initialRouteName.Substring(1); // strip leading "/"
-                D.assert(Navigator.defaultRouteName == "/");
+                D.assert(defaultRouteName == "/");
                 List<string> debugRouteNames = new List<string>();
                 D.assert(() => {
-                    debugRouteNames = new List<string> {Navigator.defaultRouteName};
+                    debugRouteNames = new List<string> {defaultRouteName};
                     return true;
                 });
-                result.Add(navigator._routeNamed(Navigator.defaultRouteName, arguments: null, allowNull: true));
+                result.Add(navigator._routeNamed(defaultRouteName, arguments: null, allowNull: true));
                 string[] routeParts = initialRouteName.Split('/');
                 if (initialRouteName.isNotEmpty()) {
                     string routeName = "";
@@ -701,14 +701,14 @@ namespace Unity.UIWidgets.widgets {
                             "Could not navigate to initial route.\n" +
                             $"The requested route name was: {initialRouteName} \n " +
                             "There was no corresponding route in the app, and therefore the initial route specified will be " +
-                            $"ignored and {Navigator.defaultRouteName} will be used instead."
+                            $"ignored and {defaultRouteName} will be used instead."
                         );
                         return true;
                     });
                     result.Clear();
                 }
             }
-            else if (initialRouteName != Navigator.defaultRouteName) {
+            else if (initialRouteName != defaultRouteName) {
                 result.Add(navigator._routeNamed(initialRouteName, arguments: null, allowNull: true));
             }
 
@@ -721,7 +721,7 @@ namespace Unity.UIWidgets.widgets {
             if (result.isEmpty())
                 result.Add(
                     navigator._routeNamed(
-                        name:Navigator.defaultRouteName,
+                        name:defaultRouteName,
                         arguments: null));
             return result;
         }
@@ -1145,7 +1145,7 @@ namespace Unity.UIWidgets.widgets {
             });
             foreach (NavigatorObserver observer in widget.observers)
                 observer._navigator = null;
-            focusScopeNode.detach();/// focus manager dispose
+            focusScopeNode.dispose();/// focus manager dispose
             foreach (_RouteEntry entry in _history)
                 entry.dispose();
             base.dispose();

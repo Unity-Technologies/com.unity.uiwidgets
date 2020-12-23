@@ -26,8 +26,8 @@ namespace Unity.UIWidgets.rendering {
         visible,
     }
 
-
-    public class RenderParagraph : RenderBox {
+    
+    public class RenderParagraph : RenderBox{
         static readonly string _kEllipsis = "\u2026";
 
         bool _softWrap;
@@ -35,38 +35,57 @@ namespace Unity.UIWidgets.rendering {
         TextOverflow _overflow;
         readonly TextPainter _textPainter;
         bool _needsClipping = false;
+        ui.Shader _overflowShader;
 
         List<TextBox> _selectionRects;
 
-        public RenderParagraph(TextSpan text,
+        public RenderParagraph(
+            InlineSpan text = null,
             TextAlign textAlign = TextAlign.left,
             TextDirection textDirection = TextDirection.ltr,
             bool softWrap = true,
             TextOverflow overflow = TextOverflow.clip,
             float textScaleFactor = 1.0f,
             int? maxLines = null,
+            Locale locale = null,
             StrutStyle strutStyle = null,
-            Action onSelectionChanged = null,
-            Color selectionColor = null
+            TextWidthBasis textWidthBasis = TextWidthBasis.parent,
+            ui.TextHeightBehavior textHeightBehavior = null,
+            List<RenderBox> children = null
+            //Action onSelectionChanged = null,
+            //Color selectionColor = null
         ) {
             D.assert(maxLines == null || maxLines > 0);
+            D.assert(text != null);
+            D.assert(text.debugAssertIsValid());
+            D.assert(textAlign != null);
+            D.assert(textDirection != null);
+            D.assert(softWrap != null);
+            D.assert(overflow != null);
+            D.assert(textScaleFactor != null);
+            D.assert(maxLines == null || maxLines > 0);
+            D.assert(textWidthBasis != null);
             _softWrap = softWrap;
             _overflow = overflow;
             _textPainter = new TextPainter(
-                text,
-                textAlign,
-                textDirection,
-                textScaleFactor,
-                maxLines,
-                overflow == TextOverflow.ellipsis ? _kEllipsis : "",
-                strutStyle: strutStyle
+                text: text,
+                textAlign: textAlign,
+                textDirection: textDirection,
+                textScaleFactor: textScaleFactor,
+                maxLines: maxLines,
+                ellipsis: overflow == TextOverflow.ellipsis ? _kEllipsis : null,
+                locale: locale,
+                strutStyle: strutStyle,
+                textWidthBasis: textWidthBasis,
+                textHeightBehavior: textHeightBehavior
             );
 
             _selection = null;
             this.onSelectionChanged = onSelectionChanged;
             this.selectionColor = selectionColor;
-
-            _resetHoverHandler();
+            //addAll(children);
+            _extractPlaceholderSpans(text);
+            //_resetHoverHandler();
         }
 
         public Action onSelectionChanged;
@@ -94,7 +113,19 @@ namespace Unity.UIWidgets.rendering {
                     case RenderComparison.identical:
                     case RenderComparison.metadata:
                         return;
-                    case RenderComparison.function:
+                    case RenderComparison.paint:
+                        _textPainter.text = value;
+                        _extractPlaceholderSpans(value);
+                        markNeedsPaint();
+                        //markNeedsSemanticsUpdate();
+                        break;
+                    case RenderComparison.layout:
+                        _textPainter.text = value;
+                        _overflowShader = null;
+                        _extractPlaceholderSpans(value);
+                        markNeedsLayout();
+                        break;
+                    /*case RenderComparison.function:
                         _textPainter.text = value;
                         markNeedsPaint();
                         break;
@@ -105,11 +136,22 @@ namespace Unity.UIWidgets.rendering {
                     case RenderComparison.layout:
                         _textPainter.text = value;
                         markNeedsLayout();
-                        break;
+                        break;*/
                 }
 
-                _resetHoverHandler();
+                
             }
+        }
+        List<PlaceholderSpan> _placeholderSpans;
+        void _extractPlaceholderSpans(InlineSpan span) {
+            _placeholderSpans = new List<PlaceholderSpan>();
+            span.visitChildren((InlineSpan inlinespan)=> {
+                if (inlinespan is PlaceholderSpan) {
+                    PlaceholderSpan placeholderSpan =(PlaceholderSpan)inlinespan;
+                    _placeholderSpans.Add(placeholderSpan);
+                }
+                return true;
+            });
         }
 
         public TextAlign textAlign {
@@ -192,6 +234,57 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
+        public Locale locale {
+            get {
+                return _textPainter.locale;
+            }
+            set {
+                if (_textPainter.locale == value)
+                    return;
+                _textPainter.locale = value;
+                _overflowShader = null;
+                markNeedsLayout();
+            }
+        }
+
+        public StrutStyle strutStyle {
+            get { return  _textPainter.strutStyle;}
+            set {
+                if (_textPainter.strutStyle == value)
+                    return;
+                _textPainter.strutStyle = value;
+                _overflowShader = null;
+                markNeedsLayout();
+            }
+        }
+
+        public TextWidthBasis textWidthBasis {
+            get { return _textPainter.textWidthBasis; }
+            set {
+                D.assert(value != null);
+                if (_textPainter.textWidthBasis == value)
+                    return;
+                _textPainter.textWidthBasis = value;
+                _overflowShader = null;
+                markNeedsLayout();
+            }
+        }
+
+
+        /// {@macro flutter.dart:ui.textHeightBehavior}
+        public ui.TextHeightBehavior textHeightBehavior {
+            get {
+                return   _textPainter.textHeightBehavior;
+            }
+            set {
+                if (_textPainter.textHeightBehavior == value)
+                    return;
+                _textPainter.textHeightBehavior = value;
+                _overflowShader = null;
+                markNeedsLayout();
+            }
+        }
+
         public Size textSize {
             get { return _textPainter.size; }
         }
@@ -263,7 +356,7 @@ namespace Unity.UIWidgets.rendering {
         bool _hasHoverRecognizer;
         MouseTrackerAnnotation _hoverAnnotation;
 
-        void _resetHoverHandler() {
+        /*void _resetHoverHandler() {
             _hasHoverRecognizer = (_textPainter.text as TextSpan)?.hasHoverRecognizer ?? false;
             _previousHoverSpan = null;
             _pointerHoverInside = false;
@@ -285,7 +378,7 @@ namespace Unity.UIWidgets.rendering {
             else {
                 _hoverAnnotation = null;
             }
-        }
+        }*/
 
         void _handleKeyEvent(RawKeyEvent keyEvent) {
             //only allow KCommand.copy
@@ -319,9 +412,9 @@ namespace Unity.UIWidgets.rendering {
 
         public override void attach(object owner) {
             base.attach(owner);
-            if (_hoverAnnotation != null) {
+            /*if (_hoverAnnotation != null) {
                 RendererBinding.instance.mouseTracker.attachAnnotation(_hoverAnnotation);
-            }
+            }*/
         }
 
         public override void detach() {
@@ -330,9 +423,9 @@ namespace Unity.UIWidgets.rendering {
             }
 
             base.detach();
-            if (_hoverAnnotation != null) {
-                RendererBinding.instance.mouseTracker.detachAnnotation(_hoverAnnotation);
-            }
+            /*if (_hoverAnnotation != null) {
+                RendererBinding.instance.mouseTracker.dispose();//detachAnnotation(_hoverAnnotation);
+            }*/
         }
 
         TextSelection _selection;
@@ -485,18 +578,6 @@ namespace Unity.UIWidgets.rendering {
             }
 
             canvas.drawPath(barPath, paint);
-        }
-
-        public StrutStyle strutStyle {
-            get { return _textPainter.strutStyle; }
-            set {
-                if (_textPainter.strutStyle == value) {
-                    return;
-                }
-
-                _textPainter.strutStyle = value;
-                markNeedsLayout();
-            }
         }
 
         void _layoutText(float minWidth = 0.0f, float maxWidth = float.PositiveInfinity) {

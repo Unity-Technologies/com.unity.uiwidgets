@@ -72,7 +72,8 @@ namespace Unity.UIWidgets.painting {
             TextDirection textDirection = TextDirection.ltr,
             float textScaleFactor = 1.0f,
             int? maxLines = null,
-            string ellipsis = "",
+            string ellipsis = null,
+            Locale locale = null,
             StrutStyle strutStyle = null,
             TextWidthBasis textWidthBasis = TextWidthBasis.parent,
             TextHeightBehavior textHeightBehavior = null) {
@@ -84,6 +85,7 @@ namespace Unity.UIWidgets.painting {
             _textScaleFactor = textScaleFactor;
             _maxLines = maxLines;
             _ellipsis = ellipsis;
+            _locale = locale;
             _strutStyle = strutStyle;
             _textWidthBasis = textWidthBasis;
             _textHeightBehavior = textHeightBehavior;
@@ -200,9 +202,21 @@ namespace Unity.UIWidgets.painting {
                 markNeedsLayout();
             }
         }
-
         StrutStyle _strutStyle;
 
+        public Locale locale {
+            get {
+                return _locale;
+            }
+            set {
+                if (_locale == value)
+                    return;
+                _locale = value;
+                markNeedsLayout();
+            }
+        }
+        Locale _locale;
+       
         public TextWidthBasis textWidthBasis {
             get { return _textWidthBasis; }
             set {
@@ -380,8 +394,8 @@ namespace Unity.UIWidgets.painting {
 
         public List<TextBox> getBoxesForSelection(
             TextSelection selection,
-            ui.BoxHeightStyle boxHeightStyle = ui.BoxHeightStyle.tight,
-            ui.BoxWidthStyle boxWidthStyle = ui.BoxWidthStyle.tight) {
+            BoxHeightStyle boxHeightStyle = BoxHeightStyle.tight,
+            BoxWidthStyle boxWidthStyle = BoxWidthStyle.tight) {
             D.assert(!_needsLayout);
             var results = _paragraph.getBoxesForRange(selection.start, selection.end, boxHeightStyle: boxHeightStyle,
                 boxWidthStyle: boxWidthStyle);
@@ -463,7 +477,7 @@ namespace Unity.UIWidgets.painting {
             List<TextBox> boxes = null;
             while ((boxes == null || boxes.isEmpty()) && flattenedText != null) {
                 int prevRuneOffset = offset - graphemeClusterLength;
-                boxes = _paragraph.getBoxesForRange(prevRuneOffset, offset, boxHeightStyle: ui.BoxHeightStyle.strut);
+                boxes = _paragraph.getBoxesForRange(prevRuneOffset, offset, boxHeightStyle: BoxHeightStyle.strut);
                 if (boxes.isEmpty()) {
                     if (!needsSearch) {
                         break;
@@ -506,7 +520,7 @@ namespace Unity.UIWidgets.painting {
             List<TextBox> boxes = null;
             while ((boxes == null || boxes.isEmpty()) && flattenedText != null) {
                 int nextRuneOffset = offset + graphemeClusterLength;
-                boxes = _paragraph.getBoxesForRange(offset, nextRuneOffset, boxHeightStyle: ui.BoxHeightStyle.strut);
+                boxes = _paragraph.getBoxesForRange(offset, nextRuneOffset, boxHeightStyle: BoxHeightStyle.strut);
                 if (boxes.isEmpty()) {
                     if (!needsSearch) {
                         break;

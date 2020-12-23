@@ -315,7 +315,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(mounted);
             var navigator = _navigator?.currentState;
             if (navigator == null) {
-                return Future<bool>.value(false).to<bool>();
+                return Future.value(false).to<bool>();
             }
 
             return navigator.maybePop<bool>();
@@ -325,11 +325,11 @@ namespace Unity.UIWidgets.widgets {
             D.assert(mounted);
             var navigator = _navigator?.currentState;
             if (navigator == null) {
-                return Future<bool>.value(false).to<bool>();
+                return Future.value(false).to<bool>();
             }
 
             navigator.pushNamed<bool>(route);
-            return Future<bool>.value(true).to<bool>();
+            return Future.value(true).to<bool>();
         }
 
         Route<object> _onUnknownRoute(RouteSettings settings) {

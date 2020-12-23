@@ -121,8 +121,8 @@ namespace Unity.UIWidgets.rendering {
                     return true;
                 });
             }
-
-            child._layer.offset = offset;
+            D.assert(child._layer is OffsetLayer);
+            ((OffsetLayer)child._layer).offset = offset;
             appendLayer(child._layer);
         }
 
@@ -990,21 +990,26 @@ namespace Unity.UIWidgets.rendering {
             get { return false; }
         }
 
-        internal OffsetLayer _layer;
+        internal ContainerLayer _layer;
 
-        public OffsetLayer layer {
+        public ContainerLayer layer {
             get {
-                D.assert(isRepaintBoundary,
-                    () => "You can only access RenderObject.layer for render objects that are repaint boundaries.");
-                D.assert(!_needsPaint);
-
+                D.assert(!isRepaintBoundary || (_layer == null || _layer is OffsetLayer));
                 return _layer;
             }
         }
 
-        public OffsetLayer debugLayer {
+        public void setLayer(ContainerLayer newLayer) {
+            D.assert(
+                !isRepaintBoundary,()=>
+                "Attempted to set a layer to a repaint boundary render object.\n" +
+                "The framework creates and assigns an OffsetLayer to a repaint "+
+                "boundary automatically.");
+            _layer = newLayer;
+        }
+        public ContainerLayer debugLayer {
             get {
-                OffsetLayer result = null;
+                ContainerLayer result = null;
                 D.assert(() => {
                     result = _layer;
                     return true;
@@ -1383,7 +1388,7 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new DiagnosticsProperty<ParentData>("parentData", parentData,
                 tooltip: _debugCanParentUseSize ? "can use size" : null, missingIfNull: true));
             properties.add(new DiagnosticsProperty<Constraints>("constraints", constraints, missingIfNull: true));
-            properties.add(new DiagnosticsProperty<OffsetLayer>("layer", _layer,
+            properties.add(new DiagnosticsProperty<ContainerLayer>("layer", _layer,
                 defaultValue: foundation_.kNullDefaultValue));
         }
 
