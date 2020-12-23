@@ -139,7 +139,7 @@ namespace Unity.UIWidgets.widgets {
 
         protected bool debugBuildingDirtyElements = false;
 
-        protected override void drawFrame() {
+        protected override void drawFrame(bool layoutOnly = false) {
             D.assert(!this.debugBuildingDirtyElements);
             D.assert(() => {
                 this.debugBuildingDirtyElements = true;
@@ -173,7 +173,7 @@ namespace Unity.UIWidgets.widgets {
             }
             
             //The former widget tree must be layout first before its destruction
-            this.drawFrame();
+            this.drawFrame(true);
             this.attachRootWidget(null);
             this.buildOwner.buildScope(this._renderViewElement);
             this.buildOwner.finalizeTree();
