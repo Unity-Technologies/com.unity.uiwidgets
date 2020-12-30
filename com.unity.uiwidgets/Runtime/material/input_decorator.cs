@@ -1953,7 +1953,7 @@ namespace Unity.UIWidgets.material {
                     widthFactor: 1.0f,
                     heightFactor: 1.0f,
                     child: new ConstrainedBox(
-                        constraints: new BoxConstraints(minWidth: 48.0f, minHeight: 48.0f),
+                        constraints: this.decoration?.prefixIconConstraints ?? new BoxConstraints(minWidth: 48.0f, minHeight: 48.0f),
                         child: IconTheme.merge(
                             data: new IconThemeData(
                                 color: iconColor,
@@ -1970,7 +1970,7 @@ namespace Unity.UIWidgets.material {
                     widthFactor: 1.0f,
                     heightFactor: 1.0f,
                     child: new ConstrainedBox(
-                        constraints: new BoxConstraints(minWidth: 48.0f, minHeight: 48.0f),
+                        constraints: this.decoration?.suffixIconConstraints ?? new BoxConstraints(minWidth: 48.0f, minHeight: 48.0f),
                         child: IconTheme.merge(
                             data: new IconThemeData(
                                 color: iconColor,
@@ -2074,10 +2074,12 @@ namespace Unity.UIWidgets.material {
             bool? isDense = null,
             EdgeInsets contentPadding = null,
             Widget prefixIcon = null,
+            BoxConstraints prefixIconConstraints = null,
             Widget prefix = null,
             string prefixText = null,
             TextStyle prefixStyle = null,
             Widget suffixIcon = null,
+            BoxConstraints suffixIconConstraints = null,
             Widget suffix = null,
             string suffixText = null,
             TextStyle suffixStyle = null,
@@ -2118,10 +2120,12 @@ namespace Unity.UIWidgets.material {
             this.prefix = prefix;
             this.prefixText = prefixText;
             this.prefixIcon = prefixIcon;
+            this.prefixIconConstraints = prefixIconConstraints;
             this.prefixStyle = prefixStyle;
             this.suffix = suffix;
             this.suffixText = suffixText;
             this.suffixIcon = suffixIcon;
+            this.suffixIconConstraints = suffixIconConstraints;
             this.suffixStyle = suffixStyle;
             this.counter = counter;
             this.counterText = counterText;
@@ -2161,11 +2165,13 @@ namespace Unity.UIWidgets.material {
                 isDense: false,
                 contentPadding: EdgeInsets.zero,
                 prefixIcon: null,
+                prefixIconConstraints: null,
                 prefix: null,
                 prefixText: null,
                 prefixStyle: null,
                 suffix: null,
                 suffixIcon: null,
+                suffixIconConstraints: null,
                 suffixText: null,
                 suffixStyle: null,
                 counter: null,
@@ -2221,6 +2227,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly Widget prefixIcon;
 
+        public readonly BoxConstraints prefixIconConstraints;
+
         public readonly Widget prefix;
 
         public readonly string prefixText;
@@ -2228,6 +2236,8 @@ namespace Unity.UIWidgets.material {
         public readonly TextStyle prefixStyle;
 
         public readonly Widget suffixIcon;
+
+        public readonly BoxConstraints suffixIconConstraints;
 
         public readonly Widget suffix;
 
@@ -2277,10 +2287,12 @@ namespace Unity.UIWidgets.material {
             bool? isDense = null,
             EdgeInsets contentPadding = null,
             Widget prefixIcon = null,
+            BoxConstraints prefixIconConstraints = null,
             Widget prefix = null,
             string prefixText = null,
             TextStyle prefixStyle = null,
             Widget suffixIcon = null,
+            BoxConstraints suffixIconConstraints = null,
             Widget suffix = null,
             string suffixText = null,
             TextStyle suffixStyle = null,
@@ -2314,10 +2326,12 @@ namespace Unity.UIWidgets.material {
                 isDense: isDense ?? this.isDense,
                 contentPadding: contentPadding ?? this.contentPadding,
                 prefixIcon: prefixIcon ?? this.prefixIcon,
+                prefixIconConstraints: prefixIconConstraints ?? this.prefixIconConstraints,
                 prefix: prefix ?? this.prefix,
                 prefixText: prefixText ?? this.prefixText,
                 prefixStyle: prefixStyle ?? this.prefixStyle,
                 suffixIcon: suffixIcon ?? this.suffixIcon,
+                suffixIconConstraints: suffixIconConstraints ?? this.suffixIconConstraints,
                 suffix: suffix ?? this.suffix,
                 suffixText: suffixText ?? this.suffixText,
                 suffixStyle: suffixStyle ?? this.suffixStyle,
@@ -2387,10 +2401,12 @@ namespace Unity.UIWidgets.material {
                    && Equals(other.contentPadding, this.contentPadding)
                    && Equals(other.isCollapsed, this.isCollapsed)
                    && Equals(other.prefixIcon, this.prefixIcon)
+                   && Equals(other.prefixIconConstraints, this.prefixIconConstraints)
                    && Equals(other.prefix, this.prefix)
                    && Equals(other.prefixText, this.prefixText)
                    && Equals(other.prefixStyle, this.prefixStyle)
                    && Equals(other.suffixIcon, this.suffixIcon)
+                   && Equals(other.suffixIconConstraints, this.suffixIconConstraints)
                    && Equals(other.suffix, this.suffix)
                    && Equals(other.suffixText, this.suffixText)
                    && Equals(other.suffixStyle, this.suffixStyle)
@@ -2447,10 +2463,12 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ this.border.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.enabled.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.prefixIcon.GetHashCode();
+                hashCode = (hashCode * 397) ^ this.prefixIconConstraints.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.prefix.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.prefixText.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.prefixStyle.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.suffixIcon.GetHashCode();
+                hashCode = (hashCode * 397) ^ this.suffixIconConstraints.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.suffix.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.suffixText.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.suffixStyle.GetHashCode();
@@ -2525,6 +2543,10 @@ namespace Unity.UIWidgets.material {
                 description.Add($"prefixIcon: ${this.prefixIcon}");
             }
 
+            if (this.prefixIconConstraints != null) {
+                description.Add($"prefixIconConstraints: ${this.prefixIconConstraints}");
+            }
+
             if (this.prefix != null) {
                 description.Add($"prefix: ${this.prefix}");
             }
@@ -2539,6 +2561,10 @@ namespace Unity.UIWidgets.material {
 
             if (this.suffixIcon != null) {
                 description.Add($"suffixIcon: ${this.suffixIcon}");
+            }
+            
+            if (this.suffixIconConstraints != null) {
+                description.Add($"suffixIconConstraints: ${this.suffixIconConstraints}");
             }
 
             if (this.suffix != null) {
