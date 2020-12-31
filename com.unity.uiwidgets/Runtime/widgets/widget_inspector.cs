@@ -209,13 +209,19 @@ namespace Unity.UIWidgets.widgets {
 
             return false;
         }
+        Dictionary<string, object> _nodeToJson(
+            DiagnosticsNode node,
+            InspectorSerializationDelegate _delegate
+            ) {
+            return node?.toJsonMap(_delegate);
+        }
 
-        Dictionary<string, object> _nodeToJson(DiagnosticsNode node, _SerializeConfig config) {
+        /*Dictionary<string, object> _nodeToJson(DiagnosticsNode node, _SerializeConfig config) {
             if (node == null) {
                 return null;
             }
 
-            var ret = node.toJsonMap( new DiagnosticsSerializationDelegate());
+            var ret = node.toJsonMap( DiagnosticsSerializationDelegate());
             var value = node.valueObject;
             ret["objectId"] = toId(node, config.groupName);
             ret["valueId"] = toId(value, config.groupName);
@@ -264,7 +270,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             return ret;
-        }
+        }*/
 
         List<Dictionary<string, object>> _nodesToJson(List<DiagnosticsNode> nodes, _SerializeConfig config) {
             if (nodes == null) {

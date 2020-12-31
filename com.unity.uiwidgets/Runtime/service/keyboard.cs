@@ -80,11 +80,11 @@ namespace Unity.UIWidgets.service {
         }
 
         public void setEditableSizeAndTransform(Dictionary<string, object> args) {
-             todo
+             //todo
         }
 
         public void setStyle(Dictionary<string, object> args) {
-             todo 
+             //todo 
         }
 
         Offset _editorWindowPosToScreenPos(Offset position) {

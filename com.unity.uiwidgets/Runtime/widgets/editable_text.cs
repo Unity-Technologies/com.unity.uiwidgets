@@ -4,7 +4,7 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
+//using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
@@ -206,11 +206,12 @@ namespace Unity.UIWidgets.widgets {
             D.assert(dragStartBehavior != null);
             D.assert(toolbarOptions != null);
             _strutStyle = strutStyle;
-            keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline),
+            inputFormatters = inputFormatters ?? new List<TextInputFormatter>();
+            keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
             inputFormatters = maxLines == 1
-                ? new List<TextInputFormatter> {
-                    BlacklistingTextInputFormatter.singleLineFormatter,
-                    ...inputFormatters ?? new List<TextInputFormatter>.Empty(),
+                ? new List<TextInputFormatter>() {
+                    BlacklistingTextInputFormatter.singleLineFormatter, 
+                    inputFormatters 
                 }
                 : inputFormatters;
             this.readOnly = readOnly;
@@ -240,7 +241,7 @@ namespace Unity.UIWidgets.widgets {
             this.textInputAction = textInputAction;
             this.textCapitalization = textCapitalization;
             this.cursorColor = cursorColor;
-            this.backgroundCursorColor = backgroundCursorColor ?? Colors.grey; // TODO: remove ??
+            this.backgroundCursorColor = backgroundCursorColor ; // TODO: remove ??
             this.maxLines = maxLines;
             this.minLines = minLines;
             this.expands = expands;
@@ -443,7 +444,7 @@ namespace Unity.UIWidgets.widgets {
                 oldWidget.controller.removeListener(_didChangeTextEditingValue);
                 widget.controller.addListener(_didChangeTextEditingValue);
                 _updateRemoteEditingValueIfNeeded();
-                _updateImePosIfNeed();
+                //_updateImePosIfNeed();
             }
 
             if (widget.focusNode != oldWidget.focusNode) {
@@ -896,7 +897,7 @@ namespace Unity.UIWidgets.widgets {
 
                 _value = value;
                 _updateRemoteEditingValueIfNeeded();
-                _updateImePosIfNeed();
+                //_updateImePosIfNeed();
             }
             else {
                 _value = value;
@@ -999,7 +1000,7 @@ namespace Unity.UIWidgets.widgets {
 
         void _didChangeTextEditingValue() {
             _updateRemoteEditingValueIfNeeded();
-            _updateImePosIfNeed();
+            //_updateImePosIfNeed();
             _startOrStopCursorTimerIfNeeded();
             _updateOrDisposeSelectionOverlayIfNeeded();
             _textChangedSinceLastCaretUpdate = true;
@@ -1165,18 +1166,18 @@ namespace Unity.UIWidgets.widgets {
             return TouchScreenKeyboard.isSupported && widget.unityTouchKeyboard;
         }
 
-        Offset _getImePos() {
+        /*Offset _getImePos() {
             if (_hasInputConnection && _textInputConnection.imeRequired()) {
                 var localPos = renderEditable.getLocalRectForCaret(_value.selection.basePos).bottomLeft;
                 return renderEditable.localToGlobal(localPos);
             }
 
             return null;
-        }
+        }*/
 
         bool _imePosUpdateScheduled = false;
 
-        void _updateImePosIfNeed() {
+        /*void _updateImePosIfNeed() {
             if (!_hasInputConnection || !_textInputConnection.imeRequired()) {
                 return;
             }
@@ -1194,7 +1195,7 @@ namespace Unity.UIWidgets.widgets {
 
                 _textInputConnection.setIMEPos(_getImePos());
             });
-        }
+        }*/
     }
 
     class _Editable : LeafRenderObjectWidget {
