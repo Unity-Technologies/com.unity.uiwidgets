@@ -208,12 +208,21 @@ namespace Unity.UIWidgets.widgets {
             _strutStyle = strutStyle;
             inputFormatters = inputFormatters ?? new List<TextInputFormatter>();
             keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
+            List<TextInputFormatter> formatters = new List<TextInputFormatter>();
+            if (inputFormatters == null) {
+                formatters = inputFormatters;
+            }
+
             inputFormatters = maxLines == 1
                 ? new List<TextInputFormatter>() {
-                    BlacklistingTextInputFormatter.singleLineFormatter, 
-                    inputFormatters 
+                    BlacklistingTextInputFormatter.singleLineFormatter,
                 }
                 : inputFormatters;
+            if (maxLines == 1) {
+                foreach (var formatter in formatters) {
+                    inputFormatters.Add(formatter);
+                }
+            }
             this.readOnly = readOnly;
             this.showCursor = showCursor ?? !readOnly;
             this.keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
@@ -564,6 +573,21 @@ namespace Unity.UIWidgets.widgets {
 
         public RawInputKeyResponse globalInputKeyHandler(RawKeyEvent evt) {
             return widget.globalKeyEventHandler?.Invoke(evt, true) ?? RawInputKeyResponse.convert(evt);
+        }
+
+        public TextEditingValue currentTextEditingValue {
+            get {
+                return _value;
+            }
+        }
+        public void connectionClosed() {
+            if (_hasInputConnection) {
+                _textInputConnection.connectionClosedReceived();
+                _textInputConnection = null;
+                _lastFormattedUnmodifiedTextEditingValue = null;
+                _receivedRemoteTextEditingValue = null;
+                _finalizeEditing(true);
+            }
         }
 
         void _onFloatingCursorResetTick() {
@@ -1058,6 +1082,26 @@ namespace Unity.UIWidgets.widgets {
             _scrollController.jumpTo(
                 _getScrollOffsetForCaret(renderEditable.getLocalRectForCaret(position)));
         }
+
+        public bool cutEnabled {
+            get { return widget.toolbarOptions.cut && !widget.readOnly; }
+        }
+        public bool copyEnabled {
+            get {
+                return widget.toolbarOptions.copy;
+            }
+        }
+        public bool pasteEnabled {
+            get {
+                return widget.toolbarOptions.paste && !widget.readOnly;
+            }
+        }
+        public bool selectAllEnabled {
+            get {
+                return widget.toolbarOptions.selectAll;
+            }
+        }
+
         public void toggleToolbar() {
             D.assert(_selectionOverlay != null);
             if (_selectionOverlay.toolbarIsVisible) {
