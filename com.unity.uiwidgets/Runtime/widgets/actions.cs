@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(key != null);
         }
 
-        public static  Intent doNothing = new Intent(DoNothingAction.key);
+        public const Intent doNothing = new Intent(DoNothingAction.key);
         public readonly LocalKey key;
 
         public bool isEnabled(BuildContext context) => true;
@@ -53,7 +53,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void invoke(FocusNode node, Intent intent) {
             onInvoke.Invoke(node, intent);
-            
+
         }
     }
 
@@ -83,6 +83,8 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) : base(key: key, child: child) {
             D.assert(actions != null);
+            this.dispatcher = dispatcher;
+            this.actions = actions;
         }
 
         public readonly ActionDispatcher dispatcher;
@@ -91,8 +93,8 @@ namespace Unity.UIWidgets.widgets {
 
         public static ActionDispatcher _findDispatcher(Element element) {
             D.assert(element.widget is Actions);
-            Actions action = element.widget as Actions;
-            ActionDispatcher dispatcher = action.dispatcher;
+            Actions actions = element.widget as Actions;
+            ActionDispatcher dispatcher = actions.dispatcher;
             if (dispatcher == null) {
                 bool visitAncestorElement(Element visitedElement) {
                     if (!(visitedElement.widget is Actions)) {
@@ -290,7 +292,7 @@ namespace Unity.UIWidgets.widgets {
         
         public override void initState() {
             base.initState();
-            SchedulerBinding.instance.addPostFrameCallback((stamp =>  {
+            SchedulerBinding.instance.addPostFrameCallback(((Duration duration) =>  {
               _updateHighlightMode(FocusManager.instance.highlightMode);
             }));
             FocusManager.instance.addHighlightModeListener(_handleFocusHighlightModeChange);
@@ -377,7 +379,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
-            oldWidget =(FocusableActionDetector) oldWidget;
+            //oldWidget =(FocusableActionDetector) oldWidget;
             base.didUpdateWidget(oldWidget);
             if (widget.enabled != ((FocusableActionDetector)oldWidget).enabled) {
               SchedulerBinding.instance.addPostFrameCallback((TimeSpan timespan)=> {
