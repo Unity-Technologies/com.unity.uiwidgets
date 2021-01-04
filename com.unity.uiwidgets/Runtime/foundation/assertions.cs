@@ -8,6 +8,16 @@ namespace Unity.UIWidgets.foundation {
     public delegate void UIWidgetsExceptionHandler(UIWidgetsErrorDetails details);
 
     public delegate void InformationCollector(StringBuilder information);
+    
+    public class ErrorSpacer : DiagnosticsProperty<object> {
+        public ErrorSpacer() : base(
+            "",
+            null,
+            description: "",
+            showName: false
+        ) {
+        }
+    }
 
     public class UIWidgetsErrorDetails {
         public UIWidgetsErrorDetails(

@@ -995,6 +995,28 @@ namespace Unity.UIWidgets.ui {
             _m4storage[14] *= sw;
             _m4storage[15] *= sw;
         }
+        public void scale(float x, float? y = null, float? z = null) {
+            float sx = x;
+            float sy = y ?? x;
+            float sz = z ?? x;
+            float sw = 1;
+            _m4storage[0] *= sx;
+            _m4storage[1] *= sx;
+            _m4storage[2] *= sx;
+            _m4storage[3] *= sx;
+            _m4storage[4] *= sy;
+            _m4storage[5] *= sy;
+            _m4storage[6] *= sy;
+            _m4storage[7] *= sy;
+            _m4storage[8] *= sz;
+            _m4storage[9] *= sz;
+            _m4storage[10] *= sz;
+            _m4storage[11] *= sz;
+            _m4storage[12] *= sw;
+            _m4storage[13] *= sw;
+            _m4storage[14] *= sw;
+            _m4storage[15] *= sw;
+        }
 
         Matrix4 scaled(float sx, float sy = 1, float sz = 1, float sw = 1) {
             var result = clone();
