@@ -13,18 +13,25 @@ namespace Unity.UIWidgets.foundation {
         debug,
         info,
         warning,
+        hint,
+        summary,
         error,
         off,
     }
 
     public enum DiagnosticsTreeStyle {
+        none,
         sparse,
         offstage,
         dense,
         transition,
+        error,
         whitespace,
+        flat,
         singleLine,
         errorProperty,
+        shallow,
+        truncateChildren
     }
 
     public class DiagnosticUtils {
@@ -52,15 +59,20 @@ namespace Unity.UIWidgets.foundation {
             bool lineBreakProperties = true,
             string afterName = ":",
             string afterDescriptionIfBody = "",
+            string afterDescription = "",
             string beforeProperties = "",
             string afterProperties = "",
+            string mandatoryAfterProperties = "",
             string propertySeparator = "",
             string bodyIndent = "",
             string footer = "",
             bool showChildren = true,
             bool addBlankLineIfNoChildren = true,
             bool isNameOnOwnLine = false,
-            bool isBlankLineBetweenPropertiesAndChildren = true
+            bool isBlankLineBetweenPropertiesAndChildren = true,
+            string beforeName = "",
+            string suffixLineOne = "",
+            string mandatoryFooter = ""
         ) {
             D.assert(prefixLineOne != null);
             D.assert(prefixOtherLines != null);
@@ -72,6 +84,7 @@ namespace Unity.UIWidgets.foundation {
             D.assert(lineBreak != null);
             D.assert(afterName != null);
             D.assert(afterDescriptionIfBody != null);
+            D.assert(afterDescription != null);
             D.assert(beforeProperties != null);
             D.assert(afterProperties != null);
             D.assert(propertySeparator != null);
@@ -103,6 +116,8 @@ namespace Unity.UIWidgets.foundation {
 
         public readonly string prefixLineOne;
 
+        public readonly string suffixLineOne;
+
         public readonly string prefixOtherLines;
 
         public readonly string prefixLastChildLineOne;
@@ -121,13 +136,19 @@ namespace Unity.UIWidgets.foundation {
 
         public readonly bool lineBreakProperties;
 
+        public readonly string beforeName;
+
         public readonly string afterName;
 
         public readonly string afterDescriptionIfBody;
 
+        public readonly string afterDescription;
+
         public readonly string beforeProperties;
 
         public readonly string afterProperties;
+
+        public readonly string mandatoryAfterProperties;
 
         public readonly string propertySeparator;
 
@@ -140,6 +161,8 @@ namespace Unity.UIWidgets.foundation {
         public readonly bool isNameOnOwnLine;
 
         public readonly string footer;
+
+        public readonly string mandatoryFooter;
 
         public readonly bool isBlankLineBetweenPropertiesAndChildren;
     }
@@ -186,7 +209,7 @@ namespace Unity.UIWidgets.foundation {
             prefixLineOne: "╞═╦══ ",
             prefixLastChildLineOne: "╘═╦══ ",
             prefixOtherLines: " ║ ",
-            footer: " ╚═══════════\n",
+            footer: " ╚═══════════",
             linkCharacter: "│",
             propertyPrefixIfChildren: "",
             propertyPrefixNoChildren: "",
@@ -195,6 +218,22 @@ namespace Unity.UIWidgets.foundation {
             afterDescriptionIfBody: ":",
             bodyIndent: "  ",
             isNameOnOwnLine: true,
+            addBlankLineIfNoChildren: false,
+            isBlankLineBetweenPropertiesAndChildren: false
+        );
+        
+        public static readonly TextTreeConfiguration errorTextConfiguration = new TextTreeConfiguration(
+            prefixLineOne:           "╞═╦",
+            prefixLastChildLineOne:  "╘═╦",
+            prefixOtherLines:         " ║ ",
+            footer:                   " ╚═══════════",
+            linkCharacter:            "│",
+            propertyPrefixIfChildren: "",
+            propertyPrefixNoChildren: "",
+            prefixOtherLinesRootNode: "",
+            beforeName:               "══╡ ",
+            suffixLineOne:            " ╞══",
+            mandatoryFooter:          "═════",
             addBlankLineIfNoChildren: false,
             isBlankLineBetweenPropertiesAndChildren: false
         );
@@ -212,6 +251,20 @@ namespace Unity.UIWidgets.foundation {
             afterDescriptionIfBody: ":",
             isBlankLineBetweenPropertiesAndChildren: false
         );
+        
+        public static readonly TextTreeConfiguration flatTextConfiguration = new TextTreeConfiguration(
+            prefixLineOne: "",
+            prefixLastChildLineOne: "",
+            prefixOtherLines: "",
+            prefixOtherLinesRootNode: "",
+            bodyIndent: "",
+            propertyPrefixIfChildren: "",
+            propertyPrefixNoChildren: "",
+            linkCharacter: "",
+            addBlankLineIfNoChildren: false,
+            afterDescriptionIfBody: ":",
+            isBlankLineBetweenPropertiesAndChildren: false
+        );
 
         public static readonly TextTreeConfiguration singleLineTextConfiguration = new TextTreeConfiguration(
             propertySeparator: ", ",
@@ -224,26 +277,82 @@ namespace Unity.UIWidgets.foundation {
             lineBreakProperties: false,
             addBlankLineIfNoChildren: false,
             showChildren: false,
-            propertyPrefixIfChildren: "",
-            propertyPrefixNoChildren: "",
+            propertyPrefixIfChildren: "  ",
+            propertyPrefixNoChildren: "  ",
             linkCharacter: "",
             prefixOtherLinesRootNode: ""
         );
+        
+        public static readonly TextTreeConfiguration errorPropertyTextConfiguration = new TextTreeConfiguration(
+            propertySeparator: ", ",
+            beforeProperties: "(",
+            afterProperties: ")",
+            prefixLineOne: "",
+            prefixOtherLines: "",
+            prefixLastChildLineOne: "",
+            lineBreak: "\n",
+            lineBreakProperties: false,
+            addBlankLineIfNoChildren: false,
+            showChildren: false,
+            propertyPrefixIfChildren: "  ",
+            propertyPrefixNoChildren: "  ",
+            linkCharacter: "",
+            prefixOtherLinesRootNode: "",
+            afterName: ":",
+            isNameOnOwnLine: true
+        );
+        
+        public static readonly TextTreeConfiguration shallowTextConfiguration = new TextTreeConfiguration(
+            prefixLineOne: "",
+            prefixLastChildLineOne: "",
+            prefixOtherLines: " ",
+            prefixOtherLinesRootNode: "  ",
+            bodyIndent: "",
+            propertyPrefixIfChildren: "",
+            propertyPrefixNoChildren: "",
+            linkCharacter: " ",
+            addBlankLineIfNoChildren: false,
+            afterDescriptionIfBody: ":",
+            isBlankLineBetweenPropertiesAndChildren: false,
+            showChildren: false
+        );
     }
+    
+    enum _WordWrapParseMode { inSpace, inWord, atBreak }
 
     class _PrefixedStringBuilder {
-        internal _PrefixedStringBuilder(string prefixLineOne, string prefixOtherLines) {
+        internal _PrefixedStringBuilder(string prefixLineOne, string prefixOtherLines, int wrapWidth) {
             this.prefixLineOne = prefixLineOne;
-            this.prefixOtherLines = prefixOtherLines;
+            this._prefixOtherLines = prefixOtherLines;
+            this.wrapWidth = wrapWidth;
         }
 
         public readonly string prefixLineOne;
 
-        public string prefixOtherLines;
+        public string prefixOtherLines {
+            get {
+                return this._nextPrefixOtherLines ?? this._prefixOtherLines;
+            }
+            set {
+                _prefixOtherLines = value;
+                _nextPrefixOtherLines = null;
+            }
+        }
+        private string _prefixOtherLines;
+
+        private string _nextPrefixOtherLines;
+
+        void incrementPrefixOtherLines(string suffix, bool updateCurrentLine) {
+            if (_currentLine.)
+        }
+
+        public readonly int wrapWidth;
 
         readonly StringBuilder _buffer = new StringBuilder();
-        bool _atLineStart = true;
-        bool _hasMultipleLines = false;
+        
+        readonly StringBuilder _currentLine = new StringBuilder();
+
+        readonly List<int> _wrappableRanges = new List<int>();
 
         public bool hasMultipleLines {
             get { return _hasMultipleLines; }
@@ -1453,6 +1562,9 @@ namespace Unity.UIWidgets.foundation {
             object defaultValue = null,
             string tooltip = null,
             bool missingIfNull = false,
+            bool expandableValue = false,
+            bool allowWrap = true,
+            bool allowNameWrap = true,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(
@@ -1477,6 +1589,9 @@ namespace Unity.UIWidgets.foundation {
             this.defaultValue = defaultValue;
             this.tooltip = tooltip;
             this.missingIfNull = missingIfNull;
+            this.expandableValue = expandableValue;
+            this.allowWrap = allowWrap;
+            this.allowNameWrap = allowNameWrap;
         }
 
         internal DiagnosticsProperty(
@@ -1490,6 +1605,9 @@ namespace Unity.UIWidgets.foundation {
             object defaultValue = null,
             string tooltip = null,
             bool missingIfNull = false,
+            bool expandableValue = false,
+            bool allowWrap = true,
+            bool allowNameWrap = true,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(
@@ -1514,6 +1632,9 @@ namespace Unity.UIWidgets.foundation {
             this.defaultValue = defaultValue;
             this.tooltip = tooltip;
             this.missingIfNull = missingIfNull;
+            this.expandableValue = expandableValue;
+            this.allowWrap = allowWrap;
+            this.allowNameWrap = allowNameWrap;
         }
 
         public static DiagnosticsProperty<T> lazy(
@@ -1527,6 +1648,9 @@ namespace Unity.UIWidgets.foundation {
             object defaultValue = null,
             string tooltip = null,
             bool missingIfNull = false,
+            bool expandableValue = false,
+            bool allowWrap = true,
+            bool allowNameWrap = true,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
         ) {
@@ -1541,11 +1665,20 @@ namespace Unity.UIWidgets.foundation {
                 defaultValue,
                 tooltip,
                 missingIfNull,
+                expandableValue,
+                allowWrap,
+                allowNameWrap,
                 style,
                 level);
         }
 
         internal readonly string _description;
+
+        public readonly bool expandableValue;
+
+        public readonly bool allowWrap;
+
+        public readonly bool allowNameWrap;
 
         public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate  Delegate){
             T v = value;
@@ -1738,7 +1871,7 @@ namespace Unity.UIWidgets.foundation {
         readonly T _value;
         DiagnosticPropertiesBuilder _cachedBuilder;
 
-        DiagnosticPropertiesBuilder _builder {
+        protected DiagnosticPropertiesBuilder _builder {
             get {
                 if (_cachedBuilder == null) {
                     _cachedBuilder = new DiagnosticPropertiesBuilder();
@@ -1806,6 +1939,13 @@ namespace Unity.UIWidgets.foundation {
     }
 
     public class DiagnosticPropertiesBuilder {
+        public DiagnosticPropertiesBuilder(List<DiagnosticsNode> properties) {
+            this.properties = properties;
+        }
+        
+        public DiagnosticPropertiesBuilder() {
+        }
+        
         public void add(DiagnosticsNode property) {
             properties.Add(property);
         }
