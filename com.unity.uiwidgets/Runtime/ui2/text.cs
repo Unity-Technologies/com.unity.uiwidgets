@@ -1581,7 +1581,7 @@ namespace Unity.UIWidgets.ui {
             return boxes;
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             Paragraph_dispose(ptr);
         }
 
@@ -1805,7 +1805,7 @@ namespace Unity.UIWidgets.ui {
             locale
         );
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             ParagraphBuilder_dispose(ptr);
         }
 

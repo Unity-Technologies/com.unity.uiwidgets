@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(key != null);
         }
 
-        public const Intent doNothing = new Intent(DoNothingAction.key);
+        public static readonly Intent doNothing = new Intent(DoNothingAction.key);
         public readonly LocalKey key;
 
         public bool isEnabled(BuildContext context) => true;
@@ -292,7 +292,7 @@ namespace Unity.UIWidgets.widgets {
         
         public override void initState() {
             base.initState();
-            SchedulerBinding.instance.addPostFrameCallback(((Duration duration) =>  {
+            SchedulerBinding.instance.addPostFrameCallback(((TimeSpan timespan) =>  {
               _updateHighlightMode(FocusManager.instance.highlightMode);
             }));
             FocusManager.instance.addHighlightModeListener(_handleFocusHighlightModeChange);

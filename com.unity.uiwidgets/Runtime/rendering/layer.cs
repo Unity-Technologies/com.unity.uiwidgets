@@ -785,7 +785,7 @@ namespace Unity.UIWidgets.rendering {
                     (pixelRatio * bounds.height).ceil()
                 );
             } finally {
-                scene.Dispose();
+                scene.DisposePtr(scene._ptr);// ???
             }
         }
         
