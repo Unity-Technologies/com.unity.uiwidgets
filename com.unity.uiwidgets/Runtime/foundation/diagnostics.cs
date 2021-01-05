@@ -18,11 +18,14 @@ namespace Unity.UIWidgets.foundation {
     }
 
     public enum DiagnosticsTreeStyle {
+        
         sparse,
         offstage,
         dense,
         transition,
+        error,
         whitespace,
+        flat,
         singleLine,
         errorProperty,
     }
@@ -363,8 +366,11 @@ namespace Unity.UIWidgets.foundation {
         public static DiagnosticsNode message(
             string message,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
-            DiagnosticLevel level = DiagnosticLevel.info
+            DiagnosticLevel level = DiagnosticLevel.info,
+            bool allowWrap = true
         ) {
+            D.assert(style != null);
+            D.assert(level != null);
             return new DiagnosticsProperty<object>(
                 "",
                 null,
@@ -1839,7 +1845,7 @@ namespace Unity.UIWidgets.foundation {
 
         public virtual DiagnosticsNode toDiagnosticsNode(
             string name = null,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse) {
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse ) {
             return new DiagnosticableNode<Diagnosticable>(
                 name: name, value: this, style: style
             );
@@ -1885,7 +1891,8 @@ namespace Unity.UIWidgets.foundation {
 
         public override DiagnosticsNode toDiagnosticsNode(
             string name = null,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse) {
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse ) {
+            
             return new _DiagnosticableTreeNode(
                 name: name,
                 value: this,

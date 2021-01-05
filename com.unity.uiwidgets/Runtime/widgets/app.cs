@@ -589,9 +589,18 @@ namespace Unity.UIWidgets.widgets {
                 );
             }*/
             D.assert(() => {
-                if (WidgetInspectorService.instance.debugShowInspector) {
-                    result = new WidgetInspector(null, result, _InspectorSelectButtonBuilder);
+                if (widget.debugShowWidgetInspector || WidgetsApp.debugShowWidgetInspectorOverride) {
+                    result = new WidgetInspector(
+                        child: result,
+                        selectButtonBuilder: widget.inspectorSelectButtonBuilder
+                    );
                 }
+                if (widget.debugShowCheckedModeBanner && WidgetsApp.debugAllowBannerOverride) {
+                    result = new CheckedModeBanner(
+                        child: result
+                    );
+                }
+                return true;
 
                 /*if (widget.debugShowWidgetInspector || WidgetsApp.debugShowWidgetInspectorOverride) {
                     result = new WidgetInspector(

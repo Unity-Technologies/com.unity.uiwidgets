@@ -23,7 +23,7 @@ namespace Unity.UIWidgets.rendering {
     public delegate void PaintingContextCallback(PaintingContext context, Offset offset);
 
     public class PaintingContext : ClipContext {
-        PaintingContext(
+        public PaintingContext(
             ContainerLayer containerLayer = null,
             Rect estimatedBounds = null
         ) {
@@ -92,7 +92,7 @@ namespace Unity.UIWidgets.rendering {
             });
         }
 
-        public void paintChild(RenderObject child, Offset offset) {
+        public virtual void paintChild(RenderObject child, Offset offset) {
             if (child.isRepaintBoundary) {
                 stopRecordingIfNeeded();
                 _compositeChild(child, offset);
@@ -242,7 +242,7 @@ namespace Unity.UIWidgets.rendering {
             childContext.stopRecordingIfNeeded();
         }
 
-        protected PaintingContext createChildContext(ContainerLayer childLayer, Rect bounds) {
+        public virtual PaintingContext createChildContext(ContainerLayer childLayer, Rect bounds) {
             return new PaintingContext(childLayer, bounds);
         }
 
@@ -1459,5 +1459,16 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public readonly RenderObject renderObject;
+    }
+    
+    public class DiagnosticsDebugCreator : DiagnosticsProperty<object> {
+        public DiagnosticsDebugCreator(object value)
+            : base(
+                "debugCreator",
+                value,
+                level: DiagnosticLevel.hidden
+            ) {
+            D.assert(value != null);
+        }
     }
 }
