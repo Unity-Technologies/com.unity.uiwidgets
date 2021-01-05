@@ -107,8 +107,9 @@ namespace Unity.UIWidgets.foundation {
     class DiagnosticsStackTrace : DiagnosticsBlock {
         public DiagnosticsStackTrace(
             string name,
-            IterableFilter<String> stackFilter,
-            bool showSeparator = true) : base(
+            IterableFilter<string> stackFilter = null,
+            bool showSeparator = true
+            ) : base(
             name: name,
             properties: new List<DiagnosticsNode>(),
             style: DiagnosticsTreeStyle.flat,
