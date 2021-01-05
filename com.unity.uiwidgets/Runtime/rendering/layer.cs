@@ -85,7 +85,7 @@ namespace Unity.UIWidgets.rendering {
         
         bool  debugSubtreeNeedsAddToScene {
             get {
-                bool result;
+                bool result = false;
                 D.assert(()=>{
                     result = _needsAddToScene;
                     return true;
