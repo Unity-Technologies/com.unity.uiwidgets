@@ -383,6 +383,8 @@ namespace Unity.UIWidgets.foundation {
 
         public readonly bool showSeparator;
 
+        public object value { get; }
+
         public bool isFiltered(DiagnosticLevel minLevel) {
             return level < minLevel;
         }

@@ -12,7 +12,7 @@ namespace Unity.UIWidgets.ui {
         internal Scene(IntPtr ptr) : base(ptr) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             Scene_dispose(ptr);
         }
 
@@ -144,7 +144,7 @@ namespace Unity.UIWidgets.ui {
         public SceneBuilder() : base(SceneBuilder_constructor()) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             SceneBuilder_dispose(ptr);
         }
 

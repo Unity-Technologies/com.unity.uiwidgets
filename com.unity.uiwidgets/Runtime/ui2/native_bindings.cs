@@ -50,7 +50,7 @@ namespace Unity.UIWidgets.ui {
             _dispose(true);
         }
 
-        protected abstract void DisposePtr(IntPtr ptr);
+        public abstract void DisposePtr(IntPtr ptr);
     }
 
     public abstract class NativeWrapperDisposable : NativeWrapper, IDisposable {
