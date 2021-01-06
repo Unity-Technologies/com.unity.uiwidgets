@@ -190,7 +190,7 @@ namespace Unity.UIWidgets.widgets {
           }
           return string.Join(" + ", result.ToArray());
       }
-
+      
       
       public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
         base.debugFillProperties(properties);
@@ -231,7 +231,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
     
-    public class ShortcutManager : ChangeNotifier {
+    public class ShortcutManager : DiagnosticableMixinChangeNotifier {
 
       public ShortcutManager(
         Dictionary<LogicalKeySet, Intent> shortcuts = null,
@@ -304,9 +304,10 @@ namespace Unity.UIWidgets.widgets {
         return false;
       }
 
-      public  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+      public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+          base.debugFillProperties(properties: properties);
           properties.add(new DiagnosticsProperty<Dictionary<LogicalKeySet, Intent>>("shortcuts", _shortcuts));
-        properties.add(new FlagProperty("modal", value: modal, ifTrue: "modal", defaultValue: false));
+          properties.add(new FlagProperty("modal", value: modal, ifTrue: "modal", defaultValue: false));
       }
     }
       
