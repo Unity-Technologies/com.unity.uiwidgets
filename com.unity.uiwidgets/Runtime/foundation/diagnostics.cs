@@ -433,20 +433,20 @@ namespace Unity.UIWidgets.foundation {
 
             int currentChunk = 0;
 
-            bool noWrap(int index) {
+            bool noWrap(int index2) {
                 while (true) {
                     if (currentChunk >= wrapRanges.Count) {
                         return true;
                     }
 
-                    if (index < wrapRanges[currentChunk + 1]) {
+                    if (index2 < wrapRanges[currentChunk + 1]) {
                         break;
                     }
 
                     currentChunk += 2;
                 }
 
-                return index < wrapRanges[currentChunk];
+                return index2 < wrapRanges[currentChunk];
             }
 
             while (true) {
@@ -698,8 +698,8 @@ namespace Unity.UIWidgets.foundation {
                 const int maxLines = 25;
                 int lines = 0;
 
-                void visitor(DiagnosticsNode node) {
-                    foreach (DiagnosticsNode child in node.getChildren()) {
+                void visitor(DiagnosticsNode node2) {
+                    foreach (DiagnosticsNode child in node2.getChildren()) {
                         if (lines < maxLines) {
                             depth += 1;
                             descendants.Add($"{prefixOtherLines}{new string(' ', depth)}{child}");
