@@ -145,7 +145,7 @@ namespace Unity.UIWidgets.foundation {
                     return DiagnosticsNode.message(formatException());
                 }
 
-                Diagnosticable diagnosticable = this._exceptionToDiagnosticable();
+                Diagnosticable diagnosticable = _exceptionToDiagnosticable();
                 DiagnosticsNode summary = null;
                 if (diagnosticable != null) {
                     DiagnosticPropertiesBuilder builder = new DiagnosticPropertiesBuilder();
@@ -163,7 +163,7 @@ namespace Unity.UIWidgets.foundation {
                 ? new ErrorDescription($"thrown {new ErrorDescription($" {context}")}")
                 : new ErrorDescription("");
 
-            Diagnosticable diagnosticable = this._exceptionToDiagnosticable();
+            Diagnosticable diagnosticable = _exceptionToDiagnosticable();
             if (exception is NullReferenceException) {
                 properties.add(new ErrorDescription($"The null value was {verb}."));
             }
@@ -225,9 +225,9 @@ namespace Unity.UIWidgets.foundation {
             D.assert(value != null);
         }
 
-        new DiagnosticPropertiesBuilder _builder {
+        new DiagnosticPropertiesBuilder builder {
             get {
-                DiagnosticPropertiesBuilder builder = base._builder;
+                DiagnosticPropertiesBuilder builder = base.builder;
                 if (builder == null) {
                     return null;
                 }
@@ -246,12 +246,12 @@ namespace Unity.UIWidgets.foundation {
     public class UIWidgetsError : Exception {
         public UIWidgetsError(string message) {
             string[] lines = message.Split('\n');
-            this.diagnostics = new List<DiagnosticsNode>() {
+            diagnostics = new List<DiagnosticsNode>() {
                 new ErrorSummary(lines[0])
             };
 
             for (var i = 1; i < lines.Length; i++) {
-                this.diagnostics.Add(new ErrorDescription(lines[i]));
+                diagnostics.Add(new ErrorDescription(lines[i]));
             }
         }
 
@@ -339,7 +339,11 @@ namespace Unity.UIWidgets.foundation {
             }
 
             if (_errorCount == 0 || forceReport) {
-                D.logError(details.ToString(), details.exception);   
+                D.logError(new TextTreeRenderer(
+                    wrapWidth: wrapWidth,
+                    wrapWidthProperties: wrapWidth,
+                    maxDescendentsTruncatableNode: 5).render(
+                    details.toDiagnosticsNode(style: DiagnosticsTreeStyle.error)).TrimEnd(), details.exception);   
             }
             
             D.logError($"Another exception was thrown: ${details.summary}");
@@ -361,7 +365,8 @@ namespace Unity.UIWidgets.foundation {
         public string toStringShort() => "UIWidgetsError";
 
         public override string ToString() {
-            return string.Join("\n", diagnostics);
+            TextTreeRenderer renderer = new TextTreeRenderer(wrapWidth: 400000000);
+            return string.Join("\n", diagnostics.Select((DiagnosticsNode node) => renderer.render(node).TrimEnd()));
         }
 
         public static void reportError(UIWidgetsErrorDetails details) {
