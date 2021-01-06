@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.gestures {
@@ -32,14 +33,14 @@ namespace Unity.UIWidgets.gestures {
                 _firstRegisteredCallback(_currentEvent);
             }
             catch (Exception exception) {
+                IEnumerable<DiagnosticsNode> infoCollector() {
+                    yield return new DiagnosticsProperty<PointerSignalEvent>("Event", evt, style: DiagnosticsTreeStyle.errorProperty);
+                }
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: exception,
                         library: "gesture library",
-                        context: "while resolving a PointerSignalEvent",
-                        informationCollector: information => {
-                            information.AppendLine("Event: ");
-                            information.AppendFormat(" {0}", evt);
-                        }
+                        context: new ErrorDescription("while resolving a PointerSignalEvent"),
+                        informationCollector: infoCollector
                     )
                 );
             }
