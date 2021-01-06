@@ -680,7 +680,7 @@ namespace Unity.UIWidgets.foundation {
         ) {
             bool isSingleLine = foundation_._isSingleLine(node.style) &&
                                 parentConfiguration?.lineBreakProperties != true;
-            prefixOtherLines ??= prefixLineOne;
+            prefixOtherLines = prefixOtherLines ?? prefixLineOne;
             if (node.linePrefix != null) {
                 prefixLineOne += node.linePrefix;
                 prefixOtherLines += node.linePrefix;
