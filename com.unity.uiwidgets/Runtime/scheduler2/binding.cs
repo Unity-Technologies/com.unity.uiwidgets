@@ -290,7 +290,7 @@ namespace Unity.UIWidgets.scheduler2 {
                         context: "during a task callback",
                         informationCollector: callbackStack == null
                             ? (InformationCollector) null
-                            : sb => {
+                            : (StringBuilder sb) => {
                                 sb.AppendLine("\nThis exception was thrown in the context of a scheduler callback. " +
                                               "When the scheduler callback was _registered_ (as opposed to when the " +
                                               "exception was thrown), this was the stack: " + callbackStack);
@@ -644,7 +644,7 @@ namespace Unity.UIWidgets.scheduler2 {
                     context: "during a scheduler callback",
                     informationCollector: callbackStack == null
                         ? (InformationCollector) null
-                        : information => {
+                        : (StringBuilder information) => {
                             information.AppendLine(
                                 "\nThis exception was thrown in the context of a scheduler callback. " +
                                 "When the scheduler callback was _registered_ (as opposed to when the " +

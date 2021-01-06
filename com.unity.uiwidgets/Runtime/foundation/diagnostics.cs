@@ -1723,10 +1723,10 @@ namespace Unity.UIWidgets.foundation {
         }
     }
 
-    public class DiagnosticableNode<T> : DiagnosticsNode where T : Diagnosticable {
+    public class DiagnosticableNode<T> : DiagnosticsNode where T : IDiagnosticable {
         public DiagnosticableNode(
             string name = null,
-            T value = null,
+            T value = default,
             DiagnosticsTreeStyle? style = null
         ) : base(name: name, style: style) {
             D.assert(value != null);
@@ -1821,7 +1821,19 @@ namespace Unity.UIWidgets.foundation {
         public string emptyBodyDescription;
     }
 
-    public abstract class Diagnosticable {
+    public interface IDiagnosticable {
+        string toStringShort();
+
+        string toString(DiagnosticLevel minLevel = DiagnosticLevel.debug);
+
+        DiagnosticsNode toDiagnosticsNode(
+            string name = null,
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse);
+
+        void debugFillProperties(DiagnosticPropertiesBuilder properties);
+    }
+
+    public abstract class Diagnosticable : IDiagnosticable {
         protected Diagnosticable() {
         }
 
