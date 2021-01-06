@@ -2122,7 +2122,9 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class _InspectorOverlay : LeafRenderObjectWidget {
-        public _InspectorOverlay(Key key, InspectorSelection selection) : base(key) {
+        public _InspectorOverlay(
+            Key key = null, 
+            InspectorSelection selection = null) : base(key) {
             this.selection = selection;
         }
 

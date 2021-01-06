@@ -17,27 +17,29 @@ namespace Unity.UIWidgets.painting {
         public readonly string semanticsLabel;
 
         public TextSpan(
-            string text = "",
+            string text = null,
             TextStyle style = null,
             List<InlineSpan> children = null,
             GestureRecognizer recognizer = null,
-            HoverRecognizer hoverRecognizer = null,
-            string semanticsLabel = null) : base(style: style, hoverRecognizer: hoverRecognizer) {
+            string semanticsLabel = null
+            ) : base(style: style) {
             this.text = text;
             this.children = children;
             this.recognizer = recognizer;
             this.semanticsLabel = semanticsLabel;
         }
 
-        public override void build(ParagraphBuilder builder, float textScaleFactor = 1.0f,
-            List<PlaceholderDimensions> dimensions = null) {
+        public override void build(
+            ParagraphBuilder builder,
+            float textScaleFactor = 1.0f,
+            List<PlaceholderDimensions> dimensions = null
+            ) {
             D.assert(debugAssertIsValid());
             var hasStyle = style != null;
 
             if (hasStyle) {
                 builder.pushStyle(style.getTextStyle(textScaleFactor: textScaleFactor));
             }
-
             if (text != null)
                 builder.addText(text);
             if (children != null) {
@@ -90,8 +92,11 @@ namespace Unity.UIWidgets.painting {
             return null;
         }
 
-        public override void computeToPlainText(StringBuilder buffer, bool includeSemanticsLabels = true,
-            bool includePlaceholders = true) {
+        public override void computeToPlainText(
+            StringBuilder buffer, 
+            bool includeSemanticsLabels = true,
+            bool includePlaceholders = true
+            ) {
             D.assert(debugAssertIsValid());
             if (semanticsLabel != null && includeSemanticsLabels) {
                 buffer.Append(semanticsLabel);
@@ -140,7 +145,7 @@ namespace Unity.UIWidgets.painting {
             return null;
         }
 
-        bool debugAssertIsValid() {
+        public override bool debugAssertIsValid() {
             D.assert(() => {
                 if (children != null) {
                     foreach (InlineSpan child in children) {
@@ -194,24 +199,9 @@ namespace Unity.UIWidgets.painting {
             return result;
         }
 
-        public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj)) {
-                return true;
-            }
-
-            if (obj.GetType() != GetType()) {
-                return false;
-            }
-
-            return Equals((TextSpan) obj);
-        }
-
         public override int GetHashCode() {
-            unchecked {
+            unchecked
+            {
                 var hashCode = base.GetHashCode();
                 hashCode = (hashCode * 397) ^ (text != null ? text.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (children != null ? children.GetHashCode() : 0);
@@ -220,41 +210,12 @@ namespace Unity.UIWidgets.painting {
                 return hashCode;
             }
         }
-
-        public bool Equals(InlineSpan otherInline) {
-            if (ReferenceEquals(null, otherInline)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, otherInline)) {
-                return true;
-            }
-
-            TextSpan other = otherInline as TextSpan;
-
-            return Equals(style, other.style) && string.Equals(text, other.text) &&
-                   childEquals(children, other.children) && recognizer == other.recognizer;
-        }
-
         public static bool operator ==(TextSpan left, TextSpan right) {
             return Equals(left, right);
         }
 
         public static bool operator !=(TextSpan left, TextSpan right) {
             return !Equals(left, right);
-        }
-
-        int childHash() {
-            unchecked {
-                var hashCode = 0;
-                if (children != null) {
-                    foreach (var child in children) {
-                        hashCode = (hashCode * 397) ^ (child != null ? child.GetHashCode() : 0);
-                    }
-                }
-
-                return hashCode;
-            }
         }
 
         static bool childEquals(List<InlineSpan> left, List<InlineSpan> right) {
@@ -269,25 +230,31 @@ namespace Unity.UIWidgets.painting {
             return left.SequenceEqual(right);
         }
 
+        public override string toStringShort() {
+            return GetType().ToString();
+        }
+
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.whitespace;
-            // Properties on style are added as if they were properties directly on
-            // this TextSpan.
-            if (style != null) {
-                style.debugFillProperties(properties);
-            }
+            properties.add(
+                new StringProperty(
+                    "text",
+                    text,
+                    showName: false,
+                    defaultValue: null
+                )
+            );
+            if (style == null && text == null && children == null)
+                properties.add(DiagnosticsNode.message("(empty)"));
 
             properties.add(new DiagnosticsProperty<GestureRecognizer>(
                 "recognizer", recognizer,
-                description: recognizer == null ? "" : recognizer.GetType().FullName,
-                defaultValue: foundation_.kNullDefaultValue
+                description: recognizer?.GetType()?.ToString(),
+                defaultValue: null
             ));
 
-            properties.add(new StringProperty("text", text, showName: false,
-                defaultValue: foundation_.kNullDefaultValue));
-            if (style == null && text == null && children == null) {
-                properties.add(DiagnosticsNode.message("(empty)"));
+            if (semanticsLabel != null) {
+                properties.add(new StringProperty("semanticsLabel", semanticsLabel));
             }
         }
 
@@ -306,7 +273,9 @@ namespace Unity.UIWidgets.painting {
             }).ToList();
         }
 
-        public bool Equals(TextSpan other) {
+
+        public bool Equals(TextSpan other)
+        {
             if (ReferenceEquals(null, other)) {
                 return false;
             }
@@ -315,8 +284,24 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return base.Equals(other) && text == other.text && Equals(children, other.children) &&
-                   Equals(recognizer, other.recognizer) && semanticsLabel == other.semanticsLabel;
+            return base.Equals(other) && text == other.text && Equals(children, other.children) && Equals(recognizer, other.recognizer) && semanticsLabel == other.semanticsLabel;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((TextSpan) obj);
         }
     }
 }

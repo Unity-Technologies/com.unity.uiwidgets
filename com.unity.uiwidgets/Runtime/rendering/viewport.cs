@@ -11,6 +11,12 @@ using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
+    public enum CacheExtentStyle {
+        /// Treat the [Viewport.cacheExtent] as logical pixels.
+        pixel,
+        /// Treat the [Viewport.cacheExtent] as a multiplier of the main axis extent.
+        viewport,
+    }
     public interface RenderAbstractViewport {
         RevealedOffset getOffsetToReveal(RenderObject target, float alignment, Rect rect = null);
         RenderObject parent { get; }
@@ -57,15 +63,20 @@ namespace Unity.UIWidgets.rendering {
             AxisDirection axisDirection = AxisDirection.down,
             AxisDirection crossAxisDirection = AxisDirection.right,
             ViewportOffset offset = null,
-            float cacheExtent = RenderViewportUtils.defaultCacheExtent
+            float cacheExtent = RenderViewportUtils.defaultCacheExtent,
+            CacheExtentStyle cacheExtentStyle = CacheExtentStyle.pixel
         ) {
             D.assert(offset != null);
             D.assert(AxisUtils.axisDirectionToAxis(axisDirection) != AxisUtils.axisDirectionToAxis(crossAxisDirection));
-
+            D.assert(axisDirection != null);
+            D.assert(crossAxisDirection != null);
+            D.assert(cacheExtentStyle != null);
+            D.assert(cacheExtent != null || cacheExtentStyle == CacheExtentStyle.pixel);
             _axisDirection = axisDirection;
             _crossAxisDirection = crossAxisDirection;
             _offset = offset;
             _cacheExtent = cacheExtent;
+            _cacheExtentStyle = cacheExtentStyle;
         }
 
         public new RenderObject parent {
@@ -138,9 +149,23 @@ namespace Unity.UIWidgets.rendering {
                 markNeedsLayout();
             }
         }
-
         float _cacheExtent;
-
+        public float _calculatedCacheExtent;
+        public CacheExtentStyle cacheExtentStyle {
+            get {
+                return _cacheExtentStyle;
+            }
+            set {
+                D.assert(value != null);
+                if (value == _cacheExtentStyle) {
+                    return;
+                }
+                _cacheExtentStyle = value;
+                markNeedsLayout();
+            }
+        }
+        CacheExtentStyle _cacheExtentStyle;
+       
         public override void attach(object owner) {
             base.attach(owner);
             _offset.addListener(markNeedsLayout);
@@ -703,14 +728,15 @@ namespace Unity.UIWidgets.rendering {
             float anchor = 0.0f,
             List<RenderSliver> children = null,
             RenderSliver center = null,
-            float cacheExtent = RenderViewportUtils.defaultCacheExtent
-        ) : base(axisDirection, crossAxisDirection, offset, cacheExtent) {
+            float cacheExtent = RenderViewportUtils.defaultCacheExtent,
+            CacheExtentStyle cacheExtentStyle = CacheExtentStyle.pixel
+        ) : base(axisDirection, crossAxisDirection, offset, cacheExtent,cacheExtentStyle) {
             D.assert(anchor >= 0.0 && anchor <= 1.0);
+            D.assert(anchor != null);
+            D.assert(cacheExtentStyle != CacheExtentStyle.viewport || cacheExtent != null);
             _anchor = anchor;
             _center = center;
-
             addAll(children);
-
             if (center == null && firstChild != null) {
                 _center = firstChild;
             }
@@ -926,8 +952,18 @@ namespace Unity.UIWidgets.rendering {
             float reverseDirectionRemainingPaintExtent = centerOffset.clamp(0.0f, mainAxisExtent);
             float forwardDirectionRemainingPaintExtent = (mainAxisExtent - centerOffset).clamp(0.0f, mainAxisExtent);
 
-            float fullCacheExtent = mainAxisExtent + 2 * cacheExtent;
-            float centerCacheOffset = centerOffset + cacheExtent;
+            switch (cacheExtentStyle) {
+                case CacheExtentStyle.pixel:
+                    _calculatedCacheExtent = cacheExtent;
+                    break;
+                case CacheExtentStyle.viewport:
+                    _calculatedCacheExtent = mainAxisExtent * cacheExtent;
+                    break;
+            }
+
+            
+            float fullCacheExtent = mainAxisExtent + 2 * _calculatedCacheExtent;
+            float centerCacheOffset = centerOffset + _calculatedCacheExtent;
             float reverseDirectionRemainingCacheExtent = centerCacheOffset.clamp(0.0f, fullCacheExtent);
             float forwardDirectionRemainingCacheExtent =
                 (fullCacheExtent - centerCacheOffset).clamp(0.0f, fullCacheExtent);
@@ -946,7 +982,7 @@ namespace Unity.UIWidgets.rendering {
                     growthDirection: GrowthDirection.reverse,
                     advance: childBefore,
                     remainingCacheExtent: reverseDirectionRemainingCacheExtent,
-                    cacheOrigin: (mainAxisExtent - centerOffset).clamp(-cacheExtent, 0.0f)
+                    cacheOrigin: (mainAxisExtent - centerOffset).clamp(-_calculatedCacheExtent, 0.0f)
                 );
                 if (result != 0.0f) {
                     return -result;
@@ -966,7 +1002,7 @@ namespace Unity.UIWidgets.rendering {
                 growthDirection: GrowthDirection.forward,
                 advance: childAfter,
                 remainingCacheExtent: forwardDirectionRemainingCacheExtent,
-                cacheOrigin: centerOffset.clamp(-cacheExtent, 0.0f)
+                cacheOrigin: centerOffset.clamp(-_calculatedCacheExtent, 0.0f)
             );
         }
 

@@ -242,6 +242,7 @@ namespace Unity.UIWidgets.scheduler2 {
                 _ensureEventLoopCallback();
             return entry.completer.future;
         }
+        
 
         protected override void unlocked() {
             base.unlocked();
