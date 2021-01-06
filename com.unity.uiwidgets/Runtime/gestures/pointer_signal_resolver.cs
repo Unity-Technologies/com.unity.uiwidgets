@@ -5,6 +5,10 @@ namespace Unity.UIWidgets.gestures {
     public delegate void PointerSignalResolvedCallback(PointerSignalEvent evt);
 
     public class PointerSignalResolver {
+        public bool _isSameEvent(PointerSignalEvent event1, PointerSignalEvent event2) {
+            return (event1.original ?? event1) == (event2.original ?? event2);
+        }
+    
         PointerSignalResolvedCallback _firstRegisteredCallback;
 
         PointerSignalEvent _currentEvent;
@@ -12,7 +16,7 @@ namespace Unity.UIWidgets.gestures {
         public void register(PointerSignalEvent evt, PointerSignalResolvedCallback callback) {
             D.assert(evt != null);
             D.assert(callback != null);
-            D.assert(_currentEvent == null || _currentEvent == evt);
+            D.assert(_currentEvent == null || _isSameEvent(_currentEvent, evt));
             if (_firstRegisteredCallback != null) {
                 return;
             }
@@ -27,7 +31,7 @@ namespace Unity.UIWidgets.gestures {
                 return;
             }
 
-            D.assert((_currentEvent.original ?? _currentEvent) == evt);
+            D.assert(_isSameEvent(_currentEvent, evt));
             try {
                 _firstRegisteredCallback(_currentEvent);
             }
