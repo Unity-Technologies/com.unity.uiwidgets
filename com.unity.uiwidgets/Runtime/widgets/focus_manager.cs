@@ -233,12 +233,9 @@ namespace Unity.UIWidgets.widgets {
 
         public FocusAttachment _attachment;
 
-<<<<<<< HEAD
-        public IEnumerable<FocusNode> descendants {
-=======
 
-        IEnumerable<FocusNode> descendants {
->>>>>>> parent of a10f14fb... Merge branch 'dev_1.17.5' into shiyun/skia
+        public IEnumerable<FocusNode> descendants {
+
             get {
                 if (_descendants == null) {
                     List<FocusNode> result = new List<FocusNode>();
