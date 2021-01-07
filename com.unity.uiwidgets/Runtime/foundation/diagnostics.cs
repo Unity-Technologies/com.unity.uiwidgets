@@ -653,23 +653,6 @@ namespace Unity.UIWidgets.foundation {
             return (foundation_._isSingleLine(childStyle) || childStyle == DiagnosticsTreeStyle.errorProperty)
                 ? textStyle
                 : child.textTreeConfiguration;
-          
-        public static DiagnosticsNode message(
-            string message,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
-            DiagnosticLevel level = DiagnosticLevel.info,
-            bool allowWrap = true
-        ) {
-            D.assert(style != null);
-            D.assert(level != null);
-            return new DiagnosticsProperty<object>(
-                "",
-                null,
-                description: message,
-                style: style,
-                showName: false,
-                level: level
-            );
         }
 
         public string render(
