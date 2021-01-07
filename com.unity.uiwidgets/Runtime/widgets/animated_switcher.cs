@@ -44,6 +44,7 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             Widget child = null,
             TimeSpan? duration = null,
+            TimeSpan? reverseDuration = null,
             Curve switchInCurve = null,
             Curve switchOutCurve = null,
             AnimatedSwitcherTransitionBuilder transitionBuilder = null,
@@ -56,11 +57,14 @@ namespace Unity.UIWidgets.widgets {
             this.layoutBuilder = layoutBuilder ?? defaultLayoutBuilder;
             this.child = child;
             this.duration = duration;
+            this.reverseDuration = reverseDuration;
         }
 
         public readonly Widget child;
 
         public readonly TimeSpan? duration;
+        
+        public readonly TimeSpan? reverseDuration;
 
         public readonly Curve switchInCurve;
 
@@ -92,6 +96,12 @@ namespace Unity.UIWidgets.widgets {
                 children: children,
                 alignment: Alignment.center
             );
+        }
+        
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new IntProperty("duration", duration?.Milliseconds, unit: "ms"));
+            properties.add(new IntProperty("reverseDuration", reverseDuration?.Milliseconds, unit: "ms", defaultValue: null));
         }
     }
 
@@ -152,6 +162,7 @@ namespace Unity.UIWidgets.widgets {
 
             AnimationController controller = new AnimationController(
                 duration: widget.duration,
+                reverseDuration:widget.reverseDuration,
                 vsync: this
             );
             Animation<float> animation = new CurvedAnimation(
