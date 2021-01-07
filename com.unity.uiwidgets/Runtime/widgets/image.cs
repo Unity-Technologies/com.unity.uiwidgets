@@ -50,7 +50,7 @@ namespace Unity.UIWidgets.widgets {
                 }
                 else {
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
-                        context: "image failed to precache",
+                        context: new ErrorDescription("image failed to precache"),
                         library: "image resource service",
                         exception: exception,
                         silent: true

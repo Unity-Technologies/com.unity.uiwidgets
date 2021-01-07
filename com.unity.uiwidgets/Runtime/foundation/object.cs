@@ -1,8 +1,8 @@
 ﻿namespace Unity.UIWidgets.foundation {
     public static partial class foundation_ {
-        public static string objectRuntimeType(object @object, string optimizedValue) {
+        public static string objectRuntimeType(object obj, string optimizedValue) {
             D.assert(() => {
-                optimizedValue = @object.GetType().ToString();
+                optimizedValue = obj.GetType().ToString();
                 return true;
             });
             return optimizedValue;
