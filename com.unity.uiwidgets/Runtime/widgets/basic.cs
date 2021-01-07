@@ -742,9 +742,9 @@ namespace Unity.UIWidgets.widgets {
               listeners.Add("exit");
             if (onHover != null)
               listeners.Add("hover");
-            //properties.add(IterableProperty<string>("listeners", listeners, ifEmpty: "<none>"));
+            properties.add(new EnumerableProperty<string>("listeners", listeners, ifEmpty: "<none>"));
             properties.add(new DiagnosticsProperty<bool>("opaque", opaque, defaultValue: true));
-      }
+        }
     } 
     public class _MouseRegionState : State<MouseRegion> { 
         void handleExit(PointerExitEvent _event) {

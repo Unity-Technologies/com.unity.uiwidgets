@@ -382,13 +382,16 @@ namespace Unity.UIWidgets.rendering {
             InformationCollector informationCollector = null
         ) {
             D.assert(() => {
-                var throwError = new Action<string>(message => {
-                    var information = new StringBuilder();
+                var throwError = new Action<DiagnosticsNode>(message => {
+                    var diagnositicsInfo = new List<DiagnosticsNode>();
+                    diagnositicsInfo.Add(message);
                     if (informationCollector != null) {
-                        informationCollector(information);
+                        diagnositicsInfo.AddRange(informationCollector.Invoke());
                     }
-
-                    throw new UIWidgetsError($"{message}\n{information}The offending constraints were:\n  {this}");
+                    diagnositicsInfo.Add(new DiagnosticsProperty<BoxConstraints>("The offending constraints were", this, style: DiagnosticsTreeStyle.errorProperty));
+                    throw new UIWidgetsError(
+                        diagnositicsInfo
+                    );
                 });
 
                 if (minWidth.isNaN() ||
@@ -430,44 +433,44 @@ namespace Unity.UIWidgets.rendering {
                         whichFields = affectedFieldsList.Single();
                     }
 
-                    throwError("BoxConstraints has NaN values in " + whichFields + ".");
+                    throwError(new ErrorSummary("BoxConstraints has NaN values in " + whichFields + "."));
                 }
 
                 if (minWidth < 0.0 && minHeight < 0.0) {
-                    throwError("BoxConstraints has both a negative minimum width and a negative minimum height.");
+                    throwError(new ErrorSummary("BoxConstraints has both a negative minimum width and a negative minimum height."));
                 }
 
                 if (minWidth < 0.0) {
-                    throwError("BoxConstraints has a negative minimum width.");
+                    throwError(new ErrorSummary("BoxConstraints has a negative minimum width."));
                 }
 
                 if (minHeight < 0.0) {
-                    throwError("BoxConstraints has a negative minimum height.");
+                    throwError(new ErrorSummary("BoxConstraints has a negative minimum height."));
                 }
 
                 if (maxWidth < minWidth && maxHeight < minHeight) {
-                    throwError("BoxConstraints has both width and height constraints non-normalized.");
+                    throwError(new ErrorSummary("BoxConstraints has both width and height constraints non-normalized."));
                 }
 
                 if (maxWidth < minWidth) {
-                    throwError("BoxConstraints has non-normalized width constraints.");
+                    throwError(new ErrorSummary("BoxConstraints has non-normalized width constraints."));
                 }
 
                 if (maxHeight < minHeight) {
-                    throwError("BoxConstraints has non-normalized height constraints.");
+                    throwError(new ErrorSummary("BoxConstraints has non-normalized height constraints."));
                 }
 
                 if (isAppliedConstraint) {
                     if (minWidth.isInfinite() && minHeight.isInfinite()) {
-                        throwError("BoxConstraints forces an infinite width and infinite height.");
+                        throwError(new ErrorSummary("BoxConstraints forces an infinite width and infinite height."));
                     }
 
                     if (minWidth.isInfinite()) {
-                        throwError("BoxConstraints forces an infinite width.");
+                        throwError(new ErrorSummary("BoxConstraints forces an infinite width."));
                     }
 
                     if (minHeight.isInfinite()) {
-                        throwError("BoxConstraints forces an infinite height.");
+                        throwError(new ErrorSummary("BoxConstraints forces an infinite height."));
                     }
                 }
 

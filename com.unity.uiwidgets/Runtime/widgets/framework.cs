@@ -1099,14 +1099,14 @@ namespace Unity.UIWidgets.widgets {
                         _dirtyElements[index].rebuild();
                     }
                     catch (Exception ex) {
+                        IEnumerable<DiagnosticsNode> infoCollector() {
+                            //yield return new DiagnosticsDebugCreator(new DebugCreator(_dirtyElements[index]));
+                            yield return _dirtyElements[index].describeElement($"The element being rebuilt at the time was index {index} of {dirtyCount}");
+                        }
+                        
                         WidgetsD._debugReportException(
                             "while rebuilding dirty elements", ex,
-                            informationCollector: (information) => {
-                                information.AppendLine(
-                                    "The element being rebuilt at the time was index "
-                                    + index + " of " + dirtyCount + ":");
-                                information.Append("  " + _dirtyElements[index]);
-                            }
+                            informationCollector: infoCollector
                         );
                     }
 
@@ -2366,7 +2366,7 @@ namespace Unity.UIWidgets.widgets {
 
     public delegate Widget ErrorWidgetBuilder(UIWidgetsErrorDetails details);
 
-    internal class _ElementDiagnosticableTreeNode : _DiagnosticableTreeNode {
+    internal class _ElementDiagnosticableTreeNode : DiagnosticableTreeNode {
         internal _ElementDiagnosticableTreeNode(
             Element value,
             DiagnosticsTreeStyle style,
@@ -3235,7 +3235,7 @@ namespace Unity.UIWidgets.widgets {
                 }
                 catch (UIWidgetsError e) {
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
-                        context: "while apply parent data",
+                        context: new ErrorDescription("while apply parent data"),
                         exception: e
                     ));
                 }
