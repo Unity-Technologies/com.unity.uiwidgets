@@ -33,7 +33,11 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             _currentTween = widget.tween;
-            _currentTween.begin ??= _currentTween.end;
+            if (_currentTween.begin == null) {
+                _currentTween.begin = _currentTween.end;
+            }
+
+            
             base.initState();
             if (_currentTween.begin.Equals( _currentTween.end)) {
                 controller.forward();
