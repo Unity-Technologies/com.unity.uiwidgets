@@ -241,6 +241,36 @@ namespace Unity.UIWidgets.foundation {
             }
         }
     }
+    class DiagnosticsStackTrace : DiagnosticsBlock {
+        public DiagnosticsStackTrace(
+            string name,
+            IterableFilter<string> stackFilter = null,
+            bool showSeparator = true
+            ) : base(
+            name: name,
+            properties: new List<DiagnosticsNode>(),
+            style: DiagnosticsTreeStyle.flat,
+            showSeparator: showSeparator,
+            allowTruncate: true
+        ) {
+        }
+
+        public DiagnosticsStackTrace(
+            string name,
+            string frame,
+            bool showSeparator = true
+        ) : base(
+            name: name,
+            properties: new List<DiagnosticsNode>() {_createStackFrame(frame)},
+            style: DiagnosticsTreeStyle.whitespace,
+            showSeparator: showSeparator
+        ) {
+            
+        }
+        public static DiagnosticsNode _createStackFrame(string frame) {
+            return DiagnosticsNode.message(frame, allowWrap: false);
+        }
+    }
 
 
     public class UIWidgetsError : Exception {

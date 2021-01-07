@@ -1,11 +1,25 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.services;
 using UnityEngine;
 
 namespace Unity.UIWidgets.service {
     
     public class RawKeyboard {
         public static readonly RawKeyboard instance = new RawKeyboard();
+        
+        public static readonly Dictionary<PhysicalKeyboardKey, LogicalKeyboardKey> _keysPressed = new Dictionary<PhysicalKeyboardKey, LogicalKeyboardKey>();
+        
+        public HashSet<LogicalKeyboardKey> keysPressed 
+        {
+            get {
+                HashSet<LogicalKeyboardKey> keyboardKeys = new HashSet<LogicalKeyboardKey>();
+                foreach (var value in _keysPressed.Values) {
+                    keyboardKeys.Add(value);
+                }
+                return keyboardKeys;
+            }
+        }
 
         RawKeyboard() {
             

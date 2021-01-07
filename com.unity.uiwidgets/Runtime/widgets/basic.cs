@@ -25,8 +25,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly TextDirection textDirection;
 
         public static TextDirection of(BuildContext context) {
-            Directionality widget = context.inheritFromWidgetOfExactType(typeof(Directionality)) as Directionality;
-            return widget == null ? TextDirection.ltr : widget.textDirection;
+            Directionality widget = context.dependOnInheritedWidgetOfExactType<Directionality>();
+            return widget?.textDirection ?? TextDirection.ltr;
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
@@ -81,6 +81,7 @@ namespace Unity.UIWidgets.widgets {
             bool willChange = false,
             Widget child = null
         ) : base(key: key, child: child) {
+            D.assert(painter != null || foregroundPainter != null || (!isComplex && !willChange));
             size = size ?? Size.zero;
             this.size = size;
             this.painter = painter;
@@ -126,6 +127,7 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.hardEdge,
             Widget child = null
         ) : base(key: key, child: child) {
+            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -135,14 +137,17 @@ namespace Unity.UIWidgets.widgets {
         public readonly Clip clipBehavior;
 
         public override RenderObject createRenderObject(BuildContext context) {
+            D.assert(clipBehavior != Clip.none);
             return new RenderClipRect(
                 clipper: clipper,
                 clipBehavior: clipBehavior);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            D.assert(clipBehavior != Clip.none);
             RenderClipRect _renderObject = (RenderClipRect) renderObject;
             _renderObject.clipper = clipper;
+            _renderObject.clipBehavior = clipBehavior;
         }
 
         public override void didUnmountRenderObject(RenderObject renderObject) {
@@ -160,7 +165,7 @@ namespace Unity.UIWidgets.widgets {
     public class ClipRRect : SingleChildRenderObjectWidget {
         public ClipRRect(
             Key key = null,
-            BorderRadius borderRadius = null,
+            BorderRadius borderRadius = null,//[!!!]borderRadius = BorderRadius.zero
             CustomClipper<RRect> clipper = null,
             Clip clipBehavior = Clip.antiAlias,
             Widget child = null
@@ -178,14 +183,17 @@ namespace Unity.UIWidgets.widgets {
         public readonly Clip clipBehavior;
 
         public override RenderObject createRenderObject(BuildContext context) {
+            D.assert(clipBehavior != Clip.none);
             return new RenderClipRRect(borderRadius: borderRadius, clipper: clipper,
                 clipBehavior: clipBehavior);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            D.assert(clipBehavior != Clip.none);
             RenderClipRRect _renderObject = (RenderClipRRect) renderObject;
             _renderObject.borderRadius = borderRadius;
             _renderObject.clipper = clipper;
+            _renderObject.clipBehavior = clipBehavior;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -203,6 +211,7 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.antiAlias,
             Widget child = null) : base(key: key, child: child
         ) {
+            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -212,12 +221,15 @@ namespace Unity.UIWidgets.widgets {
         public readonly Clip clipBehavior;
 
         public override RenderObject createRenderObject(BuildContext context) {
+            D.assert(clipBehavior != Clip.none);
             return new RenderClipOval(clipper: clipper, clipBehavior: clipBehavior);
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
+            D.assert(clipBehavior != Clip.none);
             RenderClipOval renderObject = _renderObject as RenderClipOval;
             renderObject.clipper = clipper;
+            renderObject.clipBehavior = clipBehavior;
         }
 
         public override void didUnmountRenderObject(RenderObject _renderObject) {
@@ -238,6 +250,7 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.antiAlias,
             Widget child = null
         ) : base(key: key, child: child) {
+            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -249,6 +262,8 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) {
             D.assert(shape != null);
+            D.assert(clipBehavior != null);
+            D.assert(clipBehavior != Clip.none);
             return new Builder(
                 key: key,
                 builder: (BuildContext context) => {
@@ -269,13 +284,16 @@ namespace Unity.UIWidgets.widgets {
 
 
         public override RenderObject createRenderObject(BuildContext context) {
+            D.assert(clipBehavior != Clip.none);
             return new RenderClipPath(clipper: clipper, clipBehavior: clipBehavior);
         }
 
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            D.assert(clipBehavior != Clip.none);
             RenderClipPath _renderObject = (RenderClipPath) renderObject;
             _renderObject.clipper = clipper;
+            _renderObject.clipBehavior = clipBehavior;
         }
 
 
@@ -724,23 +742,18 @@ namespace Unity.UIWidgets.widgets {
               listeners.Add("exit");
             if (onHover != null)
               listeners.Add("hover");
-            //properties.add(IterableProperty<string>("listeners", listeners, ifEmpty: "<none>"));
+            properties.add(new EnumerableProperty<string>("listeners", listeners, ifEmpty: "<none>"));
             properties.add(new DiagnosticsProperty<bool>("opaque", opaque, defaultValue: true));
-      }
+        }
     } 
     public class _MouseRegionState : State<MouseRegion> { 
-        void handleExit(PointerExitEvent Event) {
+        void handleExit(PointerExitEvent _event) {
             if (widget.onExit != null && mounted)
-                widget.onExit(Event);
+                widget.onExit(_event);
         }
 
         public PointerExitEventListener getHandleExit() {
-            if (widget.onExit == null) {
-                return handleExit;
-            }
-            else {
-                return null;
-            }
+            return widget.onExit == null ? null : handleExit;
         } 
         public override Widget build(BuildContext context) {
             return new _RawMouseRegion(this);
@@ -770,12 +783,7 @@ namespace Unity.UIWidgets.widgets {
             renderObject.opaque = widget.opaque;
         }
     }
-
     
-    
-    
-    
-
     class _OffstageElement : SingleChildRenderObjectElement {
         internal _OffstageElement(Offstage widget) : base(widget) {
         }
@@ -1090,7 +1098,9 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public override Type debugTypicalAncestorWidgetClass { get => typeof(Stack); }
+        public override Type debugTypicalAncestorWidgetClass {
+            get { return typeof(Stack); }
+        }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
@@ -1189,7 +1199,9 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public override Type debugTypicalAncestorWidgetClass { get => typeof(Flex); }
+        public override Type debugTypicalAncestorWidgetClass {
+            get { return typeof(Flex); }
+        }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
@@ -1299,7 +1311,7 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null) : base(key: key, child: child) {
             D.assert(color != null);
             D.assert(elevation >= 0.0f);
-
+            D.assert(clipBehavior != null);
             this.shape = shape;
             this.clipBehavior = clipBehavior;
             this.borderRadius = borderRadius;
@@ -1333,6 +1345,7 @@ namespace Unity.UIWidgets.widgets {
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderPhysicalModel _renderObject = (RenderPhysicalModel) renderObject;
             _renderObject.shape = shape;
+            _renderObject.clipBehavior = clipBehavior;
             _renderObject.borderRadius = borderRadius;
             _renderObject.elevation = elevation;
             _renderObject.color = color;
@@ -1345,8 +1358,8 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new EnumProperty<BoxShape>("shape", shape));
             properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", borderRadius));
             properties.add(new FloatProperty("elevation", elevation));
-            properties.add(new DiagnosticsProperty<Color>("color", color));
-            properties.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor));
+            properties.add(new ColorProperty("color", color));
+            properties.add(new ColorProperty("shadowColor", shadowColor));
         }
     }
 
@@ -1401,8 +1414,8 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<CustomClipper<Path>>("clipper", clipper));
             properties.add(new FloatProperty("elevation", elevation));
-            properties.add(new DiagnosticsProperty<Color>("color", color));
-            properties.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor));
+            properties.add(new ColorProperty("color", color));
+            properties.add(new ColorProperty("shadowColor", shadowColor));
         }
     }
 
@@ -1864,6 +1877,52 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
         }
     }
+    
+    /*public class Flow : MultiChildRenderObjectWidget {
+        /// Creates a flow layout.
+        ///
+        /// Wraps each of the given children in a [RepaintBoundary] to avoid
+        /// repainting the children when the flow repaints.
+        ///
+        /// The [delegate] argument must not be null.
+        public Flow(
+            Key key,
+            FlowDelegate _delegate,
+            List<Widget> children = null
+            ) 
+            : base(key: key, children: RepaintBoundary.wrapAll(children)) {
+                D.assert(_delegate != null);
+            }
+            // https://github.com/dart-lang/sdk/issues/29277
+
+            /// Creates a flow layout.
+            ///
+            /// Does not wrap the given children in repaint boundaries, unlike the default
+            /// constructor. Useful when the child is trivial to paint or already contains
+            /// a repaint boundary.
+            ///
+            /// The [delegate] argument must not be null.
+            Flow.unwrapped(
+                Key key,
+                FlowDelegate _delegate,
+                List<Widget> children = null
+            ) : 
+            base(key: key, children: children) {
+                    D.assert(_delegate != null);
+                }
+
+            /// The delegate that controls the transformation matrices of the children.
+            public readonly FlowDelegate _delegate;
+
+            
+            public override RenderFlow createRenderObject(BuildContext context) => RenderFlow(_delegate: _delegate);
+                
+            public override void updateRenderObject(BuildContext context, RenderFlow renderObject) {
+                renderObject._delegate = _delegate;
+            }
+    }*/
+    
+    
     public class RichText : MultiChildRenderObjectWidget {
         public RichText(
             Key key = null,
@@ -2051,7 +2110,7 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new FloatProperty("width", width, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("height", height, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("scale", scale, defaultValue: 1.0f));
-            properties.add(new DiagnosticsProperty<Color>("color", color,
+            properties.add(new ColorProperty("color", color,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
                 defaultValue: foundation_.kNullDefaultValue));
@@ -2081,7 +2140,7 @@ namespace Unity.UIWidgets.widgets {
 
         public static AssetBundle of(BuildContext context) {
             DefaultAssetBundle result =
-                (DefaultAssetBundle) context.inheritFromWidgetOfExactType(typeof(DefaultAssetBundle));
+                (DefaultAssetBundle) context.dependOnInheritedWidgetOfExactType<DefaultAssetBundle>();
             return result?.bundle;
         }
 
@@ -2090,7 +2149,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class Listener : SingleChildRenderObjectWidget {
+    public class Listener : StatelessWidget {
         public Listener(
             Key key = null,
             PointerDownEventListener onPointerDown = null,
@@ -2108,7 +2167,8 @@ namespace Unity.UIWidgets.widgets {
             PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease = null,
             HitTestBehavior behavior = HitTestBehavior.deferToChild,
             Widget child = null
-        ) : base(key: key, child: child) {
+        ) : base(key: key) {
+            _child = child;
             this.onPointerDown = onPointerDown;
             this.onPointerMove = onPointerMove;
             this.onPointerUp = onPointerUp;
@@ -2125,6 +2185,9 @@ namespace Unity.UIWidgets.widgets {
             this.onPointerDragFromEditorExit = onPointerDragFromEditorExit;
             this.onPointerDragFromEditorRelease = onPointerDragFromEditorRelease;
         }
+
+
+
 
         public readonly PointerDownEventListener onPointerDown;
 
@@ -2147,12 +2210,63 @@ namespace Unity.UIWidgets.widgets {
         public readonly HitTestBehavior behavior;
 
         public readonly PointerDragFromEditorEnterEventListener onPointerDragFromEditorEnter;
-        
+
         public readonly PointerDragFromEditorHoverEventListener onPointerDragFromEditorHover;
-        
+
         public readonly PointerDragFromEditorExitEventListener onPointerDragFromEditorExit;
-        
+
         public readonly PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease;
+
+        public readonly Widget _child;
+
+        public override Widget build(BuildContext context) {
+            Widget result = _child;
+            if (onPointerEnter != null ||
+                onPointerExit != null ||
+                onPointerHover != null) {
+                result = new MouseRegion(
+                    onEnter: onPointerEnter,
+                    onExit: onPointerExit,
+                    onHover: onPointerHover,
+                    opaque: false,
+                    child: result
+                );
+            }
+
+            result = new _PointerListener(
+                onPointerDown: onPointerDown,
+                onPointerUp: onPointerUp,
+                onPointerMove: onPointerMove,
+                onPointerCancel: onPointerCancel,
+                onPointerSignal: onPointerSignal,
+                behavior: behavior,
+                child: result
+            );
+            return result;
+        }
+    }
+    public class _PointerListener : SingleChildRenderObjectWidget {
+        public _PointerListener(
+            Key key = null,
+            PointerDownEventListener onPointerDown = null, 
+            PointerMoveEventListener onPointerMove = null,
+            PointerUpEventListener onPointerUp = null,
+            PointerCancelEventListener onPointerCancel = null,
+            PointerSignalEventListener onPointerSignal = null,
+            HitTestBehavior behavior = HitTestBehavior.deferToChild,
+            Widget child = null
+        ) :
+        base(key: key, child: child) {
+            D.assert(behavior != null);
+        }
+
+        public readonly PointerDownEventListener onPointerDown;
+        public readonly PointerMoveEventListener onPointerMove;
+        public readonly PointerUpEventListener onPointerUp;
+        public readonly PointerCancelEventListener onPointerCancel;
+        public readonly PointerSignalEventListener onPointerSignal;
+        public readonly HitTestBehavior behavior;
+
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderPointerListener(
@@ -2161,14 +2275,6 @@ namespace Unity.UIWidgets.widgets {
                 onPointerUp: onPointerUp,
                 onPointerCancel: onPointerCancel,
                 onPointerSignal: onPointerSignal,
-                /*onPointerEnter: onPointerEnter,
-                onPointerExit: onPointerExit,
-                onPointerHover: onPointerHover,
-                onPointerScroll: onPointerScroll,
-                onPointerDragFromEditorEnter: onPointerDragFromEditorEnter,
-                onPointerDragFromEditorHover: onPointerDragFromEditorHover,
-                onPointerDragFromEditorExit: onPointerDragFromEditorExit,
-                onPointerDragFromEditorRelease: onPointerDragFromEditorRelease,*/
                 behavior: behavior
             );
         }
@@ -2180,18 +2286,8 @@ namespace Unity.UIWidgets.widgets {
             renderObject.onPointerUp = onPointerUp;
             renderObject.onPointerCancel = onPointerCancel;
             renderObject.onPointerSignal = onPointerSignal;
-            //renderObject.onPointerEnter = onPointerEnter;
-            //renderObject.onPointerHover = onPointerHover;
-            //renderObject.onPointerExit = onPointerExit;
-            //renderObject.onPointerScroll = onPointerScroll;
             renderObject.behavior = behavior;
-
-/*#if UNITY_EDITOR
-            renderObject.onPointerDragFromEditorEnter = onPointerDragFromEditorEnter;
-            renderObject.onPointerDragFromEditorHover = onPointerDragFromEditorHover;
-            renderObject.onPointerDragFromEditorExit = onPointerDragFromEditorExit;
-            renderObject.onPointerDragFromEditorRelease = onPointerDragFromEditorRelease;
-#endif*/
+            
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -2216,40 +2312,6 @@ namespace Unity.UIWidgets.widgets {
             if (onPointerSignal != null) {
                 listeners.Add("signal");
             }
-
-            if (onPointerEnter != null) {
-                listeners.Add("enter");
-            }
-
-            if (onPointerHover != null) {
-                listeners.Add("hover");
-            }
-
-            if (onPointerExit != null) {
-                listeners.Add("exit");
-            }
-
-            if (onPointerScroll != null) {
-                listeners.Add("scroll");
-            }
-
-#if UNITY_EDITOR
-            if (onPointerDragFromEditorEnter != null) {
-                listeners.Add("dragFromEditorEnter");
-            }
-
-            if (onPointerDragFromEditorHover != null) {
-                listeners.Add("dragFromEditorHover");
-            }
-
-            if (onPointerDragFromEditorExit != null) {
-                listeners.Add("dragFromEditorExit");
-            }
-
-            if (onPointerDragFromEditorRelease != null) {
-                listeners.Add("dragFromEditorRelease");
-            }
-#endif
 
             properties.add(new EnumerableProperty<string>("listeners", listeners, ifEmpty: "<none>"));
             properties.add(new EnumProperty<HitTestBehavior>("behavior", behavior));
@@ -2290,7 +2352,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public readonly bool ignoring;
-
+ 
+        
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderIgnorePointer(
                 ignoring: ignoring
@@ -2369,352 +2432,6 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    /*public class Semantics : SingleChildRenderObjectWidget { 
-        public Semantics(
-            Key key,
-            Widget child,
-            bool container = false,
-            bool explicitChildNodes = false,
-            bool excludeSemantics = false,
-            bool enabled,
-            bool checked,
-            bool selected,
-            bool toggled,
-            bool button,
-            bool link,
-            bool header,
-            bool textField,
-            bool readOnly,
-            bool focusable,
-            bool focused,
-            bool inMutuallyExclusiveGroup,
-            bool obscured,
-            bool multiline,
-            bool scopesRoute,
-            bool namesRoute,
-            bool hidden,
-            bool image,
-            bool liveRegion,
-            int maxValueLength,
-            int currentValueLength,
-            string label,
-            string value,
-            string increasedValue,
-            string decreasedValue,
-            string hint,
-            string onTapHint,
-            string onLongPressHint,
-            TextDirection textDirection,
-            SemanticsSortKey sortKey,
-            VoidCallback onTap,
-            VoidCallback onLongPress,
-            VoidCallback onScrollLeft,
-            VoidCallback onScrollRight,
-            VoidCallback onScrollUp,
-            VoidCallback onScrollDown,
-            VoidCallback onIncrease,
-            VoidCallback onDecrease,
-            VoidCallback onCopy,
-            VoidCallback onCut,
-            VoidCallback onPaste,
-            VoidCallback onDismiss,
-            MoveCursorHandler onMoveCursorForwardByCharacter,
-            MoveCursorHandler onMoveCursorBackwardByCharacter,
-            SetSelectionHandler onSetSelection,
-            VoidCallback onDidGainAccessibilityFocus,
-            VoidCallback onDidLoseAccessibilityFocus,
-            Dictionary<CustomSemanticsAction, VoidCallback> customSemanticsActions
-        ) : base(key: key, child: child) {
-            D.assert(container != null);
-            this.container = container;
-            this.explicitChildNodes = explicitChildNodes;
-            this.excludeSemantics = excludeSemantics;
-            properties = new SemanticsProperties(
-                enabled: enabled,
-                checked: checked,
-                toggled: toggled,
-                selected: selected,
-                button: button,
-                link: link,
-                header: header,
-                textField: textField,
-                readOnly: readOnly,
-                focusable: focusable,
-                focused: focused,
-                inMutuallyExclusiveGroup: inMutuallyExclusiveGroup,
-                obscured: obscured,
-                multiline: multiline,
-                scopesRoute: scopesRoute,
-                namesRoute: namesRoute,
-                hidden: hidden,
-                image: image,
-                liveRegion: liveRegion,
-                maxValueLength: maxValueLength,
-                currentValueLength: currentValueLength,
-                label: label,
-                value: value,
-                increasedValue: increasedValue,
-                decreasedValue: decreasedValue,
-                hint: hint,
-                textDirection: textDirection,
-                sortKey: sortKey,
-                onTap: onTap,
-                onLongPress: onLongPress,
-                onScrollLeft: onScrollLeft,
-                onScrollRight: onScrollRight,
-                onScrollUp: onScrollUp,
-                onScrollDown: onScrollDown,
-                onIncrease: onIncrease,
-                onDecrease: onDecrease,
-                onCopy: onCopy,
-                onCut: onCut,
-                onPaste: onPaste,
-                onMoveCursorForwardByCharacter: onMoveCursorForwardByCharacter,
-                onMoveCursorBackwardByCharacter: onMoveCursorBackwardByCharacter,
-                onDidGainAccessibilityFocus: onDidGainAccessibilityFocus,
-                onDidLoseAccessibilityFocus: onDidLoseAccessibilityFocus,
-                onDismiss: onDismiss,
-                onSetSelection: onSetSelection,
-                customSemanticsActions: customSemanticsActions,
-                hintOverrides: onTapHint != null || onLongPressHint != null ?
-                        new SemanticsHintOverrides(
-                            onTapHint: onTapHint,
-                            onLongPressHint: onLongPressHint
-                        ) : null
-                );
-            
-        }
-
-        
-
-
-    public readonly  SemanticsProperties properties;
-    public readonly  bool container;
-    public readonly  bool explicitChildNodes;
-    public readonly  bool excludeSemantics;
-
-  @override
-  RenderSemanticsAnnotations createRenderObject(BuildContext context) {
-    return RenderSemanticsAnnotations(
-      container: container,
-      explicitChildNodes: explicitChildNodes,
-      excludeSemantics: excludeSemantics,
-      enabled: properties.enabled,
-      checked: properties.checked,
-      toggled: properties.toggled,
-      selected: properties.selected,
-      button: properties.button,
-      link: properties.link,
-      header: properties.header,
-      textField: properties.textField,
-      readOnly: properties.readOnly,
-      focusable: properties.focusable,
-      focused: properties.focused,
-      liveRegion: properties.liveRegion,
-      maxValueLength: properties.maxValueLength,
-      currentValueLength: properties.currentValueLength,
-      inMutuallyExclusiveGroup: properties.inMutuallyExclusiveGroup,
-      obscured: properties.obscured,
-      multiline: properties.multiline,
-      scopesRoute: properties.scopesRoute,
-      namesRoute: properties.namesRoute,
-      hidden: properties.hidden,
-      image: properties.image,
-      label: properties.label,
-      value: properties.value,
-      increasedValue: properties.increasedValue,
-      decreasedValue: properties.decreasedValue,
-      hint: properties.hint,
-      hintOverrides: properties.hintOverrides,
-      textDirection: _getTextDirection(context),
-      sortKey: properties.sortKey,
-      onTap: properties.onTap,
-      onLongPress: properties.onLongPress,
-      onScrollLeft: properties.onScrollLeft,
-      onScrollRight: properties.onScrollRight,
-      onScrollUp: properties.onScrollUp,
-      onScrollDown: properties.onScrollDown,
-      onIncrease: properties.onIncrease,
-      onDecrease: properties.onDecrease,
-      onCopy: properties.onCopy,
-      onDismiss: properties.onDismiss,
-      onCut: properties.onCut,
-      onPaste: properties.onPaste,
-      onMoveCursorForwardByCharacter: properties.onMoveCursorForwardByCharacter,
-      onMoveCursorBackwardByCharacter: properties.onMoveCursorBackwardByCharacter,
-      onMoveCursorForwardByWord: properties.onMoveCursorForwardByWord,
-      onMoveCursorBackwardByWord: properties.onMoveCursorBackwardByWord,
-      onSetSelection: properties.onSetSelection,
-      onDidGainAccessibilityFocus: properties.onDidGainAccessibilityFocus,
-      onDidLoseAccessibilityFocus: properties.onDidLoseAccessibilityFocus,
-      customSemanticsActions: properties.customSemanticsActions,
-    );
-  }
-
-  TextDirection _getTextDirection(BuildContext context) {
-    if (properties.textDirection != null)
-      return properties.textDirection;
-
-    final bool containsText = properties.label != null || properties.value != null || properties.hint != null;
-
-    if (!containsText)
-      return null;
-
-    return Directionality.of(context);
-  }
-
-  @override
-  void updateRenderObject(BuildContext context, RenderSemanticsAnnotations renderObject) {
-    renderObject
-      ..container = container
-      ..explicitChildNodes = explicitChildNodes
-      ..excludeSemantics = excludeSemantics
-      ..scopesRoute = properties.scopesRoute
-      ..enabled = properties.enabled
-      ..checked = properties.checked
-      ..toggled = properties.toggled
-      ..selected = properties.selected
-      ..button = properties.button
-      ..link = properties.link
-      ..header = properties.header
-      ..textField = properties.textField
-      ..readOnly = properties.readOnly
-      ..focusable = properties.focusable
-      ..focused = properties.focused
-      ..inMutuallyExclusiveGroup = properties.inMutuallyExclusiveGroup
-      ..obscured = properties.obscured
-      ..multiline = properties.multiline
-      ..hidden = properties.hidden
-      ..image = properties.image
-      ..liveRegion = properties.liveRegion
-      ..maxValueLength = properties.maxValueLength
-      ..currentValueLength = properties.currentValueLength
-      ..label = properties.label
-      ..value = properties.value
-      ..increasedValue = properties.increasedValue
-      ..decreasedValue = properties.decreasedValue
-      ..hint = properties.hint
-      ..hintOverrides = properties.hintOverrides
-      ..namesRoute = properties.namesRoute
-      ..textDirection = _getTextDirection(context)
-      ..sortKey = properties.sortKey
-      ..onTap = properties.onTap
-      ..onLongPress = properties.onLongPress
-      ..onScrollLeft = properties.onScrollLeft
-      ..onScrollRight = properties.onScrollRight
-      ..onScrollUp = properties.onScrollUp
-      ..onScrollDown = properties.onScrollDown
-      ..onIncrease = properties.onIncrease
-      ..onDismiss = properties.onDismiss
-      ..onDecrease = properties.onDecrease
-      ..onCopy = properties.onCopy
-      ..onCut = properties.onCut
-      ..onPaste = properties.onPaste
-      ..onMoveCursorForwardByCharacter = properties.onMoveCursorForwardByCharacter
-      ..onMoveCursorBackwardByCharacter = properties.onMoveCursorForwardByCharacter
-      ..onMoveCursorForwardByWord = properties.onMoveCursorForwardByWord
-      ..onMoveCursorBackwardByWord = properties.onMoveCursorBackwardByWord
-      ..onSetSelection = properties.onSetSelection
-      ..onDidGainAccessibilityFocus = properties.onDidGainAccessibilityFocus
-      ..onDidLoseAccessibilityFocus = properties.onDidLoseAccessibilityFocus
-      ..customSemanticsActions = properties.customSemanticsActions;
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<bool>('container', container));
-    properties.add(DiagnosticsProperty<SemanticsProperties>('properties', this.properties));
-    this.properties.debugFillProperties(properties);
-  }
-}
-
-class MergeSemantics extends SingleChildRenderObjectWidget {
-  /// Creates a widget that merges the semantics of its descendants.
-  const MergeSemantics({ Key key, Widget child }) : super(key: key, child: child);
-
-  @override
-  RenderMergeSemantics createRenderObject(BuildContext context) => RenderMergeSemantics();
-}
-
-
-class BlockSemantics extends SingleChildRenderObjectWidget {
-  
-  const BlockSemantics({ Key key, this.blocking = true, Widget child }) : super(key: key, child: child);
-
-  /// Whether this widget is blocking semantics of all widget that were painted
-  /// before it in the same semantic container.
-  final bool blocking;
-
-  @override
-  RenderBlockSemantics createRenderObject(BuildContext context) => RenderBlockSemantics(blocking: blocking);
-
-  @override
-  void updateRenderObject(BuildContext context, RenderBlockSemantics renderObject) {
-    renderObject.blocking = blocking;
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<bool>('blocking', blocking));
-  }
-}
-
-class ExcludeSemantics extends SingleChildRenderObjectWidget {
-  /// Creates a widget that drops all the semantics of its descendants.
-  const ExcludeSemantics({
-    Key key,
-    this.excluding = true,
-    Widget child,
-  }) : assert(excluding != null),
-       super(key: key, child: child);
-
-  /// Whether this widget is excluded in the semantics tree.
-  final bool excluding;
-
-  @override
-  RenderExcludeSemantics createRenderObject(BuildContext context) => RenderExcludeSemantics(excluding: excluding);
-
-  @override
-  void updateRenderObject(BuildContext context, RenderExcludeSemantics renderObject) {
-    renderObject.excluding = excluding;
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<bool>('excluding', excluding));
-  }
-}
-
-
-class IndexedSemantics extends SingleChildRenderObjectWidget {
-  
-  const IndexedSemantics({
-    Key key,
-    @required this.index,
-    Widget child,
-  }) : assert(index != null),
-       super(key: key, child: child);
-
-  /// The index used to annotate the first child semantics node.
-  final int index;
-
-  @override
-  RenderIndexedSemantics createRenderObject(BuildContext context) => RenderIndexedSemantics(index: index);
-
-  @override
-  void updateRenderObject(BuildContext context, RenderIndexedSemantics renderObject) {
-    renderObject.index = index;
-  }
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<int>('index', index));
-  }
-}*/
-    
     public class KeyedSubtree : StatelessWidget {
         public KeyedSubtree(
             Key key,

@@ -595,7 +595,6 @@ namespace Unity.UIWidgets.rendering {
                 _geometry = value;
             }
         }
-
         SliverGeometry _geometry;
 
         public override Rect paintBounds {
@@ -664,7 +663,7 @@ namespace Unity.UIWidgets.rendering {
             get { return 0.0f; }
         }
 
-        public bool hitTest(SliverHitTestResult result, float mainAxisPosition = 0, float crossAxisPosition = 0) {
+        public virtual bool hitTest(SliverHitTestResult result, float mainAxisPosition = 0, float crossAxisPosition = 0) {
             if (mainAxisPosition >= 0.0f && mainAxisPosition < geometry.hitTestExtent &&
                 crossAxisPosition >= 0.0f && crossAxisPosition < constraints.crossAxisExtent) {
                 if (hitTestChildren(result, mainAxisPosition: mainAxisPosition,

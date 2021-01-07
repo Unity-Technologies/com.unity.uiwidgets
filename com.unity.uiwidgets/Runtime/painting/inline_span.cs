@@ -100,38 +100,21 @@ namespace Unity.UIWidgets.painting {
 
     public abstract class InlineSpan : DiagnosticableTree, IEquatable<InlineSpan> {
         public InlineSpan(
-            TextStyle style , HoverRecognizer hoverRecognizer
+            TextStyle style = null 
         ) {
             this.style = style;
-            this.hoverRecognizer = hoverRecognizer;
+            
         }
-        
-        public readonly HoverRecognizer hoverRecognizer;
-
-        public bool hasHoverRecognizer {
-            get {
-                bool need = false;
-                visitChildren((text) => {
-                    if (text.hoverRecognizer != null) {
-                        need = true;
-                        return false;
-                    }
-
-                    return true;
-                });
-                return need;
-            }
-        }
-
         public readonly TextStyle style;
 
+        
         public abstract void build(ParagraphBuilder builder,
             float textScaleFactor = 1, List<PlaceholderDimensions> dimensions = null
         );
 
         public abstract bool visitChildren(InlineSpanVisitor visitor);
 
-        public InlineSpan getSpanForPosition(TextPosition position) {
+        public virtual InlineSpan getSpanForPosition(TextPosition position) {
             D.assert(debugAssertIsValid());
             Accumulator offset = new Accumulator();
             InlineSpan result = null;
@@ -144,8 +127,10 @@ namespace Unity.UIWidgets.painting {
 
         protected abstract InlineSpan getSpanForPositionVisitor(TextPosition position, Accumulator offset);
 
-        public string toPlainText(
-            bool includeSemanticsLabels = true, bool includePlaceholders = true) {
+        public virtual string toPlainText(
+            bool includeSemanticsLabels = true,
+            bool includePlaceholders = true) 
+        {
             StringBuilder buffer = new StringBuilder();
             computeToPlainText(buffer, includeSemanticsLabels: includeSemanticsLabels,
                 includePlaceholders: includePlaceholders);
@@ -161,8 +146,10 @@ namespace Unity.UIWidgets.painting {
 
         public abstract void computeSemanticsInformation(List<InlineSpanSemanticsInformation> collector);
 
-        public abstract void computeToPlainText(StringBuilder buffer,
-            bool includeSemanticsLabels = true, bool includePlaceholders = true);
+        public abstract void computeToPlainText(
+            StringBuilder buffer,
+            bool includeSemanticsLabels = true, 
+            bool includePlaceholders = true);
 
         public int? codeUnitAt(int index) {
             if (index < 0)
@@ -178,7 +165,7 @@ namespace Unity.UIWidgets.painting {
 
         protected abstract int? codeUnitAtVisitor(int index, Accumulator offset);
 
-        public bool debugAssertIsValid() => true;
+        public virtual bool debugAssertIsValid() => true;
         public abstract RenderComparison compareTo(InlineSpan other);
 
         void debugFillProperties(DiagnosticPropertiesBuilder properties) {
