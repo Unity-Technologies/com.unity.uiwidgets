@@ -6,8 +6,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Gradient = Unity.UIWidgets.ui.Gradient;
@@ -167,20 +165,16 @@ namespace UIWidgets.Runtime.rendering {
             return regions;
         }
 
-        static void _reportOverflow(RenderObject renderObject, RelativeRect overflow, List<DiagnosticsNode> overflowHints) {
-            overflowHints = overflowHints ?? new List<DiagnosticsNode>();
-            if (overflowHints.isEmpty()) {
-                overflowHints.Add(new ErrorDescription($"The edge of the {renderObject.GetType()} that is " +
-                                                       "overflowing has been marked in the rendering with a yellow and black " +
-                                                       "striped pattern. This is usually caused by the contents being too big " +
-                                                       $"for the {renderObject.GetType()}."));
-                
-                overflowHints.Add(new ErrorHint("This is considered an error condition because it indicates that there " +
-                                                "is content that cannot be seen. If the content is legitimately bigger " +
-                                                "than the available space, consider clipping it with a ClipRect widget " +
-                                                $"before putting it in the {renderObject.GetType()}, or using a scrollable " +
-                                                "container, like a ListView."));
-            }
+        static void _reportOverflow(RenderObject renderObject, RelativeRect overflow, string overflowHints) {
+            overflowHints = overflowHints ?? $"The edge of the {renderObject.GetType()} that is " +
+                            "overflowing has been marked in the rendering with a yellow and black " +
+                            "striped pattern. This is usually caused by the contents being too big " +
+                            $"for the {renderObject.GetType()}.\n" +
+                            "This is considered an error condition because it indicates that there " +
+                            "is content that cannot be seen. If the content is legitimately bigger " +
+                            "than the available space, consider clipping it with a ClipRect widget " +
+                            $"before putting it in the {renderObject.GetType()}, or using a scrollable " +
+                            "container, like a ListView.";
 
             List<string> overflows = new List<string> { };
             if (overflow.left > 0.0f) {
@@ -215,21 +209,17 @@ namespace UIWidgets.Runtime.rendering {
                     break;
             }
 
-            IEnumerable<DiagnosticsNode> infoCollector() {
-                foreach (var hint in overflowHints) {
-                    yield return hint;
-                }
-
-                yield return DiagnosticsNode.message($"The specific {renderObject.GetType()} in question is: {renderObject.toStringShallow(joiner: "\n  ")}");
-                yield return DiagnosticsNode.message(string.Concat(Enumerable.Repeat("◢◤", 32)));
-            }
-
             UIWidgetsError.reportError(
                 new UIWidgetsErrorDetails(
                     exception: new Exception($"A {renderObject.GetType()} overflowed by {overflowText}."),
                     library: "rendering library",
-                    context: new ErrorDescription("during layout"),
-                    informationCollector: infoCollector
+                    context: "during layout",
+                    informationCollector: (information) => {
+                        information.AppendLine(overflowHints);
+                        information.AppendLine($"The specific {renderObject.GetType()} in question is:");
+                        information.AppendLine($"  {renderObject.toStringShallow(joiner: "\n  ")}");
+                        information.AppendLine(string.Concat(Enumerable.Repeat("◢◤", 32)));
+                    }
                 )
             );
         }
@@ -240,7 +230,7 @@ namespace UIWidgets.Runtime.rendering {
             Offset offset,
             Rect containerRect,
             Rect childRect,
-            List<DiagnosticsNode> overflowHints = null
+            string overflowHints = null
         ) {
             RelativeRect overflow = RelativeRect.fromRect(containerRect, childRect);
 

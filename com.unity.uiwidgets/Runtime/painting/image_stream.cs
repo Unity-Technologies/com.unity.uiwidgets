@@ -172,7 +172,7 @@ namespace Unity.UIWidgets.painting {
                 }
                 catch (Exception ex) {
                     reportError(
-                        context: new ErrorDescription("by a synchronously-called image listener"),
+                        context: "by a synchronously-called image listener",
                         exception: ex
                     );
                 }
@@ -187,7 +187,7 @@ namespace Unity.UIWidgets.painting {
                         new UIWidgetsErrorDetails(
                             exception: ex,
                             library: "image resource service",
-                            context: new ErrorDescription("when reporting an error to an image listener")
+                            context: "when reporting an error to an image listener"
                         )
                     );
                 }
@@ -216,7 +216,7 @@ namespace Unity.UIWidgets.painting {
                 }
                 catch (Exception ex) {
                     reportError(
-                        context: new ErrorDescription("by an image listener"),
+                        context: "by an image listener",
                         exception: ex
                     );
                 }
@@ -224,7 +224,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         protected void reportError(
-            DiagnosticsNode context = null,
+            string context = null,
             Exception exception = null,
             InformationCollector informationCollector = null,
             bool silent = false) {
@@ -249,7 +249,7 @@ namespace Unity.UIWidgets.painting {
                     catch (Exception ex) {
                         UIWidgetsError.reportError(
                             new UIWidgetsErrorDetails(
-                                context: new ErrorDescription("when reporting an error to an image listener"),
+                                context: "when reporting an error to an image listener",
                                 library: "image resource service",
                                 exception: ex
                             )
@@ -278,7 +278,7 @@ namespace Unity.UIWidgets.painting {
 
             image.then_(result => { setImage(result); }).catchError(err => {
                 reportError(
-                    context: new ErrorDescription("resolving a single-frame image stream"),
+                    context: "resolving a single-frame image stream",
                     exception: err,
                     informationCollector: informationCollector,
                     silent: true
@@ -300,7 +300,7 @@ namespace Unity.UIWidgets.painting {
 
             codec.then_((Action<Codec>) _handleCodecReady, ex => {
                 reportError(
-                    context: new ErrorDescription("resolving an image codec"),
+                    context: "resolving an image codec",
                     exception: ex,
                     informationCollector: informationCollector,
                     silent: true

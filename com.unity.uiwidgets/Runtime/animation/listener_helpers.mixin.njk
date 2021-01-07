@@ -76,19 +76,14 @@ namespace Unity.UIWidgets.animation {
                         listener();
                     }
                 } catch (Exception exception) {
-                    IEnumerable<DiagnosticsNode> infoCollector() {
-                        yield return new DiagnosticsProperty<AnimationLocalListenersMixin{{with | safe}}>(
-                            "The " + this.GetType() + " notifying listeners was:",
-                            this,
-                            style: DiagnosticsTreeStyle.errorProperty
-                        );
-                    }
-                    
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: exception,
                         library: "animation library",
-                        context: new ErrorDescription("while notifying listeners for " + this.GetType()),
-                        informationCollector: infoCollector
+                        context: "while notifying listeners for " + this.GetType(),
+                        informationCollector: information => {
+                            information.AppendLine("The " + this.GetType() + " notifying listeners was:");
+                            information.Append("  " + this);
+                        }
                     ));
                 }
             }
@@ -124,19 +119,14 @@ namespace Unity.UIWidgets.animation {
                         listener(status);
                     }
                 } catch (Exception exception) {
-                    IEnumerable<DiagnosticsNode> infoCollector() {
-                        yield return new DiagnosticsProperty<AnimationLocalStatusListenersMixin{{with | safe}}>(
-                            "The " + this.GetType() + " notifying listeners was:",
-                            this,
-                            style: DiagnosticsTreeStyle.errorProperty
-                        );
-                    }
-                
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: exception,
                         library: "animation library",
-                        context: new ErrorDescription("while notifying status listeners for " + this.GetType()),
-                        informationCollector: infoCollector
+                        context: "while notifying status listeners for " + this.GetType(),
+                        informationCollector: information => {
+                            information.AppendLine("The " + this.GetType() + " notifying status listeners was:");
+                            information.Append("  " + this);
+                        }
                     ));
                 }
             }

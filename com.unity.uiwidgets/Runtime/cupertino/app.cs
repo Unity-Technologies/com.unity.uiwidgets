@@ -30,13 +30,13 @@ namespace Unity.UIWidgets.cupertino {
             bool checkerboardRasterCacheImages = false, 
             bool checkerboardOffscreenLayers = false,
             bool showSemanticsDebugger = false,
-            bool debugShowCheckedModeBanner = true,
+            bool debugShowCheckedModeBanner = true
             // tbc????
-            Dictionary<LogicalKeySet, Intent> shortcuts = null,
-            Dictionary<LocalKey, ActionFactory> actions = null
+            //Dictionary<LogicalKeySet, Intent> shortcuts = null,
+            //Dictionary<LocalKey, ActionFactory> actions = null
         ) : base(key: key) {
-            D.assert(routes != null);
-            D.assert(navigatorObservers != null);
+            //D.assert(routes != null);
+            //D.assert(navigatorObservers != null);
             D.assert(title != null);
             D.assert(showPerformanceOverlay != null);
             D.assert(checkerboardRasterCacheImages != null);
@@ -63,8 +63,6 @@ namespace Unity.UIWidgets.cupertino {
             this.localeResolutionCallback = localeResolutionCallback;
             this.supportedLocales = supportedLocales;
             this.showPerformanceOverlay = showPerformanceOverlay;
-            this.shortcuts = shortcuts;
-            this.actions = actions;
         }
 
         public readonly GlobalKey<NavigatorState> navigatorKey;
@@ -92,8 +90,8 @@ namespace Unity.UIWidgets.cupertino {
         public readonly bool debugShowWidgetInspector;
         public readonly bool debugShowCheckedModeBanner;
         //TBC ????
-        public readonly Dictionary<LogicalKeySet, Intent> shortcuts;
-        public readonly Dictionary<LocalKey, ActionFactory> actions;
+        //public readonly Dictionary<LogicalKeySet, Intent> shortcuts;
+        //public readonly Dictionary<LocalKey, ActionFactory> actions;
 
         public override State createState() {
             return new _CupertinoAppState();
@@ -210,10 +208,9 @@ namespace Unity.UIWidgets.cupertino {
                                         padding: EdgeInsets.zero,
                                         onPressed: onPressed
                                       );
-                                    },
-                                    shortcuts: widget.shortcuts,
-                                 
-                                    actions: widget.actions
+                                    }//,
+                                    //shortcuts: widget.shortcuts,
+                                    //actions: widget.actions,
                                   );  
                             }
                         )

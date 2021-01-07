@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -197,14 +196,18 @@ namespace Unity.UIWidgets.rendering {
             InformationCollector informationCollector = null
         ) {
             D.assert(() => {
-                bool hasErrors = false;
-                StringBuilder errorMessage = new StringBuilder("\n");
                 var verify = new Action<bool, string>((bool check, string message) => {
                     if (check) {
                         return;
                     }
-                    hasErrors = true;
-                    errorMessage.AppendLine($"  {message}");
+
+                    var information = new StringBuilder();
+                    if (informationCollector != null) {
+                        informationCollector(information);
+                    }
+
+                    throw new UIWidgetsError(
+                        $"{GetType()} is not valid: {message}\n{information}The offending constraints were: \n  {this}");
                 });
 
                 verify(scrollOffset >= 0.0f, "The \"scrollOffset\" is negative.");
@@ -218,18 +221,6 @@ namespace Unity.UIWidgets.rendering {
                 verify(remainingCacheExtent >= 0.0f, "The \"remainingCacheExtent\" is negative.");
                 verify(cacheOrigin <= 0.0f, "The \"cacheOrigin\" is positive.");
                 verify(isNormalized, "The constraints are not normalized.");
-
-                if (hasErrors) {
-                    List<DiagnosticsNode> diagnosticInfo = new List<DiagnosticsNode>();
-                    diagnosticInfo.Add(new ErrorSummary($"{GetType()} is not valid: {errorMessage}"));
-                    if (informationCollector != null) {
-                        diagnosticInfo.AddRange(informationCollector.Invoke());
-                    }
-                    diagnosticInfo.Add(new DiagnosticsProperty<SliverConstraints>("The offending constraints were", this, style: DiagnosticsTreeStyle.errorProperty));
-                    
-                    throw new UIWidgetsError(
-                        diagnosticInfo);
-                }
                 return true;
             });
 
@@ -352,39 +343,32 @@ namespace Unity.UIWidgets.rendering {
         public readonly float cacheExtent;
         public const float precisionErrorTolerance = 1e-10f;
 
-        internal static List<DiagnosticsNode> _debugCompareFloats(string labelA, float valueA, string labelB, float valueB) {
-            List<DiagnosticsNode> diagnosticInfo = new List<DiagnosticsNode>();
+        internal static string _debugCompareFloats(string labelA, float valueA, string labelB, float valueB) {
             if (valueA.ToString("F1") != valueB.ToString("F1")) {
-                diagnosticInfo.Add(new ErrorDescription($"The {labelA} is {valueA:F1}, but the {labelB} is {valueB:F1}. "));
-            }
-            else {
-                diagnosticInfo.Add(new ErrorDescription($"The {labelA} is {valueA}, but the {labelB} is {valueB}."));
-                diagnosticInfo.Add(new ErrorHint("Maybe you have fallen prey to floating point rounding errors, and should explicitly " +
-                                                 $"apply the min() or max() functions, or the clamp() method, to the {labelB}? "));
+                return $"The {labelA} is {valueA:F1}, but the {labelB} is {valueB:F1}. ";
             }
 
-            return diagnosticInfo;
+            return string.Format(
+                "The {0} is {1}, but the {2} is {3}. " +
+                "Maybe you have fallen prey to floating point rounding errors, and should explicitly " +
+                "apply the min() or max() functions, or the clamp() method, to the {2}? ",
+                labelA, valueA, labelB, valueB);
         }
 
         public bool debugAssertIsValid(InformationCollector informationCollector = null) {
             D.assert(() => {
-                void verify(bool check, string summary, List<DiagnosticsNode> details = null) {
+                var verify = new Action<bool, string>((bool check, string message) => {
                     if (check) {
                         return;
                     }
-                    
-                    List<DiagnosticsNode> diagnosticInfo = new List<DiagnosticsNode>();
-                    diagnosticInfo.Add(new ErrorSummary($"{GetType()} is not valid: {summary}"));
-                    if (details != null) {
-                        diagnosticInfo.AddRange(details);
-                    }
 
+                    var information = new StringBuilder();
                     if (informationCollector != null) {
-                        diagnosticInfo.AddRange(informationCollector.Invoke());
+                        informationCollector(information);
                     }
 
-                    throw new UIWidgetsError(diagnosticInfo);
-                };
+                    throw new UIWidgetsError($"{GetType()} is not valid: {message}\n{information}");
+                });
 
                 verify(scrollExtent >= 0.0f, "The \"scrollExtent\" is negative.");
                 verify(paintExtent >= 0.0f, "The \"paintExtent\" is negative.");
@@ -392,19 +376,18 @@ namespace Unity.UIWidgets.rendering {
                 verify(cacheExtent >= 0.0f, "The \"cacheExtent\" is negative.");
                 if (layoutExtent > paintExtent) {
                     verify(false,
-                        "The \"layoutExtent\" exceeds the \"paintExtent\".",
-                        details: _debugCompareFloats("paintExtent", paintExtent, "layoutExtent",
+                        "The \"layoutExtent\" exceeds the \"paintExtent\".\n" +
+                        _debugCompareFloats("paintExtent", paintExtent, "layoutExtent",
                             layoutExtent)
                     );
                 }
 
                 if (paintExtent - maxPaintExtent > precisionErrorTolerance) {
-                    var details = _debugCompareFloats("maxPaintExtent", maxPaintExtent, "paintExtent",
-                        paintExtent);
-                    details.Add(new ErrorDescription("By definition, a sliver can\"t paint more than the maximum that it can paint!"));
                     verify(false,
-                        "The \"maxPaintExtent\" is less than the \"paintExtent\".",
-                        details:  details
+                        "The \"maxPaintExtent\" is less than the \"paintExtent\".\n" +
+                        _debugCompareFloats("maxPaintExtent", maxPaintExtent, "paintExtent",
+                            paintExtent) +
+                        "By definition, a sliver can\"t paint more than the maximum that it can paint!"
                     );
                 }
 
@@ -627,27 +610,22 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void debugAssertDoesMeetConstraints() {
-            D.assert(
-                () => {
-                    IEnumerable<DiagnosticsNode> infoCollector() {
-                        yield return describeForError("The RenderSliver that returned the offending geometry was");
-                    }
-                    
-                    return geometry.debugAssertIsValid(
-                        informationCollector: infoCollector);
-                });
+            D.assert(geometry.debugAssertIsValid(
+                informationCollector: (information) => {
+                    information.AppendLine("The RenderSliver that returned the offending geometry was:");
+                    information.AppendLine("  " + toStringShallow(joiner: "\n  "));
+                }));
             D.assert(() => {
                 if (geometry.paintExtent > constraints.remainingPaintExtent) {
-                    List<DiagnosticsNode> diagnosticInfo = new List<DiagnosticsNode>();
-                    diagnosticInfo.Add(new ErrorSummary("SliverGeometry has a paintOffset that exceeds the remainingPaintExtent from the constraints."));
-                    diagnosticInfo.Add(describeForError("The render object whose geometry violates the constraints is the following:"));
-                    diagnosticInfo.AddRange(SliverGeometry._debugCompareFloats("remainingPaintExtent", constraints.remainingPaintExtent,
-                        "paintExtent", geometry.paintExtent));
-                    diagnosticInfo.Add(new ErrorDescription("The paintExtent must cause the child sliver to paint within the viewport, and so " +
-                                                            "cannot exceed the remainingPaintExtent."));
-                    
                     throw new UIWidgetsError(
-                        diagnosticInfo
+                        "SliverGeometry has a paintOffset that exceeds the remainingPaintExtent from the constraints.\n" +
+                        "The render object whose geometry violates the constraints is the following:\n" +
+                        "  " + toStringShallow(joiner: "\n  ") + "\n" +
+                        SliverGeometry._debugCompareFloats(
+                            "remainingPaintExtent", constraints.remainingPaintExtent,
+                            "paintExtent", geometry.paintExtent) +
+                        "The paintExtent must cause the child sliver to paint within the viewport, and so " +
+                        "cannot exceed the remainingPaintExtent."
                     );
                 }
 

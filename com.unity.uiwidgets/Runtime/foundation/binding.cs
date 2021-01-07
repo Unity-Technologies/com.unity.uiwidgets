@@ -13,9 +13,7 @@ namespace Unity.UIWidgets.foundation {
         protected BindingBase() {
             Timeline.startSync("Framework initialization");
             
-            D.assert(!_debugInitialized);
             initInstances();
-            D.assert(_debugInitialized);
             
             initServiceExtensions();
             
@@ -24,16 +22,9 @@ namespace Unity.UIWidgets.foundation {
             Timeline.finishSync();
         }
 
-        static bool _debugInitialized = false;
-
         public Window window => Window.instance;
 
         protected virtual void initInstances() {
-            D.assert(!_debugInitialized);
-            D.assert(() => {
-                _debugInitialized = true;
-                return true;
-            });
         }
         
         protected virtual void initServiceExtensions() {

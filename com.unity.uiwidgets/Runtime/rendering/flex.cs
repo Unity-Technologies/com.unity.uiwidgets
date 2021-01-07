@@ -608,29 +608,20 @@ namespace Unity.UIWidgets.rendering {
             context.pushClipRect(needsCompositing, offset, Offset.zero & size, defaultPaint);
 
             D.assert(() => {
-                List<DiagnosticsNode> debugOverflowHints = new List<DiagnosticsNode>{
-                new ErrorDescription(
-                    $"The overflowing {GetType()} has an orientation of {_direction}."
-                ),
-                new ErrorDescription(
+                string debugOverflowHints =
+                    $"The overflowing {GetType()} has an orientation of {_direction}.\n" +
                     $"The edge of the {GetType()} that is overflowing has been marked " +
-                "in the rendering with a yellow and black striped pattern. This is " +
-                "usually caused by the contents being too big for the $runtimeType."
-                    ),
-                new ErrorHint(
+                    "in the rendering with a yellow and black striped pattern. This is " +
+                    $"usually caused by the contents being too big for the {GetType()}. " +
                     "Consider applying a flex factor (e.g. using an Expanded widget) to " +
                     $"force the children of the {GetType()} to fit within the available " +
-                    "space instead of being sized to their natural size."
-                    ),
-                new ErrorHint(
+                    "space instead of being sized to their natural size.\n" +
                     "This is considered an error condition because it indicates that there " +
                     "is content that cannot be seen. If the content is legitimately bigger " +
                     "than the available space, consider clipping it with a ClipRect widget " +
                     "before putting it in the flex, or using a scrollable container rather " +
-                    "than a Flex, like a ListView."
-                    )
-                    };
-                
+                    "than a Flex, like a ListView.";
+
                 Rect overflowChildRect;
                 switch (_direction) {
                     case Axis.horizontal:

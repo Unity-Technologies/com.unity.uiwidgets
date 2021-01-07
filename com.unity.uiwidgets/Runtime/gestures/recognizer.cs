@@ -80,16 +80,15 @@ namespace Unity.UIWidgets.gestures {
                 result = callback();
             }
             catch (Exception ex) {
-                IEnumerable<DiagnosticsNode> infoCollector() {
-                    yield return new StringProperty("Handler", name);
-                    yield return new DiagnosticsProperty<GestureRecognizer>("Recognizer", this, style: DiagnosticsTreeStyle.errorProperty);
-                }
-                
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                     exception: ex,
                     library: "gesture",
-                    context: new ErrorDescription("while handling a gesture"),
-                    informationCollector: infoCollector
+                    context: "while handling a gesture",
+                    informationCollector: information => {
+                        information.AppendLine("Handler: " + name);
+                        information.AppendLine("Recognizer:");
+                        information.AppendLine("  " + this);
+                    }
                 ));
             }
 
@@ -112,16 +111,15 @@ namespace Unity.UIWidgets.gestures {
                 
             }
             catch (Exception ex) {
-                IEnumerable<DiagnosticsNode> infoCollector() {
-                    yield return new StringProperty("Handler", name);
-                    yield return new DiagnosticsProperty<GestureRecognizer>("Recognizer", this, style: DiagnosticsTreeStyle.errorProperty);
-                }
-                
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                     exception: ex,
                     library: "gesture",
-                    context: new ErrorDescription("while handling a gesture"),
-                    informationCollector: infoCollector
+                    context: "while handling a gesture",
+                    informationCollector: information => {
+                        information.AppendLine("Handler: " + name);
+                        information.AppendLine("Recognizer:");
+                        information.AppendLine("  " + this);
+                    }
                 ));
             }
 

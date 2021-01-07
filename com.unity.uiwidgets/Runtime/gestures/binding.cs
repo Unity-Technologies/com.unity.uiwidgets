@@ -141,15 +141,14 @@ namespace Unity.UIWidgets.gestures {
                     pointerRouter.route(evt);
                 }
                 catch (Exception ex) {
-                    IEnumerable<DiagnosticsNode> infoCollector() {
-                        yield return new DiagnosticsProperty<PointerEvent>("Event", evt, style: DiagnosticsTreeStyle.errorProperty);
-                    }
-                    
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                             exception: ex,
                             library: "gesture library",
-                            context: new ErrorDescription("while dispatching a non-hit-tested pointer event"),
-                            informationCollector: infoCollector
+                            context: "while dispatching a non-hit-tested pointer event",
+                            informationCollector: information => {
+                                information.AppendLine("Event: ");
+                                information.AppendFormat(" {0}", evt);
+                            }
                         )
                     );
                 }

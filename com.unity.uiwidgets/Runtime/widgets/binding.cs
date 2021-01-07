@@ -352,7 +352,7 @@ namespace Unity.UIWidgets.widgets {
                 var details = new UIWidgetsErrorDetails(
                     exception: ex,
                     library: "widgets library",
-                    context: new ErrorDescription("attaching to the render tree")
+                    context: "attaching to the render tree"
                 );
                 UIWidgetsError.reportError(details);
 
