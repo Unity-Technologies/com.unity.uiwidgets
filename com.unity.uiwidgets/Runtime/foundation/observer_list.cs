@@ -20,9 +20,10 @@ namespace Unity.UIWidgets.foundation {
             _list.Add(item);
         }
 
-        public void Clear() {
+        public bool Remove(T item) {
             _isDirty = true;
-            _list.Clear();
+            _set?.Clear();
+            return _list.Remove(item);
         }
 
         public bool Contains(T item) {
@@ -38,20 +39,19 @@ namespace Unity.UIWidgets.foundation {
                     _set.Clear();
                     _set.UnionWith(_list);
                 }
-
                 _isDirty = false;
             }
 
             return _set.Contains(item);
         }
 
-        public void CopyTo(T[] array, int arrayIndex) {
-            _list.CopyTo(array, arrayIndex);
+        public void Clear() {
+            _isDirty = true;
+            _list.Clear();
         }
 
-        public bool Remove(T item) {
-            _isDirty = true;
-            return _list.Remove(item);
+        public void CopyTo(T[] array, int arrayIndex) {
+            _list.CopyTo(array, arrayIndex);
         }
 
         public int Count {

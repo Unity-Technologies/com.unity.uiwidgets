@@ -69,14 +69,19 @@ namespace Unity.UIWidgets.foundation {
                         }
                     }
                     catch (Exception ex) {
+                        IEnumerable<DiagnosticsNode> infoCollector() {
+                            yield return new DiagnosticsProperty<ChangeNotifier>(
+                                $"The {GetType()} sending notification was",
+                                this,
+                                style: DiagnosticsTreeStyle.errorProperty
+                            );
+                        }
+                        
                         UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                             exception: ex,
                             library: "foundation library",
-                            context: "while dispatching notifications for " + GetType(),
-                            informationCollector: information => {
-                                information.AppendLine("The " + GetType() + " sending notification was:");
-                                information.Append("  " + this);
-                            }
+                            context: new ErrorDescription($"while dispatching notifications for {GetType()}"),
+                            informationCollector: infoCollector
                         ));
                     }
                 }
