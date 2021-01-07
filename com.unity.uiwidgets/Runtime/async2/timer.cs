@@ -15,6 +15,8 @@ namespace Unity.UIWidgets.async2 {
                 .createTimer(duration, Zone.current.bindCallbackGuarded(callback));
         }
 
+       
+
         public static Timer create(TimeSpan duration, Action callback) {
             return create(duration, () => {
                 callback.Invoke();

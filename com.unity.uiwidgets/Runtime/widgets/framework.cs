@@ -536,7 +536,7 @@ namespace Unity.UIWidgets.widgets {
         public void setState(VoidCallback fn = null) {
             D.assert(() => {
                 if (_debugLifecycleState == _StateLifecycle.defunct) {
-                    throw new UIWidgetsError(
+                      throw new UIWidgetsError(
                         "setState() called after dispose(): " + this + "\n" +
                         "This error happens if you call setState() on a State object for a widget that " +
                         "no longer appears in the widget tree (e.g., whose parent widget no longer " +
@@ -654,6 +654,7 @@ namespace Unity.UIWidgets.widgets {
         public override Element createElement() {
             return new ParentDataElement(this);
         }
+        
 
         public override bool debugIsValidRenderObject(RenderObject renderObject) {
             D.assert(typeof(T) != typeof(ParentData));
@@ -894,10 +895,11 @@ namespace Unity.UIWidgets.widgets {
         T findAncestorWidgetOfExactType<T>() where T : Widget;
 
         State ancestorStateOfType(TypeMatcher matcher);
-
+        T findAncestorStateOfType<T>() where T : State; 
+        
         State rootAncestorStateOfType(TypeMatcher matcher);
 
-        T findRootAncestorStateOfType<T>() where T : State<StatefulWidget>;
+        T findRootAncestorStateOfType<T>() where T: State ;//: State<StatefulWidget>;
 
         RenderObject ancestorRenderObjectOfType(TypeMatcher matcher);
 
@@ -1097,14 +1099,14 @@ namespace Unity.UIWidgets.widgets {
                         _dirtyElements[index].rebuild();
                     }
                     catch (Exception ex) {
+                        IEnumerable<DiagnosticsNode> infoCollector() {
+                            //yield return new DiagnosticsDebugCreator(new DebugCreator(_dirtyElements[index]));
+                            yield return _dirtyElements[index].describeElement($"The element being rebuilt at the time was index {index} of {dirtyCount}");
+                        }
+                        
                         WidgetsD._debugReportException(
                             "while rebuilding dirty elements", ex,
-                            informationCollector: (information) => {
-                                information.AppendLine(
-                                    "The element being rebuilt at the time was index "
-                                    + index + " of " + dirtyCount + ":");
-                                information.Append("  " + _dirtyElements[index]);
-                            }
+                            informationCollector: infoCollector
                         );
                     }
 
@@ -1459,6 +1461,15 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected virtual Element updateChild(Element child, Widget newWidget, object newSlot) {
+            /*D.assert(() => {
+                if (newWidget != null && newWidget.key is GlobalKey) {
+                    GlobalKey key = (GlobalKey) newWidget.key;
+                    key._debugReserveFor(this);
+                }
+
+                return true;
+            });*/
+
             if (newWidget == null) {
                 if (child != null)
                     deactivateChild(child);
@@ -1470,7 +1481,7 @@ namespace Unity.UIWidgets.widgets {
                 bool hasSameSuperclass = true;
 
                 D.assert(() => {
-                    int oldElementClass = Element._debugConcreteSubtype(child);
+                    int oldElementClass = _debugConcreteSubtype(child);
                     int newWidgetClass = Widget._debugConcreteSubtype(newWidget);
                     hasSameSuperclass = oldElementClass == newWidgetClass;
                     return true;
@@ -1989,6 +2000,7 @@ namespace Unity.UIWidgets.widgets {
         public T dependOnInheritedWidgetOfExactType<T>(object aspect = null) where T : InheritedWidget {
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
             InheritedElement ancestor = _inheritedWidgets == null ? null : _inheritedWidgets[typeof(T)];
+            
             if (ancestor != null) {
                 D.assert(ancestor is InheritedElement);
                 return dependOnInheritedElement(ancestor, aspect: aspect) as T;
@@ -2053,7 +2065,7 @@ namespace Unity.UIWidgets.widgets {
             return statefulAncestor == null ? null : statefulAncestor.state;
         }
 
-        public T findAncestorStateOfType<T>() where T : State<StatefulWidget> {
+        public T findAncestorStateOfType<T>() where T : State{
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
             Element ancestor = _parent;
             while (ancestor != null) {
@@ -2082,7 +2094,7 @@ namespace Unity.UIWidgets.widgets {
             return statefulAncestor == null ? null : statefulAncestor.state;
         }
 
-        public T findRootAncestorStateOfType<T>() where T : State<StatefulWidget> {
+        public T findRootAncestorStateOfType<T>() where T : State{//<StatefulWidget> {
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
             Element ancestor = _parent;
             StatefulElement statefulAncestor = null;
@@ -2354,7 +2366,7 @@ namespace Unity.UIWidgets.widgets {
 
     public delegate Widget ErrorWidgetBuilder(UIWidgetsErrorDetails details);
 
-    internal class _ElementDiagnosticableTreeNode : _DiagnosticableTreeNode {
+    internal class _ElementDiagnosticableTreeNode : DiagnosticableTreeNode {
         internal _ElementDiagnosticableTreeNode(
             Element value,
             DiagnosticsTreeStyle style,
@@ -2370,8 +2382,15 @@ namespace Unity.UIWidgets.widgets {
 
         readonly bool stateful;
 
-        public override Dictionary<string, object> toJsonMap() {
+        /*public override Dictionary<string, object> toJsonMap() {
             Dictionary<string, object> json = base.toJsonMap();
+            Element element = value as Element;
+            json["widgetRuntimeType"] = element.widget?.GetType()?.ToString();
+            json["stateful"] = stateful;
+            return json;
+        }*/
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
+            Dictionary<string, object> json = base.toJsonMap(Delegate);
             Element element = value as Element;
             json["widgetRuntimeType"] = element.widget?.GetType()?.ToString();
             json["stateful"] = stateful;
@@ -2399,7 +2418,7 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             });
             object exception = details.exception;
-            return ErrorWidget.withDetails(message: message,
+            return withDetails(message: message,
                 error: exception is UIWidgetsError uiWidgetsError ? uiWidgetsError : null);
         }
 
@@ -2787,6 +2806,41 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    public class ParentDataElement<T> : ParentDataElement where T : ParentData {
+        public ParentDataElement(ParentDataWidget<T> widget) : base(widget)
+        {
+        }
+        public new ParentDataWidget<T> widget {
+            get { return (ParentDataWidget<T>) base.widget; }
+        }
+        void _applyParentData(ParentDataWidget<T> widget) {
+            ElementVisitor applyParentDataToChild = null;
+            applyParentDataToChild = child => {
+                if (child is RenderObjectElement) {
+                    ((RenderObjectElement) child)._updateParentData(widget);
+                }
+                else {
+                    D.assert(!(child is ParentDataElement<ParentData>));
+                    child.visitChildren(applyParentDataToChild);
+                }
+            };
+            visitChildren(applyParentDataToChild);
+        }
+        
+
+        public new void applyWidgetOutOfTurn(ParentDataWidget<T> newWidget) {
+            D.assert(newWidget != null);
+            D.assert(newWidget.debugCanApplyOutOfTurn());
+            D.assert(newWidget.child == widget.child);
+            _applyParentData(newWidget);
+        }
+
+        protected override void notifyClients(ProxyWidget oldWidget) {
+            _applyParentData((ParentDataWidget<T>) widget);
+        }
+
+    }
+
     public class InheritedElement : ProxyElement {
         public InheritedElement(Widget widget) : base(widget) {
         }
@@ -2808,6 +2862,7 @@ namespace Unity.UIWidgets.widgets {
                 _inheritedWidgets = new Dictionary<Type, InheritedElement>();
             }
 
+            
             _inheritedWidgets[widget.GetType()] = this;
         }
 
@@ -2901,6 +2956,7 @@ namespace Unity.UIWidgets.widgets {
         ParentDataElement _findAncestorParentDataElement() {
             Element ancestor = _parent;
             ParentDataElement result = null;
+            //ParentData> 
             while (ancestor != null && !(ancestor is RenderObjectElement)) {
                 if (ancestor is ParentDataElement parentDataElement) {
                     result = parentDataElement;
@@ -3178,7 +3234,7 @@ namespace Unity.UIWidgets.widgets {
                 }
                 catch (UIWidgetsError e) {
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
-                        context: "while apply parent data",
+                        context: new ErrorDescription("while apply parent data"),
                         exception: e
                     ));
                 }

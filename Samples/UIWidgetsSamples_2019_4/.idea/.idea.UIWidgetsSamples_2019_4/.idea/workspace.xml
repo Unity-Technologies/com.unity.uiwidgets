@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:pr" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:shiyun" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:siyaoH" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:sywen" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:github-desktop-finnif" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:github-desktop-finnif" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:1.17.4" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:github-desktop-finnif" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:shiyun" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:github-desktop-finnif" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:siyaoH" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:github-desktop-finnif" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:zxw" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:1.17.4" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:shiyun" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:siyaoH" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:sywen" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:zxw" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4a820c96-d7cc-45d3-aad5-43ed8e63fac6" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.UIWidgetsSamples_2019_4/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UIWidgetsSamples_2019_4/.idea/contentModel.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.UIWidgetsSamples_2019_4/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UIWidgetsSamples_2019_4/.idea/indexLayout.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.UIWidgetsSamples_2019_4/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UIWidgetsSamples_2019_4/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/x86_64/libUIWidgets_d.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/x86_64/libUIWidgets_d.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/UIWidgetsExample.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/UIWidgetsExample.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/UIWidgetsGallery/GalleryMain.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/UIWidgetsGallery/GalleryMain.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/UIWidgetsGallery/demo/cupertino/cupertino_picker_demo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/UIWidgetsGallery/demo/cupertino/cupertino_picker_demo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/UIWidgetsGallery/demo/cupertino/cupertino_text_field_demo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/UIWidgetsGallery/demo/cupertino/cupertino_text_field_demo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/action_Sheet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/action_Sheet.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/action_Sheet.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/action_Sheet.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/activity_indicator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/activity_indicator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/activity_indicator.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/activity_indicator.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/app.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/app.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/app.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/app.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/bottom_app_bar.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/bottom_app_bar.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/button.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/button.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/button.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/button.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/color.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/color.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/date_picker.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/date_picker.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/date_picker.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/date_picker.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/dialog.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/dialog.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/dialog.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/dialog.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/icons.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/icons.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/localization.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/localization.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/localization.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/localization.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/nav_bar.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/nav_bar.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/nav_bar.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/nav_bar.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/page_scaffold.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/page_scaffold.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/page_scaffold.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/page_scaffold.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/picker.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/picker.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/route.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/route.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/route.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/route.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/scrollbar.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/scrollbar.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/scrollbar.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/scrollbar.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/slider.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/slider.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/switch.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/switch.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/tab_scaffold.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/tab_scaffold.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/tab_view.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/tab_view.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/tab_view.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/tab_view.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/text_field.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/text_field.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/text_selection.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/text_selection.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/text_theme.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/text_theme.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/text_theme.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/text_theme.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/theme.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/theme.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/theme.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/theme.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/thumb_painter.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/thumb_painter.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/ui2/geometry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/ui2/geometry.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/app.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/app.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/automatic_keep_alive.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/automatic_keep_alive.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/list_wheel_scroll_view.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/list_wheel_scroll_view.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/navigator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/navigator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/routes.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/routes.cs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$USER_HOME$/unity/Modules/UI/ScriptBindings/UICanvas.bindings.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/FB001E01-371B-4ADC-A200-13E0AC763896/74/b128d6d4/List`1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/context_menu.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/63DD8BF9-8CFA-4BA9-85AF-735EF1A56BA9/4f/053d4227/Dictionary`2.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/FB001E01-371B-4ADC-A200-13E0AC763896/65/03a6f5b0/Dictionary`2.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/Assets/UIWidgetsGallery/GalleryMain.cs" />
+        <option value="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/list_wheel_scroll_view.cs" />
+        <option value="$PROJECT_DIR$/Assets/UIWidgetsGallery/demo/cupertino/cupertino_picker_demo.cs" />
+        <option value="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/date_picker.cs" />
+        <option value="$PROJECT_DIR$/Assets/UIWidgetsExample.cs" />
+        <option value="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/ui2/geometry.cs" />
+        <option value="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/automatic_keep_alive.cs" />
+        <option value="$PROJECT_DIR$/Assets/UIWidgetsGallery/demo/cupertino/cupertino_text_field_demo.cs" />
+        <option value="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/text_field.cs" />
+        <option value="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/cupertino/app.cs" />
+        <option value="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/navigator.cs" />
+        <option value="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/app.cs" />
+        <option value="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/focus_manager.cs" />
+        <option value="$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/widgets/routes.cs" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1kmB1s8KNEyD9iXKH8ltaQLcb86" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DebuggerViewTab_PTCS_FirstProportionKey" value="0.19385515" />
+    <property name="DebuggerViewTab_PTCS_LastProportionKey" value="0.16532554" />
+    <property name="Discover.Launch.Via.Unity" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="XThreadsFramesViewSplitterKey" value="0.36055276" />
+    <property name="dart.analysis.tool.window.visible" value="false" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
+    <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="selectedOptions">
+        <set />
+      </option>
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="selectedOptions">
+        <set />
+      </option>
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4a820c96-d7cc-45d3-aad5-43ed8e63fac6" name="Default Changelist" comment="" />
+      <created>1606295678220</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1606295678220</updated>
+      <workItem from="1606295687928" duration="6985000" />
+      <workItem from="1606360579356" duration="22160000" />
+      <workItem from="1606444700279" duration="9370000" />
+      <workItem from="1606464930234" duration="6394000" />
+      <workItem from="1606706404779" duration="9480000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="EditMode" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state width="1398" height="178" key="GridCell.Tab.0.bottom" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.0.bottom/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.0.center" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.0.center/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.0.left" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.0.left/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.0.right" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.0.right/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.1.bottom" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.1.bottom/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.1.center" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.1.center/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.1.left" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.1.left/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.1.right" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.1.right/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.2.bottom" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.2.bottom/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.2.center" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.2.center/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.2.left" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.2.left/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.2.right" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.2.right/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.3.bottom" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.3.bottom/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.3.center" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.3.center/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.3.left" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.3.left/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state width="1398" height="178" key="GridCell.Tab.3.right" timestamp="1606389410345">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="1398" height="178" key="GridCell.Tab.3.right/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606389410345" />
+    <state x="46" y="89" key="SettingsEditor" timestamp="1606300548918">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state x="46" y="89" key="SettingsEditor/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606300548918" />
+    <state width="498" height="446" key="SwitcherDM" timestamp="1606721077591">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state width="498" height="446" key="SwitcherDM/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606721077591" />
+    <state x="390" y="182" width="672" height="678" key="search.everywhere.popup" timestamp="1606380932000">
+      <screen x="0" y="0" width="1440" height="860" />
+    </state>
+    <state x="390" y="182" width="672" height="678" key="search.everywhere.popup/0.0.1440.860/-3840.-348.1920.1040@0.0.1440.860" timestamp="1606380932000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/async2/schedule_microtask.cs</url>
+          <line>137</line>
+          <properties documentPath="C:\com.unity.uiwidgets\com.unity.uiwidgets\Runtime\async2\schedule_microtask.cs" initialLine="137">
+            <startOffsets>
+              <option value="5062" />
+            </startOffsets>
+            <endOffsets>
+              <option value="5085" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/rendering/editable.cs</url>
+          <line>1058</line>
+          <properties documentPath="C:\com.unity.uiwidgets\com.unity.uiwidgets\Runtime\rendering\editable.cs" initialLine="1058">
+            <startOffsets>
+              <option value="36052" />
+            </startOffsets>
+            <endOffsets>
+              <option value="36094" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/rendering/editable.cs</url>
+          <line>1100</line>
+          <properties documentPath="C:\com.unity.uiwidgets\com.unity.uiwidgets\Runtime\rendering\editable.cs" initialLine="1100">
+            <startOffsets>
+              <option value="37353" />
+            </startOffsets>
+            <endOffsets>
+              <option value="37387" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/rendering/editable.cs</url>
+          <line>1120</line>
+          <properties documentPath="C:\com.unity.uiwidgets\com.unity.uiwidgets\Runtime\rendering\editable.cs" initialLine="1120">
+            <startOffsets>
+              <option value="38309" />
+            </startOffsets>
+            <endOffsets>
+              <option value="38361" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/rendering/editable.cs</url>
+          <line>1111</line>
+          <properties documentPath="C:\com.unity.uiwidgets\com.unity.uiwidgets\Runtime\rendering\editable.cs" initialLine="1111">
+            <startOffsets>
+              <option value="37913" />
+            </startOffsets>
+            <endOffsets>
+              <option value="37976" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/../../com.unity.uiwidgets/Runtime/async2/timer.cs</url>
+          <line>117</line>
+          <properties documentPath="C:\com.unity.uiwidgets\com.unity.uiwidgets\Runtime\async2\timer.cs" initialLine="117">
+            <startOffsets>
+              <option value="3795" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3844" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="22" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

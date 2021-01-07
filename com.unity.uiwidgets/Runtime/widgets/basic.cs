@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UIWidgets.Runtime.rendering;
+using Unity.Jobs.LowLevel.Unsafe;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -687,6 +688,93 @@ namespace Unity.UIWidgets.widgets {
             return new _OffstageElement(this);
         }
     }
+
+    public class MouseRegion : StatefulWidget { 
+        public MouseRegion(
+            Key key = null,
+            PointerEnterEventListener onEnter = null,
+            PointerExitEventListener onExit = null,
+            PointerHoverEventListener onHover= null,
+            bool opaque  = true,
+            Widget child = null) : base(key: key) {
+                D.assert(opaque != null);
+                this.onEnter = onEnter;
+                this.onExit = onExit;
+                this.onHover = onHover;
+                this.opaque = opaque;
+                this.child = child;
+
+        }
+
+        public readonly PointerEnterEventListener onEnter;
+        public readonly PointerHoverEventListener onHover;
+        public readonly PointerExitEventListener onExit;
+        public readonly bool opaque;
+        public readonly Widget child;
+
+        public override State createState() {
+            return new _MouseRegionState();
+        }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            List<string> listeners = new List<string>();
+            if (onEnter != null)
+              listeners.Add("enter");
+            if (onExit != null)
+              listeners.Add("exit");
+            if (onHover != null)
+              listeners.Add("hover");
+            //properties.add(IterableProperty<string>("listeners", listeners, ifEmpty: "<none>"));
+            properties.add(new DiagnosticsProperty<bool>("opaque", opaque, defaultValue: true));
+      }
+    } 
+    public class _MouseRegionState : State<MouseRegion> { 
+        void handleExit(PointerExitEvent Event) {
+            if (widget.onExit != null && mounted)
+                widget.onExit(Event);
+        }
+
+        public PointerExitEventListener getHandleExit() {
+            if (widget.onExit == null) {
+                return handleExit;
+            }
+            else {
+                return null;
+            }
+        } 
+        public override Widget build(BuildContext context) {
+            return new _RawMouseRegion(this);
+        }
+    }
+
+    public class _RawMouseRegion : SingleChildRenderObjectWidget { 
+        public _RawMouseRegion(_MouseRegionState owner) : base(child: owner.widget.child)
+        {
+        }
+
+        public readonly _MouseRegionState owner;
+        public override RenderObject createRenderObject(BuildContext context) { 
+            MouseRegion widget = owner.widget;
+            return new RenderMouseRegion(
+              onEnter: widget.onEnter,
+              onHover: widget.onHover,
+              onExit: owner.getHandleExit(),
+              opaque: widget.opaque
+            );
+        } 
+        void updateRenderObject(BuildContext context, RenderMouseRegion renderObject) { 
+            MouseRegion widget = owner.widget;
+            renderObject.onEnter = widget.onEnter;
+            renderObject.onHover = widget.onHover;
+            renderObject.onExit = owner.getHandleExit();
+            renderObject.opaque = widget.opaque;
+        }
+    }
+
+    
+    
+    
+    
 
     class _OffstageElement : SingleChildRenderObjectElement {
         internal _OffstageElement(Offstage widget) : base(widget) {
@@ -1776,82 +1864,110 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
         }
     }
-
-    public class RichText : LeafRenderObjectWidget {
+    public class RichText : MultiChildRenderObjectWidget {
         public RichText(
             Key key = null,
-            TextSpan text = null,
-            TextAlign textAlign = TextAlign.left,
+            InlineSpan text = null,
+            TextAlign textAlign = TextAlign.start, 
+            TextDirection? textDirection = null,
             bool softWrap = true,
             TextOverflow overflow = TextOverflow.clip,
             float textScaleFactor = 1.0f,
             int? maxLines = null,
-            Action onSelectionChanged = null,
-            Color selectionColor = null,
-            StrutStyle strutStyle = null
-        ) : base(key: key) {
+            Locale locale = null,
+            StrutStyle strutStyle = null,
+            TextWidthBasis textWidthBasis = TextWidthBasis.parent,
+            TextHeightBehavior textHeightBehavior = null
+        ) : base(key: key, children: _extractChildren(text)) {
             D.assert(text != null);
+            D.assert(textAlign != null);
+            D.assert(softWrap != null);
+            D.assert(overflow != null);
+            D.assert(textScaleFactor != null);
             D.assert(maxLines == null || maxLines > 0);
-
+            D.assert(textWidthBasis != null);
             this.text = text;
             this.textAlign = textAlign;
+            this.textDirection = textDirection;
             this.softWrap = softWrap;
             this.overflow = overflow;
             this.textScaleFactor = textScaleFactor;
-            this.maxLines = maxLines;
-            this.onSelectionChanged = onSelectionChanged;
-            this.selectionColor = selectionColor;
+            this.maxLines = maxLines ?? 0;
+            this.locale = locale;
             this.strutStyle = strutStyle;
+            this.textWidthBasis = textWidthBasis;
+            this.textHeightBehavior = textHeightBehavior;
         }
 
-        public readonly TextSpan text;
-        public readonly TextAlign textAlign;
-        public readonly bool softWrap;
-        public readonly TextOverflow overflow;
-        public readonly float textScaleFactor;
-        public readonly int? maxLines;
-        public readonly Action onSelectionChanged;
-        public readonly Color selectionColor;
-        public readonly StrutStyle strutStyle;
+
+        public static List<Widget> _extractChildren(InlineSpan span) {
+            List<Widget> result = new List<Widget>();
+            span.visitChildren((InlineSpan span1)=> {
+              if (span1 is WidgetSpan) {
+                result.Add(((WidgetSpan)span1).child);
+              }
+              return true;
+            });
+            return result;
+        }
+        public readonly InlineSpan text;
+        public readonly  TextAlign textAlign;
+        public readonly  TextDirection? textDirection;
+        public readonly  bool softWrap;
+        public readonly  TextOverflow overflow;
+        public readonly  float textScaleFactor;
+        public readonly  int maxLines;
+        public readonly  Locale locale;
+        public readonly  StrutStyle strutStyle;
+        public readonly  TextWidthBasis textWidthBasis;
+        public readonly  ui.TextHeightBehavior textHeightBehavior;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderParagraph(
-                text,
-                textAlign: textAlign,
-                softWrap: softWrap,
-                overflow: overflow,
-                textScaleFactor: textScaleFactor,
-                maxLines: maxLines,
-                onSelectionChanged: onSelectionChanged,
-                selectionColor: selectionColor
+            D.assert(textDirection != null || WidgetsD.debugCheckHasDirectionality(context));
+            return new RenderParagraph(text:text,
+              textAlign: textAlign,
+              textDirection: textDirection ?? Directionality.of(context),
+              softWrap: softWrap,
+              overflow: overflow,
+              textScaleFactor: textScaleFactor,
+              maxLines: maxLines,
+              strutStyle: strutStyle,
+              textWidthBasis: textWidthBasis,
+              textHeightBehavior: textHeightBehavior,
+              locale: locale ?? Localizations.localeOf(context, nullOk: true)
             );
         }
 
-        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
-            var renderObject = (RenderParagraph) renderObjectRaw;
-            renderObject.text = text;
-            renderObject.textAlign = textAlign;
-            renderObject.softWrap = softWrap;
-            renderObject.overflow = overflow;
-            renderObject.textScaleFactor = textScaleFactor;
-            renderObject.maxLines = maxLines;
-            renderObject.onSelectionChanged = onSelectionChanged;
-            renderObject.selectionColor = selectionColor;
-            renderObject.strutStyle = strutStyle;
+        
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            renderObject = (RenderParagraph) renderObject;
+            D.assert(textDirection != null || WidgetsD.debugCheckHasDirectionality(context));
+            ((RenderParagraph) renderObject).text = text;
+            ((RenderParagraph) renderObject).textAlign = textAlign;
+            ((RenderParagraph) renderObject).textDirection = textDirection ?? Directionality.of(context);
+            ((RenderParagraph) renderObject).softWrap = softWrap;
+            ((RenderParagraph) renderObject).overflow = overflow;
+            ((RenderParagraph) renderObject).textScaleFactor =  textScaleFactor;
+            ((RenderParagraph) renderObject).maxLines = maxLines;
+            ((RenderParagraph) renderObject).strutStyle = strutStyle;
+            ((RenderParagraph) renderObject).textWidthBasis = textWidthBasis;
+            ((RenderParagraph) renderObject).textHeightBehavior = textHeightBehavior;
+            ((RenderParagraph) renderObject).locale = locale ?? Localizations.localeOf(context, nullOk: true);
         }
 
+        
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<TextAlign>("textAlign", textAlign, defaultValue: TextAlign.left));
-            properties.add(new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width",
-                ifFalse: "no wrapping except at line break characters", showName: true));
-            properties.add(new EnumProperty<TextOverflow>("overflow", overflow, defaultValue: TextOverflow.clip));
-            properties.add(new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: 1.0f));
-            properties.add(new IntProperty("maxLines", maxLines, ifNull: "unlimited"));
-            properties.add(new StringProperty("text", text.toPlainText()));
+            properties.add( new EnumProperty<TextAlign>("textAlign", textAlign, defaultValue: TextAlign.start));
+            properties.add( new EnumProperty<TextDirection>("textDirection", textDirection.Value, defaultValue: null));
+            properties.add( new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width", ifFalse: "no wrapping except at line break characters", showName: true));
+            properties.add( new EnumProperty<TextOverflow>("overflow", overflow, defaultValue: TextOverflow.clip));
+            //properties.add( new DoubleProperty("textScaleFactor", textScaleFactor, defaultValue: 1.0));
+            properties.add( new IntProperty("maxLines", maxLines, ifNull: "unlimited"));
+            properties.add( new EnumProperty<TextWidthBasis>("textWidthBasis", textWidthBasis, defaultValue: TextWidthBasis.parent));
+            properties.add( new StringProperty("text", text.toPlainText()));
         }
     }
-
     public class RawImage : LeafRenderObjectWidget {
         public RawImage(
             Key key = null,
@@ -2045,14 +2161,14 @@ namespace Unity.UIWidgets.widgets {
                 onPointerUp: onPointerUp,
                 onPointerCancel: onPointerCancel,
                 onPointerSignal: onPointerSignal,
-                onPointerEnter: onPointerEnter,
+                /*onPointerEnter: onPointerEnter,
                 onPointerExit: onPointerExit,
                 onPointerHover: onPointerHover,
                 onPointerScroll: onPointerScroll,
                 onPointerDragFromEditorEnter: onPointerDragFromEditorEnter,
                 onPointerDragFromEditorHover: onPointerDragFromEditorHover,
                 onPointerDragFromEditorExit: onPointerDragFromEditorExit,
-                onPointerDragFromEditorRelease: onPointerDragFromEditorRelease,
+                onPointerDragFromEditorRelease: onPointerDragFromEditorRelease,*/
                 behavior: behavior
             );
         }
@@ -2064,18 +2180,18 @@ namespace Unity.UIWidgets.widgets {
             renderObject.onPointerUp = onPointerUp;
             renderObject.onPointerCancel = onPointerCancel;
             renderObject.onPointerSignal = onPointerSignal;
-            renderObject.onPointerEnter = onPointerEnter;
-            renderObject.onPointerHover = onPointerHover;
-            renderObject.onPointerExit = onPointerExit;
-            renderObject.onPointerScroll = onPointerScroll;
+            //renderObject.onPointerEnter = onPointerEnter;
+            //renderObject.onPointerHover = onPointerHover;
+            //renderObject.onPointerExit = onPointerExit;
+            //renderObject.onPointerScroll = onPointerScroll;
             renderObject.behavior = behavior;
 
-#if UNITY_EDITOR
+/*#if UNITY_EDITOR
             renderObject.onPointerDragFromEditorEnter = onPointerDragFromEditorEnter;
             renderObject.onPointerDragFromEditorHover = onPointerDragFromEditorHover;
             renderObject.onPointerDragFromEditorExit = onPointerDragFromEditorExit;
             renderObject.onPointerDragFromEditorRelease = onPointerDragFromEditorRelease;
-#endif
+#endif*/
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -2253,6 +2369,352 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    /*public class Semantics : SingleChildRenderObjectWidget { 
+        public Semantics(
+            Key key,
+            Widget child,
+            bool container = false,
+            bool explicitChildNodes = false,
+            bool excludeSemantics = false,
+            bool enabled,
+            bool checked,
+            bool selected,
+            bool toggled,
+            bool button,
+            bool link,
+            bool header,
+            bool textField,
+            bool readOnly,
+            bool focusable,
+            bool focused,
+            bool inMutuallyExclusiveGroup,
+            bool obscured,
+            bool multiline,
+            bool scopesRoute,
+            bool namesRoute,
+            bool hidden,
+            bool image,
+            bool liveRegion,
+            int maxValueLength,
+            int currentValueLength,
+            string label,
+            string value,
+            string increasedValue,
+            string decreasedValue,
+            string hint,
+            string onTapHint,
+            string onLongPressHint,
+            TextDirection textDirection,
+            SemanticsSortKey sortKey,
+            VoidCallback onTap,
+            VoidCallback onLongPress,
+            VoidCallback onScrollLeft,
+            VoidCallback onScrollRight,
+            VoidCallback onScrollUp,
+            VoidCallback onScrollDown,
+            VoidCallback onIncrease,
+            VoidCallback onDecrease,
+            VoidCallback onCopy,
+            VoidCallback onCut,
+            VoidCallback onPaste,
+            VoidCallback onDismiss,
+            MoveCursorHandler onMoveCursorForwardByCharacter,
+            MoveCursorHandler onMoveCursorBackwardByCharacter,
+            SetSelectionHandler onSetSelection,
+            VoidCallback onDidGainAccessibilityFocus,
+            VoidCallback onDidLoseAccessibilityFocus,
+            Dictionary<CustomSemanticsAction, VoidCallback> customSemanticsActions
+        ) : base(key: key, child: child) {
+            D.assert(container != null);
+            this.container = container;
+            this.explicitChildNodes = explicitChildNodes;
+            this.excludeSemantics = excludeSemantics;
+            properties = new SemanticsProperties(
+                enabled: enabled,
+                checked: checked,
+                toggled: toggled,
+                selected: selected,
+                button: button,
+                link: link,
+                header: header,
+                textField: textField,
+                readOnly: readOnly,
+                focusable: focusable,
+                focused: focused,
+                inMutuallyExclusiveGroup: inMutuallyExclusiveGroup,
+                obscured: obscured,
+                multiline: multiline,
+                scopesRoute: scopesRoute,
+                namesRoute: namesRoute,
+                hidden: hidden,
+                image: image,
+                liveRegion: liveRegion,
+                maxValueLength: maxValueLength,
+                currentValueLength: currentValueLength,
+                label: label,
+                value: value,
+                increasedValue: increasedValue,
+                decreasedValue: decreasedValue,
+                hint: hint,
+                textDirection: textDirection,
+                sortKey: sortKey,
+                onTap: onTap,
+                onLongPress: onLongPress,
+                onScrollLeft: onScrollLeft,
+                onScrollRight: onScrollRight,
+                onScrollUp: onScrollUp,
+                onScrollDown: onScrollDown,
+                onIncrease: onIncrease,
+                onDecrease: onDecrease,
+                onCopy: onCopy,
+                onCut: onCut,
+                onPaste: onPaste,
+                onMoveCursorForwardByCharacter: onMoveCursorForwardByCharacter,
+                onMoveCursorBackwardByCharacter: onMoveCursorBackwardByCharacter,
+                onDidGainAccessibilityFocus: onDidGainAccessibilityFocus,
+                onDidLoseAccessibilityFocus: onDidLoseAccessibilityFocus,
+                onDismiss: onDismiss,
+                onSetSelection: onSetSelection,
+                customSemanticsActions: customSemanticsActions,
+                hintOverrides: onTapHint != null || onLongPressHint != null ?
+                        new SemanticsHintOverrides(
+                            onTapHint: onTapHint,
+                            onLongPressHint: onLongPressHint
+                        ) : null
+                );
+            
+        }
+
+        
+
+
+    public readonly  SemanticsProperties properties;
+    public readonly  bool container;
+    public readonly  bool explicitChildNodes;
+    public readonly  bool excludeSemantics;
+
+  @override
+  RenderSemanticsAnnotations createRenderObject(BuildContext context) {
+    return RenderSemanticsAnnotations(
+      container: container,
+      explicitChildNodes: explicitChildNodes,
+      excludeSemantics: excludeSemantics,
+      enabled: properties.enabled,
+      checked: properties.checked,
+      toggled: properties.toggled,
+      selected: properties.selected,
+      button: properties.button,
+      link: properties.link,
+      header: properties.header,
+      textField: properties.textField,
+      readOnly: properties.readOnly,
+      focusable: properties.focusable,
+      focused: properties.focused,
+      liveRegion: properties.liveRegion,
+      maxValueLength: properties.maxValueLength,
+      currentValueLength: properties.currentValueLength,
+      inMutuallyExclusiveGroup: properties.inMutuallyExclusiveGroup,
+      obscured: properties.obscured,
+      multiline: properties.multiline,
+      scopesRoute: properties.scopesRoute,
+      namesRoute: properties.namesRoute,
+      hidden: properties.hidden,
+      image: properties.image,
+      label: properties.label,
+      value: properties.value,
+      increasedValue: properties.increasedValue,
+      decreasedValue: properties.decreasedValue,
+      hint: properties.hint,
+      hintOverrides: properties.hintOverrides,
+      textDirection: _getTextDirection(context),
+      sortKey: properties.sortKey,
+      onTap: properties.onTap,
+      onLongPress: properties.onLongPress,
+      onScrollLeft: properties.onScrollLeft,
+      onScrollRight: properties.onScrollRight,
+      onScrollUp: properties.onScrollUp,
+      onScrollDown: properties.onScrollDown,
+      onIncrease: properties.onIncrease,
+      onDecrease: properties.onDecrease,
+      onCopy: properties.onCopy,
+      onDismiss: properties.onDismiss,
+      onCut: properties.onCut,
+      onPaste: properties.onPaste,
+      onMoveCursorForwardByCharacter: properties.onMoveCursorForwardByCharacter,
+      onMoveCursorBackwardByCharacter: properties.onMoveCursorBackwardByCharacter,
+      onMoveCursorForwardByWord: properties.onMoveCursorForwardByWord,
+      onMoveCursorBackwardByWord: properties.onMoveCursorBackwardByWord,
+      onSetSelection: properties.onSetSelection,
+      onDidGainAccessibilityFocus: properties.onDidGainAccessibilityFocus,
+      onDidLoseAccessibilityFocus: properties.onDidLoseAccessibilityFocus,
+      customSemanticsActions: properties.customSemanticsActions,
+    );
+  }
+
+  TextDirection _getTextDirection(BuildContext context) {
+    if (properties.textDirection != null)
+      return properties.textDirection;
+
+    final bool containsText = properties.label != null || properties.value != null || properties.hint != null;
+
+    if (!containsText)
+      return null;
+
+    return Directionality.of(context);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderSemanticsAnnotations renderObject) {
+    renderObject
+      ..container = container
+      ..explicitChildNodes = explicitChildNodes
+      ..excludeSemantics = excludeSemantics
+      ..scopesRoute = properties.scopesRoute
+      ..enabled = properties.enabled
+      ..checked = properties.checked
+      ..toggled = properties.toggled
+      ..selected = properties.selected
+      ..button = properties.button
+      ..link = properties.link
+      ..header = properties.header
+      ..textField = properties.textField
+      ..readOnly = properties.readOnly
+      ..focusable = properties.focusable
+      ..focused = properties.focused
+      ..inMutuallyExclusiveGroup = properties.inMutuallyExclusiveGroup
+      ..obscured = properties.obscured
+      ..multiline = properties.multiline
+      ..hidden = properties.hidden
+      ..image = properties.image
+      ..liveRegion = properties.liveRegion
+      ..maxValueLength = properties.maxValueLength
+      ..currentValueLength = properties.currentValueLength
+      ..label = properties.label
+      ..value = properties.value
+      ..increasedValue = properties.increasedValue
+      ..decreasedValue = properties.decreasedValue
+      ..hint = properties.hint
+      ..hintOverrides = properties.hintOverrides
+      ..namesRoute = properties.namesRoute
+      ..textDirection = _getTextDirection(context)
+      ..sortKey = properties.sortKey
+      ..onTap = properties.onTap
+      ..onLongPress = properties.onLongPress
+      ..onScrollLeft = properties.onScrollLeft
+      ..onScrollRight = properties.onScrollRight
+      ..onScrollUp = properties.onScrollUp
+      ..onScrollDown = properties.onScrollDown
+      ..onIncrease = properties.onIncrease
+      ..onDismiss = properties.onDismiss
+      ..onDecrease = properties.onDecrease
+      ..onCopy = properties.onCopy
+      ..onCut = properties.onCut
+      ..onPaste = properties.onPaste
+      ..onMoveCursorForwardByCharacter = properties.onMoveCursorForwardByCharacter
+      ..onMoveCursorBackwardByCharacter = properties.onMoveCursorForwardByCharacter
+      ..onMoveCursorForwardByWord = properties.onMoveCursorForwardByWord
+      ..onMoveCursorBackwardByWord = properties.onMoveCursorBackwardByWord
+      ..onSetSelection = properties.onSetSelection
+      ..onDidGainAccessibilityFocus = properties.onDidGainAccessibilityFocus
+      ..onDidLoseAccessibilityFocus = properties.onDidLoseAccessibilityFocus
+      ..customSemanticsActions = properties.customSemanticsActions;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<bool>('container', container));
+    properties.add(DiagnosticsProperty<SemanticsProperties>('properties', this.properties));
+    this.properties.debugFillProperties(properties);
+  }
+}
+
+class MergeSemantics extends SingleChildRenderObjectWidget {
+  /// Creates a widget that merges the semantics of its descendants.
+  const MergeSemantics({ Key key, Widget child }) : super(key: key, child: child);
+
+  @override
+  RenderMergeSemantics createRenderObject(BuildContext context) => RenderMergeSemantics();
+}
+
+
+class BlockSemantics extends SingleChildRenderObjectWidget {
+  
+  const BlockSemantics({ Key key, this.blocking = true, Widget child }) : super(key: key, child: child);
+
+  /// Whether this widget is blocking semantics of all widget that were painted
+  /// before it in the same semantic container.
+  final bool blocking;
+
+  @override
+  RenderBlockSemantics createRenderObject(BuildContext context) => RenderBlockSemantics(blocking: blocking);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderBlockSemantics renderObject) {
+    renderObject.blocking = blocking;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<bool>('blocking', blocking));
+  }
+}
+
+class ExcludeSemantics extends SingleChildRenderObjectWidget {
+  /// Creates a widget that drops all the semantics of its descendants.
+  const ExcludeSemantics({
+    Key key,
+    this.excluding = true,
+    Widget child,
+  }) : assert(excluding != null),
+       super(key: key, child: child);
+
+  /// Whether this widget is excluded in the semantics tree.
+  final bool excluding;
+
+  @override
+  RenderExcludeSemantics createRenderObject(BuildContext context) => RenderExcludeSemantics(excluding: excluding);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderExcludeSemantics renderObject) {
+    renderObject.excluding = excluding;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<bool>('excluding', excluding));
+  }
+}
+
+
+class IndexedSemantics extends SingleChildRenderObjectWidget {
+  
+  const IndexedSemantics({
+    Key key,
+    @required this.index,
+    Widget child,
+  }) : assert(index != null),
+       super(key: key, child: child);
+
+  /// The index used to annotate the first child semantics node.
+  final int index;
+
+  @override
+  RenderIndexedSemantics createRenderObject(BuildContext context) => RenderIndexedSemantics(index: index);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderIndexedSemantics renderObject) {
+    renderObject.index = index;
+  }
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<int>('index', index));
+  }
+}*/
+    
     public class KeyedSubtree : StatelessWidget {
         public KeyedSubtree(
             Key key,

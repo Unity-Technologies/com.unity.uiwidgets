@@ -174,7 +174,7 @@ namespace Unity.UIWidgets.ui {
                         (b & 0xff)));
         }
 
-        public readonly uint value;
+        public uint value;
 
         public int alpha {
             get { return (int) ((0xff000000 & value) >> 24); }
@@ -765,7 +765,7 @@ namespace Unity.UIWidgets.ui {
         internal Image(IntPtr ptr) : base(ptr) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             Image_dispose(ptr);
         }
 
@@ -844,7 +844,7 @@ namespace Unity.UIWidgets.ui {
         internal FrameInfo(IntPtr ptr) : base(ptr) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             FrameInfo_dispose(ptr);
         }
 
@@ -867,7 +867,7 @@ namespace Unity.UIWidgets.ui {
         internal Codec(IntPtr ptr) : base(ptr) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             Codec_dispose(ptr);
         }
 
@@ -1019,7 +1019,7 @@ namespace Unity.UIWidgets.ui {
         protected EngineLayer(IntPtr ptr) : base(ptr) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             EngineLayer_dispose(ptr);
         }
 
@@ -1034,7 +1034,7 @@ namespace Unity.UIWidgets.ui {
         public Path(IntPtr ptr) : base(ptr) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             Path_dispose(ptr);
         }
 
@@ -1191,17 +1191,17 @@ namespace Unity.UIWidgets.ui {
         }
 
         public bool contains(Offset point) {
-            D.assert(ui.PaintingUtils._offsetIsValid(point));
+            D.assert(PaintingUtils._offsetIsValid(point));
             return Path_contains(_ptr, point.dx, point.dy);
         }
 
         public Path shift(Offset offset) {
-            D.assert(ui.PaintingUtils._offsetIsValid(offset));
+            D.assert(PaintingUtils._offsetIsValid(offset));
             return new Path(Path_shift(_ptr, offset.dx, offset.dy));
         }
 
         public unsafe Path transform(float[] matrix4) {
-            D.assert(ui.PaintingUtils._matrix4IsValid(matrix4));
+            D.assert(PaintingUtils._matrix4IsValid(matrix4));
             fixed (float* matrixPtr = matrix4) {
                 return new Path(Path_transform(_ptr, matrixPtr));
             }
@@ -1535,7 +1535,7 @@ namespace Unity.UIWidgets.ui {
         public _PathMeasure(Path path, bool forceClosed) : base(PathMeasure_constructor(path._ptr, forceClosed)) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             PathMeasure_dispose(ptr);
         }
 
@@ -1735,7 +1735,7 @@ namespace Unity.UIWidgets.ui {
             this.creator = creator;
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             ColorFilter_dispose(ptr);
         }
 
@@ -1910,16 +1910,16 @@ namespace Unity.UIWidgets.ui {
             this.creator = creator;
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             ImageFilter_dispose(ptr);
         }
 
         public static _ImageFilter blur(ImageFilter creator) {
             D.assert(creator != null);
-            D.assert(creator._type == ImageFilter._kTypeMatrix);
-            if (creator._data.Length != 16) {
+            D.assert(creator._type == ImageFilter._kTypeBlur);
+            /*if (creator._data.Length != 16) {
                 throw new ArgumentException("\"matrix4\" must have 16 entries.");
-            }
+            }*/
 
             var filter = new _ImageFilter(ImageFilter_constructor(), creator);
             ImageFilter_initBlur(filter._ptr, creator._data[0], creator._data[1]);
@@ -1973,7 +1973,7 @@ namespace Unity.UIWidgets.ui {
         Gradient(IntPtr ptr) : base(ptr) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             Gradient_dispose(ptr);
         }
 
@@ -2149,7 +2149,7 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             ImageShader_dispose(ptr);
         }
 
@@ -2175,7 +2175,7 @@ namespace Unity.UIWidgets.ui {
         Vertices() : base(Vertices_constructor()) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             Vertices_dispose(ptr);
         }
 
@@ -2294,15 +2294,15 @@ namespace Unity.UIWidgets.ui {
                 cullRect.bottom));
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             Canvas_dispose(ptr);
         }
 
-        public void save() {
+        public virtual void save() {
             Canvas_save(_ptr);
         }
 
-        public unsafe void saveLayer(Rect bounds, Paint paint) {
+        public virtual unsafe void saveLayer(Rect bounds, Paint paint) {
             D.assert(paint != null);
             if (bounds == null) {
                 fixed (IntPtr* objectsPtr = paint._objectPtrs)
@@ -2318,31 +2318,31 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        public void restore() {
+        public virtual void restore() {
             Canvas_restore(_ptr);
         }
 
-        public int getSaveCount() {
+        public virtual int getSaveCount() {
             return Canvas_getSaveCount(_ptr);
         }
 
-        public void translate(float dx, float dy) {
+        public virtual void translate(float dx, float dy) {
             Canvas_translate(_ptr, dx, dy);
         }
 
-        public void scale(float sx, float? sy = null) {
+        public virtual void scale(float sx, float? sy = null) {
             Canvas_scale(_ptr, sx, sy ?? sx);
         }
 
-        public void rotate(float radians) {
+        public virtual void rotate(float radians) {
             Canvas_rotate(_ptr, radians);
         }
 
-        public void skew(float sx, float sy) {
+        public virtual void skew(float sx, float sy) {
             Canvas_skew(_ptr, sx, sy);
         }
 
-        public unsafe void transform(float[] matrix4) {
+        public virtual unsafe void transform(float[] matrix4) {
             D.assert(matrix4 != null);
             if (matrix4.Length != 16)
                 throw new ArgumentException("\"matrix4\" must have 16 entries.");
@@ -2350,29 +2350,29 @@ namespace Unity.UIWidgets.ui {
                 Canvas_transform(_ptr, matrx4Ptr);
         }
 
-        public void clipRect(Rect rect, ClipOp clipOp = ClipOp.intersect, bool doAntiAlias = true) {
+        public virtual void clipRect(Rect rect, ClipOp clipOp = ClipOp.intersect, bool doAntiAlias = true) {
             D.assert(PaintingUtils._rectIsValid(rect));
             Canvas_clipRect(_ptr, rect.left, rect.top, rect.right, rect.bottom, (int) clipOp, doAntiAlias);
         }
 
-        public unsafe void clipRRect(RRect rrect, bool doAntiAlias = true) {
+        public virtual unsafe void clipRRect(RRect rrect, bool doAntiAlias = true) {
             D.assert(PaintingUtils._rrectIsValid(rrect));
             fixed (float* rrectPtr = rrect._value32)
                 Canvas_clipRRect(_ptr, rrectPtr, doAntiAlias);
         }
 
-        public void clipPath(Path path, bool doAntiAlias = true) {
+        public virtual void clipPath(Path path, bool doAntiAlias = true) {
             D.assert(path != null);
             Canvas_clipPath(_ptr, path._ptr, doAntiAlias);
         }
 
-        public void drawColor(Color color, BlendMode blendMode) {
+        public virtual void drawColor(Color color, BlendMode blendMode) {
             D.assert(color != null);
 
             Canvas_drawColor(_ptr, color.value, (int) blendMode);
         }
 
-        public unsafe void drawLine(Offset p1, Offset p2, Paint paint) {
+        public virtual unsafe void drawLine(Offset p1, Offset p2, Paint paint) {
             D.assert(PaintingUtils._offsetIsValid(p1));
             D.assert(PaintingUtils._offsetIsValid(p2));
             D.assert(paint != null);
@@ -2382,7 +2382,7 @@ namespace Unity.UIWidgets.ui {
                 Canvas_drawLine(_ptr, p1.dx, p1.dy, p2.dx, p2.dy, objectsPtr, dataPtr);
         }
 
-        public unsafe void drawPaint(Paint paint) {
+        public virtual unsafe void drawPaint(Paint paint) {
             D.assert(paint != null);
 
             fixed (IntPtr* objectsPtr = paint._objectPtrs)
@@ -2390,7 +2390,7 @@ namespace Unity.UIWidgets.ui {
                 Canvas_drawPaint(_ptr, objectsPtr, dataPtr);
         }
 
-        public unsafe void drawRect(Rect rect, Paint paint) {
+        public virtual unsafe void drawRect(Rect rect, Paint paint) {
             D.assert(PaintingUtils._rectIsValid(rect));
             D.assert(paint != null);
             fixed (IntPtr* objectsPtr = paint._objectPtrs)
@@ -2399,7 +2399,7 @@ namespace Unity.UIWidgets.ui {
                     objectsPtr, dataPtr);
         }
 
-        public unsafe void drawRRect(RRect rrect, Paint paint) {
+        public virtual unsafe void drawRRect(RRect rrect, Paint paint) {
             D.assert(PaintingUtils._rrectIsValid(rrect));
             D.assert(paint != null);
 
@@ -2410,7 +2410,7 @@ namespace Unity.UIWidgets.ui {
                     dataPtr);
         }
 
-        public unsafe void drawDRRect(RRect outer, RRect inner, Paint paint) {
+        public virtual unsafe void drawDRRect(RRect outer, RRect inner, Paint paint) {
             D.assert(PaintingUtils._rrectIsValid(outer));
             D.assert(PaintingUtils._rrectIsValid(inner));
             D.assert(paint != null);
@@ -2423,7 +2423,7 @@ namespace Unity.UIWidgets.ui {
                     dataPtr);
         }
 
-        public unsafe void drawOval(Rect rect, Paint paint) {
+        public virtual unsafe void drawOval(Rect rect, Paint paint) {
             D.assert(PaintingUtils._rectIsValid(rect));
             D.assert(paint != null);
 
@@ -2434,7 +2434,7 @@ namespace Unity.UIWidgets.ui {
                     dataPtr);
         }
 
-        public unsafe void drawCircle(Offset c, float radius, Paint paint) {
+        public virtual unsafe void drawCircle(Offset c, float radius, Paint paint) {
             D.assert(PaintingUtils._offsetIsValid(c));
             D.assert(paint != null);
 
@@ -2444,7 +2444,7 @@ namespace Unity.UIWidgets.ui {
                     dataPtr);
         }
 
-        public unsafe void drawArc(Rect rect, float startAngle, float sweepAngle, bool useCenter, Paint paint) {
+        public virtual unsafe void drawArc(Rect rect, float startAngle, float sweepAngle, bool useCenter, Paint paint) {
             D.assert(PaintingUtils._rectIsValid(rect));
             D.assert(paint != null);
 
@@ -2455,7 +2455,7 @@ namespace Unity.UIWidgets.ui {
                     dataPtr);
         }
 
-        public unsafe void drawPath(Path path, Paint paint) {
+        public virtual unsafe void drawPath(Path path, Paint paint) {
             D.assert(path != null);
             D.assert(paint != null);
 
@@ -2465,7 +2465,7 @@ namespace Unity.UIWidgets.ui {
                     dataPtr);
         }
 
-        public unsafe void drawImage(Image image, Offset p, Paint paint) {
+        public virtual unsafe void drawImage(Image image, Offset p, Paint paint) {
             D.assert(image != null);
             D.assert(PaintingUtils._offsetIsValid(p));
             D.assert(paint != null);
@@ -2476,7 +2476,7 @@ namespace Unity.UIWidgets.ui {
                     dataPtr);
         }
 
-        public unsafe void drawImageRect(Image image, Rect src, Rect dst, Paint paint) {
+        public virtual unsafe void drawImageRect(Image image, Rect src, Rect dst, Paint paint) {
             D.assert(image != null);
             D.assert(PaintingUtils._rectIsValid(src));
             D.assert(PaintingUtils._rectIsValid(dst));
@@ -2497,7 +2497,7 @@ namespace Unity.UIWidgets.ui {
                     dataPtr);
         }
 
-        public unsafe void drawImageNine(Image image, Rect center, Rect dst, Paint paint) {
+        public virtual unsafe void drawImageNine(Image image, Rect center, Rect dst, Paint paint) {
             D.assert(image != null);
             D.assert(PaintingUtils._rectIsValid(center));
             D.assert(PaintingUtils._rectIsValid(dst));
@@ -2518,19 +2518,32 @@ namespace Unity.UIWidgets.ui {
                     dataPtr);
         }
 
-        public void drawPicture(Picture picture) {
+        public virtual void drawPicture(Picture picture) {
             D.assert(picture != null);
             Canvas_drawPicture(_ptr, picture._ptr);
         }
 
 
-        public void drawParagraph(Paragraph paragraph, Offset offset) {
+        public virtual void drawParagraph(Paragraph paragraph, Offset offset) {
             D.assert(paragraph != null);
             D.assert(PaintingUtils._offsetIsValid(offset));
             paragraph._paint(this, offset.dx, offset.dy);
         }
-
-        public unsafe void drawRawPoints(PointMode pointMode, float[] points, Paint paint) {
+        public virtual void drawPoints(PointMode pointMode, List<Offset> points, Paint paint) {
+            unsafe
+            {
+                D.assert(pointMode != null);
+                D.assert(points != null);
+                D.assert(paint != null);
+                float[] list = PaintingUtils._encodePointList(points);
+                fixed (IntPtr* objectPtrs = paint._objectPtrs)
+                fixed (byte* dataPtr = paint._data)
+                fixed (float* listPtr = list) {
+                    Canvas_drawPoints(_ptr, objectPtrs, dataPtr, (int) pointMode, listPtr, list.Length);
+                }
+            }
+        }
+        public virtual unsafe void drawRawPoints(PointMode pointMode, float[] points, Paint paint) {
             D.assert(points != null);
             D.assert(paint != null);
             if (points.Length % 2 != 0)
@@ -2542,7 +2555,7 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        public unsafe void drawVertices(Vertices vertices, BlendMode blendMode, Paint paint) {
+        public virtual unsafe void drawVertices(Vertices vertices, BlendMode blendMode, Paint paint) {
             D.assert(vertices != null);
             D.assert(paint != null);
 
@@ -2553,7 +2566,7 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        public unsafe void drawAtlas(Image atlas,
+        public virtual unsafe void drawAtlas(Image atlas,
             List<RSTransform> transforms,
             List<Rect> rects,
             List<Color> colors,
@@ -2612,7 +2625,7 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        public unsafe void drawRawAtlas(Image atlas,
+        public virtual unsafe void drawRawAtlas(Image atlas,
             float[] rstTransforms,
             float[] rects,
             uint[] colors,
@@ -2650,7 +2663,7 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        public void drawShadow(Path path, Color color, float elevation, bool transparentOccluder) {
+        public virtual void drawShadow(Path path, Color color, float elevation, bool transparentOccluder) {
             D.assert(path != null);
             D.assert(color != null);
             Canvas_drawShadow(_ptr, path._ptr, color.value, elevation, transparentOccluder);
@@ -2795,7 +2808,7 @@ namespace Unity.UIWidgets.ui {
         internal Picture(IntPtr ptr) : base(ptr) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             Picture_dispose(ptr);
         }
 
@@ -2857,7 +2870,7 @@ namespace Unity.UIWidgets.ui {
         public PictureRecorder() : base(PictureRecorder_constructor()) {
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             PictureRecorder_dispose(ptr);
         }
 
@@ -3042,7 +3055,7 @@ namespace Unity.UIWidgets.ui {
             _setPtr(Skottie_Construct(path));
         }
 
-        protected override void DisposePtr(IntPtr ptr) {
+        public override void DisposePtr(IntPtr ptr) {
             Skottie_Dispose(ptr);
         }
 

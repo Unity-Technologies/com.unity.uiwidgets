@@ -7,7 +7,7 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.rendering {
     public class KeepAliveParentDataMixin : ParentData {
-        bool keepAlive = false;
+        public bool keepAlive = false;
 
         bool keptAlive { get; }
     }
@@ -79,7 +79,7 @@ namespace Unity.UIWidgets.rendering {
         protected override void adoptChild(AbstractNodeMixinDiagnosticableTree childNode) {
             base.adoptChild(childNode);
             var child = (RenderBox) childNode;
-            var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
+            SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
             if (!childParentData._keptAlive) {
                 childManager.didAdoptChild(child);
             }
@@ -107,7 +107,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void remove(RenderBox child) {
-            var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
+            SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
             if (!childParentData._keptAlive) {
                 base.remove(child);
                 return;
@@ -134,7 +134,7 @@ namespace Unity.UIWidgets.rendering {
                 if (_keepAliveBucket.ContainsKey(index)) {
                     RenderBox child = _keepAliveBucket[index];
                     _keepAliveBucket.Remove(index);
-                    var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
+                    SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
                     D.assert(childParentData._keptAlive);
                     dropChild(child);
                     child.parentData = childParentData;
@@ -148,7 +148,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void _destroyOrCacheChild(RenderBox child) {
-            var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
+            SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
             if (childParentData.keepAlive) {
                 D.assert(!childParentData._keptAlive);
                 remove(child);
@@ -202,7 +202,7 @@ namespace Unity.UIWidgets.rendering {
                 D.assert(firstChild == lastChild);
                 D.assert(indexOf(firstChild) == index);
 
-                var firstChildParentData = (SliverMultiBoxAdaptorParentData) firstChild.parentData;
+                SliverMultiBoxAdaptorParentData firstChildParentData = (SliverMultiBoxAdaptorParentData) firstChild.parentData;
                 firstChildParentData.layoutOffset = layoutOffset;
                 return true;
             }
@@ -261,12 +261,12 @@ namespace Unity.UIWidgets.rendering {
                 }
 
                 _keepAliveBucket.Values.Where(child => {
-                    var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
+                    SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
                     return !childParentData.keepAlive;
                 }).ToList().ForEach(_childManager.removeChild);
 
                 D.assert(_keepAliveBucket.Values.Where(child => {
-                    var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
+                    SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
                     return !childParentData.keepAlive;
                 }).ToList().isEmpty());
             });
@@ -274,7 +274,7 @@ namespace Unity.UIWidgets.rendering {
 
         public int indexOf(RenderBox child) {
             D.assert(child != null);
-            var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
+            SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
             return childParentData.index;
         }
 
@@ -317,7 +317,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(child != null);
             D.assert(child.parent == this);
 
-            var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
+            SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
             return childParentData.layoutOffset;
         }
 
@@ -409,7 +409,7 @@ namespace Unity.UIWidgets.rendering {
             if (firstChild != null) {
                 RenderBox child = firstChild;
                 while (true) {
-                    var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
+                   SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
                     children.Add(child.toDiagnosticsNode(name: "child with index " + childParentData.index));
                     if (child == lastChild) {
                         break;

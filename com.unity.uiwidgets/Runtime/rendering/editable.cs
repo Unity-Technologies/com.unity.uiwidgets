@@ -1122,7 +1122,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        void selectPosition(SelectionChangedCause? cause = null) {
+        public void selectPosition(SelectionChangedCause? cause = null) {
             selectPositionAt(from: _lastTapDownPosition, cause: cause);
         }
 

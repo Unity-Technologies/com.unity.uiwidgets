@@ -191,11 +191,13 @@ namespace Unity.UIWidgets.widgets {
             setState(() => { _entries.InsertRange(_insertionIndex(below, above), entries); });
         }
 
-        public void rearrange(IEnumerable<OverlayEntry> newEntries, OverlayEntry below = null,
-            OverlayEntry above = null) {
+        public void rearrange(IEnumerable<OverlayEntry> newEntries, 
+            OverlayEntry below = null,
+            OverlayEntry above = null) 
+        {
             List<OverlayEntry> newEntriesList =
                 newEntries is List<OverlayEntry> ? (newEntries as List<OverlayEntry>) : newEntries.ToList();
-            D.assert(above == null || below == null, () => "Only one of `above` and `below` may be specified.");
+            /*D.assert(above == null || below == null, () => "Only one of `above` and `below` may be specified.");
             D.assert(above == null || (above._overlay == this && _entries.Contains(above)),
                 () => "The provided entry for `above` is not present in the Overlay.");
             D.assert(below == null || (below._overlay == this && _entries.Contains(below)),
@@ -203,7 +205,37 @@ namespace Unity.UIWidgets.widgets {
             D.assert(newEntriesList.All(entry => !_entries.Contains(entry)),
                 () => "One or more of the specified entries are already present in the Overlay.");
             D.assert(newEntriesList.All(entry => entry._overlay == null),
-                () => "One or more of the specified entries are already present in another Overlay.");
+                () => "One or more of the specified entries are already present in another Overlay.");*/
+            D.assert(
+                above == null || below == null,
+                ()=>"Only one of `above` and `below` may be specified."
+            );
+            D.assert(
+                above == null || (above._overlay == this && _entries.Contains(above) && newEntriesList.Contains(above)),
+                ()=>"The entry used for `above` must be in the Overlay and in the `newEntriesList`."
+            );
+            D.assert(
+                below == null || (below._overlay == this && _entries.Contains(below) && newEntriesList.Contains(below)),
+                ()=>"The entry used for `below` must be in the Overlay and in the `newEntriesList`."
+            );
+            int overlayEntry = 0;
+            foreach (var newEntry in newEntriesList) {
+                if (newEntry._overlay == null || newEntry._overlay == this) {
+                    overlayEntry++;
+                }
+            }
+            D.assert(overlayEntry == newEntriesList.Count,
+                ()=>"One or more of the specified entries are already present in another Overlay."
+            );
+            int lastoverlayEntry = 0;
+            foreach (var newEntry in newEntriesList) {
+                if (_entries.IndexOf(newEntry) == _entries.LastIndexOf(newEntry)) {
+                    lastoverlayEntry++;
+                }
+            }
+            D.assert(lastoverlayEntry == newEntriesList.Count,
+                ()=>"One or more of the specified entries are specified multiple times."
+            );
             if (newEntriesList.isEmpty()) {
                 return;
             }

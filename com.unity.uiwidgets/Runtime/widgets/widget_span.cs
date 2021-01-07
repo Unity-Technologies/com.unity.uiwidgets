@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.widgets {
             this.child = child;
         }
 
-        Widget child;
+        public Widget child;
 
         public override void build(
             ParagraphBuilder builder,

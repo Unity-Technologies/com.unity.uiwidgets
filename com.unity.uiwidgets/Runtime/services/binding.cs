@@ -55,7 +55,7 @@ namespace Unity.UIWidgets.services {
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: exception,
                         library: "services library",
-                        context: "during a platform message response callback"
+                        context: new ErrorDescription("during a platform message response callback")
                     ));
                 }
             });
@@ -80,7 +80,7 @@ namespace Unity.UIWidgets.services {
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                     exception: exception,
                     library: "services library",
-                    context: "during a platform message callback")
+                    context: new ErrorDescription("during a platform message callback"))
                 );
                 callback(null);
                 return FutureOr.nil;

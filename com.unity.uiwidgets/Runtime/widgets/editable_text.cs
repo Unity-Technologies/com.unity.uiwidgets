@@ -4,15 +4,17 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
+//using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
+using UnityEditor;
 using UnityEngine;
 using Brightness = Unity.UIWidgets.ui.Brightness;
 using Color = Unity.UIWidgets.ui.Color;
+using MathUtils = Unity.UIWidgets.ui.MathUtils;
 using Rect = Unity.UIWidgets.ui.Rect;
 using StrutStyle = Unity.UIWidgets.painting.StrutStyle;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -43,7 +45,24 @@ namespace Unity.UIWidgets.widgets {
                     composing: TextRange.empty);
             }
         }
-
+        public virtual TextSpan buildTextSpan(TextStyle style = null , bool withComposing = false) {
+            if (!value.composing.isValid || !withComposing) {
+                return new TextSpan(style: style, text: text);
+            }
+            TextStyle composingStyle = style.merge(
+            new TextStyle(decoration: TextDecoration.underline)
+                );
+            var spans = new List<InlineSpan>();
+            spans.Add(new TextSpan(text: value.composing.textBefore(value.text)));
+            spans.Add(new TextSpan(
+                style: composingStyle,
+                text: value.composing.textInside(value.text)));
+            spans.Add(new TextSpan(text: value.composing.textAfter(value.text)));
+            return new TextSpan(
+                style: style,
+                children: spans 
+                );
+        }
         public TextSelection selection {
             get { return value.selection; }
 
@@ -64,23 +83,58 @@ namespace Unity.UIWidgets.widgets {
             value = value.copyWith(composing: TextRange.empty);
         }
     }
+    public class ToolbarOptions {
+        
+        public ToolbarOptions(
+            bool copy = false,
+            bool cut = false,
+            bool paste = false,
+            bool selectAll = false
+        ) {
+            D.assert(copy != null);
+            D.assert(cut != null);
+            D.assert(paste != null);
+            D.assert(selectAll != null);
+            this.copy = copy;
+            this.cut = cut;
+            this.paste = paste;
+            this.selectAll = selectAll;
 
+        }
+        public readonly  bool copy;
+        public readonly  bool cut;
+        public readonly  bool paste; 
+        public readonly  bool selectAll;
+    }
+
+    
     public class EditableText : StatefulWidget {
         public EditableText(
+            Key key = null,
             TextEditingController controller = null,
-            FocusNode focusNode = null, TextStyle style = null,
+            FocusNode focusNode = null,
+            bool readOnly = false,
+            bool obscureText = false,
+            bool autocorrect = true,
+            //SmartDashesType smartDashesType,
+            //SmartQuotesType smartQuotesType,
+            bool enableSuggestions = true,
+            TextStyle style = null,
             StrutStyle strutStyle = null,
             Color cursorColor = null,
             Color backgroundCursorColor = null,
-            bool obscureText = false,
-            bool autocorrect = false,
             TextAlign textAlign = TextAlign.left,
             TextDirection? textDirection = null,
+            Locale locale = null,
             float? textScaleFactor = null,
             int? maxLines = 1,
             int? minLines = null,
             bool expands = false,
+            bool forceLine = false,
+            TextWidthBasis textWidthBasis = TextWidthBasis.parent,
             bool autofocus = false,
+            bool? showCursor = null,
+            bool showSelectionHandles = false,
             Color selectionColor = null,
             TextSelectionControls selectionControls = null,
             TextInputType keyboardType = null,
@@ -90,41 +144,105 @@ namespace Unity.UIWidgets.widgets {
             VoidCallback onEditingComplete = null,
             ValueChanged<string> onSubmitted = null,
             SelectionChangedCallback onSelectionChanged = null,
+            VoidCallback onSelectionHandleTapped = null,
             List<TextInputFormatter> inputFormatters = null,
             bool rendererIgnoresPointer = false,
-            EdgeInsets scrollPadding = null,
-            bool unityTouchKeyboard = false,
-            Key key = null,
             float? cursorWidth = 2.0f,
             Radius cursorRadius = null,
             bool cursorOpacityAnimates = false,
             Offset cursorOffset = null,
             bool paintCursorAboveText = false,
+            ui.BoxHeightStyle selectionHeightStyle = ui.BoxHeightStyle.tight,
+            ui.BoxWidthStyle selectionWidthStyle = ui.BoxWidthStyle.tight,
+            EdgeInsets scrollPadding = null,
             Brightness? keyboardAppearance = Brightness.light,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.down,
-            bool? enableInteractiveSelection = null,
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            bool? enableInteractiveSelection = true,
+            ScrollController scrollController = null,
             ScrollPhysics scrollPhysics = null,
-            GlobalKeyEventHandlerDelegate globalKeyEventHandler = null
+            ToolbarOptions toolbarOptions = null,
+            bool unityTouchKeyboard = false
         ) : base(key) {
+            toolbarOptions = toolbarOptions ?? new ToolbarOptions(
+                copy: true,
+                cut: true,
+                paste: true,
+                selectAll: true
+            );
             D.assert(controller != null);
             D.assert(focusNode != null);
+            D.assert(obscureText != null);
+            D.assert(autocorrect != null);
+           //smartDashesType = smartDashesType ?? (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
+           //smartQuotesType = smartQuotesType ?? (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
+            D.assert(enableSuggestions != null);
+            D.assert(showSelectionHandles != null);
+            D.assert(enableInteractiveSelection != null);
+            D.assert(readOnly != null);
+            D.assert(forceLine != null);
             D.assert(style != null);
             D.assert(cursorColor != null);
+            D.assert(cursorOpacityAnimates != null);
+            D.assert(paintCursorAboveText != null);
+            D.assert(backgroundCursorColor != null);
+            D.assert(selectionHeightStyle != null);
+            D.assert(selectionWidthStyle != null);
+            D.assert(textAlign != null);
             D.assert(maxLines == null || maxLines > 0);
             D.assert(minLines == null || minLines > 0);
-            D.assert((maxLines == null) || (minLines == null) || (maxLines >= minLines),
-                () => "minLines can't be greater than maxLines");
-            D.assert(!expands || (maxLines == null && minLines == null),
-                () => "minLines and maxLines must be null when expands is true.");
-            // D.assert(backgroundCursorColor != null); // TODO: remove comment
-            this.keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
+            D.assert(
+                (maxLines == null) || (minLines == null) || (maxLines >= minLines),
+                ()=>"minLines can't be greater than maxLines"
+            );
+            D.assert(expands != null);
+            D.assert(
+                !expands || (maxLines == null && minLines == null),()=>
+                "minLines and maxLines must be null when expands is true."
+            );
+            D.assert(!obscureText || maxLines == 1, () => "Obscured fields cannot be multiline.");
+            D.assert(autofocus != null);
+            D.assert(rendererIgnoresPointer != null);
+            D.assert(scrollPadding != null);
+            D.assert(dragStartBehavior != null);
+            D.assert(toolbarOptions != null);
+            _strutStyle = strutStyle;
+            inputFormatters = inputFormatters ?? new List<TextInputFormatter>();
+            keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
+            List<TextInputFormatter> formatters = new List<TextInputFormatter>();
+            if (inputFormatters == null) {
+                formatters = inputFormatters;
+            }
 
+            inputFormatters = maxLines == 1
+                ? new List<TextInputFormatter>() {
+                    BlacklistingTextInputFormatter.singleLineFormatter,
+                }
+                : inputFormatters;
+            if (maxLines == 1) {
+                foreach (var formatter in formatters) {
+                    inputFormatters.Add(formatter);
+                }
+            }
+            this.readOnly = readOnly;
+            this.showCursor = showCursor ?? !readOnly;
+            this.keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
+            this.locale = locale;
             this.scrollPadding = scrollPadding ?? EdgeInsets.all(20.0f);
             this.controller = controller;
             this.focusNode = focusNode;
             this.obscureText = obscureText;
             this.autocorrect = autocorrect;
             this.style = style;
+            
+            this.textWidthBasis = textWidthBasis;
+            this.onSelectionHandleTapped = onSelectionHandleTapped;
+            this.scrollController = scrollController;
+            this.selectionHeightStyle = selectionHeightStyle;
+            this.selectionWidthStyle = selectionWidthStyle;
+            this.enableSuggestions = enableSuggestions;
+            this.forceLine = forceLine;
+            this.showSelectionHandles = showSelectionHandles;
+            this.toolbarOptions = toolbarOptions;
             _strutStyle = strutStyle;
             this.textAlign = textAlign;
             this.textDirection = textDirection;
@@ -132,7 +250,7 @@ namespace Unity.UIWidgets.widgets {
             this.textInputAction = textInputAction;
             this.textCapitalization = textCapitalization;
             this.cursorColor = cursorColor;
-            this.backgroundCursorColor = backgroundCursorColor ?? Colors.grey; // TODO: remove ??
+            this.backgroundCursorColor = backgroundCursorColor ; // TODO: remove ??
             this.maxLines = maxLines;
             this.minLines = minLines;
             this.expands = expands;
@@ -165,14 +283,27 @@ namespace Unity.UIWidgets.widgets {
             this.enableInteractiveSelection = enableInteractiveSelection;
             this.dragStartBehavior = dragStartBehavior;
             this.scrollPhysics = scrollPhysics;
-            this.globalKeyEventHandler = globalKeyEventHandler;
+           // this.globalKeyEventHandler = globalKeyEventHandler;
         }
 
+        public readonly bool readOnly;
+        public readonly Locale locale;
         public readonly TextEditingController controller;
         public readonly FocusNode focusNode;
         public readonly bool obscureText;
         public readonly bool autocorrect;
         public readonly TextStyle style;
+
+        public readonly bool enableSuggestions;
+        public readonly TextWidthBasis textWidthBasis;
+        public readonly VoidCallback onSelectionHandleTapped;
+        public readonly ScrollController scrollController;
+        public readonly bool showCursor;
+        public readonly ui.BoxHeightStyle selectionHeightStyle;
+        public readonly ui.BoxWidthStyle selectionWidthStyle;
+        public readonly bool forceLine;
+        public readonly bool showSelectionHandles ;
+        public readonly ToolbarOptions toolbarOptions;
         public StrutStyle strutStyle {
             get {
                 if (_strutStyle == null) {
@@ -231,29 +362,25 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<TextEditingController>("controller", controller));
-            properties.add(new DiagnosticsProperty<FocusNode>("focusNode", focusNode));
-            properties.add(new DiagnosticsProperty<bool>("obscureText", obscureText, defaultValue: false));
-            properties.add(new DiagnosticsProperty<bool>("autocorrect", autocorrect, defaultValue: true));
-            if (style != null) {
-                style.debugFillProperties(properties);
-            }
-
-            properties.add(new EnumProperty<TextAlign>("textAlign", textAlign,
-                defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection,
-                defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<float?>("textScaleFactor", textScaleFactor,
-                defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<int?>("maxLines", maxLines, defaultValue: 1));
-            properties.add(new DiagnosticsProperty<int?>("minLines", minLines,
-                defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<bool>("expands", expands, defaultValue: false));
-            properties.add(new DiagnosticsProperty<bool>("autofocus", autofocus, defaultValue: false));
-            properties.add(
-                new DiagnosticsProperty<TextInputType>("keyboardType", keyboardType, defaultValue: null));
-            properties.add(new DiagnosticsProperty<ScrollPhysics>("scrollPhysics", scrollPhysics,
-                defaultValue: foundation_.kNullDefaultValue));
+            properties.add( new DiagnosticsProperty<TextEditingController>("controller", controller));
+            properties.add( new DiagnosticsProperty<FocusNode>("focusNode", focusNode));
+            properties.add( new DiagnosticsProperty<bool>("obscureText", obscureText, defaultValue: false));
+            properties.add( new DiagnosticsProperty<bool>("autocorrect", autocorrect, defaultValue: true));
+           // properties.add( new EnumProperty<SmartDashesType>("smartDashesType", smartDashesType, defaultValue: obscureText ? SmartDashesType.disabled : SmartDashesType.enabled));
+           // properties.add( new EnumProperty<SmartQuotesType>("smartQuotesType", smartQuotesType, defaultValue: obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled));
+            properties.add( new DiagnosticsProperty<bool>("enableSuggestions", enableSuggestions, defaultValue: true));
+            style?.debugFillProperties(properties);
+            properties.add( new EnumProperty<TextAlign>("textAlign", textAlign, defaultValue: null));
+            properties.add( new EnumProperty<TextDirection>("textDirection", textDirection.Value, defaultValue: null));
+            properties.add( new DiagnosticsProperty<Locale>("locale", locale, defaultValue: null));
+            properties.add( new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: null));
+            properties.add( new IntProperty("maxLines", maxLines, defaultValue: 1));
+            properties.add( new IntProperty("minLines", minLines, defaultValue: null));
+            properties.add( new DiagnosticsProperty<bool>("expands", expands, defaultValue: false));
+            properties.add( new DiagnosticsProperty<bool>("autofocus", autofocus, defaultValue: false));
+            properties.add( new DiagnosticsProperty<TextInputType>("keyboardType", keyboardType, defaultValue: null));
+            properties.add( new DiagnosticsProperty<ScrollController>("scrollController", scrollController, defaultValue: null));
+            properties.add( new DiagnosticsProperty<ScrollPhysics>("scrollPhysics", scrollPhysics, defaultValue: null));
         }
     }
 
@@ -277,6 +404,12 @@ namespace Unity.UIWidgets.widgets {
 
         LayerLink _layerLink = new LayerLink();
         bool _didAutoFocus = false;
+        FocusAttachment _focusAttachment;
+        
+        TextEditingValue _lastFormattedUnmodifiedTextEditingValue;
+        TextEditingValue _lastFormattedValue;
+        TextEditingValue _receivedRemoteTextEditingValue;
+
 
         static readonly TimeSpan _fadeDuration = TimeSpan.FromMilliseconds(250);
 
@@ -296,6 +429,7 @@ namespace Unity.UIWidgets.widgets {
         public override void initState() {
             base.initState();
             widget.controller.addListener(_didChangeTextEditingValue);
+            _focusAttachment = widget.focusNode.attach(context);
             widget.focusNode.addListener(_handleFocusChanged);
             _scrollController.addListener(() => { _selectionOverlay?.updateForScroll(); });
             _cursorBlinkOpacityController = new AnimationController(vsync: this, duration: _fadeDuration);
@@ -319,11 +453,13 @@ namespace Unity.UIWidgets.widgets {
                 oldWidget.controller.removeListener(_didChangeTextEditingValue);
                 widget.controller.addListener(_didChangeTextEditingValue);
                 _updateRemoteEditingValueIfNeeded();
-                _updateImePosIfNeed();
+                //_updateImePosIfNeed();
             }
 
             if (widget.focusNode != oldWidget.focusNode) {
                 oldWidget.focusNode.removeListener(_handleFocusChanged);
+                _focusAttachment?.detach();
+                _focusAttachment = widget.focusNode.attach(context);
                 widget.focusNode.addListener(_handleFocusChanged);
                 updateKeepAlive();
             }
@@ -339,6 +475,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(_cursorTimer == null);
             _selectionOverlay?.dispose();
             _selectionOverlay = null;
+            _focusAttachment.detach();
             widget.focusNode.removeListener(_handleFocusChanged);
             base.dispose();
         }
@@ -438,6 +575,21 @@ namespace Unity.UIWidgets.widgets {
             return widget.globalKeyEventHandler?.Invoke(evt, true) ?? RawInputKeyResponse.convert(evt);
         }
 
+        public TextEditingValue currentTextEditingValue {
+            get {
+                return _value;
+            }
+        }
+        public void connectionClosed() {
+            if (_hasInputConnection) {
+                _textInputConnection.connectionClosedReceived();
+                _textInputConnection = null;
+                _lastFormattedUnmodifiedTextEditingValue = null;
+                _receivedRemoteTextEditingValue = null;
+                _finalizeEditing(true);
+            }
+        }
+
         void _onFloatingCursorResetTick() {
             Offset finalPosition = renderEditable.getLocalRectForCaret(_lastTextPosition).centerLeft -
                                    _floatingCursorOffset;
@@ -498,6 +650,7 @@ namespace Unity.UIWidgets.widgets {
             get { return widget.controller.value; }
             set { widget.controller.value = value; }
         }
+        
 
         bool _hasFocus {
             get { return widget.focusNode.hasFocus; }
@@ -548,27 +701,55 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _openInputConnection() {
+            if (widget.readOnly) {
+                return;
+            }
             if (!_hasInputConnection) {
                 TextEditingValue localValue = _value;
-                _lastKnownRemoteTextEditingValue = localValue;
-                _textInputConnection = TextInput.attach(this, new TextInputConfiguration(
-                    inputType: widget.keyboardType,
-                    obscureText: widget.obscureText,
-                    autocorrect: widget.autocorrect,
-                    inputAction: widget.textInputAction ?? ((widget.keyboardType == TextInputType.multiline)
-                                     ? TextInputAction.newline
-                                     : TextInputAction.done),
-                    textCapitalization: widget.textCapitalization,
-                    keyboardAppearance: widget.keyboardAppearance ?? Brightness.light,
-                    unityTouchKeyboard: widget.unityTouchKeyboard
-                ));
+                _lastFormattedUnmodifiedTextEditingValue = localValue;
+                _textInputConnection = TextInput.attach(
+                    this,
+                    new TextInputConfiguration(
+                        inputType: widget.keyboardType,
+                        obscureText: widget.obscureText,
+                        autocorrect: widget.autocorrect,
+                        //smartDashesType: widget.smartDashesType ?? (widget.obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
+                        //smartQuotesType: widget.smartQuotesType ?? (widget.obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
+                        enableSuggestions: widget.enableSuggestions,
+                        inputAction: widget.textInputAction ?? (widget.keyboardType == TextInputType.multiline
+                            ? TextInputAction.newline
+                            : TextInputAction.done
+                        ),
+                        textCapitalization: widget.textCapitalization,
+                        keyboardAppearance: widget.keyboardAppearance.Value
+                    )
+                );
+                _textInputConnection.show();
+
+                _updateSizeAndTransform();
+                TextStyle style = widget.style;
+                _textInputConnection.setStyle(
+                    fontFamily: style.fontFamily,
+                    fontSize: style.fontSize,
+                    fontWeight: style.fontWeight,
+                    textDirection: _textDirection,
+                    textAlign: widget.textAlign
+                );
                 _textInputConnection.setEditingState(localValue);
-                _updateImePosIfNeed();
+            } else {
+                _textInputConnection.show();
             }
-
-            _textInputConnection.show();
         }
-
+        void _updateSizeAndTransform() {
+            if (_hasInputConnection) {
+                Size size = renderEditable.size;
+                Matrix4 transform = renderEditable.getTransformTo(null);
+                _textInputConnection.setEditableSizeAndTransform(size, transform);
+                SchedulerBinding.instance
+                    .addPostFrameCallback((TimeSpan _) => _updateSizeAndTransform());
+            }
+        }
+        
         void _closeInputConnectionIfNeeded() {
             if (_hasInputConnection) {
                 _textInputConnection.close();
@@ -592,12 +773,7 @@ namespace Unity.UIWidgets.widgets {
                 _openInputConnection();
             }
             else {
-                List<FocusScopeNode> ancestorScopes = FocusScope.ancestorsOf(context);
-                for (int i = ancestorScopes.Count - 1; i >= 1; i -= 1) {
-                    ancestorScopes[i].setFirstFocus(ancestorScopes[i - 1]);
-                }
-
-                FocusScope.of(context).requestFocus(widget.focusNode);
+                widget.focusNode.requestFocus();
             }
         }
 
@@ -724,11 +900,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public Future<bool> didPopRoute() {
-            return Future<bool>.value(false).to<bool>();
+            return Future.value(false).to<bool>();
         }
 
         public Future<bool> didPushRoute(string route) {
-            return Future<bool>.value(false).to<bool>();
+            return Future.value(false).to<bool>();
         }
 
         void _formatAndSetValue(TextEditingValue value, bool isIMEInput = false) {
@@ -740,7 +916,7 @@ namespace Unity.UIWidgets.widgets {
 
                 _value = value;
                 _updateRemoteEditingValueIfNeeded();
-                _updateImePosIfNeed();
+                //_updateImePosIfNeed();
             }
             else {
                 _value = value;
@@ -843,7 +1019,7 @@ namespace Unity.UIWidgets.widgets {
 
         void _didChangeTextEditingValue() {
             _updateRemoteEditingValueIfNeeded();
-            _updateImePosIfNeed();
+            //_updateImePosIfNeed();
             _startOrStopCursorTimerIfNeeded();
             _updateOrDisposeSelectionOverlayIfNeeded();
             _textChangedSinceLastCaretUpdate = true;
@@ -902,6 +1078,33 @@ namespace Unity.UIWidgets.widgets {
                 _getScrollOffsetForCaret(renderEditable.getLocalRectForCaret(position)));
         }
 
+        public bool cutEnabled {
+            get { return widget.toolbarOptions.cut && !widget.readOnly; }
+        }
+        public bool copyEnabled {
+            get {
+                return widget.toolbarOptions.copy;
+            }
+        }
+        public bool pasteEnabled {
+            get {
+                return widget.toolbarOptions.paste && !widget.readOnly;
+            }
+        }
+        public bool selectAllEnabled {
+            get {
+                return widget.toolbarOptions.selectAll;
+            }
+        }
+
+        public void toggleToolbar() {
+            D.assert(_selectionOverlay != null);
+            if (_selectionOverlay.toolbarIsVisible) {
+                hideToolbar();
+            } else {
+                showToolbar();
+            }
+        }
         public bool showToolbar() {
             if (_selectionOverlay == null) {
                 return false;
@@ -917,7 +1120,8 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             D.assert(WidgetsD.debugCheckHasMediaQuery(context));
-            FocusScope.of(context).reparentIfNeeded(widget.focusNode);
+            _focusAttachment.reparent();
+            //FocusScope.of(context).reparentIfNeeded(widget.focusNode);
             base.build(context); // See AutomaticKeepAliveClientMixin.
 
             return new Scrollable(
@@ -1001,18 +1205,18 @@ namespace Unity.UIWidgets.widgets {
             return TouchScreenKeyboard.isSupported && widget.unityTouchKeyboard;
         }
 
-        Offset _getImePos() {
+        /*Offset _getImePos() {
             if (_hasInputConnection && _textInputConnection.imeRequired()) {
                 var localPos = renderEditable.getLocalRectForCaret(_value.selection.basePos).bottomLeft;
                 return renderEditable.localToGlobal(localPos);
             }
 
             return null;
-        }
+        }*/
 
         bool _imePosUpdateScheduled = false;
 
-        void _updateImePosIfNeed() {
+        /*void _updateImePosIfNeed() {
             if (!_hasInputConnection || !_textInputConnection.imeRequired()) {
                 return;
             }
@@ -1030,7 +1234,7 @@ namespace Unity.UIWidgets.widgets {
 
                 _textInputConnection.setIMEPos(_getImePos());
             });
-        }
+        }*/
     }
 
     class _Editable : LeafRenderObjectWidget {

@@ -1,6 +1,8 @@
 ﻿using System;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+
 
 namespace Unity.UIWidgets.services {
     public delegate Future<byte[]> MessageHandler(byte[] message);
@@ -11,5 +13,7 @@ namespace Unity.UIWidgets.services {
         Future<byte[]> send(string channel, byte[] message);
 
         void setMessageHandler(string channel, MessageHandler handler);
+        
+        
     }
 }

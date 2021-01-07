@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.painting {
         public readonly Paint background;
         public readonly string fontFamily;
         public readonly List<BoxShadow> shadows;
-        public readonly List<ui.FontFeature> fontFeatures;
+        public readonly List<FontFeature> fontFeatures;
 
         public List<string> fontFamilyFallback {
             get { return _fontFamilyFallback; }
@@ -61,7 +61,7 @@ namespace Unity.UIWidgets.painting {
             string fontFamily = null,
             List<string> fontFamilyFallback = null,
             List<BoxShadow> shadows = null,
-            List<ui.FontFeature> fontFeatures = null,
+            List<FontFeature> fontFeatures = null,
             string debugLabel = null) {
             D.assert(color == null || foreground == null, () => _kColorForegroundWarning);
             D.assert(backgroundColor == null || background == null, () => _kColorBackgroundWarning);
@@ -109,7 +109,7 @@ namespace Unity.UIWidgets.painting {
 
         public ParagraphStyle getParagraphStyle(TextAlign textAlign,
             TextDirection textDirection, string ellipsis, int? maxLines,
-            ui.TextHeightBehavior textHeightBehavior = null,
+            TextHeightBehavior textHeightBehavior = null,
             float textScaleFactor = 1.0f) {
             return new ParagraphStyle(
                 textAlign: textAlign,
@@ -256,7 +256,7 @@ namespace Unity.UIWidgets.painting {
             TextDecorationStyle? decorationStyle = null,
             float? decorationThickness = null,
             List<BoxShadow> shadows = null,
-            List<ui.FontFeature> fontFeatures = null,
+            List<FontFeature> fontFeatures = null,
             string debugLabel = null) {
             D.assert(color == null || foreground == null, () => _kColorForegroundWarning);
             D.assert(backgroundColor == null || background == null, () => _kColorBackgroundWarning);

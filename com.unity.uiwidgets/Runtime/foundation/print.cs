@@ -2,12 +2,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Unity.UIWidgets.foundation {
-    enum _WordWrapParseMode {
-        inSpace,
-        inWord,
-        atBreak
-    }
-
     public static class DebugPrint {
         static readonly Regex _indentPattern = new Regex("^ *(?:[-+*] |[0-9]+[.):] )?");
 

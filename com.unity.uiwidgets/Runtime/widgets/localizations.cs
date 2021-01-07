@@ -30,8 +30,13 @@ namespace Unity.UIWidgets.widgets {
             }
 
             foreach (LocalizationsDelegate del in delegates) {
-                Future<WidgetsLocalizations> inputValue = del.load(locale);
+                //Future<WidgetsLocalizations> inputValue = del.load(locale);
+                Future<object> inputValue = del.load(locale).to<object>();
                 object completedValue = null;
+               /* Future<object> futureValue = inputValue.then_<object>(value => {
+                    completedValue = value;
+                    return FutureOr.value(completedValue);
+                })();*/
                 Future<object> futureValue = inputValue.then_(value => {
                      completedValue = value;
                      return FutureOr.value(completedValue);
@@ -48,10 +53,10 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (pendingList == null) {
-                return Future<Dictionary<Type, object>>.value(output).to<Dictionary<Type, object>>();
+                return Future.value(output).to<Dictionary<Type, object>>();
             }
 
-            return Future<object>.wait<object>(pendingList.Select(p => p.futureValue))
+            return Future.wait<object>(pendingList.Select(p => p.futureValue))
                 .then(values => {
                     //TODO : check values is list
                     var list = (List<object>)values;

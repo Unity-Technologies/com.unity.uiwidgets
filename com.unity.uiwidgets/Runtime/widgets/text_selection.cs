@@ -514,12 +514,149 @@ namespace Unity.UIWidgets.widgets {
             return ltrType;
         }
     }
+    public class TextSelectionGestureDetectorBuilder {
+        public TextSelectionGestureDetectorBuilder(TextSelectionGestureDetectorBuilderDelegate _delegate = null ) {
+            D.assert(_delegate != null);
+            this._delegate = _delegate;
+        }
 
+        protected readonly TextSelectionGestureDetectorBuilderDelegate _delegate;
 
+        public bool shouldShowSelectionToolbar {
+            get { return  _shouldShowSelectionToolbar;  }
+        }
+        bool _shouldShowSelectionToolbar = true;
+
+        protected EditableTextState editableText {
+            get { return _delegate.editableTextKey.currentState; }
+        }
+        protected RenderEditable renderEditable {
+            get { return editableText.renderEditable; }
+        }
+        protected void onTapDown(TapDownDetails details) {
+            renderEditable.handleTapDown(details);
+            PointerDeviceKind kind = details.kind;
+            _shouldShowSelectionToolbar = kind == null
+                              || kind == PointerDeviceKind.touch
+                              || kind == PointerDeviceKind.stylus;
+        }
+        protected virtual void onForcePressStart(ForcePressDetails details) {
+            D.assert(_delegate.forcePressEnabled);
+            _shouldShowSelectionToolbar = true;
+            if (_delegate.selectionEnabled) {
+              renderEditable.selectWordsInRange(
+                from: details.globalPosition,
+                cause: SelectionChangedCause.forcePress
+              );
+            }
+        } 
+        protected virtual void onForcePressEnd(ForcePressDetails details) {
+            D.assert(_delegate.forcePressEnabled);
+            renderEditable.selectWordsInRange(
+              from: details.globalPosition,
+              cause: SelectionChangedCause.forcePress
+            );
+            if (shouldShowSelectionToolbar)
+              editableText.showToolbar();
+        }
+        protected virtual void onSingleTapUp(TapUpDetails details) {
+            if (_delegate.selectionEnabled) {
+                renderEditable.selectWordEdge(cause: SelectionChangedCause.tap);
+            }
+        }
+        protected void onSingleTapCancel() {/* Subclass should override this method if needed. */}
+        protected virtual void onSingleLongTapStart(LongPressStartDetails details) {
+            if (_delegate.selectionEnabled) {
+              renderEditable.selectPositionAt(
+                from: details.globalPosition,
+                cause: SelectionChangedCause.longPress
+              );
+            }
+        }
+        protected virtual void onSingleLongTapMoveUpdate(LongPressMoveUpdateDetails details) {
+        if (_delegate.selectionEnabled) {
+          renderEditable.selectPositionAt(
+            from: details.globalPosition,
+            cause: SelectionChangedCause.longPress
+          );
+        }
+      }
+
+      protected void onSingleLongTapEnd(LongPressEndDetails details) {
+        if (shouldShowSelectionToolbar)
+          editableText.showToolbar();
+      }
+
+      protected void onDoubleTapDown(TapDownDetails details) {
+        if (_delegate.selectionEnabled) {
+          renderEditable.selectWord(cause: SelectionChangedCause.tap);
+          if (shouldShowSelectionToolbar)
+            editableText.showToolbar();
+        }
+      }
+
+      protected void onDragSelectionStart(DragStartDetails details) {
+        renderEditable.selectPositionAt(
+          from: details.globalPosition,
+          cause: SelectionChangedCause.drag
+        );
+      }
+
+      
+      protected void onDragSelectionUpdate(DragStartDetails startDetails, DragUpdateDetails updateDetails) {
+        renderEditable.selectPositionAt(
+          from: startDetails.globalPosition,
+          to: updateDetails.globalPosition,
+          cause: SelectionChangedCause.drag
+        );
+      }
+
+      protected void onDragSelectionEnd(DragEndDetails details) {/* Subclass should override this method if needed. */}
+
+      public Widget buildGestureDetector(
+        Key key = null,
+        HitTestBehavior behavior = default,
+        Widget child = null) {
+            GestureForcePressStartCallback PressStart = null;
+            GestureForcePressEndCallback PressEnd = null;
+            if (_delegate.forcePressEnabled) {
+                PressStart = onForcePressStart;
+                PressEnd = onForcePressEnd;
+            }
+            return new TextSelectionGestureDetector(
+            key: key,
+            onTapDown: onTapDown,
+            onForcePressStart:PressStart,
+            onForcePressEnd:PressEnd,
+            onSingleTapUp: onSingleTapUp,
+            onSingleTapCancel: onSingleTapCancel,
+            onSingleLongTapStart: onSingleLongTapStart,
+            onSingleLongTapMoveUpdate: onSingleLongTapMoveUpdate,
+            onSingleLongTapEnd: onSingleLongTapEnd,
+            onDoubleTapDown: onDoubleTapDown,
+            onDragSelectionStart: onDragSelectionStart,
+            onDragSelectionUpdate: onDragSelectionUpdate,
+            onDragSelectionEnd: onDragSelectionEnd,
+            behavior: behavior,
+            child: child
+            );
+        }
+    }
+    public abstract class TextSelectionGestureDetectorBuilderDelegate {
+
+        public GlobalKey<EditableTextState> editableTextKey { get; }
+        public bool forcePressEnabled {
+            get;
+        }
+        public bool selectionEnabled { get; }
+    }
+    
     public class TextSelectionGestureDetector : StatefulWidget {
         public TextSelectionGestureDetector(
             Key key = null,
             GestureTapDownCallback onTapDown = null,
+            GestureForcePressStartCallback onForcePressStart = null,
+            GestureForcePressEndCallback onForcePressEnd = null,
             GestureTapUpCallback onSingleTapUp = null,
             GestureTapCancelCallback onSingleTapCancel = null,
             GestureLongPressStartCallback onSingleLongTapStart = null,
@@ -534,6 +671,8 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key: key) {
             D.assert(child != null);
             this.onTapDown = onTapDown;
+            this.onForcePressEnd = onForcePressEnd;
+            this.onForcePressStart = onForcePressStart;
             this.onSingleTapUp = onSingleTapUp;
             this.onSingleTapCancel = onSingleTapCancel;
             this.onSingleLongTapStart = onSingleLongTapStart;
@@ -546,6 +685,10 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public readonly GestureTapDownCallback onTapDown;
+        
+        public readonly GestureForcePressStartCallback onForcePressStart;
+        
+        public readonly GestureForcePressEndCallback onForcePressEnd;
 
         public readonly GestureTapUpCallback onSingleTapUp;
 
@@ -668,6 +811,17 @@ namespace Unity.UIWidgets.widgets {
             _lastDragUpdateDetails = null;
         }
 
+        void _forcePressStarted(ForcePressDetails details) {
+            _doubleTapTimer?.cancel();
+            _doubleTapTimer = null;
+            if (widget.onForcePressStart != null)
+                widget.onForcePressStart(details);
+        }
+
+        void _forcePressEnded(ForcePressDetails details) {
+            if (widget.onForcePressEnd != null)
+                widget.onForcePressEnd(details);
+        }
         void _handleLongPressStart(LongPressStartDetails details) {
             if (!_isDoubleTap && widget.onSingleLongTapStart != null) {
                 widget.onSingleLongTapStart(details);
@@ -747,8 +901,21 @@ namespace Unity.UIWidgets.widgets {
                 );
             }
 
-            // TODO: if (this.widget.onForcePressStart != null || this.widget.onForcePressEnd != null) {
-            // }
+            if (widget.onForcePressStart != null || widget.onForcePressEnd != null) {
+                GestureForcePressStartCallback startInstance = null;
+                if (widget.onForcePressStart != null)
+                    startInstance = _forcePressStarted;
+                GestureForcePressEndCallback endInstance = null;
+                if (widget.onForcePressEnd != null)
+                    endInstance = _forcePressEnded;
+                gestures[typeof(ForcePressGestureRecognizer)] = new GestureRecognizerFactoryWithHandlers<ForcePressGestureRecognizer>(
+                    () => new ForcePressGestureRecognizer(debugOwner: this),
+                    (ForcePressGestureRecognizer instance) => {
+                        instance.onStart = startInstance;
+                        instance.onEnd = endInstance;
+                    }
+                );
+            }
 
             return new RawGestureDetector(
                 gestures: gestures,

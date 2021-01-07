@@ -173,7 +173,7 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
-    public delegate Future<ui.Codec> DecoderCallback(byte[] bytes, int? cacheWidth = 0, int? cacheHeight = 0);
+    public delegate Future<Codec> DecoderCallback(byte[] bytes, int? cacheWidth = 0, int? cacheHeight = 0);
 
     public abstract class ImageProvider {
         public abstract ImageStream resolve(ImageConfiguration configuration);
@@ -198,28 +198,28 @@ namespace Unity.UIWidgets.painting {
                     resolveStreamForKey(configuration, stream, successKey, (Exception e) => errorHandler(e));
                 },
                 (T key, Exception exception) => {
-                    Timer.run(() => {
-                        _ErrorImageCompleter imageCompleter = new _ErrorImageCompleter();
-                        stream.setCompleter(imageCompleter);
-                        InformationCollector collector = null;
-                        D.assert(() => {
-                            collector = (sb) => {
-                                sb.Append(new DiagnosticsProperty<ImageProvider>("Image provider", this));
-                                sb.Append(new DiagnosticsProperty<ImageConfiguration>("Image configuration",
-                                    configuration));
-                                sb.Append(new DiagnosticsProperty<T>("Image key", key, defaultValue: null));
-                            };
-                            return true;
-                        });
-                        imageCompleter.setError(
-                            exception: exception,
-                            stack: exception.StackTrace,
-                            context: new ErrorDescription("while resolving an image"),
-                            silent: true, // could be a network error or whatnot
-                            informationCollector: collector
-                        );
-                        return null;
+                    // await null; // wait an event turn in case a listener has been added to the image stream.
+                    _ErrorImageCompleter imageCompleter = new _ErrorImageCompleter();
+                    stream.setCompleter(imageCompleter);
+                    InformationCollector collector = null;
+                    D.assert(() => {
+                        IEnumerable<DiagnosticsNode> infoCollector() {
+                            yield return new DiagnosticsProperty<ImageProvider>("Image provider", this);
+                            yield return new DiagnosticsProperty<ImageConfiguration>("Image configuration",
+                                configuration);
+                            yield return new DiagnosticsProperty<T>("Image key", key, defaultValue: null);
+                        }
+
+                        collector = infoCollector;
+                        return true;
                     });
+                    imageCompleter.setError(
+                        exception: exception,
+                        stack: exception.StackTrace,
+                        context: new ErrorDescription("while resolving an image"),
+                        silent: true, // could be a network error or whatnot
+                        informationCollector: collector
+                    );
                    return null;
                 }
             );
@@ -388,13 +388,15 @@ namespace Unity.UIWidgets.painting {
         }
 
         protected override ImageStreamCompleter load(AssetBundleImageKey key, DecoderCallback decode) {
+            IEnumerable<DiagnosticsNode> infoCollector() {
+                yield return new DiagnosticsProperty<ImageProvider>("Image provider", this);
+                yield return new DiagnosticsProperty<AssetBundleImageKey>("Image key", key);
+            }
+            
             return new MultiFrameImageStreamCompleter(
                 codec: _loadAsync(key, decode),
                 scale: key.scale,
-                informationCollector: information => {
-                    information.AppendLine($"Image provider: {this}");
-                    information.Append($"Image key: {key}");
-                }
+                informationCollector: infoCollector
             );
         }
 
@@ -463,13 +465,14 @@ namespace Unity.UIWidgets.painting {
         }
 
         protected override ImageStreamCompleter load(NetworkImage key, DecoderCallback decode) {
+            IEnumerable<DiagnosticsNode> infoCollector() {
+                yield return new ErrorDescription($"url: {url}");
+            }
+            
             return new MultiFrameImageStreamCompleter(
                 codec: _loadAsync(key, decode),
                 scale: key.scale,
-                informationCollector: information => {
-                    information.AppendLine($"Image provider: {this}");
-                    information.Append($"Image key: {key}");
-                }
+                informationCollector: infoCollector
             );
         }
 
@@ -612,13 +615,17 @@ namespace Unity.UIWidgets.painting {
         public readonly float scale;
 
         protected override Future<FileImage> obtainKey(ImageConfiguration configuration) {
-            return Future<FileImage>.value(FutureOr.value(this)).to<FileImage>();
+            return Future.value(FutureOr.value(this)).to<FileImage>();
         }
 
         protected override ImageStreamCompleter load(FileImage key, DecoderCallback decode) {
+            IEnumerable<DiagnosticsNode> infoCollector() {
+                yield return new ErrorDescription($"Path: {file}");
+            }
+            
             return new MultiFrameImageStreamCompleter(_loadAsync(key, decode),
                 scale: key.scale,
-                informationCollector: information => { information.AppendLine($"Path: {file}"); });
+                informationCollector: infoCollector);
         }
 
         Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
@@ -719,7 +726,7 @@ namespace Unity.UIWidgets.painting {
         public readonly float scale;
 
         protected override Future<MemoryImage> obtainKey(ImageConfiguration configuration) {
-            return Future<MemoryImage>.value(FutureOr.value(this)).to<MemoryImage>();
+            return Future.value(FutureOr.value(this)).to<MemoryImage>();
         }
 
         protected override ImageStreamCompleter load(MemoryImage key, DecoderCallback decode) {
@@ -800,7 +807,7 @@ namespace Unity.UIWidgets.painting {
         public readonly AssetBundle bundle;
 
         protected override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
-            return Future<AssetBundleImageKey>.value(FutureOr.value(new AssetBundleImageKey(
+            return Future.value(FutureOr.value(new AssetBundleImageKey(
                 bundle: bundle ? bundle : configuration.bundle,
                 name: assetName,
                 scale: scale
@@ -870,7 +877,7 @@ namespace Unity.UIWidgets.painting {
             bool silent = false
         ) {
             reportError(
-                context: context.toDescription(),
+                context: context,
                 exception: exception,
                 informationCollector: informationCollector,
                 silent: silent

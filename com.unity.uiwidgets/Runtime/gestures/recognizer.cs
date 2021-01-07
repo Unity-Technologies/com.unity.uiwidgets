@@ -8,6 +8,8 @@ using UnityEngine;
 namespace Unity.UIWidgets.gestures {
     public delegate T RecognizerCallback<T>();
 
+    public delegate void RecognizerVoidCallvack();
+
     public enum DragStartBehavior {
         down,
         start
@@ -78,20 +80,54 @@ namespace Unity.UIWidgets.gestures {
                 result = callback();
             }
             catch (Exception ex) {
+                IEnumerable<DiagnosticsNode> infoCollector() {
+                    yield return new StringProperty("Handler", name);
+                    yield return new DiagnosticsProperty<GestureRecognizer>("Recognizer", this, style: DiagnosticsTreeStyle.errorProperty);
+                }
+                
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                     exception: ex,
                     library: "gesture",
-                    context: "while handling a gesture",
-                    informationCollector: information => {
-                        information.AppendLine("Handler: " + name);
-                        information.AppendLine("Recognizer:");
-                        information.AppendLine("  " + this);
-                    }
+                    context: new ErrorDescription("while handling a gesture"),
+                    informationCollector: infoCollector
                 ));
             }
 
             return result;
         }
+        protected void invokeCallback(string name, RecognizerVoidCallvack callback, Func<string> debugReport = null) {
+            D.assert(callback != null);
+            try {
+                D.assert(() => {
+                    if (D.debugPrintRecognizerCallbacksTrace) {
+                        var report = debugReport != null ? debugReport() : null;
+                        var prefix = D.debugPrintGestureArenaDiagnostics ? new string(' ', 19) + "❙ " : "";
+                        Debug.LogFormat("{0}this calling {1} callback.{2}",
+                            prefix, name, report.isNotEmpty() ? " " + report : "");
+                    }
+
+                    return true;
+                });
+
+                
+            }
+            catch (Exception ex) {
+                IEnumerable<DiagnosticsNode> infoCollector() {
+                    yield return new StringProperty("Handler", name);
+                    yield return new DiagnosticsProperty<GestureRecognizer>("Recognizer", this, style: DiagnosticsTreeStyle.errorProperty);
+                }
+                
+                UIWidgetsError.reportError(new UIWidgetsErrorDetails(
+                    exception: ex,
+                    library: "gesture",
+                    context: new ErrorDescription("while handling a gesture"),
+                    informationCollector: infoCollector
+                ));
+            }
+
+            
+        }
+
 
         public abstract void acceptGesture(int pointer);
         public abstract void rejectGesture(int pointer);

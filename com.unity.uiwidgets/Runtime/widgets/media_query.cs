@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 using Brightness = Unity.UIWidgets.ui.Brightness;
 
 namespace Unity.UIWidgets.widgets {
@@ -17,23 +19,36 @@ namespace Unity.UIWidgets.widgets {
             float devicePixelRatio = 1.0f,
             float textScaleFactor = 1.0f,
             Brightness platformBrightness = Brightness.light,
-            EdgeInsets viewInsets = null,
             EdgeInsets padding = null,
+            EdgeInsets viewInsets = null,
+            
+            EdgeInsets systemGestureInsets = null,
+            EdgeInsets viewPadding = null,
+            float physicalDepth = float.MaxValue,
+            
             bool alwaysUse24HourFormat = false,
             bool accessibleNavigation = false,
             bool invertColors = false,
+            
+            bool highContrast = false,
+            
             bool disableAnimations = false,
             bool boldText = false
         ) {
+            
             this.size = size ?? Size.zero;
             this.devicePixelRatio = devicePixelRatio;
             this.textScaleFactor = textScaleFactor;
             this.platformBrightness = platformBrightness;
             this.viewInsets = viewInsets ?? EdgeInsets.zero;
             this.padding = padding ?? EdgeInsets.zero;
+            this.systemGestureInsets = systemGestureInsets ?? EdgeInsets.zero;
+            this.viewPadding = viewPadding ?? EdgeInsets.zero;
+            this.physicalDepth = physicalDepth;
             this.alwaysUse24HourFormat = alwaysUse24HourFormat;
             this.accessibleNavigation = accessibleNavigation;
             this.invertColors = invertColors;
+            this.highContrast = highContrast;
             this.disableAnimations = disableAnimations;
             this.boldText = boldText;
         }
@@ -43,14 +58,18 @@ namespace Unity.UIWidgets.widgets {
                 size: window.physicalSize / window.devicePixelRatio,
                 devicePixelRatio: window.devicePixelRatio,
                 textScaleFactor: window.textScaleFactor,
-                // platformBrightness: window.platformBrightness, // TODO: remove comment when window.platformBrightness is ready
+                //platformBrightness: window.platformBrightness, // TODO: remove comment when window.platformBrightness is ready
+                padding: EdgeInsets.fromWindowPadding(window.padding, window.devicePixelRatio),
+                viewPadding : EdgeInsets.fromWindowPadding(window.viewPadding, window.devicePixelRatio),
                 viewInsets: EdgeInsets.fromWindowPadding(window.viewInsets, window.devicePixelRatio),
-                padding: EdgeInsets.fromWindowPadding(window.padding, window.devicePixelRatio)
-//                accessibleNavigation: window.accessibilityFeatures.accessibleNavigation,
-//                invertColors: window.accessibilityFeatures.invertColors,
-//                disableAnimations: window.accessibilityFeatures.disableAnimations,
-//                boldText: window.accessibilityFeatures.boldText,
-//                alwaysUse24HourFormat: window.alwaysUse24HourFormat
+                systemGestureInsets : EdgeInsets.fromWindowPadding(window.systemGestureInsets, window.devicePixelRatio),
+                physicalDepth : window.physicalDepth
+               // accessibleNavigation: window.accessibilityFeatures.accessibleNavigation,
+               // invertColors: window.accessibilityFeatures.invertColors,
+               // disableAnimations: window.accessibilityFeatures.disableAnimations,
+               // boldText: window.accessibilityFeatures.boldText,
+               // highContrast : window.accessibilityFeatures.highContrast,
+                //alwaysUse24HourFormat: window.alwaysUse24HourFormat
             );
         }
 
@@ -66,11 +85,19 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly EdgeInsets padding;
 
+        public readonly EdgeInsets systemGestureInsets;
+        
+        public readonly EdgeInsets viewPadding;
+
+        public readonly float physicalDepth;
+
         public readonly bool alwaysUse24HourFormat;
 
         public readonly bool accessibleNavigation;
 
         public readonly bool invertColors;
+
+        public readonly bool highContrast;
 
         public readonly bool disableAnimations;
 
@@ -85,11 +112,16 @@ namespace Unity.UIWidgets.widgets {
             float? devicePixelRatio = null,
             float? textScaleFactor = null,
             Brightness? platformBrightness = null,
-            EdgeInsets viewInsets = null,
             EdgeInsets padding = null,
+            EdgeInsets viewPadding = null,
+            EdgeInsets viewInsets = null,
+            EdgeInsets systemGestureInsets = null,
+            float? physicalDepth = null,
+            
             bool? alwaysUse24HourFormat = null,
             bool? accessibleNavigation = null,
             bool? invertColors = null,
+            bool? highContrast = null,
             bool? disableAnimations = null,
             bool? boldText = null
         ) {
@@ -98,12 +130,16 @@ namespace Unity.UIWidgets.widgets {
                 devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
                 textScaleFactor: textScaleFactor ?? this.textScaleFactor,
                 platformBrightness: platformBrightness ?? this.platformBrightness,
-                viewInsets: viewInsets ?? this.viewInsets,
                 padding: padding ?? this.padding,
+                viewPadding: viewPadding ?? this.viewPadding,
+                viewInsets: viewInsets ?? this.viewInsets,
+                systemGestureInsets: systemGestureInsets ?? this.systemGestureInsets,
+                physicalDepth: physicalDepth ?? this.physicalDepth,
                 alwaysUse24HourFormat: alwaysUse24HourFormat ?? this.alwaysUse24HourFormat,
-                accessibleNavigation: accessibleNavigation ?? this.accessibleNavigation,
                 invertColors: invertColors ?? this.invertColors,
+                highContrast: highContrast ?? this.highContrast,
                 disableAnimations: disableAnimations ?? this.disableAnimations,
+                accessibleNavigation: accessibleNavigation ?? this.accessibleNavigation,
                 boldText: boldText ?? this.boldText
             );
         }
@@ -129,8 +165,15 @@ namespace Unity.UIWidgets.widgets {
                     right: removeRight ? (float?) 0.0 : null,
                     bottom: removeBottom ? (float?) 0.0 : null
                 ),
+                viewPadding: viewPadding.copyWith(
+                    left: removeLeft ? (float?)Mathf.Max(0.0f, viewPadding.left - padding.left) : null,
+                    top: removeTop ? (float?)Mathf.Max(0.0f, viewPadding.top - padding.top) : null,
+                    right: removeRight ? (float?)Mathf.Max(0.0f, viewPadding.right - padding.right) : null,
+                    bottom: removeBottom ? (float?)Mathf.Max(0.0f, viewPadding.bottom - padding.bottom) : null
+                ),
                 viewInsets: viewInsets,
                 alwaysUse24HourFormat: alwaysUse24HourFormat,
+                highContrast: highContrast,
                 disableAnimations: disableAnimations,
                 invertColors: invertColors,
                 accessibleNavigation: accessibleNavigation,
@@ -154,13 +197,55 @@ namespace Unity.UIWidgets.widgets {
                 textScaleFactor: textScaleFactor,
                 platformBrightness: platformBrightness,
                 padding: padding,
+                viewPadding: viewPadding.copyWith(
+                    left: removeLeft ? (float?)Mathf.Max(0.0f, viewPadding.left - viewInsets.left) : null,
+                    top: removeTop ? (float?)Mathf.Max(0.0f, viewPadding.top - viewInsets.top) : null,
+                    right: removeRight ? (float?)Mathf.Max(0.0f, viewPadding.right - viewInsets.right) : null,
+                    bottom: removeBottom ? (float?)Mathf.Max(0.0f, viewPadding.bottom - viewInsets.bottom) : null
+                ),
                 viewInsets: viewInsets.copyWith(
-                    left: removeLeft ? (float?) 0.0 : null,
-                    top: removeTop ? (float?) 0.0 : null,
-                    right: removeRight ? (float?) 0.0 : null,
-                    bottom: removeBottom ? (float?) 0.0 : null
+                    left: removeLeft ? (float?) 0.0f : null,
+                    top: removeTop ? (float?) 0.0f : null,
+                    right: removeRight ? (float?) 0.0f : null,
+                    bottom: removeBottom ? (float?) 0.0f : null
                 ),
                 alwaysUse24HourFormat: alwaysUse24HourFormat,
+                highContrast: highContrast,
+                disableAnimations: disableAnimations,
+                invertColors: invertColors,
+                accessibleNavigation: accessibleNavigation,
+                boldText: boldText
+            );
+        }
+
+        public MediaQueryData removeViewPadding(
+            bool removeLeft = false,
+            bool removeTop = false,
+            bool removeRight = false,
+            bool removeBottom = false
+        ) {
+            if (!(removeLeft || removeTop || removeRight || removeBottom))
+                return this;
+            return new MediaQueryData(
+                size: size,
+                devicePixelRatio: devicePixelRatio,
+                textScaleFactor: textScaleFactor,
+                platformBrightness: platformBrightness,
+                padding: padding.copyWith(
+                    left: removeLeft ?(float?) 0.0f : null,
+                    top: removeTop ? (float?) 0.0f : null,
+                    right: removeRight ? (float?) 0.0f : null,
+                    bottom: removeBottom ?(float?)0.0f : null
+                ),
+                viewInsets: viewInsets,
+                viewPadding: viewPadding.copyWith(
+                    left: removeLeft ? (float?) 0.0f : null,
+                    top: removeTop ? (float?) 0.0f : null,
+                    right: removeRight ? (float?) 0.0f : null,
+                    bottom: removeBottom ? (float?) 0.0f : null
+                ),
+                alwaysUse24HourFormat: alwaysUse24HourFormat,
+                highContrast: highContrast,
                 disableAnimations: disableAnimations,
                 invertColors: invertColors,
                 accessibleNavigation: accessibleNavigation,
@@ -177,14 +262,21 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            return Equals(size, other.size) && devicePixelRatio.Equals(other.devicePixelRatio) &&
-                   textScaleFactor.Equals(other.textScaleFactor) &&
-                   Equals(platformBrightness, other.platformBrightness) &&
-                   Equals(viewInsets, other.viewInsets) &&
-                   Equals(padding, other.padding) &&
-                   alwaysUse24HourFormat == other.alwaysUse24HourFormat &&
-                   accessibleNavigation == other.accessibleNavigation && invertColors == other.invertColors &&
-                   disableAnimations == other.disableAnimations && boldText == other.boldText;
+            return other is MediaQueryData
+                   && Equals(size, other.size) 
+                   && devicePixelRatio.Equals(other.devicePixelRatio) 
+                   && textScaleFactor.Equals(other.textScaleFactor) 
+                   && Equals(platformBrightness, other.platformBrightness)
+                   && Equals(padding, other.padding)
+                   && Equals(viewPadding, other.viewPadding)
+                   && Equals(viewInsets, other.viewInsets) 
+                   && Equals(physicalDepth,other.physicalDepth)
+                   && alwaysUse24HourFormat == other.alwaysUse24HourFormat 
+                   && highContrast == other.highContrast
+                   && accessibleNavigation == other.accessibleNavigation 
+                   && invertColors == other.invertColors 
+                   && disableAnimations == other.disableAnimations 
+                   && boldText == other.boldText;
         }
 
         public override bool Equals(object obj) {
@@ -210,8 +302,11 @@ namespace Unity.UIWidgets.widgets {
                 hashCode = (hashCode * 397) ^ textScaleFactor.GetHashCode();
                 hashCode = (hashCode * 397) ^ platformBrightness.GetHashCode();
                 hashCode = (hashCode * 397) ^ (viewInsets != null ? viewInsets.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (viewPadding != null ? viewPadding.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (padding != null ? padding.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ physicalDepth.GetHashCode() ;
                 hashCode = (hashCode * 397) ^ alwaysUse24HourFormat.GetHashCode();
+                hashCode = (hashCode * 397) ^ highContrast.GetHashCode() ;
                 hashCode = (hashCode * 397) ^ accessibleNavigation.GetHashCode();
                 hashCode = (hashCode * 397) ^ invertColors.GetHashCode();
                 hashCode = (hashCode * 397) ^ disableAnimations.GetHashCode();
@@ -236,8 +331,11 @@ namespace Unity.UIWidgets.widgets {
                    $"platformBrightness: {platformBrightness}, " +
                    $"padding: {padding}, " +
                    $"viewInsets: {viewInsets}, " +
+                   $"viewPadding: {viewPadding}, " +
+                   $"physicalDepth: {physicalDepth}, " +
                    $"alwaysUse24HourFormat: {alwaysUse24HourFormat}, " +
                    $"accessibleNavigation: {accessibleNavigation}" +
+                   $"highContrast: {highContrast}, " +
                    $"disableAnimations: {disableAnimations}" +
                    $"invertColors: {invertColors}" +
                    $"boldText: {boldText}" +
@@ -299,11 +397,33 @@ namespace Unity.UIWidgets.widgets {
                 child: child
             );
         }
+        public static MediaQuery removeViewPadding(
+            Key key = null, 
+            BuildContext context = null,
+            bool removeLeft = false,
+            bool removeTop = false,
+            bool removeRight = false,
+            bool removeBottom = false,
+            Widget child = null
+        ) {
+            return new MediaQuery(
+                key: key,
+                data: of(context).removeViewPadding(
+                    removeLeft: removeLeft,
+                    removeTop: removeTop,
+                    removeRight: removeRight,
+                    removeBottom: removeBottom
+                ),
+                child: child
+            );
+        }
 
         public readonly MediaQueryData data;
 
         public static MediaQueryData of(BuildContext context, bool nullOk = false) {
             D.assert(context != null);
+            //MediaQuery query = context.dependOnInheritedWidgetOfExactType<MediaQuery>();
+
             MediaQuery query = (MediaQuery) context.inheritFromWidgetOfExactType(typeof(MediaQuery));
             if (query != null) {
                 return query.data;

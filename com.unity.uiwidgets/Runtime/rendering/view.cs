@@ -1,4 +1,5 @@
-﻿using Unity.UIWidgets.foundation;
+﻿using System.Collections.Generic;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -19,7 +20,10 @@ namespace Unity.UIWidgets.rendering {
         public readonly float devicePixelRatio;
 
         public Matrix4 toMatrix() {
+    
+
             return Matrix4.diagonal3Values(devicePixelRatio, devicePixelRatio, 0);
+
             //return new Matrix4().identity();
         }
 
@@ -102,13 +106,16 @@ namespace Unity.UIWidgets.rendering {
             return true;
         }
 
-        public MouseTrackerAnnotation hitTestMouseTrackers(Offset position) {
+        public IEnumerable<MouseTrackerAnnotation> hitTestMouseTrackers(Offset position) {
             // Layer hit testing is done using device pixels, so we have to convert
             // the logical coordinates of the event location back to device pixels
             // here.
-            return layer.find<MouseTrackerAnnotation>(
+            /*return layer.find<MouseTrackerAnnotation>(
                 position * configuration.devicePixelRatio
-            );
+            );*/
+            return layer.findAllAnnotations<MouseTrackerAnnotation>(
+                position * configuration.devicePixelRatio
+            ).annotations;
         }
 
         public override bool isRepaintBoundary {

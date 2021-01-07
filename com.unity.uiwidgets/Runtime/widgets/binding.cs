@@ -55,10 +55,11 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class WidgetsBinding : RendererBinding {
-        public new static WidgetsBinding instance {
-            get { return (WidgetsBinding) RendererBinding.instance; }
+        public static WidgetsBinding instance {
+            get { return _instance; }
             set { RendererBinding.instance = value; }
         }
+        static WidgetsBinding _instance;
 
         protected override void initInstances() {
             base.initInstances();
@@ -351,7 +352,7 @@ namespace Unity.UIWidgets.widgets {
                 var details = new UIWidgetsErrorDetails(
                     exception: ex,
                     library: "widgets library",
-                    context: "attaching to the render tree"
+                    context: new ErrorDescription("attaching to the render tree")
                 );
                 UIWidgetsError.reportError(details);
 
@@ -381,6 +382,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class UiWidgetsBinding : WidgetsBinding {
+        // todo 
         public static WidgetsBinding ensureInitialized() {
             if (WidgetsBinding.instance == null)
                 new UiWidgetsBinding();

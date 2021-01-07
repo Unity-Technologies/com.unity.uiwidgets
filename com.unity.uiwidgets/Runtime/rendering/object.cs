@@ -121,8 +121,8 @@ namespace Unity.UIWidgets.rendering {
                     return true;
                 });
             }
-
-            child._layer.offset = offset;
+            D.assert(child._layer is OffsetLayer);
+            ((OffsetLayer)child._layer).offset = offset;
             appendLayer(child._layer);
         }
 
@@ -530,52 +530,18 @@ namespace Unity.UIWidgets.rendering {
         public object debugCreator;
 
         void _debugReportException(string method, Exception exception) {
+            IEnumerable<DiagnosticsNode> infoCollector() {
+                yield return new DiagnosticsDebugCreator(debugCreator);
+                yield return describeForError("The following RenderObject was being processed when the exception was fired");
+                yield return describeForError("RenderObject", style: DiagnosticsTreeStyle.truncateChildren);
+            }
+            
             UIWidgetsError.reportError(new UIWidgetsErrorDetailsForRendering(
                 exception: exception,
                 library: "rendering library",
-                context: "during " + method,
+                context: new ErrorDescription("during " + method),
                 renderObject: this,
-                informationCollector: information => {
-                    information.AppendLine(
-                        "The following RenderObject was being processed when the exception was fired:");
-                    information.AppendLine("  " + toStringShallow(joiner: "\n  "));
-                    var descendants = new List<string>();
-                    const int maxDepth = 5;
-                    int depth = 0;
-                    const int maxLines = 25;
-                    int lines = 0;
-                    RenderObjectVisitor visitor = null;
-                    visitor = new RenderObjectVisitor((RenderObject child) => {
-                        if (lines < maxLines) {
-                            depth += 1;
-                            descendants.Add(new string(' ', 2 * depth) + child);
-                            if (depth < maxDepth) {
-                                child.visitChildren(visitor);
-                            }
-
-                            depth -= 1;
-                        }
-                        else if (lines == maxLines) {
-                            descendants.Add("  ...(descendants list truncated after " + lines + " lines)");
-                        }
-
-                        lines += 1;
-                    });
-                    visitChildren(visitor);
-                    if (lines > 1) {
-                        information.AppendLine(
-                            "This RenderObject had the following descendants (showing up to depth " +
-                            maxDepth + "):");
-                    }
-                    else if (descendants.Count == 1) {
-                        information.AppendLine("This RenderObject had the following child:");
-                    }
-                    else {
-                        information.AppendLine("This RenderObject has no descendants.");
-                    }
-
-                    information.Append(string.Join("\n", descendants.ToArray()));
-                }
+                informationCollector: infoCollector
             ));
         }
 
@@ -813,33 +779,20 @@ namespace Unity.UIWidgets.rendering {
 
         public void layout(Constraints constraints, bool parentUsesSize = false) {
             D.assert(constraints != null);
-            D.assert(constraints.debugAssertIsValid(
-                isAppliedConstraint: true,
-                informationCollector: information => {
-//                final List<String> stack = StackTrace.current.toString().split('\n');
-//                int targetFrame;
-//                final Pattern layoutFramePattern = RegExp(r'^#[0-9]+ +RenderObject.layout \(');
-//                for (int i = 0; i < stack.length; i += 1) {
-//                    if (layoutFramePattern.matchAsPrefix(stack[i]) != null) {
-//                        targetFrame = i + 1;
-//                        break;
-//                    }
-//                }
-//                if (targetFrame != null && targetFrame < stack.length) {
-//                    information.writeln(
-//                        'These invalid constraints were provided to $runtimeType\'s layout() '
-//                    'function by the following function, which probably computed the '
-//                    'invalid constraints in question:'
-//                        );
-//                    final Pattern targetFramePattern = RegExp(r'^#[0-9]+ +(.+)$');
-//                    final Match targetFrameMatch = targetFramePattern.matchAsPrefix(stack[targetFrame]);
-//                    if (targetFrameMatch != null && targetFrameMatch.groupCount > 0) {
-//                        information.writeln('  ${targetFrameMatch.group(1)}');
-//                    } else {
-//                        information.writeln(stack[targetFrame]);
-//                    }
-//                }
-                }));
+            D.assert(
+                () => {
+                    IEnumerable<DiagnosticsNode> infoCollector() {
+                        yield return new ErrorDescription(
+                            $"These invalid constraints were provided to {GetType()}'s layout() " +
+                                    "function by the following function, which probably computed the " +
+                                    "invalid constraints in question:\n" +
+                                    "  unknown");
+                    }
+                    return constraints.debugAssertIsValid(
+                        isAppliedConstraint: true,
+                        informationCollector: infoCollector);
+                }
+                );
             D.assert(!_debugDoingThisResize);
             D.assert(!_debugDoingThisLayout);
 
@@ -990,21 +943,26 @@ namespace Unity.UIWidgets.rendering {
             get { return false; }
         }
 
-        internal OffsetLayer _layer;
+        internal ContainerLayer _layer;
 
-        public OffsetLayer layer {
+        public ContainerLayer layer {
             get {
-                D.assert(isRepaintBoundary,
-                    () => "You can only access RenderObject.layer for render objects that are repaint boundaries.");
-                D.assert(!_needsPaint);
-
+                D.assert(!isRepaintBoundary || (_layer == null || _layer is OffsetLayer));
                 return _layer;
             }
         }
 
-        public OffsetLayer debugLayer {
+        public void setLayer(ContainerLayer newLayer) {
+            D.assert(
+                !isRepaintBoundary,()=>
+                "Attempted to set a layer to a repaint boundary render object.\n" +
+                "The framework creates and assigns an OffsetLayer to a repaint "+
+                "boundary automatically.");
+            _layer = newLayer;
+        }
+        public ContainerLayer debugLayer {
             get {
-                OffsetLayer result = null;
+                ContainerLayer result = null;
                 D.assert(() => {
                     result = _layer;
                     return true;
@@ -1383,7 +1341,7 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new DiagnosticsProperty<ParentData>("parentData", parentData,
                 tooltip: _debugCanParentUseSize ? "can use size" : null, missingIfNull: true));
             properties.add(new DiagnosticsProperty<Constraints>("constraints", constraints, missingIfNull: true));
-            properties.add(new DiagnosticsProperty<OffsetLayer>("layer", _layer,
+            properties.add(new DiagnosticsProperty<ContainerLayer>("layer", _layer,
                 defaultValue: foundation_.kNullDefaultValue));
         }
 
@@ -1405,6 +1363,10 @@ namespace Unity.UIWidgets.rendering {
                     curve: curve
                 );
             }
+        }
+        
+        protected DiagnosticsNode describeForError(String name, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.shallow) {
+            return toDiagnosticsNode(name: name, style: style);
         }
     }
 
@@ -1439,7 +1401,7 @@ namespace Unity.UIWidgets.rendering {
         public UIWidgetsErrorDetailsForRendering(
             Exception exception = null,
             string library = null,
-            string context = null,
+            DiagnosticsNode context = null,
             RenderObject renderObject = null,
             InformationCollector informationCollector = null,
             bool silent = false
@@ -1454,5 +1416,16 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public readonly RenderObject renderObject;
+    }
+
+    public class DiagnosticsDebugCreator : DiagnosticsProperty<object> {
+        public DiagnosticsDebugCreator(object value) :
+            base(
+                "debugCreator",
+                value,
+                level: DiagnosticLevel.hidden
+            ) {
+            D.assert(value != null);
+        }
     }
 }

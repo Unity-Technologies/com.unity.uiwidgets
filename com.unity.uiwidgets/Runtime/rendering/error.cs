@@ -12,6 +12,10 @@ namespace Unity.UIWidgets.rendering {
     public class RenderErrorBox : RenderBox {
         const string _kLine = "\n\n────────────────────\n\n";
 
+        protected override bool sizedByParent
+        {
+            get { return true; }
+        }
         public RenderErrorBox(string message = "") {
             this.message = message;
             if (message == "") {
@@ -37,9 +41,9 @@ namespace Unity.UIWidgets.rendering {
             return rendering_._kMaxHeight;
         }
 
-        protected override bool sizedByParent {
+        /*protected override bool sizedByParent {
             get => true;
-        }
+        }*/
 
         protected override bool hitTestSelf(Offset position) => true;
 
@@ -99,7 +103,7 @@ namespace Unity.UIWidgets.rendering {
                         left += padding.left;
                     }
 
-                    _paragraph.layout(new ui.ParagraphConstraints(width: width));
+                    _paragraph.layout(new ParagraphConstraints(width: width));
                     if (size.height > padding.top + _paragraph.height() + padding.bottom) {
                         top += padding.top;
                     }

@@ -63,7 +63,8 @@ namespace Unity.UIWidgets.widgets {
             handle.addListener(_handles[handle]);
             if (!_keepingAlive) {
                 _keepingAlive = true;
-                ParentDataElement childElement = _getChildElement();
+                //ParentDataElement 
+                ParentDataElement<KeepAliveParentDataMixin> childElement = _getChildElement();
                 if (childElement != null) {
                     _updateParentDataOfChild(childElement);
                 }
@@ -73,7 +74,7 @@ namespace Unity.UIWidgets.widgets {
                             return;
                         }
 
-                        ParentDataElement childElement1 = _getChildElement();
+                        ParentDataElement<KeepAliveParentDataMixin> childElement1 = _getChildElement();
                         D.assert(childElement1 != null);
                         _updateParentDataOfChild(childElement1);
                     });
@@ -83,7 +84,7 @@ namespace Unity.UIWidgets.widgets {
             return false;
         }
 
-        ParentDataElement _getChildElement() {
+        /*ParentDataElement _getChildElement() {
             D.assert(mounted);
             Element element = (Element) context;
             Element childElement = null;
@@ -91,11 +92,23 @@ namespace Unity.UIWidgets.widgets {
 
             D.assert(childElement == null || childElement is ParentDataElement);
             return (ParentDataElement) childElement;
+        }*/
+        ParentDataElement<KeepAliveParentDataMixin> _getChildElement() {
+            D.assert(mounted);
+            Element element = (Element) context;
+            Element childElement = null;
+            element.visitChildren((Element child) => { childElement = child; });
+
+            D.assert(childElement == null || childElement is ParentDataElement<KeepAliveParentDataMixin>);
+            return (ParentDataElement<KeepAliveParentDataMixin>) childElement;
         }
 
-        void _updateParentDataOfChild(ParentDataElement childElement) {
-            childElement.applyWidgetOutOfTurn((ParentDataWidget<KeepAliveParentDataMixin>) build(context));
-        }
+        //void _updateParentDataOfChild(ParentDataElement childElement) {
+         //   childElement.applyWidgetOutOfTurn((ParentDataWidget<KeepAliveParentDataMixin>) build(context));
+       // }
+       void _updateParentDataOfChild(ParentDataElement<KeepAliveParentDataMixin> childElement) {
+           childElement.applyWidgetOutOfTurn((ParentDataWidget<KeepAliveParentDataMixin>) build(context));
+       }
 
         VoidCallback _createCallback(Listenable handle) {
             return () => {

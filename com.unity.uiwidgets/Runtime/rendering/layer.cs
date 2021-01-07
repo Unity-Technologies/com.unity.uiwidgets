@@ -1,16 +1,58 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
+    public class AnnotationEntry<T> {
+        
+        public AnnotationEntry(
+             T annotation = default(T),
+             Offset localPosition = null
+        ) {
+            D.assert(localPosition != null);
+            this.annotation = annotation;
+            this.localPosition = localPosition;
+        }
+
+        public readonly  T annotation;
+        public readonly  Offset localPosition;
+        public override string ToString() {
+            return $"{GetType()}"+ $"(annotation: {annotation}, localPostion: {localPosition})";
+        }
+    }
+    public class AnnotationResult<T> {
+        public readonly  List<AnnotationEntry<T>> _entries = new List<AnnotationEntry<T>>();
+
+        public void add(AnnotationEntry<T> entry) {
+             _entries.Add(entry);
+        }
+
+        public IEnumerable<AnnotationEntry<T>> entries {
+            get {
+                return _entries;
+            }
+        }
+
+        public IEnumerable<T> annotations  {
+            get{
+                List<T> results = new List<T>();
+                foreach (AnnotationEntry<T> entry in _entries)
+                    results.Add(entry.annotation);
+                return results;
+            }
+        }
+    }
     public abstract class Layer : AbstractNodeMixinDiagnosticableTree {
         public new ContainerLayer parent {
             get { return (ContainerLayer) base.parent; }
@@ -19,15 +61,37 @@ namespace Unity.UIWidgets.rendering {
         public bool _needsAddToScene = true;
 
         protected void markNeedsAddToScene() {
+            D.assert(
+                !alwaysNeedsAddToScene,()=>
+                GetType().ToString() +" with alwaysNeedsAddToScene set called markNeedsAddToScene.\n" + 
+                "The layer's alwaysNeedsAddToScene is set to true, and therefore it should not call markNeedsAddToScene."
+                );
             if (_needsAddToScene) {
                 return;
             }
             
             _needsAddToScene = true;
         }
+        void debugMarkClean() {
+            D.assert(()=> {
+                _needsAddToScene = false;
+                return true;
+            });
+        }
 
         protected virtual bool alwaysNeedsAddToScene {
             get { return false; }
+        }
+        
+        bool  debugSubtreeNeedsAddToScene {
+            get {
+                bool result = false;
+                D.assert(()=>{
+                    result = _needsAddToScene;
+                    return true;
+                });
+                return result;
+            }
         }
 
         internal bool _subtreeNeedsAddToScene;
@@ -53,20 +117,17 @@ namespace Unity.UIWidgets.rendering {
         public Layer nextSibling {
             get { return _nextSibling; }
         }
-
         internal Layer _nextSibling;
 
         public Layer previousSibling {
             get { return _previousSibling; }
         }
-
         internal Layer _previousSibling;
 
         protected override void dropChild(AbstractNodeMixinDiagnosticableTree child) {
             if (!alwaysNeedsAddToScene) {
                 markNeedsAddToScene();
             }
-
             base.dropChild(child);
         }
 
@@ -74,7 +135,6 @@ namespace Unity.UIWidgets.rendering {
             if (!alwaysNeedsAddToScene) {
                 markNeedsAddToScene();
             }
-
             base.adoptChild(child);
         }
 
@@ -84,6 +144,58 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
+        public virtual bool findAnnotations<S>(
+            AnnotationResult<S> result,
+            Offset localPosition, 
+            bool onlyFirst
+        ) {
+            return false;
+        }
+        S find<S>(Offset localPosition) {
+            AnnotationResult<S> result = new AnnotationResult<S>();
+            findAnnotations<S>(result, localPosition, onlyFirst: true);
+            return result.entries.Count() == 0 ?  default : result.entries.First().annotation;
+        }
+        /*
+        @Deprecated(
+            'Use findAllAnnotations(...).annotations instead. '
+            'This feature was deprecated after v1.10.14.'
+        )
+        Iterable<S> findAll<S>(Offset localPosition) {
+            final AnnotationResult<S> result = findAllAnnotations(localPosition);
+            return result.entries.map((AnnotationEntry<S> entry) => entry.annotation);
+        }*/
+        AnnotationResult<S> findAllAnnotations<S>(Offset localPosition) {
+            AnnotationResult<S> result = new AnnotationResult<S>();
+            findAnnotations<S>(result, localPosition, onlyFirst: false);
+            return result;
+        }
+
+        public abstract void addToScene(SceneBuilder builder, Offset layerOffset = null);
+
+        internal void _addToSceneWithRetainedRendering(SceneBuilder builder) {
+            if (!_needsAddToScene && _engineLayer != null) {
+                builder.addRetained(_engineLayer);
+                return;
+            }
+
+            addToScene(builder);
+            _needsAddToScene = false;
+        }
+        public object debugCreator;
+
+        public override string toStringShort() {
+            return base.toStringShort() + (owner == null ? " DETACHED" : "");
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<object>("owner", owner,
+                level: parent != null ? DiagnosticLevel.hidden : DiagnosticLevel.info,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<object>("creator", debugCreator,
+                defaultValue: foundation_.kNullDefaultValue, level: DiagnosticLevel.debug));
+        }
         public void replaceWith(Layer newLayer) {
             D.assert(parent != null);
             D.assert(attached == parent.attached);
@@ -129,34 +241,11 @@ namespace Unity.UIWidgets.rendering {
             D.assert(!attached);
         }
 
-        internal abstract S find<S>(Offset regionOffset) where S : class;
+        //internal abstract S find<S>(Offset regionOffset) where S : class;
 
-        internal abstract void addToScene(SceneBuilder builder, Offset layerOffset = null);
+        
 
-        internal void _addToSceneWithRetainedRendering(SceneBuilder builder) {
-            if (!_needsAddToScene && _engineLayer != null) {
-                builder.addRetained(_engineLayer);
-                return;
-            }
-
-            addToScene(builder);
-            _needsAddToScene = false;
-        }
-
-        public object debugCreator;
-
-        public override string toStringShort() {
-            return base.toStringShort() + (owner == null ? " DETACHED" : "");
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<object>("owner", owner,
-                level: parent != null ? DiagnosticLevel.hidden : DiagnosticLevel.info,
-                defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<object>("creator", debugCreator,
-                defaultValue: foundation_.kNullDefaultValue, level: DiagnosticLevel.debug));
-        }
+        
     }
 
     public class PictureLayer : Layer {
@@ -167,7 +256,6 @@ namespace Unity.UIWidgets.rendering {
         public readonly Rect canvasBounds;
 
         Picture _picture;
-
         public Picture picture {
             get { return _picture; }
             set {
@@ -176,8 +264,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        bool _isComplexHint = false;
-
+        bool _isComplexHint = false; 
         public bool isComplexHint {
             get { return _isComplexHint; }
             set {
@@ -189,7 +276,6 @@ namespace Unity.UIWidgets.rendering {
         }
 
         bool _willChangeHint = false;
-
         public bool willChangeHint {
             get { return _willChangeHint; }
             set {
@@ -200,13 +286,12 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        internal override S find<S>(Offset regionOffset) {
+        /*internal override S find<S>(Offset regionOffset) {
             return null;
-        }
+        }*/
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
-
             builder.addPicture(layerOffset, picture,
                 isComplexHint: isComplexHint, willChangeHint: willChangeHint);
         }
@@ -214,6 +299,15 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Rect>("paint bounds", canvasBounds));
+            properties.add(new DiagnosticsProperty<string>("picture", _picture.GetType().ToString));
+            properties.add(new DiagnosticsProperty<string>(
+                    "raster cache hints",
+                    "isComplex =" + isComplexHint + "willChange ="+ willChangeHint)
+            );
+        }
+
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition,bool onlyFirst ) {
+            return false;
         }
     }
 
@@ -224,7 +318,7 @@ namespace Unity.UIWidgets.rendering {
             bool freeze = false
         ) {
             D.assert(rect != null);
-
+            D.assert(textureId != null);
             this.rect = rect;
             this.textureId = textureId;
             this.freeze = freeze;
@@ -236,11 +330,12 @@ namespace Unity.UIWidgets.rendering {
 
         public readonly bool freeze;
 
-        internal override S find<S>(Offset regionOffset) {
-            return null;
+
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition, bool onlyFirst ) {
+            return false;
         }
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
 
             Rect shiftedRect = rect.shift(layerOffset);
@@ -258,29 +353,36 @@ namespace Unity.UIWidgets.rendering {
         public Layer firstChild {
             get { return _firstChild; }
         }
-
         internal Layer _firstChild;
 
         public Layer lastChild {
             get { return _lastChild; }
         }
-
-        internal override S find<S>(Offset regionOffset) {
-            Layer current = lastChild;
-            while (current != null) {
-                S value = current.find<S>(regionOffset);
-                if (value != null) {
-                    return value;
-                }
-
-                current = current.previousSibling;
-            }
-
-            return null;
-        }
-
         internal Layer _lastChild;
-
+        
+        public ui.Scene buildScene(ui.SceneBuilder builder) {
+            List<PictureLayer> temporaryLayers =  new List<PictureLayer>();
+            D.assert(()=> {
+                if (RenderingDebugUtils.debugCheckElevationsEnabled) {
+                    temporaryLayers = _debugCheckElevations();
+                }
+                return true;
+            });
+            updateSubtreeNeedsAddToScene();
+            addToScene(builder);
+            
+            _needsAddToScene = false;
+            ui.Scene scene = builder.build();
+            D.assert(()=>{
+                if (temporaryLayers != null) {
+                    foreach ( PictureLayer temporaryLayer in temporaryLayers) {
+                        temporaryLayer.remove();
+                    }
+                }
+                return true;
+            });
+            return scene;
+        }
         bool _debugUltimatePreviousSiblingOf(Layer child, Layer equals = null) {
             D.assert(child.attached == attached);
             while (child.previousSibling != null) {
@@ -288,7 +390,6 @@ namespace Unity.UIWidgets.rendering {
                 child = child.previousSibling;
                 D.assert(child.attached == attached);
             }
-
             return child == equals;
         }
 
@@ -299,7 +400,6 @@ namespace Unity.UIWidgets.rendering {
                 child = child._nextSibling;
                 D.assert(child.attached == attached);
             }
-
             return child == equals;
         }
 
@@ -319,19 +419,23 @@ namespace Unity.UIWidgets.rendering {
         }
 
         List<PictureLayer> _processConflictingPhysicalLayers(PhysicalModelLayer predecessor, PhysicalModelLayer child) {
+            IEnumerable<DiagnosticsNode> infoCollector() {
+                yield return child.toDiagnosticsNode(name: "Attempted to composite layer",
+                    style: DiagnosticsTreeStyle.errorProperty);
+                yield return predecessor.toDiagnosticsNode(name: "after layer",
+                    style: DiagnosticsTreeStyle.errorProperty);
+                yield return new ErrorDescription("which occupies the same area at a higher elevation.");
+            }
+            
             UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                 exception: new UIWidgetsError("Painting order is out of order with respect to elevation.\n" +
                                               "See https://api.flutter.dev/flutter/rendering/debugCheckElevations.html " +
                                               "for more details."),
-                context: "during compositing",
-                informationCollector: (StringBuilder builder) => {
-                    builder.AppendLine("Attempted to composite layer");
-                    builder.AppendLine(child.ToString());
-                    builder.AppendLine("after layer");
-                    builder.AppendLine(predecessor.ToString());
-                    builder.AppendLine("which occupies the same area at a higher elevation.");
-                }
+                library: "rendering library",
+                context: new ErrorDescription("during compositing"),
+                informationCollector: infoCollector
             ));
+            
             return new List<PictureLayer> {
                 _highlightConflictingLayer(predecessor),
                 _highlightConflictingLayer(child)
@@ -401,6 +505,43 @@ namespace Unity.UIWidgets.rendering {
                 child = child.nextSibling;
             }
         }
+        
+
+        /*internal override S find<S>(Offset regionOffset) {
+            Layer current = lastChild;
+            while (current != null) {
+                S value = current.find<S>(regionOffset);
+                if (value != null) {
+                    return value;
+                }
+
+                current = current.previousSibling;
+            }
+
+            return null;
+        }*/
+        public override bool findAnnotations<S>(
+            AnnotationResult<S> result,
+            Offset localPosition, 
+            bool onlyFirst 
+        ) {
+            for (Layer child = lastChild; child != null; child = child.previousSibling) {
+                bool isAbsorbed = child.findAnnotations<S>(result, localPosition, onlyFirst: onlyFirst);
+                if (isAbsorbed)
+                    return true;
+                if (onlyFirst && result.entries.Count() != 0)
+                    return isAbsorbed;
+            }
+            return false;
+           
+        }
+        public AnnotationResult<S> findAllAnnotations<S>(Offset localPosition) {
+            AnnotationResult<S> result = new AnnotationResult<S>();
+            findAnnotations<S>(result, localPosition, onlyFirst: false);
+            return result;
+            
+        }
+
 
         public override void attach(object owner) {
             base.attach(owner);
@@ -435,22 +576,18 @@ namespace Unity.UIWidgets.rendering {
                 while (node.parent != null) {
                     node = node.parent;
                 }
-
                 D.assert(node != child);
                 return true;
             });
-
             adoptChild(child);
             child._previousSibling = lastChild;
             if (lastChild != null) {
                 lastChild._nextSibling = child;
             }
-
             _lastChild = child;
             if (_firstChild == null) {
                 _firstChild = child;
             }
-
             D.assert(child.attached == attached);
         }
 
@@ -505,7 +642,7 @@ namespace Unity.UIWidgets.rendering {
             _lastChild = null;
         }
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             addChildrenToScene(builder, layerOffset);
         }
 
@@ -518,7 +655,6 @@ namespace Unity.UIWidgets.rendering {
                 else {
                     child.addToScene(builder, childOffset);
                 }
-
                 child = child.nextSibling;
             }
         }
@@ -532,7 +668,6 @@ namespace Unity.UIWidgets.rendering {
             if (firstChild == null) {
                 return new List<Layer>();
             }
-
             List<Layer> children = new List<Layer>();
             Layer child = firstChild;
             while (child != null) {
@@ -552,7 +687,6 @@ namespace Unity.UIWidgets.rendering {
             if (firstChild == null) {
                 return children;
             }
-
             Layer child = firstChild;
             int count = 1;
             while (true) {
@@ -560,7 +694,6 @@ namespace Unity.UIWidgets.rendering {
                 if (child == lastChild) {
                     break;
                 }
-
                 count += 1;
                 child = child.nextSibling;
             }
@@ -573,9 +706,8 @@ namespace Unity.UIWidgets.rendering {
         public OffsetLayer(Offset offset = null) {
             _offset = offset ?? Offset.zero;
         }
-
+        
         Offset _offset;
-
         public Offset offset {
             get { return _offset; }
             set {
@@ -587,14 +719,29 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        internal override S find<S>(Offset regionOffset) {
-            return base.find<S>(regionOffset - offset);
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition,  bool onlyFirst) {
+            return base.findAnnotations<S>(result, localPosition - offset, onlyFirst: onlyFirst);
         }
 
         public override void applyTransform(Layer child, Matrix4 transform) {
             D.assert(child != null);
             D.assert(transform != null);
-            transform.translate(offset.dx, offset.dy);
+            transform.multiply(Matrix4.translationValues(offset.dx, offset.dy, 0.0f));
+        }
+
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+            layerOffset = layerOffset ?? Offset.zero;
+
+            engineLayer = builder.pushOffset(
+                (float) (layerOffset.dx + offset.dx),
+                (float) (layerOffset.dy + offset.dy),
+                oldLayer: engineLayer as OffsetEngineLayer);
+            addChildrenToScene(builder);
+            builder.pop();
+        }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<Offset>("offset", offset));
         }
 
         public Scene buildScene(SceneBuilder builder) {
@@ -620,22 +767,34 @@ namespace Unity.UIWidgets.rendering {
             });
             return scene;
         }
+        Future<ui.Image> toImage(Rect bounds, float pixelRatio = 1.0f)// async
+        {
+            D.assert(bounds != null);
+            D.assert(pixelRatio != null);
+            ui.SceneBuilder builder = new SceneBuilder();
+            Matrix4 transform = Matrix4.translationValues(
+                (-bounds.left  - offset.dx) * pixelRatio,
+                (-bounds.top - offset.dy) * pixelRatio,
+                0.0f
+            );
+            transform.scale(pixelRatio, pixelRatio);
+            builder.pushTransform(transform.storage);
+            ui.Scene scene = buildScene(builder);
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
-            layerOffset = layerOffset ?? Offset.zero;
-
-            engineLayer = builder.pushOffset(
-                (float) (layerOffset.dx + offset.dx),
-                (float) (layerOffset.dy + offset.dy),
-                oldLayer: engineLayer as OffsetEngineLayer);
-            addChildrenToScene(builder);
-            builder.pop();
+            try {
+                // Size is rounded up to the next pixel to make sure we don't clip off
+                // anything.
+                return scene.toImage(
+                    (pixelRatio * bounds.width).ceil(),
+                    (pixelRatio * bounds.height).ceil()
+                );
+            } finally {
+                scene.DisposePtr(scene._ptr);// ???
+            }
         }
+        
 
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Offset>("offset", offset));
-        }
+        
     }
 
     public class ClipRectLayer : ContainerLayer {
@@ -650,7 +809,6 @@ namespace Unity.UIWidgets.rendering {
         }
 
         Rect _clipRect;
-
         public Rect clipRect {
             get { return _clipRect; }
             set {
@@ -662,10 +820,10 @@ namespace Unity.UIWidgets.rendering {
         }
 
         Clip _clipBehavior;
-
         public Clip clipBehavior {
             get { return _clipBehavior; }
             set {
+                D.assert(value != null);
                 D.assert(value != Clip.none);
                 if (value != _clipBehavior) {
                     _clipBehavior = value;
@@ -673,17 +831,17 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
-
-        internal override S find<S>(Offset regionOffset) {
-            if (!clipRect.contains(regionOffset)) {
-                return null;
-            }
-
-            return base.find<S>(regionOffset);
+       
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition,  bool onlyFirst ) {
+            if (!clipRect.contains(localPosition))
+                return false;
+            return base.findAnnotations<S>(result, localPosition, onlyFirst: onlyFirst);
         }
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
+            D.assert(clipRect != null);
+            D.assert(clipBehavior != null);
 
             bool enabled = true;
             D.assert(() => {
@@ -712,6 +870,7 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Rect>("clipRect", clipRect));
+            properties.add(new DiagnosticsProperty<Clip>("clipBehavior", clipBehavior));
         }
     }
 
@@ -726,8 +885,7 @@ namespace Unity.UIWidgets.rendering {
             _clipBehavior = clipBehavior;
         }
 
-        RRect _clipRRect;
-
+        RRect _clipRRect; 
         public RRect clipRRect {
             get { return _clipRRect; }
             set {
@@ -743,6 +901,7 @@ namespace Unity.UIWidgets.rendering {
         public Clip clipBehavior {
             get { return _clipBehavior; }
             set {
+                D.assert(value != null);
                 D.assert(value != Clip.none);
                 if (value != _clipBehavior) {
                     _clipBehavior = value;
@@ -751,17 +910,16 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        internal override S find<S>(Offset regionOffset) {
-            if (!clipRRect.contains(regionOffset)) {
-                return null;
-            }
-
-            return base.find<S>(regionOffset);
+        public  override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition,  bool onlyFirst ) {
+            if (!clipRRect.contains(localPosition))
+                return false;
+            return base.findAnnotations<S>(result, localPosition, onlyFirst: onlyFirst);
         }
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
-
+            D.assert(clipRRect != null);
+            D.assert(clipBehavior != null);
             bool enabled = true;
             D.assert(() => {
                 enabled = !D.debugDisableClipLayers;
@@ -790,6 +948,7 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<RRect>("clipRRect", clipRRect));
+            properties.add(new DiagnosticsProperty<Clip>("clipBehavior", clipBehavior));
         }
     }
 
@@ -821,6 +980,7 @@ namespace Unity.UIWidgets.rendering {
         public Clip clipBehavior {
             get { return _clipBehavior; }
             set {
+                D.assert(value != null);
                 D.assert(value != Clip.none);
                 if (value != _clipBehavior) {
                     _clipBehavior = value;
@@ -829,16 +989,16 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        internal override S find<S>(Offset regionOffset) {
-            if (!clipPath.contains(regionOffset)) {
-                return null;
-            }
-
-            return base.find<S>(regionOffset);
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition,  bool onlyFirst ) {
+            if (!clipPath.contains(localPosition))
+                return false;
+            return base.findAnnotations<S>(result, localPosition, onlyFirst: onlyFirst);
         }
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
+            D.assert(clipPath != null);
+            D.assert(clipBehavior != null);
 
             bool enabled = true;
             D.assert(() => {
@@ -863,6 +1023,10 @@ namespace Unity.UIWidgets.rendering {
                 builder.pop();
             }
         }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<Clip>("clipBehavior", clipBehavior));
+        }
     }
 
     public class TransformLayer : OffsetLayer {
@@ -872,33 +1036,27 @@ namespace Unity.UIWidgets.rendering {
 
         public Matrix4 transform {
             get { return _transform; }
+            set {
+                D.assert(value != null);
+                //D.assert(value.storage.Each((float component) => ));
+                if (value == _transform)
+                    return;
+                _transform = value;
+                _inverseDirty = true;
+                markNeedsAddToScene();
+            }
+
         }
-
         Matrix4 _transform;
+        
         Matrix4 _lastEffectiveTransform;
-
         Matrix4 _invertedTransform;
+        
         bool _inverseDirty = true;
 
-        internal override S find<S>(Offset regionOffset) {
-            if (_inverseDirty) {
-                _invertedTransform = Matrix4.tryInvert(
-                    PointerEvent.removePerspectiveTransform(transform)
-                );
-                _inverseDirty = false;
-            }
-
-            if (_invertedTransform == null) {
-                return null;
-            }
-            Vector4 vector = new Vector4(regionOffset.dx, regionOffset.dy, 0, 1);
-            Vector4 result = _invertedTransform.transform(vector);
-            return base.find<S>(new Offset(result[0], result[1]));
-        }
-
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
-
+            D.assert(transform != null);
             _lastEffectiveTransform = _transform;
 
             var totalOffset = offset + layerOffset;
@@ -913,6 +1071,24 @@ namespace Unity.UIWidgets.rendering {
             
             addChildrenToScene(builder);
             builder.pop();
+        }
+        Offset _transformOffset(Offset localPosition) {
+            if (_inverseDirty) {
+                _invertedTransform = Matrix4.tryInvert(
+                    PointerEvent.removePerspectiveTransform(transform)
+                );
+                _inverseDirty = false;
+            }
+            if (_invertedTransform == null)
+                return null;
+
+            return MatrixUtils.transformPoint(_invertedTransform, localPosition);
+        }
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition,  bool onlyFirst ) {
+            Offset transformedOffset = _transformOffset(localPosition);
+            if (transformedOffset == null)
+                return false;
+            return base.findAnnotations<S>(result, transformedOffset, onlyFirst: onlyFirst);
         }
 
         public override void applyTransform(Layer child, Matrix4 transform) {
@@ -940,7 +1116,6 @@ namespace Unity.UIWidgets.rendering {
         }
 
         int _alpha;
-
         public int alpha {
             get { return _alpha; }
             set {
@@ -952,7 +1127,6 @@ namespace Unity.UIWidgets.rendering {
         }
 
         Offset _offset;
-
         public Offset offset {
             get { return _offset; }
             set {
@@ -963,10 +1137,15 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
+        public override void applyTransform(Layer child, Matrix4 transform) {
+            D.assert(child != null);
+            D.assert(transform != null);
+            transform.translate(offset.dx, offset.dy);
+        }
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
-
+            D.assert(alpha != null);
             bool enabled = firstChild != null;
             D.assert(() => {
                 enabled = enabled && !D.debugDisableOpacityLayers;
@@ -1003,7 +1182,6 @@ namespace Unity.UIWidgets.rendering {
         }
 
         ImageFilter _filter;
-
         public ImageFilter filter {
             get { return _filter; }
             set {
@@ -1014,7 +1192,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             D.assert(filter != null);
             engineLayer = builder.pushBackdropFilter(
                 filter: filter,
@@ -1029,7 +1207,6 @@ namespace Unity.UIWidgets.rendering {
         public LeaderLayer leader {
             get { return _leader; }
         }
-
         internal LeaderLayer _leader;
 
         public override string ToString() {
@@ -1041,12 +1218,19 @@ namespace Unity.UIWidgets.rendering {
         public LeaderLayer(LayerLink link, Offset offset = null) {
             D.assert(link != null);
             offset = offset ?? Offset.zero;
-            this.link = link;
+            _link = link;
             this.offset = offset;
         }
 
-        public readonly LayerLink link;
+        public LayerLink link {
+            get { return _link; }
+            set {
+                D.assert(value != null);
+                _link = value;
+            }
 
+        }
+        LayerLink _link;
         public Offset offset;
 
         protected override bool alwaysNeedsAddToScene {
@@ -1069,13 +1253,13 @@ namespace Unity.UIWidgets.rendering {
 
         internal Offset _lastOffset;
 
-        internal override S find<S>(Offset regionOffset) {
-            return base.find<S>(regionOffset - offset);
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition, bool onlyFirst ) {
+            return base.findAnnotations<S>(result, localPosition - offset, onlyFirst: onlyFirst);
         }
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
-
+           
             D.assert(offset != null);
             _lastOffset = offset + layerOffset;
             if (_lastOffset != Offset.zero) {
@@ -1113,40 +1297,55 @@ namespace Unity.UIWidgets.rendering {
             Offset linkedOffset = null
         ) {
             D.assert(link != null);
-            this.link = link;
+            _link = link;
             this.showWhenUnlinked = showWhenUnlinked;
             this.unlinkedOffset = unlinkedOffset ?? Offset.zero;
             this.linkedOffset = linkedOffset ?? Offset.zero;
         }
 
-        public readonly LayerLink link;
+        public LayerLink link {
+            get { return _link; }
+            set {
+                D.assert(value != null);
+                _link = value;
+            }
+
+        }
+        LayerLink _link;
+        
         public bool showWhenUnlinked;
         public Offset unlinkedOffset;
         public Offset linkedOffset;
 
         Offset _lastOffset;
         Matrix4 _lastTransform;
-
         Matrix4 _invertedTransform = Matrix4.identity();
         bool _inverseDirty = true;
-
-        internal override S find<S>(Offset regionOffset) {
-            if (link.leader == null) {
-                return showWhenUnlinked ? base.find<S>(regionOffset - unlinkedOffset) : null;
-            }
-
+        
+        Offset _transformOffset<S>(Offset localPosition) {
             if (_inverseDirty) {
                 _invertedTransform = Matrix4.tryInvert(getLastTransform());
                 _inverseDirty = false;
             }
-
-            if (_invertedTransform == null) {
+            if (_invertedTransform == null)
                 return null;
-            }
-
-            Vector4 vector = new Vector4(regionOffset.dx, regionOffset.dy, 0, 1);
+            Vector4 vector = new Vector4(localPosition.dx, localPosition.dy, 0.0f, 1.0f);
             Vector4 result = _invertedTransform.transform(vector);
-            return base.find<S>(new Offset(result[0] - linkedOffset.dx, result[1] - linkedOffset.dy));
+            return new Offset(result[0] - linkedOffset.dx, result[1] - linkedOffset.dy);
+        }
+
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition,  bool onlyFirst ) {
+            if (link.leader == null) {
+                if (showWhenUnlinked) {
+                    return base.findAnnotations(result, localPosition - unlinkedOffset, onlyFirst: onlyFirst);
+                }
+                return false;
+            }
+            Offset transformedOffset = _transformOffset<S>(localPosition);
+            if (transformedOffset == null) {
+                return false;
+            }
+            return base.findAnnotations<S>(result, transformedOffset, onlyFirst: onlyFirst);
         }
 
         public Matrix4 getLastTransform() {
@@ -1220,15 +1419,18 @@ namespace Unity.UIWidgets.rendering {
         }
 
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
-
+            D.assert(link != null);
+            D.assert(showWhenUnlinked != null);
             D.assert(link != null);
             if (link.leader == null && !showWhenUnlinked) {
                 _lastTransform = null;
                 _lastOffset = null;
                 _inverseDirty = true;
                 engineLayer = null;
+                return;
+                
             }
 
             _establishTransform();
@@ -1275,12 +1477,17 @@ namespace Unity.UIWidgets.rendering {
     public class PerformanceOverlayLayer : Layer {
         public PerformanceOverlayLayer(
             Rect overlayRect = null,
-            int? optionsMask = null
+            int? optionsMask = null,
+            int? rasterizerThreshold = null,
+            bool? checkerboardRasterCacheImages = null,
+            bool? checkerboardOffscreenLayers = null
+            
         ) {
-            D.assert(overlayRect != null);
-            D.assert(optionsMask != null);
             _overlayRect = overlayRect;
-            this.optionsMask = optionsMask ?? 0;
+            this.optionsMask = optionsMask ;
+            this.rasterizerThreshold = rasterizerThreshold ;
+            this.checkerboardOffscreenLayers = checkerboardRasterCacheImages;
+            this.checkerboardRasterCacheImages = checkerboardOffscreenLayers;
         }
 
         public Rect overlayRect {
@@ -1292,22 +1499,24 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
-
         Rect _overlayRect;
 
-        public readonly int optionsMask;
+        public readonly int? optionsMask;
+        public readonly int? rasterizerThreshold;
+        public readonly bool? checkerboardRasterCacheImages;
+        public readonly bool? checkerboardOffscreenLayers;
 
-        internal override S find<S>(Offset regionOffset) {
-            return null;
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition,  bool onlyFirst ) {
+            return false;
         }
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             D.assert(optionsMask != null);
 
             layerOffset = layerOffset ?? Offset.zero;
             
             var shiftedOverlayRect = layerOffset == Offset.zero ? overlayRect : overlayRect.shift(layerOffset);
-            builder.addPerformanceOverlay(optionsMask, shiftedOverlayRect);
+            builder.addPerformanceOverlay((int)optionsMask, shiftedOverlayRect);
             //TODO: add implementations
             //builder.setRasterizerTracingThreshold(rasterizerThreshold);
             //builder.setCheckerboardRasterCacheImages(checkerboardRasterCacheImages);
@@ -1320,12 +1529,16 @@ namespace Unity.UIWidgets.rendering {
         public AnnotatedRegionLayer(
             T value = null,
             Size size = null,
-            Offset offset = null) {
+            Offset offset = null,
+            bool opaque = false
+            ) {
             offset = offset ?? Offset.zero;
             D.assert(value != null);
+            D.assert(opaque != null);
             this.value = value;
             this.size = size;
             this.offset = offset;
+            this.opaque = opaque;
         }
 
         public readonly T value;
@@ -1334,22 +1547,25 @@ namespace Unity.UIWidgets.rendering {
 
         public readonly Offset offset;
 
-        internal override S find<S>(Offset regionOffset) {
-            S result = base.find<S>(regionOffset);
-            if (result != null) {
-                return result;
-            }
+        public readonly bool opaque;
 
-            if (size != null && !(offset & size).contains(regionOffset)) {
-                return null;
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition, bool onlyFirst ) {
+            bool isAbsorbed = base.findAnnotations(result, localPosition, onlyFirst: onlyFirst);
+            if (result.entries.Count() != 0 && onlyFirst)
+                return isAbsorbed;
+            if (size != null && !(offset & size).contains(localPosition)) {
+                return isAbsorbed;
             }
-
             if (typeof(T) == typeof(S)) {
-                S typedResult = value as S;
-                return typedResult;
+                isAbsorbed = isAbsorbed || opaque;
+                object untypedValue = value;
+                S typedValue = (S)untypedValue;
+                result.add(new AnnotationEntry<S>(
+                    annotation: typedValue,
+                    localPosition: localPosition - offset
+                ));
             }
-
-            return base.find<S>(regionOffset);
+            return isAbsorbed;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -1357,7 +1573,9 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new DiagnosticsProperty<T>("value", value));
             properties.add(new DiagnosticsProperty<Size>("size", size, defaultValue: null));
             properties.add(new DiagnosticsProperty<Offset>("offset", offset, defaultValue: null));
+            properties.add(new DiagnosticsProperty<bool>("opaque", opaque, defaultValue: false));
         }
+        
     }
 
 
@@ -1379,7 +1597,7 @@ namespace Unity.UIWidgets.rendering {
             this.shadowColor = shadowColor;
         }
 
-        public Path clipPath {
+        public Path clipPath { 
             get { return _clipPath; }
             set {
                 if (value != _clipPath) {
@@ -1388,19 +1606,7 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
-
         Path _clipPath;
-
-        public Clip clipBehavior {
-            get { return _clipBehavior; }
-            set {
-                if (value != _clipBehavior) {
-                    _clipBehavior = value;
-                    markNeedsAddToScene();
-                }
-            }
-        }
-
         internal Path _debugTransformedClipPath {
             get {
                 ContainerLayer ancestor = parent;
@@ -1413,8 +1619,16 @@ namespace Unity.UIWidgets.rendering {
                 return clipPath.transform(matrix._m4storage);
             }
         }
-
-
+        
+        public Clip clipBehavior {
+            get { return _clipBehavior; }
+            set {
+                if (value != _clipBehavior) {
+                    _clipBehavior = value;
+                    markNeedsAddToScene();
+                }
+            }
+        }
         Clip _clipBehavior;
 
         public float elevation {
@@ -1426,7 +1640,6 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
-
         float _elevation;
 
         public Color color {
@@ -1438,7 +1651,6 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
-
         Color _color;
 
         public Color shadowColor {
@@ -1450,21 +1662,20 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
-
         Color _shadowColor;
 
-        internal override S find<S>(Offset regionOffset) {
-            if (!clipPath.contains(regionOffset)) {
-                return null;
-            }
-
-            return base.find<S>(regionOffset);
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition,  bool onlyFirst ) {
+            if (!clipPath.contains(localPosition))
+                return false;
+            return base.findAnnotations<S>(result, localPosition, onlyFirst: onlyFirst);
         }
 
-        internal override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
             
             D.assert(clipPath != null);
+            D.assert(clipBehavior != null);
+            D.assert(elevation != null);
             D.assert(color != null);
             D.assert(shadowColor != null);
 
@@ -1486,7 +1697,6 @@ namespace Unity.UIWidgets.rendering {
             else {
                 engineLayer = null;
             }
-            
             addChildrenToScene(builder, layerOffset);
             if (enabled) {
                 builder.pop();

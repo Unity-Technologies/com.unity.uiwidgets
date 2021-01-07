@@ -339,8 +339,7 @@ namespace Unity.UIWidgets.rendering {
 
         public ChildType nextSibling { get; set; }
 
-        public override void detach() {
-            base.detach();
+        public  void detach() {
 
             D.assert(previousSibling == null);
             D.assert(nextSibling == null);
