@@ -51,7 +51,7 @@ namespace Unity.UIWidgets.animation {
               if (_intervals[index].contains(t))
                 return _evaluateAt(t, index);
             }
-            D.assert(false, ()=>"TweenSequence.evaluate() could not find an interval for $t");
+            D.assert(false, ()=>$"TweenSequence.evaluate() could not find an interval for {t}");
             return default(T);
         }
         public override string ToString(){

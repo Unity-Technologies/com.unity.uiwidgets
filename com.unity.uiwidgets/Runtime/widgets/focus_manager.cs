@@ -549,7 +549,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(findFirstFocus != null);
             if (!canRequestFocus) {
                 D.assert(FocusManagerUtils._focusDebug(
-                    "Node NOT requesting focus because canRequestFocus is false: $this"));
+                    $"Node NOT requesting focus because canRequestFocus is false: {this}"));
                 return;
             }
 
@@ -672,7 +672,7 @@ namespace Unity.UIWidgets.widgets {
         public void setFirstFocus(FocusScopeNode scope) {
             D.assert(scope != null);
             D.assert(scope != this, ()=>"Unexpected self-reference in setFirstFocus.");
-            D.assert(FocusManagerUtils._focusDebug("Setting scope as first focus in $this to node:", new List<string>{scope.ToString()}));
+            D.assert(FocusManagerUtils._focusDebug($"Setting scope as first focus in {this} to node:", new List<string>{scope.ToString()}));
             if (scope._parent == null) {
               _reparent(scope);
             }
@@ -685,7 +685,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void autofocus(FocusNode node) { 
-        D.assert(FocusManagerUtils._focusDebug("Node autofocusing: $node"));
+        D.assert(FocusManagerUtils._focusDebug($"Node autofocusing: {node}"));
             if (focusedChild == null) {
               if (node._parent == null) {
                 _reparent(node);

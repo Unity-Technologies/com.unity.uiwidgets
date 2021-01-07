@@ -171,7 +171,7 @@ namespace Unity.UIWidgets.service {
                     return TextInputAction.newline;
             }
 
-            throw new UIWidgetsError("Unknown text input action: $action");
+            throw new UIWidgetsError($"Unknown text input action: {action}");
         }
 
         public static FloatingCursorDragState _toTextCursorAction(string state) {
@@ -184,7 +184,7 @@ namespace Unity.UIWidgets.service {
                     return FloatingCursorDragState.End;
             }
 
-            throw new UIWidgetsError("Unknown text cursor action: $state");
+            throw new UIWidgetsError($"Unknown text cursor action: {state}");
         }
 
         public static RawFloatingCursorPoint _toTextPoint(FloatingCursorDragState state,

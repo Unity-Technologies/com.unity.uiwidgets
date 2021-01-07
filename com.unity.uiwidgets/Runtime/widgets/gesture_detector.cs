@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.widgets {
 
         internal override bool _debugAssertTypeMatches(Type type) {
             D.assert(type == typeof(T),
-                () => "GestureRecognizerFactory of type " + typeof(T) + " was used where type $type was specified.");
+                () => "GestureRecognizerFactory of type " + typeof(T) + $" was used where type {type} was specified.");
             return true;
         }
     }

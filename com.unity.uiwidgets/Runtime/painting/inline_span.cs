@@ -56,7 +56,7 @@ namespace Unity.UIWidgets.painting {
 
         public override string ToString() =>
             $"{foundation_.objectRuntimeType(this, "InlineSpanSemanticsInformation")}" +
-            $"{text: $text, semanticsLabel: $semanticsLabel, recognizer: $recognizer}";
+            "text: " + text + " , semanticsLabel: "+ semanticsLabel + " , recognizer: " + recognizer;
 
         public bool Equals(InlineSpanSemanticsInformation other) {
             if (ReferenceEquals(null, other)) {
