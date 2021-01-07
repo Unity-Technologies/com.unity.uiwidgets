@@ -26,20 +26,19 @@ namespace Unity.UIWidgets.widgets {
             bool? skipTraversal = null,
             FocusOnKeyCallback onKey = null, 
             string debugLabel = null
-            ) : base(
-                key: key,
-                child: child,
-                focusNode: node,
-                autofocus: autofocus,
-                onFocusChange: onFocusChange,
-                canRequestFocus: canRequestFocus,
-                skipTraversal: skipTraversal,
-                onKey: onKey,
-                debugLabel: debugLabel) {
+        ) : base(
+            key: key,
+            child: child,
+            focusNode: node,
+            autofocus: autofocus,
+            onFocusChange: onFocusChange,
+            canRequestFocus: canRequestFocus,
+            skipTraversal: skipTraversal,
+            onKey: onKey,
+            debugLabel: debugLabel) {
             D.assert(child != null);
             D.assert(autofocus != null);
         }
-
         public static FocusScopeNode of(BuildContext context) {
             D.assert(context != null);
             _FocusMarker marker = context.dependOnInheritedWidgetOfExactType<_FocusMarker>();
@@ -163,6 +162,7 @@ namespace Unity.UIWidgets.widgets {
     
     public class _FocusState : State<Focus> { 
         FocusNode _internalNode;
+
         public FocusNode focusNode { 
             get { 
                 return widget.focusNode ?? _internalNode;
@@ -228,9 +228,9 @@ namespace Unity.UIWidgets.widgets {
             base.didUpdateWidget(oldWidget);
             D.assert(()=> {
                 if (((Focus)oldWidget).debugLabel != widget.debugLabel && _internalNode != null) {
-                    _internalNode.debugLabel = widget.debugLabel;
-                }
-                return true;
+                _internalNode.debugLabel = widget.debugLabel;
+              }
+              return true;
             });
 
             if (((Focus)oldWidget).focusNode == widget.focusNode) {
@@ -285,5 +285,6 @@ namespace Unity.UIWidgets.widgets {
     }
 
     
+
     
 }
