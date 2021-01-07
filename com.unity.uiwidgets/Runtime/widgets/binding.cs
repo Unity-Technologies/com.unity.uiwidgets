@@ -55,11 +55,10 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class WidgetsBinding : RendererBinding {
-        public static WidgetsBinding instance {
-            get { return _instance; }
+        public new static WidgetsBinding instance {
+            get { return (WidgetsBinding) RendererBinding.instance; }
             set { RendererBinding.instance = value; }
         }
-        static WidgetsBinding _instance;
 
         protected override void initInstances() {
             base.initInstances();
@@ -84,7 +83,7 @@ namespace Unity.UIWidgets.widgets {
             get { return _buildOwner; }
         }
 
-        BuildOwner _buildOwner = new BuildOwner();
+        BuildOwner _buildOwner;
 
         public FocusManager focusManager {
             get { return _buildOwner.focusManager; }
@@ -384,8 +383,10 @@ namespace Unity.UIWidgets.widgets {
     public class UiWidgetsBinding : WidgetsBinding {
         // todo 
         public static WidgetsBinding ensureInitialized() {
-            if (WidgetsBinding.instance == null)
-                new UiWidgetsBinding();
+            if (WidgetsBinding.instance == null) {
+                return new UiWidgetsBinding();
+            }
+            
             return WidgetsBinding.instance;
         }
     }

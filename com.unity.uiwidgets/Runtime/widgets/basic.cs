@@ -1951,7 +1951,7 @@ namespace Unity.UIWidgets.widgets {
             this.softWrap = softWrap;
             this.overflow = overflow;
             this.textScaleFactor = textScaleFactor;
-            this.maxLines = maxLines ?? 0;
+            this.maxLines = maxLines;
             this.locale = locale;
             this.strutStyle = strutStyle;
             this.textWidthBasis = textWidthBasis;
@@ -1975,7 +1975,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly  bool softWrap;
         public readonly  TextOverflow overflow;
         public readonly  float textScaleFactor;
-        public readonly  int maxLines;
+        public readonly  int? maxLines;
         public readonly  Locale locale;
         public readonly  StrutStyle strutStyle;
         public readonly  TextWidthBasis textWidthBasis;
