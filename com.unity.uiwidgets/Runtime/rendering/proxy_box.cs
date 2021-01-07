@@ -796,7 +796,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected CustomClipper<T> _clipper;
-        
+
         public override void attach(object owner) {
             base.attach(owner);
             _clipper?._reclip?.addListener(_markNeedsClip);
@@ -815,20 +815,8 @@ namespace Unity.UIWidgets.rendering {
         protected abstract T _defaultClip { get; }
         protected T _clip;
 
-        protected Clip _clipBehavior;
+        public readonly Clip clipBehavior;
 
-        
-        public Clip clipBehavior {
-            get { return _clipBehavior; }
-            set {
-                if (_clipBehavior == value) {
-                    return;
-                }
-
-                _clipBehavior = value;
-            }
-        }
-        
         protected override void performLayout() {
             Size oldSize = hasSize ? size : null;
             base.performLayout();

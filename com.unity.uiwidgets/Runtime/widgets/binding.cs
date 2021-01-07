@@ -73,7 +73,7 @@ namespace Unity.UIWidgets.widgets {
             _buildOwner = new BuildOwner();
             buildOwner.onBuildScheduled = _handleBuildScheduled;
             window.onLocaleChanged += handleLocaleChanged;
-            widgetInspectorService = new WidgetInspectorService();
+            widgetInspectorService = new WidgetInspectorService(this);
 
             // window.onAccessibilityFeaturesChanged = handleAccessibilityFeaturesChanged;
             // SystemChannels.navigation.setMethodCallHandler(_handleNavigationInvocation);

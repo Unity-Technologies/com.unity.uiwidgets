@@ -23,7 +23,7 @@ namespace Unity.UIWidgets.rendering {
     public delegate void PaintingContextCallback(PaintingContext context, Offset offset);
 
     public class PaintingContext : ClipContext {
-        public PaintingContext(
+        PaintingContext(
             ContainerLayer containerLayer = null,
             Rect estimatedBounds = null
         ) {
@@ -92,7 +92,7 @@ namespace Unity.UIWidgets.rendering {
             });
         }
 
-        public virtual void paintChild(RenderObject child, Offset offset) {
+        public void paintChild(RenderObject child, Offset offset) {
             if (child.isRepaintBoundary) {
                 stopRecordingIfNeeded();
                 _compositeChild(child, offset);
@@ -242,7 +242,7 @@ namespace Unity.UIWidgets.rendering {
             childContext.stopRecordingIfNeeded();
         }
 
-        public virtual PaintingContext createChildContext(ContainerLayer childLayer, Rect bounds) {
+        protected PaintingContext createChildContext(ContainerLayer childLayer, Rect bounds) {
             return new PaintingContext(childLayer, bounds);
         }
 
@@ -317,13 +317,6 @@ namespace Unity.UIWidgets.rendering {
 
         public void pushOpacity(Offset offset, int alpha, PaintingContextCallback painter) {
             pushLayer(new OpacityLayer(alpha: alpha), painter, offset);
-        }
-        public OpacityLayer pushOpacity(Offset offset, int alpha, PaintingContextCallback painter,  OpacityLayer oldLayer = null) {
-            OpacityLayer layer = oldLayer ?? new OpacityLayer();
-            layer.alpha = alpha;
-            layer.offset = offset;
-            pushLayer(layer, painter, Offset.zero);
-            return layer;
         }
 
         public override string ToString() {
@@ -681,43 +674,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(node._relayoutBoundary == node);
             return true;
         }
-        // TODO
-        /*void markNeedsSemanticsUpdate() { 
-            D.assert(!attached || !owner._debugDoingSemantics);
-            if (!attached || owner._semanticsOwner == null) {
-              _cachedSemanticsConfiguration = null;
-              return;
-            }
 
-            bool wasSemanticsBoundary = _semantics != null && _cachedSemanticsConfiguration?.isSemanticBoundary == true;
-            _cachedSemanticsConfiguration = null;
-            bool isEffectiveSemanticsBoundary = _semanticsConfiguration.isSemanticBoundary && wasSemanticsBoundary;
-            RenderObject node = this;
-
-            while (!isEffectiveSemanticsBoundary && node.parent is RenderObject) {
-                if (node != this && node._needsSemanticsUpdate)
-                    break;
-                node._needsSemanticsUpdate = true;
-
-                node = node.parent as RenderObject;
-                isEffectiveSemanticsBoundary = node._semanticsConfiguration.isSemanticBoundary;
-                if (isEffectiveSemanticsBoundary && node._semantics == null) {
-                    return;
-                }
-            }
-            if (node != this && _semantics != null && _needsSemanticsUpdate) {
-
-                owner._nodesNeedingSemantics.remove(this);
-            }
-            if (!node._needsSemanticsUpdate) {
-                node._needsSemanticsUpdate = true;
-                if (owner != null) {
-                    D.assert(node._semanticsConfiguration.isSemanticBoundary || node.parent is! RenderObject);
-                    owner._nodesNeedingSemantics.add(node);
-                    owner.requestVisualUpdate();
-                }
-            }
-        }*/
         public virtual void markNeedsLayout() {
             D.assert(_debugCanPerformMutations);
             if (_needsLayout) {
@@ -1418,8 +1375,9 @@ namespace Unity.UIWidgets.rendering {
         RenderObject child { get; set; }
     }
 
-    public interface RenderObjectWithChildMixin<ChildType> : RenderObjectWithChildMixin where ChildType : RenderObject {
-        ChildType child { get; set; }
+    public interface RenderObjectWithChildMixin<ChildType> : RenderObjectWithChildMixin
+        where ChildType : RenderObject {
+        new ChildType child { get; set; }
     }
 
     public interface ContainerParentDataMixin<ChildType> where ChildType : RenderObject {
@@ -1459,10 +1417,10 @@ namespace Unity.UIWidgets.rendering {
 
         public readonly RenderObject renderObject;
     }
-    
+
     public class DiagnosticsDebugCreator : DiagnosticsProperty<object> {
-        public DiagnosticsDebugCreator(object value)
-            : base(
+        public DiagnosticsDebugCreator(object value) :
+            base(
                 "debugCreator",
                 value,
                 level: DiagnosticLevel.hidden

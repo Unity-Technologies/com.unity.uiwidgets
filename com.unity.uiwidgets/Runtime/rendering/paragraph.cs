@@ -28,9 +28,6 @@ namespace Unity.UIWidgets.rendering {
 
     
     public class RenderParagraph : RenderBox{
-        // ContainerRenderObjectMixin<RenderBox, TextParentData>,
-        //RenderBoxContainerDefaultsMixin<RenderBox, TextParentData>,
-        //RelayoutWhenSystemFontsChangeMixin
         static readonly string _kEllipsis = "\u2026";
 
         bool _softWrap;
@@ -472,13 +469,13 @@ namespace Unity.UIWidgets.rendering {
             _pointerHoverInside = true;
         }
 
-        /*void _onPointerExit(PointerEvent evt) {
+        void _onPointerExit(PointerEvent evt) {
             _pointerHoverInside = false;
             (_previousHoverSpan as TextSpan)?.hoverRecognizer?.OnPointerLeave?.Invoke();
             _previousHoverSpan = null;
-        }*/
+        }
 
-        /*void _onPointerHover(PointerEvent evt) {
+        void _onPointerHover(PointerEvent evt) {
             _layoutTextWithConstraints(constraints);
             Offset offset = globalToLocal(evt.position);
             TextPosition position = _textPainter.getPositionForOffset(offset);
@@ -489,7 +486,7 @@ namespace Unity.UIWidgets.rendering {
                 (span as TextSpan)?.hoverRecognizer?.OnPointerEnter?.Invoke((PointerHoverEvent) evt);
                 _previousHoverSpan = span;
             }
-        }*/
+        }
 
         public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
             D.assert(debugHandleEvent(evt, entry));

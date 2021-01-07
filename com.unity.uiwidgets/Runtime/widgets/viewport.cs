@@ -15,21 +15,17 @@ namespace Unity.UIWidgets.widgets {
             ViewportOffset offset = null,
             Key center = null,
             float? cacheExtent = null,
-            CacheExtentStyle cacheExtentStyle = CacheExtentStyle.pixel,
             List<Widget> slivers = null
         ) : base(key: key, children: slivers) {
             D.assert(offset != null);
-            D.assert(slivers != null);
-            D.assert(center == null || slivers.Where((Widget child) => child.key == center).Count() == 1);
-            D.assert(cacheExtentStyle != null);
-            D.assert(cacheExtentStyle != CacheExtentStyle.viewport || cacheExtent != null);
+            D.assert(center == null || children.Count(child => child.key == center) == 1);
+
             this.axisDirection = axisDirection;
             this.crossAxisDirection = crossAxisDirection;
             this.anchor = anchor;
             this.offset = offset;
             this.center = center;
             this.cacheExtent = cacheExtent;
-            this.cacheExtentStyle = cacheExtentStyle;
         }
 
         public readonly AxisDirection axisDirection;
@@ -43,8 +39,6 @@ namespace Unity.UIWidgets.widgets {
         public readonly Key center;
 
         public readonly float? cacheExtent;
-        
-        public readonly CacheExtentStyle cacheExtentStyle;
 
         public static AxisDirection getDefaultCrossAxisDirection(BuildContext context, AxisDirection axisDirection) {
             switch (axisDirection) {
@@ -66,21 +60,22 @@ namespace Unity.UIWidgets.widgets {
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderViewport(
                 axisDirection: axisDirection,
-                crossAxisDirection: crossAxisDirection ?? getDefaultCrossAxisDirection(context, axisDirection),
+                crossAxisDirection: crossAxisDirection ??
+                                    getDefaultCrossAxisDirection(context, axisDirection),
                 anchor: anchor,
                 offset: offset,
-                cacheExtent: cacheExtent ?? RenderViewportUtils.defaultCacheExtent,
-                cacheExtentStyle: cacheExtentStyle);
+                cacheExtent: cacheExtent ?? RenderViewportUtils.defaultCacheExtent
+            );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderViewport) renderObjectRaw;
             renderObject.axisDirection = axisDirection;
-            renderObject.crossAxisDirection = crossAxisDirection ?? getDefaultCrossAxisDirection(context, axisDirection);
+            renderObject.crossAxisDirection = crossAxisDirection ??
+                                              getDefaultCrossAxisDirection(context, axisDirection);
             renderObject.anchor = anchor;
             renderObject.offset = offset;
             renderObject.cacheExtent = cacheExtent ?? RenderViewportUtils.defaultCacheExtent;
-            renderObject.cacheExtentStyle = cacheExtentStyle;
         }
 
         public override Element createElement() {
@@ -100,8 +95,6 @@ namespace Unity.UIWidgets.widgets {
             else if (children.isNotEmpty() && children.First().key != null) {
                 properties.add(new DiagnosticsProperty<Key>("center", children.First().key, tooltip: "implicit"));
             }
-            properties.add(new DiagnosticsProperty<float>("cacheExtent", (float)cacheExtent));
-            properties.add(new DiagnosticsProperty<CacheExtentStyle>("cacheExtentStyle", cacheExtentStyle));
         }
     }
 
@@ -158,8 +151,8 @@ namespace Unity.UIWidgets.widgets {
             ViewportOffset offset = null,
             List<Widget> slivers = null
         ) : base(key: key, children: slivers) {
-            slivers = slivers ?? new List<Widget>();
             D.assert(offset != null);
+
             this.axisDirection = axisDirection;
             this.crossAxisDirection = crossAxisDirection;
             this.offset = offset;

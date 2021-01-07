@@ -26,7 +26,6 @@ namespace Unity.UIWidgets.widgets {
             Alignment alignment = null,
             CrossFadeState? crossFadeState = null,
             TimeSpan? duration = null,
-            TimeSpan? reverseDuration = null,
             AnimatedCrossFadeBuilder layoutBuilder = null
         ) : base(key: key) {
             D.assert(firstChild != null);
@@ -40,8 +39,7 @@ namespace Unity.UIWidgets.widgets {
             this.sizeCurve = sizeCurve ?? Curves.linear;
             this.alignment = alignment ?? Alignment.topCenter;
             this.crossFadeState = crossFadeState ?? CrossFadeState.showFirst;
-            this.duration = duration;
-            this.reverseDuration = reverseDuration;
+            this.duration = duration ?? TimeSpan.Zero;
             this.layoutBuilder = layoutBuilder ?? defaultLayoutBuilder;
         }
 
@@ -51,10 +49,8 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly CrossFadeState crossFadeState;
 
-        public readonly TimeSpan? duration;
+        public readonly TimeSpan duration;
 
-        public readonly TimeSpan? reverseDuration;
-        
         public readonly Curve firstCurve;
 
         public readonly Curve secondCurve;
@@ -91,8 +87,6 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new EnumProperty<CrossFadeState>("crossFadeState", crossFadeState));
             properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment,
                 defaultValue: Alignment.topCenter));
-            properties.add(new IntProperty("duration", duration?.Milliseconds, unit: "ms"));
-            properties.add(new IntProperty("reverseDuration", reverseDuration?.Milliseconds, unit: "ms", defaultValue: null));
         }
     }
 
@@ -105,10 +99,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            _controller = new AnimationController(
-                duration: widget.duration, 
-                reverseDuration: widget.reverseDuration,
-                vsync: this);
+            _controller = new AnimationController(duration: widget.duration, vsync: this);
             if (widget.crossFadeState == CrossFadeState.showSecond) {
                 _controller.setValue(1.0f);
             }
@@ -139,9 +130,6 @@ namespace Unity.UIWidgets.widgets {
                 _controller.duration = widget.duration;
             }
 
-            if (widget.reverseDuration != _oldWidget.reverseDuration)
-                _controller.reverseDuration = widget.reverseDuration;
-            
             if (widget.firstCurve != _oldWidget.firstCurve) {
                 _firstAnimation = _initAnimation(widget.firstCurve, true);
             }
@@ -220,7 +208,6 @@ namespace Unity.UIWidgets.widgets {
                 child: new AnimatedSize(
                     alignment: widget.alignment,
                     duration: widget.duration,
-                    reverseDuration: widget.reverseDuration,
                     curve: widget.sizeCurve,
                     vsync: this,
                     child: widget.layoutBuilder(topChild, topKey, bottomChild, bottomKey)

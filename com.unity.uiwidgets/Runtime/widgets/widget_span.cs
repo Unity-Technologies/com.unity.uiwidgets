@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -6,11 +5,11 @@ using Unity.UIWidgets.ui;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.widgets {
-    class WidgetSpan : PlaceholderSpan,IEquatable<WidgetSpan> {
+    class WidgetSpan : PlaceholderSpan {
         public WidgetSpan(
-            Widget child ,
-            TextBaseline? baseline = null,
-            TextStyle style = null,
+            Widget child,
+            TextBaseline baseline,
+            TextStyle style,
             PlaceholderAlignment alignment = PlaceholderAlignment.bottom
         ) : base(
             alignment: alignment,
@@ -76,12 +75,10 @@ namespace Unity.UIWidgets.widgets {
         public override RenderComparison compareTo(InlineSpan other) {
             if (this == other)
                 return RenderComparison.identical;
-            if (style.GetType() == GetType())
-                return RenderComparison.layout;
             if ((style == null) != (other.style == null))
                 return RenderComparison.layout;
             WidgetSpan typedOther = other as WidgetSpan;
-            if (!child.Equals(typedOther.child) || alignment != typedOther.alignment) {
+            if (child.Equals(typedOther.child) || alignment != typedOther.alignment) {
                 return RenderComparison.layout;
             }
 
@@ -98,53 +95,14 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override int GetHashCode() {
-            unchecked
-            {
-                return (base.GetHashCode() * 397) ^ (child != null ? child.GetHashCode() : 0);
-            }
+            int hashCode = base.GetHashCode();
+            hashCode = (hashCode * 397) ^ (child.GetHashCode());
+            hashCode = (hashCode * 397) ^ (alignment.GetHashCode());
+            hashCode = (hashCode * 397) ^ (baseline.GetHashCode());
+            return hashCode;
         }
 
         public bool DebugAssertIsValid() {
-            return true;
-        }
-
-        public bool Equals(WidgetSpan other)
-        {
-            if (ReferenceEquals(null, other)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other)) {
-                return true;
-            }
-
-            return base.Equals(other) && Equals(child, other.child);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj)) {
-                return true;
-            }
-
-            if (obj.GetType() != GetType()) {
-                return false;
-            }
-
-            return Equals((WidgetSpan) obj);
-        }
-        public static bool operator ==(WidgetSpan left, WidgetSpan right) {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(WidgetSpan left, WidgetSpan right) {
-            return !Equals(left, right);
-        }
-        public override bool debugAssertIsValid() {
             return true;
         }
     }

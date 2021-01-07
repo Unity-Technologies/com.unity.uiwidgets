@@ -158,69 +158,6 @@ namespace Unity.UIWidgets.widgets {
 
         public abstract override RenderObject createRenderObject(BuildContext context);
     }
-    public class SliverIgnorePointer : SingleChildRenderObjectWidget {
-        public SliverIgnorePointer(
-            Key key = null,
-            bool ignoring = true,
-            bool? ignoringSemantics = null,
-            Widget sliver = null
-        ) : base(key: key, child: sliver) {
-            D.assert(ignoring != null);
-            this.ignoring = ignoring;
-            this.ignoringSemantics = ignoringSemantics;
-
-        }
-
-        public readonly bool ignoring;
-        public readonly bool? ignoringSemantics;
-
-        public override RenderObject  createRenderObject(BuildContext context) {
-            return new RenderSliverIgnorePointer(
-              ignoring: ignoring,
-              ignoringSemantics: ignoringSemantics
-            );
-        }
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            renderObject = (RenderSliverIgnorePointer) renderObject;
-            ((RenderSliverIgnorePointer)renderObject).ignoring = ignoring;
-            ((RenderSliverIgnorePointer)renderObject).ignoringSemantics = ignoringSemantics;
-        }
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<bool>("ignoring", ignoring));
-            properties.add(new DiagnosticsProperty<bool>("ignoringSemantics", (bool)ignoringSemantics, defaultValue: null));
-        }
-    }
-    public class SliverOffstage : SingleChildRenderObjectWidget {
-        public SliverOffstage(
-        Key key = null,
-        bool offstage = true,
-        Widget sliver = null) : base(key: key, child: sliver) {
-            D.assert(offstage != null);
-            this.offstage = offstage;
-        }
-
-
-        public readonly bool offstage;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderSliverOffstage(offstage: offstage);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            renderObject = (RenderSliverOffstage) renderObject;
-            ((RenderSliverOffstage)renderObject).offstage = offstage;
-        }
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<bool>("offstage", offstage));
-        }
-
-        public override Element createElement() {
-            return new _SliverOffstageElement(this);
-        }
-    }
-
 
     public abstract class SliverMultiBoxAdaptorWidget : SliverWithKeepAliveWidget {
         protected SliverMultiBoxAdaptorWidget(
@@ -269,52 +206,6 @@ namespace Unity.UIWidgets.widgets {
         public override RenderObject createRenderObject(BuildContext context) {
             SliverMultiBoxAdaptorElement element = (SliverMultiBoxAdaptorElement) context;
             return new RenderSliverList(childManager: element);
-        }
-    }
-    public class SliverOpacity : SingleChildRenderObjectWidget {
-        public SliverOpacity(
-            Key key = null,
-            float opacity = 0f,
-            bool alwaysIncludeSemantics = false,
-            Widget sliver = null) : base(key: key, child: sliver) { 
-            D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0); 
-            D.assert(alwaysIncludeSemantics != null);
-            this.opacity = opacity;
-            this.alwaysIncludeSemantics = alwaysIncludeSemantics;
-        }
-
-        public readonly float opacity;
-        public readonly bool alwaysIncludeSemantics;
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderSliverOpacity(
-              opacity: opacity,
-              alwaysIncludeSemantics: alwaysIncludeSemantics
-            );
-        }
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            renderObject = (RenderSliverOpacity) renderObject;
-            ((RenderSliverOpacity) renderObject).opacity = opacity;
-            ((RenderSliverOpacity) renderObject).alwaysIncludeSemantics = alwaysIncludeSemantics;
-        }
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) { 
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<float>("opacity", opacity));
-            properties.add(new FlagProperty("alwaysIncludeSemantics", value: alwaysIncludeSemantics, ifTrue: "alwaysIncludeSemantics"));
-        }
-    }
-
-    
-    public class _SliverOffstageElement : SingleChildRenderObjectElement {
-        public _SliverOffstageElement(SliverOffstage widget) : base(widget) {
-        }
-
-        public SliverOffstage widget {
-            get { return base.widget as SliverOffstage; }
-        }
-
-        public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            if (!widget.offstage)
-                base.debugVisitOnstageChildren(visitor);
         }
     }
 

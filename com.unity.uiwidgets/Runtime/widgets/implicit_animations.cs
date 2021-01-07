@@ -116,20 +116,16 @@ namespace Unity.UIWidgets.widgets {
         public ImplicitlyAnimatedWidget(
             Key key = null,
             Curve curve = null,
-            TimeSpan? duration = null,
-            VoidCallback onEnd = null
+            TimeSpan? duration = null
         ) : base(key: key) {
             D.assert(duration != null);
             this.curve = curve ?? Curves.linear;
             this.duration = duration ?? TimeSpan.Zero;
-            this.onEnd = onEnd;
         }
 
         public readonly Curve curve;
 
         public readonly TimeSpan duration;
-        
-        public readonly VoidCallback onEnd;
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);

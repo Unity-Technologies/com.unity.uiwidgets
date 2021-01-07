@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -22,6 +18,7 @@ namespace Unity.UIWidgets.widgets {
     public delegate string GenerateAppTitle(BuildContext context);
 
     public delegate PageRoute PageRouteFactory(RouteSettings settings, WidgetBuilder builder);
+    
     public delegate List<Route> InitialRouteListFactory(string initialRoute);
 
     public class WidgetsApp : StatefulWidget {
@@ -58,9 +55,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool checkerboardOffscreenLayers;
         public readonly bool showSemanticsDebugger;
         public readonly bool debugShowWidgetInspector;
-        public readonly Dictionary<LogicalKeySet, Intent> shortcuts;
-        public readonly  Dictionary<LocalKey, ActionFactory> actions;
-        
+
         public WidgetsApp(
             Key key = null,
             GlobalKey<NavigatorState> navigatorKey = null,
@@ -88,16 +83,16 @@ namespace Unity.UIWidgets.widgets {
             bool showSemanticsDebugger = false,
             bool debugShowWidgetInspector = false,
             bool debugShowCheckedModeBanner = true,
-            InspectorSelectButtonBuilder inspectorSelectButtonBuilder = null,
-            Dictionary<LogicalKeySet, Intent> shortcuts = null,
-            Dictionary<LocalKey, ActionFactory> actions = null
+            InspectorSelectButtonBuilder inspectorSelectButtonBuilder = null
+            //shortcuts
+            //actions
         ) : base(key) {
             
             routes = routes ?? new Dictionary<string, WidgetBuilder>();
             supportedLocales = supportedLocales ?? new List<Locale> {new Locale("en", "US")};
             window = Window.instance;
             D.assert(navigatorObservers != null);
-            D.assert(routes != null);
+            //D.assert(routes != null);
             this.home = home;
             this.navigatorKey = navigatorKey;
             this.onGenerateRoute = onGenerateRoute;
@@ -124,8 +119,6 @@ namespace Unity.UIWidgets.widgets {
             this.title = title;
             this.color = color;
             this.inspectorSelectButtonBuilder = inspectorSelectButtonBuilder;
-            this.shortcuts = shortcuts;
-            this.actions = actions;
             
             D.assert(
                 home == null ||
@@ -181,105 +174,6 @@ namespace Unity.UIWidgets.widgets {
             );
         }
 
-        /*public static readonly Dictionary<LogicalKeySet, Intent> _defaultShortcuts = new Dictionary<LogicalKeySet, Intent>(){
-    // Activation
-    {new LogicalKeySet(LogicalKeyboardKey.enter), new Intent(ActivateAction.key)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.space), new Intent(ActivateAction.key)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.gameButtonA), new Intent(ActivateAction.key)},
-
-    // Keyboard traversal.
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.tab), new Intent(NextFocusAction.key)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab), new Intent(PreviousFocusAction.key)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowLeft), new DirectionalFocusIntent(TraversalDirection.left)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowRight), new DirectionalFocusIntent(TraversalDirection.right)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowDown), new DirectionalFocusIntent(TraversalDirection.down)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowUp), new DirectionalFocusIntent(TraversalDirection.up)},
-
-    // Scrolling
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowUp), new ScrollIntent(direction: AxisDirection.up)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowDown), new ScrollIntent(direction: AxisDirection.down)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowLeft), new ScrollIntent(direction: AxisDirection.left)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowRight), new ScrollIntent(direction: AxisDirection.right)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.pageUp), new ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.pageDown), new ScrollIntent(direction: AxisDirection.down, type: ScrollIncrementType.page)},
-  };
-
-  // Default shortcuts for the web platform.
-  public static readonly Dictionary<LogicalKeySet, Intent> _defaultWebShortcuts = new Dictionary<LogicalKeySet, Intent>(){
-    // Activation
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.space), new Intent(ActivateAction.key)},
-
-    // Keyboard traversal.
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.tab), new Intent(NextFocusAction.key)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab),new Intent(PreviousFocusAction.key)},
-
-    // Scrolling
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowUp), new ScrollIntent(direction: AxisDirection.up)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowDown), new ScrollIntent(direction: AxisDirection.down)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowLeft), new ScrollIntent(direction: AxisDirection.left)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowRight), new ScrollIntent(direction: AxisDirection.right)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.pageUp), new ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.pageDown), new ScrollIntent(direction: AxisDirection.down, type: ScrollIncrementType.page)},
-  };
-
-  // Default shortcuts for the macOS platform.
-  public static readonly Dictionary<LogicalKeySet, Intent> _defaultMacOsShortcuts = new Dictionary<LogicalKeySet, Intent>(){
-    // Activation
-    new LogicalKeySet(LogicalKeyboardKey.enter), new Intent(ActivateAction.key),
-    new LogicalKeySet(LogicalKeyboardKey.space), new Intent(ActivateAction.key),
-
-    // Keyboard traversal
-    {new LogicalKeySet(LogicalKeyboardKey.tab), new Intent(NextFocusAction.key)},
-    {new LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab), new Intent(PreviousFocusAction.key)},
-    {new LogicalKeySet(LogicalKeyboardKey.arrowLeft), new DirectionalFocusIntent(TraversalDirection.left)},
-    {new LogicalKeySet(LogicalKeyboardKey.arrowRight), new DirectionalFocusIntent(TraversalDirection.right)},
-    {new LogicalKeySet(LogicalKeyboardKey.arrowDown), new DirectionalFocusIntent(TraversalDirection.down)},
-    {new LogicalKeySet(LogicalKeyboardKey.arrowUp), new DirectionalFocusIntent(TraversalDirection.up)},
-
-    // Scrolling
-    {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowUp), new  ScrollIntent(direction: AxisDirection.up)},
-    {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowDown), new ScrollIntent(direction: AxisDirection.down)},
-    {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowLeft), new ScrollIntent(direction: AxisDirection.left)},
-    {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowRight), new ScrollIntent(direction: AxisDirection.right)},
-    {new LogicalKeySet(LogicalKeyboardKey.pageUp), new ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page)},
-    {new LogicalKeySet(LogicalKeyboardKey.pageDown), new ScrollIntent(direction: AxisDirection.down, type: ScrollIncrementType.page)},
-  };
-
-  /// Generates the default shortcut key bindings based on the
-  /// [defaultTargetPlatform].
-  ///
-  /// Used by [WidgetsApp] to assign a default value to [WidgetsApp.shortcuts].
-  public static Dictionary<LogicalKeySet, Intent> defaultShortcuts {
-      get {
-          if (kIsWeb) {
-              return _defaultWebShortcuts;
-          }
-          switch (defaultTargetPlatform) {
-              case TargetPlatform.android:
-              case TargetPlatform.fuchsia:
-              case TargetPlatform.linux:
-              case TargetPlatform.windows:
-                  return _defaultShortcuts;
-              case TargetPlatform.macOS:
-                  return _defaultMacOsShortcuts;
-              case TargetPlatform.iOS:
-                  // No keyboard support on iOS yet.
-                  break;
-          }
-          return new Dictionary<LogicalKeySet, Intent>();
-      }
-  }
-
-  /// The default value of [WidgetsApp.actions].
-  public static readonly Dictionary<LocalKey, ActionFactory> defaultActions = new Dictionary<LocalKey, ActionFactory>(){
-      {DoNothingAction.key, () => new  DoNothingAction()},
-      {RequestFocusAction.key, () => new RequestFocusAction()},
-      {NextFocusAction.key, () => new NextFocusAction()},
-      {PreviousFocusAction.key, () => new PreviousFocusAction()},
-      {DirectionalFocusAction.key, () => new DirectionalFocusAction()},
-      {ScrollAction.key, () => new ScrollAction()},
-  };*/
-        
         public override State createState() {
             return new _WidgetsAppState();
         }
@@ -581,50 +475,44 @@ namespace Unity.UIWidgets.widgets {
         
 
         /*bool _debugCheckLocalizations(Locale appLocale) {
-            D.assert(() => {
-                HashSet<Type> unsupportedTypes = new HashSet<Type>();
-                foreach (var _delegate in _localizationsDelegates) {
-                    unsupportedTypes.Add(_delegate.type);
-                }
-                foreach ( LocalizationsDelegate<dynamic> _delegate in _localizationsDelegates) {
-                    if (!unsupportedTypes.Contains(_delegate.type))
+            D.assert(() =>{
+                HashSet<Type> unsupportedTypes =
+                    _localizationsDelegates.map<Type>((LocalizationsDelegate delegate) => delegate.type).toSet();
+                foreach ( LocalizationsDelegate<dynamic> delegate in _localizationsDelegates) {
+                    if (!unsupportedTypes.contains(delegate.type))
                         continue;
-                    if (_delegate.isSupported(appLocale))
-                        unsupportedTypes.Remove(_delegate.type);
+                    if (delegate.isSupported(appLocale))
+                        unsupportedTypes.remove(delegate.type);
                 }
                 if (unsupportedTypes.isEmpty())
                     return true;
-                List<string> list = new List<string> {"CupertinoLocalizations"};
-                List<string> unsupportedTypesList = new List<string>();
-                foreach (var type in unsupportedTypes) {
-                    unsupportedTypesList.Add(type.ToString());
-                }
-                if (unsupportedTypesList.SequenceEqual(list))
-                    return true;
+
+                if (listEquals(unsupportedTypes.map((Type type) => type.toString()).toList(), <String>['CupertinoLocalizations']))
+                return true;
 
                 StringBuffer message = new StringBuffer();
                 message.writeln('\u2550' * 8);
                 message.writeln(
-                    "Warning: This application's locale, $appLocale, is not supported by all of its\n" +
-                "localization delegates."
+                    "Warning: This application's locale, $appLocale, is not supported by all of its\n"
+                'localization delegates.'
                     );
                 foreach ( Type unsupportedType in unsupportedTypes) {
                     // Currently the Cupertino library only provides english localizations.
                     // Remove this when https://github.com/flutter/flutter/issues/23847
                     // is fixed.
-                    if (unsupportedType.ToString() == "CupertinoLocalizations")
+                    if (unsupportedType.toString() == 'CupertinoLocalizations')
                         continue;
                     message.writeln(
-                        "> A "+ unsupportedType + " delegate that supports the " + appLocale + "locale was not found."
+                        '> A $unsupportedType delegate that supports the $appLocale locale was not found.'
                     );
                 }
                 message.writeln(
-                    "See https://flutter.dev/tutorials/internationalization/ for more\n" +
-                "information about configuring an app's locale, supportedLocales,\n" +
-                "and localizationsDelegates parameters."
+                    'See https://flutter.dev/tutorials/internationalization/ for more\n'
+                "information about configuring an app's locale, supportedLocales,\n"
+                'and localizationsDelegates parameters.'
                     );
                 message.writeln('\u2550' * 8);
-                //Debug.Log(message.toString());
+                debugPrint(message.toString());
                 return true;
             });
             return true;
@@ -701,18 +589,9 @@ namespace Unity.UIWidgets.widgets {
                 );
             }*/
             D.assert(() => {
-                if (widget.debugShowWidgetInspector || WidgetsApp.debugShowWidgetInspectorOverride) {
-                    result = new WidgetInspector(
-                        child: result,
-                        selectButtonBuilder: widget.inspectorSelectButtonBuilder
-                    );
+                if (WidgetInspectorService.instance.debugShowInspector) {
+                    result = new WidgetInspector(null, result, _InspectorSelectButtonBuilder);
                 }
-                if (widget.debugShowCheckedModeBanner && WidgetsApp.debugAllowBannerOverride) {
-                    result = new CheckedModeBanner(
-                        child: result
-                    );
-                }
-                return true;
 
                 /*if (widget.debugShowWidgetInspector || WidgetsApp.debugShowWidgetInspectorOverride) {
                     result = new WidgetInspector(
@@ -793,7 +672,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class _MediaQueryFromWindow : StatefulWidget {
+    /*public class _MediaQueryFromWindow : StatefulWidget {
         public _MediaQueryFromWindow(Key key = null, Widget child = null) : base(key: key) {
         }
         public readonly Widget child;
@@ -850,7 +729,7 @@ namespace Unity.UIWidgets.widgets {
             base.dispose();
         }
     }
-    
+*/
     class _InspectorSelectButton : StatelessWidget {
         public readonly GestureTapCallback onPressed;
 

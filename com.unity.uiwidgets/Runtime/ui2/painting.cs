@@ -283,7 +283,7 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        public static int getAlphaFromOpacity(float opacity) {
+        static int getAlphaFromOpacity(float opacity) {
             return (opacity.clamp(0.0f, 1.0f) * 255).round();
         }
 

@@ -767,8 +767,7 @@ namespace Unity.UIWidgets.rendering {
             });
             return scene;
         }
-
-        public Future<ui.Image> toImage(Rect bounds, float pixelRatio = 1.0f)// async
+        Future<ui.Image> toImage(Rect bounds, float pixelRatio = 1.0f)// async
         {
             D.assert(bounds != null);
             D.assert(pixelRatio != null);

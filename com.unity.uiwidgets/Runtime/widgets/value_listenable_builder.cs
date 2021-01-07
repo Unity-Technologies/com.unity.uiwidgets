@@ -5,11 +5,10 @@ namespace Unity.UIWidgets.widgets {
 
     public class ValueListenableBuilder<T> : StatefulWidget {
         public ValueListenableBuilder(
-            ValueListenable<T> valueListenable ,
-            ValueWidgetBuilder<T> builder ,
-            Key key = null,
+            ValueListenable<T> valueListenable,
+            ValueWidgetBuilder<T> builder,
             Widget child = null
-        ) : base(key: key) {
+        ) {
             D.assert(valueListenable != null);
             D.assert(builder != null);
             this.valueListenable = valueListenable;

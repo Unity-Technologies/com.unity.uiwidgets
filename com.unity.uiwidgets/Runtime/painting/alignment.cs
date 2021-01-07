@@ -7,11 +7,11 @@ namespace Unity.UIWidgets.painting {
         public AlignmentGeometry() {
         }
 
-        protected float _x { get; }
+        float _x { get; }
 
-        protected float _start { get; }
+        float _start { get; }
 
-        protected float _y { get; }
+        float _y { get; }
 
         // public static AlignmentGeometry add(AlignmentGeometry other) {
         //   return new _MixedAlignment(
@@ -73,7 +73,7 @@ namespace Unity.UIWidgets.painting {
         // int get hashCode => hashValues(_x, _start, _y);
     }
 
-    public class Alignment : AlignmentGeometry, IEquatable<Alignment> {
+    public class Alignment : IEquatable<Alignment> {
         public Alignment(float x, float y) {
             this.x = x;
             this.y = y;
@@ -245,17 +245,6 @@ namespace Unity.UIWidgets.painting {
             }
 
             return $"Alignment({x:F1}, {y:F1})";
-        }
-
-        public override Alignment resolve(TextDirection? direction) {
-            D.assert(direction != null);
-            switch (direction) {
-                case TextDirection.rtl:
-                    return new Alignment(_x - _start, _y);
-                case TextDirection.ltr:
-                    return new Alignment(_x + _start, _y);
-            }
-            return null;
         }
     }
 }

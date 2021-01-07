@@ -236,7 +236,7 @@ namespace Unity.UIWidgets.widgets {
             bool enabled = true,
             FocusNode focusNode = null,
             bool autofocus = false,
-            Dictionary<LogicalKeySet, Intent> shortcuts = null,
+            //Dictionary<LogicalKeySet, Intent> shortcuts = null,
             Dictionary<LocalKey, ActionFactory> actions = null,
             ValueChanged<bool> onShowFocusHighlight = null,
             ValueChanged<bool> onShowHoverHighlight = null,
@@ -249,7 +249,7 @@ namespace Unity.UIWidgets.widgets {
             this.enabled = enabled;
             this.focusNode = focusNode;
             this.autofocus = autofocus;
-            this.shortcuts = shortcuts;
+            //this.shortcuts = shortcuts;
             this.actions = actions;
             this.onShowFocusHighlight = onShowFocusHighlight;
             this.onShowHoverHighlight = onShowHoverHighlight;
@@ -270,7 +270,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly Dictionary<LocalKey, ActionFactory> actions;
 
 
-        public readonly Dictionary<LogicalKeySet, Intent> shortcuts;
+        //public readonly Dictionary<LogicalKeySet, Intent> shortcuts;
 
 
         public readonly ValueChanged<bool> onShowFocusHighlight;
@@ -405,9 +405,9 @@ namespace Unity.UIWidgets.widgets {
                
                 child = new Actions(actions: widget.actions, child: child);
             }
-            if (widget.enabled && widget.shortcuts != null && widget.shortcuts.isNotEmpty()) {
+            /*if (widget.enabled && widget.shortcuts != null && widget.shortcuts.isNotEmpty()) {
               child = new Shortcuts(shortcuts: widget.shortcuts, child: child);
-            }
+            }*/
             return child;
         }
     }

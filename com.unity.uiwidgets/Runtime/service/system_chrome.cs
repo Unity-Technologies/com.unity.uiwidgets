@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.async2;
-using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.service {
@@ -177,66 +174,4 @@ namespace Unity.UIWidgets.service {
             return !Equals(left, right);
         }
     }
-    public class SystemChrome {
-        /*public static Future setPreferredOrientations(List<DeviceOrientation> orientations)  {
-            return SystemChannels.platform.invokeMethod(
-              "SystemChrome.setPreferredOrientations",
-              _stringify(orientations)
-            );
-        }
-
-        public static Future setApplicationSwitcherDescription(ApplicationSwitcherDescription description){
-          return SystemChannels.platform.invokeMethod(
-                "SystemChrome.setApplicationSwitcherDescription",
-                new Dictionary<string, object>{
-                  {"label",description.label},
-                  {"primaryColor", description.primaryColor},
-                }
-            );
-        }
-
-        static Future setEnabledSystemUIOverlays(List<SystemUiOverlay> overlays) {
-          return SystemChannels.platform.invokeMethod(
-                "SystemChrome.setEnabledSystemUIOverlays",
-                _stringify(overlays)
-            );
-        }
-        public static Future restoreSystemUIOverlays()  {
-          return SystemChannels.platform.invokeMethod(
-            "SystemChrome.restoreSystemUIOverlays",
-            null
-            );
-        }
-
-        public static void setSystemUIOverlayStyle(SystemUiOverlayStyle style) {
-            D.assert(style != null);
-            if (_pendingStyle != null) {
-                _pendingStyle = style;
-                return;
-            } 
-            if (style == _latestStyle) {
-                return;
-            } 
-            _pendingStyle = style;
-            scheduleMicrotask(()=> { 
-                D.assert(_pendingStyle != null); 
-                if (_pendingStyle != _latestStyle) {
-                  return SystemChannels.platform.invokeMethod(
-                        "SystemChrome.setSystemUIOverlayStyle",
-                        _pendingStyle._toMap()
-                    );
-                    _latestStyle = _pendingStyle;
-                }
-                _pendingStyle = null;
-            });
-        }*/
-        public static SystemUiOverlayStyle _pendingStyle; 
-        public static SystemUiOverlayStyle latestStyle {
-            get {
-                return _latestStyle;
-            }
-        }
-        static SystemUiOverlayStyle _latestStyle;
-    }
-
 }

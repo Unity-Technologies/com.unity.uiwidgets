@@ -9,7 +9,6 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
-using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
@@ -20,7 +19,7 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace Unity.UIWidgets.widgets {
     public delegate Widget InspectorSelectButtonBuilder(BuildContext context, VoidCallback onPressed);
     public delegate Dictionary<string, object> AddAdditionalPropertiesCallback(DiagnosticsNode diagnosticsNode, InspectorSerializationDelegate inspectorSerializationDelegate);
-    public delegate void _RegisterServiceExtensionCallback(string name = null , ServiceExtensionCallback callback = null);
+    
     public class WidgetInspectorUtils{
         public static float _kScreenEdgeMargin = 10.0f;
         public static float _kTooltipPadding = 5.0f;
@@ -37,27 +36,25 @@ namespace Unity.UIWidgets.widgets {
         public static Color _kHighlightedRenderObjectFillColor = Color.fromARGB(128, 128, 128, 255);
         public static Color _kHighlightedRenderObjectBorderColor = Color.fromARGB(128, 64, 64, 128);
 
-        bool _isDebugCreator(DiagnosticsNode node) => node is DiagnosticsDebugCreator; 
-        List<DiagnosticsNode> transformDebugCreator(IEnumerable<DiagnosticsNode> properties) { 
-            List<DiagnosticsNode> result = new List<DiagnosticsNode>();
+        /*bool _isDebugCreator(DiagnosticsNode node) => node is DiagnosticsDebugCreator; 
+        IEnumerable<DiagnosticsNode> transformDebugCreator(IEnumerable<DiagnosticsNode> properties) sync* { 
             List<DiagnosticsNode> pending = new List<DiagnosticsNode>();
             bool foundStackTrace = false;
-            foreach ( DiagnosticsNode _node in properties) { 
-                if (!foundStackTrace && _node is DiagnosticsStackTrace)
+            foreach ( DiagnosticsNode node in properties) { 
+                if (!foundStackTrace && node is DiagnosticsStackTrace)
                     foundStackTrace = true;
-                if (_isDebugCreator(_node)) {
-                    return _parseDiagnosticsNode(_node);
+                if (_isDebugCreator(node)) {
+                    yield* _parseDiagnosticsNode(node);
                 } else {
                     if (foundStackTrace) {
-                        pending.Add(_node);
+                        pending.Add(node);
                     } else {
-                        result.Add(_node);
-                        return result;
+                        yield node;
                     }
                 }
-            } 
-            return pending;
-        }
+            }
+            yield* pending;
+        }*/
         public static readonly Dictionary<_Location, int> _locationToId = new Dictionary<_Location, int>();
         public static readonly List<_Location> _locations = new List<_Location>();
 
@@ -71,13 +68,13 @@ namespace Unity.UIWidgets.widgets {
             _locationToId[location] = id;
             return id;
         }
-        public List<DiagnosticsNode> _parseDiagnosticsNode(DiagnosticsNode node) { 
+        /*public IEnumerable<DiagnosticsNode> _parseDiagnosticsNode(DiagnosticsNode node) { 
             if (!_isDebugCreator(node))
                 return null;
             DebugCreator debugCreator = node.value as DebugCreator;
             Element element = debugCreator.element;
-            return _describeRelevantUserCode(element).ToList();
-        }
+            return _describeRelevantUserCode(element);
+        }*/
         public IEnumerable<DiagnosticsNode> _describeRelevantUserCode(Element element) {
             if (!WidgetInspectorService.instance.isWidgetCreationTracked()) {
                 return new List<DiagnosticsNode>() {
@@ -128,8 +125,7 @@ namespace Unity.UIWidgets.widgets {
             object candidate =  _object is Element ? ((Element)_object).widget : _object;
             return candidate is _HasCreationLocation ? ((_HasCreationLocation)candidate)._location : null;
         }
-
-        static Rect _calculateSubtreeBoundsHelper(RenderObject _object, Matrix4 transform) {
+        Rect _calculateSubtreeBoundsHelper(RenderObject _object, Matrix4 transform) {
             Rect bounds = MatrixUtils.transformRect(transform, _object.semanticBounds);
 
             _object.visitChildren((RenderObject child) =>{
@@ -154,41 +150,9 @@ namespace Unity.UIWidgets.widgets {
         }
 
         /// Calculate bounds for a render object and all of its descendants.
-        public static Rect _calculateSubtreeBounds(RenderObject _object){
+        Rect _calculateSubtreeBounds(RenderObject _object){
             return _calculateSubtreeBoundsHelper(_object, Matrix4.identity());
         }
-        public static List<_DiagnosticsPathNode> _followDiagnosticableChain(
-            List<Diagnosticable> chain,
-            string name = null,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse
-        ) {
-            List<_DiagnosticsPathNode> path = new List<_DiagnosticsPathNode>();
-            if (chain.isEmpty())
-                return path;
-            DiagnosticsNode diagnostic = chain.First().toDiagnosticsNode(name: name, style: style);
-            for (int i = 1; i < chain.Count; i += 1) {
-                Diagnosticable target = chain[i];
-                bool foundMatch = false;
-                List<DiagnosticsNode> children = diagnostic.getChildren();
-                for (int j = 0; j < children.Count; j += 1) {
-                    DiagnosticsNode child = children[j];
-                    if (child.value == target) {
-                        foundMatch = true;
-                        path.Add(new _DiagnosticsPathNode(
-                            node: diagnostic,
-                            children: children,
-                            childIndex: j
-                        ));
-                        diagnostic = child;
-                        break;
-                    }
-                }
-                D.assert(foundMatch);
-            }
-            path.Add(new _DiagnosticsPathNode(node: diagnostic, children: diagnostic.getChildren()));
-            return path;
-        }
-
 
     }
     public abstract class _HasCreationLocation {
@@ -446,55 +410,10 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public delegate FutureOr CallBack();
-    public delegate Dictionary<string, object> CallBackObjectGroup(string objectGroup);
-    public delegate List<Dictionary<string, object>> CallBackObjectId(string objectId, string objectGroup);
-
-    public delegate void CallBackList(List<string> args);
-    
-    public class _DiagnosticsPathNode {
-        public _DiagnosticsPathNode(
-            DiagnosticsNode node,
-            List<DiagnosticsNode> children,
-            int childIndex = 0
-            ) {
-            D.assert(node != null);
-            D.assert(children != null);
-            this.node = node;
-            this.children = children;
-            this.childIndex = childIndex;
-        }
-
-        /// Node at the point in the path this [_DiagnosticsPathNode] is describing.
-        public readonly  DiagnosticsNode node;
-        public readonly  List<DiagnosticsNode> children;
-        public readonly  int childIndex;
-    }
-
-    
-    
-    
     public class WidgetInspectorService {
-        public readonly List<string> _serializeRing = new List<string>(20);
-        int _serializeRingIndex = 0;
         public readonly WidgetsBinding widgetsBinding;
         bool _debugShowInspector;
 
-        public DeveloperInspect developerInspect;
-        public InspectorShowCallback inspectorShowCallback;
-        public static WidgetInspectorService instance {
-            get { //return WidgetsBinding.instance.widgetInspectorService;
-                return _instance;
-            }
-            set {
-                _instance = instance;
-            }
-        }
-        static WidgetInspectorService _instance = new WidgetInspectorService();
-        static bool _debugServiceExtensionsRegistered = false;
-        public readonly InspectorSelection selection = new InspectorSelection();
-        public InspectorSelectionChangedCallback selectionChangedCallback;
-        
         readonly Dictionary<string, HashSet<_InspectorReferenceData>> _groups =
             new Dictionary<string, HashSet<_InspectorReferenceData>>();
 
@@ -502,365 +421,161 @@ namespace Unity.UIWidgets.widgets {
             new Dictionary<string, _InspectorReferenceData>();
 
         readonly Dictionary<object, string> _objectToId = new Dictionary<object, string>();
-        
         int _nextId = 0;
-        List<string> _pubRootDirectories;
+        public readonly InspectorSelection selection = new InspectorSelection();
+        public InspectorSelectionChangedCallback selectionChangedCallback;
+        public DeveloperInspect developerInspect;
+        public InspectorShowCallback inspectorShowCallback;
+        
+        List<String> _pubRootDirectories;
 
-        bool _trackRebuildDirtyWidgets = false;
-        bool _trackRepaintWidgets = false;
-
-        _RegisterServiceExtensionCallback _registerServiceExtensionCallback;
-        public void registerServiceExtension(
-            string name = null, 
-            ServiceExtensionCallback callback = null
-        ) {
-            _registerServiceExtensionCallback(
-                name: "inspector." + name,
-                callback: callback
-            );
+        public static WidgetInspectorService instance {
+            get { return WidgetsBinding.instance.widgetInspectorService; }
         }
-        public void _registerSignalServiceExtension(
-            string name = null,
-            CallBack callback = null // callback()
-        ) {
-            registerServiceExtension(
-                name: name,
-                callback: 
-                ((IDictionary<string, string> parameters) => {
-                     var result = Future.value(FutureOr.value(new Dictionary<string, object>(){{"result", callback}})).to<IDictionary<string, object>>();
-                     return result;
-                })
-            );
-        } 
-        
-        void _registerObjectGroupServiceExtension(
-            string  name = null,
-            CallBackObjectGroup callback = default
-                ) {
-            registerServiceExtension(
-              name: name,
-              callback: (IDictionary<string, string> parameters) =>{
-                  var result = Future.value(FutureOr.value((new Dictionary<string, object>{{"result", callback(parameters["objectGroup"])}}))).to<IDictionary<string, object>>();
-                  return result;
-              }
-            );
+
+        public WidgetInspectorService(WidgetsBinding widgetsBinding) {
+            this.widgetsBinding = widgetsBinding;
         }
-        /*void _registerBoolServiceExtension(
-            string name ,
-            AsyncValueGetter<bool> getter , 
-            AsyncValueSetter<bool> setter 
-        ) {
-            D.assert(name != null);
-            D.assert(getter != null);
-            D.assert(setter != null);
-            registerServiceExtension(
-                name: name,
-                callback: (Dictionary<string, string> parameters) => {
-                if (parameters.ContainsKey("enabled")) {
-                    bool value = parameters["enabled"] == "true";
-                    setter(value);
-                    _postExtensionStateChangedEvent(name, value);
+
+
+//        private static WidgetInspectorService _instance;
+//
+//        public WidgetInspectorService instance
+//        {
+//            get { return _instance; }
+//        }
+
+        public bool _isLocalCreationLocation(_Location location) {
+            if (location == null || location.file == null) {
+                return false;
+            }
+
+            string file = new Uri(location.file).LocalPath; //Uri.parse(location.file).path;
+
+            // By default check whether the creation location was within package:flutter.
+            if (_pubRootDirectories == null) {
+                // TODO(chunhtai): Make it more robust once
+                // https://github.com/flutter/flutter/issues/32660 is fixed.
+                return !file.Contains("packages/flutter/");
+            }
+
+            foreach (string directory in _pubRootDirectories) {
+                if(file.StartsWith(directory))
+                {
+                    return true;
                 }
-                return new Dictionary<string, object>{{"enabled", getter() ? "true" : "false"}};
             }
-            );
-        }*/
-        /*void _postExtensionStateChangedEvent(string name, object value) {
-            postEvent(
-                    "Flutter.ServiceExtensionStateChanged",
-                    new Dictionary<string, object>{
-                        {"extension", "ext.flutter.inspector." + name},
-                        {"value",  value},
-                    }
-            );
-        }*/
-        /*void _registerServiceExtensionWithArg(
-            string name = null,
-            CallBackObjectId callback = default
-        ) {
-            registerServiceExtension(
-                name: name,
-                callback: (Dictionary<string, string> parameters) =>{
-                    D.assert(parameters.ContainsKey("objectGroup"));
-                    return new Dictionary<string, object> {
-                        {"result", callback(parameters["arg"], parameters["objectGroup"])}
-                    };
+            return false;
+        }
 
+        public List<DiagnosticsNode> _filterChildren(
+            List<DiagnosticsNode> nodes,
+            InspectorSerializationDelegate _delegate
+            ) {
+            
+            List<DiagnosticsNode> result = new List<DiagnosticsNode>();
+            foreach ( DiagnosticsNode child in nodes) {
+                if (!_delegate.summaryTree || _shouldShowInSummaryTree(child))
+                    result.Add(child);
+                else
+                    result = _getChildrenFiltered(child, _delegate);
+            }
+            List<DiagnosticsNode> children = result;
+            return children;
+        }
+
+        public List<DiagnosticsNode> _truncateNodes(IEnumerable<DiagnosticsNode>nodes, int maxDescendentsTruncatableNode) {
+            int count = 0;
+            foreach (var node in  nodes) {
+                if (node is DiagnosticsNode) {
+                    if (((DiagnosticsNode) node).value is Element) {
+                        count++;
+                    }
                 }
-            );
-        }*/
-
-        
-        /*void _registerServiceExtensionVarArgs(
-            string name = null, 
-            CallBackList callback = default
-        ) {
-            registerServiceExtension(
-                name: name,
-                callback: (Dictionary<string, string> parameters) => {
-                string argPrefix = "arg";
-                List<string> args = new List<string>();
-                parameters.ForEach<string>((string name, string value)=> {
-                    if (name.StartsWith(argPrefix)) {
-                        int index = int.Parse(name.Substring(argPrefix.Length));
-                        if (index >= args.Count) {
-                            args.Count = index + 1;
-                        }
-                        args[index] = value;
-                    }
-                });
-                return new Dictionary<string, object>{{"result",  callback(args)}};
             }
-            );
-        }*/
-        
-         
-        
-        /*Future forceRebuild() {
-            WidgetsBinding binding = WidgetsBinding.instance;
-            if (binding.renderViewElement != null) {
-                binding.buildOwner.reassemble(binding.renderViewElement);
-                return binding.endOfFrame;
+            if (count == nodes.Count() && isWidgetCreationTracked()) {
+                List<DiagnosticsNode> localNodes = nodes.Where((DiagnosticsNode node) =>
+                    _isValueCreatedByLocalProject(node.value)).ToList();
+                if (localNodes.isNotEmpty()) {
+                    return localNodes;
+                }
             }
-            return Future.value();
-        }*/
+            //return nodes.take(maxDescendentsTruncatableNode).toList();
+            List<DiagnosticsNode> results = new List<DiagnosticsNode>();
+            for (int i = 0; i < maxDescendentsTruncatableNode; i++) {
+                results.Add(nodes.ToList()[i]);
+            }
+            return results;
+        }
+        
+        public Dictionary<string, object> getRootWidget(string groupName) {
+            return _nodeToJson(WidgetsBinding.instance?.renderViewElement?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
+        }
 
-        static string _consoleObjectGroup = "console-group";
+        public Dictionary<string, object> getRootWidgetSummaryTree(string groupName) {
+            return _nodeToJson(
+                WidgetsBinding.instance?.renderViewElement?.toDiagnosticsNode(),
+                new InspectorSerializationDelegate(groupName: groupName, subtreeDepth: 1000000, summaryTree: true, service: this));
+        }
 
-        int _errorsSinceReload = 0;
+        public Dictionary<string, object> getRootRenderObject(string groupName) {
+            return _nodeToJson(RendererBinding.instance?.renderView?.toDiagnosticsNode(),
+                new InspectorSerializationDelegate(groupName: groupName, service: this));
+        
+        }
 
-        /*void _reportError(UIWidgetsErrorDetails details) {
-            Dictionary<string, object> errorJson = _nodeToJson(
-                details.toDiagnosticsNode(),
+        public Dictionary<string, object> getDetailsSubtree(string id, string groupName,int subtreeDepth) {
+            var root = toObject(id) as DiagnosticsNode;
+            if (root == null) {
+                return null;
+            }
+
+            return  _nodeToJson(
+                root,
                 new InspectorSerializationDelegate(
-                    groupName: _consoleObjectGroup,
-                    subtreeDepth: 5,
+                    groupName: groupName,
+                    summaryTree: false,
+                    subtreeDepth: subtreeDepth,
                     includeProperties: true,
-                    expandPropertyValues: true,
-                    maxDescendentsTruncatableNode: 5,
                     service: this
                 )
             );
-
-            errorJson["errorsSinceReload"] = _errorsSinceReload;
-            _errorsSinceReload += 1;
-            postEvent("Flutter.Error", errorJson);
-        }*/
-
-        void _resetErrorCount() {
-            _errorsSinceReload = 0;
         }
-        
-        /*void initServiceExtensions(_RegisterServiceExtensionCallback registerServiceExtensionCallback) {
-            _registerServiceExtensionCallback = registerServiceExtensionCallback;
-            D.assert(!_debugServiceExtensionsRegistered);
-            D.assert(()=> {
-              _debugServiceExtensionsRegistered = true;
-              return true;
-            });
 
-            SchedulerBinding.instance.addPersistentFrameCallback(_onFrameStart);
+        public bool setSelectionById(string id, string groupName = "") {
+            return setSelection(toObject(id), groupName);
+        }
 
-            FlutterExceptionHandler structuredExceptionHandler = _reportError;
-            FlutterExceptionHandler defaultExceptionHandler = FlutterError.onError;
 
-            _registerBoolServiceExtension(
-                name: "structuredErrors",
-                getter: ()  => FlutterError.onError == structuredExceptionHandler,
-                setter: (bool value)=> {
-                    FlutterError.onError = value ? structuredExceptionHandler : defaultExceptionHandler;
-                    return Future.value();
+        public Dictionary<string, object> getSelectedRenderObject(string previousSelectionId, string groupName) {
+            DiagnosticsNode previousSelection = toObject(previousSelectionId) as DiagnosticsNode;
+            RenderObject current = selection?.current;
+            return _nodeToJson(current == previousSelection?.value ? previousSelection : current?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
+        }
+
+
+        public Dictionary<string, object> getSelectedWidget(string previousSelectionId, string groupName) {
+            DiagnosticsNode previousSelection = toObject(previousSelectionId) as DiagnosticsNode;
+            Element current = selection?.currentElement;
+            return _nodeToJson(current == previousSelection?.value ? previousSelection : current?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
+        }
+
+        public Dictionary<string, object> getSelectedSummaryWidget(string previousSelectionId, string groupName) {
+            return getSelectedWidget(previousSelectionId, groupName);
+        }
+
+        public bool debugShowInspector {
+            get { return _debugShowInspector; }
+            set {
+                var old = _debugShowInspector;
+                _debugShowInspector = value;
+                if (_debugShowInspector != old && inspectorShowCallback != null) {
+                    inspectorShowCallback();
                 }
-            );
-
-            _registerBoolServiceExtension(
-                name: "show",
-                getter: ()  => WidgetsApp.debugShowWidgetInspectorOverride,
-                setter: (bool value)=> {
-                if (WidgetsApp.debugShowWidgetInspectorOverride == value) {
-                return Future<void>.value();
-                }
-                WidgetsApp.debugShowWidgetInspectorOverride = value;
-                return forceRebuild();
-                }
-            );
-            if (isWidgetCreationTracked()) {
-                _registerBoolServiceExtension(
-                    name: "trackRebuildDirtyWidgets",
-                    getter: ()  => _trackRebuildDirtyWidgets,
-                    setter: (bool value) => {
-                    if (value == _trackRebuildDirtyWidgets) {
-                        return;
-                    }
-                    _rebuildStats.resetCounts();
-                    _trackRebuildDirtyWidgets = value;
-                    if (value) {
-                        D.assert(debugOnRebuildDirtyWidget == null);
-                        debugOnRebuildDirtyWidget = _onRebuildWidget;
-                        forceRebuild();
-                        return;
-                    } else {
-                        debugOnRebuildDirtyWidget = null;
-                        return;
-                    } }
-                );
-                _registerBoolServiceExtension(
-                    name: "trackRepaintWidgets",
-                    getter: ()  => _trackRepaintWidgets,
-                    setter: (bool value) => {
-                        if (value == _trackRepaintWidgets) {
-                            return;
-                        }
-                        _repaintStats.resetCounts();
-                        _trackRepaintWidgets = value;
-                        if (value) {
-                            D.assert(debugOnProfilePaint == null);
-                            debugOnProfilePaint = _onPaint;
-                            void markTreeNeedsPaint(RenderObject renderObject) {
-                                renderObject.markNeedsPaint();
-                                renderObject.visitChildren(markTreeNeedsPaint);
-                            }
-                            RenderObject root = RendererBinding.instance.renderView;
-                            if (root != null) {
-                                markTreeNeedsPaint(root);
-                            }
-                        } 
-                        else {
-                            debugOnProfilePaint = null;
-                        }
-                    }
-                );
             }
-            _registerSignalServiceExtension(
-                name: "disposeAllGroups",
-                callback: disposeAllGroups
-            );
-            _registerObjectGroupServiceExtension(
-                name: "disposeGroup",
-                callback: disposeGroup
-            );
-            _registerSignalServiceExtension(
-                name: "isWidgetTreeReady",
-                callback: isWidgetTreeReady
-            );
-            _registerServiceExtensionWithArg(
-                name: "disposeId",
-                callback: disposeId
-            );
-            _registerServiceExtensionVarArgs(
-                name: "setPubRootDirectories",
-                callback: setPubRootDirectories
-            );
-            _registerServiceExtensionWithArg(
-                name: "setSelectionById",
-                callback: setSelectionById
-            );
-            _registerServiceExtensionWithArg(
-                name: "getParentChain",
-                callback: _getParentChain
-            );
-            _registerServiceExtensionWithArg(
-                name: "getProperties",
-                callback: _getProperties
-            );
-            _registerServiceExtensionWithArg(
-                name: "getChildren",
-                callback: _getChildren
-            );
-
-            _registerServiceExtensionWithArg(
-                name: "getChildrenSummaryTree",
-                callback: _getChildrenSummaryTree
-            );
-
-            _registerServiceExtensionWithArg(
-                name: "getChildrenDetailsSubtree",
-                callback: _getChildrenDetailsSubtree
-            );
-
-            _registerObjectGroupServiceExtension(
-                name: "getRootWidget",
-                callback: _getRootWidget
-            );
-            _registerObjectGroupServiceExtension(
-                name: "getRootRenderObject",
-                callback: _getRootRenderObject
-            );
-            _registerObjectGroupServiceExtension(
-                name: "getRootWidgetSummaryTree",
-                callback: _getRootWidgetSummaryTree
-            );
-            registerServiceExtension(
-                name: "getDetailsSubtree",
-                callback: (Dictionary<string, string> parameters) => {
-                    D.assert(parameters.ContainsKey("objectGroup"));
-                    string subtreeDepth = parameters["subtreeDepth"];
-                    return new Dictionary<string, object>{{
-                        "result", _getDetailsSubtree(
-                        parameters["arg"],
-                        parameters["objectGroup"],
-                        subtreeDepth != null ? int.Parse(subtreeDepth) : 2
-                    )
-                }};
-                }
-            );
-            _registerServiceExtensionWithArg(
-                name: "getSelectedRenderObject",
-                callback: _getSelectedRenderObject
-            );
-            _registerServiceExtensionWithArg(
-                name: "getSelectedWidget",
-                callback: _getSelectedWidget
-            );
-            _registerServiceExtensionWithArg(
-                name: "getSelectedSummaryWidget",
-                callback: _getSelectedSummaryWidget
-            );
-
-            _registerSignalServiceExtension(
-                name: "isWidgetCreationTracked",
-                callback: isWidgetCreationTracked
-            );
-            registerServiceExtension(
-                name: "screenshot",
-                callback: (Dictionary<string, string> parameters) => {
-                D.assert(parameters.ContainsKey("id"));
-                D.assert(parameters.ContainsKey("width"));
-                D.assert(parameters.ContainsKey("height"));
-                ui.Image image = screenshot(
-                    toObject(parameters["id"]),
-                    width: float.Parse(parameters["width"]),
-                    height: float.Parse(parameters["height"]),
-                    margin: parameters.ContainsKey("margin") ? float.Parse(parameters["margin"]) : 0.0f,
-                    maxPixelRatio: parameters.ContainsKey("maxPixelRatio") ? float.Parse(parameters["maxPixelRatio"]) : 1.0f,
-                    debugPaint: parameters["debugPaint"] == "true"
-                    );
-                if (image == null) {
-                    return new Dictionary<string, object>{{"result", null}};
-                }
-                byte[] byteData =  image.toByteData(format:ui.ImageByteFormat.png);
-                return new Dictionary<string, object>{{
-                    "result", base64.encoder.convert(Uint8List.view(byteData.buffer))
-                    }
-                    
-                };
-                }
-            );
-        }*/
-
-        /*void _clearStats() {
-            _rebuildStats.resetCounts();
-            _repaintStats.resetCounts();
-        }*/
-
-        protected void disposeAllGroups() {
-            _groups.Clear();
-            _idToReferenceData.Clear();
-            _objectToId.Clear();
-            _nextId = 0;
         }
 
-        public void disposeGroup(string groupName) { 
+        public void disposeGroup(string groupName) {
             HashSet<_InspectorReferenceData> references;
             _groups.TryGetValue(groupName, out references);
             _groups.Remove(groupName);
@@ -869,18 +584,147 @@ namespace Unity.UIWidgets.widgets {
                     _decrementReferenceCount(r);
                 }
             }
+
+
+            D.assert(() => {
+//                var groupNames = _groups.Select((entry) => string.Format("groupName={0} count={1}", entry.Key, entry.Value.Count));
+//                Debug.LogFormat("groups {0} idsCount={1} objectsCount={2}", string.Join(",", groupNames.ToArray()),
+//                    _idToReferenceData.Count, _objectToId.Count);
+                return true;
+            });
         }
-        void _decrementReferenceCount(_InspectorReferenceData reference) { 
-            reference.count -= 1;
-            D.assert(reference.count >= 0);
-            if (reference.count == 0) {
-                string id;
-                _objectToId.TryGetValue(reference.obj, out id);
-                D.assert(id != null);
-                _objectToId.Remove(reference.obj);
-                _idToReferenceData.Remove(id);
+
+        protected bool setSelection(object obj, string groupName = "") {
+            if (obj is Element || obj is RenderObject) {
+                if (obj is Element) {
+                    if (ReferenceEquals(obj, selection.currentElement)) {
+                        return false;
+                    }
+
+                    selection.currentElement = (Element) obj;
+                }
+                else {
+                    if (obj == selection.current) {
+                        return false;
+                    }
+
+                    selection.current = (RenderObject) obj;
+                }
+
+                if (selectionChangedCallback != null) {
+                    if (WidgetsBinding.instance.schedulerPhase == SchedulerPhase.idle) {
+                        selectionChangedCallback();
+                    }
+                    else {
+                        // todo schedule task ?
+                        WidgetsBinding.instance.scheduleFrameCallback(
+                            duration => { selectionChangedCallback(); }
+                        );
+                    }
+                }
+
+                return true;
             }
+
+            return false;
         }
+        public Dictionary<string, object> _nodeToJson(
+            DiagnosticsNode node,
+            InspectorSerializationDelegate _delegate
+            ) {
+            return node?.toJsonMap(_delegate);
+        }
+
+        /*Dictionary<string, object> _nodeToJson(DiagnosticsNode node, _SerializeConfig config) {
+            if (node == null) {
+                return null;
+            }
+
+            var ret = node.toJsonMap( DiagnosticsSerializationDelegate());
+            var value = node.valueObject;
+            ret["objectId"] = toId(node, config.groupName);
+            ret["valueId"] = toId(value, config.groupName);
+
+            if (config.summaryTree) {
+                ret["summaryTree"] = config.summaryTree;
+            }
+
+            var createdByLocalProject = true; // todo;
+            if (config.subtreeDepth > 0 || (config.pathToInclude != null && config.pathToInclude.Count > 0)) {
+                ret["children"] = _nodesToJson(_getChildrenFiltered(node, config), config);
+            }
+
+            if (config.includeProperties) {
+                ret["properties"] = _nodesToJson(
+                    node.getProperties().Where((n) =>
+                        !n.isFiltered(createdByLocalProject ? DiagnosticLevel.fine : DiagnosticLevel.info)).ToList(),
+                    new _SerializeConfig(groupName: config.groupName, subtreeDepth: 1, expandPropertyValues: true)
+                );
+            }
+
+            var typeDef = typeof(DiagnosticsProperty<>);
+            var nodeType = node.GetType();
+            if (nodeType.IsGenericType && nodeType.GetGenericTypeDefinition() == typeDef) {
+                if (value is Color) {
+                    ret["valueProperties"] = new Dictionary<string, object> {
+                        {"red", ((Color) value).red},
+                        {"green", ((Color) value).green},
+                        {"blue", ((Color) value).blue},
+                        {"alpha", ((Color) value).alpha},
+                    };
+                }
+                else if (value is IconData) {
+                    ret["valueProperties"] = new Dictionary<string, object> {
+                        {"codePoint", ((IconData) value).codePoint}
+                    };
+                }
+
+                if (config.expandPropertyValues && value is Diagnosticable) {
+                    ret["properties"] = _nodesToJson(
+                        ((Diagnosticable) value).toDiagnosticsNode().getProperties()
+                        .Where(n => !n.isFiltered(DiagnosticLevel.info)).ToList(),
+                        new _SerializeConfig(groupName: config.groupName, subtreeDepth: 0, expandPropertyValues: false)
+                    );
+                }
+            }
+
+            return ret;
+        }*/
+
+        List<Dictionary<string, object>> _nodesToJson(
+            List<DiagnosticsNode> nodes,
+            InspectorSerializationDelegate _delegate, 
+            DiagnosticsNode parent
+        ) {
+            return DiagnosticsNode.toJsonList(nodes, parent, _delegate);
+        }
+
+        List<Dictionary<string, object>> _getProperties(string diagnosticsNodeId, string groupName) {
+            DiagnosticsNode node = toObject(diagnosticsNodeId) as DiagnosticsNode;
+            return _nodesToJson(node == null ? new List<DiagnosticsNode>() : node.getProperties(), new InspectorSerializationDelegate(groupName: groupName, service: this), parent: node);
+        }
+
+
+        List<DiagnosticsNode> _getChildrenFiltered(
+            DiagnosticsNode node,
+            InspectorSerializationDelegate _delegate
+            ) {
+            return _filterChildren(node.getChildren(), _delegate);
+        }
+
+        public bool _shouldShowInSummaryTree(DiagnosticsNode node) {
+            var value = node.valueObject;
+            if (!(value is Diagnosticable)) {
+                return true;
+            }
+
+            if (!(value is Element) || !isWidgetCreationTracked()) {
+                return true;
+            }
+
+            return _isValueCreatedByLocalProject(value);
+        }
+
         public string toId(object obj, string groupName) {
             if (obj == null) {
                 return null;
@@ -914,11 +758,8 @@ namespace Unity.UIWidgets.widgets {
 
             return id;
         }
-        /*bool isWidgetTreeReady(string groupName = null) {
-            return WidgetsBinding.instance != null &&
-                   WidgetsBinding.instance.debugDidSendFirstFrameEvent;
-        }*/
-        object toObject(string id, string groupName = null) {
+
+        object toObject(string id) {
             if (id == null) {
                 return null;
             }
@@ -931,513 +772,25 @@ namespace Unity.UIWidgets.widgets {
 
             return data.obj;
         }
-        
-        object toObjectForSourceLocation(string id, string groupName = null) {
-            object _object = toObject(id);
-            if (_object is Element) {
-                return ((Element)_object).widget;
-            }
-            return _object;
-        }
-        void disposeId(string id, string groupName) {
-            if (id == null)
-                return;
-            _InspectorReferenceData referenceData = _idToReferenceData[id];
-            if (referenceData == null)
-                throw new UIWidgetsError("Id does not exist");
-            if (_groups[groupName]?.Remove(referenceData) != true)
-                throw  new UIWidgetsError("Id does not exist");
-            _decrementReferenceCount(referenceData);
-        }
-        void setPubRootDirectories(List<string> pubRootDirectories) {
-            foreach (var directory in pubRootDirectories) {
-                var localPath = new Uri(directory).LocalPath;
-                _pubRootDirectories.Add(localPath);
-            }
-        }
-        bool setSelectionById(string id, string groupName = null) {
-            return setSelection(toObject(id), groupName);
-        }
-        
-        
-       /* public WidgetInspectorService(WidgetsBinding widgetsBinding) {
-            this.widgetsBinding = widgetsBinding;
-        }
-
-
-        public bool debugShowInspector {
-            get { return _debugShowInspector; }
-            set {
-                var old = _debugShowInspector;
-                _debugShowInspector = value;
-                if (_debugShowInspector != old && inspectorShowCallback != null) {
-                    inspectorShowCallback();
-                }
-            }
-        }*/
-
-       protected bool setSelection(object obj, string groupName = "") {
-            if (obj is Element || obj is RenderObject) {
-                if (obj is Element) {
-                    if (ReferenceEquals(obj, selection.currentElement)) {
-                        return false;
-                    }
-
-                    selection.currentElement = (Element) obj;
-                }
-                else {
-                    if (obj == selection.current) {
-                        return false;
-                    }
-
-                    selection.current = (RenderObject) obj;
-                }
-
-                if (selectionChangedCallback != null) {
-                    if (WidgetsBinding.instance.schedulerPhase == SchedulerPhase.idle) {
-                        selectionChangedCallback();
-                    }
-                    else {
-                        // todo schedule task ?
-                        SchedulerBinding.instance.scheduleTask<object>(
-                           ()=> {
-                                selectionChangedCallback();
-                                return null;
-                            },
-                            Priority.touch
-                        );
-                       
-                    }
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-        string getParentChain(string id, string groupName) {
-            return _safeJsonEncode(_getParentChain(id, groupName));
-        }
-        List<Dictionary<string,object>> _getParentChain(string id, string groupName) {
-            object value = toObject(id);
-            List<_DiagnosticsPathNode> path = new List<_DiagnosticsPathNode>();
-            if (value is RenderObject)
-                path = _getRenderObjectParentChain((RenderObject)value, groupName);
-            else if (value is Element)
-                path = _getElementParentChain((Element)value, groupName);
-            else
-                throw new UIWidgetsError($"Cannot get parent chain for node of type {value.GetType()}");
-
-            return path.Select(
-                    (_DiagnosticsPathNode node) => 
-                    _pathNodeToJson(node, new InspectorSerializationDelegate(groupName: groupName, service: this))
-                ).ToList();
-        }
-        Dictionary<string, object> _pathNodeToJson(_DiagnosticsPathNode pathNode, InspectorSerializationDelegate _delegate) {
-            if (pathNode == null)
-                return null;
-            return new Dictionary<string, object>{
-                {"node", _nodeToJson(pathNode.node, _delegate)},
-                {"children", _nodesToJson(pathNode.children, _delegate, parent: pathNode.node)},
-                {"childIndex", pathNode.childIndex}
-            };
-        }
-        List<Diagnosticable> _getRawElementParentChain(Element element,  int? numLocalParents = null ) {
-            List<Element> elements = element?.debugGetDiagnosticChain();
-            if (numLocalParents != null) {
-                for (int i = 0; i < elements.Count; i += 1) {
-                    if (_isValueCreatedByLocalProject(elements[i])) {
-                        numLocalParents--;
-                        if (numLocalParents <= 0) {
-                            elements = elements.Take(i + 1).ToList();
-                            break;
-                        }
-                    }
-                }
-            }
-            elements?.Reverse();
-            List<Diagnosticable> result = new List<Diagnosticable>();
-            foreach (var _element in elements) {
-                result.Add((Diagnosticable)_element);
-            }
-
-            return result;
-        }
-
-        List<_DiagnosticsPathNode> _getElementParentChain(Element element, string groupName,  int? numLocalParents = null ) {
-            return WidgetInspectorUtils._followDiagnosticableChain(
-                _getRawElementParentChain(element, numLocalParents: numLocalParents)
-            ) ?? new List<_DiagnosticsPathNode>();
-        }
-
-        
-        public Dictionary<string, object> _nodeToJson(
-            DiagnosticsNode node,
-            InspectorSerializationDelegate _delegate
-            ) {
-            return node?.toJsonMap(_delegate);
-        }
-        
-        List<_DiagnosticsPathNode> _getRenderObjectParentChain(RenderObject renderObject, string groupName,  int? maxparents = null ) {
-            List<Diagnosticable> chain = new List<Diagnosticable>();
-            while (renderObject != null) {
-                chain.Add(renderObject);
-                renderObject = renderObject.parent as RenderObject;
-            }
-            chain.Reverse();
-            return WidgetInspectorUtils._followDiagnosticableChain(chain.ToList());
-        }
-
-
-        
-
-        bool _isValueCreatedByLocalProject(object value) {
-            _Location creationLocation = WidgetInspectorUtils._getCreationLocation(value);
-            if (creationLocation == null) {
-                return false;
-            }
-            return _isLocalCreationLocation(creationLocation);
-        }
-        
-        public bool _isLocalCreationLocation(_Location location) {
-            if (location == null || location.file == null) {
-                return false;
-            }
-
-            string file = new Uri(location.file).LocalPath; //Uri.parse(location.file).path;
-
-            if (_pubRootDirectories == null) {
-                // TODO(chunhtai): Make it more robust once
-                // https://github.com/flutter/flutter/issues/32660 is fixed.
-                return !file.Contains("packages/flutter/");
-            }
-
-            foreach (string directory in _pubRootDirectories) {
-                if(file.StartsWith(directory))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        string _safeJsonEncode(object _object) {
-            string jsonString = JSONMessageCodec.instance.toJson(_object);
-            _serializeRing[_serializeRingIndex] = jsonString;
-            _serializeRingIndex = (_serializeRingIndex + 1)  % _serializeRing.Count;
-            return jsonString;
-        }
-
-        public List<DiagnosticsNode> _truncateNodes(IEnumerable<DiagnosticsNode>nodes, int maxDescendentsTruncatableNode) {
-            int count = 0;
-            foreach (var node in  nodes) {
-                if (node is DiagnosticsNode) {
-                    if (((DiagnosticsNode) node).value is Element) {
-                        count++;
-                    }
-                }
-            }
-            if (count == nodes.Count() && isWidgetCreationTracked()) {
-                List<DiagnosticsNode> localNodes = nodes.Where((DiagnosticsNode node) =>
-                    _isValueCreatedByLocalProject(node.value)).ToList();
-                if (localNodes.isNotEmpty()) {
-                    return localNodes;
-                }
-            }
-            //return nodes.take(maxDescendentsTruncatableNode).toList();
-            List<DiagnosticsNode> results = new List<DiagnosticsNode>();
-            for (int i = 0; i < maxDescendentsTruncatableNode; i++) {
-                results.Add(nodes.ToList()[i]);
-            }
-            return results;
-        }
-        
-        List<Dictionary<string, object>> _nodesToJson(
-            List<DiagnosticsNode> nodes,
-            InspectorSerializationDelegate _delegate, 
-            DiagnosticsNode parent
-        ) {
-            return DiagnosticsNode.toJsonList(nodes, parent, _delegate);
-        }
-        
-        string getProperties(string diagnosticsNodeId, string groupName) {
-            return _safeJsonEncode(_getProperties(diagnosticsNodeId, groupName));
-        }
-        List<Dictionary<string, object>> _getProperties(string diagnosticsNodeId, string groupName) {
-            DiagnosticsNode node = toObject(diagnosticsNodeId) as DiagnosticsNode;
-            return _nodesToJson(node == null ? new List<DiagnosticsNode>() : node.getProperties(), new InspectorSerializationDelegate(groupName: groupName, service: this), parent: node);
-        }
-        string getChildren(string diagnosticsNodeId, string groupName) {
-            return _safeJsonEncode(_getChildren(diagnosticsNodeId, groupName));
-        }
-
-        List<Dictionary<string, object>>  _getChildren(string diagnosticsNodeId, string groupName) {
-            DiagnosticsNode node = toObject(diagnosticsNodeId) as DiagnosticsNode;
-            InspectorSerializationDelegate _delegate = new InspectorSerializationDelegate(groupName: groupName, service: this);
-            return _nodesToJson(node == null ? new List<DiagnosticsNode>() : _getChildrenFiltered(node, _delegate), _delegate, parent: node);
-        }
-        
-        string getChildrenSummaryTree(string diagnosticsNodeId, string groupName) {
-            return _safeJsonEncode(_getChildrenSummaryTree(diagnosticsNodeId, groupName));
-        }
-
-        List<Dictionary<string, object>> _getChildrenSummaryTree(string diagnosticsNodeId, string groupName) {
-            DiagnosticsNode node = toObject(diagnosticsNodeId) as DiagnosticsNode;
-            InspectorSerializationDelegate _delegate = new InspectorSerializationDelegate(groupName: groupName, summaryTree: true, service: this);
-            return _nodesToJson(node == null ? new List<DiagnosticsNode>() : _getChildrenFiltered(node, _delegate), _delegate, parent: node);
-        }
-        string getChildrenDetailsSubtree(string diagnosticsNodeId, string groupName) {
-            return _safeJsonEncode(_getChildrenDetailsSubtree(diagnosticsNodeId, groupName));
-        }
-
-        List<Dictionary<string, object>> _getChildrenDetailsSubtree(string diagnosticsNodeId, string groupName) {
-            DiagnosticsNode node = toObject(diagnosticsNodeId) as DiagnosticsNode;
-            // With this value of minDepth we only expand one extra level of important nodes.
-            InspectorSerializationDelegate _delegate = new InspectorSerializationDelegate(groupName: groupName, subtreeDepth: 1, includeProperties: true, service: this);
-            return _nodesToJson(node == null ? new List<DiagnosticsNode>() : _getChildrenFiltered(node, _delegate), _delegate, parent: node);
-        }
-
-        public bool _shouldShowInSummaryTree(DiagnosticsNode node) {
-            if (node.level == DiagnosticLevel.error) {
-                return true;
-            }
-            object value = node.value;
-            if (!(value is Diagnosticable)) {
-                return true;
-            }
-            if (!(value is Element) || !isWidgetCreationTracked()) {
-                return true;
-            }
-            return _isValueCreatedByLocalProject(value);
-        }
-
-        List<DiagnosticsNode> _getChildrenFiltered(
-            DiagnosticsNode node,
-            InspectorSerializationDelegate _delegate
-            ) {
-            return _filterChildren(node.getChildren(), _delegate);
-        }
-        public List<DiagnosticsNode> _filterChildren(
-            List<DiagnosticsNode> nodes,
-            InspectorSerializationDelegate _delegate
-        ) {
-            
-            List<DiagnosticsNode> result = new List<DiagnosticsNode>();
-            foreach ( DiagnosticsNode child in nodes) {
-                if (!_delegate.summaryTree || _shouldShowInSummaryTree(child))
-                    result.Add(child);
-                else
-                    result = _getChildrenFiltered(child, _delegate);
-            }
-            List<DiagnosticsNode> children = result;
-            return children;
-        }
-        string getRootWidget(string groupName) {
-            return _safeJsonEncode(_getRootWidget(groupName));
-        }
-        public Dictionary<string, object> _getRootWidget(string groupName) {
-            return _nodeToJson(WidgetsBinding.instance?.renderViewElement?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
-        }
-        
-        string getRootWidgetSummaryTree(string groupName) {
-            return _safeJsonEncode(_getRootWidgetSummaryTree(groupName));
-        }
-        public Dictionary<string, object> _getRootWidgetSummaryTree(string groupName) {
-            return _nodeToJson(
-                WidgetsBinding.instance?.renderViewElement?.toDiagnosticsNode(),
-                new InspectorSerializationDelegate(groupName: groupName, subtreeDepth: 1000000, summaryTree: true, service: this));
-        }
-        string getRootRenderObject(string groupName) {
-            return _safeJsonEncode(_getRootRenderObject(groupName));
-        }
-        public Dictionary<string, object> _getRootRenderObject(string groupName) {
-            return _nodeToJson(RendererBinding.instance?.renderView?.toDiagnosticsNode(),
-                new InspectorSerializationDelegate(groupName: groupName, service: this));
-        
-        }
-        string getDetailsSubtree(
-            string id,
-            string groupName, 
-            int subtreeDepth = 2
-        ) {
-            return _safeJsonEncode(_getDetailsSubtree( id, groupName, subtreeDepth));
-        }
-
-        public Dictionary<string, object> _getDetailsSubtree(string id, string groupName,int subtreeDepth) {
-            var root = toObject(id) as DiagnosticsNode;
-            if (root == null) {
-                return null;
-            }
-
-            return  _nodeToJson(
-                root,
-                new InspectorSerializationDelegate(
-                    groupName: groupName,
-                    summaryTree: false,
-                    subtreeDepth: subtreeDepth,
-                    includeProperties: true,
-                    service: this
-                )
-            );
-        }
-        string getSelectedRenderObject(string previousSelectionId, string groupName) {
-            return _safeJsonEncode(_getSelectedRenderObject(previousSelectionId, groupName));
-        }
-        public Dictionary<string, object> _getSelectedRenderObject(string previousSelectionId, string groupName) {
-            DiagnosticsNode previousSelection = toObject(previousSelectionId) as DiagnosticsNode;
-            RenderObject current = selection?.current;
-            return _nodeToJson(current == previousSelection?.value ? previousSelection : current?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
-        }
-        Future<ui.Image> screenshot(
-            object _object, 
-            float width = 0.0f,// null
-            float height = 0.0f,
-            float margin = 0.0f,
-            float maxPixelRatio = 1.0f,
-            bool debugPaint = false
-        )  {
-            if (!(_object is Element) && !(_object is RenderObject)) {
-                return null;
-            }
-            RenderObject renderObject = _object is Element ? ((Element)_object).renderObject : (_object as RenderObject);
-            if (renderObject == null || !renderObject.attached) {
-                return null;
-            }
-
-            if (renderObject.debugNeedsLayout) {
-                PipelineOwner owner = renderObject.owner;
-                D.assert(owner != null);
-                D.assert(!owner.debugDoingLayout);
-                owner.flushLayout();
-                owner.flushCompositingBits();
-                owner.flushPaint();
-
-                
-                if (renderObject.debugNeedsLayout) {
-                    return null;
-                }
-            }
-
-            Rect renderBounds = WidgetInspectorUtils._calculateSubtreeBounds(renderObject);
-            if (margin != 0.0) {
-                renderBounds = renderBounds.inflate(margin);
-            }
-            if (renderBounds.isEmpty) {
-                return null;
-            }
-
-            float pixelRatio = Mathf.Min(
-                maxPixelRatio,
-                Mathf.Min(
-                    width / renderBounds.width,
-                    height / renderBounds.height
-                )
-            );
-
-            return _ScreenshotPaintingContext.toImage(
-                renderObject,
-                renderBounds,
-                pixelRatio: pixelRatio,
-                debugPaint: debugPaint
-            );
-        }
-
-        
-
-        string getSelectedWidget(string previousSelectionId, string groupName) {
-            return _safeJsonEncode(_getSelectedWidget(previousSelectionId, groupName));
-        }
-        public Dictionary<string, object> _getSelectedWidget(string previousSelectionId, string groupName) {
-            DiagnosticsNode previousSelection = toObject(previousSelectionId) as DiagnosticsNode;
-            Element current = selection?.currentElement;
-            return _nodeToJson(current == previousSelection?.value ? previousSelection : current?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
-        }
-        string getSelectedSummaryWidget(string previousSelectionId, string groupName) {
-            return _safeJsonEncode(_getSelectedSummaryWidget(previousSelectionId, groupName));
-        }
-
-        public Dictionary<string, object> _getSelectedSummaryWidget(string previousSelectionId, string groupName) {
-            if (!isWidgetCreationTracked()) {
-                return _getSelectedWidget(previousSelectionId, groupName);
-            }
-            DiagnosticsNode previousSelection = toObject(previousSelectionId) as DiagnosticsNode;
-            Element current = selection?.currentElement;
-            if (current != null && !_isValueCreatedByLocalProject(current)) {
-                Element firstLocal = null;
-                foreach (Element candidate in current.debugGetDiagnosticChain()) {
-                    if (_isValueCreatedByLocalProject(candidate)) {
-                        firstLocal = candidate;
-                        break;
-                    }
-                }
-                current = firstLocal;
-            }
-            return _nodeToJson(current == previousSelection?.value ? previousSelection : current?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
-        }
 
         public bool isWidgetCreationTracked() {
-            _widgetCreationTracked =  new _WidgetForTypeTests() is _HasCreationLocation;
-            return _widgetCreationTracked;
+            return false; //todo
         }
 
-        bool _widgetCreationTracked;
-        TimeSpan _frameStart;
-        /*void _onFrameStart(TimeSpan timeStamp) {
-            _frameStart = timeStamp;
-            SchedulerBinding.instance.addPostFrameCallback(_onFrameEnd);
+        bool _isValueCreatedByLocalProject(object value) {
+            return true; // todo
         }
-        void _onFrameEnd(TimeSpan timeStamp) {
-            if (_trackRebuildDirtyWidgets) {
-              _postStatsEvent("Flutter.RebuiltWidgets", _rebuildStats);
+
+        void _decrementReferenceCount(_InspectorReferenceData reference) {
+            reference.count -= 1;
+            D.assert(reference.count >= 0);
+            if (reference.count == 0) {
+                string id;
+                _objectToId.TryGetValue(reference.obj, out id);
+                D.assert(id != null);
+                _objectToId.Remove(reference.obj);
+                _idToReferenceData.Remove(id);
             }
-            if (_trackRepaintWidgets) {
-              _postStatsEvent("Flutter.RepaintWidgets", _repaintStats);
-            }
-        }
-
-        void _postStatsEvent(string eventName, _ElementLocationStatsTracker stats) {
-            postEvent(eventName, stats.exportToJson(_frameStart));
-        }
-
-
-        void postEvent(string eventKind, Dictionary<object, object> eventData) {
-            developer.postEvent(eventKind, eventData);
-        }*/
-
-        //public readonly _ElementLocationStatsTracker _rebuildStats = _ElementLocationStatsTracker();
-        //public readonly _ElementLocationStatsTracker _repaintStats = _ElementLocationStatsTracker();
-
-        /*void _onRebuildWidget(Element element, bool builtOnce) {
-        _rebuildStats.add(element);
-        }
-
-        void _onPaint(RenderObject renderObject) {
-            try { 
-                Element element = renderObject.debugCreator?.element as Element;
-                if (!(element is RenderObjectElement)) {
-                    return;
-                }
-                _repaintStats.add(element);
-
-                element.visitAncestorElements((Element ancestor)=> {
-                if (ancestor is RenderObjectElement) {
-                    return false;
-                }
-                _repaintStats.add(ancestor);
-                return true;
-            });
-            }
-            catch (exception, stack)=> {
-                FlutterError.reportError(
-                    FlutterErrorDetails(
-                        exception: exception,
-                        stack: stack
-                    )
-                );
-            }
-        }*/
-        void performReassemble() {
-            //_clearStats();
-            _resetErrorCount();
         }
     }
 
@@ -1445,9 +798,9 @@ namespace Unity.UIWidgets.widgets {
         public readonly Widget child;
 
         public WidgetInspector(
+            Key key,
             Widget child,
-            Key key = null,
-            InspectorSelectButtonBuilder selectButtonBuilder = null
+            InspectorSelectButtonBuilder selectButtonBuilder
             ) : base(key) {
             D.assert(child != null);
             this.child = child;
@@ -1460,221 +813,6 @@ namespace Unity.UIWidgets.widgets {
             return new _WidgetInspectorState();
         }
     }
-    public class _WidgetForTypeTests : Widget {
-        public override Element createElement() => null;
-    }
-
-    public class _ScreenshotData {
-        public _ScreenshotData(
-            RenderObject target 
-        ) {
-            D.assert(target != null);
-            containerLayer = new _ScreenshotContainerLayer();
-        }
-
-
-        public readonly RenderObject target;
-
-        public readonly OffsetLayer containerLayer;
-
-        public bool foundTarget = false;
-
-        public bool includeInScreenshot = false;
-
-        public bool includeInRegularContext = true;
-
-        
-        public Offset screenshotOffset {
-            get {
-                D.assert(foundTarget);
-                return containerLayer.offset;
-            }
-        }
-        public void SetScreenshotOffset(Offset offset) {
-            containerLayer.offset = offset;
-        }
-    }
-    public class _ScreenshotPaintingContext : PaintingContext { 
-        public _ScreenshotPaintingContext(
-            ContainerLayer containerLayer = null,
-            Rect estimatedBounds = null,
-            _ScreenshotData screenshotData = null
-          ) : 
-            base(containerLayer, estimatedBounds) {
-              _data = screenshotData;
-        }
-
-        public readonly _ScreenshotData _data;
-        PictureLayer _screenshotCurrentLayer;
-        ui.PictureRecorder _screenshotRecorder;
-        Canvas _screenshotCanvas;
-        _MulticastCanvas _multicastCanvas;
-
-        public Canvas canvas {
-            get {
-                if (_data.includeInScreenshot) {
-                    if (_screenshotCanvas == null) {
-                        _startRecordingScreenshot();
-                    }
-                    D.assert(_screenshotCanvas != null);
-                    return _data.includeInRegularContext ? _multicastCanvas : _screenshotCanvas;
-                } else {
-                    D.assert(_data.includeInRegularContext);
-                    return base.canvas;
-                }
-            }
-
-        }
-        bool _isScreenshotRecording {
-            get {
-                bool hasScreenshotCanvas = _screenshotCanvas != null;
-                D.assert(()=> {
-                    if (hasScreenshotCanvas) {
-                        D.assert(_screenshotCurrentLayer != null);
-                        D.assert(_screenshotRecorder != null);
-                        D.assert(_screenshotCanvas != null);
-                    } else {
-                        D.assert(_screenshotCurrentLayer == null);
-                        D.assert(_screenshotRecorder == null);
-                        D.assert(_screenshotCanvas == null);
-                    }
-                    return true;
-                });
-                return hasScreenshotCanvas;
-            }
-
-
-        }
-        void _startRecordingScreenshot() {
-            D.assert(_data.includeInScreenshot);
-            D.assert(!_isScreenshotRecording);
-            _screenshotCurrentLayer = new PictureLayer(estimatedBounds);
-            _screenshotRecorder = new ui.PictureRecorder();
-            _screenshotCanvas = new Canvas(_screenshotRecorder);
-            _data.containerLayer.append(_screenshotCurrentLayer);
-            if (_data.includeInRegularContext) {
-              _multicastCanvas = new _MulticastCanvas(
-                main: base.canvas,
-                screenshot: _screenshotCanvas
-              );
-            } else {
-              _multicastCanvas = null;
-            }
-        }
-
-
-        protected override void stopRecordingIfNeeded() {
-            base.stopRecordingIfNeeded();
-            _stopRecordingScreenshotIfNeeded();
-        }
-        void _stopRecordingScreenshotIfNeeded() {
-            if (!_isScreenshotRecording)
-              return;
-            // There is no need to ever draw repaint rainbows as part of the screenshot.
-            _screenshotCurrentLayer.picture = _screenshotRecorder.endRecording();
-            _screenshotCurrentLayer = null;
-            _screenshotRecorder = null;
-            _multicastCanvas = null;
-            _screenshotCanvas = null;
-        }
-
-        protected override void appendLayer(Layer layer) {
-            if (_data.includeInRegularContext) {
-              base.appendLayer(layer);
-              if (_data.includeInScreenshot) {
-                D.assert(!_isScreenshotRecording);
-                _data.containerLayer.append(new _ProxyLayer(layer));
-              }
-            } else {
-              // Only record to the screenshot.
-              D.assert(!_isScreenshotRecording);
-              D.assert(_data.includeInScreenshot);
-              layer.remove();
-              _data.containerLayer.append(layer);
-              return;
-            }
-        }
-        public override PaintingContext createChildContext(ContainerLayer childLayer, Rect bounds) {
-            if (_data.foundTarget) {
-              
-              return base.createChildContext(childLayer, bounds);
-            } else {
-              return new _ScreenshotPaintingContext(
-                containerLayer: childLayer,
-                estimatedBounds: bounds,
-                screenshotData: _data
-              );
-            } 
-        }
-        public override void paintChild(RenderObject child, Offset offset) {
-            bool isScreenshotTarget = child == _data.target;
-            if (isScreenshotTarget) {
-              D.assert(!_data.includeInScreenshot);
-              D.assert(!_data.foundTarget);
-              _data.foundTarget = true;
-              _data.SetScreenshotOffset(offset);
-              _data.includeInScreenshot = true;
-            }
-            base.paintChild(child, offset);
-            if (isScreenshotTarget) {
-              _stopRecordingScreenshotIfNeeded();
-              _data.includeInScreenshot = false;
-            }
-        }
-
-        public static Future<ui.Image> toImage(
-            RenderObject renderObject,
-            Rect renderBounds,
-            float pixelRatio = 1.0f,
-            bool debugPaint = false
-            ) {
-            RenderObject repaintBoundary = renderObject;
-            while (repaintBoundary != null && !repaintBoundary.isRepaintBoundary) {
-                repaintBoundary = repaintBoundary.parent as RenderObject;
-            }
-            D.assert(repaintBoundary != null);
-            _ScreenshotData data = new _ScreenshotData(target: renderObject);
-            _ScreenshotPaintingContext context = new _ScreenshotPaintingContext(
-                containerLayer: repaintBoundary.debugLayer,
-                estimatedBounds: repaintBoundary.paintBounds,
-                screenshotData: data);
-
-            if (renderObject == repaintBoundary) {
-                data.containerLayer.append(new _ProxyLayer(repaintBoundary.debugLayer));
-                data.foundTarget = true;
-                OffsetLayer offsetLayer = repaintBoundary.debugLayer as OffsetLayer;
-                data.SetScreenshotOffset( offsetLayer.offset);
-            } else {
-                PaintingContext.debugInstrumentRepaintCompositedChild(
-                    repaintBoundary,
-                    customContext: context);
-            }
-            if (debugPaint && !D.debugPaintSizeEnabled) {
-              data.includeInRegularContext = false;
-              
-              context.stopRecordingIfNeeded();
-              D.assert(data.foundTarget);
-              data.includeInScreenshot = true;
-
-              D.debugPaintSizeEnabled = true;
-              try {
-                renderObject.debugPaint(context, data.screenshotOffset);
-              } finally {
-                D.debugPaintSizeEnabled = false;
-                context.stopRecordingIfNeeded();
-              }
-            }
-
-            
-            repaintBoundary.debugLayer.buildScene(new ui.SceneBuilder());
-
-            return data.containerLayer.toImage(renderBounds, pixelRatio: pixelRatio);
-        }
-    }
-
-    
-    
-    
     public class InspectorSerializationDelegate : DiagnosticsSerializationDelegate {
         public InspectorSerializationDelegate(
             string groupName = null,
@@ -2122,9 +1260,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class _InspectorOverlay : LeafRenderObjectWidget {
-        public _InspectorOverlay(
-            Key key = null, 
-            InspectorSelection selection = null) : base(key) {
+        public _InspectorOverlay(Key key, InspectorSelection selection) : base(key) {
             this.selection = selection;
         }
 
@@ -2401,7 +1537,7 @@ namespace Unity.UIWidgets.widgets {
         }
         public void _paintDescription(
             Canvas canvas,
-            string message,
+            String message,
             TextDirection textDirection,
             Offset target,
             float verticalOffset,

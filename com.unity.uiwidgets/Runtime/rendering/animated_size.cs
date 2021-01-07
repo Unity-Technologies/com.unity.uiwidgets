@@ -17,7 +17,6 @@ namespace Unity.UIWidgets.rendering {
         public RenderAnimatedSize(
             TickerProvider vsync = null,
             TimeSpan? duration = null,
-            TimeSpan? reverseDuration = null,
             Curve curve = null,
             Alignment alignment = null,
             RenderBox child = null
@@ -29,8 +28,7 @@ namespace Unity.UIWidgets.rendering {
             _vsync = vsync;
             _controller = new AnimationController(
                 vsync: this.vsync,
-                duration: duration,
-                reverseDuration: reverseDuration);
+                duration: duration);
             _controller.addListener(() => {
                 if (_controller.value != _lastValue) {
                     markNeedsLayout();
@@ -65,18 +63,6 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        /// The duration of the animation when running in reverse.
-        public TimeSpan? reverseDuration {
-            get { return _controller.reverseDuration; }
-            set {
-                if (value == _controller.reverseDuration) {
-                    return;
-                }
- 
-                _controller.reverseDuration = value;
-            }
-        }
-        
         public Curve curve {
             get { return _animation.curve; }
             set {
@@ -120,7 +106,7 @@ namespace Unity.UIWidgets.rendering {
         protected override void performLayout() {
             _lastValue = _controller.value;
             _hasVisualOverflow = false;
-            BoxConstraints constraints = this.constraints;
+
             if (child == null || constraints.isTight) {
                 _controller.stop();
                 size = _sizeTween.begin = _sizeTween.end = constraints.smallest;
