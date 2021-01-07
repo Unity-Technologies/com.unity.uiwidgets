@@ -773,12 +773,7 @@ namespace Unity.UIWidgets.widgets {
                 _openInputConnection();
             }
             else {
-                List<FocusScopeNode> ancestorScopes = FocusScope.ancestorsOf(context);
-                for (int i = ancestorScopes.Count - 1; i >= 1; i -= 1) {
-                    ancestorScopes[i].setFirstFocus(ancestorScopes[i - 1]);
-                }
-
-                FocusScope.of(context).requestFocus(widget.focusNode);
+                widget.focusNode.requestFocus();
             }
         }
 
