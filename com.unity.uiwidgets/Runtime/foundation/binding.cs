@@ -24,7 +24,7 @@ namespace Unity.UIWidgets.foundation {
             Timeline.finishSync();
         }
 
-        static bool _debugInitialized = false;
+        bool _debugInitialized = false;
 
         public Window window => Window.instance;
 
