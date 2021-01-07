@@ -634,11 +634,49 @@ namespace Unity.UIWidgets.cupertino {
     }
 
     class _CupertinoTextSelectionControls : TextSelectionControls {
+        public override Size getHandleSize(float textLineHeight) {
+            return new Size(
+                CupertinoTextSelectionUtils._kSelectionHandleRadius * 2,
+                textLineHeight + CupertinoTextSelectionUtils._kSelectionHandleRadius * 2 -
+                CupertinoTextSelectionUtils._kSelectionHandleOverlap
+            );
+        }
+
         public override Size handleSize {
             get { return CupertinoTextSelectionUtils._kSelectionOffset; }
         }
 
-        public override Widget buildToolbar(BuildContext context, Rect globalEditableRegion, Offset position,
+        public override Offset getHandleAnchor(TextSelectionHandleType type, float textLineHeight) {
+            Size handleSize = getHandleSize(textLineHeight);
+            switch (type) {
+                
+                case TextSelectionHandleType.left:
+                    return new Offset(
+                        handleSize.width / 2,
+                        handleSize.height
+                    );
+               
+                case TextSelectionHandleType.right:
+                    return new Offset(
+                        handleSize.width / 2,
+                        handleSize.height - 2 * CupertinoTextSelectionUtils._kSelectionHandleRadius + CupertinoTextSelectionUtils._kSelectionHandleOverlap
+                    );
+               
+                default:
+                    return new Offset(
+                        handleSize.width / 2,
+                        textLineHeight + (handleSize.height - textLineHeight) / 2
+                    );
+            }
+        
+        }
+
+        public override Widget buildToolbar(
+            BuildContext context,
+            Rect globalEditableRegion,
+            float textLineHeight,
+            Offset position,
+            List<TextSelectionPoint> endpoints,
             TextSelectionDelegate del) {
             D.assert(WidgetsD.debugCheckHasMediaQuery(context));
             return new ConstrainedBox(

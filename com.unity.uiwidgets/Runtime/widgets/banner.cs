@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.widgets {
             BannerLocation? location,
             Color color = null,
             TextStyle textStyle = null
-        ) {
+        ) : base (repaint: PaintingBinding.instance.systemFonts) {
             D.assert(message != null);
             D.assert(location != null);
             this.color = color ?? BannerConstants._kColor;
@@ -196,7 +196,7 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(properties);
             properties.add(new StringProperty("message", message, showName: false));
             properties.add(new EnumProperty<BannerLocation?>("location", location));
-            properties.add(new DiagnosticsProperty<Color>("color", color, showName: false));
+            properties.add(new ColorProperty("color", color, showName: false));
             textStyle?.debugFillProperties(properties);
         }
     }

@@ -51,16 +51,16 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        bool canCopy(TextSelectionDelegate _delegate) {
+        public bool canCopy(TextSelectionDelegate _delegate) {
             return _delegate.copyEnabled && !_delegate.textEditingValue.selection.isCollapsed;
         }
 
-        bool canPaste(TextSelectionDelegate _delegate) {
+        public bool canPaste(TextSelectionDelegate _delegate) {
             // TODO(goderbauer): return false when clipboard is empty, https://github.com/flutter/flutter/issues/11254
             return _delegate.pasteEnabled;
         }
 
-        bool canSelectAll(TextSelectionDelegate _delegate) {
+        public bool canSelectAll(TextSelectionDelegate _delegate) {
             return _delegate.selectAllEnabled 
                    && _delegate.textEditingValue.text.isNotEmpty() 
                    && _delegate.textEditingValue.selection.isCollapsed;
@@ -293,7 +293,12 @@ namespace Unity.UIWidgets.widgets {
                     link: layerLink,
                     showWhenUnlinked: false,
                     offset: -editingRegion.topLeft,
-                    child: selectionControls.buildToolbar(context, editingRegion, midpoint, selectionDelegate)
+                    child: selectionControls.buildToolbar(context,
+                        editingRegion,
+                        renderObject.preferredLineHeight,
+                        midpoint,
+                        endpoints,
+                        selectionDelegate)
                 )
             );
         }

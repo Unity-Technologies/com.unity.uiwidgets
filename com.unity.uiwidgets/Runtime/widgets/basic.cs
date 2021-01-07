@@ -753,7 +753,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public PointerExitEventListener getHandleExit() {
-            return widget.onExit == null ? null : handleExit;
+            return widget.onExit == null ? (PointerExitEventListener) null : handleExit;
         } 
         public override Widget build(BuildContext context) {
             return new _RawMouseRegion(this);
