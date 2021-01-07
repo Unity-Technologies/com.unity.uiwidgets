@@ -304,7 +304,7 @@ namespace Unity.UIWidgets.widgets {
             get { return FocusManager.instance.highlightMode; }
         }
 
-        FocusScopeNode nearestScope {
+        public FocusScopeNode nearestScope {
             get { return enclosingScope; }
         }
 

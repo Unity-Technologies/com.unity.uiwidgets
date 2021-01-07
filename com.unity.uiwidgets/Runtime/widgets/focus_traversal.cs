@@ -7,7 +7,7 @@ using Unity.UIWidgets.widgets;
 
 
 namespace Unity.UIWidgets.widgets {
-    public class FocusTraversalGroup : StatefulWidget {
+    /*public class FocusTraversalGroup : StatefulWidget {
         public FocusTraversalGroup(
             Key key = null,
             FocusTraversalPolicy policy = null,
@@ -373,7 +373,7 @@ namespace Unity.UIWidgets.widgets {
             }
             return sortedList;
         }
-    }
+    }*/
 
 
 }

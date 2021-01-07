@@ -15,49 +15,62 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class FocusScope : StatefulWidget {
-        public FocusScope(FocusScopeNode node, Widget child, Key key = null, bool autofocus = false) : base(key) {
-            this.node = node;
-            this.child = child;
-            this.autofocus = autofocus;
+    public class FocusScope : Focus {
+        public FocusScope(
+            Key key = null,
+            FocusScopeNode node = null,
+            Widget child = null,
+            bool autofocus = false,
+            ValueChanged<bool> onFocusChange = null,
+            bool? canRequestFocus = null,
+            bool? skipTraversal = null,
+            FocusOnKeyCallback onKey = null, 
+            string debugLabel = null
+        ) : base(
+            key: key,
+            child: child,
+            focusNode: node,
+            autofocus: autofocus,
+            onFocusChange: onFocusChange,
+            canRequestFocus: canRequestFocus,
+            skipTraversal: skipTraversal,
+            onKey: onKey,
+            debugLabel: debugLabel) {
+            D.assert(child != null);
+            D.assert(autofocus != null);
         }
-
-        public readonly FocusScopeNode node;
-
-        public readonly bool autofocus;
-
-        public readonly Widget child;
-
         public static FocusScopeNode of(BuildContext context) {
             D.assert(context != null);
-            var scope = (_FocusScopeMarker) context.inheritFromWidgetOfExactType(typeof(_FocusScopeMarker));
-            if (scope != null && scope.node != null) {
-                return scope.node;
-            }
-
-            return context.owner.focusManager.rootScope;
+            _FocusMarker marker = context.dependOnInheritedWidgetOfExactType<_FocusMarker>();
+            return marker?.notifier?.nearestScope ?? context.owner.focusManager.rootScope;
         }
-
-        public static List<FocusScopeNode> ancestorsOf(BuildContext context) {
-            D.assert(context != null);
-            List<FocusScopeNode> ancestors = new List<FocusScopeNode> { };
-            while (true) {
-                context = context.ancestorInheritedElementForWidgetOfExactType(typeof(_FocusScopeMarker));
-                if (context == null) {
-                    return ancestors;
-                }
-
-                _FocusScopeMarker scope = (_FocusScopeMarker) context.widget;
-                ancestors.Add(scope.node);
-                context.visitAncestorElements((Element parent) => {
-                    context = parent;
-                    return false;
-                });
-            }
-        }
-
         public override State createState() {
             return new _FocusScopeState();
+        }
+    }
+    class _FocusScopeState : _FocusState {
+        public FocusScopeNode _createNode() {
+            return new FocusScopeNode(
+                debugLabel: widget.debugLabel,
+                canRequestFocus: widget.canRequestFocus ?? true,
+                skipTraversal: widget.skipTraversal ?? false
+            );
+        }
+        public override Widget build(BuildContext context) {
+            _focusAttachment.reparent();
+            return new _FocusMarker(
+                node: focusNode,
+                child: widget.child);
+        }
+    }
+    class _FocusMarker : InheritedNotifier<FocusNode> {
+        public _FocusMarker(
+            Key key = null,
+            FocusNode node = null,
+            Widget child = null
+        ) : base(key: key, notifier: node, child: child) {
+            D.assert(node != null);
+            D.assert(child != null);
         }
     }
     
@@ -134,7 +147,7 @@ namespace Unity.UIWidgets.widgets {
             }
             return node;
           }
-        //public static bool isAt(BuildContext context) => Focus.of(context, nullOk: true)?.hasFocus ?? false;
+        public static bool isAt(BuildContext context) => Focus.of(context, nullOk: true)?.hasFocus ?? false;
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new StringProperty("debugLabel", debugLabel, defaultValue: null));
@@ -271,51 +284,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    /*class _FocusScopeState : State<FocusScope> {
-        bool _didAutofocus = false;
+    
 
-        public override void didChangeDependencies() {
-            base.didChangeDependencies();
-            if (!_didAutofocus && widget.autofocus) {
-                FocusScope.of(context).setFirstFocus(widget.node);
-                _didAutofocus = true;
-            }
-        }
-
-        public override void dispose() {
-            widget.node.detach();
-            base.dispose();
-        }
-
-        public override Widget build(BuildContext context) {
-            FocusScope.of(context).reparentScopeIfNeeded(widget.node);
-            return new _FocusScopeMarker(node: widget.node, child: widget.child);
-        }
-    }*/
-    class _FocusScopeState : _FocusState {
-        public FocusScopeNode _createNode() {
-            return new FocusScopeNode(
-                debugLabel: widget.debugLabel,
-                canRequestFocus: widget.canRequestFocus ?? true,
-                skipTraversal: widget.skipTraversal ?? false
-            );
-        }
-        public override Widget build(BuildContext context) {
-            _focusAttachment.reparent();
-            return new _FocusMarker(
-                    node: focusNode,
-                    child: widget.child);
-        }
-    }
-
-    class _FocusMarker : InheritedNotifier<FocusNode> {
-        public _FocusMarker(
-            Key key = null,
-            FocusNode node = null,
-            Widget child = null
-        ) : base(key: key, notifier: node, child: child) {
-            D.assert(node != null);
-            D.assert(child != null);
-        }
-    }
+    
 }
