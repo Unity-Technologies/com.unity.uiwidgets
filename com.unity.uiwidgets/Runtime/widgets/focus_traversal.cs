@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
-
 
 namespace Unity.UIWidgets.widgets {
     public class FocusTraversalGroup : StatefulWidget {
@@ -13,7 +10,7 @@ namespace Unity.UIWidgets.widgets {
             FocusTraversalPolicy policy = null,
             Widget child = null
         ) : base(key: key) {
-            policy = policy ?? new ReadingOrderTraversalPolicy();
+            policy = policy ?? ReadingOrderTraversalPolicy();
             this.child = child;
         }
 
@@ -50,7 +47,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new TextTreeRenderer.DiagnosticsProperty<FocusTraversalPolicy>("policy", policy));
+            properties.add(new DiagnosticsProperty<FocusTraversalPolicy>("policy", policy));
         }
     }
     public class _FocusTraversalGroupState : State<FocusTraversalGroup> {
@@ -97,7 +94,7 @@ namespace Unity.UIWidgets.widgets {
         public override bool updateShouldNotify(InheritedWidget oldWidget) => false;
     }
 
-    public abstract class FocusTraversalPolicy : TextTreeRenderer.Diagnosticable {
+    public abstract class FocusTraversalPolicy : Diagnosticable {
         public FocusTraversalPolicy() {
         }
 
@@ -176,7 +173,7 @@ namespace Unity.UIWidgets.widgets {
                 ); 
             D.assert(
                 scope.traversalDescendants.toSet().difference(sortedDescendants.toSet()).isEmpty, 
-                "sorted descendants are missing some nodes: (${scope.traversalDescendants.toSet().difference(sortedDescendants.toSet())})"
+                'sorted descendants are missing some nodes: (${scope.traversalDescendants.toSet().difference(sortedDescendants.toSet())})'
                 ); 
             return sortedDescendants; 
         }
@@ -241,65 +238,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly TraversalDirection direction;
         public readonly FocusNode node;
     }
-    
-    class _ReadingOrderDirectionalGroupData : Diagnosticable {
-        public _ReadingOrderDirectionalGroupData(List<_ReadingOrderSortData> members) {
-            this.members = members;
-        }
-
-        public readonly List<_ReadingOrderSortData> members;
-
-        TextDirection directionality {
-            get {
-                return members.First().directionality;
-            }
-        }
-
-        Rect _rect; 
-        Rect  rect {
-            get {if (_rect == null) {
-                    foreach(Rect rect in members.Select<Rect>(
-                        (_ReadingOrderSortData data) => data.rect)){
-                        _rect ??= rect;
-                        _rect = _rect.expandToInclude(rect);
-                    }
-                }
-                return _rect; 
-            }
-        }
-        List<Directionality>  memberAncestors {
-            get { if (_memberAncestors == null) {
-                    _memberAncestors = new List<Directionality>();
-                    foreach (_ReadingOrderSortData member in members) {
-                        _memberAncestors.AddRange(member.directionalAncestors);
-                    }
-                }
-                return _memberAncestors; }
-
-        }
-        List<Directionality> _memberAncestors;
-        public static void sortWithDirectionality(List<_ReadingOrderDirectionalGroupData> list, TextDirection directionality) {
-            mergeSort<_ReadingOrderDirectionalGroupData>(list, compare: (_ReadingOrderDirectionalGroupData a, _ReadingOrderDirectionalGroupData b) =>{
-                switch (directionality) {
-                    case TextDirection.ltr:
-                        return a.rect.left.compareTo(b.rect.left);
-                    case TextDirection.rtl:
-                        return b.rect.right.compareTo(a.rect.right);
-                }
-                D.assert(false, ()=>"Unhandled directionality $directionality");
-                return 0;
-            });
-         }
-        public override void debugFillProperties(TextTreeRenderer.DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(DiagnosticsProperty<TextDirection>("directionality", directionality));
-            properties.add(DiagnosticsProperty<Rect>("rect", rect));
-            properties.add(IterableProperty<String>("members", members.map<String>((_ReadingOrderSortData member) {
-                return ""${member.node.debugLabel}"(${member.rect})";
-            })));
-        }
-    }
-    public class ReadingOrderTraversalPolicy : FocusTraversalPolicy , DirectionalFocusTraversalPolicyMixin { 
+    class ReadingOrderTraversalPolicy : FocusTraversalPolicy , DirectionalFocusTraversalPolicyMixin { 
         public List<_ReadingOrderDirectionalGroupData> _collectDirectionalityGroups(IEnumerable<_ReadingOrderSortData> candidates) { 
             TextDirection currentDirection = candidates.First().directionality;
             List<_ReadingOrderSortData> currentGroup = new List<_ReadingOrderSortData>();
@@ -343,37 +282,52 @@ namespace Unity.UIWidgets.widgets {
             }
             TextDirection nearestCommonDirectionality = _ReadingOrderSortData.commonDirectionalityOf(inBandOfTop);
             _ReadingOrderSortData.sortWithDirectionality(inBandOfTop, nearestCommonDirectionality);
-            List<_ReadingOrderDirectionalGroupData> bandGroups = _collectDirectionalityGroups(inBandOfTop); 
-            if (bandGroups.Count == 1) {
-                return bandGroups.First().members.first;
-            }
-            _ReadingOrderDirectionalGroupData.sortWithDirectionality(bandGroups, nearestCommonDirectionality);
-            return bandGroups.First().members.first;
-        }
-
-        public override IEnumerable<FocusNode> sortDescendants(IEnumerable<FocusNode> descendants) { 
-            D.assert(descendants != null); 
-            if (descendants.Count() <= 1) { 
-                return descendants; 
-            }
-            List<_ReadingOrderSortData> data = new List<_ReadingOrderSortData>(){
-                foreach ( FocusNode node in descendants) 
-                    _ReadingOrderSortData(node),
-            };
-            List<FocusNode> sortedList = new List<FocusNode>(); 
-            List<_ReadingOrderSortData> unplaced = data;
-            _ReadingOrderSortData current = _pickNext(unplaced); 
-            sortedList.Add(current.node); 
-            unplaced.Remove(current);
-            while (unplaced.isNotEmpty()) {
-                _ReadingOrderSortData next = _pickNext(unplaced);
-                current = next;
-                sortedList.Add(current.node);
-                unplaced.Remove(current);
-            }
-            return sortedList;
-        }
+            List<_ReadingOrderDirectionalGroupData> bandGroups = _collectDirectionalityGroups(inBandOfTop);
+    if (bandGroups.Count == 1) {
+      // There's only one directionality group, so just send back the first
+      // one in that group, since it's already sorted.
+      return bandGroups.First().members.first;
     }
+
+    // Sort the groups based on the common directionality and bounding boxes.
+    _ReadingOrderDirectionalGroupData.sortWithDirectionality(bandGroups, nearestCommonDirectionality);
+    return bandGroups.first.members.first;
+  }
+
+  // Sorts the list of nodes based on their geometry into the desired reading
+  // order based on the directionality of the context for each node.
+  @override
+  IEnumerable<FocusNode> sortDescendants(IEnumerable<FocusNode> descendants) {
+    assert(descendants != null);
+    if (descendants.length <= 1) {
+      return descendants;
+    }
+
+    final List<_ReadingOrderSortData> data = <_ReadingOrderSortData>[
+      for (final FocusNode node in descendants) _ReadingOrderSortData(node),
+    ];
+
+    final List<FocusNode> sortedList = <FocusNode>[];
+    final List<_ReadingOrderSortData> unplaced = data;
+
+    // Pick the initial widget as the one that is at the beginning of the band
+    // of the topmost, or the topmost, if there are no others in its band.
+    _ReadingOrderSortData current = _pickNext(unplaced);
+    sortedList.add(current.node);
+    unplaced.remove(current);
+
+    // Go through each node, picking the next one after eliminating the previous
+    // one, since removing the previously picked node will expose a new band in
+    // which to choose candidates.
+    while (unplaced.isNotEmpty) {
+      final _ReadingOrderSortData next = _pickNext(unplaced);
+      current = next;
+      sortedList.add(current.node);
+      unplaced.remove(current);
+    }
+    return sortedList;
+  }
+}
 
 
 }
