@@ -349,7 +349,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        Rect rect {
+        public Rect rect {
             get {
                 D.assert(
                     context != null, () =>

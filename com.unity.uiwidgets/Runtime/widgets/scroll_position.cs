@@ -11,6 +11,12 @@ using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
+    public enum ScrollPositionAlignmentPolicy {
+        explicitPolicy,
+        keepVisibleAtEnd,
+        keepVisibleAtStart,
+    }
+
     public abstract class ScrollPosition : ViewportOffset, ScrollMetrics {
         protected ScrollPosition(
             ScrollPhysics physics = null,
@@ -244,18 +250,35 @@ namespace Unity.UIWidgets.widgets {
             activity.applyNewDimensions();
         }
 
-        public Future ensureVisible(RenderObject renderObject,
+        public Future ensureVisible(
+            RenderObject renderObject,
             float alignment = 0.0f,
             TimeSpan? duration = null,
-            Curve curve = null
+            Curve curve = null,
+            ScrollPositionAlignmentPolicy alignmentPolicy = ScrollPositionAlignmentPolicy.explicitPolicy
         ) {
             D.assert(renderObject.attached);
             RenderAbstractViewport viewport = RenderViewportUtils.of(renderObject);
             D.assert(viewport != null);
 
-            float target = viewport.getOffsetToReveal(renderObject, alignment).offset.clamp(
-                minScrollExtent, maxScrollExtent);
-
+            float target = 0f;
+            switch (alignmentPolicy) {
+                case ScrollPositionAlignmentPolicy.explicitPolicy:
+                    target = viewport.getOffsetToReveal(renderObject, alignment).offset.clamp(minScrollExtent, maxScrollExtent);
+                    break;
+                case ScrollPositionAlignmentPolicy.keepVisibleAtEnd:
+                    target = viewport.getOffsetToReveal(renderObject, 1.0f).offset.clamp(minScrollExtent, maxScrollExtent) ;
+                    if (target < pixels) {
+                        target = pixels;
+                    }
+                    break;
+                case ScrollPositionAlignmentPolicy.keepVisibleAtStart:
+                    target = viewport.getOffsetToReveal(renderObject, 0.0f).offset.clamp(minScrollExtent, maxScrollExtent) ;
+                    if (target > pixels) {
+                        target = pixels;
+                    }
+                    break;
+            }
             if (target == pixels) {
                 return Future.value();
             }

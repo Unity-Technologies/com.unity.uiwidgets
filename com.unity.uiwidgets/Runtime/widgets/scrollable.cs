@@ -61,10 +61,12 @@ namespace Unity.UIWidgets.widgets {
             return widget == null ? null : widget.scrollable;
         }
 
-        public static Future ensureVisible(BuildContext context,
+        public static Future ensureVisible(
+            BuildContext context, 
             float alignment = 0.0f,
             TimeSpan? duration = null,
-            Curve curve = null
+            Curve curve = null,
+            ScrollPositionAlignmentPolicy alignmentPolicy = ScrollPositionAlignmentPolicy.explicitPolicy
         ) {
             duration = duration ?? TimeSpan.Zero;
             curve = curve ?? Curves.ease;
@@ -76,7 +78,8 @@ namespace Unity.UIWidgets.widgets {
                     context.findRenderObject(),
                     alignment: alignment,
                     duration: duration,
-                    curve: curve
+                    curve: curve,
+                    alignmentPolicy: alignmentPolicy
                 ));
                 context = scrollable.context;
                 scrollable = of(context);
