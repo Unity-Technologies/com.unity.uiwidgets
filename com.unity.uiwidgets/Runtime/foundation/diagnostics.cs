@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Unity.UIWidgets.ui;
-using UnityEngine;
+using Unity.UIWidgets.widgets;
+using UnityEditor.Experimental.GraphView;
 
 namespace Unity.UIWidgets.foundation {
     public enum DiagnosticLevel {
@@ -12,32 +13,24 @@ namespace Unity.UIWidgets.foundation {
         debug,
         info,
         warning,
-        hint,
-        summary,
         error,
         off,
     }
 
     public enum DiagnosticsTreeStyle {
-        none,
         sparse,
         offstage,
         dense,
         transition,
-        error,
         whitespace,
-        flat,
         singleLine,
         errorProperty,
-        shallow,
-        truncateChildren
     }
 
     public class DiagnosticUtils {
         public static bool _isSingleLine(DiagnosticsTreeStyle style) {
             return style == DiagnosticsTreeStyle.singleLine;
         }
-
         public static string describeEnum(object enumEntry) {
             string description = enumEntry.ToString();
             int indexOfDot = description.IndexOf(".");
@@ -59,20 +52,15 @@ namespace Unity.UIWidgets.foundation {
             bool lineBreakProperties = true,
             string afterName = ":",
             string afterDescriptionIfBody = "",
-            string afterDescription = "",
             string beforeProperties = "",
             string afterProperties = "",
-            string mandatoryAfterProperties = "",
             string propertySeparator = "",
             string bodyIndent = "",
             string footer = "",
             bool showChildren = true,
             bool addBlankLineIfNoChildren = true,
             bool isNameOnOwnLine = false,
-            bool isBlankLineBetweenPropertiesAndChildren = true,
-            string beforeName = "",
-            string suffixLineOne = "",
-            string mandatoryFooter = ""
+            bool isBlankLineBetweenPropertiesAndChildren = true
         ) {
             D.assert(prefixLineOne != null);
             D.assert(prefixOtherLines != null);
@@ -84,7 +72,6 @@ namespace Unity.UIWidgets.foundation {
             D.assert(lineBreak != null);
             D.assert(afterName != null);
             D.assert(afterDescriptionIfBody != null);
-            D.assert(afterDescription != null);
             D.assert(beforeProperties != null);
             D.assert(afterProperties != null);
             D.assert(propertySeparator != null);
@@ -116,8 +103,6 @@ namespace Unity.UIWidgets.foundation {
 
         public readonly string prefixLineOne;
 
-        public readonly string suffixLineOne;
-
         public readonly string prefixOtherLines;
 
         public readonly string prefixLastChildLineOne;
@@ -136,19 +121,13 @@ namespace Unity.UIWidgets.foundation {
 
         public readonly bool lineBreakProperties;
 
-        public readonly string beforeName;
-
         public readonly string afterName;
 
         public readonly string afterDescriptionIfBody;
 
-        public readonly string afterDescription;
-
         public readonly string beforeProperties;
 
         public readonly string afterProperties;
-
-        public readonly string mandatoryAfterProperties;
 
         public readonly string propertySeparator;
 
@@ -161,8 +140,6 @@ namespace Unity.UIWidgets.foundation {
         public readonly bool isNameOnOwnLine;
 
         public readonly string footer;
-
-        public readonly string mandatoryFooter;
 
         public readonly bool isBlankLineBetweenPropertiesAndChildren;
     }
@@ -209,7 +186,7 @@ namespace Unity.UIWidgets.foundation {
             prefixLineOne: "╞═╦══ ",
             prefixLastChildLineOne: "╘═╦══ ",
             prefixOtherLines: " ║ ",
-            footer: " ╚═══════════",
+            footer: " ╚═══════════\n",
             linkCharacter: "│",
             propertyPrefixIfChildren: "",
             propertyPrefixNoChildren: "",
@@ -218,22 +195,6 @@ namespace Unity.UIWidgets.foundation {
             afterDescriptionIfBody: ":",
             bodyIndent: "  ",
             isNameOnOwnLine: true,
-            addBlankLineIfNoChildren: false,
-            isBlankLineBetweenPropertiesAndChildren: false
-        );
-
-        public static readonly TextTreeConfiguration errorTextConfiguration = new TextTreeConfiguration(
-            prefixLineOne: "╞═╦",
-            prefixLastChildLineOne: "╘═╦",
-            prefixOtherLines: " ║ ",
-            footer: " ╚═══════════",
-            linkCharacter: "│",
-            propertyPrefixIfChildren: "",
-            propertyPrefixNoChildren: "",
-            prefixOtherLinesRootNode: "",
-            beforeName: "══╡ ",
-            suffixLineOne: " ╞══",
-            mandatoryFooter: "═════",
             addBlankLineIfNoChildren: false,
             isBlankLineBetweenPropertiesAndChildren: false
         );
@@ -252,20 +213,6 @@ namespace Unity.UIWidgets.foundation {
             isBlankLineBetweenPropertiesAndChildren: false
         );
 
-        public static readonly TextTreeConfiguration flatTextConfiguration = new TextTreeConfiguration(
-            prefixLineOne: "",
-            prefixLastChildLineOne: "",
-            prefixOtherLines: "",
-            prefixOtherLinesRootNode: "",
-            bodyIndent: "",
-            propertyPrefixIfChildren: "",
-            propertyPrefixNoChildren: "",
-            linkCharacter: "",
-            addBlankLineIfNoChildren: false,
-            afterDescriptionIfBody: ":",
-            isBlankLineBetweenPropertiesAndChildren: false
-        );
-
         public static readonly TextTreeConfiguration singleLineTextConfiguration = new TextTreeConfiguration(
             propertySeparator: ", ",
             beforeProperties: "(",
@@ -277,711 +224,122 @@ namespace Unity.UIWidgets.foundation {
             lineBreakProperties: false,
             addBlankLineIfNoChildren: false,
             showChildren: false,
-            propertyPrefixIfChildren: "  ",
-            propertyPrefixNoChildren: "  ",
+            propertyPrefixIfChildren: "",
+            propertyPrefixNoChildren: "",
             linkCharacter: "",
             prefixOtherLinesRootNode: ""
         );
-
-        public static readonly TextTreeConfiguration errorPropertyTextConfiguration = new TextTreeConfiguration(
-            propertySeparator: ", ",
-            beforeProperties: "(",
-            afterProperties: ")",
-            prefixLineOne: "",
-            prefixOtherLines: "",
-            prefixLastChildLineOne: "",
-            lineBreak: "\n",
-            lineBreakProperties: false,
-            addBlankLineIfNoChildren: false,
-            showChildren: false,
-            propertyPrefixIfChildren: "  ",
-            propertyPrefixNoChildren: "  ",
-            linkCharacter: "",
-            prefixOtherLinesRootNode: "",
-            afterName: ":",
-            isNameOnOwnLine: true
-        );
-
-        public static readonly TextTreeConfiguration shallowTextConfiguration = new TextTreeConfiguration(
-            prefixLineOne: "",
-            prefixLastChildLineOne: "",
-            prefixOtherLines: " ",
-            prefixOtherLinesRootNode: "  ",
-            bodyIndent: "",
-            propertyPrefixIfChildren: "",
-            propertyPrefixNoChildren: "",
-            linkCharacter: " ",
-            addBlankLineIfNoChildren: false,
-            afterDescriptionIfBody: ":",
-            isBlankLineBetweenPropertiesAndChildren: false,
-            showChildren: false
-        );
-        
-        public static string shortHash(object o) {
-            return (o.GetHashCode() & 0xFFFFF).ToString("X").PadLeft(5, '0');
-        }
-
-        public static string describeIdentity(object o) {
-            return $"{o.GetType()}#{shortHash(o)}";
-        }
-    }
-
-    enum _WordWrapParseMode {
-        inSpace,
-        inWord,
-        atBreak
     }
 
     class _PrefixedStringBuilder {
-        internal _PrefixedStringBuilder(string prefixLineOne, string prefixOtherLines, int? wrapWidth = null) {
+        internal _PrefixedStringBuilder(string prefixLineOne, string prefixOtherLines) {
             this.prefixLineOne = prefixLineOne;
-            _prefixOtherLines = prefixOtherLines;
-            this.wrapWidth = wrapWidth;
+            this.prefixOtherLines = prefixOtherLines;
         }
 
         public readonly string prefixLineOne;
 
-        public string prefixOtherLines {
-            get { return _nextPrefixOtherLines ?? _prefixOtherLines; }
-            set {
-                _prefixOtherLines = value;
-                _nextPrefixOtherLines = null;
-            }
-        }
-
-        string _prefixOtherLines;
-
-        string _nextPrefixOtherLines;
-
-        public void incrementPrefixOtherLines(string suffix, bool updateCurrentLine) {
-            if (_currentLine.Length == 0 || updateCurrentLine) {
-                _prefixOtherLines = prefixOtherLines + suffix;
-                _nextPrefixOtherLines = null;
-            }
-            else {
-                _nextPrefixOtherLines = prefixOtherLines + suffix;
-            }
-        }
-
-        public readonly int? wrapWidth;
+        public string prefixOtherLines;
 
         readonly StringBuilder _buffer = new StringBuilder();
+        bool _atLineStart = true;
+        bool _hasMultipleLines = false;
 
-        readonly StringBuilder _currentLine = new StringBuilder();
-
-        readonly List<int> _wrappableRanges = new List<int>();
-
-        public bool requiresMultipleLines {
-            get {
-                return _numLines > 1 || (_numLines == 1 && _currentLine.Length != 0) ||
-                       (_currentLine.Length + _getCurrentPrefix(true).Length > wrapWidth);
-            }
+        public bool hasMultipleLines {
+            get { return _hasMultipleLines; }
         }
 
-        public bool isCurrentLineEmpty {
-            get { return _currentLine.Length == 0; }
-        }
-
-        int _numLines = 0;
-
-        void _finalizeLine(bool addTrailingLineBreak) {
-            bool firstLine = _buffer.Length == 0;
-            string text = _currentLine.ToString();
-            _currentLine.Clear();
-
-            if (_wrappableRanges.Count == 0) {
-                _writeLine(
-                    text,
-                    includeLineBreak: addTrailingLineBreak,
-                    firstLine: firstLine);
-                return;
-            }
-
-            IEnumerable<string> lines = _wordWrapLine(
-                text,
-                _wrappableRanges,
-                wrapWidth,
-                startOffset: firstLine ? prefixLineOne.Length : _prefixOtherLines.Length,
-                otherLineOffset: firstLine ? _prefixOtherLines.Length : _prefixOtherLines.Length);
-
-            int i = 0;
-            int length = lines.Count();
-            foreach (string line in lines) {
-                i++;
-                _writeLine(
-                    line,
-                    includeLineBreak: addTrailingLineBreak || i < length,
-                    firstLine: firstLine);
-            }
-
-            _wrappableRanges.Clear();
-        }
-
-        static IEnumerable<string> _wordWrapLine(string message, List<int> wrapRanges, int? width, int startOffset = 0,
-            int otherLineOffset = 0) {
-            if (message.Length + startOffset < width) {
-                yield return message;
-            }
-
-            int startForLengthCalculations = -startOffset;
-            bool addPrefix = false;
-            int index = 0;
-            _WordWrapParseMode mode = _WordWrapParseMode.inSpace;
-            int? lastWordStart = null;
-            int? lastWordEnd = null;
-            int start = 0;
-
-            int currentChunk = 0;
-
-            bool noWrap(int index2) {
-                while (true) {
-                    if (currentChunk >= wrapRanges.Count) {
-                        return true;
-                    }
-
-                    if (index2 < wrapRanges[currentChunk + 1]) {
-                        break;
-                    }
-
-                    currentChunk += 2;
-                }
-
-                return index2 < wrapRanges[currentChunk];
-            }
-
-            while (true) {
-                switch (mode) {
-                    case _WordWrapParseMode.inSpace: {
-                        while ((index < message.Length) && (message[index] == ' ')) {
-                            index += 1;
-                        }
-
-                        lastWordStart = index;
-                        mode = _WordWrapParseMode.inWord;
-                        break;
-                    }
-
-                    case _WordWrapParseMode.inWord: {
-                        while ((index < message.Length) && (message[index] != ' ' || noWrap(index))) {
-                            index += 1;
-                        }
-
-                        mode = _WordWrapParseMode.atBreak;
-                        break;
-                    }
-
-                    case _WordWrapParseMode.atBreak: {
-                        if ((index - startForLengthCalculations > width) || (index == message.Length)) {
-                            if ((index - startForLengthCalculations <= width) || (lastWordEnd == null)) {
-                                lastWordEnd = index;
-                            }
-
-                            string line = message.Substring(start, lastWordEnd.Value);
-                            yield return line;
-                            addPrefix = true;
-                            if (lastWordEnd.Value >= message.Length) {
-                                yield break;
-                            }
-
-                            if (lastWordEnd.Value == index) {
-                                while ((index < message.Length) && (message[index] == ' ')) {
-                                    index += 1;
-                                }
-
-                                start = index;
-                                mode = _WordWrapParseMode.inWord;
-                            }
-                            else {
-                                D.assert(lastWordStart.Value > lastWordEnd.Value);
-                                start = lastWordStart.Value;
-                                mode = _WordWrapParseMode.atBreak;
-                            }
-
-                            startForLengthCalculations = start - otherLineOffset;
-                            lastWordEnd = null;
-                        }
-                        else {
-                            lastWordEnd = index;
-                            mode = _WordWrapParseMode.inSpace;
-                        }
-
-                        break;
-                    }
-                }
-            }
-        }
-
-        public void write(string s, bool allowWrap = false) {
+        public void write(string s) {
             if (s.isEmpty()) {
                 return;
             }
 
-            string[] lines = s.Split('\n');
-            for (int i = 0; i < lines.Length; i++) {
-                if (i > 0) {
-                    _finalizeLine(true);
-                    _updatePrefix();
+            if (s == "\n") {
+                if (_buffer.Length == 0) {
+                    _buffer.Append(prefixLineOne.TrimEnd());
+                }
+                else if (_atLineStart) {
+                    _buffer.Append(prefixOtherLines.TrimEnd());
+                    _hasMultipleLines = true;
                 }
 
-                string line = lines[i];
-                if (line.isNotEmpty()) {
-                    if (allowWrap && wrapWidth != null) {
-                        int wrapStart = _currentLine.Length;
-                        int wrapEnd = wrapStart + line.Length;
-                        if (_wrappableRanges.isNotEmpty() && _wrappableRanges.last() == wrapStart) {
-                            _wrappableRanges[_wrappableRanges.Count - 1] = wrapEnd;
-                        }
-                        else {
-                            _wrappableRanges.Add(wrapStart);
-                            _wrappableRanges.Add(wrapEnd);
-                        }
-                    }
-
-                    _currentLine.Append(line);
-                }
-            }
-        }
-
-        void _updatePrefix() {
-            if (_nextPrefixOtherLines != null) {
-                _prefixOtherLines = _nextPrefixOtherLines;
-                _nextPrefixOtherLines = null;
-            }
-        }
-
-        void _writeLine(string line, bool includeLineBreak, bool firstLine) {
-            line = $"{_getCurrentPrefix(firstLine)}{line}";
-            _buffer.Append(line.TrimEnd());
-            if (includeLineBreak) {
                 _buffer.Append("\n");
-            }
-
-            _numLines++;
-        }
-
-        string _getCurrentPrefix(bool firstLine) {
-            return _buffer.Length == 0 ? prefixLineOne : (firstLine ? _prefixOtherLines : _prefixOtherLines);
-        }
-
-        public void writeRawLines(string lines) {
-            if (lines.isEmpty()) {
+                _atLineStart = true;
                 return;
             }
 
-            if (_currentLine.Length != 0) {
-                _finalizeLine(true);
+            if (_buffer.Length == 0) {
+                _buffer.Append(prefixLineOne);
+            }
+            else if (_atLineStart) {
+                _buffer.Append(prefixOtherLines);
+                _hasMultipleLines = true;
             }
 
-            D.assert(_currentLine.Length == 0);
+            bool lineTerminated = false;
 
-            _buffer.Append(lines);
-            if (!lines.EndsWith("\n")) {
+            if (s.EndsWith("\n")) {
+                s = s.Substring(0, s.Length - 1);
+                lineTerminated = true;
+            }
+
+            var parts = s.Split('\n');
+            _buffer.Append(parts[0]);
+            for (int i = 1; i < parts.Length; ++i) {
+                _buffer.Append("\n")
+                    .Append(prefixOtherLines)
+                    .Append(parts[i]);
+            }
+
+            if (lineTerminated) {
                 _buffer.Append("\n");
             }
 
-            _numLines++;
-            _updatePrefix();
+            _atLineStart = lineTerminated;
         }
 
-        public void writeStretched(string text, int targetLineLength) {
-            write(text);
-            int currentLineLength = _currentLine.Length + _getCurrentPrefix(_buffer.Length == 0).Length;
-            D.assert(_currentLine.Length > 0);
-            int targetLength = targetLineLength - currentLineLength;
-            if (targetLength > 0) {
-                D.assert(text.isNotEmpty());
-                char lastChar = text[text.Length - 1];
-                D.assert(lastChar != '\n');
-                _currentLine.Append(new string(lastChar, targetLength));
+        public void writeRaw(string text) {
+            if (text.isEmpty()) {
+                return;
             }
 
-            _wrappableRanges.Clear();
+            _buffer.Append(text);
+            _atLineStart = text.EndsWith("\n");
         }
 
-        public string build() {
-            if (_currentLine.Length != 0) {
-                _finalizeLine(false);
+
+        public void writeRawLine(string line) {
+            if (line.isEmpty()) {
+                return;
             }
 
+            _buffer.Append(line);
+            if (!line.EndsWith("\n")) {
+                _buffer.Append('\n');
+            }
+
+            _atLineStart = true;
+        }
+
+        public override string ToString() {
             return _buffer.ToString();
         }
     }
 
-    public class _NoDefaultValue {
+    class _NoDefaultValue {
         internal _NoDefaultValue() {
         }
     }
 
-    public class _NullDefaultValue {
+    class _NullDefaultValue {
         internal _NullDefaultValue() {
         }
     }
 
     public static partial class foundation_ {
-        public static readonly _NoDefaultValue kNoDefaultValue = new _NoDefaultValue();
+        public static readonly object kNoDefaultValue = new _NoDefaultValue();
 
-        public static readonly _NullDefaultValue kNullDefaultValue = new _NullDefaultValue();
-
-        public static bool _isSingleLine(DiagnosticsTreeStyle? style) {
-            return style == DiagnosticsTreeStyle.singleLine;
-        }
-    }
-
-
-    public class TextTreeRenderer {
-        public TextTreeRenderer(
-            DiagnosticLevel minLevel = DiagnosticLevel.debug,
-            int wrapWidth = 100,
-            int wrapWidthProperties = 65,
-            int maxDescendentsTruncatableNode = -1) {
-            _minLevel = minLevel;
-            _wrapWidth = wrapWidth;
-            _wrapWidthProperties = wrapWidthProperties;
-            _maxDescendentsTruncatableNode = maxDescendentsTruncatableNode;
-        }
-
-        readonly int _wrapWidth;
-        readonly int _wrapWidthProperties;
-        readonly DiagnosticLevel _minLevel;
-        readonly int _maxDescendentsTruncatableNode;
-
-        TextTreeConfiguration _childTextConfiguration(
-            DiagnosticsNode child,
-            TextTreeConfiguration textStyle) {
-            DiagnosticsTreeStyle? childStyle = child?.style;
-            return (foundation_._isSingleLine(childStyle) || childStyle == DiagnosticsTreeStyle.errorProperty)
-                ? textStyle
-                : child.textTreeConfiguration;
-        }
-
-        public string render(
-            DiagnosticsNode node,
-            string prefixLineOne = "",
-            string prefixOtherLines = "",
-            TextTreeConfiguration parentConfiguration = null
-        ) {
-            if (foundation_.kReleaseMode) {
-                return "";
-            }
-            else {
-                return _debugRender(
-                    node,
-                    prefixLineOne: prefixLineOne,
-                    prefixOtherLines: prefixOtherLines,
-                    parentConfiguration: parentConfiguration);
-            }
-        }
-
-        string _debugRender(
-            DiagnosticsNode node,
-            string prefixLineOne = "",
-            string prefixOtherLines = "",
-            TextTreeConfiguration parentConfiguration = null
-        ) {
-            bool isSingleLine = foundation_._isSingleLine(node.style) &&
-                                parentConfiguration?.lineBreakProperties != true;
-            prefixOtherLines = prefixOtherLines ?? prefixLineOne;
-            if (node.linePrefix != null) {
-                prefixLineOne += node.linePrefix;
-                prefixOtherLines += node.linePrefix;
-            }
-
-            TextTreeConfiguration config = node.textTreeConfiguration;
-            if (prefixOtherLines.isEmpty()) {
-                prefixOtherLines += config.prefixOtherLinesRootNode;
-            }
-
-            if (node.style == DiagnosticsTreeStyle.truncateChildren) {
-                List<string> descendants = new List<string>();
-                const int maxDepth = 5;
-                int depth = 0;
-                const int maxLines = 25;
-                int lines = 0;
-
-                void visitor(DiagnosticsNode node2) {
-                    foreach (DiagnosticsNode child in node2.getChildren()) {
-                        if (lines < maxLines) {
-                            depth += 1;
-                            descendants.Add($"{prefixOtherLines}{new string(' ', depth)}{child}");
-                            if (depth < maxDepth) {
-                                visitor(child);
-                            }
-
-                            depth -= 1;
-                        }
-                        else if (lines == maxLines) {
-                            descendants.Add($"{prefixOtherLines}  ...(descendants list truncated after {lines} lines)");
-                        }
-
-                        lines += 1;
-                    }
-                }
-
-                visitor(node);
-                StringBuilder information = new StringBuilder(prefixLineOne);
-                if (lines > 1) {
-                    information.Append(
-                        $"This {node.name} had the following descendants (showing up to depth {maxDepth}):");
-                }
-                else if (descendants.Count == 1) {
-                    information.Append($"This {node.name} had the following child:");
-                }
-                else {
-                    information.Append($"This {node.name} has no descendants.");
-                }
-
-                foreach (var line in descendants) {
-                    information.AppendLine(line);
-                }
-
-                return information.ToString();
-            }
-
-            _PrefixedStringBuilder builder = new _PrefixedStringBuilder(
-                prefixLineOne: prefixLineOne,
-                prefixOtherLines: prefixOtherLines,
-                wrapWidth: Mathf.Max(_wrapWidth, prefixOtherLines.Length + _wrapWidthProperties)
-            );
-
-            List<DiagnosticsNode> children = node.getChildren();
-            string description = node.toDescription(parentConfiguration: parentConfiguration);
-            if (config.beforeName.isNotEmpty()) {
-                builder.write(config.beforeName);
-            }
-
-            bool wrapName = !isSingleLine && node.allowNameWrap;
-            bool wrapDescription = !isSingleLine && node.allowWrap;
-            bool uppercaseTitle = node.style == DiagnosticsTreeStyle.error;
-            string name = node.name;
-
-            if (uppercaseTitle) {
-                name = name?.ToUpper();
-            }
-
-            if (description == null || description.isEmpty()) {
-                if (node.showName && name != null) {
-                    builder.write(name, allowWrap: wrapName);
-                }
-            }
-            else {
-                bool includeName = false;
-                if (name != null && name.isNotEmpty() && node.showName) {
-                    includeName = true;
-                    builder.write(name, allowWrap: wrapName);
-                    if (node.showSeparator) {
-                        builder.write(config.afterName, allowWrap: wrapName);
-                    }
-
-                    builder.write(
-                        config.isNameOnOwnLine || description.Contains('\n') ? "\n" : " ",
-                        allowWrap: wrapName
-                    );
-                }
-
-                if (!isSingleLine && builder.requiresMultipleLines && !builder.isCurrentLineEmpty) {
-                    builder.write("\n");
-                }
-
-                if (includeName) {
-                    builder.incrementPrefixOtherLines(
-                        children.isEmpty() ? config.propertyPrefixNoChildren : config.propertyPrefixIfChildren,
-                        updateCurrentLine: true
-                    );
-                }
-
-                if (uppercaseTitle) {
-                    description = description.ToUpper();
-                }
-
-                builder.write(description.TrimEnd(), allowWrap: wrapDescription);
-
-                if (!includeName) {
-                    builder.incrementPrefixOtherLines(
-                        children.isEmpty() ? config.propertyPrefixNoChildren : config.propertyPrefixIfChildren,
-                        updateCurrentLine: false
-                    );
-                }
-            }
-
-            if (config.suffixLineOne.isNotEmpty()) {
-                builder.writeStretched(config.suffixLineOne, builder.wrapWidth.Value);
-            }
-
-            IEnumerable<DiagnosticsNode> propertiesIterable = node.getProperties().Where(
-                (DiagnosticsNode n) => !n.isFiltered(_minLevel)
-            );
-            List<DiagnosticsNode> properties;
-            if (_maxDescendentsTruncatableNode >= 0 && node.allowTruncate) {
-                if (propertiesIterable.Count() < _maxDescendentsTruncatableNode) {
-                    properties =
-                        propertiesIterable.Take(_maxDescendentsTruncatableNode).ToList();
-                    properties.Add(DiagnosticsNode.message("..."));
-                }
-                else {
-                    properties = propertiesIterable.ToList();
-                }
-
-                if (_maxDescendentsTruncatableNode < children.Count) {
-                    children = children.Take(_maxDescendentsTruncatableNode).ToList();
-                    children.Add(DiagnosticsNode.message("..."));
-                }
-            }
-            else {
-                properties = propertiesIterable.ToList();
-            }
-
-            if ((properties.isNotEmpty() || children.isNotEmpty() || node.emptyBodyDescription != null) &&
-                (node.showSeparator || description?.isNotEmpty() == true)) {
-                builder.write(config.afterDescriptionIfBody);
-            }
-
-            if (config.lineBreakProperties) {
-                builder.write(config.lineBreak);
-            }
-
-            if (properties.isNotEmpty()) {
-                builder.write(config.beforeProperties);
-            }
-
-            builder.incrementPrefixOtherLines(config.bodyIndent, updateCurrentLine: false);
-
-            if (node.emptyBodyDescription != null &&
-                properties.isEmpty() &&
-                children.isEmpty() &&
-                prefixLineOne.isNotEmpty()) {
-                builder.write(node.emptyBodyDescription);
-                if (config.lineBreakProperties) {
-                    builder.write(config.lineBreak);
-                }
-            }
-
-            for (int i = 0; i < properties.Count; ++i) {
-                DiagnosticsNode property = properties[i];
-                if (i > 0) {
-                    builder.write(config.propertySeparator);
-                }
-
-                TextTreeConfiguration propertyStyle = property.textTreeConfiguration;
-                if (foundation_._isSingleLine(property.style)) {
-                    string propertyRender = render(property,
-                        prefixLineOne: propertyStyle.prefixLineOne,
-                        prefixOtherLines: $"{propertyStyle.childLinkSpace}{propertyStyle.prefixOtherLines}",
-                        parentConfiguration: config
-                    );
-                    string[] propertyLines = propertyRender.Split('\n');
-                    if (propertyLines.Length == 1 && !config.lineBreakProperties) {
-                        builder.write(propertyLines.first());
-                    }
-                    else {
-                        builder.write(propertyRender, allowWrap: false);
-                        if (!propertyRender.EndsWith("\n")) {
-                            builder.write("\n");
-                        }
-                    }
-                }
-                else {
-                    string propertyRender = render(property,
-                        prefixLineOne: $"{builder.prefixOtherLines}{propertyStyle.prefixLineOne}",
-                        prefixOtherLines:
-                        $"{builder.prefixOtherLines}{propertyStyle.childLinkSpace}{propertyStyle.prefixOtherLines}",
-                        parentConfiguration: config
-                    );
-                    builder.writeRawLines(propertyRender);
-                }
-            }
-
-            if (properties.isNotEmpty()) {
-                builder.write(config.afterProperties);
-            }
-
-            builder.write(config.mandatoryAfterProperties);
-
-            if (!config.lineBreakProperties) {
-                builder.write(config.lineBreak);
-            }
-
-            string prefixChildren = config.bodyIndent;
-            string prefixChildrenRaw = $"{prefixOtherLines}{prefixChildren}";
-            if (children.isEmpty() &&
-                config.addBlankLineIfNoChildren &&
-                builder.requiresMultipleLines &&
-                builder.prefixOtherLines.TrimEnd().isNotEmpty()
-            ) {
-                builder.write(config.lineBreak);
-            }
-
-            if (children.isNotEmpty() && config.showChildren) {
-                if (config.isBlankLineBetweenPropertiesAndChildren &&
-                    properties.isNotEmpty() &&
-                    children.first().textTreeConfiguration.isBlankLineBetweenPropertiesAndChildren) {
-                    builder.write(config.lineBreak);
-                }
-
-                builder.prefixOtherLines = prefixOtherLines;
-
-                for (int i = 0; i < children.Count; i++) {
-                    DiagnosticsNode child = children[i];
-                    D.assert(child != null);
-                    TextTreeConfiguration childConfig = _childTextConfiguration(child, config);
-                    if (i == children.Count - 1) {
-                        string lastChildPrefixLineOne = $"{prefixChildrenRaw}{childConfig.prefixLastChildLineOne}";
-                        string childPrefixOtherLines =
-                            $"{prefixChildrenRaw}{childConfig.childLinkSpace}{childConfig.prefixOtherLines}";
-                        builder.writeRawLines(render(
-                            child,
-                            prefixLineOne: lastChildPrefixLineOne,
-                            prefixOtherLines: childPrefixOtherLines,
-                            parentConfiguration: config
-                        ));
-                        if (childConfig.footer.isNotEmpty()) {
-                            builder.prefixOtherLines = prefixChildrenRaw;
-                            builder.write($"{childConfig.childLinkSpace}${childConfig.footer}");
-                            if (childConfig.mandatoryFooter.isNotEmpty()) {
-                                builder.writeStretched(
-                                    childConfig.mandatoryFooter,
-                                    Mathf.Max(builder.wrapWidth.Value,
-                                        _wrapWidthProperties + childPrefixOtherLines.Length)
-                                );
-                            }
-
-                            builder.write(config.lineBreak);
-                        }
-                    }
-                    else {
-                        TextTreeConfiguration nextChildStyle = _childTextConfiguration(children[i + 1], config);
-                        string childPrefixLineOne = $"{prefixChildrenRaw}{childConfig.prefixLineOne}";
-                        string childPrefixOtherLines =
-                            $"{prefixChildrenRaw}{nextChildStyle.linkCharacter}{childConfig.prefixOtherLines}";
-                        builder.writeRawLines(render(
-                            child,
-                            prefixLineOne: childPrefixLineOne,
-                            prefixOtherLines: childPrefixOtherLines,
-                            parentConfiguration: config
-                        ));
-                        if (childConfig.footer.isNotEmpty()) {
-                            builder.prefixOtherLines = prefixChildrenRaw;
-                            builder.write($"{childConfig.linkCharacter}{childConfig.footer}");
-                            if (childConfig.mandatoryFooter.isNotEmpty()) {
-                                builder.writeStretched(
-                                    childConfig.mandatoryFooter,
-                                    Mathf.Max(builder.wrapWidth.Value,
-                                        _wrapWidthProperties + childPrefixOtherLines.Length)
-                                );
-                            }
-
-                            builder.write(config.lineBreak);
-                        }
-                    }
-                }
-            }
-
-            if (parentConfiguration == null && config.mandatoryFooter.isNotEmpty()) {
-                builder.writeStretched(config.mandatoryFooter, builder.wrapWidth.Value);
-                builder.write(config.lineBreak);
-            }
-
-            return builder.build();
-        }
+        public static readonly object kNullDefaultValue = new _NullDefaultValue();
     }
 
 
@@ -989,15 +347,12 @@ namespace Unity.UIWidgets.foundation {
         protected DiagnosticsNode(
             string name = null,
             DiagnosticsTreeStyle? style = null,
+            String linePrefix = null,
             bool showName = true,
-            bool showSeparator = true,
-            string linePrefix = null
+            bool showSeparator = true
         ) {
-            D.assert(
-                name == null || !name.EndsWith(":"),
-                () => "Names of diagnostic nodes must not end with colons.\n" +
-                      "name:\n" +
-                      $"  {name}");
+            D.assert(name == null || !name.EndsWith(":"),
+                () => "Names of diagnostic nodes must not end with colons.");
             this.name = name;
             _style = style;
             _showName = showName;
@@ -1008,8 +363,7 @@ namespace Unity.UIWidgets.foundation {
         public static DiagnosticsNode message(
             string message,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
-            DiagnosticLevel level = DiagnosticLevel.info,
-            bool allowWrap = true
+            DiagnosticLevel level = DiagnosticLevel.info
         ) {
             return new DiagnosticsProperty<object>(
                 "",
@@ -1017,7 +371,6 @@ namespace Unity.UIWidgets.foundation {
                 description: message,
                 style: style,
                 showName: false,
-                allowWrap: allowWrap,
                 level: level
             );
         }
@@ -1033,12 +386,13 @@ namespace Unity.UIWidgets.foundation {
         public object value { get; }
 
         public bool isFiltered(DiagnosticLevel minLevel) {
-            return foundation_.kReleaseMode || level < minLevel;
+            return level < minLevel;
         }
-
+        
+        
 
         public virtual DiagnosticLevel level {
-            get { return foundation_.kReleaseMode ? DiagnosticLevel.hidden : DiagnosticLevel.info; }
+            get { return DiagnosticLevel.info; }
         }
 
         public virtual bool showName {
@@ -1047,11 +401,11 @@ namespace Unity.UIWidgets.foundation {
 
         readonly bool _showName;
 
-        public readonly string linePrefix;
-
         public virtual string emptyBodyDescription {
             get { return null; }
         }
+
+        readonly string linePrefix;
 
         public abstract object valueObject { get; }
 
@@ -1080,108 +434,75 @@ namespace Unity.UIWidgets.foundation {
         string _separator {
             get { return showSeparator ? ":" : ""; }
         }
-
         public virtual Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
             Dictionary<string, object> result = new Dictionary<string, object>();
-            D.assert(() => {
+            D.assert(()=> {
                 bool hasChildren = getChildren().isNotEmpty();
-                result = new Dictionary<string, object> { };
+                result = new Dictionary<string, object>{ };
                 result["description"] = toDescription();
                 result["type"] = GetType().ToString();
-                if (name != null) {
+                if (name != null)
                     result["name"] = name;
-                }
-
-                if (!showSeparator) {
+                if (!showSeparator)
                     result["showSeparator"] = showSeparator;
-                }
-
-                if (level != DiagnosticLevel.info) {
+                if (level != DiagnosticLevel.info)
                     result["level"] = DiagnosticUtils.describeEnum(level);
-                }
-
-                if (showName == false) {
+                if (showName == false)
                     result["showName"] = showName;
-                }
-
-                if (emptyBodyDescription != null) {
+                if (emptyBodyDescription != null)
                     result["emptyBodyDescription"] = emptyBodyDescription;
-                }
-
-                if (style != DiagnosticsTreeStyle.sparse) {
+                if (style != DiagnosticsTreeStyle.sparse)
                     result["style"] = DiagnosticUtils.describeEnum(style);
-                }
-
-                if (allowTruncate) {
+                if (allowTruncate)
                     result["allowTruncate"] = allowTruncate;
-                }
-
-                if (hasChildren) {
+                if (hasChildren)
                     result["hasChildren"] = hasChildren;
-                }
-
-                if (linePrefix?.isNotEmpty() == true) {
+                if (linePrefix?.isNotEmpty() == true)
                     result["linePrefix"] = linePrefix;
-                }
-
-                if (!allowWrap) {
+                if (!allowWrap)
                     result["allowWrap"] = allowWrap;
-                }
-
-                if (allowNameWrap) {
+                if (allowNameWrap)
                     result["allowNameWrap"] = allowNameWrap;
-                }
-
                 Delegate.additionalNodeProperties(this);
-                if (Delegate.includeProperties) {
+                if (Delegate.includeProperties)
                     result["properties"] = toJsonList(
                         Delegate.filterProperties(getProperties(), this),
                         this,
                         Delegate
                     );
-                }
-
-                if (Delegate.subtreeDepth > 0) {
+                if (Delegate.subtreeDepth > 0)
                     result["children"] = toJsonList(
-                        Delegate.filterChildren(getChildren(), this),
-                        this,
-                        Delegate
-                    );
-                }
-
+                    Delegate.filterChildren(getChildren(), this),
+                    this,
+                    Delegate
+                );
                 return true;
             });
             return result;
         }
 
-
+        
         public static List<Dictionary<string, object>> toJsonList(
             List<DiagnosticsNode> nodes,
             DiagnosticsNode parent,
             DiagnosticsSerializationDelegate Delegate
-        ) {
+            ) {
             bool truncated = false;
-            if (nodes == null) {
+            if (nodes == null)
                 return new List<Dictionary<string, object>>();
-            }
-
             int originalNodeCount = nodes.Count;
             nodes = Delegate.truncateNodesList(nodes, parent);
             if (nodes.Count != originalNodeCount) {
-                nodes.Add(message("..."));
+                nodes.Add(DiagnosticsNode.message("..."));
                 truncated = true;
             }
-
             List<Dictionary<string, object>> json = new List<Dictionary<string, object>>();
             foreach (var node in nodes) {
                 json.Add(node.toJsonMap(Delegate.delegateForNode(node)));
             }
-
             json.ToList();
-            if (truncated) {
+            if (truncated)
                 json.Last()["truncated"] = true;
-            }
-
             return json;
         }
 
@@ -1193,36 +514,25 @@ namespace Unity.UIWidgets.foundation {
             TextTreeConfiguration parentConfiguration = null,
             DiagnosticLevel minLevel = DiagnosticLevel.info
         ) {
-            string result = base.ToString();
             D.assert(style != null);
-            D.assert(() => {
-                if (foundation_._isSingleLine(style)) {
-                    result = toStringDeep(parentConfiguration: parentConfiguration, minLevel: minLevel);
-                }
-                else {
-                    var description = toDescription(parentConfiguration: parentConfiguration);
-                    if (name == null || name.isEmpty() || !showName) {
-                        result = description;
-                    }
-                    else {
-                        result = description.Contains("\n")
-                            ? $"{name}{_separator}\n{description}"
-                            : $"{name}{_separator} {description}";
-                    }
-                }
+            if (style == DiagnosticsTreeStyle.singleLine) {
+                return toStringDeep(parentConfiguration: parentConfiguration, minLevel: minLevel);
+            }
 
-                return true;
-            });
+            var description = toDescription(parentConfiguration: parentConfiguration);
+            if (name.isEmpty() || !showName) {
+                return description;
+            }
 
-            return result;
+            return description.Contains("\n")
+                ? name + _separator + "\n" + description
+                : name + _separator + description;
         }
 
-        public TextTreeConfiguration textTreeConfiguration {
+        protected TextTreeConfiguration textTreeConfiguration {
             get {
                 D.assert(style != null);
                 switch (style) {
-                    case DiagnosticsTreeStyle.none:
-                        return null;
                     case DiagnosticsTreeStyle.dense:
                         return foundation_.denseTextConfiguration;
                     case DiagnosticsTreeStyle.sparse:
@@ -1235,50 +545,249 @@ namespace Unity.UIWidgets.foundation {
                         return foundation_.transitionTextConfiguration;
                     case DiagnosticsTreeStyle.singleLine:
                         return foundation_.singleLineTextConfiguration;
-                    case DiagnosticsTreeStyle.errorProperty:
-                        return foundation_.errorPropertyTextConfiguration;
-                    case DiagnosticsTreeStyle.shallow:
-                        return foundation_.shallowTextConfiguration;
-                    case DiagnosticsTreeStyle.error:
-                        return foundation_.errorTextConfiguration;
-                    case DiagnosticsTreeStyle.truncateChildren:
-                        return foundation_.whitespaceTextConfiguration;
-                    case DiagnosticsTreeStyle.flat:
-                        return foundation_.flatTextConfiguration;
                 }
 
                 return null;
             }
         }
 
+        TextTreeConfiguration _childTextConfiguration(
+            DiagnosticsNode child,
+            TextTreeConfiguration textStyle
+        ) {
+            return child != null && child.style != DiagnosticsTreeStyle.singleLine
+                ? child.textTreeConfiguration
+                : textStyle;
+        }
+
         public string toStringDeep(
             string prefixLineOne = "",
             string prefixOtherLines = null,
             TextTreeConfiguration parentConfiguration = null,
-            DiagnosticLevel minLevel = DiagnosticLevel.debug) {
-            string result = "";
-            D.assert(() => {
-                result = new TextTreeRenderer(
-                    minLevel: minLevel,
-                    wrapWidth: 65,
-                    wrapWidthProperties: 65
-                    ).render(
-                    this,
-                    prefixLineOne: prefixLineOne,
-                    prefixOtherLines: prefixOtherLines,
-                    parentConfiguration: parentConfiguration);
+            DiagnosticLevel minLevel = DiagnosticLevel.debug
+        ) {
+            prefixOtherLines = prefixOtherLines ?? prefixLineOne;
 
-                return true;
-            });
-            return result;
+            var children = getChildren();
+            var config = textTreeConfiguration;
+            if (prefixOtherLines.isEmpty()) {
+                prefixOtherLines += config.prefixOtherLinesRootNode;
+            }
+
+            var builder = new _PrefixedStringBuilder(
+                prefixLineOne,
+                prefixOtherLines
+            );
+
+            var description = toDescription(parentConfiguration: parentConfiguration);
+            if (description.isEmpty()) {
+                if (name.isNotEmpty() && showName) {
+                    builder.write(name);
+                }
+            }
+            else {
+                if (name.isNotEmpty() && showName) {
+                    builder.write(name);
+                    if (showSeparator) {
+                        builder.write(config.afterName);
+                    }
+
+                    builder.write(
+                        config.isNameOnOwnLine || description.Contains("\n") ? "\n" : "");
+                    if (description.Contains("\n") && style == DiagnosticsTreeStyle.singleLine) {
+                        builder.prefixOtherLines += "  ";
+                    }
+                }
+
+                builder.prefixOtherLines +=
+                    children.isEmpty() ? config.propertyPrefixNoChildren : config.propertyPrefixIfChildren;
+                builder.write(description);
+            }
+
+            var properties = getProperties().Where(n => !n.isFiltered(minLevel)).ToList();
+
+            if (properties.isNotEmpty() || children.isNotEmpty() || emptyBodyDescription != null) {
+                builder.write(config.afterDescriptionIfBody);
+            }
+
+            if (config.lineBreakProperties) {
+                builder.write(config.lineBreak);
+            }
+
+            if (properties.isNotEmpty()) {
+                builder.write(config.beforeProperties);
+            }
+
+            builder.prefixOtherLines += config.bodyIndent;
+            if (emptyBodyDescription != null &&
+                properties.isEmpty() &&
+                children.isEmpty() &&
+                prefixLineOne.isNotEmpty()) {
+                builder.write(emptyBodyDescription);
+                if (config.lineBreakProperties) {
+                    builder.write(config.lineBreak);
+                }
+            }
+
+            for (int i = 0; i < properties.Count; ++i) {
+                DiagnosticsNode property = properties[i];
+                if (i > 0) {
+                    builder.write(config.propertySeparator);
+                }
+
+                const int kWrapWidth = 65;
+                if (property.style != DiagnosticsTreeStyle.singleLine) {
+                    TextTreeConfiguration propertyStyle = property.textTreeConfiguration;
+                    builder.writeRaw(property.toStringDeep(
+                        prefixLineOne: builder.prefixOtherLines + propertyStyle.prefixLineOne,
+                        prefixOtherLines: builder.prefixOtherLines + propertyStyle.linkCharacter +
+                                          propertyStyle.prefixOtherLines,
+                        parentConfiguration: config,
+                        minLevel: minLevel
+                    ));
+                    continue;
+                }
+
+                D.assert(property.style == DiagnosticsTreeStyle.singleLine);
+                string message = property.toString(parentConfiguration: config, minLevel: minLevel);
+                if (!config.lineBreakProperties || message.Length < kWrapWidth) {
+                    builder.write(message);
+                }
+                else {
+                    var lines = message.Split('\n');
+                    for (int j = 0; j < lines.Length; ++j) {
+                        string line = lines[j];
+                        if (j > 0) {
+                            builder.write(config.lineBreak);
+                        }
+
+                        builder.write(string.Join("\n",
+                            DebugPrint.debugWordWrap(line, kWrapWidth, wrapIndent: "  ").ToArray()));
+                    }
+                }
+
+                if (config.lineBreakProperties) {
+                    builder.write(config.lineBreak);
+                }
+            }
+
+            if (properties.isNotEmpty()) {
+                builder.write(config.afterProperties);
+            }
+
+            if (!config.lineBreakProperties) {
+                builder.write(config.lineBreak);
+            }
+
+            var prefixChildren = prefixOtherLines + config.bodyIndent;
+            if (children.isEmpty() &&
+                config.addBlankLineIfNoChildren &&
+                builder.hasMultipleLines) {
+                string prefix = prefixChildren.TrimEnd();
+                if (prefix.isNotEmpty()) {
+                    builder.writeRaw(prefix + config.lineBreak);
+                }
+            }
+
+            if (children.isNotEmpty() && config.showChildren) {
+                if (config.isBlankLineBetweenPropertiesAndChildren &&
+                    properties.isNotEmpty() &&
+                    children.First().textTreeConfiguration.isBlankLineBetweenPropertiesAndChildren) {
+                    builder.write(config.lineBreak);
+                }
+
+                for (int i = 0; i < children.Count; i++) {
+                    DiagnosticsNode child = children[i];
+                    D.assert(child != null);
+                    TextTreeConfiguration childConfig = _childTextConfiguration(child, config);
+                    if (i == children.Count - 1) {
+                        string lastChildPrefixLineOne = prefixChildren + childConfig.prefixLastChildLineOne;
+                        builder.writeRawLine(child.toStringDeep(
+                            prefixLineOne: lastChildPrefixLineOne,
+                            prefixOtherLines: prefixChildren + childConfig.childLinkSpace +
+                                              childConfig.prefixOtherLines,
+                            parentConfiguration: config,
+                            minLevel: minLevel
+                        ));
+                        if (childConfig.footer.isNotEmpty()) {
+                            builder.writeRaw(prefixChildren + childConfig.childLinkSpace + childConfig.footer);
+                        }
+                    }
+                    else {
+                        TextTreeConfiguration nextChildStyle = _childTextConfiguration(children[i + 1], config);
+                        string childPrefixLineOne = prefixChildren + childConfig.prefixLineOne;
+                        string childPrefixOtherLines =
+                            prefixChildren + nextChildStyle.linkCharacter + childConfig.prefixOtherLines;
+                        builder.writeRawLine(child.toStringDeep(
+                            prefixLineOne: childPrefixLineOne,
+                            prefixOtherLines: childPrefixOtherLines,
+                            parentConfiguration: config,
+                            minLevel: minLevel
+                        ));
+                        if (childConfig.footer.isNotEmpty()) {
+                            builder.writeRaw(prefixChildren + nextChildStyle.linkCharacter + childConfig.footer);
+                        }
+                    }
+                }
+            }
+
+            return builder.ToString();
         }
+    }
+
+    public class DiagnosticsBlock : DiagnosticsNode {
+        public DiagnosticsBlock(
+            string name,
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.whitespace,
+            bool showName = true,
+            bool showSeparator = true,
+            string linePrefix = null,
+            object value = null,
+            string description = null,
+            DiagnosticLevel level = DiagnosticLevel.info,
+            bool allowTruncate = false,
+            List<DiagnosticsNode> children = null,
+            List<DiagnosticsNode> properties = null
+        ) : base(
+            name: name,
+            style: style,
+            showName: showName && name != null,
+            showSeparator: showSeparator,
+            linePrefix: linePrefix
+        ) {
+            _description = description;
+            _children = children ?? new List<DiagnosticsNode>();
+            _properties = properties ?? new List<DiagnosticsNode>();
+            this.level = level;
+            valueObject = value;
+            this.allowTruncate = allowTruncate;
+        }
+
+        readonly List<DiagnosticsNode> _children;
+        readonly List<DiagnosticsNode> _properties;
+
+
+        public override DiagnosticLevel level {
+            get;
+        }
+        
+        readonly string _description;
+        
+        public override object valueObject { get; }
+
+        public readonly bool allowTruncate;
+
+        public override List<DiagnosticsNode> getChildren() => _children;
+
+        public override List<DiagnosticsNode> getProperties() => _properties;
+
+        public override string toDescription(TextTreeConfiguration parentConfiguration = null) => _description;
     }
 
     public class MessageProperty : DiagnosticsProperty<object> {
         public MessageProperty(string name, string message,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
-        ) : base(name, null, description: message, style: style, level: level) {
+        ) : base(name, null, description: message, level: level) {
             D.assert(name != null);
             D.assert(message != null);
         }
@@ -1292,7 +801,6 @@ namespace Unity.UIWidgets.foundation {
             object defaultValue = null,
             bool quoted = true,
             string ifEmpty = null,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(name,
             value,
@@ -1301,7 +809,6 @@ namespace Unity.UIWidgets.foundation {
             tooltip: tooltip,
             showName: showName,
             ifEmpty: ifEmpty,
-            style: style,
             level: level) {
             this.quoted = quoted;
         }
@@ -1342,7 +849,6 @@ namespace Unity.UIWidgets.foundation {
             bool showName = true,
             object defaultValue = null,
             string tooltip = null,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(
             name,
@@ -1351,8 +857,7 @@ namespace Unity.UIWidgets.foundation {
             showName: showName,
             defaultValue: defaultValue,
             tooltip: tooltip,
-            level: level,
-            style: style
+            level: level
         ) {
             this.unit = unit;
         }
@@ -1364,7 +869,6 @@ namespace Unity.UIWidgets.foundation {
             bool showName = true,
             object defaultValue = null,
             string tooltip = null,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(
             name,
@@ -1373,7 +877,6 @@ namespace Unity.UIWidgets.foundation {
             showName: showName,
             defaultValue: defaultValue,
             tooltip: tooltip,
-            style: style,
             level: level
         ) {
             this.unit = unit;
@@ -1402,6 +905,33 @@ namespace Unity.UIWidgets.foundation {
         }
     }
 
+    public class IntProperty : _NumProperty<int?> {
+        public IntProperty(string name, int? value,
+            string ifNull = null,
+            bool showName = true,
+            string unit = null,
+            object defaultValue = null,
+            DiagnosticLevel level = DiagnosticLevel.info
+        ) : base(
+            name,
+            value,
+            ifNull: ifNull,
+            showName: showName,
+            unit: unit,
+            defaultValue: defaultValue,
+            level: level
+        ) {
+        }
+
+        protected override string numberToString() {
+            if (value == null) {
+                return "null";
+            }
+
+            return value.Value.ToString();
+        }
+    }
+
     public class FloatProperty : _NumProperty<float?> {
         public FloatProperty(string name, float? value,
             string ifNull = null,
@@ -1409,7 +939,6 @@ namespace Unity.UIWidgets.foundation {
             string tooltip = null,
             object defaultValue = null,
             bool showName = true,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(
             name,
@@ -1419,8 +948,7 @@ namespace Unity.UIWidgets.foundation {
             tooltip: tooltip,
             defaultValue: defaultValue,
             showName: showName,
-            level: level,
-            style: style
+            level: level
         ) {
         }
 
@@ -1473,36 +1001,6 @@ namespace Unity.UIWidgets.foundation {
             }
 
             return "null";
-        }
-    }
-    
-    
-    public class IntProperty : _NumProperty<int?> {
-        public IntProperty(string name, int? value,
-            string ifNull = null,
-            bool showName = true,
-            string unit = null,
-            object defaultValue = null,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
-            DiagnosticLevel level = DiagnosticLevel.info
-        ) : base(
-            name,
-            value,
-            ifNull: ifNull,
-            showName: showName,
-            unit: unit,
-            defaultValue: defaultValue,
-            style: style,
-            level: level
-        ) {
-        }
-
-        protected override string numberToString() {
-            if (value == null) {
-                return "null";
-            }
-
-            return value.Value.ToString();
         }
     }
 
@@ -1629,7 +1127,6 @@ namespace Unity.UIWidgets.foundation {
             string ifEmpty = "[]",
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             bool showName = true,
-            bool showSeparator = true,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(
             name,
@@ -1639,7 +1136,6 @@ namespace Unity.UIWidgets.foundation {
             ifEmpty: ifEmpty,
             style: style,
             showName: showName,
-            showSeparator: showSeparator,
             level: level
         ) {
         }
@@ -1797,15 +1293,86 @@ namespace Unity.UIWidgets.foundation {
             return json;
         }
     }
-    
-    class FlagsSummary<T> : DiagnosticsProperty<Dictionary<string, T>> {
+    public abstract class DiagnosticsSerializationDelegate {
+        public DiagnosticsSerializationDelegate(
+            int subtreeDepth = 0,
+            bool includeProperties = false
+        ) { 
+            new _DefaultDiagnosticsSerializationDelegate(includeProperties,subtreeDepth);
+        }
+        public abstract Dictionary<string, object> additionalNodeProperties(DiagnosticsNode node);
+        public abstract List<DiagnosticsNode> filterChildren(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
+
+        public abstract List<DiagnosticsNode> filterProperties(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
+
+        public abstract List<DiagnosticsNode> truncateNodesList(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
+
+        public abstract DiagnosticsSerializationDelegate delegateForNode(DiagnosticsNode node);
+
+        public int subtreeDepth {
+            get { return 0; }
+        }
+        public bool includeProperties {
+            get { return false; }
+        }
+        public bool expandPropertyValues {
+
+            get { return false; }
+        }
+        public abstract DiagnosticsSerializationDelegate copyWith(
+            int? subtreeDepth = null,
+            bool? includeProperties = null
+          );
+    }
+
+    class _DefaultDiagnosticsSerializationDelegate : DiagnosticsSerializationDelegate {
+        public _DefaultDiagnosticsSerializationDelegate(
+            bool includeProperties = false,
+            int subtreeDepth = 0
+        ) {
+            this.includeProperties = includeProperties;
+            this.subtreeDepth = subtreeDepth;
+        }
+        public override Dictionary<string, object> additionalNodeProperties(DiagnosticsNode node) {
+            return new Dictionary<string, object>();
+        }
+        public  override  DiagnosticsSerializationDelegate delegateForNode(DiagnosticsNode node) {
+            return subtreeDepth > 0 ? copyWith(subtreeDepth: subtreeDepth - 1) : this;
+        }
+        bool  expandPropertyValues  {
+            get { return false; }
+        }
+        public  override List<DiagnosticsNode> filterChildren(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
+            return nodes;
+        }
+        public override List<DiagnosticsNode> filterProperties(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
+            return nodes;
+        }
+
+        public readonly  bool includeProperties;
+
+        public readonly int subtreeDepth;
+
+        public override List<DiagnosticsNode> truncateNodesList(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
+            return nodes;
+        }
+
+        public override DiagnosticsSerializationDelegate copyWith( int? subtreeDepth = null, bool? includeProperties = null) {
+            return new _DefaultDiagnosticsSerializationDelegate(
+                subtreeDepth: subtreeDepth ?? this.subtreeDepth,
+            includeProperties: includeProperties ?? this.includeProperties
+            );
+        }
+    }
+
+    class FlagsSummary<T> : DiagnosticsProperty<Dictionary<String, T>> { 
         public FlagsSummary(
             string name = null,
-            Dictionary<string, T> value = null,
+            Dictionary<string, T> value = null, 
             string ifEmpty = null,
             bool showName = true,
             bool showSeparator = true,
-            DiagnosticLevel level = DiagnosticLevel.info
+            DiagnosticLevel level  = DiagnosticLevel.info
         ) : base(
             name,
             value,
@@ -1813,61 +1380,67 @@ namespace Unity.UIWidgets.foundation {
             showName: showName,
             showSeparator: showSeparator,
             level: level
-        ) {
+        ){
             D.assert(value != null);
+            D.assert(showName != null);
+            D.assert(showSeparator != null);
+            D.assert(level != null);
+            
         }
 
         protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
             D.assert(value != null);
-            if (!_hasNonNullEntry() && ifEmpty != null) {
-                return ifEmpty;
-            }
+            if (!_hasNonNullEntry() && ifEmpty != null)
+              return ifEmpty;
 
             IEnumerable<string> formattedValues = _formattedValues();
             if (parentConfiguration != null && !parentConfiguration.lineBreakProperties) {
-                return string.Join(",", formattedValues);
+              
+              return $"{string.Join(",",formattedValues)}";
             }
-
-            return string.Join((DiagnosticUtils._isSingleLine((DiagnosticsTreeStyle) style) ? "," : "\n"),
-                formattedValues);
+            return string.Join((DiagnosticUtils._isSingleLine((DiagnosticsTreeStyle)style) ? "," : "\n"),formattedValues);
         }
 
-
+        
         DiagnosticLevel level {
-            get {
-                if (!_hasNonNullEntry() && ifEmpty == null) {
+            get{
+                if (!_hasNonNullEntry() && ifEmpty == null)
                     return DiagnosticLevel.hidden;
-                }
                 return base.level;
             }
         }
-
-        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) 
+        {
             Dictionary<string, object> json = base.toJsonMap(Delegate);
-            if (value.isNotEmpty()) {
-                json["values"] = _formattedValues().ToList();
-            }
-
+            if (value.isNotEmpty())
+              json["values"] = _formattedValues().ToList();
             return json;
         }
 
         bool _hasNonNullEntry() {
-            return value.Values.ToList().Any((T o) => o != null);
-        }
+            bool result = false;
+            foreach (var o in value.Values) {
+                if (o != null) {
+                    result = true;
+                    return true;
+                }
 
+            }
+            return result;
+        }
+       
         IEnumerable<string> _formattedValues() {
             List<string> results = new List<string>();
-            foreach (string entry in value.Keys) {
-                if (value[entry] != null) {
-                    results.Add(entry);
+            foreach (var o in value.Keys) {
+                if (value[o] != null) {
+                    results.Add(o);
                 }
             }
             return results;
         }
     }
-    
     public delegate T ComputePropertyValueCallback<T>();
-    
+
     public class DiagnosticsProperty<T> : DiagnosticsNode {
         public DiagnosticsProperty(
             string name,
@@ -1880,18 +1453,13 @@ namespace Unity.UIWidgets.foundation {
             object defaultValue = null,
             string tooltip = null,
             bool missingIfNull = false,
-            string linePrefix = null,
-            bool expandableValue = false,
-            bool allowWrap = true,
-            bool allowNameWrap = true,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(
             name: name,
             showName: showName,
             showSeparator: showSeparator,
-            style: style,
-            linePrefix: linePrefix
+            style: style
         ) {
             defaultValue = defaultValue ?? foundation_.kNoDefaultValue;
             if (defaultValue == foundation_.kNullDefaultValue) {
@@ -1909,9 +1477,6 @@ namespace Unity.UIWidgets.foundation {
             this.defaultValue = defaultValue;
             this.tooltip = tooltip;
             this.missingIfNull = missingIfNull;
-            this.expandableValue = expandableValue;
-            this.allowWrap = allowWrap;
-            this.allowNameWrap = allowNameWrap;
         }
 
         internal DiagnosticsProperty(
@@ -1925,9 +1490,6 @@ namespace Unity.UIWidgets.foundation {
             object defaultValue = null,
             string tooltip = null,
             bool missingIfNull = false,
-            bool expandableValue = false,
-            bool allowWrap = true,
-            bool allowNameWrap = true,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(
@@ -1952,9 +1514,6 @@ namespace Unity.UIWidgets.foundation {
             this.defaultValue = defaultValue;
             this.tooltip = tooltip;
             this.missingIfNull = missingIfNull;
-            this.expandableValue = expandableValue;
-            this.allowWrap = allowWrap;
-            this.allowNameWrap = allowNameWrap;
         }
 
         public static DiagnosticsProperty<T> lazy(
@@ -1968,9 +1527,6 @@ namespace Unity.UIWidgets.foundation {
             object defaultValue = null,
             string tooltip = null,
             bool missingIfNull = false,
-            bool expandableValue = false,
-            bool allowWrap = true,
-            bool allowNameWrap = true,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
         ) {
@@ -1985,40 +1541,28 @@ namespace Unity.UIWidgets.foundation {
                 defaultValue,
                 tooltip,
                 missingIfNull,
-                expandableValue,
-                allowWrap,
-                allowNameWrap,
                 style,
                 level);
         }
 
         internal readonly string _description;
 
-        public readonly bool expandableValue;
-
-        public readonly bool allowWrap;
-
-        public readonly bool allowNameWrap;
-
-        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate  Delegate){
             T v = value;
             List<Dictionary<string, object>> properties = new List<Dictionary<string, object>>();
-            if (Delegate.expandPropertyValues && Delegate.includeProperties && v is Diagnosticable vDiagnosticable &&
-                getProperties().isEmpty()) {
+            if (Delegate.expandPropertyValues && Delegate.includeProperties && v is Diagnosticable vDiagnosticable && getProperties().isEmpty()) {
                 // Exclude children for expanded nodes to avoid cycles.
                 Delegate = Delegate.copyWith(subtreeDepth: 0, includeProperties: false);
-                properties = toJsonList(
+                properties = DiagnosticsNode.toJsonList(
                     Delegate.filterProperties(vDiagnosticable.toDiagnosticsNode().getProperties(), this),
                     this,
                     Delegate
                 );
             }
-
             var json = base.toJsonMap(Delegate);
             if (properties != null) {
                 json["properties"] = properties;
             }
-
             if (defaultValue != foundation_.kNoDefaultValue) {
                 json["defaultValue"] = Convert.ToString(defaultValue);
             }
@@ -2034,29 +1578,23 @@ namespace Unity.UIWidgets.foundation {
             if (tooltip != null) {
                 json["tooltip"] = tooltip;
             }
-
             json["missingIfNull"] = missingIfNull;
             if (exception != null) {
                 json["exception"] = exception.ToString();
             }
-
             json["propertyType"] = propertyType.ToString();
             json["defaultLevel"] = DiagnosticUtils.describeEnum(_defaultLevel);
-
-            if (value is Diagnosticable || value is DiagnosticsNode) {
+            
+            if (value is Diagnosticable || value is DiagnosticsNode)
                 json["isDiagnosticableValue"] = true;
-            }
-
-            if (v is int) {
+            if (v is int)
                 json["value"] = Convert.ToInt32(v);
-            }
             else if (v is float) {
                 json["value"] = float.Parse(v.ToString());
             }
 
-            if (value is string || value is bool || value == null) {
+            if (value is string || value is bool || value == null)
                 json["value"] = value;
-            }
 
             return json;
         }
@@ -2066,7 +1604,7 @@ namespace Unity.UIWidgets.foundation {
         ) {
             var v = value;
             var tree = v as DiagnosticableTree;
-            return tree != null ? tree.toStringShort() : v?.ToString() ?? "";
+            return tree != null ? tree.toStringShort() : v != null ? v.ToString() : "null";
         }
 
         public override string toDescription(
@@ -2144,7 +1682,6 @@ namespace Unity.UIWidgets.foundation {
         }
 
         public readonly object defaultValue;
-        
         DiagnosticLevel _defaultLevel;
 
         public override DiagnosticLevel level {
@@ -2172,34 +1709,14 @@ namespace Unity.UIWidgets.foundation {
         readonly ComputePropertyValueCallback<T> _computeValue;
 
         public override List<DiagnosticsNode> getProperties() {
-            if (expandableValue) {
-                T obj = value;
-                if (obj is DiagnosticsNode) {
-                    return (obj as DiagnosticsNode).getProperties();
-                }
-
-                if (obj is Diagnosticable) {
-                    return (obj as Diagnosticable).toDiagnosticsNode(style: style.Value).getProperties();
-                }
-            }
             return new List<DiagnosticsNode>();
         }
 
         public override List<DiagnosticsNode> getChildren() {
-            if (expandableValue) {
-                T obj = value;
-                if (obj is DiagnosticsNode) {
-                    return (obj as DiagnosticsNode).getChildren();
-                }
-
-                if (obj is Diagnosticable) {
-                    return (obj as Diagnosticable).toDiagnosticsNode(style: style.Value).getChildren();
-                }
-            }
             return new List<DiagnosticsNode>();
         }
     }
-    
+
     public class DiagnosticableNode<T> : DiagnosticsNode where T : Diagnosticable {
         public DiagnosticableNode(
             string name = null,
@@ -2221,36 +1738,29 @@ namespace Unity.UIWidgets.foundation {
         readonly T _value;
         DiagnosticPropertiesBuilder _cachedBuilder;
 
-        protected DiagnosticPropertiesBuilder builder {
+        DiagnosticPropertiesBuilder _builder {
             get {
-                if (foundation_.kReleaseMode) {
-                    return null;
+                if (_cachedBuilder == null) {
+                    _cachedBuilder = new DiagnosticPropertiesBuilder();
+                    if (_value != null) {
+                        _value.debugFillProperties(_cachedBuilder);
+                    }
                 }
-                else {
-                    D.assert(() => {
-                        if (_cachedBuilder == null) {
-                            _cachedBuilder = new DiagnosticPropertiesBuilder();
-                            _value?.debugFillProperties(_cachedBuilder);
-                        }
 
-                        return true;
-                    });
-                }
-                
                 return _cachedBuilder;
             }
         }
 
         public override DiagnosticsTreeStyle? style {
-            get { return foundation_.kReleaseMode ? DiagnosticsTreeStyle.none : base.style ?? builder.defaultDiagnosticsTreeStyle; }
+            get { return base.style ?? _builder.defaultDiagnosticsTreeStyle; }
         }
 
         public override string emptyBodyDescription {
-            get { return foundation_.kReleaseMode ? "" : builder.emptyBodyDescription; }
+            get { return _builder.emptyBodyDescription; }
         }
 
         public override List<DiagnosticsNode> getProperties() {
-            return foundation_.kReleaseMode ? new List<DiagnosticsNode>() : builder.properties;
+            return _builder.properties;
         }
 
         public override List<DiagnosticsNode> getChildren() {
@@ -2260,17 +1770,12 @@ namespace Unity.UIWidgets.foundation {
         public override string toDescription(
             TextTreeConfiguration parentConfiguration = null
         ) {
-            string result = "";
-            D.assert(() => {
-                result = _value.toStringShort();
-                return true;
-            });
-            return result;
+            return _value.toStringShort();
         }
     }
 
-    class DiagnosticableTreeNode : DiagnosticableNode<DiagnosticableTree> {
-        internal DiagnosticableTreeNode(
+    class _DiagnosticableTreeNode : DiagnosticableNode<DiagnosticableTree> {
+        internal _DiagnosticableTreeNode(
             string name,
             DiagnosticableTree value,
             DiagnosticsTreeStyle style
@@ -2289,56 +1794,27 @@ namespace Unity.UIWidgets.foundation {
             return new List<DiagnosticsNode>();
         }
     }
-    
+
+    public static partial class foundation_ {
+        public static string shortHash(object o) {
+            return (o.GetHashCode() & 0xFFFFF).ToString("X").PadLeft(5, '0');
+        }
+
+        public static string describeIdentity(object o) {
+            return $"{o.GetType()}#{shortHash(o)}";
+        }
+    }
+
     public class DiagnosticPropertiesBuilder {
-        public DiagnosticPropertiesBuilder(List<DiagnosticsNode> properties) {
-            this.properties = properties;
-        }
-
-        public DiagnosticPropertiesBuilder() {
-            properties = new List<DiagnosticsNode>();
-        }
-
         public void add(DiagnosticsNode property) {
-            D.assert(() => {
-                properties.Add(property);
-                return true;
-            });
+            properties.Add(property);
         }
 
-        public readonly List<DiagnosticsNode> properties;
-        
+        public readonly List<DiagnosticsNode> properties = new List<DiagnosticsNode>();
         public DiagnosticsTreeStyle defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.sparse;
-        
         public string emptyBodyDescription;
     }
 
-    public class DiagnosticableMixin : Diagnosticable {
-        public override string toStringShort() {
-            return foundation_.describeIdentity(this);
-        }
-
-        public override string toString(DiagnosticLevel minLevel = DiagnosticLevel.debug) {
-            string fullString = null;
-            D.assert(() => {
-                fullString = toDiagnosticsNode(style: DiagnosticsTreeStyle.singleLine).toString(minLevel: minLevel);
-                return true;
-            });
-            return fullString ?? toStringShort();
-        }
-
-        public override DiagnosticsNode toDiagnosticsNode(string name = null, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse) {
-            return new DiagnosticableNode<Diagnosticable>(
-                      name: name,
-                      value: this,
-                      style: style
-                );
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-        }
-    }
-    
     public abstract class Diagnosticable {
         protected Diagnosticable() {
         }
@@ -2351,7 +1827,7 @@ namespace Unity.UIWidgets.foundation {
             return toString();
         }
 
-        public virtual string toString(DiagnosticLevel minLevel = DiagnosticLevel.info) {
+        public virtual string toString(DiagnosticLevel minLevel = DiagnosticLevel.debug) {
             string fullString = null;
             D.assert(() => {
                 fullString = toDiagnosticsNode(style: DiagnosticsTreeStyle.singleLine)
@@ -2372,7 +1848,7 @@ namespace Unity.UIWidgets.foundation {
         public virtual void debugFillProperties(DiagnosticPropertiesBuilder properties) {
         }
     }
-    
+
     public abstract class DiagnosticableTree : Diagnosticable {
         protected DiagnosticableTree() {
         }
@@ -2381,25 +1857,15 @@ namespace Unity.UIWidgets.foundation {
             string joiner = ", ",
             DiagnosticLevel minLevel = DiagnosticLevel.debug
         ) {
-            if (foundation_.kReleaseMode) {
-                return toString();
-            }
-
-            string shallowString = "";
-            D.assert(() => {
-                var result = new StringBuilder();
-                result.Append(toString());
-                result.Append(joiner);
-                DiagnosticPropertiesBuilder builder = new DiagnosticPropertiesBuilder();
-                debugFillProperties(builder);
-                result.Append(string.Join(joiner,
-                    builder.properties.Where(n => !n.isFiltered(minLevel)).Select(n => n.ToString()).ToArray())
-                );
-                shallowString = result.ToString();
-                return true;
-            });
-
-            return shallowString;
+            var result = new StringBuilder();
+            result.Append(ToString());
+            result.Append(joiner);
+            DiagnosticPropertiesBuilder builder = new DiagnosticPropertiesBuilder();
+            debugFillProperties(builder);
+            result.Append(string.Join(joiner,
+                builder.properties.Where(n => !n.isFiltered(minLevel)).Select(n => n.ToString()).ToArray())
+            );
+            return result.ToString();
         }
 
         public virtual string toStringDeep(
@@ -2420,7 +1886,7 @@ namespace Unity.UIWidgets.foundation {
         public override DiagnosticsNode toDiagnosticsNode(
             string name = null,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse) {
-            return new DiagnosticableTreeNode(
+            return new _DiagnosticableTreeNode(
                 name: name,
                 value: this,
                 style: style
@@ -2429,133 +1895,6 @@ namespace Unity.UIWidgets.foundation {
 
         public virtual List<DiagnosticsNode> debugDescribeChildren() {
             return new List<DiagnosticsNode>();
-        }
-    }
-    
-    public class DiagnosticsBlock : DiagnosticsNode {
-        public DiagnosticsBlock(
-            string name,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.whitespace,
-            bool showName = true,
-            bool showSeparator = true,
-            string linePrefix = null,
-            object value = null,
-            string description = null,
-            DiagnosticLevel level = DiagnosticLevel.info,
-            bool allowTruncate = false,
-            List<DiagnosticsNode> children = null,
-            List<DiagnosticsNode> properties = null
-        ) : base(
-            name: name,
-            style: style,
-            showName: showName && name != null,
-            showSeparator: showSeparator,
-            linePrefix: linePrefix
-        ) {
-            _description = description;
-            _children = children ?? new List<DiagnosticsNode>();
-            _properties = properties ?? new List<DiagnosticsNode>();
-            this.level = level;
-            valueObject = value;
-            this.allowTruncate = allowTruncate;
-        }
-
-        readonly List<DiagnosticsNode> _children;
-        readonly List<DiagnosticsNode> _properties;
-
-
-        public override DiagnosticLevel level { get; }
-        readonly string _description;
-
-        public override object valueObject { get; }
-
-        public readonly bool allowTruncate;
-
-        public override List<DiagnosticsNode> getChildren() {
-            return _children;
-        }
-
-        public override List<DiagnosticsNode> getProperties() {
-            return _properties;
-        }
-
-        public override string toDescription(TextTreeConfiguration parentConfiguration = null) {
-            return _description;
-        }
-    }
-
-    public abstract class DiagnosticsSerializationDelegate {
-        public DiagnosticsSerializationDelegate(
-            int subtreeDepth = 0,
-            bool includeProperties = false
-        ) {
-            new _DefaultDiagnosticsSerializationDelegate(includeProperties, subtreeDepth);
-        }
-
-        public abstract Dictionary<string, object> additionalNodeProperties(DiagnosticsNode node);
-        public abstract List<DiagnosticsNode> filterChildren(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
-
-        public abstract List<DiagnosticsNode> filterProperties(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
-
-        public abstract List<DiagnosticsNode> truncateNodesList(List<DiagnosticsNode> nodes, DiagnosticsNode owner);
-
-        public abstract DiagnosticsSerializationDelegate delegateForNode(DiagnosticsNode node);
-
-        public int subtreeDepth { get; }
-
-        public bool includeProperties { get; }
-
-        public bool expandPropertyValues { get; }
-
-        public abstract DiagnosticsSerializationDelegate copyWith(
-            int? subtreeDepth = null,
-            bool? includeProperties = null
-        );
-    }
-
-    class _DefaultDiagnosticsSerializationDelegate : DiagnosticsSerializationDelegate {
-        public _DefaultDiagnosticsSerializationDelegate(
-            bool includeProperties = false,
-            int subtreeDepth = 0
-        ) {
-            this.includeProperties = includeProperties;
-            this.subtreeDepth = subtreeDepth;
-        }
-
-        public override Dictionary<string, object> additionalNodeProperties(DiagnosticsNode node) {
-            return new Dictionary<string, object>();
-        }
-
-        public override DiagnosticsSerializationDelegate delegateForNode(DiagnosticsNode node) {
-            return subtreeDepth > 0 ? copyWith(subtreeDepth: subtreeDepth - 1) : this;
-        }
-
-        new bool expandPropertyValues {
-            get { return false; }
-        }
-
-        public override List<DiagnosticsNode> filterChildren(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
-            return nodes;
-        }
-
-        public override List<DiagnosticsNode> filterProperties(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
-            return nodes;
-        }
-
-        public new readonly bool includeProperties;
-
-        public new readonly int subtreeDepth;
-
-        public override List<DiagnosticsNode> truncateNodesList(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
-            return nodes;
-        }
-
-        public override DiagnosticsSerializationDelegate copyWith(int? subtreeDepth = null,
-            bool? includeProperties = null) {
-            return new _DefaultDiagnosticsSerializationDelegate(
-                subtreeDepth: subtreeDepth ?? this.subtreeDepth,
-                includeProperties: includeProperties ?? this.includeProperties
-            );
         }
     }
 }

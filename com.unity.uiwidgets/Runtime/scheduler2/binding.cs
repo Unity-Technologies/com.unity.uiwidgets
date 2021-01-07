@@ -7,7 +7,6 @@ using Unity.UIWidgets.async;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using FrameTiming = Unity.UIWidgets.ui.FrameTiming;
 using Timer = Unity.UIWidgets.async2.Timer;
@@ -81,17 +80,13 @@ namespace Unity.UIWidgets.scheduler2 {
                     D.assert(() => {
                         if (debugCurrentCallbackStack == null) {
                             throw new UIWidgetsError(
-                                new List<DiagnosticsNode>() {
-                                    new ErrorSummary(
-                                        "scheduleFrameCallback called with rescheduling true, but no callback is in scope."),
-                                    new ErrorDescription(
-                                        "The \"rescheduling\" argument should only be set to true if the " +
-                                        "callback is being reregistered from within the callback itself, " +
-                                        "and only then if the callback itself is entirely synchronous."),
-                                    new ErrorHint("If this is the initial registration of the callback, or if the " +
-                                                  "callback is asynchronous, then do not use the \"rescheduling\" " +
-                                                  "argument.")
-                                });
+                                "scheduleFrameCallback called with rescheduling true, but no callback is in scope.\n" +
+                                "The \"rescheduling\" argument should only be set to true if the " +
+                                "callback is being reregistered from within the callback itself, " +
+                                "and only then if the callback itself is entirely synchronous. \n" +
+                                "If this is the initial registration of the callback, or if the " +
+                                "callback is asynchronous, then do not use the \"rescheduling\" " +
+                                "argument.");
                         }
 
                         return true;
@@ -171,19 +166,15 @@ namespace Unity.UIWidgets.scheduler2 {
                 catch (Exception ex) {
                     InformationCollector collector = null;
                     D.assert(() => {
-                        IEnumerable<DiagnosticsNode> infoCollect() {
-                            yield return new DiagnosticsProperty<TimingsCallback>(
-                                "The TimingsCallback that gets executed was",
-                                callback,
-                                style: DiagnosticsTreeStyle.errorProperty);
-                        }
-                        collector = infoCollect;
+                        collector = (StringBuilder sb) => {
+                            sb.AppendLine("The TimingsCallback that gets executed was " + callback);
+                        };
                         return true;
                     });
 
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: ex,
-                        context: new ErrorDescription("while executing callbacks for FrameTiming"),
+                        context: "while executing callbacks for FrameTiming",
                         informationCollector: collector
                     ));
                 }
@@ -292,20 +283,17 @@ namespace Unity.UIWidgets.scheduler2 {
                         callbackStack = entry.debugStack;
                         return true;
                     });
-
-                    IEnumerable<DiagnosticsNode> infoCollector() {
-                        yield return DiagnosticsNode.message("\nThis exception was thrown in the context of a scheduler callback. " +
-                                                             "When the scheduler callback was _registered_ (as opposed to when the " +
-                                                             "exception was thrown), this was the stack: " + callbackStack);
-                    }
-                    
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: exception,
                         library: "scheduler library",
-                        context: new ErrorDescription("during a task callback"),
+                        context: "during a task callback",
                         informationCollector: callbackStack == null
                             ? (InformationCollector) null
-                            : infoCollector
+                            : sb => {
+                                sb.AppendLine("\nThis exception was thrown in the context of a scheduler callback. " +
+                                              "When the scheduler callback was _registered_ (as opposed to when the " +
+                                              "exception was thrown), this was the stack: " + callbackStack);
+                            }
                     ));
                 }
 
@@ -401,7 +389,7 @@ namespace Unity.UIWidgets.scheduler2 {
         }
 
         public void scheduleFrame() {
-            if (_hasScheduledFrame || !framesEnabled)
+            if (_hasScheduledFrame || !_framesEnabled)
                 return;
 
             D.assert(() => {
@@ -649,26 +637,23 @@ namespace Unity.UIWidgets.scheduler2 {
                 callback(timeStamp);
             }
             catch (Exception ex) {
-                IEnumerable<DiagnosticsNode> infoCollector() {
-                    yield return DiagnosticsNode.message("\nThis exception was thrown in the context of a scheduler callback. " +
-                                                         "When the scheduler callback was _registered_ (as opposed to when the " +
-                                                         "exception was thrown), this was the stack:");
-                    StringBuilder builder = new StringBuilder();
-                    foreach (var line in UIWidgetsError.defaultStackFilter(
-                        callbackStack.TrimEnd().Split('\n'))) {
-                        builder.AppendLine(line);
-                    }
-
-                    yield return DiagnosticsNode.message(builder.ToString());
-                }
-                
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                     exception: ex,
                     library: "scheduler library",
-                    context: new ErrorDescription("during a scheduler callback"),
+                    context: "during a scheduler callback",
                     informationCollector: callbackStack == null
                         ? (InformationCollector) null
-                        : infoCollector
+                        : information => {
+                            information.AppendLine(
+                                "\nThis exception was thrown in the context of a scheduler callback. " +
+                                "When the scheduler callback was _registered_ (as opposed to when the " +
+                                "exception was thrown), this was the stack:"
+                            );
+                            foreach (var line in UIWidgetsError.defaultStackFilter(
+                                callbackStack.TrimEnd().Split('\n'))) {
+                                information.AppendLine(line);
+                            }
+                        }
                 ));
             }
 

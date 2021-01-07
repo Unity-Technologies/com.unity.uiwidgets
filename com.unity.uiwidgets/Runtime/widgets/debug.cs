@@ -145,7 +145,7 @@ namespace Unity.UIWidgets.widgets {
             var details = new UIWidgetsErrorDetails(
                 exception: exception,
                 library: "widgets library",
-                context: new ErrorDescription(context),
+                context: context,
                 informationCollector: informationCollector
             );
             UIWidgetsError.reportError(details);

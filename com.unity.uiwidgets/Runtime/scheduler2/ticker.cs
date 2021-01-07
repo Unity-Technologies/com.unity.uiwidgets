@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
@@ -67,13 +66,10 @@ namespace Unity.UIWidgets.scheduler2 {
             D.assert(() => {
                 if (isActive) {
                     throw new UIWidgetsError(
-                        new List<DiagnosticsNode>() {
-                            new ErrorSummary("A ticker was started twice."),
-                            new ErrorDescription(
-                                "A ticker that is already active cannot be started again without first stopping it."),
-                            describeForError("The affected ticker was: ")
-                        });
+                        "A ticker was started twice.\nA ticker that is already active cannot be started again without first stopping it.\n" +
+                        "The affected ticker was: " + toString(debugIncludeStack: true));
                 }
+
                 return true;
             });
 
@@ -89,10 +85,6 @@ namespace Unity.UIWidgets.scheduler2 {
             }
 
             return _future;
-        }
-
-        DiagnosticsNode describeForError(string name) {
-            return new DiagnosticsProperty<Ticker>(name, this, description: toString(debugIncludeStack: true));
         }
 
         public void stop(bool canceled = false) {

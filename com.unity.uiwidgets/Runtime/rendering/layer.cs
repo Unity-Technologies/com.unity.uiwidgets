@@ -419,23 +419,19 @@ namespace Unity.UIWidgets.rendering {
         }
 
         List<PictureLayer> _processConflictingPhysicalLayers(PhysicalModelLayer predecessor, PhysicalModelLayer child) {
-            IEnumerable<DiagnosticsNode> infoCollector() {
-                yield return child.toDiagnosticsNode(name: "Attempted to composite layer",
-                    style: DiagnosticsTreeStyle.errorProperty);
-                yield return predecessor.toDiagnosticsNode(name: "after layer",
-                    style: DiagnosticsTreeStyle.errorProperty);
-                yield return new ErrorDescription("which occupies the same area at a higher elevation.");
-            }
-            
             UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                 exception: new UIWidgetsError("Painting order is out of order with respect to elevation.\n" +
                                               "See https://api.flutter.dev/flutter/rendering/debugCheckElevations.html " +
                                               "for more details."),
-                library: "rendering library",
-                context: new ErrorDescription("during compositing"),
-                informationCollector: infoCollector
+                context: "during compositing",
+                informationCollector: (StringBuilder builder) => {
+                    builder.AppendLine("Attempted to composite layer");
+                    builder.AppendLine(child.ToString());
+                    builder.AppendLine("after layer");
+                    builder.AppendLine(predecessor.ToString());
+                    builder.AppendLine("which occupies the same area at a higher elevation.");
+                }
             ));
-            
             return new List<PictureLayer> {
                 _highlightConflictingLayer(predecessor),
                 _highlightConflictingLayer(child)
