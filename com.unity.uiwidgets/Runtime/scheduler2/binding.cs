@@ -251,6 +251,7 @@ namespace Unity.UIWidgets.scheduler2 {
                 _ensureEventLoopCallback();
             return entry.completer.future;
         }
+        
 
         protected override void unlocked() {
             base.unlocked();
@@ -305,7 +306,11 @@ namespace Unity.UIWidgets.scheduler2 {
                         context: new ErrorDescription("during a task callback"),
                         informationCollector: callbackStack == null
                             ? (InformationCollector) null
-                            : infoCollector
+                            : (StringBuilder sb) => {
+                                sb.AppendLine("\nThis exception was thrown in the context of a scheduler callback. " +
+                                              "When the scheduler callback was _registered_ (as opposed to when the " +
+                                              "exception was thrown), this was the stack: " + callbackStack);
+                            }
                     ));
                 }
 
@@ -668,7 +673,17 @@ namespace Unity.UIWidgets.scheduler2 {
                     context: new ErrorDescription("during a scheduler callback"),
                     informationCollector: callbackStack == null
                         ? (InformationCollector) null
-                        : infoCollector
+                        : (StringBuilder information) => {
+                            information.AppendLine(
+                                "\nThis exception was thrown in the context of a scheduler callback. " +
+                                "When the scheduler callback was _registered_ (as opposed to when the " +
+                                "exception was thrown), this was the stack:"
+                            );
+                            foreach (var line in UIWidgetsError.defaultStackFilter(
+                                callbackStack.TrimEnd().Split('\n'))) {
+                                information.AppendLine(line);
+                            }
+                        }
                 ));
             }
 

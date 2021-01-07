@@ -18,6 +18,7 @@ namespace Unity.UIWidgets.animation {
         public AnimationController(
             float? value = null,
             TimeSpan? duration = null,
+            TimeSpan? reverseDuration = null,
             string debugLabel = null,
             float lowerBound = 0.0f,
             float upperBound = 1.0f,
@@ -28,6 +29,7 @@ namespace Unity.UIWidgets.animation {
             _direction = _AnimationDirection.forward;
 
             this.duration = duration;
+            this.reverseDuration = reverseDuration;
             this.debugLabel = debugLabel;
             this.lowerBound = lowerBound;
             this.upperBound = upperBound;
@@ -75,6 +77,8 @@ namespace Unity.UIWidgets.animation {
 
         public TimeSpan? duration;
 
+        public TimeSpan? reverseDuration;
+        
         Ticker _ticker;
 
         public void resync(TickerProvider vsync) {

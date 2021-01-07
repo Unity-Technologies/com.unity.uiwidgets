@@ -33,29 +33,39 @@ namespace Unity.UIWidgets.widgets {
 
     public abstract class TextSelectionControls {
         public abstract Widget buildHandle(BuildContext context, TextSelectionHandleType type, float textLineHeight);
-
-        public abstract Widget buildToolbar(BuildContext context, Rect globalEditableRegion, Offset position,
-            TextSelectionDelegate selectionDelegate);
+        public abstract Offset getHandleAnchor(TextSelectionHandleType type, float textLineHeight);
+        public abstract Widget buildToolbar(
+            BuildContext context, 
+            Rect globalEditableRegion, 
+            float textLineHeight,
+            Offset position,
+            List<TextSelectionPoint> endpoints,
+            TextSelectionDelegate selectionDelegate
+            );
+        public abstract Size getHandleSize(float textLineHeight);
 
         public abstract Size handleSize { get; }
 
-        public virtual bool canCut(TextSelectionDelegate selectionDelegate) {
-            return !selectionDelegate.textEditingValue.selection.isCollapsed;
+        public virtual bool canCut(TextSelectionDelegate _delegate) {
+            return _delegate.cutEnabled && !_delegate.textEditingValue.selection.isCollapsed;
         }
 
-        public virtual bool canCopy(TextSelectionDelegate selectionDelegate) {
-            return !selectionDelegate.textEditingValue.selection.isCollapsed;
+
+        bool canCopy(TextSelectionDelegate _delegate) {
+            return _delegate.copyEnabled && !_delegate.textEditingValue.selection.isCollapsed;
         }
 
-        public virtual bool canPaste(TextSelectionDelegate selectionDelegate) {
-            // TODO in flutter: return false when clipboard is empty
-            return true;
+        bool canPaste(TextSelectionDelegate _delegate) {
+            // TODO(goderbauer): return false when clipboard is empty, https://github.com/flutter/flutter/issues/11254
+            return _delegate.pasteEnabled;
         }
 
-        public virtual bool canSelectAll(TextSelectionDelegate selectionDelegate) {
-            return selectionDelegate.textEditingValue.text.isNotEmpty() &&
-                   selectionDelegate.textEditingValue.selection.isCollapsed;
+        bool canSelectAll(TextSelectionDelegate _delegate) {
+            return _delegate.selectAllEnabled 
+                   && _delegate.textEditingValue.text.isNotEmpty() 
+                   && _delegate.textEditingValue.selection.isCollapsed;
         }
+
 
         public void handleCut(TextSelectionDelegate selectionDelegate) {
             TextEditingValue value = selectionDelegate.textEditingValue;
@@ -118,8 +128,10 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class TextSelectionOverlay {
-        public TextSelectionOverlay(TextEditingValue value = null,
-            BuildContext context = null, Widget debugRequiredFor = null,
+        public TextSelectionOverlay(
+            TextEditingValue value = null,
+            BuildContext context = null, 
+            Widget debugRequiredFor = null,
             LayerLink layerLink = null,
             RenderEditable renderObject = null,
             TextSelectionControls selectionControls = null,
