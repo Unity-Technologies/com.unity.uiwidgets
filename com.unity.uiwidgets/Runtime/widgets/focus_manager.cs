@@ -220,7 +220,8 @@ namespace Unity.UIWidgets.widgets {
 
         string _debugLabel;
         public FocusAttachment _attachment;
-        IEnumerable<FocusNode> descendants {
+
+        public IEnumerable<FocusNode> descendants {
             get {
                 if (_descendants == null) {
                     List<FocusNode> result = new List<FocusNode>();
@@ -241,7 +242,7 @@ namespace Unity.UIWidgets.widgets {
 
         }
 
-        IEnumerable<FocusNode> traversalDescendants {
+        public IEnumerable<FocusNode> traversalDescendants {
             get {
                 return descendants.Where((FocusNode node) => !node.skipTraversal && node.canRequestFocus);
             }
@@ -636,7 +637,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        FocusNode focusedChild {
+        public FocusNode focusedChild {
             get {
                 D.assert(_focusedChildren.isEmpty() || _focusedChildren.Last().enclosingScope == this,()=> "Focused child does not have the same idea of its enclosing scope as the scope does.");
                 return _focusedChildren.isNotEmpty() ? _focusedChildren.Last() : null;
