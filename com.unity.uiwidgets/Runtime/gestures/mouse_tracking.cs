@@ -124,7 +124,7 @@ namespace Unity.UIWidgets.gestures {
             MouseDetectorAnnotationFinder annotationFinder
             
         ) {
-            D.assert(_router != null);
+            D.assert(router != null);
             D.assert(annotationFinder != null);
             _router = router;
             router.addGlobalRoute(_handleEvent);
@@ -167,7 +167,7 @@ namespace Unity.UIWidgets.gestures {
             if (Event is PointerSignalEvent)
                 return;
             int device = Event.device;
-            _MouseState existingState = _mouseStates[device];
+            _MouseState existingState = _mouseStates.getOrDefault(device);
             if (!_shouldMarkStateDirty(existingState, Event))
                 return;
             PointerEvent previousEvent = existingState?.latestEvent;
@@ -274,7 +274,7 @@ namespace Unity.UIWidgets.gestures {
             
             _MouseState targetState = null;
             if (targetEvent != null) {
-              targetState = _mouseStates[targetEvent.device];
+              targetState = _mouseStates.getOrDefault(targetEvent.device);
               if (targetState == null) {
                 targetState = new  _MouseState(initialEvent: targetEvent);
                 _mouseStates[targetState.device] = targetState;
