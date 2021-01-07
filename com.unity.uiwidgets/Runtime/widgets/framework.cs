@@ -1999,7 +1999,7 @@ namespace Unity.UIWidgets.widgets {
 
         public T dependOnInheritedWidgetOfExactType<T>(object aspect = null) where T : InheritedWidget {
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
-            InheritedElement ancestor = _inheritedWidgets == null ? null : _inheritedWidgets[typeof(T)];
+            InheritedElement ancestor = _inheritedWidgets == null ? null : _inheritedWidgets.getOrDefault(typeof(T));
             
             if (ancestor != null) {
                 D.assert(ancestor is InheritedElement);

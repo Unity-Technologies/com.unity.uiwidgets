@@ -35,14 +35,7 @@ namespace Unity.UIWidgets.cupertino {
             Dictionary<LogicalKeySet, Intent> shortcuts = null,
             Dictionary<LocalKey, ActionFactory> actions = null
         ) : base(key: key) {
-            D.assert(routes != null);
-            D.assert(navigatorObservers != null);
             D.assert(title != null);
-            D.assert(showPerformanceOverlay != null);
-            D.assert(checkerboardRasterCacheImages != null);
-            D.assert(checkerboardOffscreenLayers != null);
-            D.assert(showSemanticsDebugger != null);
-            D.assert(debugShowCheckedModeBanner != null);
 
             supportedLocales = supportedLocales ?? new List<Locale> {new Locale("en", "US")};
             this.navigatorKey = navigatorKey;
