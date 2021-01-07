@@ -640,6 +640,7 @@ namespace Unity.UIWidgets.foundation {
             _maxDescendentsTruncatableNode = maxDescendentsTruncatableNode;
         }
 
+
         readonly int _wrapWidth;
         readonly int _wrapWidthProperties;
         readonly DiagnosticLevel _minLevel;
@@ -2199,11 +2200,11 @@ namespace Unity.UIWidgets.foundation {
             return new List<DiagnosticsNode>();
         }
     }
-    
-    public class DiagnosticableNode<T> : DiagnosticsNode where T : Diagnosticable {
+
+    public class DiagnosticableNode<T> : DiagnosticsNode where T : IDiagnosticable {
         public DiagnosticableNode(
             string name = null,
-            T value = null,
+            T value = default,
             DiagnosticsTreeStyle? style = null
         ) : base(name: name, style: style) {
             D.assert(value != null);
@@ -2338,8 +2339,21 @@ namespace Unity.UIWidgets.foundation {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
         }
     }
-    
-    public abstract class Diagnosticable {
+
+    public interface IDiagnosticable {
+        string toStringShort();
+
+        string toString(DiagnosticLevel minLevel = DiagnosticLevel.debug);
+
+        DiagnosticsNode toDiagnosticsNode(
+            string name = null,
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse);
+
+        void debugFillProperties(DiagnosticPropertiesBuilder properties);
+    }
+
+    public abstract class Diagnosticable : IDiagnosticable {
+
         protected Diagnosticable() {
         }
 
@@ -2363,7 +2377,7 @@ namespace Unity.UIWidgets.foundation {
 
         public virtual DiagnosticsNode toDiagnosticsNode(
             string name = null,
-            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse) {
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse ) {
             return new DiagnosticableNode<Diagnosticable>(
                 name: name, value: this, style: style
             );
@@ -2419,6 +2433,7 @@ namespace Unity.UIWidgets.foundation {
 
         public override DiagnosticsNode toDiagnosticsNode(
             string name = null,
+
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse) {
             return new DiagnosticableTreeNode(
                 name: name,
