@@ -121,7 +121,7 @@ namespace Unity.UIWidgets.widgets {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             style?.debugFillProperties(properties);
-            properties.add(new EnumProperty<TextAlign>("textAlign", textAlign.Value, defaultValue: null));
+            properties.add(new EnumProperty<TextAlign?>("textAlign", textAlign, defaultValue: null));
             properties.add(new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width", ifFalse: "no wrapping except at line break characters", showName: true));
             properties.add(new EnumProperty<TextOverflow>("overflow", overflow, defaultValue: null));
             properties.add(new IntProperty("maxLines", maxLines, defaultValue: null));
