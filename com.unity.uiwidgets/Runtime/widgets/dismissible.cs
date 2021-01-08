@@ -45,7 +45,7 @@ namespace Unity.UIWidgets.widgets {
             DragStartBehavior dragStartBehavior = DragStartBehavior.start
         ) : base(key: key) {
             D.assert(key != null);
-            D.assert(secondaryBackground != null ? background != null : true);
+            D.assert(secondaryBackground == null || background != null);
             this.resizeDuration = resizeDuration ?? new TimeSpan(0, 0, 0, 0, 300);
             this.dismissThresholds = dismissThresholds ?? new Dictionary<DismissDirection?, float?>();
             this.movementDuration = movementDuration ?? new TimeSpan(0, 0, 0, 0, 200);
