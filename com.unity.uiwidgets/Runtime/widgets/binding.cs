@@ -4,6 +4,7 @@ using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
@@ -202,6 +203,8 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
+        bool _readyToProduceFrames = false;
+        
         public RenderObjectToWidgetElement<RenderBox> renderViewElement {
             get { return _renderViewElement; }
         }
@@ -233,11 +236,16 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void attachRootWidget(Widget rootWidget) {
+            _readyToProduceFrames = true;
             _renderViewElement = new RenderObjectToWidgetAdapter<RenderBox>(
                 container: renderView,
                 debugShortDescription: "[root]",
                 child: rootWidget
             ).attachToRenderTree(buildOwner, _renderViewElement);
+        }
+        
+        bool isRootWidgetAttached {
+            get { return _renderViewElement != null; }
         }
     }
 
@@ -279,6 +287,7 @@ namespace Unity.UIWidgets.widgets {
                     element.assignOwner(owner);
                 });
                 owner.buildScope(element, () => { element.mount(null, null); });
+                SchedulerBinding.instance.ensureVisualUpdate();
             }
             else {
                 element._newWidget = this;
@@ -314,6 +323,7 @@ namespace Unity.UIWidgets.widgets {
         internal override void forgetChild(Element child) {
             D.assert(child == _child);
             _child = null;
+            base.forgetChild(child);
         }
 
         public override void mount(Element parent, object newSlot) {
@@ -334,7 +344,7 @@ namespace Unity.UIWidgets.widgets {
             if (_newWidget != null) {
                 Widget newWidget = _newWidget;
                 _newWidget = null;
-                update(newWidget);
+                update((RenderObjectToWidgetAdapter<T>)newWidget);
             }
 
             base.performRebuild();
