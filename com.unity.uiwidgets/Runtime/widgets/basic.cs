@@ -2486,4 +2486,61 @@ namespace Unity.UIWidgets.widgets {
             return builder(context);
         }
     }
+    
+    public class ColoredBox : SingleChildRenderObjectWidget {
+        /// Creates a widget that paints its area with the specified [Color].
+        ///
+        /// The [color] parameter must not be null.
+        public ColoredBox(Color color = null, Widget child = null, Key key = null) : base(key: key, child: child) {
+            D.assert(color != null);
+        }
+        /// The color to paint the background area with.
+        public readonly Color color;
+        
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new _RenderColoredBox(color: color);
+        }
+        
+        public  void updateRenderObject(BuildContext context, _RenderColoredBox renderObject) {
+            renderObject.color = color; 
+        }
+
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<Color>("color", color));
+        }
+    }
+
+    public class _RenderColoredBox : RenderProxyBoxWithHitTestBehavior {
+        public _RenderColoredBox(Color color = null)
+            : base(behavior: HitTestBehavior.opaque) {
+            _color = color;
+        }
+        
+        public Color  color {
+            get { return _color; }
+            set {
+                D.assert(value != null);
+                if (value == _color) {
+                    return;
+                }
+                _color = value;
+                markNeedsPaint();
+            }
+        }
+
+        Color _color;
+        
+        public override void paint(PaintingContext context, Offset offset) {
+            if (size > Size.zero) {
+                Paint paint = new Paint();
+                paint.color = color;
+                context.canvas.drawRect(offset & size, paint);
+            }
+            if (child != null) {
+                context.paintChild(child, offset);
+            }
+        }
+    }
 }
