@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -185,7 +186,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        void _routePointer(PointerEvent pEvent) {
+        void _routePointer(PointerDownEvent pEvent) {
             if (widget.maxSimultaneousDrags != null &&
                 _activeCount >= widget.maxSimultaneousDrags) {
                 return;
@@ -332,13 +333,16 @@ namespace Unity.UIWidgets.widgets {
             D.assert(!_candidateAvatars.Contains(avatar));
             D.assert(!_rejectedAvatars.Contains(avatar));
 
-            if (avatar.data is T && (widget.onWillAccept == null || widget.onWillAccept(avatar.data))) {
+            if (avatar.data is _DragAvatar<T> && (widget.onWillAccept == null || widget.onWillAccept(avatar.data))) {
                 setState(() => { _candidateAvatars.Add(avatar); });
                 return true;
             }
-
-            _rejectedAvatars.Add(avatar);
-            return false;
+            else {
+                setState(() => {
+                    _rejectedAvatars.Add(avatar);
+                });
+                return false;
+            }
         }
 
         public void didLeave(_DragAvatar<T> avatar) {
@@ -545,7 +549,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public Widget _build(BuildContext context) {
-            RenderBox box = (RenderBox) overlayState.context.findRenderObject();
+            RenderBox box =  overlayState.context.findRenderObject() as RenderBox;
             Offset overlayTopLeft = box.localToGlobal(Offset.zero);
             return new Positioned(
                 left: _lastOffset.dx - overlayTopLeft.dx,
