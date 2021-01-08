@@ -82,15 +82,14 @@ namespace Unity.UIWidgets.widgets {
 
         public static bool debugCheckHasMediaQuery(BuildContext context) {
             D.assert(() => {
-                if (!(context.widget is MediaQuery) && context.ancestorWidgetOfExactType(typeof(MediaQuery)) == null) {
-                    Element element = (Element) context;
+                if (!(context.widget is MediaQuery) && context.findAncestorWidgetOfExactType<MediaQuery>() == null) {
                     throw new UIWidgetsError(
                         "No MediaQuery widget found.\n" +
                         context.widget.GetType() + " widgets require a MediaQuery widget ancestor.\n" +
                         "The specific widget that could not find a MediaQuery ancestor was:\n" +
                         "  " + context.widget + "\n" +
                         "The ownership chain for the affected widget is:\n" +
-                        "  " + element.debugGetCreatorChain(10) + "\n" +
+                        "  " + ((Element)context).debugGetCreatorChain(10) + "\n" +
                         "Typically, the MediaQuery widget is introduced by the MaterialApp or " +
                         "WidgetsApp widget at the top of your application widget tree."
                     );
@@ -104,15 +103,14 @@ namespace Unity.UIWidgets.widgets {
         public static bool debugCheckHasDirectionality(BuildContext context) {
             D.assert(() => {
                 if (!(context.widget is Directionality) &&
-                    context.ancestorWidgetOfExactType(typeof(Directionality)) == null) {
-                    Element element = (Element) context;
+                    context.findAncestorWidgetOfExactType<Directionality>() == null) {
                     throw new UIWidgetsError(
                         "No Directionality widget found.\n" +
                         context.widget.GetType() + " widgets require a Directionality widget ancestor.\n" +
                         "The specific widget that could not find a Directionality ancestor was:\n" +
                         "  " + context.widget + "\n" +
                         "The ownership chain for the affected widget is:\n" +
-                        "  " + element.debugGetCreatorChain(10) + "\n" +
+                        "  " + ((Element) context).debugGetCreatorChain(10) + "\n" +
                         "Typically, the Directionality widget is introduced by the MaterialApp " +
                         "or WidgetsApp widget at the top of your application widget tree. It " +
                         "determines the ambient reading direction and is used, for example, to " +
