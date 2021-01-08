@@ -95,20 +95,6 @@ namespace Unity.UIWidgets.animation {
             return lerp(t);
         }
 
-
-        /*public override T evaluate(Animation<float> animation) {
-            float t = animation.value;
-            if (t == 0.0) {
-                return begin;
-            }
-
-            if (t == 1.0) {
-                return end;
-            }
-
-            return lerp(t);
-        }*/
-
         public override string ToString() {
             return $"{GetType()}({begin} \u2192 {end})";
         }
