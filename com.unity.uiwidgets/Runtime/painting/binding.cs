@@ -1,13 +1,11 @@
-using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.painting {
-    public class PaintingBinding : GestureBinding {
+    public class PaintingBinding : ServicesBinding {
         protected override void initInstances() {
             base.initInstances();
             instance = this;
@@ -19,7 +17,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public new static PaintingBinding instance {
-            get { return (PaintingBinding) GestureBinding.instance; }
+            get { return (PaintingBinding) ServicesBinding.instance; }
             set { Window.instance._binding = value; }
         }
 
@@ -27,29 +25,42 @@ namespace Unity.UIWidgets.painting {
 
         public ImageCache imageCache => _imageCache;
         ImageCache _imageCache;
-        readonly _SystemFontsNotifier _systemFonts = new _SystemFontsNotifier();
-        public _SystemFontsNotifier  systemFonts {
+        
+        public Listenable  systemFonts {
             get { return _systemFonts; }
         }
+        
+        readonly _SystemFontsNotifier _systemFonts = new _SystemFontsNotifier();
+       
+        
 
         protected virtual ImageCache createImageCache() {
             return new ImageCache();
         }
+
+        Future<ui.Codec> instantiateImageCodec(byte[] bytes,
+            int? cacheWidth,
+            int? cacheHeight
+        ) {
+            D.assert(cacheWidth == null || cacheWidth > 0);
+            D.assert(cacheHeight == null || cacheHeight > 0);
+            return ui_.instantiateImageCodec(
+                bytes,
+                targetWidth: cacheWidth,
+                targetHeight: cacheHeight
+            );
+        }
     }
 
-    public static partial class painting_ {
-        public static ImageCache imageCache => PaintingBinding.instance.imageCache;
-    }
-    
-    public class _SystemFontsNotifier : Listenable {
-        HashSet<VoidCallback> _systemFontsCallbacks = new HashSet<VoidCallback>();
+    internal class _SystemFontsNotifier : Listenable {
+        readonly HashSet<VoidCallback> _systemFontsCallbacks = new HashSet<VoidCallback>();
 
-        void notifyListeners () {
+        void notifyListeners() {
             foreach (VoidCallback callback in _systemFontsCallbacks) {
                 callback();
             }
         }
-    
+
         public void addListener(VoidCallback listener) {
             _systemFontsCallbacks.Add(listener);
         }
@@ -57,5 +68,10 @@ namespace Unity.UIWidgets.painting {
         public void removeListener(VoidCallback listener) {
             _systemFontsCallbacks.Remove(listener);
         }
+    }
+
+
+    public static partial class painting_ {
+        public static ImageCache imageCache => PaintingBinding.instance.imageCache;
     }
 }

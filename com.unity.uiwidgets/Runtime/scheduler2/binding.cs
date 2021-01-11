@@ -6,8 +6,8 @@ using developer;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using FrameTiming = Unity.UIWidgets.ui.FrameTiming;
 using Timer = Unity.UIWidgets.async2.Timer;
@@ -120,7 +120,7 @@ namespace Unity.UIWidgets.scheduler2 {
         postFrameCallbacks,
     }
 
-    public class SchedulerBinding : BindingBase {
+    public class SchedulerBinding : PaintingBinding {
         protected override void initInstances() {
             base.initInstances();
             instance = this;
