@@ -27,6 +27,9 @@ namespace Unity.UIWidgets.engine2 {
         public TextFont[] fonts;
 
         static object fontsToObject(TextFont[] textFont) {
+            if (textFont == null || textFont.Length == 0) {
+                return null;
+            }
             var result = new object[textFont.Length];
             for (int i = 0; i < textFont.Length; i++) {
                 var font = new Dictionary<string, object>();

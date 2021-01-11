@@ -120,7 +120,6 @@ namespace Unity.UIWidgets.rendering {
             _doubleTap = new DoubleTapGestureRecognizer(this);
             _tap.onTapDown = _handleTapDown;
             _tap.onTap = _handleTap;
-            _doubleTap.onDoubleTap = _handleDoubleTap;
             _longPress = new LongPressGestureRecognizer(debugOwner: this);
             _longPress.onLongPress = _handleLongPress;
 
