@@ -60,6 +60,10 @@ namespace Unity.UIWidgets.rendering {
         ) {
             D.assert(childManager != null);
             _childManager = childManager;
+            D.assert(()=> {
+                _debugDanglingKeepAlives = new List<RenderBox>();
+                return true;
+            });
         }
 
         public override void setupParentData(RenderObject child) {
@@ -71,11 +75,24 @@ namespace Unity.UIWidgets.rendering {
         protected RenderSliverBoxChildManager childManager {
             get { return _childManager; }
         }
-
         readonly RenderSliverBoxChildManager _childManager;
 
         readonly Dictionary<int, RenderBox> _keepAliveBucket = new Dictionary<int, RenderBox>();
+        List<RenderBox> _debugDanglingKeepAlives;
 
+        public bool debugChildIntegrityEnabled {
+            get { return _debugChildIntegrityEnabled;}
+        }
+        public void setDebugChildIntegrityEnabled(bool enabled) {
+            D.assert(enabled != null);
+            D.assert(() => {
+                _debugChildIntegrityEnabled = enabled;
+                return _debugVerifyChildOrder() &&
+                       (!_debugChildIntegrityEnabled || _debugDanglingKeepAlives.isEmpty());
+            });
+        }
+        bool _debugChildIntegrityEnabled = true;
+        
         protected override void adoptChild(AbstractNodeMixinDiagnosticableTree childNode) {
             base.adoptChild(childNode);
             var child = (RenderBox) childNode;
@@ -89,35 +106,62 @@ namespace Unity.UIWidgets.rendering {
             return childManager.debugAssertChildListLocked();
         }
 
+        bool _debugVerifyChildOrder(){
+            if (_debugChildIntegrityEnabled) {
+                RenderBox child = firstChild;
+                int index;
+                while (child != null) {
+                    index = indexOf(child);
+                    child = childAfter(child);
+                    D.assert(child == null || indexOf(child) > index);
+                }
+            }
+            return true;
+        }
+
         public override void insert(RenderBox child, RenderBox after = null) {
             D.assert(!_keepAliveBucket.ContainsValue(value: child));
             base.insert(child, after: after);
             D.assert(firstChild != null);
-            D.assert(() => {
-                int index = indexOf(firstChild);
-                RenderBox childAfter = this.childAfter(firstChild);
-                while (childAfter != null) {
-                    D.assert(indexOf(childAfter) > index);
-                    index = indexOf(childAfter);
-                    childAfter = this.childAfter(childAfter);
-                }
-
-                return true;
-            });
+            D.assert(_debugVerifyChildOrder());
         }
-
+        public new void move(RenderBox child, RenderBox after = null) {
+            SliverMultiBoxAdaptorParentData childParentData = child.parentData as SliverMultiBoxAdaptorParentData;
+            if (!childParentData.keptAlive) {
+                base.move(child, after: after);
+                childManager.didAdoptChild(child);
+                markNeedsLayout();
+            } else {
+                if (_keepAliveBucket[childParentData.index] == child) {
+                    _keepAliveBucket.Remove(childParentData.index);
+                }
+                D.assert(()=> {
+                    _debugDanglingKeepAlives.Remove(child);
+                    return true;
+                });
+                childManager.didAdoptChild(child);
+                D.assert(()=> {
+                    if (_keepAliveBucket.ContainsKey(childParentData.index))
+                        _debugDanglingKeepAlives.Add(_keepAliveBucket[childParentData.index]);
+                    return true;
+                });
+                _keepAliveBucket[childParentData.index] = child;
+            }
+        }
         public override void remove(RenderBox child) {
             SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
             if (!childParentData._keptAlive) {
                 base.remove(child);
                 return;
             }
-
             D.assert(_keepAliveBucket[childParentData.index] == child);
+            D.assert(()=> {
+                _debugDanglingKeepAlives.Remove(child);
+                return true;
+            });
             _keepAliveBucket.Remove(childParentData.index);
             dropChild(child);
         }
-
         public override void removeAll() {
             base.removeAll();
 
@@ -196,31 +240,29 @@ namespace Unity.UIWidgets.rendering {
         protected bool addInitialChild(int index = 0, float layoutOffset = 0.0f) {
             D.assert(_debugAssertChildListLocked());
             D.assert(firstChild == null);
-
             _createOrObtainChild(index, after: null);
             if (firstChild != null) {
                 D.assert(firstChild == lastChild);
                 D.assert(indexOf(firstChild) == index);
-
                 SliverMultiBoxAdaptorParentData firstChildParentData = (SliverMultiBoxAdaptorParentData) firstChild.parentData;
                 firstChildParentData.layoutOffset = layoutOffset;
                 return true;
             }
-
             childManager.setDidUnderflow(true);
             return false;
         }
 
-        protected RenderBox insertAndLayoutLeadingChild(BoxConstraints childConstraints, bool parentUsesSize = false) {
+        protected RenderBox insertAndLayoutLeadingChild(
+            BoxConstraints childConstraints, 
+            bool parentUsesSize = false) {
+            
             D.assert(_debugAssertChildListLocked());
-
             int index = indexOf(firstChild) - 1;
             _createOrObtainChild(index, after: null);
             if (indexOf(firstChild) == index) {
                 firstChild.layout(childConstraints, parentUsesSize: parentUsesSize);
                 return firstChild;
             }
-
             childManager.setDidUnderflow(true);
             return null;
         }
@@ -275,6 +317,7 @@ namespace Unity.UIWidgets.rendering {
         public int indexOf(RenderBox child) {
             D.assert(child != null);
             SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
+            D.assert(childParentData.index != null);
             return childParentData.index;
         }
 
@@ -292,7 +335,9 @@ namespace Unity.UIWidgets.rendering {
             return 0.0f;
         }
 
-        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f,
+        protected override bool hitTestChildren(
+            SliverHitTestResult result, 
+            float mainAxisPosition = 0.0f,
             float crossAxisPosition = 0.0f) {
             RenderBox child = lastChild;
             BoxHitTestResult boxResult = new BoxHitTestResult(result);
@@ -309,16 +354,15 @@ namespace Unity.UIWidgets.rendering {
             return false;
         }
 
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
             return childScrollOffset(child) - constraints.scrollOffset;
         }
 
-        public override float childScrollOffset(RenderObject child) {
+        public override float? childScrollOffset(RenderObject child) {
             D.assert(child != null);
             D.assert(child.parent == this);
-
             SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
-            return childParentData.layoutOffset;
+            return (float)childParentData.layoutOffset;
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
@@ -362,8 +406,8 @@ namespace Unity.UIWidgets.rendering {
 
             RenderBox child = firstChild;
             while (child != null) {
-                float mainAxisDelta = childMainAxisPosition(child);
-                float crossAxisDelta = childCrossAxisPosition(child);
+                float mainAxisDelta = childMainAxisPosition(child) ?? 0.0f;
+                float crossAxisDelta = childCrossAxisPosition(child) ?? 0.0f;
                 Offset childOffset = new Offset(
                     originOffset.dx + mainAxisUnit.dx * mainAxisDelta + crossAxisUnit.dx * crossAxisDelta,
                     originOffset.dy + mainAxisUnit.dy * mainAxisDelta + crossAxisUnit.dy * crossAxisDelta
@@ -422,7 +466,6 @@ namespace Unity.UIWidgets.rendering {
             if (_keepAliveBucket.isNotEmpty()) {
                 List<int> indices = _keepAliveBucket.Keys.ToList();
                 indices.Sort();
-
                 foreach (int index in indices) {
                     children.Add(_keepAliveBucket[index].toDiagnosticsNode(
                         name: "child with index " + index + " (kept alive but not laid out)",

@@ -449,7 +449,7 @@ namespace Unity.UIWidgets.rendering {
 
                 if (child.parent is RenderSliver) {
                     RenderSliver parent = (RenderSliver) child.parent;
-                    leadingScrollOffset += parent.childScrollOffset(child);
+                    leadingScrollOffset += parent.childScrollOffset(child) ?? 0.0f;
                 }
                 else {
                     onlySlivers = false;
@@ -1365,7 +1365,7 @@ namespace Unity.UIWidgets.rendering {
 
         protected override Offset paintOffsetOf(RenderSliver child) {
             var childParentData = (SliverLogicalParentData) child.parentData;
-            return computeAbsolutePaintOffset(child, childParentData.layoutOffset, GrowthDirection.forward);
+            return computeAbsolutePaintOffset(child, childParentData.layoutOffset ?? 0.0f, GrowthDirection.forward);
         }
 
         protected override float scrollOffsetOf(RenderSliver child, float scrollOffsetWithinChild) {
@@ -1412,11 +1412,11 @@ namespace Unity.UIWidgets.rendering {
                 child.constraints.axisDirection, child.constraints.growthDirection)) {
                 case AxisDirection.down:
                 case AxisDirection.right:
-                    return parentMainAxisPosition - childParentData.layoutOffset;
+                    return parentMainAxisPosition - childParentData.layoutOffset ?? 0.0f;
                 case AxisDirection.up:
-                    return (size.height - parentMainAxisPosition) - childParentData.layoutOffset;
+                    return (size.height - parentMainAxisPosition) - childParentData.layoutOffset ?? 0.0f;
                 case AxisDirection.left:
-                    return (size.width - parentMainAxisPosition) - childParentData.layoutOffset;
+                    return (size.width - parentMainAxisPosition) - childParentData.layoutOffset ?? 0.0f;
             }
 
             D.assert(false);
