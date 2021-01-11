@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.physics;
 using Unity.UIWidgets.scheduler2;
@@ -41,6 +42,7 @@ namespace Unity.UIWidgets.animation {
         AnimationController(
             float value = 0.0f,
             TimeSpan? duration = null,
+            TimeSpan? reverseDuration = null,
             string debugLabel = null,
             TickerProvider vsync = null
         ) {
@@ -50,6 +52,7 @@ namespace Unity.UIWidgets.animation {
             _direction = _AnimationDirection.forward;
 
             this.duration = duration;
+            this.reverseDuration = reverseDuration;
             this.debugLabel = debugLabel;
 
             _ticker = vsync.createTicker(_tick);
@@ -59,10 +62,11 @@ namespace Unity.UIWidgets.animation {
         public static AnimationController unbounded(
             float value = 0.0f,
             TimeSpan? duration = null,
+            TimeSpan? reverseDuration = null,
             string debugLabel = null,
             TickerProvider vsync = null
         ) {
-            return new AnimationController(value, duration, debugLabel, vsync);
+            return new AnimationController(value, duration, reverseDuration, debugLabel, vsync);
         }
 
         public readonly float lowerBound;
@@ -154,7 +158,7 @@ namespace Unity.UIWidgets.animation {
             D.assert(() => {
                 if (duration == null) {
                     throw new UIWidgetsError(
-                        "AnimationController.forward() called with no default Duration.\n" +
+                        "AnimationController.forward() called with no default duration.\n" +
                         "The \"duration\" property should be set, either in the constructor or later, before " +
                         "calling the forward() function."
                     );
@@ -177,10 +181,10 @@ namespace Unity.UIWidgets.animation {
 
         public TickerFuture reverse(float? from = null) {
             D.assert(() => {
-                if (duration == null) {
+                if (duration == null && reverseDuration == null) {
                     throw new UIWidgetsError(
-                        "AnimationController.reverse() called with no default Duration.\n" +
-                        "The \"duration\" property should be set, either in the constructor or later, before " +
+                        "AnimationController.reverse() called with no default duration or reverseDuration.\n" +
+                        "The \"duration\" or \"reverseDuration\" property should be set, either in the constructor or later, before " +
                         "calling the reverse() function."
                     );
                 }
@@ -229,11 +233,12 @@ namespace Unity.UIWidgets.animation {
             TimeSpan? simulationDuration = duration;
             if (simulationDuration == null) {
                 D.assert(() => {
-                    if (this.duration == null) {
+                    if ((this.duration == null && _direction == _AnimationDirection.reverse && reverseDuration == null) || 
+                        (this.duration == null && _direction == _AnimationDirection.forward)) {
                         throw new UIWidgetsError(
-                            "AnimationController.animateTo() called with no explicit Duration and no default Duration.\n" +
+                            "AnimationController.animateTo() called with no explicit Duration and no default duration or reverseDuration.\n" +
                             "Either the \"duration\" argument to the animateTo() method should be provided, or the " +
-                            "\"duration\" property should be set, either in the constructor or later, before " +
+                            "\"duration\" and/or \"reverseDuration\" property should be set, either in the constructor or later, before " +
                             "calling the animateTo() function."
                         );
                     }
@@ -242,7 +247,11 @@ namespace Unity.UIWidgets.animation {
                 });
                 float range = upperBound - lowerBound;
                 float remainingFraction = range.isFinite() ? (target - _value).abs() / range : 1.0f;
-                simulationDuration = TimeSpan.FromTicks((long) (this.duration.Value.Ticks * remainingFraction));
+                TimeSpan directionDuration = (_direction == _AnimationDirection.reverse && reverseDuration != null)
+                    ? reverseDuration.Value
+                    : this.duration.Value;
+                
+                simulationDuration = TimeSpan.FromTicks((long) (directionDuration.Ticks * remainingFraction));
             }
             else if (target == value) {
                 simulationDuration = TimeSpan.Zero;
@@ -289,7 +298,14 @@ namespace Unity.UIWidgets.animation {
 
             D.assert(max >= min);
             D.assert(max <= upperBound && min >= lowerBound);
-            return animateWith(new _RepeatingSimulation(_value, min.Value, max.Value, reverse, period.Value));
+            stop();
+            return _startSimulation(new _RepeatingSimulation(_value, min.Value, max.Value, reverse, period.Value, _directionSetter));
+        }
+
+        void _directionSetter(_AnimationDirection direction) {
+            _direction = direction;
+            _status = (_direction == _AnimationDirection.forward) ? AnimationStatus.forward : AnimationStatus.reverse;
+            _checkStatusChanged();
         }
 
         public TickerFuture fling(float velocity = 1.0f) {
@@ -300,7 +316,8 @@ namespace Unity.UIWidgets.animation {
             Simulation simulation = new SpringSimulation(_kFlingSpringDescription, value,
                 target, velocity);
             simulation.tolerance = _kFlingTolerance;
-            return animateWith(simulation);
+            stop();
+            return _startSimulation(simulation);
         }
 
 
@@ -311,6 +328,7 @@ namespace Unity.UIWidgets.animation {
                 "AnimationController methods should not be used after calling dispose."
             );
             stop();
+            _direction = _AnimationDirection.forward;
             return _startSimulation(simulation);
         }
 
@@ -342,11 +360,14 @@ namespace Unity.UIWidgets.animation {
         public override void dispose() {
             D.assert(() => {
                 if (_ticker == null) {
-                    throw new UIWidgetsError(
-                        "AnimationController.dispose() called more than once.\n" +
-                        "A given " + GetType() + " cannot be disposed more than once.\n" +
-                        "The following " + GetType() + " object was disposed multiple times:\n" +
-                        "  " + this);
+                    throw new UIWidgetsError(new List<DiagnosticsNode>() {
+                        new ErrorSummary("AnimationController.dispose() called more than once."),
+                        new ErrorDescription($"A given {GetType()} cannot be disposed more than once.\n"),
+                        new DiagnosticsProperty<AnimationController>(
+                            $"The following {GetType()} object was disposed multiple times",
+                            this,
+                            style: DiagnosticsTreeStyle.errorProperty)
+                    });
                 }
 
                 return true;
@@ -440,14 +461,17 @@ namespace Unity.UIWidgets.animation {
         }
     }
 
+    delegate void _DirectionSetter(_AnimationDirection direction);
+
     class _RepeatingSimulation : Simulation {
-        internal _RepeatingSimulation(float initialValue, float min, float max, bool reverse, TimeSpan period) {
+        internal _RepeatingSimulation(float initialValue, float min, float max, bool reverse, TimeSpan period, _DirectionSetter directionSetter) {
             _min = min;
             _max = max;
             _periodInSeconds = (float) period.Ticks / TimeSpan.TicksPerSecond;
             _initialT =
                 (max == min) ? 0.0f : (initialValue / (max - min)) * (period.Ticks / TimeSpan.TicksPerSecond);
             _reverse = reverse;
+            this.directionSetter = directionSetter;
             D.assert(_periodInSeconds > 0.0f);
             D.assert(_initialT >= 0.0f);
         }
@@ -457,6 +481,7 @@ namespace Unity.UIWidgets.animation {
         readonly float _periodInSeconds;
         readonly bool _reverse;
         readonly float _initialT;
+        readonly _DirectionSetter directionSetter;
 
         public override float x(float timeInSeconds) {
             D.assert(timeInSeconds >= 0.0f);
@@ -465,9 +490,11 @@ namespace Unity.UIWidgets.animation {
             bool _isPlayingReverse = ((int) (totalTimeInSeconds / _periodInSeconds)) % 2 == 1;
 
             if (_reverse && _isPlayingReverse) {
+                directionSetter(_AnimationDirection.reverse);
                 return MathUtils.lerpFloat(_max, _min, t);
             }
             else {
+                directionSetter(_AnimationDirection.forward);
                 return MathUtils.lerpFloat(_min, _max, t);
             }
         }

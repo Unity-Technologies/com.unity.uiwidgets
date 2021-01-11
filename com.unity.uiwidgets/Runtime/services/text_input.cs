@@ -8,33 +8,17 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.service {
-    public enum FloatingCursorDragState {
-        Start,
 
-        Update,
-
-        End
+    public enum SmartDashesType {
+        disabled,
+        enabled
     }
 
-
-
-    public class RawFloatingCursorPoint {
-        public RawFloatingCursorPoint(
-            Offset offset = null,
-            FloatingCursorDragState? state = null
-        ) {
-            D.assert(state != null);
-            D.assert(state != FloatingCursorDragState.Update || offset != null);
-            //D.assert(state == FloatingCursorDragState.Update ? offset != null : true);
-            this.offset = offset;
-            this.state = state;
-        }
-
-        public readonly Offset offset;
-
-        public readonly FloatingCursorDragState? state;
+    public enum SmartQuotesType {
+        disabled,
+        enabled
     }
-
+    
     public class TextInputType : IEquatable<TextInputType> {
         public readonly int index;
         public readonly bool? signed;
@@ -51,6 +35,7 @@ namespace Unity.UIWidgets.service {
         }
 
         public static readonly TextInputType text = new TextInputType(0);
+        
         public static readonly TextInputType multiline = new TextInputType(1);
 
         public static readonly TextInputType number = numberWithOptions();
@@ -63,8 +48,14 @@ namespace Unity.UIWidgets.service {
 
         public static readonly TextInputType url = new TextInputType(6);
 
+        public static readonly TextInputType visiblePassword = new TextInputType(7);
+
+        public static readonly List<TextInputType> values = new List<TextInputType> {
+            text, multiline, number, phone, datetime, emailAddress, url, visiblePassword
+        };
+
         public static List<string> _names = new List<string> {
-            "text", "multiline", "number", "phone", "datetime", "emailAddress", "url"
+            "text", "multiline", "number", "phone", "datetime", "emailAddress", "url", "visiblePassword"
         };
 
         public JSONNode toJson() {
@@ -128,7 +119,91 @@ namespace Unity.UIWidgets.service {
             return $"{GetType().FullName}(name: {_name}, signed: {signed}, decimal: {decimalNum})";
         }
     }
+    
+    public enum TextInputAction {
+        none,
+        unspecified,
+        done,
+        go,
+        search,
+        send,
+        next,
+        previous,
+        continueAction,
+        join,
+        route,
+        emergencyCall,
+        newline
+    }
+    
+       
+    public enum TextCapitalization {
+        words,
+        sentences,
+        characters,
+        none
+    }
 
+    public class TextInputConfiguration {
+        public TextInputConfiguration(
+            TextInputType inputType = null,
+            bool obscureText = false, 
+            bool autocorrect = true, 
+            SmartDashesType? smartDashesType = null,
+            SmartQuotesType? smartQuotesType = null,
+            bool enableSuggestions = true,
+            string actionLabel = null,
+            TextInputAction inputAction = TextInputAction.done,
+            ui.Brightness keyboardAppearance = ui.Brightness.light,
+            TextCapitalization textCapitalization = TextCapitalization.none,
+            bool unityTouchKeyboard = false
+            ) {
+            D.assert(inputType != null);
+            this.smartDashesType =
+                smartDashesType ?? (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled);
+            this.smartQuotesType =
+                smartQuotesType ?? (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled);
+            this.inputType = inputType ?? TextInputType.text;
+            this.obscureText = obscureText;
+            this.autocorrect = autocorrect;
+            this.enableSuggestions = enableSuggestions;
+            this.actionLabel = actionLabel;
+            this.inputAction = inputAction;
+            this.textCapitalization = textCapitalization;
+            this.keyboardAppearance = keyboardAppearance;
+            this.unityTouchKeyboard = unityTouchKeyboard;
+        }
+        
+        public readonly TextInputType inputType;
+        public readonly bool obscureText;
+        public readonly bool autocorrect;
+        public readonly SmartDashesType smartDashesType;
+        public readonly SmartQuotesType smartQuotesType;
+        public readonly bool enableSuggestions;
+        public readonly string actionLabel;
+        public readonly TextInputAction inputAction;
+        public readonly TextCapitalization textCapitalization;
+        public readonly ui.Brightness keyboardAppearance;
+        
+        public readonly bool unityTouchKeyboard;
+
+        public JSONNode toJson() {
+            var json = new JSONObject();
+            json["inputType"] = inputType.toJson();
+            json["obscureText"] = obscureText;
+            json["autocorrect"] = autocorrect;
+            json["smartDashesType"] = smartDashesType.ToString();
+            json["smartQuotesType"] = smartQuotesType.ToString();
+            json["enableSuggestions"] = enableSuggestions;
+            json["actionLabel"] = actionLabel;
+            json["inputAction"] = inputAction.ToString();
+            json["unityTouchKeyboard"] = unityTouchKeyboard;
+            json["textCapitalization"] = textCapitalization.ToString();
+            json["keyboardAppearance"] = keyboardAppearance.ToString();
+            return json;
+        }
+    }
+    
     static partial class TextInputUtils {
         internal static TextAffinity? _toTextAffinity(string affinity) {
             switch (affinity) {
@@ -184,7 +259,7 @@ namespace Unity.UIWidgets.service {
                     return FloatingCursorDragState.End;
             }
 
-            throw new UIWidgetsError($"Unknown text cursor action: {state}");
+            throw new UIWidgetsError(new List<DiagnosticsNode>() {new ErrorSummary($"Unknown text cursor action: {state}")});
         }
 
         public static RawFloatingCursorPoint _toTextPoint(FloatingCursorDragState state,
@@ -200,12 +275,32 @@ namespace Unity.UIWidgets.service {
         }
     }
 
+    
+    public enum FloatingCursorDragState {
+        Start,
+        Update,
+        End
+    }
+
+    public class RawFloatingCursorPoint {
+        public RawFloatingCursorPoint( 
+            Offset offset = null,
+            FloatingCursorDragState? state = null
+        ) {
+            D.assert(state != null);
+            D.assert(state != FloatingCursorDragState.Update || offset != null);
+            this.offset = offset;
+            this.state = state;
+        }
+
+        public readonly Offset offset;
+
+        public readonly FloatingCursorDragState? state;
+    }
+
     public class TextEditingValue : IEquatable<TextEditingValue> {
-        
-        public readonly string text;
-        public readonly TextSelection selection;
-        public readonly TextRange composing;
         static JSONNode defaultIndexNode = new JSONNumber(-1);
+        static JSONNode defaultBoolNode = new JSONBool(false);
 
         public TextEditingValue(
             string text = "",
@@ -214,7 +309,6 @@ namespace Unity.UIWidgets.service {
             
             D.assert(text != null);
             D.assert(selection != null);
-            D.assert(composing != null);
             this.text = text;
             this.composing = composing ?? TextRange.empty;
 
@@ -231,11 +325,11 @@ namespace Unity.UIWidgets.service {
                 this.selection = selection.copyWith(start, end);
             }
             else {
-                this.selection = TextSelection.collapsed(-1);
+                this.selection = selection ?? TextSelection.collapsed(-1);
             }
         }
 
-        public static TextEditingValue fromJSON(JSONObject json) {
+        public static TextEditingValue fromJSON(JSONNode json) {
             TextAffinity? affinity =
                 TextInputUtils._toTextAffinity(json["selectionAffinity"].Value);
             return new TextEditingValue(
@@ -244,7 +338,7 @@ namespace Unity.UIWidgets.service {
                     baseOffset: json.GetValueOrDefault("selectionBase", defaultIndexNode).AsInt,
                     extentOffset: json.GetValueOrDefault("selectionExtent", defaultIndexNode).AsInt,
                     affinity: affinity != null ? affinity.Value : TextAffinity.downstream,
-                    isDirectional: json["selectionIsDirectional"].AsBool
+                    isDirectional: json.GetValueOrDefault("selectionIsDirectional", defaultBoolNode).AsBool
                 ),
                 composing: new TextRange(
                     start: json.GetValueOrDefault("composingBase", defaultIndexNode).AsInt,
@@ -264,18 +358,25 @@ namespace Unity.UIWidgets.service {
             json["composingExtent"] = composing.end;
             return json;
         }
+        
+        public readonly string text;
+        public readonly TextSelection selection;
+        public readonly TextRange composing;
+        
+        public static readonly TextEditingValue empty = new TextEditingValue();
 
         public TextEditingValue copyWith(
             string text = null,
             TextSelection selection = null,
             TextRange composing = null) {
             return new TextEditingValue(
-                text ?? this.text, 
-                selection ?? this.selection, 
-                composing ?? this.composing
+                text: text ?? this.text, 
+                selection: selection ?? this.selection, 
+                composing: composing ?? this.composing
             );
         }
 
+        //unity-specific
         public TextEditingValue insert(string text) {
             string newText;
             TextSelection newSelection;
@@ -297,6 +398,7 @@ namespace Unity.UIWidgets.service {
             );
         }
 
+        //unity-specific
         public TextEditingValue deleteSelection(bool backDelete = true) {
             if (selection.isCollapsed) {
                 if (backDelete) {
@@ -342,22 +444,27 @@ namespace Unity.UIWidgets.service {
             }
         }
 
+        //unity-specific
         public TextEditingValue moveLeft() {
             return moveSelection(-1);
         }
 
+        //unity-specific
         public TextEditingValue moveRight() {
             return moveSelection(1);
         }
 
+        //unity-specific
         public TextEditingValue extendLeft() {
             return moveExtent(-1);
         }
 
+        //unity-specific
         public TextEditingValue extendRight() {
             return moveExtent(1);
         }
 
+        //unity-specific
         public TextEditingValue moveExtent(int move) {
             int offset = selection.extentOffset + move;
             offset = Mathf.Max(0, offset);
@@ -365,6 +472,7 @@ namespace Unity.UIWidgets.service {
             return copyWith(selection: selection.copyWith(extentOffset: offset));
         }
 
+        //unity-specific
         public TextEditingValue moveSelection(int move) {
             int offset = selection.baseOffset + move;
             offset = Mathf.Max(0, offset);
@@ -372,6 +480,7 @@ namespace Unity.UIWidgets.service {
             return copyWith(selection: TextSelection.collapsed(offset, affinity: selection.affinity));
         }
 
+        //unity-specific
         public TextEditingValue compose(string composeText) {
             D.assert(!string.IsNullOrEmpty(composeText));
             var composeStart = composing == TextRange.empty ? selection.start : composing.start;
@@ -387,6 +496,7 @@ namespace Unity.UIWidgets.service {
             );
         }
 
+        //unity-specific
         public TextEditingValue clearCompose() {
             if (composing == TextRange.empty) {
                 return this;
@@ -398,8 +508,6 @@ namespace Unity.UIWidgets.service {
                 composing: TextRange.empty
             );
         }
-
-        public static readonly TextEditingValue empty = new TextEditingValue();
 
         public bool Equals(TextEditingValue other) {
             if (ReferenceEquals(null, other)) {
@@ -450,24 +558,6 @@ namespace Unity.UIWidgets.service {
         public override string ToString() {
             return $"Text: {text}, Selection: {selection}, Composing: {composing}";
         }
-
-        public static TextEditingValue fromJSON(JSONNode encoded) {
-            return new TextEditingValue(
-                text: encoded["text"] ,
-                selection: new TextSelection(
-                    baseOffset: encoded.GetValueOrDefault("selectionBase", defaultIndexNode).AsInt,
-                    extentOffset: encoded.GetValueOrDefault("selectionExtent", defaultIndexNode).AsInt,
-                    affinity: TextInputUtils._toTextAffinity(encoded["selectionAffinity"] ) ?? TextAffinity.downstream,
-                    isDirectional: encoded["selectionIsDirectional"]  ?? false
-                ),
-                composing: new TextRange(
-                    start: encoded.GetValueOrDefault("composingBase", defaultIndexNode).AsInt,
-                    end: encoded.GetValueOrDefault("composingExtent", defaultIndexNode).AsInt
-                )
-            );
-        }
-
-        
     }
 
     public interface TextSelectionDelegate {
@@ -497,98 +587,13 @@ namespace Unity.UIWidgets.service {
         void performAction(TextInputAction action);
 
         void updateFloatingCursor(RawFloatingCursorPoint point);
-
-        RawInputKeyResponse globalInputKeyHandler(RawKeyEvent evt);
-
+        
         TextEditingValue currentTextEditingValue { get; }
         
         void connectionClosed();
-
-    }
-
-    public enum TextInputAction {
-        none,
-        unspecified,
-        done,
-        go,
-        search,
-        send,
-        next,
-        previous,
-        continueAction,
-        join,
-        route,
-        emergencyCall,
-        newline
-    }
-
-    public enum TextCapitalization {
-        words,
-        sentences,
-        characters,
-        none
-    }
-
-    public class TextInputConfiguration {
-        public TextInputConfiguration(
-            TextInputType inputType = null,
-            bool obscureText = false, 
-            bool autocorrect = true, 
-            //SmartDashesType smartDashesType,
-            //SmartQuotesType smartQuotesType,
-            bool enableSuggestions = true,
-            string actionLabel = null,
-            TextInputAction inputAction = TextInputAction.done,
-            ui.Brightness keyboardAppearance = ui.Brightness.light,
-            TextCapitalization textCapitalization = TextCapitalization.none,
-            bool unityTouchKeyboard = false
-            ) {
-            D.assert(inputType != null);
-            D.assert(obscureText != null);
-            //smartDashesType = smartDashesType ?? (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
-            //smartQuotesType = smartQuotesType ?? (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
-            D.assert(autocorrect != null);
-            D.assert(enableSuggestions != null);
-            D.assert(keyboardAppearance != null);
-            D.assert(inputAction != null);
-            D.assert(textCapitalization != null);
-            this.inputType = inputType ?? TextInputType.text;
-            this.obscureText = obscureText;
-            this.autocorrect = autocorrect;
-            this.enableSuggestions = enableSuggestions;
-            this.actionLabel = actionLabel;
-            this.inputAction = inputAction;
-            this.textCapitalization = textCapitalization;
-            this.keyboardAppearance = keyboardAppearance;
-            this.unityTouchKeyboard = unityTouchKeyboard;
-        }
         
-        public readonly TextInputAction inputAction;
-        public readonly TextInputType inputType;
-        public readonly string actionLabel;
-        public readonly bool obscureText;
-        public readonly bool autocorrect;
-        //public readonly TextInputAction inputAction;
-        public readonly bool enableSuggestions;
-        public readonly TextCapitalization textCapitalization;
-        public readonly ui.Brightness keyboardAppearance;
-        public readonly bool unityTouchKeyboard;
-
-        public JSONNode toJson() {
-            var json = new JSONObject();
-            json["inputType"] = inputType.toJson();
-            json["obscureText"] = obscureText;
-            json["autocorrect"] = autocorrect;
-            //'smartDashesType': smartDashesType.index.toString(),
-            //'smartQuotesType': smartQuotesType.index.toString(),
-            json["enableSuggestions"] = enableSuggestions;
-            json["actionLabel"] = actionLabel;
-            json["inputAction"] = inputAction.ToString();
-            json["unityTouchKeyboard"] = unityTouchKeyboard;
-            json["textCapitalization"] = textCapitalization.ToString();
-            json["keyboardAppearance"] = keyboardAppearance.ToString();
-            return json;
-        }
+        //unity-specific
+        RawInputKeyResponse globalInputKeyHandler(RawKeyEvent evt);
     }
 
     public class TextInputConnection {
@@ -601,22 +606,23 @@ namespace Unity.UIWidgets.service {
         
         internal Size _cachedSize;
         internal Matrix4 _cachedTransform;
+        
         static int _nextId = 1;
         internal readonly int _id;
         public static void debugResetId(int to = 1) {
-            D.assert(to != null);
             D.assert(() =>{
                 _nextId = to;
                 return true;
             });
         }
+        
         internal readonly TextInputClient _client;
         public bool attached { 
             get { return TextInput._currentConnection == this; }
         }
+        
         public void show() {
             D.assert(attached);
-            //TextInput._instance._show();
             
             Input.imeCompositionMode = IMECompositionMode.On;
             TextInput.keyboardDelegate.show();
@@ -625,14 +631,13 @@ namespace Unity.UIWidgets.service {
         public void setEditingState(TextEditingValue value) {
             D.assert(attached);
             TextInput.keyboardDelegate.setEditingState(value);
-            //TextInput._instance._setEditingState(value);
         }
+        
         public void setEditableSizeAndTransform(Size editableBoxSize, Matrix4 transform) {
             if (editableBoxSize != _cachedSize || transform != _cachedTransform) {
                 _cachedSize = editableBoxSize;
                 _cachedTransform = transform;
-                //var dictionary = new JSONObject();
-                //json["text"] = text;
+
                 Dictionary<string,object> dictionary = new Dictionary<string, object>();
                 dictionary["width"] = editableBoxSize.width;
                 dictionary["height"] = editableBoxSize.height;
@@ -642,27 +647,28 @@ namespace Unity.UIWidgets.service {
                 );
             }
         }
+        
         public void setStyle(
-             string fontFamily = null,
-             float? fontSize = null,
-             FontWeight fontWeight = null,
-             TextDirection? textDirection = null,
-             TextAlign? textAlign = null
-        ) { /// ????
+             string fontFamily,
+             float? fontSize,
+             FontWeight fontWeight,
+             TextDirection textDirection,
+             TextAlign textAlign
+        ) {
             D.assert(attached);
             Dictionary<string,object> dictionary = new Dictionary<string, object>();
             dictionary["fontFamily"] = fontFamily;
             dictionary["fontSize"] = fontSize;
             dictionary["fontWeightIndex"] = fontWeight?.index;
-            dictionary["textAlignIndex"] = textAlign?.GetHashCode();
-            dictionary["textDirectionIndex"] = textDirection?.GetHashCode();
+            dictionary["textAlignIndex"] = (int)textAlign;
+            dictionary["textDirectionIndex"] = (int)textDirection;
             TextInput.keyboardDelegate.setStyle(
                dictionary
             );
         }
+        
         public void close() {
             if (attached) {
-                //TextInput._instance._clearClient();
                 TextInput.keyboardDelegate.clearClient();
                 TextInput._currentConnection = null;
                 Input.imeCompositionMode = IMECompositionMode.Auto;
@@ -675,6 +681,7 @@ namespace Unity.UIWidgets.service {
             TextInput._currentConnection = null;
             D.assert(!attached);
         }
+        
         internal readonly Window _window;
         TouchScreenKeyboard _keyboard;
     }
@@ -689,6 +696,7 @@ namespace Unity.UIWidgets.service {
 
         public static TextInputConnection attach(TextInputClient client, TextInputConfiguration configuration) {
             D.assert(client != null);
+            D.assert(configuration != null);
             var connection = new TextInputConnection(client);
             _currentConnection = connection;
             if (keyboardDelegate != null) {
