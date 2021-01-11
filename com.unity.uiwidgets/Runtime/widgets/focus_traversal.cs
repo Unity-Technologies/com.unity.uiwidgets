@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.widgets {
             FocusTraversalPolicy policy = null,
             Widget child = null
         ) : base(key: key) {
-            policy = policy ?? new ReadingOrderTraversalPolicy();
+            policy = policy ;//?? new ReadingOrderTraversalPolicy();
             this.child = child;
         }
 
@@ -163,7 +163,7 @@ namespace Unity.UIWidgets.widgets {
                 List<FocusNode> members = null
             ) {
                 groupNode = marker?.focusNode;
-                policy = marker?.policy ?? defaultPolicy ?? new ReadingOrderTraversalPolicy();
+                policy = marker?.policy ?? defaultPolicy ;//?? new ReadingOrderTraversalPolicy();
                 members = members ?? new List<FocusNode>();
             }
             public readonly FocusNode groupNode;
@@ -202,7 +202,7 @@ namespace Unity.UIWidgets.widgets {
         public List<FocusNode> _sortAllDescendants(FocusScopeNode scope) { 
             D.assert(scope != null); 
             _FocusTraversalGroupMarker scopeGroupMarker = _getMarker(scope.context);
-            FocusTraversalPolicy defaultPolicy = scopeGroupMarker?.policy ?? new ReadingOrderTraversalPolicy();
+            FocusTraversalPolicy defaultPolicy = scopeGroupMarker?.policy ;//?? new ReadingOrderTraversalPolicy();
             Dictionary<FocusNode, _FocusTraversalGroupInfo> groups = new Dictionary<FocusNode, _FocusTraversalGroupInfo>();
             foreach(FocusNode node in scope.descendants) { 
                 _FocusTraversalGroupMarker groupMarker = _getMarker(node.context);
@@ -437,7 +437,7 @@ namespace Unity.UIWidgets.widgets {
             //})));
         }
     }
-    public class ReadingOrderTraversalPolicy : FocusTraversalPolicy , DirectionalFocusTraversalPolicyMixin 
+    /*public class ReadingOrderTraversalPolicy : FocusTraversalPolicy , DirectionalFocusTraversalPolicyMixin 
     { 
         public List<_ReadingOrderDirectionalGroupData> _collectDirectionalityGroups(IEnumerable<_ReadingOrderSortData> candidates) { 
             TextDirection currentDirection = candidates.First().directionality;
@@ -463,7 +463,7 @@ namespace Unity.UIWidgets.widgets {
                // _ReadingOrderSortData.sortWithDirectionality(bandGroup.members, bandGroup.directionality); 
             } 
             return result; 
-        }
+        }*/
         /*public _ReadingOrderSortData _pickNext(List<_ReadingOrderSortData> candidates) {
             
             MERGESORT<_ReadingOrderSortData>(candidates, compare: (_ReadingOrderSortData a, _ReadingOrderSortData b) => a.rect.top.CompareTo(b.rect.top)); 
@@ -512,7 +512,7 @@ namespace Unity.UIWidgets.widgets {
             }
             return sortedList;
         }*/
-    }
+   // }
 
 
 }

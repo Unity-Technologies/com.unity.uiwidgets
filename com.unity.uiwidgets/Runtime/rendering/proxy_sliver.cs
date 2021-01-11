@@ -46,7 +46,7 @@ namespace Unity.UIWidgets.rendering {
                        mainAxisPosition: mainAxisPosition,
                        crossAxisPosition: crossAxisPosition);
         }
-        public override float childMainAxisPosition(RenderObject  child) {
+        public override float? childMainAxisPosition(RenderObject  child) {
             child = (RenderSliver)child;
             D.assert(child != null); 
             D.assert(child == this.child);
