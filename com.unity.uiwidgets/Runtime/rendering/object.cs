@@ -330,6 +330,14 @@ namespace Unity.UIWidgets.rendering {
             return
                 $"{GetType()}#{GetHashCode()}(layer: {_containerLayer}, canvas bounds: {estimatedBounds}";
         }
+        
+        public ColorFilterLayer pushColorFilter(Offset offset, ColorFilter colorFilter, PaintingContextCallback painter, ColorFilterLayer oldLayer = null) {
+            D.assert(colorFilter != null);
+            ColorFilterLayer layer = oldLayer ?? new ColorFilterLayer();
+            layer.colorFilter = colorFilter;
+            pushLayer(layer, painter, offset);
+            return layer;
+        }
     }
 
     public abstract class Constraints {
@@ -992,6 +1000,10 @@ namespace Unity.UIWidgets.rendering {
             get {
                 D.assert(!isRepaintBoundary || (_layer == null || _layer is OffsetLayer));
                 return _layer;
+            }
+            set {
+                D.assert(!isRepaintBoundary);
+                _layer = value;
             }
         }
 

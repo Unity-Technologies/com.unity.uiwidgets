@@ -107,8 +107,8 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
-        
-        EngineLayer _engineLayer;
+
+        protected EngineLayer _engineLayer;
 
         internal virtual void updateSubtreeNeedsAddToScene() {
             _needsAddToScene = _needsAddToScene || alwaysNeedsAddToScene;
@@ -1030,6 +1030,54 @@ namespace Unity.UIWidgets.rendering {
         }
     }
 
+    /// A composite layer that applies a [ColorFilter] to its children.
+    public class ColorFilterLayer : ContainerLayer {
+        /// Creates a layer that applies a [ColorFilter] to its children.
+        ///
+        /// The [colorFilter] property must be non-null before the compositing phase
+        /// of the pipeline.
+        public ColorFilterLayer(ColorFilter colorFilter = null) {
+            _colorFilter = colorFilter;
+        }
+
+        /// The color filter to apply to children.
+        ///
+        /// The scene must be explicitly recomposited after this property is changed
+        /// (as described at [Layer]).
+        public ColorFilter colorFilter {
+            get {
+                return _colorFilter;
+            }
+            set {
+                D.assert(value != null);
+                if (value != _colorFilter) {
+                    _colorFilter = value;
+                    markNeedsAddToScene();
+                }
+            }
+        }
+
+        ColorFilter _colorFilter;
+        
+        
+        //[!!!]builder.pushColorFilter?
+        /*public override void addToScene(ui.SceneBuilder builder, Offset layerOffset = null ) {
+            D.assert(colorFilter != null);
+            engineLayer =  builder.pushColorFilter(
+                colorFilter,
+                oldLayer: _engineLayer as ui.ColorFilterEngineLayer
+            );
+            addChildrenToScene(builder, layerOffset);
+            builder.pop();
+        }*/
+        
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<ColorFilter>("colorFilter", colorFilter));
+        }
+    }
+    
+    
     public class TransformLayer : OffsetLayer {
         public TransformLayer(Matrix4 transform = null, Offset offset = null) : base(offset) {
             _transform = transform ?? Matrix4.identity();
