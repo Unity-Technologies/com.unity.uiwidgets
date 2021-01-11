@@ -5,15 +5,11 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.widgets {
     
         public class ColorFiltered : SingleChildRenderObjectWidget {
-            /// Creates a widget that applies a [ColorFilter] to its child.
-            ///
-            /// The [colorFilter] must not be null.
             protected ColorFiltered(ColorFilter colorFilter = null, Widget child = null, Key key = null)
                 : base(key: key, child: child) {
                 D.assert(colorFilter != null);
             }
-
-            /// The color filter to apply to the child of this widget.
+            
             public readonly ColorFilter colorFilter;
             
             public override RenderObject createRenderObject(BuildContext context) => new _ColorFilterRenderObject(colorFilter);

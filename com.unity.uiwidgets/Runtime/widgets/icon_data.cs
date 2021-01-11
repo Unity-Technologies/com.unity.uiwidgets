@@ -64,11 +64,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
     
-    /// [DiagnosticsProperty] that has an [IconData] as value.
     public class IconDataProperty : DiagnosticsProperty<IconData> {
-        /// Create a diagnostics property for [IconData].
-        ///
-        /// The [showName], [style], and [level] arguments must not be null.
         public IconDataProperty(
             String name,
             IconData value,
