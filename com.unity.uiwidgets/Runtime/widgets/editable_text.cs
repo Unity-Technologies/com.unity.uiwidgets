@@ -732,7 +732,7 @@ namespace Unity.UIWidgets.widgets {
                     fontFamily: style.fontFamily,
                     fontSize: style.fontSize,
                     fontWeight: style.fontWeight,
-                    textDirection: _textDirection,
+                    textDirection: _textDirection.Value,
                     textAlign: widget.textAlign
                 );
                 _textInputConnection.setEditingState(localValue);

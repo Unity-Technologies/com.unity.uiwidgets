@@ -18,8 +18,6 @@ namespace Unity.UIWidgets.services {
                     throw new UIWidgetsError($"Unable to load asset: {key}");
 
                 if (data.Length < 10 * 1024) {
-                    // 10KB takes about 3ms to parse on a Pixel 2 XL.
-                    // See: https://github.com/dart-lang/sdk/issues/31954
                     return Encoding.UTF8.GetString(data);
                 }
 
@@ -59,7 +57,10 @@ namespace Unity.UIWidgets.services {
                 yield return www.SendWebRequest();
 
                 if (www.isNetworkError || www.isHttpError) {
-                    completer.completeError(new Exception($"Failed to load from url \"{url}\": {www.error}"));
+                    completer.completeError(new UIWidgetsError(new List<DiagnosticsNode>() {
+                        new ErrorSummary($"Unable to load asset: {key}"),
+                        new StringProperty("HTTP status code", www.error)
+                    }));
                     yield break;
                 }
 

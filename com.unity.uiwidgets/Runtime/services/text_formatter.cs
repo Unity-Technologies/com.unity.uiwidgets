@@ -59,23 +59,29 @@ namespace Unity.UIWidgets.service {
 
         public readonly int? maxLength;
 
+        internal static TextEditingValue truncate(TextEditingValue value, int maxLength) {
+            TextSelection newSelection = value.selection.copyWith(
+                baseOffset: Mathf.Min(value.selection.start, maxLength),
+                extentOffset: Mathf.Min(value.selection.end, maxLength));
+            string truncated = value.text.Substring(0, maxLength);
+            return new TextEditingValue(
+                text: truncated,
+                selection: newSelection,
+                composing: TextRange.empty
+            );
+        }
+
         public override TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
             if (maxLength != null && maxLength > 0 && newValue.text.Length > maxLength) {
                 if (Input.compositionString.Length > 0) {
                     return newValue;
                 }
 
-                TextSelection newSelection = newValue.selection.copyWith(
-                    baseOffset: Mathf.Min(newValue.selection.start, maxLength.Value),
-                    extentOffset: Mathf.Min(newValue.selection.end, maxLength.Value)
-                );
-                
-                string truncated = newValue.text.Substring(0, maxLength.Value);
-                return new TextEditingValue(
-                    text: truncated,
-                    selection: newSelection,
-                    composing: TextRange.empty
-                );
+                if (oldValue.text.Length == maxLength.Value) {
+                    return oldValue;
+                }
+
+                return truncate(newValue, maxLength.Value);
             }
 
             return newValue;
