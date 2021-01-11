@@ -103,7 +103,6 @@ namespace Unity.UIWidgets.gestures {
                             break;
 
                         case PointerChange.move: {
-                            Debug.LogError("need add synthesized into PointerData");
                             yield return new PointerMoveEvent(
                                 timeStamp: timeStamp,
                                 pointer: datum.pointerIdentifier,

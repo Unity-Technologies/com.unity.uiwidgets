@@ -5,7 +5,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.gestures {
-    public delegate void GestureDoubleTapCallback(DoubleTapDetails details);
+    public delegate void GestureDoubleTapCallback();
 
     public delegate void GestureMultiTapDownCallback(int pointer, TapDownDetails details);
 
@@ -228,7 +228,7 @@ namespace Unity.UIWidgets.gestures {
             tracker.entry.resolve(GestureDisposition.accepted);
             _freezeTracker(tracker);
             _trackers.Remove(tracker.pointer);
-            _checkUp(tracker);
+            _checkUp(tracker.initialButtons);
 
             _reset();
         }
@@ -258,13 +258,10 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        void _checkUp(_TapTracker tracker) {
-            // D.assert(buttons == kPrimaryButton);
+        void _checkUp(int buttons) {
+            D.assert(buttons == gesture_.kPrimaryButton);
             if (onDoubleTap != null) {
-                invokeCallback<object>("onDoubleTap", () => {
-                    onDoubleTap(new DoubleTapDetails(tracker._initialGlobalPosition));
-                    return null;
-                });
+                invokeCallback("onDoubleTap",() => onDoubleTap);
             }
         }
 
