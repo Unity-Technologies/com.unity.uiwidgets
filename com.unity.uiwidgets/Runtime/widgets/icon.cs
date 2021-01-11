@@ -57,5 +57,12 @@ namespace Unity.UIWidgets.widgets {
                 )
             );
         }
+        
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new IconDataProperty("icon", icon, ifNull: "<empty>", showName: false));
+            properties.add(new FloatProperty("size", size, defaultValue: null));//[!!!] DoubleProperty -> FloatProperty
+            properties.add(new ColorProperty("color", color, defaultValue: null));
+        }
     }
 }
