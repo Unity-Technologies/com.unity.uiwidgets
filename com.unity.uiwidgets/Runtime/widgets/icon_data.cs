@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.widgets {
     public class IconData : IEquatable<IconData> {
@@ -60,5 +62,40 @@ namespace Unity.UIWidgets.widgets {
         public override string ToString() {
             return "IconData(U+" + codePoint.ToString("X5") + ")";
         }
+    }
+    
+    /// [DiagnosticsProperty] that has an [IconData] as value.
+    public class IconDataProperty : DiagnosticsProperty<IconData> {
+        /// Create a diagnostics property for [IconData].
+        ///
+        /// The [showName], [style], and [level] arguments must not be null.
+        public IconDataProperty(
+            String name,
+            IconData value,
+            String ifNull = null,
+            bool showName = true,
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
+            DiagnosticLevel level = DiagnosticLevel.info
+        ) : base(name, value,
+            showName: showName,
+            ifNull: ifNull,
+            style: style,
+            level: level
+        ) {
+            D.assert(showName != null);
+            D.assert(style != null);
+            D.assert(level != null);
+        }
+
+
+        public override Dictionary<String, Object> toJsonMap(DiagnosticsSerializationDelegate _delegate) {
+            Dictionary<String, Object> json = base.toJsonMap(_delegate);
+        if (value != null) {
+            json["valueProperties"] = new Dictionary<String, Object>(){
+                {"codePoint", value.codePoint},
+            };
+        }
+        return json;
+    }
     }
 }
