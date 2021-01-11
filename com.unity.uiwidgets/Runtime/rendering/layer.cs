@@ -1029,21 +1029,14 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new DiagnosticsProperty<Clip>("clipBehavior", clipBehavior));
         }
     }
-
-    /// A composite layer that applies a [ColorFilter] to its children.
+    
     public class ColorFilterLayer : ContainerLayer {
-        /// Creates a layer that applies a [ColorFilter] to its children.
-        ///
-        /// The [colorFilter] property must be non-null before the compositing phase
-        /// of the pipeline.
+
         public ColorFilterLayer(ColorFilter colorFilter = null) {
             _colorFilter = colorFilter;
         }
 
-        /// The color filter to apply to children.
-        ///
-        /// The scene must be explicitly recomposited after this property is changed
-        /// (as described at [Layer]).
+
         public ColorFilter colorFilter {
             get {
                 return _colorFilter;
@@ -1077,6 +1070,45 @@ namespace Unity.UIWidgets.rendering {
         }
     }
     
+    public class ImageFilterLayer : ContainerLayer {
+
+        public ImageFilterLayer(
+            ui.ImageFilter imageFilter
+        ) {
+            _imageFilter = imageFilter;
+        }
+        
+    public ui.ImageFilter  imageFilter {
+        get {
+            return _imageFilter;
+        }
+        set {
+            D.assert(value != null);
+            if (value != _imageFilter) {
+                _imageFilter = value;
+                markNeedsAddToScene();
+            }
+        }
+    }
+
+    ui.ImageFilter _imageFilter;
+    
+    //[!!!] builder.pushImageFilter?
+    /*public override void addToScene(ui.SceneBuilder builder,  Offset layerOffset = null) {
+        D.assert(imageFilter != null);
+        engineLayer = builder.pushImageFilter(
+            imageFilter,
+            oldLayer: _engineLayer as ui.ImageFilterEngineLayer
+        );
+        addChildrenToScene(builder, layerOffset);
+        builder.pop();
+    }*/
+    
+    public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+        base.debugFillProperties(properties);
+        properties.add(new DiagnosticsProperty<ui.ImageFilter>("imageFilter", imageFilter));
+    }
+    }
     
     public class TransformLayer : OffsetLayer {
         public TransformLayer(Matrix4 transform = null, Offset offset = null) : base(offset) {
