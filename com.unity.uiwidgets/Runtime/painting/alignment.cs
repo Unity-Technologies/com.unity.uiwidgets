@@ -7,19 +7,19 @@ namespace Unity.UIWidgets.painting {
         public AlignmentGeometry() {
         }
 
-        protected float _x { get; }
+        protected virtual float _x { get; }
 
-        protected float _start { get; }
+        protected virtual float _start { get; }
 
-        protected float _y { get; }
+        protected virtual float _y { get; }
 
-        // public static AlignmentGeometry add(AlignmentGeometry other) {
-        //   return new _MixedAlignment(
-        //     _x + other._x,
-        //     _start + other._start,
-        //     _y + other._y,
-        //   );
-        // }
+        public virtual AlignmentGeometry add(AlignmentGeometry other) {
+            return new _MixedAlignment(
+                _x + other._x,
+                _start + other._start,
+                _y + other._y
+            );
+        }
 
         // public abstract AlignmentGeometry operator -();
         //
@@ -27,11 +27,11 @@ namespace Unity.UIWidgets.painting {
         //
         // public abstract AlignmentGeometry operator /(double other);
         //
-        // public abstract AlignmentGeometry operator ~/(double other);
+      // public abstract AlignmentGeometry operator ~/(double other);
         //
         // public abstract AlignmentGeometry operator %(double other);
 
-        // static AlignmentGeometry lerp(AlignmentGeometry a, AlignmentGeometry b, float t) {
+        // public static AlignmentGeometry lerp(AlignmentGeometry a, AlignmentGeometry b, float t) {
         //   D.assert(t != null);
         //   if (a == null && b == null)
         //     return null;
@@ -43,13 +43,13 @@ namespace Unity.UIWidgets.painting {
         //     return Alignment.lerp(a, b, t);
         //   if (a is AlignmentDirectional && b is AlignmentDirectional)
         //     return AlignmentDirectional.lerp(a, b, t);
-        //   return _MixedAlignment(
+        //   return new _MixedAlignment(
         //     ui.lerpDouble(a._x, b._x, t),
         //     ui.lerpDouble(a._start, b._start, t),
         //     ui.lerpDouble(a._y, b._y, t),
         //   );
         // }
-        //
+
         public abstract Alignment resolve(TextDirection? direction);
         //
         // @override
@@ -256,6 +256,219 @@ namespace Unity.UIWidgets.painting {
                     return new Alignment(_x + _start, _y);
             }
             return null;
+        }
+    }
+
+    public class AlignmentDirectional : AlignmentGeometry {
+        public AlignmentDirectional(float start, float y) {
+            this.start = start;
+            this.y = y;
+        }
+
+        readonly float _px;
+
+        protected override float _x {
+            get => 0;
+        }
+
+        readonly float start;
+
+        protected override float _start {
+            get => start;
+        }
+
+        readonly float y;
+
+        protected override float _y {
+            get => y;
+        }
+
+        public static readonly AlignmentDirectional topStart = new AlignmentDirectional(-1.0f, -1.0f);
+
+        public static readonly AlignmentDirectional topCenter = new AlignmentDirectional(0.0f, -1.0f);
+
+        public static readonly AlignmentDirectional topEnd = new AlignmentDirectional(1.0f, -1.0f);
+
+        public static readonly AlignmentDirectional centerStart = new AlignmentDirectional(-1.0f, 0.0f);
+
+        public static readonly AlignmentDirectional center = new AlignmentDirectional(0.0f, 0.0f);
+
+        public static readonly AlignmentDirectional centerEnd = new AlignmentDirectional(1.0f, 0.0f);
+
+        public static readonly AlignmentDirectional bottomStart = new AlignmentDirectional(-1.0f, 1.0f);
+
+        public static readonly AlignmentDirectional bottomCenter = new AlignmentDirectional(0.0f, 1.0f);
+
+        public static readonly AlignmentDirectional bottomEnd = new AlignmentDirectional(1.0f, 1.0f);
+
+        public override AlignmentGeometry add(AlignmentGeometry other) {
+            if (other is AlignmentDirectional alignmentDirectional)
+                return this + alignmentDirectional;
+            return base.add(other);
+        }
+
+        public static AlignmentDirectional operator -(AlignmentDirectional self, AlignmentDirectional other) {
+            return new AlignmentDirectional(self.start - other.start, self.y - other.y);
+        }
+
+        public static AlignmentDirectional operator +(AlignmentDirectional self, AlignmentDirectional other) {
+            return new AlignmentDirectional(self.start + other.start, self.y + other.y);
+        }
+
+        public static AlignmentDirectional operator -(AlignmentDirectional self) {
+            return new AlignmentDirectional(-self.start, -self.y);
+        }
+
+        public static AlignmentDirectional operator *(AlignmentDirectional self, float other) {
+            return new AlignmentDirectional(self.start * other, self.y * other);
+        }
+
+        public static AlignmentDirectional operator /(AlignmentDirectional self, float other) {
+            return new AlignmentDirectional(self.start / other, self.y / other);
+        }
+
+        public static AlignmentDirectional operator %(AlignmentDirectional self, float other) {
+            return new AlignmentDirectional(self.start % other, self.y % other);
+        }
+
+        static AlignmentDirectional lerp(AlignmentDirectional a, AlignmentDirectional b, float t) {
+            D.assert(t != null);
+            if (a == null && b == null)
+                return null;
+            if (a == null)
+                return new AlignmentDirectional(MathUtils.lerpFloat(0.0f, b.start, t),
+                    MathUtils.lerpFloat(0.0f, b.y, t));
+            if (b == null)
+                return new AlignmentDirectional(MathUtils.lerpFloat(a.start, 0.0f, t),
+                    MathUtils.lerpFloat(a.y, 0.0f, t));
+            return new AlignmentDirectional(MathUtils.lerpFloat(a.start, b.start, t), MathUtils.lerpFloat(a.y, b.y, t));
+        }
+
+        public override Alignment resolve(TextDirection? direction) {
+            D.assert(direction != null);
+            switch (direction) {
+                case TextDirection.rtl:
+                    return new Alignment(-start, y);
+                case TextDirection.ltr:
+                    return new Alignment(start, y);
+            }
+
+            return null;
+        }
+
+        static String _stringify(double start, double y) {
+            if (start == -1.0f && y == -1.0f)
+                return "AlignmentDirectional.topStart";
+            if (start == 0.0f && y == -1.0f)
+                return "AlignmentDirectional.topCenter";
+            if (start == 1.0f && y == -1.0f)
+                return "AlignmentDirectional.topEnd";
+            if (start == -1.0f && y == 0.0f)
+                return "AlignmentDirectional.centerStart";
+            if (start == 0.0f && y == 0.0f)
+                return "AlignmentDirectional.center";
+            if (start == 1.0f && y == 0.0f)
+                return "AlignmentDirectional.centerEnd";
+            if (start == -1.0f && y == 1.0f)
+                return "AlignmentDirectional.bottomStart";
+            if (start == 0.0f && y == 1.0f)
+                return "AlignmentDirectional.bottomCenter";
+            if (start == 1.0f && y == 1.0f)
+                return "AlignmentDirectional.bottomEnd";
+            return $"AlignmentDirectional({start}, {y})";
+        }
+
+        public override string ToString() => _stringify(start, y);
+    }
+
+
+    class _MixedAlignment : AlignmentGeometry {
+        internal _MixedAlignment(float _x, float _start, float _y) {
+            _px = _x;
+            _pstart = _start;
+            _py = _y;
+        }
+
+        readonly float _px;
+
+        protected override float _x {
+            get => _px;
+        }
+
+        readonly float _pstart;
+
+        protected override float _start {
+            get => _pstart;
+        }
+
+        readonly float _py;
+
+        protected override float _y {
+            get => _py;
+        }
+
+        public static _MixedAlignment operator -(_MixedAlignment self) {
+            return new _MixedAlignment(
+                -self._x,
+                -self._start,
+                -self._y
+            );
+        }
+
+        public static _MixedAlignment operator *(_MixedAlignment self, float other) {
+            return new _MixedAlignment(
+                self._x * other,
+                self._start * other,
+                self._y * other
+            );
+        }
+
+        public static _MixedAlignment operator /(_MixedAlignment self, float other) {
+            return new _MixedAlignment(
+                self._x / other,
+                self._start / other,
+                self._y / other
+            );
+        }
+
+        public static _MixedAlignment operator %(_MixedAlignment self, float other) {
+            return new _MixedAlignment(
+                self._x % other,
+                self._start % other,
+                self._y % other
+            );
+        }
+
+        public override Alignment resolve(TextDirection? direction) {
+            D.assert(direction != null);
+            switch (direction) {
+                case TextDirection.rtl:
+                    return new Alignment(_x - _start, _y);
+                case TextDirection.ltr:
+                    return new Alignment(_x + _start, _y);
+            }
+
+            return null;
+        }
+    }
+
+    public class TextAlignVertical {
+        public TextAlignVertical(float y) {
+            D.assert(y != null);
+            D.assert(y >= -1.0 && y <= 1.0);
+            this.y = y;
+        }
+
+        public readonly double y;
+
+        public static readonly TextAlignVertical top = new TextAlignVertical(y: -1.0f);
+
+        public static readonly TextAlignVertical center = new TextAlignVertical(y: 0.0f);
+
+        public static readonly TextAlignVertical bottom = new TextAlignVertical(y: 1.0f);
+
+        public override string ToString() {
+            return $"{foundation_.objectRuntimeType(this, "TextAlignVertical")}(y: {y})";
         }
     }
 }
