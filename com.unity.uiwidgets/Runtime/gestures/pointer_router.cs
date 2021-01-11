@@ -8,19 +8,20 @@ namespace Unity.UIWidgets.gestures {
     public delegate void PointerRoute(PointerEvent evt);
 
     public class PointerRouter {
-        readonly Dictionary<int, Dictionary<PointerRoute, Matrix4>> _routeMap = new Dictionary<int, Dictionary<PointerRoute, Matrix4>>();
+        readonly Dictionary<int, Dictionary<PointerRoute, Matrix4>> _routeMap =
+            new Dictionary<int, Dictionary<PointerRoute, Matrix4>>();
 
         readonly Dictionary<PointerRoute, Matrix4> _globalRoutes = new Dictionary<PointerRoute, Matrix4>();
 
         public void addRoute(int pointer, PointerRoute route, Matrix4 transform = null) {
             var routes = _routeMap.putIfAbsent(
-                pointer, 
+                pointer,
                 () => new Dictionary<PointerRoute, Matrix4>()
             );
             D.assert(!routes.ContainsKey(route));
             routes[route] = transform;
         }
-        
+
         public void removeRoute(int pointer, PointerRoute route) {
             D.assert(_routeMap.ContainsKey(pointer));
             var routes = _routeMap[pointer];
@@ -29,12 +30,12 @@ namespace Unity.UIWidgets.gestures {
                 _routeMap.Remove(pointer);
             }
         }
-        
+
         public void addGlobalRoute(PointerRoute route, Matrix4 transform = null) {
             D.assert(!_globalRoutes.ContainsKey(route));
             _globalRoutes[route] = transform;
         }
-        
+
         public void removeGlobalRoute(PointerRoute route) {
             D.assert(_globalRoutes.ContainsKey(route));
             _globalRoutes.Remove(route);
@@ -75,9 +76,10 @@ namespace Unity.UIWidgets.gestures {
                     new Dictionary<PointerRoute, Matrix4>(routes)
                 );
             }
+
             _dispatchEventToRoutes(evt, _globalRoutes, copiedGlobalRoutes);
         }
-        
+
         public void _dispatchEventToRoutes(
             PointerEvent evt,
             Dictionary<PointerRoute, Matrix4> referenceRoutes,

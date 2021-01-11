@@ -2258,6 +2258,12 @@ namespace Unity.UIWidgets.widgets {
         ) :
         base(key: key, child: child) {
             D.assert(behavior != null);
+            this.onPointerDown = onPointerDown;
+            this.onPointerMove = onPointerMove;
+            this.onPointerUp = onPointerUp;
+            this.onPointerCancel = onPointerCancel;
+            this.onPointerSignal = onPointerSignal;
+            this.behavior = behavior;
         }
 
         public readonly PointerDownEventListener onPointerDown;

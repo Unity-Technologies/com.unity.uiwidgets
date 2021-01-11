@@ -5,6 +5,45 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Unity.UIWidgets.gestures {
+    public partial class gesture_ {
+        public const int kPrimaryButton = 0x01;
+
+        public const int kSecondaryButton = 0x02;
+
+        public const int kPrimaryMouseButton = kPrimaryButton;
+
+        public const int kSecondaryMouseButton = kSecondaryButton;
+
+        public const int kStylusContact = kPrimaryButton;
+
+        public const int kPrimaryStylusButton = kSecondaryButton;
+
+        public const int kMiddleMouseButton = 0x04;
+
+        public const int kSecondaryStylusButton = 0x04;
+
+        public const int kBackMouseButton = 0x08;
+
+        public const int kForwardMouseButton = 0x10;
+
+        public const int kTouchContact = kPrimaryButton;
+
+        public static int kMaxUnsignedSMI {
+            get {
+                Debug.LogError("Update this for io and web");
+                return -1;
+            }
+        }
+
+        public int nthMouseButton(int number) => (kPrimaryMouseButton << (number - 1)) & kMaxUnsignedSMI;
+
+        public int nthStylusButton(int number) => (kPrimaryStylusButton << (number - 1)) & kMaxUnsignedSMI;
+
+        public int smallestButton(int buttons) => buttons & (-buttons);
+
+        public bool isSingleButton(int buttons) => buttons != 0 && (smallestButton(buttons) == buttons);
+    }
+
     public abstract class PointerEvent : Diagnosticable {
         public PointerEvent(
             TimeSpan timeStamp,
@@ -214,7 +253,6 @@ namespace Unity.UIWidgets.gestures {
             Offset position = null,
             Offset localPosition = null,
             bool obscured = false,
-            float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distance = 0.0f,
@@ -232,7 +270,7 @@ namespace Unity.UIWidgets.gestures {
             position: position,
             localPosition: localPosition,
             obscured: obscured,
-            pressure: pressure,
+            pressure: 0,
             pressureMin: pressureMin,
             pressureMax: pressureMax,
             distance: distance,
@@ -280,7 +318,6 @@ namespace Unity.UIWidgets.gestures {
             Offset position = null,
             Offset localPosition = null,
             bool obscured = false,
-            float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distanceMax = 0.0f,
@@ -295,7 +332,6 @@ namespace Unity.UIWidgets.gestures {
             localPosition: localPosition,
             device: device,
             obscured: obscured,
-            pressure: pressure,
             pressureMin: pressureMin,
             pressureMax: pressureMax,
             distanceMax: distanceMax,
@@ -340,7 +376,6 @@ namespace Unity.UIWidgets.gestures {
             Offset localDelta = null,
             int buttons = 0,
             bool obscured = false,
-            float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distance = 0.0f,
@@ -364,7 +399,7 @@ namespace Unity.UIWidgets.gestures {
             localDelta: localDelta,
             buttons: buttons,
             obscured: obscured,
-            pressure: pressure,
+            pressure: 0,
             pressureMin: pressureMin,
             pressureMax: pressureMax,
             size: size,
@@ -430,7 +465,6 @@ namespace Unity.UIWidgets.gestures {
             Offset localDelta = null,
             int buttons = 0,
             bool obscured = false,
-            float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distance = 0.0f,
@@ -456,7 +490,7 @@ namespace Unity.UIWidgets.gestures {
             buttons: buttons,
             down: down,
             obscured: obscured,
-            pressure: pressure,
+            pressure: 0,
             pressureMin: pressureMin,
             pressureMax: pressureMax,
             size: size,
@@ -489,7 +523,6 @@ namespace Unity.UIWidgets.gestures {
                 buttons: hover?.buttons ?? 0,
                 down: hover?.down ?? false,
                 obscured: hover?.obscured ?? false,
-                pressure: hover?.pressure ?? 0.0f,
                 pressureMin: hover?.pressureMin ?? 1.0f,
                 pressureMax: hover?.pressureMax ?? 1.0f,
                 distance: hover?.distance ?? 0.0f,
@@ -558,7 +591,6 @@ namespace Unity.UIWidgets.gestures {
             Offset localDelta = null,
             int buttons = 0,
             bool obscured = false,
-            float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distance = 0.0f,
@@ -584,7 +616,7 @@ namespace Unity.UIWidgets.gestures {
             buttons: buttons,
             down: down,
             obscured: obscured,
-            pressure: pressure,
+            pressure: 0,
             pressureMin: pressureMin,
             pressureMax: pressureMax,
             size: size,
@@ -618,7 +650,6 @@ namespace Unity.UIWidgets.gestures {
                 buttons: hover?.buttons ?? 0,
                 down: hover?.down ?? false,
                 obscured: hover?.obscured ?? false,
-                pressure: hover?.pressure ?? 0.0f,
                 pressureMin: hover?.pressureMin ?? 1.0f,
                 pressureMax: hover?.pressureMax ?? 1.0f,
                 distance: hover?.distance ?? 0.0f,
@@ -684,7 +715,7 @@ namespace Unity.UIWidgets.gestures {
             int device = 0,
             Offset position = null,
             Offset localPosition = null,
-            int buttons = 0,
+            int buttons = gesture_.kPrimaryButton,
             bool obscured = false,
             float pressure = 0.0f,
             float pressureMin = 1.0f,
@@ -767,7 +798,7 @@ namespace Unity.UIWidgets.gestures {
             Offset localPosition = null,
             Offset delta = null,
             Offset localDelta = null,
-            int buttons = 0,
+            int buttons = gesture_.kPrimaryButton,
             bool obscured = false,
             float pressure = 0.0f,
             float pressureMin = 1.0f,
@@ -781,7 +812,7 @@ namespace Unity.UIWidgets.gestures {
             float radiusMax = 0.0f,
             float orientation = 0.0f,
             float tilt = 0.0f,
-            int platformdData = 0,
+            int platformData = 0,
             bool synthesized = false,
             Matrix4 transform = null,
             PointerMoveEvent original = null
@@ -809,7 +840,7 @@ namespace Unity.UIWidgets.gestures {
             radiusMax: radiusMax,
             orientation: orientation,
             tilt: tilt,
-            platformData: platformdData,
+            platformData: platformData,
             synthesized: synthesized,
             transform: transform,
             original: original) {
@@ -848,7 +879,7 @@ namespace Unity.UIWidgets.gestures {
                 radiusMax: radiusMax,
                 orientation: orientation,
                 tilt: tilt,
-                // platformData: platformData,
+                platformData: platformData,
                 synthesized: synthesized,
                 transform: transform,
                 original: original as PointerMoveEvent ?? this
@@ -962,8 +993,7 @@ namespace Unity.UIWidgets.gestures {
 
     public class PointerScrollEvent : PointerSignalEvent {
         public PointerScrollEvent(
-            TimeSpan timeStamp,
-            int pointer,
+            TimeSpan? timeStamp = null,
             PointerDeviceKind kind = PointerDeviceKind.mouse,
             int device = 0,
             Offset position = null,
@@ -972,9 +1002,8 @@ namespace Unity.UIWidgets.gestures {
             Matrix4 transform = null,
             PointerScrollEvent original = null)
             : base(
-                timeStamp,
+                timeStamp ?? TimeSpan.Zero,
                 kind: kind,
-                pointer: pointer,
                 device: device,
                 position: position,
                 localPosition: localPosition,
@@ -991,9 +1020,9 @@ namespace Unity.UIWidgets.gestures {
             if (transform == null || transform == this.transform) {
                 return this;
             }
+
             return new PointerScrollEvent(
                 timeStamp: timeStamp,
-                pointer: pointer,
                 kind: kind,
                 device: device,
                 position: position,
@@ -1254,7 +1283,7 @@ namespace Unity.UIWidgets.gestures {
             int device = 0,
             Offset position = null,
             Offset localPosition = null,
-            Object[] objectReferences = null, 
+            Object[] objectReferences = null,
             Matrix4 transform = null,
             PointerDragFromEditorReleaseEvent original = null
         ) : base(
