@@ -69,6 +69,9 @@ namespace Unity.UIWidgets.widgets {
             GestureTapUpCallback onTapUp = null,
             GestureTapCallback onTap = null,
             GestureTapCancelCallback onTapCancel = null,
+            GestureTapDownCallback onSecondaryTapDown = null,
+            GestureTapUpCallback onSecondaryTapUp = null,
+            GestureTapCancelCallback onSecondaryTapCancel = null,
             GestureDoubleTapCallback onDoubleTap = null,
             GestureLongPressCallback onLongPress = null,
             GestureLongPressStartCallback onLongPressStart = null,
@@ -131,6 +134,9 @@ namespace Unity.UIWidgets.widgets {
             this.onTapUp = onTapUp;
             this.onTap = onTap;
             this.onTapCancel = onTapCancel;
+            this.onSecondaryTapDown = onSecondaryTapDown;
+            this.onSecondaryTapUp = onSecondaryTapUp;
+            this.onSecondaryTapCancel = onSecondaryTapCancel;
             this.onDoubleTap = onDoubleTap;
             this.onLongPress = onLongPress;
             this.onLongPressUp = onLongPressUp;
@@ -164,6 +170,9 @@ namespace Unity.UIWidgets.widgets {
         public readonly GestureTapUpCallback onTapUp;
         public readonly GestureTapCallback onTap;
         public readonly GestureTapCancelCallback onTapCancel;
+        public readonly GestureTapDownCallback onSecondaryTapDown;
+        public readonly GestureTapUpCallback onSecondaryTapUp;
+        public readonly GestureTapCancelCallback onSecondaryTapCancel;
         public readonly GestureDoubleTapCallback onDoubleTap;
         public readonly GestureLongPressCallback onLongPress;
         public readonly GestureLongPressUpCallback onLongPressUp;
@@ -197,7 +206,10 @@ namespace Unity.UIWidgets.widgets {
             if (onTapDown != null ||
                 onTapUp != null ||
                 onTap != null ||
-                onTapCancel != null) {
+                onTapCancel != null ||
+                onSecondaryTapDown != null ||
+                onSecondaryTapUp != null ||
+                onSecondaryTapCancel != null) {
                 gestures[typeof(TapGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
                         () => new TapGestureRecognizer(debugOwner: this),
@@ -206,6 +218,9 @@ namespace Unity.UIWidgets.widgets {
                             instance.onTapUp = onTapUp;
                             instance.onTap = onTap;
                             instance.onTapCancel = onTapCancel;
+                            instance.onSecondaryTapDown = onSecondaryTapDown;
+                            instance.onSecondaryTapUp = onSecondaryTapUp;
+                            instance.onSecondaryTapCancel = onSecondaryTapCancel;
                         }
                     );
             }
