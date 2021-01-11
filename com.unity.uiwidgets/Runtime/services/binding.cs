@@ -12,7 +12,6 @@ namespace Unity.UIWidgets.services {
 
             _defaultBinaryMessenger = createBinaryMessenger();
             window.onPlatformMessage = defaultBinaryMessenger.handlePlatformMessage;
-            //initLicenses();
             //SystemChannels.system.setMessageHandler(handleSystemMessage);
         }
 
@@ -36,7 +35,6 @@ namespace Unity.UIWidgets.services {
             services_.rootBundle.evict(asset);
         }
     }
-
 
     class _DefaultBinaryMessenger : BinaryMessenger {
         internal _DefaultBinaryMessenger() {
