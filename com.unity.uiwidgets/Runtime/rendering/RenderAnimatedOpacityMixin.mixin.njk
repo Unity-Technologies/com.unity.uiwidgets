@@ -77,7 +77,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
         
-        public  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+        public void visitChildrenForSemantics(RenderObjectVisitor visitor) {
             if (child != null && (_alpha != 0 || alwaysIncludeSemantics))
                 visitor(child);
         }
@@ -88,8 +88,7 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new FlagProperty("alwaysIncludeSemantics", value: alwaysIncludeSemantics, ifTrue: "alwaysIncludeSemantics"));
         }
 
-        
-    }
+     }
 {% endmacro %}
 
 {{ RenderAnimatedOpacityMixin('RenderSliver') }}

@@ -555,12 +555,7 @@ namespace Unity.UIWidgets.rendering {
         public float? layoutOffset;
 
         public override string ToString() {
-            if (layoutOffset == null)
-                return "layoutOffset = None";
-            else {
-                return $"layoutOffset = {layoutOffset:F}";
-               // 1.000
-            }
+           return layoutOffset == null ? "layoutOffset = None" : $"layoutOffset = {layoutOffset:F1}";
         }
     }
 

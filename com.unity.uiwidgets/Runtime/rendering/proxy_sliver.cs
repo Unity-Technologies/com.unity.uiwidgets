@@ -105,7 +105,6 @@ namespace Unity.UIWidgets.rendering {
             bool alwaysIncludeSemantics = false
         )  {
             D.assert(opacity != null);
-            D.assert(alwaysIncludeSemantics != null);
             this.opacity = opacity;
             this.alwaysIncludeSemantics = alwaysIncludeSemantics;
             child = sliver;

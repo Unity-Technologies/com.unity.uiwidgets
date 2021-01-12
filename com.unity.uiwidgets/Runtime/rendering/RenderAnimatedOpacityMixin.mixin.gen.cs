@@ -96,7 +96,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
        
-        public  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+        public void visitChildrenForSemantics(RenderObjectVisitor visitor) {
             if (child != null && (_alpha != 0 || alwaysIncludeSemantics))
                 visitor(child);
         }
