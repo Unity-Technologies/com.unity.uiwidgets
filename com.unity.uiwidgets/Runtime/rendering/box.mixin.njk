@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.rendering {
         where ParentDataType : ContainerParentDataMixinBoxParentData<ChildType> {
         
         public float? defaultComputeDistanceToFirstActualBaseline(TextBaseline baseline) {
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 float? result = child.getDistanceToActualBaseline(baseline);
@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.rendering {
 
         public float? defaultComputeDistanceToHighestActualBaseline(TextBaseline baseline) {
             float? result = null;
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 float? candidate = child.getDistanceToActualBaseline(baseline);
@@ -49,7 +49,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void defaultPaint(PaintingContext context, Offset offset) {
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 context.paintChild(child, childParentData.offset + offset);
@@ -57,16 +57,21 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-       public bool defaultHitTestChildren(HitTestResult result, Offset position) {
-            // the x, y parameters have the top left of the node's box as the origin
-            ChildType child = this.lastChild;
-            while (child != null)
-            {
-                ParentDataType childParentData = (ParentDataType) child.parentData;
-                if (child.hitTest(result, position: position - childParentData.offset)) {
-                    return true;
-                }
-                child = childParentData.previousSibling;
+        public bool defaultHitTestChildren(BoxHitTestResult result, Offset position) {
+             // the x, y parameters have the top left of the node's box as the origin
+            ChildType child = lastChild;
+            while (child != null) {
+                 ParentDataType childParentData = child.parentData as ParentDataType;
+                 bool isHit = result.addWithPaintOffset(
+                      offset: childParentData.offset,
+                      position: position,
+                      hitTest: (BoxHitTestResult boxHitTestResult, Offset transformed) => {
+                          D.assert(transformed == position - childParentData.offset);
+                          return child.hitTest(boxHitTestResult, position: transformed);
+                      }
+                 );
+                 if (isHit)
+                      child = childParentData.previousSibling;
             }
             return false;
         }

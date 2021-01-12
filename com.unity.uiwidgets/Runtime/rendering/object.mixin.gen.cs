@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Unity.UIWidgets.rendering {
 
     public abstract class RenderObjectWithChildMixinRenderObject<ChildType> : RenderObject, RenderObjectWithChildMixin<ChildType>, RenderObjectWithChildMixin where ChildType : RenderObject {
-        public virtual bool debugValidateChild(RenderObject child) {
+        public bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
@@ -88,7 +88,7 @@ namespace Unity.UIWidgets.rendering {
 
 
     public abstract class RenderObjectWithChildMixinRenderBox<ChildType> : RenderBox, RenderObjectWithChildMixin<ChildType>, RenderObjectWithChildMixin where ChildType : RenderObject {
-        public virtual bool debugValidateChild(RenderObject child) {
+        public bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
@@ -261,18 +261,18 @@ namespace Unity.UIWidgets.rendering {
             D.assert(previousSibling == null);
             D.assert(nextSibling == null);
 
-            // if (this.previousSibling != null) {
-            //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) this.previousSibling.parentData;
-            //     previousSiblingParentData.nextSibling = this.nextSibling;
+            // if (previousSibling != null) {
+            //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) previousSibling.parentData;
+            //     previousSiblingParentData.nextSibling = nextSibling;
             // }
 
-            // if (this.nextSibling != null) {
-            //     var nextSiblingParentData = (ContainerParentDataMixin<ChildType>) this.nextSibling.parentData;
-            //     nextSiblingParentData.previousSibling = this.previousSibling;
+            // if (nextSibling != null) {
+            //     var nextSiblingParentData = (ContainerParentDataMixin<ChildType>) nextSibling.parentData;
+            //     nextSiblingParentData.previousSibling = previousSibling;
             // }
 
-            // this.previousSibling = null;
-            // this.nextSibling = null;
+            // previousSibling = null;
+            // nextSibling = null;
         }
     }
 
@@ -289,18 +289,18 @@ namespace Unity.UIWidgets.rendering {
             D.assert(previousSibling == null);
             D.assert(nextSibling == null);
 
-            // if (this.previousSibling != null) {
-            //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) this.previousSibling.parentData;
-            //     previousSiblingParentData.nextSibling = this.nextSibling;
+            // if (previousSibling != null) {
+            //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) previousSibling.parentData;
+            //     previousSiblingParentData.nextSibling = nextSibling;
             // }
 
-            // if (this.nextSibling != null) {
-            //     var nextSiblingParentData = (ContainerParentDataMixin<ChildType>) this.nextSibling.parentData;
-            //     nextSiblingParentData.previousSibling = this.previousSibling;
+            // if (nextSibling != null) {
+            //     var nextSiblingParentData = (ContainerParentDataMixin<ChildType>) nextSibling.parentData;
+            //     nextSiblingParentData.previousSibling = previousSibling;
             // }
 
-            // this.previousSibling = null;
-            // this.nextSibling = null;
+            // previousSibling = null;
+            // nextSibling = null;
         }
     }
 
@@ -317,18 +317,18 @@ namespace Unity.UIWidgets.rendering {
             D.assert(previousSibling == null);
             D.assert(nextSibling == null);
 
-            // if (this.previousSibling != null) {
-            //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) this.previousSibling.parentData;
-            //     previousSiblingParentData.nextSibling = this.nextSibling;
+            // if (previousSibling != null) {
+            //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) previousSibling.parentData;
+            //     previousSiblingParentData.nextSibling = nextSibling;
             // }
 
-            // if (this.nextSibling != null) {
-            //     var nextSiblingParentData = (ContainerParentDataMixin<ChildType>) this.nextSibling.parentData;
-            //     nextSiblingParentData.previousSibling = this.previousSibling;
+            // if (nextSibling != null) {
+            //     var nextSiblingParentData = (ContainerParentDataMixin<ChildType>) nextSibling.parentData;
+            //     nextSiblingParentData.previousSibling = previousSibling;
             // }
 
-            // this.previousSibling = null;
-            // this.nextSibling = null;
+            // previousSibling = null;
+            // nextSibling = null;
         }
     }
 
@@ -339,23 +339,24 @@ namespace Unity.UIWidgets.rendering {
 
         public ChildType nextSibling { get; set; }
 
-        public  void detach() {
+        public override void detach() {
+            base.detach();
 
             D.assert(previousSibling == null);
             D.assert(nextSibling == null);
 
-            // if (this.previousSibling != null) {
-            //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) this.previousSibling.parentData;
-            //     previousSiblingParentData.nextSibling = this.nextSibling;
+            // if (previousSibling != null) {
+            //     var previousSiblingParentData = (ContainerParentDataMixin<ChildType>) previousSibling.parentData;
+            //     previousSiblingParentData.nextSibling = nextSibling;
             // }
 
-            // if (this.nextSibling != null) {
-            //     var nextSiblingParentData = (ContainerParentDataMixin<ChildType>) this.nextSibling.parentData;
-            //     nextSiblingParentData.previousSibling = this.previousSibling;
+            // if (nextSibling != null) {
+            //     var nextSiblingParentData = (ContainerParentDataMixin<ChildType>) nextSibling.parentData;
+            //     nextSiblingParentData.previousSibling = previousSibling;
             // }
 
-            // this.previousSibling = null;
-            // this.nextSibling = null;
+            // previousSibling = null;
+            // nextSibling = null;
         }
     }
 
@@ -465,10 +466,10 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public virtual void insert(ChildType child, ChildType after = null) {
-            D.assert(child != this, () => "A RenderObject cannot be inserted into itself.");
-            D.assert(after != this,
-                () => "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
-            D.assert(child != after, () => "A RenderObject cannot be inserted after itself.");
+            D.assert(child != this, ()=>"A RenderObject cannot be inserted into itself.");
+            D.assert(after != this,()=>
+                "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
+            D.assert(child != after, ()=>"A RenderObject cannot be inserted after itself.");
             D.assert(child != _firstChild);
             D.assert(child != _lastChild);
 
@@ -764,10 +765,10 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public virtual void insert(ChildType child, ChildType after = null) {
-            D.assert(child != this, () => "A RenderObject cannot be inserted into itself.");
-            D.assert(after != this,
-                () => "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
-            D.assert(child != after, () => "A RenderObject cannot be inserted after itself.");
+            D.assert(child != this, ()=>"A RenderObject cannot be inserted into itself.");
+            D.assert(after != this,()=>
+                "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
+            D.assert(child != after, ()=>"A RenderObject cannot be inserted after itself.");
             D.assert(child != _firstChild);
             D.assert(child != _lastChild);
 
@@ -993,7 +994,7 @@ namespace Unity.UIWidgets.rendering {
             get { return _childCount; }
         }
 
-        public override bool debugValidateChild(RenderObject child) {
+        public bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
@@ -1063,10 +1064,10 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public virtual void insert(ChildType child, ChildType after = null) {
-            D.assert(child != this, () => "A RenderObject cannot be inserted into itself.");
+            D.assert(child != this, ()=>"A RenderObject cannot be inserted into itself.");
             D.assert(after != this,
-                () => "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
-            D.assert(child != after, () => "A RenderObject cannot be inserted after itself.");
+               ()=> "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
+            D.assert(child != after,()=> "A RenderObject cannot be inserted after itself.");
             D.assert(child != _firstChild);
             D.assert(child != _lastChild);
 
