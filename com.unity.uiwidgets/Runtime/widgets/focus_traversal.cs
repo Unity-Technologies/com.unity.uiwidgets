@@ -17,6 +17,8 @@ namespace Unity.UIWidgets.widgets {
     }
 
     
+    
+    
     public class FocusTravesalUtils {
         public static void _focusAndEnsureVisible(
             FocusNode node,
@@ -57,11 +59,172 @@ namespace Unity.UIWidgets.widgets {
             }
             return result;
         }
-        
+
+        static int _MERGE_SORT_LIMIT = 32;
+        /// as they started in.
+        public static void insertionSort<T>(List<T> list,
+            Comparator<T> compare = null, int start = 0, int end =0) {
+            
+            //compare ??= defaultCompare<T>();
+            end = end == 0 ?list.Count : end;
+
+            for (int pos = start + 1; pos < end; pos++) {
+                int min = start;
+                int max = pos;
+                var element = list[pos];
+                while (min < max) {
+                    int mid = min + ((max - min) >> 1);
+                    int comparison = compare(element, list[mid]);
+                    if (comparison < 0) {
+                        max = mid;
+                    } else {
+                        min = mid + 1;
+                    }
+                }
+                setRange(list,min + 1, pos + 1, list, min);
+                list[min] = element;
+            }
+        }
+
+        public delegate int Comparator<T>(T a, T b);
+        //public Comparator<T> defaultCompare<T>() => (value1, value2) => value1 ;
+        public static void mergeSort<T>(
+            List<T> list,
+        int? start = null , int? end = null, Comparator<T> compare = null) {
+            int _start = start ?? 0;
+            int _end = end ?? list.Count;
+            compare = compare ;//?? <T>();
+
+            int length = _end - _start;
+            if (length < 2) return;
+            if (length < _MERGE_SORT_LIMIT) {
+                insertionSort(list, compare: compare, start: _start, end: _end);
+                return;
+            }
+           
+            int middle = _start + ((_end - _start) >> 1);
+            int firstLength = middle - _start;
+            int secondLength = _end - middle;
+            // secondLength is always the same as firstLength, or one greater.
+            var scratchSpace = new List<T>(secondLength);
+            _mergeSort(list, compare, middle, _end, scratchSpace, 0);
+            int firstTarget = _end - firstLength;
+            _mergeSort(list, compare, _start, middle, list, firstTarget);
+            _merge(compare, list, firstTarget, _end, scratchSpace, 0, secondLength, list,
+                _start);
+        }
+
+        public static void _mergeSort<T>(List<T> list, Comparator<T> compare, int start, int end,
+            List<T> target, int targetOffset) {
+            int length = end - start;
+            if (length < _MERGE_SORT_LIMIT) {
+                _movingInsertionSort(list, compare, start, end, target, targetOffset);
+                return;
+            }
+            int middle = start + (length >> 1);
+            int firstLength = middle - start;
+            int secondLength = end - middle;
+            
+            int targetMiddle = targetOffset + firstLength;
+           
+            _mergeSort(list, compare, middle, end, target, targetMiddle);
+          
+            _mergeSort(list, compare, start, middle, list, middle);
+            
+            _merge(compare, list, middle, middle + firstLength, target, targetMiddle,
+                targetMiddle + secondLength, target, targetOffset);
+        }
+        public static void _movingInsertionSort<T>(List<T> list, Comparator<T> compare, int start,
+        int end, List<T> target, int targetOffset) {
+            int length = end - start;
+            if (length == 0) return;
+            target[targetOffset] = list[start];
+            for (int i = 1; i < length; i++) {
+                var element = list[start + i];
+                int min = targetOffset;
+                int max = targetOffset + i;
+                while (min < max) {
+                    int mid = min + ((max - min) >> 1);
+                    if (compare(element, target[mid]) < 0) {
+                        max = mid;
+                    } else {
+                        min = mid + 1;
+                    }
+                }
+                setRange(target,min + 1, targetOffset + i + 1, target, min);
+                target[min] = element;
+            }
+        }
+
+
+
+        public static List<T>setRange<T>(List<T> alist, int start, int end, List<T> blist, int skipConut = 0 ) {
+            List<T> copyList = new List<T>();
+            List<T> resultList = new List<T>();
+            for (int i = skipConut; i < blist.Count; i++) {
+                copyList.Add(blist[i]);
+            }
+
+            for (int i = 0; i < start; i++) {
+                resultList.Add(alist[i]);
+            }
+
+            for (int i = 0; i <  copyList.Count; i++) {
+                resultList.Add(blist[i]);
+            }
+
+            for (int i = start + copyList.Count - 1; i < alist.Count; i++) {
+                resultList.Add(alist[i]);
+            }
+
+            return resultList;
+        }
+
+        public  static void _merge<T>(
+            Comparator<T> compare,
+        List<T> firstList,
+        int firstStart,
+        int firstEnd,
+            List<T> secondList,
+        int secondStart,
+        int secondEnd, 
+            List<T> target,
+        int targetOffset) {
+            // No empty lists reaches here.
+            D.assert(firstStart < firstEnd);
+            D.assert(secondStart < secondEnd);
+            int cursor1 = firstStart;
+            int cursor2 = secondStart;
+            var firstElement = firstList[cursor1++];
+            var secondElement = secondList[cursor2++];
+            while (true) {
+                if (compare(firstElement, secondElement) <= 0) {
+                    target[targetOffset++] = firstElement;
+                    if (cursor1 == firstEnd) break; // Flushing second list after loop.
+                    firstElement = firstList[cursor1++];
+                } else {
+                    target[targetOffset++] = secondElement;
+                    if (cursor2 != secondEnd) {
+                        secondElement = secondList[cursor2++];
+                        continue;
+                    }
+                    
+                    target[targetOffset++] = firstElement;
+                    setRange(target,targetOffset, targetOffset + (firstEnd - cursor1),
+                        firstList, cursor1);
+                    return;
+                }
+            }
+            // First list empties first. Reached by break above.
+            target[targetOffset++] = secondElement;
+            setRange(target
+                ,targetOffset, targetOffset + (secondEnd - cursor2), secondList, cursor2);
+        }
 
 
 
     }
+    
 
     public class FocusTraversalGroup : StatefulWidget {
         public FocusTraversalGroup(
@@ -69,7 +232,7 @@ namespace Unity.UIWidgets.widgets {
             FocusTraversalPolicy policy = null,
             Widget child = null
         ) : base(key: key) {
-            policy = policy ;//?? new ReadingOrderTraversalPolicy();
+            policy = policy ?? new ReadingOrderTraversalPolicy();
             this.child = child;
         }
 
@@ -163,7 +326,7 @@ namespace Unity.UIWidgets.widgets {
                 List<FocusNode> members = null
             ) {
                 groupNode = marker?.focusNode;
-                policy = marker?.policy ?? defaultPolicy ;//?? new ReadingOrderTraversalPolicy();
+                policy = marker?.policy ?? defaultPolicy ?? new ReadingOrderTraversalPolicy();
                 members = members ?? new List<FocusNode>();
             }
             public readonly FocusNode groupNode;
@@ -180,18 +343,21 @@ namespace Unity.UIWidgets.widgets {
                 candidate = sorted.isNotEmpty() ? sorted.First() : null;
             }
 
-            candidate ??= currentNode;
+            candidate = candidate ?? currentNode;
             return candidate;
         }
-
+        
         public abstract FocusNode findFirstFocusInDirection(FocusNode currentNode, TraversalDirection direction);
 
-        public abstract void invalidateScopeData(FocusScopeNode node);
+        public virtual void invalidateScopeData(FocusScopeNode node) {
+        }
 
-        public abstract void changedScope(FocusNode node = null, FocusScopeNode oldScope = null);
-        bool next(FocusNode currentNode) => _moveFocus(currentNode, forward: true);
+        public virtual void changedScope(FocusNode node = null, FocusScopeNode oldScope = null) {
+        }
 
-        bool previous(FocusNode currentNode) => _moveFocus(currentNode, forward: false);
+        public bool next(FocusNode currentNode) => _moveFocus(currentNode, forward: true);
+
+        public bool previous(FocusNode currentNode) => _moveFocus(currentNode, forward: false);
 
         public abstract bool inDirection(FocusNode currentNode, TraversalDirection direction);
 
@@ -202,7 +368,7 @@ namespace Unity.UIWidgets.widgets {
         public List<FocusNode> _sortAllDescendants(FocusScopeNode scope) { 
             D.assert(scope != null); 
             _FocusTraversalGroupMarker scopeGroupMarker = _getMarker(scope.context);
-            FocusTraversalPolicy defaultPolicy = scopeGroupMarker?.policy ;//?? new ReadingOrderTraversalPolicy();
+            FocusTraversalPolicy defaultPolicy = scopeGroupMarker?.policy ?? new ReadingOrderTraversalPolicy();
             Dictionary<FocusNode, _FocusTraversalGroupInfo> groups = new Dictionary<FocusNode, _FocusTraversalGroupInfo>();
             foreach(FocusNode node in scope.descendants) { 
                 _FocusTraversalGroupMarker groupMarker = _getMarker(node.context);
@@ -210,14 +376,14 @@ namespace Unity.UIWidgets.widgets {
                 if (node == groupNode) {
                     BuildContext parentContext =FocusTravesalUtils._getAncestor(groupNode.context, count: 2); 
                     _FocusTraversalGroupMarker parentMarker = _getMarker(parentContext); 
-                    FocusNode parentNode = parentMarker?.focusNode; 
-                    groups[parentNode] ??= new _FocusTraversalGroupInfo(parentMarker, members: new List<FocusNode>(), defaultPolicy: defaultPolicy);
+                    FocusNode parentNode = parentMarker?.focusNode;
+                    groups[groupNode] =  groups.getOrDefault(parentNode) ?? new _FocusTraversalGroupInfo(parentMarker, members: new List<FocusNode>(), defaultPolicy: defaultPolicy);
                     D.assert( !groups[parentNode].members.Contains(node) );
                     groups[parentNode].members.Add(groupNode);
                     continue;
                 }
                 if (node.canRequestFocus && !node.skipTraversal) { 
-                    groups[groupNode] ??= new _FocusTraversalGroupInfo(groupMarker, members: new List<FocusNode>(), defaultPolicy: defaultPolicy); 
+                    groups[groupNode] = groups.getOrDefault(groupNode) ?? new _FocusTraversalGroupInfo(groupMarker, members: new List<FocusNode>(), defaultPolicy: defaultPolicy); 
                     D.assert(!groups[groupNode].members.Contains(node)); 
                     groups[groupNode].members.Add(node);
                 }
@@ -300,6 +466,7 @@ namespace Unity.UIWidgets.widgets {
             return false; 
         } 
     }
+    
     public class _DirectionalPolicyDataEntry {
         public _DirectionalPolicyDataEntry(
             TraversalDirection direction ,
@@ -311,6 +478,23 @@ namespace Unity.UIWidgets.widgets {
         public readonly TraversalDirection direction;
         public readonly FocusNode node;
     }
+    
+    public class WidgetOrderTraversalPolicy : DirectionalFocusTraversalPolicyMixinFocusTraversalPolicy {
+        public override IEnumerable<FocusNode> sortDescendants(IEnumerable<FocusNode> descendants) {
+            return descendants;
+        }
+    }
+
+    public class _DirectionalPolicyData {
+        public _DirectionalPolicyData(List<_DirectionalPolicyDataEntry> history) {
+            D.assert(history != null);
+        }
+
+
+        public readonly List<_DirectionalPolicyDataEntry> history;
+    }
+    
+    
     public class _ReadingOrderSortData : Diagnosticable {
         public _ReadingOrderSortData(FocusNode node) {
             D.assert(node != null);
@@ -330,7 +514,7 @@ namespace Unity.UIWidgets.widgets {
             IEnumerable<HashSet<Directionality>> allAncestors = list.Select((_ReadingOrderSortData member) => new HashSet<Directionality>(member.directionalAncestors)); 
             HashSet<Directionality> common = null; 
             foreach ( HashSet<Directionality> ancestorSet in allAncestors) { 
-                common ??= ancestorSet; 
+                common = common ?? ancestorSet; 
                 common = FocusTravesalUtils.intersaction(common,ancestorSet); 
             } 
             if (common.isEmpty()) {
@@ -343,8 +527,9 @@ namespace Unity.UIWidgets.widgets {
             }
             return common.First().textDirection;
         }
-        /*public static void sortWithDirectionality(List<_ReadingOrderSortData> list, TextDirection directionality) { 
-            mergeSort<_ReadingOrderSortData>(list, compare: (_ReadingOrderSortData a, _ReadingOrderSortData b)=> { 
+        public static void sortWithDirectionality(List<_ReadingOrderSortData> list, TextDirection directionality) { 
+            FocusTravesalUtils.mergeSort<_ReadingOrderSortData>(list, 
+                compare: (_ReadingOrderSortData a, _ReadingOrderSortData b)=> { 
                 switch (directionality) { 
                     case TextDirection.ltr: 
                         return a.rect.left.CompareTo(b.rect.left); 
@@ -354,7 +539,7 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(false, ()=>"Unhandled directionality $directionality"); 
                 return 0; 
             }); 
-        }*/
+        }
 
         public IEnumerable<Directionality>  directionalAncestors { 
             get { 
@@ -367,7 +552,7 @@ namespace Unity.UIWidgets.widgets {
                     } 
                     return result; 
                 }
-                _directionalAncestors ??= getDirectionalityAncestors(node.context); 
+                _directionalAncestors = _directionalAncestors ?? getDirectionalityAncestors(node.context); 
                 return _directionalAncestors; 
             } 
         }
@@ -398,7 +583,7 @@ namespace Unity.UIWidgets.widgets {
             get {if (_rect == null) {
                     foreach(Rect rect in members.Select(
                         (_ReadingOrderSortData data) => data.rect)){
-                        _rect ??= rect;
+                        _rect = _rect ?? rect;
                         _rect = _rect.expandToInclude(rect);
                     }
                 }
@@ -416,8 +601,8 @@ namespace Unity.UIWidgets.widgets {
 
         }
         List<Directionality> _memberAncestors;
-        /*public static void sortWithDirectionality(List<_ReadingOrderDirectionalGroupData> list, TextDirection directionality) {
-            mergeSort<_ReadingOrderDirectionalGroupData>(list, compare: (_ReadingOrderDirectionalGroupData a, _ReadingOrderDirectionalGroupData b) =>{
+        public static void sortWithDirectionality(List<_ReadingOrderDirectionalGroupData> list, TextDirection directionality) {
+            FocusTravesalUtils.mergeSort<_ReadingOrderDirectionalGroupData>(list, compare: (_ReadingOrderDirectionalGroupData a, _ReadingOrderDirectionalGroupData b) =>{
                 switch (directionality) {
                     case TextDirection.ltr:
                         return a.rect.left.CompareTo(b.rect.left);
@@ -427,7 +612,7 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(false, ()=>"Unhandled directionality $directionality");
                 return 0;
             });
-         }*/
+         }
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<TextDirection>("directionality", directionality));
@@ -437,7 +622,35 @@ namespace Unity.UIWidgets.widgets {
             //})));
         }
     }
-    /*public class ReadingOrderTraversalPolicy : FocusTraversalPolicy , DirectionalFocusTraversalPolicyMixin 
+    
+
+    public interface DirectionalFocusTraversalPolicyMixin {
+
+        //Dictionary<FocusScopeNode, _DirectionalPolicyData> _policyData = new Dictionary<FocusScopeNode, _DirectionalPolicyData>();
+        void invalidateScopeData(FocusScopeNode node);
+        void changedScope(FocusNode node = null, FocusScopeNode oldScope = null);
+        FocusNode findFirstFocusInDirection(FocusNode currentNode, TraversalDirection direction);
+        FocusNode _sortAndFindInitial(FocusNode currentNode, bool vertical = false, bool first = false);
+
+        IEnumerable<FocusNode> _sortAndFilterHorizontally(
+            TraversalDirection direction,
+            Rect target,
+            FocusNode nearestScope);
+
+        IEnumerable<FocusNode> _sortAndFilterVertically(
+            TraversalDirection direction,
+            Rect target,
+            IEnumerable<FocusNode> nodes);
+
+        bool _popPolicyDataIfNeeded(TraversalDirection direction, FocusScopeNode nearestScope, FocusNode focusedChild);
+        void _pushPolicyData(TraversalDirection direction, FocusScopeNode nearestScope, FocusNode focusedChild);
+
+        bool inDirection(FocusNode currentNode, TraversalDirection direction);
+
+
+    }
+
+    public class ReadingOrderTraversalPolicy : DirectionalFocusTraversalPolicyMixinFocusTraversalPolicy 
     { 
         public List<_ReadingOrderDirectionalGroupData> _collectDirectionalityGroups(IEnumerable<_ReadingOrderSortData> candidates) { 
             TextDirection currentDirection = candidates.First().directionality;
@@ -460,13 +673,13 @@ namespace Unity.UIWidgets.widgets {
                 if (bandGroup.members.Count == 1) { 
                     continue; 
                 } 
-               // _ReadingOrderSortData.sortWithDirectionality(bandGroup.members, bandGroup.directionality); 
+                _ReadingOrderSortData.sortWithDirectionality(bandGroup.members, bandGroup.directionality); 
             } 
             return result; 
-        }*/
-        /*public _ReadingOrderSortData _pickNext(List<_ReadingOrderSortData> candidates) {
+        }
+        public _ReadingOrderSortData _pickNext(List<_ReadingOrderSortData> candidates) {
             
-            MERGESORT<_ReadingOrderSortData>(candidates, compare: (_ReadingOrderSortData a, _ReadingOrderSortData b) => a.rect.top.CompareTo(b.rect.top)); 
+            FocusTravesalUtils.mergeSort<_ReadingOrderSortData>(candidates, compare: (_ReadingOrderSortData a, _ReadingOrderSortData b) => a.rect.top.CompareTo(b.rect.top)); 
             _ReadingOrderSortData topmost = candidates.First();
 
             List<_ReadingOrderSortData> inBand(_ReadingOrderSortData current, IEnumerable<_ReadingOrderSortData> candidates) { 
@@ -488,9 +701,9 @@ namespace Unity.UIWidgets.widgets {
             }
             _ReadingOrderDirectionalGroupData.sortWithDirectionality(bandGroups, nearestCommonDirectionality);
             return bandGroups.First().members.First();
-        }*/
+        }
 
-        /*public override IEnumerable<FocusNode> sortDescendants(IEnumerable<FocusNode> descendants) { 
+        public override IEnumerable<FocusNode> sortDescendants(IEnumerable<FocusNode> descendants) { 
             D.assert(descendants != null); 
             if (descendants.Count() <= 1) { 
                 return descendants; 
@@ -511,8 +724,205 @@ namespace Unity.UIWidgets.widgets {
                 unplaced.Remove(current);
             }
             return sortedList;
-        }*/
-   // }
+        }
+    }
+    
+    public interface Comparable<T> {
+      
+        public int compareTo(T other);
+        int compare(Comparable<T> a, T b);
+    }
 
+    public abstract class FocusOrder : Diagnosticable , Comparable<FocusOrder> {
+        public FocusOrder() {
+        }
+
+        public int compareTo(FocusOrder other) {
+            D.assert(
+                GetType() == other.GetType(),()=>
+                "The sorting algorithm must not compare incomparable keys, since they don't "+
+            $"know how to order themselves relative to each other. Comparing {this} with {other}");
+            return doCompare(other);
+        }
+
+        public int compare(Comparable<FocusOrder> a, FocusOrder b) {
+            //throw new NotImplementedException();
+            return a.compareTo(b);
+        }
+
+        protected abstract int doCompare(FocusOrder other);
+    }
+    public class NumericFocusOrder : FocusOrder {
+        public NumericFocusOrder(float order) {
+            D.assert(order != null);
+            this.order = order;
+        }
+
+        public readonly float order;
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new FloatProperty("order", order));
+        }
+
+        protected override int doCompare(FocusOrder other) {
+            other = (NumericFocusOrder) other;
+            return order.CompareTo(((NumericFocusOrder) other).order);
+        }
+    }
+    class LexicalFocusOrder : FocusOrder {
+        public LexicalFocusOrder(string order) {
+            D.assert(order != null);
+            this.order = order;
+        }
+
+
+        public readonly string order;
+
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new StringProperty("order", order));
+        }
+
+        protected override int doCompare(FocusOrder other) {
+            other = (LexicalFocusOrder) other;
+            
+            return order.CompareTo(((LexicalFocusOrder) other).order);
+        }
+    }
+    class _OrderedFocusInfo {
+        public _OrderedFocusInfo(
+            FocusNode node = null,
+            FocusOrder order = null) {
+            D.assert(node != null);
+            D.assert(order != null);
+            this.order = order;
+            this.node = node;
+        }
+
+        public readonly FocusNode node;
+        public readonly FocusOrder order;
+    }
+    public class OrderedTraversalPolicy : DirectionalFocusTraversalPolicyMixinFocusTraversalPolicy {
+
+        public OrderedTraversalPolicy(FocusTraversalPolicy secondary) {
+        }
+
+        public readonly FocusTraversalPolicy secondary;
+
+        public override IEnumerable<FocusNode> sortDescendants(IEnumerable<FocusNode> descendants) {
+            FocusTraversalPolicy secondaryPolicy = secondary ?? new ReadingOrderTraversalPolicy();
+            IEnumerable<FocusNode> sortedDescendants = secondaryPolicy.sortDescendants(descendants);
+            List<FocusNode> unordered = new List<FocusNode>();
+            List<_OrderedFocusInfo> ordered = new List<_OrderedFocusInfo>();
+            foreach( FocusNode node in sortedDescendants) { 
+                FocusOrder order = FocusTraversalOrder.of(node.context, nullOk: true); 
+                if (order != null) {
+                    ordered.Add(new _OrderedFocusInfo(node: node, order: order));
+                } else {
+                    unordered.Add(node);
+                }
+            }
+            FocusTravesalUtils.mergeSort<_OrderedFocusInfo>(ordered, compare: (_OrderedFocusInfo a, _OrderedFocusInfo b)=> { 
+                D.assert(
+                a.order.GetType() == b.order.GetType(),()=>
+                $"When sorting nodes for determining focus order, the order ({a.order}) of " +
+                $"node {a.node}, isn't the same type as the order ({b.order}) of {b.node}. " +
+                "Incompatible order types can't be compared.  Use a FocusTraversalGroup to group " +
+                "similar orders together."
+              ); 
+                return a.order.compareTo(b.order); 
+            }); 
+            return ordered.Select((_OrderedFocusInfo info) => info.node).Concat(unordered);
+        }
+    }
+
+    public class FocusTraversalOrder : InheritedWidget {
+        public FocusTraversalOrder(Key key = null, FocusOrder order = null, Widget child = null)
+            : base(key: key, child: child) {
+            
+        }
+
+        public readonly FocusOrder order;
+
+        public static FocusOrder of(BuildContext context, bool nullOk = false) {
+            D.assert(context != null);
+            D.assert(nullOk != null); 
+            FocusTraversalOrder marker = context.getElementForInheritedWidgetOfExactType<FocusTraversalOrder>()?.widget as FocusTraversalOrder; 
+            FocusOrder order = marker?.order;
+            if (order == null && !nullOk) {
+                throw new UIWidgetsError("FocusTraversalOrder.of() was called with a context that "+
+                "does not contain a TraversalOrder widget. No TraversalOrder widget " + 
+                "ancestor could be found starting from the context that was passed to " + 
+                "FocusTraversalOrder.of().\n" + 
+                "The context used was:\n" + 
+                $"  {context}");
+            }
+            return order;
+        }
+        public override bool updateShouldNotify(InheritedWidget oldWidget) => false;
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<FocusOrder>("order", order));
+        }
+    }
+    
+    public class _RequestFocusActionBase : UiWidgetAction {
+        public _RequestFocusActionBase(LocalKey name) : base(name) {
+        }
+
+        FocusNode _previousFocus;
+        public override void invoke(FocusNode node, Intent intent) {
+            _previousFocus = FocusManagerUtils.primaryFocus;
+            node.requestFocus();
+        }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<FocusNode>("previous", _previousFocus));
+        }
+    }
+    public class NextFocusAction : _RequestFocusActionBase {
+        public NextFocusAction() : base(key) {
+            
+        }
+
+        public readonly static LocalKey key =  new ValueKey<Type>(typeof(NextFocusAction));
+
+        public override void invoke(FocusNode node, Intent intent) {
+            node.nextFocus();
+        }
+    }
+    public class PreviousFocusAction : _RequestFocusActionBase {
+        public PreviousFocusAction() : base(key) {
+        }
+        public readonly static LocalKey key = new ValueKey<Type>(typeof(PreviousFocusAction));
+        public override void invoke(FocusNode node, Intent intent) => node.previousFocus();
+    }
+    
+    public class DirectionalFocusIntent : Intent {
+        public DirectionalFocusIntent(TraversalDirection direction = TraversalDirection.up, bool ignoreTextFields = true) 
+        :base(DirectionalFocusAction.key) {
+            this.ignoreTextFields = ignoreTextFields;
+            this.direction = direction;
+        }
+        public readonly TraversalDirection direction;
+
+        public readonly bool ignoreTextFields;
+    }
+
+   
+    public class DirectionalFocusAction : _RequestFocusActionBase {
+        public DirectionalFocusAction() : base(key) {
+        }
+
+        public readonly static LocalKey key = new ValueKey<Type>(typeof(DirectionalFocusAction));
+        public override void invoke(FocusNode node, Intent intent) {
+            intent = (DirectionalFocusIntent) intent;
+            if (!((DirectionalFocusIntent)intent).ignoreTextFields || !(node.context.widget is EditableText)) {
+                node.focusInDirection(((DirectionalFocusIntent) intent).direction);
+            }
+        }
+    }
 
 }

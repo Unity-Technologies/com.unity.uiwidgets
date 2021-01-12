@@ -240,7 +240,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    /*public class SliverFadeTransition : SingleChildRenderObjectWidget {
+    public class SliverFadeTransition : SingleChildRenderObjectWidget {
         public SliverFadeTransition(
             Animation<float> opacity ,
             Key key = null,
@@ -257,10 +257,11 @@ namespace Unity.UIWidgets.widgets {
                 alwaysIncludeSemantics: alwaysIncludeSemantics
             );
         }
-        public override void updateRenderObject(BuildContext context, RenderSliverAnimatedOpacity renderObject) {
-            renderObject = (RenderSliverAnimatedOpacity) renderObject;
-            ((RenderSliverAnimatedOpacity) renderObject).opacity = opacity;
-            ((RenderSliverAnimatedOpacity) renderObject).alwaysIncludeSemantics = alwaysIncludeSemantics;
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            renderObject = (RenderSliverAnimatedOpacity)renderObject;
+            
+            ((RenderSliverAnimatedOpacity)renderObject).opacity = opacity;
+            ((RenderSliverAnimatedOpacity)renderObject).alwaysIncludeSemantics = alwaysIncludeSemantics;
         
         }
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -268,7 +269,7 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new DiagnosticsProperty<Animation<float>>("opacity", opacity));
             properties.add(new FlagProperty("alwaysIncludeSemantics", value: alwaysIncludeSemantics, ifTrue: "alwaysIncludeSemantics"));
         }
-    }*/
+    }
     public class RelativeRectTween : Tween<RelativeRect> {
         public RelativeRectTween(
             RelativeRect begin = null, 

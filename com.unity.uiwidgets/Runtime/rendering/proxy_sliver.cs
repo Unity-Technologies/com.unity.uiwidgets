@@ -98,6 +98,19 @@ namespace Unity.UIWidgets.rendering {
             set { child = (RenderSliver) value; }
         }
     }
+    public class RenderSliverAnimatedOpacity : RenderProxySliver , RenderAnimatedOpacityMixin<RenderSliver>{
+        public RenderSliverAnimatedOpacity(
+            Animation<float> opacity ,
+            RenderSliver sliver = null,
+            bool alwaysIncludeSemantics = false
+        )  {
+            D.assert(opacity != null);
+            D.assert(alwaysIncludeSemantics != null);
+            this.opacity = opacity;
+            this.alwaysIncludeSemantics = alwaysIncludeSemantics;
+            child = sliver;
+        }
+    }
     public class RenderSliverOpacity : RenderProxySliver {
         public RenderSliverOpacity(
             RenderSliver sliver = null,

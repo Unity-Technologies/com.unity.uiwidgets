@@ -52,23 +52,23 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        /*string debugDescribeFocusTree() {
+        public static string debugDescribeFocusTree() {
             D.assert(WidgetsBinding.instance != null);
             string result = null;
             D.assert(() => {
                 result = FocusManager.instance.toStringDeep();
                 return true;
-            }());
+            });
             return result ?? "";
-        }*/
+        }
 
 
-        /*void debugDumpFocusTree() {
+        public static void debugDumpFocusTree() {
             D.assert(() => {
                 UnityEngine.Debug.Log(debugDescribeFocusTree());
                 return true;
             });
-        }*/
+        }
     }
 
     public class FocusAttachment {
@@ -114,8 +114,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class FocusNode : ChangeNotifier {
-        //DiagnosticableTreeMixin,
+    public class FocusNode : DiagnosticableTreeMixinChangeNotifier{
         public FocusNode(
             string debugLabel = "",
             FocusOnKeyCallback onKey = null,
@@ -126,9 +125,8 @@ namespace Unity.UIWidgets.widgets {
             D.assert(canRequestFocus != null);
             _skipTraversal = skipTraversal;
             _canRequestFocus = canRequestFocus;
-            /*_onKey = onKey {
-                this.debugLabel = debugLabel; ///????
-            }*/
+            _onKey = onKey;
+            this.debugLabel = debugLabel;
         }
 
         public bool skipTraversal {
@@ -172,7 +170,7 @@ namespace Unity.UIWidgets.widgets {
 
         BuildContext _context;
 
-        FocusOnKeyCallback onKey {
+        public FocusOnKeyCallback onKey {
             get { return _onKey; }
 
         }
@@ -184,7 +182,7 @@ namespace Unity.UIWidgets.widgets {
         List<FocusNode> _descendants;
         bool _hasKeyboardToken = false;
 
-        FocusNode parent {
+        public FocusNode parent {
             get { return _parent; }
 
         }
@@ -588,48 +586,48 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        /*bool nextFocus() {
+        public bool nextFocus() {
             return FocusTraversalGroup.of(context).next(this);
-        }*
+        }
     
     
-        bool previousFocus() {
+        public bool previousFocus() {
           return FocusTraversalGroup.of(context).previous(this);
         }
     
     
-        bool focusInDirection(TraversalDirection direction) {
+        public bool focusInDirection(TraversalDirection direction) {
           return  FocusTraversalGroup.of(context).inDirection(this, direction);
-        }*/
+        }
 
 
-        /*public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<BuildContext>("context", context, defaultValue: null));
             properties.add(new FlagProperty("canRequestFocus", value: canRequestFocus, ifFalse: "NOT FOCUSABLE", defaultValue: true));
             properties.add(new FlagProperty("hasFocus", value: hasFocus && !hasPrimaryFocus, ifTrue: "IN FOCUS PATH", defaultValue: false));
             properties.add(new FlagProperty("hasPrimaryFocus", value: hasPrimaryFocus, ifTrue: "PRIMARY FOCUS", defaultValue: false));
-        }*/
+        }
 
 
-        /*public override List<DiagnosticsNode> debugDescribeChildren() {
+        public override List<DiagnosticsNode> debugDescribeChildren() {
             int count = 1;
-            return _children.map<DiagnosticsNode>((FocusNode child) {
+            return _children.Select((FocusNode child)=> {
               return child.toDiagnosticsNode(name: "Child ${count++}");
-            }).toList();
-        }*/
+            }).ToList();
+        }
 
 
-        /*public string toStringShort() {//override
+        public override string toStringShort() {//override
             bool hasDebugLabel = debugLabel != null && debugLabel.isNotEmpty();
             string nullStr = "";
             string extraData = $"{(hasDebugLabel ? debugLabel : nullStr)} " +
                 $"{(hasFocus && hasDebugLabel ? nullStr : nullStr)}" + 
                 $"{(hasFocus && !hasPrimaryFocus ? "[IN FOCUS PATH]" : nullStr)}"+
                 $"{(hasPrimaryFocus ? "[PRIMARY FOCUS]" : nullStr)}";
-            return $"{describeIdentity(this)}" + $"{(extraData.isNotEmpty() ? extraData : nullStr)}";
+            return $"{foundation_.describeIdentity(this)}" + $"{(extraData.isNotEmpty() ? extraData : nullStr)}";
             }
-        }*/
+        }
     }
 
     public class FocusScopeNode : FocusNode {
@@ -728,24 +726,25 @@ namespace Unity.UIWidgets.widgets {
               primaryFocus._doRequestFocus(findFirstFocus: findFirstFocus);
             }
         }
-
-    /*public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-        base.debugFillProperties(properties);
-        if (_focusedChildren.isEmpty()) {
-          return;
-        } 
-        List<string> childList = _focusedChildren.reversed.map<string>((FocusNode child) {
-          return child.toStringShort();
-        }).toList();
-        properties.add(new IEnumerableProperty<string>("focusedChildren", childList, defaultValue: new List<string>()));
-    }*/
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            if (_focusedChildren.isEmpty()) {
+              return;
+            } 
+            List<string> childList = new List<string>();
+            _focusedChildren.Reverse();
+            childList = _focusedChildren.Select((FocusNode child)=> {
+              return child.toStringShort();
+            }).ToList();
+           // properties.add(new IEnumerableProperty<string>("focusedChildren", childList, defaultValue: new List<string>()));
+        }
     }
 
-    public class FocusManager : ChangeNotifier {//DiagnosticableTreeMixin,
+    public class FocusManager : DiagnosticableTreeMixinChangeNotifier{
         public FocusManager() 
         {
             rootScope._manager = this;
-            //RawKeyboard.instance.addListener(_handleRawKeyEvent);
+            RawKeyboard.instance.addListener(_handleRawKeyEvent);
             GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
         } 
         public static FocusManager instance {
@@ -796,7 +795,7 @@ namespace Unity.UIWidgets.widgets {
             }
             if (newMode != _highlightMode) {
               _highlightMode = newMode;
-              //_notifyHighlightModeListeners();
+              _notifyHighlightModeListeners();
             }
         }
 
@@ -807,38 +806,21 @@ namespace Unity.UIWidgets.widgets {
 
         public void removeHighlightModeListener(ValueChanged<FocusHighlightMode> listener) => _listeners?.Remove(listener);
 
-        /*void _notifyHighlightModeListeners() {
+        void _notifyHighlightModeListeners() { 
             if (_listeners.isEmpty()) {
               return;
             }
-            List<ValueChanged<FocusHighlightMode>> localListeners = List<ValueChanged<FocusHighlightMode>>.from(_listeners);
-            foreach( ValueChanged<FocusHighlightMode> listener in localListeners) {
-              try {
-                if (_listeners.Contains(listener)) {
-                  listener(_highlightMode);
-                }
-              } catch (exception, stack) {
-                InformationCollector collector;
-                D.assert(() =>{
-                  collector = () sync* {
-                    yield DiagnosticsProperty<FocusManager>(
-                      "The $runtimeType sending notification was",
-                      this,
-                      style: DiagnosticsTreeStyle.errorProperty,
-                    );
-                  };
-                  return true;
-                }());
-                FlutterError.reportError(FlutterErrorDetails(
-                  exception: exception,
-                  stack: stack,
-                  library: "widgets library",
-                  context: ErrorDescription("while dispatching notifications for $runtimeType"),
-                  informationCollector: collector,
-                ));
-              }
+            List<ValueChanged<FocusHighlightMode>> localListeners = new List<ValueChanged<FocusHighlightMode>>();
+            foreach (var listener in _listeners) {
+                localListeners.Add(listener);
             }
-        }*/
+            foreach( ValueChanged<FocusHighlightMode> listener in localListeners) {
+                if (_listeners.Contains(listener)) {
+                    listener(_highlightMode);
+                }
+              
+            }
+        }
 
         public readonly FocusScopeNode rootScope = new FocusScopeNode(debugLabel: "Root Focus Scope");
 
@@ -861,14 +843,14 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        /*void _handleRawKeyEvent(RawKeyEvent Event) {
+        void _handleRawKeyEvent(RawKeyEvent Event) {
 
           if (_lastInteractionWasTouch) {
               _lastInteractionWasTouch = false;
               _updateHighlightMode();
           }
 
-          D.assert(FocusManagerUtils._focusDebug($"Received key event {Event.logicalKey}"));
+          //D.assert(FocusManagerUtils._focusDebug($"Received key event {Event.logicalKey}"));
 
           if (_primaryFocus == null) {
               D.assert(FocusManagerUtils._focusDebug($"No primary focus for key event, ignored: {Event}"));
@@ -876,9 +858,13 @@ namespace Unity.UIWidgets.widgets {
           }
 
           bool handled = false;
-          foreach (FocusNode node in List < FocusNode >{
-              _primaryFocus, ..._primaryFocus.ancestors
-          }) {
+          List<FocusNode> nodes = new List<FocusNode>();
+          nodes.Add(_primaryFocus);
+          foreach (var node in _primaryFocus.ancestors) {
+              nodes.Add(node);
+              
+          }
+          foreach (FocusNode node in nodes) {
               if (node.onKey != null && node.onKey(node, Event)) {
                   D.assert(FocusManagerUtils._focusDebug($"Node {node} handled key event {Event}."));
                   handled = true;
@@ -888,7 +874,7 @@ namespace Unity.UIWidgets.widgets {
           if (!handled) {
               D.assert(FocusManagerUtils._focusDebug($"Key event not handled by anyone: {Event}."));
           }
-        }*/
+        }
 
 
         public FocusNode primaryFocus { 
@@ -902,24 +888,22 @@ namespace Unity.UIWidgets.widgets {
         public FocusNode _markedForFocus;
 
         public void _markDetached(FocusNode node) {
-
-        D.assert(FocusManagerUtils._focusDebug($"Node was detached: {node}"));
-        if (_primaryFocus == node) {
-          _primaryFocus = null;
-        }
-        _dirtyNodes?.Remove(node);
+            D.assert(FocusManagerUtils._focusDebug($"Node was detached: {node}"));
+            if (_primaryFocus == node) {
+              _primaryFocus = null;
+            }
+            _dirtyNodes?.Remove(node);
         }
 
         public void _markPropertiesChanged(FocusNode node) {
             _markNeedsUpdate();
             D.assert(FocusManagerUtils._focusDebug($"Properties changed for node {node}."));
             _dirtyNodes?.Add(node);
-            }
+        }
 
-            public void _markNextFocus(FocusNode node) {
+        public void _markNextFocus(FocusNode node) {
             if (_primaryFocus == node) {
-              
-              _markedForFocus = null;
+                _markedForFocus = null;
             } else {
               _markedForFocus = node;
               _markNeedsUpdate();
@@ -935,75 +919,74 @@ namespace Unity.UIWidgets.widgets {
               return;
             }
             _haveScheduledUpdate = true;
-            //scheduleMicrotask(_applyFocusChange);
+            async_.scheduleMicrotask(()=> {
+                _applyFocusChange();
+                return null;
+            });
         }
-        /*public void reparentIfNeeded(FocusNode node) {
-            D.assert(node != null);
-            if (node._parent == null || node._parent == this) {
-                return;
-            }
-
-            node.unfocus();
-            D.assert(node._parent == null);
-            if (_focus == null) {
-                _setFocus(node);
-            }
-        }*/
-
-        /*void _applyFocusChange() {
+        void _applyFocusChange() {
             _haveScheduledUpdate = false;
             FocusNode previousFocus = _primaryFocus;
             if (_primaryFocus == null && _markedForFocus == null) {
               
-              _markedForFocus = rootScope;
+                _markedForFocus = rootScope;
             }
             D.assert(FocusManagerUtils._focusDebug($"Refreshing focus state. Next focus will be {_markedForFocus}"));
             
             if (_markedForFocus != null && _markedForFocus != _primaryFocus) {
-                HashSet<FocusNode> previousPath = previousFocus?.ancestors?.toSet() ?? new HashSet<FocusNode>();
-              HashSet<FocusNode> nextPath = _markedForFocus.ancestors.toSet();
-              // Notify nodes that are newly focused.
-              _dirtyNodes.addAll(nextPath.difference(previousPath));
-              // Notify nodes that are no longer focused
-              _dirtyNodes.addAll(previousPath.difference(nextPath));
+                HashSet<FocusNode> previousPath = new HashSet<FocusNode>(previousFocus?.ancestors) ?? new HashSet<FocusNode>();
+                HashSet<FocusNode> nextPath = new HashSet<FocusNode>(_markedForFocus.ancestors);
 
-              _primaryFocus = _markedForFocus;
-              _markedForFocus = null;
+                
+
+                foreach(FocusNode node in FocusTravesalUtils.difference(nextPath,previousPath)) {
+                    _dirtyNodes.Add(node);
+                }
+                foreach(FocusNode node in FocusTravesalUtils.difference(previousPath,nextPath)) {
+                    _dirtyNodes.Add(node);
+                }
+
+                _primaryFocus = _markedForFocus;
+                _markedForFocus = null;
             }
             if (previousFocus != _primaryFocus) {
-              D.assert(FocusManagerUtils._focusDebug("Updating focus from $previousFocus to $_primaryFocus"));
-              if (previousFocus != null) {
-                _dirtyNodes.Add(previousFocus);
-              }
-              if (_primaryFocus != null) {
-                _dirtyNodes.Add(_primaryFocus);
-              }
+                D.assert(FocusManagerUtils._focusDebug($"Updating focus from {previousFocus} to {_primaryFocus}"));
+                if (previousFocus != null) {
+                    _dirtyNodes.Add(previousFocus);
+                }
+                if (_primaryFocus != null) {
+                    _dirtyNodes.Add(_primaryFocus);
+                }
             }
-            D.assert(FocusManagerUtils._focusDebug("Notifying ${_dirtyNodes.length} dirty nodes:", _dirtyNodes.toList().map<String>((FocusNode node) => node.toString())));
+            D.assert(FocusManagerUtils._focusDebug($"Notifying {_dirtyNodes.Count} dirty nodes:", 
+                _dirtyNodes.ToList().Select((FocusNode node) => {
+                    return node.toString();
+                }).ToList()));
             foreach ( FocusNode node in _dirtyNodes) {
-              node._notify();
+                node._notify();
             }
             _dirtyNodes.Clear();
             if (previousFocus != _primaryFocus) {
-              notifyListeners();
+                notifyListeners();
             }
             D.assert(()=> {
-              if (_kDebugFocus) {
-                debugDumpFocusTree();
-              }
-              return true;
+                if (FocusManagerUtils._kDebugFocus) {
+                    FocusManagerUtils.debugDumpFocusTree();
+                }
+                return true;
             });
-        }*/
+        }
+        
 
 
-        /*public override List<DiagnosticsNode> debugDescribeChildren() {
+        public override List<DiagnosticsNode> debugDescribeChildren() {
             return new List<DiagnosticsNode>{
               rootScope.toDiagnosticsNode(name: "rootScope")
               };
-        }*/
+        }
 
 
-        /*public  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             properties.add(new FlagProperty("haveScheduledUpdate", value: _haveScheduledUpdate, ifTrue: "UPDATE SCHEDULED"));
             properties.add(new DiagnosticsProperty<FocusNode>("primaryFocus", primaryFocus, defaultValue: null));
             properties.add(new DiagnosticsProperty<FocusNode>("nextFocus", _markedForFocus, defaultValue: null));
@@ -1011,419 +994,6 @@ namespace Unity.UIWidgets.widgets {
             if (element != null) {
               properties.add(new DiagnosticsProperty<String>("primaryFocusCreator", element.debugGetCreatorChain(20)));
             }
-        }*/
-    }
-
-}
-/*
-    public class FocusNode : ChangeNotifier {
-        internal FocusScopeNode _parent;
-        internal FocusManager _manager;
-        internal bool _hasKeyboardToken = false;
-
-        public bool hasFocus {
-            get {
-                FocusNode node = null;
-                if (_manager != null) {
-                    node = _manager._currentFocus;
-                }
-
-                return node == this;
-            }
-        }
-
-        public bool consumeKeyboardToken() {
-            if (!_hasKeyboardToken) {
-                return false;
-            }
-
-            _hasKeyboardToken = false;
-            return true;
-        }
-
-        public void unfocus() {
-            if (_parent != null) {
-                _parent._resignFocus(this);
-            }
-
-            D.assert(_parent == null);
-            D.assert(_manager == null);
-        }
-
-        public override void dispose() {
-            if (_manager != null) {
-                _manager._willDisposeFocusNode(this);
-            }
-
-            if (_parent != null) {
-                _parent._resignFocus(this);
-            }
-
-            D.assert(_parent == null);
-            D.assert(_manager == null);
-            base.dispose();
-        }
-
-        internal void _notify() {
-            notifyListeners();
-        }
-
-        public override string ToString() {
-            return $"{foundation_.describeIdentity(this)} hasFocus: {hasFocus}";
         }
     }
 
-    public class FocusScopeNode : DiagnosticableTree {
-        internal FocusManager _manager;
-        internal FocusScopeNode _parent;
-
-        internal FocusScopeNode _nextSibling;
-        internal FocusScopeNode _previousSibling;
-
-        internal FocusScopeNode _firstChild;
-        internal FocusScopeNode _lastChild;
-
-        internal FocusNode _focus;
-        internal List<FocusScopeNode> _focusPath;
-
-        public bool isFirstFocus {
-            get { return _parent == null || _parent._firstChild == this; }
-        }
-
-        internal List<FocusScopeNode> _getFocusPath() {
-            List<FocusScopeNode> nodes = new List<FocusScopeNode> {this};
-            FocusScopeNode node = _parent;
-            while (node != null && node != _manager?.rootScope) {
-                nodes.Add(node);
-                node = node._parent;
-            }
-
-            return nodes;
-        }
-
-        internal void _prepend(FocusScopeNode child) {
-            D.assert(child != this);
-            D.assert(child != _firstChild);
-            D.assert(child != _lastChild);
-            D.assert(child._parent == null);
-            D.assert(child._manager == null);
-            D.assert(child._nextSibling == null);
-            D.assert(child._previousSibling == null);
-            D.assert(() => {
-                var node = this;
-                while (node._parent != null) {
-                    node = node._parent;
-                }
-
-                D.assert(node != child);
-                return true;
-            });
-            child._parent = this;
-            child._nextSibling = _firstChild;
-            if (_firstChild != null) {
-                _firstChild._previousSibling = child;
-            }
-
-            _firstChild = child;
-            _lastChild = _lastChild ?? child;
-            child._updateManager(_manager);
-        }
-
-        void _updateManager(FocusManager manager) {
-            Action<FocusScopeNode> update = null;
-            update = (child) => {
-                if (child._manager == manager) {
-                    return;
-                }
-
-                child._manager = manager;
-                // We don"t proactively null out the manager for FocusNodes because the
-                // manager holds the currently active focus node until the end of the
-                // microtask, even if that node is detached from the focus tree.
-                if (manager != null && child._focus != null) {
-                    child._focus._manager = manager;
-                }
-
-                child._visitChildren(update);
-            };
-            update(this);
-        }
-
-        void _visitChildren(Action<FocusScopeNode> vistor) {
-            FocusScopeNode child = _firstChild;
-            while (child != null) {
-                vistor.Invoke(child);
-                child = child._nextSibling;
-            }
-        }
-
-        bool _debugUltimatePreviousSiblingOf(FocusScopeNode child, FocusScopeNode equals) {
-            while (child._previousSibling != null) {
-                D.assert(child._previousSibling != child);
-                child = child._previousSibling;
-            }
-
-            return child == equals;
-        }
-
-        bool _debugUltimateNextSiblingOf(FocusScopeNode child, FocusScopeNode equals) {
-            while (child._nextSibling != null) {
-                D.assert(child._nextSibling != child);
-                child = child._nextSibling;
-            }
-
-            return child == equals;
-        }
-
-        internal void _remove(FocusScopeNode child) {
-            D.assert(child._parent == this);
-            D.assert(child._manager == _manager);
-            D.assert(_debugUltimatePreviousSiblingOf(child, equals: _firstChild));
-            D.assert(_debugUltimateNextSiblingOf(child, equals: _lastChild));
-            if (child._previousSibling == null) {
-                D.assert(_firstChild == child);
-                _firstChild = child._nextSibling;
-            }
-            else {
-                child._previousSibling._nextSibling = child._nextSibling;
-            }
-
-            if (child._nextSibling == null) {
-                D.assert(_lastChild == child);
-                _lastChild = child._previousSibling;
-            }
-            else {
-                child._nextSibling._previousSibling = child._previousSibling;
-            }
-
-            child._previousSibling = null;
-            child._nextSibling = null;
-            child._parent = null;
-            child._updateManager(null);
-        }
-
-        internal void _didChangeFocusChain() {
-            if (isFirstFocus && _manager != null) {
-                _manager._markNeedsUpdate();
-            }
-        }
-
-        // TODO: need update
-        public void requestFocus(FocusNode node = null) {
-            // D.assert(node != null);
-            var focusPath = _manager?._getCurrentFocusPath();
-            if (_focus == node &&
-                (_focusPath == focusPath || (focusPath != null && _focusPath != null &&
-                                             _focusPath.SequenceEqual(focusPath)))) {
-                return;
-            }
-
-            if (_focus != null) {
-                _focus.unfocus();
-            }
-
-            node._hasKeyboardToken = true;
-            _setFocus(node);
-        }
-        
-        public void autofocus(FocusNode node) {
-            D.assert(node != null);
-            if (_focus == null) {
-                node._hasKeyboardToken = true;
-                _setFocus(node);
-            }
-        }
-
-        public void reparentIfNeeded(FocusNode node) {
-            D.assert(node != null);
-            if (node._parent == null || node._parent == this) {
-                return;
-            }
-
-            node.unfocus();
-            D.assert(node._parent == null);
-            if (_focus == null) {
-                _setFocus(node);
-            }
-        }
-
-        internal void _setFocus(FocusNode node) {
-            D.assert(node != null);
-            D.assert(node._parent == null);
-            D.assert(_focus == null);
-            _focus = node;
-            _focus._parent = this;
-            _focus._manager = _manager;
-            _focus._hasKeyboardToken = true;
-            _didChangeFocusChain();
-            _focusPath = _getFocusPath();
-        }
-
-        internal void _resignFocus(FocusNode node) {
-            D.assert(node != null);
-            if (_focus != node) {
-                return;
-            }
-
-            _focus._parent = null;
-            _focus._manager = null;
-            _focus = null;
-            _didChangeFocusChain();
-        }
-
-        public void setFirstFocus(FocusScopeNode child) {
-            D.assert(child != null);
-            D.assert(child._parent == null || child._parent == this);
-            if (_firstChild == child) {
-                return;
-            }
-
-            child.detach();
-            _prepend(child);
-            D.assert(child._parent == this);
-            _didChangeFocusChain();
-        }
-
-        public void reparentScopeIfNeeded(FocusScopeNode child) {
-            D.assert(child != null);
-            if (child._parent == null || child._parent == this) {
-                return;
-            }
-
-            if (child.isFirstFocus) {
-                setFirstFocus(child);
-            }
-            else {
-                child.detach();
-            }
-        }
-
-        public void detach() {
-            _didChangeFocusChain();
-            if (_parent != null) {
-                _parent._remove(this);
-            }
-
-            D.assert(_parent == null);
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            if (_focus != null) {
-                properties.add(new DiagnosticsProperty<FocusNode>("focus", _focus));
-            }
-        }
-
-        public override List<DiagnosticsNode> debugDescribeChildren() {
-            var children = new List<DiagnosticsNode>();
-            if (_firstChild != null) {
-                FocusScopeNode child = _firstChild;
-                int count = 1;
-                while (true) {
-                    children.Add(child.toDiagnosticsNode(name: $"child {count}"));
-                    if (child == _lastChild) {
-                        break;
-                    }
-
-                    child = child._nextSibling;
-                    count += 1;
-                }
-            }
-
-            return children;
-        }
-    }
-
-    public class FocusManager {
-        public FocusManager() {
-            rootScope._manager = this;
-            D.assert(rootScope._firstChild == null);
-            D.assert(rootScope._lastChild == null);
-        }
-
-        public readonly FocusScopeNode rootScope = new FocusScopeNode();
-        internal readonly FocusScopeNode _noneScope = new FocusScopeNode();
-
-        public FocusNode currentFocus {
-            get { return _currentFocus; }
-        }
-
-        internal FocusNode _currentFocus;
-
-        internal void _willDisposeFocusNode(FocusNode node) {
-            D.assert(node != null);
-            if (_currentFocus == node) {
-                _currentFocus = null;
-            }
-        }
-
-        bool _haveScheduledUpdate = false;
-
-        internal void _markNeedsUpdate() {
-            if (_haveScheduledUpdate) {
-                return;
-            }
-
-            _haveScheduledUpdate = true;
-            async_.scheduleMicrotask(() => {
-                _update();
-                return null;
-            });
-        }
-
-        internal FocusNode _findNextFocus() {
-            FocusScopeNode scope = rootScope;
-            while (scope._firstChild != null) {
-                scope = scope._firstChild;
-            }
-
-            return scope._focus;
-        }
-
-        internal void _update() {
-            _haveScheduledUpdate = false;
-            var nextFocus = _findNextFocus();
-            if (_currentFocus == nextFocus) {
-                return;
-            }
-
-            var previousFocus = _currentFocus;
-            _currentFocus = nextFocus;
-            if (previousFocus != null) {
-                previousFocus._notify();
-            }
-
-            if (_currentFocus != null) {
-                _currentFocus._notify();
-            }
-        }
-
-        internal List<FocusScopeNode> _getCurrentFocusPath() {
-            return _currentFocus?._parent?._getFocusPath();
-        }
-
-        public void focusNone(bool focus) {
-            if (focus) {
-                if (_noneScope._parent != null && _noneScope.isFirstFocus) {
-                    return;
-                }
-
-                rootScope.setFirstFocus(_noneScope);
-            }
-            else {
-                if (_noneScope._parent == null) {
-                    return;
-                }
-
-                _noneScope.detach();
-            }
-        }
-
-        public override string ToString() {
-            var status = _haveScheduledUpdate ? " UPDATE SCHEDULED" : "";
-            var indent = "    ";
-            return string.Format("{1}{2}\n{0}currentFocus: {3}\n{4}", indent, foundation_.describeIdentity(this),
-                status, _currentFocus,
-                rootScope.toStringDeep(prefixLineOne: indent, prefixOtherLines: indent));
-        }
-    }*/

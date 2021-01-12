@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -207,19 +208,38 @@ namespace Unity.UIWidgets.rendering {
                     hasErrors = true;
                     errorMessage.AppendLine($"  {message}");
                 });
+                void verifyFloat(float property, string name, bool mustBePositive = false, bool mustBeNegative = false) {
+                    verify(property != null, $"The \"{name}\" is null.");
+                    if (property.isNaN()) {
+                        string additional = ".";
+                        if (mustBePositive) {
+                            additional = ", expected greater than or equal to zero.";
+                        } else if (mustBeNegative) {
+                            additional = ", expected less than or equal to zero.";
+                        }
+                        verify(false, $"The \"{name}\" is NaN" + $"{additional}");
+                    } else if (mustBePositive) {
+                        verify(property >= 0.0, $"The \"{name}\" is negative.");
+                    } else if (mustBeNegative) {
+                        verify(property <= 0.0, $"The \"{name}\" is positive.");
+                    }
+                }
+                verify(axis != null, "The \"axis\" is null.");
+                verify(growthDirection != null, "The \"growthDirection\" is null.");
+                verifyFloat(scrollOffset, "scrollOffset");
+                verifyFloat(overlap, "overlap");
+                verifyFloat(crossAxisExtent, "crossAxisExtent");
+                verifyFloat(scrollOffset, "scrollOffset", mustBePositive: true);
+                verify(crossAxisDirection != null, "The \"crossAxisDirection\" is null.");
+                verify(AxisUtils.axisDirectionToAxis(axisDirection) != AxisUtils.axisDirectionToAxis(crossAxisDirection), "The \"axisDirection\" and the \"crossAxisDirection\" are along the same axis.");
+                verifyFloat(viewportMainAxisExtent, "viewportMainAxisExtent", mustBePositive: true);
+                verifyFloat(remainingPaintExtent, "remainingPaintExtent", mustBePositive: true);
+                verifyFloat(remainingCacheExtent, "remainingCacheExtent", mustBePositive: true);
+                verifyFloat(cacheOrigin, "cacheOrigin", mustBeNegative: true);
+                verifyFloat(precedingScrollExtent, "precedingScrollExtent", mustBePositive: true);
+                verify(isNormalized, "The constraints are not normalized."); // should be redundant with earlier checks
 
-                verify(scrollOffset >= 0.0f, "The \"scrollOffset\" is negative.");
-                verify(crossAxisExtent >= 0.0f, "The \"crossAxisExtent\" is negative.");
-                verify(
-                    AxisUtils.axisDirectionToAxis(axisDirection) !=
-                    AxisUtils.axisDirectionToAxis(crossAxisDirection),
-                    "The \"axisDirection\" and the \"crossAxisDirection\" are along the same axis.");
-                verify(viewportMainAxisExtent >= 0.0f, "The \"viewportMainAxisExtent\" is negative.");
-                verify(remainingPaintExtent >= 0.0f, "The \"remainingPaintExtent\" is negative.");
-                verify(remainingCacheExtent >= 0.0f, "The \"remainingCacheExtent\" is negative.");
-                verify(cacheOrigin <= 0.0f, "The \"cacheOrigin\" is positive.");
-                verify(isNormalized, "The constraints are not normalized.");
-
+                
                 if (hasErrors) {
                     List<DiagnosticsNode> diagnosticInfo = new List<DiagnosticsNode>();
                     diagnosticInfo.Add(new ErrorSummary($"{GetType()} is not valid: {errorMessage}"));
@@ -301,6 +321,22 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override string ToString() {
+            string result = "";
+            result += ($"{axisDirection}") +" , ";
+            result +=($"{growthDirection}")+" , ";
+            result +=($"{userScrollDirection}")+" , ";
+            result +=($"scrollOffset: {scrollOffset : F1}")+" , ";
+            result +=($"remainingPaintExtent: {remainingPaintExtent : F1}")+" , ";
+            if (overlap != 0.0) 
+                result +=($"overlap: {overlap: F1}")+" , ";
+            result +=($"crossAxisExtent: {crossAxisExtent : F1}")+" , ";
+            result +=($"crossAxisDirection: crossAxisDirection")+" , ";
+            result +=($"viewportMainAxisExtent: {viewportMainAxisExtent : F1}")+" , ";
+            result +=($"remainingCacheExtent: {remainingCacheExtent : F1}")+" , ";
+            result +=($"cacheOrigin: {cacheOrigin : F1}");
+                
+            return $"SliverConstraints({result})";
+            
             return
                 $"SliverConstraints({axisDirection}， {growthDirection}， {userScrollDirection}， scrollOffset: {scrollOffset:F1}, remainingPaintExtent: {remainingCacheExtent:F1}, " +
                 $"{(overlap != 0.0f ? "overlap: " + overlap.ToString("F1") + ", " : "")}crossAxisExtent: {crossAxisExtent:F1}, crossAxisDirection: {crossAxisDirection}, " +
@@ -522,7 +558,8 @@ namespace Unity.UIWidgets.rendering {
             if (layoutOffset == null)
                 return "layoutOffset = None";
             else {
-                return layoutOffset.ToString(); // toStringAsFixed(3);  // 1.000
+                return $"layoutOffset = {layoutOffset:F}";
+               // 1.000
             }
         }
     }
