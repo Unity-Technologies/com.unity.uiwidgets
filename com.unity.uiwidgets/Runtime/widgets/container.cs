@@ -2,6 +2,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.widgets {
     public class DecoratedBox : SingleChildRenderObjectWidget {
@@ -110,7 +112,8 @@ namespace Unity.UIWidgets.widgets {
                     return padding;
                 }
 
-                EdgeInsets decorationPadding = decoration.padding;
+                Debug.LogError("EdgeInsets needs to be update to EdgeInsetsGeometry");
+                EdgeInsets decorationPadding = (EdgeInsets)decoration.padding;
                 if (padding == null) {
                     return decorationPadding;
                 }

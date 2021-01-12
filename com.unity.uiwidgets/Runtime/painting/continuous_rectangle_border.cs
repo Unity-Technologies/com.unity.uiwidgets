@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly BorderSide side;
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get {
                 return EdgeInsets.all(side.width);
             }
@@ -86,15 +86,15 @@ namespace Unity.UIWidgets.painting {
             return path;
         }
 
-        public override Path getInnerPath(Rect rect) {
-            return _getPath(borderRadius.toRRect(rect).deflate(side.width));
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection = null) {
+            return _getPath(borderRadius.resolve(textDirection).toRRect(rect).deflate(side.width));
         }
 
-        public override Path getOuterPath(Rect rect) {
-            return _getPath(borderRadius.toRRect(rect));
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection = null) {
+            return _getPath(borderRadius.resolve(textDirection).toRRect(rect));
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection = null) {
             if (rect.isEmpty) {
                 return;
             }
@@ -103,7 +103,7 @@ namespace Unity.UIWidgets.painting {
                 case BorderStyle.none:
                     break;
                 case BorderStyle.solid:
-                    Path path = getOuterPath(rect);
+                    Path path = getOuterPath(rect, textDirection);
                     Paint paint = side.toPaint();
                     canvas.drawPath(path, paint);
                     break;

@@ -70,7 +70,7 @@ namespace Unity.UIWidgets.painting {
             return shape.getOuterPath(rect);
         }
         
-        public override EdgeInsets padding {
+        public override EdgeInsetsGeometry padding {
             get { return shape.dimensions; }
         }
 
@@ -293,11 +293,12 @@ namespace Unity.UIWidgets.painting {
             D.assert(configuration != null);
             D.assert(configuration.size != null);
             Rect rect = offset & configuration.size;
+            TextDirection textDirection = configuration.textDirection;
             _precache(rect);
             _paintShadows(canvas);
             _paintInterior(canvas);
             _paintImage(canvas, configuration);
-            _decoration.shape.paint(canvas, rect);
+            _decoration.shape.paint(canvas, rect, textDirection: textDirection);
         }
     }
 }

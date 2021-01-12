@@ -15,7 +15,7 @@ namespace Unity.UIWidgets.painting {
             return true;
         }
 
-        public virtual EdgeInsets padding {
+        public virtual EdgeInsetsGeometry padding {
             get { return EdgeInsets.zero; }
         }
 

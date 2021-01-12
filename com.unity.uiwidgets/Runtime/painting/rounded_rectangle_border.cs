@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.painting {
         public readonly BorderRadius borderRadius;
 
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.all(side.width); }
         }
 
@@ -65,29 +65,29 @@ namespace Unity.UIWidgets.painting {
             return base.lerpTo(b, t);
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection = null) {
             var path = new Path();
-            path.addRRect(borderRadius.toRRect(rect).deflate(side.width));
+            path.addRRect(borderRadius.resolve(textDirection).toRRect(rect).deflate(side.width));
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection = null) {
             var path = new Path();
-            path.addRRect(borderRadius.toRRect(rect));
+            path.addRRect(borderRadius.resolve(textDirection).toRRect(rect));
             return path;
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection = null) {
             switch (side.style) {
                 case BorderStyle.none:
                     break;
                 case BorderStyle.solid:
                     float width = side.width;
                     if (width == 0.0) {
-                        canvas.drawRRect(borderRadius.toRRect(rect), side.toPaint());
+                        canvas.drawRRect(borderRadius.resolve(textDirection).toRRect(rect), side.toPaint());
                     }
                     else {
-                        RRect outer = borderRadius.toRRect(rect);
+                        RRect outer = borderRadius.resolve(textDirection).toRRect(rect);
                         RRect inner = outer.deflate(width);
                         Paint paint = new Paint {
                             color = side.color,
@@ -164,7 +164,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float circleness;
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.all(side.width); }
         }
 
@@ -257,8 +257,8 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        BorderRadius _adjustBorderRadius(Rect rect) {
-            BorderRadius resolvedRadius = borderRadius;
+        BorderRadius _adjustBorderRadius(Rect rect, TextDirection? textDirection) {
+            BorderRadius resolvedRadius = borderRadius.resolve(textDirection);
             if (circleness == 0.0f) {
                 return resolvedRadius;
             }
@@ -266,30 +266,30 @@ namespace Unity.UIWidgets.painting {
             return BorderRadius.lerp(resolvedRadius, BorderRadius.circular(rect.shortestSide / 2.0f), circleness);
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection = null) {
             var path = new Path();
-            path.addRRect(_adjustBorderRadius(rect).toRRect(_adjustRect(rect)).deflate(side.width));
+            path.addRRect(_adjustBorderRadius(rect, textDirection).toRRect(_adjustRect(rect)).deflate(side.width));
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection = null) {
             var path = new Path();
-            path.addRRect(_adjustBorderRadius(rect).toRRect(_adjustRect(rect)));
+            path.addRRect(_adjustBorderRadius(rect, textDirection).toRRect(_adjustRect(rect)));
             return path;
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection = null) {
             switch (side.style) {
                 case BorderStyle.none:
                     break;
                 case BorderStyle.solid:
                     float width = side.width;
                     if (width == 0.0) {
-                        canvas.drawRRect(_adjustBorderRadius(rect).toRRect(_adjustRect(rect)),
+                        canvas.drawRRect(_adjustBorderRadius(rect, textDirection).toRRect(_adjustRect(rect)),
                             side.toPaint());
                     }
                     else {
-                        RRect outer = _adjustBorderRadius(rect).toRRect(_adjustRect(rect));
+                        RRect outer = _adjustBorderRadius(rect, textDirection).toRRect(_adjustRect(rect));
                         RRect inner = outer.deflate(width);
                         Paint paint = new Paint {
                             color = side.color,

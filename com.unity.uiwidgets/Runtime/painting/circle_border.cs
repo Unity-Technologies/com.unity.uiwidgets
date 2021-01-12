@@ -12,7 +12,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly BorderSide side;
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.all(side.width); }
         }
 
@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.painting {
             return base.lerpTo(b, t);
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection = null) {
             var path = new Path();
             path.addOval(Rect.fromCircle(
                 center: rect.center,
@@ -45,7 +45,7 @@ namespace Unity.UIWidgets.painting {
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection = null) {
             var path = new Path();
             path.addOval(Rect.fromCircle(
                 center: rect.center,
@@ -54,7 +54,7 @@ namespace Unity.UIWidgets.painting {
             return path;
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection = null) {
             switch (side.style) {
                 case BorderStyle.none:
                     break;
