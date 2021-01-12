@@ -628,17 +628,17 @@ namespace Unity.UIWidgets.widgets {
             get { return childCount - skipCount; }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return RenderStack.getIntrinsicDimension(_firstOnstageChild,
                 (RenderBox child) => child.getMinIntrinsicWidth(height));
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return RenderStack.getIntrinsicDimension(_firstOnstageChild,
                 (RenderBox child) => child.getMaxIntrinsicWidth(height));
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return RenderStack.getIntrinsicDimension(_firstOnstageChild,
                 (RenderBox child) => child.getMinIntrinsicHeight(width));
         }

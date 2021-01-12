@@ -777,7 +777,7 @@ namespace Unity.UIWidgets.rendering {
             return _computeIntrinsicDimension(_IntrinsicDimension.minWidth, height, computeMinIntrinsicWidth);
         }
 
-        protected virtual float computeMinIntrinsicWidth(float height) {
+        protected internal virtual float computeMinIntrinsicWidth(float height) {
             return 0.0f;
         }
 
@@ -799,7 +799,7 @@ namespace Unity.UIWidgets.rendering {
             return _computeIntrinsicDimension(_IntrinsicDimension.maxWidth, height, computeMaxIntrinsicWidth);
         }
 
-        protected virtual float computeMaxIntrinsicWidth(float height) {
+        protected internal virtual float computeMaxIntrinsicWidth(float height) {
             return 0.0f;
         }
 
@@ -822,7 +822,7 @@ namespace Unity.UIWidgets.rendering {
                 computeMinIntrinsicHeight);
         }
 
-        protected virtual float computeMinIntrinsicHeight(float width) {
+        protected internal virtual float computeMinIntrinsicHeight(float width) {
             return 0.0f;
         }
 

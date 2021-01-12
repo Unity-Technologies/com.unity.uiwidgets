@@ -563,15 +563,15 @@ namespace Unity.UIWidgets.cupertino {
             return value;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return constraints.minWidth;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return constraints.maxWidth;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             float contentHeight = contentSection.getMinIntrinsicHeight(width);
             float actionsHeight = actionsSection.getMinIntrinsicHeight(width);
             bool hasDivider = contentHeight > 0.0f && actionsHeight > 0.0f;
@@ -1032,15 +1032,15 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return constraints.minWidth;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return constraints.maxWidth;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             if (childCount == 0) {
                 return 0.0f;
             }

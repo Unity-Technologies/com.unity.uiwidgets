@@ -39,7 +39,7 @@ namespace Unity.UIWidgets.widgets {
             return new _RenderSliverLayoutBuilder();
         }
     }
-    public class _RenderSliverLayoutBuilder : RenderObjectWithChildMixinRenderSliver<RenderSliver>, RenderConstrainedLayoutBuilder<SliverConstraints, RenderSliver> { 
+    public class _RenderSliverLayoutBuilder : RenderConstrainedLayoutBuilderMixinRenderSliver<SliverConstraints, RenderSliver> { 
         public override float? childMainAxisPosition(RenderObject child) {
             D.assert(child != null);
             D.assert(child == this.child);
@@ -106,11 +106,6 @@ namespace Unity.UIWidgets.widgets {
                     adoptChild(_child);
                 }
             }
-        }
-
-        RenderObject RenderObjectWithChildMixin.child {
-            get { return child; }
-            set { child = (RenderSliver)value; }
         }
 
         public LayoutCallback<SliverConstraints> _callback { get; set; }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.UIWidgets.gestures;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.foundation;
 
@@ -60,7 +61,6 @@ namespace Unity.UIWidgets.rendering {
         }
 
        public bool defaultHitTestChildren(BoxHitTestResult result, Offset position) {
-            // the x, y parameters have the top left of the node's box as the origin
             ChildType child = lastChild;
             while (child != null) {
                 ParentDataType childParentData = child.parentData as ParentDataType;
@@ -72,9 +72,11 @@ namespace Unity.UIWidgets.rendering {
                         return child.hitTest(boxHitTestResult, position: transformed);
                     }
                 );
-                if (isHit)
-                    child = childParentData.previousSibling;
-            }
+
+                if (isHit) 
+                    return true;
+                child = childParentData.previousSibling;
+                }
             return false;
         }
 

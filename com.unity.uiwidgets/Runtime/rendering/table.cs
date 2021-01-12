@@ -664,7 +664,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             D.assert(_children.Count == rows * columns);
             float totalMinWidth = 0.0f;
             for (int x = 0; x < columns; x++) {
@@ -676,7 +676,7 @@ namespace Unity.UIWidgets.rendering {
             return totalMinWidth;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             D.assert(_children.Count == rows * columns);
             float totalMaxWidth = 0.0f;
             for (int x = 0; x < columns; x++) {
@@ -688,7 +688,7 @@ namespace Unity.UIWidgets.rendering {
             return totalMaxWidth;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             D.assert(_children.Count == rows * columns);
             List<float> widths = _computeColumnWidths(BoxConstraints.tightForFinite(width: width));
             float rowTop = 0.0f;

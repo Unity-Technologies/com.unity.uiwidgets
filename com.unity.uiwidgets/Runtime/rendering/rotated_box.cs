@@ -37,7 +37,7 @@ namespace UIWidgets.Runtime.rendering {
             get { return quarterTurns % 2 == 1; }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             if (child == null) {
                 return 0.0f;
             }
@@ -47,7 +47,7 @@ namespace UIWidgets.Runtime.rendering {
                 : child.getMinIntrinsicWidth(height);
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             if (child == null) {
                 return 0.0f;
             }
@@ -57,7 +57,7 @@ namespace UIWidgets.Runtime.rendering {
                 : child.getMaxIntrinsicWidth(height);
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             if (child == null) {
                 return 0.0f;
             }

@@ -37,8 +37,8 @@ namespace Unity.UIWidgets.widgets {
                 return base.widget as ConstrainedLayoutBuilder<ConstraintType>;
             }
         }
-        public new RenderObjectConstrainedLayoutBuilder<ConstraintType, RenderObject> renderObject {
-            get { return base.renderObject as RenderObjectConstrainedLayoutBuilder<ConstraintType, RenderObject>;}
+        public new RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject> renderObject {
+            get { return base.renderObject as RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject>;}
         }
         Element _child;
 
@@ -103,7 +103,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
-            RenderConstrainedLayoutBuilder<ConstraintType, RenderObject> renderObject = this.renderObject;
+            RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject> renderObject = this.renderObject;
             D.assert(renderObject.child == child);
             renderObject.child = null;
             D.assert(renderObject == this.renderObject);
@@ -111,7 +111,7 @@ namespace Unity.UIWidgets.widgets {
 
     }
 
-    public interface RenderConstrainedLayoutBuilder<ConstraintType,ChildType> :  RenderObjectWithChildMixin<ChildType> 
+    public interface RenderConstrainedLayoutBuilder<ConstraintType,ChildType>
         where ConstraintType : Constraints 
         where ChildType : RenderObject
     {
@@ -121,48 +121,7 @@ namespace Unity.UIWidgets.widgets {
         void updateCallback(LayoutCallback<ConstraintType> value);
 
         void layoutAndBuildChild();
-       // public ChildType child { get; set; }
-
-       
     }
-
-    public class RenderObjectConstrainedLayoutBuilder<ConstraintType, ChildType> :
-         RenderObjectWithChildMixinRenderObject<ChildType>, RenderConstrainedLayoutBuilder<ConstraintType, ChildType>
-        where ConstraintType : Constraints
-        where ChildType : RenderObject {
-        /// <summary>
-        /// something skeptical
-        /// </summary>
-        protected override void debugAssertDoesMeetConstraints() {
-            //throw new System.NotImplementedException();
-        }
-
-        protected override void performResize() {
-            //throw new System.NotImplementedException();
-        }
-
-        protected override void performLayout() {
-            //base.performLayout();
-        }
-
-        public override Rect paintBounds { get; }
-        public override Rect semanticBounds { get; }
-        public LayoutCallback<ConstraintType> _callback { get; set; }
-        public void updateCallback(LayoutCallback<ConstraintType> value) {
-            if (value == _callback)
-                return;
-            _callback = value;
-            markNeedsLayout();
-        }
-
-        public void layoutAndBuildChild() {
-            D.assert(_callback != null);
-            invokeLayoutCallback(_callback);
-        }
-    }
-
-
-
 
     public class LayoutBuilder : ConstrainedLayoutBuilder<BoxConstraints> {
         public LayoutBuilder(
@@ -196,9 +155,9 @@ namespace Unity.UIWidgets.widgets {
         }
     }
     
-    public class _RenderLayoutBuilder : RenderObjectWithChildMixinRenderBox<RenderBox> {
+    public class _RenderLayoutBuilder : RenderConstrainedLayoutBuilderMixinRenderBox<BoxConstraints, RenderBox> {
         public _RenderLayoutBuilder(
-            LayoutCallback<BoxConstraints> callback = null) {
+            LayoutCallback<BoxConstraints> callback = null) { 
             _callback = callback;
         }
 
@@ -231,17 +190,17 @@ namespace Unity.UIWidgets.widgets {
             return true;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             D.assert(_debugThrowIfNotCheckingIntrinsics());
             return 0.0f;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             D.assert(_debugThrowIfNotCheckingIntrinsics());
             return 0.0f;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             D.assert(_debugThrowIfNotCheckingIntrinsics());
             return 0.0f;
         }

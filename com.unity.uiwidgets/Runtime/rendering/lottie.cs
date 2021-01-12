@@ -89,7 +89,7 @@ namespace Unity.UIWidgets.rendering {
             return constraints.smallest;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             D.assert(height >= 0.0);
             if (_width == null && _height == null) {
                 return 0.0f;
@@ -98,12 +98,12 @@ namespace Unity.UIWidgets.rendering {
             return _sizeForConstraints(BoxConstraints.tightForFinite(height: height)).width;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             D.assert(height >= 0.0);
             return _sizeForConstraints(BoxConstraints.tightForFinite(height: height)).width;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             D.assert(width >= 0.0);
             if (_width == null && _height == null) {
                 return 0.0f;
