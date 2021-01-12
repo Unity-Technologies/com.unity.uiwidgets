@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.rendering {
             return 0.0f;
         }
 
-        protected override float computeMaxIntrinsicHeight(float width) {
+        protected internal override float computeMaxIntrinsicHeight(float width) {
             if (this.child != null) {
                 return this.child.getMaxIntrinsicHeight(width);
             }
@@ -61,7 +61,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        protected override bool hitTestChildren(HitTestResult result, Offset position = null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             if (this.child != null) {
                 return this.child.hitTest(result, position);
             }
@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.rendering {
             return false;
         }
 
-        public override void applyPaintTransform(RenderObject child, Matrix3 transform) {
+        public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
         }
 
         public override void paint(PaintingContext context, Offset offset) {

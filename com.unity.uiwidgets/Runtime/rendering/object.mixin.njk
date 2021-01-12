@@ -2,12 +2,13 @@
 
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace Unity.UIWidgets.rendering {
 {% macro RenderObjectWithChildMixin(with) %}
     public abstract class RenderObjectWithChildMixin{{with}}<ChildType> : {{with}}, RenderObjectWithChildMixin<ChildType>, RenderObjectWithChildMixin where ChildType : RenderObject {
-        public bool debugValidateChild(RenderObject child) {
+        public virtual bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
@@ -234,10 +235,10 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public virtual void insert(ChildType child, ChildType after = null) {
-            D.assert(child != this, "A RenderObject cannot be inserted into itself.");
+            D.assert(child != this, () => "A RenderObject cannot be inserted into itself.");
             D.assert(after != this,
-                "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
-            D.assert(child != after, "A RenderObject cannot be inserted after itself.");
+                () => "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
+            D.assert(child != after, () => "A RenderObject cannot be inserted after itself.");
             D.assert(child != this._firstChild);
             D.assert(child != this._lastChild);
 
@@ -437,4 +438,27 @@ namespace Unity.UIWidgets.rendering {
 
 {{ ContainerRenderObjectMixin('RenderProxyBoxMixinRenderObjectWithChildMixinRenderBoxRenderStack') }}
 
+{% macro RenderConstrainedLayoutBuilderMixin(abstract, with, constraint) %}
+public {{abstract}} class RenderConstrainedLayoutBuilderMixin{{with}}<ConstraintType, ChildType> : RenderObjectWithChildMixin{{with}}<ChildType>,
+        RenderConstrainedLayoutBuilder<ConstraintType, ChildType>
+        where ConstraintType : {{constraint}} 
+        where ChildType : {{with}} {
+        
+        public  LayoutCallback<ConstraintType> _callback { get; set; }
+        public void updateCallback(LayoutCallback<ConstraintType> value) {
+            if (value == _callback)
+                return;
+            _callback = value;
+            markNeedsLayout();
+        }
+
+        public void layoutAndBuildChild() {
+            D.assert(_callback != null);
+            invokeLayoutCallback(_callback);
+        }
+    }
+{% endmacro %}
+{{ RenderConstrainedLayoutBuilderMixin('abstract', 'RenderObject', 'Constraints') }}
+{{ RenderConstrainedLayoutBuilderMixin('', 'RenderBox', 'BoxConstraints') }}
+{{ RenderConstrainedLayoutBuilderMixin('abstract', 'RenderSliver', 'SliverConstraints') }}
 }
