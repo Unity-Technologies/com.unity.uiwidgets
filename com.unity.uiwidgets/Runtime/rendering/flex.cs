@@ -250,7 +250,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return _getIntrinsicSize(
                 sizingDirection: Axis.horizontal,
                 extent: height,
@@ -258,7 +258,7 @@ namespace Unity.UIWidgets.rendering {
             );
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return _getIntrinsicSize(
                 sizingDirection: Axis.horizontal,
                 extent: height,
@@ -266,7 +266,7 @@ namespace Unity.UIWidgets.rendering {
             );
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return _getIntrinsicSize(
                 sizingDirection: Axis.vertical,
                 extent: width,

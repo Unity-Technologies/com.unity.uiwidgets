@@ -302,15 +302,15 @@ namespace Unity.UIWidgets.rendering {
             return extent;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return _getIntrinsicDimension((RenderBox child) => child.getMinIntrinsicWidth(height));
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return _getIntrinsicDimension((RenderBox child) => child.getMaxIntrinsicWidth(height));
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return _getIntrinsicDimension((RenderBox child) => child.getMinIntrinsicHeight(width));
         }
 

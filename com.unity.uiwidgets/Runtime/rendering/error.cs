@@ -33,7 +33,7 @@ namespace Unity.UIWidgets.rendering {
         string message;
         Paragraph _paragraph;
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return rendering_._kMaxWidth;
         }
 

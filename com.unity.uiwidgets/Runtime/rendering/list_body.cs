@@ -214,7 +214,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             switch (mainAxis) {
                 case Axis.horizontal:
                     return _getIntrinsicMainAxis((RenderBox child) => child.getMinIntrinsicWidth(height));
@@ -227,7 +227,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             switch (mainAxis) {
                 case Axis.horizontal:
                     return _getIntrinsicMainAxis((RenderBox child) => child.getMaxIntrinsicWidth(height));
@@ -240,7 +240,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             switch (mainAxis) {
                 case Axis.horizontal:
                     return _getIntrinsicMainAxis((RenderBox child) => child.getMinIntrinsicHeight(width));

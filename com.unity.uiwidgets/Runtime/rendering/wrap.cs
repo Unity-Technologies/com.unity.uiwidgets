@@ -308,7 +308,7 @@ namespace Unity.UIWidgets.rendering {
             return width;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             switch (direction) {
                 case Axis.horizontal:
                     float width = 0.0f;
@@ -326,7 +326,7 @@ namespace Unity.UIWidgets.rendering {
             throw new Exception("Unknown axis: " + direction);
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             switch (direction) {
                 case Axis.horizontal:
                     float width = 0.0f;
@@ -344,7 +344,7 @@ namespace Unity.UIWidgets.rendering {
             throw new Exception("Unknown axis: " + direction);
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             switch (direction) {
                 case Axis.horizontal:
                     return _computeIntrinsicHeightForWidth(width);

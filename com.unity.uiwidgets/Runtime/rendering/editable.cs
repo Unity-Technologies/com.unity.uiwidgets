@@ -967,12 +967,12 @@ namespace Unity.UIWidgets.rendering {
             return rect.shift(_getPixelPerfectCursorOffset(rect));
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             _layoutText(float.PositiveInfinity);
             return _textPainter.minIntrinsicWidth;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             _layoutText(float.PositiveInfinity);
             return _textPainter.maxIntrinsicWidth + cursorWidth;
         }
@@ -1018,7 +1018,7 @@ namespace Unity.UIWidgets.rendering {
             return Mathf.Max(preferredLineHeight, _textPainter.height);
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return _preferredHeight(width);
         }
 
