@@ -23,32 +23,32 @@ namespace Unity.UIWidgets.rendering {
 
     public interface RenderAnimatedOpacityMixin<T> : RenderObjectWithChildMixin<T> where T : RenderObject {
 
-        int _alpha { get; }
-        public new bool alwaysNeedsCompositing {
+        int _alpha { get; set; }
+        bool alwaysNeedsCompositing {
             get;
         }
-        bool _currentlyNeedsCompositing { get; }
-        public Animation<float> opacity {
-            get;
-            set;
-        }
-
-        Animation<float> _opacity { get; }
-
-
-        public bool alwaysIncludeSemantics {
+        bool _currentlyNeedsCompositing { get; set; }
+        Animation<float> opacity {
             get;
             set;
         }
 
-        bool _alwaysIncludeSemantics { get; }
-        public void attach(PipelineOwner owner);
-        public void detach();
+        Animation<float> _opacity { get; set; }
 
-        public void _updateOpacity();
-        public void paint(PaintingContext context, Offset offset);
-        public void visitChildrenForSemantics(RenderObjectVisitor visitor);
-        public void debugFillProperties(DiagnosticPropertiesBuilder properties);
+
+        bool alwaysIncludeSemantics {
+            get;
+            set;
+        }
+
+        bool _alwaysIncludeSemantics { get; set; } 
+        void attach(PipelineOwner owner);
+        void detach();
+
+        void _updateOpacity();
+        void paint(PaintingContext context, Offset offset);
+        void visitChildrenForSemantics(RenderObjectVisitor visitor);
+        void debugFillProperties(DiagnosticPropertiesBuilder properties);
     }
 
     

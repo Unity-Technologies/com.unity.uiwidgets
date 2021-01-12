@@ -195,7 +195,7 @@ namespace Unity.UIWidgets.widgets {
             Widget result = _image(
                 image: image,
                 errorBuilder: imageErrorBuilder,
-                frameBuilder: (BuildContext context, Widget child, int frame, bool wasSynchronouslyLoaded) => {
+                frameBuilder: (BuildContext context1, Widget child, int frame, bool wasSynchronouslyLoaded) => {
                     if (wasSynchronouslyLoaded)
                         return child;
                     return new _AnimatedFadeOutFadeIn(

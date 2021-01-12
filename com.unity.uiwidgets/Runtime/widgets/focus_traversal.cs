@@ -682,9 +682,9 @@ namespace Unity.UIWidgets.widgets {
             FocusTravesalUtils.mergeSort<_ReadingOrderSortData>(candidates, compare: (_ReadingOrderSortData a, _ReadingOrderSortData b) => a.rect.top.CompareTo(b.rect.top)); 
             _ReadingOrderSortData topmost = candidates.First();
 
-            List<_ReadingOrderSortData> inBand(_ReadingOrderSortData current, IEnumerable<_ReadingOrderSortData> candidates) { 
+            List<_ReadingOrderSortData> inBand(_ReadingOrderSortData current, IEnumerable<_ReadingOrderSortData> _candidates) { 
                 Rect band = Rect.fromLTRB(float.NegativeInfinity, current.rect.top, float.PositiveInfinity, current.rect.bottom);
-                return candidates.Where((_ReadingOrderSortData item)=> {
+                return _candidates.Where((_ReadingOrderSortData item)=> {
                     return !item.rect.intersect(band).isEmpty;
                 }).ToList();
             }
@@ -729,7 +729,7 @@ namespace Unity.UIWidgets.widgets {
     
     public interface Comparable<T> {
       
-        public int compareTo(T other);
+        int compareTo(T other);
         int compare(Comparable<T> a, T b);
     }
 

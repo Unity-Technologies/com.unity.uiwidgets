@@ -115,14 +115,14 @@ namespace Unity.UIWidgets.widgets {
                     return false;
                     
                 }
-                bool popOrInvalidate(TraversalDirection direction) { 
+                bool popOrInvalidate(TraversalDirection _direction) { 
                     FocusNode lastNode = policyData.history.removeLast().node;
                     if (Scrollable.of(lastNode.context) != Scrollable.of(FocusManagerUtils.primaryFocus.context)) { 
                         invalidateScopeData(nearestScope);
                         return false;
                     } 
                     ScrollPositionAlignmentPolicy alignmentPolicy = ScrollPositionAlignmentPolicy.explicitPolicy;
-                    switch (direction) { 
+                    switch (_direction) { 
                         case TraversalDirection.up:
                         case TraversalDirection.left:
                             alignmentPolicy = ScrollPositionAlignmentPolicy.keepVisibleAtStart;

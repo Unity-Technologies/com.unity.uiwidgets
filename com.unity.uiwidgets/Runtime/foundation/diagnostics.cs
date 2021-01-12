@@ -2390,22 +2390,22 @@ namespace Unity.UIWidgets.foundation {
 
 
     public interface DiagnosticableTreeMixin : IDiagnosticable{
-        public string toString(DiagnosticLevel minLevel = DiagnosticLevel.info);
-        public string toStringShallow(
+        string toString(DiagnosticLevel minLevel = DiagnosticLevel.info);
+        string toStringShallow(
             string joiner = ", ",
             DiagnosticLevel minLevel = DiagnosticLevel.debug
         );
 
-        public string toStringDeep(
+        string toStringDeep(
             string prefixLineOne = "",
             string prefixOtherLines = null,
             DiagnosticLevel minLevel = DiagnosticLevel.debug);
 
-        public string toStringShort();
+        string toStringShort();
 
-        public DiagnosticsNode toDiagnosticsNode(string name = null, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse);
-        public List<DiagnosticsNode> debugDescribeChildren();
-        public void debugFillProperties(DiagnosticPropertiesBuilder properties);
+        DiagnosticsNode toDiagnosticsNode(string name = null, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse);
+        List<DiagnosticsNode> debugDescribeChildren();
+        void debugFillProperties(DiagnosticPropertiesBuilder properties);
 
     }
 
