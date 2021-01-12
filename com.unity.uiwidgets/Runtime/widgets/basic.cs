@@ -932,16 +932,19 @@ namespace Unity.UIWidgets.widgets {
             Alignment alignment = null,
             StackFit fit = StackFit.loose,
             Overflow overflow = Overflow.clip,
+            TextDirection textDirection = default,
             List<Widget> children = null
         ) : base(key: key, children: children) {
             this.alignment = alignment ?? Alignment.bottomLeft;
             this.fit = fit;
             this.overflow = overflow;
+            this.textDirection = textDirection;
         }
 
         public readonly Alignment alignment;
         public readonly StackFit fit;
         public readonly Overflow overflow;
+        public readonly TextDirection textDirection;
 
 
         public override RenderObject createRenderObject(BuildContext context) {
