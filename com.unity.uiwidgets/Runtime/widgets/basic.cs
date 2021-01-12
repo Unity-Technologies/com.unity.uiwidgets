@@ -950,6 +950,7 @@ namespace Unity.UIWidgets.widgets {
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderStack(
                 alignment: alignment,
+                textDirection: Directionality.of(context),
                 fit: fit,
                 overflow: overflow
             );
@@ -958,6 +959,7 @@ namespace Unity.UIWidgets.widgets {
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderStack) renderObjectRaw;
             renderObject.alignment = alignment;
+            renderObject.textDirection = Directionality.of(context);
             renderObject.fit = fit;
             renderObject.overflow = overflow;
         }
@@ -965,6 +967,7 @@ namespace Unity.UIWidgets.widgets {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection, defaultValue: null));
             properties.add(new EnumProperty<StackFit>("fit", fit));
             properties.add(new EnumProperty<Overflow>("overflow", overflow));
         }
