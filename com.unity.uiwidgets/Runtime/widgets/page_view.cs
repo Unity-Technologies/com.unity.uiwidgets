@@ -412,7 +412,7 @@ namespace Unity.UIWidgets.widgets {
                             slivers: new List<Widget> {
                                 new SliverFillViewport(
                                     viewportFraction: widget.controller.viewportFraction,
-                                    del: widget.childrenDelegate
+                                    _delegate: widget.childrenDelegate
                                 )
                             }
                         );

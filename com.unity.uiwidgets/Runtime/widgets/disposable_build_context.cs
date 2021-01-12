@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.widgets {
             return true;
         }
         
-        void dispose() {
+        public void dispose() {
             _state = null;
         }
     }

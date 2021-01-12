@@ -21,6 +21,37 @@ namespace Unity.UIWidgets.rendering {
         translucent,
     }
 
+    public interface RenderAnimatedOpacityMixin<T> : RenderObjectWithChildMixin<T> where T : RenderObject {
+
+        int _alpha { get; }
+        public new bool alwaysNeedsCompositing {
+            get;
+        }
+        bool _currentlyNeedsCompositing { get; }
+        public Animation<float> opacity {
+            get;
+            set;
+        }
+
+        Animation<float> _opacity { get; }
+
+
+        public bool alwaysIncludeSemantics {
+            get;
+            set;
+        }
+
+        bool _alwaysIncludeSemantics { get; }
+        public void attach(PipelineOwner owner);
+        public void detach();
+
+        public void _updateOpacity();
+        public void paint(PaintingContext context, Offset offset);
+        public void visitChildrenForSemantics(RenderObjectVisitor visitor);
+        public void debugFillProperties(DiagnosticPropertiesBuilder properties);
+    }
+
+    
     public abstract class RenderProxyBoxWithHitTestBehavior : RenderProxyBox {
         protected RenderProxyBoxWithHitTestBehavior(
             HitTestBehavior behavior = HitTestBehavior.deferToChild,

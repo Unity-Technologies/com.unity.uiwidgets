@@ -52,27 +52,27 @@ namespace UIWidgetsSample
         {
             public override Widget build(BuildContext context)
             {
-                return new CupertinoPageScaffold(
-                    child: new Center(
-                        child: new CupertinoButton(
-                            child: new Text(
-                                "THIS IS TAB #"
-                            ),
-                            onPressed: () =>
-                            {
-                                Navigator.of(context).push(
-                                    new CupertinoPageRoute(builder: (contex3) =>
-                                    {
-                                        return
-                                            new CupertinoAlertDemo();
-                                    })
-                                );
-                            }
-                        )
-                        //new Text("hello world!", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle)
-                    )
-                    //backgroundColor: Colors.brown
-                );
+                // return new CupertinoPageScaffold(
+                //     child: new Center(
+                //         child: new CupertinoButton(
+                //             child: new Text(
+                //                 "THIS IS TAB #"
+                //             ),
+                //             onPressed: () =>
+                //             {
+                //                 Navigator.of(context).push(
+                //                     new CupertinoPageRoute(builder: (contex3) =>
+                //                     {
+                //                         return
+                //                             new CupertinoAlertDemo();
+                //                     })
+                //                 );
+                //             }
+                //         )
+                //         //new Text("hello world!", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle)
+                //     )
+                //     //backgroundColor: Colors.brown
+                // );
 
                 List<BottomNavigationBarItem> items = new List<BottomNavigationBarItem>();
                 items.Add(new BottomNavigationBarItem(

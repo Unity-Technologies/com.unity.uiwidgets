@@ -932,21 +932,25 @@ namespace Unity.UIWidgets.widgets {
             Alignment alignment = null,
             StackFit fit = StackFit.loose,
             Overflow overflow = Overflow.clip,
+            TextDirection textDirection = default,
             List<Widget> children = null
         ) : base(key: key, children: children) {
             this.alignment = alignment ?? Alignment.bottomLeft;
             this.fit = fit;
             this.overflow = overflow;
+            this.textDirection = textDirection;
         }
 
         public readonly Alignment alignment;
         public readonly StackFit fit;
         public readonly Overflow overflow;
+        public readonly TextDirection textDirection;
 
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderStack(
                 alignment: alignment,
+                textDirection: Directionality.of(context),
                 fit: fit,
                 overflow: overflow
             );
@@ -955,6 +959,7 @@ namespace Unity.UIWidgets.widgets {
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderStack) renderObjectRaw;
             renderObject.alignment = alignment;
+            renderObject.textDirection = Directionality.of(context);
             renderObject.fit = fit;
             renderObject.overflow = overflow;
         }
@@ -962,6 +967,7 @@ namespace Unity.UIWidgets.widgets {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection, defaultValue: null));
             properties.add(new EnumProperty<StackFit>("fit", fit));
             properties.add(new EnumProperty<Overflow>("overflow", overflow));
         }
@@ -2259,6 +2265,12 @@ namespace Unity.UIWidgets.widgets {
         ) :
         base(key: key, child: child) {
             D.assert(behavior != null);
+            this.onPointerDown = onPointerDown;
+            this.onPointerMove = onPointerMove;
+            this.onPointerUp = onPointerUp;
+            this.onPointerCancel = onPointerCancel;
+            this.onPointerSignal = onPointerSignal;
+            this.behavior = behavior;
         }
 
         public readonly PointerDownEventListener onPointerDown;

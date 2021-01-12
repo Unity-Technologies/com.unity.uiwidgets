@@ -34,6 +34,11 @@ namespace Unity.UIWidgets.animation {
             get { return status == AnimationStatus.completed; }
         }
 
+        public Animation<U> drive<U>(Animatable<U> child) {
+            D.assert(this is Animation<float>);
+            return child.animate(this as Animation<float>);
+        }
+
         public override string ToString() {
             return $"{foundation_.describeIdentity(this)}({toStringDetails()})";
         }
@@ -57,11 +62,6 @@ namespace Unity.UIWidgets.animation {
 
             D.assert(icon != null);
             return icon;
-        }
-
-        public Animation<U> drive<U>(Animatable<U> child) {
-            D.assert(this is Animation<float>);
-            return child.animate(this as Animation<float>);
         }
     }
 }

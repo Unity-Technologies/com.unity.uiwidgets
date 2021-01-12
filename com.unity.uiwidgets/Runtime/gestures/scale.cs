@@ -12,14 +12,19 @@ namespace Unity.UIWidgets.gestures {
     }
 
     public class ScaleStartDetails {
-        public ScaleStartDetails(Offset focalPoint = null) {
+        public ScaleStartDetails(
+            Offset focalPoint = null,
+            Offset localFocalPoint = null
+        ) {
             this.focalPoint = focalPoint ?? Offset.zero;
+            this.localFocalPoint = localFocalPoint ?? this.focalPoint;
         }
 
         public readonly Offset focalPoint;
+        public readonly Offset localFocalPoint;
 
         public override string ToString() {
-            return $"ScaleStartDetails(focalPoint: {focalPoint}";
+            return $"ScaleStartDetails(focalPoint: {focalPoint}, localFocalPoint: {localFocalPoint})";
         }
     }
 
@@ -27,12 +32,14 @@ namespace Unity.UIWidgets.gestures {
     public class ScaleUpdateDetails {
         public ScaleUpdateDetails(
             Offset focalPoint = null,
+            Offset localFocalPoint = null,
             float scale = 1.0f,
             float horizontalScale = 1.0f,
             float verticalScale = 1.0f,
             float rotation = 0.0f
         ) {
             focalPoint = focalPoint ?? Offset.zero;
+            localFocalPoint = localFocalPoint ?? this.focalPoint;
 
             D.assert(scale >= 0.0f);
             D.assert(horizontalScale >= 0.0f);
@@ -46,6 +53,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public readonly Offset focalPoint;
+        public readonly Offset localFocalPoint;
 
         public readonly float scale;
 
@@ -57,7 +65,7 @@ namespace Unity.UIWidgets.gestures {
 
         public override string ToString() {
             return
-                $"ScaleUpdateDetails(focalPoint: {focalPoint}, scale: {scale}, horizontalScale: {horizontalScale}, verticalScale: {verticalScale}, rotation: {rotation}";
+                $"ScaleUpdateDetails(focalPoint: {focalPoint}, localFocalPoint: {localFocalPoint}, scale: {scale}, horizontalScale: {horizontalScale}, verticalScale: {verticalScale}, rotation: {rotation}";
         }
     }
 
@@ -116,7 +124,8 @@ namespace Unity.UIWidgets.gestures {
 
     public class ScaleGestureRecognizer : OneSequenceGestureRecognizer {
         public ScaleGestureRecognizer(object debugOwner, PointerDeviceKind? kind = null) : base(debugOwner: debugOwner,
-            kind: kind) { }
+            kind: kind) {
+        }
 
         public GestureScaleStartCallback onStart;
 
@@ -125,6 +134,8 @@ namespace Unity.UIWidgets.gestures {
         public GestureScaleEndCallback onEnd;
 
         _ScaleState _state = _ScaleState.ready;
+
+        Matrix4 _lastTransform;
 
         Offset _initialFocalPoint;
         Offset _currentFocalPoint;
@@ -180,7 +191,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override void addAllowedPointer(PointerDownEvent evt) {
-            startTrackingPointer(evt.pointer);
+            startTrackingPointer(evt.pointer, evt.transform);
             _velocityTrackers[evt.pointer] = new VelocityTracker();
             if (_state == _ScaleState.ready) {
                 _state = _ScaleState.possible;
@@ -208,18 +219,21 @@ namespace Unity.UIWidgets.gestures {
                 }
 
                 _pointerLocations[evt.pointer] = evt.position;
-                shouldStartIfAccepted = true;
+                shouldStartIfAccepted = true;      
+                _lastTransform = evt.transform;
             }
             else if (evt is PointerDownEvent) {
                 _pointerLocations[evt.pointer] = evt.position;
                 _pointerQueue.Add(evt.pointer);
                 didChangeConfiguration = true;
                 shouldStartIfAccepted = true;
+                _lastTransform = evt.transform;
             }
             else if (evt is PointerUpEvent || evt is PointerCancelEvent) {
                 _pointerLocations.Remove(evt.pointer);
                 _pointerQueue.Remove(evt.pointer);
                 didChangeConfiguration = true;
+                _lastTransform = evt.transform;
             }
 
             _updateLines();
@@ -354,6 +368,7 @@ namespace Unity.UIWidgets.gestures {
                         horizontalScale: _horizontalScaleFactor,
                         verticalScale: _verticalScaleFactor,
                         focalPoint: _currentFocalPoint,
+                        localFocalPoint: PointerEvent.transformPosition(_lastTransform, _currentFocalPoint),
                         rotation: _computeRotationFactor()
                     ));
                     return null;
@@ -365,7 +380,10 @@ namespace Unity.UIWidgets.gestures {
             D.assert(_state == _ScaleState.started);
             if (onStart != null) {
                 invokeCallback<object>("onStart", () => {
-                    onStart(new ScaleStartDetails(focalPoint: _currentFocalPoint));
+                    onStart(new ScaleStartDetails(
+                        focalPoint: _currentFocalPoint,
+                        localFocalPoint: PointerEvent.transformPosition(_lastTransform, _currentFocalPoint)
+                    ));
                     return null;
                 });
             }

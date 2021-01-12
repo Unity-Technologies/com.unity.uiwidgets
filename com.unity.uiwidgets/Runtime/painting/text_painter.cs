@@ -229,7 +229,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public TextHeightBehavior textHeightBehavior {
-            get { return textHeightBehavior; }
+            get { return _textHeightBehavior; }
             set {
                 if (_textHeightBehavior == value)
                     return;

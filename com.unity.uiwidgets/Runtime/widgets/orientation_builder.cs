@@ -15,9 +15,9 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly OrientationWidgetBuilder builder;
 
-        Widget _buildWithConstraints(BuildContext context, BoxConstraints constraints) {
+        Widget _buildWithConstraints(BuildContext context, Constraints constraints) {
             Orientation orientation =
-                constraints.maxWidth > constraints.maxHeight ? Orientation.landscape : Orientation.portrait;
+                ((BoxConstraints)constraints).maxWidth > ((BoxConstraints)constraints).maxHeight ? Orientation.landscape : Orientation.portrait;
             return builder(context, orientation);
         }
 

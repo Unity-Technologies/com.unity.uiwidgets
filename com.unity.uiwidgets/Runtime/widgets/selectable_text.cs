@@ -386,10 +386,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
-            _lastDragUpdateDetails = details;
-            _dragUpdateThrottleTimer = _dragUpdateThrottleTimer ??
-                                       Timer.create(TextSelectionUtils._kDragSelectionUpdateThrottle,
-                                           _handleDragUpdateThrottled);
+            _lastDragUpdateDetails = details; 
+            _dragUpdateThrottleTimer = _dragUpdateThrottleTimer ?? Timer.create(TextSelectionUtils._kDragSelectionUpdateThrottle, _handleDragUpdateThrottled);
         }
 
         object _handleDragUpdateThrottled() {

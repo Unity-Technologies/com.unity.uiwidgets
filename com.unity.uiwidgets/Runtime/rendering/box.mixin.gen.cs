@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.rendering {
 
@@ -67,14 +68,15 @@ namespace Unity.UIWidgets.rendering {
                     offset: childParentData.offset,
                     position: position,
                     hitTest: (BoxHitTestResult boxHitTestResult, Offset transformed) => {
-                    D.assert(transformed == position - childParentData.offset);
-                    return child.hitTest(boxHitTestResult, position: transformed);
-                }
+                        D.assert(transformed == position - childParentData.offset);
+                        return child.hitTest(boxHitTestResult, position: transformed);
+                    }
                 );
+
                 if (isHit) 
                     return true;
                 child = childParentData.previousSibling;
-            }
+                }
             return false;
         }
 

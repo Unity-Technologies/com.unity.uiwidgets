@@ -147,7 +147,7 @@ namespace Unity.UIWidgets.cupertino {
                     textScaleFactor: Mathf.Max(textScaleFactor, 1.0f)
                 ),
                 child: new LayoutBuilder(
-                    builder: (BuildContext _context, BoxConstraints constraints) => {
+                    builder: (BuildContext _context, Constraints constraints) => {
                         return new Center(
                             child: new Container(
                                 margin: EdgeInsets.symmetric(vertical: CupertinoDialogUtils._kEdgePadding),

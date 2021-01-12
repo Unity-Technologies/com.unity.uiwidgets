@@ -172,8 +172,8 @@ namespace Unity.UIWidgets.gestures {
         protected virtual void resolvePointer(int pointer, GestureDisposition disposition) {
             GestureArenaEntry entry = _entries[pointer];
             if (entry != null) {
-            entry.resolve(disposition);
-            _entries.Remove(pointer);
+                entry.resolve(disposition);
+                _entries.Remove(pointer);
             }
         }
 
