@@ -7,6 +7,11 @@ using Unity.UIWidgets.rendering;
 using UnityEngine;
 
 namespace Unity.UIWidgets.widgets {
+    public enum ScrollViewKeyboardDismissBehavior {
+        manual,
+        onDrag
+    }
+    
     public abstract class ScrollView : StatelessWidget {
         protected ScrollView(
             Key key = null,
@@ -19,7 +24,8 @@ namespace Unity.UIWidgets.widgets {
             Key center = null,
             float anchor = 0.0f,
             float? cacheExtent = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual
         ) : base(key: key) {
             D.assert(!(controller != null && primary == true),
                 () => "Primary ScrollViews obtain their ScrollController via inheritance from a PrimaryScrollController widget. " +
@@ -40,6 +46,7 @@ namespace Unity.UIWidgets.widgets {
             this.anchor = anchor;
             this.cacheExtent = cacheExtent;
             this.dragStartBehavior = dragStartBehavior;
+            this.keyboardDismissBehavior = keyboardDismissBehavior;
         }
 
         public readonly Axis scrollDirection;
@@ -52,6 +59,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly float anchor;
         public readonly float? cacheExtent;
         public readonly DragStartBehavior dragStartBehavior;
+        public readonly ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
 
         protected AxisDirection getDirection(BuildContext context) {
             return LayoutUtils.getAxisDirectionFromAxisReverseAndDirectionality(
@@ -98,9 +106,27 @@ namespace Unity.UIWidgets.widgets {
                 viewportBuilder: (viewportContext, offset) =>
                     buildViewport(viewportContext, offset, axisDirection, slivers)
             );
-            return primary && scrollController != null
+            
+            Widget scrollableResult = primary && scrollController != null
                 ? (Widget) PrimaryScrollController.none(child: scrollable)
                 : scrollable;
+
+            if (keyboardDismissBehavior == ScrollViewKeyboardDismissBehavior.onDrag) {
+                return new NotificationListener<ScrollUpdateNotification>(
+                    child: scrollableResult,
+                    onNotification: (ScrollUpdateNotification notification) => {
+                        FocusScopeNode focusScope = FocusScope.of(context);
+                        if (notification.dragDetails != null && focusScope.hasFocus) {
+                            focusScope.unfocus();
+                        }
+
+                        return false;
+                    }
+                );
+            }
+            else {
+                return scrollableResult;
+            }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -166,7 +192,8 @@ namespace Unity.UIWidgets.widgets {
             bool shrinkWrap = false,
             EdgeInsets padding = null,
             float? cacheExtent = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual
         ) : base(
             key: key,
             scrollDirection: scrollDirection,
@@ -176,7 +203,8 @@ namespace Unity.UIWidgets.widgets {
             physics: physics,
             shrinkWrap: shrinkWrap,
             cacheExtent: cacheExtent,
-            dragStartBehavior: dragStartBehavior
+            dragStartBehavior: dragStartBehavior,
+            keyboardDismissBehavior: keyboardDismissBehavior
         ) {
             this.padding = padding;
         }
@@ -218,7 +246,8 @@ namespace Unity.UIWidgets.widgets {
             bool addRepaintBoundaries = true,
             float? cacheExtent = null,
             List<Widget> children = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual
         ) : base(
             key: key,
             scrollDirection: scrollDirection,
@@ -229,7 +258,8 @@ namespace Unity.UIWidgets.widgets {
             shrinkWrap: shrinkWrap,
             padding: padding,
             cacheExtent: cacheExtent,
-            dragStartBehavior: dragStartBehavior
+            dragStartBehavior: dragStartBehavior,
+            keyboardDismissBehavior: keyboardDismissBehavior
         ) {
             this.itemExtent = itemExtent;
             childrenDelegate = new SliverChildListDelegate(
@@ -254,7 +284,8 @@ namespace Unity.UIWidgets.widgets {
             bool addAutomaticKeepAlives = true,
             bool addRepaintBoundaries = true,
             float? cacheExtent = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual
         ) : base(key: key,
             scrollDirection: scrollDirection,
             reverse: reverse,
@@ -264,8 +295,10 @@ namespace Unity.UIWidgets.widgets {
             shrinkWrap: shrinkWrap,
             padding: padding,
             cacheExtent: cacheExtent,
-            dragStartBehavior: dragStartBehavior
+            dragStartBehavior: dragStartBehavior,
+            keyboardDismissBehavior: keyboardDismissBehavior
         ) {
+            D.assert(itemCount == null || itemCount >= 0);
             this.itemExtent = itemExtent;
             childrenDelegate = new SliverChildBuilderDelegate(
                 itemBuilder,
@@ -290,7 +323,8 @@ namespace Unity.UIWidgets.widgets {
             bool addAutomaticKeepAlives = true,
             bool addRepaintBoundaries = true,
             float? cacheExtent = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual
         ) {
             return new ListView(
                 key: key,
@@ -307,7 +341,8 @@ namespace Unity.UIWidgets.widgets {
                 itemCount: itemCount,
                 addAutomaticKeepAlives: addAutomaticKeepAlives,
                 addRepaintBoundaries: addRepaintBoundaries,
-                dragStartBehavior: dragStartBehavior
+                dragStartBehavior: dragStartBehavior,
+                keyboardDismissBehavior: keyboardDismissBehavior
             );
         }
 
@@ -327,7 +362,8 @@ namespace Unity.UIWidgets.widgets {
             bool addAutomaticKeepAlives = true,
             bool addRepaintBoundaries = true,
             float? cacheExtent = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual
         ) : base(
             key: key,
             scrollDirection: scrollDirection,
@@ -338,7 +374,8 @@ namespace Unity.UIWidgets.widgets {
             shrinkWrap: shrinkWrap,
             padding: padding,
             cacheExtent: cacheExtent,
-            dragStartBehavior: dragStartBehavior
+            dragStartBehavior: dragStartBehavior,
+            keyboardDismissBehavior: keyboardDismissBehavior
         ) {
             D.assert(itemBuilder != null);
             D.assert(separatorBuilder != null);
@@ -347,11 +384,23 @@ namespace Unity.UIWidgets.widgets {
             childrenDelegate = new SliverChildBuilderDelegate(
                 (context, index) => {
                     int itemIndex = index / 2;
-                    return index % 2 == 0
-                        ? itemBuilder(context, itemIndex)
-                        : separatorBuilder(context, itemIndex);
+                    Widget widget = null;
+                    if (index % 2 == 0) {
+                        widget = itemBuilder(context, itemIndex);
+                    }
+                    else {
+                        widget = separatorBuilder(context, itemIndex);
+                        D.assert(() => {
+                            if (widget == null) {
+                                throw new UIWidgetsError("separatorBuilder cannot return null.");
+                            }
+
+                            return true;
+                        });
+                    }
+                    return widget;
                 },
-                childCount: Mathf.Max(0, itemCount * 2 - 1),
+                childCount: _computeActualChildCount(itemCount),
                 addAutomaticKeepAlives: addAutomaticKeepAlives,
                 addRepaintBoundaries: addRepaintBoundaries
             );
@@ -371,7 +420,8 @@ namespace Unity.UIWidgets.widgets {
             int itemCount = 0,
             bool addAutomaticKeepAlives = true,
             bool addRepaintBoundaries = true,
-            float? cacheExtent = null
+            float? cacheExtent = null,
+            ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual
         ) {
             return new ListView(
                 key,
@@ -387,7 +437,8 @@ namespace Unity.UIWidgets.widgets {
                 itemCount,
                 addAutomaticKeepAlives,
                 addRepaintBoundaries,
-                cacheExtent
+                cacheExtent,
+                keyboardDismissBehavior: keyboardDismissBehavior
             );
         }
 
@@ -465,6 +516,10 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(properties);
             properties.add(new FloatProperty("itemExtent", itemExtent,
                 defaultValue: foundation_.kNullDefaultValue));
+        }
+
+        static int _computeActualChildCount(int itemCount) {
+            return Mathf.Max(0, itemCount * 2 - 1);
         }
     }
 
