@@ -9,7 +9,7 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     public abstract class OverlayRoute : Route {
-        readonly List<OverlayEntry> _overlayEntries = new List<OverlayEntry>();
+        public readonly List<OverlayEntry> _overlayEntries = new List<OverlayEntry>();
 
         public OverlayRoute(
             RouteSettings settings = null
@@ -23,12 +23,11 @@ namespace Unity.UIWidgets.widgets {
             get { return true; }
         }
 
-        public abstract ICollection<OverlayEntry> createOverlayEntries();
+        public abstract IEnumerable<OverlayEntry> createOverlayEntries();
 
-        protected internal override void install(){//(OverlayEntry insertionPoint) {
+        protected internal override void install(){
             D.assert(_overlayEntries.isEmpty());
             _overlayEntries.AddRange(createOverlayEntries());
-            navigator.overlay?.insertAll(_overlayEntries);
             base.install();
         } 
         protected internal override bool didPop(object result) {
@@ -37,23 +36,36 @@ namespace Unity.UIWidgets.widgets {
             if (finishedWhenPopped) {
                 navigator.finalizeRoute(this);
             }
-
             return returnValue;
         }
 
         public override void dispose() {
-            /*foreach (var entry in _overlayEntries) {
-                entry.remove();
-            }*/
             _overlayEntries.Clear();
             base.dispose();
         }
     }
 
+    public abstract class OverlayRoute<T> : OverlayRoute {
+        public readonly List<OverlayEntry> _overlayEntries = new List<OverlayEntry>();
+        public OverlayRoute(
+            RouteSettings settings = null
+        ) : base(settings : settings) {
+        }
+        protected internal new bool didPop(T result) {
+            var returnValue = base.didPop(result);
+            D.assert(returnValue);
+            if (finishedWhenPopped) {
+                navigator.finalizeRoute(this);
+            }
+            return returnValue;
+        }
+      
+    }
+
     public abstract class TransitionRoute : OverlayRoute {
         public TransitionRoute(
             RouteSettings settings = null
-        ) : base(settings) {
+            ) : base(settings) {
         }
 
         public Future completed {
@@ -96,7 +108,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(duration >= TimeSpan.Zero && duration != null);
             return new AnimationController(
                 duration: duration,
-                //reverseDuration: reverseDuration, /// todo
+                reverseDuration: reverseDuration, 
                 debugLabel: debugLabel,
                 vsync: navigator
             );
@@ -153,8 +165,6 @@ namespace Unity.UIWidgets.widgets {
             D.assert(_controller != null,
                 () => $"{GetType()}.didPush called before calling install() or after calling dispose().");
             D.assert(!_transitionCompleter.isCompleted, () => $"Cannot reuse a {GetType()} after disposing it.");
-            //_animation.addStatusListener(_handleStatusChanged);
-            //return _controller.forward();
             _didPushOrReplace();
             base.didPush();
             return _controller.forward();
@@ -174,7 +184,7 @@ namespace Unity.UIWidgets.widgets {
             if (oldRoute is TransitionRoute) {
                 _controller.setValue(((TransitionRoute)oldRoute)._controller.value);
             }
-            _animation.addStatusListener(_handleStatusChanged);
+            _didPushOrReplace();
             base.didReplace(oldRoute);
         }
         public void _didPushOrReplace() {
@@ -211,53 +221,53 @@ namespace Unity.UIWidgets.widgets {
         void _updateSecondaryAnimation(Route nextRoute) {
             VoidCallback previousTrainHoppingListenerRemover = _trainHoppingListenerRemover;
             _trainHoppingListenerRemover = null;
-            if (nextRoute is TransitionRoute && canTransitionTo((TransitionRoute) nextRoute) &&
-                ((TransitionRoute) nextRoute).canTransitionFrom(this)) {
+            if (nextRoute is TransitionRoute && canTransitionTo((TransitionRoute)nextRoute) &&
+                ((TransitionRoute) nextRoute).canTransitionFrom((TransitionRoute)this)) {
                 Animation<float> current = _secondaryAnimation.parent;
                 if (current != null) {
                     Animation<float> currentTrain = current is TrainHoppingAnimation ? ((TrainHoppingAnimation)current).currentTrain : current;
                     Animation<float> nextTrain = ((TransitionRoute)nextRoute)._animation;
                     if (
-                      currentTrain.value == nextTrain.value ||
-                      nextTrain.status == AnimationStatus.completed ||
-                      nextTrain.status == AnimationStatus.dismissed
-                    ) {
-                      _setSecondaryAnimation(nextTrain, ((TransitionRoute)nextRoute).completed);
+                        currentTrain.value == nextTrain.value ||
+                        nextTrain.status == AnimationStatus.completed ||
+                        nextTrain.status == AnimationStatus.dismissed
+                    ) { 
+                        _setSecondaryAnimation(nextTrain, ((TransitionRoute)nextRoute).completed);
                     } else {
-                      
-                      TrainHoppingAnimation newAnimation = null;
-                      void _jumpOnAnimationEnd(AnimationStatus status) {
-                        switch (status) {
-                          case AnimationStatus.completed:
-                          case AnimationStatus.dismissed:
-                              _setSecondaryAnimation(nextTrain, ((TransitionRoute)nextRoute).completed);
-                            if (_trainHoppingListenerRemover != null) {
-                              _trainHoppingListenerRemover();
-                              _trainHoppingListenerRemover = null;
+                        
+                        TrainHoppingAnimation newAnimation = null;
+                        void _jumpOnAnimationEnd(AnimationStatus status) { 
+                            switch (status) { 
+                                case AnimationStatus.completed:
+                                case AnimationStatus.dismissed:
+                                    _setSecondaryAnimation(nextTrain, ((TransitionRoute)nextRoute).completed); 
+                                    if (_trainHoppingListenerRemover != null) {
+                                        _trainHoppingListenerRemover();
+                                        _trainHoppingListenerRemover = null;
+                                    } 
+                                    break;
+                                case AnimationStatus.forward:
+                                case AnimationStatus.reverse: 
+                                    break; 
+                            } 
+                        } 
+                        _trainHoppingListenerRemover = ()=> {
+                            nextTrain.removeStatusListener(_jumpOnAnimationEnd);
+                            newAnimation?.dispose();
+                        };
+                        nextTrain.addStatusListener(_jumpOnAnimationEnd);
+                        newAnimation = new TrainHoppingAnimation(
+                            currentTrain,
+                            nextTrain,
+                            onSwitchedTrain: ()=> { 
+                                D.assert(_secondaryAnimation.parent == newAnimation); 
+                                D.assert(newAnimation.currentTrain == ((TransitionRoute)nextRoute)._animation); 
+                                _setSecondaryAnimation(newAnimation.currentTrain, ((TransitionRoute)nextRoute).completed); 
+                                if (_trainHoppingListenerRemover != null) { 
+                                    _trainHoppingListenerRemover(); 
+                                    _trainHoppingListenerRemover = null; 
+                                } 
                             }
-                            break;
-                          case AnimationStatus.forward:
-                          case AnimationStatus.reverse:
-                            break;
-                        }
-                      }
-                      _trainHoppingListenerRemover = ()=> {
-                        nextTrain.removeStatusListener(_jumpOnAnimationEnd);
-                        newAnimation?.dispose();
-                      };
-                      nextTrain.addStatusListener(_jumpOnAnimationEnd);
-                      newAnimation = new TrainHoppingAnimation(
-                        currentTrain,
-                        nextTrain,
-                        onSwitchedTrain: ()=> {
-                          D.assert(_secondaryAnimation.parent == newAnimation);
-                          D.assert(newAnimation.currentTrain == ((TransitionRoute)nextRoute)._animation);
-                          _setSecondaryAnimation(newAnimation.currentTrain, ((TransitionRoute)nextRoute).completed);
-                          if (_trainHoppingListenerRemover != null) {
-                            _trainHoppingListenerRemover();
-                            _trainHoppingListenerRemover = null;
-                          }
-                        }
                       );
                       _setSecondaryAnimation(newAnimation, ((TransitionRoute)nextRoute).completed);
                     }
@@ -310,6 +320,8 @@ namespace Unity.UIWidgets.widgets {
             return $"{GetType()}(animation: {_controller}";
         }
     }
+
+    
 
     public class LocalHistoryEntry {
         public LocalHistoryEntry(VoidCallback onRemove = null) {
@@ -365,7 +377,6 @@ namespace Unity.UIWidgets.widgets {
             if (_localHistory.isEmpty()) {
                 //changedInternalState();
                 if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
-                   
                     SchedulerBinding.instance.addPostFrameCallback((TimeSpan timestamp) =>{
                         changedInternalState();
                     });
@@ -380,7 +391,6 @@ namespace Unity.UIWidgets.widgets {
             if (willHandlePopInternally) {
                 return Future.value(RoutePopDisposition.pop).to<RoutePopDisposition>();
             }
-
             return base.willPop();
         }
 
@@ -479,10 +489,10 @@ namespace Unity.UIWidgets.widgets {
 
         Listenable _listenable;
 
-        public readonly FocusScopeNode focusScopeNode = new FocusScopeNode();//debugLabel: "$_ModalScopeState Focus Scope");
+        public readonly FocusScopeNode focusScopeNode = new FocusScopeNode(debugLabel: $"{typeof(_ModalScopeState)} Focus Scope");
         public override void initState() {
             base.initState();
-            var animations = new List<Listenable> { };
+            var animations = new List<Listenable>();
             if (widget.route.animation != null) {
                 animations.Add(widget.route.animation);
             }
@@ -549,7 +559,7 @@ namespace Unity.UIWidgets.widgets {
                     child: new PageStorage(
                         bucket: widget.route._storageBucket,
                         child: new FocusScope(
-                            node: widget.route.focusScopeNode,
+                            node: focusScopeNode,
                             child: new RepaintBoundary(
                                 child: new AnimatedBuilder(
                                     animation: _listenable, // immutable
@@ -562,7 +572,7 @@ namespace Unity.UIWidgets.widgets {
                                                 animation: widget.route.navigator?.userGestureInProgressNotifier ?? new ValueNotifier<bool>(false),
                                                 builder: (BuildContext context1, Widget child1) =>{
                                                     bool ignoreEvents = _shouldIgnoreFocusRequest;
-                                                    //focusScopeNode.canRequestFocus = !ignoreEvents; // todo
+                                                    focusScopeNode.canRequestFocus = !ignoreEvents; // todo
                                                     return new IgnorePointer(
                                                         ignoring: ignoreEvents,
                                                         child: child1
@@ -570,13 +580,19 @@ namespace Unity.UIWidgets.widgets {
                                                 },
                                                 child: child
                                              )
-                                            /*new IgnorePointer(
-                                                ignoring: widget.route.animation?.status ==
-                                                          AnimationStatus.reverse,
-                                                child: child
-                                            )*/
                                         ),
-                                    child: _page
+                                    child: _page  = _page ??= new RepaintBoundary(
+                                        key: widget.route._subtreeKey, // immutable
+                                        child: new Builder(
+                                            builder: (BuildContext context2) =>{
+                                                return widget.route.buildPage(
+                                                    context2,
+                                                    widget.route.animation,
+                                                    widget.route.secondaryAnimation
+                                                );
+                                            }
+                                        )
+                                    )
                                 )
                             )
                         )
@@ -611,8 +627,6 @@ namespace Unity.UIWidgets.widgets {
         public static Color _kTransparent = new Color(0x00000000);
 
         public static ModalRoute of(BuildContext context) {
-            //_ModalScopeStatus widget = (_ModalScopeStatus) context.inheritFromWidgetOfExactType(typeof(_ModalScopeStatus));
-            //return (ModalRoute<T>) widget?.route;
             _ModalScopeStatus widget = context.dependOnInheritedWidgetOfExactType<_ModalScopeStatus>();
             return widget?.route as ModalRoute;
         }
@@ -664,10 +678,7 @@ namespace Unity.UIWidgets.widgets {
             }
             base.didAdd();
         }
-        /*public override void dispose() {
-            focusScopeNode.detach();
-            base.dispose();
-        }*/
+        
 
         public virtual bool barrierDismissible { get; }
         
@@ -760,7 +771,6 @@ namespace Unity.UIWidgets.widgets {
 
         protected internal override void changedExternalState() {
             base.changedExternalState();
-            //_scopeKey.currentState?._forceRebuildPage();
             if (_scopeKey.currentState != null)
                 _scopeKey.currentState._forceRebuildPage();
         }
@@ -773,8 +783,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly GlobalKey<_ModalScopeState> _scopeKey = new LabeledGlobalKey<_ModalScopeState>();
         internal readonly GlobalKey _subtreeKey = GlobalKey.key();
         internal readonly PageStorageBucket _storageBucket = new PageStorageBucket();
-
-        //static readonly Animatable<float> _easeCurveTween = new CurveTween(curve: Curves.ease);
+        
         OverlayEntry _modalBarrier;
 
         Widget _buildModalBarrier(BuildContext context) {
@@ -817,14 +826,10 @@ namespace Unity.UIWidgets.widgets {
         public Widget _modalScopeCache;
 
         public virtual Widget _buildModalScope(BuildContext context) {
-            return _modalScopeCache = _modalScopeCache ?? new _ModalScope(
-                key: _scopeKey,
-                route: this
-                // _ModalScope calls buildTransitions() and buildChild(), defined above
-            );
+            return _modalScopeCache = _modalScopeCache ?? new _ModalScope(key: _scopeKey, route: this);
         }
 
-        public override ICollection<OverlayEntry> createOverlayEntries() {
+        public override IEnumerable<OverlayEntry> createOverlayEntries() {
             _modalBarrier = new OverlayEntry(builder: _buildModalBarrier);
             var content = new OverlayEntry(
                 builder: _buildModalScope, maintainState: maintainState
@@ -868,11 +873,7 @@ namespace Unity.UIWidgets.widgets {
             
         }
         public override Widget _buildModalScope(BuildContext context) {
-            return _modalScopeCache = _modalScopeCache ?? new _ModalScope<T>(
-                key: _scopeKey,
-                route: this
-                // _ModalScope calls buildTransitions() and buildChild(), defined above
-            );
+            return _modalScopeCache = _modalScopeCache ?? new _ModalScope<T>(key: _scopeKey, route: this);
         }
 
         
@@ -941,10 +942,8 @@ namespace Unity.UIWidgets.widgets {
                     }
                 }
 
-                var subscribers =_listeners.getOrDefault((R) route);
-               /* foreach (var key in _listeners.Keys) {
-                    subscribers.Add(_listeners[key].ToList());
-                }*/
+                var subscribers =_listeners.getOrDefault((R) route).ToList();
+               
                 if (subscribers != null) {
                     foreach (RouteAware routeAware in subscribers) {
                         routeAware.didPop();

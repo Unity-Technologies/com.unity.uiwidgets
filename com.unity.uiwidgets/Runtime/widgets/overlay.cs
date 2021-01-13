@@ -49,7 +49,7 @@ namespace Unity.UIWidgets.widgets {
 
         internal OverlayState _overlay;
 
-        internal readonly GlobalKey<_OverlayEntryWidgetState> _key = new LabeledGlobalKey<_OverlayEntryWidgetState>();
+        internal readonly GlobalKey<_OverlayEntryWidgetState> _key = GlobalKey<_OverlayEntryWidgetState>.key();//new LabeledGlobalKey<_OverlayEntryWidgetState>();
 
         public void remove() {
             D.assert(_overlay != null);
@@ -74,7 +74,10 @@ namespace Unity.UIWidgets.widgets {
 
 
     class _OverlayEntryWidget : StatefulWidget {
-        internal _OverlayEntryWidget(Key key, OverlayEntry entry, bool tickerEnabled = true) : base(key: key) {
+        internal _OverlayEntryWidget(
+            Key key, 
+            OverlayEntry entry, 
+            bool tickerEnabled = true) : base(key: key) {
             D.assert(key != null);
             D.assert(entry != null);
             this.entry = entry;
@@ -91,7 +94,10 @@ namespace Unity.UIWidgets.widgets {
 
     class _OverlayEntryWidgetState : State<_OverlayEntryWidget> {
         public override Widget build(BuildContext context) {
-            return widget.entry.builder(context);
+            return new TickerMode(
+                enabled: widget.tickerEnabled,
+                child: widget.entry.builder(context)
+            );
         }
 
         internal void _markNeedsBuild() {
@@ -102,15 +108,23 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class Overlay : StatefulWidget {
-        public Overlay(Key key = null, List<OverlayEntry> initialEntries = null) : base(key) {
+        public Overlay(
+            Key key = null, 
+            List<OverlayEntry> initialEntries = null) : base(key) {
             D.assert(initialEntries != null);
             this.initialEntries = initialEntries;
         }
 
         public readonly List<OverlayEntry> initialEntries;
 
-        public static OverlayState of(BuildContext context, Widget debugRequiredFor = null) {
-            OverlayState result = (OverlayState) context.ancestorStateOfType(new TypeMatcher<OverlayState>());
+        public static OverlayState of(
+            BuildContext context, 
+            bool rootOverlay = false,
+            Widget debugRequiredFor = null) {
+           
+            OverlayState result = rootOverlay
+                ? context.findRootAncestorStateOfType<OverlayState>()
+                : context.findAncestorStateOfType<OverlayState>();
             D.assert(() => {
                 if (debugRequiredFor != null && result == null) {
                     var additional = context.widget != debugRequiredFor
@@ -121,7 +135,7 @@ namespace Unity.UIWidgets.widgets {
                         $"{debugRequiredFor.GetType()} widgets require an Overlay widget ancestor for correct operation.\n" +
                         "The most common way to add an Overlay to an application is to include a MaterialApp or Navigator widget in the runApp() call.\n" +
                         "The specific widget that failed to find an overlay was:\n" +
-                        $"  {debugRequiredFor}" +
+                        //$"  {debugRequiredFor}" +
                         $"{additional}"
                     );
                 }
@@ -197,15 +211,6 @@ namespace Unity.UIWidgets.widgets {
         {
             List<OverlayEntry> newEntriesList =
                 newEntries is List<OverlayEntry> ? (newEntries as List<OverlayEntry>) : newEntries.ToList();
-            /*D.assert(above == null || below == null, () => "Only one of `above` and `below` may be specified.");
-            D.assert(above == null || (above._overlay == this && _entries.Contains(above)),
-                () => "The provided entry for `above` is not present in the Overlay.");
-            D.assert(below == null || (below._overlay == this && _entries.Contains(below)),
-                () => "The provided entry for `below` is not present in the Overlay.");
-            D.assert(newEntriesList.All(entry => !_entries.Contains(entry)),
-                () => "One or more of the specified entries are already present in the Overlay.");
-            D.assert(newEntriesList.All(entry => entry._overlay == null),
-                () => "One or more of the specified entries are already present in another Overlay.");*/
             D.assert(
                 above == null || below == null,
                 ()=>"Only one of `above` and `below` may be specified."
@@ -255,7 +260,6 @@ namespace Unity.UIWidgets.widgets {
                 foreach (OverlayEntry entry in newEntriesList) {
                     old.Remove(entry);
                 }
-
                 _entries.InsertRange(_insertionIndex(below, above), old);
             });
         }
@@ -318,20 +322,19 @@ namespace Unity.UIWidgets.widgets {
             return new _Theatre(
                 skipCount: children.Count - onstageCount,
                 children: children.ToList()
-                // onstage: new Stack(
-                //     fit: StackFit.expand,
-                //     children: onstageChildren
-                // ),
-                // offstage: offstageChildren
             );
+        }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<List<OverlayEntry>>("entries", _entries));
         }
     }
 
     class _Theatre : MultiChildRenderObjectWidget {
-        internal _Theatre(Key key = null,
+        internal _Theatre(
+            Key key = null,
             int skipCount = 0,
             List<Widget> children = null) : base(key, children) {
-            D.assert(skipCount != null);
             D.assert(skipCount >= 0);
             D.assert(children != null);
             D.assert(children.Count() >= skipCount);
@@ -358,6 +361,11 @@ namespace Unity.UIWidgets.widgets {
             renderObject.skipCount = skipCount;
             renderObject.textDirection = Directionality.of(context);
         }
+        
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new IntProperty("skipCount", skipCount));
+        }
     }
 
     class _TheatreElement : MultiChildRenderObjectElement {
@@ -379,104 +387,6 @@ namespace Unity.UIWidgets.widgets {
             }
         }
     }
-
-    // Element _onstage;
-    //     static readonly object _onstageSlot = new object();
-    //
-    //     List<Element> _offstage;
-    //     readonly HashSet<Element> _forgottenOffstageChildren = new HashSet<Element>();
-    //
-    //     protected override void insertChildRenderObject(RenderObject child, object slot) {
-    //         D.assert(this.renderObject.debugValidateChild(child));
-    //         if (slot == _onstageSlot) {
-    //             D.assert(child is RenderStack);
-    //             this.renderObject.child = (RenderStack) child;
-    //         }
-    //         else {
-    //             D.assert(slot == null || slot is Element);
-    //             this.renderObject.insert((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
-    //         }
-    //     }
-    //
-    //     protected override void moveChildRenderObject(RenderObject child, object slot) {
-    //         if (slot == _onstageSlot) {
-    //             this.renderObject.remove((RenderBox) child);
-    //             D.assert(child is RenderStack);
-    //             this.renderObject.child = (RenderStack) child;
-    //         }
-    //         else {
-    //             D.assert(slot == null || slot is Element);
-    //             if (this.renderObject.child == child) {
-    //                 this.renderObject.child = null;
-    //                 this.renderObject.insert((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
-    //             }
-    //             else {
-    //                 this.renderObject.move((RenderBox) child, after: (RenderBox) ((Element) slot)?.renderObject);
-    //             }
-    //         }
-    //     }
-    //
-    //     protected override void removeChildRenderObject(RenderObject child) {
-    //         if (this.renderObject.child == child) {
-    //             this.renderObject.child = null;
-    //         }
-    //         else {
-    //             this.renderObject.remove((RenderBox) child);
-    //         }
-    //     }
-    //
-    //     public override void visitChildren(ElementVisitor visitor) {
-    //         if (this._onstage != null) {
-    //             visitor(this._onstage);
-    //         }
-    //
-    //         foreach (var child in this._offstage) {
-    //             if (!this._forgottenOffstageChildren.Contains(child)) {
-    //                 visitor(child);
-    //             }
-    //         }
-    //     }
-    //
-    //     // public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-    //     //     if (this._onstage != null) {
-    //     //         visitor(this._onstage);
-    //     //     }
-    //     // }
-    //
-    //
-    //     protected override void forgetChild(Element child) {
-    //         if (child == this._onstage) {
-    //             this._onstage = null;
-    //         }
-    //         else {
-    //             D.assert(this._offstage.Contains(child));
-    //             D.assert(!this._forgottenOffstageChildren.Contains(child));
-    //             this._forgottenOffstageChildren.Add(child);
-    //         }
-    //     }
-    //
-    //     public override void mount(Element parent, object newSlot) {
-    //         base.mount(parent, newSlot);
-    //         this._onstage = this.updateChild(this._onstage, this.widget.onstage, _onstageSlot);
-    //         this._offstage = new List<Element>(this.widget.offstage.Count);
-    //         Element previousChild = null;
-    //         for (int i = 0; i < this._offstage.Count; i += 1) {
-    //             var newChild = this.inflateWidget(this.widget.offstage[i], previousChild);
-    //             this._offstage[i] = newChild;
-    //             previousChild = newChild;
-    //         }
-    //     }
-    //
-    //     public override void update(Widget newWidget) {
-    //         base.update(newWidget);
-    //         D.assert(Equals(this.widget, newWidget));
-    //         this._onstage = this.updateChild(this._onstage, this.widget.onstage, _onstageSlot);
-    //         this._offstage = this.updateChildren(this._offstage, this.widget.offstage,
-    //             forgottenChildren: this._forgottenOffstageChildren);
-    //         this._forgottenOffstageChildren.Clear();
-    //     }
-    // }
-
     class _RenderTheatre :
         ContainerRenderObjectMixinRenderProxyBoxMixinRenderObjectWithChildMixinRenderBoxRenderStack<
             RenderBox, StackParentData> {
@@ -485,21 +395,27 @@ namespace Unity.UIWidgets.widgets {
             List<RenderBox> children = null,
             int skipCount = 0
         ) {
-            D.assert(skipCount != null);
             D.assert(skipCount >= 0);
-            D.assert(textDirection != null);
             _textDirection = textDirection;
             _skipCount = skipCount;
             addAll(children);
         }
 
         bool _hasVisualOverflow = false;
+        
+        public override void setupParentData(RenderObject child) {
+            if (!(child.parentData is StackParentData)) {
+                child.parentData = new StackParentData();
+            }
+        }
 
         Alignment _resolvedAlignment;
 
         void _resolve() {
             if (_resolvedAlignment != null)
                 return;
+            //_resolvedAlignment = AlignmentDirectional.topStart.resolve(textDirection);
+        
             // TODO: AlignmentDirectional
             Alignment al = Alignment.topLeft;
             switch (textDirection) {
@@ -544,7 +460,7 @@ namespace Unity.UIWidgets.widgets {
 
         RenderBox _firstOnstageChild {
             get {
-                if (skipCount == childCount) {
+                if (skipCount == base.childCount) {
                     return null;
                 }
 
@@ -559,11 +475,14 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public override void setupParentData(RenderObject child) {
-            if (!(child.parentData is StackParentData)) {
-                child.parentData = new StackParentData();
-            }
+        RenderBox _lastOnstageChild {
+            get { return skipCount == childCount ? null : lastChild; }
         }
+
+        int _onstageChildCount {
+            get { return childCount - skipCount; }
+        }
+
 
         public override void redepthChildren() {
             if (child != null) {
@@ -582,51 +501,58 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {
-            var children = new List<DiagnosticsNode>();
+            List<DiagnosticsNode> offstageChildren = new List<DiagnosticsNode>();
+            List<DiagnosticsNode> onstageChildren = new List<DiagnosticsNode>();
 
-            if (this.child != null) {
-                children.Add(child.toDiagnosticsNode(name: "onstage"));
-            }
+            int count = 1;
+            bool onstage = false;
+            RenderBox child = firstChild;
+            RenderBox firstOnstageChild = _firstOnstageChild;
+            while (child != null) {
+                if (child == firstOnstageChild) {
+                    onstage = true;
+                    count = 1;
+                }
 
-            if (firstChild != null) {
-                var child = firstChild;
-
-                int count = 1;
-                while (true) {
-                    children.Add(
+                if (onstage) {
+                    onstageChildren.Add(
+                        child.toDiagnosticsNode(
+                            name: $"onstage {count}"
+                        )
+                    );
+                } else {
+                    offstageChildren.Add(
                         child.toDiagnosticsNode(
                             name: $"offstage {count}",
                             style: DiagnosticsTreeStyle.offstage
                         )
                     );
-                    if (child == lastChild) {
-                        break;
-                    }
+                }
 
-                    var childParentData = (StackParentData) child.parentData;
-                    child = childParentData.nextSibling;
-                    count += 1;
+                StackParentData childParentData = child.parentData as StackParentData;
+                child = childParentData.nextSibling;
+                count += 1;
+            }
+
+
+            if (offstageChildren.isNotEmpty()) {
+                foreach (var stagechild in offstageChildren) {
+                    onstageChildren.Add(stagechild);
                 }
             }
             else {
-                children.Add(
-                    DiagnosticsNode.message(
-                        "no offstage children",
-                        style: DiagnosticsTreeStyle.offstage
-                    )
-                );
+                onstageChildren.Add(DiagnosticsNode.message(
+                    "no offstage children",
+                    style: DiagnosticsTreeStyle.offstage
+                ));
             }
 
-            return children;
+            return onstageChildren;
+
+
         }
 
-        RenderBox _lastOnstageChild {
-            get { return skipCount == childCount ? null : lastChild; }
-        }
-
-        int _onstageChildCount {
-            get { return childCount - skipCount; }
-        }
+       
 
         protected internal override float computeMinIntrinsicWidth(float height) {
             return RenderStack.getIntrinsicDimension(_firstOnstageChild,
@@ -718,11 +644,6 @@ namespace Unity.UIWidgets.widgets {
             for (int i = 0; i < _onstageChildCount; i++) {
                 D.assert(child != null);
                 StackParentData childParentData = child.parentData as StackParentData;
-
-                if (childParentData.offset.dx != 0 || childParentData.offset.dy != 0) {
-                    i = i;
-                }
-
                 bool isHit = result.addWithPaintOffset(
                     offset: childParentData.offset,
                     position: position,
