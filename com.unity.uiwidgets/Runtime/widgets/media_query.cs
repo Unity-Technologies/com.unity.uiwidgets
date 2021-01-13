@@ -63,13 +63,13 @@ namespace Unity.UIWidgets.widgets {
                 viewPadding : EdgeInsets.fromWindowPadding(window.viewPadding, window.devicePixelRatio),
                 viewInsets: EdgeInsets.fromWindowPadding(window.viewInsets, window.devicePixelRatio),
                 systemGestureInsets : EdgeInsets.fromWindowPadding(window.systemGestureInsets, window.devicePixelRatio),
-                physicalDepth : window.physicalDepth
-               // accessibleNavigation: window.accessibilityFeatures.accessibleNavigation,
-               // invertColors: window.accessibilityFeatures.invertColors,
-               // disableAnimations: window.accessibilityFeatures.disableAnimations,
-               // boldText: window.accessibilityFeatures.boldText,
-               // highContrast : window.accessibilityFeatures.highContrast,
-                //alwaysUse24HourFormat: window.alwaysUse24HourFormat
+                physicalDepth : window.physicalDepth,
+                accessibleNavigation: window.accessibilityFeatures.accessibleNavigation,
+                invertColors: window.accessibilityFeatures.invertColors,
+                disableAnimations: window.accessibilityFeatures.disableAnimations,
+                boldText: window.accessibilityFeatures.boldText,
+                highContrast : window.accessibilityFeatures.highContrast,
+                alwaysUse24HourFormat: window.alwaysUse24HourFormat
             );
         }
 
@@ -424,7 +424,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(context != null);
             //MediaQuery query = context.dependOnInheritedWidgetOfExactType<MediaQuery>();
 
-            MediaQuery query = (MediaQuery) context.inheritFromWidgetOfExactType(typeof(MediaQuery));
+            MediaQuery query = (MediaQuery) context.dependOnInheritedWidgetOfExactType<MediaQuery>();
             if (query != null) {
                 return query.data;
             }
