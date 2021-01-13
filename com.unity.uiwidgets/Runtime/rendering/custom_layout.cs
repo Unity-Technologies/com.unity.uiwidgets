@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public abstract class MultiChildLayoutDelegate {
-        MultiChildLayoutDelegate(Listenable relayout = null) {
+        protected MultiChildLayoutDelegate(Listenable relayout = null) {
             _relayout = relayout;
         }
         public readonly Listenable _relayout;
