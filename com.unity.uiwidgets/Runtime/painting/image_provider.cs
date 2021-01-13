@@ -14,6 +14,7 @@ using Codec = Unity.UIWidgets.ui.Codec;
 using Image = Unity.UIWidgets.ui.Image;
 using Locale = Unity.UIWidgets.ui.Locale;
 using Object = UnityEngine.Object;
+using Path = System.IO.Path;
 using TextDirection = Unity.UIWidgets.ui.TextDirection;
 using Window = Unity.UIWidgets.ui.Window;
 
@@ -197,29 +198,31 @@ namespace Unity.UIWidgets.painting {
                     resolveStreamForKey(configuration, stream, successKey, (Exception e) => errorHandler(e));
                 },
                 (T key, Exception exception) => {
-                    // await null; // wait an event turn in case a listener has been added to the image stream.
-                    _ErrorImageCompleter imageCompleter = new _ErrorImageCompleter();
-                    stream.setCompleter(imageCompleter);
-                    InformationCollector collector = null;
-                    D.assert(() => {
-                        IEnumerable<DiagnosticsNode> infoCollector() {
-                            yield return new DiagnosticsProperty<ImageProvider>("Image provider", this);
-                            yield return new DiagnosticsProperty<ImageConfiguration>("Image configuration",
-                                configuration);
-                            yield return new DiagnosticsProperty<T>("Image key", key, defaultValue: null);
-                        }
+                    Timer.run(() => {
+                        _ErrorImageCompleter imageCompleter = new _ErrorImageCompleter();
+                        stream.setCompleter(imageCompleter);
+                        InformationCollector collector = null;
+                        D.assert(() => {
+                            IEnumerable<DiagnosticsNode> infoCollector() {
+                                yield return new DiagnosticsProperty<ImageProvider>("Image provider", this);
+                                yield return new DiagnosticsProperty<ImageConfiguration>("Image configuration",
+                                    configuration);
+                                yield return new DiagnosticsProperty<T>("Image key", key, defaultValue: null);
+                            }
 
-                        collector = infoCollector;
-                        return true;
+                            collector = infoCollector;
+                            return true;
+                        });
+                        imageCompleter.setError(
+                            exception: exception,
+                            stack: exception.StackTrace,
+                            context: new ErrorDescription("while resolving an image"),
+                            silent: true, // could be a network error or whatnot
+                            informationCollector: collector
+                        );
+                        return null;
                     });
-                    imageCompleter.setError(
-                        exception: exception,
-                        stack: exception.StackTrace,
-                        context: new ErrorDescription("while resolving an image"),
-                        silent: true, // could be a network error or whatnot
-                        informationCollector: collector
-                    );
-                    return Future.value();
+                   return null;
                 }
             );
 
@@ -228,9 +231,7 @@ namespace Unity.UIWidgets.painting {
 
         void resolveStreamForKey(ImageConfiguration configuration, ImageStream stream, T key,
             ImageErrorListener handleError) {
-            // This is an unusual edge case where someone has told us that they found
-            // the image we want before getting to this method. We should avoid calling
-            // load again, but still update the image cache with LRU information.
+            
             if (stream.completer != null) {
                 ImageStreamCompleter completerEdge = PaintingBinding.instance.imageCache.putIfAbsent(
                     key,
@@ -282,14 +283,6 @@ namespace Unity.UIWidgets.painting {
                 didError = true;
             };
 
-            // If an error is added to a synchronous completer before a listener has been
-            // added, it can throw an error both into the zone and up the stack. Thus, it
-            // looks like the error has been caught, but it is in fact also bubbling to the
-            // zone. Since we cannot prevent all usage of Completer.sync here, or rather
-            // that changing them would be too breaking, we instead hook into the same
-            // zone mechanism to intercept the uncaught error and deliver it to the
-            // image stream's error handler. Note that these errors may be duplicated,
-            // hence the need for the `didError` flag.
             Zone dangerZone = Zone.current.fork(
                 specification: new ZoneSpecification(
                     handleUncaughtError: (Zone self, ZoneDelegate parent, Zone zone, Exception error) => {
@@ -638,7 +631,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
-            byte[] bytes = File.ReadAllBytes("Assets/StreamingAssets/" + key.file);
+            byte[] bytes = File.ReadAllBytes(Path.Combine(Application.streamingAssetsPath, key.file));
             if (bytes != null && bytes.Length > 0 ) {
                 return decode(bytes);
             }

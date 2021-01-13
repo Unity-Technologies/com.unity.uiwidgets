@@ -223,7 +223,7 @@ GameObject:
   m_Component:
   - component: {fileID: 847097469}
   - component: {fileID: 847097471}
-  - component: {fileID: 847097472}
+  - component: {fileID: 847097470}
   m_Layer: 5
   m_Name: RawImage
   m_TagString: Untagged
@@ -250,15 +250,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &847097471
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 847097468}
-  m_CullTransparentMesh: 0
---- !u!114 &847097472
+--- !u!114 &847097470
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -267,7 +259,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 847097468}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 169ec79ce040653478e1a7725f34bbe1, type: 3}
+  m_Script: {fileID: 11500000, guid: f34989adbb4345fda4362c56f72ae791, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -284,27 +276,17 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
-  fonts:
-  - family: racher
-    fonts:
-    - asset: Ranchers-Regular.ttf
-      weight: 0
-  - family: roboto
-    fonts:
-    - asset: Roboto-Italic.ttf
-      weight: 0
-    - asset: Roboto-BlackItalic.ttf
-      weight: 900
-  - family: CupertinoIcons
-    fonts:
-    - asset: CupertinoIcons.ttf
-      weight: 0
-  - family: robotox
-    fonts:
-    - asset: Roboto-Italic.ttf
-      weight: 0
+  fonts: []
   devicePixelRatioOverride: 0
   hardwareAntiAliasing: 0
+--- !u!222 &847097471
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847097468}
+  m_CullTransparentMesh: 0
 --- !u!1 &1548023132
 GameObject:
   m_ObjectHideFlags: 0

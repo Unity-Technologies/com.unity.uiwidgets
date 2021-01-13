@@ -1589,13 +1589,11 @@ namespace Unity.UIWidgets.rendering {
         public void rotateX(float degrees) {
             _transform.rotateX(degrees);
             markNeedsPaint();
-            //2D, do nothing
         }
 
         public void rotateY(float degrees) {
             _transform.rotateY(degrees);
             markNeedsPaint();
-            //2D, do nothing
         }
 
         public void rotateZ(float degrees) {
