@@ -14,6 +14,10 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public abstract class MultiChildLayoutDelegate {
+        MultiChildLayoutDelegate(Listenable relayout = null) {
+            _relayout = relayout;
+        }
+        public readonly Listenable _relayout;
         Dictionary<object, RenderBox> _idToChild;
         HashSet<RenderBox> _debugChildrenNeedingLayout;
 
@@ -42,12 +46,16 @@ namespace Unity.UIWidgets.rendering {
                     D.assert(constraints.debugAssertIsValid(isAppliedConstraint: true));
                 }
                 catch (AssertionError exception) {
-                    throw new UIWidgetsError(
-                        $"The {this} custom multichild layout delegate provided invalid box constraints for the child with id \"{childId}\".\n" +
-                        $"{exception}n" +
-                        "The minimum width and height must be greater than or equal to zero.\n" +
-                        "The maximum width must be greater than or equal to the minimum width.\n" +
-                        "The maximum height must be greater than or equal to the minimum height.");
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary(
+                            $"The $this custom multichild layout delegate provided invalid box constraints for the child with id {childId}."),
+                        new DiagnosticsProperty<AssertionError>("Exception", exception, showName: false),
+                        new ErrorDescription(
+                            "The minimum width and height must be greater than or equal to zero.\n" +
+                            "The maximum width must be greater than or equal to the minimum width.\n" +
+                            "The maximum height must be greater than or equal to the minimum height."
+                        )
+                    });
                 }
 
                 return true;
@@ -78,9 +86,9 @@ namespace Unity.UIWidgets.rendering {
             childParentData.offset = offset;
         }
 
-        string _debugDescribeChild(RenderBox child) {
+        DiagnosticsNode _debugDescribeChild(RenderBox child) {
             MultiChildLayoutParentData childParentData = (MultiChildLayoutParentData) child.parentData;
-            return $"{childParentData.id}: {child}";
+            return new DiagnosticsProperty<RenderBox>($"{childParentData.id}", child);
         }
 
 
@@ -101,11 +109,10 @@ namespace Unity.UIWidgets.rendering {
                     MultiChildLayoutParentData childParentData = (MultiChildLayoutParentData) child.parentData;
                     D.assert(() => {
                         if (childParentData.id == null) {
-                            throw new UIWidgetsError(
-                                "The following child has no ID:\n" +
-                                $"  {child}\n" +
-                                "Every child of a RenderCustomMultiChildLayoutBox must have an ID in its parent data."
-                            );
+                            throw new UIWidgetsError(new List<DiagnosticsNode>{
+                                new ErrorSummary("Every child of a RenderCustomMultiChildLayoutBox must have an ID in its parent data."),
+                                child.describeForError("The following child has no ID")
+                            });
                         }
 
                         return true;
@@ -120,21 +127,20 @@ namespace Unity.UIWidgets.rendering {
 
                 performLayout(size);
                 D.assert(() => {
+                    List<DiagnosticsNode> renderBoxes = new List<DiagnosticsNode>();
+                    foreach (var renderBox in _debugChildrenNeedingLayout) {
+                        renderBoxes.Add(_debugDescribeChild(renderBox));
+                    }
                     if (_debugChildrenNeedingLayout.isNotEmpty()) {
-                        if (_debugChildrenNeedingLayout.Count > 1) {
-                            throw new UIWidgetsError(
-                                $"The $this custom multichild layout delegate forgot to lay out the following children:\n" +
-                                $"  {string.Join("\n  ", _debugChildrenNeedingLayout.Select(_debugDescribeChild))}\n" +
-                                "Each child must be laid out exactly once."
-                            );
-                        }
-                        else {
-                            throw new UIWidgetsError(
-                                $"The $this custom multichild layout delegate forgot to lay out the following child:\n" +
-                                $"  {_debugDescribeChild(_debugChildrenNeedingLayout.First())}\n" +
-                                "Each child must be laid out exactly once."
-                            );
-                        }
+                        throw new UIWidgetsError(new List<DiagnosticsNode>{
+                            new ErrorSummary("Each child must be laid out exactly once."),
+                            new DiagnosticsBlock(
+                                name: "The $this custom multichild layout delegate forgot " +
+                                      "to lay out the following child(ren)",
+                                properties: renderBoxes,
+                                style: DiagnosticsTreeStyle.whitespace
+                            )
+                        });
                     }
 
                     return true;
@@ -189,17 +195,29 @@ namespace Unity.UIWidgets.rendering {
                 if (_delegate == value) {
                     return;
                 }
-
-                if (value.GetType() != _delegate.GetType() || value.shouldRelayout(_delegate)) {
+                MultiChildLayoutDelegate oldDelegate = _delegate;
+                if (value.GetType() != oldDelegate.GetType() || value.shouldRelayout(oldDelegate)) {
                     markNeedsLayout();
                 }
-
                 _delegate = value;
+                if (attached) {
+                    oldDelegate?._relayout?.removeListener(markNeedsLayout);
+                    value?._relayout?.addListener(markNeedsLayout);
+                }
             }
         }
 
         MultiChildLayoutDelegate _delegate;
+        
+        /*public override void attach(PipelineOwner owner) {
+            base.attach(owner);
+            _delegate?._relayout?.addListener(markNeedsLayout);
+        }
 
+        public override void detach() {
+            _delegate?._relayout?.removeListener(markNeedsLayout);
+            base.detach();
+        }*/
 
         Size _getSize(BoxConstraints constraints) {
             D.assert(constraints.debugAssertIsValid());
@@ -251,7 +269,7 @@ namespace Unity.UIWidgets.rendering {
             defaultPaint(context, offset);
         }
 
-        protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             return defaultHitTestChildren(result, position: position);
         }
     }

@@ -1420,7 +1420,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
         
-        protected DiagnosticsNode describeForError(String name, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.shallow) {
+        public DiagnosticsNode describeForError(String name, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.shallow) {
             return toDiagnosticsNode(name: name, style: style);
         }
     }
