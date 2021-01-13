@@ -347,7 +347,7 @@ namespace Unity.UIWidgets.widgets {
 
                 return new Stack(
                     fit: StackFit.passthrough,
-                    alignment: AlignmentDirectional.center,
+                    alignment: Alignment.center,//AlignmentDirectional.center,[!!!]
                     textDirection: TextDirection.ltr,
                     children: new List<Widget>() {
                         target,

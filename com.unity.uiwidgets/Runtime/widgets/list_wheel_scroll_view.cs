@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
@@ -182,7 +184,7 @@ namespace Unity.UIWidgets.widgets {
                 return null;
             }
             List<Future> futures = new List<Future>();
-            foreach (_FixedExtentScrollPosition position in positions) {
+            foreach (_FixedExtentScrollPosition position in positions.Cast<_FixedExtentScrollPosition>()) {
                 futures.Add(position.animateTo(
                     itemIndex * position.itemExtent,
                     duration: duration,
@@ -435,6 +437,8 @@ namespace Unity.UIWidgets.widgets {
             float offAxisFraction = 0.0f,
             bool useMagnifier = false,
             float magnification = 1.0f,
+            float overAndUnderCenterOpacity = 1.0f,
+            float squeeze = 1.0f,
             ValueChanged<int> onSelectedItemChanged = null,
             bool clipToSize = true,
             bool renderChildrenOutsideViewport = false,
@@ -445,14 +449,20 @@ namespace Unity.UIWidgets.widgets {
             D.assert(perspective > 0);
             D.assert(perspective <= 0.01f, () => RenderListWheelViewport.perspectiveTooHighMessage);
             D.assert(magnification > 0);
+            D.assert(overAndUnderCenterOpacity != null);
+            D.assert(overAndUnderCenterOpacity >= 0 && overAndUnderCenterOpacity <= 1);
             D.assert(itemExtent > 0);
+            D.assert(squeeze != null);
+            D.assert(squeeze > 0);
             D.assert(
                 !renderChildrenOutsideViewport || !clipToSize,
                 () => RenderListWheelViewport.clipToSizeAndRenderChildrenOutsideViewportConflict
             );
 
             this.childDelegate = childDelegate ?? new ListWheelChildListDelegate(children: children);
+            this.overAndUnderCenterOpacity = overAndUnderCenterOpacity;
             this.itemExtent = itemExtent;
+            this.squeeze = squeeze;
             this.controller = controller;
             this.physics = physics;
             this.diameterRatio = diameterRatio;
@@ -467,6 +477,8 @@ namespace Unity.UIWidgets.widgets {
 
         public static ListWheelScrollView useDelegate(
             float itemExtent,
+            float overAndUnderCenterOpacity = 1.0f,
+            float squeeze = 1.0f,
             List<Widget> children = null,
             ListWheelChildDelegate childDelegate = null,
             Key key = null,
@@ -507,6 +519,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool useMagnifier;
         public readonly float magnification;
         public readonly float itemExtent;
+        public readonly float overAndUnderCenterOpacity;
+        public readonly float squeeze;
         public readonly ValueChanged<int> onSelectedItemChanged;
         public readonly bool clipToSize;
         public readonly bool renderChildrenOutsideViewport;
@@ -567,7 +581,9 @@ namespace Unity.UIWidgets.widgets {
                             offAxisFraction: widget.offAxisFraction,
                             useMagnifier: widget.useMagnifier,
                             magnification: widget.magnification,
+                            overAndUnderCenterOpacity: widget.overAndUnderCenterOpacity,
                             itemExtent: widget.itemExtent,
+                            squeeze: widget.squeeze,
                             clipToSize: widget.clipToSize,
                             renderChildrenOutsideViewport: widget.renderChildrenOutsideViewport,
                             offset: _offset,
@@ -716,6 +732,7 @@ namespace Unity.UIWidgets.widgets {
 
         internal override void forgetChild(Element child) {
             _childElements.Remove((int) (child.slot));
+            base.forgetChild(child);
         }
     }
 
@@ -731,13 +748,17 @@ namespace Unity.UIWidgets.widgets {
             bool useMagnifier = false,
             float magnification = 1.0f,
             bool clipToSize = true,
-            bool renderChildrenOutsideViewport = false
+            bool renderChildrenOutsideViewport = false,
+            float overAndUnderCenterOpacity = 1.0f,
+            float squeeze = 1.0f
         ) : base(key: key) {
             D.assert(childDelegate != null);
             D.assert(offset != null);
             D.assert(diameterRatio > 0, () => RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(perspective > 0);
             D.assert(perspective <= 0.01, () => RenderListWheelViewport.perspectiveTooHighMessage);
+            D.assert(overAndUnderCenterOpacity != null);
+            D.assert(overAndUnderCenterOpacity >= 0 && overAndUnderCenterOpacity <= 1);
             D.assert(itemExtent > 0);
             D.assert(
                 !renderChildrenOutsideViewport || !clipToSize,
@@ -754,6 +775,8 @@ namespace Unity.UIWidgets.widgets {
             this.magnification = magnification;
             this.clipToSize = clipToSize;
             this.renderChildrenOutsideViewport = renderChildrenOutsideViewport;
+            this.overAndUnderCenterOpacity = overAndUnderCenterOpacity;
+            this.squeeze = squeeze;
         }
 
         public readonly float diameterRatio;
@@ -761,7 +784,9 @@ namespace Unity.UIWidgets.widgets {
         public readonly float offAxisFraction;
         public readonly bool useMagnifier;
         public readonly float magnification;
+        public readonly float overAndUnderCenterOpacity;
         public readonly float itemExtent;
+        public readonly float squeeze;
         public readonly bool clipToSize;
         public readonly bool renderChildrenOutsideViewport;
         public readonly ViewportOffset offset;
@@ -781,7 +806,9 @@ namespace Unity.UIWidgets.widgets {
                 offAxisFraction: offAxisFraction,
                 useMagnifier: useMagnifier,
                 magnification: magnification,
+                overAndUnderCenterOpacity: overAndUnderCenterOpacity,
                 itemExtent: itemExtent,
+                squeeze: squeeze,
                 clipToSize: clipToSize,
                 renderChildrenOutsideViewport: renderChildrenOutsideViewport
             );
@@ -795,7 +822,9 @@ namespace Unity.UIWidgets.widgets {
             viewport.offAxisFraction = offAxisFraction;
             viewport.useMagnifier = useMagnifier;
             viewport.magnification = magnification;
+            viewport.overAndUnderCenterOpacity = overAndUnderCenterOpacity;
             viewport.itemExtent = itemExtent;
+            viewport.squeeze = squeeze;
             viewport.clipToSize = clipToSize;
             viewport.renderChildrenOutsideViewport = renderChildrenOutsideViewport;
         }
