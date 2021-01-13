@@ -91,13 +91,18 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(()=> {
                     if (result.ContainsKey(tag)) {
                         throw new UIWidgetsError(
-                            "There are multiple heroes that share the same tag within a subtree.\n" +
-                            "Within each subtree for which heroes are to be animated (typically a PageRoute subtree), " +
-                            "each Hero must have a unique non-null tag.\n" +
-                            $"In this case, multiple heroes had the following tag: {tag}\n" +
-                            "Here is the subtree for one of the offending heroes:\n" +
-                            $"{hero.toStringDeep(prefixLineOne: "# ")}"
-                        );
+                            new List<DiagnosticsNode>()
+                            {
+                                new ErrorSummary("There are multiple heroes that share the same tag within a subtree."),
+                                new ErrorDescription(
+                                    "Within each subtree for which heroes are to be animated (i.e. a PageRoute subtree), "+
+                                "each Hero must have a unique non-null tag.\n"+
+                                $"In this case, multiple heroes had the following tag: {tag}\n"
+                                ),
+                                new DiagnosticsProperty<StatefulElement>("Here is the subtree for one of the offending heroes", hero, linePrefix: "# ", style: DiagnosticsTreeStyle.dense),
+
+                                
+                            });
                     }
                     return true;
                 });

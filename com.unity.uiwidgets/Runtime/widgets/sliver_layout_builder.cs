@@ -70,19 +70,32 @@ namespace Unity.UIWidgets.widgets {
             D.assert(() => {
                 if (!(child is RenderSliver)) {
                     throw new UIWidgetsError(
-                        "A " + GetType() + " expected a child of type " + typeof(RenderSliver) + " but received a " +
-                        "child of type " + child.GetType() + ".\n" +
-                        "RenderObjects expect specific types of children because they " +
-                        "coordinate with their children during layout and paint. For " +
-                        "example, a RenderSliver cannot be the child of a RenderBox because " +
-                        "a RenderSliver does not understand the RenderBox layout protocol.\n" +
-                        "\n" +
-                        "The " + GetType() + " that expected a " + typeof(RenderSliver) + " child was created by:\n" +
-                        "  " + debugCreator + "\n" +
-                        "\n" +
-                        "The " + child.GetType() + " that did not match the expected child type " +
-                        "was created by:\n" +
-                        "  " + child.debugCreator + "\n"
+                       new List<DiagnosticsNode>() {
+                           new ErrorSummary(
+                               $"A {GetType()} expected a child of type {typeof(RenderSliver)} but received a " +
+                           $"child of type {child.GetType()}."
+                           ),
+                           new ErrorDescription(
+                               "RenderObjects expect specific types of children because they " + 
+                           "coordinate with their children during layout and paint. For " + 
+                           "example, a RenderSliver cannot be the child of a RenderBox because " + 
+                           "a RenderSliver does not understand the RenderBox layout protocol."
+                           ),
+                           new ErrorSpacer(),
+                           new DiagnosticsProperty<object>(
+                               $"The {GetType()} that expected a {typeof(RenderSliver)} child was created by",
+                               debugCreator,
+                               style: DiagnosticsTreeStyle.errorProperty
+                           ),
+                           new ErrorSpacer(),
+                           new DiagnosticsProperty<dynamic>(
+                               $"The {child.GetType()} that did not match the expected child type " +
+                                    "was created by",
+                                    child.debugCreator,
+                                    style: DiagnosticsTreeStyle.errorProperty
+                           ),
+                           
+                       }
                     );
                 }
 

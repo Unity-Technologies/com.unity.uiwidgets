@@ -127,17 +127,20 @@ namespace Unity.UIWidgets.widgets {
                 : context.findAncestorStateOfType<OverlayState>();
             D.assert(() => {
                 if (debugRequiredFor != null && result == null) {
+                    
                     var additional = context.widget != debugRequiredFor
-                        ? $"\nThe context from which that widget was searching for an overlay was:\n  {context}"
-                        : "";
+                        ? context.describeElement($"\nThe context from which that widget was searching for an overlay was:\n  {context}")
+                        : context.describeElement("");
                     throw new UIWidgetsError(
-                        "No Overlay widget found.\n" +
-                        $"{debugRequiredFor.GetType()} widgets require an Overlay widget ancestor for correct operation.\n" +
-                        "The most common way to add an Overlay to an application is to include a MaterialApp or Navigator widget in the runApp() call.\n" +
-                        "The specific widget that failed to find an overlay was:\n" +
-                        //$"  {debugRequiredFor}" +
-                        $"{additional}"
-                    );
+                        new List<DiagnosticsNode>()
+                        {
+                            new ErrorSummary("No Overlay widget found."),
+                            new ErrorDescription($"{debugRequiredFor.GetType()} widgets require an Overlay widget ancestor for correct operation."),
+                            new ErrorHint("The most common way to add an Overlay to an application is to include a MaterialApp or Navigator widget in the runApp() call."),
+                            new DiagnosticsProperty<Widget>("The specific widget that failed to find an overlay was", debugRequiredFor, style: DiagnosticsTreeStyle.errorProperty),
+                            additional
+                        });
+                          
                 }
 
                 return true;

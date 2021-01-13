@@ -1594,11 +1594,14 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(() => {
                     if (widget.onUnknownRoute == null) {
                         throw new UIWidgetsError(
-                            "Navigator.onGenerateRoute returned null when requested to build route " + $"{name}." +
-                            "The onGenerateRoute callback must never return null, unless an onUnknownRoute " +
-                            "callback is provided as well." +
-                            new DiagnosticsProperty<NavigatorState>("The Navigator was", this,
-                                style: DiagnosticsTreeStyle.errorProperty)
+                           new List<DiagnosticsNode>() {
+                               new ErrorSummary($"Navigator.onGenerateRoute returned null when requested to build route \"{name}\"."),
+                               new ErrorDescription(
+                                   "The onGenerateRoute callback must never return null, unless an onUnknownRoute "+
+                               "callback is provided as well."
+                               ),
+                               new DiagnosticsProperty<NavigatorState>("The Navigator was", this, style: DiagnosticsTreeStyle.errorProperty),
+                           }
                         );
                     }
 
@@ -1608,10 +1611,12 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(() => {
                     if (route == null) {
                         throw new UIWidgetsError(
-                            "Navigator.onUnknownRoute returned null when requested to build route " + $"{name}." +
-                            "The onUnknownRoute callback must never return null." +
-                            new DiagnosticsProperty<NavigatorState>("The Navigator was", this,
-                                style: DiagnosticsTreeStyle.errorProperty)
+                            new List<DiagnosticsNode>() {
+                                new ErrorSummary($"Navigator.onUnknownRoute returned null when requested to build route \"{name}\"."),
+                                new ErrorDescription("The onUnknownRoute callback must never return null."),
+                                new DiagnosticsProperty<NavigatorState>("The Navigator was", this, style: DiagnosticsTreeStyle.errorProperty),
+
+                            }
                         );
                     }
 

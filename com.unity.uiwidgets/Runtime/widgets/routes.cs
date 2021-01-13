@@ -581,7 +581,7 @@ namespace Unity.UIWidgets.widgets {
                                                 child: child
                                              )
                                         ),
-                                    child: _page  = _page ??= new RepaintBoundary(
+                                    child: _page  = _page ?? new RepaintBoundary(
                                         key: widget.route._subtreeKey, // immutable
                                         child: new Builder(
                                             builder: (BuildContext context2) =>{
