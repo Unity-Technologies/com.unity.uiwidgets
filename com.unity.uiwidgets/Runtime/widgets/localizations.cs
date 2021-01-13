@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
@@ -204,7 +205,7 @@ namespace Unity.UIWidgets.widgets {
         public static Locale localeOf(BuildContext context, bool nullOk = false) {
             D.assert(context != null);
             _LocalizationsScope scope =
-                (_LocalizationsScope) context.inheritFromWidgetOfExactType(typeof(_LocalizationsScope));
+                (_LocalizationsScope) context.dependOnInheritedWidgetOfExactType<_LocalizationsScope>();
             if (nullOk && scope == null) {
                 return null;
             }
@@ -216,7 +217,7 @@ namespace Unity.UIWidgets.widgets {
         public static List<LocalizationsDelegate> _delegatesOf(BuildContext context) {
             D.assert(context != null);
             _LocalizationsScope scope =
-                (_LocalizationsScope) context.inheritFromWidgetOfExactType(typeof(_LocalizationsScope));
+                (_LocalizationsScope) context.dependOnInheritedWidgetOfExactType<_LocalizationsScope>();
             D.assert(scope != null, () => "a Localizations ancestor was not found");
             return new List<LocalizationsDelegate>(scope.localizationsState.widget.delegates);
         }
@@ -225,7 +226,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(context != null);
             D.assert(type != null);
             _LocalizationsScope scope =
-                (_LocalizationsScope) context.inheritFromWidgetOfExactType(typeof(_LocalizationsScope));
+                (_LocalizationsScope) context.dependOnInheritedWidgetOfExactType<_LocalizationsScope>();
             if (scope != null && scope.localizationsState != null) {
                 return scope.localizationsState.resourcesFor<T>(type);
             }
@@ -305,17 +306,13 @@ namespace Unity.UIWidgets.widgets {
                 _locale = locale;
             }
             else {
-                // WidgetsBinding.instance.deferFirstFrameReport();
                 typeToResourcesFuture.then(value => {
-                    // WidgetsBinding.instance.allowFirstFrameReport();
                     if (!mounted) {
-                        return;
+                        setState(() => {
+                            _typeToResources = (Dictionary<Type, object>) value;
+                            _locale = locale;
+                        });
                     }
-
-                    setState(() => {
-                        _typeToResources = (Dictionary<Type, object>)value;
-                        _locale = locale;
-                    });
                 });
             }
         }
