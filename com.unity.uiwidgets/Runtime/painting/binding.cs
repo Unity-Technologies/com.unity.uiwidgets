@@ -38,9 +38,9 @@ namespace Unity.UIWidgets.painting {
             return new ImageCache();
         }
 
-        Future<ui.Codec> instantiateImageCodec(byte[] bytes,
-            int? cacheWidth,
-            int? cacheHeight
+        public Future<ui.Codec> instantiateImageCodec(byte[] bytes,
+            int? cacheWidth = null,
+            int? cacheHeight = null
         ) {
             D.assert(cacheWidth == null || cacheWidth > 0);
             D.assert(cacheHeight == null || cacheHeight > 0);

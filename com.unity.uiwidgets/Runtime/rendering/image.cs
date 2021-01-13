@@ -277,7 +277,7 @@ namespace Unity.UIWidgets.rendering {
                 return;
             }
 
-            ImageUtils.paintImage(
+            painting_.paintImage(
                 canvas: context.canvas,
                 rect: offset & size,
                 image: _image,

@@ -1,4 +1,5 @@
 using System;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
@@ -105,7 +106,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}({side})";
+            return $"{foundation_.objectRuntimeType(this, "CircleBorder")}({side})";
         }
     }
 }

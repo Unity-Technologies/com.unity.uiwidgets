@@ -8,7 +8,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string toStringShort() {
-            return GetType().ToString();
+            return foundation_.objectRuntimeType(this, "Decoration");
         }
 
         public virtual bool debugAssertIsValid() {

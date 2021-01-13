@@ -78,10 +78,10 @@ namespace Unity.UIWidgets.painting {
             path.cubicTo(left, top, left, top, left + tlRadiusY, top);
             path.lineTo(right - trRadiusX, top);
             path.cubicTo(right, top, right, top, right, top + trRadiusY);
-            path.lineTo(right, bottom - blRadiusX);
-            path.cubicTo(right, bottom, right, bottom, right - blRadiusY, bottom);
-            path.lineTo(left + brRadiusX, bottom);
-            path.cubicTo(left, bottom, left, bottom, left, bottom - brRadiusY);
+            path.lineTo(right, bottom - brRadiusX);
+            path.cubicTo(right, bottom, right, bottom, right - brRadiusY, bottom);
+            path.lineTo(left + blRadiusX, bottom);
+            path.cubicTo(left, bottom, left, bottom, left, bottom - blRadiusY);
             path.close();
             return path;
         }
@@ -152,7 +152,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}({side}, {borderRadius})";
+            return $"{foundation_.objectRuntimeType(this, "ContinuousRectangleBorder")}({side}, {borderRadius})";
         }
     }
 }

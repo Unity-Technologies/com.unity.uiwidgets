@@ -66,13 +66,98 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+
+    public class ImageStreamListener : IEquatable<ImageStreamListener> {
+        public ImageStreamListener(
+            ImageListener onImage,
+            ImageChunkListener onChunk = null,
+            ImageErrorListener onError = null
+        ) {
+            D.assert(onImage != null);
+            this.onImage = onImage;
+            this.onChunk = onChunk;
+            this.onError = onError;
+        }
+
+        public readonly ImageListener onImage;
+
+        public readonly ImageChunkListener onChunk;
+
+        public readonly ImageErrorListener onError;
+
+        public bool Equals(ImageStreamListener other) {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return Equals(onImage, other.onImage) && Equals(onChunk, other.onChunk) && Equals(onError, other.onError);
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((ImageStreamListener) obj);
+        }
+
+        public static bool operator ==(ImageStreamListener left, ImageStreamListener right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ImageStreamListener left, ImageStreamListener right) {
+            return !Equals(left, right);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = (onImage != null ? onImage.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (onChunk != null ? onChunk.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (onError != null ? onError.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+    }
+
     public delegate void ImageListener(ImageInfo image, bool synchronousCall);
+
+    public delegate void ImageChunkListener(ImageChunkEvent evt);
 
     public delegate void ImageErrorListener(Exception exception);
 
-    class _ImageListenerPair {
-        public ImageListener listener;
-        public ImageErrorListener errorListener;
+    public class ImageChunkEvent : Diagnosticable {
+        public ImageChunkEvent(
+            int cumulativeBytesLoaded,
+            int expectedTotalBytes
+        ) {
+            D.assert(cumulativeBytesLoaded >= 0);
+            D.assert(expectedTotalBytes >= 0);
+            this.cumulativeBytesLoaded = cumulativeBytesLoaded;
+            this.expectedTotalBytes = expectedTotalBytes;
+        }
+
+        public readonly int cumulativeBytesLoaded;
+
+        public readonly int expectedTotalBytes;
+
+        public override
+            void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new IntProperty("cumulativeBytesLoaded", cumulativeBytesLoaded));
+            properties.add(new IntProperty("expectedTotalBytes", expectedTotalBytes));
+        }
     }
 
     public class ImageStream : Diagnosticable {
@@ -85,7 +170,7 @@ namespace Unity.UIWidgets.painting {
             get { return _completer; }
         }
 
-        List<_ImageListenerPair> _listeners;
+        List<ImageStreamListener> _listeners;
 
         public void setCompleter(ImageStreamCompleter value) {
             D.assert(_completer == null);
@@ -94,29 +179,24 @@ namespace Unity.UIWidgets.painting {
             if (_listeners != null) {
                 var initialListeners = _listeners;
                 _listeners = null;
-                foreach (_ImageListenerPair listenerPair in initialListeners) {
-                    _completer.addListener(
-                        listenerPair.listener,
-                        listenerPair.errorListener
-                    );
-                }
+                initialListeners.ForEach(_completer.addListener);
             }
         }
 
-        public void addListener(ImageListener listener, ImageErrorListener onError = null) {
+        public void addListener(ImageStreamListener listener) {
             if (_completer != null) {
-                _completer.addListener(listener, onError);
+                _completer.addListener(listener);
                 return;
             }
 
             if (_listeners == null) {
-                _listeners = new List<_ImageListenerPair>();
+                _listeners = new List<ImageStreamListener>();
             }
 
-            _listeners.Add(new _ImageListenerPair {listener = listener, errorListener = onError});
+            _listeners.Add(listener);
         }
 
-        public void removeListener(ImageListener listener) {
+        public void removeListener(ImageStreamListener listener) {
             if (_completer != null) {
                 _completer.removeListener(listener);
                 return;
@@ -124,7 +204,7 @@ namespace Unity.UIWidgets.painting {
 
             D.assert(_listeners != null);
             for (int i = 0; i < _listeners.Count; i++) {
-                if (_listeners[i].listener == listener) {
+                if (_listeners[i] == listener) {
                     _listeners.RemoveAt(i);
                     break;
                 }
@@ -143,7 +223,7 @@ namespace Unity.UIWidgets.painting {
                 ifPresent: _completer?.toStringShort(),
                 ifNull: "unresolved"
             ));
-            properties.add(new ObjectFlagProperty<List<_ImageListenerPair>>(
+            properties.add(new ObjectFlagProperty<List<ImageStreamListener>>(
                 "listeners",
                 _listeners,
                 ifPresent: $"{_listeners?.Count} listener{(_listeners?.Count == 1 ? "" : "s")}",
@@ -155,64 +235,84 @@ namespace Unity.UIWidgets.painting {
     }
 
     public abstract class ImageStreamCompleter : Diagnosticable {
-        internal readonly List<_ImageListenerPair> _listeners = new List<_ImageListenerPair>();
-        public ImageInfo currentImage;
-        public UIWidgetsErrorDetails currentError;
+        internal readonly List<ImageStreamListener> _listeners = new List<ImageStreamListener>();
+        internal ImageInfo _currentImage;
+        internal UIWidgetsErrorDetails _currentError;
 
         protected bool hasListeners {
             get { return _listeners.isNotEmpty(); }
         }
 
-        public virtual void addListener(ImageListener listener, ImageErrorListener onError = null) {
-            _listeners.Add(new _ImageListenerPair {listener = listener, errorListener = onError});
-
-            if (currentImage != null) {
+        public virtual void addListener(ImageStreamListener listener) {
+            _listeners.Add(listener);
+            if (_currentImage != null) {
                 try {
-                    listener(currentImage, true);
+                    listener.onImage(_currentImage, true);
                 }
-                catch (Exception ex) {
+                catch (Exception exception) {
                     reportError(
                         context: new ErrorDescription("by a synchronously-called image listener"),
-                        exception: ex
+                        exception: exception
                     );
                 }
             }
 
-            if (currentError != null && onError != null) {
+            if (_currentError != null && listener.onError != null) {
                 try {
-                    onError(currentError.exception);
+                    listener.onError(_currentError.exception);
                 }
-                catch (Exception ex) {
+                catch (Exception exception) {
                     UIWidgetsError.reportError(
                         new UIWidgetsErrorDetails(
-                            exception: ex,
+                            exception: exception,
                             library: "image resource service",
-                            context: new ErrorDescription("when reporting an error to an image listener")
+                            context: new ErrorDescription("by a synchronously-called image error listener")
                         )
                     );
                 }
             }
         }
 
-        public virtual void removeListener(ImageListener listener) {
-            for (int i = 0; i < _listeners.Count; i++) {
-                if (_listeners[i].listener == listener) {
+        public virtual void removeListener(ImageStreamListener listener) {
+            for (int i = 0; i < _listeners.Count; i += 1) {
+                if (_listeners[i] == listener) {
                     _listeners.RemoveAt(i);
                     break;
                 }
             }
+
+            if (_listeners.isEmpty()) {
+                foreach (VoidCallback callback in _onLastListenerRemovedCallbacks) {
+                    callback();
+                }
+
+                _onLastListenerRemovedCallbacks.Clear();
+            }
         }
 
+        readonly List<VoidCallback> _onLastListenerRemovedCallbacks = new List<VoidCallback>();
+
+        public void addOnLastListenerRemovedCallback(VoidCallback callback) {
+            D.assert(callback != null);
+            _onLastListenerRemovedCallbacks.Add(callback);
+        }
+        
+        public void removeOnLastListenerRemovedCallback(VoidCallback callback) {
+            D.assert(callback != null);
+            _onLastListenerRemovedCallbacks.Remove(callback);
+        }
+
+
         protected void setImage(ImageInfo image) {
-            currentImage = image;
+            _currentImage = image;
             if (_listeners.isEmpty()) {
                 return;
             }
 
-            var localListeners = _listeners.Select(l => l.listener).ToList();
+            var localListeners = _listeners.Select(l => l).ToList();
             foreach (var listener in localListeners) {
                 try {
-                    listener(image, false);
+                    listener.onImage(image, false);
                 }
                 catch (Exception ex) {
                     reportError(
@@ -228,7 +328,7 @@ namespace Unity.UIWidgets.painting {
             Exception exception = null,
             InformationCollector informationCollector = null,
             bool silent = false) {
-            currentError = new UIWidgetsErrorDetails(
+            _currentError = new UIWidgetsErrorDetails(
                 exception: exception,
                 library: "image resource service",
                 context: context,
@@ -236,10 +336,13 @@ namespace Unity.UIWidgets.painting {
                 silent: silent
             );
 
-            var localErrorListeners = _listeners.Select(l => l.errorListener).Where(l => l != null).ToList();
+            var localErrorListeners = _listeners
+                .Select(l => l.onError)
+                .Where(l => l != null)
+                .ToList();
 
             if (localErrorListeners.isEmpty()) {
-                UIWidgetsError.reportError(currentError);
+                UIWidgetsError.reportError(_currentError);
             }
             else {
                 foreach (var errorListener in localErrorListeners) {
@@ -262,8 +365,8 @@ namespace Unity.UIWidgets.painting {
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
             description.add(new DiagnosticsProperty<ImageInfo>(
-                "current", currentImage, ifNull: "unresolved", showName: false));
-            description.add(new ObjectFlagProperty<List<_ImageListenerPair>>(
+                "current", _currentImage, ifNull: "unresolved", showName: false));
+            description.add(new ObjectFlagProperty<List<ImageStreamListener>>(
                 "listeners",
                 _listeners,
                 ifPresent: $"{_listeners.Count} listener{(_listeners.Count == 1 ? "" : "s")}"
@@ -287,6 +390,7 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+    // TODO: update stream
     public class MultiFrameImageStreamCompleter : ImageStreamCompleter {
         public MultiFrameImageStreamCompleter(
             Future<Codec> codec,
@@ -353,7 +457,7 @@ namespace Unity.UIWidgets.painting {
             TimeSpan delay = _frameDuration.Value - (timestamp - _shownTimestamp.Value);
             delay = new TimeSpan((long) (delay.Ticks * scheduler_.timeDilation));
             // TODO: time dilation 
-            _timer = Timer.create(delay , ()=>  _scheduleAppFrame());
+            _timer = Timer.create(delay, () => _scheduleAppFrame());
         }
 
         bool _isFirstFrame() {
@@ -392,15 +496,15 @@ namespace Unity.UIWidgets.painting {
             _framesEmitted += 1;
         }
 
-        public override void addListener(ImageListener listener, ImageErrorListener onError = null) {
+        public override void addListener(ImageStreamListener listener) {
             if (!hasListeners && _codec != null) {
                 _decodeNextFrameAndSchedule();
             }
 
-            base.addListener(listener, onError: onError);
+            base.addListener(listener);
         }
 
-        public override void removeListener(ImageListener listener) {
+        public override void removeListener(ImageStreamListener listener) {
             base.removeListener(listener);
             if (!hasListeners) {
                 _timer?.cancel();

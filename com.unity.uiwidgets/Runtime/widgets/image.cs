@@ -32,11 +32,12 @@ namespace Unity.UIWidgets.widgets {
             ImageStream stream = provider.resolve(config);
 
             void listener(ImageInfo image, bool sync) {
-                if (!completer.isCompleted) {
-                    stream.removeListener(listener);
-                }
-
-                SchedulerBinding.instance.addPostFrameCallback(timeStamp => { stream.removeListener(listener); });
+                // TODO: update 
+                // if (!completer.isCompleted) {
+                //     stream.removeListener(listener);
+                // }
+                //
+                // SchedulerBinding.instance.addPostFrameCallback(timeStamp => { stream.removeListener(listener); });
             }
 
             void errorListener(Exception exception) {
@@ -44,7 +45,8 @@ namespace Unity.UIWidgets.widgets {
                     completer.complete();
                 }
 
-                stream.removeListener(listener);
+                // TODO: update 
+                // stream.removeListener(listener);
                 if (onError != null) {
                     onError(exception);
                 }
@@ -58,7 +60,8 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
 
-            stream.addListener(listener, onError: errorListener);
+            // TODO: update 
+            // stream.addListener(listener, onError: errorListener);
             return completer.future;
         }
     }
@@ -311,18 +314,20 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
 
-            if (_isListeningToStream) {
-                _imageStream.removeListener(_handleImageChanged);
-            }
+            // TODO: update 
+            // if (_isListeningToStream) {
+            //     _imageStream.removeListener(_handleImageChanged);
+            // }
 
             if (!widget.gaplessPlayback) {
                 setState(() => { _imageInfo = null; });
             }
 
-            _imageStream = newStream;
-            if (_isListeningToStream) {
-                _imageStream.addListener(_handleImageChanged);
-            }
+            // TODO: update 
+            // _imageStream = newStream;
+            // if (_isListeningToStream) {
+            //     _imageStream.addListener(_handleImageChanged);
+            // }
         }
 
         void _listenToStream() {
@@ -330,8 +335,9 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
 
-            _imageStream.addListener(_handleImageChanged);
-            _isListeningToStream = true;
+            // TODO: update 
+            // _imageStream.addListener(_handleImageChanged);
+            // _isListeningToStream = true;
         }
 
         void _stopListeningToStream() {
@@ -339,7 +345,8 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
 
-            _imageStream.removeListener(_handleImageChanged);
+            // TODO: update 
+            // _imageStream.removeListener(_handleImageChanged);
             _isListeningToStream = false;
         }
 

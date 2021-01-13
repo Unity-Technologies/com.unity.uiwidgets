@@ -176,11 +176,11 @@ namespace Unity.UIWidgets.painting {
 
     public abstract class ImageProvider {
         public abstract ImageStream resolve(ImageConfiguration configuration);
-        
+
         public static bool operator ==(ImageProvider left, ImageProvider right) {
             return Equals(left, right);
         }
-        
+
         public static bool operator !=(ImageProvider left, ImageProvider right) {
             return !Equals(left, right);
         }
@@ -226,11 +226,12 @@ namespace Unity.UIWidgets.painting {
             return stream;
         }
 
+        public ImageStream createStream(ImageConfiguration configuration) {
+            return new ImageStream();
+        }
+
         void resolveStreamForKey(ImageConfiguration configuration, ImageStream stream, T key,
             ImageErrorListener handleError) {
-            // This is an unusual edge case where someone has told us that they found
-            // the image we want before getting to this method. We should avoid calling
-            // load again, but still update the image cache with LRU information.
             if (stream.completer != null) {
                 ImageStreamCompleter completerEdge = PaintingBinding.instance.imageCache.putIfAbsent(
                     key,
@@ -258,9 +259,51 @@ namespace Unity.UIWidgets.painting {
             return obtainKey(configuration).then(key => cache.evict(key)).to<bool>();
         }
 
-        protected abstract ImageStreamCompleter load(T assetBundleImageKey, DecoderCallback decode);
+        public abstract ImageStreamCompleter load(T assetBundleImageKey, DecoderCallback decode);
 
-        protected abstract Future<T> obtainKey(ImageConfiguration configuration);
+        public abstract Future<T> obtainKey(ImageConfiguration configuration);
+
+        Future<ImageCacheStatus> obtainCacheStatus(
+            ImageConfiguration configuration,
+            ImageErrorListener handleError = null
+        ) {
+            D.assert(configuration != null);
+            Completer completer = Completer.create();
+            _createErrorHandlerAndKey(
+                configuration,
+                (T key, Action<Exception> innerHandleError) => {
+                    completer.complete(FutureOr.value(PaintingBinding.instance.imageCache.statusForKey(key)));
+                },
+                (T key, Exception exception) => {
+                    if (handleError != null) {
+                        handleError(exception);
+                    }
+                    else {
+                        InformationCollector collector = null;
+                        D.assert(() => {
+                            IEnumerable<DiagnosticsNode> infoCollector() {
+                                yield return new DiagnosticsProperty<ImageProvider>("Image provider", this);
+                                yield return new DiagnosticsProperty<ImageConfiguration>("Image configuration",
+                                    configuration);
+                                yield return new DiagnosticsProperty<T>("Image key", key, defaultValue: null);
+                            }
+
+                            collector = infoCollector;
+                            return true;
+                        });
+                        UIWidgetsError.onError(new UIWidgetsErrorDetails(
+                            context: new ErrorDescription("while checking the cache location of an image"),
+                            informationCollector: collector,
+                            exception: exception
+                        ));
+                        completer.complete();
+                    }
+
+                    return Future.value();
+                }
+            );
+            return completer.future.to<ImageCacheStatus>();
+        }
 
         private void _createErrorHandlerAndKey(
             ImageConfiguration configuration,
@@ -282,14 +325,6 @@ namespace Unity.UIWidgets.painting {
                 didError = true;
             };
 
-            // If an error is added to a synchronous completer before a listener has been
-            // added, it can throw an error both into the zone and up the stack. Thus, it
-            // looks like the error has been caught, but it is in fact also bubbling to the
-            // zone. Since we cannot prevent all usage of Completer.sync here, or rather
-            // that changing them would be too breaking, we instead hook into the same
-            // zone mechanism to intercept the uncaught error and deliver it to the
-            // image stream's error handler. Note that these errors may be duplicated,
-            // hence the need for the `didError` flag.
             Zone dangerZone = Zone.current.fork(
                 specification: new ZoneSpecification(
                     handleUncaughtError: (Zone self, ZoneDelegate parent, Zone zone, Exception error) => {
@@ -396,12 +431,12 @@ namespace Unity.UIWidgets.painting {
         protected AssetBundleImageProvider() {
         }
 
-        protected override ImageStreamCompleter load(AssetBundleImageKey key, DecoderCallback decode) {
+        public override ImageStreamCompleter load(AssetBundleImageKey key, DecoderCallback decode) {
             IEnumerable<DiagnosticsNode> infoCollector() {
                 yield return new DiagnosticsProperty<ImageProvider>("Image provider", this);
                 yield return new DiagnosticsProperty<AssetBundleImageKey>("Image key", key);
             }
-            
+
             return new MultiFrameImageStreamCompleter(
                 codec: _loadAsync(key, decode),
                 scale: key.scale,
@@ -453,6 +488,126 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+
+    internal class _SizeAwareCacheKey : IEquatable<_SizeAwareCacheKey> {
+        internal _SizeAwareCacheKey(object providerCacheKey, int width, int height) {
+            this.providerCacheKey = providerCacheKey;
+            this.width = width;
+            this.height = height;
+        }
+
+        public readonly object providerCacheKey;
+
+        public readonly int width;
+
+        public readonly int height;
+
+        public static bool operator ==(_SizeAwareCacheKey left, object right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(_SizeAwareCacheKey left, object right) {
+            return !Equals(left, right);
+        }
+
+        public bool Equals(_SizeAwareCacheKey other) {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return Equals(providerCacheKey, other.providerCacheKey) && width == other.width && height == other.height;
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((_SizeAwareCacheKey) obj);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = (providerCacheKey != null ? providerCacheKey.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ width;
+                hashCode = (hashCode * 397) ^ height;
+                return hashCode;
+            }
+        }
+    }
+
+    internal class ResizeImage : ImageProvider<_SizeAwareCacheKey> {
+        public ResizeImage(
+            ImageProvider<object> imageProvider,
+            int width = 0,
+            int height = 0
+        ) {
+            D.assert(width != null || height != null);
+            this.imageProvider = imageProvider;
+            this.width = width;
+            this.height = height;
+        }
+
+        public readonly ImageProvider<object> imageProvider;
+
+        public readonly int width;
+
+        public readonly int height;
+
+        public static ImageProvider resizeIfNeeded(int cacheWidth, int cacheHeight, ImageProvider<object> provider) {
+            if (cacheWidth != null || cacheHeight != null) {
+                return new ResizeImage(provider, width: cacheWidth, height: cacheHeight);
+            }
+
+            return provider;
+        }
+
+        public override ImageStreamCompleter load(_SizeAwareCacheKey assetBundleImageKey, DecoderCallback decode) {
+            Future<Codec> decodeResize(byte[] bytes, int? cacheWidth = 0, int? cacheHeight = 0) {
+                D.assert(
+                    cacheWidth == null && cacheHeight == null,
+                    () =>
+                        "ResizeImage cannot be composed with another ImageProvider that applies cacheWidth or cacheHeight."
+                );
+                return decode(bytes, cacheWidth: width, cacheHeight: height);
+            }
+
+            return imageProvider.load(assetBundleImageKey.providerCacheKey, decodeResize);
+        }
+
+        public override Future<_SizeAwareCacheKey> obtainKey(ImageConfiguration configuration) {
+            Completer completer = null;
+            SynchronousFuture<_SizeAwareCacheKey> result = null;
+            imageProvider.obtainKey(configuration).then((object key) => {
+                // TODO: completer is always null?
+                if (completer == null) {
+                    result = new SynchronousFuture<_SizeAwareCacheKey>(new _SizeAwareCacheKey(key, width, height));
+                }
+                else {
+                    completer.complete(FutureOr.value(new _SizeAwareCacheKey(key, width, height)));
+                }
+            });
+            if (result != null) {
+                return result;
+            }
+
+            completer = Completer.create();
+            return completer.future.to<_SizeAwareCacheKey>();
+        }
+    }
+
     public class NetworkImage : ImageProvider<NetworkImage>, IEquatable<NetworkImage> {
         public NetworkImage(string url,
             float scale = 1.0f,
@@ -469,15 +624,15 @@ namespace Unity.UIWidgets.painting {
 
         public readonly IDictionary<string, string> headers;
 
-        protected override Future<NetworkImage> obtainKey(ImageConfiguration configuration) {
+        public override Future<NetworkImage> obtainKey(ImageConfiguration configuration) {
             return new SynchronousFuture<NetworkImage>(this);
         }
 
-        protected override ImageStreamCompleter load(NetworkImage key, DecoderCallback decode) {
+        public override ImageStreamCompleter load(NetworkImage key, DecoderCallback decode) {
             IEnumerable<DiagnosticsNode> infoCollector() {
                 yield return new ErrorDescription($"url: {url}");
             }
-            
+
             return new MultiFrameImageStreamCompleter(
                 codec: _loadAsync(key, decode),
                 scale: key.scale,
@@ -489,15 +644,16 @@ namespace Unity.UIWidgets.painting {
             var completer = Completer.create();
             var isolate = Isolate.current;
             var panel = UIWidgetsPanel.current;
-            panel.StartCoroutine(_loadCoroutine(key.url, completer, isolate)); 
+            panel.StartCoroutine(_loadCoroutine(key.url, completer, isolate));
             return completer.future.to<byte[]>().then_<byte[]>(data => {
                 if (data != null && data.Length > 0) {
                     return decode(data);
                 }
+
                 throw new Exception("not loaded");
             }).to<Codec>();
         }
-        
+
         IEnumerator _loadCoroutine(string key, Completer completer, Isolate isolate) {
             var url = new Uri(key);
             using (var www = UnityWebRequest.Get(url)) {
@@ -623,15 +779,15 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float scale;
 
-        protected override Future<FileImage> obtainKey(ImageConfiguration configuration) {
+        public override Future<FileImage> obtainKey(ImageConfiguration configuration) {
             return Future.value(FutureOr.value(this)).to<FileImage>();
         }
 
-        protected override ImageStreamCompleter load(FileImage key, DecoderCallback decode) {
+        public override ImageStreamCompleter load(FileImage key, DecoderCallback decode) {
             IEnumerable<DiagnosticsNode> infoCollector() {
                 yield return new ErrorDescription($"Path: {file}");
             }
-            
+
             return new MultiFrameImageStreamCompleter(_loadAsync(key, decode),
                 scale: key.scale,
                 informationCollector: infoCollector);
@@ -639,9 +795,10 @@ namespace Unity.UIWidgets.painting {
 
         Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
             byte[] bytes = File.ReadAllBytes("Assets/StreamingAssets/" + key.file);
-            if (bytes != null && bytes.Length > 0 ) {
+            if (bytes != null && bytes.Length > 0) {
                 return decode(bytes);
             }
+
             throw new Exception("not loaded");
         }
 
@@ -719,7 +876,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}(\"{file}\", scale: {scale})";
+            return $"{foundation_.objectRuntimeType(this, "FileImage")}({file}, scale: {scale})";
         }
     }
 
@@ -734,11 +891,11 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float scale;
 
-        protected override Future<MemoryImage> obtainKey(ImageConfiguration configuration) {
+        public override Future<MemoryImage> obtainKey(ImageConfiguration configuration) {
             return Future.value(FutureOr.value(this)).to<MemoryImage>();
         }
 
-        protected override ImageStreamCompleter load(MemoryImage key, DecoderCallback decode) {
+        public override ImageStreamCompleter load(MemoryImage key, DecoderCallback decode) {
             return new MultiFrameImageStreamCompleter(
                 _loadAsync(key, decode),
                 scale: key.scale);
@@ -793,7 +950,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}({foundation_.describeIdentity(bytes)}), scale: {scale}";
+            return
+                $"{foundation_.objectRuntimeType(this, "MemoryImage")}({foundation_.describeIdentity(bytes)}), scale: {scale}";
         }
     }
 
@@ -815,7 +973,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly AssetBundle bundle;
 
-        protected override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
+        public override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
             return Future.value(FutureOr.value(new AssetBundleImageKey(
                 bundle: bundle ? bundle : configuration.bundle,
                 name: assetName,
@@ -870,7 +1028,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}(name: \"{assetName}\", scale: {scale}, bundle: {bundle})";
+            return
+                $"{foundation_.objectRuntimeType(this, "ExactAssetImage")}(name: \"{assetName}\", scale: {scale}, bundle: {bundle})";
         }
     }
 
@@ -892,5 +1051,23 @@ namespace Unity.UIWidgets.painting {
                 silent: silent
             );
         }
+    }
+
+    public class NetworkImageLoadException : Exception {
+        NetworkImageLoadException(int statusCode, Uri uri) {
+            D.assert(uri != null);
+            D.assert(statusCode != null);
+            this.statusCode = statusCode;
+            this.uri = uri;
+            _message = $"HTTP request failed, statusCode: {statusCode}, {uri}";
+        }
+
+        public readonly int statusCode;
+
+        readonly string _message;
+
+        public readonly Uri uri;
+
+        public override string ToString() => _message;
     }
 }
