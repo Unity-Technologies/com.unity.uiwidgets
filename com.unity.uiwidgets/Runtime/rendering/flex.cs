@@ -166,6 +166,12 @@ namespace Unity.UIWidgets.rendering {
         public TextBaseline _textBaseline;
 
         public float _overflow;
+        
+        bool _hasOverflow {
+            get {
+                return _overflow > foundation_.precisionErrorTolerance;
+            }
+        } 
 
         public override void setupParentData(RenderObject child) {
             if (!(child.parentData is FlexParentData)) {
@@ -596,7 +602,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (_overflow <= 0.0f) {
+            if (!_hasOverflow) {
                 defaultPaint(context, offset);
                 return;
             }
