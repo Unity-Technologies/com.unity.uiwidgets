@@ -309,7 +309,7 @@ namespace com.unity.uiwidgets.Runtime.rendering {
 
         SliverGridDelegate _gridDelegate;
 
-        public override float childCrossAxisPosition(RenderObject child) {
+        public override float? childCrossAxisPosition(RenderObject child) {
             SliverGridParentData childParentData = (SliverGridParentData) child.parentData;
             return childParentData.crossAxisOffset;
         }

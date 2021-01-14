@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
@@ -152,23 +153,27 @@ namespace Unity.UIWidgets.widgets {
         void _handleBuildScheduled() {
             D.assert(() => {
                 if (debugBuildingDirtyElements) {
-                    throw new UIWidgetsError(
-                        "Build scheduled during frame.\n" +
-                        "While the widget tree was being built, laid out, and painted, " +
-                        "a new frame was scheduled to rebuild the widget tree. " +
-                        "This might be because setState() was called from a layout or " +
-                        "paint callback. " +
-                        "If a change is needed to the widget tree, it should be applied " +
-                        "as the tree is being built. Scheduling a change for the subsequent " +
-                        "frame instead results in an interface that lags behind by one frame. " +
-                        "If this was done to make your build dependent on a size measured at " +
-                        "layout time, consider using a LayoutBuilder, CustomSingleChildLayout, " +
-                        "or CustomMultiChildLayout. If, on the other hand, the one frame delay " +
-                        "is the desired effect, for example because this is an " +
-                        "animation, consider scheduling the frame in a post-frame callback " +
-                        "using SchedulerBinding.addPostFrameCallback or " +
-                        "using an AnimationController to trigger the animation."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("Build scheduled during frame."),
+                        new ErrorDescription(
+                            "While the widget tree was being built, laid out, and painted, " +
+                            "a new frame was scheduled to rebuild the widget tree."
+                        ),
+                        new ErrorHint(
+                            "This might be because setState() was called from a layout or " +
+                            "paint callback. " +
+                            "If a change is needed to the widget tree, it should be applied " +
+                            "as the tree is being built. Scheduling a change for the subsequent " +
+                            "frame instead results in an interface that lags behind by one frame. " +
+                            "If this was done to make your build dependent on a size measured at " +
+                            "layout time, consider using a LayoutBuilder, CustomSingleChildLayout, " +
+                            "or CustomMultiChildLayout. If, on the other hand, the one frame delay " +
+                            "is the desired effect, for example because this is an " +
+                            "animation, consider scheduling the frame in a post-frame callback " +
+                            "using SchedulerBinding.addPostFrameCallback or " +
+                            "using an AnimationController to trigger the animation."
+                        )
+                    });
                 }
 
                 return true;
@@ -201,6 +206,8 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
+        bool _readyToProduceFrames = false;
+        
         public RenderObjectToWidgetElement<RenderBox> renderViewElement {
             get { return _renderViewElement; }
         }
@@ -232,11 +239,16 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void attachRootWidget(Widget rootWidget) {
+            _readyToProduceFrames = true;
             _renderViewElement = new RenderObjectToWidgetAdapter<RenderBox>(
                 container: renderView,
                 debugShortDescription: "[root]",
                 child: rootWidget
             ).attachToRenderTree(buildOwner, _renderViewElement);
+        }
+        
+        bool isRootWidgetAttached {
+            get { return _renderViewElement != null; }
         }
     }
 
@@ -278,6 +290,7 @@ namespace Unity.UIWidgets.widgets {
                     element.assignOwner(owner);
                 });
                 owner.buildScope(element, () => { element.mount(null, null); });
+                SchedulerBinding.instance.ensureVisualUpdate();
             }
             else {
                 element._newWidget = this;
@@ -313,6 +326,7 @@ namespace Unity.UIWidgets.widgets {
         internal override void forgetChild(Element child) {
             D.assert(child == _child);
             _child = null;
+            base.forgetChild(child);
         }
 
         public override void mount(Element parent, object newSlot) {
@@ -333,7 +347,7 @@ namespace Unity.UIWidgets.widgets {
             if (_newWidget != null) {
                 Widget newWidget = _newWidget;
                 _newWidget = null;
-                update(newWidget);
+                update((RenderObjectToWidgetAdapter<T>)newWidget);
             }
 
             base.performRebuild();

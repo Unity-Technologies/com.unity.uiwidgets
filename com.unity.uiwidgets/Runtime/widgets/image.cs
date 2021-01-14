@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -7,6 +8,7 @@ using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
+using Object = System.Object;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.widgets {
@@ -66,10 +68,33 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    public delegate Widget ImageFrameBuilder (
+    BuildContext context,
+    Widget child,
+    int frame,
+    bool wasSynchronouslyLoaded
+    );
+    
+    // [!!!] class ImageChunkEvent is missing
+    public delegate Widget ImageLoadingBuilder(
+    BuildContext context,
+    Widget child//,
+    //ImageChunkEvent loadingProgress
+    );
+    
+    public delegate Widget ImageErrorWidgetBuilder(
+        BuildContext context,
+        Object error,
+        StackTrace stackTrace
+    );
+    
     public class Image : StatefulWidget {
         public Image(
             Key key = null,
             ImageProvider image = null,
+            ImageFrameBuilder frameBuilder = null,
+            ImageLoadingBuilder loadingBuilder = null,
+            ImageErrorWidgetBuilder errorBuilder = null,
             float? width = null,
             float? height = null,
             Color color = null,
@@ -80,9 +105,12 @@ namespace Unity.UIWidgets.widgets {
             Rect centerSlice = null,
             bool gaplessPlayback = false,
             FilterQuality filterQuality = FilterQuality.low
-        ) : base(key) {
+        ) : base(key: key) {
             D.assert(image != null);
             this.image = image;
+            this.frameBuilder = frameBuilder;
+            this.loadingBuilder = loadingBuilder;
+            this.errorBuilder = errorBuilder;
             this.width = width;
             this.height = height;
             this.color = color;
@@ -99,6 +127,9 @@ namespace Unity.UIWidgets.widgets {
             string src,
             Key key = null,
             float scale = 1.0f,
+            ImageFrameBuilder frameBuilder = null,
+            ImageLoadingBuilder loadingBuilder = null,
+            ImageErrorWidgetBuilder errorBuilder = null,
             float? width = null,
             float? height = null,
             Color color = null,
@@ -109,22 +140,27 @@ namespace Unity.UIWidgets.widgets {
             Rect centerSlice = null,
             bool gaplessPlayback = false,
             FilterQuality filterQuality = FilterQuality.low,
-            IDictionary<string, string> headers = null
+            IDictionary<string, string> headers = null,
+            int cacheWidth = default,
+            int cacheHeight = default
         ) {
-            var networkImage = new NetworkImage(src, scale, headers);
+            var networkImage = new NetworkImage(src, scale, headers);//image = ResizeImage.resizeIfNeeded(cacheWidth, cacheHeight, NetworkImage(src, scale: scale, headers: headers));
             return new Image(
-                key,
-                networkImage,
-                width,
-                height,
-                color,
-                colorBlendMode,
-                fit,
-                alignment,
-                repeat,
-                centerSlice,
-                gaplessPlayback,
-                filterQuality
+                key: key,
+                image: networkImage,
+                frameBuilder: frameBuilder,
+                loadingBuilder: loadingBuilder,
+                errorBuilder: errorBuilder,
+                width: width,
+                height: height,
+                color: color,
+                colorBlendMode: colorBlendMode,
+                fit: fit,
+                alignment: alignment,
+                repeat: repeat,
+                centerSlice: centerSlice,
+                gaplessPlayback: gaplessPlayback,
+                filterQuality: filterQuality
             );
         }
 
@@ -132,6 +168,8 @@ namespace Unity.UIWidgets.widgets {
             string file,
             Key key = null,
             float scale = 1.0f,
+            ImageFrameBuilder frameBuilder = null,
+            ImageErrorWidgetBuilder errorBuilder = null,
             float? width = null,
             float? height = null,
             Color color = null,
@@ -141,22 +179,28 @@ namespace Unity.UIWidgets.widgets {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool gaplessPlayback = false,
-            FilterQuality filterQuality = FilterQuality.low
+            FilterQuality filterQuality = FilterQuality.low,
+            int cacheWidth = default,
+            int cacheHeight = default
         ) {
-            var fileImage = new FileImage(file, scale);
+            
+            var fileImage = new FileImage(file, scale);//ResizeImage.resizeIfNeeded(cacheWidth, cacheHeight, FileImage(file, scale: scale));
             return new Image(
-                key,
-                fileImage,
-                width,
-                height,
-                color,
-                colorBlendMode,
-                fit,
-                alignment,
-                repeat,
-                centerSlice,
-                gaplessPlayback,
-                filterQuality
+                key: key,
+                image: fileImage,
+                frameBuilder: frameBuilder,
+                loadingBuilder: null,
+                errorBuilder: errorBuilder,
+                width: width,
+                height: height,
+                color: color,
+                colorBlendMode: colorBlendMode,
+                fit: fit,
+                alignment: alignment,
+                repeat: repeat,
+                centerSlice: centerSlice,
+                gaplessPlayback: gaplessPlayback,
+                filterQuality: filterQuality
             );
         }
 
@@ -164,6 +208,8 @@ namespace Unity.UIWidgets.widgets {
             string name,
             Key key = null,
             AssetBundle bundle = null,
+            ImageFrameBuilder frameBuilder = null,
+            ImageErrorWidgetBuilder errorBuilder = null,
             float? scale = null,
             float? width = null,
             float? height = null,
@@ -174,25 +220,34 @@ namespace Unity.UIWidgets.widgets {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool gaplessPlayback = false,
-            FilterQuality filterQuality = FilterQuality.low
+            FilterQuality filterQuality = FilterQuality.low,
+            int cacheWidth = default,
+            int cacheHeight = default
         ) {
+            /*image = ResizeImage.resizeIfNeeded(cacheWidth, cacheHeight, scale != null
+                ? ExactAssetImage(name, bundle: bundle, scale: scale, package: package)
+                : AssetImage(name, bundle: bundle, package: package)
+            );*/
             var image = scale != null
                 ? (AssetBundleImageProvider) new ExactAssetImage(name, bundle: bundle, scale: scale.Value)
                 : new AssetImage(name, bundle: bundle);
 
             return new Image(
-                key,
-                image,
-                width,
-                height,
-                color,
-                colorBlendMode,
-                fit,
-                alignment,
-                repeat,
-                centerSlice,
-                gaplessPlayback,
-                filterQuality
+                key: key,
+                image: image,
+                frameBuilder: frameBuilder,
+                loadingBuilder: null,
+                errorBuilder: errorBuilder,
+                width: width,
+                height: height,
+                color: color,
+                colorBlendMode: colorBlendMode,
+                fit: fit,
+                alignment: alignment,
+                repeat: repeat,
+                centerSlice: centerSlice,
+                gaplessPlayback: gaplessPlayback,
+                filterQuality: filterQuality
             );
         }
 
@@ -200,6 +255,8 @@ namespace Unity.UIWidgets.widgets {
             byte[] bytes,
             Key key = null,
             float scale = 1.0f,
+            ImageFrameBuilder frameBuilder = null,
+            ImageErrorWidgetBuilder errorBuilder = null,
             float? width = null,
             float? height = null,
             Color color = null,
@@ -209,26 +266,35 @@ namespace Unity.UIWidgets.widgets {
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool gaplessPlayback = false,
-            FilterQuality filterQuality = FilterQuality.low
+            FilterQuality filterQuality = FilterQuality.low,
+            int cacheWidth = default,
+            int cacheHeight = default
         ) {
+            // ResizeImage.resizeIfNeeded(cacheWidth, cacheHeight, MemoryImage(bytes, scale: scale));
             var memoryImage = new MemoryImage(bytes, scale);
             return new Image(
-                key,
-                memoryImage,
-                width,
-                height,
-                color,
-                colorBlendMode,
-                fit,
-                alignment,
-                repeat,
-                centerSlice,
-                gaplessPlayback,
-                filterQuality
+                key: key,
+                image: memoryImage,
+                frameBuilder: frameBuilder,
+                loadingBuilder: null,
+                errorBuilder: errorBuilder,
+                width: width,
+                height: height,
+                color: color,
+                colorBlendMode: colorBlendMode,
+                fit: fit,
+                alignment: alignment,
+                repeat: repeat,
+                centerSlice: centerSlice,
+                gaplessPlayback: gaplessPlayback,
+                filterQuality: filterQuality
             );
         }
 
         public readonly ImageProvider image;
+        public readonly ImageFrameBuilder frameBuilder;
+        public readonly ImageLoadingBuilder loadingBuilder;
+        public readonly ImageErrorWidgetBuilder errorBuilder;
         public readonly float? width;
         public readonly float? height;
         public readonly Color color;
@@ -248,9 +314,11 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(properties);
 
             properties.add(new DiagnosticsProperty<ImageProvider>("image", image));
+            properties.add(new DiagnosticsProperty<ImageFrameBuilder>("frameBuilder", frameBuilder));
+            properties.add(new DiagnosticsProperty<ImageLoadingBuilder>("loadingBuilder", loadingBuilder));
             properties.add(new FloatProperty("width", width, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("height", height, defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Color>("color", color,
+            properties.add(new ColorProperty("color", color,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
                 defaultValue: foundation_.kNullDefaultValue));
@@ -264,15 +332,34 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class _ImageState : State<Image> {
+    public class _ImageState : State<Image> ,WidgetsBindingObserver{
         ImageStream _imageStream;
         ImageInfo _imageInfo;
+        //ImageChunkEvent _loadingProgress;
         bool _isListeningToStream = false;
         bool _invertColors;
+        int _frameNumber;
+        bool _wasSynchronouslyLoaded;
+        DisposableBuildContext<State<Image>> _scrollAwareContext;
+        Object _lastException;
+        StackTrace _lastStack;
+        
+        public override void initState() {
+            base.initState();
+            WidgetsBinding.instance.addObserver(this);
+            _scrollAwareContext = new DisposableBuildContext<State<Image>>(this);
+        }
 
+        public override void dispose() {
+            D.assert(_imageStream != null);
+            WidgetsBinding.instance.removeObserver(this);
+            _stopListeningToStream();
+            _scrollAwareContext.dispose();
+            base.dispose();
+        }
+        
         public override void didChangeDependencies() {
-            _invertColors = false;
-
+            _updateInvertColors();
             _resolveImage();
 
             if (TickerMode.of(context)) {
@@ -287,13 +374,42 @@ namespace Unity.UIWidgets.widgets {
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-
+            Image image = (Image) oldWidget;
+            if (_isListeningToStream &&
+                (widget.loadingBuilder == null) != (image.loadingBuilder == null)) {
+                /*_imageStream.removeListener(_getListener(image.loadingBuilder));
+                _imageStream.addListener(_getListener());*/
+            }
             if (widget.image != ((Image) oldWidget).image) {
                 _resolveImage();
             }
         }
+        
+        
+        /*public override void didChangeAccessibilityFeatures() {
+            base.didChangeAccessibilityFeatures();
+            setState(() => {
+                _updateInvertColors();
+            });
+        }*/
+        
+        void _updateInvertColors() {
+            _invertColors = MediaQuery.of(context, nullOk: true)?.invertColors
+                            ?? false;
+        }
 
         void _resolveImage() {
+            /*ScrollAwareImageProvider provider = new ScrollAwareImageProvider<dynamic>(
+                context: _scrollAwareContext,
+                imageProvider: widget.image
+            );
+            ImageStream newStream =
+                provider.resolve(ImageUtils.createLocalImageConfiguration(
+                    context,
+                    size: widget.width != null && widget.height != null
+                        ? new Size(widget.width.Value, widget.height.Value)
+                        : null
+                ));*/
             ImageStream newStream =
                 widget.image.resolve(ImageUtils.createLocalImageConfiguration(
                     context,
@@ -304,11 +420,45 @@ namespace Unity.UIWidgets.widgets {
             D.assert(newStream != null);
             _updateSourceStream(newStream);
         }
+        
+        /*ImageStreamListener _getListener(ImageLoadingBuilder loadingBuilder = null) {
+            loadingBuilder ??= widget.loadingBuilder;
+            _lastException = null;
+            _lastStack = null;
+            return new ImageStreamListener(
+                _handleImageFrame,
+                onChunk: loadingBuilder == null ? null : _handleImageChunk,
+                onError: widget.errorBuilder != null
+                    ? (dynamic error, StackTrace stackTrace) => {
+                setState(() => {
+                    _lastException = error;
+                    _lastStack = stackTrace;
+                });
+            }
+            : null
+                );
+        }*/
 
+        
+        /*void _handleImageFrame(ImageInfo imageInfo, bool synchronousCall) {
+            setState(() =>{
+                _imageInfo = imageInfo;
+                _loadingProgress = null;
+                _frameNumber = _frameNumber == null ? 0 : _frameNumber + 1;
+                _wasSynchronouslyLoaded |= synchronousCall;
+            });
+        }
+
+        void _handleImageChunk(ImageChunkEvent _event) {
+            D.assert(widget.loadingBuilder != null);
+            setState(() => {
+                _loadingProgress = _event;
+            });
+        }*/
         void _handleImageChanged(ImageInfo imageInfo, bool synchronousCall) {
             setState(() => { _imageInfo = imageInfo; });
         }
-
+        
         void _updateSourceStream(ImageStream newStream) {
             if (_imageStream?.key == newStream?.key) {
                 return;
@@ -349,15 +499,12 @@ namespace Unity.UIWidgets.widgets {
             // _imageStream.removeListener(_handleImageChanged);
             _isListeningToStream = false;
         }
-
-        public override void dispose() {
-            D.assert(_imageStream != null);
-            _stopListeningToStream();
-            base.dispose();
-        }
-
-
+        
         public override Widget build(BuildContext context) {
+            if (_lastException  != null) {
+                D.assert(widget.errorBuilder != null);
+                return widget.errorBuilder(context, _lastException, _lastStack);
+            }
             RawImage image = new RawImage(
                 image: _imageInfo?.image,
                 width: widget.width,
@@ -372,7 +519,12 @@ namespace Unity.UIWidgets.widgets {
                 invertColors: _invertColors,
                 filterQuality: widget.filterQuality
             );
+            /*if (widget.frameBuilder != null)
+                image = widget.frameBuilder(context, image, _frameNumber, _wasSynchronouslyLoaded);
 
+            if (widget.loadingBuilder != null)
+                image = widget.loadingBuilder(context, image, _loadingProgress);*/
+            
             return image;
         }
 
@@ -380,6 +532,34 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(description);
             description.add(new DiagnosticsProperty<ImageStream>("stream", _imageStream));
             description.add(new DiagnosticsProperty<ImageInfo>("pixels", _imageInfo));
+            //description.add(new DiagnosticsProperty<ImageChunkEvent>("loadingProgress", _loadingProgress));
+            description.add(new DiagnosticsProperty<int>("frameNumber", _frameNumber));
+            description.add(new DiagnosticsProperty<bool>("wasSynchronouslyLoaded", _wasSynchronouslyLoaded));
+        }
+
+        
+        public void didChangeMetrics() {
+            setState();
+        }
+
+        public void didChangeTextScaleFactor() {
+            setState();
+        }
+
+        public void didChangePlatformBrightness() {
+            setState();
+        }
+
+        public void didChangeLocales(List<Locale> locale) {
+            setState();
+        }
+
+        public Future<bool> didPopRoute() {
+            return Future.value(false).to<bool>();
+        }
+
+        public Future<bool> didPushRoute(string route) {
+            return Future.value(false).to<bool>();
         }
     }
 }

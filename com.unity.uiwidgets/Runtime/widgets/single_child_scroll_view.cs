@@ -273,7 +273,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             if (child != null) {
                 return child.getMinIntrinsicWidth(height);
             }
@@ -281,7 +281,7 @@ namespace Unity.UIWidgets.widgets {
             return 0.0f;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             if (child != null) {
                 return child.getMaxIntrinsicWidth(height);
             }
@@ -289,7 +289,7 @@ namespace Unity.UIWidgets.widgets {
             return 0.0f;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             if (child != null) {
                 return child.getMinIntrinsicHeight(width);
             }

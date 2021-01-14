@@ -259,6 +259,17 @@ SceneBuilder_pushBackdropFilter(SceneBuilder* ptr, ImageFilter* filter) {
 }
 
 UIWIDGETS_API(EngineLayer*)
+SceneBuilder_pushShaderMask(SceneBuilder* ptr,
+    Shader* shader, float maskRectLeft, float maskRectRight, float maskRectTop,
+    float maskRectBottom, int blendMode) {
+  const auto layer = ptr->pushShaderMask(
+    shader, maskRectLeft, maskRectRight, maskRectTop,
+    maskRectBottom, blendMode);
+  layer->AddRef();
+  return layer.get();
+}
+
+UIWIDGETS_API(EngineLayer*)
 SceneBuilder_pushPhysicalShape(SceneBuilder* ptr, CanvasPath* path,
                                float elevation, int color, int shadowColor,
                                int clipBehavior) {

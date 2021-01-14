@@ -30,9 +30,8 @@ namespace Unity.UIWidgets.cupertino {
             BorderRadius borderRadius = null,
             VoidCallback onPressed = null
         ) : base(key: key) {
-            D.assert((pressedOpacity >= 0.0 && pressedOpacity <= 1.0) || pressedOpacity == null );
-            //D.assert(disabledColor != null);
-            _filled = false;
+            D.assert((pressedOpacity >= 0.0 && pressedOpacity <= 1.0));
+             _filled = false;
             this.child = child;
             this.onPressed = onPressed;
             this.padding = padding;
@@ -54,10 +53,7 @@ namespace Unity.UIWidgets.cupertino {
             VoidCallback onPressed = null
         ) {
             disabledColor = disabledColor ?? CupertinoColors.quaternarySystemFill;
-            
-            D.assert(pressedOpacity >= 0.0 && pressedOpacity <= 1.0);
-            D.assert(disabledColor != null);
-
+            D.assert(pressedOpacity >= 0.0 && pressedOpacity <= 1.0); 
             var btn = new CupertinoButton(
                 key: key,
                 color: null,
@@ -183,11 +179,6 @@ namespace Unity.UIWidgets.cupertino {
                     _animate();
                 }
             });
-            /*ticker.then(() => {
-                if (mounted && wasHeldDown != _buttonHeldDown) {
-                    _animate();
-                }
-            });*/
         }
 
         public override Widget build(BuildContext context) {
@@ -219,7 +210,6 @@ namespace Unity.UIWidgets.cupertino {
                             widget.onPressed();
                         }
                     },
-                ////tbc semantics
                 child: new ConstrainedBox(
                     constraints: widget.minSize == null
                     ? new BoxConstraints() : 

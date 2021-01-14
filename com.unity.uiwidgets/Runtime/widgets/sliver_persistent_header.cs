@@ -17,6 +17,10 @@ namespace Unity.UIWidgets.widgets {
             get { return null; }
         }
 
+        public OverScrollHeaderStretchConfiguration stretchConfiguration {
+            get { return null; }
+        }
+
         public abstract bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate);
     }
 
@@ -57,20 +61,20 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<SliverPersistentHeaderDelegate>("layoutDelegate", layoutDelegate));
-            List<string> flags = new List<string> { };
-            if (pinned) {
+            properties.add(
+                new DiagnosticsProperty<SliverPersistentHeaderDelegate>(
+                    "delegate",
+                    layoutDelegate
+                )
+            );
+            List<string> flags = new List<string>();
+            if (pinned) 
                 flags.Add("pinned");
-            }
-
-            if (floating) {
+            if (floating)
                 flags.Add("floating");
-            }
-
             if (flags.isEmpty()) {
                 flags.Add("normal");
             }
-
             properties.add(new EnumerableProperty<string>("mode", flags));
         }
     }
@@ -83,8 +87,8 @@ namespace Unity.UIWidgets.widgets {
             get { return (_SliverPersistentHeaderRenderObjectWidget) base.widget; }
         }
 
-        public override RenderObject renderObject {
-            get { return base.renderObject; }
+        public new _RenderSliverPersistentHeaderForWidgetsMixin renderObject {
+            get { return base.renderObject as _RenderSliverPersistentHeaderForWidgetsMixin; }
         }
 
         public override void mount(Element parent, object newSlot) {
@@ -118,16 +122,23 @@ namespace Unity.UIWidgets.widgets {
         Element child;
 
         public void _build(float shrinkOffset, bool overlapsContent) {
-            owner.buildScope(this,
-                () => {
-                    child = updateChild(child,
-                        widget.layoutDelegate.build(this, shrinkOffset, overlapsContent), null);
-                });
+            owner.buildScope(this, () =>{
+                child = updateChild(
+                    child,
+                    widget.layoutDelegate.build(
+                    this,
+                    shrinkOffset,
+                    overlapsContent
+                ),
+                null
+                    );
+            });
         }
 
         internal override void forgetChild(Element child) {
             D.assert(child == this.child);
             this.child = null;
+            base.forgetChild(child);
         }
 
         protected override void insertChildRenderObject(RenderObject child, object slot) {
@@ -174,12 +185,18 @@ namespace Unity.UIWidgets.widgets {
     }
 
     interface _RenderSliverPersistentHeaderForWidgetsMixin {
+        // on RenderSliverPersistentHeader  ???? todo 
         _SliverPersistentHeaderElement _element { get; set; }
 
-        float? minExtent { get; }
+        float? minExtent {
+            get;
+        }
 
-        float? maxExtent { get; }
+        float? maxExtent {
+            get;
+        }
 
+        void updateChild(float shrinkOffset, bool overlapsContent);
         void triggerRebuild();
     }
 
@@ -191,15 +208,26 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new _RenderSliverScrollingPersistentHeaderForWidgets();
+            return new _RenderSliverScrollingPersistentHeaderForWidgets(
+                stretchConfiguration: layoutDelegate.stretchConfiguration);
         }
     }
 
     abstract class _RenderSliverScrollingPersistentHeader : RenderSliverScrollingPersistentHeader {
     }
 
-    class _RenderSliverScrollingPersistentHeaderForWidgets : _RenderSliverScrollingPersistentHeader,
-        _RenderSliverPersistentHeaderForWidgetsMixin {
+    class _RenderSliverScrollingPersistentHeaderForWidgets : RenderSliverScrollingPersistentHeader, _RenderSliverPersistentHeaderForWidgetsMixin {
+
+        public _RenderSliverScrollingPersistentHeaderForWidgets(
+            RenderBox child = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(
+            child: child,
+            stretchConfiguration: stretchConfiguration
+        ) {
+            
+        }
+
         public _SliverPersistentHeaderElement _element {
             get { return _ele; }
             set { _ele = value; }
@@ -215,7 +243,7 @@ namespace Unity.UIWidgets.widgets {
             get { return _element.widget.layoutDelegate.maxExtent; }
         }
 
-        protected override void updateChild(float shrinkOffset, bool overlapsContent) {
+        public void updateChild(float shrinkOffset, bool overlapsContent) {
             D.assert(_element != null);
             _element._build(shrinkOffset, overlapsContent);
         }
@@ -233,15 +261,27 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new _RenderSliverPinnedPersistentHeaderForWidgets();
+            return new _RenderSliverPinnedPersistentHeaderForWidgets(
+                stretchConfiguration: layoutDelegate.stretchConfiguration
+                );
         }
     }
 
     abstract class _RenderSliverPinnedPersistentHeader : RenderSliverPinnedPersistentHeader {
     }
 
-    class _RenderSliverPinnedPersistentHeaderForWidgets : _RenderSliverPinnedPersistentHeader,
+    class _RenderSliverPinnedPersistentHeaderForWidgets : RenderSliverPinnedPersistentHeader,
         _RenderSliverPersistentHeaderForWidgetsMixin {
+
+        public _RenderSliverPinnedPersistentHeaderForWidgets(
+            RenderBox child = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+            ) : base(
+            child: child,
+            stretchConfiguration: stretchConfiguration
+        ) {
+        }
+
         public _SliverPersistentHeaderElement _element {
             get { return _ele; }
             set { _ele = value; }
@@ -257,7 +297,7 @@ namespace Unity.UIWidgets.widgets {
             get { return _element.widget.layoutDelegate.maxExtent; }
         }
 
-        protected override void updateChild(float shrinkOffset, bool overlapsContent) {
+        public void updateChild(float shrinkOffset, bool overlapsContent) {
             D.assert(_element != null);
             _element._build(shrinkOffset, overlapsContent);
         }
@@ -275,8 +315,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
-            _RenderSliverFloatingPersistentHeaderForWidgets ret = new _RenderSliverFloatingPersistentHeaderForWidgets();
-            ret.snapConfiguration = layoutDelegate.snapConfiguration;
+            _RenderSliverFloatingPersistentHeaderForWidgets ret = 
+                new _RenderSliverFloatingPersistentHeaderForWidgets(
+                    snapConfiguration: layoutDelegate.snapConfiguration,
+                    stretchConfiguration: layoutDelegate.stretchConfiguration
+                    );
+            //ret.snapConfiguration = layoutDelegate.snapConfiguration;
             return ret;
         }
 
@@ -284,14 +328,26 @@ namespace Unity.UIWidgets.widgets {
             _RenderSliverFloatingPersistentHeaderForWidgets renderObject =
                 _renderObject as _RenderSliverFloatingPersistentHeaderForWidgets;
             renderObject.snapConfiguration = layoutDelegate.snapConfiguration;
+            renderObject.stretchConfiguration = layoutDelegate.stretchConfiguration;
         }
     }
 
     abstract class _RenderSliverFloatingPinnedPersistentHeader : RenderSliverFloatingPinnedPersistentHeader {
     }
 
-    class _RenderSliverFloatingPinnedPersistentHeaderForWidgets : _RenderSliverFloatingPinnedPersistentHeader,
+    class _RenderSliverFloatingPinnedPersistentHeaderForWidgets : RenderSliverFloatingPinnedPersistentHeader,
         _RenderSliverPersistentHeaderForWidgetsMixin {
+        public _RenderSliverFloatingPinnedPersistentHeaderForWidgets(
+            RenderBox child = null,
+            FloatingHeaderSnapConfiguration snapConfiguration = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(
+            child: child,
+            snapConfiguration: snapConfiguration,
+            stretchConfiguration: stretchConfiguration
+        ) {
+        }
+
         public _SliverPersistentHeaderElement _element {
             get { return _ele; }
             set { _ele = value; }
@@ -307,7 +363,7 @@ namespace Unity.UIWidgets.widgets {
             get { return _element.widget.layoutDelegate.maxExtent; }
         }
 
-        protected override void updateChild(float shrinkOffset, bool overlapsContent) {
+        public void updateChild(float shrinkOffset, bool overlapsContent) {
             D.assert(_element != null);
             _element._build(shrinkOffset, overlapsContent);
         }
@@ -326,8 +382,11 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             _RenderSliverFloatingPinnedPersistentHeaderForWidgets ret =
-                new _RenderSliverFloatingPinnedPersistentHeaderForWidgets();
-            ret.snapConfiguration = layoutDelegate.snapConfiguration;
+                new _RenderSliverFloatingPinnedPersistentHeaderForWidgets(
+                    snapConfiguration:  layoutDelegate.snapConfiguration,
+                    stretchConfiguration:  layoutDelegate.stretchConfiguration
+                    );
+            //ret.snapConfiguration = layoutDelegate.snapConfiguration;
             return ret;
         }
 
@@ -335,14 +394,27 @@ namespace Unity.UIWidgets.widgets {
             _RenderSliverFloatingPinnedPersistentHeaderForWidgets renderObject =
                 _renderObject as _RenderSliverFloatingPinnedPersistentHeaderForWidgets;
             renderObject.snapConfiguration = layoutDelegate.snapConfiguration;
+            renderObject.stretchConfiguration = layoutDelegate.stretchConfiguration;
         }
     }
 
     abstract class _RenderSliverFloatingPersistentHeader : RenderSliverFloatingPersistentHeader {
     }
 
-    class _RenderSliverFloatingPersistentHeaderForWidgets : _RenderSliverFloatingPersistentHeader,
+    class _RenderSliverFloatingPersistentHeaderForWidgets : RenderSliverFloatingPersistentHeader,
         _RenderSliverPersistentHeaderForWidgetsMixin {
+
+        public _RenderSliverFloatingPersistentHeaderForWidgets(
+            RenderBox child = null,
+            FloatingHeaderSnapConfiguration snapConfiguration = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(
+            child: child,
+            snapConfiguration: snapConfiguration,
+            stretchConfiguration: stretchConfiguration
+        ) {
+        }
+
         public _SliverPersistentHeaderElement _element {
             get { return _ele; }
             set { _ele = value; }
@@ -358,7 +430,7 @@ namespace Unity.UIWidgets.widgets {
             get { return _element.widget.layoutDelegate.maxExtent; }
         }
 
-        protected override void updateChild(float shrinkOffset, bool overlapsContent) {
+        public void updateChild(float shrinkOffset, bool overlapsContent) {
             D.assert(_element != null);
             _element._build(shrinkOffset, overlapsContent);
         }

@@ -10,7 +10,6 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public class RenderErrorBox : RenderBox {
-        const string _kLine = "\n\n────────────────────\n\n";
 
         protected override bool sizedByParent
         {
@@ -24,26 +23,20 @@ namespace Unity.UIWidgets.rendering {
 
             ParagraphBuilder builder = new ParagraphBuilder(paragraphStyle);
             builder.pushStyle(textStyle);
-            builder.addText(
-                $"{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}{message}{_kLine}"
-            );
+            builder.addText(message);
             _paragraph = builder.build();
         }
 
         string message;
         Paragraph _paragraph;
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return rendering_._kMaxWidth;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
             return rendering_._kMaxHeight;
         }
-
-        /*protected override bool sizedByParent {
-            get => true;
-        }*/
 
         protected override bool hitTestSelf(Offset position) => true;
 

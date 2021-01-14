@@ -83,16 +83,7 @@ namespace Unity.UIWidgets.widgets {
 
             return false;
         }
-
-        /*ParentDataElement _getChildElement() {
-            D.assert(mounted);
-            Element element = (Element) context;
-            Element childElement = null;
-            element.visitChildren((Element child) => { childElement = child; });
-
-            D.assert(childElement == null || childElement is ParentDataElement);
-            return (ParentDataElement) childElement;
-        }*/
+        
         ParentDataElement<KeepAliveParentDataMixin> _getChildElement() {
             D.assert(mounted);
             Element element = (Element) context;
@@ -102,10 +93,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(childElement == null || childElement is ParentDataElement<KeepAliveParentDataMixin>);
             return (ParentDataElement<KeepAliveParentDataMixin>) childElement;
         }
-
-        //void _updateParentDataOfChild(ParentDataElement childElement) {
-         //   childElement.applyWidgetOutOfTurn((ParentDataWidget<KeepAliveParentDataMixin>) build(context));
-       // }
+        
        void _updateParentDataOfChild(ParentDataElement<KeepAliveParentDataMixin> childElement) {
            childElement.applyWidgetOutOfTurn((ParentDataWidget<KeepAliveParentDataMixin>) build(context));
        }

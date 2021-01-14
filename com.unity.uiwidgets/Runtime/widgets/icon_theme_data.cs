@@ -1,5 +1,6 @@
 using System;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
@@ -42,7 +43,9 @@ namespace Unity.UIWidgets.widgets {
                 size: other.size
             );
         }
-
+        
+        IconThemeData resolve(BuildContext context) => this;
+        
         public bool isConcrete {
             get { return color != null && opacity != null && size != null; }
         }
@@ -114,7 +117,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Color>("color", color,
+            properties.add(new ColorProperty("color", color,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("opacity", opacity,
                 defaultValue: foundation_.kNullDefaultValue));

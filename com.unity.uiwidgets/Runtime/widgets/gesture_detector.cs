@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.widgets {
 
         internal override bool _debugAssertTypeMatches(Type type) {
             D.assert(type == typeof(T),
-                () => "GestureRecognizerFactory of type " + typeof(T) + " was used where type $type was specified.");
+                () => "GestureRecognizerFactory of type " + typeof(T) + $" was used where type {type} was specified.");
             return true;
         }
     }
@@ -69,6 +69,9 @@ namespace Unity.UIWidgets.widgets {
             GestureTapUpCallback onTapUp = null,
             GestureTapCallback onTap = null,
             GestureTapCancelCallback onTapCancel = null,
+            GestureTapDownCallback onSecondaryTapDown = null,
+            GestureTapUpCallback onSecondaryTapUp = null,
+            GestureTapCancelCallback onSecondaryTapCancel = null,
             GestureDoubleTapCallback onDoubleTap = null,
             GestureLongPressCallback onLongPress = null,
             GestureLongPressStartCallback onLongPressStart = null,
@@ -107,10 +110,13 @@ namespace Unity.UIWidgets.widgets {
                 bool haveScale = onScaleStart != null || onScaleUpdate != null || onScaleEnd != null;
                 if (havePan || haveScale) {
                     if (havePan && haveScale) {
-                        throw new UIWidgetsError(
-                            "Incorrect GestureDetector arguments.\n" +
-                            "Having both a pan gesture recognizer and a scale gesture recognizer is redundant; scale is a superset of pan. Just use the scale gesture recognizer."
-                        );
+                        throw new UIWidgetsError(new List<DiagnosticsNode>{
+                            new ErrorSummary("Incorrect GestureDetector arguments."),
+                            new ErrorDescription(
+                                "Having both a pan gesture recognizer and a scale gesture recognizer is redundant; scale is a superset of pan."
+                            ),
+                            new ErrorHint("Just use the scale gesture recognizer.")
+                        });
                     }
 
                     string recognizer = havePan ? "pan" : "scale";
@@ -131,6 +137,9 @@ namespace Unity.UIWidgets.widgets {
             this.onTapUp = onTapUp;
             this.onTap = onTap;
             this.onTapCancel = onTapCancel;
+            this.onSecondaryTapDown = onSecondaryTapDown;
+            this.onSecondaryTapUp = onSecondaryTapUp;
+            this.onSecondaryTapCancel = onSecondaryTapCancel;
             this.onDoubleTap = onDoubleTap;
             this.onLongPress = onLongPress;
             this.onLongPressUp = onLongPressUp;
@@ -164,6 +173,9 @@ namespace Unity.UIWidgets.widgets {
         public readonly GestureTapUpCallback onTapUp;
         public readonly GestureTapCallback onTap;
         public readonly GestureTapCancelCallback onTapCancel;
+        public readonly GestureTapDownCallback onSecondaryTapDown;
+        public readonly GestureTapUpCallback onSecondaryTapUp;
+        public readonly GestureTapCancelCallback onSecondaryTapCancel;
         public readonly GestureDoubleTapCallback onDoubleTap;
         public readonly GestureLongPressCallback onLongPress;
         public readonly GestureLongPressUpCallback onLongPressUp;
@@ -197,7 +209,10 @@ namespace Unity.UIWidgets.widgets {
             if (onTapDown != null ||
                 onTapUp != null ||
                 onTap != null ||
-                onTapCancel != null) {
+                onTapCancel != null ||
+                onSecondaryTapDown != null ||
+                onSecondaryTapUp != null ||
+                onSecondaryTapCancel != null) {
                 gestures[typeof(TapGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
                         () => new TapGestureRecognizer(debugOwner: this),
@@ -206,6 +221,9 @@ namespace Unity.UIWidgets.widgets {
                             instance.onTapUp = onTapUp;
                             instance.onTap = onTap;
                             instance.onTapCancel = onTapCancel;
+                            instance.onSecondaryTapDown = onSecondaryTapDown;
+                            instance.onSecondaryTapUp = onSecondaryTapUp;
+                            instance.onSecondaryTapCancel = onSecondaryTapCancel;
                         }
                     );
             }
@@ -360,12 +378,17 @@ namespace Unity.UIWidgets.widgets {
         public void replaceGestureRecognizers(Dictionary<Type, GestureRecognizerFactory> gestures) {
             D.assert(() => {
                 if (!context.findRenderObject().owner.debugDoingLayout) {
-                    throw new UIWidgetsError(
-                        "Unexpected call to replaceGestureRecognizers() method of RawGestureDetectorState.\n" +
-                        "The replaceGestureRecognizers() method can only be called during the layout phase. " +
-                        "To set the gesture recognizers at other times, trigger a new build using setState() " +
-                        "and provide the new gesture recognizers as constructor arguments to the corresponding " +
-                        "RawGestureDetector or GestureDetector object.");
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary(
+                            "Unexpected call to replaceGestureRecognizers() method of RawGestureDetectorState."),
+                        new ErrorDescription(
+                            "The replaceGestureRecognizers() method can only be called during the layout phase."),
+                        new ErrorHint(
+                            "To set the gesture recognizers at other times, trigger a new build using setState() " +
+                            "and provide the new gesture recognizers as constructor arguments to the corresponding " +
+                            "RawGestureDetector or GestureDetector object."
+                        )
+                    });
                 }
 
                 return true;

@@ -2270,10 +2270,10 @@ namespace Unity.UIWidgets.foundation {
         }
     }
 
-    class DiagnosticableTreeNode : DiagnosticableNode<DiagnosticableTree> {
+    class DiagnosticableTreeNode : DiagnosticableNode<DiagnosticableTreeMixin> {
         internal DiagnosticableTreeNode(
             string name,
-            DiagnosticableTree value,
+            DiagnosticableTreeMixin value,
             DiagnosticsTreeStyle style
         ) : base(
             name: name,
@@ -2281,6 +2281,7 @@ namespace Unity.UIWidgets.foundation {
             style: style
         ) {
         }
+        
 
         public override List<DiagnosticsNode> getChildren() {
             if (value != null) {
@@ -2386,8 +2387,29 @@ namespace Unity.UIWidgets.foundation {
         public virtual void debugFillProperties(DiagnosticPropertiesBuilder properties) {
         }
     }
-    
-    public abstract class DiagnosticableTree : Diagnosticable {
+
+
+    public interface DiagnosticableTreeMixin : IDiagnosticable{
+        string toString(DiagnosticLevel minLevel = DiagnosticLevel.info);
+        string toStringShallow(
+            string joiner = ", ",
+            DiagnosticLevel minLevel = DiagnosticLevel.debug
+        );
+
+        string toStringDeep(
+            string prefixLineOne = "",
+            string prefixOtherLines = null,
+            DiagnosticLevel minLevel = DiagnosticLevel.debug);
+
+        string toStringShort();
+
+        DiagnosticsNode toDiagnosticsNode(string name = null, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse);
+        List<DiagnosticsNode> debugDescribeChildren();
+        void debugFillProperties(DiagnosticPropertiesBuilder properties);
+
+    }
+
+    public abstract class DiagnosticableTree : Diagnosticable,DiagnosticableTreeMixin {
         protected DiagnosticableTree() {
         }
 

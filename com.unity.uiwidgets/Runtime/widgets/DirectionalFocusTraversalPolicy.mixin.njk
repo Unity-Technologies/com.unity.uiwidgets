@@ -1,0 +1,310 @@
+namespace Unity.UIWidgets.widgets {
+{% macro DirectionalFocusTraversalPolicyMixin(with) %}
+    {% set className = 'DirectionalFocusTraversalPolicyMixin' + with %}
+    public class {{className}} : {{with}}, DirectionalFocusTraversalPolicyMixin {
+        protected {{className}}() {
+        }
+
+        public readonly Dictionary<FocusScopeNode, _DirectionalPolicyData> _policyData = new Dictionary<FocusScopeNode, _DirectionalPolicyData>();
+        public override void invalidateScopeData(FocusScopeNode node) { 
+            base.invalidateScopeData(node);
+            _policyData.Remove(node);
+        }
+        public override void changedScope(FocusNode node = null, FocusScopeNode oldScope = null) { 
+            base.changedScope(node: node, oldScope: oldScope); 
+            if (oldScope != null) { 
+                var delEntries = _policyData[oldScope]?.history?.Where((_DirectionalPolicyDataEntry entry)=> { 
+                    return entry.node == node;
+              }); 
+                foreach (var delEntry in delEntries) {
+                  _policyData[oldScope]?.history?.Remove(delEntry);
+                }
+            }
+        }
+        public override FocusNode findFirstFocusInDirection(FocusNode currentNode, TraversalDirection direction) {
+            D.assert(direction != null);
+            D.assert(currentNode != null);
+            switch (direction) { 
+                case TraversalDirection.up:
+                    return _sortAndFindInitial(currentNode, vertical: true, first: false);
+                case TraversalDirection.down:
+                    return _sortAndFindInitial(currentNode, vertical: true, first: true);
+                case TraversalDirection.left:
+                    return _sortAndFindInitial(currentNode, vertical: false, first: false);
+                case TraversalDirection.right:
+                    return _sortAndFindInitial(currentNode, vertical: false, first: true); 
+            }
+            return null;
+        }
+        public FocusNode _sortAndFindInitial(FocusNode currentNode, bool vertical = false, bool first = false) { 
+            IEnumerable<FocusNode> nodes = currentNode.nearestScope.traversalDescendants;
+            List<FocusNode> sorted = nodes.ToList();
+            FocusTravesalUtils.mergeSort<FocusNode>(sorted, compare: (FocusNode a, FocusNode b)=> { 
+                if (vertical) { 
+                    if (first) { 
+                        return a.rect.top.CompareTo(b.rect.top); 
+                    } else { 
+                        return b.rect.bottom.CompareTo(a.rect.bottom);
+                    } 
+                } else { 
+                    if (first) { 
+                        return a.rect.left.CompareTo(b.rect.left); 
+                    } else { 
+                        return b.rect.right.CompareTo(a.rect.right); 
+                    } 
+                }
+            });
+            if (sorted.isNotEmpty()) { 
+                return sorted.First();
+            }
+            return null;
+        }
+
+        public IEnumerable<FocusNode> _sortAndFilterHorizontally(
+            TraversalDirection direction,
+            Rect target,
+            FocusNode nearestScope) 
+        {
+            D.assert(direction == TraversalDirection.left || direction == TraversalDirection.right);
+            IEnumerable<FocusNode> nodes = nearestScope.traversalDescendants;
+            D.assert(!nodes.Contains(nearestScope));
+            List<FocusNode> sorted = nodes.ToList();
+            FocusTravesalUtils.mergeSort<FocusNode>(sorted, compare: (FocusNode a, FocusNode b) => a.rect.center.dx.CompareTo(b.rect.center.dx));
+            IEnumerable<FocusNode> result = new List<FocusNode>();
+            switch (direction) { 
+                case TraversalDirection.left: 
+                    result = sorted.Where((FocusNode node) => node.rect != target && node.rect.center.dx <= target.left); 
+                    break;
+                case TraversalDirection.right:
+                    result = sorted.Where((FocusNode node) => node.rect != target && node.rect.center.dx >= target.right);
+                    break;
+                case TraversalDirection.up:
+                case TraversalDirection.down:
+                    break;
+            }
+            return result;
+        }
+        public IEnumerable<FocusNode> _sortAndFilterVertically(
+            TraversalDirection direction,
+            Rect target,
+            IEnumerable<FocusNode> nodes) 
+        {
+            List<FocusNode> sorted = nodes.ToList();
+            FocusTravesalUtils.mergeSort<FocusNode>(sorted, compare: (FocusNode a, FocusNode b) => a.rect.center.dy.CompareTo(b.rect.center.dy));
+            switch (direction) { 
+                case TraversalDirection.up:
+                    return sorted.Where((FocusNode node) => node.rect != target && node.rect.center.dy <= target.top);
+                case TraversalDirection.down: 
+                    return sorted.Where((FocusNode node) => node.rect != target && node.rect.center.dy >= target.bottom);
+                case TraversalDirection.left:
+                case TraversalDirection.right:
+                    break;
+            }
+            D.assert(direction == TraversalDirection.up || direction == TraversalDirection.down);
+            return null;
+        }
+        public bool _popPolicyDataIfNeeded(TraversalDirection direction, FocusScopeNode nearestScope, FocusNode focusedChild) { 
+            _DirectionalPolicyData policyData = _policyData[nearestScope]; 
+            if (policyData != null && policyData.history.isNotEmpty() && policyData.history.First().direction != direction) { 
+                if (policyData.history.Last().node.parent == null) { 
+                    invalidateScopeData(nearestScope); 
+                    return false;
+                    
+                }
+                bool popOrInvalidate(TraversalDirection _direction) { 
+                    FocusNode lastNode = policyData.history.removeLast().node;
+                    if (Scrollable.of(lastNode.context) != Scrollable.of(FocusManagerUtils.primaryFocus.context)) { 
+                        invalidateScopeData(nearestScope);
+                        return false;
+                    } 
+                    ScrollPositionAlignmentPolicy alignmentPolicy = ScrollPositionAlignmentPolicy.explicitPolicy;
+                    switch (_direction) { 
+                        case TraversalDirection.up:
+                        case TraversalDirection.left:
+                            alignmentPolicy = ScrollPositionAlignmentPolicy.keepVisibleAtStart;
+                            break;
+                        case TraversalDirection.right:
+                        case TraversalDirection.down:
+                            alignmentPolicy = ScrollPositionAlignmentPolicy.keepVisibleAtEnd;
+                            break;
+                    }
+                    FocusTravesalUtils._focusAndEnsureVisible(
+                        lastNode,
+                        alignmentPolicy: alignmentPolicy
+                    );
+                    return true;
+                } 
+                switch (direction) { 
+                    case TraversalDirection.down:
+                    case TraversalDirection.up: 
+                        switch (policyData.history.First().direction) { 
+                            case TraversalDirection.left: 
+                            case TraversalDirection.right:
+                                invalidateScopeData(nearestScope);
+                                break;
+                            case TraversalDirection.up:
+                            case TraversalDirection.down: 
+                                if (popOrInvalidate(direction)) {
+                                    return true;
+                                }    
+                                break;
+                        }
+                        break;
+                        case TraversalDirection.left:
+                        case TraversalDirection.right: 
+                            switch (policyData.history.First().direction) { 
+                                case TraversalDirection.left: 
+                                case TraversalDirection.right:
+                                    if (popOrInvalidate(direction)) { 
+                                        return true; 
+                                    } 
+                                    break; 
+                                case TraversalDirection.up: 
+                                case TraversalDirection.down:
+                                    invalidateScopeData(nearestScope); 
+                                    break; 
+                            }
+                            break; 
+                }
+            } 
+            if (policyData != null && policyData.history.isEmpty()) {
+                invalidateScopeData(nearestScope);
+            }
+            return false; 
+            
+        }
+        public void _pushPolicyData(TraversalDirection direction, FocusScopeNode nearestScope, FocusNode focusedChild) { 
+            _DirectionalPolicyData policyData = _policyData[nearestScope]; 
+            if (policyData != null && !(policyData is _DirectionalPolicyData)) { 
+                return; 
+            }
+            _DirectionalPolicyDataEntry newEntry = new _DirectionalPolicyDataEntry(node: focusedChild, direction: direction); 
+            if (policyData != null) { 
+                policyData.history.Add(newEntry);
+            } else { 
+                _policyData[nearestScope] = new _DirectionalPolicyData(history: new List<_DirectionalPolicyDataEntry>(){newEntry});
+            }
+        }
+        public override bool inDirection(FocusNode currentNode, TraversalDirection direction) { 
+            FocusScopeNode nearestScope = currentNode.nearestScope;
+            FocusNode focusedChild = nearestScope.focusedChild;
+            if (focusedChild == null) { 
+                FocusNode firstFocus = findFirstFocusInDirection(currentNode, direction) ?? currentNode; 
+                switch (direction) { 
+                    case TraversalDirection.up:
+                    case TraversalDirection.left: 
+                        FocusTravesalUtils._focusAndEnsureVisible(
+                            firstFocus,
+                            alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtStart
+                        ); 
+                        break;
+                    case TraversalDirection.right:
+                    case TraversalDirection.down:
+                        FocusTravesalUtils._focusAndEnsureVisible(
+                            firstFocus,
+                            alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd
+                      );
+                      break;
+                  }
+                  return true;
+            } 
+            if (_popPolicyDataIfNeeded(direction, nearestScope, focusedChild)) {
+                return true;
+            }
+            FocusNode found = null;
+            ScrollableState focusedScrollable = Scrollable.of(focusedChild.context); 
+            switch (direction) {
+                case TraversalDirection.down:
+                case TraversalDirection.up: 
+                    IEnumerable<FocusNode> eligibleNodes = _sortAndFilterVertically(
+                        direction,
+                        focusedChild.rect,
+                        nearestScope.traversalDescendants
+                    ); 
+                    if (focusedScrollable != null && !focusedScrollable.position.atEdge()) { 
+                        IEnumerable<FocusNode> filteredEligibleNodes = eligibleNodes.Where((FocusNode node) => Scrollable.of(node.context) == focusedScrollable); 
+                        if (filteredEligibleNodes.Count() !=0) { 
+                            eligibleNodes = filteredEligibleNodes; 
+                        }
+                    } 
+                    if (eligibleNodes.Count() == 0) { 
+                        break; 
+                    }
+                    List<FocusNode> sorted = eligibleNodes.ToList();
+                    if (direction == TraversalDirection.up) {
+                      //sorted = sorted.reversed.toList();
+                        sorted.Reverse();
+                        sorted = sorted.ToList();
+                    }
+                    Rect band = Rect.fromLTRB(focusedChild.rect.left, float.NegativeInfinity, focusedChild.rect.right, float.PositiveInfinity);
+                    IEnumerable<FocusNode> inBand = sorted.Where((FocusNode node) => !node.rect.intersect(band).isEmpty);
+                    if (inBand.Count() !=0) {
+                        found = inBand.First();
+                        break;
+                    }
+                    FocusTravesalUtils.mergeSort<FocusNode>(sorted, compare: (FocusNode a, FocusNode b)=> { 
+                        return (a.rect.center.dx - focusedChild.rect.center.dx).abs().CompareTo((b.rect.center.dx - focusedChild.rect.center.dx).abs());
+                    });
+                    found = sorted.First();
+                    break;
+                case TraversalDirection.right:
+                case TraversalDirection.left: 
+                    eligibleNodes  = _sortAndFilterHorizontally(direction, focusedChild.rect, nearestScope); 
+                    if (focusedScrollable != null && !focusedScrollable.position.atEdge()) { 
+                        IEnumerable<FocusNode> filteredEligibleNodes = eligibleNodes.Where((FocusNode node) => Scrollable.of(node.context) == focusedScrollable); 
+                        if (filteredEligibleNodes.Count()!=0) { 
+                            eligibleNodes = filteredEligibleNodes; 
+                        } 
+                    } 
+                    if (eligibleNodes.Count() == 0) { 
+                        break; 
+                    } 
+                    sorted = eligibleNodes.ToList(); 
+                    if (direction == TraversalDirection.left) { 
+                        sorted.Reverse();
+                        sorted = sorted.ToList();
+                        //sorted = sorted.reversed.toList(); 
+                    }
+                    band = Rect.fromLTRB(float.NegativeInfinity, focusedChild.rect.top, float.PositiveInfinity, focusedChild.rect.bottom); 
+                    inBand = sorted.Where((FocusNode node) => !node.rect.intersect(band).isEmpty); 
+                    if (inBand.Count()!=0) {
+                        found = inBand.First(); 
+                        break; 
+                    }
+                    FocusTravesalUtils.mergeSort<FocusNode>(sorted, compare: (FocusNode a, FocusNode b) =>{ 
+                        return (a.rect.center.dy - focusedChild.rect.center.dy).abs().CompareTo((b.rect.center.dy - focusedChild.rect.center.dy).abs()); 
+                    }); 
+                    found = sorted.First(); 
+                    break; 
+            } 
+            if (found != null) { 
+                _pushPolicyData(direction, nearestScope, focusedChild); 
+                switch (direction) { 
+                    case TraversalDirection.up: 
+                    case TraversalDirection.left: 
+                        FocusTravesalUtils._focusAndEnsureVisible(
+                            found, 
+                            alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtStart
+                            ); 
+                        break; 
+                    case TraversalDirection.down: 
+                    case TraversalDirection.right: 
+                        FocusTravesalUtils._focusAndEnsureVisible(
+                            found, 
+                            alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd
+                      );
+                      break;
+                }
+                return true; 
+            }
+            return false;
+        }
+        public override IEnumerable<FocusNode> sortDescendants(IEnumerable<FocusNode> descendants) {
+            return null;
+        }        
+               
+    }
+{% endmacro %}
+{{ DirectionalFocusTraversalPolicyMixin('FocusTraversalPolicy') }}
+}
+

@@ -100,7 +100,7 @@ namespace Unity.UIWidgets.widgets {
                             name: "The relevant error-causing widget was",
                             children: new List<DiagnosticsNode>() {
                                 new ErrorDescription(
-                                    "${target.widget.toStringShort()} ${_describeCreationLocation(target)}"),
+                                    $"{target.widget.toStringShort()} " + $"{_describeCreationLocation(target)}"),
                             }
                         ));
                     nodes.Add(new ErrorSpacer());
@@ -1821,8 +1821,8 @@ namespace Unity.UIWidgets.widgets {
             if (file != null) {
                 parts.Add(file);
             }
-            parts.Add("$line");
-            parts.Add("$column");
+            parts.Add($"{line}");
+            parts.Add($"{column}");
             string result = "";
             foreach (var part in parts) {
                 result += part;
@@ -2317,8 +2317,12 @@ namespace Unity.UIWidgets.widgets {
             });
             if (inDebugMode == false) {
                 throw new UIWidgetsError(
-                    "The inspector should never be used in production mode due to the " + 
-                "negative performance impact."
+                    new List<DiagnosticsNode>() {
+                        new ErrorSummary(
+                            "The inspector should never be used in production mode due to the " + 
+                        "negative performance impact."
+                        )
+                    }
                     );
             }
         }

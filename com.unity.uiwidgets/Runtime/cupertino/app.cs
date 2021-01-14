@@ -15,6 +15,7 @@ namespace Unity.UIWidgets.cupertino {
             Dictionary<string, WidgetBuilder> routes = null,
             string initialRoute = null,
             RouteFactory onGenerateRoute = null,
+            InitialRouteListFactory onGenerateInitialRoutes = null,
             RouteFactory onUnknownRoute = null,
             List<NavigatorObserver> navigatorObservers = null,
             TransitionBuilder builder = null,
@@ -31,12 +32,11 @@ namespace Unity.UIWidgets.cupertino {
             bool checkerboardOffscreenLayers = false,
             bool showSemanticsDebugger = false,
             bool debugShowCheckedModeBanner = true,
-            // tbc????
             Dictionary<LogicalKeySet, Intent> shortcuts = null,
             Dictionary<LocalKey, ActionFactory> actions = null
         ) : base(key: key) {
+            
             D.assert(title != null);
-
             supportedLocales = supportedLocales ?? new List<Locale> {new Locale("en", "US")};
             this.navigatorKey = navigatorKey;
             this.home = home;
@@ -44,6 +44,7 @@ namespace Unity.UIWidgets.cupertino {
             this.routes = routes ?? new Dictionary<string, WidgetBuilder>();
             this.initialRoute = initialRoute;
             this.onGenerateRoute = onGenerateRoute;
+            this.onGenerateInitialRoutes = onGenerateInitialRoutes;
             this.onUnknownRoute = onUnknownRoute;
             this.navigatorObservers = navigatorObservers ?? new List<NavigatorObserver>();
             this.builder = builder;
@@ -56,6 +57,8 @@ namespace Unity.UIWidgets.cupertino {
             this.localeResolutionCallback = localeResolutionCallback;
             this.supportedLocales = supportedLocales;
             this.showPerformanceOverlay = showPerformanceOverlay;
+            this.showSemanticsDebugger = showSemanticsDebugger;
+            this.debugShowCheckedModeBanner = debugShowCheckedModeBanner;
             this.shortcuts = shortcuts;
             this.actions = actions;
         }
@@ -82,9 +85,8 @@ namespace Unity.UIWidgets.cupertino {
         public readonly bool checkerboardRasterCacheImages;
         public readonly bool checkerboardOffscreenLayers;
         public readonly bool showSemanticsDebugger;
-        public readonly bool debugShowWidgetInspector;
         public readonly bool debugShowCheckedModeBanner;
-        //TBC ????
+     
         public readonly Dictionary<LogicalKeySet, Intent> shortcuts;
         public readonly Dictionary<LocalKey, ActionFactory> actions;
 
@@ -205,9 +207,8 @@ namespace Unity.UIWidgets.cupertino {
                                       );
                                     },
                                     shortcuts: widget.shortcuts,
-                                 
                                     actions: widget.actions
-                                  );  
+                                );  
                             }
                         )
                     )
