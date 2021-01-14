@@ -6,6 +6,8 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.widgets {
     public class OverlayEntry {
@@ -102,7 +104,6 @@ namespace Unity.UIWidgets.widgets {
 
         internal void _markNeedsBuild() {
             setState(() => {
-                /* the state that changed is in the builder */
             });
         }
     }
@@ -214,36 +215,28 @@ namespace Unity.UIWidgets.widgets {
         {
             List<OverlayEntry> newEntriesList =
                 newEntries is List<OverlayEntry> ? (newEntries as List<OverlayEntry>) : newEntries.ToList();
+            
             D.assert(
-                above == null || below == null,
-                ()=>"Only one of `above` and `below` may be specified."
-            );
+                above == null || below == null, 
+                () => "Only one of `above` and `below` may be specified."
+                );
             D.assert(
-                above == null || (above._overlay == this && _entries.Contains(above) && newEntriesList.Contains(above)),
-                ()=>"The entry used for `above` must be in the Overlay and in the `newEntriesList`."
-            );
+                above == null || (above._overlay == this && _entries.Contains(above)),
+                () => "The provided entry for `above` is not present in the Overlay."
+                );
             D.assert(
-                below == null || (below._overlay == this && _entries.Contains(below) && newEntriesList.Contains(below)),
-                ()=>"The entry used for `below` must be in the Overlay and in the `newEntriesList`."
-            );
-            int overlayEntry = 0;
-            foreach (var newEntry in newEntriesList) {
-                if (newEntry._overlay == null || newEntry._overlay == this) {
-                    overlayEntry++;
-                }
-            }
-            D.assert(overlayEntry == newEntriesList.Count,
-                ()=>"One or more of the specified entries are already present in another Overlay."
-            );
-            int lastoverlayEntry = 0;
-            foreach (var newEntry in newEntriesList) {
-                if (_entries.IndexOf(newEntry) == _entries.LastIndexOf(newEntry)) {
-                    lastoverlayEntry++;
-                }
-            }
-            D.assert(lastoverlayEntry == newEntriesList.Count,
-                ()=>"One or more of the specified entries are specified multiple times."
-            );
+                below == null || (below._overlay == this && _entries.Contains(below)),
+                () => "The provided entry for `below` is not present in the Overlay."
+                );
+            D.assert(
+                newEntriesList.All(entry => entry._overlay == null || entry._overlay == this),
+                () => "One or more of the specified entries are already present in another Overlay."
+                );
+            D.assert(
+                newEntriesList.All(entry => _entries.IndexOf(entry) == _entries.LastIndexOf(entry)),
+                () => "One or more of the specified entries are specified multiple times."
+                );
+            
             if (newEntriesList.isEmpty()) {
                 return;
             }
@@ -301,8 +294,8 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             var children = new List<Widget>();
-            int onstageCount = 0;
             var onstage = true;
+            int onstageCount = 0;
             for (var i = _entries.Count - 1; i >= 0; i -= 1) {
                 var entry = _entries[i];
                 if (onstage) {
@@ -337,7 +330,7 @@ namespace Unity.UIWidgets.widgets {
         internal _Theatre(
             Key key = null,
             int skipCount = 0,
-            List<Widget> children = null) : base(key, children) {
+            List<Widget> children = null) : base(key: key, children: children) {
             D.assert(skipCount >= 0);
             D.assert(children != null);
             D.assert(children.Count() >= skipCount);
@@ -345,10 +338,6 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public readonly int skipCount;
-
-        public readonly Stack onstage;
-
-        public readonly List<Widget> offstage;
 
         public override Element createElement() {
             return new _TheatreElement(this);
@@ -390,9 +379,8 @@ namespace Unity.UIWidgets.widgets {
             }
         }
     }
-    class _RenderTheatre :
-        ContainerRenderObjectMixinRenderProxyBoxMixinRenderObjectWithChildMixinRenderBoxRenderStack<
-            RenderBox, StackParentData> {
+
+    class _RenderTheatre : ContainerRenderObjectMixinRenderBox<RenderBox, StackParentData> {
         internal _RenderTheatre(
             TextDirection textDirection,
             List<RenderBox> children = null,
@@ -415,12 +403,12 @@ namespace Unity.UIWidgets.widgets {
         Alignment _resolvedAlignment;
 
         void _resolve() {
-            if (_resolvedAlignment != null)
+            if (_resolvedAlignment != null) {
                 return;
+            }
+            //FIXME: wait for changes on painting/alignment.cs (by Siyao)
+            //then uncomment the line below and remove the switch clauses
             //_resolvedAlignment = AlignmentDirectional.topStart.resolve(textDirection);
-        
-            // TODO: AlignmentDirectional
-            Alignment al = Alignment.topLeft;
             switch (textDirection) {
                 case TextDirection.rtl:
                     _resolvedAlignment = new Alignment(-1, -1);
@@ -451,7 +439,6 @@ namespace Unity.UIWidgets.widgets {
         public int skipCount {
             get { return _skipCount; }
             set {
-                D.assert(value != null);
                 if (_skipCount != value) {
                     _skipCount = value;
                     markNeedsLayout();
@@ -486,77 +473,6 @@ namespace Unity.UIWidgets.widgets {
             get { return childCount - skipCount; }
         }
 
-
-        public override void redepthChildren() {
-            if (child != null) {
-                redepthChild(child);
-            }
-
-            base.redepthChildren();
-        }
-
-        public override void visitChildren(RenderObjectVisitor visitor) {
-            if (child != null) {
-                visitor(child);
-            }
-
-            base.visitChildren(visitor);
-        }
-
-        public override List<DiagnosticsNode> debugDescribeChildren() {
-            List<DiagnosticsNode> offstageChildren = new List<DiagnosticsNode>();
-            List<DiagnosticsNode> onstageChildren = new List<DiagnosticsNode>();
-
-            int count = 1;
-            bool onstage = false;
-            RenderBox child = firstChild;
-            RenderBox firstOnstageChild = _firstOnstageChild;
-            while (child != null) {
-                if (child == firstOnstageChild) {
-                    onstage = true;
-                    count = 1;
-                }
-
-                if (onstage) {
-                    onstageChildren.Add(
-                        child.toDiagnosticsNode(
-                            name: $"onstage {count}"
-                        )
-                    );
-                } else {
-                    offstageChildren.Add(
-                        child.toDiagnosticsNode(
-                            name: $"offstage {count}",
-                            style: DiagnosticsTreeStyle.offstage
-                        )
-                    );
-                }
-
-                StackParentData childParentData = child.parentData as StackParentData;
-                child = childParentData.nextSibling;
-                count += 1;
-            }
-
-
-            if (offstageChildren.isNotEmpty()) {
-                foreach (var stagechild in offstageChildren) {
-                    onstageChildren.Add(stagechild);
-                }
-            }
-            else {
-                onstageChildren.Add(DiagnosticsNode.message(
-                    "no offstage children",
-                    style: DiagnosticsTreeStyle.offstage
-                ));
-            }
-
-            return onstageChildren;
-
-
-        }
-
-       
-
         protected internal override float computeMinIntrinsicWidth(float height) {
             return RenderStack.getIntrinsicDimension(_firstOnstageChild,
                 (RenderBox child) => child.getMinIntrinsicWidth(height));
@@ -588,7 +504,7 @@ namespace Unity.UIWidgets.widgets {
                 if (candidate != null) {
                     candidate += childParentData.offset.dy;
                     if (result != null) {
-                        result = Math.Min(result.Value, candidate.Value);
+                        result = Mathf.Min(result.Value, candidate.Value);
                     }
                     else {
                         result = candidate;
@@ -619,8 +535,7 @@ namespace Unity.UIWidgets.widgets {
 
             _resolve();
             D.assert(_resolvedAlignment != null);
-
-            // Same BoxConstraints as used by RenderStack for StackFit.expand.
+            
             BoxConstraints nonPositionedConstraints = BoxConstraints.tight(constraints.biggest);
 
             RenderBox child = _firstOnstageChild;
@@ -647,6 +562,7 @@ namespace Unity.UIWidgets.widgets {
             for (int i = 0; i < _onstageChildCount; i++) {
                 D.assert(child != null);
                 StackParentData childParentData = child.parentData as StackParentData;
+                
                 bool isHit = result.addWithPaintOffset(
                     offset: childParentData.offset,
                     position: position,
@@ -681,15 +597,6 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        void visitChildrenForSemantics(RenderObjectVisitor visitor) {
-            RenderBox child = _firstOnstageChild;
-            while (child != null) {
-                visitor(child);
-                StackParentData childParentData = child.parentData as StackParentData;
-                child = childParentData.nextSibling;
-            }
-        }
-
         public override Rect describeApproximatePaintClip(RenderObject child) =>
             _hasVisualOverflow ? Offset.zero & size : null;
 
@@ -697,6 +604,52 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(properties);
             properties.add(new IntProperty("skipCount", skipCount));
             properties.add(new EnumProperty<TextDirection>("textDirection", textDirection));
+        }
+
+        public override List<DiagnosticsNode> debugDescribeChildren() {
+            List<DiagnosticsNode> offstageChildren = new List<DiagnosticsNode>();
+            List<DiagnosticsNode> onstageChildren = new List<DiagnosticsNode>();
+            
+            int count = 1;
+            bool onstage = false;
+            RenderBox child = firstChild;
+            RenderBox firstOnstageChild = _firstOnstageChild;
+            while (child != null) {
+                if (child == firstOnstageChild) {
+                    onstage = true;
+                    count = 1;
+                }
+
+                if (onstage) {
+                    onstageChildren.Add(
+                        child.toDiagnosticsNode(
+                            name: $"onstage {count}"
+                        )
+                    );
+                } else {
+                    offstageChildren.Add(
+                        child.toDiagnosticsNode(
+                            name: $"offstage {count}",
+                            style: DiagnosticsTreeStyle.offstage
+                        )
+                    );
+                }
+
+                StackParentData childParentData = child.parentData as StackParentData;
+                child = childParentData.nextSibling;
+                count += 1;
+            }
+
+            List<DiagnosticsNode> result = new List<DiagnosticsNode>();
+            result.AddRange(onstageChildren);
+            if (offstageChildren.isNotEmpty()) {
+                result.AddRange(offstageChildren);
+            }
+            else {
+                result.Add(DiagnosticsNode.message("no offstage children", style: DiagnosticsTreeStyle.offstage));
+            }
+
+            return result;
         }
     }
 }
