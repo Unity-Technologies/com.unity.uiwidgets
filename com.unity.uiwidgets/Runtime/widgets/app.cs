@@ -96,7 +96,6 @@ namespace Unity.UIWidgets.widgets {
             routes = routes ?? new Dictionary<string, WidgetBuilder>();
             supportedLocales = supportedLocales ?? new List<Locale> {new Locale("en", "US")};
             window = Window.instance;
-            D.assert(navigatorObservers != null);
             D.assert(routes != null);
             this.home = home;
             this.navigatorKey = navigatorKey;

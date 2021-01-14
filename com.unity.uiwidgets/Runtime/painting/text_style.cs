@@ -310,7 +310,7 @@ namespace Unity.UIWidgets.painting {
             return new TextStyle(
                 inherit: inherit ?? this.inherit,
                 color: this.foreground == null && foreground == null ? color ?? this.color : null,
-                backgroundColor: this.background == null && background == null ? color ?? this.backgroundColor : null,
+                backgroundColor: this.background == null && background == null ? backgroundColor ?? this.backgroundColor : null,
                 fontFamily: fontFamily ?? this.fontFamily,
                 fontFamilyFallback: fontFamilyFallback ?? this.fontFamilyFallback,
                 fontSize: fontSize ?? this.fontSize,

@@ -1054,7 +1054,7 @@ namespace Unity.UIWidgets.widgets {
                 widget.pages.isEmpty() || widget.onPopPage != null, () =>
                     "The Navigator.onPopPage must be provided to use the Navigator.pages API"
             );
-            if (((Navigator)oldWidget).observers != widget.observers) {
+            if (!((Navigator)oldWidget).observers.equalsList(widget.observers)) {
                 foreach (NavigatorObserver observer in ((Navigator)oldWidget).observers)
                     observer._navigator = null;
                 foreach (NavigatorObserver observer in widget.observers) {
@@ -1063,7 +1063,7 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
 
-            if (((Navigator)oldWidget).pages != widget.pages) {
+            if (!((Navigator)oldWidget).pages.equalsList(widget.pages)) {
                 D.assert(
                     widget.pages.isNotEmpty(), () =>
                         "To use the Navigator.pages, there must be at least one page in the list."
