@@ -3085,9 +3085,9 @@ namespace Unity.UIWidgets.widgets {
                     badAncestors.Insert(0, result);
                     try {
                         List<ErrorDescription> errors = new List<ErrorDescription>();
-                        foreach (ParentDataElement<ParentData> ancestor in badAncestors)
+                        foreach (ParentDataElement<ParentData> _ancestor in badAncestors)
                             errors.Add(new ErrorDescription(
-                                $"- {ancestor.widget} (typically placed directly inside a {ancestor.widget.debugTypicalAncestorWidgetClass} widget)"));
+                                $"- {_ancestor.widget} (typically placed directly inside a {_ancestor.widget.debugTypicalAncestorWidgetClass} widget)"));
                         List<DiagnosticsNode> results = new List<DiagnosticsNode>();
                         results.Add( new ErrorSummary("Incorrect use of ParentDataWidget."));
                         results.Add(new ErrorDescription("The following ParentDataWidgets are providing parent data to the same RenderObject:"));

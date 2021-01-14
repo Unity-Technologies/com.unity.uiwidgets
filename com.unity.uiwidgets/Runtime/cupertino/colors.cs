@@ -400,7 +400,7 @@ namespace Unity.UIWidgets.cupertino {
             Color highContrastElevatedColor = null,
             Color darkHighContrastElevatedColor = null,
             Element debugResolveContext = null 
-            ): base(effectiveColor.value)
+            ): base(0)
         {
             D.assert(color != null,()=>"color8 == null");
             D.assert(darkColor != null,()=>"color7 == null");
@@ -410,7 +410,7 @@ namespace Unity.UIWidgets.cupertino {
             D.assert(darkElevatedColor != null,()=>"color3 == null");
             D.assert(highContrastElevatedColor != null,()=>"color2 == null");
             D.assert(darkHighContrastElevatedColor != null,()=>"color1 == null");
-            D.assert(effectiveColor != null);
+          
 
             _effectiveColor = effectiveColor ?? color;
             this.color = color;
@@ -660,10 +660,10 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override string toString(DiagnosticLevel minLevel = DiagnosticLevel.debug) {
-            /*string toString(string name, Color color) {
+            string toStringColor(string name, Color color) {
                 string marker = color == _effectiveColor ? "*" : "";
                 return marker+ name+" = " + color + marker;
-            }*/
+            }
             List<string> xs = new List<string>();
             xs.Add(toStringColor("color",color));
             if (_isPlatformBrightnessDependent)
@@ -696,12 +696,6 @@ namespace Unity.UIWidgets.cupertino {
 
         }
 
-        public string toStringColor(string name, Color color) {
-            string marker = color == _effectiveColor ? "*" : "";
-            return marker + name + " = " + color.ToString() + marker;
-        }
-
-
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             if (_debugLabel != null)
@@ -729,8 +723,8 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public static DiagnosticsProperty<Color> createCupertinoColorProperty(
-            string name = null,
-            Color value = null,
+            string name ,
+            Color value ,
             bool showName = true,
             object defaultValue = null,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,

@@ -1304,6 +1304,34 @@ namespace Unity.UIWidgets.widgets {
                 defaultValue: VerticalDirection.down));
         }
     }
+    public class ShaderMask : SingleChildRenderObjectWidget { 
+        public ShaderMask(
+            Key key = null,
+            ShaderCallback shaderCallback = null,
+            BlendMode blendMode = BlendMode.modulate,
+            Widget child = null
+        ) : base(key: key, child: child){
+            D.assert(shaderCallback != null);
+            D.assert(blendMode != null);
+        }
+
+        public readonly ShaderCallback shaderCallback;
+        public readonly BlendMode blendMode;
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderShaderMask(
+                shaderCallback: shaderCallback,
+                blendMode: blendMode
+            );
+        }
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            renderObject = (RenderShaderMask)renderObject;
+            ((RenderShaderMask)renderObject).shaderCallback = shaderCallback;
+            ((RenderShaderMask)renderObject).blendMode = blendMode;
+        }
+    }
+
+
+    
 
     public class PhysicalModel : SingleChildRenderObjectWidget {
         public PhysicalModel(

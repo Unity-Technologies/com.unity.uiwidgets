@@ -20,6 +20,69 @@ namespace Unity.UIWidgets.rendering {
         opaque,
         translucent,
     }
+    public delegate Shader ShaderCallback(Rect bounds);
+    class RenderShaderMask : RenderProxyBox {
+        public RenderShaderMask(
+            RenderBox child = null, 
+            ShaderCallback shaderCallback = null, 
+            BlendMode blendMode = BlendMode.modulate
+            ) : base(child) {
+            D.assert(shaderCallback != null);
+            D.assert(blendMode != null);
+            _shaderCallback = shaderCallback;
+            _blendMode = blendMode;
+        }
+
+        public new ShaderMaskLayer layer {
+            get {
+                return base.layer as ShaderMaskLayer;
+            }
+            set { }
+        }
+
+        public ShaderCallback shaderCallback {
+            get {
+                return _shaderCallback;
+            }
+            set {
+                D.assert(value != null);
+                if (_shaderCallback == value)
+                    return;
+                _shaderCallback = value;
+                markNeedsPaint();
+            }
+        }
+        ShaderCallback _shaderCallback;
+
+        public BlendMode blendMode {
+            get { return _blendMode;}
+            set {
+                D.assert(value != null);
+                if (_blendMode == value)
+                    return;
+                _blendMode = value;
+                markNeedsPaint();
+            }
+        }
+        BlendMode _blendMode;
+
+        protected override bool alwaysNeedsCompositing {
+            get { return child != null;}
+        }
+
+        public override void paint(PaintingContext context, Offset offset) {
+            if (child != null) {
+              D.assert(needsCompositing);
+              layer = layer ?? new ShaderMaskLayer();
+              layer.shader = _shaderCallback(Offset.zero & size);
+              layer.maskRect = offset & size;
+              layer.blendMode = _blendMode;
+              context.pushLayer(layer, base.paint, offset);
+            } else {
+              layer = null;
+            }
+        }
+    }
 
     public interface RenderAnimatedOpacityMixin<T> : RenderObjectWithChildMixin<T> where T : RenderObject {
 
