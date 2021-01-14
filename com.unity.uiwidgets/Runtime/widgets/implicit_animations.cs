@@ -461,7 +461,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             return new Padding(
-                padding: _padding
+                padding: (EdgeInsets) _padding
                     .evaluate(animation)
                     .clamp(EdgeInsets.zero, EdgeInsets.infinity),
                 child: widget.child
