@@ -9,7 +9,7 @@ namespace Unity.UIWidgets.painting {
         public static float dot(this Vector3 left, Vector3 right) {
             return left.x * right.x + left.y * right.y + left.z * right.z;
         }
-        
+
         public static Offset getAsTranslation(this Matrix4 values) {
             if (values[0] == 1 && // col 1
                 values[1] == 0 &&
@@ -31,15 +31,15 @@ namespace Unity.UIWidgets.painting {
                 return null;
             }
         }
-        
+
         public static void QuaternionFromMatrix(this Matrix4 m, ref Quaternion q) {
-            q.w = Mathf.Sqrt( Mathf.Max( 0, 1 + m.entry(0,0) + m.entry(1,1) + m.entry(2,2) ) ) / 2; 
-            q.x = Mathf.Sqrt( Mathf.Max( 0, 1 + m.entry(0,0) - m.entry(1,1) - m.entry(2,2) ) ) / 2; 
-            q.y = Mathf.Sqrt( Mathf.Max( 0, 1 - m.entry(0,0) + m.entry(1,1) - m.entry(2,2) ) ) / 2; 
-            q.z = Mathf.Sqrt( Mathf.Max( 0, 1 - m.entry(0,0) - m.entry(1,1) + m.entry(2,2) ) ) / 2; 
-            q.x *= Mathf.Sign( q.x * ( m.entry(2,1) - m.entry(1,2) ) );
-            q.y *= Mathf.Sign( q.y * ( m.entry(0,2) - m.entry(2,0) ) );
-            q.z *= Mathf.Sign( q.z * ( m.entry(1,0) - m.entry(0,1) ) );
+            q.w = Mathf.Sqrt(Mathf.Max(0, 1 + m.entry(0, 0) + m.entry(1, 1) + m.entry(2, 2))) / 2;
+            q.x = Mathf.Sqrt(Mathf.Max(0, 1 + m.entry(0, 0) - m.entry(1, 1) - m.entry(2, 2))) / 2;
+            q.y = Mathf.Sqrt(Mathf.Max(0, 1 - m.entry(0, 0) + m.entry(1, 1) - m.entry(2, 2))) / 2;
+            q.z = Mathf.Sqrt(Mathf.Max(0, 1 - m.entry(0, 0) - m.entry(1, 1) + m.entry(2, 2))) / 2;
+            q.x *= Mathf.Sign(q.x * (m.entry(2, 1) - m.entry(1, 2)));
+            q.y *= Mathf.Sign(q.y * (m.entry(0, 2) - m.entry(2, 0)));
+            q.z *= Mathf.Sign(q.z * (m.entry(1, 0) - m.entry(0, 1)));
         }
 
         public static Quaternion scaled(this Quaternion lhs, float scale) {
@@ -49,7 +49,7 @@ namespace Unity.UIWidgets.painting {
             lhs.w *= scale;
             return lhs;
         }
-        
+
         public static Quaternion add(this Quaternion lhs, Quaternion rhs) {
             lhs.x += rhs.x;
             lhs.y += rhs.y;
@@ -63,7 +63,12 @@ namespace Unity.UIWidgets.painting {
                 return new List<string> {"null"};
             }
 
-            List<string> result = new List<string>(3);
+            List<string> result = new List<string>(){
+                $"[0] ${D.debugFormatFloat(transform.entry(0, 0))},${D.debugFormatFloat(transform.entry(0, 1))},${D.debugFormatFloat(transform.entry(0, 2))},${D.debugFormatFloat(transform.entry(0, 3))}",
+                $"[1] ${D.debugFormatFloat(transform.entry(1, 0))},${D.debugFormatFloat(transform.entry(1, 1))},${D.debugFormatFloat(transform.entry(1, 2))},${D.debugFormatFloat(transform.entry(1, 3))}",
+                $"[2] ${D.debugFormatFloat(transform.entry(2, 0))},${D.debugFormatFloat(transform.entry(2, 1))},${D.debugFormatFloat(transform.entry(2, 2))},${D.debugFormatFloat(transform.entry(2, 3))}",
+                $"[3] ${D.debugFormatFloat(transform.entry(3, 0))},${D.debugFormatFloat(transform.entry(3, 1))},${D.debugFormatFloat(transform.entry(3, 2))},${D.debugFormatFloat(transform.entry(3, 3))}"
+            };
             for (int i = 0; i < 3; i++) {
                 result.Add($"[{i}] {transform[i * 3]}, {transform[i * 3 + 1]}, {transform[i * 3 + 2]}");
             }
@@ -72,22 +77,142 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static Offset transformPoint(Matrix4 transform, Offset point) {
-            Vector3 position3 = new Vector3(point.dx, point.dy, 0);
-            Vector3 transformed3 = transform.perspectiveTransform(position3);
-            return new Offset(transformed3.x, transformed3.y);
+            float[] storage = transform.storage;
+            float x = point.dx;
+            float y = point.dy;
+
+            float rx = storage[0] * x + storage[4] * y + storage[12];
+            float ry = storage[1] * x + storage[5] * y + storage[13];
+            float rw = storage[3] * x + storage[7] * y + storage[15];
+            if (rw == 1.0f) {
+                return new Offset(rx, ry);
+            }
+            else {
+                return new Offset(rx / rw, ry / rw);
+            }
+        }
+
+        internal static Rect _safeTransformRect(Matrix4 transform, Rect rect) {
+            float[] storage = transform.storage;
+            bool isAffine = storage[3] == 0.0 &&
+                            storage[7] == 0.0 &&
+                            storage[15] == 1.0;
+
+            _minMax = _minMax ?? new float[4];
+
+            _accumulate(storage, rect.left, rect.top, true, isAffine);
+            _accumulate(storage, rect.right, rect.top, false, isAffine);
+            _accumulate(storage, rect.left, rect.bottom, false, isAffine);
+            _accumulate(storage, rect.right, rect.bottom, false, isAffine);
+
+            return Rect.fromLTRB(_minMax[0], _minMax[1], _minMax[2], _minMax[3]);
+        }
+
+        static float[] _minMax;
+
+        static void _accumulate(float[] m, float x, float y, bool first, bool isAffine) {
+            float w = isAffine ? 1.0f : 1.0f / (m[3] * x + m[7] * y + m[15]);
+            float tx = (m[0] * x + m[4] * y + m[12]) * w;
+            float ty = (m[1] * x + m[5] * y + m[13]) * w;
+            if (first) {
+                _minMax[0] = _minMax[2] = tx;
+                _minMax[1] = _minMax[3] = ty;
+            }
+            else {
+                if (tx < _minMax[0]) {
+                    _minMax[0] = tx;
+                }
+
+                if (ty < _minMax[1]) {
+                    _minMax[1] = ty;
+                }
+
+                if (tx > _minMax[2]) {
+                    _minMax[2] = tx;
+                }
+
+                if (ty > _minMax[3]) {
+                    _minMax[3] = ty;
+                }
+            }
         }
 
         public static Rect transformRect(Matrix4 transform, Rect rect) {
-            Offset point1 = transformPoint(transform, rect.topLeft);
-            Offset point2 = transformPoint(transform, rect.topRight);
-            Offset point3 = transformPoint(transform, rect.bottomLeft);
-            Offset point4 = transformPoint(transform, rect.bottomRight);
-            return Rect.fromLTRB(
-                _min4(point1.dx, point2.dx, point3.dx, point4.dx),
-                _min4(point1.dy, point2.dy, point3.dy, point4.dy),
-                _max4(point1.dx, point2.dx, point3.dx, point4.dx),
-                _max4(point1.dy, point2.dy, point3.dy, point4.dy)
-            );
+            float[] storage = transform.storage;
+            float x = rect.left;
+            float y = rect.top;
+            float w = rect.right - x;
+            float h = rect.bottom - y;
+
+            if (!w.isFinite() || !h.isFinite()) {
+                return _safeTransformRect(transform, rect);
+            }
+
+
+            float wx = storage[0] * w;
+            float hx = storage[4] * h;
+            float rx = storage[0] * x + storage[4] * y + storage[12];
+
+            float wy = storage[1] * w;
+            float hy = storage[5] * h;
+            float ry = storage[1] * x + storage[5] * y + storage[13];
+
+            if (storage[3] == 0.0f && storage[7] == 0.0f && storage[15] == 1.0f) {
+                float left = rx;
+                float right = rx;
+                if (wx < 0) {
+                    left += wx;
+                }
+                else {
+                    right += wx;
+                }
+
+                if (hx < 0) {
+                    left += hx;
+                }
+                else {
+                    right += hx;
+                }
+
+                float top = ry;
+                float bottom = ry;
+                if (wy < 0) {
+                    top += wy;
+                }
+                else {
+                    bottom += wy;
+                }
+
+                if (hy < 0) {
+                    top += hy;
+                }
+                else {
+                    bottom += hy;
+                }
+
+                return Rect.fromLTRB(left, top, right, bottom);
+            }
+            else {
+                float ww = storage[3] * w;
+                float hw = storage[7] * h;
+                float rw = storage[3] * x + storage[7] * y + storage[15];
+
+                float ulx = rx / rw;
+                float uly = ry / rw;
+                float urx = (rx + wx) / (rw + ww);
+                float ury = (ry + wy) / (rw + ww);
+                float llx = (rx + hx) / (rw + hw);
+                float lly = (ry + hy) / (rw + hw);
+                float lrx = (rx + wx + hx) / (rw + ww + hw);
+                float lry = (ry + wy + hy) / (rw + ww + hw);
+
+                return Rect.fromLTRB(
+                    _min4(ulx, urx, llx, lrx),
+                    _min4(uly, ury, lly, lry),
+                    _max4(ulx, urx, llx, lrx),
+                    _max4(uly, ury, lly, lry)
+                );
+            }
         }
 
         static bool isIdentity(Matrix4 a) {
@@ -109,7 +234,7 @@ namespace Unity.UIWidgets.painting {
                    && a[14] == 0.0
                    && a[15] == 1.0;
         }
-        
+
         public static Rect inverseTransformRect(Matrix4 transform, Rect rect) {
             D.assert(rect != null);
             D.assert(transform.determinant() != 0.0);
@@ -118,13 +243,49 @@ namespace Unity.UIWidgets.painting {
             transform = Matrix4.tryInvert(transform);
             return transformRect(transform, rect);
         }
-        
+
         static float _min4(float a, float b, float c, float d) {
-            return Mathf.Min(a, Mathf.Min(b, Mathf.Min(c, d)));
+            float e = (a < b) ? a : b;
+            float f = (c < d) ? c : d;
+            return (e < f) ? e : f;
         }
 
         static float _max4(float a, float b, float c, float d) {
-            return Mathf.Max(a, Mathf.Max(b, Mathf.Max(c, d)));
+            float e = (a > b) ? a : b;
+            float f = (c > d) ? c : d;
+            return (e > f) ? e : f;
+        }
+
+        static Matrix4 createCylindricalProjectionTransform(
+            float radius,
+            float angle,
+            float perspective = 0.001f,
+            Axis? orientation = null
+        ) {
+            D.assert(perspective >= 0 && perspective <= 1.0);
+            if (orientation == null) {
+                orientation = Axis.vertical;
+            }
+
+            Matrix4 result = Matrix4.identity();
+            result.setEntry(3, 2, -perspective);
+            result.setEntry(2, 3, -radius);
+            result.setEntry(3, 3, perspective * radius + 1.0f);
+
+            result = result * ((
+                orientation == Axis.horizontal
+                    ? Matrix4.rotationY(angle)
+                    : Matrix4.rotationX(angle)
+            ) * Matrix4.translationValues(0.0f, 0.0f, radius)) as Matrix4;
+
+            return result;
+        }
+
+        static Matrix4 forceToPoint(Offset offset) {
+            var result = Matrix4.identity();
+            result.setRow(0, new Vector4(0, 0, 0, offset.dx));
+            result.setRow(1, new Vector4(0, 0, 0, offset.dy));
+            return result;
         }
     }
 
@@ -134,7 +295,8 @@ namespace Unity.UIWidgets.painting {
             object defaultValue = null,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(name, value, showName: showName, defaultValue: defaultValue ?? foundation_.kNoDefaultValue,
-            level: level) { }
+            level: level) {
+        }
 
         protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
             if (parentConfiguration != null && !parentConfiguration.lineBreakProperties) {

@@ -89,16 +89,28 @@ namespace Unity.UIWidgets.painting {
         }
 
         public RenderComparison compareTo(TextStyle other) {
-            if (inherit != other.inherit || fontFamily != other.fontFamily ||
-                fontSize != other.fontSize || fontWeight != other.fontWeight ||
-                fontStyle != other.fontStyle || letterSpacing != other.letterSpacing ||
-                wordSpacing != other.wordSpacing || textBaseline != other.textBaseline ||
-                height != other.height || background != other.background ||
-                shadows.equalsList(other.shadows) || fontFeatures.equalsList(other.fontFeatures)) {
+            if (ReferenceEquals(this, other))
+                return RenderComparison.identical;
+            if (inherit != other.inherit ||
+                fontFamily != other.fontFamily ||
+                fontSize != other.fontSize ||
+                fontWeight != other.fontWeight ||
+                fontStyle != other.fontStyle ||
+                letterSpacing != other.letterSpacing ||
+                wordSpacing != other.wordSpacing ||
+                textBaseline != other.textBaseline ||
+                height != other.height ||
+                foreground != other.foreground ||
+                background != other.background ||
+                !shadows.equalsList(other.shadows) ||
+                !fontFeatures.equalsList(other.fontFeatures) ||
+                !fontFamilyFallback.equalsList(other.fontFamilyFallback)) {
                 return RenderComparison.layout;
             }
 
-            if (color != other.color || decoration != other.decoration ||
+            if (color != other.color ||
+                backgroundColor != other.backgroundColor ||
+                decoration != other.decoration ||
                 decorationColor != other.decorationColor ||
                 decorationStyle != other.decorationStyle) {
                 return RenderComparison.paint;
@@ -107,21 +119,47 @@ namespace Unity.UIWidgets.painting {
             return RenderComparison.identical;
         }
 
-        public ParagraphStyle getParagraphStyle(TextAlign textAlign,
-            TextDirection textDirection, string ellipsis, int? maxLines,
+        public ParagraphStyle getParagraphStyle(
+            TextAlign textAlign,
+            TextDirection textDirection,
+            float? textScaleFactor = 1.0f,
+            string ellipsis = null,
+            int? maxLines = null,
             TextHeightBehavior textHeightBehavior = null,
-            float textScaleFactor = 1.0f) {
-            return new ParagraphStyle(
+            Locale locale = null,
+            String fontFamily = null,
+            float? fontSize = null,
+            FontWeight fontWeight = null,
+            FontStyle? fontStyle = null,
+            float? height = null,
+            StrutStyle strutStyle = null
+        ) {
+            D.assert(textScaleFactor != null);
+            D.assert(maxLines == null || maxLines > 0);
+            return new ui.ParagraphStyle(
                 textAlign: textAlign,
                 textDirection: textDirection,
-                fontWeight: fontWeight,
-                fontStyle: fontStyle,
-                maxLines: maxLines,
-                fontSize: (fontSize ?? _defaultFontSize) * textScaleFactor,
-                fontFamily: fontFamily,
-                height: height,
+                fontWeight: fontWeight ?? this.fontWeight,
+                fontStyle: fontStyle ?? this.fontStyle,
+                fontFamily: fontFamily ?? this.fontFamily,
+                fontSize: (fontSize ?? this.fontSize ?? _defaultFontSize) * textScaleFactor,
+                height: height ?? this.height,
                 textHeightBehavior: textHeightBehavior,
-                ellipsis: ellipsis
+                strutStyle: strutStyle == null
+                    ? null
+                    : new ui.StrutStyle(
+                        fontFamily: strutStyle.fontFamily,
+                        fontFamilyFallback: strutStyle.fontFamilyFallback,
+                        fontSize: strutStyle.fontSize == null ? null : strutStyle.fontSize * textScaleFactor,
+                        height: strutStyle.height,
+                        leading: strutStyle.leading,
+                        fontWeight: strutStyle.fontWeight,
+                        fontStyle: strutStyle.fontStyle,
+                        forceStrutHeight: strutStyle.forceStrutHeight
+                    ),
+                maxLines: maxLines,
+                ellipsis: ellipsis,
+                locale: locale
             );
         }
 
@@ -187,7 +225,7 @@ namespace Unity.UIWidgets.painting {
                 decorationThickness: decorationThickness == null
                     ? null
                     : decorationThickness * decorationThicknessFactor + decorationThicknessDelta,
-                shadows: shadows ?? this.shadows,   
+                shadows: shadows ?? this.shadows,
                 fontFeatures: fontFeatures,
                 debugLabel: modifiedDebugLabel
             );
@@ -398,6 +436,49 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
+        ui.ParagraphStyle getParagraphStyle(
+            TextAlign? textAlign = null,
+            TextDirection? textDirection = null,
+            float textScaleFactor = 1.0f,
+            String ellipsis = null,
+            int? maxLines = null,
+            ui.TextHeightBehavior textHeightBehavior = null,
+            Locale locale = null,
+            String fontFamily = null,
+            float? fontSize = null,
+            FontWeight fontWeight = null,
+            FontStyle? fontStyle = null,
+            float? height = null,
+            StrutStyle strutStyle = null
+        ) {
+            D.assert(maxLines == null || maxLines > 0);
+            return new ui.ParagraphStyle(
+                textAlign: textAlign,
+                textDirection: textDirection,
+                fontWeight: fontWeight ?? this.fontWeight,
+                fontStyle: fontStyle ?? this.fontStyle,
+                fontFamily: fontFamily ?? this.fontFamily,
+                fontSize: (fontSize ?? this.fontSize ?? _defaultFontSize) * textScaleFactor,
+                height: height ?? this.height,
+                textHeightBehavior: textHeightBehavior,
+                strutStyle: strutStyle == null
+                    ? null
+                    : new ui.StrutStyle(
+                        fontFamily: strutStyle.fontFamily,
+                        fontFamilyFallback: strutStyle.fontFamilyFallback,
+                        fontSize: strutStyle.fontSize == null ? null : strutStyle.fontSize * textScaleFactor,
+                        height: strutStyle.height,
+                        leading: strutStyle.leading,
+                        fontWeight: strutStyle.fontWeight,
+                        fontStyle: strutStyle.fontStyle,
+                        forceStrutHeight: strutStyle.forceStrutHeight
+                    ),
+                maxLines: maxLines,
+                ellipsis: ellipsis,
+                locale: locale
+            );
+        }
+
         public ui.TextStyle getTextStyle(float textScaleFactor = 1.0f) {
             var backgroundPaint = new Paint();
             if (background != null) {
@@ -431,19 +512,23 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) { 
+            debugFillProperties(properties, "");
+        }
+
+        public void debugFillProperties(DiagnosticPropertiesBuilder properties, string prefix = "") {
             base.debugFillProperties(properties);
 
             List<DiagnosticsNode> styles = new List<DiagnosticsNode>();
-            styles.Add(new DiagnosticsProperty<Color>("color", color,
+            styles.Add(new ColorProperty($"{prefix}color", color,
                 defaultValue: foundation_.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<Color>("backgroundColor", backgroundColor,
+            styles.Add(new ColorProperty($"{prefix}backgroundColor", backgroundColor,
                 defaultValue: foundation_.kNullDefaultValue));
-            styles.Add(new StringProperty("family", fontFamily, defaultValue: foundation_.kNullDefaultValue,
+            styles.Add(new StringProperty($"{prefix}family", fontFamily, defaultValue: foundation_.kNullDefaultValue,
                 quoted: false));
-            styles.Add(new EnumerableProperty<string>("familyFallback", fontFamilyFallback,
+            styles.Add(new EnumerableProperty<string>($"{prefix}familyFallback", fontFamilyFallback,
                 defaultValue: foundation_.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<float?>("size", fontSize,
+            styles.Add(new DiagnosticsProperty<float?>($"{prefix}size", fontSize,
                 defaultValue: foundation_.kNullDefaultValue));
             string weightDescription = "";
             if (fontWeight != null) {
@@ -455,19 +540,19 @@ namespace Unity.UIWidgets.painting {
                 description: weightDescription,
                 defaultValue: foundation_.kNullDefaultValue
             ));
-            styles.Add(new EnumProperty<FontStyle?>("style", fontStyle,
+            styles.Add(new EnumProperty<FontStyle?>($"{prefix}style", fontStyle,
                 defaultValue: foundation_.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<float?>("letterSpacing", letterSpacing,
+            styles.Add(new DiagnosticsProperty<float?>($"{prefix}letterSpacing", letterSpacing,
                 defaultValue: foundation_.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<float?>("wordSpacing", wordSpacing,
+            styles.Add(new DiagnosticsProperty<float?>($"{prefix}wordSpacing", wordSpacing,
                 defaultValue: foundation_.kNullDefaultValue));
-            styles.Add(new EnumProperty<TextBaseline?>("baseline", textBaseline,
+            styles.Add(new EnumProperty<TextBaseline?>($"{prefix}baseline", textBaseline,
                 defaultValue: foundation_.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<float?>("height", height,
+            styles.Add(new DiagnosticsProperty<float?>($"{prefix}height", height,
                 defaultValue: foundation_.kNullDefaultValue));
-            styles.Add(new StringProperty("foreground", foreground == null ? null : foreground.ToString(),
+            styles.Add(new StringProperty($"{prefix}foreground", foreground == null ? null : foreground.ToString(),
                 defaultValue: foundation_.kNullDefaultValue, quoted: false));
-            styles.Add(new StringProperty("background", background == null ? null : background.ToString(),
+            styles.Add(new StringProperty($"{prefix}background", background == null ? null : background.ToString(),
                 defaultValue: foundation_.kNullDefaultValue, quoted: false));
             if (decoration != null) {
                 List<string> decorationDescription = new List<string>();
@@ -475,23 +560,23 @@ namespace Unity.UIWidgets.painting {
                     decorationDescription.Add(decorationStyle.ToString());
                 }
 
-                styles.Add(new DiagnosticsProperty<Color>("decorationColor", decorationColor,
+                styles.Add(new ColorProperty($"{prefix}decorationColor", decorationColor,
                     defaultValue: foundation_.kNullDefaultValue,
                     level: DiagnosticLevel.fine));
                 if (decorationColor != null) {
                     decorationDescription.Add(decorationColor.ToString());
                 }
 
-                styles.Add(new DiagnosticsProperty<TextDecoration>("decoration", decoration,
+                styles.Add(new DiagnosticsProperty<TextDecoration>($"{prefix}decoration", decoration,
                     defaultValue: foundation_.kNullDefaultValue,
                     level: DiagnosticLevel.hidden));
                 if (decoration != null) {
-                    decorationDescription.Add("$decoration");
+                    decorationDescription.Add($"{decoration}");
                 }
 
                 D.assert(decorationDescription.isNotEmpty);
-                styles.Add(new MessageProperty("decoration", string.Join(" ", decorationDescription.ToArray())));
-                styles.Add(new FloatProperty("decorationThickness", decorationThickness, unit: "x",
+                styles.Add(new MessageProperty($"{prefix}decoration", string.Join(" ", decorationDescription.ToArray())));
+                styles.Add(new FloatProperty($"{prefix}decorationThickness", decorationThickness, unit: "x",
                     defaultValue: foundation_.kNoDefaultValue));
             }
 
@@ -503,8 +588,8 @@ namespace Unity.UIWidgets.painting {
             }
 
             if (!styleSpecified) {
-                properties.add(new FlagProperty("inherit", value: inherit, ifTrue: "<all styles inherited>",
-                    ifFalse: "<no style specified>"));
+                properties.add(new FlagProperty("inherit", value: inherit, ifTrue: $"{prefix}<all styles inherited>",
+                    ifFalse: $"{prefix}<no style specified>"));
             }
         }
 
@@ -535,7 +620,7 @@ namespace Unity.UIWidgets.painting {
                    Equals(background, other.background) &&
                    fontFamilyFallback.equalsList(other.fontFamilyFallback) &&
                    shadows.equalsList(other.shadows) &&
-                   fontFeatures.equalsList(other.fontFeatures) && 
+                   fontFeatures.equalsList(other.fontFeatures) &&
                    string.Equals(fontFamily, other.fontFamily);
         }
 

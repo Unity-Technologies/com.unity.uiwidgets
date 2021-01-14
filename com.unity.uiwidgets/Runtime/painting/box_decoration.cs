@@ -71,7 +71,7 @@ namespace Unity.UIWidgets.painting {
         public readonly BlendMode? backgroundBlendMode;
         public readonly BoxShape shape;
 
-        public override EdgeInsets padding {
+        public override EdgeInsetsGeometry padding {
             get { return border?.dimensions; }
         }
         

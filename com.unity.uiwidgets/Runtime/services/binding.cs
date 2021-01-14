@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.services {
-    public class ServicesBinding : BindingBase {
+    public class ServicesBinding : GestureBinding {
         protected override void initInstances() {
             base.initInstances();
             instance = this;

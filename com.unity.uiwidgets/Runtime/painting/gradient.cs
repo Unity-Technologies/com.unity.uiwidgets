@@ -107,7 +107,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public readonly List<Color> colors;
-        
+
         public readonly List<float> stops;
 
         public readonly GradientTransform transform;
@@ -308,7 +308,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}({begin}, {end}," +
+            return $"{foundation_.objectRuntimeType(this, "LinearGradient")}({begin}, {end}," +
                    $"{colors.toStringList()}, {stops.toStringList()}, {tileMode})";
         }
     }
@@ -456,7 +456,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}({center}, {radius}," +
+            return $"{foundation_.objectRuntimeType(this, "RadialGradient")}({center}, {radius}," +
                    $"{colors.toStringList()}, {stops.toStringList()}, {tileMode})";
         }
     }
@@ -602,8 +602,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}({center}, {startAngle}, {endAngle}, " +
-                   $"{colors.toStringList()}, {stops.toStringList()}, {tileMode})";
+            return $"{foundation_.objectRuntimeType(this, "SweepGradient")}({center}, {startAngle}," +
+                   $" {endAngle}, {colors.toStringList()}, {stops.toStringList()}, {tileMode})";
         }
     }
 }

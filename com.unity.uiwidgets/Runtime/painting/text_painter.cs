@@ -202,12 +202,11 @@ namespace Unity.UIWidgets.painting {
                 markNeedsLayout();
             }
         }
+
         StrutStyle _strutStyle;
 
         public Locale locale {
-            get {
-                return _locale;
-            }
+            get { return _locale; }
             set {
                 if (_locale == value)
                     return;
@@ -215,8 +214,9 @@ namespace Unity.UIWidgets.painting {
                 markNeedsLayout();
             }
         }
+
         Locale _locale;
-       
+
         public TextWidthBasis textWidthBasis {
             get { return _textWidthBasis; }
             set {
@@ -338,7 +338,6 @@ namespace Unity.UIWidgets.painting {
                     _paragraph.layout(new ParagraphConstraints(newWidth));
                 }
             }
-
             _inlinePlaceholderBoxes = _paragraph.getBoxesForPlaceholders();
         }
 
@@ -397,7 +396,10 @@ namespace Unity.UIWidgets.painting {
             BoxHeightStyle boxHeightStyle = BoxHeightStyle.tight,
             BoxWidthStyle boxWidthStyle = BoxWidthStyle.tight) {
             D.assert(!_needsLayout);
-            var results = _paragraph.getBoxesForRange(selection.start, selection.end, boxHeightStyle: boxHeightStyle,
+            var results = _paragraph.getBoxesForRange(
+                selection.start,
+                selection.end,
+                boxHeightStyle: boxHeightStyle,
                 boxWidthStyle: boxWidthStyle);
             return results;
         }
@@ -416,6 +418,11 @@ namespace Unity.UIWidgets.painting {
             D.assert(!_needsLayout);
             return _paragraph.getLineBoundary(position);
         }
+        
+        List<ui.LineMetrics> computeLineMetrics() {
+            D.assert(!_needsLayout);
+            return _paragraph.computeLineMetrics();
+        }
 
         ParagraphStyle _createParagraphStyle(TextDirection defaultTextDirection = TextDirection.ltr) {
             D.assert(textAlign != null);
@@ -426,17 +433,17 @@ namespace Unity.UIWidgets.painting {
                 textDirection: textDirection ?? defaultTextDirection,
                 textScaleFactor: textScaleFactor,
                 maxLines: _maxLines,
-                // textHeightBehavior: _textHeightBehavior,
-                ellipsis: _ellipsis
-                // locale: _locale,
-                // strutStyle: _strutStyle,
+                textHeightBehavior: _textHeightBehavior,
+                ellipsis: _ellipsis,
+                locale: _locale,
+                strutStyle: _strutStyle
             ) ?? new ParagraphStyle(
                 textAlign: textAlign,
                 textDirection: textDirection ?? defaultTextDirection,
                 maxLines: maxLines,
                 textHeightBehavior: _textHeightBehavior,
-                ellipsis: ellipsis
-                // locale: locale,
+                ellipsis: ellipsis,
+                locale: locale
             );
         }
 

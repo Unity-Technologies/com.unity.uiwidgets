@@ -182,10 +182,11 @@ namespace Unity.UIWidgets.widgets {
             _imageStream = provider.resolve(ImageUtils.createLocalImageConfiguration(state.context, size));
             D.assert(_imageStream != null);
 
-            if (_imageStream.key != oldImageStream?.key) {
-                oldImageStream?.removeListener(_handleImageChanged);
-                _imageStream.addListener(_handleImageChanged);
-            }
+            // TODO: update 
+            // if (_imageStream.key != oldImageStream?.key) {
+            //     oldImageStream?.removeListener(_handleImageChanged);
+            //     _imageStream.addListener(_handleImageChanged);
+            // }
         }
 
         void _handleImageChanged(ImageInfo imageInfo, bool synchronousCall) {
@@ -194,7 +195,9 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void stopListening() {
-            _imageStream?.removeListener(_handleImageChanged);
+            
+            // TODO: update 
+            // _imageStream?.removeListener(_handleImageChanged);
         }
     }
 

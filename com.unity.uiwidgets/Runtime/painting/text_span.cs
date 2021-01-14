@@ -231,7 +231,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string toStringShort() {
-            return GetType().ToString();
+            return foundation_.objectRuntimeType(this, "TextSpan");
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {

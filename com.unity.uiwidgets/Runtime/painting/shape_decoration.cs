@@ -69,8 +69,8 @@ namespace Unity.UIWidgets.painting {
         public override Path getClipPath(Rect rect, TextDirection textDirection) {
             return shape.getOuterPath(rect);
         }
-        
-        public override EdgeInsets padding {
+
+        public override EdgeInsetsGeometry padding {
             get { return shape.dimensions; }
         }
 
@@ -176,7 +176,7 @@ namespace Unity.UIWidgets.painting {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.whitespace;
-            properties.add(new DiagnosticsProperty<Color>("color", color,
+            properties.add(new ColorProperty("color", color,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<Gradient>("gradient", gradient,
                 defaultValue: foundation_.kNullDefaultValue));
@@ -293,11 +293,12 @@ namespace Unity.UIWidgets.painting {
             D.assert(configuration != null);
             D.assert(configuration.size != null);
             Rect rect = offset & configuration.size;
+            TextDirection textDirection = configuration.textDirection;
             _precache(rect);
             _paintShadows(canvas);
             _paintInterior(canvas);
             _paintImage(canvas, configuration);
-            _decoration.shape.paint(canvas, rect);
+            _decoration.shape.paint(canvas, rect, textDirection: textDirection);
         }
     }
 }

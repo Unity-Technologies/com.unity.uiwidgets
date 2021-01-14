@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -17,9 +19,16 @@ namespace Unity.UIWidgets.painting {
         }
 
         public readonly string assetName;
-        public readonly AssetBundle bundle;
 
-        protected override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
+        public string keyName {
+            get { return package == null ? assetName : "packages/$package/$assetName"; }
+        }
+
+        public readonly AssetBundle bundle;
+        public readonly string package;
+        public const float _naturalResolution = 1.0f;
+
+        public override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
             AssetImageConfiguration assetConfig = new AssetImageConfiguration(configuration, assetName);
             AssetBundleImageKey key;
             var cache = AssetBundleCache.instance.get(configuration.bundle);
@@ -31,8 +40,53 @@ namespace Unity.UIWidgets.painting {
             var devicePixelRatio = configuration.devicePixelRatio ?? Window.instance.devicePixelRatio;
             key = _loadAsset(chosenBundle, devicePixelRatio);
             cache[assetConfig] = key;
-            
+
             return Future.value(FutureOr.value(key)).to<AssetBundleImageKey>();
+        }
+
+        internal string _chooseVariant(string main, ImageConfiguration config, List<string> candidates) {
+            if (config.devicePixelRatio == null || candidates == null || candidates.isEmpty())
+                return main;
+            SplayTree<float, string> mapping = new SplayTree<float, string>();
+            foreach (string candidate in candidates) {
+                mapping[_parseScale(candidate)] = candidate;
+            }
+
+            return _findNearest(mapping, config.devicePixelRatio ?? 0);
+        }
+
+        string _findNearest(SplayTree<float, string> candidates, float value) {
+            if (candidates.ContainsKey(value))
+                return candidates[value];
+            float lower = candidates.lastKeyBefore(value);
+            float upper = candidates.firstKeyAfter(value);
+            if (lower == null)
+                return candidates[upper];
+            if (upper == null)
+                return candidates[lower];
+            if (value > (lower + upper) / 2)
+                return candidates[upper];
+            else
+                return candidates[lower];
+        }
+
+        internal static readonly Regex _extractRatioRegExp = new Regex(@"/?(\d+(\.\d*)?)x$");
+
+        float _parseScale(string key) {
+            if (key == assetName) {
+                return _naturalResolution;
+            }
+
+            Uri assetUri = new Uri(key);
+            string directoryPath = "";
+            if (assetUri.Segments.Length > 1) {
+                directoryPath = assetUri.Segments[assetUri.Segments.Length - 2];
+            }
+
+            Match match = _extractRatioRegExp.Match(directoryPath);
+            if (match != null && match.Groups.Count > 0)
+                return float.Parse(match.Groups[1].Value);
+            return _naturalResolution;
         }
 
         AssetBundleImageKey _loadAsset(AssetBundle bundle, float devicePixelRatio) {
@@ -46,14 +100,16 @@ namespace Unity.UIWidgets.painting {
                 Object asset;
                 if (bundle == null) {
                     asset = Resources.Load(assetName);
-                } else {
+                }
+                else {
                     asset = bundle.LoadAsset(assetName);
                 }
 
                 if (asset != null) {
                     if (bundle == null) {
                         Resources.UnloadAsset(asset);
-                    } else {
+                    }
+                    else {
                         bundle.Unload(asset);
                     }
 
@@ -116,7 +172,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}(bundle: {bundle}, name: \"{assetName}\")";
+            return $"{foundation_.objectRuntimeType(this, "AssetImage")}(bundle: {bundle}, name: \"{assetName}\")";
         }
     }
 

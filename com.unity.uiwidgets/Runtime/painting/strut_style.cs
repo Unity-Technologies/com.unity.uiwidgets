@@ -173,20 +173,24 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string toStringShort() {
-            return $"{GetType()}";
+            return $"{foundation_.objectRuntimeType(this, "StrutStyle")}";
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            debugFillProperties(properties, "");
+        }
+
+        public void debugFillProperties(DiagnosticPropertiesBuilder properties, string prefix = "") {
             base.debugFillProperties(properties);
             if (debugLabel != null) {
-                properties.add(new MessageProperty("debugLabel", debugLabel));
+                properties.add(new MessageProperty($"{prefix}debugLabel", debugLabel));
             }
 
             List<DiagnosticsNode> styles = new List<DiagnosticsNode>();
-            styles.Add(new StringProperty("family", fontFamily, defaultValue: foundation_.kNullDefaultValue,
+            styles.Add(new StringProperty($"{prefix}family", fontFamily, defaultValue: foundation_.kNullDefaultValue,
                 quoted: false));
-            styles.Add(new EnumerableProperty<string>("familyFallback", fontFamilyFallback));
-            styles.Add(new DiagnosticsProperty<float?>("size", fontSize,
+            styles.Add(new EnumerableProperty<string>($"{prefix}familyFallback", fontFamilyFallback));
+            styles.Add(new DiagnosticsProperty<float?>($"{prefix}size", fontSize,
                 defaultValue: foundation_.kNullDefaultValue));
             string weightDescription = "";
             if (fontWeight != null) {
@@ -194,16 +198,17 @@ namespace Unity.UIWidgets.painting {
             }
 
             styles.Add(new DiagnosticsProperty<FontWeight>(
-                "weight", fontWeight,
+                $"{prefix}weight", fontWeight,
                 description: weightDescription,
                 defaultValue: foundation_.kNullDefaultValue
             ));
-            styles.Add(new EnumProperty<FontStyle?>("style", fontStyle,
+            styles.Add(new EnumProperty<FontStyle?>($"{prefix}style", fontStyle,
                 defaultValue: foundation_.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<float?>("height", height,
+            styles.Add(new DiagnosticsProperty<float?>($"{prefix}height", height,
                 defaultValue: foundation_.kNullDefaultValue));
-            styles.Add(new FlagProperty("forceStrutHeight", value: forceStrutHeight,
-                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new FlagProperty($"{prefix}forceStrutHeight", value: forceStrutHeight,
+                defaultValue: foundation_.kNullDefaultValue, ifTrue: $"{prefix}<strut height forced>",
+                ifFalse: $"{prefix}<strut height normal>"));
 
             bool styleSpecified = styles.Any((DiagnosticsNode n) => !n.isFiltered(DiagnosticLevel.info));
             foreach (var style in styles) {
@@ -212,8 +217,8 @@ namespace Unity.UIWidgets.painting {
 
             if (!styleSpecified) {
                 properties.add(new FlagProperty("forceStrutHeight", value: forceStrutHeight,
-                    ifTrue: "<strut height forced>",
-                    ifFalse: "<strut height normal>"));
+                    ifTrue: $"{prefix}<strut height forced>",
+                    ifFalse: $"{prefix}<strut height normal>"));
             }
         }
     }

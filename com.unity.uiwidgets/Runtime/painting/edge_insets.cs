@@ -7,12 +7,12 @@ namespace Unity.UIWidgets.painting {
 
 
     public abstract class EdgeInsetsGeometry {
-        float _bottom { get; }
-        float _end { get; }
-        float _left { get; }
-        float _right { get; }
-        float _start { get; }
-        float _top { get; }
+        internal float _bottom { get; }
+        internal float _end { get; }
+        internal float _left { get; }
+        internal float _right { get; }
+        internal float _start { get; }
+        internal float _top { get; }
 
 
         public static EdgeInsetsGeometry infinity = _MixedEdgeInsets.fromLRSETB(
@@ -99,7 +99,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        EdgeInsetsGeometry clamp(EdgeInsetsGeometry min, EdgeInsetsGeometry max) {
+        public virtual EdgeInsetsGeometry clamp(EdgeInsetsGeometry min, EdgeInsetsGeometry max) {
             return _MixedEdgeInsets.fromLRSETB(
                 _left.clamp(min._left, max._left),
                 _right.clamp(min._right, max._right),
@@ -201,7 +201,7 @@ namespace Unity.UIWidgets.painting {
         }
 
 
-        public abstract EdgeInsets resolve(TextDirection direction);
+        public abstract EdgeInsets resolve(TextDirection? direction);
 
         public bool Equals(EdgeInsetsGeometry other) {
             if (ReferenceEquals(null, other)) {
@@ -429,7 +429,7 @@ namespace Unity.UIWidgets.painting {
             );
             
         } 
-        public override EdgeInsets resolve(TextDirection direction) {
+        public override EdgeInsets resolve(TextDirection? direction) {
             D.assert(direction != null);
             switch (direction) {
               case TextDirection.rtl:
@@ -548,7 +548,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public override EdgeInsets resolve(TextDirection direction) {
+        public override EdgeInsets resolve(TextDirection? direction) {
             D.assert(direction != null);
             switch (direction) {
                 case TextDirection.rtl:
@@ -691,21 +691,21 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public EdgeInsets add(EdgeInsets other) {
+        public EdgeInsets add(EdgeInsetsGeometry other) {
             return fromLTRB(
-                left + other.left,
-                top + other.top,
-                right + other.right,
-                bottom + other.bottom
+                left + other._left,
+                top + other._top,
+                right + other._right,
+                bottom + other._bottom
             );
         }
 
-        public EdgeInsets clamp(EdgeInsets min, EdgeInsets max) {
+        public override EdgeInsetsGeometry clamp(EdgeInsetsGeometry min, EdgeInsetsGeometry max) {
             return fromLTRB(
-                left.clamp(min.left, min.left),
-                top.clamp(min.top, min.top),
-                right.clamp(min.right, min.right),
-                bottom.clamp(min.bottom, min.bottom)
+                left.clamp(min._left, max._left),
+                top.clamp(min._top, max._top),
+                right.clamp(min._right, max._right),
+                bottom.clamp(min._bottom, max._bottom)
             );
         }
         
@@ -813,7 +813,7 @@ namespace Unity.UIWidgets.painting {
                    && bottom.Equals(other.bottom);
         }
 
-        public override EdgeInsets resolve(TextDirection direction) {
+        public override EdgeInsets resolve(TextDirection? direction) {
             return this;
         }
 

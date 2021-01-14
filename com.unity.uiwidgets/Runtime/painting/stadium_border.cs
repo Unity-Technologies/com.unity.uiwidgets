@@ -1,4 +1,5 @@
 using System;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.painting {
@@ -9,7 +10,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly BorderSide side;
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.all(side.width); }
         }
 
@@ -63,21 +64,21 @@ namespace Unity.UIWidgets.painting {
             return base.lerpTo(b, t);
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection = null) {
             Radius radius = Radius.circular(rect.shortestSide / 2.0f);
             var path = new Path();
             path.addRRect(RRect.fromRectAndRadius(rect, radius).deflate(side.width));
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection = null) {
             Radius radius = Radius.circular(rect.shortestSide / 2.0f);
             var path = new Path();
             path.addRRect(RRect.fromRectAndRadius(rect, radius));
             return path;
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection = null) {
             switch (side.style) {
                 case BorderStyle.none:
                     break;
@@ -132,7 +133,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}({side})";
+            return $"{foundation_.objectRuntimeType(this, "StadiumBorder")}({side})";
         }
     }
 
@@ -149,7 +150,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float circleness;
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.all(side.width); }
         }
 
@@ -239,19 +240,19 @@ namespace Unity.UIWidgets.painting {
             return BorderRadius.circular(rect.shortestSide / 2.0f);
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection = null) {
             var path = new Path();
             path.addRRect(_adjustBorderRadius(rect).toRRect(_adjustRect(rect)).deflate(side.width));
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection = null) {
             var path = new Path();
             path.addRRect(_adjustBorderRadius(rect).toRRect(_adjustRect(rect)));
             return path;
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection = null) {
             switch (side.style) {
                 case BorderStyle.none:
                     break;
@@ -317,7 +318,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"StadiumBorder($side, {circleness * 100:F1}% " +
+            return $"StadiumBorder({side}, {circleness * 100:F1}% " +
                    "of the way to being a CircleBorder)";
         }
     }
@@ -339,14 +340,14 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float rectness;
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.all(side.width); }
         }
 
         public override ShapeBorder scale(float t) {
             return new _StadiumToRoundedRectangleBorder(
                 side: side.scale(t),
-                borderRadius: borderRadius * t,
+                borderRadius: (BorderRadius) (borderRadius * t),
                 rectness: t
             );
         }
@@ -415,19 +416,19 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection = null) {
             var path = new Path();
             path.addRRect(_adjustBorderRadius(rect).toRRect(rect).deflate(side.width));
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection = null) {
             var path = new Path();
             path.addRRect(_adjustBorderRadius(rect).toRRect(rect));
             return path;
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection = null) {
             switch (side.style) {
                 case BorderStyle.none:
                     break;

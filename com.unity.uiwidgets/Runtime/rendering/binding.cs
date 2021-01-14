@@ -1,14 +1,14 @@
 ﻿using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.painting;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.rendering {
-    public class RendererBinding : PaintingBinding {
+    public class RendererBinding : SchedulerBinding {
         public new static RendererBinding instance {
-            get { return (RendererBinding) PaintingBinding.instance; }
-            set { PaintingBinding.instance = value; }
+            get { return (RendererBinding) SchedulerBinding.instance; }
+            set { Window.instance._binding = value; }
         }
 
         protected override void initInstances() {
