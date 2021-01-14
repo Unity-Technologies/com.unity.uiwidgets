@@ -21,6 +21,7 @@ namespace Unity.UIWidgets.widgets {
             ScrollController controller = null,
             ScrollPhysics physics = null,
             ViewportBuilder viewportBuilder = null,
+            ScrollIncrementCalculator incrementCalculator = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start
         ) : base(key: key) {
             D.assert(viewportBuilder != null);
@@ -29,6 +30,7 @@ namespace Unity.UIWidgets.widgets {
             this.controller = controller;
             this.physics = physics;
             this.viewportBuilder = viewportBuilder;
+            this.incrementCalculator = incrementCalculator;
             this.dragStartBehavior = dragStartBehavior;
         }
 
@@ -39,6 +41,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly ScrollPhysics physics;
 
         public readonly ViewportBuilder viewportBuilder;
+
+        public readonly ScrollIncrementCalculator incrementCalculator;
 
         public readonly DragStartBehavior dragStartBehavior;
 
@@ -57,8 +61,17 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public static ScrollableState of(BuildContext context) {
-            _ScrollableScope widget = (_ScrollableScope) context.inheritFromWidgetOfExactType(typeof(_ScrollableScope));
+            _ScrollableScope widget = context.dependOnInheritedWidgetOfExactType<_ScrollableScope>();
             return widget == null ? null : widget.scrollable;
+        }
+
+        static bool recommendDeferredLoadingForContext(BuildContext context) {
+            _ScrollableScope widget = context.getElementForInheritedWidgetOfExactType<_ScrollableScope>()?.widget as _ScrollableScope;
+            if (widget == null) {
+                return false;
+            }
+
+            return widget.position.recommendDeferredLoading(context);
         }
 
         public static Future ensureVisible(
@@ -370,6 +383,11 @@ namespace Unity.UIWidgets.widgets {
         
         float _targetScrollOffsetForPointerScroll(PointerScrollEvent e) {
             float delta = widget.axis == Axis.horizontal ? e.delta.dx : e.delta.dy;
+
+            if (AxisUtils.axisDirectionIsReversed(widget.axisDirection)) {
+                delta += -1;
+            }
+            
             return Mathf.Min(Mathf.Max(position.pixels + delta, position.minScrollExtent),
                 position.maxScrollExtent);
         }
@@ -385,6 +403,11 @@ namespace Unity.UIWidgets.widgets {
 
         void _handlePointerScroll(PointerEvent e) {
             D.assert(e is PointerScrollEvent);
+
+            if (_physics != null && !_physics.shouldAcceptUserOffset(position)) {
+                return;
+            }
+            
             float targetScrollOffset = _targetScrollOffsetForPointerScroll(e as PointerScrollEvent);
             if (targetScrollOffset != position.pixels) {
                 position.jumpTo(targetScrollOffset);
@@ -426,6 +449,154 @@ namespace Unity.UIWidgets.widgets {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<ScrollPosition>("position", position));
+        }
+    }
+
+    public delegate float ScrollIncrementCalculator(ScrollIncrementDetails details);
+
+    public enum ScrollIncrementType {
+        line,
+        page
+    }
+
+    public class ScrollIncrementDetails {
+        public ScrollIncrementDetails(
+            ScrollIncrementType type,
+            ScrollMetrics metrics
+        ) {
+            D.assert(metrics != null);
+            this.type = type;
+            this.metrics = metrics;
+        }
+
+        public readonly ScrollIncrementType type;
+
+        public readonly ScrollMetrics metrics;
+    }
+
+    public class ScrollIntent : Intent {
+        public ScrollIntent(
+            AxisDirection direction,
+            ScrollIncrementType type = ScrollIncrementType.line
+        ) : base (ScrollAction.key) {
+            this.direction = direction;
+            this.type = type;
+        }
+
+        public readonly AxisDirection direction;
+
+        public readonly ScrollIncrementType type;
+
+        protected bool isEnabled(BuildContext context) {
+            return Scrollable.of(context) != null;
+        }
+    }
+
+    public class ScrollAction : UiWidgetAction {
+        public ScrollAction() : base(key) {
+        }
+        
+        public static readonly LocalKey key = new ValueKey<Type>(typeof(ScrollAction));
+
+        float _calculateScrollIncrement(ScrollableState state, ScrollIncrementType type = ScrollIncrementType.line) {
+            D.assert(state.position != null);
+            D.assert(state.position.pixels != null);
+            D.assert(state.widget.physics == null || state.widget.physics.shouldAcceptUserOffset(state.position));
+
+            if (state.widget.incrementCalculator != null) {
+                return state.widget.incrementCalculator(
+                    new ScrollIncrementDetails(
+                        type: type,
+                        metrics: state.position
+                    )
+                );
+            }
+
+            switch (type) {
+                case ScrollIncrementType.line:
+                    return 50.0f;
+                case ScrollIncrementType.page:
+                    return 0.8f * state.position.viewportDimension;
+            }
+
+            return 0.0f;
+        }
+        
+        float _getIncrement(ScrollableState state, ScrollIntent intent) {
+            float increment = _calculateScrollIncrement(state, type: intent.type);
+            switch (intent.direction) {
+                case AxisDirection.down:
+                    switch (state.axisDirection) {
+                        case AxisDirection.up:
+                            return -increment;
+                            break;
+                        case AxisDirection.down:
+                            return increment;
+                            break;
+                        case AxisDirection.right:
+                        case AxisDirection.left:
+                            return 0.0f;
+                    }
+                    break;
+                case AxisDirection.up:
+                    switch (state.axisDirection) {
+                        case AxisDirection.up:
+                            return increment;
+                            break;
+                        case AxisDirection.down:
+                            return -increment;
+                            break;
+                        case AxisDirection.right:
+                        case AxisDirection.left:
+                            return 0.0f;
+                    }
+                    break;
+                case AxisDirection.left:
+                    switch (state.axisDirection) {
+                        case AxisDirection.right:
+                            return -increment;
+                            break;
+                        case AxisDirection.left:
+                            return increment;
+                            break;
+                        case AxisDirection.up:
+                        case AxisDirection.down:
+                            return 0.0f;
+                    }
+                    break;
+                case AxisDirection.right:
+                    switch (state.axisDirection) {
+                        case AxisDirection.right:
+                            return increment;
+                            break;
+                        case AxisDirection.left:
+                            return -increment;
+                            break;
+                        case AxisDirection.up:
+                        case AxisDirection.down:
+                            return 0.0f;
+                    }
+                    break;
+            }
+            return 0.0f;
+        }
+
+        public override void invoke(FocusNode node, Intent intent) {
+            ScrollableState state = Scrollable.of(node.context);
+            D.assert(state != null, () => "ScrollAction was invoked on a context that has no scrollable parent");
+            D.assert(state.position.pixels != null, () => "Scrollable must be laid out before it can be scrolled via a ScrollAction");
+            if (state.widget.physics != null && !state.widget.physics.shouldAcceptUserOffset(state.position)) {
+                return;
+            }
+            float increment = _getIncrement(state, intent as ScrollIntent);
+            if (increment == 0.0f) {
+                return;
+            }
+            state.position.moveTo(
+                state.position.pixels + increment,
+                duration: TimeSpan.FromMilliseconds(100),
+                curve: Curves.easeInOut
+                );
         }
     }
 }

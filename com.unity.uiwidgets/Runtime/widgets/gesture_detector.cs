@@ -110,10 +110,13 @@ namespace Unity.UIWidgets.widgets {
                 bool haveScale = onScaleStart != null || onScaleUpdate != null || onScaleEnd != null;
                 if (havePan || haveScale) {
                     if (havePan && haveScale) {
-                        throw new UIWidgetsError(
-                            "Incorrect GestureDetector arguments.\n" +
-                            "Having both a pan gesture recognizer and a scale gesture recognizer is redundant; scale is a superset of pan. Just use the scale gesture recognizer."
-                        );
+                        throw new UIWidgetsError(new List<DiagnosticsNode>{
+                            new ErrorSummary("Incorrect GestureDetector arguments."),
+                            new ErrorDescription(
+                                "Having both a pan gesture recognizer and a scale gesture recognizer is redundant; scale is a superset of pan."
+                            ),
+                            new ErrorHint("Just use the scale gesture recognizer.")
+                        });
                     }
 
                     string recognizer = havePan ? "pan" : "scale";
@@ -375,12 +378,17 @@ namespace Unity.UIWidgets.widgets {
         public void replaceGestureRecognizers(Dictionary<Type, GestureRecognizerFactory> gestures) {
             D.assert(() => {
                 if (!context.findRenderObject().owner.debugDoingLayout) {
-                    throw new UIWidgetsError(
-                        "Unexpected call to replaceGestureRecognizers() method of RawGestureDetectorState.\n" +
-                        "The replaceGestureRecognizers() method can only be called during the layout phase. " +
-                        "To set the gesture recognizers at other times, trigger a new build using setState() " +
-                        "and provide the new gesture recognizers as constructor arguments to the corresponding " +
-                        "RawGestureDetector or GestureDetector object.");
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary(
+                            "Unexpected call to replaceGestureRecognizers() method of RawGestureDetectorState."),
+                        new ErrorDescription(
+                            "The replaceGestureRecognizers() method can only be called during the layout phase."),
+                        new ErrorHint(
+                            "To set the gesture recognizers at other times, trigger a new build using setState() " +
+                            "and provide the new gesture recognizers as constructor arguments to the corresponding " +
+                            "RawGestureDetector or GestureDetector object."
+                        )
+                    });
                 }
 
                 return true;

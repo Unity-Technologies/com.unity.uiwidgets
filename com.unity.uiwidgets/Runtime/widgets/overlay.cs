@@ -51,7 +51,7 @@ namespace Unity.UIWidgets.widgets {
 
         internal OverlayState _overlay;
 
-        internal readonly GlobalKey<_OverlayEntryWidgetState> _key = new LabeledGlobalKey<_OverlayEntryWidgetState>();
+        internal readonly GlobalKey<_OverlayEntryWidgetState> _key = GlobalKey<_OverlayEntryWidgetState>.key();//new LabeledGlobalKey<_OverlayEntryWidgetState>();
 
         public void remove() {
             D.assert(_overlay != null);
@@ -76,7 +76,10 @@ namespace Unity.UIWidgets.widgets {
 
 
     class _OverlayEntryWidget : StatefulWidget {
-        internal _OverlayEntryWidget(Key key, OverlayEntry entry, bool tickerEnabled = true) : base(key: key) {
+        internal _OverlayEntryWidget(
+            Key key, 
+            OverlayEntry entry, 
+            bool tickerEnabled = true) : base(key: key) {
             D.assert(key != null);
             D.assert(entry != null);
             this.entry = entry;
@@ -96,7 +99,7 @@ namespace Unity.UIWidgets.widgets {
             return new TickerMode(
                 enabled: widget.tickerEnabled,
                 child: widget.entry.builder(context)
-                );
+            );
         }
 
         internal void _markNeedsBuild() {
@@ -106,31 +109,39 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class Overlay : StatefulWidget {
-        public Overlay(Key key = null, List<OverlayEntry> initialEntries = null) : base(key) {
+        public Overlay(
+            Key key = null, 
+            List<OverlayEntry> initialEntries = null) : base(key) {
             D.assert(initialEntries != null);
             this.initialEntries = initialEntries;
         }
 
         public readonly List<OverlayEntry> initialEntries;
 
-        public static OverlayState of(BuildContext context, bool rootOverlay = false, Widget debugRequiredFor = null) {
+        public static OverlayState of(
+            BuildContext context, 
+            bool rootOverlay = false,
+            Widget debugRequiredFor = null) {
+           
             OverlayState result = rootOverlay
                 ? context.findRootAncestorStateOfType<OverlayState>()
                 : context.findAncestorStateOfType<OverlayState>();
             D.assert(() => {
                 if (debugRequiredFor != null && result == null) {
-                    List<DiagnosticsNode> information = new List<DiagnosticsNode>() {
-                        new ErrorSummary("No Overlay widget found."),
-                        new ErrorDescription($"{debugRequiredFor.GetType()} widgets require an Overlay widget ancestor for correct operation."),
-                        new ErrorHint("The most common way to add an Overlay to an application is to include a MaterialApp or Navigator widget in the runApp() call."),
-                        new DiagnosticsProperty<Widget>("The specific widget that failed to find an overlay was", debugRequiredFor, style: DiagnosticsTreeStyle.errorProperty)
-                    };
-
-                    if (context.widget != debugRequiredFor) {
-                        information.Add(context.describeElement("The context from which that widget was searching for an overlay was"));
-                    }
                     
-                    throw new UIWidgetsError(information);
+                    var additional = context.widget != debugRequiredFor
+                        ? context.describeElement($"\nThe context from which that widget was searching for an overlay was:\n  {context}")
+                        : context.describeElement("");
+                    throw new UIWidgetsError(
+                        new List<DiagnosticsNode>()
+                        {
+                            new ErrorSummary("No Overlay widget found."),
+                            new ErrorDescription($"{debugRequiredFor.GetType()} widgets require an Overlay widget ancestor for correct operation."),
+                            new ErrorHint("The most common way to add an Overlay to an application is to include a MaterialApp or Navigator widget in the runApp() call."),
+                            new DiagnosticsProperty<Widget>("The specific widget that failed to find an overlay was", debugRequiredFor, style: DiagnosticsTreeStyle.errorProperty),
+                            additional
+                        });
+                          
                 }
 
                 return true;
@@ -309,16 +320,15 @@ namespace Unity.UIWidgets.widgets {
                 children: children.ToList()
             );
         }
-
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            
             properties.add(new DiagnosticsProperty<List<OverlayEntry>>("entries", _entries));
         }
     }
 
     class _Theatre : MultiChildRenderObjectWidget {
-        internal _Theatre(Key key = null,
+        internal _Theatre(
+            Key key = null,
             int skipCount = 0,
             List<Widget> children = null) : base(key: key, children: children) {
             D.assert(skipCount >= 0);
@@ -343,10 +353,9 @@ namespace Unity.UIWidgets.widgets {
             renderObject.skipCount = skipCount;
             renderObject.textDirection = Directionality.of(context);
         }
-
+        
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            
             properties.add(new IntProperty("skipCount", skipCount));
         }
     }
@@ -398,16 +407,16 @@ namespace Unity.UIWidgets.widgets {
                 return;
             }
             //FIXME: wait for changes on painting/alignment.cs (by Siyao)
-            //if you wanna to skip this change, just comment out the line below and use the commented lines after it
-            _resolvedAlignment = AlignmentDirectional.topStart.resolve(textDirection);
-            /*switch (textDirection) {
+            //then uncomment the line below and remove the switch clauses
+            //_resolvedAlignment = AlignmentDirectional.topStart.resolve(textDirection);
+            switch (textDirection) {
                 case TextDirection.rtl:
                     _resolvedAlignment = new Alignment(-1, -1);
                     break;
                 case TextDirection.ltr:
                     _resolvedAlignment = new Alignment(1, -1);
                     break;
-            }*/
+            }
         }
 
         void _markNeedResolution() {
@@ -441,7 +450,7 @@ namespace Unity.UIWidgets.widgets {
 
         RenderBox _firstOnstageChild {
             get {
-                if (skipCount == childCount) {
+                if (skipCount == base.childCount) {
                     return null;
                 }
 

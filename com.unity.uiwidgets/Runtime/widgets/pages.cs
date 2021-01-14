@@ -4,12 +4,21 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
+    public class PagesUtils {
+        public static Widget _defaultTransitionsBuilder(BuildContext context, Animation<float>
+            animation, Animation<float> secondaryAnimation, Widget child) {
+            return child;
+        }
+    }
+
     public abstract class PageRoute : ModalRoute {
         public readonly bool fullscreenDialog;
 
         public PageRoute() {}
 
-        public PageRoute(RouteSettings settings, bool fullscreenDialog = false) : base(settings) {
+        public PageRoute(
+            RouteSettings settings = null, 
+            bool fullscreenDialog = false) : base(settings) {
             this.fullscreenDialog = fullscreenDialog;
         }
 
@@ -29,14 +38,6 @@ namespace Unity.UIWidgets.widgets {
             return previousRoute is PageRoute;
         }
 
-        public override AnimationController createAnimationController() {
-            var controller = base.createAnimationController();
-            if (settings.isInitialRoute) {
-                controller.setValue(1.0f);
-            }
-
-            return controller;
-        }
     }
 
     public class PageRouteBuilder : PageRoute {
@@ -52,14 +53,19 @@ namespace Unity.UIWidgets.widgets {
             bool opaque = true,
             bool barrierDismissible = false,
             Color barrierColor = null,
-            bool maintainState = true
-        ) : base(settings) {
+            string barrierLabel = null,
+            bool maintainState = true,
+            bool fullscreenDialog = false
+        ) : base(settings,fullscreenDialog) {
             D.assert(pageBuilder != null);
+            D.assert(transitionsBuilder != null);
+            
             this.opaque = opaque;
             this.pageBuilder = pageBuilder;
-            this.transitionsBuilder = transitionsBuilder ?? _defaultTransitionsBuilder;
+            this.transitionsBuilder = transitionsBuilder ?? PagesUtils._defaultTransitionsBuilder;
             this.transitionDuration = transitionDuration ?? TimeSpan.FromMilliseconds(300);
             this.barrierColor = barrierColor;
+            this.barrierLabel = barrierLabel;
             this.maintainState = maintainState;
             this.barrierDismissible = barrierDismissible;
         }
@@ -68,16 +74,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override bool opaque { get; }
 
+        public override string barrierLabel { get; }
         public override bool barrierDismissible { get; }
 
         public override Color barrierColor { get; }
 
         public override bool maintainState { get; }
-
-        Widget _defaultTransitionsBuilder(BuildContext context, Animation<float>
-            animation, Animation<float> secondaryAnimation, Widget child) {
-            return child;
-        }
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {

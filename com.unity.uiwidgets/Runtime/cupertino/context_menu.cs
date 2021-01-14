@@ -90,9 +90,8 @@ namespace Unity.UIWidgets.cupertino {
 
     public class _CupertinoContextMenuState :  TickerProviderStateMixin<CupertinoContextMenu> { 
 
-        public readonly GlobalKey _childGlobalKey = new LabeledGlobalKey<State<StatefulWidget>>();
-        //GlobalKey();//GlobalKey();
-        static readonly TimeSpan  kLongPressTimeout = new TimeSpan(0, 0, 0, 0, 500);
+        public readonly GlobalKey _childGlobalKey = GlobalKey<State<StatefulWidget>>.key();
+        static readonly TimeSpan  kLongPressTimeout = TimeSpan.FromMilliseconds(500);//new TimeSpan(0, 0, 0, 0, 500);
         public bool _childHidden = false;
         public AnimationController _openController;
         public Rect _decoyChildEndRect;
@@ -141,42 +140,42 @@ namespace Unity.UIWidgets.cupertino {
                 ),
                 contextMenuLocation: _contextMenuLocation,
                 previousChildRect: _decoyChildEndRect,
-                builder: (BuildContext context, Animation< float> animation)=>{
+                builder: (BuildContext _context, Animation<float> animation)=>{
                     if (widget.previewBuilder == null) {
                         return widget.child;
                     }
-                    return widget.previewBuilder(context, animation, widget.child);
+                    return widget.previewBuilder(_context, animation, widget.child);
                 }
             );
             Navigator.of(context, rootNavigator: true).push(_route);
             _route.animation.addStatusListener(_routeAnimationStatusListener);
         }
 
-        public void _onDecoyAnimationStatusChange(AnimationStatus animationStatus) {
-          switch (animationStatus) {
-            case AnimationStatus.dismissed:
-              if (_route == null) {
-                setState(()=> {
-                  _childHidden = false;
-                });
-              }
-              _lastOverlayEntry?.remove();
-              _lastOverlayEntry = null;
-              break;
-            case AnimationStatus.completed:
-              setState(()=>{
-                _childHidden = true;
-              });
-              _openContextMenu();
-              SchedulerBinding.instance.addPostFrameCallback((TimeSpan timestamp) =>{
-                _lastOverlayEntry?.remove();
-                _lastOverlayEntry = null;
-                _openController.reset();
-              });
-              break;
-            default:
-              return;
-          }
+        public void _onDecoyAnimationStatusChange(AnimationStatus animationStatus) { 
+            switch (animationStatus) { 
+                case AnimationStatus.dismissed: 
+                    if (_route == null) { 
+                        setState(()=> { 
+                            _childHidden = false; 
+                        });
+                    }
+                    _lastOverlayEntry?.remove();
+                    _lastOverlayEntry = null;
+                    break;
+                case AnimationStatus.completed:
+                    setState(()=>{
+                        _childHidden = true;
+                    });
+                    _openContextMenu();
+                    SchedulerBinding.instance.addPostFrameCallback((TimeSpan timestamp) =>{
+                        _lastOverlayEntry?.remove();
+                        _lastOverlayEntry = null;
+                        _openController.reset();
+                    });
+                    break;
+                default:
+                    return;
+            }
         }
 
 
@@ -282,28 +281,28 @@ namespace Unity.UIWidgets.cupertino {
   
         public static readonly Color _lightModeMaskColor = new Color(0xFF888888);
         public static readonly Color _masklessColor = new Color(0xFFFFFFFF);
-        public readonly GlobalKey _childGlobalKey = new LabeledGlobalKey<State<StatefulWidget>>();
+        public readonly GlobalKey _childGlobalKey = GlobalKey<State<StatefulWidget>>.key();
         public Animation<Color> _mask;
         public Animation<Rect> _rect;
 
-        public override void initState() {
-          base.initState();
-          _mask = new _OnOffAnimation<Color>(
-            controller: widget.controller,
-            onValue: _lightModeMaskColor,
-            offValue: _masklessColor,
-            intervalOn: 0.0f,
-            intervalOff: 0.5f
-          );
-          Rect midRect =  widget.beginRect.deflate(
-            widget.beginRect.width * (CupertinoContextMenuUtils._kOpenScale - 1.0f) / 2f
-          );
-          List<TweenSequenceItem<Rect>> tweenSequenceItems = new List<TweenSequenceItem<Rect>>();
-          tweenSequenceItems.Add(
-            new TweenSequenceItem<Rect>(
-              tween: new RectTween(
-                begin: widget.beginRect,
-                end: midRect
+        public override void initState() { 
+            base.initState();
+            _mask = new _OnOffAnimation<Color>(
+                controller: widget.controller,
+                onValue: _lightModeMaskColor,
+                offValue: _masklessColor,
+                intervalOn: 0.0f,
+                intervalOff: 0.5f
+            );
+            Rect midRect =  widget.beginRect.deflate(
+                widget.beginRect.width * (CupertinoContextMenuUtils._kOpenScale - 1.0f) / 2f
+            );
+            List<TweenSequenceItem<Rect>> tweenSequenceItems = new List<TweenSequenceItem<Rect>>();
+            tweenSequenceItems.Add(
+                new TweenSequenceItem<Rect>(
+                    tween: new RectTween(
+                    begin: widget.beginRect,
+                    end: midRect
               ).chain(new CurveTween(curve: Curves.easeInOutCubic)),
               weight: 1.0f
           ));
@@ -325,7 +324,7 @@ namespace Unity.UIWidgets.cupertino {
           if (widget.controller.value < 0.5f) {
             return;
           }
-            //HapticFeedback.selectionClick();????
+          //HapticFeedback.selectionClick();????
           /// tbc ???
           _rect.removeListener(_rectListener);
         }
@@ -334,28 +333,26 @@ namespace Unity.UIWidgets.cupertino {
           base.dispose();
         }
 
-        public Widget _buildAnimation(BuildContext context, Widget child) {
-          Color color = widget.controller.status == AnimationStatus.reverse ? _masklessColor : _mask.value;
-          List<Color> colors = new List<Color>();
-          colors.Add(color);
-          colors.Add(color);
-          return Positioned.fromRect(
-            rect: _rect.value,
-            child: //kIsweb?
-            new Container(key: _childGlobalKey, child: widget.child)
-            
-              /*: new ShaderMask(
-                key: _childGlobalKey,
-                shaderCallback: (Rect bounds) => {
-                  return new LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: colors
-                ).createShader(bounds);
-                },
-                child: widget.child
-              )*/
-          );
+        public Widget _buildAnimation(BuildContext context, Widget child) { 
+            Color color = widget.controller.status == AnimationStatus.reverse ? _masklessColor : _mask.value;
+            List<Color> colors = new List<Color>();
+            colors.Add(color);
+            colors.Add(color);
+            return Positioned.fromRect(
+                rect: _rect.value,
+                child: foundation_.kIsWeb 
+                    ? (Widget) new Container(key: _childGlobalKey, child: widget.child)
+                    : new ShaderMask(
+                        key: _childGlobalKey, 
+                        shaderCallback: (Rect bounds) => { 
+                            return new LinearGradient(
+                                begin: Alignment.topLeft, 
+                                end: Alignment.bottomRight, 
+                                colors: colors).createShader(bounds); 
+                        }, 
+                        child: widget.child
+                    )
+            );
         }
         public override Widget build(BuildContext context) {
           List<Widget> widgets = new List<Widget>();

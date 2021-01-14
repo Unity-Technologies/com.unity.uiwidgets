@@ -28,6 +28,10 @@ namespace Unity.UIWidgets.rendering {
             float maxWidth = float.PositiveInfinity,
             float minHeight = 0.0f,
             float maxHeight = float.PositiveInfinity) {
+            D.assert(minWidth != null);
+            D.assert(maxWidth != null);
+            D.assert(minHeight != null);
+            D.assert (maxHeight != null);
             this.minWidth = minWidth;
             this.maxWidth = maxWidth;
             this.minHeight = minHeight;
@@ -762,12 +766,15 @@ namespace Unity.UIWidgets.rendering {
         public float getMinIntrinsicWidth(float height) {
             D.assert(() => {
                 if (height < 0.0) {
-                    throw new UIWidgetsError(
-                        "The height argument to getMinIntrinsicWidth was negative.\n" +
-                        "The argument to getMinIntrinsicWidth must not be negative. " +
-                        "If you perform computations on another height before passing it to " +
-                        "getMinIntrinsicWidth, consider using Mathf.Max() or float.clamp() " +
-                        "to force the value into the valid range."
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                            new ErrorSummary("The height argument to getMinIntrinsicWidth was negative."),
+                            new ErrorDescription("The argument to getMinIntrinsicWidth must not be negative or null."),
+                            new ErrorHint(
+                                "If you perform computations on another height before passing it to " +
+                                "getMinIntrinsicWidth, consider using math.max() or double.clamp() " +
+                                "to force the value into the valid range."
+                            )
+                        }
                     );
                 }
 
@@ -784,15 +791,16 @@ namespace Unity.UIWidgets.rendering {
         public float getMaxIntrinsicWidth(float height) {
             D.assert(() => {
                 if (height < 0.0) {
-                    throw new UIWidgetsError(
-                        "The height argument to getMaxIntrinsicWidth was negative.\n" +
-                        "The argument to getMaxIntrinsicWidth must not be negative. " +
-                        "If you perform computations on another height before passing it to " +
-                        "getMaxIntrinsicWidth, consider using Mathf.Max() or float.clamp() " +
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("The height argument to getMaxIntrinsicWidth was negative."),
+                        new ErrorDescription("The argument to getMaxIntrinsicWidth must not be negative or null."),
+                        new ErrorHint(
+                            "If you perform computations on another height before passing it to " + 
+                        "getMaxIntrinsicWidth, consider using math.max() or double.clamp() " +
                         "to force the value into the valid range."
-                    );
+                        )
+                    });
                 }
-
                 return true;
             });
 
@@ -806,13 +814,15 @@ namespace Unity.UIWidgets.rendering {
         public float getMinIntrinsicHeight(float width) {
             D.assert(() => {
                 if (width < 0.0) {
-                    throw new UIWidgetsError(
-                        "The width argument to getMinIntrinsicHeight was negative.\n" +
-                        "The argument to getMinIntrinsicHeight must not be negative. " +
-                        "If you perform computations on another width before passing it to " +
-                        "getMinIntrinsicHeight, consider using Mathf.Max() or float.clamp() " +
-                        "to force the value into the valid range."
-                    );
+                    throw new UIWidgetsError( new List<DiagnosticsNode>(){
+                        new ErrorSummary("The width argument to getMinIntrinsicHeight was negative."),
+                        new ErrorDescription("The argument to getMinIntrinsicHeight must not be negative or null."),
+                        new ErrorHint(
+                            "If you perform computations on another width before passing it to " +
+                            "getMinIntrinsicHeight, consider using math.max() or double.clamp() " +
+                            "to force the value into the valid range."
+                        )
+                    });
                 }
 
                 return true;
@@ -829,13 +839,15 @@ namespace Unity.UIWidgets.rendering {
         public float getMaxIntrinsicHeight(float width) {
             D.assert(() => {
                 if (width < 0.0) {
-                    throw new UIWidgetsError(
-                        "The width argument to getMaxIntrinsicHeight was negative.\n" +
-                        "The argument to getMaxIntrinsicHeight must not be negative. " +
-                        "If you perform computations on another width before passing it to " +
-                        "getMaxIntrinsicHeight, consider using Mathf.Max() or float.clamp() " +
-                        "to force the value into the valid range."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("The width argument to getMaxIntrinsicHeight was negative."),
+                        new ErrorDescription("The argument to getMaxIntrinsicHeight must not be negative or null."),
+                        new ErrorHint(
+                            "If you perform computations on another width before passing it to " +
+                            "getMaxIntrinsicHeight, consider using math.max() or double.clamp() " +
+                            "to force the value into the valid range."
+                        )
+                    });
                 }
 
                 return true;
@@ -857,12 +869,12 @@ namespace Unity.UIWidgets.rendering {
             get {
                 D.assert(hasSize, () => "RenderBox was not laid out: " + this);
                 D.assert(() => {
-                    if (this._size is _DebugSize) {
-                        _DebugSize _size = (_DebugSize) this._size;
-                        D.assert(_size._owner == this);
+                    Size _size = this._size;
+                    if (_size is _DebugSize) {
+                        D.assert(((_DebugSize)_size)._owner == this);
                         if (debugActiveLayout != null) {
                             D.assert(debugDoingThisResize || debugDoingThisLayout ||
-                                     (debugActiveLayout == parent && _size._canBeUsedByParent));
+                                     (debugActiveLayout == parent && ((_DebugSize)_size)._canBeUsedByParent));
                         }
 
                         D.assert(_size == this._size);
@@ -883,39 +895,29 @@ namespace Unity.UIWidgets.rendering {
                     }
 
                     D.assert(!debugDoingThisResize);
-
-                    string contract = "", violation = "", hint = "";
+                    List<DiagnosticsNode> information = new List<DiagnosticsNode>{
+                        new ErrorSummary("RenderBox size setter called incorrectly.")
+                    };
                     if (debugDoingThisLayout) {
                         D.assert(sizedByParent);
-                        violation = "It appears that the size setter was called from performLayout().";
-                        hint = "";
+                        information.Add(new ErrorDescription("It appears that the size setter was called from performLayout()."));
                     }
                     else {
-                        violation =
-                            "The size setter was called from outside layout (neither performResize() nor performLayout() were being run for this object).";
+                        information.Add(new ErrorDescription(
+                            "The size setter was called from outside layout (neither performResize() nor performLayout() were being run for this object)."
+                        ));
                         if (owner != null && owner.debugDoingLayout) {
-                            hint =
-                                "Only the object itself can set its size. It is a contract violation for other objects to set it.";
+                            information.Add(new ErrorDescription("Only the object itself can set its size. It is a contract violation for other objects to set it."));
                         }
                     }
 
                     if (sizedByParent) {
-                        contract =
-                            "Because this RenderBox has sizedByParent set to true, it must set its size in performResize().";
+                        information.Add(new ErrorDescription("Because this RenderBox has sizedByParent set to true, it must set its size in performResize()."));
                     }
                     else {
-                        contract =
-                            "Because this RenderBox has sizedByParent set to false, it must set its size in performLayout().";
+                        information.Add(new ErrorDescription("Because this RenderBox has sizedByParent set to false, it must set its size in performLayout()."));
                     }
-
-                    throw new UIWidgetsError(
-                        "RenderBox size setter called incorrectly.\n" +
-                        violation + "\n" +
-                        hint + "\n" +
-                        contract + "\n" +
-                        "The RenderBox in question is:\n" +
-                        "  " + this
-                    );
+                    throw new UIWidgetsError(information);
                 });
                 D.assert(() => {
                     value = debugAdoptSize(value);
@@ -940,42 +942,46 @@ namespace Unity.UIWidgets.rendering {
                     var value = (_DebugSize) valueRaw;
                     if (value._owner != this) {
                         if (value._owner.parent != this) {
-                            throw new UIWidgetsError(
-                                "The size property was assigned a size inappropriately.\n" +
-                                "The following render object:\n" +
-                                "  " + this + "\n" +
-                                "...was assigned a size obtained from:\n" +
-                                "  " + value._owner + "\n" +
-                                "However, this second render object is not, or is no longer, a " +
-                                "child of the first, and it is therefore a violation of the " +
-                                "RenderBox layout protocol to use that size in the layout of the " +
-                                "first render object.\n" +
-                                "If the size was obtained at a time where it was valid to read " +
-                                "the size (because the second render object above was a child " +
-                                "of the first at the time), then it should be adopted using " +
-                                "debugAdoptSize at that time.\n" +
-                                "If the size comes from a grandchild or a render object from an " +
-                                "entirely different part of the render tree, then there is no " +
-                                "way to be notified when the size changes and therefore attempts " +
-                                "to read that size are almost certainly a source of bugs. A different " +
-                                "approach should be used."
-                            );
+                            throw new UIWidgetsError(new List<DiagnosticsNode>{
+                                new ErrorSummary("The size property was assigned a size inappropriately."),
+                                describeForError("The following render object"),
+                                value._owner.describeForError("...was assigned a size obtained from"),
+                                new ErrorDescription(
+                                    "However, this second render object is not, or is no longer, a " +
+                                    "child of the first, and it is therefore a violation of the " +
+                                    "RenderBox layout protocol to use that size in the layout of the " +
+                                    "first render object."
+                                ),
+                                new ErrorHint(
+                                    "If the size was obtained at a time where it was valid to read " +
+                                    "the size (because the second render object above was a child " +
+                                    "of the first at the time), then it should be adopted using " +
+                                    "debugAdoptSize at that time."
+                                ),
+                                new ErrorHint(
+                                    "If the size comes from a grandchild or a render object from an " +
+                                    "entirely different part of the render tree, then there is no " +
+                                    "way to be notified when the size changes and therefore attempts " +
+                                    "to read that size are almost certainly a source of bugs. A different " +
+                                    "approach should be used."
+                                )
+                            });
                         }
 
                         if (!value._canBeUsedByParent) {
-                            throw new UIWidgetsError(
-                                "A child\"s size was used without setting parentUsesSize.\n" +
-                                "The following render object:\n" +
-                                "  " + this + "\n" +
-                                "...was assigned a size obtained from its child:\n" +
-                                "  " + value._owner + "\n" +
-                                "However, when the child was laid out, the parentUsesSize argument " +
-                                "was not set or set to false. Subsequently this transpired to be " +
-                                "inaccurate: the size was nonetheless used by the parent.\n" +
-                                "It is important to tell the framework if the size will be used or not " +
-                                "as several important performance optimizations can be made if the " +
-                                "size will not be used by the parent."
-                            );
+                            throw new UIWidgetsError(new List<DiagnosticsNode>{
+                                new ErrorSummary("A child's size was used without setting parentUsesSize."),
+                                describeForError("The following render object"),
+                                value._owner.describeForError("...was assigned a size obtained from its child"),
+                                new ErrorDescription(
+                                    "However, when the child was laid out, the parentUsesSize argument " +
+                                    "was not set or set to false. Subsequently this transpired to be " +
+                                    "inaccurate: the size was nonetheless used by the parent.\n" +
+                                    "It is important to tell the framework if the size will be used or not " +
+                                    "as several important performance optimizations can be made if the " +
+                                    "size will not be used by the parent."
+                                )
+                            });
                         }
                     }
                 }
@@ -1059,90 +1065,81 @@ namespace Unity.UIWidgets.rendering {
             D.assert(() => {
                 if (!hasSize) {
                     D.assert(!debugNeedsLayout);
-                    string contract = "";
+                    DiagnosticsNode contract;
                     if (sizedByParent) {
-                        contract =
-                            "Because this RenderBox has sizedByParent set to true, it must set its size in performResize().\n";
+                        contract = new ErrorDescription("Because this RenderBox has sizedByParent set to true, it must set its size in performResize().");
                     }
                     else {
-                        contract =
-                            "Because this RenderBox has sizedByParent set to false, it must set its size in performLayout().\n";
+                        contract = new ErrorDescription("Because this RenderBox has sizedByParent set to false, it must set its size in performLayout().");
                     }
 
-                    throw new UIWidgetsError(
-                        "RenderBox did not set its size during layout.\n" +
-                        contract +
-                        "It appears that this did not happen; layout completed, but the size property is still null.\n" +
-                        "The RenderBox in question is:\n" +
-                        "  " + this);
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary("RenderBox did not set its size during layout."),
+                        contract,
+                        new ErrorDescription(
+                            "It appears that this did not happen; layout completed, but the size property is still null."),
+                        new DiagnosticsProperty<RenderBox>("The RenderBox in question is", this,
+                            style: DiagnosticsTreeStyle.errorProperty),
+                    });
                 }
 
                 if (!_size.isFinite) {
-                    var information = new StringBuilder();
+                    List<DiagnosticsNode> information = new List<DiagnosticsNode>{
+                        new ErrorSummary("${runtimeType} object was given an infinite size during layout."),
+                        new ErrorDescription(
+                            "This probably means that it is a render object that tries to be " +
+                            "as big as possible, but it was put inside another render object " +
+                            "that allows its children to pick their own size."
+                        )
+                    };
                     if (!constraints.hasBoundedWidth) {
                         RenderBox node = this;
                         while (!node.constraints.hasBoundedWidth && node.parent is RenderBox) {
                             node = (RenderBox) node.parent;
+                            information.Add(node.describeForError("The nearest ancestor providing an unbounded width constraint is"));
                         }
-
-                        information.AppendLine("The nearest ancestor providing an unbounded width constraint is:");
-                        information.Append("  ");
-                        information.AppendLine(node.toStringShallow(joiner: "\n  "));
                     }
 
                     if (!constraints.hasBoundedHeight) {
                         RenderBox node = this;
                         while (!node.constraints.hasBoundedHeight && node.parent is RenderBox) {
                             node = (RenderBox) node.parent;
+                            information.Add(node.describeForError("The nearest ancestor providing an unbounded height constraint is"));
                         }
-
-                        information.AppendLine("The nearest ancestor providing an unbounded height constraint is:");
-                        information.Append("  ");
-                        information.AppendLine(node.toStringShallow(joiner: "\n  "));
                     }
 
-                    throw new UIWidgetsError(
-                        GetType() + " object was given an infinite size during layout.\n" +
-                        "This probably means that it is a render object that tries to be " +
-                        "as big as possible, but it was put inside another render object " +
-                        "that allows its children to pick their own size.\n" +
-                        information +
-                        "The constraints that applied to the " + GetType() + " were:\n" +
-                        "  " + constraints + "\n" +
-                        "The exact size it was given was:\n" +
-                        "  " + _size
-                    );
+                    information.Add(new DiagnosticsProperty<BoxConstraints>("The constraints that applied to the ${runtimeType} were", constraints, style: DiagnosticsTreeStyle.errorProperty));
+                    information.Add(new DiagnosticsProperty<Size>("The exact size it was given was", _size, style: DiagnosticsTreeStyle.errorProperty));
+                    information.Add(new ErrorHint("See https://flutter.dev/docs/development/ui/layout/box-constraints for more information."));
+                    throw new UIWidgetsError(information);
                 }
 
                 if (!constraints.isSatisfiedBy(_size)) {
-                    throw new UIWidgetsError(
-                        GetType() + " does not meet its constraints.\n" +
-                        "Constraints: " + constraints + "\n" +
-                        "Size: " + _size + "\n" +
-                        "If you are not writing your own RenderBox subclass, then this is not " +
-                        "your fault."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("${runtimeType} does not meet its constraints."),
+                        new DiagnosticsProperty<BoxConstraints>("Constraints", constraints, style: DiagnosticsTreeStyle.errorProperty),
+                        new DiagnosticsProperty<Size>("Size", _size, style: DiagnosticsTreeStyle.errorProperty),
+                        new ErrorHint(
+                            "If you are not writing your own RenderBox subclass, then this is not " +
+                            "your fault. Contact support: https://github.com/flutter/flutter/issues/new?template=BUG.md"
+                        )
+                    });
                 }
 
                 if (D.debugCheckIntrinsicSizes) {
                     D.assert(!debugCheckingIntrinsics);
                     debugCheckingIntrinsics = true;
-                    var failures = new StringBuilder();
-                    int failureCount = 0;
+                    List<DiagnosticsNode> failures = new List<DiagnosticsNode>();
 
                     var testIntrinsic = new Func<Func<float, float>, string, float, float>(
                         (function, name, constraint) => {
                             float result = function(constraint);
                             if (result < 0) {
-                                failures.AppendLine(" * " + name + "(" + constraint + ") returned a negative value: " +
-                                                    result);
-                                failureCount += 1;
+                                failures.Add(new ErrorDescription($" * {name}({constraint}) returned a negative value: {result}"));
                             }
 
                             if (result.isInfinite()) {
-                                failures.AppendLine(" * " + name + "(" + constraint +
-                                                    ") returned a non-finite value: " + result);
-                                failureCount += 1;
+                                failures.Add(new ErrorDescription($" * {name}({constraint}) returned a non-finite value: {result}"));
                             }
 
                             return result;
@@ -1154,11 +1151,7 @@ namespace Unity.UIWidgets.rendering {
                                 float min = testIntrinsic(getMin, "getMinIntrinsic" + name, constraint);
                                 float max = testIntrinsic(getMax, "getMaxIntrinsic" + name, constraint);
                                 if (min > max) {
-                                    failures.AppendLine(
-                                        " * getMinIntrinsic" + name + "(" + constraint + ") returned a larger value (" +
-                                        min +
-                                        ") than getMaxIntrinsic" + name + "(" + constraint + ") (" + max + ")");
-                                    failureCount += 1;
+                                    failures.Add(new ErrorDescription($" * getMinIntrinsic{name}({constraint}) returned a larger value ({min}) than getMaxIntrinsic{name}({constraint}) ({max})"));
                                 }
                             });
 
@@ -1178,16 +1171,15 @@ namespace Unity.UIWidgets.rendering {
                     }
 
                     debugCheckingIntrinsics = false;
-                    if (failures.Length > 0) {
-                        D.assert(failureCount > 0);
-                        throw new UIWidgetsError(
-                            "The intrinsic dimension methods of the " + GetType() +
-                            " class returned values that violate the intrinsic protocol contract.\n" +
-                            "The following failures was detected:\n" +
-                            failures +
+                    if (failures.Count > 0) {
+                        
+                        failures.Add(new ErrorSummary("The intrinsic dimension methods of the $runtimeType class returned values that violate the intrinsic protocol contract."));
+                        failures.Add(new ErrorDescription("The following failure(s) was detected:"));
+                        failures.Add(new ErrorHint(
                             "If you are not writing your own RenderBox subclass, then this is not\n" +
-                            "your fault."
-                        );
+                            "your fault. Contact support: https://github.com/flutter/flutter/issues/new?template=BUG.md"
+                        ));
+                        throw new UIWidgetsError(failures);
                     }
                 }
 
@@ -1224,12 +1216,14 @@ namespace Unity.UIWidgets.rendering {
         protected override void performLayout() {
             D.assert(() => {
                 if (!sizedByParent) {
-                    throw new UIWidgetsError(
-                        GetType() + " did not implement performLayout().\n" +
-                        "RenderBox subclasses need to either override performLayout() to " +
-                        "set a size and lay out any children, or, set sizedByParent to true " +
-                        "so that performResize() sizes the render object."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("$runtimeType did not implement performLayout()."),
+                        new ErrorHint(
+                            "RenderBox subclasses need to either override performLayout() to " +
+                            "set a size and lay out any children, or, set sizedByParent to true " +
+                            "so that performResize() sizes the render object."
+                        )
+                    });
                 }
 
                 return true;
@@ -1241,28 +1235,36 @@ namespace Unity.UIWidgets.rendering {
             D.assert(() => {
                 if (!hasSize) {
                     if (debugNeedsLayout) {
-                        throw new UIWidgetsError(
-                            "Cannot hit test a render box that has never been laid out.\n" +
-                            "The hitTest() method was called on this RenderBox:\n" +
-                            "  " + this + "\n" +
-                            "Unfortunately, this object\"s geometry is not known at this time, " +
-                            "probably because it has never been laid out. " +
-                            "This means it cannot be accurately hit-tested. If you are trying " +
-                            "to perform a hit test during the layout phase itself, make sure " +
-                            "you only hit test nodes that have completed layout (e.g. the node\"s " +
-                            "children, after their layout() method has been called)."
-                        );
+                        throw new UIWidgetsError(new List<DiagnosticsNode>{
+                            new ErrorSummary("Cannot hit test a render box that has never been laid out."),
+                            describeForError("The hitTest() method was called on this RenderBox"),
+                            new ErrorDescription(
+                                "Unfortunately, this object's geometry is not known at this time, " +
+                                "probably because it has never been laid out. " +
+                                "This means it cannot be accurately hit-tested."
+                            ),
+                            new ErrorHint(
+                                "If you are trying " +
+                                "to perform a hit test during the layout phase itself, make sure " +
+                                "you only hit test nodes that have completed layout (e.g. the node's " +
+                                "children, after their layout() method has been called)."
+                            )
+                        });
                     }
 
-                    throw new UIWidgetsError(
-                        "Cannot hit test a render box with no size.\n" +
-                        "The hitTest() method was called on this RenderBox:\n" +
-                        "  " + this + "\n" +
-                        "Although this node is not marked as needing layout, " +
-                        "its size is not set. A RenderBox object must have an " +
-                        "explicit size before it can be hit-tested. Make sure " +
-                        "that the RenderBox in question sets its size during layout."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("Cannot hit test a render box with no size."),
+                        describeForError("The hitTest() method was called on this RenderBox"),
+                        new ErrorDescription(
+                            "Although this node is not marked as needing layout, " +
+                            "its size is not set."
+                        ),
+                        new ErrorHint(
+                            "A RenderBox object must have an " +
+                            "explicit size before it can be hit-tested. Make sure " +
+                            "that the RenderBox in question sets its size during layout."
+                        )
+                    });
                 }
 
                 return true;
@@ -1291,20 +1293,19 @@ namespace Unity.UIWidgets.rendering {
             D.assert(child.parent == this);
             D.assert(() => {
                 if (!(child.parentData is BoxParentData)) {
-                    throw new UIWidgetsError(
-                        GetType() + " does not implement applyPaintTransform.\n" +
-                        "The following " + GetType() + " object:\n" +
-                        "  " + toStringShallow() + "\n" +
-                        "...did not use a BoxParentData class for the parentData field of the following child:\n" +
-                        "  " + child.toStringShallow() + "\n" +
-                        "The " + GetType() + " class inherits from RenderBox. " +
-                        "The default applyPaintTransform implementation provided by RenderBox assumes that the " +
-                        "children all use BoxParentData objects for their parentData field. " +
-                        "Since " + GetType() +
-                        " does not in fact use that ParentData class for its children, it must " +
-                        "provide an implementation of applyPaintTransform that supports the specific ParentData " +
-                        "subclass used by its children (which apparently is " + child.parentData.GetType() + ")."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary($"{GetType()} does not implement applyPaintTransform."),
+                        describeForError($"The following {GetType()} object"),
+                        child.describeForError("...did not use a BoxParentData class for the parentData field of the following child"),
+                        new ErrorDescription($"The {GetType()} class inherits from RenderBox."),
+                        new ErrorHint(
+                            "The default applyPaintTransform implementation provided by RenderBox assumes that the " +
+                            "children all use BoxParentData objects for their parentData field. " +
+                            $"Since {GetType()} does not in fact use that ParentData class for its children, it must " +
+                            "provide an implementation of applyPaintTransform that supports the specific ParentData " +
+                            $"subclass used by its children (which apparently is {child.parentData.GetType()})."
+                        ),
+                    });
                 }
 
                 return true;

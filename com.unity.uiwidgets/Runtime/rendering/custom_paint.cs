@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
@@ -135,7 +136,7 @@ namespace Unity.UIWidgets.widgets {
             base.detach();
         }
 
-        protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             if (_foregroundPainter != null && ((_foregroundPainter.hitTest(position)) ?? false)) {
                 return true;
             }
@@ -167,24 +168,26 @@ namespace Unity.UIWidgets.widgets {
             D.assert(() => {
                 int debugNewCanvasSaveCount = canvas.getSaveCount();
                 if (debugNewCanvasSaveCount > debugPreviousCanvasSaveCount) {
-                    throw new UIWidgetsError(
-                        $"{debugNewCanvasSaveCount - debugPreviousCanvasSaveCount} more " +
-                        $"time{((debugNewCanvasSaveCount - debugPreviousCanvasSaveCount == 1) ? "" : "s")} " +
-                        "than it called canvas.restore().\n" +
-                        "This leaves the canvas in an inconsistent state and will probably result in a broken display.\n" +
-                        "You must pair each call to save()/saveLayer() with a later matching call to restore()."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary(
+                            $"The {painter} custom painter called canvas.save() or canvas.saveLayer() at least " +
+                            $"{debugNewCanvasSaveCount - debugPreviousCanvasSaveCount} more " +
+                            "times than it called canvas.restore()."
+                        ),
+                        new ErrorDescription("This leaves the canvas in an inconsistent state and will probably result in a broken display."),
+                        new ErrorHint("You must pair each call to save()/saveLayer() with a later matching call to restore().")
+                    });
                 }
 
                 if (debugNewCanvasSaveCount < debugPreviousCanvasSaveCount) {
-                    throw new UIWidgetsError(
-                        $"The {painter} custom painter called canvas.restore() " +
-                        $"{debugPreviousCanvasSaveCount - debugNewCanvasSaveCount} more " +
-                        $"time{(debugPreviousCanvasSaveCount - debugNewCanvasSaveCount == 1 ? "" : "s")} " +
-                        "than it called canvas.save() or canvas.saveLayer().\n" +
-                        "This leaves the canvas in an inconsistent state and will result in a broken display.\n" +
-                        "You should only call restore() if you first called save() or saveLayer()."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary($"The {painter} custom painter called canvas.restore() " +
+                            $"{debugPreviousCanvasSaveCount - debugNewCanvasSaveCount} more " +
+                            "times than it called canvas.save() or canvas.saveLayer()."
+                        ),
+                        new ErrorDescription("This leaves the canvas in an inconsistent state and will result in a broken display."),
+                        new ErrorHint("You should only call restore() if you first called save() or saveLayer().")
+                    });
                 }
 
                 return debugNewCanvasSaveCount == debugPreviousCanvasSaveCount;

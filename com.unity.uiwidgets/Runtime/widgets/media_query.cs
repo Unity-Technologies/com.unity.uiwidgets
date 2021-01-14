@@ -63,13 +63,13 @@ namespace Unity.UIWidgets.widgets {
                 viewPadding : EdgeInsets.fromWindowPadding(window.viewPadding, window.devicePixelRatio),
                 viewInsets: EdgeInsets.fromWindowPadding(window.viewInsets, window.devicePixelRatio),
                 systemGestureInsets : EdgeInsets.fromWindowPadding(window.systemGestureInsets, window.devicePixelRatio),
-                physicalDepth : window.physicalDepth
-               // accessibleNavigation: window.accessibilityFeatures.accessibleNavigation,
-               // invertColors: window.accessibilityFeatures.invertColors,
-               // disableAnimations: window.accessibilityFeatures.disableAnimations,
-               // boldText: window.accessibilityFeatures.boldText,
-               // highContrast : window.accessibilityFeatures.highContrast,
-                //alwaysUse24HourFormat: window.alwaysUse24HourFormat
+                physicalDepth : window.physicalDepth,
+                accessibleNavigation: window.accessibilityFeatures.accessibleNavigation,
+                invertColors: window.accessibilityFeatures.invertColors,
+                disableAnimations: window.accessibilityFeatures.disableAnimations,
+                boldText: window.accessibilityFeatures.boldText,
+                highContrast : window.accessibilityFeatures.highContrast,
+                alwaysUse24HourFormat: window.alwaysUse24HourFormat
             );
         }
 
@@ -424,7 +424,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(context != null);
             //MediaQuery query = context.dependOnInheritedWidgetOfExactType<MediaQuery>();
 
-            MediaQuery query = (MediaQuery) context.inheritFromWidgetOfExactType(typeof(MediaQuery));
+            MediaQuery query = (MediaQuery) context.dependOnInheritedWidgetOfExactType<MediaQuery>();
             if (query != null) {
                 return query.data;
             }
@@ -433,14 +433,16 @@ namespace Unity.UIWidgets.widgets {
                 return null;
             }
 
-            throw new UIWidgetsError(
-                "MediaQuery.of() called with a context that does not contain a MediaQuery.\n" +
-                "No MediaQuery ancestor could be found starting from the context that was passed " +
-                "to MediaQuery.of(). This can happen because you do not have a WidgetsApp or " +
-                "MaterialApp widget (those widgets introduce a MediaQuery), or it can happen " +
-                "if the context you use comes from a widget above those widgets.\n" +
-                "The context used was:\n" +
-                $"  {context}");
+            throw new UIWidgetsError(new List<DiagnosticsNode>{
+                new ErrorSummary("MediaQuery.of() called with a context that does not contain a MediaQuery."),
+                new ErrorDescription(
+                    "No MediaQuery ancestor could be found starting from the context that was passed " +
+                    "to MediaQuery.of(). This can happen because you do not have a WidgetsApp or " +
+                    "MaterialApp widget (those widgets introduce a MediaQuery), or it can happen " +
+                    "if the context you use comes from a widget above those widgets."
+                ),
+                context.describeElement("The context used was")
+            });
         }
 
         public static float textScaleFactorOf(BuildContext context) {

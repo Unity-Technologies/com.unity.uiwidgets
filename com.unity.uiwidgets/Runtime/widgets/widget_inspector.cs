@@ -2317,8 +2317,12 @@ namespace Unity.UIWidgets.widgets {
             });
             if (inDebugMode == false) {
                 throw new UIWidgetsError(
-                    "The inspector should never be used in production mode due to the " + 
-                "negative performance impact."
+                    new List<DiagnosticsNode>() {
+                        new ErrorSummary(
+                            "The inspector should never be used in production mode due to the " + 
+                        "negative performance impact."
+                        )
+                    }
                     );
             }
         }

@@ -934,11 +934,8 @@ namespace Unity.UIWidgets.widgets {
             D.assert(FocusManagerUtils._focusDebug($"Refreshing focus state. Next focus will be {_markedForFocus}"));
             
             if (_markedForFocus != null && _markedForFocus != _primaryFocus) {
-                HashSet<FocusNode> previousPath = new HashSet<FocusNode>(previousFocus?.ancestors) ?? new HashSet<FocusNode>();
+                HashSet<FocusNode> previousPath = previousFocus?.ancestors != null ? new HashSet<FocusNode>(previousFocus.ancestors) : new HashSet<FocusNode>();
                 HashSet<FocusNode> nextPath = new HashSet<FocusNode>(_markedForFocus.ancestors);
-
-                
-
                 foreach(FocusNode node in FocusTravesalUtils.difference(nextPath,previousPath)) {
                     _dirtyNodes.Add(node);
                 }
