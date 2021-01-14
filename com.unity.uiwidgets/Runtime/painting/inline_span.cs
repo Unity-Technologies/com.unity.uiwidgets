@@ -100,14 +100,14 @@ namespace Unity.UIWidgets.painting {
 
     public abstract class InlineSpan : DiagnosticableTree, IEquatable<InlineSpan> {
         public InlineSpan(
-            TextStyle style = null 
+            TextStyle style = null
         ) {
             this.style = style;
-            
         }
+
         public readonly TextStyle style;
 
-        
+
         public abstract void build(ParagraphBuilder builder,
             float textScaleFactor = 1, List<PlaceholderDimensions> dimensions = null
         );
@@ -129,8 +129,7 @@ namespace Unity.UIWidgets.painting {
 
         public virtual string toPlainText(
             bool includeSemanticsLabels = true,
-            bool includePlaceholders = true) 
-        {
+            bool includePlaceholders = true) {
             StringBuilder buffer = new StringBuilder();
             computeToPlainText(buffer, includeSemanticsLabels: includeSemanticsLabels,
                 includePlaceholders: includePlaceholders);
@@ -148,7 +147,7 @@ namespace Unity.UIWidgets.painting {
 
         public abstract void computeToPlainText(
             StringBuilder buffer,
-            bool includeSemanticsLabels = true, 
+            bool includeSemanticsLabels = true,
             bool includePlaceholders = true);
 
         public int? codeUnitAt(int index) {
@@ -168,7 +167,7 @@ namespace Unity.UIWidgets.painting {
         public virtual bool debugAssertIsValid() => true;
         public abstract RenderComparison compareTo(InlineSpan other);
 
-        void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+        public virtual void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.whitespace;
             if (style != null) {
@@ -207,7 +206,7 @@ namespace Unity.UIWidgets.painting {
         public override int GetHashCode() {
             return (style != null ? style.GetHashCode() : 0);
         }
-        
+
         public static bool operator ==(InlineSpan left, InlineSpan right) {
             return Equals(left, right);
         }

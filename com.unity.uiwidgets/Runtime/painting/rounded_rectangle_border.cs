@@ -23,7 +23,7 @@ namespace Unity.UIWidgets.painting {
         public override ShapeBorder scale(float t) {
             return new RoundedRectangleBorder(
                 side: side.scale(t),
-                borderRadius: borderRadius * t
+                borderRadius: (BorderRadius) (borderRadius * t)
             );
         }
 
@@ -171,7 +171,7 @@ namespace Unity.UIWidgets.painting {
         public override ShapeBorder scale(float t) {
             return new _RoundedRectangleToCircleBorder(
                 side: side.scale(t),
-                borderRadius: borderRadius * t,
+                borderRadius: (BorderRadius) (borderRadius * t),
                 circleness: t
             );
         }

@@ -1,4 +1,5 @@
 using System;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.painting {
@@ -132,7 +133,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}({side})";
+            return $"{foundation_.objectRuntimeType(this, "StadiumBorder")}({side})";
         }
     }
 
@@ -317,7 +318,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"StadiumBorder($side, {circleness * 100:F1}% " +
+            return $"StadiumBorder({side}, {circleness * 100:F1}% " +
                    "of the way to being a CircleBorder)";
         }
     }
@@ -346,7 +347,7 @@ namespace Unity.UIWidgets.painting {
         public override ShapeBorder scale(float t) {
             return new _StadiumToRoundedRectangleBorder(
                 side: side.scale(t),
-                borderRadius: borderRadius * t,
+                borderRadius: (BorderRadius) (borderRadius * t),
                 rectness: t
             );
         }

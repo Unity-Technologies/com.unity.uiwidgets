@@ -28,7 +28,7 @@ namespace Unity.UIWidgets.painting {
         public override ShapeBorder scale(float t) {
             return new ContinuousRectangleBorder(
                 side: side.scale(t),
-                borderRadius: borderRadius * t
+                borderRadius: (BorderRadius) (borderRadius * t)
             );
         }
 

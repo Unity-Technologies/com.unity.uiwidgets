@@ -75,111 +75,108 @@ namespace Unity.UIWidgets.painting {
             return a.add((b.subtract(a)) * t);
         }
 
-        public abstract BorderRadius resolve(TextDirection direction);
-        //
-        // @override
-        //     String toString() {
-        //     String visual, logical;
-        //     if (_topLeft == _topRight &&
-        //         _topRight == _bottomLeft &&
-        //         _bottomLeft == _bottomRight) {
-        //         if (_topLeft != Radius.zero) {
-        //             if (_topLeft.x == _topLeft.y) {
-        //                 visual = 'BorderRadius.circular(${_topLeft.x.toStringAsFixed(1)})';
-        //             }
-        //             else {
-        //                 visual = 'BorderRadius.all($_topLeft)';
-        //             }
-        //         }
-        //     }
-        //     else {
-        //         // visuals aren't the same and at least one isn't zero
-        //         final StringBuffer result = StringBuffer();
-        //         result.write('BorderRadius.only(');
-        //         bool comma = false;
-        //         if (_topLeft != Radius.zero) {
-        //             result.write('topLeft: $_topLeft');
-        //             comma = true;
-        //         }
-        //
-        //         if (_topRight != Radius.zero) {
-        //             if (comma)
-        //                 result.write(', ');
-        //             result.write('topRight: $_topRight');
-        //             comma = true;
-        //         }
-        //
-        //         if (_bottomLeft != Radius.zero) {
-        //             if (comma)
-        //                 result.write(', ');
-        //             result.write('bottomLeft: $_bottomLeft');
-        //             comma = true;
-        //         }
-        //
-        //         if (_bottomRight != Radius.zero) {
-        //             if (comma)
-        //                 result.write(', ');
-        //             result.write('bottomRight: $_bottomRight');
-        //         }
-        //
-        //         result.write(')');
-        //         visual = result.toString();
-        //     }
-        //
-        //     if (_topStart == _topEnd &&
-        //         _topEnd == _bottomEnd &&
-        //         _bottomEnd == _bottomStart) {
-        //         if (_topStart != Radius.zero) {
-        //             if (_topStart.x == _topStart.y) {
-        //                 logical = 'BorderRadiusDirectional.circular(${_topStart.x.toStringAsFixed(1)})';
-        //             }
-        //             else {
-        //                 logical = 'BorderRadiusDirectional.all($_topStart)';
-        //             }
-        //         }
-        //     }
-        //     else {
-        //         // logicals aren't the same and at least one isn't zero
-        //         final StringBuffer result = StringBuffer();
-        //         result.write('BorderRadiusDirectional.only(');
-        //         bool comma = false;
-        //         if (_topStart != Radius.zero) {
-        //             result.write('topStart: $_topStart');
-        //             comma = true;
-        //         }
-        //
-        //         if (_topEnd != Radius.zero) {
-        //             if (comma)
-        //                 result.write(', ');
-        //             result.write('topEnd: $_topEnd');
-        //             comma = true;
-        //         }
-        //
-        //         if (_bottomStart != Radius.zero) {
-        //             if (comma)
-        //                 result.write(', ');
-        //             result.write('bottomStart: $_bottomStart');
-        //             comma = true;
-        //         }
-        //
-        //         if (_bottomEnd != Radius.zero) {
-        //             if (comma)
-        //                 result.write(', ');
-        //             result.write('bottomEnd: $_bottomEnd');
-        //         }
-        //
-        //         result.write(')');
-        //         logical = result.toString();
-        //     }
-        //
-        //     if (visual != null && logical != null)
-        //         return '$visual + $logical';
-        //     if (visual != null)
-        //         return visual;
-        //     if (logical != null)
-        //         return logical;
-        //     return 'BorderRadius.zero';
-        // }
+        public abstract BorderRadius resolve(TextDirection? textDirection);
+
+        public override string ToString() {
+            String visual = null, logical = null;
+            if (_topLeft == _topRight &&
+                _topRight == _bottomLeft &&
+                _bottomLeft == _bottomRight) {
+                if (_topLeft != Radius.zero) {
+                    if (_topLeft.x == _topLeft.y) {
+                        visual = $"BorderRadius.circular({_topLeft.x})";
+                    }
+                    else {
+                        visual = $"BorderRadius.all({_topLeft})";
+                    }
+                }
+            }
+            else {
+                StringBuilder result = new StringBuilder();
+                result.Append("BorderRadius.only(");
+                bool comma = false;
+                if (_topLeft != Radius.zero) {
+                    result.Append($"topLeft: {_topLeft}");
+                    comma = true;
+                }
+
+                if (_topRight != Radius.zero) {
+                    if (comma)
+                        result.Append(", ");
+                    result.Append($"topRight: {_topRight}");
+                    comma = true;
+                }
+
+                if (_bottomLeft != Radius.zero) {
+                    if (comma)
+                        result.Append(", ");
+                    result.Append($"bottomLeft: {_bottomLeft}");
+                    comma = true;
+                }
+
+                if (_bottomRight != Radius.zero) {
+                    if (comma)
+                        result.Append(", ");
+                    result.Append($"bottomRight: {_bottomRight}");
+                }
+
+                result.Append(")");
+                visual = result.ToString();
+            }
+
+            if (_topStart == _topEnd &&
+                _topEnd == _bottomEnd &&
+                _bottomEnd == _bottomStart) {
+                if (_topStart != Radius.zero) {
+                    if (_topStart.x == _topStart.y) {
+                        logical = $"BorderRadiusDirectional.circular({_topStart.x})";
+                    }
+                    else {
+                        logical = $"BorderRadiusDirectional.all({_topStart})";
+                    }
+                }
+            }
+            else {
+                StringBuilder result = new StringBuilder();
+                result.Append("BorderRadiusDirectional.only(");
+                bool comma = false;
+                if (_topStart != Radius.zero) {
+                    result.Append($"topStart: {_topStart}");
+                    comma = true;
+                }
+
+                if (_topEnd != Radius.zero) {
+                    if (comma)
+                        result.Append(", ");
+                    result.Append($"topEnd: {_topEnd}");
+                    comma = true;
+                }
+
+                if (_bottomStart != Radius.zero) {
+                    if (comma)
+                        result.Append(", ");
+                    result.Append($"bottomStart: {_bottomStart}");
+                    comma = true;
+                }
+
+                if (_bottomEnd != Radius.zero) {
+                    if (comma)
+                        result.Append(", ");
+                    result.Append($"bottomEnd: {_bottomEnd}");
+                }
+
+                result.Append(")");
+                logical = result.ToString();
+            }
+
+            if (visual != null && logical != null)
+                return $"{visual} + {logical}";
+            if (visual != null)
+                return visual;
+            if (logical != null)
+                return logical;
+            return "BorderRadius.zero";
+        }
 
         public static bool operator ==(BorderRadiusGeometry left, BorderRadiusGeometry right) {
             return Equals(left, right);
@@ -470,67 +467,7 @@ namespace Unity.UIWidgets.painting {
             return !Equals(a, b);
         }
 
-        public override BorderRadius resolve(TextDirection textDirection) => this;
-
-        public override string ToString() {
-            string visual = null;
-            if (topLeft == topRight &&
-                topRight == bottomLeft &&
-                bottomLeft == bottomRight) {
-                if (topLeft != Radius.zero) {
-                    if (topLeft.x == topLeft.y) {
-                        visual = $"BorderRadius.circular({topLeft.x:F1})";
-                    }
-                    else {
-                        visual = $"BorderRadius.all({topLeft})";
-                    }
-                }
-            }
-            else {
-                var result = new StringBuilder();
-                result.Append("BorderRadius.only(");
-                bool comma = false;
-                if (topLeft != Radius.zero) {
-                    result.Append($"topLeft: {topLeft}");
-                    comma = true;
-                }
-
-                if (topRight != Radius.zero) {
-                    if (comma) {
-                        result.Append(", ");
-                    }
-
-                    result.Append($"topRight: {topRight}");
-                    comma = true;
-                }
-
-                if (bottomLeft != Radius.zero) {
-                    if (comma) {
-                        result.Append(", ");
-                    }
-
-                    result.Append($"bottomLeft: {bottomLeft}");
-                    comma = true;
-                }
-
-                if (bottomRight != Radius.zero) {
-                    if (comma) {
-                        result.Append(", ");
-                    }
-
-                    result.Append($"bottomRight: {bottomRight}");
-                }
-
-                result.Append(")");
-                visual = result.ToString();
-            }
-
-            if (visual != null) {
-                return visual;
-            }
-
-            return "BorderRadius.zero";
-        }
+        public override BorderRadius resolve(TextDirection? textDirection) => this;
     }
 
 
@@ -728,7 +665,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public override BorderRadius resolve(TextDirection direction) {
+        public override BorderRadius resolve(TextDirection? direction) {
             switch (direction) {
                 case TextDirection.rtl:
                     return BorderRadius.only(
@@ -839,7 +776,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public override BorderRadius resolve(TextDirection direction) {
+        public override BorderRadius resolve(TextDirection? direction) {
             switch (direction) {
                 case TextDirection.rtl:
                     return BorderRadius.only(

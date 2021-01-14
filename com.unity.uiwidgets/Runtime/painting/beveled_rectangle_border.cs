@@ -26,7 +26,7 @@ namespace Unity.UIWidgets.painting {
         public override ShapeBorder scale(float t) {
             return new BeveledRectangleBorder(
                 side: side.scale(t),
-                borderRadius: borderRadius * t
+                borderRadius: (BorderRadius) (borderRadius * t)
             );
         }
 
