@@ -1,9 +1,11 @@
 using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
-    public abstract class AlignmentGeometry {
+    public abstract class AlignmentGeometry : IEquatable<AlignmentGeometry> {
         public AlignmentGeometry() {
         }
 
@@ -21,56 +23,96 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        // public abstract AlignmentGeometry operator -();
-        //
-        // public abstract AlignmentGeometry operator *(double other);
-        //
-        // public abstract AlignmentGeometry operator /(double other);
-        //
-      // public abstract AlignmentGeometry operator ~/(double other);
-        //
-        // public abstract AlignmentGeometry operator %(double other);
+        public abstract AlignmentGeometry SelfMinus();
 
-        // public static AlignmentGeometry lerp(AlignmentGeometry a, AlignmentGeometry b, float t) {
-        //   D.assert(t != null);
-        //   if (a == null && b == null)
-        //     return null;
-        //   if (a == null)
-        //     return b * t;
-        //   if (b == null)
-        //     return a * (1.0 - t);
-        //   if (a is Alignment && b is Alignment)
-        //     return Alignment.lerp(a, b, t);
-        //   if (a is AlignmentDirectional && b is AlignmentDirectional)
-        //     return AlignmentDirectional.lerp(a, b, t);
-        //   return new _MixedAlignment(
-        //     ui.lerpDouble(a._x, b._x, t),
-        //     ui.lerpDouble(a._start, b._start, t),
-        //     ui.lerpDouble(a._y, b._y, t),
-        //   );
-        // }
+        public static AlignmentGeometry operator -(AlignmentGeometry self) {
+            return self.SelfMinus();
+        }
+
+        public abstract AlignmentGeometry Multiply(float other);
+
+        public static AlignmentGeometry operator *(AlignmentGeometry self, float other) {
+            return self.Multiply(other);
+        }
+
+        public abstract AlignmentGeometry Divide(float other);
+
+        public static AlignmentGeometry operator /(AlignmentGeometry self, float other) {
+            return self.Divide(other);
+        }
+
+
+        public abstract AlignmentGeometry Remainder(float other);
+
+        public static AlignmentGeometry operator %(AlignmentGeometry self, float other) {
+            return self.Remainder(other);
+        }
+
+        public static AlignmentGeometry lerp(AlignmentGeometry a, AlignmentGeometry b, float t) {
+            D.assert(t != null);
+            if (a == null && b == null)
+                return null;
+            if (a == null)
+                return b * t;
+            if (b == null)
+                return a * (1.0f - t);
+            if (a is Alignment && b is Alignment)
+                return Alignment.lerp(a, b, t);
+            if (a is AlignmentDirectional && b is AlignmentDirectional)
+                return AlignmentDirectional.lerp(a, b, t);
+            return new _MixedAlignment(
+                Mathf.Lerp(a._x, b._x, t),
+                Mathf.Lerp(a._start, b._start, t),
+                Mathf.Lerp(a._y, b._y, t)
+            );
+        }
 
         public abstract Alignment resolve(TextDirection? direction);
-        //
-        // @override
-        // String toString() {
-        //   if (_start == 0.0)
-        //     return Alignment._stringify(_x, _y);
-        //   if (_x == 0.0)
-        //     return AlignmentDirectional._stringify(_start, _y);
-        //   return Alignment._stringify(_x, _y) + ' + ' + AlignmentDirectional._stringify(_start, 0.0);
-        // }
-        //
-        // @override
-        // bool operator ==(Object other) {
-        //   return other is AlignmentGeometry
-        //       && other._x == _x
-        //       && other._start == _start
-        //       && other._y == _y;
-        // }
-        //
-        // @override
-        // int get hashCode => hashValues(_x, _start, _y);
+
+        public override string ToString() {
+            if (_start == 0.0)
+                return Alignment._stringify(_x, _y);
+            if (_x == 0.0)
+                return AlignmentDirectional._stringify(_start, _y);
+            return Alignment._stringify(_x, _y) + " + " + AlignmentDirectional._stringify(_start, 0.0);
+        }
+
+        public bool Equals(AlignmentGeometry other) {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return _x.Equals(other._x) && _start.Equals(other._start) && _y.Equals(other._y);
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((AlignmentGeometry) obj);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = _x.GetHashCode();
+                hashCode = (hashCode * 397) ^ _start.GetHashCode();
+                hashCode = (hashCode * 397) ^ _y.GetHashCode();
+                return hashCode;
+            }
+        }
     }
 
     public class Alignment : AlignmentGeometry, IEquatable<Alignment> {
@@ -101,20 +143,20 @@ namespace Unity.UIWidgets.painting {
             return new Alignment(a.x + b.x, a.y + b.y);
         }
 
-        public static Alignment operator -(Alignment a) {
-            return new Alignment(-a.x, -a.y);
+        public override AlignmentGeometry SelfMinus() {
+            return new Alignment(-x, -y);
         }
 
-        public static Alignment operator *(Alignment a, float b) {
-            return new Alignment(a.x * b, a.y * b);
+        public override AlignmentGeometry Multiply(float other) {
+            return new Alignment(x * other, y * other);
         }
 
-        public static Alignment operator /(Alignment a, float b) {
-            return new Alignment(a.x / b, a.y / b);
+        public override AlignmentGeometry Divide(float other) {
+            return new Alignment(x / other, y / other);
         }
 
-        public static Alignment operator %(Alignment a, float b) {
-            return new Alignment(a.x % b, a.y % b);
+        public override AlignmentGeometry Remainder(float other) {
+            return new Alignment(x % other, y % other);
         }
 
         public Offset alongOffset(Offset other) {
@@ -255,7 +297,32 @@ namespace Unity.UIWidgets.painting {
                 case TextDirection.ltr:
                     return new Alignment(_x + _start, _y);
             }
+
             return null;
+        }
+
+
+        internal static String _stringify(float x, float y) {
+            if (x == -1.0f && y == -1.0f)
+                return "topLeft";
+            if (x == 0.0f && y == -1.0f)
+                return "topCenter";
+            if (x == 1.0f && y == -1.0f)
+                return "topRight";
+            if (x == -1.0f && y == 0.0f)
+                return "centerLeft";
+            if (x == 0.0f && y == 0.0f)
+                return "center";
+            if (x == 1.0f && y == 0.0f)
+                return "centerRight";
+            if (x == -1.0f && y == 1.0f)
+                return "bottomLeft";
+            if (x == 0.0f && y == 1.0f)
+                return "bottomCenter";
+            if (x == 1.0f && y == 1.0f)
+                return "bottomRight";
+            return $"Alignment({x}, " +
+                   $"{y})";
         }
     }
 
@@ -315,20 +382,20 @@ namespace Unity.UIWidgets.painting {
             return new AlignmentDirectional(self.start + other.start, self.y + other.y);
         }
 
-        public static AlignmentDirectional operator -(AlignmentDirectional self) {
-            return new AlignmentDirectional(-self.start, -self.y);
+        public override AlignmentGeometry SelfMinus() {
+            return new AlignmentDirectional(-start, -y);
         }
 
-        public static AlignmentDirectional operator *(AlignmentDirectional self, float other) {
-            return new AlignmentDirectional(self.start * other, self.y * other);
+        public override AlignmentGeometry Multiply(float other) {
+            return new AlignmentDirectional(start * other, y * other);
         }
 
-        public static AlignmentDirectional operator /(AlignmentDirectional self, float other) {
-            return new AlignmentDirectional(self.start / other, self.y / other);
+        public override AlignmentGeometry Divide(float other) {
+            return new AlignmentDirectional(start / other, y / other);
         }
 
-        public static AlignmentDirectional operator %(AlignmentDirectional self, float other) {
-            return new AlignmentDirectional(self.start % other, self.y % other);
+        public override AlignmentGeometry Remainder(float other) {
+            return new AlignmentDirectional(start % other, y % other);
         }
 
         static AlignmentDirectional lerp(AlignmentDirectional a, AlignmentDirectional b, float t) {
@@ -356,7 +423,7 @@ namespace Unity.UIWidgets.painting {
             return null;
         }
 
-        static String _stringify(double start, double y) {
+        internal static String _stringify(double start, double y) {
             if (start == -1.0f && y == -1.0f)
                 return "AlignmentDirectional.topStart";
             if (start == 0.0f && y == -1.0f)
@@ -407,35 +474,35 @@ namespace Unity.UIWidgets.painting {
             get => _py;
         }
 
-        public static _MixedAlignment operator -(_MixedAlignment self) {
+        public override AlignmentGeometry SelfMinus() {
             return new _MixedAlignment(
-                -self._x,
-                -self._start,
-                -self._y
+                -_x,
+                -_start,
+                -_y
             );
         }
 
-        public static _MixedAlignment operator *(_MixedAlignment self, float other) {
+        public override AlignmentGeometry Multiply(float other) {
             return new _MixedAlignment(
-                self._x * other,
-                self._start * other,
-                self._y * other
+                _x * other,
+                _start * other,
+                _y * other
             );
         }
 
-        public static _MixedAlignment operator /(_MixedAlignment self, float other) {
+        public override AlignmentGeometry Divide(float other) {
             return new _MixedAlignment(
-                self._x / other,
-                self._start / other,
-                self._y / other
+                _x / other,
+                _start / other,
+                _y / other
             );
         }
 
-        public static _MixedAlignment operator %(_MixedAlignment self, float other) {
+        public override AlignmentGeometry Remainder(float other) {
             return new _MixedAlignment(
-                self._x % other,
-                self._start % other,
-                self._y % other
+                _x % other,
+                _start % other,
+                _y % other
             );
         }
 
