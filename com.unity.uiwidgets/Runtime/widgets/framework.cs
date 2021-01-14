@@ -221,22 +221,26 @@ namespace Unity.UIWidgets.widgets {
                             Element newer = parent;
                             UIWidgetsError error = null;
                             if (older.toString() != newer.toString()) {
-                                error = new UIWidgetsError(
-                                    "Multiple widgets used the same GlobalKey.\n" +
-                                    $"The key {key} was used by multiple widgets. The parents of those widgets were:\n" +
-                                    $"- {older.toString()}\n" +
-                                    $"- {newer.toString()}\n" +
-                                    "A GlobalKey can only be specified on one widget at a time in the widget tree."
-                                );
+                                error = new UIWidgetsError(new List<DiagnosticsNode>{
+                                    new ErrorSummary("Multiple widgets used the same GlobalKey."),
+                                    new ErrorDescription(
+                                        $"The key {key} was used by multiple widgets. The parents of those widgets were:\n" +
+                                        $"- {older.toString()}\n" +
+                                        $"- {newer.toString()}\n" +
+                                        "A GlobalKey can only be specified on one widget at a time in the widget tree."
+                                    )
+                                });
                             }
                             else {
-                                error = new UIWidgetsError(
-                                    "Multiple widgets used the same GlobalKey.\n" +
-                                    $"The key {key} was used by multiple widgets. The parents of those widgets were:\n" +
-                                    "different widgets that both had the following description:\n" +
-                                    $"  {parent.toString()}\n" +
-                                    "A GlobalKey can only be specified on one widget at a time in the widget tree."
-                                );
+                                error = new UIWidgetsError(new List<DiagnosticsNode>{
+                                    new ErrorSummary("Multiple widgets used the same GlobalKey."),
+                                    new ErrorDescription(
+                                        "The key $key was used by multiple widgets. The parents of those widgets were " +
+                                        "different widgets that both had the following description:\n" +
+                                        "  ${parent.toString()}\n" +
+                                        "A GlobalKey can only be specified on one widget at a time in the widget tree."
+                                    )
+                                });
                             }
 
                             if (child._parent != older) {
@@ -287,18 +291,15 @@ namespace Unity.UIWidgets.widgets {
                 _debugIllFatedElements.Clear();
 
                 if (duplicates != null) {
-                    var buffer = new StringBuilder();
-                    buffer.AppendLine("Multiple widgets used the same GlobalKey.\n");
+                    List<DiagnosticsNode> information = new List<DiagnosticsNode>();
+                    information.Add(new ErrorSummary("Multiple widgets used the same GlobalKey."));
                     foreach (GlobalKey key in duplicates.Keys) {
-                        HashSet<Element> elements = duplicates[key];
-                        buffer.AppendLine($"The key {key} was used by {elements.Count} widgets:");
-                        foreach (Element element in elements) {
-                            buffer.AppendLine("- " + element);
-                        }
+                        HashSet<Element> elements = duplicates.getOrDefault(key);
+                        information.Add( Element.describeElements($"The key $key was used by {elements.Count} widgets", elements));
                     }
 
-                    buffer.Append("A GlobalKey can only be specified on one widget at a time in the widget tree.");
-                    throw new UIWidgetsError(buffer.ToString());
+                    information.Add(new ErrorDescription("A GlobalKey can only be specified on one widget at a time in the widget tree."));
+                    throw new UIWidgetsError(information);
                 }
 
                 return true;
@@ -537,31 +538,40 @@ namespace Unity.UIWidgets.widgets {
         public void setState(VoidCallback fn = null) {
             D.assert(() => {
                 if (_debugLifecycleState == _StateLifecycle.defunct) {
-                      throw new UIWidgetsError(
-                        "setState() called after dispose(): " + this + "\n" +
-                        "This error happens if you call setState() on a State object for a widget that " +
-                        "no longer appears in the widget tree (e.g., whose parent widget no longer " +
-                        "includes the widget in its build). This error can occur when code calls " +
-                        "setState() from a timer or an animation callback. The preferred solution is " +
-                        "to cancel the timer or stop listening to the animation in the dispose() " +
-                        "callback. Another solution is to check the \"mounted\" property of this " +
-                        "object before calling setState() to ensure the object is still in the " +
-                        "tree.\n" +
-                        "This error might indicate a memory leak if setState() is being called " +
-                        "because another object is retaining a reference to this State object " +
-                        "after it has been removed from the tree. To avoid memory leaks, " +
-                        "consider breaking the reference to this object during dispose()."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary($"setState() called after dispose(): {this}"),
+                        new ErrorDescription(
+                          "This error happens if you call setState() on a State object for a widget that " +
+                          "no longer appears in the widget tree (e.g., whose parent widget no longer " +
+                          "includes the widget in its build). This error can occur when code calls " +
+                          "setState() from a timer or an animation callback."
+                        ),
+                        new ErrorHint(
+                          "The preferred solution is " +
+                          "to cancel the timer or stop listening to the animation in the dispose() " +
+                          "callback. Another solution is to check the \"mounted\" property of this " +
+                          "object before calling setState() to ensure the object is still in the " +
+                          "tree."
+                        ),
+                        new ErrorHint(
+                          "This error might indicate a memory leak if setState() is being called " +
+                          "because another object is retaining a reference to this State object " +
+                          "after it has been removed from the tree. To avoid memory leaks, " +
+                          "consider breaking the reference to this object during dispose()."
+                        )
+                    });
                 }
 
                 if (_debugLifecycleState == _StateLifecycle.created && !mounted) {
-                    throw new UIWidgetsError(
-                        "setState() called in constructor: " + this + "\n" +
-                        "This happens when you call setState() on a State object for a widget that " +
-                        "hasn\"t been inserted into the widget tree yet. It is not necessary to call " +
-                        "setState() in the constructor, since the state is already assumed to be dirty " +
-                        "when it is initially created."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary($"setState() called in constructor: {this}"),
+                        new ErrorHint(
+                            "This happens when you call setState() on a State object for a widget that " +
+                            "hasn't been inserted into the widget tree yet. It is not necessary to call " +
+                            "setState() in the constructor, since the state is already assumed to be dirty " +
+                            "when it is initially created."
+                        )
+                    });
                 }
 
                 return true;
@@ -3085,9 +3095,10 @@ namespace Unity.UIWidgets.widgets {
                     badAncestors.Insert(0, result);
                     try {
                         List<ErrorDescription> errors = new List<ErrorDescription>();
-                        foreach (ParentDataElement<ParentData> _ancestor in badAncestors)
+                        foreach (ParentDataElement<ParentData> parentDataElement in badAncestors)
                             errors.Add(new ErrorDescription(
-                                $"- {_ancestor.widget} (typically placed directly inside a {_ancestor.widget.debugTypicalAncestorWidgetClass} widget)"));
+                                $"- {parentDataElement.widget} (typically placed directly inside a {parentDataElement.widget.debugTypicalAncestorWidgetClass} widget)"));
+
                         List<DiagnosticsNode> results = new List<DiagnosticsNode>();
                         results.Add( new ErrorSummary("Incorrect use of ParentDataWidget."));
                         results.Add(new ErrorDescription("The following ParentDataWidgets are providing parent data to the same RenderObject:"));

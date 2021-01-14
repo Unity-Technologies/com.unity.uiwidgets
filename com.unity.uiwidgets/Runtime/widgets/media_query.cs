@@ -433,14 +433,16 @@ namespace Unity.UIWidgets.widgets {
                 return null;
             }
 
-            throw new UIWidgetsError(
-                "MediaQuery.of() called with a context that does not contain a MediaQuery.\n" +
-                "No MediaQuery ancestor could be found starting from the context that was passed " +
-                "to MediaQuery.of(). This can happen because you do not have a WidgetsApp or " +
-                "MaterialApp widget (those widgets introduce a MediaQuery), or it can happen " +
-                "if the context you use comes from a widget above those widgets.\n" +
-                "The context used was:\n" +
-                $"  {context}");
+            throw new UIWidgetsError(new List<DiagnosticsNode>{
+                new ErrorSummary("MediaQuery.of() called with a context that does not contain a MediaQuery."),
+                new ErrorDescription(
+                    "No MediaQuery ancestor could be found starting from the context that was passed " +
+                    "to MediaQuery.of(). This can happen because you do not have a WidgetsApp or " +
+                    "MaterialApp widget (those widgets introduce a MediaQuery), or it can happen " +
+                    "if the context you use comes from a widget above those widgets."
+                ),
+                context.describeElement("The context used was")
+            });
         }
 
         public static float textScaleFactorOf(BuildContext context) {
