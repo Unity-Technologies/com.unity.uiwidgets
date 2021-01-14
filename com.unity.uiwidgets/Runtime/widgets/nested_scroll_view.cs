@@ -53,19 +53,16 @@ namespace Unity.UIWidgets.widgets {
         public readonly DragStartBehavior dragStartBehavior;
 
         public static SliverOverlapAbsorberHandle sliverOverlapAbsorberHandleFor(BuildContext context) {
-            _InheritedNestedScrollView target =
-                (_InheritedNestedScrollView) context.inheritFromWidgetOfExactType(typeof(_InheritedNestedScrollView));
+            _InheritedNestedScrollView target = context.dependOnInheritedWidgetOfExactType<_InheritedNestedScrollView>();
             D.assert(target != null,
-                () => {
-                    return
-                        "NestedScrollView.sliverOverlapAbsorberHandleFor must be called with a context that contains a NestedScrollView.";
-                });
+                () => "NestedScrollView.sliverOverlapAbsorberHandleFor must be called with a context that contains a NestedScrollView."
+                );
             return target.state._absorberHandle;
         }
 
         internal List<Widget> _buildSlivers(BuildContext context, ScrollController innerController,
             bool bodyIsScrolled) {
-            List<Widget> slivers = new List<Widget> { };
+            List<Widget> slivers = new List<Widget>();
             slivers.AddRange(headerSliverBuilder(context, bodyIsScrolled));
             slivers.Add(new SliverFillRemaining(
                 child: new PrimaryScrollController(
@@ -77,12 +74,16 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override State createState() {
-            return new _NestedScrollViewState();
+            return new NestedScrollViewState();
         }
     }
 
-    class _NestedScrollViewState : State<NestedScrollView> {
-        internal SliverOverlapAbsorberHandle _absorberHandle = new SliverOverlapAbsorberHandle();
+    class NestedScrollViewState : State<NestedScrollView> {
+        internal readonly SliverOverlapAbsorberHandle _absorberHandle = new SliverOverlapAbsorberHandle();
+
+        ScrollController innerController => _coordinator._innerController;
+
+        ScrollController outerController => _coordinator._outerController;
 
         _NestedScrollCoordinator _coordinator;
 
@@ -190,7 +191,7 @@ namespace Unity.UIWidgets.widgets {
     class _InheritedNestedScrollView : InheritedWidget {
         public _InheritedNestedScrollView(
             Key key = null,
-            _NestedScrollViewState state = null,
+            NestedScrollViewState state = null,
             Widget child = null
         ) : base(key: key, child: child) {
             D.assert(state != null);
@@ -198,7 +199,7 @@ namespace Unity.UIWidgets.widgets {
             this.state = state;
         }
 
-        public readonly _NestedScrollViewState state;
+        public readonly NestedScrollViewState state;
 
         public override bool updateShouldNotify(InheritedWidget _old) {
             _InheritedNestedScrollView old = _old as _InheritedNestedScrollView;
@@ -261,7 +262,7 @@ namespace Unity.UIWidgets.widgets {
 
     class _NestedScrollCoordinator : ScrollActivityDelegate, ScrollHoldController {
         public _NestedScrollCoordinator(
-            _NestedScrollViewState _state,
+            NestedScrollViewState _state,
             ScrollController _parent,
             VoidCallback _onHasScrolledBodyChanged) {
             float initialScrollOffset = _parent?.initialScrollOffset ?? 0.0f;
@@ -273,7 +274,7 @@ namespace Unity.UIWidgets.widgets {
             this._onHasScrolledBodyChanged = _onHasScrolledBodyChanged;
         }
 
-        public readonly _NestedScrollViewState _state;
+        public readonly NestedScrollViewState _state;
         ScrollController _parent;
         public readonly VoidCallback _onHasScrolledBodyChanged;
 
@@ -419,7 +420,7 @@ namespace Unity.UIWidgets.widgets {
             float velocity) {
             return position.createBallisticScrollActivity(
                 position.physics.createBallisticSimulation(
-                    velocity == 0 ? (ScrollMetrics) position : _getMetrics(position, velocity),
+                    velocity == 0f ? (ScrollMetrics) position : _getMetrics(position, velocity),
                     velocity
                 ),
                 mode: _NestedBallisticScrollActivityMode.inner
@@ -1095,9 +1096,11 @@ namespace Unity.UIWidgets.widgets {
         public SliverOverlapAbsorber(
             Key key = null,
             SliverOverlapAbsorberHandle handle = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
+            Widget child = null,
+            Widget sliver = null
+        ) : base(key: key, child: sliver ?? child) {
             D.assert(handle != null);
+            D.assert(child == null || sliver == null);
             this.handle = handle;
         }
 
@@ -1123,11 +1126,13 @@ namespace Unity.UIWidgets.widgets {
     public class RenderSliverOverlapAbsorber : RenderObjectWithChildMixinRenderSliver<RenderSliver> {
         public RenderSliverOverlapAbsorber(
             SliverOverlapAbsorberHandle handle,
-            RenderSliver child = null
+            RenderSliver child = null,
+            RenderSliver sliver = null
         ) {
             D.assert(handle != null);
+            D.assert(child == null || sliver == null);
             _handle = handle;
-            this.child = child;
+            this.child = sliver ?? child;
         }
 
         public SliverOverlapAbsorberHandle handle {
@@ -1175,7 +1180,7 @@ namespace Unity.UIWidgets.widgets {
                 scrollExtent: childLayoutGeometry.scrollExtent - childLayoutGeometry.maxScrollObstructionExtent,
                 paintExtent: childLayoutGeometry.paintExtent,
                 paintOrigin: childLayoutGeometry.paintOrigin,
-                layoutExtent: childLayoutGeometry.paintExtent - childLayoutGeometry.maxScrollObstructionExtent,
+                layoutExtent: Mathf.Max(0, childLayoutGeometry.paintExtent - childLayoutGeometry.maxScrollObstructionExtent),
                 maxPaintExtent: childLayoutGeometry.maxPaintExtent,
                 maxScrollObstructionExtent: childLayoutGeometry.maxScrollObstructionExtent,
                 hitTestExtent: childLayoutGeometry.hitTestExtent,
@@ -1219,9 +1224,11 @@ namespace Unity.UIWidgets.widgets {
         public SliverOverlapInjector(
             Key key = null,
             SliverOverlapAbsorberHandle handle = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
+            Widget child = null,
+            Widget sliver = null
+        ) : base(key: key, child: sliver ?? child) {
             D.assert(handle != null);
+            D.assert(child == null || sliver == null);
             this.handle = handle;
         }
 

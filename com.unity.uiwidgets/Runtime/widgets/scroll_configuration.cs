@@ -8,7 +8,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public virtual ScrollPhysics getScrollPhysics(BuildContext context) {
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS
             return new BouncingScrollPhysics();
+#else
+            return new ClampingScrollPhysics();
+#endif
         }
 
         public virtual bool shouldNotify(ScrollBehavior oldDelegate) {
@@ -33,8 +37,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly ScrollBehavior behavior;
 
         public static ScrollBehavior of(BuildContext context) {
-            ScrollConfiguration configuration =
-                (ScrollConfiguration) context.inheritFromWidgetOfExactType(typeof(ScrollConfiguration));
+            ScrollConfiguration configuration = context.dependOnInheritedWidgetOfExactType<ScrollConfiguration>();
             if (configuration != null) {
                 return configuration.behavior;
             }

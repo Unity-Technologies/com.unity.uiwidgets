@@ -235,6 +235,7 @@ namespace Unity.UIWidgets.widgets {
             if (!PhysicsUtils.nearEqual(_minScrollExtent, minScrollExtent, Tolerance.defaultTolerance.distance) ||
                 !PhysicsUtils.nearEqual(_maxScrollExtent, maxScrollExtent, Tolerance.defaultTolerance.distance) ||
                 _didChangeViewportDimensionOrReceiveCorrection) {
+                D.assert(minScrollExtent <= maxScrollExtent);
                 _minScrollExtent = minScrollExtent;
                 _maxScrollExtent = maxScrollExtent;
                 _haveDimensions = true;
@@ -376,6 +377,12 @@ namespace Unity.UIWidgets.widgets {
             new UserScrollNotification(metrics:
                 ScrollMetricsUtils.copyWith(this), context: context.notificationContext, direction: direction
             ).dispatch(context.notificationContext);
+        }
+
+        public bool recommendDeferredLoading(BuildContext context) {
+            D.assert(context != null);
+            D.assert(activity != null);
+            return physics.recommendDeferredLoading(activity.velocity, ScrollMetricsUtils.copyWith(this), context);
         }
 
         public override void dispose() {
