@@ -16,16 +16,11 @@ namespace Unity.UIWidgets.rendering {
             instance = this;
             _pipelineOwner = new PipelineOwner(
                 onNeedVisualUpdate: ensureVisualUpdate
-                // onSemanticsOwnerCreated: _handleSemanticsOwnerCreated,
-                // onSemanticsOwnerDisposed: _handleSemanticsOwnerDisposed,
             );
             Window.instance.onMetricsChanged += handleMetricsChanged;
             Window.instance.onTextScaleFactorChanged += handleTextScaleFactorChanged;
             Window.instance.onPlatformBrightnessChanged += handlePlatformBrightnessChanged;
-                // ..onSemanticsEnabledChanged = _handleSemanticsEnabledChanged
-                // ..onSemanticsAction = _handleSemanticsAction;
             initRenderView();
-            // _handleSemanticsEnabledChanged();
             D.assert(renderView != null);
             addPersistentFrameCallback(_handlePersistentFrameCallback);
             initMouseTracker();

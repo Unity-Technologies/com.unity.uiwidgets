@@ -100,12 +100,11 @@ namespace Unity.UIWidgets.cupertino {
     }
 
     class _CupertinoActivityIndicatorPainter : AbstractCustomPainter
-    {//CustomPainter {
-        //AbstractCustomPainter {
+    {
         public _CupertinoActivityIndicatorPainter(
             Animation<float> position = null,
             Color activeColor = null,
-            float radius =0f
+            float radius = 0f
         ) : base(repaint: position) {
             
             tickFundamentalRRect = RRect.fromLTRBXY(

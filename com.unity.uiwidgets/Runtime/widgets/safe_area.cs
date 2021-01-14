@@ -11,7 +11,8 @@ namespace Unity.UIWidgets.widgets {
             bool right = true,
             bool bottom = true,
             EdgeInsets mininum = null,
-            Widget child = null
+            Widget child = null,
+            bool maintainBottomViewPadding = false
         ) : base(key: key) {
             D.assert(child != null);
             this.left = left;
@@ -20,6 +21,7 @@ namespace Unity.UIWidgets.widgets {
             this.bottom = bottom;
             minimum = mininum ?? EdgeInsets.zero;
             this.child = child;
+            this.maintainBottomViewPadding = maintainBottomViewPadding;
         }
 
         public readonly bool left;
@@ -33,9 +35,13 @@ namespace Unity.UIWidgets.widgets {
         public readonly EdgeInsets minimum;
 
         public readonly Widget child;
+        public readonly bool maintainBottomViewPadding;
 
         public override Widget build(BuildContext context) {
-            EdgeInsets padding = MediaQuery.of(context).padding;
+            MediaQueryData data = MediaQuery.of(context);
+            EdgeInsets padding = data.padding;
+            if (data.padding.bottom == 0.0 && data.viewInsets.bottom != 0.0 && maintainBottomViewPadding)
+                padding = padding.copyWith(bottom: data.viewPadding.bottom);
             return new Padding(
                 padding: EdgeInsets.only(
                     left: Mathf.Max(left ? padding.left : 0.0f, minimum.left),

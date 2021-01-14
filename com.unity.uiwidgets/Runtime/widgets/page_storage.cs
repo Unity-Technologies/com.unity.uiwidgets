@@ -148,7 +148,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly PageStorageBucket bucket;
 
         public static PageStorageBucket of(BuildContext context) {
-            PageStorage widget = (PageStorage) context.ancestorWidgetOfExactType(typeof(PageStorage));
+            PageStorage widget = context.findAncestorWidgetOfExactType<PageStorage>();
             return widget == null ? null : widget.bucket;
         }
 

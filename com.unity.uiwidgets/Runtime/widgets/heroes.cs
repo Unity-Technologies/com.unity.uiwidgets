@@ -75,12 +75,14 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly HeroFlightShuttleBuilder flightShuttleBuilder;
         public readonly HeroPlaceholderBuilder placeholderBuilder;
-        //public readonly TransitionBuilder placeholderBuilder;
+        
 
         public readonly bool transitionOnUserGestures;
 
-        internal static Dictionary<object, _HeroState>
-            _allHeroesFor(BuildContext context, bool isUserGestureTransition, NavigatorState navigator) {
+        internal static Dictionary<object, _HeroState> _allHeroesFor(
+            BuildContext context, 
+            bool isUserGestureTransition, 
+            NavigatorState navigator) {
             D.assert(context != null);
             D.assert(navigator != null);
             Dictionary<object, _HeroState> result = new Dictionary<object, _HeroState> { };
@@ -89,13 +91,18 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(()=> {
                     if (result.ContainsKey(tag)) {
                         throw new UIWidgetsError(
-                            "There are multiple heroes that share the same tag within a subtree.\n" +
-                            "Within each subtree for which heroes are to be animated (typically a PageRoute subtree), " +
-                            "each Hero must have a unique non-null tag.\n" +
-                            $"In this case, multiple heroes had the following tag: {tag}\n" +
-                            "Here is the subtree for one of the offending heroes:\n" +
-                            $"{hero.toStringDeep(prefixLineOne: "# ")}"
-                        );
+                            new List<DiagnosticsNode>()
+                            {
+                                new ErrorSummary("There are multiple heroes that share the same tag within a subtree."),
+                                new ErrorDescription(
+                                    "Within each subtree for which heroes are to be animated (i.e. a PageRoute subtree), "+
+                                "each Hero must have a unique non-null tag.\n"+
+                                $"In this case, multiple heroes had the following tag: {tag}\n"
+                                ),
+                                new DiagnosticsProperty<StatefulElement>("Here is the subtree for one of the offending heroes", hero, linePrefix: "# ", style: DiagnosticsTreeStyle.dense),
+
+                                
+                            });
                     }
                     return true;
                 });
@@ -104,8 +111,6 @@ namespace Unity.UIWidgets.widgets {
                 if (!isUserGestureTransition || heroWidget.transitionOnUserGestures) {
                     result[tag] = heroState;
                 } else {
-                    // If transition is not allowed, we need to make sure hero is not hidden.
-                    // A hero can be hidden previously due to hero transition.
                     heroState.ensurePlaceholderIsHidden();
                 }
             }
@@ -253,13 +258,13 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string ToString() {
-            return $"_HeroFlightManifest($type tag: $tag from route: {fromRoute.settings} " +
+            return $"_HeroFlightManifest({type} tag: {tag} from route: {fromRoute.settings} " +
                    $"to route: {toRoute.settings} with hero: {fromHero} to {toHero})";
         }
     }
 
     class _HeroFlight {
-        public _HeroFlight(_OnFlightEnded onFlightEnded) {
+        public _HeroFlight(_OnFlightEnded onFlightEnded ) {
             this.onFlightEnded = onFlightEnded;
             _proxyAnimation = new ProxyAnimation();
             _proxyAnimation.addStatusListener(_handleAnimationUpdate);
@@ -291,9 +296,11 @@ namespace Unity.UIWidgets.widgets {
         Widget _buildOverlay(BuildContext context) {
             D.assert(manifest != null);
             shuttle = shuttle ?? manifest.shuttleBuilder(
-                               context, manifest.animation, manifest.type, manifest.fromHero.context,
-                               manifest.toHero.context
-                           );
+                               context, 
+                               manifest.animation, 
+                               manifest.type, 
+                               manifest.fromHero.context,
+                               manifest.toHero.context);
             D.assert(shuttle != null);
 
             return new AnimatedBuilder(
@@ -394,7 +401,6 @@ namespace Unity.UIWidgets.widgets {
 
         public void divert(_HeroFlightManifest newManifest) {
             D.assert(manifest.tag == newManifest.tag);
-
             if (manifest.type == HeroFlightDirection.push && newManifest.type == HeroFlightDirection.pop) {
                 D.assert(newManifest.animation.status == AnimationStatus.reverse);
                 D.assert(manifest.fromHero == newManifest.toHero);
@@ -467,7 +473,7 @@ namespace Unity.UIWidgets.widgets {
             RouteSettings from = manifest.fromRoute.settings;
             RouteSettings to = manifest.toRoute.settings;
             object tag = manifest.tag;
-            return "HeroFlight(for: $tag, from: $from, to: $to ${_proxyAnimation.parent})";
+            return $"HeroFlight(for: {tag}, from: {from}, to: {to} ${_proxyAnimation.parent})";
         }
     }
 
@@ -506,7 +512,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(route != null);
             _maybeStartHeroTransition(route, previousRoute, HeroFlightDirection.pop, true);
         }
-        void didStopUserGesture() {
+        public override void didStopUserGesture() {
             if (navigator.userGestureInProgress)
                 return;
 
@@ -519,10 +525,7 @@ namespace Unity.UIWidgets.widgets {
              List<_HeroFlight> invalidFlights = _flights.Values
                 .Where(isInvalidFlight)
                 .ToList();
-
-            // Treat these invalidated flights as dismissed. Calling _handleAnimationUpdate
-            // will also remove the flight from _flights.
-            foreach ( _HeroFlight flight in invalidFlights) {
+             foreach ( _HeroFlight flight in invalidFlights) {
                 flight._handleAnimationUpdate(AnimationStatus.dismissed);
             }
         }

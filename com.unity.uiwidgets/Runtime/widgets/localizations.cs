@@ -307,7 +307,7 @@ namespace Unity.UIWidgets.widgets {
             }
             else {
                 typeToResourcesFuture.then(value => {
-                    if (!mounted) {
+                    if (mounted) {
                         setState(() => {
                             _typeToResources = (Dictionary<Type, object>) value;
                             _locale = locale;
