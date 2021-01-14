@@ -298,7 +298,7 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new FloatProperty("width", width, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("height", height, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("scale", scale, defaultValue: 1.0f));
-            properties.add(new DiagnosticsProperty<Color>("color", color,
+            properties.add(new ColorProperty("color", color,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
                 defaultValue: foundation_.kNullDefaultValue));

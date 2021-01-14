@@ -94,8 +94,6 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        internal bool _subtreeNeedsAddToScene;
-        
         protected EngineLayer engineLayer {
             get { return _engineLayer; }
             set {
@@ -156,15 +154,7 @@ namespace Unity.UIWidgets.rendering {
             findAnnotations<S>(result, localPosition, onlyFirst: true);
             return result.entries.Count() == 0 ?  default : result.entries.First().annotation;
         }
-        /*
-        @Deprecated(
-            'Use findAllAnnotations(...).annotations instead. '
-            'This feature was deprecated after v1.10.14.'
-        )
-        Iterable<S> findAll<S>(Offset localPosition) {
-            final AnnotationResult<S> result = findAllAnnotations(localPosition);
-            return result.entries.map((AnnotationEntry<S> entry) => entry.annotation);
-        }*/
+
         AnnotationResult<S> findAllAnnotations<S>(Offset localPosition) {
             AnnotationResult<S> result = new AnnotationResult<S>();
             findAnnotations<S>(result, localPosition, onlyFirst: false);
