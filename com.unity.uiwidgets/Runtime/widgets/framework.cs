@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -220,22 +221,26 @@ namespace Unity.UIWidgets.widgets {
                             Element newer = parent;
                             UIWidgetsError error = null;
                             if (older.toString() != newer.toString()) {
-                                error = new UIWidgetsError(
-                                    "Multiple widgets used the same GlobalKey.\n" +
-                                    $"The key {key} was used by multiple widgets. The parents of those widgets were:\n" +
-                                    $"- {older.toString()}\n" +
-                                    $"- {newer.toString()}\n" +
-                                    "A GlobalKey can only be specified on one widget at a time in the widget tree."
-                                );
+                                error = new UIWidgetsError(new List<DiagnosticsNode>{
+                                    new ErrorSummary("Multiple widgets used the same GlobalKey."),
+                                    new ErrorDescription(
+                                        $"The key {key} was used by multiple widgets. The parents of those widgets were:\n" +
+                                        $"- {older.toString()}\n" +
+                                        $"- {newer.toString()}\n" +
+                                        "A GlobalKey can only be specified on one widget at a time in the widget tree."
+                                    )
+                                });
                             }
                             else {
-                                error = new UIWidgetsError(
-                                    "Multiple widgets used the same GlobalKey.\n" +
-                                    $"The key {key} was used by multiple widgets. The parents of those widgets were:\n" +
-                                    "different widgets that both had the following description:\n" +
-                                    $"  {parent.toString()}\n" +
-                                    "A GlobalKey can only be specified on one widget at a time in the widget tree."
-                                );
+                                error = new UIWidgetsError(new List<DiagnosticsNode>{
+                                    new ErrorSummary("Multiple widgets used the same GlobalKey."),
+                                    new ErrorDescription(
+                                        "The key $key was used by multiple widgets. The parents of those widgets were " +
+                                        "different widgets that both had the following description:\n" +
+                                        "  ${parent.toString()}\n" +
+                                        "A GlobalKey can only be specified on one widget at a time in the widget tree."
+                                    )
+                                });
                             }
 
                             if (child._parent != older) {
@@ -286,18 +291,15 @@ namespace Unity.UIWidgets.widgets {
                 _debugIllFatedElements.Clear();
 
                 if (duplicates != null) {
-                    var buffer = new StringBuilder();
-                    buffer.AppendLine("Multiple widgets used the same GlobalKey.\n");
+                    List<DiagnosticsNode> information = new List<DiagnosticsNode>();
+                    information.Add(new ErrorSummary("Multiple widgets used the same GlobalKey."));
                     foreach (GlobalKey key in duplicates.Keys) {
-                        HashSet<Element> elements = duplicates[key];
-                        buffer.AppendLine($"The key {key} was used by {elements.Count} widgets:");
-                        foreach (Element element in elements) {
-                            buffer.AppendLine("- " + element);
-                        }
+                        HashSet<Element> elements = duplicates.getOrDefault(key);
+                        information.Add( Element.describeElements($"The key $key was used by {elements.Count} widgets", elements));
                     }
 
-                    buffer.Append("A GlobalKey can only be specified on one widget at a time in the widget tree.");
-                    throw new UIWidgetsError(buffer.ToString());
+                    information.Add(new ErrorDescription("A GlobalKey can only be specified on one widget at a time in the widget tree."));
+                    throw new UIWidgetsError(information);
                 }
 
                 return true;
@@ -536,31 +538,40 @@ namespace Unity.UIWidgets.widgets {
         public void setState(VoidCallback fn = null) {
             D.assert(() => {
                 if (_debugLifecycleState == _StateLifecycle.defunct) {
-                      throw new UIWidgetsError(
-                        "setState() called after dispose(): " + this + "\n" +
-                        "This error happens if you call setState() on a State object for a widget that " +
-                        "no longer appears in the widget tree (e.g., whose parent widget no longer " +
-                        "includes the widget in its build). This error can occur when code calls " +
-                        "setState() from a timer or an animation callback. The preferred solution is " +
-                        "to cancel the timer or stop listening to the animation in the dispose() " +
-                        "callback. Another solution is to check the \"mounted\" property of this " +
-                        "object before calling setState() to ensure the object is still in the " +
-                        "tree.\n" +
-                        "This error might indicate a memory leak if setState() is being called " +
-                        "because another object is retaining a reference to this State object " +
-                        "after it has been removed from the tree. To avoid memory leaks, " +
-                        "consider breaking the reference to this object during dispose()."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary($"setState() called after dispose(): {this}"),
+                        new ErrorDescription(
+                          "This error happens if you call setState() on a State object for a widget that " +
+                          "no longer appears in the widget tree (e.g., whose parent widget no longer " +
+                          "includes the widget in its build). This error can occur when code calls " +
+                          "setState() from a timer or an animation callback."
+                        ),
+                        new ErrorHint(
+                          "The preferred solution is " +
+                          "to cancel the timer or stop listening to the animation in the dispose() " +
+                          "callback. Another solution is to check the \"mounted\" property of this " +
+                          "object before calling setState() to ensure the object is still in the " +
+                          "tree."
+                        ),
+                        new ErrorHint(
+                          "This error might indicate a memory leak if setState() is being called " +
+                          "because another object is retaining a reference to this State object " +
+                          "after it has been removed from the tree. To avoid memory leaks, " +
+                          "consider breaking the reference to this object during dispose()."
+                        )
+                    });
                 }
 
                 if (_debugLifecycleState == _StateLifecycle.created && !mounted) {
-                    throw new UIWidgetsError(
-                        "setState() called in constructor: " + this + "\n" +
-                        "This happens when you call setState() on a State object for a widget that " +
-                        "hasn\"t been inserted into the widget tree yet. It is not necessary to call " +
-                        "setState() in the constructor, since the state is already assumed to be dirty " +
-                        "when it is initially created."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary($"setState() called in constructor: {this}"),
+                        new ErrorHint(
+                            "This happens when you call setState() on a State object for a widget that " +
+                            "hasn't been inserted into the widget tree yet. It is not necessary to call " +
+                            "setState() in the constructor, since the state is already assumed to be dirty " +
+                            "when it is initially created."
+                        )
+                    });
                 }
 
                 return true;
@@ -631,7 +642,7 @@ namespace Unity.UIWidgets.widgets {
 
         public abstract bool debugIsValidRenderObject(RenderObject renderObject);
 
-        internal abstract string _debugDescribeIncorrectParentDataType(
+        internal abstract IEnumerable<DiagnosticsNode> _debugDescribeIncorrectParentDataType(
             ParentData parentData,
             RenderObjectWidget parentDataCreator = null,
             DiagnosticsNode ownershipChain = null
@@ -663,7 +674,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override Type debugTypicalAncestorWidgetClass { get; }
 
-        internal override string _debugDescribeIncorrectParentDataType(
+        internal override IEnumerable<DiagnosticsNode> _debugDescribeIncorrectParentDataType(
             ParentData parentData,
             RenderObjectWidget parentDataCreator = null,
             DiagnosticsNode ownershipChain = null
@@ -671,33 +682,35 @@ namespace Unity.UIWidgets.widgets {
             D.assert(typeof(T) != typeof(ParentData));
             D.assert(debugTypicalAncestorWidgetClass != null);
 
-            string result = "";
+            List<DiagnosticsNode> result = new List<DiagnosticsNode>();
             string description =
                 $"The ParentDataWidget {this} wants to apply ParentData of type {typeof(T)} to a RenderObject";
             if (parentData == null) {
-                result += new ErrorDescription(
+                result.Add( new ErrorDescription(
                     $"{description}, which has not been set up to receive any ParentData."
-                );
+                ));
             }
             else {
-                result += new ErrorDescription(
+                result.Add( new ErrorDescription(
                     $"{description}, which has been set up to accept ParentData of incompatible type {parentData.GetType()}."
-                );
+                ));
             }
 
-            result +=
-                $"Usually, this means that the {GetType()} widget has the wrong ancestor RenderObjectWidget. " +
-                $"Typically, {GetType()} widgets are placed directly inside {debugTypicalAncestorWidgetClass} widgets.";
-
+            result.Add(
+                new ErrorHint( $"Usually, this means that the {GetType()} widget has the wrong ancestor RenderObjectWidget. " +
+                               $"Typically, {GetType()} widgets are placed directly inside {debugTypicalAncestorWidgetClass} widgets."
+                ));
+               
             if (parentDataCreator != null) {
-                result +=
-                    $"The offending {GetType()} is currently placed inside a {parentDataCreator.GetType()} widget.";
+                result.Add(
+                    new ErrorHint(
+                    $"The offending {GetType()} is currently placed inside a {parentDataCreator.GetType()} widget."));
             }
 
             if (ownershipChain != null) {
-                result += new ErrorDescription(
+                result.Add(new ErrorDescription(
                     $"The ownership chain for the RenderObject that received the incompatible parent data was:\n  {ownershipChain}"
-                );
+                ));
             }
 
             return result;
@@ -950,13 +963,18 @@ namespace Unity.UIWidgets.widgets {
 
                 if (!element.dirty) {
                     throw new UIWidgetsError(
-                        "scheduleBuildFor() called for a widget that is not marked as dirty.\n" +
-                        "The method was called for the following element:\n" +
-                        "  " + element + "\n" +
-                        "This element is not current marked as dirty. Make sure to set the dirty flag before " +
-                        "calling scheduleBuildFor().\n" +
-                        "If you did not attempt to call scheduleBuildFor() yourself, then this probably " +
-                        "indicates a bug in the widgets framework."
+                      new List<DiagnosticsNode>() {
+                          new ErrorSummary("scheduleBuildFor() called for a widget that is not marked as dirty."),
+                          element.describeElement("The method was called for the following element"),
+                          new ErrorDescription(
+                              "This element is not current marked as dirty. Make sure to set the dirty flag before " +
+                          "calling scheduleBuildFor()."),
+                          new ErrorHint(
+                              "If you did not attempt to call scheduleBuildFor() yourself, then this probably " +
+                          "indicates a bug in the widgets framework. Please report it:\n" +
+                          "  https://github.com/flutter/flutter/issues/new?template=BUG.md"
+                          ),
+                      }
                     );
                 }
 
@@ -973,9 +991,13 @@ namespace Unity.UIWidgets.widgets {
 
                     if (!_debugIsInBuildScope) {
                         throw new UIWidgetsError(
-                            "BuildOwner.scheduleBuildFor() called inappropriately.\n" +
-                            "The BuildOwner.scheduleBuildFor() method should only be called while the " +
-                            "buildScope() method is actively rebuilding the widget tree."
+                            new List<DiagnosticsNode>() {
+                                new ErrorSummary("BuildOwner.scheduleBuildFor() called inappropriately."),
+                                new ErrorHint(
+                                    "The BuildOwner.scheduleBuildFor() method should only be called while the " +
+                                "buildScope() method is actively rebuilding the widget tree."
+                                )
+                            }
                         );
                     }
 
@@ -1124,10 +1146,12 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(() => {
                     if (_dirtyElements.Any(element => element._active && element.dirty)) {
                         throw new UIWidgetsError(
-                            "buildScope missed some dirty elements.\n" +
-                            "This probably indicates that the dirty list should have been resorted but was not.\n" +
-                            "The list of dirty elements at the end of the buildScope call was:\n" +
-                            "  " + _dirtyElements);
+                           new List<DiagnosticsNode>() {
+                               new ErrorSummary("buildScope missed some dirty elements."),
+                               new ErrorHint("This probably indicates that the dirty list should have been resorted but was not."),
+                               Element.describeElements("The list of dirty elements at the end of the buildScope call was", _dirtyElements),
+
+                           });
                     }
 
                     return true;
@@ -1247,20 +1271,24 @@ namespace Unity.UIWidgets.widgets {
                                 D.assert(keyLabels.isNotEmpty());
 
                                 throw new UIWidgetsError(
-                                    "Duplicate GlobalKeys detected in widget tree.\n" +
-                                    "The following GlobalKeys were specified multiple times in the widget tree. This will lead to " +
-                                    "parts of the widget tree being truncated unexpectedly, because the second time a key is seen, " +
-                                    "the previous instance is moved to the new location. The keys were:\n" +
-                                    "- " + string.Join("\n  ", keyLabels.ToArray()) + "\n" +
-                                    "This was determined by noticing that after the widgets with the above global keys were moved " +
-                                    "out of their respective previous parents, those previous parents never updated during this frame, meaning " +
-                                    "that they either did not update at all or updated before the widgets were moved, in either case " +
-                                    "implying that they still think that they should have a child with those global keys.\n" +
-                                    "The specific parents that did not update after having one or more children forcibly removed " +
-                                    "due to GlobalKey reparenting are:\n" +
-                                    "- " + string.Join("\n  ", elementLabels.ToArray()) + "\n" +
-                                    "A GlobalKey can only be specified on one widget at a time in the widget tree."
-                                );
+                                    new List<DiagnosticsNode>() {
+                                        new ErrorSummary("Duplicate GlobalKeys detected in widget tree."),
+                                        
+                                        new ErrorDescription(
+                                            "The following GlobalKeys were specified multiple times in the widget tree. This will lead to " +
+                                        "parts of the widget tree being truncated unexpectedly, because the second time a key is seen, " +
+                                        "the previous instance is moved to the new location. The keys were:\n" +  "- " +
+                                            string.Join("\n  ", keyLabels.ToArray()) + "\n" +
+                                        "This was determined by noticing that after$the widgets with the above global keys were moved " +
+                                        "out of their respective previous parent, those previous parents never updated during this frame, meaning " +
+                                        "that they either did not update at all or updated before the widgets were moved, in either case " +
+                                        "implying that they still think that they should have a child with those global keys.\n" + 
+                                        "The specific parent that did not update after having one or more children forcibly removed " +
+                                        "due to GlobalKey reparenting are:\n" +
+                                        "- " + string.Join("\n  ", elementLabels.ToArray()) + "\n" +
+                                        "\nA GlobalKey can only be specified on one widget at a time in the widget tree."
+                                        ),
+                                    });
                             }
                         }
                     }
@@ -1449,11 +1477,15 @@ namespace Unity.UIWidgets.widgets {
                 }
 
                 throw new UIWidgetsError(
-                    "visitChildElements() called during build.\n" +
-                    "The BuildContext.visitChildElements() method can\"t be called during " +
-                    "build because the child list is still being updated at that point, " +
-                    "so the children might not be constructed yet, or might be old children " +
-                    "that are going to be replaced."
+                    new List<DiagnosticsNode>() {
+                        new ErrorSummary("visitChildElements() called during build."),
+                        new ErrorDescription(
+                            "The BuildContext.visitChildElements() method can't be called during " +
+                        "build because the child list is still being updated at that point, " + 
+                        "so the children might not be constructed yet, or might be old children " +
+                        "that are going to be replaced."
+                        ),
+                    }
                 );
             });
 
@@ -1643,12 +1675,17 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(() => {
                     if (parent == this) {
                         throw new UIWidgetsError(
-                            "A GlobalKey was used multiple times inside one widget\"s child list.\n" +
-                            $"The offending GlobalKey was: {key}\n" +
-                            $"The parent of the widgets with that key was:\n  {parent}\n" +
-                            $"The first child to get instantiated with that key became:\n  {element}\n" +
-                            $"The second child that was to be instantiated with that key was:\n  {widget}\n" +
-                            "A GlobalKey can only be specified on one widget at a time in the widget tree.");
+                            new List<DiagnosticsNode>()
+                            {
+                                new ErrorSummary("A GlobalKey was used multiple times inside one widget's child list."),
+                                new DiagnosticsProperty<GlobalKey>("The offending GlobalKey was", key),
+                                parent.describeElement("The parent of the widgets with that key was"),
+                                element.describeElement("The first child to get instantiated with that key became"),
+                                new DiagnosticsProperty<Widget>("The second child that was to be instantiated with that key was", widget, style: DiagnosticsTreeStyle.errorProperty),
+                                new ErrorDescription("A GlobalKey can only be specified on one widget at a time in the widget tree."),
+                                
+                            }
+                        );
                     }
 
                     parent.owner._debugTrackElementThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans(
@@ -1836,29 +1873,41 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(() => {
                     if (_debugLifecycleState != _ElementLifecycle.active) {
                         throw new UIWidgetsError(
-                            "Cannot get size of inactive element.\n" +
-                            "In order for an element to have a valid size, the element must be " +
-                            "active, which means it is part of the tree. Instead, this element " +
-                            "is in the " + _debugLifecycleState + " state.\n" +
-                            "The size getter was called for the following element:\n" +
-                            "  " + this + "\n");
+                            new List<DiagnosticsNode>() {
+                                new ErrorSummary("Cannot get size of inactive element."),
+                                new ErrorDescription(
+                                    "In order for an element to have a valid size, the element must be " +
+                                "active, which means it is part of the tree.\n" +
+                                $"Instead, this element is in the {_debugLifecycleState} state."
+                                ),
+                                describeElement("The size getter was called for the following element"),
+                            }
+                            );
                     }
 
                     if (owner.debugBuilding) {
                         throw new UIWidgetsError(
-                            "Cannot get size during build.\n" +
-                            "The size of this render object has not yet been determined because " +
-                            "the framework is still in the process of building widgets, which " +
-                            "means the render tree for this frame has not yet been determined. " +
-                            "The size getter should only be called from paint callbacks or " +
-                            "interaction event handlers (e.g. gesture callbacks).\n" +
-                            "\n" +
-                            "If you need some sizing information during build to decide which " +
-                            "widgets to build, consider using a LayoutBuilder widget, which can " +
-                            "tell you the layout constraints at a given location in the tree." +
-                            "\n" +
-                            "The size getter was called for the following element:\n" +
-                            "  " + this + "\n");
+                            new List<DiagnosticsNode>() {
+                                new ErrorSummary("Cannot get size during build."),
+                                new ErrorDescription(
+                                    "The size of this render object has not yet been determined because " +
+                                "the framework is still in the process of building widgets, which " + 
+                                "means the render tree for this frame has not yet been determined. " +
+                                "The size getter should only be called from paint callbacks or " + 
+                                "interaction event handlers (e.g. gesture callbacks)."
+                                ),
+                                new ErrorSpacer(),
+                                new ErrorHint(
+                                    "If you need some sizing information during build to decide which " + 
+                                "widgets to build, consider using a LayoutBuilder widget, which can " + 
+                                "tell you the layout constraints at a given location in the tree. See " + 
+                                "<https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html> " + 
+                                "for more details."
+                                ),
+                                new ErrorSpacer(),
+                                describeElement("The size getter was called for the following element"),
+                            }
+                            );
                     }
 
                     return true;
@@ -1867,73 +1916,92 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(() => {
                     if (renderObject == null) {
                         throw new UIWidgetsError(
-                            "Cannot get size without a render object.\n" +
-                            "In order for an element to have a valid size, the element must have " +
-                            "an associated render object. This element does not have an associated " +
-                            "render object, which typically means that the size getter was called " +
-                            "too early in the pipeline (e.g., during the build phase) before the " +
-                            "framework has created the render tree.\n" +
-                            "The size getter was called for the following element:\n" +
-                            "  " + this + "\n");
+                           new List<DiagnosticsNode>() {
+                               new ErrorSummary("Cannot get size without a render object."),
+                               new ErrorHint(
+                                   "In order for an element to have a valid size, the element must have " +
+                               "an associated render object. This element does not have an associated " + 
+                               "render object, which typically means that the size getter was called " + 
+                               "too early in the pipeline (e.g., during the build phase) before the " +
+                               "framework has created the render tree."
+                               ),
+                               describeElement("The size getter was called for the following element"),
+                           }
+                            );
                     }
 
                     if (renderObject is RenderSliver) {
                         throw new UIWidgetsError(
-                            "Cannot get size from a RenderSliver.\n" +
-                            "The render object associated with this element is a " +
-                            renderObject.GetType() + ", which is a subtype of RenderSliver. " +
-                            "Slivers do not have a size per se. They have a more elaborate " +
-                            "geometry description, which can be accessed by calling " +
-                            "findRenderObject and then using the \"geometry\" getter on the " +
-                            "resulting object.\n" +
-                            "The size getter was called for the following element:\n" +
-                            "  " + this + "\n" +
-                            "The associated render sliver was:\n" +
-                            "  " + renderObject.toStringShallow(joiner: "\n  "));
+                           new List<DiagnosticsNode>() {
+                               new ErrorSummary("Cannot get size from a RenderSliver."),
+                               new ErrorHint(
+                                   "The render object associated with this element is a " + 
+                               $"{renderObject.GetType()}, which is a subtype of RenderSliver. " + 
+                               "Slivers do not have a size per se. They have a more elaborate " +
+                               "geometry description, which can be accessed by calling " + 
+                               "findRenderObject and then using the \"geometry\" getter on the " +
+                               "resulting object."
+                               ),
+                               describeElement("The size getter was called for the following element"),
+                               renderObject.describeForError("The associated render sliver was"),
+                           }
+                            );
                     }
 
                     if (!(renderObject is RenderBox)) {
                         throw new UIWidgetsError(
-                            "Cannot get size from a render object that is not a RenderBox.\n" +
-                            "Instead of being a subtype of RenderBox, the render object associated " +
-                            "with this element is a " + renderObject.GetType() + ". If this type of " +
-                            "render object does have a size, consider calling findRenderObject " +
-                            "and extracting its size manually.\n" +
-                            "The size getter was called for the following element:\n" +
-                            "  " + this + "\n" +
-                            "The associated render object was:\n" +
-                            "  " + renderObject.toStringShallow(joiner: "\n  "));
+                            new List<DiagnosticsNode>() {
+                                new ErrorSummary("Cannot get size from a render object that is not a RenderBox."),
+                                new ErrorHint(
+                                    "Instead of being a subtype of RenderBox, the render object associated " +
+                                $"with this element is a {renderObject.GetType()}. If this type of " +
+                                "render object does have a size, consider calling findRenderObject " +
+                                "and extracting its size manually."
+                                ),
+                                describeElement("The size getter was called for the following element"),
+                                renderObject.describeForError("The associated render object was"),
+                            }
+                            );
                     }
 
                     RenderBox box = (RenderBox) renderObject;
                     if (!box.hasSize) {
                         throw new UIWidgetsError(
-                            "Cannot get size from a render object that has not been through layout.\n" +
-                            "The size of this render object has not yet been determined because " +
-                            "this render object has not yet been through layout, which typically " +
-                            "means that the size getter was called too early in the pipeline " +
+                        new List<DiagnosticsNode>() {
+                            new ErrorSummary("Cannot get size from a render object that has not been through layout."),
+                            new ErrorHint(
+                                "The size of this render object has not yet been determined because " +
+                            "this render object has not yet been through layout, which typically " + 
+                            "means that the size getter was called too early in the pipeline " + 
                             "(e.g., during the build phase) before the framework has determined " +
-                            "the size and position of the render objects during layout.\n" +
-                            "The size getter was called for the following element:\n" +
-                            "  " + this + "\n" +
-                            "The render object from which the size was to be obtained was:\n" +
-                            "  " + box.toStringShallow(joiner: "\n  "));
+                            "the size and position of the render objects during layout."
+                            ),
+                            describeElement("The size getter was called for the following element"),
+                            box.describeForError("The render object from which the size was to be obtained was"),
+                        }
+                            );
                     }
 
                     if (box.debugNeedsLayout) {
                         throw new UIWidgetsError(
-                            "Cannot get size from a render object that has been marked dirty for layout.\n" +
-                            "The size of this render object is ambiguous because this render object has " +
-                            "been modified since it was last laid out, which typically means that the size " +
-                            "getter was called too early in the pipeline (e.g., during the build phase) " +
-                            "before the framework has determined the size and position of the render " +
-                            "objects during layout.\n" +
-                            "The size getter was called for the following element:\n" +
-                            "  " + this + "\n" +
-                            "The render object from which the size was to be obtained was:\n" +
-                            "  \n" + box.toStringShallow(joiner: "\n  ") +
-                            "Consider using debugPrintMarkNeedsLayoutStacks to determine why the render " +
-                            "object in question is dirty, if you did not expect this.");
+                            new List<DiagnosticsNode>() {
+                                new ErrorSummary("Cannot get size from a render object that has been marked dirty for layout."),
+                                new ErrorHint(
+                                    "The size of this render object is ambiguous because this render object has " + 
+                                "been modified since it was last laid out, which typically means that the size " +
+                                "getter was called too early in the pipeline (e.g., during the build phase) " + 
+                                "before the framework has determined the size and position of the render " +
+                                "objects during layout."
+                                ),
+                                describeElement("The size getter was called for the following element"),
+                                box.describeForError("The render object from which the size was to be obtained was"),
+                                new ErrorHint(
+                                    "Consider using debugPrintMarkNeedsLayoutStacks to determine why the render " +
+                                "object in question is dirty, if you did not expect this."
+                                ),
+                            }
+                            
+                            );
                     }
 
                     return true;
@@ -1954,11 +2022,19 @@ namespace Unity.UIWidgets.widgets {
             D.assert(() => {
                 if (_debugLifecycleState != _ElementLifecycle.active) {
                     throw new UIWidgetsError(
-                        "Looking up a deactivated widget\"s ancestor is unsafe.\n" +
-                        "At this point the state of the widget\"s element tree is no longer " +
-                        "stable. To safely refer to a widget\"s ancestor in its dispose() method, " +
-                        "save a reference to the ancestor by calling inheritFromWidgetOfExactType() " +
-                        "in the widget\"s didChangeDependencies() method.\n");
+                        new List<DiagnosticsNode>() {
+                            new ErrorSummary("Looking up a deactivated widget's ancestor is unsafe."),
+                            new ErrorDescription(
+                                "At this point the state of the widget's element tree is no longer " +
+                            "stable."
+                            ),
+                            new ErrorHint(
+                                "To safely refer to a widget's ancestor in its dispose() method, " +  
+                            "save a reference to the ancestor by calling dependOnInheritedWidgetOfExactType() " +
+                            "in the widget's didChangeDependencies() method."
+                            ),
+                        }
+                        );
                 }
 
                 return true;
@@ -2154,15 +2230,21 @@ namespace Unity.UIWidgets.widgets {
             D.assert(() => {
                 if (owner._debugCurrentBuildTarget == null) {
                     throw new UIWidgetsError(
-                        methodName + " for " + widget.GetType() + " was called at an " +
-                        "inappropriate time.\n" +
-                        "It may only be called while the widgets are being built. A possible " +
-                        "cause of this error is when $methodName is called during " +
-                        "one of:\n" +
-                        " * network I/O event\n" +
-                        " * file I/O event\n" +
-                        " * timer\n" +
-                        " * microtask (caused by Future.then, async/await, scheduleMicrotask)"
+                       new List<DiagnosticsNode>() {
+                           new ErrorSummary(
+                               $"{methodName} for {widget.GetType()} was called at an " +
+                           "inappropriate time."
+                           ),
+                           new ErrorDescription("It may only be called while the widgets are being built."),
+                           new ErrorHint(
+                               $"A possible cause of this error is when {methodName} is called during " +
+                           "one of:\n" + 
+                           " * network I/O event\n" + 
+                           " * file I/O event\n" +
+                           " * timer\n" +
+                           " * microtask (caused by Future.then, async/await, scheduleMicrotask)"
+                           ),
+                       }
                     );
                 }
 
@@ -2282,21 +2364,24 @@ namespace Unity.UIWidgets.widgets {
 
                     if (!_debugAllowIgnoredCallsToMarkNeedsBuild) {
                         throw new UIWidgetsError(
-                            "setState() or markNeedsBuild() called during build.\n" +
-                            "This " + widget.GetType() +
-                            " widget cannot be marked as needing to build because the framework " +
-                            "is already in the process of building widgets. A widget can be marked as " +
-                            "needing to be built during the build phase only if one of its ancestors " +
-                            "is currently building. This exception is allowed because the framework " +
-                            "builds parent widgets before children, which means a dirty descendant " +
-                            "will always be built. Otherwise, the framework might not visit this " +
-                            "widget during this build phase.\n" +
-                            "The widget on which setState() or markNeedsBuild() was called was:\n" +
-                            "  " + this + "\n" +
-                            (owner._debugCurrentBuildTarget == null
-                                ? ""
-                                : "The widget which was currently being built when the offending call was made was:\n  " +
-                                  owner._debugCurrentBuildTarget)
+                            new List<DiagnosticsNode>(){
+                            new ErrorSummary("setState() or markNeedsBuild() called during build.\n"),
+                            new ErrorDescription("This " + widget.GetType() +
+                                                 " widget cannot be marked as needing to build because the framework " +
+                                                 "is already in the process of building widgets. A widget can be marked as " +
+                                                 "needing to be built during the build phase only if one of its ancestors " +
+                                                 "is currently building. This exception is allowed because the framework " +
+                                                 "builds parent widgets before children, which means a dirty descendant " +
+                                                 "will always be built. Otherwise, the framework might not visit this " +
+                                                 "widget during this build phase.\n" +
+                                                 "The widget on which setState() or markNeedsBuild() was called was:\n" +
+                                                 "  " + this + "\n" +
+                                                 (owner._debugCurrentBuildTarget == null
+                                                     ? ""
+                                                     : "The widget which was currently being built when the offending call was made was:\n  " +
+                                                       owner._debugCurrentBuildTarget))
+                            
+                            }
                         );
                     }
 
@@ -2305,11 +2390,14 @@ namespace Unity.UIWidgets.widgets {
                 else if (owner._debugStateLocked) {
                     D.assert(!_debugAllowIgnoredCallsToMarkNeedsBuild);
                     throw new UIWidgetsError(
-                        "setState() or markNeedsBuild() called when widget tree was locked.\n" +
-                        "This " + widget.GetType() + " widget cannot be marked as needing to build " +
-                        "because the framework is locked.\n" +
-                        "The widget on which setState() or markNeedsBuild() was called was:\n" +
-                        "  " + this + "\n"
+                       new List<DiagnosticsNode>() {
+                           new ErrorSummary("setState() or markNeedsBuild() called when widget tree was locked."),
+                           new ErrorDescription(
+                               $"This {widget.GetType()} widget cannot be marked as needing to build " +
+                           "because the framework is locked."
+                           ),
+                           describeElement("The widget on which setState() or markNeedsBuild() was called was"),
+                       }
                     );
                 }
 
@@ -2562,10 +2650,14 @@ namespace Unity.UIWidgets.widgets {
             D.assert(() => {
                 if (!_state._debugTypesAreRight(widget)) {
                     throw new UIWidgetsError(
-                        "StatefulWidget.createState must return a subtype of State<" + widget.GetType() + ">\n" +
-                        "The createState function for " + widget.GetType() + " returned a state " +
-                        "of type " + _state.GetType() + ", which is not a subtype of " +
-                        "State<" + widget.GetType() + ">, violating the contract for createState.");
+                        new List<DiagnosticsNode>() {
+                            new ErrorSummary("StatefulWidget.createState must return a subtype of State<${widget.runtimeType}>"),
+                            new ErrorDescription(
+                                $"The createState function for {widget.GetType()} returned a state " + 
+                            $"of type {_state.GetType()}, which is not a subtype of " + 
+                            $"State<${widget.GetType()}>, violating the contract for createState."
+                            ),
+                        });
                 }
 
                 return true;
@@ -2661,9 +2753,13 @@ namespace Unity.UIWidgets.widgets {
                 }
 
                 throw new UIWidgetsError(
-                    _state.GetType() + ".dispose failed to call base.dispose.\n" +
-                    "dispose() implementations must always call their superclass dispose() method, to ensure " +
-                    "that all the resources used by the widget are fully released.");
+                 new List<DiagnosticsNode>() {
+                     new ErrorSummary($"{_state.GetType()}.dispose failed to call super.dispose."),
+                     new ErrorDescription(
+                         "dispose() implementations must always call their superclass dispose() method, to ensure " +
+                     "that all the resources used by the widget are fully released."
+                     ),
+                 });
             });
             _state._element = null;
             _state = null;
@@ -2679,38 +2775,50 @@ namespace Unity.UIWidgets.widgets {
                 Type targetType = ancestor.widget.GetType();
                 if (state._debugLifecycleState == _StateLifecycle.created) {
                     throw new UIWidgetsError(
-                        "inheritFromWidgetOfExactType(" + targetType + ") or inheritFromElement() was called before " +
-                        _state.GetType() + ".initState() completed.\n" +
-                        "When an inherited widget changes, for example if the value of Theme.of() changes, " +
-                        "its dependent widgets are rebuilt. If the dependent widget\"s reference to " +
-                        "the inherited widget is in a constructor or an initState() method, " +
-                        "then the rebuilt dependent widget will not reflect the changes in the " +
-                        "inherited widget.\n" +
-                        "Typically references to inherited widgets should occur in widget build() methods. Alternatively, " +
-                        "initialization based on inherited widgets can be placed in the didChangeDependencies method, which " +
-                        "is called after initState and whenever the dependencies change thereafter."
-                    );
+                        new List<DiagnosticsNode>() {
+                            new ErrorSummary($"dependOnInheritedWidgetOfExactType<{targetType}>() or dependOnInheritedElement() was called before {_state.GetType()}.initState() completed."),
+                            new ErrorDescription(
+                                "When an inherited widget changes, for example if the value of Theme.of() changes, " +
+                            "its dependent widgets are rebuilt. If the dependent widget's reference to " + 
+                            "the inherited widget is in a constructor or an initState() method, " +
+                            "then the rebuilt dependent widget will not reflect the changes in the " +
+                            "inherited widget."
+                            ),
+                            new ErrorHint(
+                                "Typically references to inherited widgets should occur in widget build() methods. Alternatively, " +
+                            "initialization based on inherited widgets can be placed in the didChangeDependencies method, which " +
+                            "is called after initState and whenever the dependencies change thereafter."
+                            ),
+                        }
+                        );
                 }
 
                 if (state._debugLifecycleState == _StateLifecycle.defunct) {
                     throw new UIWidgetsError(
-                        "inheritFromWidgetOfExactType(" + targetType +
-                        ") or inheritFromElement() was called after dispose(): " + this + "\n" +
-                        "This error happens if you call inheritFromWidgetOfExactType() on the " +
-                        "BuildContext for a widget that no longer appears in the widget tree " +
-                        "(e.g., whose parent widget no longer includes the widget in its " +
-                        "build). This error can occur when code calls " +
-                        "inheritFromWidgetOfExactType() from a timer or an animation callback. " +
-                        "The preferred solution is to cancel the timer or stop listening to the " +
-                        "animation in the dispose() callback. Another solution is to check the " +
-                        "\"mounted\" property of this object before calling " +
-                        "inheritFromWidgetOfExactType() to ensure the object is still in the " +
-                        "tree.\n" +
-                        "This error might indicate a memory leak if " +
-                        "inheritFromWidgetOfExactType() is being called because another object " +
-                        "is retaining a reference to this State object after it has been " +
-                        "removed from the tree. To avoid memory leaks, consider breaking the " +
-                        "reference to this object during dispose()."
+                        new List<DiagnosticsNode>() {
+                            new ErrorSummary($"dependOnInheritedWidgetOfExactType<{targetType}>() or dependOnInheritedElement() was called after dispose(): $this"),
+                            new ErrorDescription(
+                                "This error happens if you call dependOnInheritedWidgetOfExactType() on the " +
+                            "BuildContext for a widget that no longer appears in the widget tree " + 
+                            "(e.g., whose parent widget no longer includes the widget in its " +
+                            "build). This error can occur when code calls " +
+                            "dependOnInheritedWidgetOfExactType() from a timer or an animation callback."
+                            ),
+                            new ErrorHint(
+                                "The preferred solution is to cancel the timer or stop listening to the " +
+                            "animation in the dispose() callback. Another solution is to check the " +
+                            "\"mounted\" property of this object before calling " +
+                            "dependOnInheritedWidgetOfExactType() to ensure the object is still in the " +
+                            "tree."
+                            ),
+                            new ErrorHint(
+                                "This error might indicate a memory leak if " +
+                            "dependOnInheritedWidgetOfExactType() is being called because another object " +
+                            "is retaining a reference to this State object after it has been " +
+                            "removed from the tree. To avoid memory leaks, consider breaking the " +
+                            "reference to this object during dispose()."
+                            ),
+                        }
                     );
                 }
 
@@ -2986,21 +3094,21 @@ namespace Unity.UIWidgets.widgets {
                 if (badAncestors.isNotEmpty()) {
                     badAncestors.Insert(0, result);
                     try {
-                        string errorLog = "Incorrect use of ParentDataWidget.\n" +
-                                          "The following ParentDataWidgets are providing parent data to the same RenderObject:";
+                        List<ErrorDescription> errors = new List<ErrorDescription>();
+                        foreach (ParentDataElement<ParentData> parentDataElement in badAncestors)
+                            errors.Add(new ErrorDescription(
+                                $"- {parentDataElement.widget} (typically placed directly inside a {parentDataElement.widget.debugTypicalAncestorWidgetClass} widget)"));
 
-                        foreach (ParentDataElement parentDataElement in badAncestors) {
-                            errorLog +=
-                                $"- {parentDataElement.widget} (typically placed directly inside a {parentDataElement.widget.debugTypicalAncestorWidgetClass} widget)";
-                        }
-
-                        errorLog +=
-                            $"However, a RenderObject can only receive parent data from at most one ParentDataWidget.";
-                        errorLog +=
-                            $"Usually, this indicates that at least one of the offending ParentDataWidgets listed above is not placed directly inside a compatible ancestor widget.";
-                        errorLog +=
-                            $"The ownership chain for the RenderObject that received the parent data was:\n  {debugGetCreatorChain(10)}";
-                        throw new UIWidgetsError(message: errorLog);
+                        List<DiagnosticsNode> results = new List<DiagnosticsNode>();
+                        results.Add( new ErrorSummary("Incorrect use of ParentDataWidget."));
+                        results.Add(new ErrorDescription("The following ParentDataWidgets are providing parent data to the same RenderObject:"));
+                        results.AddRange(errors);
+                        results.Add(new ErrorDescription("However, a RenderObject can only receive parent data from at most one ParentDataWidget."));
+                        results.Add(new ErrorHint("Usually, this indicates that at least one of the offending ParentDataWidgets listed above is not placed directly inside a compatible ancestor widget."));
+                        results.Add(new ErrorDescription($"The ownership chain for the RenderObject that received the parent data was:\n  {debugGetCreatorChain(10)}"));
+                        throw new UIWidgetsError(
+                           results
+                           );
                     }
                     catch (UIWidgetsError e) {
                         WidgetsD._debugReportException("while looking for parent data.", e);
@@ -3223,13 +3331,15 @@ namespace Unity.UIWidgets.widgets {
                 try {
                     if (!parentDataWidget.debugIsValidRenderObject(renderObject)) {
                         applyParentData = false;
+                        List<DiagnosticsNode> results = new List<DiagnosticsNode>();
+                        results.Add( new ErrorSummary("Incorrect use of ParentDataWidget.\n") );
+                        results.AddRange(parentDataWidget._debugDescribeIncorrectParentDataType(
+                            parentData: renderObject.parentData,
+                            parentDataCreator: _ancestorRenderObjectElement.widget,
+                            ownershipChain: new ErrorDescription(debugGetCreatorChain(10))
+                        ));
                         throw new UIWidgetsError(
-                            "Incorrect use of ParentDataWidget.\n" +
-                            parentDataWidget._debugDescribeIncorrectParentDataType(
-                                parentData: renderObject.parentData,
-                                parentDataCreator: _ancestorRenderObjectElement.widget,
-                                ownershipChain: new ErrorDescription(debugGetCreatorChain(10))
-                            )
+                            results
                         );
                     }
                 }

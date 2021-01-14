@@ -13,7 +13,9 @@ namespace Unity.UIWidgets.widgets {
         //     }
         // }
 
-        public Texture( Key key = null, int? textureId = null) : base(key: key) {
+        public Texture( 
+            Key key = null, 
+            int? textureId = null) : base(key: key) {
             D.assert(textureId != null);
             this.textureId = textureId.Value;
         }

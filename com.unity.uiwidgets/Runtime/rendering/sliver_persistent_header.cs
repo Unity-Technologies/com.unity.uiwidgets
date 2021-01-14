@@ -6,11 +6,33 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using AsyncCallback = Unity.UIWidgets.foundation.AsyncCallback;
 
 namespace Unity.UIWidgets.rendering {
+    
+    public class OverScrollHeaderStretchConfiguration {
+        /// Creates an object that specifies how a stretched header may activate an
+        /// [AsyncCallback].
+        OverScrollHeaderStretchConfiguration(
+            float stretchTriggerOffset = 100.0f,
+            AsyncCallback onStretchTrigger = null
+        ) {
+            D.assert(stretchTriggerOffset != null);
+            this.stretchTriggerOffset = stretchTriggerOffset;
+            this.onStretchTrigger = onStretchTrigger;
+        }
+
+
+        public readonly float stretchTriggerOffset;
+        public readonly AsyncCallback onStretchTrigger;
+    }
     public abstract class RenderSliverPersistentHeader : RenderObjectWithChildMixinRenderSliver<RenderBox> {
-        public RenderSliverPersistentHeader(RenderBox child = null) {
+        public RenderSliverPersistentHeader(
+            RenderBox child = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+            ) {
             this.child = child;
+            this.stretchConfiguration = stretchConfiguration;
         }
 
         public virtual float? maxExtent { get; }
@@ -38,8 +60,9 @@ namespace Unity.UIWidgets.rendering {
         bool _needsUpdateChild = true;
         float _lastShrinkOffset = 0.0f;
         bool _lastOverlapsContent = false;
+        public OverScrollHeaderStretchConfiguration stretchConfiguration;
 
-        protected virtual void updateChild(float shrinkOffset, bool overlapsContent) {
+        protected void updateChild(float shrinkOffset, bool overlapsContent) {
         }
 
         public override void markNeedsLayout() {
@@ -79,7 +102,7 @@ namespace Unity.UIWidgets.rendering {
             );
         }
 
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
             return base.childMainAxisPosition(this.child);
         }
 
@@ -105,18 +128,18 @@ namespace Unity.UIWidgets.rendering {
                     constraints.growthDirection)) {
                     case AxisDirection.up:
                         offset += new Offset(0.0f,
-                            geometry.paintExtent - childMainAxisPosition(child) - childExtent);
+                            geometry.paintExtent - childMainAxisPosition(child)?? 0.0f - childExtent);
                         break;
                     case AxisDirection.down:
-                        offset += new Offset(0.0f, childMainAxisPosition(child));
+                        offset += new Offset(0.0f, childMainAxisPosition(child) ?? 0.0f);
                         break;
                     case AxisDirection.left:
                         offset += new Offset(
-                            geometry.paintExtent - childMainAxisPosition(child) - childExtent,
+                            geometry.paintExtent - childMainAxisPosition(child) ?? 0.0f - childExtent,
                             0.0f);
                         break;
                     case AxisDirection.right:
-                        offset += new Offset(childMainAxisPosition(child), 0.0f);
+                        offset += new Offset(childMainAxisPosition(child) ?? 0.0f, 0.0f);
                         break;
                 }
 
@@ -146,12 +169,30 @@ namespace Unity.UIWidgets.rendering {
 
     public abstract class RenderSliverScrollingPersistentHeader : RenderSliverPersistentHeader {
         public RenderSliverScrollingPersistentHeader(
-            RenderBox child = null
-        ) : base(child: child) {
+            RenderBox child = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(child: child,
+            stretchConfiguration: stretchConfiguration) {
         }
 
         float _childPosition;
 
+        protected float updateGeometry() {
+            float? stretchOffset = 0.0f;
+            if (stretchConfiguration != null && _childPosition == 0.0) {
+                stretchOffset += constraints.overlap.abs();
+            }
+            float? maxExtent = this.maxExtent;
+            float? paintExtent = maxExtent - constraints.scrollOffset;
+            geometry = new SliverGeometry(
+                scrollExtent: maxExtent ?? 0.0f,
+                paintOrigin: Mathf.Min(constraints.overlap, 0.0f),
+                paintExtent: paintExtent?.clamp(0.0f, constraints.remainingPaintExtent) ?? 0.0f,
+                maxPaintExtent: maxExtent + stretchOffset ?? 0.0f,
+                hasVisualOverflow: true// Conservatively say we do have overflow to avoid complexity.
+            );
+            return stretchOffset > 0 ? 0.0f :Mathf.Min(0.0f, paintExtent?? 0.0f - childExtent );
+        }
         protected override void performLayout() {
             float? maxExtent = this.maxExtent;
             layoutChild(constraints.scrollOffset, maxExtent ?? 0.0f);
@@ -166,7 +207,7 @@ namespace Unity.UIWidgets.rendering {
             _childPosition = Mathf.Min(0.0f, paintExtent ?? 0.0f - childExtent);
         }
 
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
             D.assert(child == this.child);
             return _childPosition;
         }
@@ -174,8 +215,10 @@ namespace Unity.UIWidgets.rendering {
 
     public abstract class RenderSliverPinnedPersistentHeader : RenderSliverPersistentHeader {
         public RenderSliverPinnedPersistentHeader(
-            RenderBox child = null
-        ) : base(child: child) {
+            RenderBox child = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(child: child,
+            stretchConfiguration: stretchConfiguration) {
         }
 
         protected override void performLayout() {
@@ -198,7 +241,7 @@ namespace Unity.UIWidgets.rendering {
             );
         }
 
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
             return 0.0f;
         }
     }
@@ -226,8 +269,11 @@ namespace Unity.UIWidgets.rendering {
     public abstract class RenderSliverFloatingPersistentHeader : RenderSliverPersistentHeader {
         public RenderSliverFloatingPersistentHeader(
             RenderBox child = null,
-            FloatingHeaderSnapConfiguration snapConfiguration = null
-        ) : base(child: child) {
+            FloatingHeaderSnapConfiguration snapConfiguration = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(
+            child: child,
+            stretchConfiguration: stretchConfiguration) {
             _snapConfiguration = snapConfiguration;
         }
 
@@ -355,7 +401,7 @@ namespace Unity.UIWidgets.rendering {
             _lastActualScrollOffset = constraints.scrollOffset;
         }
 
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
             D.assert(child == this.child);
             return _childPosition;
         }
@@ -369,8 +415,11 @@ namespace Unity.UIWidgets.rendering {
     public abstract class RenderSliverFloatingPinnedPersistentHeader : RenderSliverFloatingPersistentHeader {
         public RenderSliverFloatingPinnedPersistentHeader(
             RenderBox child = null,
-            FloatingHeaderSnapConfiguration snapConfiguration = null
-        ) : base(child: child, snapConfiguration: snapConfiguration) {
+            FloatingHeaderSnapConfiguration snapConfiguration = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(child: child,
+            snapConfiguration: snapConfiguration,
+            stretchConfiguration: stretchConfiguration) {
         }
 
         protected override float updateGeometry() {
@@ -383,11 +432,14 @@ namespace Unity.UIWidgets.rendering {
             float? clampedPaintExtent =
                 paintExtent?.clamp(minAllowedExtent ?? 0.0f, constraints.remainingPaintExtent);
             float? layoutExtent = maxExtent - constraints.scrollOffset;
+            float? stretchOffset = stretchConfiguration != null ?
+                constraints.overlap.abs() :
+                0.0f;
             geometry = new SliverGeometry(
                 scrollExtent: maxExtent ?? 0.0f,
                 paintExtent: clampedPaintExtent ?? 0.0f,
                 layoutExtent: layoutExtent?.clamp(0.0f, clampedPaintExtent ?? 0.0f),
-                maxPaintExtent: maxExtent ?? 0.0f,
+                maxPaintExtent: maxExtent + stretchOffset ?? 0.0f,
                 maxScrollObstructionExtent: maxExtent ?? 0.0f,
                 hasVisualOverflow: true
             );

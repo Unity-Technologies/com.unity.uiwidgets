@@ -212,9 +212,7 @@ namespace Unity.UIWidgets.widgets {
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
             oldWidget = (Actions) oldWidget;
             var dispatcherBool = ((Actions) oldWidget).dispatcher != dispatcher;
-            bool actionBool = false;
-            if (((Actions) oldWidget).actions == actions)
-                actionBool = true;
+            bool actionBool = ((Actions) oldWidget).actions == actions;
             foreach (var actionsKey in ((Actions) oldWidget).actions.Keys) {
                 if (!actions.ContainsKey(actionsKey) ||
                     actions[actionsKey] != ((Actions) oldWidget).actions[actionsKey]) {

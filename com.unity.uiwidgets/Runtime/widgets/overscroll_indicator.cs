@@ -71,7 +71,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             properties.add(new MessageProperty("show", showDescription));
-            properties.add(new DiagnosticsProperty<Color>("color", color, showName: false));
+            properties.add(new ColorProperty("color", color, showName: false));
         }
     }
 
@@ -110,7 +110,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (notification is OverscrollNotification) {
-                _GlowController controller;
+                _GlowController controller = null;
                 OverscrollNotification _notification = notification as OverscrollNotification;
                 if (_notification.overscroll < 0.0f) {
                     controller = _leadingController;
@@ -119,7 +119,7 @@ namespace Unity.UIWidgets.widgets {
                     controller = _trailingController;
                 }
                 else {
-                    throw new Exception("overscroll is 0.0f!");
+                    D.assert(false, () =>"over scroll cannot be 0.0f.");
                 }
 
                 bool isLeading = controller == _leadingController;

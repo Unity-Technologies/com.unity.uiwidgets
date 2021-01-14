@@ -33,6 +33,8 @@ namespace Unity.UIWidgets.rendering {
             float offAxisFraction = 0.0f,
             bool useMagnifier = false,
             float magnification = 1.0f,
+            float overAndUnderCenterOpacity = 1.0f,
+            float squeeze = 1.0f,
             bool clipToSize = true,
             bool renderChildrenOutsideViewport = false,
             List<RenderBox> children = null
@@ -43,7 +45,11 @@ namespace Unity.UIWidgets.rendering {
             D.assert(perspective > 0);
             D.assert(perspective <= 0.01f, () => perspectiveTooHighMessage);
             D.assert(magnification > 0);
+            D.assert(overAndUnderCenterOpacity != null);
+            D.assert(overAndUnderCenterOpacity >= 0 && overAndUnderCenterOpacity <= 1);
             D.assert(itemExtent > 0);
+            D.assert(squeeze != null);
+            D.assert(squeeze > 0);
             D.assert(
                 !renderChildrenOutsideViewport || !clipToSize,
                 () => clipToSizeAndRenderChildrenOutsideViewportConflict
@@ -56,7 +62,9 @@ namespace Unity.UIWidgets.rendering {
             _offAxisFraction = offAxisFraction;
             _useMagnifier = useMagnifier;
             _magnification = magnification;
+            _overAndUnderCenterOpacity = overAndUnderCenterOpacity;
             _itemExtent = itemExtent;
+            _squeeze = squeeze;
             _clipToSize = clipToSize;
             _renderChildrenOutsideViewport = renderChildrenOutsideViewport;
             addAll(children);
@@ -180,6 +188,23 @@ namespace Unity.UIWidgets.rendering {
 
         float _magnification = 1.0f;
 
+        
+        public float overAndUnderCenterOpacity {
+            get {
+                return _overAndUnderCenterOpacity;
+            }
+            set {
+                D.assert(value != null);
+                D.assert(value >= 0 && value <= 1);
+                if (value == _overAndUnderCenterOpacity)
+                    return;
+                _overAndUnderCenterOpacity = value;
+                markNeedsPaint();
+            }
+        }
+
+        float _overAndUnderCenterOpacity = 1.0f;
+        
         public float itemExtent {
             get { return _itemExtent; }
             set {
@@ -194,6 +219,23 @@ namespace Unity.UIWidgets.rendering {
         }
 
         float _itemExtent;
+        
+        public float squeeze {
+            get {
+                return _squeeze;
+            }
+            set {
+                D.assert(value != null);
+                D.assert(value > 0);
+                if (value == _squeeze)
+                    return;
+                _squeeze = value;
+                markNeedsLayout();
+            }
+        }
+
+        float _squeeze;
+        
 
         public bool clipToSize {
             get { return _clipToSize; }
@@ -317,19 +359,19 @@ namespace Unity.UIWidgets.rendering {
             return extent;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return _getIntrinsicCrossAxis(
                 (RenderBox child) => child.getMinIntrinsicWidth(height)
             );
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return _getIntrinsicCrossAxis(
                 (RenderBox child) => child.getMaxIntrinsicWidth(height)
             );
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             if (childManager.childCount == null) {
                 return 0.0f;
             }

@@ -28,7 +28,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override string ToString() {
-            return $"${size} at ${devicePixelRatio}x";
+            return $"{size} at {devicePixelRatio}x";
         }
     }
 

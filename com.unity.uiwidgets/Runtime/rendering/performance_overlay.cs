@@ -37,11 +37,11 @@ namespace Unity.UIWidgets.rendering {
             get { return true; }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return 0.0f;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return 0.0f;
         }
 
@@ -58,7 +58,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return _intrinsicHeight;
         }
 

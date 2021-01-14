@@ -50,7 +50,7 @@ namespace Unity.UIWidgets.cupertino {
             this.border = border ?? new Border(
                               top: new BorderSide(
                                   color: BottomAppBarUtils._kDefaultTabBarBorderColor,
-                                  width: 0.0f, // One physical pixel.
+                                  width: 0.0f, 
                                   style: BorderStyle.solid
                               )
                           );
@@ -107,8 +107,8 @@ namespace Unity.UIWidgets.cupertino {
             Color inactive = CupertinoDynamicColor.resolve(inactiveColor, context);
             Widget result = new DecoratedBox(
                 decoration: new BoxDecoration(
-                    border: resolvedBorder,//border,
-                    color: backgroundColor //?? CupertinoTheme.of(context).barBackgroundColor
+                    border: resolvedBorder,
+                    color: backgroundColor 
                 ),
                 child: new SizedBox(
                     height: BottomAppBarUtils._kTabBarHeight + bottomPadding,
@@ -119,7 +119,6 @@ namespace Unity.UIWidgets.cupertino {
                         ),
                         child: new DefaultTextStyle( // Default with the inactive state.
                             style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(color: inactive),
-                                //CupertinoTheme.of(context).textTheme.tabLabelTextStyle
                             child: new Padding(
                                 padding: EdgeInsets.only(bottom: bottomPadding),
                                 child: new Row(
@@ -154,7 +153,6 @@ namespace Unity.UIWidgets.cupertino {
                     _wrapActiveItem(
                         context,
                         new Expanded(
-                            //// ??? semantics tbc ???
                             child: new GestureDetector(
                                 behavior: HitTestBehavior.opaque,
                                 onTap: onTap == null ? null : (GestureTapCallback) (() => { onTap(tabIndex); }),
@@ -193,8 +191,6 @@ namespace Unity.UIWidgets.cupertino {
             if (!active) {
                 return item;
             }
-
-            //Color activeColor = this.activeColor ?? CupertinoTheme.of(context).primaryColor;
             Color activeColor = CupertinoDynamicColor.resolve(
                 this.activeColor ?? CupertinoTheme.of(context).primaryColor,
                 context

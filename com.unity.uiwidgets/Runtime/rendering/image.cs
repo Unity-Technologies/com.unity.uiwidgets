@@ -236,7 +236,7 @@ namespace Unity.UIWidgets.rendering {
             ));
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             D.assert(height >= 0.0);
             if (_width == null && _height == null) {
                 return 0.0f;
@@ -245,12 +245,12 @@ namespace Unity.UIWidgets.rendering {
             return _sizeForConstraints(BoxConstraints.tightForFinite(height: height)).width;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             D.assert(height >= 0.0);
             return _sizeForConstraints(BoxConstraints.tightForFinite(height: height)).width;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             D.assert(width >= 0.0);
             if (_width == null && _height == null) {
                 return 0.0f;
@@ -298,7 +298,7 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new FloatProperty("width", width, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("height", height, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("scale", scale, defaultValue: 1.0f));
-            properties.add(new DiagnosticsProperty<Color>("color", color,
+            properties.add(new ColorProperty("color", color,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
                 defaultValue: foundation_.kNullDefaultValue));

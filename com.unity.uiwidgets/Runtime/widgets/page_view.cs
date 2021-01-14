@@ -162,16 +162,26 @@ namespace Unity.UIWidgets.widgets {
 
         float _viewportFraction;
 
+        float _initialPageOffset {
+            get {
+                return Mathf.Max(0, viewportDimension * (viewportFraction - 1) / 2);
+            }
+        }
+
         public float getPageFromPixels(float pixels, float viewportDimension) {
             return (Mathf.Max(0.0f, pixels) / Mathf.Max(1.0f, viewportDimension * viewportFraction));
         }
 
         public float getPixelsFromPage(float page) {
-            return page * viewportDimension * viewportFraction;
+            return page * viewportDimension * viewportFraction + _initialPageOffset;
         }
 
         public float page {
             get {
+                D.assert(
+                    pixels == null || (minScrollExtent != null && maxScrollExtent != null),
+                    () => "Page value is only available after content dimensions are established."
+                );
                 return getPageFromPixels(pixels.clamp(minScrollExtent, maxScrollExtent),
                     viewportDimension);
             }
@@ -212,6 +222,33 @@ namespace Unity.UIWidgets.widgets {
 
             return result;
         }
+        
+        
+        public override bool applyContentDimensions(float minScrollExtent, float maxScrollExtent) {
+             float newMinScrollExtent = minScrollExtent + _initialPageOffset;
+            return base.applyContentDimensions(
+                newMinScrollExtent,
+                Mathf.Max(newMinScrollExtent, maxScrollExtent - _initialPageOffset)
+            );
+        }
+    }
+    
+    public class _ForceImplicitScrollPhysics : ScrollPhysics {
+        public _ForceImplicitScrollPhysics(
+            bool allowImplicitScrolling = false,
+            ScrollPhysics parent = null
+        ) : base(parent: parent) {
+            D.assert(allowImplicitScrolling != null);
+        }
+        
+        public override ScrollPhysics applyTo(ScrollPhysics ancestor) {
+            return new _ForceImplicitScrollPhysics(
+                allowImplicitScrolling: allowImplicitScrolling,
+                parent:  buildParent(ancestor)
+            );
+        }
+        
+        public readonly bool allowImplicitScrolling;
     }
 
     public class PageScrollPhysics : ScrollPhysics {
@@ -221,7 +258,7 @@ namespace Unity.UIWidgets.widgets {
             return new PageScrollPhysics(parent: buildParent(ancestor));
         }
 
-        float _getPage(ScrollPosition position) {
+        float _getPage(ScrollMetrics position) {
             if (position is _PagePosition) {
                 return ((_PagePosition) position).page;
             }
@@ -229,7 +266,7 @@ namespace Unity.UIWidgets.widgets {
             return position.pixels / position.viewportDimension;
         }
 
-        float _getPixels(ScrollPosition position, float page) {
+        float _getPixels(ScrollMetrics position, float page) {
             if (position is _PagePosition) {
                 return ((_PagePosition) position).getPixelsFromPage(page);
             }
@@ -237,7 +274,7 @@ namespace Unity.UIWidgets.widgets {
             return page * position.viewportDimension;
         }
 
-        float _getTargetPixels(ScrollPosition position, Tolerance tolerance, float velocity) {
+        float _getTargetPixels(ScrollMetrics position, Tolerance tolerance, float velocity) {
             float page = _getPage(position);
             if (velocity < -tolerance.velocity) {
                 page -= 0.5f;
@@ -288,7 +325,8 @@ namespace Unity.UIWidgets.widgets {
             DragStartBehavior dragStartBehavior = DragStartBehavior.start,
             IndexedWidgetBuilder itemBuilder = null,
             SliverChildDelegate childDelegate = null,
-            int itemCount = 0
+            int itemCount = 0,
+            bool allowImplicitScrolling = false
         ) : base(key: key) {
             this.scrollDirection = scrollDirection;
             this.reverse = reverse;
@@ -297,6 +335,7 @@ namespace Unity.UIWidgets.widgets {
             this.onPageChanged = onPageChanged;
             this.dragStartBehavior = dragStartBehavior;
             this.controller = controller ?? PageViewUtils._defaultPageController;
+            this.allowImplicitScrolling = allowImplicitScrolling;
             if (itemBuilder != null) {
                 childrenDelegate = new SliverChildBuilderDelegate(itemBuilder, childCount: itemCount);
             }
@@ -318,6 +357,7 @@ namespace Unity.UIWidgets.widgets {
             bool pageSnapping = true,
             ValueChanged<int> onPageChanged = null,
             int itemCount = 0,
+            bool allowImplicitScrolling = false,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start
         ) {
             return new PageView(
@@ -330,6 +370,7 @@ namespace Unity.UIWidgets.widgets {
                 pageSnapping: pageSnapping,
                 onPageChanged: onPageChanged,
                 itemCount: itemCount,
+                allowImplicitScrolling: allowImplicitScrolling,
                 dragStartBehavior: dragStartBehavior
             );
         }
@@ -351,6 +392,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly SliverChildDelegate childrenDelegate;
 
         public readonly DragStartBehavior dragStartBehavior;
+        
+        public readonly bool allowImplicitScrolling;
 
         public override State createState() {
             return new _PageViewState();
@@ -381,9 +424,11 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             AxisDirection axisDirection = _getDirection(context);
-            ScrollPhysics physics = widget.pageSnapping
+            ScrollPhysics physics = new _ForceImplicitScrollPhysics(
+                allowImplicitScrolling: widget.allowImplicitScrolling
+            ).applyTo(widget.pageSnapping
                 ? PageViewUtils._kPagePhysics.applyTo(widget.physics)
-                : widget.physics;
+                : widget.physics);
 
             return new NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification notification) => {
@@ -406,13 +451,14 @@ namespace Unity.UIWidgets.widgets {
                     physics: physics,
                     viewportBuilder: (BuildContext _context, ViewportOffset position) => {
                         return new Viewport(
-                            cacheExtent: 0.0f,
+                            cacheExtent: widget.allowImplicitScrolling ? 1.0f : 0.0f,
+                            cacheExtentStyle: CacheExtentStyle.viewport,
                             axisDirection: axisDirection,
                             offset: position,
                             slivers: new List<Widget> {
                                 new SliverFillViewport(
                                     viewportFraction: widget.controller.viewportFraction,
-                                    del: widget.childrenDelegate
+                                    _delegate: widget.childrenDelegate
                                 )
                             }
                         );
@@ -430,6 +476,7 @@ namespace Unity.UIWidgets.widgets {
             description.add(new DiagnosticsProperty<ScrollPhysics>("physics", widget.physics, showName: false));
             description.add(new FlagProperty("pageSnapping", value: widget.pageSnapping,
                 ifFalse: "snapping disabled"));
+            description.add(new FlagProperty("allowImplicitScrolling", value: widget.allowImplicitScrolling, ifTrue: "allow implicit scrolling"));
         }
     }
 }

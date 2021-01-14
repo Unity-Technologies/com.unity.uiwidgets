@@ -45,7 +45,7 @@ namespace Unity.UIWidgets.widgets {
             DragStartBehavior dragStartBehavior = DragStartBehavior.start
         ) : base(key: key) {
             D.assert(key != null);
-            D.assert(secondaryBackground != null ? background != null : true);
+            D.assert(secondaryBackground == null || background != null);
             this.resizeDuration = resizeDuration ?? new TimeSpan(0, 0, 0, 0, 300);
             this.dismissThresholds = dismissThresholds ?? new Dictionary<DismissDirection?, float?>();
             this.movementDuration = movementDuration ?? new TimeSpan(0, 0, 0, 0, 200);
@@ -510,11 +510,13 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(() => {
                     if (_resizeAnimation.status != AnimationStatus.forward) {
                         D.assert(_resizeAnimation.status == AnimationStatus.completed);
-                        throw new UIWidgetsError(
-                            "A dismissed Dismissible widget is still part of the tree.\n" +
-                            "Make sure to implement the onDismissed handler and to immediately remove the Dismissible\n" +
-                            "widget from the application once that handler has fired."
-                        );
+                        throw new UIWidgetsError(new List<DiagnosticsNode>{
+                            new ErrorSummary("A dismissed Dismissible widget is still part of the tree."),
+                            new ErrorHint(
+                                "Make sure to implement the onDismissed handler and to immediately remove the Dismissible " +
+                                "widget from the application once that handler has fired."
+                            )
+                        });
                     }
 
                     return true;

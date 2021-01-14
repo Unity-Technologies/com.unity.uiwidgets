@@ -46,7 +46,7 @@ namespace Unity.UIWidgets.rendering {
                        mainAxisPosition: mainAxisPosition,
                        crossAxisPosition: crossAxisPosition);
         }
-        public override float childMainAxisPosition(RenderObject  child) {
+        public override float? childMainAxisPosition(RenderObject  child) {
             child = (RenderSliver)child;
             D.assert(child != null); 
             D.assert(child == this.child);
@@ -96,6 +96,18 @@ namespace Unity.UIWidgets.rendering {
         RenderObject RenderObjectWithChildMixin.child {
             get { return child; }
             set { child = (RenderSliver) value; }
+        }
+    }
+    public class RenderSliverAnimatedOpacity :RenderAnimatedOpacityMixinRenderSliver<RenderSliver>{
+        public RenderSliverAnimatedOpacity(
+            Animation<float> opacity ,
+            RenderSliver sliver = null,
+            bool alwaysIncludeSemantics = false
+        )  {
+            D.assert(opacity != null);
+            this.opacity = opacity;
+            this.alwaysIncludeSemantics = alwaysIncludeSemantics;
+            child = sliver;
         }
     }
     public class RenderSliverOpacity : RenderProxySliver {

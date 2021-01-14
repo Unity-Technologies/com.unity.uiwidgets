@@ -11,6 +11,12 @@ using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
+    public enum ScrollPositionAlignmentPolicy {
+        explicitPolicy,
+        keepVisibleAtEnd,
+        keepVisibleAtStart,
+    }
+
     public abstract class ScrollPosition : ViewportOffset, ScrollMetrics {
         protected ScrollPosition(
             ScrollPhysics physics = null,
@@ -229,6 +235,7 @@ namespace Unity.UIWidgets.widgets {
             if (!PhysicsUtils.nearEqual(_minScrollExtent, minScrollExtent, Tolerance.defaultTolerance.distance) ||
                 !PhysicsUtils.nearEqual(_maxScrollExtent, maxScrollExtent, Tolerance.defaultTolerance.distance) ||
                 _didChangeViewportDimensionOrReceiveCorrection) {
+                D.assert(minScrollExtent <= maxScrollExtent);
                 _minScrollExtent = minScrollExtent;
                 _maxScrollExtent = maxScrollExtent;
                 _haveDimensions = true;
@@ -244,18 +251,35 @@ namespace Unity.UIWidgets.widgets {
             activity.applyNewDimensions();
         }
 
-        public Future ensureVisible(RenderObject renderObject,
+        public Future ensureVisible(
+            RenderObject renderObject,
             float alignment = 0.0f,
             TimeSpan? duration = null,
-            Curve curve = null
+            Curve curve = null,
+            ScrollPositionAlignmentPolicy alignmentPolicy = ScrollPositionAlignmentPolicy.explicitPolicy
         ) {
             D.assert(renderObject.attached);
             RenderAbstractViewport viewport = RenderViewportUtils.of(renderObject);
             D.assert(viewport != null);
 
-            float target = viewport.getOffsetToReveal(renderObject, alignment).offset.clamp(
-                minScrollExtent, maxScrollExtent);
-
+            float target = 0f;
+            switch (alignmentPolicy) {
+                case ScrollPositionAlignmentPolicy.explicitPolicy:
+                    target = viewport.getOffsetToReveal(renderObject, alignment).offset.clamp(minScrollExtent, maxScrollExtent);
+                    break;
+                case ScrollPositionAlignmentPolicy.keepVisibleAtEnd:
+                    target = viewport.getOffsetToReveal(renderObject, 1.0f).offset.clamp(minScrollExtent, maxScrollExtent) ;
+                    if (target < pixels) {
+                        target = pixels;
+                    }
+                    break;
+                case ScrollPositionAlignmentPolicy.keepVisibleAtStart:
+                    target = viewport.getOffsetToReveal(renderObject, 0.0f).offset.clamp(minScrollExtent, maxScrollExtent) ;
+                    if (target > pixels) {
+                        target = pixels;
+                    }
+                    break;
+            }
             if (target == pixels) {
                 return Future.value();
             }
@@ -353,6 +377,12 @@ namespace Unity.UIWidgets.widgets {
             new UserScrollNotification(metrics:
                 ScrollMetricsUtils.copyWith(this), context: context.notificationContext, direction: direction
             ).dispatch(context.notificationContext);
+        }
+
+        public bool recommendDeferredLoading(BuildContext context) {
+            D.assert(context != null);
+            D.assert(activity != null);
+            return physics.recommendDeferredLoading(activity.velocity, ScrollMetricsUtils.copyWith(this), context);
         }
 
         public override void dispose() {

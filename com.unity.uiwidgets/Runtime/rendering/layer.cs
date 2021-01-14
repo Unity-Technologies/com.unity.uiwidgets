@@ -12,7 +12,7 @@ using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
-
+using Shader = Unity.UIWidgets.ui.Shader;
 namespace Unity.UIWidgets.rendering {
     public class AnnotationEntry<T> {
         
@@ -94,8 +94,6 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        internal bool _subtreeNeedsAddToScene;
-        
         protected EngineLayer engineLayer {
             get { return _engineLayer; }
             set {
@@ -107,8 +105,8 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
-        
-        EngineLayer _engineLayer;
+
+        protected EngineLayer _engineLayer;
 
         internal virtual void updateSubtreeNeedsAddToScene() {
             _needsAddToScene = _needsAddToScene || alwaysNeedsAddToScene;
@@ -156,15 +154,7 @@ namespace Unity.UIWidgets.rendering {
             findAnnotations<S>(result, localPosition, onlyFirst: true);
             return result.entries.Count() == 0 ?  default : result.entries.First().annotation;
         }
-        /*
-        @Deprecated(
-            'Use findAllAnnotations(...).annotations instead. '
-            'This feature was deprecated after v1.10.14.'
-        )
-        Iterable<S> findAll<S>(Offset localPosition) {
-            final AnnotationResult<S> result = findAllAnnotations(localPosition);
-            return result.entries.map((AnnotationEntry<S> entry) => entry.annotation);
-        }*/
+
         AnnotationResult<S> findAllAnnotations<S>(Offset localPosition) {
             AnnotationResult<S> result = new AnnotationResult<S>();
             findAnnotations<S>(result, localPosition, onlyFirst: false);
@@ -247,6 +237,7 @@ namespace Unity.UIWidgets.rendering {
 
         
     }
+    
 
     public class PictureLayer : Layer {
         public PictureLayer(Rect canvasBounds) {
@@ -701,6 +692,78 @@ namespace Unity.UIWidgets.rendering {
             return children;
         }
     }
+    
+    public class ShaderMaskLayer : ContainerLayer {
+        public ShaderMaskLayer(
+            Shader shader = null,
+            Rect maskRect = null,
+            BlendMode blendMode = BlendMode.clear
+        ) {
+            _shader = shader;
+            _maskRect = maskRect;
+            _blendMode = blendMode;
+
+        }
+
+        public Shader shader {
+            get {
+                return _shader;
+            }
+            set{
+                if (value != _shader) {
+                    _shader = value;
+                    markNeedsAddToScene();
+                }
+            }
+        }
+        Shader _shader;
+
+        public Rect maskRect {
+            get { return _maskRect; }
+            set {
+                if (value != _maskRect) {
+                    _maskRect = value;
+                    markNeedsAddToScene();
+                }     
+            }
+        }
+        Rect _maskRect;
+
+
+        public BlendMode blendMode {
+            get { return _blendMode; }
+            set {
+                if (value != _blendMode) {
+                    _blendMode = value;
+                    markNeedsAddToScene();
+                }
+            }
+        }
+        BlendMode _blendMode;
+
+        public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
+            layerOffset = layerOffset ?? Offset.zero;
+            D.assert(shader != null);
+            D.assert(maskRect != null);
+            D.assert(blendMode != null);
+            D.assert(layerOffset != null);
+            Rect shiftedMaskRect = layerOffset == Offset.zero ? maskRect : maskRect.shift(layerOffset);
+            engineLayer = builder.pushShaderMask(
+              shader,
+              shiftedMaskRect,
+              blendMode,
+              oldLayer: _engineLayer as ui.ShaderMaskEngineLayer
+            );
+            addChildrenToScene(builder, layerOffset);
+            builder.pop();
+        }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<Shader>("shader", shader));
+            properties.add(new DiagnosticsProperty<Rect>("maskRect", maskRect));
+            properties.add(new DiagnosticsProperty<BlendMode>("blendMode", blendMode));
+        }
+    }
 
     public class OffsetLayer : ContainerLayer {
         public OffsetLayer(Offset offset = null) {
@@ -1029,7 +1092,87 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new DiagnosticsProperty<Clip>("clipBehavior", clipBehavior));
         }
     }
+    
+    public class ColorFilterLayer : ContainerLayer {
 
+        public ColorFilterLayer(ColorFilter colorFilter = null) {
+            _colorFilter = colorFilter;
+        }
+
+
+        public ColorFilter colorFilter {
+            get {
+                return _colorFilter;
+            }
+            set {
+                D.assert(value != null);
+                if (value != _colorFilter) {
+                    _colorFilter = value;
+                    markNeedsAddToScene();
+                }
+            }
+        }
+
+        ColorFilter _colorFilter;
+        
+        
+        //[!!!]builder.pushColorFilter?
+        /*public override void addToScene(ui.SceneBuilder builder, Offset layerOffset = null ) {
+            D.assert(colorFilter != null);
+            engineLayer =  builder.pushColorFilter(
+                colorFilter,
+                oldLayer: _engineLayer as ui.ColorFilterEngineLayer
+            );
+            addChildrenToScene(builder, layerOffset);
+            builder.pop();
+        }*/
+        
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<ColorFilter>("colorFilter", colorFilter));
+        }
+    }
+    
+    public class ImageFilterLayer : ContainerLayer {
+
+        public ImageFilterLayer(
+            ui.ImageFilter imageFilter
+        ) {
+            _imageFilter = imageFilter;
+        }
+        
+    public ui.ImageFilter  imageFilter {
+        get {
+            return _imageFilter;
+        }
+        set {
+            D.assert(value != null);
+            if (value != _imageFilter) {
+                _imageFilter = value;
+                markNeedsAddToScene();
+            }
+        }
+    }
+
+    ui.ImageFilter _imageFilter;
+    
+    //[!!!] builder.pushImageFilter?
+    /*public override void addToScene(ui.SceneBuilder builder,  Offset layerOffset = null) {
+        D.assert(imageFilter != null);
+        engineLayer = builder.pushImageFilter(
+            imageFilter,
+            oldLayer: _engineLayer as ui.ImageFilterEngineLayer
+        );
+        addChildrenToScene(builder, layerOffset);
+        builder.pop();
+    }*/
+    
+    public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+        base.debugFillProperties(properties);
+        properties.add(new DiagnosticsProperty<ui.ImageFilter>("imageFilter", imageFilter));
+    }
+    }
+    
     public class TransformLayer : OffsetLayer {
         public TransformLayer(Matrix4 transform = null, Offset offset = null) : base(offset) {
             _transform = transform ?? Matrix4.identity();

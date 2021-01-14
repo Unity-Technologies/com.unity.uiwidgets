@@ -94,7 +94,7 @@ namespace Unity.UIWidgets.cupertino {
             }
 
             return new Container(
-                color:  CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kBackgroundColor, context),//CupertinoActionSheetUtils._kBackgroundColor,
+                color:  CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kBackgroundColor, context),
                 child: new Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -141,13 +141,6 @@ namespace Unity.UIWidgets.cupertino {
                                 contentSection: new Builder(builder: _buildContent),
                                 actionsSection: _buildActions()
                             )
-                            /*new Container(
-                                decoration: CupertinoActionSheetUtils._kAlertBlurOverlayDecoration,
-                                child: new _CupertinoAlertRenderWidget(
-                                    contentSection: _buildContent(),
-                                    actionsSection: _buildActions()
-                                )
-                            )*/
                         )
                     )
                 ),
@@ -169,44 +162,25 @@ namespace Unity.UIWidgets.cupertino {
                 actionSheetWidth = MediaQuery.of(context).size.height -
                                    (CupertinoActionSheetUtils._kEdgeHorizontalPadding * 2);
             }
-/// tbc semantics
-            /*return new SafeArea(
-                child: new Semantics(
-                    namesRoute: true,
-                    scopesRoute: true,
-                    explicitChildNodes: true,
-                    label: "Alert",
-                    child: new CupertinoUserInterfaceLevel(
-                        data: CupertinoUserInterfaceLevelData.elevated,
-                        child: new Container(
-                            width: actionSheetWidth,
-                            margin: EdgeInsets.symmetric(
-                                horizontal: CupertinoActionSheetUtils._kEdgeHorizontalPadding,
-                                vertical: CupertinoActionSheetUtils._kEdgeVerticalPadding
-                            ),
-                            child: new Column(
-                                children: children,
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.stretch
-                            )
-                        )
-                    )
-                )
-            );*/
+
             return new SafeArea(
-                child: new Container(
-                    width: actionSheetWidth,
-                    margin: EdgeInsets.symmetric(
-                        horizontal: CupertinoActionSheetUtils._kEdgeHorizontalPadding,
-                        vertical: CupertinoActionSheetUtils._kEdgeVerticalPadding
-                    ),
-                    child: new Column(
-                        children: children,
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch
-                    )
+                child:  new CupertinoUserInterfaceLevel(
+                    data: CupertinoUserInterfaceLevelData.elevatedlayer,
+                    child: new Container(
+                        width: actionSheetWidth,
+                        margin: EdgeInsets.symmetric(
+                            horizontal: CupertinoActionSheetUtils._kEdgeHorizontalPadding,
+                            vertical: CupertinoActionSheetUtils._kEdgeVerticalPadding
+                            ),
+                        child: new Column(
+                            children: children,
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch
+                            ))
                 )
+                
             );
+            
         }
     }
 
@@ -238,8 +212,6 @@ namespace Unity.UIWidgets.cupertino {
                 color: isDestructiveAction
                     ? CupertinoDynamicColor.resolve(CupertinoColors.systemRed, context)
                     : CupertinoTheme.of(context).primaryColor);
-                //CupertinoActionSheetUtils._kActionSheetActionStyle;
-
             if (isDefaultAction) {
                 style = style.copyWith(fontWeight: FontWeight.w600);
             }
@@ -251,7 +223,6 @@ namespace Unity.UIWidgets.cupertino {
                     constraints: new BoxConstraints(
                         minHeight: CupertinoActionSheetUtils._kButtonHeight
                     ),
-                    ////tbc semantics
                     child: new Container(
                         alignment: Alignment.center,
                         padding: EdgeInsets.symmetric(
@@ -340,7 +311,6 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override void updateRenderObject(BuildContext context,RenderObject renderObject ) {
-            //RenderObject renderObject
             renderObject = (_RenderCupertinoAlert) renderObject;
             base.updateRenderObject(context, renderObject);
             ((_RenderCupertinoAlert) renderObject).dividerColor = CupertinoDynamicColor.resolve(CupertinoActionSheetUtils._kButtonDividerColor, context);
@@ -563,15 +533,15 @@ namespace Unity.UIWidgets.cupertino {
             return value;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return constraints.minWidth;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return constraints.maxWidth;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             float contentHeight = contentSection.getMinIntrinsicHeight(width);
             float actionsHeight = actionsSection.getMinIntrinsicHeight(width);
             bool hasDivider = contentHeight > 0.0f && actionsHeight > 0.0f;
@@ -606,6 +576,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
             bool hasDivider = contentSection.getMaxIntrinsicHeight(constraints.maxWidth) > 0.0f
                               && actionsSection.getMaxIntrinsicHeight(constraints.maxWidth) > 0.0f;
             float dividerThickness = hasDivider ? _dividerThickness : 0.0f;
@@ -672,8 +643,7 @@ namespace Unity.UIWidgets.cupertino {
                 hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
                     D.assert(transformed == position - contentSectionParentData.offset);
                     return contentSection.hitTest(resultIn, position: transformed);
-                }
-            ) || result.addWithPaintOffset(
+                }) || result.addWithPaintOffset(
                 offset: actionsSectionParentData.offset,
                 position: position,
                 hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
@@ -857,9 +827,9 @@ namespace Unity.UIWidgets.cupertino {
 
     class _ActionButtonParentDataWidget : ParentDataWidget<_ActionButtonParentData> {
         public _ActionButtonParentDataWidget(
-            Widget child,
+            Key key = null,
             bool isPressed = false,
-            Key key = null
+            Widget child = null
         ) : base(key: key, child: child) {
             this.isPressed = isPressed;
         }
@@ -873,15 +843,13 @@ namespace Unity.UIWidgets.cupertino {
             if (parentData.isPressed != isPressed) {
                 parentData.isPressed = isPressed;
                 AbstractNodeMixinDiagnosticableTree targetParent = renderObject.parent;
-                // AbstractNode targetParent = renderObject.parent;
-                // tbc
                 if (targetParent is RenderObject) {
                     ((RenderObject) targetParent).markNeedsPaint();
                 }
             }
         }
 
-        public new Type debugTypicalAncestorWidgetClass {
+        public override Type debugTypicalAncestorWidgetClass {
             get {
                 return typeof(_CupertinoAlertActionsRenderWidget);
             }
@@ -1032,15 +1000,15 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return constraints.minWidth;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return constraints.maxWidth;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             if (childCount == 0) {
                 return 0.0f;
             }

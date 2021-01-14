@@ -23,8 +23,6 @@ namespace Unity.UIWidgets.cupertino {
             IconData trailingIcon = null
         ) : base(key: key) {
             D.assert(child != null);
-            D.assert(isDefaultAction != null);
-            D.assert(isDestructiveAction != null);
             this.child = child;
             this.isDefaultAction = isDefaultAction;
             this.isDestructiveAction = isDestructiveAction;
@@ -55,8 +53,7 @@ namespace Unity.UIWidgets.cupertino {
             color: CupertinoColors.black,
             textBaseline: TextBaseline.alphabetic
         );
-        public GlobalKey _globalKey = new LabeledGlobalKey<State<StatefulWidget>>();
-        //GlobalKey();
+        public GlobalKey _globalKey = GlobalKey<State<StatefulWidget>>.key();
         bool _isPressed = false;
 
         void onTapDown(TapDownDetails details) {
@@ -108,8 +105,7 @@ namespace Unity.UIWidgets.cupertino {
                 onTapDown: onTapDown,
                 onTapUp: onTapUp,
                 onTapCancel: onTapCancel,
-                onTap: //widget.onPressed,
-                    widget.onPressed == null
+                onTap: widget.onPressed == null
                     ? (GestureTapCallback) null
                     : () => {
                         if (widget.onPressed != null) {
@@ -117,7 +113,7 @@ namespace Unity.UIWidgets.cupertino {
                         }
                     },
                 behavior: HitTestBehavior.opaque,
-                child: /////semantics tbc ???
+                child: 
                     new ConstrainedBox(
                         constraints: new BoxConstraints(
                             minHeight: _kButtonHeight

@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public static FormState of(BuildContext context) {
-            _FormScope scope = (_FormScope) context.inheritFromWidgetOfExactType(typeof(_FormScope));
+            _FormScope scope = context.dependOnInheritedWidgetOfExactType<_FormScope>();
             return scope?._formState;
         }
 
@@ -198,6 +198,13 @@ namespace Unity.UIWidgets.widgets {
         public bool hasError {
             get { return _errorText != null; }
         }
+
+        //[!!!] call?
+        /*public bool isValid {
+            get {
+                return widget.validator?.call(_value) == null;
+            }
+        }*/
 
         public void save() {
             if (widget.onSaved != null) {

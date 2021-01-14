@@ -20,10 +20,10 @@ namespace Unity.UIWidgets.widgets {
             } else {
             // No op.
             }
-        }*/
+        }
 
         
-        /*public static void _notifyRouteChange(string routeName, string previousRouteName) {
+        public static void _notifyRouteChange(string routeName, string previousRouteName) {
             SystemChannels.navigation.invokeMethod<void>(
             'routeUpdated',
             <string, dynamic>{

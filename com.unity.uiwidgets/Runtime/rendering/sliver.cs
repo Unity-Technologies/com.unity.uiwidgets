@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -7,6 +8,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
+using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
@@ -206,19 +208,38 @@ namespace Unity.UIWidgets.rendering {
                     hasErrors = true;
                     errorMessage.AppendLine($"  {message}");
                 });
+                void verifyFloat(float property, string name, bool mustBePositive = false, bool mustBeNegative = false) {
+                    verify(property != null, $"The \"{name}\" is null.");
+                    if (property.isNaN()) {
+                        string additional = ".";
+                        if (mustBePositive) {
+                            additional = ", expected greater than or equal to zero.";
+                        } else if (mustBeNegative) {
+                            additional = ", expected less than or equal to zero.";
+                        }
+                        verify(false, $"The \"{name}\" is NaN" + $"{additional}");
+                    } else if (mustBePositive) {
+                        verify(property >= 0.0, $"The \"{name}\" is negative.");
+                    } else if (mustBeNegative) {
+                        verify(property <= 0.0, $"The \"{name}\" is positive.");
+                    }
+                }
+                verify(axis != null, "The \"axis\" is null.");
+                verify(growthDirection != null, "The \"growthDirection\" is null.");
+                verifyFloat(scrollOffset, "scrollOffset");
+                verifyFloat(overlap, "overlap");
+                verifyFloat(crossAxisExtent, "crossAxisExtent");
+                verifyFloat(scrollOffset, "scrollOffset", mustBePositive: true);
+                verify(crossAxisDirection != null, "The \"crossAxisDirection\" is null.");
+                verify(AxisUtils.axisDirectionToAxis(axisDirection) != AxisUtils.axisDirectionToAxis(crossAxisDirection), "The \"axisDirection\" and the \"crossAxisDirection\" are along the same axis.");
+                verifyFloat(viewportMainAxisExtent, "viewportMainAxisExtent", mustBePositive: true);
+                verifyFloat(remainingPaintExtent, "remainingPaintExtent", mustBePositive: true);
+                verifyFloat(remainingCacheExtent, "remainingCacheExtent", mustBePositive: true);
+                verifyFloat(cacheOrigin, "cacheOrigin", mustBeNegative: true);
+                verifyFloat(precedingScrollExtent, "precedingScrollExtent", mustBePositive: true);
+                verify(isNormalized, "The constraints are not normalized."); // should be redundant with earlier checks
 
-                verify(scrollOffset >= 0.0f, "The \"scrollOffset\" is negative.");
-                verify(crossAxisExtent >= 0.0f, "The \"crossAxisExtent\" is negative.");
-                verify(
-                    AxisUtils.axisDirectionToAxis(axisDirection) !=
-                    AxisUtils.axisDirectionToAxis(crossAxisDirection),
-                    "The \"axisDirection\" and the \"crossAxisDirection\" are along the same axis.");
-                verify(viewportMainAxisExtent >= 0.0f, "The \"viewportMainAxisExtent\" is negative.");
-                verify(remainingPaintExtent >= 0.0f, "The \"remainingPaintExtent\" is negative.");
-                verify(remainingCacheExtent >= 0.0f, "The \"remainingCacheExtent\" is negative.");
-                verify(cacheOrigin <= 0.0f, "The \"cacheOrigin\" is positive.");
-                verify(isNormalized, "The constraints are not normalized.");
-
+                
                 if (hasErrors) {
                     List<DiagnosticsNode> diagnosticInfo = new List<DiagnosticsNode>();
                     diagnosticInfo.Add(new ErrorSummary($"{GetType()} is not valid: {errorMessage}"));
@@ -300,6 +321,22 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override string ToString() {
+            string result = "";
+            result += ($"{axisDirection}") +" , ";
+            result +=($"{growthDirection}")+" , ";
+            result +=($"{userScrollDirection}")+" , ";
+            result +=($"scrollOffset: {scrollOffset : F1}")+" , ";
+            result +=($"remainingPaintExtent: {remainingPaintExtent : F1}")+" , ";
+            if (overlap != 0.0) 
+                result +=($"overlap: {overlap: F1}")+" , ";
+            result +=($"crossAxisExtent: {crossAxisExtent : F1}")+" , ";
+            result +=($"crossAxisDirection: crossAxisDirection")+" , ";
+            result +=($"viewportMainAxisExtent: {viewportMainAxisExtent : F1}")+" , ";
+            result +=($"remainingCacheExtent: {remainingCacheExtent : F1}")+" , ";
+            result +=($"cacheOrigin: {cacheOrigin : F1}");
+                
+            return $"SliverConstraints({result})";
+            
             return
                 $"SliverConstraints({axisDirection}， {growthDirection}， {userScrollDirection}， scrollOffset: {scrollOffset:F1}, remainingPaintExtent: {remainingCacheExtent:F1}, " +
                 $"{(overlap != 0.0f ? "overlap: " + overlap.ToString("F1") + ", " : "")}crossAxisExtent: {crossAxisExtent:F1}, crossAxisDirection: {crossAxisDirection}, " +
@@ -515,10 +552,10 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public class SliverLogicalParentData : ParentData {
-        public float layoutOffset = 0.0f;
+        public float? layoutOffset;
 
         public override string ToString() {
-            return "layoutOffset=" + layoutOffset.ToString("F1");
+           return layoutOffset == null ? "layoutOffset = None" : $"layoutOffset = {layoutOffset:F1}";
         }
     }
 
@@ -599,6 +636,7 @@ namespace Unity.UIWidgets.rendering {
 
         public override Rect paintBounds {
             get {
+                D.assert(constraints.axis != null);
                 switch (constraints.axis) {
                     case Axis.horizontal:
                         return Rect.fromLTWH(
@@ -614,7 +652,7 @@ namespace Unity.UIWidgets.rendering {
                         );
                 }
 
-                D.assert(false);
+               // D.assert(false);
                 return null;
             }
         }
@@ -704,19 +742,19 @@ namespace Unity.UIWidgets.rendering {
             return (to.clamp(a, b) - from.clamp(a, b)).clamp(0.0f, constraints.remainingCacheExtent);
         }
 
-        public virtual float childMainAxisPosition(RenderObject child) {
+        public virtual float? childMainAxisPosition(RenderObject child) {
             D.assert(() => { throw new UIWidgetsError(GetType() + " does not implement childPosition."); });
 
-            return 0.0f;
+            return null;
         }
 
-        public virtual float childCrossAxisPosition(RenderObject child) {
-            return 0.0f;
+        public virtual float? childCrossAxisPosition(RenderObject child) {
+            return null;
         }
 
-        public virtual float childScrollOffset(RenderObject child) {
+        public virtual float? childScrollOffset(RenderObject child) {
             D.assert(child.parent == this);
-            return 0.0f;
+            return null;
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
@@ -739,11 +777,11 @@ namespace Unity.UIWidgets.rendering {
                     return new Size(-geometry.paintExtent, constraints.crossAxisExtent);
             }
 
-            D.assert(false);
+            //D.assert(false);
             return null;
         }
 
-        protected Size getAbsoluteSize() {
+        public Size getAbsoluteSize() {
             D.assert(geometry != null);
             D.assert(!debugNeedsLayout);
             switch (constraints.axisDirection) {
@@ -785,16 +823,17 @@ namespace Unity.UIWidgets.rendering {
                 else {
                     dy2 = -dy2;
                 }
+                var path = new Path();
+                path.moveTo(p0.dx,p0.dy);
+                path.lineTo(p1.dx, p1.dy);
+                path.moveTo(p1.dx - dx1, p1.dy - dy1);
+                path.lineTo(p1.dx, p1.dy);
+                path.lineTo(p1.dx - dx2, p1.dy - dy2);
+                canvas.drawPath(
+                    path,
+                    paint
+                );
 
-//      canvas.drawPath(
-//        new Path()
-//          ..moveTo(p0.dx, p0.dy)
-//          ..lineTo(p1.dx, p1.dy)
-//          ..moveTo(p1.dx - dx1, p1.dy - dy1)
-//          ..lineTo(p1.dx, p1.dy)
-//          ..lineTo(p1.dx - dx2, p1.dy - dy2),
-//        paint
-//      );
                 return true;
             });
         }
@@ -804,25 +843,25 @@ namespace Unity.UIWidgets.rendering {
                 if (D.debugPaintSizeEnabled) {
                     float strokeWidth = Mathf.Min(4.0f, geometry.paintExtent / 30.0f);
                     Paint paint = new Paint();
-//          ..color = const Color(0xFF33CC33)
-//          ..strokeWidth = strokeWidth
-//          ..style = PaintingStyle.stroke
-//          ..maskFilter = new MaskFilter.blur(BlurStyle.solid, strokeWidth);
+                    paint.color = new Color(0xFF33CC33);
+                    paint.strokeWidth = strokeWidth;
+                    paint.style = PaintingStyle.stroke;
+                    paint.maskFilter = MaskFilter.blur(BlurStyle.solid, strokeWidth);
                     float arrowExtent = geometry.paintExtent;
                     float padding = Mathf.Max(2.0f, strokeWidth);
                     Canvas canvas = context.canvas;
-//        canvas.drawCircle(
-//          offset.translate(padding, padding),
-//          padding * 0.5,
-//          paint,
-//        );
+                    canvas.drawCircle(
+                        offset.translate(padding, padding),
+                        padding * 0.5f,
+                        paint
+                    );
                     switch (constraints.axis) {
                         case Axis.vertical:
-//            canvas.drawLine(
-//              offset,
-//              offset.translate(constraints.crossAxisExtent, 0.0f),
-//              paint,
-//            );
+                            canvas.drawLine(
+                                offset,
+                                offset.translate(constraints.crossAxisExtent, 0.0f),
+                                paint
+                            );
                             _debugDrawArrow(
                                 canvas,
                                 paint,
@@ -841,11 +880,11 @@ namespace Unity.UIWidgets.rendering {
                             );
                             break;
                         case Axis.horizontal:
-//            canvas.drawLine(
-//              offset,
-//              offset.translate(0.0f, constraints.crossAxisExtent),
-//              paint,
-//            );
+                            canvas.drawLine(
+                                offset,
+                                offset.translate(0.0f, constraints.crossAxisExtent),
+                                paint
+                            );
                             _debugDrawArrow(
                                 canvas,
                                 paint,
@@ -870,6 +909,9 @@ namespace Unity.UIWidgets.rendering {
             });
         }
 
+        public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
+            entry = (SliverHitTestEntry) entry;
+        }
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<SliverGeometry>("geometry", geometry));
@@ -904,13 +946,17 @@ namespace Unity.UIWidgets.rendering {
             return rightWayUp;
         }
 
-        public static bool hitTestBoxChild(this RenderSliver it, BoxHitTestResult result, RenderBox child,
-            float mainAxisPosition = 0.0f, float crossAxisPosition = 0.0f) {
+        public static bool hitTestBoxChild(
+            this RenderSliver it, 
+            BoxHitTestResult result, 
+            RenderBox child,
+            float mainAxisPosition = 0.0f, 
+            float crossAxisPosition = 0.0f) {
             bool rightWayUp = _getRightWayUp(it.constraints);
-            float delta = it.childMainAxisPosition(child);
-            float crossAxisDelta = it.childCrossAxisPosition(child);
-            float absolutePosition = mainAxisPosition - delta;
-            float absoluteCrossAxisPosition = crossAxisPosition - crossAxisDelta;
+            float? delta = it.childMainAxisPosition(child);
+            float? crossAxisDelta = it.childCrossAxisPosition(child);
+            float? absolutePosition = mainAxisPosition - delta;
+            float? absoluteCrossAxisPosition = crossAxisPosition - crossAxisDelta;
             Offset paintOffset = null;
             Offset transformedPosition = null;
             D.assert(it.constraints.axis != null);
@@ -920,16 +966,16 @@ namespace Unity.UIWidgets.rendering {
                     absolutePosition = child.size.width - absolutePosition;
                     delta = it.geometry.paintExtent - child.size.width - delta;
                 }
-                paintOffset = new Offset(delta, crossAxisDelta);
-                transformedPosition = new Offset(absolutePosition, absoluteCrossAxisPosition);
+                paintOffset = new Offset(delta ?? 0.0f, crossAxisDelta ?? 0.0f);
+                transformedPosition = new Offset(absolutePosition ?? 0.0f, absoluteCrossAxisPosition ?? 0.0f);
                 break;
             case Axis.vertical:
                 if (!rightWayUp) {
-                absolutePosition = child.size.height - absolutePosition;
-                delta = it.geometry.paintExtent - child.size.height - delta;
+                    absolutePosition = child.size.height - absolutePosition;
+                    delta = it.geometry.paintExtent - child.size.height - delta;
                 }
-                paintOffset = new Offset(crossAxisDelta, delta);
-                transformedPosition = new Offset(absoluteCrossAxisPosition, absolutePosition);
+                paintOffset = new Offset(crossAxisDelta ?? 0.0f, delta ?? 0.0f);
+                transformedPosition = new Offset(absoluteCrossAxisPosition ?? 0.0f, absolutePosition ?? 0.0f);
                 break;
             }
             D.assert(paintOffset != null);
@@ -946,22 +992,22 @@ namespace Unity.UIWidgets.rendering {
         public static void applyPaintTransformForBoxChild(this RenderSliver it, RenderBox child,
             Matrix4 transform) {
             bool rightWayUp = _getRightWayUp(it.constraints);
-            float delta = it.childMainAxisPosition(child);
-            float crossAxisDelta = it.childCrossAxisPosition(child);
+            float? delta = it.childMainAxisPosition(child);
+            float? crossAxisDelta = it.childCrossAxisPosition(child);
             switch (it.constraints.axis) {
                 case Axis.horizontal:
                     if (!rightWayUp) {
                         delta = it.geometry.paintExtent - child.size.width - delta;
                     }
 
-                    transform.translate(delta, crossAxisDelta);
+                    transform.translate(delta, crossAxisDelta ?? 0.0f);
                     break;
                 case Axis.vertical:
                     if (!rightWayUp) {
                         delta = it.geometry.paintExtent - child.size.height - delta;
                     }
 
-                    transform.translate(crossAxisDelta, delta);
+                    transform.translate(crossAxisDelta ?? 0.0f, delta ?? 0.0f);
                     break;
             }
         }
@@ -1013,7 +1059,7 @@ namespace Unity.UIWidgets.rendering {
             return false;
         }
 
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
             return -constraints.scrollOffset;
         }
 

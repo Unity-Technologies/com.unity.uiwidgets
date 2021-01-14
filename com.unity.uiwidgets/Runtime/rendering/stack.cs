@@ -210,8 +210,10 @@ namespace Unity.UIWidgets.rendering {
         public RenderStack(
             StackFit? fit,
             Overflow? overflow,
+            TextDirection textDirection,
             List<RenderBox> children = null,
             Alignment alignment = null) {
+            this.textDirection = textDirection;
             _alignment = alignment ?? Alignment.topLeft;
             _fit = fit ?? StackFit.loose;
             _overflow = overflow ?? Overflow.clip;
@@ -225,7 +227,31 @@ namespace Unity.UIWidgets.rendering {
                 child.parentData = new StackParentData();
             }
         }
+        
+        Alignment _resolvedAlignment;
 
+        void _markNeedResolution() {
+            _resolvedAlignment = null;
+            markNeedsLayout();
+        }
+        
+        public TextDirection  textDirection {
+            get {
+                return _textDirection;
+            }
+            set {
+                if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                _markNeedResolution();
+
+            }
+        }
+
+        TextDirection _textDirection;
+        
+        
+        
         Alignment _alignment;
 
         public Alignment alignment {
@@ -302,15 +328,15 @@ namespace Unity.UIWidgets.rendering {
             return extent;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return _getIntrinsicDimension((RenderBox child) => child.getMinIntrinsicWidth(height));
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return _getIntrinsicDimension((RenderBox child) => child.getMaxIntrinsicWidth(height));
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return _getIntrinsicDimension((RenderBox child) => child.getMinIntrinsicHeight(width));
         }
 
@@ -529,8 +555,9 @@ namespace Unity.UIWidgets.rendering {
         public RenderIndexedStack(
             List<RenderBox> children = null,
             Alignment alignment = null,
+            TextDirection textDirection = default,
             int? index = 0
-        ) : base(fit: null, overflow: null, children: children, alignment: alignment ?? Alignment.topLeft) {
+        ) : base(fit: null, overflow: null, textDirection: textDirection, children: children, alignment: alignment ?? Alignment.topLeft) {
             _index = index;
         }
 

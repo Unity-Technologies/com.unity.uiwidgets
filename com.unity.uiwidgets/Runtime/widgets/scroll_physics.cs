@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.physics;
@@ -39,6 +40,17 @@ namespace Unity.UIWidgets.widgets {
             }
 
             return parent.shouldAcceptUserOffset(position);
+        }
+
+        public bool recommendDeferredLoading(float velocity, ScrollMetrics metrics, BuildContext context) {
+            D.assert(metrics != null);
+            D.assert(context != null);
+            if (parent == null) {
+                float maxPhysicalPixels = WidgetsBinding.instance.window.physicalSize.longestSide;
+                return velocity.abs() > maxPhysicalPixels;
+            }
+
+            return parent.recommendDeferredLoading(velocity, metrics, context);
         }
 
         public virtual float applyBoundaryConditions(ScrollMetrics position, float value) {
@@ -240,14 +252,15 @@ namespace Unity.UIWidgets.widgets {
         public override float applyBoundaryConditions(ScrollMetrics position, float value) {
             D.assert(() => {
                 if (value == position.pixels) {
-                    throw new UIWidgetsError(
-                        $"{GetType()}.applyBoundaryConditions() was called redundantly.\n" +
-                        $"The proposed new position, {value}, is exactly equal to the current position of the " +
-                        $"given {position.GetType()}, {position.pixels}.\n" +
-                        "The applyBoundaryConditions method should only be called when the value is " +
-                        "going to actually change the pixels, otherwise it is redundant.\n" +
-                        "The physics object in question was:\n" + $"  {this}\n" +
-                        "The position object in question was:\n" + $"  {position}\n");
+                    throw new UIWidgetsError(new List<DiagnosticsNode>() {
+                        new ErrorSummary($"{GetType()}.applyBoundaryConditions() was called redundantly."),
+                        new ErrorDescription($"The proposed new position, {value}, is exactly equal to the current position of the " +
+                                             $"given {position.GetType()}, {position.pixels}.\n" +
+                                             "The applyBoundaryConditions method should only be called when the value is " +
+                                             "going to actually change the pixels, otherwise it is redundant."),
+                        new DiagnosticsProperty<ScrollPhysics>("The physics object in question was", this, style: DiagnosticsTreeStyle.errorProperty),
+                        new DiagnosticsProperty<ScrollMetrics>("The position object in question was", position, style: DiagnosticsTreeStyle.errorProperty)
+                    });
                 }
 
                 return true;

@@ -197,9 +197,21 @@ namespace Unity.UIWidgets.widgets {
             base.initState();
             _controller = new AnimationController(
                 duration: widget.duration,
-                debugLabel: "{" + widget.toStringShort() + "}",
+                debugLabel: foundation_.kDebugMode ? widget.toStringShort() : null,
                 vsync: this
             );
+            _controller.addStatusListener((AnimationStatus status) => {
+                switch (status) {
+                    case AnimationStatus.completed:
+                        if (widget.onEnd != null)
+                            widget.onEnd();
+                        break;
+                    case AnimationStatus.dismissed:
+                    case AnimationStatus.forward:
+                    case AnimationStatus.reverse:
+                        break;
+                }
+            });
             _updateCurve();
             _constructTweens();
             didUpdateTweens();
@@ -290,8 +302,9 @@ namespace Unity.UIWidgets.widgets {
             Matrix4 transform = null,
             Widget child = null,
             Curve curve = null,
-            TimeSpan? duration = null
-        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration) {
+            TimeSpan? duration = null,
+            VoidCallback onEnd = null
+        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration, onEnd: onEnd) {
             D.assert(duration != null);
             D.assert(margin == null || margin.isNonNegative);
             D.assert(padding == null || padding.isNonNegative);
@@ -415,8 +428,9 @@ namespace Unity.UIWidgets.widgets {
             EdgeInsets padding = null,
             Widget child = null,
             Curve curve = null,
-            TimeSpan? duration = null
-        ) : base(key: key, curve: curve, duration: duration) {
+            TimeSpan? duration = null,
+            VoidCallback onEnd = null
+        ) : base(key: key, curve: curve, duration: duration, onEnd: onEnd) {
             D.assert(padding != null);
             D.assert(padding.isNonNegative);
             this.padding = padding;
@@ -447,7 +461,9 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             return new Padding(
-                padding: _padding.evaluate(animation),
+                padding: (EdgeInsets) _padding
+                    .evaluate(animation)
+                    .clamp(EdgeInsets.zero, EdgeInsets.infinity),
                 child: widget.child
             );
         }
@@ -465,8 +481,9 @@ namespace Unity.UIWidgets.widgets {
             Alignment alignment = null,
             Widget child = null,
             Curve curve = null,
-            TimeSpan? duration = null
-        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration) {
+            TimeSpan? duration = null,
+            VoidCallback onEnd = null
+        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration, onEnd: onEnd) {
             D.assert(alignment != null);
             this.alignment = alignment;
             this.child = child;
@@ -518,8 +535,9 @@ namespace Unity.UIWidgets.widgets {
             float? width = null,
             float? height = null,
             Curve curve = null,
-            TimeSpan? duration = null
-        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration) {
+            TimeSpan? duration = null,
+            VoidCallback onEnd = null
+        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration, onEnd: onEnd) {
             D.assert(left == null || right == null || width == null);
             D.assert(top == null || bottom == null || height == null);
             this.child = child;
@@ -536,7 +554,8 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null,
             Rect rect = null,
             Curve curve = null,
-            TimeSpan? duration = null
+            TimeSpan? duration = null,
+            VoidCallback onEnd = null
         ) {
             return new AnimatedPositioned(
                 child: child,
@@ -548,7 +567,8 @@ namespace Unity.UIWidgets.widgets {
                 width: rect.width,
                 height: rect.height,
                 curve: curve ?? Curves.linear,
-                key: key
+                key: key,
+                onEnd: onEnd
             );
         }
 
@@ -638,8 +658,9 @@ namespace Unity.UIWidgets.widgets {
             float? width = null,
             float? height = null,
             Curve curve = null,
-            TimeSpan? duration = null
-        ) : base(key: key, curve: curve, duration: duration) {
+            TimeSpan? duration = null,
+            VoidCallback onEnd = null
+        ) : base(key: key, curve: curve, duration: duration, onEnd: onEnd) {
             D.assert(start == null || end == null || width == null);
             D.assert(top == null || bottom == null || height == null);
             this.child = child;
@@ -734,9 +755,10 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null,
             float? opacity = null,
             Curve curve = null,
-            TimeSpan? duration = null
+            TimeSpan? duration = null,
+            VoidCallback onEnd = null
         ) :
-            base(key: key, curve: curve ?? Curves.linear, duration: duration) {
+            base(key: key, curve: curve ?? Curves.linear, duration: duration, onEnd: onEnd) {
             D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0);
             this.child = child;
             this.opacity = opacity ?? 1.0f;
@@ -777,6 +799,53 @@ namespace Unity.UIWidgets.widgets {
                 child: widget.child
             );
         }
+    }
+    
+    public class SliverAnimatedOpacity : ImplicitlyAnimatedWidget {
+
+        protected SliverAnimatedOpacity(
+            Key key = null,
+            Widget sliver = null,
+            float opacity = default,
+            Curve curve = null,//Curve curve = Curve.linear
+            TimeSpan duration = default,
+            VoidCallback onEnd = null
+        ) : base(key: key, curve: curve, duration: duration, onEnd: onEnd) {
+            D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0);
+        }
+          
+      public readonly Widget sliver;
+      public readonly float opacity;
+      
+      public override State createState() {
+          return new _SliverAnimatedOpacityState();
+      }
+      
+      public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+        base.debugFillProperties(properties);
+        properties.add(new FloatProperty("opacity", opacity));
+      }
+    }
+
+    class _SliverAnimatedOpacityState : ImplicitlyAnimatedWidgetState<SliverAnimatedOpacity> {
+        FloatTween _opacity;
+        Animation<float> _opacityAnimation;
+        
+      protected override void forEachTween(TweenVisitor visitor) {
+        _opacity = (FloatTween) visitor.visit(this,_opacity, widget.opacity, (float value) => new FloatTween(begin: value, 0));
+      }
+      
+      protected override void didUpdateTweens() {
+        _opacityAnimation = animation.drive(_opacity);
+      }
+
+      
+      public override Widget build(BuildContext context) {
+        return new SliverFadeTransition(
+          opacity: _opacityAnimation,
+          sliver: widget.sliver
+        );
+      }
     }
 
     public class AnimatedDefaultTextStyle : ImplicitlyAnimatedWidget {

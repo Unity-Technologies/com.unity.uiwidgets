@@ -5,93 +5,96 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     public delegate Widget LayoutWidgetBuilder(BuildContext context, BoxConstraints constraints);
+    public abstract class ConstrainedLayoutBuilder<ConstraintType> : RenderObjectWidget where ConstraintType : Constraints {
+        public delegate Widget ConstraintBuilder(BuildContext context, ConstraintType constraints);
 
-    public class LayoutBuilder : RenderObjectWidget {
-        public LayoutBuilder(
+        
+        public ConstrainedLayoutBuilder(
             Key key = null,
-            LayoutWidgetBuilder builder = null) : base(key: key) {
+            ConstraintBuilder builder = null
+        ) : base(key: key) {
             D.assert(builder != null);
             this.builder = builder;
         }
 
-        public readonly LayoutWidgetBuilder builder;
-
         public override Element createElement() {
-            return new _LayoutBuilderElement(this);
+            return new _LayoutBuilderElement<ConstraintType>(this);
         }
 
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new _RenderLayoutBuilder();
-        }
+        public readonly ConstraintBuilder builder;
+
     }
 
-    class _LayoutBuilderElement : RenderObjectElement {
-        public _LayoutBuilderElement(
-            LayoutBuilder widget) : base(widget) {
+
+    public class _LayoutBuilderElement<ConstraintType> :  RenderObjectElement
+        where ConstraintType : Constraints {
+        public _LayoutBuilderElement(ConstrainedLayoutBuilder<ConstraintType> widget) 
+            : base(widget) {
         }
 
-        new LayoutBuilder widget {
-            get { return (LayoutBuilder) base.widget; }
+        public new ConstrainedLayoutBuilder<ConstraintType> widget {
+            get {
+                return base.widget as ConstrainedLayoutBuilder<ConstraintType>;
+            }
         }
-
-        new _RenderLayoutBuilder renderObject {
-            get { return (_RenderLayoutBuilder) base.renderObject; }
+        public new RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject> renderObject {
+            get { return base.renderObject as RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject>;}
         }
-
         Element _child;
 
         public override void visitChildren(ElementVisitor visitor) {
-            if (_child != null) {
+            if (_child != null)
                 visitor(_child);
-            }
         }
 
         internal override void forgetChild(Element child) {
             D.assert(child == _child);
             _child = null;
+            base.forgetChild(child);
         }
-
         public override void mount(Element parent, object newSlot) {
-            base.mount(parent, newSlot);
-            renderObject.callback = _layout;
+            base.mount(parent, newSlot); // Creates the renderObject.
+            renderObject.updateCallback(_layout);
         }
 
         public override void update(Widget newWidget) {
+            newWidget = (ConstrainedLayoutBuilder<ConstraintType>) newWidget;
             D.assert(widget != newWidget);
             base.update(newWidget);
             D.assert(widget == newWidget);
-            renderObject.callback = _layout;
+            renderObject.updateCallback(_layout);
             renderObject.markNeedsLayout();
         }
 
         protected override void performRebuild() {
             renderObject.markNeedsLayout();
-            base.performRebuild();
+            base.performRebuild(); // Calls widget.updateRenderObject (a no-op in this case).
         }
 
         public override void unmount() {
-            renderObject.callback = null;
+            renderObject.updateCallback(null);
             base.unmount();
         }
 
-        void _layout(BoxConstraints constraints) {
-            owner.buildScope(this, () => {
+        
+        public void _layout(ConstraintType constraints) {
+            owner.buildScope(this, ()=> {
                 Widget built = null;
                 if (widget.builder != null) {
-                    built = widget.builder(this, constraints);
+                    built = widget.builder(this, constraints); 
                     WidgetsD.debugWidgetBuilderValue(widget, built);
                 }
-
-                _child = updateChild(_child, built, null);
+                _child = updateChild(_child, built, null); 
                 D.assert(_child != null);
+                
             });
         }
 
         protected override void insertChildRenderObject(RenderObject child, object slot) {
-            _RenderLayoutBuilder renderObject = this.renderObject;
+            RenderObjectWithChildMixin<RenderObject> renderObject = this.renderObject;
             D.assert(slot == null);
             D.assert(renderObject.debugValidateChild(child));
-            renderObject.child = (RenderBox) child;
+            renderObject.child = child;
             D.assert(renderObject == this.renderObject);
         }
 
@@ -100,17 +103,61 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
-            _RenderLayoutBuilder renderObject = this.renderObject;
+            RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject> renderObject = this.renderObject;
             D.assert(renderObject.child == child);
             renderObject.child = null;
             D.assert(renderObject == this.renderObject);
         }
+
     }
 
+    public interface RenderConstrainedLayoutBuilder<ConstraintType,ChildType>
+        where ConstraintType : Constraints 
+        where ChildType : RenderObject
+    {
 
-    public class _RenderLayoutBuilder : RenderObjectWithChildMixinRenderBox<RenderBox> {
+        LayoutCallback<ConstraintType> _callback { get; set; }
+
+        void updateCallback(LayoutCallback<ConstraintType> value);
+
+        void layoutAndBuildChild();
+    }
+
+    public class LayoutBuilder : ConstrainedLayoutBuilder<BoxConstraints> {
+        public LayoutBuilder(
+            Key key = null,
+            ConstraintBuilder builder = null
+            ) : base(key: key, builder: builder) {
+            D.assert(builder != null);
+        }
+
+        public static LayoutBuilder Create(
+            LayoutWidgetBuilder builder,
+            Key key = null
+            ) {
+            ConstraintBuilder _builder = (context, constraints) => {
+                return builder(context, (BoxConstraints)constraints);
+            };
+            return new LayoutBuilder(key,_builder);
+        }
+
+        public new LayoutWidgetBuilder builder {
+            get {
+                LayoutWidgetBuilder  _builder = (context, constraints) => {
+                    return base.builder(context, (BoxConstraints) constraints);
+                };
+                return _builder;
+            }
+        }
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new _RenderLayoutBuilder();
+        }
+    }
+    
+    public class _RenderLayoutBuilder : RenderConstrainedLayoutBuilderMixinRenderBox<BoxConstraints, RenderBox> {
         public _RenderLayoutBuilder(
-            LayoutCallback<BoxConstraints> callback = null) {
+            LayoutCallback<BoxConstraints> callback = null) { 
             _callback = callback;
         }
 
@@ -143,17 +190,17 @@ namespace Unity.UIWidgets.widgets {
             return true;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             D.assert(_debugThrowIfNotCheckingIntrinsics());
             return 0.0f;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             D.assert(_debugThrowIfNotCheckingIntrinsics());
             return 0.0f;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             D.assert(_debugThrowIfNotCheckingIntrinsics());
             return 0.0f;
         }

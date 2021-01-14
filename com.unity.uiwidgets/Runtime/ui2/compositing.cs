@@ -198,7 +198,8 @@ namespace Unity.UIWidgets.ui {
             });
             return true;
         }
-
+        
+        
         public unsafe TransformEngineLayer pushTransform(
             float[] matrix4,
             TransformEngineLayer oldLayer = null
@@ -278,6 +279,25 @@ namespace Unity.UIWidgets.ui {
             D.assert(_debugPushLayer(layer));
             return layer;
         }
+        public ShaderMaskEngineLayer pushShaderMask(
+            Shader shader,
+            Rect maskRect,
+            BlendMode blendMode, 
+            ShaderMaskEngineLayer oldLayer = null
+        ) {
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushShaderMask")); 
+            ShaderMaskEngineLayer layer = new ShaderMaskEngineLayer(SceneBuilder_pushShaderMask(
+                _ptr,
+                shader._ptr,
+                maskRect.left,
+                maskRect.right,
+                maskRect.top,
+                maskRect.bottom,
+                (int)blendMode
+            ));
+            D.assert(_debugPushLayer(layer));
+            return layer;
+        }
 
         public PhysicalShapeEngineLayer pushPhysicalShape(
             Path path,
@@ -287,7 +307,13 @@ namespace Unity.UIWidgets.ui {
             Clip clipBehavior = Clip.none,
             PhysicalShapeEngineLayer oldLayer = null) {
             D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "PhysicalShapeEngineLayer"));
-            PhysicalShapeEngineLayer layer = new PhysicalShapeEngineLayer(SceneBuilder_pushPhysicalShape(_ptr, path._ptr, elevation, (int)color.value, (int)(shadowColor?.value ?? 0xFF000000), (int)clipBehavior));
+            PhysicalShapeEngineLayer layer = new PhysicalShapeEngineLayer(
+                SceneBuilder_pushPhysicalShape(_ptr, 
+                    path._ptr, 
+                    elevation, 
+                    (int)color.value, 
+                    (int)(shadowColor?.value ?? 0xFF000000), 
+                    (int)clipBehavior));
             D.assert(_debugPushLayer(layer));
             return layer;
         }
@@ -386,7 +412,17 @@ namespace Unity.UIWidgets.ui {
         [DllImport(NativeBindings.dllName)]
         static extern void SceneBuilder_addPerformanceOverlay(int enabledOptions, float left, float right, float top,
             float bottom);
-
+        
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushShaderMask(
+            IntPtr ptr,
+            IntPtr shader,
+            float maskRectLeft, 
+            float maskRectRight,
+            float maskRectTop, 
+            float maskRectBottom,
+            int blendMod);
+        
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_pushPhysicalShape(IntPtr ptr, IntPtr path, float evelation, int color,
             int shadowColor, int clipBehavior);

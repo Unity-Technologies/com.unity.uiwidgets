@@ -82,18 +82,17 @@ namespace Unity.UIWidgets.widgets {
 
         public static bool debugCheckHasMediaQuery(BuildContext context) {
             D.assert(() => {
-                if (!(context.widget is MediaQuery) && context.ancestorWidgetOfExactType(typeof(MediaQuery)) == null) {
-                    Element element = (Element) context;
-                    throw new UIWidgetsError(
-                        "No MediaQuery widget found.\n" +
-                        context.widget.GetType() + " widgets require a MediaQuery widget ancestor.\n" +
-                        "The specific widget that could not find a MediaQuery ancestor was:\n" +
-                        "  " + context.widget + "\n" +
-                        "The ownership chain for the affected widget is:\n" +
-                        "  " + element.debugGetCreatorChain(10) + "\n" +
-                        "Typically, the MediaQuery widget is introduced by the MaterialApp or " +
-                        "WidgetsApp widget at the top of your application widget tree."
-                    );
+                if (!(context.widget is MediaQuery) && context.findAncestorWidgetOfExactType<MediaQuery>() == null) {
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary("No MediaQuery widget found."),
+                        new ErrorDescription($"{context.widget.GetType()} widgets require a MediaQuery widget ancestor."),
+                        context.describeWidget("The specific widget that could not find a MediaQuery ancestor was"),
+                        context.describeOwnershipChain("The ownership chain for the affected widget is"),
+                        new ErrorHint(
+                            "Typically, the MediaQuery widget is introduced by the MaterialApp or " +
+                            "WidgetsApp widget at the top of your application widget tree."
+                        )
+                    });
                 }
 
                 return true;
@@ -104,21 +103,21 @@ namespace Unity.UIWidgets.widgets {
         public static bool debugCheckHasDirectionality(BuildContext context) {
             D.assert(() => {
                 if (!(context.widget is Directionality) &&
-                    context.ancestorWidgetOfExactType(typeof(Directionality)) == null) {
-                    Element element = (Element) context;
-                    throw new UIWidgetsError(
-                        "No Directionality widget found.\n" +
-                        context.widget.GetType() + " widgets require a Directionality widget ancestor.\n" +
-                        "The specific widget that could not find a Directionality ancestor was:\n" +
-                        "  " + context.widget + "\n" +
-                        "The ownership chain for the affected widget is:\n" +
-                        "  " + element.debugGetCreatorChain(10) + "\n" +
-                        "Typically, the Directionality widget is introduced by the MaterialApp " +
-                        "or WidgetsApp widget at the top of your application widget tree. It " +
-                        "determines the ambient reading direction and is used, for example, to " +
-                        "determine how to lay out text, how to interpret \"start\" and \"end\" " +
-                        "values, and to resolve EdgeInsetsDirectional, " +
-                        "AlignmentDirectional, and other *Directional objects.");
+                    context.findAncestorWidgetOfExactType<Directionality>() == null) {
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("No Directionality widget found."),
+                        new ErrorDescription("${context.widget.runtimeType} widgets require a Directionality widget ancestor.\n"),
+                        context.describeWidget("The specific widget that could not find a Directionality ancestor was"),
+                        context.describeOwnershipChain("The ownership chain for the affected widget is"),
+                        new ErrorHint(
+                            "Typically, the Directionality widget is introduced by the MaterialApp " +
+                            "or WidgetsApp widget at the top of your application widget tree. It " +
+                            "determines the ambient reading direction and is used, for example, to " +
+                            "determine how to lay out text, how to interpret \"start\" and \"end\" " +
+                            "values, and to resolve EdgeInsetsDirectional, " +
+                            "AlignmentDirectional, and other *Directional objects."
+                        )
+                    });
                 }
 
                 return true;

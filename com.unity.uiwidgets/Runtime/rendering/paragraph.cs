@@ -292,12 +292,12 @@ namespace Unity.UIWidgets.rendering {
             get { return _textPainter.size; }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             _layoutText();
             return _textPainter.minIntrinsicWidth;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             _layoutText();
             return _textPainter.maxIntrinsicWidth;
         }
@@ -307,7 +307,7 @@ namespace Unity.UIWidgets.rendering {
             return _textPainter.height;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return _computeIntrinsicHeight(width);
         }
 

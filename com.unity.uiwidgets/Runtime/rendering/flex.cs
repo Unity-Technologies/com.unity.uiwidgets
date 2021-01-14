@@ -166,6 +166,12 @@ namespace Unity.UIWidgets.rendering {
         public TextBaseline _textBaseline;
 
         public float _overflow;
+        
+        bool _hasOverflow {
+            get {
+                return _overflow > foundation_.precisionErrorTolerance;
+            }
+        } 
 
         public override void setupParentData(RenderObject child) {
             if (!(child.parentData is FlexParentData)) {
@@ -250,7 +256,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return _getIntrinsicSize(
                 sizingDirection: Axis.horizontal,
                 extent: height,
@@ -258,7 +264,7 @@ namespace Unity.UIWidgets.rendering {
             );
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return _getIntrinsicSize(
                 sizingDirection: Axis.horizontal,
                 extent: height,
@@ -266,7 +272,7 @@ namespace Unity.UIWidgets.rendering {
             );
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return _getIntrinsicSize(
                 sizingDirection: Axis.vertical,
                 extent: width,
@@ -596,7 +602,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (_overflow <= 0.0f) {
+            if (!_hasOverflow) {
                 defaultPaint(context, offset);
                 return;
             }
