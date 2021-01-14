@@ -128,11 +128,11 @@ namespace Unity.UIWidgets.widgets {
         ) {
             D.assert(placeholder != null);
             D.assert(image != null);
-            fadeOutDuration ??= new TimeSpan(0, 0, 0, 0, 300);
-            fadeOutCurve ??= Curves.easeOut;
-            fadeInDuration ??= new TimeSpan(0, 0, 0, 0, 700);
+            fadeOutDuration = fadeOutDuration ?? new TimeSpan(0, 0, 0, 0, 300);
+            fadeOutCurve = fadeOutCurve ?? Curves.easeOut;
+            fadeInDuration = fadeInDuration ?? new TimeSpan(0, 0, 0, 0, 700);
             fadeInCurve = Curves.easeIn;
-            alignment ??= Alignment.center;
+            alignment = alignment ?? Alignment.center;
             var imageProvider = placeholderScale != null
                 ? new ExactAssetImage(placeholder, bundle: bundle, scale: placeholderScale ?? 1.0f)
                 : (ImageProvider) new AssetImage(placeholder, bundle: bundle);

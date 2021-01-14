@@ -163,7 +163,7 @@ namespace Unity.UIWidgets.widgets {
             ToolbarOptions toolbarOptions = null,
             bool unityTouchKeyboard = false
         ) : base(key) {
-            toolbarOptions ??= new ToolbarOptions(
+            toolbarOptions = toolbarOptions ?? new ToolbarOptions(
                 copy: true,
                 cut: true,
                 paste: true,
@@ -206,8 +206,8 @@ namespace Unity.UIWidgets.widgets {
             D.assert(dragStartBehavior != null);
             D.assert(toolbarOptions != null);
             _strutStyle = strutStyle;
-            inputFormatters ??= new List<TextInputFormatter>();
-            keyboardType ??= (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
+            inputFormatters = inputFormatters ?? new List<TextInputFormatter>();
+            keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
             List<TextInputFormatter> formatters = new List<TextInputFormatter>();
             if (inputFormatters == null) {
                 formatters = inputFormatters;
