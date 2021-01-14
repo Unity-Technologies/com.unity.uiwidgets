@@ -58,7 +58,7 @@ namespace UIWidgetsSample
             public override Widget build(BuildContext context)
             {
                 return new Container(
-                    color: Color.black,
+                    color: Color.fromARGB(255, 255, 0, 0),
                     child: new Column(
                         children: new List<Widget>
                         {
@@ -75,7 +75,7 @@ namespace UIWidgetsSample
                                 },
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(20, 20),
-                                    color: counter % 2 == 0 ? Color.white : Color.black,
+                                    color: counter % 2 == 0 ? Color.fromARGB(255, 0, 255, 0) : Color.fromARGB(255, 0, 0, 255),
                                     child: new Text("Click Me",
                                         style: new TextStyle(fontFamily: "racher", fontWeight: FontWeight.w100))
                                 )
