@@ -64,10 +64,10 @@ namespace Unity.UIWidgets.widgets {
             base.initInstances();
             instance = this;
 
-            // D.assert(() => {
-            //     _debugAddStackFilters();
-            //     return true;
-            // }());
+            D.assert(() => {
+                // _debugAddStackFilters();
+                return true;
+            });
 
             _buildOwner = new BuildOwner();
             buildOwner.onBuildScheduled = _handleBuildScheduled;

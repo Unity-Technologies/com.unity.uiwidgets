@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -254,7 +253,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         void setPlaceholderDimensions(List<PlaceholderDimensions> value) {
-            if (value == null || value.isEmpty() || value.SequenceEqual(_placeholderDimensions)) {
+            if (value == null || value.isEmpty() || value.equalsList(_placeholderDimensions)) {
                 return;
             }
 
