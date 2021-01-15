@@ -202,7 +202,6 @@ namespace Unity.UIWidgets.rendering {
                 child = sliver;
                 D.assert(ignoring != null);
                 _ignoring = ignoring;
-                _ignoringSemantics = ignoringSemantics;
         }
 
 
@@ -219,26 +218,6 @@ namespace Unity.UIWidgets.rendering {
         }
         bool _ignoring;
 
-
-        public bool? ignoringSemantics {
-            get { return _ignoringSemantics; }
-            set {
-                if (value == _ignoringSemantics)
-                    return ;
-                bool oldEffectiveValue = _effectiveIgnoringSemantics;
-                _ignoringSemantics = value;
-                //if (oldEffectiveValue != _effectiveIgnoringSemantics)
-                //    markNeedsSemanticsUpdate();
-                
-            }
-        }
-        bool? _ignoringSemantics;
-
-
-        bool _effectiveIgnoringSemantics {
-            get { return ignoringSemantics ?? ignoring; }
-        }
-
         public override bool hitTest(SliverHitTestResult result, float mainAxisPosition = 0, float crossAxisPosition = 0) { 
             return !ignoring && base.hitTest(
                 result,
@@ -253,7 +232,6 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<bool>("ignoring", ignoring));
-            properties.add(new DiagnosticsProperty<bool>("ignoringSemantics", _effectiveIgnoringSemantics, description: ignoringSemantics == null ? $"implicitly {_effectiveIgnoringSemantics}" : null));
         }
     }
     public class RenderSliverOffstage : RenderProxySliver {

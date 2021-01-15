@@ -386,33 +386,27 @@ namespace Unity.UIWidgets.widgets {
         public SliverIgnorePointer(
             Key key = null,
             bool ignoring = true,
-            bool? ignoringSemantics = null,
             Widget sliver = null
         ) : base(key: key, child: sliver) {
             D.assert(ignoring != null);
             this.ignoring = ignoring;
-            this.ignoringSemantics = ignoringSemantics;
 
         }
 
         public readonly bool ignoring;
-        public readonly bool? ignoringSemantics;
 
         public override RenderObject  createRenderObject(BuildContext context) {
             return new RenderSliverIgnorePointer(
-              ignoring: ignoring,
-              ignoringSemantics: ignoringSemantics
+              ignoring: ignoring
             );
         }
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             renderObject = (RenderSliverIgnorePointer) renderObject;
             ((RenderSliverIgnorePointer)renderObject).ignoring = ignoring;
-            ((RenderSliverIgnorePointer)renderObject).ignoringSemantics = ignoringSemantics;
         }
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<bool>("ignoring", ignoring));
-            properties.add(new DiagnosticsProperty<bool>("ignoringSemantics", (bool)ignoringSemantics, defaultValue: null));
         }
     }
     public class SliverOffstage : SingleChildRenderObjectWidget {
@@ -463,31 +457,24 @@ namespace Unity.UIWidgets.widgets {
         public SliverOpacity(
             Key key = null,
             float opacity = 0f,
-            bool alwaysIncludeSemantics = false,
             Widget sliver = null) : base(key: key, child: sliver) { 
-            D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0); 
-            D.assert(alwaysIncludeSemantics != null);
+            D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0);
             this.opacity = opacity;
-            this.alwaysIncludeSemantics = alwaysIncludeSemantics;
         }
 
         public readonly float opacity;
-        public readonly bool alwaysIncludeSemantics;
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderSliverOpacity(
-              opacity: opacity,
-              alwaysIncludeSemantics: alwaysIncludeSemantics
+              opacity: opacity
             );
         }
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             renderObject = (RenderSliverOpacity) renderObject;
             ((RenderSliverOpacity) renderObject).opacity = opacity;
-            ((RenderSliverOpacity) renderObject).alwaysIncludeSemantics = alwaysIncludeSemantics;
         }
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) { 
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<float>("opacity", opacity));
-            properties.add(new FlagProperty("alwaysIncludeSemantics", value: alwaysIncludeSemantics, ifTrue: "alwaysIncludeSemantics"));
         }
     }
 
