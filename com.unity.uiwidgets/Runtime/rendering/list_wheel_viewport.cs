@@ -439,7 +439,7 @@ namespace Unity.UIWidgets.rendering {
                 minWidth: 0.0f
             );
 
-            float visibleHeight = size.height;
+            float visibleHeight = size.height * _squeeze;
             if (renderChildrenOutsideViewport) {
                 visibleHeight *= 2;
             }
@@ -565,7 +565,7 @@ namespace Unity.UIWidgets.rendering {
 
             float fractionalY = (untransformedPaintingCoordinates.dy + _itemExtent / 2.0f) / size.height;
 
-            float angle = -(fractionalY - 0.5f) * 2.0f * _maxVisibleRadian;
+            float angle = -(fractionalY - 0.5f) * 2.0f * _maxVisibleRadian / squeeze;
             if (angle > Mathf.PI / 2.0f || angle < -Mathf.PI / 2.0f) {
                 return;
             }
@@ -585,18 +585,11 @@ namespace Unity.UIWidgets.rendering {
             Offset offsetToCenter =
                 new Offset(untransformedPaintingCoordinates.dx, -deltaY - _topScrollMarginExtent);
 
-            if (!useMagnifier) {
+            bool shouldApplyOffCenterDim = overAndUnderCenterOpacity < 1;
+            if (useMagnifier || shouldApplyOffCenterDim) {
+                _paintChildWithMagnifier(context, offset, child, transform, offsetToCenter, untransformedPaintingCoordinates);
+            } else {
                 _paintChildCylindrically(context, offset, child, transform, offsetToCenter);
-            }
-            else {
-                _paintChildWithMagnifier(
-                    context,
-                    offset,
-                    child,
-                    transform,
-                    offsetToCenter,
-                    untransformedPaintingCoordinates
-                );
             }
         }
 
@@ -631,24 +624,22 @@ namespace Unity.UIWidgets.rendering {
                     magnifierTopLinePosition);
 
                 context.pushClipRect(
-                    false,
+                    needsCompositing,
                     offset,
                     centerRect,
                     (PaintingContext context1, Offset offset1) => {
                         context1.pushTransform(
-                            false,
+                            needsCompositing,
                             offset1,
                             cylindricalTransform,
                             // this._centerOriginTransform(cylindricalTransform),
                             (PaintingContext context2, Offset offset2) => {
-                                context2.paintChild(
-                                    child,
-                                    offset2 + untransformedPaintingCoordinates);
+                                context2.paintChild(child, offset2 + untransformedPaintingCoordinates);
                             });
                     });
 
                 context.pushClipRect(
-                    false,
+                    needsCompositing,
                     offset,
                     untransformedPaintingCoordinates.dy <= magnifierTopLinePosition
                         ? topHalfRect
@@ -683,13 +674,12 @@ namespace Unity.UIWidgets.rendering {
             Matrix4 cylindricalTransform,
             Offset offsetToCenter
         ) {
-            context.pushTransform(
-                false,
-                offset,
-                cylindricalTransform,
-                // this._centerOriginTransform(cylindricalTransform),
-                (PaintingContext _context, Offset _offset) => { _context.paintChild(child, _offset + offsetToCenter); }
-            );
+            PaintingContextCallback painter = (PaintingContext _context, Offset _offset) => {
+                _context.paintChild(
+                    child,
+                    _offset + offsetToCenter
+                );
+            };
         }
 
         public override Rect describeApproximatePaintClip(RenderObject child) {
@@ -717,7 +707,7 @@ namespace Unity.UIWidgets.rendering {
 
             ListWheelParentData parentData = (ListWheelParentData) child.parentData;
             float targetOffset = parentData.offset.dy;
-            Matrix4 transform = target.getTransformTo(this);
+            Matrix4 transform = target.getTransformTo(child);
             Rect bounds = MatrixUtils.transformRect(transform, rect);
             Rect targetRect = bounds.translate(0.0f, (size.height - itemExtent) / 2);
 
