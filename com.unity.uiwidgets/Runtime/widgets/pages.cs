@@ -58,8 +58,7 @@ namespace Unity.UIWidgets.widgets {
             bool fullscreenDialog = false
         ) : base(settings,fullscreenDialog) {
             D.assert(pageBuilder != null);
-            D.assert(transitionsBuilder != null);
-            
+
             this.opaque = opaque;
             this.pageBuilder = pageBuilder;
             this.transitionsBuilder = transitionsBuilder ?? PagesUtils._defaultTransitionsBuilder;

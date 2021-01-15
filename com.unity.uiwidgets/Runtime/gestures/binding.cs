@@ -7,7 +7,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.gestures {
-    public class GestureBinding : SchedulerBinding, HitTestable, HitTestDispatcher, HitTestTarget {
+    public class GestureBinding : BindingBase, HitTestable, HitTestDispatcher, HitTestTarget {
 
         protected override void initInstances() {
             base.initInstances();

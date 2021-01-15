@@ -8,14 +8,14 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string toStringShort() {
-            return GetType().ToString();
+            return foundation_.objectRuntimeType(this, "Decoration");
         }
 
         public virtual bool debugAssertIsValid() {
             return true;
         }
 
-        public virtual EdgeInsets padding {
+        public virtual EdgeInsetsGeometry padding {
             get { return EdgeInsets.zero; }
         }
 

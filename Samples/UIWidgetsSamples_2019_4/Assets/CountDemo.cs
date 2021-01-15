@@ -6,6 +6,7 @@ using Unity.UIWidgets.widgets;
 using UnityEngine.UI;
 using Text = Unity.UIWidgets.widgets.Text;
 using ui_ = Unity.UIWidgets.widgets.ui_;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace UIWidgetsSample
 {
@@ -47,10 +48,10 @@ namespace UIWidgetsSample
         public override Widget build(BuildContext context)
         {
             return new Container(
-                color: Color.white,
+                color: Color.fromARGB(255, 255, 0, 0),
                 child: new Column(children: new List<Widget>()
                     {
-                        new Text($"count: {count}"),
+                        new Text($"count: {count}", style: new TextStyle(color: Color.fromARGB(255, 0 ,0 ,255))),
                         new CupertinoButton(
                             onPressed: () =>
                             {
@@ -60,7 +61,7 @@ namespace UIWidgetsSample
                                 });
                             },
                             child: new Container(
-                                color: Color.black,
+                                color: Color.fromARGB(255,0 , 255, 0),
                                 width: 100,
                                 height: 40
                             )

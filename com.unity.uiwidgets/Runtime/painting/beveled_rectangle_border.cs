@@ -19,14 +19,14 @@ namespace Unity.UIWidgets.painting {
 
         public readonly BorderRadius borderRadius;
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.all(side.width); }
         }
 
         public override ShapeBorder scale(float t) {
             return new BeveledRectangleBorder(
                 side: side.scale(t),
-                borderRadius: borderRadius * t
+                borderRadius: (BorderRadius) (borderRadius * t)
             );
         }
 
@@ -83,15 +83,15 @@ namespace Unity.UIWidgets.painting {
             return path;
         }
 
-        public override Path getInnerPath(Rect rect) {
-            return _getPath(borderRadius.toRRect(rect).deflate(side.width));
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection = null) {
+            return _getPath(borderRadius.resolve(textDirection).toRRect(rect).deflate(side.width));
         }
 
-        public override Path getOuterPath(Rect rect) {
-            return _getPath(borderRadius.toRRect(rect));
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection = null) {
+            return _getPath(borderRadius.resolve(textDirection).toRRect(rect));
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection = null) {
             if (rect.isEmpty) {
                 return;
             }
@@ -100,8 +100,8 @@ namespace Unity.UIWidgets.painting {
                 case BorderStyle.none:
                     break;
                 case BorderStyle.solid:
-                    Path path = getOuterPath(rect);
-                    path.addPath(getInnerPath(rect), Offset.zero);
+                    Path path = getOuterPath(rect, textDirection);
+                    path.addPath(getInnerPath(rect, textDirection), Offset.zero);
                     canvas.drawPath(path, side.toPaint());
                     break;
             }

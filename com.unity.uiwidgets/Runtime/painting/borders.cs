@@ -207,7 +207,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{GetType()}({color}, {width:F1}, {style})";
+            return $"{foundation_.objectRuntimeType(this, "BorderSize")}({color}, {width:F1}, {style})";
         }
     }
 
@@ -215,7 +215,7 @@ namespace Unity.UIWidgets.painting {
         protected ShapeBorder() {
         }
 
-        public abstract EdgeInsets dimensions { get; }
+        public virtual EdgeInsetsGeometry dimensions { get; }
 
         public virtual ShapeBorder add(ShapeBorder other, bool reversed = false) {
             return null;
@@ -257,14 +257,14 @@ namespace Unity.UIWidgets.painting {
             return result ?? (t < 0.5 ? a : b);
         }
 
-        public abstract Path getOuterPath(Rect rect);
+        public abstract Path getOuterPath(Rect rect, TextDirection? textDirection = null);
 
-        public abstract Path getInnerPath(Rect rect);
+        public abstract Path getInnerPath(Rect rect, TextDirection? textDirection = null);
 
-        public abstract void paint(Canvas canvas, Rect rect);
+        public abstract void paint(Canvas canvas, Rect rect, TextDirection? textDirection);
 
         public override string ToString() {
-            return $"{GetType()}()";
+            return $"{foundation_.objectRuntimeType(this, "BorderShape")}()";
         }
     }
 
@@ -279,7 +279,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly List<ShapeBorder> borders;
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get {
                 return borders.Aggregate(
                     EdgeInsets.zero,
@@ -360,22 +360,22 @@ namespace Unity.UIWidgets.painting {
             return new _CompoundBorder(results);
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection = null) {
             for (int index = 0; index < borders.Count - 1; index += 1) {
-                rect = borders[index].dimensions.deflateRect(rect);
+                rect = borders[index].dimensions.resolve(textDirection).deflateRect(rect);
             }
 
             return borders.Last().getInnerPath(rect);
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection = null) {
             return borders.First().getOuterPath(rect);
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection = null) {
             foreach (ShapeBorder border in borders) {
-                border.paint(canvas, rect);
-                rect = border.dimensions.deflateRect(rect);
+                border.paint(canvas, rect, textDirection);
+                rect = border.dimensions.resolve(textDirection).deflateRect(rect);
             }
         }
 

@@ -131,6 +131,20 @@ namespace Unity.UIWidgets.foundation {
                 }*/
             }
         }
+        
+        public static int? debugFloatPrecision;
+
+        public static string debugFormatFloat(float? value) {
+            if (value == null) {
+                return "null";
+            }
+
+            if (debugFloatPrecision != null) {
+                return value.Value.ToString($"N{debugFloatPrecision}");
+            }
+
+            return value.Value.ToString($"N1");
+        }
     }
 
     [Serializable]

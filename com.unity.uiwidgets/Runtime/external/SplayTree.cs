@@ -114,6 +114,32 @@ namespace Unity.UIWidgets.external
 
             return new KeyValuePair<TKey, TValue>(t.Key, t.Value);
         }
+        
+        public TKey lastKeyBefore(TKey key) {
+            if (key == null) throw new Exception("should input null");
+            if (root == null) throw new Exception("root is null");
+            int comp = Splay(key);
+            if (comp < 0) return root.Key;
+            SplayTreeNode node = root.LeftChild;
+            if (node == null) throw new Exception("does not exist");
+            while (node.RightChild != null) {
+                node = node.RightChild;
+            }
+            return node.Key;
+        }
+        
+        public TKey firstKeyAfter(TKey key) {
+            if (key == null) throw new Exception("should input null");
+            if (root == null) throw new Exception("root is null");
+            int comp = Splay(key);
+            if (comp > 0) return root.Key;
+            SplayTreeNode node = root.LeftChild;
+            if (node == null)  throw new Exception("does not exist");
+            while (node.LeftChild != null) {
+                node = node.LeftChild;
+            }
+            return node.Key;
+        }
 
         public KeyValuePair<TKey, TValue>? Last() {
             SplayTreeNode t = root;
@@ -141,12 +167,13 @@ namespace Unity.UIWidgets.external
             return new KeyValuePair<TKey, TValue>(t.Key, t.Value);
         }
 
-        void Splay(TKey key) {
+        int Splay(TKey key) {
             SplayTreeNode l, r, t, y, header;
             l = r = header = new SplayTreeNode(default(TKey), default(TValue));
             t = root;
+            int c;
             while (true) {
-                var c = key.CompareTo(t.Key);
+                c = key.CompareTo(t.Key);
                 if (c < 0) {
                     if (t.LeftChild == null) {
                         break;
@@ -195,6 +222,7 @@ namespace Unity.UIWidgets.external
             t.LeftChild = header.RightChild;
             t.RightChild = header.LeftChild;
             root = t;
+            return c;
         }
 
         public bool Remove(TKey key) {

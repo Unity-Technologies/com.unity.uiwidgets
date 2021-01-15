@@ -2534,6 +2534,7 @@ namespace Unity.UIWidgets.widgets {
         /// The [color] parameter must not be null.
         public ColoredBox(Color color = null, Widget child = null, Key key = null) : base(key: key, child: child) {
             D.assert(color != null);
+            this.color = color;
         }
         /// The color to paint the background area with.
         public readonly Color color;

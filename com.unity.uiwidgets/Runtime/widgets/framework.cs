@@ -2502,7 +2502,7 @@ namespace Unity.UIWidgets.widgets {
         static Widget _defaultErrorWidgetBuilder(UIWidgetsErrorDetails details) {
             string message = "";
             D.assert(() => {
-                message = _stringify(details.exception) + "\nSee also: https://flutter.dev/docs/testing/errors";
+                message = _stringify(details.exception);
                 return true;
             });
             object exception = details.exception;
@@ -2524,7 +2524,6 @@ namespace Unity.UIWidgets.widgets {
         readonly UIWidgetsError _uiWidgetsError;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            //return null;
             return new RenderErrorBox(message);
         }
 

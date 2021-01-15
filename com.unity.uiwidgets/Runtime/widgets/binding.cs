@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
@@ -65,10 +64,10 @@ namespace Unity.UIWidgets.widgets {
             base.initInstances();
             instance = this;
 
-            // D.assert(() => {
-            //     _debugAddStackFilters();
-            //     return true;
-            // }());
+            D.assert(() => {
+                // _debugAddStackFilters();
+                return true;
+            });
 
             _buildOwner = new BuildOwner();
             buildOwner.onBuildScheduled = _handleBuildScheduled;

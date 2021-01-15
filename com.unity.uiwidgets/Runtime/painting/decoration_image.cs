@@ -17,27 +17,33 @@ namespace Unity.UIWidgets.painting {
     public class DecorationImage : IEquatable<DecorationImage> {
         public DecorationImage(
             ImageProvider image = null,
+            ImageErrorListener onError = null,
             ColorFilter colorFilter = null,
             BoxFit? fit = null,
             Alignment alignment = null,
             Rect centerSlice = null,
-            ImageRepeat repeat = ImageRepeat.noRepeat
+            ImageRepeat repeat = ImageRepeat.noRepeat,
+            bool matchTextDirection = false
         ) {
             D.assert(image != null);
             this.image = image;
+            this.onError = onError;
             this.colorFilter = colorFilter;
             this.fit = fit;
             this.alignment = alignment ?? Alignment.center;
             this.centerSlice = centerSlice;
             this.repeat = repeat;
+            this.matchTextDirection = matchTextDirection;
         }
 
         public readonly ImageProvider image;
+        public readonly ImageErrorListener onError;
         public readonly ColorFilter colorFilter;
         public readonly BoxFit? fit;
         public readonly Alignment alignment;
         public readonly Rect centerSlice;
         public readonly ImageRepeat repeat;
+        public readonly bool matchTextDirection;
 
         public DecorationImagePainter createPainter(VoidCallback onChanged) {
             D.assert(onChanged != null);
@@ -142,11 +148,41 @@ namespace Unity.UIWidgets.painting {
             D.assert(rect != null);
             D.assert(configuration != null);
 
+            bool flipHorizontally = false;
+            if (_details.matchTextDirection) {
+                D.assert(() => {
+                    // We check this first so that the assert will fire immediately, not just
+                    // when the image is ready.
+                    if (configuration.textDirection == null) {
+                        throw new UIWidgetsError(new List<DiagnosticsNode>() {
+                            new ErrorSummary(
+                                "DecorationImage.matchTextDirection can only be used when a TextDirection is available."),
+                            new ErrorDescription(
+                                "When DecorationImagePainter.paint() was called, there was no text direction provided " +
+                                "in the ImageConfiguration object to match."
+                            ),
+                            new DiagnosticsProperty<DecorationImage>("The DecorationImage was", _details,
+                                style: DiagnosticsTreeStyle.errorProperty),
+                            new DiagnosticsProperty<ImageConfiguration>("The ImageConfiguration was", configuration,
+                                style: DiagnosticsTreeStyle.errorProperty)
+                        });
+                    }
+
+                    return true;
+                });
+                if (configuration.textDirection == TextDirection.rtl)
+                    flipHorizontally = true;
+            }
+
             ImageStream newImageStream = _details.image.resolve(configuration);
             if (newImageStream.key != _imageStream?.key) {
-                _imageStream?.removeListener(_imageListener);
+                ImageStreamListener listener = new ImageStreamListener(
+                    _handleImage,
+                    onError: _details.onError
+                );
+                _imageStream?.removeListener(listener);
                 _imageStream = newImageStream;
-                _imageStream.addListener(_imageListener);
+                _imageStream.addListener(listener);
             }
 
             if (_image == null) {
@@ -158,7 +194,7 @@ namespace Unity.UIWidgets.painting {
                 canvas.clipPath(clipPath);
             }
 
-            ImageUtils.paintImage(
+            painting_.paintImage(
                 canvas: canvas,
                 rect: rect,
                 image: _image.image,
@@ -167,7 +203,9 @@ namespace Unity.UIWidgets.painting {
                 fit: _details.fit,
                 alignment: _details.alignment,
                 centerSlice: _details.centerSlice,
-                repeat: _details.repeat
+                repeat: _details.repeat,
+                flipHorizontally: flipHorizontally,
+                filterQuality: FilterQuality.low
             );
 
             if (clipPath != null) {
@@ -175,7 +213,7 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        void _imageListener(ImageInfo value, bool synchronousCall) {
+        void _handleImage(ImageInfo value, bool synchronousCall) {
             if (_image == value) {
                 return;
             }
@@ -189,7 +227,10 @@ namespace Unity.UIWidgets.painting {
         }
 
         public void Dispose() {
-            _imageStream?.removeListener(_imageListener);
+            _imageStream?.removeListener(new ImageStreamListener(
+                _handleImage,
+                onError: _details.onError
+            ));
         }
 
         public override string ToString() {
@@ -197,7 +238,7 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
-    public static class ImageUtils {
+    public static partial class painting_ {
         public static void paintImage(
             Canvas canvas = null,
             Rect rect = null,
@@ -208,6 +249,7 @@ namespace Unity.UIWidgets.painting {
             Alignment alignment = null,
             Rect centerSlice = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
+            bool flipHorizontally = false,
             bool invertColors = false,
             FilterQuality filterQuality = FilterQuality.low
         ) {
@@ -263,13 +305,20 @@ namespace Unity.UIWidgets.painting {
 
             float halfWidthDelta = (outputSize.width - destinationSize.width) / 2.0f;
             float halfHeightDelta = (outputSize.height - destinationSize.height) / 2.0f;
-            float dx = halfWidthDelta + alignment.x * halfWidthDelta;
+            float dx = halfWidthDelta + (flipHorizontally ? -alignment.x : alignment.x) * halfWidthDelta;
             float dy = halfHeightDelta + alignment.y * halfHeightDelta;
             Offset destinationPosition = rect.topLeft.translate(dx, dy);
             Rect destinationRect = destinationPosition & destinationSize;
-            bool needSave = repeat != ImageRepeat.noRepeat;
+            bool needSave = repeat != ImageRepeat.noRepeat || flipHorizontally;
             if (needSave) {
                 canvas.save();
+            }
+
+            if (flipHorizontally) {
+                float dxInside = -(rect.left + rect.width / 2.0f);
+                canvas.translate(-dxInside, 0.0f);
+                canvas.scale(-1.0f, 1.0f);
+                canvas.translate(dxInside, 0.0f);
             }
 
             if (repeat != ImageRepeat.noRepeat) {
