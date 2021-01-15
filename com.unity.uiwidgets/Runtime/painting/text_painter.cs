@@ -91,7 +91,7 @@ namespace Unity.UIWidgets.painting {
             _textHeightBehavior = textHeightBehavior;
         }
 
-        void markNeedsLayout() {
+        public void markNeedsLayout() {
             _paragraph = null;
             _needsLayout = true;
             _previousCaretPosition = null;

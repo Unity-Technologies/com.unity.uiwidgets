@@ -37,7 +37,7 @@ namespace Unity.UIWidgets.painting {
         }
 
 
-        float horizontal {
+        public float horizontal {
             get { return _left + _right + _start + _end; }
         }
 
@@ -337,6 +337,9 @@ namespace Unity.UIWidgets.painting {
 
         public static EdgeInsetsDirectional only() {
             return new EdgeInsetsDirectional(0f, 0f, 0f, 0f);
+        }
+        public static EdgeInsetsDirectional only( float start = 0.0f, float top = 0.0f,float end = 0.0f,float bottom = 0.0f) {
+            return new EdgeInsetsDirectional(start,top,end,bottom);
         }
 
         static EdgeInsetsDirectional zero = only();
