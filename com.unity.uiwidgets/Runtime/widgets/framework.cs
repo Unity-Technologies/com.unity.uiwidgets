@@ -657,7 +657,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public abstract class ParentDataWidget<T> : ParentDataWidget where T : ParentData {
+    public abstract class ParentDataWidget<T> : ParentDataWidget where T : IParentData {
         public ParentDataWidget(Key key = null, Widget child = null)
             : base(key: key, child: child) {
         }
@@ -668,7 +668,7 @@ namespace Unity.UIWidgets.widgets {
         
 
         public override bool debugIsValidRenderObject(RenderObject renderObject) {
-            D.assert(typeof(T) != typeof(ParentData));
+            D.assert(typeof(T) != typeof(IParentData));
             return renderObject.parentData is T;
         }
 

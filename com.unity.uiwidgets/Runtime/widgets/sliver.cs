@@ -849,7 +849,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }*/
 
-    public class KeepAlive : ParentDataWidget<KeepAliveParentDataMixin> {
+    public class KeepAlive : ParentDataWidget<IKeepAliveParentDataMixin> {
         public KeepAlive(
             Key key = null,
             bool keepAlive = true,
@@ -862,11 +862,10 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool keepAlive;
 
         public override void applyParentData(RenderObject renderObject) {
-            D.assert(renderObject.parentData is SliverMultiBoxAdaptorParentData);
-           // SliverMultiBoxAdaptorParentData parentData = (SliverMultiBoxAdaptorParentData) renderObject.parentData;
-            KeepAliveParentDataMixin parentData = (KeepAliveParentDataMixin) renderObject.parentData ;
+            D.assert(renderObject.parentData is IKeepAliveParentDataMixin);
+            IKeepAliveParentDataMixin parentData = (IKeepAliveParentDataMixin) renderObject.parentData ;
    
-            if (((KeepAliveParentDataMixin)parentData).keepAlive != keepAlive) {
+            if (((IKeepAliveParentDataMixin)parentData).keepAlive != keepAlive) {
                 parentData.keepAlive = keepAlive;
                 var targetParent = renderObject.parent;
                 if (targetParent is RenderObject && !keepAlive) {
