@@ -101,7 +101,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         void _touch(Object key, _CachedImage image) {
-            D.assert(foundation_.kReleaseMode);
+            // D.assert(foundation_.kReleaseMode);
             if (image.sizeBytes != null && image.sizeBytes <= maximumSizeBytes) {
                 _currentSizeBytes += image.sizeBytes ?? 0;
                 _cache[key] = image;
@@ -136,7 +136,7 @@ namespace Unity.UIWidgets.painting {
                 return image.completer;
             }
 
-            _CachedImage liveImage = _liveImages[key];
+            _liveImages.TryGetValue(key, out var liveImage);
             if (liveImage != null) {
                 _touch(key, liveImage);
                 return liveImage.completer;
@@ -178,7 +178,7 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 if (untrackedPendingImage == null) {
-                    _touch(key, image);
+                    _touch(key, cachedImage);
                 }
 
                 listenedOnce = true;

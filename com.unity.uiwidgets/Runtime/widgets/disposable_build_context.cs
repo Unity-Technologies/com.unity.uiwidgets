@@ -4,9 +4,10 @@ namespace Unity.UIWidgets.widgets {
     
     public class DisposableBuildContext<T> where T : State{
 
-        public DisposableBuildContext(T state) {
+        public DisposableBuildContext(T _state) {
             D.assert(_state != null);
             D.assert(_state.mounted, () => "A DisposableBuildContext was given a BuildContext for an Element that is not mounted.");
+            this._state = _state;
         }
 
         T _state;

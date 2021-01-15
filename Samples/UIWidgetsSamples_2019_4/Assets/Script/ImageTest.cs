@@ -58,7 +58,6 @@ namespace UIWidgetsSample
             public override Widget build(BuildContext context)
             {
                 return new Container(
-                    color: Color.black,
                     child: new Column(
                         children: new List<Widget>
                         {
@@ -84,10 +83,10 @@ namespace UIWidgetsSample
                             new GestureDetector(
                                 onTap: () => { setState(() => { frame += 1; }); },
                                 child: new Container(
+                                    color: Color.black,
                                     padding: EdgeInsets.symmetric(20, 20),
-                                    color: Color.white,
                                     child: new Text("Click Me",
-                                        style: new TextStyle(fontWeight: FontWeight.w100))
+                                        style: new TextStyle(fontWeight: FontWeight.w700))
                                 )
                             )
                         }
