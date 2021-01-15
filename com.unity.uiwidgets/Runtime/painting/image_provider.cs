@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Unity.UIWidgets.async2;
@@ -11,12 +10,10 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.Networking;
 using Codec = Unity.UIWidgets.ui.Codec;
-using Image = Unity.UIWidgets.ui.Image;
 using Locale = Unity.UIWidgets.ui.Locale;
 using Object = UnityEngine.Object;
 using Path = System.IO.Path;
 using TextDirection = Unity.UIWidgets.ui.TextDirection;
-using Window = Unity.UIWidgets.ui.Window;
 
 namespace Unity.UIWidgets.painting {
     public static partial class painting_ {
@@ -570,7 +567,8 @@ namespace Unity.UIWidgets.painting {
 
         public static ImageProvider resizeIfNeeded(int? cacheWidth, int? cacheHeight, ImageProvider provider) {
             if (cacheWidth != null || cacheHeight != null) {
-                return new ResizeImage((ImageProvider<object>) provider, width: cacheWidth.Value, height: cacheHeight.Value);
+                return new ResizeImage((ImageProvider<object>) provider, width: cacheWidth.Value,
+                    height: cacheHeight.Value);
             }
 
             return provider;
@@ -646,14 +644,18 @@ namespace Unity.UIWidgets.painting {
             var completer = Completer.create();
             var isolate = Isolate.current;
             var panel = UIWidgetsPanel.current;
-            panel.StartCoroutine(_loadCoroutine(key.url, completer, isolate));
-            return completer.future.to<byte[]>().then_<byte[]>(data => {
-                if (data != null && data.Length > 0) {
-                    return decode(data);
-                }
+            if (panel.IsActive()) {
+                panel.StartCoroutine(_loadCoroutine(key.url, completer, isolate));
+                return completer.future.to<byte[]>().then_<byte[]>(data => {
+                    if (data != null && data.Length > 0) {
+                        return decode(data);
+                    }
 
-                throw new Exception("not loaded");
-            }).to<Codec>();
+                    throw new Exception("not loaded");
+                }).to<Codec>();
+            }
+
+            return new Future<Codec>(Future.create(() => FutureOr.value(null)));
         }
 
         IEnumerator _loadCoroutine(string key, Completer completer, Isolate isolate) {
