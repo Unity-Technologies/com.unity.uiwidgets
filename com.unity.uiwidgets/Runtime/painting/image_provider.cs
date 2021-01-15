@@ -222,7 +222,7 @@ namespace Unity.UIWidgets.painting {
                         );
                         return null;
                     });
-                   return null;
+                    return null;
                 }
             );
 
@@ -235,7 +235,6 @@ namespace Unity.UIWidgets.painting {
 
         void resolveStreamForKey(ImageConfiguration configuration, ImageStream stream, T key,
             ImageErrorListener handleError) {
-            
             if (stream.completer != null) {
                 ImageStreamCompleter completerEdge = PaintingBinding.instance.imageCache.putIfAbsent(
                     key,
@@ -558,7 +557,6 @@ namespace Unity.UIWidgets.painting {
             int width = 0,
             int height = 0
         ) {
-            D.assert(width != null || height != null);
             this.imageProvider = imageProvider;
             this.width = width;
             this.height = height;
@@ -570,9 +568,9 @@ namespace Unity.UIWidgets.painting {
 
         public readonly int height;
 
-        public static ImageProvider resizeIfNeeded(int cacheWidth, int cacheHeight, ImageProvider<object> provider) {
+        public static ImageProvider resizeIfNeeded(int? cacheWidth, int? cacheHeight, ImageProvider provider) {
             if (cacheWidth != null || cacheHeight != null) {
-                return new ResizeImage(provider, width: cacheWidth, height: cacheHeight);
+                return new ResizeImage((ImageProvider<object>) provider, width: cacheWidth.Value, height: cacheHeight.Value);
             }
 
             return provider;
@@ -799,7 +797,7 @@ namespace Unity.UIWidgets.painting {
 
         Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
             byte[] bytes = File.ReadAllBytes(Path.Combine(Application.streamingAssetsPath, key.file));
-            if (bytes != null && bytes.Length > 0 ) {
+            if (bytes != null && bytes.Length > 0) {
                 return decode(bytes);
             }
 
