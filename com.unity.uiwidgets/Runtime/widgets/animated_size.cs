@@ -41,7 +41,9 @@ namespace Unity.UIWidgets.widgets {
                 duration: duration,
                 reverseDuration: reverseDuration,
                 curve: curve,
-                vsync: vsync);
+                vsync: vsync,
+                textDirection: Directionality.of(context)
+                );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
@@ -51,6 +53,7 @@ namespace Unity.UIWidgets.widgets {
             _renderObject.reverseDuration = reverseDuration;
             _renderObject.curve = curve;
             _renderObject.vsync = vsync;
+            _renderObject.textDirection = Directionality.of(context);
         }
         
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {

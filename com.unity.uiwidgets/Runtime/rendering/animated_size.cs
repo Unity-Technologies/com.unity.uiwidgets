@@ -19,12 +19,12 @@ namespace Unity.UIWidgets.rendering {
             TimeSpan? duration = null,
             TimeSpan? reverseDuration = null,
             Curve curve = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null,
             RenderBox child = null
         ) : base(child: child, alignment: alignment ?? Alignment.center) {
             D.assert(vsync != null);
             D.assert(duration != null);
-
             curve = curve ?? Curves.linear;
             _vsync = vsync;
             _controller = new AnimationController(

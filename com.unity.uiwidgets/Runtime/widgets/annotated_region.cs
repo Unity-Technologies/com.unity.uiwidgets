@@ -2,12 +2,12 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 
 namespace Unity.UIWidgets.widgets {
-    public class AnnotatedRegion<T> : SingleChildRenderObjectWidget
-        where T : class {
+    public class AnnotatedRegion<T> : SingleChildRenderObjectWidget where T : class
+    {
         public AnnotatedRegion(
             Key key = null,
             Widget child = null,
-            T value = null,
+            T value = default,
             bool sized = true
         ) : base(key: key, child: child) {
             D.assert(value != null);
