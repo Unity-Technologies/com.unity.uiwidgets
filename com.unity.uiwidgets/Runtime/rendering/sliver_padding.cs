@@ -143,7 +143,7 @@ namespace Unity.UIWidgets.rendering {
                 paintExtent: paintExtent, 
                 layoutExtent: Mathf.Min(mainAxisPaddingPaintExtent + childLayoutGeometry.layoutExtent, paintExtent), 
                 cacheExtent: Mathf.Min(mainAxisPaddingCacheExtent + childLayoutGeometry.cacheExtent, constraints.remainingCacheExtent), 
-                maxPaintExtent: mainAxisPadding ?? 0.0f + childLayoutGeometry.maxPaintExtent, 
+                maxPaintExtent: (mainAxisPadding ?? 0.0f) + childLayoutGeometry.maxPaintExtent, 
                 hitTestExtent: Mathf.Max(
                     mainAxisPaddingPaintExtent + childLayoutGeometry.paintExtent, 
                     beforePaddingPaintExtent + childLayoutGeometry.hitTestExtent
