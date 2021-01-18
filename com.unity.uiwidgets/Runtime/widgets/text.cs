@@ -237,7 +237,9 @@ namespace Unity.UIWidgets.widgets {
             bool? softWrap = null,
             TextOverflow? overflow = null,
             float? textScaleFactor = null,
-            int? maxLines = null) : base(key) {
+            int? maxLines = null,
+            TextWidthBasis textWidthBasis = TextWidthBasis.parent,
+            ui.TextHeightBehavior textHeightBehavior = null) : base(key) {
             D.assert(data != null, () => "A non-null string must be provided to a Text widget.");
             textSpan = null;
             this.data = data;
@@ -248,6 +250,8 @@ namespace Unity.UIWidgets.widgets {
             this.overflow = overflow;
             this.textScaleFactor = textScaleFactor;
             this.maxLines = maxLines;
+            this.textWidthBasis = textWidthBasis;
+            this.textHeightBehavior = textHeightBehavior;
         }
 
         Text(TextSpan textSpan,
@@ -258,7 +262,9 @@ namespace Unity.UIWidgets.widgets {
             bool? softWrap = null,
             TextOverflow? overflow = null,
             float? textScaleFactor = null,
-            int? maxLines = null) : base(key) {
+            int? maxLines = null,
+            TextWidthBasis textWidthBasis = default,
+            ui.TextHeightBehavior textHeightBehavior = null) : base(key) {
             D.assert(textSpan != null, () => "A non-null TextSpan must be provided to a Text.rich widget.");
             this.textSpan = textSpan;
             data = null;
@@ -269,6 +275,8 @@ namespace Unity.UIWidgets.widgets {
             this.overflow = overflow;
             this.textScaleFactor = textScaleFactor;
             this.maxLines = maxLines;
+            this.textHeightBehavior = textHeightBehavior;
+            this.textWidthBasis = textWidthBasis;
         }
 
         public static Text rich(TextSpan textSpan,
@@ -293,7 +301,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly string data;
 
-        public readonly TextSpan textSpan;
+        public readonly InlineSpan textSpan;
 
         public readonly TextStyle style;
 
@@ -308,6 +316,10 @@ namespace Unity.UIWidgets.widgets {
         public readonly float? textScaleFactor;
 
         public readonly int? maxLines;
+        
+        public readonly TextWidthBasis? textWidthBasis;
+        
+        public readonly ui.TextHeightBehavior textHeightBehavior;
 
         public override Widget build(BuildContext context) {
             DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
@@ -323,6 +335,8 @@ namespace Unity.UIWidgets.widgets {
                 textScaleFactor: textScaleFactor ?? MediaQuery.textScaleFactorOf(context),
                 maxLines: maxLines ?? defaultTextStyle.maxLines,
                 strutStyle: strutStyle,
+                textWidthBasis: textWidthBasis ?? defaultTextStyle.textWidthBasis,
+                textHeightBehavior: textHeightBehavior ?? defaultTextStyle.textHeightBehavior,
                 text: new TextSpan(
                     style: effectiveTextStyle,
                     text: data,
@@ -352,6 +366,8 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new FloatProperty("textScaleFactor", textScaleFactor,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new IntProperty("maxLines", maxLines, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<TextWidthBasis?>("textWidthBasis", textWidthBasis, defaultValue: null));
+            properties.add(new DiagnosticsProperty<ui.TextHeightBehavior>("textHeightBehavior", textHeightBehavior, defaultValue: null));
         }
     }
 }

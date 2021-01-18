@@ -198,15 +198,8 @@ namespace Unity.UIWidgets.widgets {
 
         List<_TableElementRow> _children = new List<_TableElementRow>();
 
-        bool _debugWillReattachChildren = false;
-
         public override void mount(Element parent, object newSlot) {
             base.mount(parent, newSlot);
-            D.assert(!_debugWillReattachChildren);
-            D.assert(() => {
-                _debugWillReattachChildren = true;
-                return true;
-            });
 
             _children.Clear();
             foreach (TableRow row in widget.children) {
@@ -223,49 +216,24 @@ namespace Unity.UIWidgets.widgets {
                 );
             }
 
-            D.assert(() => {
-                _debugWillReattachChildren = false;
-                return true;
-            });
-
             _updateRenderObjectChildren();
         }
 
         protected override void insertChildRenderObject(RenderObject child, object slot) {
-            D.assert(_debugWillReattachChildren);
             renderObject.setupParentData(child);
         }
 
         protected override void moveChildRenderObject(RenderObject child, object slot) {
-            D.assert(_debugWillReattachChildren);
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
-            D.assert(() => {
-                if (_debugWillReattachChildren) {
-                    return true;
-                }
-
-                foreach (Element forgottenChild in _forgottenChildren) {
-                    if (forgottenChild.renderObject == child) {
-                        return true;
-                    }
-                }
-
-                return false;
-            });
-            TableCellParentData childParentData = (TableCellParentData) child.parentData;
+            TableCellParentData childParentData = child.parentData as TableCellParentData;
             renderObject.setChild(childParentData.x, childParentData.y, null);
         }
 
         readonly HashSet<Element> _forgottenChildren = new HashSet<Element>();
 
         public override void update(Widget newWidget) {
-            D.assert(!_debugWillReattachChildren);
-            D.assert(() => {
-                _debugWillReattachChildren = true;
-                return true;
-            });
             Table _newWidget = (Table) newWidget;
             Dictionary<LocalKey, List<Element>> oldKeyedRows = new Dictionary<LocalKey, List<Element>>();
 
@@ -320,11 +288,7 @@ namespace Unity.UIWidgets.widgets {
 
                 updateChildren(oldChildren, new List<Widget>(), forgottenChildren: _forgottenChildren);
             }
-
-            D.assert(() => {
-                _debugWillReattachChildren = false;
-                return true;
-            });
+            
             _children = newChildren;
             _updateRenderObjectChildren();
             _forgottenChildren.Clear();

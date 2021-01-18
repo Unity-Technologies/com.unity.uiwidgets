@@ -101,25 +101,20 @@ namespace Unity.UIWidgets.rendering {
     public class RenderSliverAnimatedOpacity :RenderAnimatedOpacityMixinRenderSliver<RenderSliver>{
         public RenderSliverAnimatedOpacity(
             Animation<float> opacity ,
-            RenderSliver sliver = null,
-            bool alwaysIncludeSemantics = false
+            RenderSliver sliver = null
         )  {
             D.assert(opacity != null);
             this.opacity = opacity;
-            this.alwaysIncludeSemantics = alwaysIncludeSemantics;
             child = sliver;
         }
     }
     public class RenderSliverOpacity : RenderProxySliver {
         public RenderSliverOpacity(
             RenderSliver sliver = null,
-            float opacity = 1.0f, 
-            bool alwaysIncludeSemantics = false
+            float opacity = 1.0f
         ) : base( child:sliver) {
             D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0);
-            D.assert(alwaysIncludeSemantics != null);
             _opacity = opacity;
-            _alwaysIncludeSemantics = alwaysIncludeSemantics;
             _alpha = ui.Color.getAlphaFromOpacity(opacity);
             child = sliver;
         }
@@ -149,17 +144,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
         float _opacity;
-
-        public bool alwaysIncludeSemantics {
-            get { return _alwaysIncludeSemantics;}
-            set { 
-                if (value == _alwaysIncludeSemantics)
-                    return;
-                _alwaysIncludeSemantics = value;
-               // markNeedsSemanticsUpdate(); 
-            }
-        }
-        bool _alwaysIncludeSemantics;
+        
         public override void paint(PaintingContext context, Offset offset) {
             if (child != null && child.geometry.visible) {
                 if (_alpha == 0) {
@@ -189,7 +174,6 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) { 
             base.debugFillProperties(properties);
             properties.add(new FloatProperty("opacity", opacity));
-            properties.add(new FlagProperty("alwaysIncludeSemantics", value: alwaysIncludeSemantics, ifTrue: "alwaysIncludeSemantics"));
         }
     }
 

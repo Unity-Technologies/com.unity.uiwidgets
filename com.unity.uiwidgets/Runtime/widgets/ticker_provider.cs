@@ -35,11 +35,10 @@ namespace Unity.UIWidgets.widgets {
     }
     public class _EffectiveTickerMode : InheritedWidget { 
         public _EffectiveTickerMode(
-            bool enabled,
+            bool enabled = false,
             Key key = null,
             Widget child = null) : 
             base(key: key, child: child) {
-            D.assert(enabled != null);
             this.enabled = enabled;
         }
         public readonly bool enabled;
@@ -65,13 +64,15 @@ namespace Unity.UIWidgets.widgets {
                     return true;
                 }
 
-                throw new UIWidgetsError(
-                    GetType() + " is a SingleTickerProviderStateMixin but multiple tickers were created.\n" +
-                    "A SingleTickerProviderStateMixin can only be used as a TickerProvider once. If a " +
-                    "State is used for multiple AnimationController objects, or if it is passed to other " +
-                    "objects and those objects might use it more than one time in total, then instead of " +
-                    "mixing in a SingleTickerProviderStateMixin, use a regular TickerProviderStateMixin."
-                );
+                throw new UIWidgetsError(new List<DiagnosticsNode>{
+                    new ErrorSummary($"{GetType()} is a SingleTickerProviderStateMixin but multiple tickers were created."),
+                    new ErrorDescription("A SingleTickerProviderStateMixin can only be used as a TickerProvider once."),
+                    new ErrorHint(
+                        "If a State is used for multiple AnimationController objects, or if it is passed to other " +
+                        "objects and those objects might use it more than one time in total, then instead of " +
+                        "mixing in a SingleTickerProviderStateMixin, use a regular TickerProviderStateMixin."
+                    )
+                });
             });
 
             _ticker = new Ticker(onTick, debugLabel: foundation_.kDebugMode ? $"created by {this}" : null);
@@ -84,14 +85,20 @@ namespace Unity.UIWidgets.widgets {
                     return true;
                 }
 
-                throw new UIWidgetsError(
-                    this + " was disposed with an active Ticker.\n" +
-                    GetType() + " created a Ticker via its SingleTickerProviderStateMixin, but at the time " +
-                    "dispose() was called on the mixin, that Ticker was still active. The Ticker must " +
-                    "be disposed before calling base.dispose(). Tickers used by AnimationControllers " +
-                    "should be disposed by calling dispose() on the AnimationController itself. " +
-                    "Otherwise, the ticker will leak.\n" +
-                    "The offending ticker was: " + _ticker.toString(debugIncludeStack: true)
+                throw new UIWidgetsError(new List<DiagnosticsNode>{
+                    new ErrorSummary($"{this} was disposed with an active Ticker."),
+                    new ErrorDescription(
+                        $"{GetType()} created a Ticker via its SingleTickerProviderStateMixin, but at the time " +
+                        "dispose() was called on the mixin, that Ticker was still active. The Ticker must " +
+                        "be disposed before calling super.dispose()."
+                    ),
+                    new ErrorHint(
+                        "Tickers used by AnimationControllers " +
+                        "should be disposed by calling dispose() on the AnimationController itself. " +
+                        "Otherwise, the ticker will leak."
+                    ),
+                    _ticker.describeForError("The offending ticker was")
+                    }
                 );
             });
             base.dispose();
@@ -153,16 +160,20 @@ namespace Unity.UIWidgets.widgets {
                 if (_tickers != null) {
                     foreach (Ticker ticker in _tickers) {
                         if (ticker.isActive) {
-                            throw new UIWidgetsError(
-                                this + " was disposed with an active Ticker.\n" +
-                                GetType() +
-                                " created a Ticker via its TickerProviderStateMixin, but at the time " +
-                                "dispose() was called on the mixin, that Ticker was still active. All Tickers must " +
-                                "be disposed before calling base.dispose(). Tickers used by AnimationControllers " +
-                                "should be disposed by calling dispose() on the AnimationController itself. " +
-                                "Otherwise, the ticker will leak.\n" +
-                                "The offending ticker was: " + ticker.toString(debugIncludeStack: true)
-                            );
+                            throw new UIWidgetsError(new List<DiagnosticsNode>{
+                                new ErrorSummary($"{this} was disposed with an active Ticker."),
+                                new ErrorDescription(
+                                    $"{GetType()} created a Ticker via its TickerProviderStateMixin, but at the time " +
+                                    "dispose() was called on the mixin, that Ticker was still active. All Tickers must " +
+                                    "be disposed before calling super.dispose()."
+                                ),
+                                new ErrorHint(
+                                    "Tickers used by AnimationControllers " +
+                                    "should be disposed by calling dispose() on the AnimationController itself. " +
+                                    "Otherwise, the ticker will leak."
+                                ),
+                                ticker.describeForError("The offending ticker was"),
+                            });
                         }
                     }
                 }

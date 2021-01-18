@@ -394,6 +394,9 @@ namespace Unity.UIWidgets.widgets {
         Timer _cursorTimer;
         bool _targetCursorVisibility = false;
         ValueNotifier<bool> _cursorVisibilityNotifier = new ValueNotifier<bool>(false);
+        public readonly LayerLink _toolbarLayerLink = new LayerLink();
+        public readonly LayerLink _startHandleLayerLink = new LayerLink();
+        public readonly LayerLink _endHandleLayerLink = new LayerLink();
         GlobalKey _editableKey = GlobalKey.key();
 
         TextInputConnection _textInputConnection;
@@ -807,20 +810,24 @@ namespace Unity.UIWidgets.widgets {
                     context: context,
                     value: _value,
                     debugRequiredFor: widget,
-                    layerLink: _layerLink,
+                    toolbarLayerLink: _toolbarLayerLink,
+                    startHandleLayerLink: _startHandleLayerLink,
+                    endHandleLayerLink: _endHandleLayerLink,
                     renderObject: renderObject,
                     selectionControls: widget.selectionControls,
                     selectionDelegate: this,
-                    dragStartBehavior: widget.dragStartBehavior
+                    dragStartBehavior: widget.dragStartBehavior,
+                    onSelectionHandleTapped: widget.onSelectionHandleTapped
                 );
-                bool longPress = cause == SelectionChangedCause.longPress;
+                _selectionOverlay.handlesVisible = widget.showSelectionHandles;
+                _selectionOverlay.showHandles();
+                /*bool longPress = cause == SelectionChangedCause.longPress;
                 if (cause != SelectionChangedCause.keyboard && (_value.text.isNotEmpty() || longPress)) {
                     _selectionOverlay.showHandles();
                 }
-
                 if (longPress || cause == SelectionChangedCause.doubleTap) {
                     _selectionOverlay.showToolbar();
-                }
+                }*/
             }
 
             if (widget.onSelectionChanged != null) {
