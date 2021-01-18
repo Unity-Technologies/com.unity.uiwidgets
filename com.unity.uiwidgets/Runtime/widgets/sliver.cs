@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using com.unity.uiwidgets.Runtime.rendering;
 using Unity.UIWidgets.foundation;
@@ -110,23 +111,12 @@ namespace Unity.UIWidgets.widgets {
             D.assert(builder != null);
             if (index < 0 || (childCount != null && index >= childCount))
                 return null;
-            Widget child;
-            /*try {
-                child = builder(context, index);
-            } catch (exception, stackTrace) {
-                child = _createErrorWidget(exception, stackTrace);
-            }*/
-            child = builder(context, index);
+            Widget child = builder(context, index);
             if (child == null)
                 return null;
             Key key = child.key != null ? new _SaltedValueKey(child.key) : null;
             if (addRepaintBoundaries)
                 child = new RepaintBoundary(child: child);
-            /*if (addSemanticIndexes) {
-                int semanticIndex = semanticIndexCallback(child, index);
-                if (semanticIndex != null)
-                    child = IndexedSemantics(index: semanticIndex + semanticIndexOffset, child: child);
-            }*/
             if (addAutomaticKeepAlives)
                 child = new AutomaticKeepAlive(child: child);
             return new KeyedSubtree(child: child, key: key);
@@ -151,7 +141,7 @@ namespace Unity.UIWidgets.widgets {
             this.children = children;
             this.addAutomaticKeepAlives = addAutomaticKeepAlives;
             this.addRepaintBoundaries = addRepaintBoundaries;
-            _keyToIndex = new Dictionary<Key, int>();
+            _keyToIndex = new Dictionary<Key, int>(){{null,0}};
         }
 
         public readonly bool addAutomaticKeepAlives;
@@ -173,7 +163,7 @@ namespace Unity.UIWidgets.widgets {
             }
             // Lazily fill the [_keyToIndex].
             if (!_keyToIndex.ContainsKey(key)) {
-                int index = _keyToIndex[null];
+                int index = _keyToIndex.getOrDefault(null);
                 while (index < children.Count) {
                     Widget child = children[index];
                     if (child.key != null) {
@@ -217,11 +207,6 @@ namespace Unity.UIWidgets.widgets {
             );
             if (addRepaintBoundaries)
                 child = new RepaintBoundary(child: child);
-            /*if (addSemanticIndexes) { 
-                int semanticIndex = semanticIndexCallback(child, index);
-                if (semanticIndex != null)
-                    child = IndexedSemantics(index: semanticIndex + semanticIndexOffset, child: child);
-            }*/
             if (addAutomaticKeepAlives)
                 child = new AutomaticKeepAlive(child: child);
             return new KeyedSubtree(child: child, key: key);
@@ -493,30 +478,6 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    
-
-    
-
-    /*public class SliverFillViewport : SliverMultiBoxAdaptorWidget {
-        public SliverFillViewport(
-            Key key = null, SliverChildDelegate del = null,
-            float viewportFraction = 1.0f) : base(key: key, del: del) {
-            D.assert(viewportFraction > 0.0);
-            this.viewportFraction = viewportFraction;
-        }
-
-        public readonly float viewportFraction;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            SliverMultiBoxAdaptorElement element = (SliverMultiBoxAdaptorElement) context;
-            return new RenderSliverFillViewport(childManager: element, viewportFraction: viewportFraction);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderSliverFillViewport) renderObject).viewportFraction = viewportFraction;
-        }
-    }*/
-
     public class SliverMultiBoxAdaptorElement : RenderObjectElement, RenderSliverBoxChildManager {
         public SliverMultiBoxAdaptorElement(SliverMultiBoxAdaptorWidget widget) : base(widget) {
         }
@@ -598,8 +559,7 @@ namespace Unity.UIWidgets.widgets {
                     }
                 }
 
-                renderObject.setDebugChildIntegrityEnabled(false);  // Moving children will temporary violate the integrity.
-                //newChildren.Keys.ForEach(processElement);
+                renderObject.debugChildIntegrityEnabled = false;  // Moving children will temporary violate the integrity.
                 foreach (var key in newChildren.Keys) {
                     processElement(key);
                 }
@@ -611,7 +571,7 @@ namespace Unity.UIWidgets.widgets {
                 }
             } finally {
                 _currentlyUpdatingChildIndex = null;
-                renderObject.setDebugChildIntegrityEnabled(true);
+                renderObject.debugChildIntegrityEnabled = true;
             }
         }
 

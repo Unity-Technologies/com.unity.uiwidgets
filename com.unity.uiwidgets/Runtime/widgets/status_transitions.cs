@@ -9,7 +9,7 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     public abstract class StatusTransitionWidget : StatefulWidget {
-        public StatusTransitionWidget(
+        protected StatusTransitionWidget(
             Animation<float> animation,
             Key key = null
         ) : base(key: key) {
