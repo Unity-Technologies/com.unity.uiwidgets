@@ -28,9 +28,10 @@ void UIWidgetsSystem::Wait(std::chrono::nanoseconds max_duration) {
                next_uiwidgets_event_time_ - TimePoint::clock::now());
 
   wait_duration = std::min(max_duration, wait_duration);
+  wait_duration = std::max(std::chrono::nanoseconds(0), wait_duration);
 
   ::MsgWaitForMultipleObjects(0, nullptr, FALSE,
-                              static_cast<DWORD>(wait_duration.count() / 1000),
+                              static_cast<DWORD>(wait_duration.count() / 1000000),
                               QS_ALLINPUT);
 }
 
