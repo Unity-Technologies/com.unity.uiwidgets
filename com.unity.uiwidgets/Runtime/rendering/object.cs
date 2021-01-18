@@ -11,7 +11,11 @@ using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
-    public class ParentData {
+    public interface IParentData {
+        void detach();
+    }
+    
+    public class ParentData : IParentData {
         public virtual void detach() {
         }
 
@@ -1433,7 +1437,7 @@ namespace Unity.UIWidgets.rendering {
         ChildType child { get; set; }
     }
 
-    public interface ContainerParentDataMixin<ChildType> where ChildType : RenderObject {
+    public interface ContainerParentDataMixin<ChildType> : IParentData where ChildType : RenderObject {
         ChildType previousSibling { get; set; }
         ChildType nextSibling { get; set; }
     }
