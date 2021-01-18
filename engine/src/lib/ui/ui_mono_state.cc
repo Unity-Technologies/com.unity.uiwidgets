@@ -103,7 +103,7 @@ UIMonoState_postTaskForTime(MonoMicrotaskQueue::CallbackFunc callback,
           fml::TimeDelta::FromNanoseconds(target_time_nanos)));
 }
 
-UIWIDGETS_API(int)
+UIWIDGETS_API(int64_t)
 UIMonoState_timerMillisecondClock() { return Mono_TimelineGetMicros() / 1000; }
 
 }  // namespace uiwidgets

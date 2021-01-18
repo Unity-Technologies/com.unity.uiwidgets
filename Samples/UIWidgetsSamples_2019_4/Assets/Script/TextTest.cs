@@ -20,21 +20,18 @@ using System;
 using UIWidgetsGallery.gallery;
 using Color = Unity.UIWidgets.ui.Color;
 using Random = UnityEngine.Random;
-
 namespace UIWidgetsSample
 {
-    public class UIWidgetsExample : UIWidgetsPanel
+    public class TextTest : UIWidgetsPanel
     {
         protected void OnEnable()
         {
             base.OnEnable();
         }
-
         protected override void main()
         {
             ui_.runApp(new MyApp());
         }
-
         class MyApp : StatelessWidget
         {
             public override Widget build(BuildContext context)
@@ -42,39 +39,35 @@ namespace UIWidgetsSample
                 return new CupertinoApp(
                     home: new HomeScreen()
                 );
-
             }
         }
-
-
-
         class HomeScreen : StatelessWidget
         {
             public override Widget build(BuildContext context)
             {
-                // return new CupertinoPageScaffold(
-                //     child: new Center(
-                //         child: new CupertinoButton(
-                //             child: new Text(
-                //                 "THIS IS TAB #"
-                //             ),
-                //             onPressed: () =>
-                //             {
-                //                 Navigator.of(context).push(
-                //                     new CupertinoPageRoute(builder: (contex3) =>
-                //                     {
-                //                         return
-                //                             new CupertinoAlertDemo();
-                //                     })
-                //                 );
-                //             }
-                //         )
-                //         //new Text("hello world!", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle)
-                //     )
-                //     //backgroundColor: Colors.brown
-                // );
-
-                List<BottomNavigationBarItem> items = new List<BottomNavigationBarItem>();
+                 return new CupertinoPageScaffold(
+                     child: new Center(
+                         child: new CupertinoButton(
+                             child: new Text(
+                                 "THIS IS TAB #",
+                                 style: new TextStyle(color: Color.fromARGB(255, 255, 0, 0))
+                             ),
+                             onPressed: () =>
+                             {
+                                 Navigator.of(context).push(
+                                     new CupertinoPageRoute(builder: (contex3) =>
+                                     {
+                                         return
+                                             new Container(color: Color.fromARGB(255, 0, 255, 0));
+                                     })
+                                );
+                             }
+                         )//,
+                         //new Text("hello world!", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle)
+                     ),
+                     backgroundColor: Color.fromARGB(255, 255, 255, 0)
+                 );
+                /*List<BottomNavigationBarItem> items = new List<BottomNavigationBarItem>();
                 items.Add(new BottomNavigationBarItem(
                     icon: new Icon(CupertinoIcons.bell),
                     title: new Text("views")
@@ -98,7 +91,6 @@ namespace UIWidgetsSample
                                         middle: (index == 0) ? new Text("views") : new Text("articles")
                                     ),
                                     child: new Center(
-                                        
                                         child: new CupertinoButton(
                                             child: new Text(
                                                 "THIS IS TAB #",
@@ -107,7 +99,6 @@ namespace UIWidgetsSample
                                                     .navTitleTextStyle
                                                 //.copyWith(fontSize:32)
                                             ),
-
                                             onPressed: () =>
                                             {
                                                 Navigator.of(contex1).push(
@@ -124,25 +115,16 @@ namespace UIWidgetsSample
                             }
                         );
                     })
-
-                );
-
-
+                );*/
             }
         }
-        
-        
-
         public class DetailScreen1 : StatelessWidget
         {
             public DetailScreen1(string topic)
             {
                 this.topic = topic;
-
             }
-
             public string topic;
-
             public override Widget build(BuildContext context)
             {
                 return new CupertinoPageScaffold(
@@ -155,9 +137,5 @@ namespace UIWidgetsSample
                 );
             }
         }
-
-              
     }
-
-    
 }

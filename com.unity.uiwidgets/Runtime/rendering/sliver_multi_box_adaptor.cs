@@ -6,10 +6,21 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.rendering {
-    public class KeepAliveParentDataMixin : ParentData {
-        public bool keepAlive = false;
-
+    public interface IKeepAliveParentDataMixin : IParentData {
         bool keptAlive { get; }
+        
+        bool keepAlive { get; set; }
+    }
+    
+    public class KeepAliveParentDataMixin : ParentData, IKeepAliveParentDataMixin { 
+        bool _keepAlive = false;
+
+        public bool keepAlive {
+            get { return _keepAlive; }
+            set { _keepAlive = value; }
+        }
+
+        public bool keptAlive { get; }
     }
 
     public interface RenderSliverBoxChildManager {
@@ -37,10 +48,15 @@ namespace Unity.UIWidgets.rendering {
         bool debugAssertChildListLocked();
     }
 
-    public class SliverMultiBoxAdaptorParentData : ContainerParentDataMixinSliverLogicalParentData<RenderBox> {
+    public class SliverMultiBoxAdaptorParentData : ContainerParentDataMixinSliverLogicalParentData<RenderBox>, IKeepAliveParentDataMixin {
         public int index;
 
-        public bool keepAlive = false;
+        bool _keepAlive = false;
+
+        public bool keepAlive {
+            get { return _keepAlive; }
+            set { _keepAlive = value; }
+        }
 
         public bool keptAlive {
             get { return _keptAlive; }

@@ -10,9 +10,8 @@ namespace Unity.UIWidgets.rendering {
     
     public abstract class RenderSliverEdgeInsetsPadding : RenderObjectWithChildMixinRenderSliver<RenderSliver> {
 
-        EdgeInsets resolvedPadding { get; }
-
-
+        protected virtual EdgeInsets resolvedPadding { get; }
+        
         float?  beforePadding {
             get {
                 D.assert(constraints != null);
@@ -79,7 +78,7 @@ namespace Unity.UIWidgets.rendering {
             if (!(child.parentData is SliverPhysicalParentData)) 
                 child.parentData = new SliverPhysicalParentData();
         }
-        protected override void performLayout() { 
+        protected override void performLayout() {
             SliverConstraints constraints = this.constraints; 
             D.assert(resolvedPadding != null);
             float? beforePadding = this.beforePadding;
@@ -144,7 +143,7 @@ namespace Unity.UIWidgets.rendering {
                 paintExtent: paintExtent, 
                 layoutExtent: Mathf.Min(mainAxisPaddingPaintExtent + childLayoutGeometry.layoutExtent, paintExtent), 
                 cacheExtent: Mathf.Min(mainAxisPaddingCacheExtent + childLayoutGeometry.cacheExtent, constraints.remainingCacheExtent), 
-                maxPaintExtent: mainAxisPadding ?? 0.0f + childLayoutGeometry.maxPaintExtent, 
+                maxPaintExtent: (mainAxisPadding ?? 0.0f) + childLayoutGeometry.maxPaintExtent, 
                 hitTestExtent: Mathf.Max(
                     mainAxisPaddingPaintExtent + childLayoutGeometry.paintExtent, 
                     beforePaddingPaintExtent + childLayoutGeometry.hitTestExtent
@@ -268,7 +267,7 @@ namespace Unity.UIWidgets.rendering {
             this.child = child;
         }
 
-        EdgeInsets resolvedPadding {
+        protected override EdgeInsets resolvedPadding {
             get { return  _resolvedPadding;}
         }
         EdgeInsets _resolvedPadding;

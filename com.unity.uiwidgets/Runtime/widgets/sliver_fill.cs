@@ -100,7 +100,7 @@ namespace Unity.UIWidgets.widgets {
         float _viewportFraction;
 
 
-        public EdgeInsets resolvedPadding {
+        protected override EdgeInsets resolvedPadding {
             get {
                 return _resolvedPadding;
             }
