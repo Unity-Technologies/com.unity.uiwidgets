@@ -18,6 +18,9 @@ namespace Unity.UIWidgets.widgets {
             D.assert(tween != null);
             D.assert(curve != null);
             D.assert(builder != null);
+            this.tween = tween;
+            this.child = child;
+            this.builder = builder;
         }
 
 
@@ -39,7 +42,7 @@ namespace Unity.UIWidgets.widgets {
 
             
             base.initState();
-            if (_currentTween.begin.Equals( _currentTween.end)) {
+            if (!_currentTween.begin.Equals( _currentTween.end)) {
                 controller.forward();
             }
         }
@@ -54,7 +57,8 @@ namespace Unity.UIWidgets.widgets {
                 widget.tween.end, 
                 (value) =>{
                     D.assert(false);
-                    return null; }) as Tween<T>;
+                    return null; 
+                }) as Tween<T>;
         }
 
         public override Widget build(BuildContext context) {
