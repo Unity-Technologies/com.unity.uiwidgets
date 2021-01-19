@@ -126,6 +126,21 @@ namespace Unity.UIWidgets.widgets {
         }
 
         internal static UIWidgetsErrorDetails _debugReportException(
+            DiagnosticsNode context,
+            Exception exception,
+            InformationCollector informationCollector = null
+        ) {
+            var details = new UIWidgetsErrorDetails(
+                exception: exception,
+                library: "widgets library",
+                context: context,
+                informationCollector: informationCollector
+            );
+            UIWidgetsError.reportError(details);
+            return details;
+        }
+
+        internal static UIWidgetsErrorDetails _debugReportException(
             string context,
             Exception exception,
             InformationCollector informationCollector = null

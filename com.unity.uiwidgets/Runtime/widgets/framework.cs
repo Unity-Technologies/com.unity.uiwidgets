@@ -235,9 +235,9 @@ namespace Unity.UIWidgets.widgets {
                                 error = new UIWidgetsError(new List<DiagnosticsNode>{
                                     new ErrorSummary("Multiple widgets used the same GlobalKey."),
                                     new ErrorDescription(
-                                        "The key $key was used by multiple widgets. The parents of those widgets were " +
+                                        $"The key {key} was used by multiple widgets. The parents of those widgets were " +
                                         "different widgets that both had the following description:\n" +
-                                        "  ${parent.toString()}\n" +
+                                        $"  {parent.toString()}\n" +
                                         "A GlobalKey can only be specified on one widget at a time in the widget tree."
                                     )
                                 });
@@ -279,8 +279,8 @@ namespace Unity.UIWidgets.widgets {
                         D.assert(element.widget.key != null);
                         GlobalKey key = (GlobalKey) element.widget.key;
                         CompositeKey compKey = new CompositeKey(Window.instance, key);
-
                         D.assert(_registry.ContainsKey(compKey));
+
                         duplicates = duplicates ?? new Dictionary<GlobalKey, HashSet<Element>>();
                         var elements = duplicates.putIfAbsent(key, () => new HashSet<Element>());
                         elements.Add(element);
@@ -455,7 +455,7 @@ namespace Unity.UIWidgets.widgets {
         public abstract Element createElement();
 
         public override string toStringShort() {
-            return key == null ? GetType().ToString() : GetType() + "-" + key;
+            return key == null ? GetType().ToString() : $"{GetType()}-{key}";
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -535,6 +535,9 @@ namespace Unity.UIWidgets.widgets {
         public virtual void didUpdateWidget(StatefulWidget oldWidget) {
         }
 
+        public virtual void reassemble() {
+        }
+
         public void setState(VoidCallback fn = null) {
             D.assert(() => {
                 if (_debugLifecycleState == _StateLifecycle.defunct) {
@@ -577,6 +580,7 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             });
 
+            
             if (fn != null) {
                 fn();
             }
@@ -775,7 +779,6 @@ namespace Unity.UIWidgets.widgets {
 
                 return true;
             });
-            D.assert(!children.Any(child => child == null));
             this.children = children;
         }
 
@@ -881,11 +884,11 @@ namespace Unity.UIWidgets.widgets {
     public delegate bool ElementVisitorBool(Element element);
 
     public interface BuildContext {
-        bool debugDoingBuild { get; }
-
         Widget widget { get; }
 
         BuildOwner owner { get; }
+        
+        bool debugDoingBuild { get; }
 
         RenderObject findRenderObject();
 
@@ -912,7 +915,7 @@ namespace Unity.UIWidgets.widgets {
         
         State rootAncestorStateOfType(TypeMatcher matcher);
 
-        T findRootAncestorStateOfType<T>() where T: State ;//: State<StatefulWidget>;
+        T findRootAncestorStateOfType<T>() where T: State;
 
         RenderObject ancestorRenderObjectOfType(TypeMatcher matcher);
 
@@ -957,7 +960,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(element.owner == this);
             D.assert(() => {
                 if (WidgetsD.debugPrintScheduleBuildForStacks) {
-                    Debug.Log("scheduleBuildFor() called for " + element +
+                    Debug.LogFormat("scheduleBuildFor() called for {0} {1}", element,
                               (_dirtyElements.Contains(element) ? " (ALREADY IN LIST)" : ""));
                 }
 
@@ -971,8 +974,7 @@ namespace Unity.UIWidgets.widgets {
                           "calling scheduleBuildFor()."),
                           new ErrorHint(
                               "If you did not attempt to call scheduleBuildFor() yourself, then this probably " +
-                          "indicates a bug in the widgets framework. Please report it:\n" +
-                          "  https://github.com/flutter/flutter/issues/new?template=BUG.md"
+                          "indicates a bug in the widgets framework."
                           ),
                       }
                     );
@@ -1026,7 +1028,6 @@ namespace Unity.UIWidgets.widgets {
         }
 
         int _debugStateLockLevel = 0;
-
         internal bool _debugStateLocked {
             get { return _debugStateLockLevel > 0; }
         }
@@ -1034,7 +1035,6 @@ namespace Unity.UIWidgets.widgets {
         internal bool debugBuilding {
             get { return _debugBuilding; }
         }
-
         bool _debugBuilding = false;
 
         internal Element _debugCurrentBuildTarget;
@@ -1122,12 +1122,13 @@ namespace Unity.UIWidgets.widgets {
                     }
                     catch (Exception ex) {
                         IEnumerable<DiagnosticsNode> infoCollector() {
-                            //yield return new DiagnosticsDebugCreator(new DebugCreator(_dirtyElements[index]));
+                            yield return new DiagnosticsDebugCreator(new DebugCreator(_dirtyElements[index]));
                             yield return _dirtyElements[index].describeElement($"The element being rebuilt at the time was index {index} of {dirtyCount}");
                         }
                         
                         WidgetsD._debugReportException(
-                            "while rebuilding dirty elements", ex,
+                            new ErrorDescription("while rebuilding dirty elements"), 
+                            ex,
                             informationCollector: infoCollector
                         );
                     }
@@ -1195,9 +1196,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         internal void _debugElementWasRebuilt(Element node) {
-            if (_debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans != null) {
-                _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans.Remove(node);
-            }
+            _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans?.Remove(node);
         }
 
         public void finalizeTree() {
@@ -1270,39 +1269,60 @@ namespace Unity.UIWidgets.widgets {
 
                                 D.assert(keyLabels.isNotEmpty());
 
+                                string the = keys.Count == 1 ? " the" : "";
+                                string s = keys.Count == 1 ? "" : "s";
+                                string were = keys.Count == 1 ? "was" : "were";
+                                string their = keys.Count == 1 ? "its" : "their";
+                                string respective = elementLabels.Count == 1 ? "" : " respective";
+                                string those = keys.Count == 1 ? "that" : "those";
+                                string s2 = elementLabels.Count == 1 ? "" : "s";
+                                string those2 = elementLabels.Count == 1 ? "that" : "those";
+                                string they = elementLabels.Count == 1 ? "it" : "they";
+                                string think = elementLabels.Count == 1 ? "thinks" : "think";
+                                string are = elementLabels.Count == 1 ? "is" : "are"; 
+
                                 throw new UIWidgetsError(
                                     new List<DiagnosticsNode>() {
                                         new ErrorSummary("Duplicate GlobalKeys detected in widget tree."),
                                         
                                         new ErrorDescription(
-                                            "The following GlobalKeys were specified multiple times in the widget tree. This will lead to " +
+                                            $"The following GlobalKey{s} {were} specified multiple times in the widget tree. This will lead to " +
                                         "parts of the widget tree being truncated unexpectedly, because the second time a key is seen, " +
-                                        "the previous instance is moved to the new location. The keys were:\n" +  "- " +
+                                        $"the previous instance is moved to the new location. The key{s} {were}:\n" +  "- " +
                                             string.Join("\n  ", keyLabels.ToArray()) + "\n" +
-                                        "This was determined by noticing that after$the widgets with the above global keys were moved " +
-                                        "out of their respective previous parent, those previous parents never updated during this frame, meaning " +
-                                        "that they either did not update at all or updated before the widgets were moved, in either case " +
-                                        "implying that they still think that they should have a child with those global keys.\n" + 
-                                        "The specific parent that did not update after having one or more children forcibly removed " +
-                                        "due to GlobalKey reparenting are:\n" +
+                                        $"This was determined by noticing that after {the} widget{s} with the above global key{s} {were} moved " +
+                                        $"out of {their} {respective} previous parent{s2}, {those2} previous parent{s2} never updated during this frame, meaning " +
+                                        $"that {they} either did not update at all or updated before the widget{s} {were} moved, in either case " +
+                                        $"implying that {they} still {think} that {they} should have a child with {those} global key{s}.\n" + 
+                                        $"The specific parent{s2} that did not update after having one or more children forcibly removed " +
+                                        $"due to GlobalKey reparenting {are}:\n" +
                                         "- " + string.Join("\n  ", elementLabels.ToArray()) + "\n" +
                                         "\nA GlobalKey can only be specified on one widget at a time in the widget tree."
-                                        ),
+                                        )
                                     });
                             }
                         }
                     }
                     finally {
-                        if (_debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans != null) {
-                            _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans.Clear();
-                        }
+                        _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans?.Clear();
                     }
 
                     return true;
                 });
             }
             catch (Exception ex) {
-                WidgetsD._debugReportException("while finalizing the widget tree", ex);
+                WidgetsD._debugReportException(new ErrorSummary("while finalizing the widget tree"), ex);
+            }
+        }
+
+        void reassemble(Element root) {
+            try {
+                D.assert(root._parent == null);
+                D.assert(root.owner == this);
+                root.reassemble();
+            }
+            finally {
+                
             }
         }
     }
@@ -1365,13 +1385,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         internal Widget _widget;
-
-        public virtual bool debugDoingBuild { get; }
-
+        
         public Widget widget {
             get { return _widget; }
         }
-
+        
         internal BuildOwner _owner;
 
         public BuildOwner owner {
@@ -1379,6 +1397,15 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public bool _active = false;
+
+        public virtual void reassemble() {
+            markNeedsBuild();
+            visitChildren((Element child) => {
+                child.reassemble();
+            });
+        }
+
+        public virtual bool debugDoingBuild { get; }
 
         internal bool _debugIsInScope(Element target) {
             Element current = this;
@@ -1493,18 +1520,10 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected virtual Element updateChild(Element child, Widget newWidget, object newSlot) {
-            /*D.assert(() => {
-                if (newWidget != null && newWidget.key is GlobalKey) {
-                    GlobalKey key = (GlobalKey) newWidget.key;
-                    key._debugReserveFor(this);
-                }
-
-                return true;
-            });*/
-
             if (newWidget == null) {
-                if (child != null)
+                if (child != null) {
                     deactivateChild(child);
+                }
                 return null;
             }
 
@@ -1519,13 +1538,17 @@ namespace Unity.UIWidgets.widgets {
                     return true;
                 });
                 if (hasSameSuperclass && child.widget == newWidget) {
-                    if (child.slot != newSlot)
+                    if (child.slot != newSlot) {
                         updateSlotForChild(child, newSlot);
+                    }
+
                     newChild = child;
                 }
                 else if (hasSameSuperclass && Widget.canUpdate(child.widget, newWidget)) {
-                    if (child.slot != newSlot)
+                    if (child.slot != newSlot) {
                         updateSlotForChild(child, newSlot);
+                    }
+
                     child.update(newWidget);
                     D.assert(child.widget == newWidget);
                     D.assert(() => {
@@ -1806,10 +1829,8 @@ namespace Unity.UIWidgets.widgets {
             bool hadDependencies = (_dependencies != null && _dependencies.isNotEmpty()) ||
                                    _hadUnsatisfiedDependencies;
             _active = true;
-            if (_dependencies != null) {
-                _dependencies.Clear();
-            }
-
+            
+            _dependencies?.Clear();
             _hadUnsatisfiedDependencies = false;
             _updateInheritance();
             D.assert(() => {
@@ -1900,9 +1921,7 @@ namespace Unity.UIWidgets.widgets {
                                 new ErrorHint(
                                     "If you need some sizing information during build to decide which " + 
                                 "widgets to build, consider using a LayoutBuilder widget, which can " + 
-                                "tell you the layout constraints at a given location in the tree. See " + 
-                                "<https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html> " + 
-                                "for more details."
+                                "tell you the layout constraints at a given location in the tree."
                                 ),
                                 new ErrorSpacer(),
                                 describeElement("The size getter was called for the following element"),
@@ -2043,11 +2062,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public virtual InheritedWidget inheritFromElement(InheritedElement ancestor, object aspect = null) {
-            D.assert(ancestor != null);
-            _dependencies = _dependencies ?? new HashSet<InheritedElement>();
-            _dependencies.Add(ancestor);
-            ancestor.updateDependencies(this, aspect);
-            return ancestor.widget;
+            return dependOnInheritedElement(ancestor, aspect: aspect);
         }
 
         public virtual InheritedWidget dependOnInheritedElement(InheritedElement ancestor, object aspect = null) {
@@ -2104,7 +2119,7 @@ namespace Unity.UIWidgets.widgets {
 
         internal virtual void _updateInheritance() {
             D.assert(_active);
-            _inheritedWidgets = _parent == null ? null : _parent._inheritedWidgets;
+            _inheritedWidgets = _parent?._inheritedWidgets;
         }
 
         public virtual Widget ancestorWidgetOfExactType(Type targetType) {
@@ -2114,14 +2129,16 @@ namespace Unity.UIWidgets.widgets {
                 ancestor = ancestor._parent;
             }
 
-            return ancestor == null ? null : ancestor.widget;
+            return ancestor?.widget;
         }
 
         public T findAncestorWidgetOfExactType<T>() where T : Widget {
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
             Element ancestor = _parent;
-            while (ancestor != null && ancestor.widget.GetType() != typeof(T))
+            while (ancestor != null && ancestor.widget.GetType() != typeof(T)) {
                 ancestor = ancestor._parent;
+            }
+
             return ancestor?.widget as T;
         }
 
@@ -2138,15 +2155,17 @@ namespace Unity.UIWidgets.widgets {
             }
 
             var statefulAncestor = ancestor as StatefulElement;
-            return statefulAncestor == null ? null : statefulAncestor.state;
+            return statefulAncestor?.state;
         }
 
         public T findAncestorStateOfType<T>() where T : State{
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
             Element ancestor = _parent;
             while (ancestor != null) {
-                if (ancestor is StatefulElement stateAncestor && stateAncestor.state is T)
+                if (ancestor is StatefulElement stateAncestor && stateAncestor.state is T) {
                     break;
+                }
+
                 ancestor = ancestor._parent;
             }
 
@@ -2167,16 +2186,18 @@ namespace Unity.UIWidgets.widgets {
                 ancestor = ancestor._parent;
             }
 
-            return statefulAncestor == null ? null : statefulAncestor.state;
+            return statefulAncestor?.state;
         }
 
-        public T findRootAncestorStateOfType<T>() where T : State{//<StatefulWidget> {
+        public T findRootAncestorStateOfType<T>() where T : State {
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
             Element ancestor = _parent;
             StatefulElement statefulAncestor = null;
             while (ancestor != null) {
-                if (ancestor is StatefulElement stateAncestor && stateAncestor.state is T)
+                if (ancestor is StatefulElement stateAncestor && stateAncestor.state is T) {
                     statefulAncestor = stateAncestor;
+                }
+
                 ancestor = ancestor._parent;
             }
 
@@ -2202,8 +2223,10 @@ namespace Unity.UIWidgets.widgets {
             D.assert(_debugCheckStateIsActiveForAncestorLookup());
             Element ancestor = _parent;
             while (ancestor != null) {
-                if (ancestor is RenderObjectElement && ancestor.renderObject is T)
+                if (ancestor is RenderObjectElement && ancestor.renderObject is T) {
                     return ancestor.renderObject as T;
+                }
+
                 ancestor = ancestor._parent;
             }
 
@@ -2270,7 +2293,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public List<Element> debugGetDiagnosticChain() {
-            var chain = new List<Element>();
+            var chain = new List<Element>() {this};
             Element node = _parent;
             while (node != null) {
                 chain.Add(node);
@@ -2363,8 +2386,7 @@ namespace Unity.UIWidgets.widgets {
                     }
 
                     if (!_debugAllowIgnoredCallsToMarkNeedsBuild) {
-                        throw new UIWidgetsError(
-                            new List<DiagnosticsNode>(){
+                        List<DiagnosticsNode> information = new List<DiagnosticsNode>() {
                             new ErrorSummary("setState() or markNeedsBuild() called during build.\n"),
                             new ErrorDescription("This " + widget.GetType() +
                                                  " widget cannot be marked as needing to build because the framework " +
@@ -2373,15 +2395,14 @@ namespace Unity.UIWidgets.widgets {
                                                  "is currently building. This exception is allowed because the framework " +
                                                  "builds parent widgets before children, which means a dirty descendant " +
                                                  "will always be built. Otherwise, the framework might not visit this " +
-                                                 "widget during this build phase.\n" +
-                                                 "The widget on which setState() or markNeedsBuild() was called was:\n" +
-                                                 "  " + this + "\n" +
-                                                 (owner._debugCurrentBuildTarget == null
-                                                     ? ""
-                                                     : "The widget which was currently being built when the offending call was made was:\n  " +
-                                                       owner._debugCurrentBuildTarget))
-                            
-                            }
+                                                 "widget during this build phase.\n"),
+                            describeElement("The widget on which setState() or markNeedsBuild() was called was")
+                        };
+                        if (owner._debugCurrentBuildTarget != null) {
+                            information.Add(owner._debugCurrentBuildTarget.describeWidget("The widget which was currently being built when the offending call was made was"));
+                        }
+                        throw new UIWidgetsError(
+                            information
                         );
                     }
 
@@ -2419,6 +2440,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             D.assert(() => {
+                
                 if (WidgetsD.debugPrintRebuildDirtyWidgets) {
                     if (!_debugBuiltOnce) {
                         Debug.Log("Building " + this);
@@ -2452,8 +2474,6 @@ namespace Unity.UIWidgets.widgets {
         protected abstract void performRebuild();
     }
 
-    public delegate Widget ErrorWidgetBuilder(UIWidgetsErrorDetails details);
-
     internal class _ElementDiagnosticableTreeNode : DiagnosticableTreeNode {
         internal _ElementDiagnosticableTreeNode(
             Element value,
@@ -2469,14 +2489,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         readonly bool stateful;
-
-        /*public override Dictionary<string, object> toJsonMap() {
-            Dictionary<string, object> json = base.toJsonMap();
-            Element element = value as Element;
-            json["widgetRuntimeType"] = element.widget?.GetType()?.ToString();
-            json["stateful"] = stateful;
-            return json;
-        }*/
+        
         public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
             Dictionary<string, object> json = base.toJsonMap(Delegate);
             Element element = value as Element;
@@ -2485,6 +2498,8 @@ namespace Unity.UIWidgets.widgets {
             return json;
         }
     }
+    
+    public delegate Widget ErrorWidgetBuilder(UIWidgetsErrorDetails details);
 
     public class ErrorWidget : LeafRenderObjectWidget {
         public ErrorWidget(Exception exception, string message = null) : base(key: new UniqueKey()) {
@@ -2497,7 +2512,7 @@ namespace Unity.UIWidgets.widgets {
             return new ErrorWidget(error, message);
         }
 
-        public static ErrorWidgetBuilder builder = (details) => new ErrorWidget(details.exception);
+        public static ErrorWidgetBuilder builder = _defaultErrorWidgetBuilder;
 
         static Widget _defaultErrorWidgetBuilder(UIWidgetsErrorDetails details) {
             string message = "";
@@ -2591,7 +2606,11 @@ namespace Unity.UIWidgets.widgets {
             }
             catch (Exception e) {
                 _debugDoingBuild = false;
-                built = ErrorWidget.builder(WidgetsD._debugReportException("building " + this, e));
+
+                IEnumerable<DiagnosticsNode> informationCollector() {
+                    yield return new DiagnosticsDebugCreator(new DebugCreator(this));
+                }
+                built = ErrorWidget.builder(WidgetsD._debugReportException("building " + this, e, informationCollector));
             }
             finally {
                 _dirty = false;
@@ -2603,7 +2622,10 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(_child != null);
             }
             catch (Exception e) {
-                built = ErrorWidget.builder(WidgetsD._debugReportException("building " + this, e));
+                IEnumerable<DiagnosticsNode> informationCollector() {
+                    yield return new DiagnosticsDebugCreator(new DebugCreator(this));
+                }
+                built = ErrorWidget.builder(WidgetsD._debugReportException("building " + this, e, informationCollector));
                 _child = updateChild(null, built, slot);
             }
         }
@@ -2663,17 +2685,19 @@ namespace Unity.UIWidgets.widgets {
             });
             D.assert(_state._element == null);
             _state._element = this;
-            D.assert(_state._widget == null);
+            D.assert(_state._widget == null, () => $"The createState function for {widget} returned an old or invalid state " +
+                                                   $"instance: {_state._widget}, which is not null, violating the contract " +
+                                                   "for createState.");
             _state._widget = widget;
             D.assert(_state._debugLifecycleState == _StateLifecycle.created);
         }
 
-        public new StatefulWidget widget {
-            get { return (StatefulWidget) base.widget; }
-        }
-
         protected override Widget build() {
             return _state.build(this);
+        }
+
+        public new StatefulWidget widget {
+            get { return (StatefulWidget) base.widget; }
         }
 
         public State state {
@@ -2681,6 +2705,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         State _state;
+
+        public override void reassemble() {
+            state.reassemble();
+            base.reassemble();
+        }
 
         protected override void _firstBuild() {
             D.assert(_state._debugLifecycleState == _StateLifecycle.created);
@@ -2960,8 +2989,8 @@ namespace Unity.UIWidgets.widgets {
         internal readonly Dictionary<Element, object> _dependents = new Dictionary<Element, object>();
 
         internal override void _updateInheritance() {
-            Dictionary<Type, InheritedElement> incomingWidgets =
-                _parent == null ? null : _parent._inheritedWidgets;
+            D.assert(_active);
+            Dictionary<Type, InheritedElement> incomingWidgets = _parent?._inheritedWidgets;
 
             if (incomingWidgets != null) {
                 _inheritedWidgets = new Dictionary<Type, InheritedElement>(incomingWidgets);
@@ -3039,15 +3068,15 @@ namespace Unity.UIWidgets.widgets {
         }
 
         RenderObject _renderObject;
+        
+        public override RenderObject renderObject {
+            get { return _renderObject; }
+        }
 
         bool _debugDoingBuild = false;
 
         public override bool debugDoingBuild {
             get { return _debugDoingBuild; }
-        }
-
-        public override RenderObject renderObject {
-            get { return _renderObject; }
         }
 
         RenderObjectElement _ancestorRenderObjectElement;
@@ -3064,7 +3093,6 @@ namespace Unity.UIWidgets.widgets {
         ParentDataElement _findAncestorParentDataElement() {
             Element ancestor = _parent;
             ParentDataElement result = null;
-            //ParentData> 
             while (ancestor != null && !(ancestor is RenderObjectElement)) {
                 if (ancestor is ParentDataElement parentDataElement) {
                     result = parentDataElement;
@@ -3078,8 +3106,7 @@ namespace Unity.UIWidgets.widgets {
                 if (result == null || ancestor == null) {
                     return true;
                 }
-
-                // Check that no other ParentDataWidgets want to provide parent data.
+                
                 List<ParentDataElement> badAncestors = new List<ParentDataElement>();
                 ancestor = ancestor._parent;
                 while (ancestor != null && !(ancestor is RenderObjectElement)) {
@@ -3094,9 +3121,10 @@ namespace Unity.UIWidgets.widgets {
                     badAncestors.Insert(0, result);
                     try {
                         List<ErrorDescription> errors = new List<ErrorDescription>();
-                        foreach (ParentDataElement<ParentData> parentDataElement in badAncestors)
+                        foreach (ParentDataElement<ParentData> parentDataElement in badAncestors) {
                             errors.Add(new ErrorDescription(
                                 $"- {parentDataElement.widget} (typically placed directly inside a {parentDataElement.widget.debugTypicalAncestorWidgetClass} widget)"));
+                        }
 
                         List<DiagnosticsNode> results = new List<DiagnosticsNode>();
                         results.Add( new ErrorSummary("Incorrect use of ParentDataWidget."));
@@ -3247,7 +3275,6 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
 
-            // Update the middle of the list.
             while (newChildrenTop <= newChildrenBottom) {
                 Element oldChild = null;
                 Widget newWidget = newWidgets[newChildrenTop];
@@ -3343,10 +3370,7 @@ namespace Unity.UIWidgets.widgets {
                     }
                 }
                 catch (UIWidgetsError e) {
-                    UIWidgetsError.reportError(new UIWidgetsErrorDetails(
-                        context: new ErrorDescription("while apply parent data"),
-                        exception: e
-                    ));
+                    WidgetsD._debugReportException(new ErrorSummary("while apply parent data"), e);
                 }
 
                 return true;
@@ -3366,9 +3390,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(_ancestorRenderObjectElement == null);
             _slot = newSlot;
             _ancestorRenderObjectElement = _findAncestorRenderObjectElement();
-            if (_ancestorRenderObjectElement != null) {
-                _ancestorRenderObjectElement.insertChildRenderObject(renderObject, newSlot);
-            }
+            _ancestorRenderObjectElement?.insertChildRenderObject(renderObject, newSlot);
 
             ParentDataElement parentDataElement = _findAncestorParentDataElement();
             if (parentDataElement != null) {
@@ -3569,11 +3591,11 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class DebugCreator {
-        public DebugCreator(RenderObjectElement element) {
+        public DebugCreator(Element element) {
             this.element = element;
         }
 
-        public readonly RenderObjectElement element;
+        public readonly Element element;
 
         public override string ToString() {
             return element.debugGetCreatorChain(12);
