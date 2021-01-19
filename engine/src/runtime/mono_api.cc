@@ -5,7 +5,17 @@
 
 #include "mono_isolate.h"
 #include "mono_state.h"
+
 #include "shell/platform/unity/uiwidgets_system.h"
+
+#ifdef __APPLE__
+//https://stackoverflow.com/questions/28188258/how-do-i-get-the-current-pthread-id/28212486
+const uint64_t GetCurrentThreadId() { 
+  uint64_t tid;
+  pthread_threadid_np(NULL, &tid);
+  return tid;
+}
+#endif
 
 namespace uiwidgets {
 

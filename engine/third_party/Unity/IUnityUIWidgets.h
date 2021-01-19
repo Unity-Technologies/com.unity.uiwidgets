@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __APPLE__
+#import "stdarg.h"
+#endif
+
 #include "IUnityGraphics.h"
 #include "IUnityInterface.h"
 

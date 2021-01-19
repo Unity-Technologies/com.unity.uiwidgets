@@ -1,4 +1,3 @@
-#pragma once
 #include "paragraph.h"
 
 namespace uiwidgets {

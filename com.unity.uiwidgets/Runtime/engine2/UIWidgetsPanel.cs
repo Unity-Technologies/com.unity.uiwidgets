@@ -11,6 +11,128 @@ using UnityEngine.UI;
 using NativeBindings = Unity.UIWidgets.ui.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+    public partial class UIWidgetsPanel {
+        RenderTexture _renderTexture;
+    
+        void _createRenderTexture(int width, int height, float devicePixelRatio) {
+            D.assert(_renderTexture == null);
+
+            var desc = new RenderTextureDescriptor(
+                width, height, RenderTextureFormat.ARGB32, 0) {
+                useMipMap = false,
+                autoGenerateMips = false,
+            };
+
+            _renderTexture = new RenderTexture(desc) {hideFlags = HideFlags.HideAndDontSave};
+            _renderTexture.Create();
+
+            _width = width;
+            _height = height;
+            _devicePixelRatio = devicePixelRatio;
+
+            texture = _renderTexture;
+        }
+    
+        void _destroyRenderTexture() {
+            D.assert(_renderTexture != null);
+            texture = null;
+            ObjectUtils.SafeDestroy(_renderTexture);
+            _renderTexture = null;
+        }
+    
+        void _enableUIWidgetsPanel(string font_settings)
+        {
+            UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
+                _width, _height, _devicePixelRatio, Application.streamingAssetsPath, font_settings);
+        }
+    
+        void _resizeUIWidgetsPanel()
+        {
+            UIWidgetsPanel_onRenderTexture(_ptr,
+                        _renderTexture.GetNativeTexturePtr(),
+                        _width, _height, _devicePixelRatio);
+        }
+    
+        void _disableUIWidgetsPanel() {
+            _renderTexture = null;
+            texture = null;
+        }
+    
+        
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onEnable(IntPtr ptr,
+            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath, string font_settings);
+        
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onRenderTexture(
+            IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
+    }
+
+#elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+    public partial class UIWidgetsPanel {
+        Texture _renderTexture;
+    
+        void _createRenderTexture(int width, int height, float devicePixelRatio) {
+            D.assert(_renderTexture == null);
+            
+            _width = width;
+            _height = height;
+            _devicePixelRatio = devicePixelRatio;
+        }
+        
+        void _destroyRenderTexture() {
+            D.assert(_renderTexture != null);
+            var releaseOK = UIWidgetsPanel_releaseNativeTexture(_ptr);
+            D.assert(releaseOK);
+            
+            _renderTexture = null;
+            texture = null;
+        }
+
+        void _enableUIWidgetsPanel(string font_settings) {
+            D.assert(_renderTexture == null);
+            IntPtr native_tex_ptr = UIWidgetsPanel_onEnable(_ptr, _width, _height, _devicePixelRatio,
+                Application.streamingAssetsPath, font_settings);
+            D.assert(native_tex_ptr != IntPtr.Zero);
+
+            _renderTexture =
+                Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, true, native_tex_ptr);
+
+            texture = _renderTexture;
+        }
+
+        void _disableUIWidgetsPanel() {
+            _renderTexture = null;
+            texture = null;
+        }
+        
+        void _resizeUIWidgetsPanel()
+        {
+            D.assert(_renderTexture == null);
+            
+            IntPtr native_tex_ptr = UIWidgetsPanel_onRenderTexture(_ptr, _width, _height, _devicePixelRatio);
+            D.assert(native_tex_ptr != IntPtr.Zero);
+            
+            _renderTexture =
+                Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, true, native_tex_ptr);
+
+            texture = _renderTexture;
+        }
+        
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr UIWidgetsPanel_onEnable(IntPtr ptr,
+            int width, int height, float dpi, string streamingAssetsPath, string font_settings);
+        
+        [DllImport(NativeBindings.dllName)]
+        static extern bool UIWidgetsPanel_releaseNativeTexture(IntPtr ptr);
+        
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr UIWidgetsPanel_onRenderTexture(
+            IntPtr ptr, int width, int height, float dpi);
+    }
+#endif
+    
     public partial class UIWidgetsPanel : RawImage {
         [Serializable]
         public struct Font {
@@ -73,8 +195,7 @@ namespace Unity.UIWidgets.engine2 {
 
         IntPtr _ptr;
         GCHandle _handle;
-
-        RenderTexture _renderTexture;
+        
         int _width;
         int _height;
         float _devicePixelRatio;
@@ -100,18 +221,17 @@ namespace Unity.UIWidgets.engine2 {
 
         protected void OnEnable() {
             base.OnEnable();
+            D.assert(_renderTexture == null);
             _recreateRenderTexture(_currentWidth, _currentHeight, _currentDevicePixelRatio);
 
             _handle = GCHandle.Alloc(this);
-
             _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, UIWidgetsPanel_entrypoint);
             var settings = new Dictionary<string, object>();
             if (fonts != null && fonts.Length > 0) {
                 settings.Add("fonts", fontsToObject(fonts));
             }
-            UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
-                _width, _height, _devicePixelRatio, Application.streamingAssetsPath,
-                JSONMessageCodec.instance.toJson(settings));
+            
+            _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(settings));
 
             Input_OnEnable();
             NativeConsole.OnEnable();
@@ -135,9 +255,7 @@ namespace Unity.UIWidgets.engine2 {
         protected override void OnRectTransformDimensionsChange() {
             if (_ptr != IntPtr.Zero && _renderTexture) {
                 if (_recreateRenderTexture(_currentWidth, _currentHeight, _currentDevicePixelRatio)) {
-                    UIWidgetsPanel_onRenderTexture(_ptr,
-                        _renderTexture.GetNativeTexturePtr(),
-                        _width, _height, _devicePixelRatio);
+                    _resizeUIWidgetsPanel();
                 }
             }
         }
@@ -151,8 +269,9 @@ namespace Unity.UIWidgets.engine2 {
 
             _handle.Free();
             _handle = default;
-            // _destroyRenderTexture();
-            // Destroy(_rawImage);
+
+            _disableUIWidgetsPanel();
+            
             D.assert(!isolate.isValid);
             base.OnDisable();
         }
@@ -169,32 +288,6 @@ namespace Unity.UIWidgets.engine2 {
 
             _createRenderTexture(width, height, devicePixelRatio);
             return true;
-        }
-
-        void _createRenderTexture(int width, int height, float devicePixelRatio) {
-            D.assert(_renderTexture == null);
-
-            var desc = new RenderTextureDescriptor(
-                width, height, RenderTextureFormat.ARGB32, 0) {
-                useMipMap = false,
-                autoGenerateMips = false,
-            };
-
-            _renderTexture = new RenderTexture(desc) {hideFlags = HideFlags.HideAndDontSave};
-            _renderTexture.Create();
-
-            _width = width;
-            _height = height;
-            _devicePixelRatio = devicePixelRatio;
-
-            texture = _renderTexture;
-        }
-
-        void _destroyRenderTexture() {
-            D.assert(_renderTexture != null);
-            texture = null;
-            ObjectUtils.SafeDestroy(_renderTexture);
-            _renderTexture = null;
         }
 
         protected virtual void Update() {
@@ -235,15 +328,7 @@ namespace Unity.UIWidgets.engine2 {
         static extern void UIWidgetsPanel_dispose(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onEnable(IntPtr ptr,
-            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath, string settings);
-
-        [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onDisable(IntPtr ptr);
-
-        [DllImport(NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onRenderTexture(
-            IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
 
         [DllImport(NativeBindings.dllName)]
         static extern int UIWidgetsPanel_registerTexture(IntPtr ptr, IntPtr nativeTexturePtr);

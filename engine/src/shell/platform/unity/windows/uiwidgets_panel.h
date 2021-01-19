@@ -2,7 +2,7 @@
 
 #include <flutter/fml/memory/ref_counted.h>
 
-#include "gfx_worker_task_runner.h"
+#include "shell/platform/unity/gfx_worker_task_runner.h"
 #include "runtime/mono_api.h"
 #include "unity_surface_manager.h"
 #include "win32_task_runner.h"

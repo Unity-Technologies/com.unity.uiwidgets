@@ -1,5 +1,3 @@
-#pragma once
-
 #include "asset_manager_font_provider.h"
 
 #include "flutter/fml/logging.h"

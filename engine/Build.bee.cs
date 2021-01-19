@@ -9,6 +9,22 @@ using Bee.NativeProgramSupport;
 using Bee.Tools;
 using NiceIO;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Bee.ProjectGeneration.XCode;
+using Bee.Toolchain.Xcode;
+
+class BuildUtils
+{
+    public static bool IsHostWindows()
+    {
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    }
+
+    public static bool IsHostMac()
+    {
+        return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+    }
+}
 
 class Build
 {
@@ -26,18 +42,29 @@ class Build
             flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
         }
 
-
         var libUIWidgets = SetupLibUIWidgets();
 
-        var builder = new VisualStudioNativeProjectFileBuilder(libUIWidgets);
-        builder = libUIWidgets.SetupConfigurations.Aggregate(
-            builder,
-            (current, c) => current.AddProjectConfiguration(c));
+        //create ide projects
+        if (BuildUtils.IsHostWindows())
+        {
+            //create vs project
+            var builder = new VisualStudioNativeProjectFileBuilder(libUIWidgets);
+            builder = libUIWidgets.SetupConfigurations.Aggregate(
+                builder,
+                (current, c) => current.AddProjectConfiguration(c));
 
-        var sln = new VisualStudioSolution();
-        sln.Path = "libUIWidgets.gen.sln";
-        sln.Projects.Add(builder.DeployTo("libUIWidgets.gen.vcxproj"));
-        Backend.Current.AddAliasDependency("ProjectFiles", sln.Setup());
+            var sln = new VisualStudioSolution();
+            sln.Path = "libUIWidgets.gen.sln";
+            sln.Projects.Add(builder.DeployTo("libUIWidgets.gen.vcxproj"));
+            Backend.Current.AddAliasDependency("ProjectFiles", sln.Setup());
+        }
+        else if (BuildUtils.IsHostMac())
+        {
+            //create xcode project
+            var nativePrograms = new List<NativeProgram>();
+            nativePrograms.Add(libUIWidgets);
+            var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgets.xcodeproj/project.pbxproj"));
+        }
     }
 
     private static string skiaRoot;
@@ -300,16 +327,8 @@ class Build
 
                 "src/shell/platform/unity/gfx_worker_task_runner.cc",
                 "src/shell/platform/unity/gfx_worker_task_runner.h",
-                "src/shell/platform/unity/uiwidgets_panel.cc",
-                "src/shell/platform/unity/uiwidgets_panel.h",
-                "src/shell/platform/unity/uiwidgets_system.cc",
                 "src/shell/platform/unity/uiwidgets_system.h",
-                "src/shell/platform/unity/unity_external_texture_gl.cc",
-                "src/shell/platform/unity/unity_external_texture_gl.h",
-                "src/shell/platform/unity/unity_surface_manager.cc",
-                "src/shell/platform/unity/unity_surface_manager.h",
-                "src/shell/platform/unity/win32_task_runner.cc",
-                "src/shell/platform/unity/win32_task_runner.h",
+                
                 "src/shell/platform/unity/unity_console.cc",
                 "src/shell/platform/unity/unity_console.h",
 
@@ -318,26 +337,60 @@ class Build
 
                 "src/engine.cc",
                 "src/platform_base.h",
-                "src/render_api.cc",
-                "src/render_api.h",
-                "src/render_api_d3d11.cc",
-
-                "src/TestLoadICU.cpp", // load icu temp solution
-                //"src/render_api_vulkan.cc",
-                //"src/render_api_opengles.cc",
             },
             OutputName = { c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}" },
         };
-        np.Libraries.Add(new BagOfObjectFilesLibrary(
+
+        // include these files for test only
+        var testSources = new NPath[] {
+                "src/tests/render_engine.cc",
+                "src/tests/render_api.cc",
+                "src/tests/render_api.h",
+                "src/tests/render_api_d3d11.cc",      // test d3d rendering
+                "src/tests/render_api_vulkan.cc",     // test vulkan rendering 
+                "src/tests/render_api_opengles.cc",   // test opengles rendering
+                "src/tests/TestLoadICU.cpp",          // test ICU
+        };
+
+        var winSources = new NPath[] {
+                "src/shell/platform/unity/windows/uiwidgets_panel.cc",
+                "src/shell/platform/unity/windows/uiwidgets_panel.h",
+                "src/shell/platform/unity/windows/uiwidgets_system.cc",
+                "src/shell/platform/unity/windows/uiwidgets_system.h",
+                "src/shell/platform/unity/windows/unity_external_texture_gl.cc",
+                "src/shell/platform/unity/windows/unity_external_texture_gl.h",
+                "src/shell/platform/unity/windows/unity_surface_manager.cc",
+                "src/shell/platform/unity/windows/unity_surface_manager.h",
+                "src/shell/platform/unity/windows/win32_task_runner.cc",
+                "src/shell/platform/unity/windows/win32_task_runner.h",
+        };
+
+        var macSources = new NPath[] {
+                "src/shell/platform/unity/darwin/macos/uiwidgets_panel.mm",
+                "src/shell/platform/unity/darwin/macos/uiwidgets_panel.h",
+                "src/shell/platform/unity/darwin/macos/uiwidgets_system.mm",
+                "src/shell/platform/unity/darwin/macos/uiwidgets_system.h",
+                "src/shell/platform/unity/darwin/macos/cocoa_task_runner.cc",
+                "src/shell/platform/unity/darwin/macos/cocoa_task_runner.h",
+                "src/shell/platform/unity/darwin/macos/unity_surface_manager.mm",
+                "src/shell/platform/unity/darwin/macos/unity_surface_manager.h",
+        };
+
+        np.Sources.Add(c => IsWindows(c), winSources);
+        np.Sources.Add(c => IsMac(c), macSources);
+
+        np.Libraries.Add(c => IsWindows(c), new BagOfObjectFilesLibrary(
             new NPath[]{
                 skiaRoot + "/third_party/externals/icu/flutter/icudtl.o"
         }));
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
+        np.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new []{"-Wno-c++11-narrowing"}));
 
         np.IncludeDirectories.Add("third_party");
         np.IncludeDirectories.Add("src");
 
         np.Defines.Add("UIWIDGETS_ENGINE_VERSION=\\\"0.0\\\"", "SKIA_VERSION=\\\"0.0\\\"");
+        np.Defines.Add(c => IsMac(c), "UIWIDGETS_FORCE_ALIGNAS_8=\\\"1\\\"");
 
         np.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });
@@ -345,32 +398,53 @@ class Build
         np.Defines.Add(c => c.CodeGen == CodeGen.Release,
             new[] { "UIWidgets_RELEASE=1" });
 
-        np.LinkerSettings().Add(l => l.WithCustomFlags_workaround(new[] { "/DEBUG:FULL" }));
+        np.LinkerSettings().Add(c => IsWindows(c), l => l.WithCustomFlags_workaround(new[] { "/DEBUG:FULL" }));
 
         SetupFml(np);
         SetupRadidJson(np);
         SetupSkia(np);
         SetupTxt(np);
 
-        var toolchain = ToolChain.Store.Windows().VS2019().Sdk_17134().x64();
-
         var codegens = new[] { CodeGen.Debug };
-        foreach (var codegen in codegens)
+
+        if (BuildUtils.IsHostWindows())
         {
-            var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
+            var toolchain = ToolChain.Store.Windows().VS2019().Sdk_17134().x64();
 
-            var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat)
-                .DeployTo("build");
+            foreach (var codegen in codegens)
+            {
+                var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
 
-            builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64");
+                var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat)
+                    .DeployTo("build");
+
+                builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64");
+            }
         }
+        else if (BuildUtils.IsHostMac())
+        {
+            var toolchain = ToolChain.Store.Host();
+            var validConfigurations = new List<NativeProgramConfiguration>();
+            foreach (var codegen in codegens)
+            {
+                var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
+                validConfigurations.Add(config);
+
+                var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat).DeployTo("build");
+
+                builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/osx");
+            }
+
+            np.ValidConfigurations = validConfigurations;
+        }
+
         return np;
     }
 
     static void SetupFml(NativeProgram np)
     {
 
-        np.Defines.Add(new[]
+        np.Defines.Add(c => IsWindows(c), new[]
         {
             // gn desc out\host_debug_unopt\ //flutter/fml:fml_lib defines
             "USE_OPENSSL=1",
@@ -403,23 +477,47 @@ class Build
             "FLUTTER_JIT_RUNTIME=1",
         });
 
+        np.Defines.Add(c => IsMac(c), new []
+        {
+            "USE_OPENSSL=1",
+            "__STDC_CONSTANT_MACROS",
+            "__STDC_FORMAT_MACROS",
+            "_FORTIFY_SOURCE=2",
+            "_LIBCPP_DISABLE_AVAILABILITY=1",
+            "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+            "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+            "_DEBUG",
+            "FLUTTER_RUNTIME_MODE_DEBUG=1",
+            "FLUTTER_RUNTIME_MODE_PROFILE=2",
+            "FLUTTER_RUNTIME_MODE_RELEASE=3",
+            "FLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
+            "FLUTTER_RUNTIME_MODE=1",
+            "FLUTTER_JIT_RUNTIME=1"
+        });
+
         np.IncludeDirectories.Add(flutterRoot);
 
-        np.Libraries.Add(c =>
-        {
-            var basePath = flutterRoot + "/out/host_debug_unopt";
+        var fmlLibPath = flutterRoot + "/out/host_debug_unopt";
+        np.Libraries.Add(c => IsWindows(c), c => {
             return new PrecompiledLibrary[]
             {
-                new StaticLibrary(basePath + "/obj/flutter/fml/fml_lib.lib"),
+                new StaticLibrary(fmlLibPath + "/obj/flutter/fml/fml_lib.lib"),
                 new SystemLibrary("Rpcrt4.lib"),
+            };
+        });
+
+        np.Libraries.Add(c => IsMac(c), c => {
+            return new PrecompiledLibrary[]
+            {
+                new StaticLibrary(fmlLibPath + "/obj/flutter/fml/libfml_lib.a"),
+                new SystemFramework("Foundation"),
             };
         });
     }
 
-
     static void SetupSkia(NativeProgram np)
     {
-        np.Defines.Add(new[]
+        np.Defines.Add(c => IsWindows(c), new[]
         {
             // bin\gn desc out\Debug\ //:skia defines
             "SK_ENABLE_SPIRV_VALIDATION",
@@ -466,8 +564,37 @@ class Build
             "EGLAPI=",
         });
 
+        np.Defines.Add(c => IsMac(c), new[]
+        {
+            // bin\gn desc out\Debug\ //:skia defines
+            "SK_ENABLE_SPIRV_VALIDATION",
+            "SK_ASSUME_GL=1",
+            "SK_ENABLE_API_AVAILABLE",
+            "SK_GAMMA_APPLY_TO_A8",
+            "GR_OP_ALLOCATE_USE_NEW",
+            "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+            "GR_TEST_UTILS=1",
+            "SKIA_IMPLEMENTATION=1",
+            "SK_GL",
+            "SK_ENABLE_DUMP_GPU",
+            "SK_SUPPORT_PDF",
+            "SK_CODEC_DECODES_JPEG",
+            "SK_ENCODE_JPEG",
+            "SK_ENABLE_ANDROID_UTILS",
+            "SK_USE_LIBGIFCODEC",
+            "SK_HAS_HEIF_LIBRARY",
+            "SK_CODEC_DECODES_PNG",
+            "SK_ENCODE_PNG",
+            "SK_CODEC_DECODES_RAW",
+            "SK_ENABLE_SKSL_INTERPRETER",
+            "SKVM_JIT_WHEN_POSSIBLE",
+            "SK_CODEC_DECODES_WEBP",
+            "SK_ENCODE_WEBP",
+            "SK_XML"
+        });
+
         np.IncludeDirectories.Add(skiaRoot);
-        np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/angle2/include");
+        np.IncludeDirectories.Add(c => IsWindows(c), skiaRoot + "/third_party/externals/angle2/include");
         // np.IncludeDirectories.Add(skiaRoot + "/include/third_party/vulkan");
 
         np.Libraries.Add(IsWindows, c =>
@@ -494,12 +621,28 @@ class Build
             };
         });
 
+        np.Libraries.Add(IsMac, c => {
+            var basePath = skiaRoot + "/out/Debug";
+            return new PrecompiledLibrary[]
+            {
+                new StaticLibrary(basePath + "/libskia.a"),
+                new StaticLibrary(basePath + "/libskottie.a"),
+                new StaticLibrary(basePath + "/libsksg.a"),
+                new StaticLibrary(basePath + "/libskshaper.a"),
+                new SystemFramework("ApplicationServices"),
+                new SystemFramework("OpenGL"),
+                new SystemFramework("AppKit"),
+                new SystemFramework("CoreVideo"),
+            };
+        });
+
         var basePath = skiaRoot + "/out/Debug";
-        np.SupportFiles.Add(
-            new DeployableFile(basePath + "/libEGL.dll"),
-            new DeployableFile(basePath + "/libEGL.dll.pdb"),
-            new DeployableFile(basePath + "/libGLESv2.dll"),
-            new DeployableFile(basePath + "/libGLESv2.dll.pdb")
+        np.SupportFiles.Add(c => IsWindows(c), new [] {
+                new DeployableFile(basePath + "/libEGL.dll"),
+                new DeployableFile(basePath + "/libEGL.dll.pdb"),
+                new DeployableFile(basePath + "/libGLESv2.dll"),
+                new DeployableFile(basePath + "/libGLESv2.dll.pdb"),
+            }
         );
     }
 
@@ -618,8 +761,9 @@ class Build
         SetupTxtDependency(txtLib);
 
         var ignoreWarnigs = new string[] { "4091", "4722", "4312", "4838", "4172", "4005", "4311", "4477" }; // todo comparing the list with engine
-
         txtLib.CompilerSettings().Add(s => s.WithWarningPolicies(ignoreWarnigs.Select((code) => new WarningAndPolicy(code, WarningPolicy.Silent)).ToArray()));
+        txtLib.CompilerSettings().Add(c => IsMac(c), c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
+        txtLib.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new []{"-Wno-c++11-narrowing"}));
 
         txtLib.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });
@@ -635,6 +779,7 @@ class Build
         sources = sources.Select(p => txtPath.Combine(p));
         txtLib.Sources.Add(sources);
         txtLib.Sources.Add(c => IsWindows(c), txtPath.Combine(new NPath("src/txt/platform_windows.cc")));
+        txtLib.Sources.Add(c => IsMac(c), txtPath.Combine(new NPath("src/txt/platform_mac.mm")));
         txtLib.NonLumpableFiles.Add(sources);
 
         np.Libraries.Add(txtLib);
@@ -652,6 +797,18 @@ class Build
             "RAPIDJSON_HAS_CXX11_RVALUE_REFS",
             "RAPIDJSON_HAS_CXX11_TYPETRAITS",
             "RAPIDJSON_HAS_CXX11_NOEXCEPT"
+        });
+
+        np.Defines.Add(c => IsMac(c), new[]
+        {
+            "USE_OPENSSL=1",
+            "__STDC_CONSTANT_MACROS",
+            "__STDC_FORMAT_MACROS",
+            "_FORTIFY_SOURCE=2",
+            "_LIBCPP_DISABLE_AVAILABILITY=1",
+            "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+            "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+            "_DEBUG"
         });
 
         np.IncludeDirectories.Add(flutterRoot + "/third_party/rapidjson/include");
