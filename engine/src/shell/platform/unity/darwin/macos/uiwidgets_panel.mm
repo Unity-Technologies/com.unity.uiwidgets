@@ -219,11 +219,13 @@ bool UIWidgetsPanel::ReleaseNativeRenderTexture() { return surface_manager_->Rel
 
 int UIWidgetsPanel::RegisterTexture(void* native_texture_ptr) {
   //TODO: add implementation
+  std::cerr << "registering external texture is not implemented for MacOS" << std::endl;
   return 0;
 }
 
 void UIWidgetsPanel::UnregisterTexture(int texture_id) {
   //TODO: add implementation
+  std::cerr << "unregistering external texture is not implemented for MacOS" << std::endl;
 }
 
 std::chrono::nanoseconds UIWidgetsPanel::ProcessMessages() {
