@@ -238,11 +238,7 @@ namespace Unity.UIWidgets.widgets {
                 if (_descendants == null) {
                     List<FocusNode> result = new List<FocusNode>();
                     foreach (FocusNode child in _children) {
-                        foreach (var childDescendant in child.descendants) {
-                            result.Add(childDescendant);
-                        }
-
-                        //result.addAll(child.descendants);
+                        result.AddRange(child.descendants);
                         result.Add(child);
                     }
 
@@ -261,10 +257,8 @@ namespace Unity.UIWidgets.widgets {
                     if (!node.skipTraversal && node.canRequestFocus) {
                         nodes.Add(node);
                     }
-
                 }
-
-                // descendants.where((FocusNode node) => !node.skipTraversal && node.canRequestFocus);
+                
                 return nodes;
             }
 
@@ -515,14 +509,12 @@ namespace Unity.UIWidgets.widgets {
 
         public void _notify() {
             if (_parent == null) {
-
                 return;
             }
 
             if (hasPrimaryFocus) {
                 _setAsFocusedChildForScope();
             }
-
             notifyListeners();
         }
 
@@ -584,23 +576,19 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
         }
-
-
+        
         public bool nextFocus() {
             return FocusTraversalGroup.of(context).next(this);
         }
-    
-    
+        
         public bool previousFocus() {
           return FocusTraversalGroup.of(context).previous(this);
         }
-    
-    
+        
         public bool focusInDirection(TraversalDirection direction) {
           return  FocusTraversalGroup.of(context).inDirection(this, direction);
         }
-
-
+        
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<BuildContext>("context", context, defaultValue: null));
@@ -608,16 +596,14 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new FlagProperty("hasFocus", value: hasFocus && !hasPrimaryFocus, ifTrue: "IN FOCUS PATH", defaultValue: false));
             properties.add(new FlagProperty("hasPrimaryFocus", value: hasPrimaryFocus, ifTrue: "PRIMARY FOCUS", defaultValue: false));
         }
-
-
+        
         public override List<DiagnosticsNode> debugDescribeChildren() {
             int count = 1;
             return _children.Select((FocusNode child)=> {
-              return child.toDiagnosticsNode(name: "Child ${count++}");
+              return child.toDiagnosticsNode(name: $"Child {count++}");
             }).ToList();
         }
-
-
+        
         public override string toStringShort() {//override
             bool hasDebugLabel = debugLabel != null && debugLabel.isNotEmpty();
             string nullStr = "";
@@ -641,14 +627,10 @@ namespace Unity.UIWidgets.widgets {
             onKey: onKey,
             canRequestFocus: canRequestFocus,
             skipTraversal: skipTraversal
-        ) {
-            D.assert(skipTraversal != null);
-            D.assert(canRequestFocus != null);
-            
-        }
+        ) {}
 
         public FocusScopeNode nearestScope {
-            get { return enclosingScope; }
+            get { return this; }
         }
 
         public bool isFirstFocus {
@@ -699,8 +681,7 @@ namespace Unity.UIWidgets.widgets {
             // It is possible that a previously focused child is no longer focusable.
             while (focusedChild != null && !focusedChild.canRequestFocus)
               _focusedChildren.removeLast();
-
-
+            
             if (!findFirstFocus) {
               if (canRequestFocus) {
                 _setAsFocusedChildForScope();
@@ -722,8 +703,7 @@ namespace Unity.UIWidgets.widgets {
                 _markNextFocus(this);
               }
             } else {
-              
-              primaryFocus._doRequestFocus(findFirstFocus: findFirstFocus);
+                primaryFocus._doRequestFocus(findFirstFocus: findFirstFocus);
             }
         }
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -736,7 +716,7 @@ namespace Unity.UIWidgets.widgets {
             childList = _focusedChildren.Select((FocusNode child)=> {
               return child.toStringShort();
             }).ToList();
-           // properties.add(new IEnumerableProperty<string>("focusedChildren", childList, defaultValue: new List<string>()));
+            properties.add(new EnumerableProperty<string>("focusedChildren", childList, defaultValue: new List<string>()));
         }
     }
 

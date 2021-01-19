@@ -57,6 +57,8 @@ namespace Unity.UIWidgets.rendering {
             Color backgroundCursorColor = null,
             ValueNotifier<bool> showCursor = null,
             bool? hasFocus = null,
+            LayerLink startHandleLayerLink = null,
+            LayerLink endHandleLayerLink = null,
             int? maxLines = 1,
             int? minLines = null,
             bool expands = false,
@@ -68,12 +70,17 @@ namespace Unity.UIWidgets.rendering {
             SelectionChangedHandler onSelectionChanged = null,
             CaretChangedHandler onCaretChanged = null,
             bool ignorePointer = false,
+            bool readOnly = false,
+            bool forceLine = true,
+            TextWidthBasis textWidthBasis = TextWidthBasis.parent,
             bool obscureText = false,
             float cursorWidth = 1.0f,
             Radius cursorRadius = null,
             bool paintCursorAboveText = false,
             Offset cursorOffset = null,
             float devicePixelRatio = 1.0f,
+            ui.BoxHeightStyle selectionHeightStyle = ui.BoxHeightStyle.tight,
+            ui.BoxWidthStyle selectionWidthStyle = ui.BoxWidthStyle.tight,
             bool? enableInteractiveSelection = null,
             EdgeInsets floatingCursorAddedMargin = null,
             TextSelectionDelegate textSelectionDelegate = null,
@@ -82,6 +89,8 @@ namespace Unity.UIWidgets.rendering {
             D.assert(textSelectionDelegate != null);
             D.assert(minLines == null || minLines > 0);
             D.assert(maxLines == null || maxLines > 0);
+            D.assert(startHandleLayerLink != null);
+            D.assert(endHandleLayerLink != null);
             D.assert((maxLines == null) || (minLines == null) || maxLines >= minLines,
                 () => "minLines can't be greater than maxLines");
             D.assert(offset != null);
@@ -91,7 +100,8 @@ namespace Unity.UIWidgets.rendering {
                 textAlign: textAlign,
                 textDirection: textDirection,
                 textScaleFactor: textScaleFactor,
-                strutStyle: strutStyle);
+                strutStyle: strutStyle,
+                textWidthBasis: textWidthBasis);
             _cursorColor = cursorColor;
             _backgroundCursorColor = backgroundCursorColor;
             _showCursor = showCursor ?? new ValueNotifier<bool>(false);
@@ -106,6 +116,12 @@ namespace Unity.UIWidgets.rendering {
             _cursorWidth = cursorWidth;
             _cursorRadius = cursorRadius;
             _enableInteractiveSelection = enableInteractiveSelection;
+            _selectionHeightStyle = selectionHeightStyle;
+            _selectionWidthStyle = selectionWidthStyle;
+            _startHandleLayerLink = startHandleLayerLink;
+            _endHandleLayerLink = endHandleLayerLink;
+            _readOnly = readOnly;
+            _forceLine = forceLine;
             this.ignorePointer = ignorePointer;
             this.onCaretChanged = onCaretChanged;
             this.onSelectionChanged = onSelectionChanged;
@@ -115,13 +131,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(_maxLines == null || _maxLines > 0);
             D.assert(_showCursor != null);
             D.assert(!_showCursor.value || cursorColor != null);
-
-            _tap = new TapGestureRecognizer(this);
             _doubleTap = new DoubleTapGestureRecognizer(this);
-            _tap.onTapDown = _handleTapDown;
-            _tap.onTap = _handleTap;
-            _longPress = new LongPressGestureRecognizer(debugOwner: this);
-            _longPress.onLongPress = _handleLongPress;
 
             _paintCursorOnTop = paintCursorAboveText;
             _cursorOffset = cursorOffset;
@@ -131,9 +141,112 @@ namespace Unity.UIWidgets.rendering {
 
         public static readonly char obscuringCharacter = '•';
         public SelectionChangedHandler onSelectionChanged;
+        float _textLayoutLastMaxWidth;
+        float _textLayoutLastMinWidth;
         float? _textLayoutLastWidth;
         public CaretChangedHandler onCaretChanged;
         public bool ignorePointer;
+
+        public TextWidthBasis textWidthBasis {
+            get {
+                return _textPainter.textWidthBasis;
+            }
+            set {
+                D.assert(value != null);
+                if (_textPainter.textWidthBasis == value)
+                    return;
+                _textPainter.textWidthBasis = value;
+                markNeedsTextLayout();
+            }
+        }
+
+        public ui.BoxHeightStyle selectionHeightStyle {
+            get {
+                return _selectionHeightStyle;
+            }
+            set {
+                D.assert(value != null);
+                if (_selectionHeightStyle == value)
+                    return;
+                _selectionHeightStyle = value;
+                markNeedsPaint();
+            }
+        }
+
+        ui.BoxHeightStyle _selectionHeightStyle;
+        
+        public ui.BoxWidthStyle selectionWidthStyle {
+            get {
+                return _selectionWidthStyle;
+            }
+            set {
+                D.assert(value != null);
+                if (_selectionWidthStyle == value)
+                    return;
+                _selectionWidthStyle = value;
+                markNeedsPaint();
+            }
+        }
+
+        ui.BoxWidthStyle _selectionWidthStyle;
+        
+        public LayerLink startHandleLayerLink {
+            get {
+                return _startHandleLayerLink;
+            }
+            set {
+                if (_startHandleLayerLink == value)
+                    return;
+                _startHandleLayerLink = value;
+                markNeedsPaint();
+            }
+        }
+
+        LayerLink _startHandleLayerLink;
+        
+        public LayerLink endHandleLayerLink {
+            get {
+                return _endHandleLayerLink;
+            }
+            set {
+                if (_endHandleLayerLink == value)
+                    return;
+                _endHandleLayerLink = value;
+                markNeedsPaint();
+            }
+        }
+
+        LayerLink _endHandleLayerLink;
+
+        public bool forceLine {
+            get {
+                return _forceLine;
+            }
+            set {
+                D.assert(value != null);
+                if (_forceLine == value)
+                    return;
+                _forceLine = value;
+                markNeedsLayout();
+            }
+        }
+
+        bool _forceLine = false;
+        
+        public bool readOnly {
+            get {
+                return _readOnly;
+            }
+            set {
+                D.assert(value != null);
+                if (_readOnly == value)
+                    return;
+                _readOnly = value;
+                markNeedsSemanticsUpdate();
+            }
+        }
+
+        bool _readOnly = false;
 
         float _devicePixelRatio;
 

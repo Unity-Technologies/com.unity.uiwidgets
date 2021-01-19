@@ -338,9 +338,9 @@ namespace Unity.UIWidgets.widgets {
             D.assert(currentNode != null);
             FocusScopeNode scope = currentNode.nearestScope;
             FocusNode candidate = scope.focusedChild;
-            if (candidate == null && scope.descendants.Count() != 0) {
-                List<FocusNode> sorted = _sortAllDescendants(scope);
-                candidate = sorted.isNotEmpty() ? sorted.First() : null;
+            if (candidate == null && scope.descendants.Any()) {
+                IEnumerable<FocusNode> sorted = _sortAllDescendants(scope);
+                candidate = sorted.Any() ? sorted.First() : null;
             }
 
             candidate = candidate ?? currentNode;
@@ -390,7 +390,7 @@ namespace Unity.UIWidgets.widgets {
             }
             HashSet<FocusNode> groupKeys = new HashSet<FocusNode>(groups.Keys);
             foreach ( FocusNode key in groups.Keys) { 
-                List<FocusNode> sortedMembers = groups[key].policy.sortDescendants(groups[key].members).ToList(); 
+                List<FocusNode> sortedMembers = groups.getOrDefault(key).policy.sortDescendants(groups.getOrDefault(key).members).ToList(); 
                 groups[key].members.Clear(); 
                 groups[key].members.AddRange(sortedMembers); 
             }
@@ -473,7 +473,6 @@ namespace Unity.UIWidgets.widgets {
             FocusNode node ) {
             this.direction = direction;
             this.node = node;
-
         } 
         public readonly TraversalDirection direction;
         public readonly FocusNode node;
@@ -488,6 +487,7 @@ namespace Unity.UIWidgets.widgets {
     public class _DirectionalPolicyData {
         public _DirectionalPolicyData(List<_DirectionalPolicyDataEntry> history) {
             D.assert(history != null);
+            this.history = history;
         }
 
 
@@ -807,6 +807,7 @@ namespace Unity.UIWidgets.widgets {
     public class OrderedTraversalPolicy : DirectionalFocusTraversalPolicyMixinFocusTraversalPolicy {
 
         public OrderedTraversalPolicy(FocusTraversalPolicy secondary) {
+            this.secondary = secondary;
         }
 
         public readonly FocusTraversalPolicy secondary;
@@ -841,14 +842,13 @@ namespace Unity.UIWidgets.widgets {
     public class FocusTraversalOrder : InheritedWidget {
         public FocusTraversalOrder(Key key = null, FocusOrder order = null, Widget child = null)
             : base(key: key, child: child) {
-            
+            this.order = order;
         }
 
         public readonly FocusOrder order;
 
         public static FocusOrder of(BuildContext context, bool nullOk = false) {
             D.assert(context != null);
-            D.assert(nullOk != null); 
             FocusTraversalOrder marker = context.getElementForInheritedWidgetOfExactType<FocusTraversalOrder>()?.widget as FocusTraversalOrder; 
             FocusOrder order = marker?.order;
             if (order == null && !nullOk) {
@@ -882,6 +882,18 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new DiagnosticsProperty<FocusNode>("previous", _previousFocus));
         }
     }
+    
+    public class RequestFocusAction : _RequestFocusActionBase {
+        /// Creates a [RequestFocusAction] with a fixed [key].
+        public RequestFocusAction(LocalKey key) : base(key) {
+        }
+
+    /// The [LocalKey] that uniquely identifies this action to an [Intent].
+    static readonly LocalKey key = new ValueKey<Type>(typeof(RequestFocusAction));
+    
+    public override void invoke(FocusNode node, Intent intent) => FocusTravesalUtils._focusAndEnsureVisible(node);
+    }
+    
     public class NextFocusAction : _RequestFocusActionBase {
         public NextFocusAction() : base(key) {
             
