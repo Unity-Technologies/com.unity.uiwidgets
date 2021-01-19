@@ -1,5 +1,3 @@
-#pragma once
-
 #include "icu_util.h"
 
 #include <memory>

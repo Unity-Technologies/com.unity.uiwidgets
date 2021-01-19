@@ -25,7 +25,11 @@ enum PointerButtonStylus : int64_t {
   kPointerButtonStylusSecondary = 1 << 2,
 };
 
+#ifdef UIWIDGETS_FORCE_ALIGNAS_8
+struct alignas(8) PointerData {
+#else
 struct alignas(4) PointerData {
+#endif
   enum class Change : int64_t {
     kCancel,
     kAdd,

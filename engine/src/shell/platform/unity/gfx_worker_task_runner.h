@@ -1,7 +1,5 @@
 #pragma once
 
-#include <windows.h>
-
 #include <chrono>
 #include <deque>
 #include <functional>
