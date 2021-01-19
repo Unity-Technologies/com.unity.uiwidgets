@@ -413,7 +413,7 @@ namespace Unity.UIWidgets.painting {
             return _paragraph.getWordBoundary(position);
         }
 
-        TextRange getLineBoundary(TextPosition position) {
+        public TextRange getLineBoundary(TextPosition position) {
             D.assert(!_needsLayout);
             return _paragraph.getLineBoundary(position);
         }

@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
+using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
@@ -17,6 +21,41 @@ namespace Unity.UIWidgets.rendering {
         public static readonly float _kCaretHeightOffset = 2.0f;
         public static readonly Offset _kFloatingCaretSizeIncrease = new Offset(0.5f, 1.0f);
         public static readonly float _kFloatingCaretRadius = 1.0f;
+        
+        public static bool _isWhitespace(int codeUnit) {
+            switch (codeUnit) {
+                case 0x9: // horizontal tab
+                case 0xA: // line feed
+                case 0xB: // vertical tab
+                case 0xC: // form feed
+                case 0xD: // carriage return
+                case 0x1C: // file separator
+                case 0x1D: // group separator
+                case 0x1E: // record separator
+                case 0x1F: // unit separator
+                case 0x20: // space
+                case 0xA0: // no-break space
+                case 0x1680: // ogham space mark
+                case 0x2000: // en quad
+                case 0x2001: // em quad
+                case 0x2002: // en space
+                case 0x2003: // em space
+                case 0x2004: // three-per-em space
+                case 0x2005: // four-er-em space
+                case 0x2006: // six-per-em space
+                case 0x2007: // figure space
+                case 0x2008: // punctuation space
+                case 0x2009: // thin space
+                case 0x200A: // hair space
+                case 0x202F: // narrow no-break space
+                case 0x205F: // medium mathematical space
+                case 0x3000: // ideographic space
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        }
     }
 
     public delegate void SelectionChangedHandler(TextSelection selection, RenderEditable renderObject,
@@ -48,7 +87,7 @@ namespace Unity.UIWidgets.rendering {
         }
     }
 
-    public class RenderEditable : RenderBox {
+    public class RenderEditable : RenderBox, RelayoutWhenSystemFontsChangeMixin {
         public RenderEditable(
             TextSpan text,
             TextDirection textDirection,
@@ -141,9 +180,8 @@ namespace Unity.UIWidgets.rendering {
 
         public static readonly char obscuringCharacter = '•';
         public SelectionChangedHandler onSelectionChanged;
-        float _textLayoutLastMaxWidth;
-        float _textLayoutLastMinWidth;
-        float? _textLayoutLastWidth;
+        float? _textLayoutLastMaxWidth;
+        float? _textLayoutLastMinWidth;
         public CaretChangedHandler onCaretChanged;
         public bool ignorePointer;
 
@@ -242,7 +280,6 @@ namespace Unity.UIWidgets.rendering {
                 if (_readOnly == value)
                     return;
                 _readOnly = value;
-                markNeedsSemanticsUpdate();
             }
         }
 
@@ -272,7 +309,6 @@ namespace Unity.UIWidgets.rendering {
                 }
 
                 _obscureText = value;
-                markNeedsSemanticsUpdate();
             }
         }
 
@@ -300,7 +336,7 @@ namespace Unity.UIWidgets.rendering {
             Rect visibleRegion = Offset.zero & size;
             Offset startOffset = _textPainter.getOffsetForCaret(
                 new TextPosition(offset: _selection.start, affinity: _selection.affinity),
-                Rect.zero
+                _caretPrototype
             );
 
             float visibleRegionSlop = 0.5f;
@@ -310,7 +346,7 @@ namespace Unity.UIWidgets.rendering {
 
             Offset endOffset = _textPainter.getOffsetForCaret(
                 new TextPosition(offset: _selection.end, affinity: _selection.affinity),
-                Rect.zero
+                _caretPrototype
             );
             _selectionEndInViewport.value = visibleRegion
                 .inflate(visibleRegionSlop)
@@ -325,6 +361,24 @@ namespace Unity.UIWidgets.rendering {
 
         bool _resetCursor = false;
 
+        
+        void _handleSelectionChange(
+            TextSelection nextSelection,
+            SelectionChangedCause cause
+        ) {
+            
+            bool focusingEmpty = nextSelection.baseOffset == 0
+                                       && nextSelection.extentOffset == 0
+                                       && !hasFocus;
+            if (nextSelection == selection
+                && cause != SelectionChangedCause.keyboard
+                && !focusingEmpty) {
+                return;
+            }
+
+            onSelectionChanged?.Invoke(nextSelection, this, cause);
+        }
+        
         void _handleKeyEvent(RawKeyEvent keyEvent) {
             if (keyEvent is RawKeyUpEvent) {
                 return;
@@ -487,6 +541,7 @@ namespace Unity.UIWidgets.rendering {
 
             return newOffset;
         }
+        
 
         int _handleShift(bool rightArrow, bool leftArrow, bool shift, int newOffset) {
             if (onSelectionChanged == null) {
@@ -621,10 +676,35 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected void markNeedsTextLayout() {
-            _textLayoutLastWidth = null;
+            _textLayoutLastMaxWidth = null;
+            _textLayoutLastMinWidth = null;
             markNeedsLayout();
         }
+        
+        public void systemFontsDidChange() {
+            _textPainter.markNeedsLayout();
+            _textLayoutLastMaxWidth = null;
+            _textLayoutLastMinWidth = null;
+        }
 
+        public void attach(PipelineOwner owner) {
+            _tap = new TapGestureRecognizer(debugOwner: this);
+            _tap.onTapDown = _handleTapDown;
+            _tap.onTap = _handleTap;
+            _longPress = new LongPressGestureRecognizer(debugOwner: this);
+            _longPress.onLongPress = _handleLongPress;
+            _offset.addListener(markNeedsLayout);
+            _showCursor.addListener(markNeedsPaint);
+        }
+        
+        string _cachedPlainText;
+        string _plainText {
+            get {
+                _cachedPlainText = _cachedPlainText ?? _textPainter.text.toPlainText();
+                return _cachedPlainText;
+            }
+        }
+        
         TextPainter _textPainter;
 
         public TextSpan text {
@@ -635,8 +715,8 @@ namespace Unity.UIWidgets.rendering {
                 }
 
                 _textPainter.text = value;
+                _cachedPlainText = null;
                 markNeedsTextLayout();
-                markNeedsSemanticsUpdate();
             }
         }
 
@@ -648,7 +728,7 @@ namespace Unity.UIWidgets.rendering {
                 }
 
                 _textPainter.textAlign = value;
-                markNeedsPaint();
+                markNeedsTextLayout();
             }
         }
 
@@ -661,7 +741,6 @@ namespace Unity.UIWidgets.rendering {
 
                 _textPainter.textDirection = value;
                 markNeedsTextLayout();
-                markNeedsSemanticsUpdate();
             }
         }
 
@@ -750,11 +829,9 @@ namespace Unity.UIWidgets.rendering {
                     RawKeyboard.instance.removeListener(_handleKeyEvent);
                     _listenerAttached = false;
                 }
-
-                markNeedsSemanticsUpdate();
             }
         }
-
+        
         int? _maxLines;
 
         public int? maxLines {
@@ -839,7 +916,6 @@ namespace Unity.UIWidgets.rendering {
                 _selection = value;
                 _selectionRects = null;
                 markNeedsPaint();
-                markNeedsSemanticsUpdate();
             }
         }
 
@@ -953,7 +1029,6 @@ namespace Unity.UIWidgets.rendering {
 
                 _enableInteractiveSelection = value;
                 markNeedsTextLayout();
-                markNeedsSemanticsUpdate();
             }
         }
 
@@ -961,14 +1036,21 @@ namespace Unity.UIWidgets.rendering {
             get { return enableInteractiveSelection ?? !obscureText; }
         }
 
-
         public override void attach(object ownerObject) {
             base.attach(ownerObject);
+            attach((PipelineOwner)ownerObject);
+            /*_tap = new TapGestureRecognizer(debugOwner: this);
+            _tap.onTapDown = _handleTapDown;
+            _tap.onTap = _handleTap;
+            _longPress = new LongPressGestureRecognizer(debugOwner: this);
+            _longPress.onLongPress = _handleLongPress;
             _offset.addListener(markNeedsLayout);
-            _showCursor.addListener(markNeedsPaint);
+            _showCursor.addListener(markNeedsPaint);*/
         }
 
         public override void detach() {
+            _tap.dispose();
+            _longPress.dispose();
             _offset.removeListener(markNeedsLayout);
             _showCursor.removeListener(markNeedsPaint);
             if (_listenerAttached) {
@@ -1025,24 +1107,24 @@ namespace Unity.UIWidgets.rendering {
             return 0.0f;
         }
 
-        float _maxScrollExtent = 0;
+        float  _caretMargin {
+            get {
+                return EditableUtils._kCaretGap + cursorWidth;
+            }
+        }
 
+        float  maxScrollExtent {
+            get { return _maxScrollExtent; }
+        }
+
+        float _maxScrollExtent = 0;
         bool _hasVisualOverflow {
             get { return _maxScrollExtent > 0 || _paintOffset != Offset.zero; }
         }
-
-
-        /// Returns the local coordinates of the endpoints of the given selection.
-        ///
-        /// If the selection is collapsed (and therefore occupies a single point), the
-        /// returned list is of length one. Otherwise, the selection is not collapsed
-        /// and the returned list is of length two. In this case, however, the two
-        /// points might actually be co-located (e.g., because of a bidirectional
-        /// selection that contains some text but whose ends meet in the middle).
-        ///
+        
         public List<TextSelectionPoint> getEndpointsForSelection(TextSelection selection) {
             D.assert(constraints != null);
-            _layoutText(constraints.maxWidth);
+            _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
             var paintOffset = _paintOffset;
             if (selection.isCollapsed) {
                 var caretOffset = _textPainter.getOffsetForCaret(selection.extendPos, _caretPrototype);
@@ -1062,13 +1144,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public TextPosition getPositionForPoint(Offset globalPosition) {
-            _layoutText(constraints.maxWidth);
+            _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
             globalPosition -= _paintOffset;
             return _textPainter.getPositionForOffset(globalToLocal(globalPosition));
         }
 
         public Rect getLocalRectForCaret(TextPosition caretPosition) {
-            _layoutText(constraints.maxWidth);
+            _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
             var caretOffset = _textPainter.getOffsetForCaret(caretPosition, _caretPrototype);
             Rect rect = Rect.fromLTWH(0.0f, 0.0f, cursorWidth, preferredLineHeight)
                 .shift(caretOffset + _paintOffset);
@@ -1080,12 +1162,12 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected internal override float computeMinIntrinsicWidth(float height) {
-            _layoutText(float.PositiveInfinity);
+            _layoutText(maxWidth: float.PositiveInfinity);
             return _textPainter.minIntrinsicWidth;
         }
 
         protected internal override float computeMaxIntrinsicWidth(float height) {
-            _layoutText(float.PositiveInfinity);
+            _layoutText(maxWidth: float.PositiveInfinity);
             return _textPainter.maxIntrinsicWidth + cursorWidth;
         }
 
@@ -1104,7 +1186,7 @@ namespace Unity.UIWidgets.rendering {
             bool minLimited = minLines != null && minLines > 1;
             bool maxLimited = maxLines != null;
             if (minLimited || maxLimited) {
-                _layoutText(width);
+                _layoutText(maxWidth: width);
                 if (minLimited && _textPainter.height < preferredLineHeight * minLines.Value) {
                     return preferredLineHeight * minLines.Value;
                 }
@@ -1115,7 +1197,7 @@ namespace Unity.UIWidgets.rendering {
             }
 
             if (!width.isFinite()) {
-                var text = _textPainter.text.toPlainText();
+                var text = _plainText;
                 int lines = 1;
                 for (int index = 0; index < text.Length; ++index) {
                     if (text[index] == 0x0A) {
@@ -1126,7 +1208,7 @@ namespace Unity.UIWidgets.rendering {
                 return preferredLineHeight * lines;
             }
 
-            _layoutText(width);
+            _layoutText(maxWidth: width);
             return Mathf.Max(preferredLineHeight, _textPainter.height);
         }
 
@@ -1139,7 +1221,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            _layoutText(constraints.maxWidth);
+            _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
             return _textPainter.computeDistanceToActualBaseline(baseline);
         }
 
@@ -1210,28 +1292,29 @@ namespace Unity.UIWidgets.rendering {
             D.assert(cause != null);
             D.assert(from != null);
 
-            _layoutText(constraints.maxWidth);
-            if (onSelectionChanged != null) {
-                TextPosition fromPosition =
-                    _textPainter.getPositionForOffset(globalToLocal(from - _paintOffset));
-                TextPosition toPosition = to == null
-                    ? null
-                    : _textPainter.getPositionForOffset(globalToLocal(to - _paintOffset));
-
-                int baseOffset = fromPosition.offset;
-                int extentOffset = fromPosition.offset;
-                if (toPosition != null) {
-                    baseOffset = Mathf.Min(fromPosition.offset, toPosition.offset);
-                    extentOffset = Mathf.Max(fromPosition.offset, toPosition.offset);
-                }
-
-                TextSelection newSelection = new TextSelection(
-                    baseOffset: baseOffset,
-                    extentOffset: extentOffset,
-                    affinity: fromPosition.affinity);
-
-                onSelectionChanged(newSelection, this, cause.Value);
+            _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
+            if (onSelectionChanged == null) {
+                return;
             }
+            TextPosition fromPosition =
+                _textPainter.getPositionForOffset(globalToLocal(from - _paintOffset));
+            TextPosition toPosition = to == null
+                ? null
+                : _textPainter.getPositionForOffset(globalToLocal(to - _paintOffset));
+
+            int baseOffset = fromPosition.offset;
+            int extentOffset = fromPosition.offset;
+            if (toPosition != null) {
+                baseOffset = Mathf.Min(fromPosition.offset, toPosition.offset);
+                extentOffset = Mathf.Max(fromPosition.offset, toPosition.offset);
+            }
+
+            TextSelection newSelection = new TextSelection(
+                baseOffset: baseOffset,
+                extentOffset: extentOffset,
+                affinity: fromPosition.affinity);
+
+            _handleSelectionChange(newSelection, cause.Value);
         }
 
         public void selectPosition(SelectionChangedCause? cause = null) {
@@ -1245,53 +1328,54 @@ namespace Unity.UIWidgets.rendering {
         public void selectWordsInRange(Offset from = null, Offset to = null, SelectionChangedCause? cause = null) {
             D.assert(cause != null);
             D.assert(from != null);
-            _layoutText(constraints.maxWidth);
-            if (onSelectionChanged != null) {
-                TextPosition firstPosition =
-                    _textPainter.getPositionForOffset(globalToLocal(from - _paintOffset));
-                TextSelection firstWord = _selectWordAtOffset(firstPosition);
-                TextSelection lastWord = to == null
-                    ? firstWord
-                    : _selectWordAtOffset(
-                        _textPainter.getPositionForOffset(globalToLocal(to - _paintOffset)));
-
-                onSelectionChanged(
-                    new TextSelection(
-                        baseOffset: firstWord.baseOffset,
-                        extentOffset: lastWord.extentOffset,
-                        affinity: firstWord.affinity),
-                    this,
-                    cause.Value);
+            _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
+            if (onSelectionChanged == null) {
+                return;
             }
+            TextPosition firstPosition =
+                _textPainter.getPositionForOffset(globalToLocal(from - _paintOffset));
+            TextSelection firstWord = _selectWordAtOffset(firstPosition);
+            TextSelection lastWord = to == null
+                ? firstWord
+                : _selectWordAtOffset(
+                    _textPainter.getPositionForOffset(globalToLocal(to - _paintOffset)));
+
+            _handleSelectionChange(
+                new TextSelection(
+                    baseOffset: firstWord.baseOffset,
+                    extentOffset: lastWord.extentOffset,
+                    affinity: firstWord.affinity),
+                cause.Value);
         }
 
         public void selectWordEdge(SelectionChangedCause cause) {
-            _layoutText(constraints.maxWidth);
+            _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
             D.assert(_lastTapDownPosition != null);
-            if (onSelectionChanged != null) {
-                TextPosition position =
-                    _textPainter.getPositionForOffset(
-                        globalToLocal(_lastTapDownPosition - _paintOffset));
-                TextRange word = _textPainter.getWordBoundary(position);
-                if (position.offset - word.start <= 1) {
-                    onSelectionChanged(
-                        TextSelection.collapsed(offset: word.start, affinity: TextAffinity.downstream),
-                        this,
-                        cause
-                    );
-                }
-                else {
-                    onSelectionChanged(
-                        TextSelection.collapsed(offset: word.end, affinity: TextAffinity.upstream),
-                        this,
-                        cause
-                    );
-                }
+            if (onSelectionChanged == null) {
+                return;
+            }
+            TextPosition position =
+                _textPainter.getPositionForOffset(
+                    globalToLocal(_lastTapDownPosition - _paintOffset));
+            TextRange word = _textPainter.getWordBoundary(position);
+            if (position.offset - word.start <= 1) {
+                _handleSelectionChange(
+                    TextSelection.collapsed(offset: word.start, affinity: TextAffinity.downstream),
+                    cause
+                );
+            }
+            else {
+                _handleSelectionChange(
+                    TextSelection.collapsed(offset: word.end, affinity: TextAffinity.upstream),
+                    cause
+                );
             }
         }
 
         TextSelection _selectWordAtOffset(TextPosition position) {
-            D.assert(_textLayoutLastWidth == constraints.maxWidth);
+            D.assert(_textLayoutLastMaxWidth == constraints.maxWidth &&
+                   _textLayoutLastMinWidth == constraints.minWidth,
+                () => $"Last width ({_textLayoutLastMinWidth}, {_textLayoutLastMaxWidth}) not the same as max width constraint ({constraints.minWidth}, {constraints.maxWidth}).");
             var word = _textPainter.getWordBoundary(position);
             if (position.offset >= word.end) {
                 return TextSelection.fromPosition(position);
@@ -1300,18 +1384,36 @@ namespace Unity.UIWidgets.rendering {
             return new TextSelection(baseOffset: word.start, extentOffset: word.end);
         }
 
+        TextSelection _selectLineAtOffset(TextPosition position) {
+            D.assert(_textLayoutLastMaxWidth == constraints.maxWidth &&
+                   _textLayoutLastMinWidth == constraints.minWidth,
+                () => $"Last width ({_textLayoutLastMinWidth}, {_textLayoutLastMaxWidth}) not the same as max width constraint ({constraints.minWidth}, {constraints.maxWidth}).");
+            TextRange line = _textPainter.getLineBoundary(position);
+            if (position.offset >= line.end)
+                return TextSelection.fromPosition(position);
+            // If text is obscured, the entire string should be treated as one line.
+            if (obscureText) {
+                return new TextSelection(baseOffset: 0, extentOffset: _plainText.Length);
+            }
+            return new TextSelection(baseOffset: line.start, extentOffset: line.end);
+        }
+        
         Rect _caretPrototype;
 
-        void _layoutText(float constraintWidth) {
-            if (_textLayoutLastWidth == constraintWidth) {
+        void _layoutText( float minWidth = 0.0f, float maxWidth = float.PositiveInfinity ) {
+            D.assert(maxWidth != null && minWidth != null);
+            if (_textLayoutLastMaxWidth == maxWidth && _textLayoutLastMinWidth == minWidth)
                 return;
-            }
-
-            var caretMargin = EditableUtils._kCaretGap + cursorWidth;
-            var avialableWidth = Mathf.Max(0.0f, constraintWidth - caretMargin);
-            var maxWidth = _isMultiline ? avialableWidth : float.PositiveInfinity;
-            _textPainter.layout(minWidth: avialableWidth, maxWidth: maxWidth);
-            _textLayoutLastWidth = constraintWidth;
+            float availableMaxWidth = Mathf.Max(0.0f, maxWidth - _caretMargin);
+            float availableMinWidth = Mathf.Min(minWidth, availableMaxWidth);
+            float textMaxWidth = _isMultiline ? availableMaxWidth : float.PositiveInfinity;
+            float textMinWidth = forceLine ? availableMaxWidth : availableMinWidth;
+            _textPainter.layout(
+                minWidth: textMinWidth,
+                maxWidth: textMaxWidth
+            );
+            _textLayoutLastMinWidth = minWidth;
+            _textLayoutLastMaxWidth = maxWidth;
         }
 
         Rect _getCaretPrototype {
@@ -1324,20 +1426,22 @@ namespace Unity.UIWidgets.rendering {
                         return Rect.fromLTWH(0.0f, EditableUtils._kCaretHeightOffset, cursorWidth,
                             preferredLineHeight - 2.0f * EditableUtils._kCaretHeightOffset);
                 }
+                return null;
             }
         }
 
 
         protected override void performLayout() {
-            _layoutText(constraints.maxWidth);
+            BoxConstraints constraints = this.constraints;
+            _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
             _caretPrototype = _getCaretPrototype;
             _selectionRects = null;
 
             var textPainterSize = _textPainter.size;
-            size = new Size(constraints.maxWidth,
-                constraints.constrainHeight(_preferredHeight(constraints.maxWidth)));
-            var contentSize = new Size(textPainterSize.width + EditableUtils._kCaretGap + cursorWidth,
-                textPainterSize.height);
+            float width = forceLine ? constraints.maxWidth : constraints
+                .constrainWidth(_textPainter.size.width + _caretMargin);
+            size = new Size(width, constraints.constrainHeight(_preferredHeight(constraints.maxWidth)));
+            Size contentSize = new Size(textPainterSize.width + _caretMargin, textPainterSize.height);
             _maxScrollExtent = _getMaxScrollExtent(contentSize);
             offset.applyViewportDimension(_viewportExtent);
             offset.applyContentDimensions(0.0f, _maxScrollExtent);
@@ -1354,7 +1458,9 @@ namespace Unity.UIWidgets.rendering {
         }
 
         void _paintCaret(Canvas canvas, Offset effectiveOffset, TextPosition textPosition) {
-            D.assert(_textLayoutLastWidth == constraints.maxWidth);
+            D.assert(_textLayoutLastMaxWidth == constraints.maxWidth &&
+                   _textLayoutLastMinWidth == constraints.minWidth,
+                () => $"Last width ({_textLayoutLastMinWidth}, {_textLayoutLastMaxWidth}) not the same as max width constraint ({constraints.minWidth}, {constraints.maxWidth}).");
             var paint = new Paint() {color = _floatingCursorOn ? backgroundCursorColor : _cursorColor};
             var caretOffset = _textPainter.getOffsetForCaret(textPosition, _caretPrototype) + effectiveOffset;
             Rect caretRect = _caretPrototype.shift(caretOffset);
@@ -1366,15 +1472,23 @@ namespace Unity.UIWidgets.rendering {
             if (caretHeight != null) {
                 switch (Application.platform) {
                     case RuntimePlatform.IPhonePlayer:
-                        float heightDiff = caretHeight.Value - caretRect.height;
+                    case RuntimePlatform.OSXPlayer:
+                        float? heightDiff = caretHeight - caretRect.height;
+                        // Center the caret vertically along the text.
                         caretRect = Rect.fromLTWH(
                             caretRect.left,
-                            caretRect.top + heightDiff / 2f,
+                            (caretRect.top + heightDiff / 2).Value,
                             caretRect.width,
                             caretRect.height
                         );
                         break;
-                    default:
+                    case RuntimePlatform.Android:
+                    // case TargetPlatform.fuchsia:[!!!]
+                    case RuntimePlatform.LinuxPlayer:
+                    case RuntimePlatform.WindowsPlayer:
+                        // Override the height to take the full height of the glyph at the TextPosition
+                        // when not on iOS. iOS has special handling that creates a taller caret.
+                        // TODO(garyq): See the TODO for _getCaretPrototype.
                         caretRect = Rect.fromLTWH(
                             caretRect.left,
                             caretRect.top - EditableUtils._kCaretHeightOffset,
@@ -1430,7 +1544,9 @@ namespace Unity.UIWidgets.rendering {
         // describeSemanticsConfiguration todo
 
         void _paintFloatingCaret(Canvas canvas, Offset effectiveOffset) {
-            D.assert(_textLayoutLastWidth == constraints.maxWidth);
+            D.assert(_textLayoutLastMaxWidth == constraints.maxWidth &&
+                     _textLayoutLastMinWidth == constraints.minWidth,
+                () => $"Last width ({_textLayoutLastMinWidth}, {_textLayoutLastMaxWidth}) not the same as max width constraint ({constraints.minWidth}, {constraints.maxWidth}).");
             D.assert(_floatingCursorOn);
 
             Paint paint = new Paint() {color = _cursorColor.withOpacity(0.75f)};
@@ -1522,7 +1638,9 @@ namespace Unity.UIWidgets.rendering {
         }
 
         void _paintSelection(Canvas canvas, Offset effectiveOffset) {
-            D.assert(_textLayoutLastWidth == constraints.maxWidth);
+            D.assert(_textLayoutLastMaxWidth == constraints.maxWidth &&
+                     _textLayoutLastMinWidth == constraints.minWidth,
+                () => $"Last width ({_textLayoutLastMinWidth}, {_textLayoutLastMaxWidth}) not the same as max width constraint ({constraints.minWidth}, {constraints.maxWidth}).");
             D.assert(_selectionRects != null);
             var paint = new Paint() {color = _selectionColor};
 
@@ -1532,7 +1650,9 @@ namespace Unity.UIWidgets.rendering {
         }
 
         void _paintContents(PaintingContext context, Offset offset) {
-            D.assert(_textLayoutLastWidth == constraints.maxWidth);
+            D.assert(_textLayoutLastMaxWidth == constraints.maxWidth &&
+                     _textLayoutLastMinWidth == constraints.minWidth,
+                () => $"Last width ({_textLayoutLastMinWidth}, {_textLayoutLastMaxWidth}) not the same as max width constraint ({constraints.minWidth}, {constraints.maxWidth}).");
             var effectiveOffset = offset + _paintOffset;
 
             bool showSelection = false;
@@ -1549,7 +1669,7 @@ namespace Unity.UIWidgets.rendering {
             }
 
             if (showSelection) {
-                _selectionRects = _selectionRects ?? _textPainter.getBoxesForSelection(_selection);
+                _selectionRects = _selectionRects ?? _textPainter.getBoxesForSelection(_selection, boxHeightStyle: _selectionHeightStyle, boxWidthStyle: _selectionWidthStyle);
                 _paintSelection(context.canvas, effectiveOffset);
             }
 
@@ -1574,32 +1694,54 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        void markNeedsSemanticsUpdate() {
-            // todo
+        void _paintHandleLayers(PaintingContext context, List<TextSelectionPoint> endpoints) {
+            Offset startPoint = endpoints[0].point;
+            startPoint = new Offset(
+                startPoint.dx.clamp(0.0f, size.width),
+                startPoint.dy.clamp(0.0f, size.height)
+            );
+            context.pushLayer(
+                new LeaderLayer(link: startHandleLayerLink, offset: startPoint),
+                base.paint,
+                Offset.zero
+            );
+            if (endpoints.Count == 2) {
+                Offset endPoint = endpoints[1].point;
+                endPoint = new Offset(
+                    endPoint.dx.clamp(0.0f, size.width),
+                    endPoint.dy.clamp(0.0f, size.height)
+                );
+                context.pushLayer(
+                    new LeaderLayer(link: endHandleLayerLink, offset: endPoint),
+                    base.paint,
+                    Offset.zero
+                );
+            }
         }
-
+        
+        
         public override Rect describeApproximatePaintClip(RenderObject child) {
             return _hasVisualOverflow ? Offset.zero & size : null;
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            _layoutText(constraints.maxWidth);
+            _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
             if (_hasVisualOverflow) {
                 context.pushClipRect(needsCompositing, offset, Offset.zero & size, _paintContents);
             }
             else {
-                _paintContents(context, offset);
+                _paintHandleLayers(context, getEndpointsForSelection(selection));
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Color>("cursorColor", cursorColor));
+            properties.add(new ColorProperty("cursorColor", cursorColor));
             properties.add(new DiagnosticsProperty<ValueNotifier<bool>>("showCursor", showCursor));
             properties.add(new DiagnosticsProperty<int?>("maxLines", maxLines));
             properties.add(new DiagnosticsProperty<int?>("minLines", minLines));
             properties.add(new DiagnosticsProperty<bool>("expands", expands));
-            properties.add(new DiagnosticsProperty<Color>("selectionColor", selectionColor));
+            properties.add(new ColorProperty("selectionColor", selectionColor));
             properties.add(new DiagnosticsProperty<float>("textScaleFactor", textScaleFactor));
             properties.add(new DiagnosticsProperty<TextSelection>("selection", selection));
             properties.add(new DiagnosticsProperty<ViewportOffset>("offset", offset));
