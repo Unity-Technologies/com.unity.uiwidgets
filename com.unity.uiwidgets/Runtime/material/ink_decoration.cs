@@ -1,3 +1,4 @@
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -81,7 +82,7 @@ namespace Unity.UIWidgets.material {
                     return padding;
                 }
 
-                EdgeInsets decorationPadding = decoration.padding;
+                EdgeInsets decorationPadding = (EdgeInsets) decoration.padding;
                 if (padding == null) {
                     return decorationPadding;
                 }
@@ -142,7 +143,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             Widget result = new LayoutBuilder(
                 builder: _build
             );

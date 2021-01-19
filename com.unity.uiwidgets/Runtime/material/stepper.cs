@@ -558,8 +558,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             D.assert(() => {
                 if (context.ancestorWidgetOfExactType(typeof(Stepper)) != null) {
                     throw new UIWidgetsError(

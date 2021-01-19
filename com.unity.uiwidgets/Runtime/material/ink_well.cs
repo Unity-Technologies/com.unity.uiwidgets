@@ -129,7 +129,7 @@ namespace Unity.UIWidgets.material {
 
 
         public virtual bool debugCheckContext(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             return true;
         }
 

@@ -1,16 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Brightness = Unity.UIWidgets.service.Brightness;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
@@ -335,7 +337,7 @@ namespace Unity.UIWidgets.material {
                     color: colorTween.evaluate(animation)
                 ),
                 child: new Transform(
-                    transform: new Matrix4().diagonal3Values(t, t, t),
+                    transform: Matrix4.diagonal3Values(t, t, t),
                     alignment: Alignment.bottomCenter,
                     child: item.title
                 )
@@ -567,7 +569,7 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             float additionalBottomPadding =
                 Mathf.Max(MediaQuery.of(context).padding.bottom - widget.selectedFontSize / 2.0f, 0.0f);

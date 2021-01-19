@@ -60,7 +60,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
 
             float height = 0f;
             Widget label = null;
@@ -683,7 +683,7 @@ namespace Unity.UIWidgets.material {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             _updateTabController();
             _initIndicatorPainter();
         }
@@ -832,7 +832,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             if (_controller.length == 0) {
                 return new Container(

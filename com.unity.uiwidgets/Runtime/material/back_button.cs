@@ -1,3 +1,4 @@
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -47,7 +48,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             return new IconButton(
                 icon: new Icon(Icons.close),
                 tooltip: MaterialLocalizations.of(context).closeButtonTooltip,

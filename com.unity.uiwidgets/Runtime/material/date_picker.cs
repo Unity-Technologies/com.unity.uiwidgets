@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using com.unity.uiwidgets.Runtime.rendering;
 using RSG;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -57,7 +58,7 @@ namespace Unity.UIWidgets.material {
                 () => "Provided initialDate must satisfy provided selectableDayPredicate"
             );
             D.assert(context != null);
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             Widget child = new _DatePickerDialog(
                 initialDate: initialDate,
@@ -684,7 +685,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             ThemeData themeData = Theme.of(context);
             TextStyle style = themeData.textTheme.body1;
             return ListView.builder(

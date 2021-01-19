@@ -229,7 +229,7 @@ namespace Unity.UIWidgets.material {
         public readonly ShapeBorder shape;
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             List<Widget> body = new List<Widget>();
 
@@ -274,7 +274,7 @@ namespace Unity.UIWidgets.material {
     }
 
     public static class DialogUtils {
-        static Widget _buildMaterialDialogTransitions(BuildContext context, Animation<float> animation,
+        static Widget _buildmaterial_ialogTransitions(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation, Widget child) {
             return new FadeTransition(
                 opacity: new CurvedAnimation(
@@ -290,7 +290,7 @@ namespace Unity.UIWidgets.material {
             bool barrierDismissible = true,
             WidgetBuilder builder = null
         ) {
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             ThemeData theme = Theme.of(context, shadowThemeOnly: true);
             return widgets.DialogUtils.showGeneralDialog(
@@ -307,7 +307,7 @@ namespace Unity.UIWidgets.material {
                 barrierDismissible: barrierDismissible,
                 barrierColor: Colors.black54,
                 transitionDuration: new TimeSpan(0, 0, 0, 0, 150),
-                transitionBuilder: _buildMaterialDialogTransitions
+                transitionBuilder: _buildmaterial_ialogTransitions
             );
         }
     }

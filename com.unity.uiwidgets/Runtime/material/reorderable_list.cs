@@ -359,7 +359,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             return new LayoutBuilder(builder: (BuildContext _, BoxConstraints constraints) => {
                 List<Widget> wrappedChildren = new List<Widget> { };
                 if (widget.header != null) {

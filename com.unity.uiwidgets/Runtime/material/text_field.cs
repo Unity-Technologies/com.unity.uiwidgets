@@ -515,7 +515,7 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             base.build(context); // See AutomaticKeepAliveClientMixin.
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
             D.assert(
               !(widget.style != null && widget.style.inherit == false &&

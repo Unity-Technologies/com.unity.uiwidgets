@@ -325,7 +325,7 @@ namespace Unity.UIWidgets.material {
         GlobalKey _key = GlobalKey.key();
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             Widget child = new NotificationListener<ScrollNotification>(
                 key: _key,
                 onNotification: _handleScrollNotification,

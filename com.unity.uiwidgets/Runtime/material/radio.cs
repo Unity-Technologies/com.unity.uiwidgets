@@ -61,7 +61,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             ThemeData themeData = Theme.of(context);
             Size size;
             switch (widget.materialTapTargetSize ?? themeData.materialTapTargetSize) {

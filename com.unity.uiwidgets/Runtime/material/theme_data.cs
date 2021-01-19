@@ -542,6 +542,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly MaterialTapTargetSize materialTapTargetSize;
 
+        public readonly bool applyElevationOverlayColor;
+        
         public readonly PageTransitionsTheme pageTransitionsTheme;
 
         public readonly AppBarTheme appBarTheme;

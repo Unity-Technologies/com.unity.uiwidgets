@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -8,6 +9,7 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Brightness = Unity.UIWidgets.service.Brightness;
 using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
@@ -150,7 +152,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             ThemeData themeData = Theme.of(context);
             AppBarTheme appBarTheme = AppBarTheme.of(context);
             ScaffoldState scaffold = Scaffold.of(context, nullOk: true);
@@ -545,7 +547,7 @@ namespace Unity.UIWidgets.material {
 
         public override string ToString() {
             return
-                $"{Diagnostics.describeIdentity(this)}(topPadding: {topPadding?.ToString("F1")}, bottomHeight: {_bottomHeight.ToString("F1")}, ...)";
+                $"{foundation_.describeIdentity(this)}(topPadding: {topPadding?.ToString("F1")}, bottomHeight: {_bottomHeight.ToString("F1")}, ...)";
         }
     }
 

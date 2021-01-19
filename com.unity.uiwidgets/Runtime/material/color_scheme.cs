@@ -2,6 +2,7 @@ using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
+using Brightness = Unity.UIWidgets.service.Brightness;
 
 namespace Unity.UIWidgets.material {
     public class ColorScheme : Diagnosticable, IEquatable<ColorScheme> {

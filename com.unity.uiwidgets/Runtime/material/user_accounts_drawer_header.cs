@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -132,8 +133,8 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             ThemeData theme = Theme.of(context);
             List<Widget> children = new List<Widget> { };
@@ -313,8 +314,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             return new DrawerHeader(
                 decoration: widget.decoration ?? new BoxDecoration(
                                 color: Theme.of(context).primaryColor

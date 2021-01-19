@@ -20,7 +20,7 @@ namespace Unity.UIWidgets.material {
         ) {
             D.assert(context != null);
             D.assert(builder != null);
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             return Navigator.push(context, new _ModalBottomSheetRoute<T>(
                 builder: builder,
                 theme: Theme.of(context, shadowThemeOnly: true),

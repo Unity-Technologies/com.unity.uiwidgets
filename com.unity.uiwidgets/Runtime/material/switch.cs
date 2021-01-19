@@ -155,7 +155,7 @@ namespace Unity.UIWidgets.material {
         }
 
         Widget buildMaterialSwitch(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             ThemeData theme = Theme.of(context);
             bool isDark = theme.brightness == Brightness.dark;
 

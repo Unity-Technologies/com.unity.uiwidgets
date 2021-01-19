@@ -220,7 +220,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            MaterialD.debugCheckHasMaterialLocalizations(context);
+            material_.debugCheckHasMaterialLocalizations(context);
 
             ThemeData theme = widget.del.appBarTheme(context);
             string searchFieldLabel = MaterialLocalizations.of(context).searchFieldLabel;

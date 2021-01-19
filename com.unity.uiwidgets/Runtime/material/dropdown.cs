@@ -135,7 +135,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             MaterialLocalizations localizations = MaterialLocalizations.of(context);
             _DropdownRoute<T> route = widget.route;
             float unit = 0.5f / (route.items.Count + 1.5f);
@@ -711,8 +711,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             List<Widget> items = _enabled ? new List<Widget>(widget.items) : new List<Widget>();
             int hintIndex = 0;

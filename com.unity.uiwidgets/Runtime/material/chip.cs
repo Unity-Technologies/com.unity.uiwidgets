@@ -225,7 +225,7 @@ namespace Unity.UIWidgets.material {
         Color _shadowColor;
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             return new RawChip(
                 avatar: avatar,
                 label: label,
@@ -463,7 +463,7 @@ namespace Unity.UIWidgets.material {
         ShapeBorder _avatarBorder;
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             return new RawChip(
                 avatar: avatar,
                 label: label,
@@ -666,7 +666,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             ChipThemeData chipTheme = ChipTheme.of(context);
             return new RawChip(
                 avatar: avatar,
@@ -864,7 +864,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             return new RawChip(
                 avatar: avatar,
                 label: label,
@@ -1018,7 +1018,7 @@ namespace Unity.UIWidgets.material {
         Color _shadowColor;
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             return new RawChip(
                 avatar: avatar,
                 label: label,
@@ -1506,10 +1506,10 @@ namespace Unity.UIWidgets.material {
         static readonly Color _defaultShadowColor = Colors.black;
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             D.assert(WidgetsD.debugCheckHasMediaQuery(context));
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             ThemeData theme = Theme.of(context);
             ChipThemeData chipTheme = ChipTheme.of(context);

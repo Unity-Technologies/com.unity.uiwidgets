@@ -44,7 +44,7 @@ namespace Unity.UIWidgets.material {
 
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             ThemeData theme = Theme.of(context);
             float statusBarHeight = MediaQuery.of(context).padding.top;
             return new Container(

@@ -481,7 +481,7 @@ namespace Unity.UIWidgets.material {
             D.assert(context != null);
             D.assert(position != null);
             D.assert(items != null && items.isNotEmpty());
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             return Navigator.push(context, new _PopupMenuRoute<T>(
                 position: position,
@@ -603,7 +603,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             return widget.child != null
                 ? (Widget) new InkWell(
                     onTap: showButtonMenu,

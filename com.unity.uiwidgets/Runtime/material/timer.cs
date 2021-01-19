@@ -57,7 +57,7 @@ namespace Unity.UIWidgets.material {
 
         public string format(BuildContext context) {
             D.assert(WidgetsD.debugCheckHasMediaQuery(context));
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             MaterialLocalizations localizations = MaterialLocalizations.of(context);
             return localizations.formatTimeOfDay(
                 this,

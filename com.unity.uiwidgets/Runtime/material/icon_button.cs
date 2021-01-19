@@ -1,3 +1,4 @@
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -60,7 +61,7 @@ namespace Unity.UIWidgets.material {
         public readonly string tooltip;
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             Color currentColor;
             if (onPressed != null) {
                 currentColor = color;
