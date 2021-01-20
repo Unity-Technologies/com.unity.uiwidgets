@@ -1,5 +1,7 @@
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
     public class FractionalOffset : Alignment {
@@ -91,14 +93,14 @@ namespace Unity.UIWidgets.painting {
             }
 
             if (a == null) {
-                return new FractionalOffset(MathUtils.lerpFloat(0.5f, b.dx, t), MathUtils.lerpFloat(0.5f, b.dy, t));
+                return new FractionalOffset(Mathf.Lerp(0.5f, b.dx, t), Mathf.Lerp(0.5f, b.dy, t));
             }
 
             if (b == null) {
-                return new FractionalOffset(MathUtils.lerpFloat(a.dx, 0.5f, t), MathUtils.lerpFloat(a.dy, 0.5f, t));
+                return new FractionalOffset(Mathf.Lerp(a.dx, 0.5f, t), Mathf.Lerp(a.dy, 0.5f, t));
             }
 
-            return new FractionalOffset(MathUtils.lerpFloat(a.dx, b.dx, t), MathUtils.lerpFloat(a.dy, b.dy, t));
+            return new FractionalOffset(Mathf.Lerp(a.dx, b.dx, t), Mathf.Lerp(a.dy, b.dy, t));
         }
 
         public override string ToString() {

@@ -78,7 +78,7 @@ namespace Unity.UIWidgets.cupertino {
     class _CupertinoSliderState : TickerProviderStateMixin<CupertinoSlider> {
         void _handleChanged(float value) {
             D.assert(widget.onChanged != null);
-            float lerpValue = MathUtils.lerpFloat(widget.min, widget.max, value);
+            float lerpValue = Mathf.Lerp(widget.min, widget.max, value);
             if (lerpValue != widget.value) {
                 widget.onChanged(lerpValue);
             }
@@ -86,12 +86,12 @@ namespace Unity.UIWidgets.cupertino {
 
         void _handleDragStart(float value) {
             D.assert(widget.onChangeStart != null);
-            widget.onChangeStart(MathUtils.lerpFloat(widget.min, widget.max, value));
+            widget.onChangeStart(Mathf.Lerp(widget.min, widget.max, value));
         }
 
         void _handleDragEnd(float value) {
             D.assert(widget.onChangeEnd != null);
-            widget.onChangeEnd(MathUtils.lerpFloat(widget.min, widget.max, value));
+            widget.onChangeEnd(Mathf.Lerp(widget.min, widget.max, value));
         }
 
         public override Widget build(BuildContext context) {
@@ -281,7 +281,7 @@ namespace Unity.UIWidgets.cupertino {
             get {
                 float visualPosition = _value;
 
-                return MathUtils.lerpFloat(_trackLeft + CupertinoThumbPainter.radius,
+                return Mathf.Lerp(_trackLeft + CupertinoThumbPainter.radius,
                     _trackRight - CupertinoThumbPainter.radius,
                     visualPosition);
             }

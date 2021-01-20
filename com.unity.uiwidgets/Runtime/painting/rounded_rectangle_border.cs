@@ -1,5 +1,8 @@
 using System;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Canvas = Unity.UIWidgets.ui.Canvas;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
     public class RoundedRectangleBorder : ShapeBorder, IEquatable<RoundedRectangleBorder> {
@@ -197,7 +200,7 @@ namespace Unity.UIWidgets.painting {
                 return new _RoundedRectangleToCircleBorder(
                     side: BorderSide.lerp(border.side, side, t),
                     borderRadius: BorderRadius.lerp(border.borderRadius, borderRadius, t),
-                    circleness: MathUtils.lerpFloat(border.circleness, circleness, t)
+                    circleness: Mathf.Lerp(border.circleness, circleness, t)
                 );
             }
 
@@ -225,7 +228,7 @@ namespace Unity.UIWidgets.painting {
                 return new _RoundedRectangleToCircleBorder(
                     side: BorderSide.lerp(side, border.side, t),
                     borderRadius: BorderRadius.lerp(borderRadius, border.borderRadius, t),
-                    circleness: MathUtils.lerpFloat(circleness, border.circleness, t)
+                    circleness: Mathf.Lerp(circleness, border.circleness, t)
                 );
             }
 

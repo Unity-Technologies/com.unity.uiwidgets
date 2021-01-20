@@ -364,7 +364,7 @@ namespace Unity.UIWidgets.material {
                 canvas.drawRRect(center, paint);
             }
             else {
-                float extent = MathUtils.lerpFloat(0.0f, gapExtent + gapPadding * 2.0f, gapPercentage);
+                float extent = Mathf.Lerp(0.0f, gapExtent + gapPadding * 2.0f, gapPercentage);
                 Path path = _gapBorderPath(canvas, center, Mathf.Max(0.0f,gapStart - gapPadding), extent);
                 canvas.drawPath(path, paint);
             }

@@ -409,8 +409,8 @@ namespace Unity.UIWidgets.material {
             }
 
             Offset center = _centerArc.lerp(t);
-            float width = MathUtils.lerpFloat(begin.width, end.width, t);
-            float height = MathUtils.lerpFloat(begin.height, end.height, t);
+            float width = Mathf.Lerp(begin.width, end.width, t);
+            float height = Mathf.Lerp(begin.height, end.height, t);
             return Rect.fromLTWH(
                 (center.dx - width / 2.0f),
                 (center.dy - height / 2.0f),

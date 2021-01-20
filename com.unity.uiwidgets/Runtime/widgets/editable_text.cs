@@ -608,8 +608,8 @@ namespace Unity.UIWidgets.widgets {
             }
             else {
                 float lerpValue = _floatingCursorResetController.value;
-                float lerpX = MathUtils.lerpFloat(_lastBoundedOffset.dx, finalPosition.dx, lerpValue);
-                float lerpY = MathUtils.lerpFloat(_lastBoundedOffset.dy, finalPosition.dy, lerpValue);
+                float lerpX = Mathf.Lerp(_lastBoundedOffset.dx, finalPosition.dx, lerpValue);
+                float lerpY = Mathf.Lerp(_lastBoundedOffset.dy, finalPosition.dy, lerpValue);
 
                 renderEditable.setFloatingCursor(FloatingCursorDragState.Update, new Offset(lerpX, lerpY),
                     _lastTextPosition, resetLerpValue: lerpValue);

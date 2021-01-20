@@ -358,16 +358,16 @@ namespace Unity.UIWidgets.rendering {
                 () => "Cannot interpolate between finite constraints and unbounded constraints.");
             return new BoxConstraints(
                 minWidth: a.minWidth.isFinite()
-                    ? MathUtils.lerpFloat(a.minWidth, b.minWidth, t)
+                    ? Mathf.Lerp(a.minWidth, b.minWidth, t)
                     : float.PositiveInfinity,
                 maxWidth: a.maxWidth.isFinite()
-                    ? MathUtils.lerpFloat(a.maxWidth, b.maxWidth, t)
+                    ? Mathf.Lerp(a.maxWidth, b.maxWidth, t)
                     : float.PositiveInfinity,
                 minHeight: a.minHeight.isFinite()
-                    ? MathUtils.lerpFloat(a.minHeight, b.minHeight, t)
+                    ? Mathf.Lerp(a.minHeight, b.minHeight, t)
                     : float.PositiveInfinity,
                 maxHeight: a.maxHeight.isFinite()
-                    ? MathUtils.lerpFloat(a.maxHeight, b.maxHeight, t)
+                    ? Mathf.Lerp(a.maxHeight, b.maxHeight, t)
                     : float.PositiveInfinity
             );
         }

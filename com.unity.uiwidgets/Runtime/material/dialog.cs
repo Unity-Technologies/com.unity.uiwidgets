@@ -190,9 +190,9 @@ namespace Unity.UIWidgets.material {
                 actionsWidget = new Padding(
                     padding: (EdgeInsets)actionsPadding,
                     child: new ButtonBar(
-                        // buttonPadding: buttonPadding,
-                        // overflowDirection: actionsOverflowDirection,
-                        // overflowButtonSpacing: actionsOverflowButtonSpacing,
+                        buttonPadding: buttonPadding,
+                        overflowDirection: actionsOverflowDirection,
+                        overflowButtonSpacing: actionsOverflowButtonSpacing,
                         children: actions
                     )
                 );

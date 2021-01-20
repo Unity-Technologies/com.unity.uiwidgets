@@ -560,6 +560,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly Typography typography;
 
+        public readonly ButtonBarThemeData buttonBarTheme;
+
         public ThemeData copyWith(
             Brightness? brightness = null,
             Color primaryColor = null,

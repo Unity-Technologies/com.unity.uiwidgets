@@ -1,7 +1,8 @@
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
     public class BottomAppBarTheme : Diagnosticable {
@@ -40,7 +41,7 @@ namespace Unity.UIWidgets.material {
         public static BottomAppBarTheme lerp(BottomAppBarTheme a, BottomAppBarTheme b, float t) {
             return new BottomAppBarTheme(
                 color: Color.lerp(a?.color, b?.color, t),
-                elevation: MathUtils.lerpFloat(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
+                elevation: Mathf.Lerp(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
                 shape: t < 0.5f ? a?.shape : b?.shape
             );
         }

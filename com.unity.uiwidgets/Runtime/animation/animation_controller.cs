@@ -4,6 +4,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.physics;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 using Ticker = Unity.UIWidgets.scheduler2.Ticker;
 using TickerFuture = Unity.UIWidgets.scheduler2.TickerFuture;
 using TickerProvider = Unity.UIWidgets.scheduler2.TickerProvider;
@@ -491,11 +492,11 @@ namespace Unity.UIWidgets.animation {
 
             if (_reverse && _isPlayingReverse) {
                 directionSetter(_AnimationDirection.reverse);
-                return MathUtils.lerpFloat(_max, _min, t);
+                return Mathf.Lerp(_max, _min, t);
             }
             else {
                 directionSetter(_AnimationDirection.forward);
-                return MathUtils.lerpFloat(_min, _max, t);
+                return Mathf.Lerp(_min, _max, t);
             }
         }
 

@@ -460,13 +460,13 @@ namespace Unity.UIWidgets.cupertino {
             canvas.drawDRRect(outerRRect, innerRRect, paint);
 
             float currentThumbExtension = CupertinoThumbPainter.extension * currentReactionValue;
-            float thumbLeft = MathUtils.lerpFloat(
+            float thumbLeft = Mathf.Lerp(
                 trackRect.left + CupertinoSwitchUtils._kTrackInnerStart - CupertinoThumbPainter.radius,
                 trackRect.left + CupertinoSwitchUtils._kTrackInnerEnd - CupertinoThumbPainter.radius -
                 currentThumbExtension,
                 visualPosition
             );
-            float thumbRight = MathUtils.lerpFloat(
+            float thumbRight = Mathf.Lerp(
                 trackRect.left + CupertinoSwitchUtils._kTrackInnerStart + CupertinoThumbPainter.radius +
                 currentThumbExtension,
                 trackRect.left + CupertinoSwitchUtils._kTrackInnerEnd + CupertinoThumbPainter.radius,

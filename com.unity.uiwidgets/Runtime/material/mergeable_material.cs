@@ -5,6 +5,9 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Canvas = Unity.UIWidgets.ui.Canvas;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.material {
     public abstract class MergeableMaterialItem {
@@ -465,7 +468,7 @@ namespace Unity.UIWidgets.material {
         float _getGapSize(int index) {
             MaterialGap gap = (MaterialGap) _children[index];
 
-            return MathUtils.lerpFloat(_animationTuples[gap.key].gapStart,
+            return Mathf.Lerp(_animationTuples[gap.key].gapStart,
                 gap.size,
                 _animationTuples[gap.key].gapAnimation.value);
         }

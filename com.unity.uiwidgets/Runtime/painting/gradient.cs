@@ -396,7 +396,7 @@ namespace Unity.UIWidgets.painting {
                 t);
             return new RadialGradient(
                 center: Alignment.lerp(a.center, b.center, t),
-                radius: Mathf.Max(0.0f, MathUtils.lerpFloat(a.radius, b.radius, t)),
+                radius: Mathf.Max(0.0f, Mathf.Lerp(a.radius, b.radius, t)),
                 colors: interpolated.colors,
                 stops: interpolated.stops,
                 tileMode: t < 0.5 ? a.tileMode : b.tileMode
@@ -539,8 +539,8 @@ namespace Unity.UIWidgets.painting {
                 _ColorsAndStops._interpolateColorsAndStops(a.colors, a.stops, b.colors, b.stops, t);
             return new SweepGradient(
                 center: Alignment.lerp(a.center, b.center, t),
-                startAngle: Mathf.Max(0.0f, MathUtils.lerpFloat(a.startAngle, b.startAngle, t)),
-                endAngle: Mathf.Max(0.0f, MathUtils.lerpFloat(a.endAngle, b.endAngle, t)),
+                startAngle: Mathf.Max(0.0f, Mathf.Lerp(a.startAngle, b.startAngle, t)),
+                endAngle: Mathf.Max(0.0f, Mathf.Lerp(a.endAngle, b.endAngle, t)),
                 colors: interpolated.colors,
                 stops: interpolated.stops,
                 tileMode: t < 0.5 ? a.tileMode : b.tileMode
