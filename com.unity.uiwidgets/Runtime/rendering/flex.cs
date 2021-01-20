@@ -329,6 +329,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
             int totalFlex = 0;
             int totalChildren = 0;
             float maxMainSize = _direction == Axis.horizontal
@@ -620,22 +621,21 @@ namespace Unity.UIWidgets.rendering {
                 ),
                 new ErrorDescription(
                     $"The edge of the {GetType()} that is overflowing has been marked " +
-                "in the rendering with a yellow and black striped pattern. This is " +
-                "usually caused by the contents being too big for the $runtimeType."
-                    ),
+                    "in the rendering with a yellow and black striped pattern. This is " +
+                    "usually caused by the contents being too big for the $runtimeType."
+                ),
                 new ErrorHint(
                     "Consider applying a flex factor (e.g. using an Expanded widget) to " +
                     $"force the children of the {GetType()} to fit within the available " +
                     "space instead of being sized to their natural size."
-                    ),
+                ),
                 new ErrorHint(
                     "This is considered an error condition because it indicates that there " +
                     "is content that cannot be seen. If the content is legitimately bigger " +
                     "than the available space, consider clipping it with a ClipRect widget " +
                     "before putting it in the flex, or using a scrollable container rather " +
                     "than a Flex, like a ListView."
-                    )
-                    };
+                )};
                 
                 Rect overflowChildRect;
                 switch (_direction) {
