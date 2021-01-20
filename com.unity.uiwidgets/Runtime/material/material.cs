@@ -4,7 +4,6 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -411,7 +410,7 @@ namespace Unity.UIWidgets.material {
                 descendants.Add(node);
             }
 
-            Matrix4 transform = new Matrix4().identity();
+            Matrix4 transform = Matrix4.identity();
             D.assert(descendants.Count >= 2);
             for (int index = descendants.Count - 1; index > 0; index -= 1) {
                 descendants[index].applyPaintTransform(descendants[index - 1], transform);
@@ -560,7 +559,7 @@ namespace Unity.UIWidgets.material {
 
 
         public override void paint(Canvas canvas, Size size) {
-            border.paint(canvas, Offset.zero & size);
+            border.paint(canvas, Offset.zero & size, null);
         }
 
         public override bool shouldRepaint(CustomPainter oldDelegate) {

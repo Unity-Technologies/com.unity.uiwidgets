@@ -6,7 +6,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Brightness = Unity.UIWidgets.service.Brightness;
 
 namespace Unity.UIWidgets.material {
     public enum ButtonTextTheme {

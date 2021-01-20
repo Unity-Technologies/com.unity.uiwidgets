@@ -1,19 +1,20 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
     public class SearchUtils {
-        public static IPromise<object> showSearch(
+        public static Future<T> showSearch<T>(
             BuildContext context,
-            SearchDelegate del,
+            SearchDelegate<T> del,
             string query = ""
         ) {
             D.assert(del != null);
@@ -21,13 +22,13 @@ namespace Unity.UIWidgets.material {
 
             del.query = query ?? del.query;
             del._currentBody = _SearchBody.suggestions;
-            return Navigator.of(context).push(new _SearchPageRoute(
+            return Navigator.of(context).push<T>(new _SearchPageRoute<T>(
                 del: del
             ));
         }
     }
 
-    public abstract class SearchDelegate {
+    public abstract class SearchDelegate<T> {
         public abstract Widget buildSuggestions(BuildContext context);
         public abstract Widget buildResults(BuildContext context);
         public abstract Widget buildLeading(BuildContext context);
@@ -89,7 +90,7 @@ namespace Unity.UIWidgets.material {
             set { _currentBodyNotifier.value = value; }
         }
 
-        internal _SearchPageRoute _route;
+        internal _SearchPageRoute<T> _route;
     }
 
     enum _SearchBody {
@@ -97,8 +98,8 @@ namespace Unity.UIWidgets.material {
         results
     }
 
-    class _SearchPageRoute : PageRoute {
-        public _SearchPageRoute(SearchDelegate del) {
+    class _SearchPageRoute<T> : PageRoute {
+        public _SearchPageRoute(SearchDelegate<T> del) {
             D.assert(del != null);
             D.assert(del._route == null,
                 () => $"The {this.del.GetType()} instance is currently used by another active " +
@@ -109,7 +110,7 @@ namespace Unity.UIWidgets.material {
             this.del._route = this;
         }
 
-        public readonly SearchDelegate del;
+        public readonly SearchDelegate<T> del;
 
         public override Color barrierColor {
             get { return null; }
@@ -146,7 +147,7 @@ namespace Unity.UIWidgets.material {
             Animation<float> animation,
             Animation<float> secondaryAnimation
         ) {
-            return new _SearchPage(
+            return new _SearchPage<T>(
                 del: del,
                 animation: animation
             );
@@ -160,25 +161,25 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _SearchPage : StatefulWidget {
+    class _SearchPage<T> : StatefulWidget {
         public _SearchPage(
-            SearchDelegate del,
+            SearchDelegate<T> del,
             Animation<float> animation
         ) {
             this.del = del;
             this.animation = animation;
         }
 
-        public readonly SearchDelegate del;
+        public readonly SearchDelegate<T> del;
 
         public readonly Animation<float> animation;
 
         public override State createState() {
-            return new _SearchPageState();
+            return new _SearchPageState<T>();
         }
     }
 
-    class _SearchPageState : State<_SearchPage> {
+    class _SearchPageState<T> : State<_SearchPage<T>> {
         public override void initState() {
             base.initState();
             queryTextController.addListener(_onQueryChanged);

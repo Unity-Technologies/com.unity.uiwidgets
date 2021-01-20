@@ -229,7 +229,7 @@ namespace Unity.UIWidgets.material {
 
             if (originOffset == null) {
                 canvas.save();
-                canvas.concat(transform.toMatrix3());
+                canvas.transform(transform.storage);
                 _painter.paint(canvas, Offset.zero, sizedConfiguration);
                 canvas.restore();
             }

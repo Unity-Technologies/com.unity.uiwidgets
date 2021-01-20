@@ -9,7 +9,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Brightness = Unity.UIWidgets.service.Brightness;
 
 namespace Unity.UIWidgets.material {
     static class TooltipUtils {
@@ -123,7 +122,7 @@ namespace Unity.UIWidgets.material {
         void _handlePointerEvent(PointerEvent pEvent) {
             D.assert(_entry != null);
             if (pEvent is PointerUpEvent || pEvent is PointerCancelEvent) {
-                _timer = _timer ?? Window.instance.run(TooltipUtils._kShowDuration,
+                _timer = _timer ?? Timer.create(TooltipUtils._kShowDuration,
                                   () => _controller.reverse());
             }
             else if (pEvent is PointerDownEvent) {

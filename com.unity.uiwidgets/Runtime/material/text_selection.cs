@@ -134,6 +134,11 @@ namespace Unity.UIWidgets.material {
     }
 
     class _MaterialTextSelectionControls : TextSelectionControls {
+        public override Size getHandleSize(float textLineHeight) {
+            return new Size(MaterialUtils._kHandleSize,
+                MaterialUtils._kHandleSize);
+        }
+
         public override Size handleSize {
             get {
                 return new Size(MaterialUtils._kHandleSize,
@@ -141,8 +146,19 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        public override Widget buildToolbar(BuildContext context, Rect globalEditableRegion, Offset position,
-            TextSelectionDelegate selectionDelegate) {
+        public override Offset getHandleAnchor(TextSelectionHandleType type, float textLineHeight) {
+            switch (type) {
+                case TextSelectionHandleType.left:
+                    return new Offset(MaterialUtils._kHandleSize, 0);
+                case TextSelectionHandleType.right:
+                    return Offset.zero;
+                default:
+                    return new Offset(MaterialUtils._kHandleSize / 2, -4);
+            }
+        }
+
+        public override Widget buildToolbar(BuildContext context, Rect globalEditableRegion, float textLineHeight,
+            Offset position, List<TextSelectionPoint> endpoints, TextSelectionDelegate selectionDelegate) {
             return new ConstrainedBox(
                 constraints: BoxConstraints.tight(globalEditableRegion.size),
                 child: new CustomSingleChildLayout(
@@ -186,14 +202,14 @@ namespace Unity.UIWidgets.material {
             switch (type) {
                 case TextSelectionHandleType.left: // points up-right
                     return new Transform(
-                        transform: new Matrix4().rotationZ(Mathf.PI / 2),
+                        transform: Matrix4.rotationZ(Mathf.PI / 2),
                         child: handle
                     );
                 case TextSelectionHandleType.right: // points up-left
                     return handle;
                 case TextSelectionHandleType.collapsed: // points up
                     return new Transform(
-                        transform: new Matrix4().rotationZ(Mathf.PI / 4),
+                        transform: Matrix4.rotationZ(Mathf.PI / 4),
                         child: handle
                     );
             }

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -472,7 +472,7 @@ namespace Unity.UIWidgets.material {
     }
 
     public static partial class PopupMenuUtils {
-        public static IPromise<object> showMenu<T>(
+        public static Future<T> showMenu<T>(
             BuildContext context,
             RelativeRect position,
             List<PopupMenuEntry<T>> items,
@@ -484,7 +484,7 @@ namespace Unity.UIWidgets.material {
             D.assert(items != null && items.isNotEmpty());
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
-            return Navigator.push(context, new _PopupMenuRoute<T>(
+            return Navigator.push<T>(context, new _PopupMenuRoute<T>(
                 position: position,
                 items: items,
                 initialValue: initialValue,
@@ -575,7 +575,7 @@ namespace Unity.UIWidgets.material {
                     initialValue: widget.initialValue,
                     position: position
                 )
-                .Then(newValue => {
+                .then(newValue => {
                     if (!mounted) {
                         return;
                     }

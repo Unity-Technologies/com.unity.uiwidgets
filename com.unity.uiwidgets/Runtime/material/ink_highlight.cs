@@ -121,7 +121,7 @@ namespace Unity.UIWidgets.material {
             Rect rect = _rectCallback != null ? _rectCallback() : Offset.zero & referenceBox.size;
             if (originOffset == null) {
                 canvas.save();
-                canvas.concat(transform.toMatrix3());
+                canvas.transform(transform.storage);
                 _paintHighlight(canvas, rect, paint);
                 canvas.restore();
             }

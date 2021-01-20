@@ -32,11 +32,6 @@ namespace Unity.UIWidgets.service {
         bottom
     }
 
-    public enum Brightness {
-        dark,
-        light
-    }
-
     public class SystemUiOverlayStyle {
         public SystemUiOverlayStyle(
             Color systemNavigationBarColor = null,

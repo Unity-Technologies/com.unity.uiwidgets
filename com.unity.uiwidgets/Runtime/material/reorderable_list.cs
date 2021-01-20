@@ -225,7 +225,7 @@ namespace Unity.UIWidgets.material {
                     scrollOffset < bottomOffset ? bottomOffset : topOffset,
                     duration: _scrollAnimationDuration,
                     curve: Curves.easeInOut
-                ).Then(() => { setState(() => { _scrolling = false; }); });
+                ).then((value) => { setState(() => { _scrolling = false; }); });
             }
         }
 

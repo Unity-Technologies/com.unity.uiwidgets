@@ -189,7 +189,7 @@ namespace Unity.UIWidgets.material {
             Offset originOffset = transform.getAsTranslation();
             canvas.save();
             if (originOffset == null) {
-                canvas.concat(transform.toMatrix3());
+                canvas.transform(transform.storage);
             }
             else {
                 canvas.translate(originOffset.dx, originOffset.dy);

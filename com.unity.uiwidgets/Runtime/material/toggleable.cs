@@ -3,7 +3,6 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 
