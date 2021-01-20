@@ -15,7 +15,7 @@ namespace Unity.UIWidgets.material {
 
 
     public class Typography : Diagnosticable {
-        public Typography(
+        Typography(
             TextTheme black = null,
             TextTheme white = null,
             TextTheme englishLike = null,

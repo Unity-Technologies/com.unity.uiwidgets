@@ -405,7 +405,7 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            TextTheme defaultTheme = new Typography().black;
+            TextTheme defaultTheme = Typography.material2018().black;
             properties.add(new DiagnosticsProperty<TextStyle>("display4", headline1,
                 defaultValue: defaultTheme.display4));
             properties.add(new DiagnosticsProperty<TextStyle>("display3", headline2,

@@ -10,7 +10,7 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
-    static class ThemeDataUtils {
+    public partial class material_ {
         public static readonly Color _kLightThemeHighlightColor = new Color(0x66BCBCBC);
 
         public static readonly Color _kLightThemeSplashColor = new Color(0x66C8C8C8);
@@ -141,7 +141,7 @@ namespace Unity.UIWidgets.material {
             iconTheme = iconTheme ??
                         (isDark ? new IconThemeData(color: Colors.white) : new IconThemeData(color: Colors.black87));
             platform = platform ?? Application.platform;
-            typography = typography ?? new Typography();
+            typography = typography ?? Typography.material2014();
             TextTheme defaultTextTheme = isDark ? typography.white : typography.black;
             textTheme = defaultTextTheme.merge(textTheme);
             TextTheme defaultPrimaryTextTheme = primaryIsDark ? typography.white : typography.black;
@@ -166,12 +166,12 @@ namespace Unity.UIWidgets.material {
             disabledColor = disabledColor ?? (isDark ? Colors.white30 : Colors.black38);
             highlightColor = highlightColor ??
                              (isDark
-                                 ? ThemeDataUtils._kDarkThemeHighlightColor
-                                 : ThemeDataUtils._kLightThemeHighlightColor);
+                                 ? material_._kDarkThemeHighlightColor
+                                 : material_._kLightThemeHighlightColor);
             splashColor = splashColor ??
                           (isDark
-                              ? ThemeDataUtils._kDarkThemeSplashColor
-                              : ThemeDataUtils._kLightThemeSplashColor);
+                              ? material_._kDarkThemeSplashColor
+                              : material_._kLightThemeSplashColor);
 
             sliderTheme = sliderTheme ?? SliderThemeData.fromPrimaryColors(
                               primaryColor: primaryColor,
