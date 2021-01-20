@@ -3,7 +3,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.widgets;
 
-namespace uiwidgets {
+namespace Unity.UIWidgets.material {
     public partial class material_ {
         public static bool debugCheckHasMaterial(BuildContext context) {
             D.assert(() => {

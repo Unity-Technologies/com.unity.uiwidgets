@@ -36,6 +36,26 @@ namespace Unity.UIWidgets.material {
         }
 
 
+        public readonly TextStyle headline1;
+
+        public readonly TextStyle headline2;
+
+        public readonly TextStyle headline3;
+
+        public readonly TextStyle headline4;
+
+        public readonly TextStyle headline5;
+
+        public readonly TextStyle headline6;
+        
+        public readonly TextStyle subtitle1;
+
+        public readonly TextStyle subtitle2;
+        
+          public readonly TextStyle bodyText1;
+
+  public readonly TextStyle bodyText2;
+
         public readonly TextStyle display4;
 
         public readonly TextStyle display3;

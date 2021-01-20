@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -11,6 +12,11 @@ using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
+    public partial class material_ {
+        public static readonly EdgeInsets _defaultInsetPadding =
+            EdgeInsets.symmetric(horizontal: 40.0f, vertical: 24.0f);
+    }
+
     public class Dialog : StatelessWidget {
         public Dialog(
             Key key = null,
@@ -18,14 +24,22 @@ namespace Unity.UIWidgets.material {
             float? elevation = null,
             TimeSpan? insetAnimationDuration = null,
             Curve insetAnimationCurve = null,
+            EdgeInsets insetPadding = null,
+            Clip clipBehavior = Clip.none,
             ShapeBorder shape = null,
             Widget child = null
         ) : base(key: key) {
+            if (insetPadding == null) {
+                insetPadding = material_._defaultInsetPadding;
+            }
+
             this.child = child;
             this.backgroundColor = backgroundColor;
             this.elevation = elevation;
             this.insetAnimationDuration = insetAnimationDuration ?? new TimeSpan(0, 0, 0, 0, 100);
             this.insetAnimationCurve = insetAnimationCurve ?? Curves.decelerate;
+            this.insetPadding = insetPadding;
+            this.clipBehavior = clipBehavior;
             this.shape = shape;
         }
 
@@ -36,6 +50,10 @@ namespace Unity.UIWidgets.material {
         public readonly TimeSpan insetAnimationDuration;
 
         public readonly Curve insetAnimationCurve;
+
+        public readonly EdgeInsets insetPadding;
+
+        public readonly Clip clipBehavior;
 
         public readonly ShapeBorder shape;
 
@@ -48,9 +66,10 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             DialogTheme dialogTheme = DialogTheme.of(context);
+            EdgeInsets effectivePadding = MediaQuery.of(context).viewInsets + (insetPadding ?? EdgeInsets.all(0.0f));
 
             return new AnimatedPadding(
-                padding: MediaQuery.of(context).viewInsets + EdgeInsets.symmetric(horizontal: 40.0f, vertical: 24.0f),
+                padding: effectivePadding,
                 duration: insetAnimationDuration,
                 curve: insetAnimationCurve,
                 child: MediaQuery.removeViewInsets(
@@ -64,10 +83,11 @@ namespace Unity.UIWidgets.material {
                             constraints: new BoxConstraints(minWidth: 280.0f),
                             child: new Material(
                                 color: backgroundColor ?? dialogTheme.backgroundColor ??
-                                       Theme.of(context).dialogBackgroundColor,
+                                Theme.of(context).dialogBackgroundColor,
                                 elevation: elevation ?? dialogTheme.elevation ?? _defaultElevation,
                                 shape: shape ?? dialogTheme.shape ?? _defaultDialogShape,
                                 type: MaterialType.card,
+                                clipBehavior: clipBehavior,
                                 child: child
                             )
                         )
@@ -87,9 +107,16 @@ namespace Unity.UIWidgets.material {
             EdgeInsets contentPadding = null,
             TextStyle contentTextStyle = null,
             List<Widget> actions = null,
+            EdgeInsetsGeometry actionsPadding = null,
+            VerticalDirection actionsOverflowDirection = VerticalDirection.up,
+            float actionsOverflowButtonSpacing = 0,
+            EdgeInsetsGeometry buttonPadding = null,
             Color backgroundColor = null,
             float? elevation = null,
-            ShapeBorder shape = null
+            EdgeInsets insetPadding = null,
+            Clip clipBehavior = Clip.none,
+            ShapeBorder shape = null,
+            bool scrollable = false
         ) : base(key: key) {
             this.title = title;
             this.titlePadding = titlePadding;
@@ -98,9 +125,16 @@ namespace Unity.UIWidgets.material {
             this.contentPadding = contentPadding ?? EdgeInsets.fromLTRB(24.0f, 20.0f, 24.0f, 24.0f);
             this.contentTextStyle = contentTextStyle;
             this.actions = actions;
+            this.actionsPadding = actionsPadding ?? EdgeInsets.zero;
+            this.actionsOverflowDirection = actionsOverflowDirection;
+            this.actionsOverflowButtonSpacing = actionsOverflowButtonSpacing;
+            this.buttonPadding = buttonPadding;
             this.backgroundColor = backgroundColor;
             this.elevation = elevation;
+            this.insetPadding = insetPadding ?? material_._defaultInsetPadding;
+            this.clipBehavior = clipBehavior;
             this.shape = shape;
+            this.scrollable = scrollable;
         }
 
         public readonly Widget title;
@@ -110,85 +144,147 @@ namespace Unity.UIWidgets.material {
         public readonly EdgeInsets contentPadding;
         public readonly TextStyle contentTextStyle;
         public readonly List<Widget> actions;
+        public readonly EdgeInsetsGeometry actionsPadding;
+        public readonly VerticalDirection actionsOverflowDirection;
+        public readonly float actionsOverflowButtonSpacing;
+        public readonly EdgeInsetsGeometry buttonPadding;
+
         public readonly Color backgroundColor;
         public readonly float? elevation;
+        public readonly EdgeInsets insetPadding;
+        public readonly Clip clipBehavior;
+
         public readonly ShapeBorder shape;
+        public readonly bool scrollable;
 
         public override Widget build(BuildContext context) {
-            // D.assert(debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             ThemeData theme = Theme.of(context);
             DialogTheme dialogTheme = DialogTheme.of(context);
 
-            List<Widget> children = new List<Widget>();
-
+            Widget titleWidget = null;
+            Widget contentWidget = null;
+            Widget actionsWidget = null;
             if (title != null) {
-                children.Add(new Padding(
-                    padding: titlePadding ??
-                             EdgeInsets.fromLTRB(24.0f, 24.0f, 24.0f, content == null ? 20.0f : 0.0f),
+                titleWidget = new Padding(
+                    padding: titlePadding ?? EdgeInsets.fromLTRB(24.0f, 24.0f, 24.0f, content == null ? 20.0f : 0.0f),
                     child: new DefaultTextStyle(
-                        style: titleTextStyle ?? dialogTheme.titleTextStyle ?? theme.textTheme.title,
+                        style: titleTextStyle ?? dialogTheme.titleTextStyle ?? theme.textTheme.headline6,
                         child: title
                     )
-                ));
+                );
             }
 
             if (content != null) {
-                children.Add(new Flexible(
-                    child: new Padding(
-                        padding: contentPadding,
-                        child: new DefaultTextStyle(
-                            style: contentTextStyle ?? dialogTheme.contentTextStyle ?? theme.textTheme.subhead,
-                            child: content
-                        )
+                contentWidget = new Padding(
+                    padding: contentPadding,
+                    child: new DefaultTextStyle(
+                        style: contentTextStyle ?? dialogTheme.contentTextStyle ?? theme.textTheme.subtitle1,
+                        child: content
                     )
-                ));
+                );
             }
 
             if (actions != null) {
-                children.Add(ButtonTheme.bar(
+                actionsWidget = new Padding(
+                    padding: actionsPadding,
                     child: new ButtonBar(
+                        buttonPadding: buttonPadding,
+                        overflowDirection: actionsOverflowDirection,
+                        overflowButtonSpacing: actionsOverflowButtonSpacing,
                         children: actions
                     )
-                ));
+                );
+            }
+
+            List<Widget> columnChildren;
+            if (scrollable) {
+                var titleList = new List<Widget>();
+
+                if (title != null) {
+                    titleList.Add(titleWidget);
+                }
+
+                if (content != null) {
+                    titleList.Add(contentWidget);
+                }
+
+                columnChildren = new List<Widget>();
+
+                if (title != null || content != null) {
+                    columnChildren.Add(new Flexible(
+                        child: new SingleChildScrollView(
+                            child: new Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: titleList
+                            )
+                        )
+                    ));
+                }
+
+                if (actions != null) {
+                    columnChildren.Add(actionsWidget);
+                }
+            }
+            else {
+                columnChildren = new List<Widget>();
+                if (title != null) {
+                    columnChildren.Add(titleWidget);
+                }
+
+                if (content != null) {
+                    columnChildren.Add(new Flexible(child: contentWidget));
+                }
+
+                if (actions != null) {
+                    columnChildren.Add(actionsWidget);
+                }
             }
 
             Widget dialogChild = new IntrinsicWidth(
                 child: new Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: children
+                    children: columnChildren
                 )
             );
 
             return new Dialog(
                 backgroundColor: backgroundColor,
                 elevation: elevation,
+                insetPadding: insetPadding,
+                clipBehavior: clipBehavior,
                 shape: shape,
                 child: dialogChild
             );
         }
     }
 
+
     public class SimpleDialogOption : StatelessWidget {
         public SimpleDialogOption(
             Key key = null,
             VoidCallback onPressed = null,
+            EdgeInsets padding = null,
             Widget child = null
         ) : base(key: key) {
             this.onPressed = onPressed;
+            this.padding = padding;
             this.child = child;
         }
 
         public readonly VoidCallback onPressed;
 
         public readonly Widget child;
+        public readonly EdgeInsets padding;
 
         public override Widget build(BuildContext context) {
             return new InkWell(
                 onTap: () => onPressed(),
                 child: new Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0f, horizontal: 24.0f),
+                    padding: padding ?? EdgeInsets.symmetric(vertical: 8.0f, horizontal: 24.0f),
                     child: child
                 )
             );
@@ -231,6 +327,7 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
+            ThemeData theme = Theme.of(context);
 
             List<Widget> body = new List<Widget>();
 
@@ -238,7 +335,7 @@ namespace Unity.UIWidgets.material {
                 body.Add(new Padding(
                     padding: titlePadding,
                     child: new DefaultTextStyle(
-                        style: Theme.of(context).textTheme.title,
+                        style: theme.textTheme.headline6,
                         child: title
                     )
                 ));
@@ -274,8 +371,8 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    public static class DialogUtils {
-        static Widget _buildmaterial_ialogTransitions(BuildContext context, Animation<float> animation,
+    public partial class material_ {
+        static Widget _buildMaterialDialogTransitions(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation, Widget child) {
             return new FadeTransition(
                 opacity: new CurvedAnimation(
@@ -286,15 +383,17 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        public static IPromise<object> showDialog(
+        public static Future<T> showDialog<T>(
             BuildContext context = null,
             bool barrierDismissible = true,
-            WidgetBuilder builder = null
+            WidgetBuilder builder = null,
+            bool useRootNavigator = true,
+            RouteSettings routeSettings = null
         ) {
-            D.assert(material_.debugCheckHasMaterialLocalizations(context));
+            D.assert(debugCheckHasMaterialLocalizations(context));
 
             ThemeData theme = Theme.of(context, shadowThemeOnly: true);
-            return widgets.DialogUtils.showGeneralDialog(
+            return widgets.DialogUtils.showGeneralDialog<T>(
                 context: context,
                 pageBuilder: (buildContext, animation, secondaryAnimation) => {
                     Widget pageChild = new Builder(builder: builder);
@@ -308,7 +407,9 @@ namespace Unity.UIWidgets.material {
                 barrierDismissible: barrierDismissible,
                 barrierColor: Colors.black54,
                 transitionDuration: new TimeSpan(0, 0, 0, 0, 150),
-                transitionBuilder: _buildmaterial_ialogTransitions
+                transitionBuilder: _buildMaterialDialogTransitions,
+                useRootNavigator: useRootNavigator,
+                routeSettings: routeSettings
             );
         }
     }
