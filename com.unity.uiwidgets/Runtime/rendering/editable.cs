@@ -89,9 +89,9 @@ namespace Unity.UIWidgets.rendering {
 
     public class RenderEditable : RenderBox, RelayoutWhenSystemFontsChangeMixin {
         public RenderEditable(
-            TextSpan text,
-            TextDirection textDirection,
-            TextAlign textAlign = TextAlign.left,
+            TextSpan text = null, 
+            TextDirection? textDirection = null,
+            TextAlign textAlign = TextAlign.start,
             Color cursorColor = null,
             Color backgroundCursorColor = null,
             ValueNotifier<bool> showCursor = null,
@@ -113,6 +113,7 @@ namespace Unity.UIWidgets.rendering {
             bool forceLine = true,
             TextWidthBasis textWidthBasis = TextWidthBasis.parent,
             bool obscureText = false,
+            Locale locale = null,
             float cursorWidth = 1.0f,
             Radius cursorRadius = null,
             bool paintCursorAboveText = false,
@@ -122,60 +123,76 @@ namespace Unity.UIWidgets.rendering {
             ui.BoxWidthStyle selectionWidthStyle = ui.BoxWidthStyle.tight,
             bool? enableInteractiveSelection = null,
             EdgeInsets floatingCursorAddedMargin = null,
-            TextSelectionDelegate textSelectionDelegate = null,
-            GlobalKeyEventHandlerDelegate globalKeyEventHandler = null) {
+            TextSelectionDelegate textSelectionDelegate = null)
+            //GlobalKeyEventHandlerDelegate globalKeyEventHandler = null)
+        {
             floatingCursorAddedMargin = floatingCursorAddedMargin ?? EdgeInsets.fromLTRB(4, 4, 4, 5);
-            D.assert(textSelectionDelegate != null);
-            D.assert(minLines == null || minLines > 0);
+            
+            D.assert(textDirection != null, () => "RenderEditable created without a textDirection.");
             D.assert(maxLines == null || maxLines > 0);
+            D.assert(minLines == null || minLines > 0);
             D.assert(startHandleLayerLink != null);
             D.assert(endHandleLayerLink != null);
-            D.assert((maxLines == null) || (minLines == null) || maxLines >= minLines,
-                () => "minLines can't be greater than maxLines");
+            D.assert(
+                (maxLines == null) || (minLines == null) || (maxLines >= minLines), ()=>
+                "minLines can't be greater than maxLines"
+            );
+           
+            D.assert(
+                !expands || (maxLines == null && minLines == null),()=>
+                "minLines and maxLines must be null when expands is true."
+            );
+           
             D.assert(offset != null);
-            D.assert(cursorWidth >= 0.0f);
+           
+            D.assert(textSelectionDelegate != null);
+            D.assert( cursorWidth >= 0.0);
+           
             _textPainter = new TextPainter(
                 text: text,
                 textAlign: textAlign,
-                textDirection: textDirection,
+                textDirection: textDirection ?? TextDirection.ltr,
                 textScaleFactor: textScaleFactor,
+                locale: locale,
                 strutStyle: strutStyle,
-                textWidthBasis: textWidthBasis);
+                textWidthBasis: textWidthBasis
+            );
             _cursorColor = cursorColor;
             _backgroundCursorColor = backgroundCursorColor;
             _showCursor = showCursor ?? new ValueNotifier<bool>(false);
-            _hasFocus = hasFocus ?? false;
             _maxLines = maxLines;
             _minLines = minLines;
             _expands = expands;
             _selectionColor = selectionColor;
             _selection = selection;
-            _obscureText = obscureText;
             _offset = offset;
             _cursorWidth = cursorWidth;
             _cursorRadius = cursorRadius;
+            _paintCursorOnTop = paintCursorAboveText;
+            _cursorOffset = cursorOffset;
+            _floatingCursorAddedMargin = floatingCursorAddedMargin;
             _enableInteractiveSelection = enableInteractiveSelection;
+            _devicePixelRatio = devicePixelRatio;
             _selectionHeightStyle = selectionHeightStyle;
             _selectionWidthStyle = selectionWidthStyle;
             _startHandleLayerLink = startHandleLayerLink;
             _endHandleLayerLink = endHandleLayerLink;
+            _obscureText = obscureText;
             _readOnly = readOnly;
             _forceLine = forceLine;
+            D.assert(_showCursor != null);
+            D.assert(!_showCursor.value || cursorColor != null);
+            this.hasFocus = hasFocus ?? false;
             this.ignorePointer = ignorePointer;
             this.onCaretChanged = onCaretChanged;
             this.onSelectionChanged = onSelectionChanged;
             this.textSelectionDelegate = textSelectionDelegate;
-            this.globalKeyEventHandler = globalKeyEventHandler;
+           
 
             D.assert(_maxLines == null || _maxLines > 0);
             D.assert(_showCursor != null);
             D.assert(!_showCursor.value || cursorColor != null);
             _doubleTap = new DoubleTapGestureRecognizer(this);
-
-            _paintCursorOnTop = paintCursorAboveText;
-            _cursorOffset = cursorOffset;
-            _floatingCursorAddedMargin = floatingCursorAddedMargin;
-            _devicePixelRatio = devicePixelRatio;
         }
 
         public static readonly char obscuringCharacter = '•';
@@ -720,7 +737,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public TextAlign textAlign {
+        public TextAlign? textAlign {
             get { return _textPainter.textAlign; }
             set {
                 if (_textPainter.textAlign == value) {
@@ -769,6 +786,21 @@ namespace Unity.UIWidgets.rendering {
                 markNeedsPaint();
             }
         }
+
+        public Locale locale {
+            get { return _textPainter.locale;
+            }
+            set {
+            if (_textPainter.locale == value)
+                return;
+            _textPainter.locale = value;
+            markNeedsTextLayout();
+            }
+        }
+
+        
+        
+        
 
         Color _backgroundCursorColor;
 
@@ -1745,6 +1777,7 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new DiagnosticsProperty<float>("textScaleFactor", textScaleFactor));
             properties.add(new DiagnosticsProperty<TextSelection>("selection", selection));
             properties.add(new DiagnosticsProperty<ViewportOffset>("offset", offset));
+            properties.add(new DiagnosticsProperty<Locale>("locale", locale, defaultValue: null));
         }
 
         public override List<DiagnosticsNode> debugDescribeChildren() {

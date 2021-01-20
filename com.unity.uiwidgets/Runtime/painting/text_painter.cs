@@ -53,7 +53,7 @@ namespace Unity.UIWidgets.painting {
 
     public class TextPainter {
         InlineSpan _text;
-        TextAlign _textAlign;
+        TextAlign? _textAlign;
         TextDirection? _textDirection;
         float _textScaleFactor;
         Paragraph _layoutTemplate;
@@ -159,7 +159,7 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        public TextAlign textAlign {
+        public TextAlign? textAlign {
             get { return _textAlign; }
             set {
                 if (_textAlign == value) {

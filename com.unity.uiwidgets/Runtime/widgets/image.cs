@@ -99,9 +99,10 @@ namespace Unity.UIWidgets.widgets {
             Color color = null,
             BlendMode colorBlendMode = BlendMode.srcIn,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
+            bool matchTextDirection = false,
             bool gaplessPlayback = false,
             FilterQuality filterQuality = FilterQuality.low
         ) : base(key: key) {
@@ -120,6 +121,7 @@ namespace Unity.UIWidgets.widgets {
             this.centerSlice = centerSlice;
             this.gaplessPlayback = gaplessPlayback;
             this.filterQuality = filterQuality;
+            this.matchTextDirection = matchTextDirection;
         }
 
         public static Image network(
@@ -134,10 +136,11 @@ namespace Unity.UIWidgets.widgets {
             Color color = null,
             BlendMode colorBlendMode = BlendMode.srcIn,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
             bool gaplessPlayback = false,
+            bool matchTextDirection = false,
             FilterQuality filterQuality = FilterQuality.low,
             IDictionary<string, string> headers = null,
             int? cacheWidth = null,
@@ -159,6 +162,7 @@ namespace Unity.UIWidgets.widgets {
                 alignment: alignment,
                 repeat: repeat,
                 centerSlice: centerSlice,
+                matchTextDirection : matchTextDirection,
                 gaplessPlayback: gaplessPlayback,
                 filterQuality: filterQuality
             );
@@ -175,8 +179,9 @@ namespace Unity.UIWidgets.widgets {
             Color color = null,
             BlendMode colorBlendMode = BlendMode.srcIn,
             BoxFit? fit = null,
-            Alignment alignment = null,
-            ImageRepeat repeat = ImageRepeat.noRepeat,
+            AlignmentGeometry alignment = null,
+            ImageRepeat repeat = ImageRepeat.noRepeat, 
+            bool matchTextDirection = false,
             Rect centerSlice = null,
             bool gaplessPlayback = false,
             FilterQuality filterQuality = FilterQuality.low,
@@ -198,6 +203,7 @@ namespace Unity.UIWidgets.widgets {
                 alignment: alignment,
                 repeat: repeat,
                 centerSlice: centerSlice,
+                matchTextDirection: matchTextDirection,
                 gaplessPlayback: gaplessPlayback,
                 filterQuality: filterQuality
             );
@@ -218,22 +224,21 @@ namespace Unity.UIWidgets.widgets {
             Alignment alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
+            bool matchTextDirection = false,
             bool gaplessPlayback = false,
+            string package = null,
             FilterQuality filterQuality = FilterQuality.low,
             int? cacheWidth = default,
             int? cacheHeight = null
         ) {
-            /*image = ResizeImage.resizeIfNeeded(cacheWidth, cacheHeight, scale != null
-                ? ExactAssetImage(name, bundle: bundle, scale: scale, package: package)
-                : AssetImage(name, bundle: bundle, package: package)
-            );*/
-            var image = scale != null
+            
+            var _image = scale != null
                 ? (AssetBundleImageProvider) new ExactAssetImage(name, bundle: bundle, scale: scale.Value)
                 : new AssetImage(name, bundle: bundle);
 
             return new Image(
                 key: key,
-                image: image,
+                image: _image,
                 frameBuilder: frameBuilder,
                 loadingBuilder: null,
                 errorBuilder: errorBuilder,
@@ -245,6 +250,7 @@ namespace Unity.UIWidgets.widgets {
                 alignment: alignment,
                 repeat: repeat,
                 centerSlice: centerSlice,
+                matchTextDirection: matchTextDirection,
                 gaplessPlayback: gaplessPlayback,
                 filterQuality: filterQuality
             );
@@ -264,6 +270,7 @@ namespace Unity.UIWidgets.widgets {
             Alignment alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
+            bool matchTextDirection = false,
             bool gaplessPlayback = false,
             FilterQuality filterQuality = FilterQuality.low,
             int? cacheWidth = default,
@@ -273,7 +280,7 @@ namespace Unity.UIWidgets.widgets {
             var memoryImage = new MemoryImage(bytes, scale);
             return new Image(
                 key: key,
-                image: memoryImage,
+                image: ResizeImage.resizeIfNeeded(cacheWidth, cacheHeight, new MemoryImage(bytes, scale: scale)),
                 frameBuilder: frameBuilder,
                 loadingBuilder: null,
                 errorBuilder: errorBuilder,
@@ -285,6 +292,7 @@ namespace Unity.UIWidgets.widgets {
                 alignment: alignment,
                 repeat: repeat,
                 centerSlice: centerSlice,
+                matchTextDirection : matchTextDirection,
                 gaplessPlayback: gaplessPlayback,
                 filterQuality: filterQuality
             );
@@ -300,10 +308,11 @@ namespace Unity.UIWidgets.widgets {
         public readonly FilterQuality filterQuality;
         public readonly BlendMode colorBlendMode;
         public readonly BoxFit? fit;
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
         public readonly ImageRepeat repeat;
         public readonly Rect centerSlice;
         public readonly bool gaplessPlayback;
+        public readonly bool matchTextDirection;
 
         public override State createState() {
             return new _ImageState();
@@ -322,13 +331,14 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<BoxFit?>("fit", fit, defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment,
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<ImageRepeat>("repeat", repeat, defaultValue: ImageRepeat.noRepeat));
             properties.add(new DiagnosticsProperty<Rect>("centerSlice", centerSlice,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<FilterQuality>("filterQuality", filterQuality,
                 foundation_.kNullDefaultValue));
+            properties.add(new FlagProperty("matchTextDirection", value: matchTextDirection, ifTrue: "match text direction"));
         }
     }
 
