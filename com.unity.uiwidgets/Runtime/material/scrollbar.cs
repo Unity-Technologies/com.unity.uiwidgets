@@ -1,6 +1,7 @@
 using System;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -78,7 +79,7 @@ namespace Unity.UIWidgets.material {
                 _materialPainter.update(notification.metrics, notification.metrics.axisDirection);
                 _fadeoutTimer?.cancel();
 
-                _fadeoutTimer = Window.instance.run(ScrollbarUtils._kScrollbarTimeToFade, () => {
+                _fadeoutTimer = Timer.create(ScrollbarUtils._kScrollbarTimeToFade, () => {
                     _fadeoutAnimationController.reverse();
                     _fadeoutTimer = null;
                 });

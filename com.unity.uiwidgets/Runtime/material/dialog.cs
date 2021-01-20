@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -286,7 +286,7 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        public static IPromise<object> showDialog(
+        public static Future<object> showDialog(
             BuildContext context = null,
             bool barrierDismissible = true,
             WidgetBuilder builder = null
@@ -294,7 +294,7 @@ namespace Unity.UIWidgets.material {
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             ThemeData theme = Theme.of(context, shadowThemeOnly: true);
-            return widgets.DialogUtils.showGeneralDialog(
+            return widgets.DialogUtils.showGeneralDialog<object>(
                 context: context,
                 pageBuilder: (buildContext, animation, secondaryAnimation) => {
                     Widget pageChild = new Builder(builder: builder);

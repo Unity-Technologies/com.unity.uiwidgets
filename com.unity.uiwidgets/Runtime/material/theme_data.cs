@@ -4,6 +4,7 @@ using System.Linq;
 using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;

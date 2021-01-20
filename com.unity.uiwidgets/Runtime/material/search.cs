@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
     public class SearchUtils {
-        public static IPromise<object> showSearch(
+        public static Future<object> showSearch(
             BuildContext context,
             SearchDelegate del,
             string query = ""

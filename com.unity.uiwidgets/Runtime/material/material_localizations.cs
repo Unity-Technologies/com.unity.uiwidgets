@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using RSG;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -78,7 +78,7 @@ namespace Unity.UIWidgets.material {
             return locale.languageCode == "en";
         }
 
-        public override IPromise<object> load(Locale locale) {
+        public override Future<WidgetsLocalizations> load(Locale locale) {
             return DefaultMaterialLocalizations.load(locale);
         }
 
@@ -387,8 +387,8 @@ namespace Unity.UIWidgets.material {
                 : TimeOfDayFormat.h_colon_mm_space_a;
         }
 
-        public static IPromise<object> load(Locale locale) {
-            return Promise<object>.Resolved(new DefaultMaterialLocalizations());
+        public static Future<MaterialLocalizations> load(Locale locale) {
+            return Future.value(FutureOr.value(new DefaultMaterialLocalizations()));
         }
 
         public static readonly LocalizationsDelegate<MaterialLocalizations> del = new _MaterialLocalizationsDelegate();

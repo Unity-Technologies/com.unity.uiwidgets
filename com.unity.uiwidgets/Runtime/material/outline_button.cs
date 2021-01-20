@@ -409,7 +409,7 @@ namespace Unity.UIWidgets.material {
         public readonly ShapeBorder shape;
         public readonly BorderSide side;
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.all(side.width); }
         }
 
@@ -442,15 +442,15 @@ namespace Unity.UIWidgets.material {
             return base.lerpTo(b, t);
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection) {
             return shape.getInnerPath(rect.deflate(side.width));
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection) {
             return shape.getOuterPath(rect);
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection) {
             switch (side.style) {
                 case BorderStyle.none:
                     break;

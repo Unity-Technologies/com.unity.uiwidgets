@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -621,9 +621,9 @@ namespace Unity.UIWidgets.material {
                 if (showValueIndicator) {
                     _state.valueIndicatorController.forward();
                     _state.interactionTimer?.cancel();
-                    _state.interactionTimer = Window.instance.run(
+                    _state.interactionTimer = Timer.create(
                         new TimeSpan(0, 0, 0, 0,
-                            (int) (_minimumInteractionTimeMilliSeconds * SchedulerBinding.instance.timeDilation)),
+                            (int) (_minimumInteractionTimeMilliSeconds * scheduler_.timeDilation)),
                         () => {
                             _state.interactionTimer = null;
                             if (!_active &&
@@ -688,15 +688,15 @@ namespace Unity.UIWidgets.material {
         }
 
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return _minPreferredTrackWidth + _maxSliderPartWidth;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return _minPreferredTrackWidth + _maxSliderPartWidth;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return Mathf.Max(_minPreferredTrackHeight, _maxSliderPartHeight);
         }
 

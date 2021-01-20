@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using RSG.Promises;
 using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -1731,7 +1730,7 @@ namespace Unity.UIWidgets.material {
             slotToChild.Values.Each((value) => { visitor(value); });
         }
 
-        protected override void forgetChild(Element child) {
+        internal override void forgetChild(Element child) {
             D.assert(slotToChild.ContainsValue(child));
             D.assert(childToSlot.ContainsKey(child));
             _ChipSlot slot = childToSlot[child];
@@ -2082,7 +2081,7 @@ namespace Unity.UIWidgets.material {
             return (BoxParentData) box.parentData;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             float overallPadding = theme.padding.horizontal + theme.labelPadding.horizontal;
             return overallPadding +
                    _minWidth(avatar, height) +
@@ -2090,7 +2089,7 @@ namespace Unity.UIWidgets.material {
                    _minWidth(deleteIcon, height);
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             float overallPadding = theme.padding.vertical + theme.labelPadding.horizontal;
             return overallPadding +
                    _maxWidth(avatar, height) +
@@ -2098,7 +2097,7 @@ namespace Unity.UIWidgets.material {
                    _maxWidth(deleteIcon, height);
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return Mathf.Max(
                 ChipUtils._kChipHeight,
                 theme.padding.vertical + theme.labelPadding.vertical + _minHeight(label, width)
