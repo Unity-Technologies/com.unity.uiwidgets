@@ -89,16 +89,29 @@ namespace Unity.UIWidgets.rendering {
 
     public class RenderPadding : RenderShiftedBox {
         public RenderPadding(
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
+            TextDirection? textDirection = null,
             RenderBox child = null
         ) : base(child) {
             D.assert(padding != null);
             D.assert(padding.isNonNegative);
-
+            _textDirection = textDirection;
             _padding = padding;
         }
+        EdgeInsets _resolvedPadding;
+        
+        void _resolve() {
+            if (_resolvedPadding != null)
+                return;
+            _resolvedPadding = padding.resolve(textDirection);
+            D.assert(_resolvedPadding.isNonNegative);
+        }
 
-        public EdgeInsets padding {
+        void _markNeedResolution() {
+            _resolvedPadding = null;
+            markNeedsLayout();
+        }
+        public EdgeInsetsGeometry padding {
             get { return _padding; }
             set {
                 D.assert(value != null);
@@ -112,72 +125,88 @@ namespace Unity.UIWidgets.rendering {
                 markNeedsLayout();
             }
         }
+        EdgeInsetsGeometry _padding;
 
-        EdgeInsets _padding;
+        public TextDirection? textDirection {
+            get { return _textDirection; }
+            set {if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                _markNeedResolution(); }
+        }
+        TextDirection? _textDirection;
+       
 
         protected internal override float computeMinIntrinsicWidth(float height) {
-            if (child != null) {
-                return child.getMinIntrinsicWidth(Mathf.Max(0.0f, height - _padding.vertical)) +
-                       _padding.horizontal;
-            }
-
-            return _padding.horizontal;
+            _resolve();
+            float totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
+            float totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+            if (child != null) // next line relies on double.infinity absorption
+                return child.getMinIntrinsicWidth(Mathf.Max(0.0f, height - totalVerticalPadding)) + totalHorizontalPadding;
+            return totalHorizontalPadding;
         }
 
         protected internal override float computeMaxIntrinsicWidth(float height) {
-            if (child != null) {
-                return child.getMaxIntrinsicWidth(Mathf.Max(0.0f, height - _padding.vertical)) +
-                       _padding.horizontal;
-            }
-
-            return _padding.horizontal;
+            _resolve();
+            float totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
+            float totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+            if (child != null) // next line relies on double.infinity absorption
+                return child.getMaxIntrinsicWidth(Mathf.Max(0.0f, height - totalVerticalPadding)) + totalHorizontalPadding;
+            return totalHorizontalPadding;
         }
 
         protected internal override float computeMinIntrinsicHeight(float width) {
-            if (child != null) {
-                return child.getMinIntrinsicHeight(Mathf.Max(0.0f, width - _padding.horizontal)) +
-                       _padding.vertical;
-            }
-
-            return _padding.vertical;
+            _resolve();
+            float totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
+            float totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+            if (child != null) // next line relies on double.infinity absorption
+                return child.getMinIntrinsicHeight(Mathf.Max(0.0f, width - totalHorizontalPadding)) + totalVerticalPadding;
+            return totalVerticalPadding;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (child != null) {
-                return child.getMaxIntrinsicHeight(Mathf.Max(0.0f, width - _padding.horizontal)) +
-                       _padding.vertical;
-            }
-
-            return _padding.vertical;
+            _resolve();
+            float totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
+            float totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+            if (child != null) // next line relies on double.infinity absorption
+                return child.getMaxIntrinsicHeight(Mathf.Max(0.0f, width - totalHorizontalPadding)) + totalVerticalPadding;
+            return totalVerticalPadding;
         }
 
         protected override void performLayout() {
+             BoxConstraints constraints = this.constraints;
+            _resolve();
+            D.assert(_resolvedPadding != null);
             if (child == null) {
-                size = constraints.constrain(_padding.inflateSize(Size.zero));
+                size = constraints.constrain(new Size(
+                    _resolvedPadding.left + _resolvedPadding.right,
+                    _resolvedPadding.top + _resolvedPadding.bottom
+                ));
                 return;
             }
-
-            var innerConstraints = constraints.deflate(_padding);
+             BoxConstraints innerConstraints = constraints.deflate(_resolvedPadding);
             child.layout(innerConstraints, parentUsesSize: true);
-
-            var childParentData = (BoxParentData) child.parentData;
-            childParentData.offset = _padding.topLeft;
-            size = constraints.constrain(_padding.inflateSize(child.size));
+             BoxParentData childParentData = child.parentData as BoxParentData;
+            childParentData.offset = new Offset(_resolvedPadding.left, _resolvedPadding.top);
+            size = constraints.constrain(new Size(
+                _resolvedPadding.left + child.size.width + _resolvedPadding.right,
+                _resolvedPadding.top + child.size.height + _resolvedPadding.bottom
+            ));
         }
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {
             base.debugPaintSize(context, offset);
-            D.assert(() => {
+            D.assert(()=> {
                 Rect outerRect = offset & size;
-                D.debugPaintPadding(context.canvas, outerRect,
-                    child != null ? _padding.deflateRect(outerRect) : null);
+                D.debugPaintPadding(context.canvas, outerRect, child != null ? _resolvedPadding.deflateRect(outerRect) : null);
                 return true;
             });
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding));
+            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
         }
     }
 

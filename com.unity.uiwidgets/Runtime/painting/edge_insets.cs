@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.painting {
             get { return _left + _right + _start + _end; }
         }
 
-        float vertical {
+        public float vertical {
             get { return _top + _bottom; }
         }
 

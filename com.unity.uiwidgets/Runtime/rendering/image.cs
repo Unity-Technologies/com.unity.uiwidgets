@@ -15,9 +15,11 @@ namespace Unity.UIWidgets.rendering {
             Color color = null,
             BlendMode colorBlendMode = BlendMode.srcIn,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
+            bool matchTextDirection = false,
+            TextDirection? textDirection = null,
             bool invertColors = false,
             FilterQuality filterQuality = FilterQuality.low
         ) {
@@ -33,7 +35,24 @@ namespace Unity.UIWidgets.rendering {
             _alignment = alignment ?? Alignment.center;
             _invertColors = invertColors;
             _filterQuality = filterQuality;
+            _textDirection = textDirection;
+            _matchTextDirection = matchTextDirection;
             _updateColorFilter();
+        }
+        Alignment _resolvedAlignment;
+        bool _flipHorizontally;
+        void _resolve() {
+            if (_resolvedAlignment != null)
+                return;
+            _resolvedAlignment = alignment.resolve(textDirection);
+            _flipHorizontally = matchTextDirection && textDirection == TextDirection.rtl;
+        }
+
+        
+        void _markNeedResolution() {
+            _resolvedAlignment = null;
+            _flipHorizontally = false;
+            markNeedsPaint();
         }
 
         Image _image;
@@ -164,9 +183,9 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        Alignment _alignment;
+        AlignmentGeometry _alignment;
 
-        public Alignment alignment {
+        public AlignmentGeometry alignment {
             get { return _alignment; }
             set {
                 if (value == _alignment) {
@@ -219,6 +238,31 @@ namespace Unity.UIWidgets.rendering {
                 markNeedsPaint();
             }
         }
+
+        public bool matchTextDirection {
+            get { return _matchTextDirection; }
+            set {
+                D.assert(value != null);
+                if (value == _matchTextDirection)
+                    return;
+                _matchTextDirection = value;
+                _markNeedResolution();
+            }
+        }
+        bool _matchTextDirection;
+
+        public TextDirection? textDirection {
+            get { return _textDirection; }
+            set {
+                if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                _markNeedResolution();
+            }
+        }
+        TextDirection? _textDirection;
+       
+       
 
         Size _sizeForConstraints(BoxConstraints constraints) {
             constraints = BoxConstraints.tightFor(
@@ -276,7 +320,9 @@ namespace Unity.UIWidgets.rendering {
             if (_image == null) {
                 return;
             }
-
+            _resolve();
+            D.assert(_resolvedAlignment != null);
+            D.assert(_flipHorizontally != null);
             painting_.paintImage(
                 canvas: context.canvas,
                 rect: offset & size,
@@ -284,10 +330,11 @@ namespace Unity.UIWidgets.rendering {
                 scale: _scale,
                 colorFilter: _colorFilter,
                 fit: _fit,
-                alignment: _alignment,
+                alignment: _resolvedAlignment,
                 centerSlice: _centerSlice,
                 repeat: _repeat,
-                invertColors: _invertColors,
+                flipHorizontally: _flipHorizontally,
+                invertColors: invertColors,
                 filterQuality: _filterQuality
             );
         }
@@ -303,13 +350,16 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<BoxFit?>("fit", fit, defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment,
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<ImageRepeat>("repeat", repeat, defaultValue: ImageRepeat.noRepeat));
             properties.add(new DiagnosticsProperty<Rect>("centerSlice", centerSlice,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<bool>("invertColors", invertColors));
             properties.add(new EnumProperty<FilterQuality>("filterMode", filterQuality));
+            properties.add(new FlagProperty("matchTextDirection", value: matchTextDirection, ifTrue: "match text direction"));
+            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
+
         }
     }
 }

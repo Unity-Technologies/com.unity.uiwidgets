@@ -767,7 +767,7 @@ public class Align : SingleChildRenderObjectWidget {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
             properties.add(new FloatProperty("widthFactor",
                 widthFactor, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("heightFactor",
@@ -1231,7 +1231,7 @@ public class Align : SingleChildRenderObjectWidget {
         }
     }
     
-        public class IntrinsicWidth : SingleChildRenderObjectWidget {
+    public class IntrinsicWidth : SingleChildRenderObjectWidget {
         public IntrinsicWidth(
             Key key = null, 
             float? stepWidth = null, 
@@ -1370,95 +1370,6 @@ public class Align : SingleChildRenderObjectWidget {
             properties.add(new FloatProperty("aspectRatio", aspectRatio));
         }
     }
-    
-
-    
-    
-
-    public class Flex : MultiChildRenderObjectWidget {
-        public Flex(
-            Axis direction = Axis.vertical,
-            TextDirection? textDirection = null,
-            TextBaseline? textBaseline = null,
-            Key key = null,
-            MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
-            MainAxisSize mainAxisSize = MainAxisSize.max,
-            CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
-            VerticalDirection verticalDirection = VerticalDirection.down,
-            List<Widget> children = null
-        ) : base(key, children) {
-            this.direction = direction;
-            this.mainAxisAlignment = mainAxisAlignment;
-            this.mainAxisSize = mainAxisSize;
-            this.crossAxisAlignment = crossAxisAlignment;
-            this.textDirection = textDirection;
-            this.verticalDirection = verticalDirection;
-            this.textBaseline = textBaseline;
-        }
-
-        public readonly Axis direction;
-        public readonly MainAxisAlignment mainAxisAlignment;
-        public readonly MainAxisSize mainAxisSize;
-        public readonly CrossAxisAlignment crossAxisAlignment;
-        public readonly TextDirection? textDirection;
-        public readonly VerticalDirection verticalDirection;
-        public readonly TextBaseline? textBaseline;
-
-        bool _needTextDirection {
-            get {
-                switch (direction) {
-                    case Axis.horizontal:
-                        return true;
-                    case Axis.vertical:
-                        return (crossAxisAlignment == CrossAxisAlignment.start ||
-                                crossAxisAlignment == CrossAxisAlignment.end);
-                }
-
-                return false;
-            }
-        }
-
-        public TextDirection getEffectiveTextDirection(BuildContext context) {
-            return textDirection ?? (_needTextDirection ? Directionality.of(context) : TextDirection.ltr);
-        }
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderFlex(
-                direction: direction,
-                mainAxisAlignment: mainAxisAlignment,
-                mainAxisSize: mainAxisSize,
-                crossAxisAlignment: crossAxisAlignment,
-                textDirection: getEffectiveTextDirection(context),
-                verticalDirection: verticalDirection,
-                textBaseline: textBaseline ?? TextBaseline.alphabetic
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderFlex) renderObject).direction = direction;
-            ((RenderFlex) renderObject).mainAxisAlignment = mainAxisAlignment;
-            ((RenderFlex) renderObject).mainAxisSize = mainAxisSize;
-            ((RenderFlex) renderObject).crossAxisAlignment = crossAxisAlignment;
-            ((RenderFlex) renderObject).textDirection = textDirection ?? TextDirection.ltr;
-            ((RenderFlex) renderObject).verticalDirection = verticalDirection;
-            ((RenderFlex) renderObject).textBaseline = textBaseline ?? TextBaseline.alphabetic;
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new EnumProperty<Axis>("direction", direction));
-            properties.add(new EnumProperty<MainAxisAlignment>("mainAxisAlignment", mainAxisAlignment));
-            properties.add(new EnumProperty<MainAxisSize>("mainAxisSize", mainAxisSize,
-                defaultValue: MainAxisSize.max));
-            properties.add(new EnumProperty<CrossAxisAlignment>("crossAxisAlignment", crossAxisAlignment));
-            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
-            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", verticalDirection,
-                defaultValue: VerticalDirection.down));
-            properties.add(new EnumProperty<TextBaseline?>("textBaseline", textBaseline, defaultValue: null));
-        }
-    }
-
-
 
     public class MouseRegion : StatefulWidget { 
         public MouseRegion(
@@ -1467,7 +1378,8 @@ public class Align : SingleChildRenderObjectWidget {
             PointerExitEventListener onExit = null,
             PointerHoverEventListener onHover= null,
             bool opaque  = true,
-            Widget child = null) : base(key: key) {
+            Widget child = null
+            ) : base(key: key) {
                 D.assert(opaque != null);
                 this.onEnter = onEnter;
                 this.onExit = onExit;
@@ -1810,71 +1722,138 @@ public class Align : SingleChildRenderObjectWidget {
             properties.add(new FloatProperty("height", height, defaultValue: null));
         }
     }
-    public class PositionedDirectional : StatelessWidget { 
+    public class PositionedDirectional : StatelessWidget {
         public PositionedDirectional(
-    Key key = null,
-    float? start = null, 
-    float? top = null,
-    float? end = null, 
-    float? bottom = null, 
-    float? width = null, 
-    float? height = null,
-    Widget child = null
-   
-  ) : base(key: key) {
-        this.child = child;
+            Key key = null,
+            float? start = null,
+            float? top = null,
+            float? end = null,
+            float? bottom = null,
+            float? width = null,
+            float? height = null,
+            Widget child = null
+        ) : base(key: key) {
+            this.child = child;
+        }
+
+        public readonly float? start;
+        public readonly float? top;
+        public readonly float? end;
+        public readonly float? bottom;
+        public readonly float? width;
+        public readonly float? height;
+        public readonly Widget child;
+        public override Widget build(BuildContext context) {
+            return Positioned.directional(
+              textDirection: Directionality.of(context),
+              start: start,
+              top: top,
+              end: end,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: child
+            );
+        }
     }
 
-
-    public readonly float start;
-
-  
-  public readonly float top;
-
-  
-  public readonly float end;
-
- 
-  public readonly float bottom;
-
-  
-  public readonly float width;
-
-  
-  public readonly float height;
-
-  
-  public readonly Widget child;
-
-  public override Widget build(BuildContext context) {
-    return Positioned.directional(
-      textDirection: Directionality.of(context),
-      start: start,
-      top: top,
-      end: end,
-      bottom: bottom,
-      width: width,
-      height: height,
-      child: child
-    );
-  }
-}
-
     
+    public class Flex : MultiChildRenderObjectWidget {
+        public Flex(
+            Key key = null,
+            Axis direction = Axis.vertical,
+            MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
+            MainAxisSize mainAxisSize = MainAxisSize.max,
+            CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+            TextDirection? textDirection = null,
+            VerticalDirection verticalDirection = VerticalDirection.down,
+            TextBaseline? textBaseline = null,
+            List<Widget> children = null
+        ) : base(key, children) {
+            this.direction = direction;
+            this.mainAxisAlignment = mainAxisAlignment;
+            this.mainAxisSize = mainAxisSize;
+            this.crossAxisAlignment = crossAxisAlignment;
+            this.textDirection = textDirection;
+            this.verticalDirection = verticalDirection;
+            this.textBaseline = textBaseline;
+        }
+
+        public readonly Axis direction;
+        public readonly MainAxisAlignment mainAxisAlignment;
+        public readonly MainAxisSize mainAxisSize;
+        public readonly CrossAxisAlignment crossAxisAlignment;
+        public readonly TextDirection? textDirection;
+        public readonly VerticalDirection verticalDirection;
+        public readonly TextBaseline? textBaseline;
+
+        bool _needTextDirection {
+            get {
+                switch (direction) {
+                    case Axis.horizontal:
+                        return true;
+                    case Axis.vertical:
+                        return (crossAxisAlignment == CrossAxisAlignment.start ||
+                                crossAxisAlignment == CrossAxisAlignment.end);
+                }
+
+                return false;
+            }
+        }
+
+        public TextDirection getEffectiveTextDirection(BuildContext context) {
+            return textDirection ?? (_needTextDirection ? Directionality.of(context) : TextDirection.ltr);
+        }
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderFlex(
+                direction: direction,
+                mainAxisAlignment: mainAxisAlignment,
+                mainAxisSize: mainAxisSize,
+                crossAxisAlignment: crossAxisAlignment,
+                textDirection: getEffectiveTextDirection(context),
+                verticalDirection: verticalDirection,
+                textBaseline: textBaseline ?? TextBaseline.alphabetic
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            ((RenderFlex) renderObject).direction = direction;
+            ((RenderFlex) renderObject).mainAxisAlignment = mainAxisAlignment;
+            ((RenderFlex) renderObject).mainAxisSize = mainAxisSize;
+            ((RenderFlex) renderObject).crossAxisAlignment = crossAxisAlignment;
+            ((RenderFlex) renderObject).textDirection = textDirection ?? TextDirection.ltr;
+            ((RenderFlex) renderObject).verticalDirection = verticalDirection;
+            ((RenderFlex) renderObject).textBaseline = textBaseline ?? TextBaseline.alphabetic;
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new EnumProperty<Axis>("direction", direction));
+            properties.add(new EnumProperty<MainAxisAlignment>("mainAxisAlignment", mainAxisAlignment));
+            properties.add(new EnumProperty<MainAxisSize>("mainAxisSize", mainAxisSize,
+                defaultValue: MainAxisSize.max));
+            properties.add(new EnumProperty<CrossAxisAlignment>("crossAxisAlignment", crossAxisAlignment));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
+            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", verticalDirection,
+                defaultValue: VerticalDirection.down));
+            properties.add(new EnumProperty<TextBaseline?>("textBaseline", textBaseline, defaultValue: null));
+        }
+    }
     
 
     public class Row : Flex {
         public Row(
-            TextDirection? textDirection = null,
-            TextBaseline? textBaseline = null,
             Key key = null,
             MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
             MainAxisSize mainAxisSize = MainAxisSize.max,
             CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+            TextDirection? textDirection = null,
             VerticalDirection verticalDirection = VerticalDirection.down,
+            TextBaseline? textBaseline = null,
             List<Widget> children = null
         ) : base(
-            children: children,
+            children: children ?? new List<Widget>(),
             key: key,
             direction: Axis.horizontal,
             textDirection: textDirection,
@@ -1889,16 +1868,16 @@ public class Align : SingleChildRenderObjectWidget {
 
     public class Column : Flex {
         public Column(
-            TextDirection? textDirection = null,
-            TextBaseline? textBaseline = null,
             Key key = null,
             MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
             MainAxisSize mainAxisSize = MainAxisSize.max,
             CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+            TextDirection? textDirection = null,
             VerticalDirection verticalDirection = VerticalDirection.down,
+            TextBaseline? textBaseline = null,
             List<Widget> children = null
         ) : base(
-            children: children,
+            children: children ?? new List<Widget>(),
             key: key,
             direction: Axis.vertical,
             textDirection: textDirection,
@@ -2073,37 +2052,23 @@ public class Align : SingleChildRenderObjectWidget {
 
 
     
-    //[!!!] class Flow?
+   
     /*public class Flow : MultiChildRenderObjectWidget {
-        /// Creates a flow layout.
-        ///
-        /// Wraps each of the given children in a [RepaintBoundary] to avoid
-        /// repainting the children when the flow repaints.
-        ///
-        /// The [delegate] argument must not be null.
+      
         public Flow(
-            Key key,
-            FlowDelegate _delegate,
+            Key key = null,
+            FlowDelegate _delegate = null,
             List<Widget> children = null
             ) 
-            : base(key: key, children: RepaintBoundary.wrapAll(children)) {
+            : base(key: key, children: RepaintBoundary.wrapAll(children ?? new List<Widget>())) {
                 D.assert(_delegate != null);
             }
-            // https://github.com/dart-lang/sdk/issues/29277
-
-            /// Creates a flow layout.
-            ///
-            /// Does not wrap the given children in repaint boundaries, unlike the default
-            /// constructor. Useful when the child is trivial to paint or already contains
-            /// a repaint boundary.
-            ///
-            /// The [delegate] argument must not be null.
-            Flow.unwrapped(
-                Key key,
-                FlowDelegate _delegate,
+           
+        public static Flow unwrapped(
+                Key key = null,
+                FlowDelegate _delegate = null,
                 List<Widget> children = null
-            ) : 
-            base(key: key, children: children) {
+            ) : base(key: key, children: children) {
                     D.assert(_delegate != null);
                 }
 
@@ -2135,12 +2100,8 @@ public class Align : SingleChildRenderObjectWidget {
             TextHeightBehavior textHeightBehavior = null
         ) : base(key: key, children: _extractChildren(text)) {
             D.assert(text != null);
-            D.assert(textAlign != null);
-            D.assert(softWrap != null);
-            D.assert(overflow != null);
-            D.assert(textScaleFactor != null);
             D.assert(maxLines == null || maxLines > 0);
-            D.assert(textWidthBasis != null);
+            
             this.text = text;
             this.textAlign = textAlign;
             this.textDirection = textDirection;
@@ -2217,7 +2178,7 @@ public class Align : SingleChildRenderObjectWidget {
             properties.add( new EnumProperty<TextDirection>("textDirection", textDirection.Value, defaultValue: null));
             properties.add( new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width", ifFalse: "no wrapping except at line break characters", showName: true));
             properties.add( new EnumProperty<TextOverflow>("overflow", overflow, defaultValue: TextOverflow.clip));
-            //properties.add( new DoubleProperty("textScaleFactor", textScaleFactor, defaultValue: 1.0));
+            properties.add( new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: 1.0));
             properties.add( new IntProperty("maxLines", maxLines, ifNull: "unlimited"));
             properties.add( new EnumProperty<TextWidthBasis>("textWidthBasis", textWidthBasis, defaultValue: TextWidthBasis.parent));
             properties.add( new StringProperty("text", text.toPlainText()));
@@ -2233,9 +2194,10 @@ public class Align : SingleChildRenderObjectWidget {
             Color color = null,
             BlendMode colorBlendMode = BlendMode.srcIn,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
+            bool matchTextDirection = false,
             bool invertColors = false,
             FilterQuality filterQuality = FilterQuality.low
         ) : base(key) {
@@ -2250,6 +2212,7 @@ public class Align : SingleChildRenderObjectWidget {
             this.repeat = repeat;
             this.centerSlice = centerSlice;
             this.invertColors = invertColors;
+            this.matchTextDirection = matchTextDirection;
             this.filterQuality = filterQuality;
         }
 
@@ -2260,13 +2223,17 @@ public class Align : SingleChildRenderObjectWidget {
         public readonly Color color;
         public readonly BlendMode colorBlendMode;
         public readonly BoxFit? fit;
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
         public readonly ImageRepeat repeat;
         public readonly Rect centerSlice;
         public readonly bool invertColors;
+        public readonly bool matchTextDirection;
         public readonly FilterQuality filterQuality;
 
         public override RenderObject createRenderObject(BuildContext context) {
+            TextDirection? textDirection = null;
+            if ((matchTextDirection || !(alignment is Alignment)))
+                textDirection = Directionality.of(context);
             return new RenderImage(
                 image: image,
                 width: width,
@@ -2278,14 +2245,18 @@ public class Align : SingleChildRenderObjectWidget {
                 alignment: alignment,
                 repeat: repeat,
                 centerSlice: centerSlice,
+                matchTextDirection: matchTextDirection,
+                textDirection:  textDirection,
                 invertColors: invertColors,
-                filterQuality:  filterQuality
+                filterQuality: filterQuality
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            TextDirection? textDirection = null;
+            if ((matchTextDirection || !(alignment is Alignment)))
+                textDirection = Directionality.of(context);
             var renderImage = (RenderImage) renderObject;
-
             renderImage.image = image;
             renderImage.width = width;
             renderImage.height = height;
@@ -2296,6 +2267,8 @@ public class Align : SingleChildRenderObjectWidget {
             renderImage.fit = fit;
             renderImage.repeat = repeat;
             renderImage.centerSlice = centerSlice;
+            renderImage.matchTextDirection = matchTextDirection;
+            renderImage.textDirection = textDirection;
             renderImage.invertColors = invertColors;
             renderImage.filterQuality = filterQuality;
         }
@@ -2311,11 +2284,12 @@ public class Align : SingleChildRenderObjectWidget {
             properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<BoxFit?>("fit", fit, defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment,
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<ImageRepeat>("repeat", repeat, defaultValue: ImageRepeat.noRepeat));
             properties.add(new DiagnosticsProperty<Rect>("centerSlice", centerSlice,
                 defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FlagProperty("matchTextDirection", value: matchTextDirection, ifTrue: "match text direction"));
             properties.add(new DiagnosticsProperty<bool>("invertColors", invertColors));
             properties.add(new EnumProperty<FilterQuality>("filterMode", filterQuality));
         }
@@ -2338,10 +2312,32 @@ public class Align : SingleChildRenderObjectWidget {
             DefaultAssetBundle result =
                 (DefaultAssetBundle) context.dependOnInheritedWidgetOfExactType<DefaultAssetBundle>();
             return result?.bundle;
+
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
             return bundle != ((DefaultAssetBundle) oldWidget).bundle;
+        }
+    }
+    public class WidgetToRenderBoxAdapter : LeafRenderObjectWidget {
+        public WidgetToRenderBoxAdapter(
+            RenderBox renderBox = null,
+            VoidCallback onBuild = null
+            ) :base(key: new GlobalObjectKey<State>(renderBox)) {
+            D.assert(renderBox != null);
+        }
+
+      
+        public readonly RenderBox renderBox;
+        public readonly VoidCallback onBuild;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return renderBox;
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            if (onBuild != null)
+                onBuild();
         }
     }
 
@@ -2350,17 +2346,17 @@ public class Align : SingleChildRenderObjectWidget {
             Key key = null,
             PointerDownEventListener onPointerDown = null,
             PointerMoveEventListener onPointerMove = null,
-            PointerEnterEventListener onPointerEnter = null,
-            PointerExitEventListener onPointerExit = null,
+            PointerEnterEventListener onPointerEnter = null,//
+            PointerExitEventListener onPointerExit = null,//
             PointerHoverEventListener onPointerHover = null,
             PointerUpEventListener onPointerUp = null,
             PointerCancelEventListener onPointerCancel = null,
             PointerSignalEventListener onPointerSignal = null,
-            PointerScrollEventListener onPointerScroll = null,
-            PointerDragFromEditorEnterEventListener onPointerDragFromEditorEnter = null,
-            PointerDragFromEditorHoverEventListener onPointerDragFromEditorHover = null,
-            PointerDragFromEditorExitEventListener onPointerDragFromEditorExit = null,
-            PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease = null,
+           // PointerScrollEventListener onPointerScroll = null,
+           // PointerDragFromEditorEnterEventListener onPointerDragFromEditorEnter = null,
+           // PointerDragFromEditorHoverEventListener onPointerDragFromEditorHover = null,
+           // PointerDragFromEditorExitEventListener onPointerDragFromEditorExit = null,
+           // PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease = null,
             HitTestBehavior behavior = HitTestBehavior.deferToChild,
             Widget child = null
         ) : base(key: key) {
@@ -2371,15 +2367,10 @@ public class Align : SingleChildRenderObjectWidget {
             this.onPointerCancel = onPointerCancel;
             this.onPointerSignal = onPointerSignal;
             this.onPointerHover = onPointerHover;
-            this.onPointerExit = onPointerExit;
-            this.onPointerEnter = onPointerEnter;
-            this.onPointerScroll = onPointerScroll;
+            //this.onPointerExit = onPointerExit;
+            //this.onPointerEnter = onPointerEnter;
+           // this.onPointerScroll = onPointerScroll;
             this.behavior = behavior;
-
-            this.onPointerDragFromEditorEnter = onPointerDragFromEditorEnter;
-            this.onPointerDragFromEditorHover = onPointerDragFromEditorHover;
-            this.onPointerDragFromEditorExit = onPointerDragFromEditorExit;
-            this.onPointerDragFromEditorRelease = onPointerDragFromEditorRelease;
         }
 
 
@@ -2401,17 +2392,17 @@ public class Align : SingleChildRenderObjectWidget {
 
         public readonly PointerExitEventListener onPointerExit;
 
-        public readonly PointerScrollEventListener onPointerScroll;
+        //public readonly PointerScrollEventListener onPointerScroll;
 
         public readonly HitTestBehavior behavior;
 
-        public readonly PointerDragFromEditorEnterEventListener onPointerDragFromEditorEnter;
+        //public readonly PointerDragFromEditorEnterEventListener onPointerDragFromEditorEnter;
 
-        public readonly PointerDragFromEditorHoverEventListener onPointerDragFromEditorHover;
+        //public readonly PointerDragFromEditorHoverEventListener onPointerDragFromEditorHover;
 
-        public readonly PointerDragFromEditorExitEventListener onPointerDragFromEditorExit;
+        //public readonly PointerDragFromEditorExitEventListener onPointerDragFromEditorExit;
 
-        public readonly PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease;
+        //public readonly PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease;
 
         public readonly Widget _child;
 
@@ -2428,7 +2419,6 @@ public class Align : SingleChildRenderObjectWidget {
                     child: result
                 );
             }
-
             result = new _PointerListener(
                 onPointerDown: onPointerDown,
                 onPointerUp: onPointerUp,
@@ -2521,7 +2511,10 @@ public class Align : SingleChildRenderObjectWidget {
     }
 
     public class RepaintBoundary : SingleChildRenderObjectWidget {
-        public RepaintBoundary(Key key = null, Widget child = null) : base(key: key, child: child) {
+        public RepaintBoundary(
+            Key key = null,
+            Widget child = null) : 
+            base(key: key, child: child) {
         }
 
         public static RepaintBoundary wrap(Widget child, int childIndex) {
@@ -2603,8 +2596,8 @@ public class Align : SingleChildRenderObjectWidget {
 
     public class MetaData : SingleChildRenderObjectWidget {
         public MetaData(
-            object metaData,
             Key key = null,
+            object metaData = null,
             HitTestBehavior behavior = HitTestBehavior.deferToChild,
             Widget child = null) : base(key: key, child: child) {
             this.metaData = metaData;
@@ -2636,7 +2629,7 @@ public class Align : SingleChildRenderObjectWidget {
 
     public class KeyedSubtree : StatelessWidget {
         public KeyedSubtree(
-            Key key,
+            Key key = null,
             Widget child = null
         ) : base(key: key) {
             D.assert(child != null);
@@ -2689,23 +2682,49 @@ public class Align : SingleChildRenderObjectWidget {
         }
     }
     
+    public delegate Widget StatefulWidgetBuilder(BuildContext context, StateSetter setState);
+    public class StatefulBuilder : StatefulWidget {
+        public StatefulBuilder(
+            Key key = null,
+            StatefulWidgetBuilder builder = null
+        ) : base(key: key) {
+            D.assert(builder != null);
+            this.builder = builder;
+        }
+
+
+        public readonly StatefulWidgetBuilder builder;
+
+        public override State createState() {
+            return new _StatefulBuilderState();
+        }
+    }
+    public class _StatefulBuilderState : State<StatefulBuilder> {
+        public override Widget build(BuildContext context) {
+            return widget.builder(context, setState);
+        }
+    }
+
+    
     public class ColoredBox : SingleChildRenderObjectWidget {
-        /// Creates a widget that paints its area with the specified [Color].
-        ///
-        /// The [color] parameter must not be null.
-        public ColoredBox(Color color = null, Widget child = null, Key key = null) : base(key: key, child: child) {
+       
+        public ColoredBox(
+            Color color = null, 
+            Widget child = null,
+            Key key = null) : base(key: key, child: child) {
             D.assert(color != null);
             this.color = color;
         }
-        /// The color to paint the background area with.
+       
         public readonly Color color;
         
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderColoredBox(color: color);
         }
         
-        public  void updateRenderObject(BuildContext context, _RenderColoredBox renderObject) {
-            renderObject.color = color; 
+        public override void updateRenderObject(BuildContext context,RenderObject renderObject) {
+            renderObject = (_RenderColoredBox) renderObject;
+            ((_RenderColoredBox) renderObject).color = color; 
         }
 
 
