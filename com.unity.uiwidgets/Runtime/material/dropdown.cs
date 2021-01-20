@@ -656,7 +656,7 @@ namespace Unity.UIWidgets.material {
                 barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel
             );
 
-            Navigator.push(context, _dropdownRoute).then(newValue => {
+            Navigator.push<T>(context, _dropdownRoute).then(newValue => {
                 _DropdownRouteResult<T> value = newValue as _DropdownRouteResult<T>;
                 _dropdownRoute = null;
                 if (!mounted || newValue == null) {

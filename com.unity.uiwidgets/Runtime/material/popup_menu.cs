@@ -472,7 +472,7 @@ namespace Unity.UIWidgets.material {
     }
 
     public static partial class PopupMenuUtils {
-        public static Future<object> showMenu<T>(
+        public static Future<T> showMenu<T>(
             BuildContext context,
             RelativeRect position,
             List<PopupMenuEntry<T>> items,

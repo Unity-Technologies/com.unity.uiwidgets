@@ -552,7 +552,7 @@ namespace Unity.UIWidgets.widgets {
             return of(context).pushNamedAndRemoveUntil<T>(newRouteName, predicate, arguments: arguments);
         }
 
-        public static Future<T> push<T>(BuildContext context, Route<T> route) {
+        public static Future<T> push<T>(BuildContext context, Route route) {
             return of(context).push<T>(route);
         }
 
@@ -1734,7 +1734,7 @@ namespace Unity.UIWidgets.widgets {
             return route.popped;
         }
 
-        public Future<T> push<T>(Route<T> route) {
+        public Future<T> push<T>(Route route) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
