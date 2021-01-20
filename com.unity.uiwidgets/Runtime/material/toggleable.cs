@@ -12,6 +12,8 @@ namespace Unity.UIWidgets.material {
 
         public static readonly Animatable<float> _kRadialReactionRadiusTween =
             new FloatTween(begin: 0.0f, end: Constants.kRadialReactionRadius);
+        
+        public static readonly TimeSpan _kReactionFadeDuration = new TimeSpan(0, 0, 0, 0, 50);
     }
 
     public abstract class RenderToggleable : RenderConstrainedBox {
@@ -20,9 +22,13 @@ namespace Unity.UIWidgets.material {
             bool tristate = false,
             Color activeColor = null,
             Color inactiveColor = null,
+            Color hoverColor = null,
+            Color focusColor = null,
             ValueChanged<bool?> onChanged = null,
             BoxConstraints additionalConstraints = null,
-            TickerProvider vsync = null
+            TickerProvider vsync = null,
+            bool hasFocus = false,
+            bool hovering = false
         ) : base(additionalConstraints: additionalConstraints) {
             D.assert(tristate || value != null);
             D.assert(activeColor != null);
@@ -32,7 +38,11 @@ namespace Unity.UIWidgets.material {
             _tristate = tristate;
             _activeColor = activeColor;
             _inactiveColor = inactiveColor;
+            _hoverColor = hoverColor ?? activeColor.withAlpha(Constants.kRadialReactionAlpha);
+            _focusColor = focusColor ?? activeColor.withAlpha(Constants.kRadialReactionAlpha);
             _onChanged = onChanged;
+            _hasFocus = hasFocus;
+            _hovering = hovering;
             _vsync = vsync;
 
             _tap = new TapGestureRecognizer {
@@ -51,16 +61,36 @@ namespace Unity.UIWidgets.material {
                 parent: _positionController,
                 curve: Curves.linear);
             _position.addListener(markNeedsPaint);
-            _position.addStatusListener(_handlePositionStateChanged);
 
             _reactionController = new AnimationController(
                 duration: Constants.kRadialReactionDuration,
                 vsync: vsync);
-
             _reaction = new CurvedAnimation(
                 parent: _reactionController,
                 curve: Curves.fastOutSlowIn);
             _reaction.addListener(markNeedsPaint);
+            
+            _reactionHoverFadeController = new AnimationController(
+                duration: ToggleableUtils._kReactionFadeDuration,
+                value: hovering || hasFocus ? 1.0f : 0.0f,
+                vsync: vsync
+            );
+            _reactionHoverFade = new CurvedAnimation(
+                parent: _reactionHoverFadeController,
+                curve: Curves.fastOutSlowIn
+            );
+            _reactionHoverFade.addListener(markNeedsPaint);
+            
+            _reactionFocusFadeController = new AnimationController(
+                duration: ToggleableUtils._kReactionFadeDuration,
+                value: hovering || hasFocus ? 1.0f : 0.0f,
+                vsync: vsync
+            );
+            _reactionFocusFade = new CurvedAnimation(
+                parent: _reactionFocusFadeController,
+                curve: Curves.fastOutSlowIn
+            );
+            _reactionFocusFade.addListener(markNeedsPaint);
         }
 
         protected AnimationController positionController {
@@ -80,8 +110,60 @@ namespace Unity.UIWidgets.material {
         }
 
         AnimationController _reactionController;
-
         Animation<float> _reaction;
+
+        protected AnimationController reactionFocusFadeController {
+            get { return _reactionFocusFadeController; }
+        }
+        
+        AnimationController _reactionFocusFadeController;
+        Animation<float> _reactionFocusFade;
+
+        protected AnimationController reactionHoverFadeController {
+            get { return _reactionHoverFadeController; }
+        }
+        
+        AnimationController _reactionHoverFadeController;
+        Animation<float> _reactionHoverFade;
+
+        public bool hasFocus {
+            get { return _hasFocus; }
+            set {
+                if (value == _hasFocus) {
+                    return;
+                }
+
+                _hasFocus = value;
+                if (_hasFocus) {
+                    _reactionFocusFadeController.forward();
+                }
+                else {
+                    _reactionFocusFadeController.reverse();
+                }
+                markNeedsPaint();
+            }
+        }
+
+        bool _hasFocus;
+
+        public bool hovering {
+            get { return _hovering; }
+            set {
+                if (value == _hovering) {
+                    return;
+                }
+
+                _hovering = value;
+                if (_hovering) {
+                    _reactionHoverFadeController.forward();
+                }
+                else {
+                    _reactionHoverFadeController.reverse();
+                }
+                markNeedsPaint();
+            }
+        }
+        bool _hovering;
 
         public TickerProvider vsync {
             get { return _vsync; }
@@ -194,6 +276,46 @@ namespace Unity.UIWidgets.material {
             }
         }
 
+        public Color hoverColor {
+            get { return _hoverColor; }
+            set {
+                if (value == _hoverColor) {
+                    return;
+                }
+
+                _hoverColor = value;
+                markNeedsPaint();
+            }
+        }
+        Color _hoverColor;
+
+        public Color focusColor {
+            get { return _focusColor; }
+            set {
+                if (value == _focusColor) {
+                    return;
+                }
+
+                _focusColor = value;
+                markNeedsPaint();
+            }
+        }
+        
+        Color _focusColor;
+
+        public Color reactionColor {
+            get { return _reactionColor; }
+            set {
+                if (value == _reactionColor) {
+                    return;
+                }
+
+                _reactionColor = value;
+                markNeedsPaint();
+            }
+        }
+        Color _reactionColor;
+        
         ValueChanged<bool?> _onChanged;
 
         public bool isInteractive {
@@ -234,17 +356,6 @@ namespace Unity.UIWidgets.material {
             _positionController.stop();
             _reactionController.stop();
             base.detach();
-        }
-
-        void _handlePositionStateChanged(AnimationStatus status) {
-            if (isInteractive && !tristate) {
-                if (status == AnimationStatus.completed && _value == false) {
-                    onChanged(true);
-                }
-                else if (status == AnimationStatus.dismissed && _value != false) {
-                    onChanged(false);
-                }
-            }
         }
 
         void _handleTapDown(TapDownDetails details) {
@@ -298,11 +409,21 @@ namespace Unity.UIWidgets.material {
         }
 
         public void paintRadialReaction(Canvas canvas, Offset offset, Offset origin) {
-            if (!_reaction.isDismissed) {
-                Paint reactionPaint = new Paint {color = activeColor.withAlpha(Constants.kRadialReactionAlpha)};
+            if (!_reaction.isDismissed || !_reactionFocusFade.isDismissed || !_reactionHoverFade.isDismissed) {
+                Paint reactionPaint = new Paint();
+                reactionPaint.color = Color.lerp(
+                    Color.lerp(activeColor.withAlpha(Constants.kRadialReactionAlpha), hoverColor,
+                        _reactionHoverFade.value),
+                    focusColor,
+                    _reactionFocusFade.value);
                 Offset center = Offset.lerp(_downPosition ?? origin, origin, _reaction.value);
-                float radius = ToggleableUtils._kRadialReactionRadiusTween.evaluate(_reaction);
-                canvas.drawCircle(center + offset, radius, reactionPaint);
+                float reactionRadius = hasFocus || hovering
+                    ? Constants.kRadialReactionRadius
+                    : ToggleableUtils._kRadialReactionRadiusTween.evaluate(_reaction);
+
+                if (reactionRadius > 0.0f) {
+                    canvas.drawCircle(center + offset, reactionRadius, reactionPaint);
+                }
             }
         }
 
