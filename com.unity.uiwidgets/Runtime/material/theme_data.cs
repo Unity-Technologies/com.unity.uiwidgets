@@ -536,7 +536,8 @@ namespace Unity.UIWidgets.material {
         public readonly IconThemeData accentIconTheme;
 
         public readonly TabBarTheme tabBarTheme;
-        
+        public readonly TooltipThemeData tooltipTheme;
+
         public readonly CardTheme cardTheme;
         public readonly ChipThemeData chipTheme;
 
