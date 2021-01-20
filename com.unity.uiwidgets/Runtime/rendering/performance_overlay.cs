@@ -3,31 +3,87 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.rendering {
     public enum PerformanceOverlayOption {
-        drawFPS, //default
-        drawFrameCost
+        //drawFPS, //default
+        //drawFrameCost,
+        displayRasterizerStatistics,
+        visualizeRasterizerStatistics,
+        displayEngineStatistics,
+        visualizeEngineStatistics,
     }
 
 
     public class RenderPerformanceOverlay : RenderBox {
         public RenderPerformanceOverlay(
-            int optionsMask = 0
+            int optionsMask = 0,
+            int rasterizerThreshold = 0,
+            bool checkerboardRasterCacheImages = false,
+            bool checkerboardOffscreenLayers = false
         ) {
-            _optionMask = optionsMask;
+            D.assert(optionsMask != null);
+            D.assert(rasterizerThreshold != null);
+            D.assert(checkerboardRasterCacheImages != null);
+            D.assert(checkerboardOffscreenLayers != null);
+            _optionsMask = optionsMask;
+            _rasterizerThreshold = rasterizerThreshold;
+            _checkerboardRasterCacheImages = checkerboardRasterCacheImages;
+            _checkerboardOffscreenLayers = checkerboardOffscreenLayers;
         }
 
         public int optionsMask {
-            get { return _optionMask; }
+            get { return _optionsMask; }
             set {
-                if (value == _optionMask) {
+                if (value == _optionsMask) {
                     return;
                 }
 
-                _optionMask = value;
+                _optionsMask = value;
                 markNeedsPaint();
             }
         }
 
-        int _optionMask;
+        int _optionsMask;
+
+        public int rasterizerThreshold {
+            get {
+                return _rasterizerThreshold;
+            }
+            set {
+                D.assert(value != null);
+                if (value == _rasterizerThreshold)
+                    return;
+                _rasterizerThreshold = value;
+                markNeedsPaint();
+            }
+        }
+        int _rasterizerThreshold;
+
+        public bool checkerboardRasterCacheImages {
+            get {
+                return _checkerboardRasterCacheImages;
+            }
+            set {
+                D.assert(value != null);
+                if (value == _checkerboardRasterCacheImages)
+                    return;
+                _checkerboardRasterCacheImages = value;
+                markNeedsPaint();
+            }
+        }
+        bool _checkerboardRasterCacheImages;
+
+        public bool checkerboardOffscreenLayers {
+            get { return _checkerboardOffscreenLayers; }
+            set {
+                D.assert(value != null);
+                if (value == _checkerboardOffscreenLayers)
+                    return;
+                _checkerboardOffscreenLayers = value;
+                markNeedsPaint();
+            }
+        }
+        bool _checkerboardOffscreenLayers;
+        
+        
 
         protected override bool sizedByParent {
             get { return true; }
@@ -48,11 +104,17 @@ namespace Unity.UIWidgets.rendering {
         float _intrinsicHeight {
             get {
                 const float kDefaultGraphHeight = 80.0f;
-                float result = 20f;
-
-                if ((optionsMask | (1 << (int) PerformanceOverlayOption.drawFrameCost)) > 0) {
+                
+                float result = 0.0f;
+                if (
+                    ((optionsMask | (1 << (int) PerformanceOverlayOption.displayRasterizerStatistics)) > 0) ||
+                    ((optionsMask | (1 << (int) PerformanceOverlayOption.visualizeRasterizerStatistics)) > 0)
+                        )
                     result += kDefaultGraphHeight;
-                }
+                if (((optionsMask | (1 << (int) PerformanceOverlayOption.displayEngineStatistics)) > 0) ||
+                    ((optionsMask | (1 << (int) PerformanceOverlayOption.visualizeEngineStatistics)) > 0))
+                    result += kDefaultGraphHeight;
+                return result;
 
                 return result;
             }
@@ -74,7 +136,10 @@ namespace Unity.UIWidgets.rendering {
             D.assert(needsCompositing);
             context.addLayer(new PerformanceOverlayLayer(
                 overlayRect: Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
-                optionsMask: optionsMask
+                optionsMask: optionsMask,
+                rasterizerThreshold: rasterizerThreshold,
+                checkerboardRasterCacheImages: checkerboardRasterCacheImages,
+                checkerboardOffscreenLayers: checkerboardOffscreenLayers
             ));
         }
     }
