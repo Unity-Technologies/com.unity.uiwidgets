@@ -3,8 +3,6 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.rendering {
     public enum PerformanceOverlayOption {
-        //drawFPS, //default
-        //drawFrameCost,
         displayRasterizerStatistics,
         visualizeRasterizerStatistics,
         displayEngineStatistics,

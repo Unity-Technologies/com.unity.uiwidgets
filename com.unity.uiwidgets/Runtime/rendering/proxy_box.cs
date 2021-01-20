@@ -340,7 +340,9 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public class RenderAspectRatio : RenderProxyBox {
-        public RenderAspectRatio(float aspectRatio, RenderBox child = null) : base(child) {
+        public RenderAspectRatio(
+            float aspectRatio, 
+            RenderBox child = null) : base(child) {
             _aspectRatio = aspectRatio;
         }
 
@@ -1589,15 +1591,17 @@ namespace Unity.UIWidgets.rendering {
 
     public class RenderTransform : RenderProxyBox {
         public RenderTransform(
-            Matrix4 transform,
+            Matrix4 transform ,
             Offset origin = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null,
             bool transformHitTests = true,
             RenderBox child = null
         ) : base(child) {
             this.transform = transform;
             this.origin = origin;
             this.alignment = alignment;
+            this.textDirection = textDirection;
             this.transformHitTests = transformHitTests;
         }
 
@@ -1615,7 +1619,7 @@ namespace Unity.UIWidgets.rendering {
 
         Offset _origin;
 
-        public Alignment alignment {
+        public AlignmentGeometry alignment {
             get { return _alignment; }
             set {
                 if (_alignment == value) {
@@ -1627,7 +1631,22 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        Alignment _alignment;
+        AlignmentGeometry _alignment;
+
+
+        public TextDirection? textDirection {
+            get { return _textDirection; }
+            set {
+                if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                markNeedsPaint();
+                //markNeedsSemanticsUpdate();
+            }
+        }
+
+        TextDirection? _textDirection; 
+        
 
         public bool transformHitTests;
 
@@ -1676,7 +1695,7 @@ namespace Unity.UIWidgets.rendering {
 
         Matrix4 _effectiveTransform {
             get {
-                Alignment resolvedAlignment = alignment;
+                Alignment resolvedAlignment = alignment?.resolve(textDirection);
                 if (_origin == null && resolvedAlignment == null) {
                     return _transform;
                 }
@@ -1743,8 +1762,9 @@ namespace Unity.UIWidgets.rendering {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Matrix4>("transform matrix", _transform));
             properties.add(new DiagnosticsProperty<Offset>("origin", origin));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
             properties.add(new DiagnosticsProperty<bool>("transformHitTests", transformHitTests));
+            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
         }
     }
 

@@ -885,13 +885,12 @@ namespace Unity.UIWidgets.widgets {
     
     public class RequestFocusAction : _RequestFocusActionBase {
         /// Creates a [RequestFocusAction] with a fixed [key].
-        public RequestFocusAction(LocalKey key) : base(key) {
+        public RequestFocusAction() : base(key) {
         }
 
-    /// The [LocalKey] that uniquely identifies this action to an [Intent].
-    static readonly LocalKey key = new ValueKey<Type>(typeof(RequestFocusAction));
+        public static readonly LocalKey key = new ValueKey<Type>(typeof(RequestFocusAction));
     
-    public override void invoke(FocusNode node, Intent intent) => FocusTravesalUtils._focusAndEnsureVisible(node);
+        public override void invoke(FocusNode node, Intent intent) => FocusTravesalUtils._focusAndEnsureVisible(node);
     }
     
     public class NextFocusAction : _RequestFocusActionBase {
