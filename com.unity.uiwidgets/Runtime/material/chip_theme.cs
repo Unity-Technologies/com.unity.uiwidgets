@@ -4,6 +4,8 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
@@ -213,8 +215,8 @@ namespace Unity.UIWidgets.material {
                 labelStyle: TextStyle.lerp(a?.labelStyle, b?.labelStyle, t),
                 secondaryLabelStyle: TextStyle.lerp(a?.secondaryLabelStyle, b?.secondaryLabelStyle, t),
                 brightness: t < 0.5f ? a?.brightness ?? Brightness.light : b?.brightness ?? Brightness.light,
-                elevation: MathUtils.lerpFloat(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
-                pressElevation: MathUtils.lerpFloat(a?.pressElevation ?? 0.0f, b?.pressElevation ?? 0.0f, t)
+                elevation: Mathf.Lerp(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
+                pressElevation: Mathf.Lerp(a?.pressElevation ?? 0.0f, b?.pressElevation ?? 0.0f, t)
             );
         }
 

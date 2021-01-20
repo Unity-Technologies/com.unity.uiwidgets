@@ -352,9 +352,9 @@ namespace Unity.UIWidgets.material {
                 ),
                 // All of the licenses page text is English. We don"t want localized text
                 // or text direction.
-                body: new Localizations(
+                body: Localizations.overrides(
                     locale: new Locale("en", "US"),
-                    // context: context,
+                    context: context,
                     child: new DefaultTextStyle(
                         style: Theme.of(context).textTheme.caption,
                         child: new SafeArea(

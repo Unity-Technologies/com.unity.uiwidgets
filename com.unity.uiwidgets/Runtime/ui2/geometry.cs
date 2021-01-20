@@ -113,10 +113,6 @@ namespace Unity.UIWidgets.ui{
             return float.IsNaN(it);
         }
 
-        public static float lerpFloat(float a, float b, float t) {
-            return a + (b - a) * t;
-        }
-
         public static float? lerpNullableFloat(float? a, float? b, float t) {
             if (a == null && b == null) {
                 return null;
@@ -304,7 +300,7 @@ namespace Unity.UIWidgets.ui{
                 return a * (1.0f - t);
             }
 
-            return new Offset(MathUtils.lerpFloat(a.dx, b.dx, t), MathUtils.lerpFloat(a.dy, b.dy, t));
+            return new Offset(Mathf.Lerp(a.dx, b.dx, t), Mathf.Lerp(a.dy, b.dy, t));
         }
 
         public bool Equals(Offset other) {
@@ -469,7 +465,7 @@ namespace Unity.UIWidgets.ui{
                 return a * (1.0f - t);
             }
 
-            return new Size(MathUtils.lerpFloat(a.width, b.width, t), MathUtils.lerpFloat(a.height, b.height, t));
+            return new Size(Mathf.Lerp(a.width, b.width, t), Mathf.Lerp(a.height, b.height, t));
         }
 
         public bool Equals(Size other) {
@@ -792,10 +788,10 @@ namespace Unity.UIWidgets.ui{
             }
 
             return fromLTRB(
-                MathUtils.lerpFloat(a.left, b.left, t),
-                MathUtils.lerpFloat(a.top, b.top, t),
-                MathUtils.lerpFloat(a.right, b.right, t),
-                MathUtils.lerpFloat(a.bottom, b.bottom, t)
+                Mathf.Lerp(a.left, b.left, t),
+                Mathf.Lerp(a.top, b.top, t),
+                Mathf.Lerp(a.right, b.right, t),
+                Mathf.Lerp(a.bottom, b.bottom, t)
             );
         }
 
@@ -930,8 +926,8 @@ namespace Unity.UIWidgets.ui{
             }
 
             return elliptical(
-                MathUtils.lerpFloat(a.x, b.x, t),
-                MathUtils.lerpFloat(a.y, b.y, t)
+                Mathf.Lerp(a.x, b.x, t),
+                Mathf.Lerp(a.y, b.y, t)
             );
         }
 
@@ -1426,10 +1422,10 @@ namespace Unity.UIWidgets.ui{
             }
 
             return fromLTRBAndCorners(
-                MathUtils.lerpFloat(a.left, b.left, t),
-                MathUtils.lerpFloat(a.top, b.top, t),
-                MathUtils.lerpFloat(a.right, b.right, t),
-                MathUtils.lerpFloat(a.bottom, b.bottom, t),
+                Mathf.Lerp(a.left, b.left, t),
+                Mathf.Lerp(a.top, b.top, t),
+                Mathf.Lerp(a.right, b.right, t),
+                Mathf.Lerp(a.bottom, b.bottom, t),
                 Radius.lerp(a.tlRadius, b.tlRadius, t),
                 Radius.lerp(a.trRadius, b.trRadius, t),
                 Radius.lerp(a.brRadius, b.brRadius, t),

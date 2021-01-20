@@ -1,6 +1,9 @@
 using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Canvas = Unity.UIWidgets.ui.Canvas;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
     public class StadiumBorder : ShapeBorder, IEquatable<StadiumBorder> {
@@ -179,7 +182,7 @@ namespace Unity.UIWidgets.painting {
             if (a is _StadiumToCircleBorder border) {
                 return new _StadiumToCircleBorder(
                     side: BorderSide.lerp(border.side, side, t),
-                    circleness: MathUtils.lerpFloat(border.circleness, circleness, t)
+                    circleness: Mathf.Lerp(border.circleness, circleness, t)
                 );
             }
 
@@ -204,7 +207,7 @@ namespace Unity.UIWidgets.painting {
             if (b is _StadiumToCircleBorder border) {
                 return new _StadiumToCircleBorder(
                     side: BorderSide.lerp(side, border.side, t),
-                    circleness: MathUtils.lerpFloat(circleness, border.circleness, t)
+                    circleness: Mathf.Lerp(circleness, border.circleness, t)
                 );
             }
 
@@ -373,7 +376,7 @@ namespace Unity.UIWidgets.painting {
                 return new _StadiumToRoundedRectangleBorder(
                     side: BorderSide.lerp(border.side, side, t),
                     borderRadius: BorderRadius.lerp(border.borderRadius, borderRadius, t),
-                    rectness: MathUtils.lerpFloat(border.rectness, rectness, t)
+                    rectness: Mathf.Lerp(border.rectness, rectness, t)
                 );
             }
 
@@ -401,7 +404,7 @@ namespace Unity.UIWidgets.painting {
                 return new _StadiumToRoundedRectangleBorder(
                     side: BorderSide.lerp(side, border.side, t),
                     borderRadius: BorderRadius.lerp(borderRadius, border.borderRadius, t),
-                    rectness: MathUtils.lerpFloat(rectness, border.rectness, t)
+                    rectness: Mathf.Lerp(rectness, border.rectness, t)
                 );
             }
 

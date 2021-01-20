@@ -246,7 +246,7 @@ namespace Unity.UIWidgets.material {
             D.assert(a != null);
             D.assert(b != null);
             return new SliderThemeData(
-                trackHeight: MathUtils.lerpFloat(a.trackHeight, b.trackHeight, t),
+                trackHeight: Mathf.Lerp(a.trackHeight, b.trackHeight, t),
                 activeTrackColor: Color.lerp(a.activeTrackColor, b.activeTrackColor, t),
                 inactiveTrackColor: Color.lerp(a.inactiveTrackColor, b.inactiveTrackColor, t),
                 disabledActiveTrackColor: Color.lerp(a.disabledActiveTrackColor, b.disabledActiveTrackColor, t),

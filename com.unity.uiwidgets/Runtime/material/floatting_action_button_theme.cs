@@ -1,6 +1,7 @@
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.ui;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
     public class FloatingActionButtonThemeData : Diagnosticable {
@@ -59,9 +60,9 @@ namespace Unity.UIWidgets.material {
             return new FloatingActionButtonThemeData(
                 backgroundColor: Color.lerp(a?.backgroundColor, b?.backgroundColor, t),
                 foregroundColor: Color.lerp(a?.foregroundColor, b?.foregroundColor, t),
-                elevation: MathUtils.lerpFloat(a?.elevation ?? 0, b?.elevation ?? 0, t),
-                disabledElevation: MathUtils.lerpFloat(a?.disabledElevation ?? 0, b?.disabledElevation ?? 0, t),
-                highlightElevation: MathUtils.lerpFloat(a?.highlightElevation ?? 0, b?.highlightElevation ?? 0, t),
+                elevation: Mathf.Lerp(a?.elevation ?? 0, b?.elevation ?? 0, t),
+                disabledElevation: Mathf.Lerp(a?.disabledElevation ?? 0, b?.disabledElevation ?? 0, t),
+                highlightElevation: Mathf.Lerp(a?.highlightElevation ?? 0, b?.highlightElevation ?? 0, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t)
             );
         }

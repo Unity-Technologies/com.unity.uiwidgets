@@ -2,6 +2,8 @@ using System;
 using JetBrains.Annotations;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
 
@@ -191,12 +193,12 @@ namespace Unity.UIWidgets.painting {
                 return EdgeInsetsDirectional.lerp(a, b, t);
 
             return _MixedEdgeInsets.fromLRSETB(
-                MathUtils.lerpFloat(a._left, b._left, t),
-                MathUtils.lerpFloat(a._right, b._right, t),
-                MathUtils.lerpFloat(a._start, b._start, t),
-                MathUtils.lerpFloat(a._end, b._end, t),
-                MathUtils.lerpFloat(a._top, b._top, t),
-                MathUtils.lerpFloat(a._bottom, b._bottom, t)
+                Mathf.Lerp(a._left, b._left, t),
+                Mathf.Lerp(a._right, b._right, t),
+                Mathf.Lerp(a._start, b._start, t),
+                Mathf.Lerp(a._end, b._end, t),
+                Mathf.Lerp(a._top, b._top, t),
+                Mathf.Lerp(a._bottom, b._bottom, t)
             );
         }
 
@@ -422,10 +424,10 @@ namespace Unity.UIWidgets.painting {
             if (b == null)
               return a * (1.0f - t);
             return fromSTEB(
-                MathUtils.lerpFloat(a.start, b.start, t),
-                MathUtils.lerpFloat(a.top, b.top, t),
-                MathUtils.lerpFloat(a.end, b.end, t),
-                MathUtils.lerpFloat(a.bottom, b.bottom, t)
+                Mathf.Lerp(a.start, b.start, t),
+                Mathf.Lerp(a.top, b.top, t),
+                Mathf.Lerp(a.end, b.end, t),
+                Mathf.Lerp(a.bottom, b.bottom, t)
             );
             
         } 
@@ -777,10 +779,10 @@ namespace Unity.UIWidgets.painting {
             }
 
             return fromLTRB(
-                MathUtils.lerpFloat(a.left, b.left, t),
-                MathUtils.lerpFloat(a.top, b.top, t),
-                MathUtils.lerpFloat(a.right, b.right, t),
-                MathUtils.lerpFloat(a.bottom, b.bottom, t)
+                Mathf.Lerp(a.left, b.left, t),
+                Mathf.Lerp(a.top, b.top, t),
+                Mathf.Lerp(a.right, b.right, t),
+                Mathf.Lerp(a.bottom, b.bottom, t)
             );
         }
 

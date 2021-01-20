@@ -2,6 +2,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
     public class CardTheme : Diagnosticable {
@@ -54,7 +56,7 @@ namespace Unity.UIWidgets.material {
             return new CardTheme(
                 clipBehavior: t < 0.5f ? a?.clipBehavior : b?.clipBehavior,
                 color: Color.lerp(a?.color, b?.color, t),
-                elevation: MathUtils.lerpFloat(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
+                elevation: Mathf.Lerp(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
                 margin: EdgeInsets.lerp(a?.margin, b?.margin, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t)
             );

@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.material {
                 return values[0];
             }
 
-            float targetIdx = MathUtils.lerpFloat(0, values.Count - 1, progress);
+            float targetIdx = Mathf.Lerp(0, values.Count - 1, progress);
             int lowIdx = targetIdx.floor();
             int highIdx = targetIdx.ceil();
             float t = targetIdx - lowIdx;
@@ -140,7 +140,7 @@ namespace Unity.UIWidgets.material {
         public readonly List<float> opacities;
 
         public void paint(Canvas canvas, Color color, _UiPathFactory uiPathFactory, float progress) {
-            float opacity = AnimatedIconUtils._interpolate<float>(opacities, progress, MathUtils.lerpFloat);
+            float opacity = AnimatedIconUtils._interpolate<float>(opacities, progress, Mathf.Lerp);
             Paint paint = new Paint();
             paint.style = PaintingStyle.fill;
             paint.color = color.withOpacity(color.opacity * opacity);

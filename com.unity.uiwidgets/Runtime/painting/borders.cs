@@ -122,7 +122,7 @@ namespace Unity.UIWidgets.painting {
                 return b;
             }
 
-            float width = MathUtils.lerpFloat(a.width, b.width, t);
+            float width = Mathf.Lerp(a.width, b.width, t);
             if (width < 0.0) {
                 return none;
             }

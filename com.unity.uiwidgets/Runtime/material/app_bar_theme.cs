@@ -2,6 +2,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
     public class AppBarTheme : Diagnosticable {
@@ -59,7 +61,7 @@ namespace Unity.UIWidgets.material {
             return new AppBarTheme(
                 brightness: t < 0.5f ? a?.brightness : b?.brightness,
                 color: Color.lerp(a?.color, b?.color, t),
-                elevation: MathUtils.lerpFloat(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
+                elevation: Mathf.Lerp(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
                 iconTheme: IconThemeData.lerp(a?.iconTheme, b?.iconTheme, t),
                 actionsIconTheme: IconThemeData.lerp(a?.actionsIconTheme, b?.actionsIconTheme, t),
                 textTheme: TextTheme.lerp(a?.textTheme, b?.textTheme, t)
