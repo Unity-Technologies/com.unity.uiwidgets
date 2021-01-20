@@ -9,7 +9,6 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
-using Brightness = Unity.UIWidgets.service.Brightness;
 using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
@@ -416,7 +415,7 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        protected override void forgetChild(Element child) {
+        internal override void forgetChild(Element child) {
             D.assert(slotToChild.Values.Contains(child));
             D.assert(childToSlot.Keys.Contains(child));
             _ListTileSlot slot = childToSlot[child];
@@ -711,7 +710,7 @@ namespace Unity.UIWidgets.material {
             return box == null ? 0.0f : box.getMaxIntrinsicWidth(height);
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             float leadingWidth = leading != null
                 ? Mathf.Max(leading.getMinIntrinsicWidth(height), _minLeadingWidth) + _horizontalTitleGap
                 : 0.0f;
@@ -719,7 +718,7 @@ namespace Unity.UIWidgets.material {
                    _maxWidth(trailing, height);
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             float leadingWidth = leading != null
                 ? Mathf.Max(leading.getMaxIntrinsicWidth(height), _minLeadingWidth) + _horizontalTitleGap
                 : 0.0f;
@@ -745,7 +744,7 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return Mathf.Max(
                 _defaultTileHeight,
                 title.getMinIntrinsicHeight(width) + subtitle?.getMinIntrinsicHeight(width) ?? 0.0f);

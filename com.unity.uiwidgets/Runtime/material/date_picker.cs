@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using com.unity.uiwidgets.Runtime.rendering;
-
 using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -40,7 +40,7 @@ namespace Unity.UIWidgets.material {
 
         internal static readonly _DayPickerGridDelegate _kDayPickerGridDelegate = new _DayPickerGridDelegate();
 
-        public static IPromise<object> showDatePicker(
+        public static Future<object> showDatePicker(
             BuildContext context,
             DateTime initialDate,
             DateTime firstDate,
@@ -500,7 +500,7 @@ namespace Unity.UIWidgets.material {
             DateTime tomorrow = _todayDate.AddDays(1);
             TimeSpan timeUntilTomorrow = tomorrow.TimeOfDay - _todayDate.TimeOfDay;
             _timer?.cancel();
-            _timer = Window.instance.run(timeUntilTomorrow,
+            _timer = Timer.create(timeUntilTomorrow,
                 () => { setState(() => { _updateCurrentDate(); }); });
         }
 
@@ -811,7 +811,7 @@ namespace Unity.UIWidgets.material {
         }
 
         void _handleCancel() {
-            Navigator.pop(context);
+            Navigator.pop<object>(context);
         }
 
         void _handleOk() {

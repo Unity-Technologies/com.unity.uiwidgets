@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using RSG.Promises;
 using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -272,7 +271,7 @@ namespace Unity.UIWidgets.material {
 
         protected internal override Widget build(BuildContext context) {
             return new Transform(
-                transform: new Matrix4().translationValues(translateX, 0, 0),
+                transform: Matrix4.translationValues(translateX, 0, 0),
                 child: child
             );
         }
@@ -1123,7 +1122,7 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return _minWidth(icon, height)
                    + contentPadding.left
                    + _minWidth(prefixIcon, height)
@@ -1134,7 +1133,7 @@ namespace Unity.UIWidgets.material {
                    + contentPadding.right;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return _maxWidth(icon, height)
                    + contentPadding.left
                    + _maxWidth(prefixIcon, height)
@@ -1158,7 +1157,7 @@ namespace Unity.UIWidgets.material {
             return height;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             float subtextHeight = _lineHeight(width, new List<RenderBox> {helperError, counter});
             if (subtextHeight > 0.0f) {
                 subtextHeight += subtextGap;
@@ -1314,7 +1313,7 @@ namespace Unity.UIWidgets.material {
                 float scale = MathUtils.lerpFloat(1.0f, 0.75f, t);
                 float dx = labelOffset.dx;
                 float dy = MathUtils.lerpFloat(0.0f, floatingY - labelOffset.dy, t);
-                _labelTransform = new Matrix4().identity();
+                _labelTransform = Matrix4.identity();
                 _labelTransform.translate(dx, labelOffset.dy + dy);
                 _labelTransform.scale(scale, scale, 1);
                 context.pushTransform(needsCompositing, offset, _labelTransform, _paintLabel);
@@ -1385,7 +1384,7 @@ namespace Unity.UIWidgets.material {
             slotToChild.Values.Each((child) => { visitor(child); });
         }
 
-        protected override void forgetChild(Element child) {
+        internal override void forgetChild(Element child) {
             D.assert(slotToChild.ContainsValue(child));
             D.assert(childToSlot.ContainsKey(child));
             _DecorationSlot slot = childToSlot[child];

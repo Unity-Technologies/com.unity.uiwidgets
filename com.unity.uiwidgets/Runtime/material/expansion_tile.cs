@@ -104,7 +104,7 @@ namespace Unity.UIWidgets.material {
                     _controller.forward();
                 }
                 else {
-                    _controller.reverse().Then(() => {
+                    _controller.reverse().then((value) => {
                         if (!mounted) {
                             return;
                         }

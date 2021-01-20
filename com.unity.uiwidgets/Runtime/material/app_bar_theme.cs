@@ -2,7 +2,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Brightness = Unity.UIWidgets.service.Brightness;
 
 namespace Unity.UIWidgets.material {
     public class AppBarTheme : Diagnosticable {

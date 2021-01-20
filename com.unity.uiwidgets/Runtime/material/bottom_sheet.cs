@@ -1,11 +1,10 @@
 using System;
-
 using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -16,14 +15,14 @@ namespace Unity.UIWidgets.material {
         public const float _kMinFlingVelocity = 700.0f;
         public const float _kCloseProgressThreshold = 0.5f;
 
-        public static IPromise<object> showModalBottomSheet<T>(
+        public static Future<T> showModalBottomSheet<T>(
             BuildContext context,
             WidgetBuilder builder
         ) {
             D.assert(context != null);
             D.assert(builder != null);
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
-            return Navigator.push(context, new _ModalBottomSheetRoute<T>(
+            return Navigator.of(context, rootNavigator: false).push<T>(new _ModalBottomSheetRoute<T>(
                 builder: builder,
                 theme: Theme.of(context, shadowThemeOnly: true),
                 barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel
@@ -197,7 +196,7 @@ namespace Unity.UIWidgets.material {
             MaterialLocalizations localizations = MaterialLocalizations.of(context);
 
             return new GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => Navigator.pop<T>(context),
                 child: new AnimatedBuilder(
                     animation: widget.route.animation,
                     builder: (BuildContext _context, Widget child) => {
@@ -208,7 +207,7 @@ namespace Unity.UIWidgets.material {
                                 layoutDelegate: new _ModalBottomSheetLayout(animationValue),
                                 child: new BottomSheet(
                                     animationController: widget.route._animationController,
-                                    onClosing: () => Navigator.pop(_context),
+                                    onClosing: () => Navigator.pop<T>(_context),
                                     builder: widget.route.builder
                                 )
                             )

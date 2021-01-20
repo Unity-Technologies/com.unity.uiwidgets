@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-
 using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -99,9 +99,9 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new StringProperty("text", text, defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new StringProperty("text", text, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<Widget>("icon", icon,
-                defaultValue: Diagnostics.kNullDefaultValue));
+                defaultValue: foundation_.kNullDefaultValue));
         }
     }
 
@@ -1087,9 +1087,9 @@ namespace Unity.UIWidgets.material {
 
             _pageController.jumpToPage(initialPage);
             _pageController.animateToPage(_currentIndex.Value, duration: Constants.kTabScrollDuration,
-                curve: Curves.ease).Then(() => {
+                curve: Curves.ease).then((value) => {
                 if (!mounted) {
-                    return new Promise();
+                    return Future.value();
                 }
 
                 setState(() => {
@@ -1097,7 +1097,7 @@ namespace Unity.UIWidgets.material {
                     _children = widget.children;
                 });
 
-                return new Promise();
+                return Future.value();
             });
         }
 

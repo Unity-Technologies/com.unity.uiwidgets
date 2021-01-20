@@ -289,11 +289,11 @@ namespace Unity.UIWidgets.material {
             RenderBox child = null) : base(child: child, alignment: Alignment.center) {
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return 0.0f;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             return 0.0f;
         }
 

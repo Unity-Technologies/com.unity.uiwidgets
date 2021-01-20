@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-
 using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.material {
         public static readonly TimeSpan _kIndicatorScaleDuration = new TimeSpan(0, 0, 0, 0, 200);
     }
 
-    public delegate Promise RefreshCallback();
+    public delegate Future RefreshCallback();
 
     enum _RefreshIndicatorMode {
         drag, // Pointer is down.
@@ -78,7 +78,7 @@ namespace Unity.UIWidgets.material {
         Animation<Color> _valueColor;
 
         _RefreshIndicatorMode? _mode;
-        Promise _pendingRefreshFuture;
+        Future _pendingRefreshFuture;
         bool? _isIndicatorAtTop;
         float? _dragOffset;
 
@@ -241,13 +241,13 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        IPromise _dismiss(_RefreshIndicatorMode newMode) {
+        Future _dismiss(_RefreshIndicatorMode newMode) {
             D.assert(newMode == _RefreshIndicatorMode.canceled || newMode == _RefreshIndicatorMode.done);
             setState(() => { _mode = newMode; });
             switch (_mode) {
                 case _RefreshIndicatorMode.done:
                     return _scaleController
-                        .animateTo(1.0f, duration: RefreshIndicatorUtils._kIndicatorScaleDuration).Then(() => {
+                        .animateTo(1.0f, duration: RefreshIndicatorUtils._kIndicatorScaleDuration).then((value) => {
                             if (mounted && _mode == newMode) {
                                 _dragOffset = null;
                                 _isIndicatorAtTop = null;
@@ -256,7 +256,7 @@ namespace Unity.UIWidgets.material {
                         });
                 case _RefreshIndicatorMode.canceled:
                     return _positionController
-                        .animateTo(0.0f, duration: RefreshIndicatorUtils._kIndicatorScaleDuration).Then(() => {
+                        .animateTo(0.0f, duration: RefreshIndicatorUtils._kIndicatorScaleDuration).then((value) => {
                             if (mounted && _mode == newMode) {
                                 _dragOffset = null;
                                 _isIndicatorAtTop = null;
@@ -271,18 +271,18 @@ namespace Unity.UIWidgets.material {
         void _show() {
             D.assert(_mode != _RefreshIndicatorMode.refresh);
             D.assert(_mode != _RefreshIndicatorMode.snap);
-            Promise completer = new Promise();
-            _pendingRefreshFuture = completer;
+            Completer completer = Completer.create();
+            _pendingRefreshFuture = completer.future;
             _mode = _RefreshIndicatorMode.snap;
             _positionController
                 .animateTo(1.0f / RefreshIndicatorUtils._kDragSizeFactorLimit,
                     duration: RefreshIndicatorUtils._kIndicatorSnapDuration)
-                .Then(() => {
+                .then((value) => {
                     if (mounted && _mode == _RefreshIndicatorMode.snap) {
                         D.assert(widget.onRefresh != null);
                         setState(() => { _mode = _RefreshIndicatorMode.refresh; });
 
-                        Promise refreshResult = widget.onRefresh();
+                        Future refreshResult = widget.onRefresh();
                         D.assert(() => {
                             if (refreshResult == null) {
                                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
@@ -290,7 +290,7 @@ namespace Unity.UIWidgets.material {
                                         "The onRefresh callback returned null.\n" +
                                         "The RefreshIndicator onRefresh callback must return a Promise."
                                     ),
-                                    context: "when calling onRefresh",
+                                    context: new ErrorDescription("when calling onRefresh"),
                                     library: "material library"
                                 ));
                             }
@@ -301,9 +301,9 @@ namespace Unity.UIWidgets.material {
                             return;
                         }
 
-                        refreshResult.Finally(() => {
+                        refreshResult.whenComplete(() => {
                             if (mounted && _mode == _RefreshIndicatorMode.refresh) {
-                                completer.Resolve();
+                                completer.complete();
                                 _dismiss(_RefreshIndicatorMode.done);
                             }
                         });
@@ -311,7 +311,7 @@ namespace Unity.UIWidgets.material {
                 });
         }
 
-        Promise show(bool atTop = true) {
+        Future show(bool atTop = true) {
             if (_mode != _RefreshIndicatorMode.refresh && _mode != _RefreshIndicatorMode.snap) {
                 if (_mode == null) {
                     _start(atTop ? AxisDirection.down : AxisDirection.up);

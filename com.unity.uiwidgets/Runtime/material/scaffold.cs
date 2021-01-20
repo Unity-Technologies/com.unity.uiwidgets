@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -876,7 +876,7 @@ namespace Unity.UIWidgets.material {
             ScaffoldFeatureController<SnackBar, SnackBarClosedReason> controller = null;
             controller = new ScaffoldFeatureController<SnackBar, SnackBarClosedReason>(
                 snackbar.withAnimation(_snackBarController, fallbackKey: new UniqueKey()),
-                new Promise<SnackBarClosedReason>(),
+                Completer.create(), 
                 () => {
                     D.assert(_snackBars.First() == controller);
                     hideCurrentSnackBar(reason: SnackBarClosedReason.hide);
@@ -915,9 +915,9 @@ namespace Unity.UIWidgets.material {
                 return;
             }
 
-            Promise<SnackBarClosedReason> completer = _snackBars.First()._completer;
+            Completer completer = _snackBars.First()._completer;
             if (!completer.isCompleted) {
-                completer.Resolve(reason);
+                completer.complete(FutureOr.value(reason));
             }
 
             _snackBarTimer?.cancel();
@@ -931,16 +931,16 @@ namespace Unity.UIWidgets.material {
             }
 
             MediaQueryData mediaQuery = MediaQuery.of(context);
-            Promise<SnackBarClosedReason> completer = _snackBars.First()._completer;
+            Completer completer = _snackBars.First()._completer;
             if (mediaQuery.accessibleNavigation) {
                 _snackBarController.setValue(0.0f);
-                completer.Resolve(reason);
+                completer.complete(FutureOr.value(reason));
             }
             else {
-                _snackBarController.reverse().Then(() => {
+                _snackBarController.reverse().then((value) => {
                     D.assert(mounted);
                     if (!completer.isCompleted) {
-                        completer.Resolve(reason);
+                        completer.complete(FutureOr.value(reason));
                     }
                 });
             }
@@ -975,7 +975,7 @@ namespace Unity.UIWidgets.material {
 
         PersistentBottomSheetController<T> _buildBottomSheet<T>(WidgetBuilder builder, AnimationController controller,
             bool isLocalHistoryEntry, T resolveValue) {
-            Promise<T> completer = new Promise<T>();
+            Completer completer = Completer.create();
             GlobalKey<_PersistentBottomSheetState> bottomSheetKey = GlobalKey<_PersistentBottomSheetState>.key();
             _PersistentBottomSheet bottomSheet = null;
 
@@ -988,7 +988,7 @@ namespace Unity.UIWidgets.material {
                 }
 
                 setState(() => { _currentBottomSheet = null; });
-                completer.Resolve(resolveValue);
+                completer.complete(FutureOr.value(resolveValue));
             }
 
             LocalHistoryEntry entry = isLocalHistoryEntry
@@ -1247,7 +1247,7 @@ namespace Unity.UIWidgets.material {
                 if (route == null || route.isCurrent) {
                     if (_snackBarController.isCompleted && _snackBarTimer == null) {
                         SnackBar snackBar = _snackBars.First()._widget;
-                        _snackBarTimer = Window.instance.run(snackBar.duration, () => {
+                        _snackBarTimer = Timer.create(snackBar.duration, () => {
                             D.assert(_snackBarController.status == AnimationStatus.forward ||
                                      _snackBarController.status == AnimationStatus.completed);
                             MediaQueryData subMediaQuery = MediaQuery.of(context);
@@ -1458,7 +1458,7 @@ namespace Unity.UIWidgets.material {
     public class ScaffoldFeatureController<T, U> where T : Widget {
         public ScaffoldFeatureController(
             T _widget,
-            Promise<U> _completer,
+            Completer _completer,
             VoidCallback close,
             StateSetter setState) {
             this._widget = _widget;
@@ -1469,9 +1469,9 @@ namespace Unity.UIWidgets.material {
 
         public readonly T _widget;
 
-        public readonly Promise<U> _completer;
+        public readonly Completer _completer;
 
-        public IPromise<U> closed {
+        public Completer closed {
             get { return _completer; }
         }
 
@@ -1558,7 +1558,7 @@ namespace Unity.UIWidgets.material {
     public class PersistentBottomSheetController<T> : ScaffoldFeatureController<_PersistentBottomSheet, T> {
         public PersistentBottomSheetController(
             _PersistentBottomSheet widget,
-            Promise<T> completer,
+            Completer completer,
             VoidCallback close,
             StateSetter setState,
             bool _isLocalHistoryEntry

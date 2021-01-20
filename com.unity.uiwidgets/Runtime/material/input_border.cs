@@ -28,7 +28,7 @@ namespace Unity.UIWidgets.material {
             float gapPercentage = 0.0f
         );
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection) {
             paint(canvas, rect, 0.0f);
         }
     }
@@ -45,7 +45,7 @@ namespace Unity.UIWidgets.material {
             get { return false; }
         }
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.zero; }
         }
 
@@ -53,13 +53,17 @@ namespace Unity.UIWidgets.material {
             return new _NoInputBorder();
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
             path.addRect(rect);
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection) {
+            throw new System.NotImplementedException();
+        }
+
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
             path.addRect(rect);
             return path;
@@ -103,7 +107,7 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.only(bottom: borderSide.width); }
         }
 
@@ -111,14 +115,14 @@ namespace Unity.UIWidgets.material {
             return new UnderlineInputBorder(borderSide: borderSide.scale(t));
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
             path.addRect(Rect.fromLTWH(rect.left, rect.top, rect.width,
                 Mathf.Max(0.0f, rect.height - borderSide.width)));
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
             path.addRRect(borderRadius.toRRect(rect));
             return path;
@@ -152,7 +156,7 @@ namespace Unity.UIWidgets.material {
             float gapPercentage = 0.0f
         ) {
             if (borderRadius.bottomLeft != Radius.zero || borderRadius.bottomRight != Radius.zero) {
-                canvas.clipPath(getOuterPath(rect));
+                canvas.clipPath(getOuterPath(rect, null));
             }
 
             canvas.drawLine(rect.bottomLeft, rect.bottomRight, borderSide.toPaint());
@@ -234,14 +238,14 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.all(borderSide.width); }
         }
 
         public override ShapeBorder scale(float t) {
             return new OutlineInputBorder(
                 borderSide: borderSide.scale(t),
-                borderRadius: borderRadius * t,
+                borderRadius: (BorderRadius)(borderRadius * t),
                 gapPadding: gapPadding * t
             );
         }
@@ -272,13 +276,13 @@ namespace Unity.UIWidgets.material {
             return base.lerpTo(b, t);
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
             path.addRRect(borderRadius.toRRect(rect).deflate(borderSide.width));
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
             path.addRRect(borderRadius.toRRect(rect));
             return path;
