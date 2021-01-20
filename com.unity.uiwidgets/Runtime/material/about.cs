@@ -9,7 +9,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using DialogUtils = Unity.UIWidgets.material.DialogUtils;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
@@ -87,10 +86,10 @@ namespace Unity.UIWidgets.material {
         ) {
             D.assert(context != null);
             D.assert(useRootNavigator != null);
-            DialogUtils.showDialog<object>(
+            showDialog<object>(
                 context: context,
                 useRootNavigator: useRootNavigator,
-                builder: (BuildContext context) => {
+                builder: (BuildContext buildContext) => {
                     return new AboutDialog(
                         applicationName: applicationName,
                         applicationVersion: applicationVersion,
@@ -116,7 +115,7 @@ namespace Unity.UIWidgets.material {
             D.assert(context != null);
             D.assert(useRootNavigator != null);
             Navigator.of(context, rootNavigator: useRootNavigator).push(new MaterialPageRoute(
-                builder: (BuildContext context) => new LicensePage(
+                builder: (BuildContext buildContext) => new LicensePage(
                     applicationName: applicationName,
                     applicationVersion: applicationVersion,
                     applicationIcon: applicationIcon,
@@ -201,7 +200,7 @@ namespace Unity.UIWidgets.material {
                     ),
                     new FlatButton(
                         child: new Text(MaterialLocalizations.of(context).closeButtonLabel),
-                        onPressed: () => { Navigator.pop(context); }
+                        onPressed: () => { Navigator.pop<object>(context); }
                     )
                 },
                 scrollable: true
@@ -355,7 +354,7 @@ namespace Unity.UIWidgets.material {
                 // or text direction.
                 body: new Localizations(
                     locale: new Locale("en", "US"),
-                    context: context,
+                    // context: context,
                     child: new DefaultTextStyle(
                         style: Theme.of(context).textTheme.caption,
                         child: new SafeArea(
@@ -382,7 +381,7 @@ namespace Unity.UIWidgets.material {
             // can provide an explicit applicationName to the widgets defined in this
             // file, instead of relying on the default.
             Title ancestorTitle = context.findAncestorWidgetOfExactType<Title>();
-            return ancestorTitle?.title ?? Platform.resolvedExecutable.split(Platform.pathSeparator).last;
+            return ancestorTitle?.title ;//?? Platform.resolvedExecutable.split(Platform.pathSeparator).last;
         }
 
         internal static string _defaultApplicationVersion(BuildContext context) {

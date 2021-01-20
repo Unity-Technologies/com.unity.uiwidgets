@@ -76,7 +76,7 @@ namespace Unity.UIWidgets.material {
                 );
             }
 
-            return DialogUtils.showDialog(
+            return material_.showDialog<object>(
                 context: context,
                 builder: (BuildContext _context) => { return builder == null ? child : builder(_context, child); }
             );

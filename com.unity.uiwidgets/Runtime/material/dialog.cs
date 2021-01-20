@@ -188,11 +188,11 @@ namespace Unity.UIWidgets.material {
 
             if (actions != null) {
                 actionsWidget = new Padding(
-                    padding: actionsPadding,
+                    padding: (EdgeInsets)actionsPadding,
                     child: new ButtonBar(
-                        buttonPadding: buttonPadding,
-                        overflowDirection: actionsOverflowDirection,
-                        overflowButtonSpacing: actionsOverflowButtonSpacing,
+                        // buttonPadding: buttonPadding,
+                        // overflowDirection: actionsOverflowDirection,
+                        // overflowButtonSpacing: actionsOverflowButtonSpacing,
                         children: actions
                     )
                 );
