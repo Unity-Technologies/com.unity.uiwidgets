@@ -79,7 +79,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Future<WidgetsLocalizations> load(Locale locale) {
-            return DefaultMaterialLocalizations.load(locale);
+            return DefaultMaterialLocalizations.load(locale).to<WidgetsLocalizations>();
         }
 
         public override bool shouldReload(LocalizationsDelegate old) {
@@ -388,7 +388,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public static Future<MaterialLocalizations> load(Locale locale) {
-            return Future.value(FutureOr.value(new DefaultMaterialLocalizations()));
+            return new SynchronousFuture<MaterialLocalizations>(new DefaultMaterialLocalizations());
         }
 
         public static readonly LocalizationsDelegate<MaterialLocalizations> del = new _MaterialLocalizationsDelegate();
