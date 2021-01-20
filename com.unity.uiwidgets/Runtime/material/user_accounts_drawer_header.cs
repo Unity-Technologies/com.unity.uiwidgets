@@ -10,6 +10,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace Unity.UIWidgets.material {
@@ -72,7 +73,8 @@ namespace Unity.UIWidgets.material {
             Widget accountName = null,
             Widget accountEmail = null,
             VoidCallback onTap = null,
-            bool? isOpen = null
+            bool? isOpen = null,
+            Color arrowColor = null
         ) : base(key: key) {
             D.assert(accountName != null);
             D.assert(accountEmail != null);
@@ -80,12 +82,14 @@ namespace Unity.UIWidgets.material {
             this.accountEmail = accountEmail;
             this.onTap = onTap;
             this.isOpen = isOpen;
+            this.arrowColor = arrowColor;
         }
 
         public readonly Widget accountName;
         public readonly Widget accountEmail;
         public readonly VoidCallback onTap;
         public readonly bool? isOpen;
+        public readonly Color arrowColor;
 
         public override State createState() {
             return new _AccountDetailsState();
@@ -145,7 +149,7 @@ namespace Unity.UIWidgets.material {
                     child: new Padding(
                         padding: EdgeInsets.symmetric(vertical: 2.0f),
                         child: new DefaultTextStyle(
-                            style: theme.primaryTextTheme.body2,
+                            style: theme.primaryTextTheme.bodyText1,
                             overflow: TextOverflow.ellipsis,
                             child: widget.accountName
                         )
@@ -160,7 +164,7 @@ namespace Unity.UIWidgets.material {
                     child: new Padding(
                         padding: EdgeInsets.symmetric(vertical: 2.0f),
                         child: new DefaultTextStyle(
-                            style: theme.primaryTextTheme.body1,
+                            style: theme.primaryTextTheme.bodyText2,
                             overflow: TextOverflow.ellipsis,
                             child: widget.accountEmail
                         )
@@ -170,7 +174,6 @@ namespace Unity.UIWidgets.material {
             }
 
             if (widget.onTap != null) {
-                MaterialLocalizations localizations = MaterialLocalizations.of(context);
                 Widget dropDownIcon = new LayoutId(
                     id: _AccountDetailsLayout.dropdownIcon,
                     child: new SizedBox(
@@ -181,7 +184,7 @@ namespace Unity.UIWidgets.material {
                                 degree: _animation.value * Mathf.PI,
                                 child: new Icon(
                                     Icons.arrow_drop_down,
-                                    color: Colors.white
+                                    color: widget.arrowColor
                                 )
                             )
                         )
@@ -191,7 +194,8 @@ namespace Unity.UIWidgets.material {
             }
 
             Widget accountDetails = new CustomMultiChildLayout(
-                layoutDelegate: new _AccountDetailsLayout(),
+                layoutDelegate: new _AccountDetailsLayout(
+                    Directionality.of(context)),
                 children: children
             );
 
@@ -211,12 +215,15 @@ namespace Unity.UIWidgets.material {
 
 
     class _AccountDetailsLayout : MultiChildLayoutDelegate {
-        public _AccountDetailsLayout() {
+        public _AccountDetailsLayout(TextDirection textDirection) {
+            this.textDirection = textDirection;
         }
 
         public const string accountName = "accountName";
         public const string accountEmail = "accountEmail";
         public const string dropdownIcon = "dropdownIcon";
+
+        public readonly TextDirection textDirection;
 
         public override void performLayout(Size size) {
             Size iconSize = null;
@@ -250,17 +257,38 @@ namespace Unity.UIWidgets.material {
         }
 
         Offset _offsetForIcon(Size size, Size iconSize) {
-            return new Offset(size.width - iconSize.width, size.height - iconSize.height);
+            switch (textDirection) {
+                case TextDirection.ltr:
+                    return new Offset(size.width - iconSize.width, size.height - iconSize.height);
+                case TextDirection.rtl:
+                    return new Offset(0.0f, size.height - iconSize.height);
+            }
+            D.assert(false, () => "Unreachable");
+            return null;
         }
 
         Offset _offsetForBottomLine(Size size, Size iconSize, Size bottomLineSize) {
             float y = size.height - 0.5f * iconSize.height - 0.5f * bottomLineSize.height;
-            return new Offset(0.0f, y);
+            switch (textDirection) {
+                case TextDirection.ltr:
+                    return new Offset(0.0f, y);
+                case TextDirection.rtl:
+                    return new Offset(size.width - bottomLineSize.width, y);
+            }
+            D.assert(false, () => "Unreachable");
+            return null;
         }
 
         Offset _offsetForName(Size size, Size nameSize, Offset bottomLineOffset) {
             float y = bottomLineOffset.dy - nameSize.height;
-            return new Offset(0.0f, y);
+            switch (textDirection) {
+                case TextDirection.ltr:
+                    return new Offset(0.0f, y);
+                case TextDirection.rtl:
+                    return new Offset(size.width - nameSize.width, y);
+            }
+            D.assert(false, () => "Unreachable");
+            return null;
         }
     }
 
@@ -273,12 +301,14 @@ namespace Unity.UIWidgets.material {
             List<Widget> otherAccountsPictures = null,
             Widget accountName = null,
             Widget accountEmail = null,
-            VoidCallback onDetailsPressed = null
+            VoidCallback onDetailsPressed = null,
+            Color arrowColor = null
         ) : base(key: key) {
             D.assert(accountName != null);
             D.assert(accountEmail != null);
             this.decoration = decoration;
             this.margin = margin ?? EdgeInsets.only(bottom: 8.0f);
+            this.arrowColor = arrowColor ?? Colors.white;
             this.currentAccountPicture = currentAccountPicture;
             this.otherAccountsPictures = otherAccountsPictures;
             this.accountName = accountName;
@@ -299,6 +329,8 @@ namespace Unity.UIWidgets.material {
         public readonly Widget accountEmail;
 
         public readonly VoidCallback onDetailsPressed;
+
+        public readonly Color arrowColor;
 
         public override State createState() {
             return new _UserAccountsDrawerHeaderState();
@@ -342,7 +374,9 @@ namespace Unity.UIWidgets.material {
                                 isOpen: _isOpen,
                                 onTap: widget.onDetailsPressed == null
                                     ? (VoidCallback) null
-                                    : () => { _handleDetailsPressed(); })
+                                    : _handleDetailsPressed,
+                                arrowColor: widget.arrowColor
+                                )
                         }
                     )
                 )
