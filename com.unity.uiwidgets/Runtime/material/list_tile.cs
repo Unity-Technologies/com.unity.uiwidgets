@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -8,6 +9,7 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Brightness = Unity.UIWidgets.service.Brightness;
 using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 

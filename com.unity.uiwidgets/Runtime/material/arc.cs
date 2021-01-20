@@ -203,7 +203,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string ToString() {
-            return GetType() + "(" + begin + "->" + end + "); center=" + center +
+            return foundation_.objectRuntimeType(this, "MaterialRectArcTween") + "(" + begin + "->" + end + "); center=" + center +
                    ", radius=" + radius + ", beginAngle=" + beginAngle + ", endAngle=" + endAngle;
         }
     }
@@ -337,7 +337,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string ToString() {
-            return GetType() + "(" + begin + "->" + end + ")";
+            return foundation_.objectRuntimeType(this, "MaterialRectArcTween") + "(" + begin + "->" + end + ")";
         }
     }
 
@@ -419,7 +419,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string ToString() {
-            return GetType() + "(" + begin + "->" + end + "); centerArc=" + centerArc;
+            return foundation_.objectRuntimeType(this, "MaterialRectCenterArcTween") + "(" + begin + "->" + end + "); centerArc=" + centerArc;
         }
     }
 }

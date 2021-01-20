@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -346,7 +347,7 @@ namespace Unity.UIWidgets.material {
                 onTap: enabled ? (GestureTapCallback) (() => _handleTap(context)) : null,
                 onTapCancel: enabled ? (GestureTapCancelCallback) _handleTapCancel : null,
                 onDoubleTap: widget.onDoubleTap != null
-                    ? (GestureDoubleTapCallback) (details => _handleDoubleTap())
+                    ? (GestureDoubleTapCallback) (() => _handleDoubleTap())
                     : null,
                 onLongPress: widget.onLongPress != null
                     ? (GestureLongPressCallback) (() => _handleLongPress(context))
