@@ -9,7 +9,7 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     public abstract class OverlayRoute : Route {
-        public readonly List<OverlayEntry> _overlayEntries = new List<OverlayEntry>();
+       
 
         public OverlayRoute(
             RouteSettings settings = null
@@ -18,6 +18,7 @@ namespace Unity.UIWidgets.widgets {
         public override List<OverlayEntry> overlayEntries {
             get { return _overlayEntries; }
         }
+        public readonly List<OverlayEntry> _overlayEntries = new List<OverlayEntry>();
 
         protected virtual bool finishedWhenPopped {
             get { return true; }
