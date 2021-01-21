@@ -234,7 +234,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly ToggleButtonsThemeData data;
         
-        static ToggleButtonsThemeData of(BuildContext context) {
+        public static ToggleButtonsThemeData of(BuildContext context) {
             ToggleButtonsTheme toggleButtonsTheme = context.dependOnInheritedWidgetOfExactType<ToggleButtonsTheme>();
             return toggleButtonsTheme?.data ?? Theme.of(context).toggleButtonsTheme;
         }

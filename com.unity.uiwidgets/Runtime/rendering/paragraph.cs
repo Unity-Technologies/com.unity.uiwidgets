@@ -315,7 +315,7 @@ namespace Unity.UIWidgets.rendering {
             return _computeIntrinsicHeight(width);
         }
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             _layoutTextWithConstraints(constraints);
             return _textPainter.computeDistanceToActualBaseline(baseline);
         }

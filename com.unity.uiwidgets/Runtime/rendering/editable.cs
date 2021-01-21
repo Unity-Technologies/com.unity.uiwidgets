@@ -1025,7 +1025,7 @@ namespace Unity.UIWidgets.rendering {
             return _preferredHeight(width);
         }
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             _layoutText(constraints.maxWidth);
             return _textPainter.computeDistanceToActualBaseline(baseline);
         }

@@ -1048,7 +1048,7 @@ namespace Unity.UIWidgets.rendering {
             return _cachedBaselines.putIfAbsent(baseline, () => computeDistanceToActualBaseline(baseline));
         }
 
-        protected virtual float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public virtual float? computeDistanceToActualBaseline(TextBaseline baseline) {
             D.assert(_debugDoingBaseline,
                 () =>
                     "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");

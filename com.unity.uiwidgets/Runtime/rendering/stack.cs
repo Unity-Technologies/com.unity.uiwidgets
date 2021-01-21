@@ -344,7 +344,7 @@ namespace Unity.UIWidgets.rendering {
             return _getIntrinsicDimension((RenderBox child) => child.getMaxIntrinsicHeight(width));
         }
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             return defaultComputeDistanceToHighestActualBaseline(baseline);
         }
 

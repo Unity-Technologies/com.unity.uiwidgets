@@ -266,7 +266,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             return defaultComputeDistanceToFirstActualBaseline(baseline);
         }
 

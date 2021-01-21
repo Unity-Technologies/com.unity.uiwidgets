@@ -493,7 +493,7 @@ namespace Unity.UIWidgets.widgets {
                 (RenderBox child) => child.getMaxIntrinsicHeight(width));
         }
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             D.assert(!debugNeedsLayout);
             float? result = null;
             RenderBox child = _firstOnstageChild;
