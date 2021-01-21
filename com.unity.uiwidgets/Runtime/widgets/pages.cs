@@ -12,15 +12,15 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public abstract class PageRoute : ModalRoute {
-        public readonly bool fullscreenDialog;
-
-        public PageRoute() {}
-
+        
         public PageRoute(
             RouteSettings settings = null, 
-            bool fullscreenDialog = false) : base(settings) {
+            bool fullscreenDialog = false
+        ) : base(settings) {
             this.fullscreenDialog = fullscreenDialog;
         }
+        
+        public readonly bool fullscreenDialog;
 
         public override bool opaque {
             get { return true; }
@@ -58,7 +58,6 @@ namespace Unity.UIWidgets.widgets {
             bool fullscreenDialog = false
         ) : base(settings,fullscreenDialog) {
             D.assert(pageBuilder != null);
-
             this.opaque = opaque;
             this.pageBuilder = pageBuilder;
             this.transitionsBuilder = transitionsBuilder ?? PagesUtils._defaultTransitionsBuilder;
