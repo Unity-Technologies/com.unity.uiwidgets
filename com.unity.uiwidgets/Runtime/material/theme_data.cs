@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using uiwidgets;
+using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
@@ -539,6 +540,7 @@ namespace Unity.UIWidgets.material {
         public readonly IconThemeData accentIconTheme;
 
         public readonly TabBarTheme tabBarTheme;
+        
         public readonly TooltipThemeData tooltipTheme;
 
         public readonly CardTheme cardTheme;
@@ -558,12 +560,32 @@ namespace Unity.UIWidgets.material {
 
         public readonly ColorScheme colorScheme;
 
+        public readonly SnackBarThemeData snackBarTheme;
+
         public readonly DialogTheme dialogTheme;
 
         public readonly FloatingActionButtonThemeData floatingActionButtonTheme;
 
+        public readonly NavigationRailThemeData navigationRailTheme;
+        
         public readonly Typography typography;
 
+        public readonly BottomSheetThemeData bottomSheetTheme;
+        
+        public readonly CupertinoThemeData cupertinoOverrideTheme;
+
+        /// A theme for customizing the color, shape, elevation, and text style of
+        /// popup menus.
+        public readonly PopupMenuThemeData popupMenuTheme;
+
+        /// A theme for customizing the color and text style of a [MaterialBanner].
+        public readonly MaterialBannerThemeData bannerTheme;
+
+        /// A theme for customizing the color, thickness, and indents of [Divider]s,
+        /// [VerticalDivider]s, etc.
+        public readonly DividerThemeData dividerTheme;
+
+        
         public readonly ButtonBarThemeData buttonBarTheme;
 
         public ThemeData copyWith(
