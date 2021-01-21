@@ -6,15 +6,23 @@ namespace Unity.UIWidgets.widgets {
     public class IconData : IEquatable<IconData> {
         public IconData(
             int codePoint,
-            string fontFamily = null
+            string fontFamily = null,
+            string fontPackage = null,
+            bool matchTextDirectiom = false
         ) {
             this.codePoint = codePoint;
             this.fontFamily = fontFamily;
+            this.fontPackage = fontPackage;
+            this.matchTextDirectiom = matchTextDirectiom;
         }
 
         public readonly int codePoint;
 
         public readonly string fontFamily;
+
+        public readonly string fontPackage;
+
+        public readonly bool matchTextDirectiom;
 
         public bool Equals(IconData other) {
             if (ReferenceEquals(null, other)) {
@@ -26,7 +34,9 @@ namespace Unity.UIWidgets.widgets {
             }
 
             return codePoint == other.codePoint &&
-                   string.Equals(fontFamily, other.fontFamily);
+                   string.Equals(fontFamily, other.fontFamily) && 
+                   string.Equals(fontPackage, other.fontPackage) && 
+                matchTextDirectiom == other.matchTextDirectiom;
         }
 
         public override bool Equals(object obj) {
@@ -47,7 +57,11 @@ namespace Unity.UIWidgets.widgets {
 
         public override int GetHashCode() {
             unchecked {
-                return (codePoint * 397) ^ (fontFamily != null ? fontFamily.GetHashCode() : 0);
+                var hashCode = 
+                     (codePoint * 397) ^ (fontFamily != null ? fontFamily.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (fontPackage != null ? fontPackage.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ matchTextDirectiom.GetHashCode();
+                return hashCode;
             }
         }
 
@@ -66,28 +80,28 @@ namespace Unity.UIWidgets.widgets {
     
     public class IconDataProperty : DiagnosticsProperty<IconData> {
         public IconDataProperty(
-            String name,
+            string name,
             IconData value,
-            String ifNull = null,
+            string ifNull = null,
             bool showName = true,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
             DiagnosticLevel level = DiagnosticLevel.info
-        ) : base(name, value,
+        ) : base(name, 
+            value,
             showName: showName,
             ifNull: ifNull,
             style: style,
             level: level
         ) {
-            D.assert(showName != null);
-            D.assert(style != null);
-            D.assert(level != null);
+           
+           
         }
 
 
-        public override Dictionary<String, Object> toJsonMap(DiagnosticsSerializationDelegate _delegate) {
-            Dictionary<String, Object> json = base.toJsonMap(_delegate);
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate _delegate) {
+            Dictionary<string, object> json = base.toJsonMap(_delegate);
         if (value != null) {
-            json["valueProperties"] = new Dictionary<String, Object>(){
+            json["valueProperties"] = new Dictionary<string, object>(){
                 {"codePoint", value.codePoint},
             };
         }

@@ -23,48 +23,40 @@ namespace Unity.UIWidgets.widgets {
             );
         }
 
-        public Future precacheImage(
+        public static Future precacheImage(
             ImageProvider provider,
             BuildContext context,
             Size size = null,
             ImageErrorListener onError = null
         ) {
             ImageConfiguration config = createLocalImageConfiguration(context, size: size);
-            var completer = Completer.create();
+            Completer completer = Completer.create();
             ImageStream stream = provider.resolve(config);
-
-            void listener(ImageInfo image, bool sync) {
-                // TODO: update 
-                // if (!completer.isCompleted) {
-                //     stream.removeListener(listener);
-                // }
-                //
-                // SchedulerBinding.instance.addPostFrameCallback(timeStamp => { stream.removeListener(listener); });
-            }
-
-            void errorListener(Exception exception) {
+            ImageStreamListener listener = null;
+            listener = new ImageStreamListener(
+                (ImageInfo image, bool sync)=> {
                 if (!completer.isCompleted) {
                     completer.complete();
                 }
-
-                // TODO: update 
-                // stream.removeListener(listener);
-                if (onError != null) {
-                    onError(exception);
+                
+                SchedulerBinding.instance.addPostFrameCallback((TimeSpan timeStamp)=> {
+                    stream.removeListener(listener);
+                });
+            },
+            onError: (Exception error) =>{
+                if (!completer.isCompleted) {
+                    completer.complete();
                 }
-                else {
-                    UIWidgetsError.reportError(new UIWidgetsErrorDetails(
-                        context: new ErrorDescription("image failed to precache"),
-                        library: "image resource service",
-                        exception: exception,
-                        silent: true
-                    ));
+                stream.removeListener(listener);
+                UIWidgetsError.reportError(new UIWidgetsErrorDetails(
+                    context: new ErrorDescription("image failed to precache"),
+                    library: "image resource service",
+                    silent: true));
                 }
-            }
-
-            // TODO: update 
-            // stream.addListener(listener, onError: errorListener);
+            );
+            stream.addListener(listener);
             return completer.future;
+            
         }
     }
 
@@ -231,14 +223,15 @@ namespace Unity.UIWidgets.widgets {
             int? cacheWidth = default,
             int? cacheHeight = null
         ) {
-            
+            var _scale = scale ?? 1.0f;
             var _image = scale != null
-                ? (AssetBundleImageProvider) new ExactAssetImage(name, bundle: bundle, scale: scale.Value)
+                ? (AssetBundleImageProvider) new ExactAssetImage(name, bundle: bundle, scale: _scale)
                 : new AssetImage(name, bundle: bundle);
-
+            var _Image = ResizeImage.resizeIfNeeded(cacheWidth, cacheHeight, _image);
+            
             return new Image(
                 key: key,
-                image: _image,
+                image: _Image,
                 frameBuilder: frameBuilder,
                 loadingBuilder: null,
                 errorBuilder: errorBuilder,
@@ -399,12 +392,17 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        /*public override void didChangeAccessibilityFeatures() {
-            base.didChangeAccessibilityFeatures();
+        public void didChangeAccessibilityFeatures() {
+            //base.didChangeAccessibilityFeatures();
             setState(() => {
                 _updateInvertColors();
             });
-        }*/
+        }
+        public override void reassemble() {
+            _resolveImage(); // in case the image cache was flushed
+            base.reassemble();
+        }
+
 
         void _updateInvertColors() {
             _invertColors = MediaQuery.of(context, nullOk: true)?.invertColors
@@ -412,17 +410,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _resolveImage() {
-            /*ScrollAwareImageProvider provider = new ScrollAwareImageProvider<dynamic>(
-                context: _scrollAwareContext,
-                imageProvider: widget.image
-            );
-            ImageStream newStream =
-                provider.resolve(ImageUtils.createLocalImageConfiguration(
-                    context,
-                    size: widget.width != null && widget.height != null
-                        ? new Size(widget.width.Value, widget.height.Value)
-                        : null
-                ));*/
+
             ImageStream newStream =
                 widget.image.resolve(ImageUtils.createLocalImageConfiguration(
                     context,
@@ -499,10 +487,15 @@ namespace Unity.UIWidgets.widgets {
                 setState(() => { _imageInfo = null; });
             }
 
+            setState(()=> {
+                _loadingProgress = null;
+                _frameNumber = 0;
+                _wasSynchronouslyLoaded = false;
+            });
+
             _imageStream = newStream;
-            if (_isListeningToStream) {
+            if (_isListeningToStream)
                 _imageStream.addListener(_getListener());
-            }
         }
 
         void _listenToStream() {
@@ -540,6 +533,7 @@ namespace Unity.UIWidgets.widgets {
                 alignment: widget.alignment,
                 repeat: widget.repeat,
                 centerSlice: widget.centerSlice,
+                matchTextDirection: widget.matchTextDirection,
                 invertColors: _invertColors,
                 filterQuality: widget.filterQuality
             );
