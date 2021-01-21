@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.service;
@@ -23,15 +24,24 @@ namespace UIWidgets.Runtime.material {
             StrutStyle strutStyle = null,
             TextDirection? textDirection = null,
             TextAlign textAlign = TextAlign.left,
+            TextAlignVertical textAlignVertical = null,
             bool autofocus = false,
+            bool readOnly = false,
+            ToolbarOptions toolbarOptions = null,
+            bool? showCursor = null,
             bool obscureText = false,
             bool autocorrect = true,
+            SmartDashesType? smartDashesType = null,
+            SmartQuotesType? smartQuotesType = null,
+            bool enableSuggestions = true,
             bool autovalidate = false,
             bool maxLengthEnforced = true,
             int? maxLines = 1,
             int? minLines = null,
             bool expands = false,
             int? maxLength = null,
+            ValueChanged<string> onChanged = null,
+            GestureTapCallback onTap = null,
             VoidCallback onEditingComplete = null,
             ValueChanged<string> onFieldSubmitted = null,
             FormFieldSetter<string> onSaved = null,
@@ -44,7 +54,8 @@ namespace UIWidgets.Runtime.material {
             Brightness? keyboardAppearance = null,
             EdgeInsets scrollPadding = null,
             bool enableInteractiveSelection = true,
-            InputCounterWidgetBuilder buildCounter = null
+            InputCounterWidgetBuilder buildCounter = null,
+            ScrollPhysics scrollPhysics = null
         ) : base(
             key: key,
             initialValue: controller != null ? controller.text : (initialValue ?? ""),
@@ -56,6 +67,13 @@ namespace UIWidgets.Runtime.material {
                 _TextFormFieldState state = (_TextFormFieldState) field;
                 InputDecoration effectiveDecoration = (decoration ?? new InputDecoration())
                     .applyDefaults(Theme.of(field.context).inputDecorationTheme);
+                void onChangedHandler(string value) {
+                    if (onChanged != null) {
+                        onChanged(value);
+                    }
+                    field.didChange(value);
+                }
+                
                 return new TextField(
                     controller: state._effectiveController,
                     focusNode: focusNode,
@@ -65,17 +83,25 @@ namespace UIWidgets.Runtime.material {
                     style: style,
                     strutStyle: strutStyle,
                     textAlign: textAlign,
+                    textAlignVertical: textAlignVertical,
                     textDirection: textDirection ?? TextDirection.ltr,
                     textCapitalization: textCapitalization,
                     autofocus: autofocus,
+                    toolbarOptions: toolbarOptions,
+                    readOnly: readOnly,
+                    showCursor: showCursor,
                     obscureText: obscureText,
                     autocorrect: autocorrect,
+                    smartDashesType: smartDashesType ?? (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
+                    smartQuotesType: smartQuotesType ?? (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
+                    enableSuggestions: enableSuggestions,
                     maxLengthEnforced: maxLengthEnforced,
                     maxLines: maxLines,
                     minLines: minLines,
                     expands: expands,
                     maxLength: maxLength,
-                    onChanged: field.didChange,
+                    onChanged: onChangedHandler,
+                    onTap: onTap,
                     onEditingComplete: onEditingComplete,
                     onSubmitted: onFieldSubmitted,
                     inputFormatters: inputFormatters,
@@ -84,6 +110,7 @@ namespace UIWidgets.Runtime.material {
                     cursorRadius: cursorRadius,
                     cursorColor: cursorColor,
                     scrollPadding: scrollPadding ?? EdgeInsets.all(20.0f),
+                    scrollPhysics: scrollPhysics,
                     keyboardAppearance: keyboardAppearance,
                     enableInteractiveSelection: enableInteractiveSelection,
                     buildCounter: buildCounter
@@ -98,6 +125,7 @@ namespace UIWidgets.Runtime.material {
                 () => "minLines can't be greater than maxLines");
             D.assert(!expands || (maxLines == null && minLines == null),
                 () => "minLines and maxLines must be null when expands is true.");
+            D.assert(!obscureText || maxLines == 1, () => "Obscured fields cannot be multiline.");
             D.assert(maxLength == null || maxLength > 0);
             this.controller = controller;
         }
