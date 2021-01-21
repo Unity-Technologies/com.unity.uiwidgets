@@ -33,6 +33,7 @@ namespace Unity.UIWidgets.material {
             Key key = null,
             EdgeInsets padding = null,
             ImageProvider image = null,
+            ImageErrorListener onImageError = null,
             ColorFilter colorFilter = null,
             BoxFit? fit = null,
             Alignment alignment = null,
@@ -49,6 +50,7 @@ namespace Unity.UIWidgets.material {
             Decoration decoration = new BoxDecoration(
                 image: new DecorationImage(
                     image: image,
+                    onError: onImageError,
                     colorFilter: colorFilter,
                     fit: fit,
                     alignment: alignment,
@@ -139,7 +141,7 @@ namespace Unity.UIWidgets.material {
                     child: current);
             }
 
-            return current;
+            return current ?? new Container();
         }
 
         public override Widget build(BuildContext context) {

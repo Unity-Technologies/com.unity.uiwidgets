@@ -90,6 +90,7 @@ namespace Unity.UIWidgets.material {
         public InkSplash(
             MaterialInkController controller = null,
             RenderBox referenceBox = null,
+            TextDirection? textDirection = null,
             Offset position = null,
             Color color = null,
             bool containedInkWell = false,
@@ -105,6 +106,7 @@ namespace Unity.UIWidgets.material {
             onRemoved: onRemoved) {
             D.assert(controller != null);
             D.assert(referenceBox != null);
+            D.assert(textDirection != null);
             _position = position;
             _borderRadius = borderRadius ?? BorderRadius.zero;
             _customBorder = customBorder;
@@ -112,6 +114,7 @@ namespace Unity.UIWidgets.material {
                 radius ?? InkSplashUtils._getTargetRadius(referenceBox, containedInkWell, rectCallback, position);
             _clipCallback = InkSplashUtils._getClipCallback(referenceBox, containedInkWell, rectCallback);
             _repositionToReferenceBox = !containedInkWell;
+            _textDirection = textDirection.Value;
 
             D.assert(_borderRadius != null);
             _radiusController = new AnimationController(
@@ -146,6 +149,8 @@ namespace Unity.UIWidgets.material {
         readonly RectCallback _clipCallback;
 
         readonly bool _repositionToReferenceBox;
+        
+        readonly  TextDirection _textDirection;
 
         Animation<float> _radius;
         AnimationController _radiusController;
@@ -186,35 +191,17 @@ namespace Unity.UIWidgets.material {
                 center = Offset.lerp(center, referenceBox.size.center(Offset.zero), _radiusController.value);
             }
 
-            Offset originOffset = transform.getAsTranslation();
-            canvas.save();
-            if (originOffset == null) {
-                canvas.transform(transform.storage);
-            }
-            else {
-                canvas.translate(originOffset.dx, originOffset.dy);
-            }
-
-            if (_clipCallback != null) {
-                Rect rect = _clipCallback();
-                if (_customBorder != null) {
-                    canvas.clipPath(_customBorder.getOuterPath(rect));
-                }
-                else if (_borderRadius != BorderRadius.zero) {
-                    canvas.clipRRect(RRect.fromRectAndCorners(
-                        rect,
-                        topLeft: _borderRadius.topLeft,
-                        topRight: _borderRadius.topRight,
-                        bottomLeft: _borderRadius.bottomLeft,
-                        bottomRight: _borderRadius.bottomRight));
-                }
-                else {
-                    canvas.clipRect(rect);
-                }
-            }
-
-            canvas.drawCircle(center, _radius.value, paint);
-            canvas.restore();
+            paintInkCircle(
+                      canvas: canvas,
+                  transform: transform,
+                  paint: paint,
+                  center: center,
+                  textDirection: _textDirection,
+                 radius: _radius.value,
+                  customBorder: _customBorder,
+                  borderRadius: _borderRadius,
+                  clipCallback: _clipCallback
+                );
         }
     }
 }
