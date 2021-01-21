@@ -552,7 +552,7 @@ namespace Unity.UIWidgets.material {
             textSelectionControls = _MaterialTextSelectionControls.materialTextSelectionControls;
             paintCursorAboveText = false;
             cursorOpacityAnimates = false;
-            cursorColor ??= themeData.cursorColor;
+            cursorColor = cursorColor ?? themeData.cursorColor;
 
             Widget child = new RepaintBoundary(
                 child: new EditableText(
@@ -642,7 +642,7 @@ namespace Unity.UIWidgets.material {
                     onExit: onExit,
                     child: new AnimatedBuilder(
                         animation: controller,
-                        builder: (BuildContext context, Widget child) => { return child; },
+                        builder: (BuildContext buildContext, Widget buildChild) => { return buildChild; },
                         child: _selectionGestureDetectorBuilder.buildGestureDetector(
                             behavior: HitTestBehavior.translucent,
                             child: child
