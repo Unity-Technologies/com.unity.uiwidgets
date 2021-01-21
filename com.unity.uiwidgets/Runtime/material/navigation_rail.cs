@@ -482,7 +482,7 @@ namespace Unity.UIWidgets.material {
                 type: MaterialType.transparency,
                 clipBehavior: Clip.none,
                 child: new InkResponse(
-                    onTap: onTap,
+                    onTap: () => onTap(),
                     onHover: (_) => { },
                     highlightShape:
                     BoxShape.rectangle,

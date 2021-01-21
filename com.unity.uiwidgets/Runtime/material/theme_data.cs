@@ -462,6 +462,8 @@ namespace Unity.UIWidgets.material {
 
 
         public readonly Brightness brightness;
+        
+        public readonly  VisualDensity visualDensity;
 
         public readonly Color primaryColor;
 
@@ -484,6 +486,10 @@ namespace Unity.UIWidgets.material {
         public readonly Color cardColor;
 
         public readonly Color dividerColor;
+        
+        public readonly Color focusColor;
+
+        public readonly Color hoverColor;
 
         public readonly Color highlightColor;
 

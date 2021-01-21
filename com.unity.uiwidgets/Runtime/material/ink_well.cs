@@ -434,7 +434,7 @@ namespace Unity.UIWidgets.material {
         }
 
         void _updateFocusHighlights() {
-            bool showFocus;
+            bool showFocus = false;
             switch (FocusManager.instance.highlightMode) {
                 case FocusHighlightMode.touch: {
                     showFocus = false;
