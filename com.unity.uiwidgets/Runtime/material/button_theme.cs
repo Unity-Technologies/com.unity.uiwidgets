@@ -22,7 +22,7 @@ namespace Unity.UIWidgets.material {
         padded
     }
 
-    public class ButtonTheme : InheritedWidget {
+    public class ButtonTheme : InheritedTheme {
         public ButtonTheme(
             Key key = null,
             ButtonTextTheme textTheme = ButtonTextTheme.normal,
@@ -34,6 +34,8 @@ namespace Unity.UIWidgets.material {
             bool alignedDropdown = false,
             Color buttonColor = null,
             Color disabledColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             ColorScheme colorScheme = null,
@@ -51,6 +53,8 @@ namespace Unity.UIWidgets.material {
                 layoutBehavior: layoutBehavior,
                 buttonColor: buttonColor,
                 disabledColor: disabledColor,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
                 highlightColor: highlightColor,
                 splashColor: splashColor,
                 colorScheme: colorScheme,
@@ -82,6 +86,8 @@ namespace Unity.UIWidgets.material {
             bool alignedDropdown = false,
             Color buttonColor = null,
             Color disabledColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             ColorScheme colorScheme = null,
@@ -100,6 +106,8 @@ namespace Unity.UIWidgets.material {
                 layoutBehavior: layoutBehavior,
                 buttonColor: buttonColor,
                 disabledColor: disabledColor,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
                 highlightColor: highlightColor,
                 splashColor: splashColor,
                 colorScheme: colorScheme
@@ -110,7 +118,7 @@ namespace Unity.UIWidgets.material {
         public readonly ButtonThemeData data;
 
         public static ButtonThemeData of(BuildContext context) {
-            ButtonTheme inheritedButtonTheme = (ButtonTheme) context.inheritFromWidgetOfExactType(typeof(ButtonTheme));
+            ButtonTheme inheritedButtonTheme = (ButtonTheme) context.dependOnInheritedWidgetOfExactType<ButtonTheme>();
             ButtonThemeData buttonTheme = inheritedButtonTheme?.data;
             if (buttonTheme?.colorScheme == null) {
                 ThemeData theme = Theme.of(context);
@@ -123,6 +131,13 @@ namespace Unity.UIWidgets.material {
             }
 
             return buttonTheme;
+        }
+
+        public override Widget wrap(BuildContext context, Widget child) {
+            ButtonTheme ancestorTheme = context.findAncestorWidgetOfExactType<ButtonTheme>();
+            return ReferenceEquals(this, ancestorTheme)
+                ? child
+                : ButtonTheme.fromButtonThemeData(data: data, child: child);
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
@@ -142,6 +157,8 @@ namespace Unity.UIWidgets.material {
             bool alignedDropdown = false,
             Color buttonColor = null,
             Color disabledColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             ColorScheme colorScheme = null,
@@ -157,6 +174,8 @@ namespace Unity.UIWidgets.material {
             this.colorScheme = colorScheme;
             _buttonColor = buttonColor;
             _disabledColor = disabledColor;
+            _focusColor = focusColor;
+            _hoverColor = hoverColor;
             _highlightColor = highlightColor;
             _splashColor = splashColor;
             _padding = padding;
@@ -229,6 +248,10 @@ namespace Unity.UIWidgets.material {
 
         readonly Color _disabledColor;
 
+        readonly Color _focusColor;
+
+        readonly Color _hoverColor;
+
         readonly Color _highlightColor;
 
         readonly Color _splashColor;
@@ -245,19 +268,14 @@ namespace Unity.UIWidgets.material {
             return button.textTheme ?? textTheme;
         }
 
-        Color _getDisabledColor(MaterialButton button) {
-            return getBrightness(button) == Brightness.dark
-                ? colorScheme.onSurface.withOpacity(0.30f)
-                : colorScheme.onSurface.withOpacity(0.38f);
-        }
-
-
         public Color getDisabledTextColor(MaterialButton button) {
+            if (button.textColor is MaterialStateProperty<Color>)
+                return button.textColor;
             if (button.disabledTextColor != null) {
                 return button.disabledTextColor;
             }
 
-            return _getDisabledColor(button);
+            return colorScheme.onSurface.withOpacity(0.38f);
         }
 
 
@@ -270,7 +288,7 @@ namespace Unity.UIWidgets.material {
                 return _disabledColor;
             }
 
-            return _getDisabledColor(button);
+            return colorScheme.onSurface.withOpacity(0.38f);
         }
 
 
@@ -360,6 +378,14 @@ namespace Unity.UIWidgets.material {
             return getTextColor(button).withOpacity(0.12f);
         }
 
+        public Color getFocusColor(MaterialButton button) {
+            return button.focusColor ?? _focusColor ?? getTextColor(button).withOpacity(0.12f);
+        }
+
+        public Color getHoverColor(MaterialButton button) {
+            return button.hoverColor ?? _hoverColor ?? getTextColor(button).withOpacity(0.04f);
+        }
+
         public Color getHighlightColor(MaterialButton button) {
             if (button.highlightColor != null) {
                 return button.highlightColor;
@@ -390,6 +416,25 @@ namespace Unity.UIWidgets.material {
             return 2.0f;
         }
 
+        public float getFocusElevation(MaterialButton button) {
+            if (button.focusElevation != null)
+                return button.focusElevation.Value;
+            if (button is FlatButton)
+                return 0.0f;
+            if (button is OutlineButton)
+                return 0.0f;
+            return 4.0f;
+        }
+
+        public float getHoverElevation(MaterialButton button) {
+            if (button.hoverElevation != null)
+                return button.hoverElevation.Value;
+            if (button is FlatButton)
+                return 0.0f;
+            if (button is OutlineButton)
+                return 0.0f;
+            return 4.0f;
+        }
 
         public float getHighlightElevation(MaterialButton button) {
             if (button.highlightElevation != null) {
@@ -403,6 +448,7 @@ namespace Unity.UIWidgets.material {
             if (button is OutlineButton) {
                 return 0.0f;
             }
+
             return 8.0f;
         }
 
@@ -470,6 +516,8 @@ namespace Unity.UIWidgets.material {
             bool? alignedDropdown = null,
             Color buttonColor = null,
             Color disabledColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             ColorScheme colorScheme = null,
@@ -484,6 +532,8 @@ namespace Unity.UIWidgets.material {
                 alignedDropdown: alignedDropdown ?? this.alignedDropdown,
                 buttonColor: buttonColor ?? _buttonColor,
                 disabledColor: disabledColor ?? _disabledColor,
+                focusColor: focusColor ?? _focusColor,
+                hoverColor: hoverColor ?? _hoverColor,
                 highlightColor: highlightColor ?? _highlightColor,
                 splashColor: splashColor ?? _splashColor,
                 colorScheme: colorScheme ?? this.colorScheme,
@@ -507,6 +557,8 @@ namespace Unity.UIWidgets.material {
                    && alignedDropdown == other.alignedDropdown
                    && _buttonColor == other._buttonColor
                    && _disabledColor == other._disabledColor
+                   && _focusColor == other._focusColor
+                   && _hoverColor == other._hoverColor
                    && _highlightColor == other._highlightColor
                    && _splashColor == other._splashColor
                    && colorScheme == other.colorScheme
@@ -547,6 +599,8 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ alignedDropdown.GetHashCode();
                 hashCode = (hashCode * 397) ^ (_buttonColor != null ? _buttonColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (_disabledColor != null ? _disabledColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_focusColor != null ? _focusColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_hoverColor != null ? _hoverColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (_highlightColor != null ? _highlightColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (_splashColor != null ? _splashColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ colorScheme.GetHashCode();
@@ -570,10 +624,12 @@ namespace Unity.UIWidgets.material {
                 defaultValue: defaultTheme.alignedDropdown,
                 ifTrue: "dropdown width matches button"
             ));
-            properties.add(new DiagnosticsProperty<Color>("buttonColor", _buttonColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("disabledColor", _disabledColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("highlightColor", _highlightColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("splashColor", _splashColor, defaultValue: null));
+            properties.add(new ColorProperty("buttonColor", _buttonColor, defaultValue: null));
+            properties.add(new ColorProperty("disabledColor", _disabledColor, defaultValue: null));
+            properties.add(new ColorProperty("focusColor", _focusColor, defaultValue: null));
+            properties.add(new ColorProperty("hoverColor", _hoverColor, defaultValue: null));
+            properties.add(new ColorProperty("highlightColor", _highlightColor, defaultValue: null));
+            properties.add(new ColorProperty("splashColor", _splashColor, defaultValue: null));
             properties.add(new DiagnosticsProperty<ColorScheme>("colorScheme", colorScheme,
                 defaultValue: defaultTheme.colorScheme));
             properties.add(new DiagnosticsProperty<MaterialTapTargetSize?>("materialTapTargetSize",

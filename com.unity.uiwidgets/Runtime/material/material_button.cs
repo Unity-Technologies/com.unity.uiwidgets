@@ -55,6 +55,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public readonly VoidCallback onPressed;
+        
+        public readonly VoidCallback onLongPress;
 
         public readonly ValueChanged<bool> onHighlightChanged;
 
@@ -70,10 +72,18 @@ namespace Unity.UIWidgets.material {
 
         public readonly Color splashColor;
 
+        public readonly Color focusColor;
+
+        public readonly Color hoverColor;
+        
         public readonly Color highlightColor;
 
         public readonly float? elevation;
 
+        public readonly float? hoverElevation;
+
+        public readonly float? focusElevation;
+        
         public readonly float? highlightElevation;
 
         public readonly float? disabledElevation;
@@ -83,10 +93,12 @@ namespace Unity.UIWidgets.material {
         public readonly Widget child;
 
         public bool enabled {
-            get { return onPressed != null; }
+            get { return onPressed != null || onLongPress != null; }
         }
 
         public readonly EdgeInsets padding;
+        
+        public readonly VisualDensity visualDensity;
 
         public readonly ShapeBorder shape;
 
