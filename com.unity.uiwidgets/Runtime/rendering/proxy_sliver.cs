@@ -148,11 +148,11 @@ namespace Unity.UIWidgets.rendering {
         public override void paint(PaintingContext context, Offset offset) {
             if (child != null && child.geometry.visible) {
                 if (_alpha == 0) {
-                    setLayer(null);
+                    layer = null;
                     return;
                 } 
                 if (_alpha == 255) {
-                    setLayer(null);
+                    layer = null;
                     context.paintChild(child, offset);
                     return;
                 }
@@ -163,7 +163,7 @@ namespace Unity.UIWidgets.rendering {
                     base.paint,
                     oldLayer: layer as OpacityLayer
                 );
-                setLayer(opacity);
+                layer = opacity;
             }
         }
         /*public override void visitChildrenForSemantics(RenderObject visitor) {

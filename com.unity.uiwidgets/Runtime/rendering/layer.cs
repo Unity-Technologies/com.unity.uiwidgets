@@ -350,7 +350,10 @@ namespace Unity.UIWidgets.rendering {
             get { return _lastChild; }
         }
         internal Layer _lastChild;
-        
+        internal bool hasChildren {
+            get { return _firstChild != null; }
+        }
+
         public ui.Scene buildScene(ui.SceneBuilder builder) {
             List<PictureLayer> temporaryLayers =  new List<PictureLayer>();
             D.assert(()=> {

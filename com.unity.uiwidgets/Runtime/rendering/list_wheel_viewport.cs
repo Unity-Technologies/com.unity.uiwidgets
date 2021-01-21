@@ -45,10 +45,8 @@ namespace Unity.UIWidgets.rendering {
             D.assert(perspective > 0);
             D.assert(perspective <= 0.01f, () => perspectiveTooHighMessage);
             D.assert(magnification > 0);
-            D.assert(overAndUnderCenterOpacity != null);
             D.assert(overAndUnderCenterOpacity >= 0 && overAndUnderCenterOpacity <= 1);
             D.assert(itemExtent > 0);
-            D.assert(squeeze != null);
             D.assert(squeeze > 0);
             D.assert(
                 !renderChildrenOutsideViewport || !clipToSize,
@@ -194,7 +192,6 @@ namespace Unity.UIWidgets.rendering {
                 return _overAndUnderCenterOpacity;
             }
             set {
-                D.assert(value != null);
                 D.assert(value >= 0 && value <= 1);
                 if (value == _overAndUnderCenterOpacity)
                     return;
@@ -225,7 +222,6 @@ namespace Unity.UIWidgets.rendering {
                 return _squeeze;
             }
             set {
-                D.assert(value != null);
                 D.assert(value > 0);
                 if (value == _squeeze)
                     return;
@@ -670,7 +666,6 @@ namespace Unity.UIWidgets.rendering {
             PaintingContext context,
             Offset offset,
             RenderBox child,
-            // Matrix4x4 cylindricalTransform,
             Matrix4 cylindricalTransform,
             Offset offsetToCenter
         ) {
@@ -680,8 +675,30 @@ namespace Unity.UIWidgets.rendering {
                     _offset + offsetToCenter
                 );
             };
+            /*PaintingContextCallback opacityPainter = (PaintingContext context2, Offset offset2) =>{
+                context2.pushOpacity(offset2, (overAndUnderCenterOpacity * 255).round(), painter);
+            };
+
+            context.pushTransform(
+                needsCompositing,
+                offset,
+                _centerOriginTransform(cylindricalTransform),
+                // Pre-transform painting function.
+                overAndUnderCenterOpacity == 1 ? painter : opacityPainter
+            );
         }
 
+        Matrix4 _centerOriginTransform(Matrix4 originalMatrix) {
+            Matrix4 result = Matrix4.identity();
+            Offset centerOriginTranslation = Alignment.center.alongSize(size);
+            result.translate(centerOriginTranslation.dx * (-_offAxisFraction * 2 + 1),
+                centerOriginTranslation.dy);
+            result.multiply(originalMatrix);
+            result.translate(-centerOriginTranslation.dx * (-_offAxisFraction * 2 + 1),
+                -centerOriginTranslation.dy);
+            return result;*/ //[!!!]need?
+        }
+        
         public override Rect describeApproximatePaintClip(RenderObject child) {
             if (child != null && _shouldClipAtCurrentOffset()) {
                 return Offset.zero & size;
@@ -690,8 +707,7 @@ namespace Unity.UIWidgets.rendering {
             return null;
         }
 
-        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null
-        ) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             return false;
         }
 
