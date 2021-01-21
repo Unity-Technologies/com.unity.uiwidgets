@@ -137,13 +137,15 @@ namespace Unity.UIWidgets.widgets {
                             reverse: widget.reverse,
                             physics: widget.physics != null
                                 ? widget.physics.applyTo(new ClampingScrollPhysics())
-                                : new ClampingScrollPhysics(),
-                            controller: _coordinator._outerController,
-                            slivers: widget._buildSlivers(
-                                _context, _coordinator._innerController, _lastHasScrolledBody
-                            ),
-                            handle: _absorberHandle
-                        );
+                            : new ClampingScrollPhysics(),
+                        controller: _coordinator._outerController,
+                        slivers: widget._buildSlivers(
+                            context,
+                            _coordinator._innerController,
+                            _lastHasScrolledBody
+                        ),
+                        handle: _absorberHandle
+                            );
                     }
                 )
             );
@@ -152,8 +154,8 @@ namespace Unity.UIWidgets.widgets {
 
     class _NestedScrollViewCustomScrollView : CustomScrollView {
         public _NestedScrollViewCustomScrollView(
-            Axis scrollDirection,
-            bool reverse,
+            Axis scrollDirection, 
+            bool reverse ,
             ScrollPhysics physics,
             ScrollController controller,
             List<Widget> slivers,
@@ -286,7 +288,6 @@ namespace Unity.UIWidgets.widgets {
                 if (!_outerController.hasClients) {
                     return null;
                 }
-
                 return _outerController.nestedPositions.Single();
             }
         }
@@ -331,6 +332,7 @@ namespace Unity.UIWidgets.widgets {
         ScrollDirection _userScrollDirection = ScrollDirection.idle;
 
         public void updateUserScrollDirection(ScrollDirection value) {
+            D.assert(value != null);
             if (userScrollDirection == value) {
                 return;
             }
@@ -373,7 +375,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void goBallistic(float velocity) {
-            beginActivity(createOuterBallisticScrollActivity(velocity),
+            beginActivity(
+                createOuterBallisticScrollActivity(velocity),
                 (_NestedScrollPosition position) => createInnerBallisticScrollActivity(position, velocity)
             );
         }
@@ -541,13 +544,14 @@ namespace Unity.UIWidgets.widgets {
             _outerPosition.updateCanDrag(maxInnerExtent);
         }
 
-        public Future animateTo(float to,
-            TimeSpan duration,
-            Curve curve
+        public Future animateTo(
+            float to,
+            TimeSpan? duration = null,
+            Curve curve = null
         ) {
             DrivenScrollActivity outerActivity = _outerPosition.createDrivenScrollActivity(
                 nestOffset(to, _outerPosition),
-                duration,
+                duration ?? new TimeSpan(0,0,0,0),
                 curve
             );
             List<Future> resultFutures = new List<Future> {outerActivity.done};
@@ -556,7 +560,7 @@ namespace Unity.UIWidgets.widgets {
                 (_NestedScrollPosition position) => {
                     DrivenScrollActivity innerActivity = position.createDrivenScrollActivity(
                         nestOffset(to, position),
-                        duration,
+                        duration ?? new TimeSpan(0,0,0,0),
                         curve
                     );
                     resultFutures.Add(innerActivity.done);
@@ -667,7 +671,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string ToString() {
-            return "$GetType()(outer=$_outerController; inner=$_innerController)";
+            return $"{GetType()}(outer={_outerController}; inner={_innerController})";
         }
     }
 
