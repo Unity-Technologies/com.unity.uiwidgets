@@ -15,7 +15,7 @@ namespace Unity.UIWidgets.material {
         public RawMaterialButton(
             Key key = null,
             VoidCallback onPressed = null,
-            VoidCallback onLongPress = null,
+            GestureLongPressCallback onLongPress = null,
             ValueChanged<bool> onHighlightChanged = null,
             TextStyle textStyle = null,
             Color fillColor = null,
@@ -81,7 +81,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly VoidCallback onPressed;
 
-        public readonly VoidCallback onLongPress;
+        public readonly GestureLongPressCallback onLongPress;
 
         public readonly ValueChanged<bool> onHighlightChanged;
 
