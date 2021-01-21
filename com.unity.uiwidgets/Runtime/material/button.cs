@@ -227,8 +227,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            Color effectiveTextColor = MaterialStateProperty.resolveAs<Color>(widget.textStyle?.color, _states);
-            ShapeBorder effectiveShape = MaterialStateProperty.resolveAs<ShapeBorder>(widget.shape, _states);
+            Color effectiveTextColor = MaterialStateProperty<Color>.resolveAs<Color>(widget.textStyle?.color, _states);
+            ShapeBorder effectiveShape = MaterialStateProperty<Color>.resolveAs<ShapeBorder>(widget.shape, _states);
             Offset densityAdjustment = widget.visualDensity.baseSizeAdjustment;
             BoxConstraints effectiveConstraints = widget.visualDensity.effectiveConstraints(widget.constraints);
             EdgeInsets padding = widget.padding.add(
@@ -405,9 +405,9 @@ namespace Unity.UIWidgets.material {
             return result.addWithRawTransform(
                 transform: MatrixUtils.forceToPoint(center),
                 position: center,
-                hitTest: (BoxHitTestResult result, Offset position) => {
-                    D.assert(position == center);
-                    return child.hitTest(result, position: center);
+                hitTest: (BoxHitTestResult boxHitTest, Offset offsetPosition) => {
+                    D.assert(offsetPosition == center);
+                    return child.hitTest(boxHitTest, position: center);
                 }
             );
         }

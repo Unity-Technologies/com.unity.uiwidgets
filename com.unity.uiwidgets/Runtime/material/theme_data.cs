@@ -1138,7 +1138,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly float vertical;
 
-        Offset baseSizeAdjustment {
+        public Offset baseSizeAdjustment {
             get {
                 float interval = 4.0f;
 
@@ -1153,7 +1153,7 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        BoxConstraints effectiveConstraints(BoxConstraints constraints) {
+        public BoxConstraints effectiveConstraints(BoxConstraints constraints) {
             D.assert(constraints != null && constraints.debugAssertIsValid());
             return constraints.copyWith(
                 minWidth: (constraints.minWidth + baseSizeAdjustment.dx).clamp(0.0f, float.PositiveInfinity),
