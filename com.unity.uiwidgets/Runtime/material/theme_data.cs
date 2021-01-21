@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using uiwidgets;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -10,7 +11,7 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
-    static class ThemeDataUtils {
+    public partial class material_ {
         public static readonly Color _kLightThemeHighlightColor = new Color(0x66BCBCBC);
 
         public static readonly Color _kLightThemeSplashColor = new Color(0x66C8C8C8);
@@ -104,13 +105,13 @@ namespace Unity.UIWidgets.material {
             dividerColor = dividerColor ?? (isDark ? new Color(0x1FFFFFFF) : new Color(0x1F000000));
 
             colorScheme = colorScheme ?? ColorScheme.fromSwatch(
-                              primarySwatch: primarySwatch,
-                              primaryColorDark: primaryColorDark,
-                              accentColor: accentColor,
-                              cardColor: cardColor,
-                              backgroundColor: backgroundColor,
-                              errorColor: errorColor,
-                              brightness: brightness);
+                primarySwatch: primarySwatch,
+                primaryColorDark: primaryColorDark,
+                accentColor: accentColor,
+                cardColor: cardColor,
+                backgroundColor: backgroundColor,
+                errorColor: errorColor,
+                brightness: brightness);
 
             splashFactory = splashFactory ?? InkSplash.splashFactory;
             selectedRowColor = selectedRowColor ?? Colors.grey[100];
@@ -141,7 +142,7 @@ namespace Unity.UIWidgets.material {
             iconTheme = iconTheme ??
                         (isDark ? new IconThemeData(color: Colors.white) : new IconThemeData(color: Colors.black87));
             platform = platform ?? Application.platform;
-            typography = typography ?? new Typography();
+            typography = typography ?? Typography.material2014();
             TextTheme defaultTextTheme = isDark ? typography.white : typography.black;
             textTheme = defaultTextTheme.merge(textTheme);
             TextTheme defaultPrimaryTextTheme = primaryIsDark ? typography.white : typography.black;
@@ -157,27 +158,27 @@ namespace Unity.UIWidgets.material {
 
             buttonColor = buttonColor ?? (isDark ? primarySwatch[600] : Colors.grey[300]);
             buttonTheme = buttonTheme ?? new ButtonThemeData(
-                              colorScheme: colorScheme,
-                              buttonColor: buttonColor,
-                              disabledColor: disabledColor,
-                              highlightColor: highlightColor,
-                              splashColor: splashColor,
-                              materialTapTargetSize: materialTapTargetSize);
+                colorScheme: colorScheme,
+                buttonColor: buttonColor,
+                disabledColor: disabledColor,
+                highlightColor: highlightColor,
+                splashColor: splashColor,
+                materialTapTargetSize: materialTapTargetSize);
             disabledColor = disabledColor ?? (isDark ? Colors.white30 : Colors.black38);
             highlightColor = highlightColor ??
                              (isDark
-                                 ? ThemeDataUtils._kDarkThemeHighlightColor
-                                 : ThemeDataUtils._kLightThemeHighlightColor);
+                                 ? material_._kDarkThemeHighlightColor
+                                 : material_._kLightThemeHighlightColor);
             splashColor = splashColor ??
                           (isDark
-                              ? ThemeDataUtils._kDarkThemeSplashColor
-                              : ThemeDataUtils._kLightThemeSplashColor);
+                              ? material_._kDarkThemeSplashColor
+                              : material_._kLightThemeSplashColor);
 
             sliderTheme = sliderTheme ?? SliderThemeData.fromPrimaryColors(
-                              primaryColor: primaryColor,
-                              primaryColorLight: primaryColorLight,
-                              primaryColorDark: primaryColorDark,
-                              valueIndicatorTextStyle: accentTextTheme.body2);
+                primaryColor: primaryColor,
+                primaryColorLight: primaryColorLight,
+                primaryColorDark: primaryColorDark,
+                valueIndicatorTextStyle: accentTextTheme.body2);
 
             tabBarTheme = tabBarTheme ?? new TabBarTheme();
             cardTheme = cardTheme ?? new CardTheme();
@@ -497,6 +498,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly ButtonThemeData buttonTheme;
 
+        public readonly ToggleButtonsThemeData toggleButtonsTheme;
+
         public readonly Color buttonColor;
 
         public readonly Color secondaryHeaderColor;
@@ -536,7 +539,8 @@ namespace Unity.UIWidgets.material {
         public readonly IconThemeData accentIconTheme;
 
         public readonly TabBarTheme tabBarTheme;
-        
+        public readonly TooltipThemeData tooltipTheme;
+
         public readonly CardTheme cardTheme;
         public readonly ChipThemeData chipTheme;
 
@@ -545,17 +549,17 @@ namespace Unity.UIWidgets.material {
         public readonly MaterialTapTargetSize materialTapTargetSize;
 
         public readonly bool applyElevationOverlayColor;
-        
+
         public readonly PageTransitionsTheme pageTransitionsTheme;
 
         public readonly AppBarTheme appBarTheme;
-        
+
         public readonly BottomAppBarTheme bottomAppBarTheme;
 
         public readonly ColorScheme colorScheme;
 
         public readonly DialogTheme dialogTheme;
-        
+
         public readonly FloatingActionButtonThemeData floatingActionButtonTheme;
 
         public readonly Typography typography;
@@ -751,7 +755,8 @@ namespace Unity.UIWidgets.material {
                 bottomAppBarTheme: BottomAppBarTheme.lerp(a.bottomAppBarTheme, b.bottomAppBarTheme, t),
                 colorScheme: ColorScheme.lerp(a.colorScheme, b.colorScheme, t),
                 dialogTheme: DialogTheme.lerp(a.dialogTheme, b.dialogTheme, t),
-                floatingActionButtonTheme: FloatingActionButtonThemeData.lerp(a.floatingActionButtonTheme, b.floatingActionButtonTheme, t),
+                floatingActionButtonTheme: FloatingActionButtonThemeData.lerp(a.floatingActionButtonTheme,
+                    b.floatingActionButtonTheme, t),
                 typography: Typography.lerp(a.typography, b.typography, t)
             );
         }
@@ -1074,6 +1079,138 @@ namespace Unity.UIWidgets.material {
 
             _cache[key] = value();
             return _cache[key];
+        }
+    }
+
+    public class VisualDensity : Diagnosticable, IEquatable<VisualDensity> {
+        public VisualDensity(
+            float horizontal = 0.0f,
+            float vertical = 0.0f
+        ) {
+            D.assert(horizontal != null);
+            D.assert(vertical != null);
+            D.assert(vertical <= maximumDensity);
+            D.assert(vertical >= minimumDensity);
+            D.assert(horizontal <= maximumDensity);
+            D.assert(horizontal >= minimumDensity);
+            this.horizontal = horizontal;
+            this.vertical = vertical;
+        }
+
+        public static readonly float minimumDensity = -4.0f;
+
+        public static readonly float maximumDensity = 4.0f;
+
+        public static readonly VisualDensity standard = new VisualDensity();
+
+        public static readonly VisualDensity comfortable = new VisualDensity(horizontal: -1.0f, vertical: -1.0f);
+
+        public static readonly VisualDensity compact = new VisualDensity(horizontal: -2.0f, vertical: -2.0f);
+
+        public static VisualDensity adaptivePlatformDensity {
+            get {
+                // switch (defaultTargetPlatform) {
+                //     case TargetPlatform.android:
+                //     case TargetPlatform.iOS:
+                //     case TargetPlatform.fuchsia:
+                //         break;
+                //     case TargetPlatform.linux:
+                //     case TargetPlatform.macOS:
+                //     case TargetPlatform.windows:
+                //         return compact;
+                // }
+
+                return new VisualDensity();
+            }
+        }
+
+        public VisualDensity copyWith(
+            float? horizontal,
+            float? vertical
+        ) {
+            return new VisualDensity(
+                horizontal: horizontal ?? this.horizontal,
+                vertical: vertical ?? this.vertical
+            );
+        }
+
+        public readonly float horizontal;
+
+        public readonly float vertical;
+
+        public Offset baseSizeAdjustment {
+            get {
+                float interval = 4.0f;
+
+                return new Offset(horizontal, vertical) * interval;
+            }
+        }
+
+        static VisualDensity lerp(VisualDensity a, VisualDensity b, float t) {
+            return new VisualDensity(
+                horizontal: Mathf.Lerp(a.horizontal, b.horizontal, t),
+                vertical: Mathf.Lerp(a.horizontal, b.horizontal, t)
+            );
+        }
+
+        public BoxConstraints effectiveConstraints(BoxConstraints constraints) {
+            D.assert(constraints != null && constraints.debugAssertIsValid());
+            return constraints.copyWith(
+                minWidth: (constraints.minWidth + baseSizeAdjustment.dx).clamp(0.0f, float.PositiveInfinity),
+                minHeight: (constraints.minHeight + baseSizeAdjustment.dy).clamp(0.0f, float.PositiveInfinity)
+            );
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new FloatProperty("horizontal", horizontal, defaultValue: 0.0f));
+            properties.add(new FloatProperty("vertical", vertical, defaultValue: 0.0f));
+        }
+
+        public override string ToString() {
+            return $"{base.toStringShort()}(h: {D.debugFormatFloat(horizontal)}, v: {D.debugFormatFloat(vertical)})";
+        }
+
+        public static bool operator ==(VisualDensity self, object other) {
+            return Equals(self, other);
+        }
+
+        public static bool operator !=(VisualDensity self, object other) {
+            return Equals(self, other);
+        }
+
+        public bool Equals(VisualDensity other) {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return horizontal.Equals(other.horizontal) && vertical.Equals(other.vertical);
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((VisualDensity) obj);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                return (horizontal.GetHashCode() * 397) ^ vertical.GetHashCode();
+            }
         }
     }
 }
