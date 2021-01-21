@@ -8,7 +8,9 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     class _Pending {
-        public _Pending(LocalizationsDelegate del, Future<object> futureValue) {
+        public _Pending(
+            LocalizationsDelegate del, 
+            Future<object> futureValue) {
             this.del = del;
             this.futureValue = futureValue;
         }
@@ -16,7 +18,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly LocalizationsDelegate del;
         public readonly Future<object> futureValue;
 
-        internal static Future<Dictionary<Type, object>> _loadAll(Locale locale,
+        internal static Future<Dictionary<Type, object>> _loadAll(
+            Locale locale,
             IEnumerable<LocalizationsDelegate> allDelegates) {
             Dictionary<Type, object> output = new Dictionary<Type, object>();
             List<_Pending> pendingList = null;
@@ -31,17 +34,14 @@ namespace Unity.UIWidgets.widgets {
             }
 
             foreach (LocalizationsDelegate del in delegates) {
-                //Future<WidgetsLocalizations> inputValue = del.load(locale);
+                
                 Future<object> inputValue = del.load(locale).to<object>();
                 object completedValue = null;
-               /* Future<object> futureValue = inputValue.then_<object>(value => {
-                    completedValue = value;
-                    return FutureOr.value(completedValue);
-                })();*/
                 Future<object> futureValue = inputValue.then_(value => {
                      completedValue = value;
                      return FutureOr.value(completedValue);
                 }).to<object>();
+                
                 if (completedValue != null) {
                     Type type = del.type;
                     D.assert(!output.ContainsKey(type));
@@ -59,7 +59,7 @@ namespace Unity.UIWidgets.widgets {
 
             return Future.wait<object>(pendingList.Select(p => p.futureValue))
                 .then(values => {
-                    //TODO : check values is list
+                    
                     var list = (List<object>)values;
                     D.assert(list.Count == pendingList.Count);
                     for (int i = 0; i < list.Count; i += 1) {
@@ -91,12 +91,15 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public abstract class LocalizationsDelegate<T> : LocalizationsDelegate {
+        //public abstract Future<T> load(Locale locale);
         public override Type type {
             get { return typeof(T); }
         }
     }
 
     public abstract class WidgetsLocalizations {
+        public TextDirection textDirection { get; }
+
         static WidgetsLocalizations of(BuildContext context) {
             return Localizations.of<WidgetsLocalizations>(context, typeof(WidgetsLocalizations));
         }
@@ -136,11 +139,11 @@ namespace Unity.UIWidgets.widgets {
 
     class _LocalizationsScope : InheritedWidget {
         public _LocalizationsScope(
-            Key key,
-            Locale locale,
-            _LocalizationsState localizationsState,
-            Dictionary<Type, object> typeToResources,
-            Widget child
+            Key key = null,
+            Locale locale = null,
+            _LocalizationsState localizationsState = null,
+            Dictionary<Type, object> typeToResources = null,
+            Widget child = null
         ) : base(key: key, child: child) {
             D.assert(locale != null);
             D.assert(localizationsState != null);
@@ -253,7 +256,6 @@ namespace Unity.UIWidgets.widgets {
         public Locale locale {
             get { return _locale; }
         }
-
         Locale _locale;
 
         public override void initState() {
@@ -323,6 +325,13 @@ namespace Unity.UIWidgets.widgets {
             return resources;
         }
 
+        TextDirection _textDirection {
+            get {
+                WidgetsLocalizations resources = (WidgetsLocalizations)_typeToResources.getOrDefault(typeof(WidgetsLocalizations)) ;
+                D.assert(resources != null);
+                return resources.textDirection;
+            }
+        }
         public override Widget build(BuildContext context) {
             if (_locale == null) {
                 return new Container();
@@ -333,7 +342,10 @@ namespace Unity.UIWidgets.widgets {
                 locale: _locale,
                 localizationsState: this,
                 typeToResources: _typeToResources,
-                child: widget.child
+                child: new Directionality(
+                    textDirection: _textDirection,
+                    child: widget.child
+                )
             );
         }
     }

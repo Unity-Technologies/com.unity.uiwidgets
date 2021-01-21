@@ -6,17 +6,20 @@ namespace Unity.UIWidgets.widgets {
     public class ImageFiltered : SingleChildRenderObjectWidget {
     
         protected ImageFiltered(
-            Key key,
-            ImageFilter imageFilter,
-            Widget child
+            Key key = null,
+            ImageFilter imageFilter = null,
+            Widget child = null
         ) : 
         base(key: key, child: child) {
             D.assert(imageFilter != null);
+            this.imageFilter = imageFilter;
         }
     
         public readonly ImageFilter imageFilter;
-        
-        public override RenderObject createRenderObject(BuildContext context) => new _ImageFilterRenderObject(imageFilter);
+
+        public override RenderObject createRenderObject(BuildContext context) {
+                return new _ImageFilterRenderObject(imageFilter);
+        }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             ((_ImageFilterRenderObject) renderObject).imageFilter = imageFilter;
@@ -45,7 +48,6 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
         }
-
         ImageFilter _imageFilter;
         
         protected override bool alwaysNeedsCompositing {

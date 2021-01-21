@@ -13,7 +13,10 @@ namespace Unity.UIWidgets.widgets {
         public readonly Color color;
         public readonly bool dismissible;
 
-        public ModalBarrier(Key key = null, Color color = null, bool dismissible = true) : base(key) {
+        public ModalBarrier(
+            Key key = null, 
+            Color color = null, 
+            bool dismissible = true) : base(key) {
             this.color = color;
             this.dismissible = dismissible;
         }
@@ -43,8 +46,11 @@ namespace Unity.UIWidgets.widgets {
     public class AnimatedModalBarrier : AnimatedWidget {
         public readonly bool dismissible;
 
-        public AnimatedModalBarrier(Key key = null, Animation<Color> color = null,
-            bool dismissible = true) : base(key, color) {
+        public AnimatedModalBarrier(
+            Key key = null, 
+            Animation<Color> color = null,
+            bool dismissible = true
+            ) : base(key, color) {
             this.dismissible = dismissible;
         }
 
@@ -53,16 +59,18 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected internal override Widget build(BuildContext context) {
-            return new ModalBarrier(color: color?.value, dismissible: dismissible);
+            return new ModalBarrier(
+                color: color?.value, 
+                dismissible: dismissible);
         }
     }
     
     public class _AnyTapGestureRecognizer : BaseTapGestureRecognizer {
-        public _AnyTapGestureRecognizer( Object debugOwner = null) : base(debugOwner: debugOwner) {}
+        public _AnyTapGestureRecognizer( object debugOwner = null) : base(debugOwner: debugOwner) {}
 
         public VoidCallback onAnyTapUp;
         
-        protected override bool isPointerAllowed(PointerDownEvent _event) {
+        protected override bool isPointerAllowed(PointerDownEvent _event ) {
             if (onAnyTapUp == null)
               return false;
             return base.isPointerAllowed(_event);
@@ -110,6 +118,8 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key: key) {
             D.assert(child != null);
             D.assert(onDismiss != null);
+            this.child = child;
+            this.onDismiss = onDismiss;
         }
         
         public readonly Widget child;
