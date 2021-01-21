@@ -1315,8 +1315,40 @@ namespace Unity.UIWidgets.ui{
         }
 
         RRect _scaled;
+        
+        public RRect scaleRadii() {
+            float scale = 1.0f;
+            scale = _getMin(scale, blRadiusY, tlRadiusY, height);
+            scale = _getMin(scale, tlRadiusX, trRadiusX, width);
+            scale = _getMin(scale, trRadiusY, brRadiusY, height);
+            scale = _getMin(scale, brRadiusX, blRadiusX, width);
 
-        void _scaleRadii() {
+            if (scale < 1.0) {
+                return fromLTRBAndCorners(
+                    top: top,
+                    left: left,
+                    right: right,
+                    bottom: bottom,
+                    topLeft: tlRadius * scale,
+                    topRight: trRadius * scale,
+                    bottomLeft: blRadius * scale,
+                    bottomRight: brRadius * scale
+                );
+            }
+
+            return fromLTRBAndCorners(
+                top: top,
+                left: left,
+                right: right,
+                bottom: bottom,
+                topLeft: tlRadius,
+                topRight: trRadius,
+                bottomLeft: blRadius,
+                bottomRight: brRadius
+            );
+        }
+
+        internal void _scaleRadii() {
             if (_scaled == null) {
                 float scale = 1.0f;
 

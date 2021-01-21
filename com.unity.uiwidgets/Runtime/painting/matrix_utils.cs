@@ -281,7 +281,7 @@ namespace Unity.UIWidgets.painting {
             return result;
         }
 
-        static Matrix4 forceToPoint(Offset offset) {
+        internal static Matrix4 forceToPoint(Offset offset) {
             var result = Matrix4.identity();
             result.setRow(0, new Vector4(0, 0, 0, offset.dx));
             result.setRow(1, new Vector4(0, 0, 0, offset.dy));

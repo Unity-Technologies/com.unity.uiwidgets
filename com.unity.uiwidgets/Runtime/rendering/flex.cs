@@ -288,7 +288,7 @@ namespace Unity.UIWidgets.rendering {
             );
         }
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             if (_direction == Axis.horizontal) {
                 return defaultComputeDistanceToHighestActualBaseline(baseline);
             }

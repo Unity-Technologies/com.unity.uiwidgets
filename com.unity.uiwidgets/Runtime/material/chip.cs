@@ -2108,7 +2108,7 @@ namespace Unity.UIWidgets.material {
             return computeMinIntrinsicHeight(width);
         }
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             return label.getDistanceToActualBaseline(baseline);
         }
 

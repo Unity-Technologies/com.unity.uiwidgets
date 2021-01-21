@@ -380,7 +380,7 @@ namespace Unity.UIWidgets.rendering {
             throw new Exception("Unknown axis: " + direction);
         }
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             return defaultComputeDistanceToHighestActualBaseline(baseline);
         }
 
