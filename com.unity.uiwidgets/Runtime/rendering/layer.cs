@@ -1175,6 +1175,7 @@ namespace Unity.UIWidgets.rendering {
     
     public class TransformLayer : OffsetLayer {
         public TransformLayer(Matrix4 transform = null, Offset offset = null) : base(offset) {
+            offset = offset ?? Offset.zero;
             _transform = transform ?? Matrix4.identity();
         }
 
@@ -1626,9 +1627,6 @@ namespace Unity.UIWidgets.rendering {
     }
     
     /*public class PlatformViewLayer : Layer {
-        /// Creates a platform view layer.
-        ///
-        /// The `rect` and `viewId` parameters must not be null.
         public PlatformViewLayer(
             Rect rect = null,
             int viewId = default,
@@ -1637,41 +1635,41 @@ namespace Unity.UIWidgets.rendering {
             D.assert(rect != null);
         }
         
-  public readonly Rect rect;
+        public readonly Rect rect;
 
   
-  public readonly int viewId;
+        public readonly int viewId;
   
-  public readonly MouseTrackerAnnotation hoverAnnotation;
+        public readonly MouseTrackerAnnotation hoverAnnotation;
 
   
-  public override void addToScene(ui.SceneBuilder builder,  Offset layerOffset = null) {
-    Rect shiftedRect = layerOffset == Offset.zero ? rect : rect.shift(layerOffset);
-    builder.addPlatformView(
-      viewId,
-      offset: shiftedRect.topLeft,
-      width: shiftedRect.width,
-      height: shiftedRect.height
-    );
-  }
+        public override void addToScene(ui.SceneBuilder builder,  Offset layerOffset = null) {
+            Rect shiftedRect = layerOffset == Offset.zero ? rect : rect.shift(layerOffset);
+            builder.addPlatformView(
+                viewId,
+                offset: shiftedRect.topLeft,
+                width: shiftedRect.width,
+                height: shiftedRect.height
+            );
+        }
 
   
-  public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition, bool onlyFirst ) {
-    if (hoverAnnotation == null || !rect.contains(localPosition)) {
-      return false;
-    }
-    if (typeof(S) == typeof(MouseTrackerAnnotation)) {
-      Object untypedValue = hoverAnnotation;
-      S typedValue = (S)untypedValue;
-      result.add(new AnnotationEntry<S>(
-        annotation: typedValue,
-        localPosition: localPosition
-      ));
-      return true;
-    }
-    return false;
-  }
-}*/
+        public override bool findAnnotations<S>(AnnotationResult<S> result, Offset localPosition, bool onlyFirst ) {
+            if (hoverAnnotation == null || !rect.contains(localPosition)) {
+                return false;
+            }
+            if (typeof(S) == typeof(MouseTrackerAnnotation)) {
+                Object untypedValue = hoverAnnotation;
+                S typedValue = (S)untypedValue;
+                result.add(new AnnotationEntry<S>(
+                    annotation: typedValue,
+                    localPosition: localPosition
+                ));
+                return true;
+            }
+            return false;
+        }
+    }*/
 
     public class PerformanceOverlayLayer : Layer {
         public PerformanceOverlayLayer(

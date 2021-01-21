@@ -71,7 +71,7 @@ namespace Unity.UIWidgets.rendering {
                         "placed in a parent that does not constrain the main axis."
                     ),
                     new ErrorHint(
-                    "You probably want to put the RenderListBody inside a " +
+                        "You probably want to put the RenderListBody inside a " +
                         "RenderViewport with a matching main axis."
                     )
                 });
@@ -234,7 +234,6 @@ namespace Unity.UIWidgets.rendering {
                 case Axis.vertical:
                     return _getIntrinsicCrossAxis((RenderBox child) => child.getMinIntrinsicWidth(height));
             }
-
             D.assert(false);
             return 0.0f;
         }

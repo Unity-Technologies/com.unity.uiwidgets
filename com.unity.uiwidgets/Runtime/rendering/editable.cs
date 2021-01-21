@@ -83,7 +83,15 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override string ToString() {
-            return $"Point: {point}, Direction: {direction}";
+            switch (direction) {
+                case TextDirection.ltr:
+                    return $"{point}-ltr";
+                case TextDirection.rtl:
+                    return $"{point}-rtl";
+            }
+
+            return $"{point}";
+            
         }
     }
 
@@ -124,7 +132,6 @@ namespace Unity.UIWidgets.rendering {
             bool? enableInteractiveSelection = null,
             EdgeInsets floatingCursorAddedMargin = null,
             TextSelectionDelegate textSelectionDelegate = null)
-            //GlobalKeyEventHandlerDelegate globalKeyEventHandler = null)
         {
             floatingCursorAddedMargin = floatingCursorAddedMargin ?? EdgeInsets.fromLTRB(4, 4, 4, 5);
             
@@ -704,6 +711,97 @@ namespace Unity.UIWidgets.rendering {
             _textLayoutLastMinWidth = null;
         }
 
+        /*void _handleSetSelection(TextSelection selection) {
+            _handleSelectionChange(selection, SelectionChangedCause.keyboard);
+        }
+
+        void _handleMoveCursorForwardByCharacter(bool extentSelection) {
+            int extentOffset = _textPainter.getOffsetAfter(_selection.extentOffset);
+            if (extentOffset == null)
+                return;
+            int baseOffset = !extentSelection ? extentOffset : _selection.baseOffset;
+            _handleSelectionChange(
+            new TextSelection(baseOffset: baseOffset, extentOffset: extentOffset), SelectionChangedCause.keyboard
+            );
+        }
+
+        void _handleMoveCursorBackwardByCharacter(bool extentSelection) {
+            int extentOffset = _textPainter.getOffsetBefore(_selection.extentOffset);
+            if (extentOffset == null)
+                return;
+            int baseOffset = !extentSelection ? extentOffset : _selection.baseOffset;
+            _handleSelectionChange(
+                new TextSelection(baseOffset: baseOffset, extentOffset: extentOffset), SelectionChangedCause.keyboard
+            );
+        }
+
+        void _handleMoveCursorForwardByWord(bool extentSelection) {
+            TextRange currentWord = _textPainter.getWordBoundary(_selection.extent);
+            if (currentWord == null)
+                return;
+            TextRange nextWord = _getNextWord(currentWord.end);
+            if (nextWord == null)
+                return;
+            int baseOffset = extentSelection ? _selection.baseOffset : nextWord.start;
+            _handleSelectionChange(
+                new TextSelection(
+                    baseOffset: baseOffset,
+                    extentOffset: nextWord.start
+                ),
+            SelectionChangedCause.keyboard
+            );
+        }
+
+        void _handleMoveCursorBackwardByWord(bool extentSelection) {
+            TextRange currentWord = _textPainter.getWordBoundary(_selection.extent);
+            if (currentWord == null)
+                return;
+            TextRange previousWord = _getPreviousWord(currentWord.start - 1);
+            if (previousWord == null)
+                return;
+            int baseOffset = extentSelection ?  _selection.baseOffset : previousWord.start;
+            _handleSelectionChange(
+                new TextSelection(
+                    baseOffset: baseOffset,
+                    extentOffset: previousWord.start
+                ),
+            SelectionChangedCause.keyboard
+            );
+        }
+        
+        TextRange _getNextWord(int offset) {
+            while (true) {
+                TextRange range = _textPainter.getWordBoundary(new TextPosition(offset: offset));
+                if (range == null || !range.isValid || range.isCollapsed)
+                    return null;
+                if (!_onlyWhitespace(range))
+                    return range;
+                offset = range.end;
+            }
+        }
+
+        TextRange _getPreviousWord(int offset) {
+            while (offset >= 0) {
+                TextRange range = _textPainter.getWordBoundary(new TextPosition(offset: offset));
+                if (range == null || !range.isValid || range.isCollapsed)
+                    return null;
+                if (!_onlyWhitespace(range))
+                    return range;
+                offset = range.start - 1;
+            }
+            return null;
+        }
+        
+        bool _onlyWhitespace(TextRange range) {
+            for (int i = range.start; i < range.end; i++) {
+                int codeUnit = text.codeUnitAt(i).Value;
+                if (!EditableUtils._isWhitespace(codeUnit)) {
+                    return false;
+                }
+            }
+            return true;
+        }*/ //need?
+        
         public void attach(PipelineOwner owner) {
             _tap = new TapGestureRecognizer(debugOwner: this);
             _tap.onTapDown = _handleTapDown;
@@ -1412,7 +1510,9 @@ namespace Unity.UIWidgets.rendering {
             if (position.offset >= word.end) {
                 return TextSelection.fromPosition(position);
             }
-
+            if (obscureText) {
+                return new TextSelection(baseOffset: 0, extentOffset: _plainText.Length);
+            }
             return new TextSelection(baseOffset: word.start, extentOffset: word.end);
         }
 
@@ -1504,9 +1604,7 @@ namespace Unity.UIWidgets.rendering {
             if (caretHeight != null) {
                 switch (Application.platform) {
                     case RuntimePlatform.IPhonePlayer:
-                    case RuntimePlatform.OSXPlayer:
                         float? heightDiff = caretHeight - caretRect.height;
-                        // Center the caret vertically along the text.
                         caretRect = Rect.fromLTWH(
                             caretRect.left,
                             (caretRect.top + heightDiff / 2).Value,
@@ -1514,13 +1612,7 @@ namespace Unity.UIWidgets.rendering {
                             caretRect.height
                         );
                         break;
-                    case RuntimePlatform.Android:
-                    // case TargetPlatform.fuchsia:[!!!]
-                    case RuntimePlatform.LinuxPlayer:
-                    case RuntimePlatform.WindowsPlayer:
-                        // Override the height to take the full height of the glyph at the TextPosition
-                        // when not on iOS. iOS has special handling that creates a taller caret.
-                        // TODO(garyq): See the TODO for _getCaretPrototype.
+                    default:
                         caretRect = Rect.fromLTWH(
                             caretRect.left,
                             caretRect.top - EditableUtils._kCaretHeightOffset,
@@ -1762,6 +1854,7 @@ namespace Unity.UIWidgets.rendering {
                 context.pushClipRect(needsCompositing, offset, Offset.zero & size, _paintContents);
             }
             else {
+                _paintContents(context, offset);
                 _paintHandleLayers(context, getEndpointsForSelection(selection));
             }
         }

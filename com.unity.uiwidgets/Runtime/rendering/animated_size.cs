@@ -22,10 +22,11 @@ namespace Unity.UIWidgets.rendering {
             AlignmentGeometry alignment = null,
             TextDirection? textDirection = null,
             RenderBox child = null
-        ) : base(child: child, alignment: alignment ?? Alignment.center) {
+        ) : base(child: child, alignment: alignment ?? Alignment.center, textDirection: textDirection) {
+            curve = curve ?? Curves.linear;
             D.assert(vsync != null);
             D.assert(duration != null);
-            curve = curve ?? Curves.linear;
+            D.assert(curve != null);
             _vsync = vsync;
             _controller = new AnimationController(
                 vsync: this.vsync,
@@ -130,7 +131,7 @@ namespace Unity.UIWidgets.rendering {
             }
 
             child.layout(constraints, parentUsesSize: true);
-
+            
             switch (_state) {
                 case RenderAnimatedSizeState.start:
                     _layoutStart();

@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.rendering {
     public interface IListWheelChildManager {
         int? childCount { get; }
         bool childExistsAt(int index);
-        void createChild(int index, RenderBox after);
+        void createChild(int index, RenderBox after = null);
         void removeChild(RenderBox child);
     }
 
@@ -593,7 +593,6 @@ namespace Unity.UIWidgets.rendering {
             PaintingContext context,
             Offset offset,
             RenderBox child,
-            // Matrix4x4 cylindricalTransform,
             Matrix4 cylindricalTransform,
             Offset offsetToCenter,
             Offset untransformedPaintingCoordinates
@@ -609,14 +608,17 @@ namespace Unity.UIWidgets.rendering {
             if (isAfterMagnifierTopLine && isBeforeMagnifierBottomLine) {
                 Rect centerRect = Rect.fromLTWH(
                     0.0f,
-                    magnifierTopLinePosition, size.width, _itemExtent * _magnification);
+                    magnifierTopLinePosition, 
+                    size.width, 
+                    _itemExtent * _magnification);
                 Rect topHalfRect = Rect.fromLTWH(
                     0.0f,
                     0.0f, size.width,
                     magnifierTopLinePosition);
                 Rect bottomHalfRect = Rect.fromLTWH(
                     0.0f,
-                    magnifierBottomLinePosition, size.width,
+                    magnifierBottomLinePosition, 
+                    size.width,
                     magnifierTopLinePosition);
 
                 context.pushClipRect(
@@ -698,6 +700,15 @@ namespace Unity.UIWidgets.rendering {
                 -centerOriginTranslation.dy);
             return result;*/ //[!!!]need?
         }
+        
+        Matrix4 _magnifyTransform() {
+            Matrix4 magnify = Matrix4.identity();
+            magnify.translate(size.width * (-_offAxisFraction + 0.5), size.height / 2);
+            magnify.scale(_magnification, _magnification, _magnification);
+            magnify.translate(-size.width * (-_offAxisFraction + 0.5), -size.height / 2);
+            return magnify;
+        }
+        
         
         public override Rect describeApproximatePaintClip(RenderObject child) {
             if (child != null && _shouldClipAtCurrentOffset()) {

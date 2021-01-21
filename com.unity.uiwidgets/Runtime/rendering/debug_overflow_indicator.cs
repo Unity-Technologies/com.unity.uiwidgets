@@ -72,7 +72,9 @@ namespace UIWidgets.Runtime.rendering {
                 TileMode.repeated
             );
             _labelBackgroundPaint.color = new Color(0xFFFFFFFF);
-            for (int i = 0; i < 4; i++) {
+            _OverflowSide e = new _OverflowSide();
+            var len = Enum.GetNames(e.GetType()).Length;
+            for (int i = 0; i < len; i++) {
                 _indicatorLabel.Add(new TextPainter(textDirection: TextDirection.ltr));
             }
         }
@@ -106,7 +108,7 @@ namespace UIWidgets.Runtime.rendering {
                 );
                 regions.Add(new _OverflowRegionData(
                     rect: markerRect,
-                    label: "LEFT OVERFLOWED BY ${_formatPixels(overflow.left)} PIXELS",
+                    label: $"LEFT OVERFLOWED BY {_formatPixels(overflow.left)} PIXELS",
                     labelOffset: markerRect.centerLeft +
                                  new Offset(_indicatorFontSizePixels + _indicatorLabelPaddingPixels, 0.0f),
                     rotation: Mathf.PI / 2.0f,
@@ -170,19 +172,23 @@ namespace UIWidgets.Runtime.rendering {
         static void _reportOverflow(RenderObject renderObject, RelativeRect overflow, List<DiagnosticsNode> overflowHints) {
             overflowHints = overflowHints ?? new List<DiagnosticsNode>();
             if (overflowHints.isEmpty()) {
-                overflowHints.Add(new ErrorDescription($"The edge of the {renderObject.GetType()} that is " +
-                                                       "overflowing has been marked in the rendering with a yellow and black " +
-                                                       "striped pattern. This is usually caused by the contents being too big " +
-                                                       $"for the {renderObject.GetType()}."));
+                overflowHints.Add(
+                    new ErrorDescription(
+                        $"The edge of the {renderObject.GetType()} that is " +
+                        "overflowing has been marked in the rendering with a yellow and black " +
+                        "striped pattern. This is usually caused by the contents being too big " +
+                        $"for the {renderObject.GetType()}."));
                 
-                overflowHints.Add(new ErrorHint("This is considered an error condition because it indicates that there " +
-                                                "is content that cannot be seen. If the content is legitimately bigger " +
-                                                "than the available space, consider clipping it with a ClipRect widget " +
-                                                $"before putting it in the {renderObject.GetType()}, or using a scrollable " +
-                                                "container, like a ListView."));
+                overflowHints.Add(
+                    new ErrorHint(
+                        "This is considered an error condition because it indicates that there " +
+                        "is content that cannot be seen. If the content is legitimately bigger " +
+                        "than the available space, consider clipping it with a ClipRect widget " +
+                        $"before putting it in the {renderObject.GetType()}, or using a scrollable " +
+                        "container, like a ListView."));
             }
 
-            List<string> overflows = new List<string> { };
+            List<string> overflows = new List<string>();
             if (overflow.left > 0.0f) {
                 overflows.Add($"{_formatPixels(overflow.left)} pixels on the left");
             }
@@ -221,7 +227,7 @@ namespace UIWidgets.Runtime.rendering {
                 }
 
                 yield return DiagnosticsNode.message($"The specific {renderObject.GetType()} in question is: {renderObject.toStringShallow(joiner: "\n  ")}");
-                yield return DiagnosticsNode.message(string.Concat(Enumerable.Repeat("◢◤", 32)));
+                yield return DiagnosticsNode.message(string.Concat(Enumerable.Repeat("◢◤", 32)),allowWrap: false);
             }
 
             UIWidgetsError.reportError(

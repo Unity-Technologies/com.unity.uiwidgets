@@ -23,6 +23,7 @@ namespace Unity.UIWidgets.rendering {
             bool invertColors = false,
             FilterQuality filterQuality = FilterQuality.low
         ) {
+            D.assert(alignment != null);
             _image = image;
             _width = width;
             _height = height;
