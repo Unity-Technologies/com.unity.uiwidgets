@@ -7,7 +7,7 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.material {
     static class InkHighlightUtils {
-        public static readonly TimeSpan _kHighlightFadeDuration = new TimeSpan(0, 0, 0, 0, 200);
+        public static readonly TimeSpan _kDefaultHighlightFadeDuration = new TimeSpan(0, 0, 0, 0, 200);
     }
 
     public class InkHighlight : InteractiveInkFeature {
@@ -15,11 +15,13 @@ namespace Unity.UIWidgets.material {
             MaterialInkController controller = null,
             RenderBox referenceBox = null,
             Color color = null,
+            TextDirection? textDirection = null,
             BoxShape shape = BoxShape.rectangle,
             BorderRadius borderRadius = null,
             ShapeBorder customBorder = null,
             RectCallback rectCallback = null,
-            VoidCallback onRemoved = null) : base(
+            VoidCallback onRemoved = null,
+            TimeSpan? fadeDuration = null) : base(
             controller: controller,
             referenceBox: referenceBox,
             color: color,
@@ -27,13 +29,17 @@ namespace Unity.UIWidgets.material {
             D.assert(color != null);
             D.assert(controller != null);
             D.assert(referenceBox != null);
+            D.assert(textDirection != null);
+
+            fadeDuration = fadeDuration ?? InkHighlightUtils._kDefaultHighlightFadeDuration;
             _shape = shape;
             _borderRadius = borderRadius ?? BorderRadius.zero;
             _customBorder = customBorder;
             _rectCallback = rectCallback;
+            _textDirection = textDirection.Value;
 
             _alphaController = new AnimationController(
-                duration: InkHighlightUtils._kHighlightFadeDuration,
+                duration: fadeDuration,
                 vsync: controller.vsync);
             _alphaController.addListener(controller.markNeedsPaint);
             _alphaController.addStatusListener(_handleAlphaStatusChanged);
@@ -52,6 +58,8 @@ namespace Unity.UIWidgets.material {
         readonly ShapeBorder _customBorder;
 
         readonly RectCallback _rectCallback;
+
+        readonly TextDirection _textDirection;
 
         Animation<int> _alpha;
         AnimationController _alphaController;
@@ -86,7 +94,7 @@ namespace Unity.UIWidgets.material {
         void _paintHighlight(Canvas canvas, Rect rect, Paint paint) {
             canvas.save();
             if (_customBorder != null) {
-                canvas.clipPath(_customBorder.getOuterPath(rect));
+                canvas.clipPath(_customBorder.getOuterPath(rect, textDirection: _textDirection));
             }
 
             switch (_shape) {
