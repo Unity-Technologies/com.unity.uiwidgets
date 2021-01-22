@@ -8,12 +8,12 @@ namespace Unity.UIWidgets.widgets {
             int codePoint,
             string fontFamily = null,
             string fontPackage = null,
-            bool matchTextDirectiom = false
+            bool matchTextDirection = false
         ) {
             this.codePoint = codePoint;
             this.fontFamily = fontFamily;
             this.fontPackage = fontPackage;
-            this.matchTextDirectiom = matchTextDirectiom;
+            this.matchTextDirection = matchTextDirection;
         }
 
         public readonly int codePoint;
@@ -22,7 +22,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly string fontPackage;
 
-        public readonly bool matchTextDirectiom;
+        public readonly bool matchTextDirection;
 
         public bool Equals(IconData other) {
             if (ReferenceEquals(null, other)) {
@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.widgets {
             return codePoint == other.codePoint &&
                    string.Equals(fontFamily, other.fontFamily) && 
                    string.Equals(fontPackage, other.fontPackage) && 
-                matchTextDirectiom == other.matchTextDirectiom;
+                matchTextDirection == other.matchTextDirection;
         }
 
         public override bool Equals(object obj) {
@@ -60,7 +60,7 @@ namespace Unity.UIWidgets.widgets {
                 var hashCode = 
                      (codePoint * 397) ^ (fontFamily != null ? fontFamily.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (fontPackage != null ? fontPackage.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ matchTextDirectiom.GetHashCode();
+                hashCode = (hashCode * 397) ^ matchTextDirection.GetHashCode();
                 return hashCode;
             }
         }
@@ -68,7 +68,6 @@ namespace Unity.UIWidgets.widgets {
         public static bool operator ==(IconData left, IconData right) {
             return Equals(left, right);
         }
-
         public static bool operator !=(IconData left, IconData right) {
             return !Equals(left, right);
         }
