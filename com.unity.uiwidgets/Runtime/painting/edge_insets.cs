@@ -6,8 +6,6 @@ using UnityEngine;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
-
-
     public abstract class EdgeInsetsGeometry {
         internal float _bottom { get; }
         internal float _end { get; }
@@ -251,7 +249,6 @@ namespace Unity.UIWidgets.painting {
         }
 
 
-
         public override string ToString() {
             if (_start == 0.0 && _end == 0.0) {
                 if (_left == 0.0 && _right == 0.0 && _top == 0.0 && _bottom == 0.0)
@@ -287,9 +284,6 @@ namespace Unity.UIWidgets.painting {
         public static bool operator !=(EdgeInsetsGeometry a, EdgeInsetsGeometry b) {
             return !(a == b);
         }
-
-
-
     }
 
     class EdgeInsetsDirectional : EdgeInsetsGeometry {
@@ -337,8 +331,8 @@ namespace Unity.UIWidgets.painting {
             return new EdgeInsetsDirectional(start, top, end, bottom);
         }
 
-        public static EdgeInsetsDirectional only() {
-            return new EdgeInsetsDirectional(0f, 0f, 0f, 0f);
+        public static EdgeInsetsDirectional only(float start = 0, float top = 0, float end = 0, float bottom = 0) {
+            return new EdgeInsetsDirectional(start, top, end, bottom);
         }
 
         static EdgeInsetsDirectional zero = only();
@@ -347,20 +341,23 @@ namespace Unity.UIWidgets.painting {
             get { return start >= 0.0 && top >= 0.0 && end >= 0.0 && bottom >= 0.0; }
         }
 
-        public  EdgeInsetsDirectional flipped {
-            get { return fromSTEB(end, bottom, start, top);}
+        public EdgeInsetsDirectional flipped {
+            get { return fromSTEB(end, bottom, start, top); }
         }
-        public EdgeInsetsGeometry subtract(EdgeInsetsDirectional  other) {
+
+        public EdgeInsetsGeometry subtract(EdgeInsetsDirectional other) {
             if (other is EdgeInsetsDirectional)
-              return this - other;
+                return this - other;
             return base.subtract(other);
-        } 
-        public EdgeInsetsGeometry add(EdgeInsetsDirectional  other) {
+        }
+
+        public EdgeInsetsGeometry add(EdgeInsetsDirectional other) {
             if (other is EdgeInsetsDirectional)
-              return this + other;
+                return this + other;
             return base.add(other);
         }
-        public static EdgeInsetsDirectional  operator -(EdgeInsetsDirectional  a, EdgeInsetsDirectional  b) {
+
+        public static EdgeInsetsDirectional operator -(EdgeInsetsDirectional a, EdgeInsetsDirectional b) {
             return fromSTEB(
                 a.start - b.start,
                 a.top - b.top,
@@ -369,7 +366,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public static EdgeInsetsDirectional  operator +(EdgeInsetsDirectional  a, EdgeInsetsDirectional  b) {
+        public static EdgeInsetsDirectional operator +(EdgeInsetsDirectional a, EdgeInsetsDirectional b) {
             return fromSTEB(
                 a.start + b.start,
                 a.top + b.top,
@@ -378,7 +375,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public static EdgeInsetsDirectional  operator -(EdgeInsetsDirectional  a) {
+        public static EdgeInsetsDirectional operator -(EdgeInsetsDirectional a) {
             return fromSTEB(
                 -a.start,
                 -a.top,
@@ -387,7 +384,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public static EdgeInsetsDirectional  operator *(EdgeInsetsDirectional  a, float b) {
+        public static EdgeInsetsDirectional operator *(EdgeInsetsDirectional a, float b) {
             return fromSTEB(
                 a.start * b,
                 a.top * b,
@@ -396,7 +393,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public static EdgeInsetsDirectional  operator /(EdgeInsetsDirectional  a, float b) {
+        public static EdgeInsetsDirectional operator /(EdgeInsetsDirectional a, float b) {
             return fromSTEB(
                 a.start / b,
                 a.top / b,
@@ -405,7 +402,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public static EdgeInsetsDirectional  operator %(EdgeInsetsDirectional  a, float b) {
+        public static EdgeInsetsDirectional operator %(EdgeInsetsDirectional a, float b) {
             return fromSTEB(
                 a.start % b,
                 a.top % b,
@@ -415,30 +412,31 @@ namespace Unity.UIWidgets.painting {
         }
 
 
-        public static EdgeInsetsDirectional lerp(EdgeInsetsDirectional a, EdgeInsetsDirectional b,float t) {
+        public static EdgeInsetsDirectional lerp(EdgeInsetsDirectional a, EdgeInsetsDirectional b, float t) {
             D.assert(t != null);
             if (a == null && b == null)
-              return null;
+                return null;
             if (a == null)
-              return b * t;
+                return b * t;
             if (b == null)
-              return a * (1.0f - t);
+                return a * (1.0f - t);
             return fromSTEB(
                 Mathf.Lerp(a.start, b.start, t),
                 Mathf.Lerp(a.top, b.top, t),
                 Mathf.Lerp(a.end, b.end, t),
                 Mathf.Lerp(a.bottom, b.bottom, t)
             );
-            
-        } 
+        }
+
         public override EdgeInsets resolve(TextDirection? direction) {
             D.assert(direction != null);
             switch (direction) {
-              case TextDirection.rtl:
-                return EdgeInsets.fromLTRB(end, top, start, bottom);
-              case TextDirection.ltr:
-                return EdgeInsets.fromLTRB(start, top, end, bottom);
+                case TextDirection.rtl:
+                    return EdgeInsets.fromLTRB(end, top, start, bottom);
+                case TextDirection.ltr:
+                    return EdgeInsets.fromLTRB(start, top, end, bottom);
             }
+
             return null;
         }
     }
@@ -456,7 +454,6 @@ namespace Unity.UIWidgets.painting {
         public static _MixedEdgeInsets fromLRSETB(float _left, float _right, float _start, float _end, float _top,
             float _bottom) {
             return new _MixedEdgeInsets(_left, _right, _start, _end, _top, _bottom);
-
         }
 
         public readonly float _left;
@@ -564,7 +561,6 @@ namespace Unity.UIWidgets.painting {
     }
 
 
-
     public class EdgeInsets : EdgeInsetsGeometry {
         EdgeInsets(float left, float top, float right, float bottom) {
             this.left = left;
@@ -584,7 +580,7 @@ namespace Unity.UIWidgets.painting {
             float.PositiveInfinity,
             float.PositiveInfinity
         );
-        
+
         public bool isNonNegative {
             get {
                 return left >= 0.0
@@ -710,7 +706,7 @@ namespace Unity.UIWidgets.painting {
                 bottom.clamp(min._bottom, max._bottom)
             );
         }
-        
+
         public static EdgeInsets operator -(EdgeInsets a, EdgeInsets b) {
             return fromLTRB(
                 a.left - b.left,

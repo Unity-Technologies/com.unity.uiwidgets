@@ -85,7 +85,7 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Color>("color", color, defaultValue: null));
+            properties.add(new ColorProperty("color", color, defaultValue: null));
             properties.add(new DiagnosticsProperty<float?>("elevation", elevation, defaultValue: null));
             properties.add(new DiagnosticsProperty<NotchedShape>("shape", shape, defaultValue: null));
         }

@@ -119,7 +119,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly MaterialBannerThemeData data;
 
-        static MaterialBannerThemeData of(BuildContext context) {
+        public static MaterialBannerThemeData of(BuildContext context) {
             MaterialBannerTheme bannerTheme = context.dependOnInheritedWidgetOfExactType<MaterialBannerTheme>();
             return bannerTheme?.data ?? Theme.of(context).bannerTheme;
         }
