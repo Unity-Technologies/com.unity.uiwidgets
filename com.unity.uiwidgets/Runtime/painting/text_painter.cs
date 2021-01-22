@@ -252,7 +252,7 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        void setPlaceholderDimensions(List<PlaceholderDimensions> value) {
+        public void setPlaceholderDimensions(List<PlaceholderDimensions> value) {
             if (value == null || value.isEmpty() || value.equalsList(_placeholderDimensions)) {
                 return;
             }
@@ -579,5 +579,22 @@ namespace Unity.UIWidgets.painting {
         bool _isUnicodeDirectionality(int? value) {
             return value == 0x200F || value == 0x200E;
         }
+        
+         public int getOffsetAfter(int offset) {
+            int? nextCodeUnit = _text.codeUnitAt(offset);
+            if (nextCodeUnit == null)
+                return 0;
+            // TODO(goderbauer): doesn't handle extended grapheme clusters with more than one Unicode scalar value (https://github.com/flutter/flutter/issues/13404).
+            return _isUtf16Surrogate(nextCodeUnit.Value) ? offset + 2 : offset + 1;
+        }
+         
+         public int getOffsetBefore(int offset) {
+             int? prevCodeUnit = _text.codeUnitAt(offset - 1);
+             if (prevCodeUnit == null)
+                 return 0;
+             // TODO(goderbauer): doesn't handle extended grapheme clusters with more than one Unicode scalar value (https://github.com/flutter/flutter/issues/13404).
+             return _isUtf16Surrogate(prevCodeUnit.Value) ? offset - 2 : offset - 1;
+         }
+        
     }
 }

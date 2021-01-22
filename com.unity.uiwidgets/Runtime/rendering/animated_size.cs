@@ -26,7 +26,6 @@ namespace Unity.UIWidgets.rendering {
             curve = curve ?? Curves.linear;
             D.assert(vsync != null);
             D.assert(duration != null);
-            D.assert(curve != null);
             _vsync = vsync;
             _controller = new AnimationController(
                 vsync: this.vsync,

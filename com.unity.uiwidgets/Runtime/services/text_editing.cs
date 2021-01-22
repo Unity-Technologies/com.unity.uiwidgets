@@ -41,6 +41,10 @@ namespace Unity.UIWidgets.service {
         public TextPosition endPos {
             get { return new TextPosition(offset: end, affinity: affinity); }
         }
+        
+        public TextPosition  extent {
+            get { return new TextPosition(offset: extentOffset, affinity: affinity); }
+        }
 
         public bool Equals(TextSelection other) {
             if (ReferenceEquals(null, other)) {

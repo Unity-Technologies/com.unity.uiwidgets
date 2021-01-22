@@ -711,7 +711,7 @@ namespace Unity.UIWidgets.rendering {
             _textLayoutLastMinWidth = null;
         }
 
-        /*void _handleSetSelection(TextSelection selection) {
+        void _handleSetSelection(TextSelection selection) {
             _handleSelectionChange(selection, SelectionChangedCause.keyboard);
         }
 
@@ -800,8 +800,8 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
             return true;
-        }*/ //need?
-        
+        }
+
         public void attach(PipelineOwner owner) {
             _tap = new TapGestureRecognizer(debugOwner: this);
             _tap.onTapDown = _handleTapDown;
