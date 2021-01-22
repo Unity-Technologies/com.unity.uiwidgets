@@ -10,11 +10,11 @@ namespace Unity.UIWidgets.cupertino {
     public class CupertinoPageScaffold : StatefulWidget {
         /// Creates a layout for pages with a navigation bar at the top.
         public CupertinoPageScaffold(
-            Widget child,
             Key key = null,
             ObstructingPreferredSizeWidget navigationBar = null,
             Color backgroundColor = null,
-            bool resizeToAvoidBottomInset = true
+            bool resizeToAvoidBottomInset = true,
+            Widget child = null
         ) : base(key: key) {
             D.assert(child != null);
             this.child = child;
@@ -38,19 +38,16 @@ namespace Unity.UIWidgets.cupertino {
         public readonly ScrollController _primaryScrollController = new ScrollController();
 
         void _handleStatusBarTap() {
-            // Only act on the scroll controller if it has any attached scroll positions.
             if (_primaryScrollController.hasClients) {
                 _primaryScrollController.animateTo(
                     0.0f,
-                    duration: new TimeSpan(0, 0, 0, 0, 500),
+                    duration: TimeSpan.FromMilliseconds(500),
                     curve: Curves.linearToEaseOut
                 );
             }
         }
 
         public override Widget build(BuildContext context) {
-            //List<Widget> stacked = new List<Widget>();
-
             Widget paddedContent = widget.child;
 
             MediaQueryData existingMediaQuery = MediaQuery.of(context);
@@ -66,10 +63,7 @@ namespace Unity.UIWidgets.cupertino {
                     : existingMediaQuery.viewInsets;
 
                 bool fullObstruction = widget.navigationBar.shouldFullyObstruct(context);
-                    /*widget.navigationBar.fullObstruction == false
-                        ? CupertinoTheme.of(context).barBackgroundColor.alpha == 0xFF
-                        : widget.navigationBar.fullObstruction;*/
-
+                 
                 if (fullObstruction == true) {
                     paddedContent = new MediaQuery(
                         data: existingMediaQuery
@@ -129,7 +123,6 @@ namespace Unity.UIWidgets.cupertino {
                     right: 0.0f,
                     height: existingMediaQuery.padding.top,
                     child: new GestureDetector(
-                        //excludeFromSemantics: true,
                         onTap: _handleStatusBarTap
                     )
                 
@@ -150,8 +143,7 @@ namespace Unity.UIWidgets.cupertino {
     }
 
     public abstract class ObstructingPreferredSizeWidget : PreferredSizeWidget {
-        protected ObstructingPreferredSizeWidget(Key key = null) : base(key: key) {}
-       // public virtual bool? fullObstruction { get; }
+        protected ObstructingPreferredSizeWidget(Key key = null) : base(key: key) {} 
         public abstract bool shouldFullyObstruct(BuildContext context);
     }
 }

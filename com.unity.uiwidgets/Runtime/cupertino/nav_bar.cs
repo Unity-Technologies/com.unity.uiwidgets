@@ -1373,10 +1373,10 @@ namespace Unity.UIWidgets.cupertino {
 
     class _NavigationBarComponentsTransition {
         public _NavigationBarComponentsTransition(
-            Animation<float> animation,
-            _TransitionableNavigationBar bottomNavBar,
-            _TransitionableNavigationBar topNavBar,
-            TextDirection directionality
+            Animation<float> animation = null,
+            _TransitionableNavigationBar bottomNavBar = null,
+            _TransitionableNavigationBar topNavBar = null,
+            TextDirection? directionality = null
         ) {
             this.animation = animation;
             bottomComponents = bottomNavBar.componentsKeys;
@@ -1435,10 +1435,8 @@ namespace Unity.UIWidgets.cupertino {
             GlobalKey key = null,
             RenderBox from = null
         ) {
-            //RenderBox componentBox = (RenderBox) key.currentContext.findRenderObject();
             RenderBox componentBox = key.currentContext.findRenderObject() as RenderBox;
             D.assert(componentBox.attached);
-
             return RelativeRect.fromRect(
                 componentBox.localToGlobal(Offset.zero, ancestor: from) & componentBox.size, transitionBox
             );
@@ -1451,20 +1449,15 @@ namespace Unity.UIWidgets.cupertino {
             RenderBox toNavBarBox = null
         ) {
             RelativeRect fromRect = positionInTransitionBox(fromKey, from: fromNavBarBox);
-
-            //RenderBox fromBox = (RenderBox) fromKey.currentContext.findRenderObject();
-            //RenderBox toBox = (RenderBox) toKey.currentContext.findRenderObject();
             RenderBox fromBox = fromKey.currentContext.findRenderObject() as RenderBox;
             RenderBox toBox = toKey.currentContext.findRenderObject() as RenderBox;
-
-
             Rect toRect =
                 toBox.localToGlobal(
                     Offset.zero,
                     ancestor: toNavBarBox
                 ).translate(
                     0.0f,
-                    -fromBox.size.height / 2 + toBox.size.height / 2
+                    - fromBox.size.height / 2 + toBox.size.height / 2
                 ) & fromBox.size; // Keep the from render object"s size.
 
             if (forwardDirection < 0) {
@@ -1490,10 +1483,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public Widget bottomLeading {
-            
-
-            get {
-                //KeyedSubtree bottomLeading = (KeyedSubtree) bottomComponents.leadingKey.currentWidget;
+            get { 
                 KeyedSubtree bottomLeading = bottomComponents.leadingKey.currentWidget as KeyedSubtree;
                 if (bottomLeading == null) {
                     return null;
@@ -1511,16 +1501,13 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget bottomBackChevron {
             get {
-                //KeyedSubtree bottomBackChevron = (KeyedSubtree) bottomComponents.backChevronKey.currentWidget;
+                
                 KeyedSubtree bottomBackChevron = bottomComponents.backChevronKey.currentWidget as KeyedSubtree;
-
                 if (bottomBackChevron == null) {
                     return null;
                 }
-
                 return Positioned.fromRelativeRect(
-                    rect: positionInTransitionBox(bottomComponents.backChevronKey,
-                        from: bottomNavBarBox),
+                    rect: positionInTransitionBox(bottomComponents.backChevronKey, from: bottomNavBarBox),
                     child: new FadeTransition(
                         opacity: fadeOutBy(0.6f),
                         child: new DefaultTextStyle(
@@ -1534,7 +1521,6 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget bottomBackLabel {
             get {
-                //KeyedSubtree bottomBackLabel = (KeyedSubtree) bottomComponents.backLabelKey.currentWidget;
                 KeyedSubtree bottomBackLabel = bottomComponents.backLabelKey.currentWidget as KeyedSubtree;
 
                 if (bottomBackLabel == null) {
@@ -1568,9 +1554,6 @@ namespace Unity.UIWidgets.cupertino {
 
         public Widget bottomMiddle {
             get {
-                //KeyedSubtree bottomMiddle = (KeyedSubtree) bottomComponents.middleKey.currentWidget;
-                //KeyedSubtree topBackLabel = (KeyedSubtree) topComponents.backLabelKey.currentWidget;
-                //KeyedSubtree topLeading = (KeyedSubtree) topComponents.leadingKey.currentWidget;
                 KeyedSubtree bottomMiddle = bottomComponents.middleKey.currentWidget as KeyedSubtree;
                 KeyedSubtree topBackLabel = topComponents.backLabelKey.currentWidget as KeyedSubtree;
                 KeyedSubtree topLeading = topComponents.leadingKey.currentWidget as KeyedSubtree;
@@ -1590,7 +1573,7 @@ namespace Unity.UIWidgets.cupertino {
                         child: new FadeTransition(
                             opacity: fadeOutBy(bottomHasUserMiddle == true ? 0.4f : 0.7f),
                             child: new Align(
-                                alignment: Alignment.centerLeft,
+                                alignment: AlignmentDirectional.centerStart,
                                 child: new DefaultTextStyleTransition(
                                     style: animation.drive(new TextStyleTween(
                                         begin: bottomTitleTextStyle,
@@ -1641,7 +1624,7 @@ namespace Unity.UIWidgets.cupertino {
                         child: new FadeTransition(
                             opacity: fadeOutBy(0.6f),
                             child: new Align(
-                                alignment: Alignment.centerLeft,
+                                alignment:  AlignmentDirectional.centerStart,
                                 child: new DefaultTextStyleTransition(
                                     style: animation.drive(new TextStyleTween(
                                         begin: bottomLargeTitleTextStyle,
@@ -1657,9 +1640,8 @@ namespace Unity.UIWidgets.cupertino {
                 }
 
                 if (bottomLargeTitle != null && topLeading != null) {
-                    RelativeRect from = positionInTransitionBox(bottomComponents.largeTitleKey,
-                        from: bottomNavBarBox);
-
+                    RelativeRect from = positionInTransitionBox(bottomComponents.largeTitleKey, from: bottomNavBarBox);
+                    
                     RelativeRectTween positionTween = new RelativeRectTween(
                         begin: from,
                         end: from.shift(
@@ -1730,8 +1712,7 @@ namespace Unity.UIWidgets.cupertino {
                     return null;
                 }
 
-                RelativeRect to =
-                    positionInTransitionBox(topComponents.backChevronKey, from: topNavBarBox);
+                RelativeRect to = positionInTransitionBox(topComponents.backChevronKey, from: topNavBarBox);
                 RelativeRect from = to;
 
                 if (bottomBackChevron == null) {
@@ -1774,10 +1755,7 @@ namespace Unity.UIWidgets.cupertino {
 
                 RenderAnimatedOpacity topBackLabelOpacity =
                     (RenderAnimatedOpacity) topComponents.backLabelKey.currentContext?.findAncestorRenderObjectOfType<RenderAnimatedOpacity>();
-                /*ancestorRenderObjectOfType(
-                        new TypeMatcher<RenderAnimatedOpacity>()
-                    );*/
-
+               
                 Animation<float> midClickOpacity = null;
                 if (topBackLabelOpacity != null && topBackLabelOpacity.opacity.value < 1.0f) {
                     midClickOpacity = animation.drive(new FloatTween(
@@ -1897,8 +1875,7 @@ namespace Unity.UIWidgets.cupertino {
                     return null;
                 }
 
-                RelativeRect to =
-                    positionInTransitionBox(topComponents.largeTitleKey, from: topNavBarBox);
+                RelativeRect to = positionInTransitionBox(topComponents.largeTitleKey, from: topNavBarBox);
 
                 RelativeRectTween positionTween = new RelativeRectTween(
                     begin: to.shift(
