@@ -44,6 +44,8 @@ namespace Unity.UIWidgets.cupertino {
         public static readonly IconData reply_all = new IconData(0xf21d, fontFamily: iconFont);
         public static readonly IconData reply_thick_solid = new IconData(0xf21e, fontFamily: iconFont);
         public static readonly IconData share_up = new IconData(0xf220, fontFamily: iconFont);
+        public static readonly IconData shuffle = new IconData(0xf4a9, fontFamily: iconFont);
+        public static readonly IconData shuffle_medium = new IconData(0xf4a8, fontFamily: iconFont);
         public static readonly IconData shuffle_thick = new IconData(0xf221, fontFamily: iconFont);
         public static readonly IconData photo_camera = new IconData(0xf3f5, fontFamily: iconFont);
         public static readonly IconData photo_camera_solid = new IconData(0xf3f6, fontFamily: iconFont);
@@ -138,5 +140,8 @@ namespace Unity.UIWidgets.cupertino {
         public static readonly IconData bell_solid = new IconData(0xf3e2, fontFamily: iconFont);
         public static readonly IconData news = new IconData(0xf471, fontFamily: iconFont);
         public static readonly IconData news_solid = new IconData(0xf472, fontFamily: iconFont);
+        public static readonly IconData brightness = new IconData(0xf4B6, fontFamily: iconFont);
+        public static readonly IconData brightness_solid = new IconData(0xf4B7, fontFamily: iconFont);
+        
     }
 }
