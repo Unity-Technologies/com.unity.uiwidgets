@@ -1733,15 +1733,15 @@ namespace Unity.UIWidgets.widgets {
     public class Align : SingleChildRenderObjectWidget {
         public Align(
             Key key = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             float? widthFactor = null,
             float? heightFactor = null,
             Widget child = null
         ) : base(key, child) {
             D.assert(widthFactor == null || widthFactor >= 0.0);
             D.assert(heightFactor == null || heightFactor >= 0.0);
-
-            this.alignment = alignment ?? Alignment.center;
+            //TODO: update to AlignmentGeometry
+            this.alignment = (Alignment) alignment ?? Alignment.center;
             this.widthFactor = widthFactor;
             this.heightFactor = heightFactor;
         }
