@@ -1243,7 +1243,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        float  maxScrollExtent {
+        public float  maxScrollExtent {
             get { return _maxScrollExtent; }
         }
 

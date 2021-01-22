@@ -703,7 +703,7 @@ namespace Unity.UIWidgets.widgets {
                 scrollOffset += caretEnd - viewportExtent;
             }
             if (_isMultiline) {
-                //scrollOffset = scrollOffset.clamp(0.0f, renderEditable.maxScrollExtent) as float;[!!!]
+                scrollOffset = scrollOffset.clamp(0.0f, renderEditable.maxScrollExtent);
             }
             return scrollOffset;
         }

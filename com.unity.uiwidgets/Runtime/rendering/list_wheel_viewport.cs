@@ -677,7 +677,7 @@ namespace Unity.UIWidgets.rendering {
                     _offset + offsetToCenter
                 );
             };
-            /*PaintingContextCallback opacityPainter = (PaintingContext context2, Offset offset2) =>{
+            PaintingContextCallback opacityPainter = (PaintingContext context2, Offset offset2) =>{
                 context2.pushOpacity(offset2, (overAndUnderCenterOpacity * 255).round(), painter);
             };
 
@@ -698,7 +698,7 @@ namespace Unity.UIWidgets.rendering {
             result.multiply(originalMatrix);
             result.translate(-centerOriginTranslation.dx * (-_offAxisFraction * 2 + 1),
                 -centerOriginTranslation.dy);
-            return result;*/ //[!!!]need?
+            return result;
         }
         
         Matrix4 _magnifyTransform() {

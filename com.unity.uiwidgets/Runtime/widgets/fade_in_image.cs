@@ -320,7 +320,7 @@ namespace Unity.UIWidgets.widgets {
                 ));
                 //_targetOpacityAnimation = animation.drive(list2);[!!!] animation.cs drive
                 if (!widget.isTargetLoaded && _isValid(_placeholderOpacity) && _isValid(_targetOpacity)) {
-                    //controller.value = controller.upperBound;[!!!] animation_controller.cs value set
+                    controller.setValue(controller.upperBound);
                 }
             }
 
@@ -341,7 +341,7 @@ namespace Unity.UIWidgets.widgets {
 
                 return new Stack(
                     fit: StackFit.passthrough,
-                    alignment: Alignment.center,//AlignmentDirectional.center,[!!!]
+                    alignment: AlignmentDirectional.center,
                     textDirection: TextDirection.ltr,
                     children: new List<Widget>() {
                         target,
