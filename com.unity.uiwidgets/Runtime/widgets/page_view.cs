@@ -46,15 +46,17 @@ namespace Unity.UIWidgets.widgets {
 
         public Future animateToPage(
             int page, 
-            TimeSpan? duration = null, 
-            Curve curve = null) {
+            TimeSpan duration, 
+            Curve curve ) {
             _PagePosition position = (_PagePosition) this.position;
             return position.animateTo(
                 position.getPixelsFromPage(page),
-                duration ?? new TimeSpan(0,0,0,0,0),
+                duration,
                 curve
             );
         }
+        
+        
 
         public void jumpToPage(int page) {
             _PagePosition position = (_PagePosition) this.position;
@@ -62,11 +64,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public Future nextPage(
-            TimeSpan? duration = null, Curve curve = null) {
+            TimeSpan duration, Curve curve) {
             return animateToPage(page.round() + 1, duration: duration, curve: curve);
         }
 
-        public Future previousPage(TimeSpan? duration = null, Curve curve = null) {
+        public Future previousPage(TimeSpan duration, Curve curve) {
             return animateToPage(page.round() - 1, duration: duration, curve: curve);
         }
 
@@ -94,8 +96,6 @@ namespace Unity.UIWidgets.widgets {
     public interface IPageMetrics : ScrollMetrics {
         float page { get; }
         float viewportFraction { get; }
-
-       
     }
 
     public class PageMetrics : FixedScrollMetrics, IPageMetrics {
@@ -232,10 +232,14 @@ namespace Unity.UIWidgets.widgets {
         public override bool applyViewportDimension(float viewportDimension) {
             float oldViewportDimensions = this.viewportDimension;
             bool result = base.applyViewportDimension(viewportDimension);
-            float oldPixels = pixels;
-            float page = (oldPixels == null || oldViewportDimensions == 0.0) ? _pageToUseOnStartup : getPageFromPixels(oldPixels, oldViewportDimensions);
+            float? oldPixels = null;
+            if (havePixels) {
+                oldPixels = pixels;
+            }
+            float page = (oldPixels == null || oldViewportDimensions == 0.0f)
+                ? _pageToUseOnStartup
+                : getPageFromPixels(oldPixels.Value, oldViewportDimensions);
             float newPixels = getPixelsFromPage(page);
-
             if (newPixels != oldPixels) {
                 correctPixels(newPixels);
                 return false;

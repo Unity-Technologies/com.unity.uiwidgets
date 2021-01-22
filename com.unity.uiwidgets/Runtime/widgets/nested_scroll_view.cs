@@ -155,7 +155,7 @@ namespace Unity.UIWidgets.widgets {
     class _NestedScrollViewCustomScrollView : CustomScrollView {
         public _NestedScrollViewCustomScrollView(
             Axis scrollDirection, 
-            bool reverse ,
+            bool reverse,
             ScrollPhysics physics,
             ScrollController controller,
             List<Widget> slivers,
@@ -332,11 +332,9 @@ namespace Unity.UIWidgets.widgets {
         ScrollDirection _userScrollDirection = ScrollDirection.idle;
 
         public void updateUserScrollDirection(ScrollDirection value) {
-            D.assert(value != null);
             if (userScrollDirection == value) {
                 return;
             }
-
             _userScrollDirection = value;
             _outerPosition.didUpdateScrollDirection(value);
             foreach (_NestedScrollPosition position in _innerPositions) {
@@ -546,12 +544,12 @@ namespace Unity.UIWidgets.widgets {
 
         public Future animateTo(
             float to,
-            TimeSpan? duration = null,
-            Curve curve = null
+            TimeSpan duration,
+            Curve curve
         ) {
             DrivenScrollActivity outerActivity = _outerPosition.createDrivenScrollActivity(
                 nestOffset(to, _outerPosition),
-                duration ?? new TimeSpan(0,0,0,0),
+                duration,
                 curve
             );
             List<Future> resultFutures = new List<Future> {outerActivity.done};
@@ -560,7 +558,7 @@ namespace Unity.UIWidgets.widgets {
                 (_NestedScrollPosition position) => {
                     DrivenScrollActivity innerActivity = position.createDrivenScrollActivity(
                         nestOffset(to, position),
-                        duration ?? new TimeSpan(0,0,0,0),
+                        duration,
                         curve
                     );
                     resultFutures.Add(innerActivity.done);

@@ -145,8 +145,7 @@ namespace Unity.UIWidgets.widgets {
                     sortedHashes[3] = iterator.GetHashCode();
                 }
                 sortedHashes.Sort();
-                return _hashCode  = (_hashCode * 397) ^ (sortedHashes != null ? sortedHashes.GetHashCode() : 0);
-                //return ((_keys != null ? _keys.GetHashCode() : 0) * 397) ^ _hashCode;
+                return _hashCode  = (_hashCode * 397) ^ (sortedHashes != null ? sortedHashes.GetHashCode() : 0); 
             }
         }
         public static bool operator ==(KeySet<T> left, KeySet<T> right) {

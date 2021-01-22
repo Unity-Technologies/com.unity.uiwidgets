@@ -51,14 +51,13 @@ namespace Unity.UIWidgets.widgets {
                         color: iconColor,
                         fontSize: iconSize,
                         fontFamily: icon.fontFamily
-                        //package: icon.fontPackage
                     )
                 )
             );
 
             var matrix = Matrix4.identity();
             matrix.scale(-1.0f, 1.0f, 1.0f);
-            if (icon.matchTextDirectiom) {
+            if (icon.matchTextDirection) {
                 switch (textDirection) {
                     case TextDirection.rtl:
                         iconWidget = new Transform(
@@ -72,9 +71,6 @@ namespace Unity.UIWidgets.widgets {
                         break;
                 }
             }
-
-            
-
             return new SizedBox(
                 width: iconSize,
                 height: iconSize,
