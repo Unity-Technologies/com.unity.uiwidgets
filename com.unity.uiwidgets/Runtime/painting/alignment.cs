@@ -290,7 +290,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override Alignment resolve(TextDirection? direction) {
-            D.assert(direction != null);
+            direction = direction ?? TextDirection.ltr;
             switch (direction) {
                 case TextDirection.rtl:
                     return new Alignment(_x - _start, _y);
