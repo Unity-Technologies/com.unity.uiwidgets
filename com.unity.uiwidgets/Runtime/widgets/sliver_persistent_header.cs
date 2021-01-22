@@ -17,7 +17,7 @@ namespace Unity.UIWidgets.widgets {
             get { return null; }
         }
 
-        public OverScrollHeaderStretchConfiguration stretchConfiguration {
+        public virtual OverScrollHeaderStretchConfiguration stretchConfiguration {
             get { return null; }
         }
 

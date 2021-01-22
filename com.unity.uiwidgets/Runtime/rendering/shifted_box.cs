@@ -184,7 +184,9 @@ namespace Unity.UIWidgets.rendering {
     public abstract class RenderAligningShiftedBox : RenderShiftedBox {
         protected RenderAligningShiftedBox(
             Alignment alignment = null,
-            RenderBox child = null
+            RenderBox child = null,
+            //TODO : update textdirection
+            TextDirection? textDirection = null
         ) : base(child) {
             _alignment = alignment ?? Alignment.center;
         }
@@ -203,6 +205,20 @@ namespace Unity.UIWidgets.rendering {
         }
 
         Alignment _alignment;
+
+        TextDirection _textDirection;
+
+        public TextDirection textDirection {
+            get { return _textDirection; }
+
+            set {
+                if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                //TODO: complete _markNeedResolution
+                // _markNeedResolution();
+            }
+        }
 
         protected void alignChild() {
             D.assert(child != null);

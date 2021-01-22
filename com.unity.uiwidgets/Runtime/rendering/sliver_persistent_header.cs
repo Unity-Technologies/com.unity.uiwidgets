@@ -11,9 +11,7 @@ using AsyncCallback = Unity.UIWidgets.foundation.AsyncCallback;
 namespace Unity.UIWidgets.rendering {
     
     public class OverScrollHeaderStretchConfiguration {
-        /// Creates an object that specifies how a stretched header may activate an
-        /// [AsyncCallback].
-        OverScrollHeaderStretchConfiguration(
+        public OverScrollHeaderStretchConfiguration(
             float stretchTriggerOffset = 100.0f,
             AsyncCallback onStretchTrigger = null
         ) {
