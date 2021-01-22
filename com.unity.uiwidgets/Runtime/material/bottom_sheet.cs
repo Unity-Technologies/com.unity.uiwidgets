@@ -10,11 +10,23 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.material {
-    public static class BottomSheetUtils {
+    public partial class material_ {
         public static readonly TimeSpan _kBottomSheetDuration = new TimeSpan(0, 0, 0, 0, 200);
         public const float _kMinFlingVelocity = 700.0f;
         public const float _kCloseProgressThreshold = 0.5f;
 
+        public static readonly TimeSpan _bottomSheetEnterDuration = new TimeSpan(0, 0, 0, 0,  250);
+        public static readonly TimeSpan _bottomSheetExitDuration = new TimeSpan(0, 0, 0, 0,  200);
+        public static readonly Curve _modalBottomSheetCurve = material_.decelerateEasing;
+        public const double _minFlingVelocity = 700.0;
+        public const double _closeProgressThreshold = 0.5;
+
+        delegate void BottomSheetDragStartHandler(DragStartDetails details);
+        delegate void BottomSheetDragEndHandler(
+            DragEndDetails details,
+            bool isClosing = false
+        );
+    
         public static Future<T> showModalBottomSheet<T>(
             BuildContext context,
             WidgetBuilder builder
@@ -75,7 +87,7 @@ namespace Unity.UIWidgets.material {
 
         public static AnimationController createAnimationController(TickerProvider vsync) {
             return new AnimationController(
-                duration: BottomSheetUtils._kBottomSheetDuration,
+                duration: material_._kBottomSheetDuration,
                 debugLabel: "BottomSheet",
                 vsync: vsync
             );
@@ -112,7 +124,7 @@ namespace Unity.UIWidgets.material {
                 return;
             }
 
-            if (details.velocity.pixelsPerSecond.dy > BottomSheetUtils._kMinFlingVelocity) {
+            if (details.velocity.pixelsPerSecond.dy > material_._kMinFlingVelocity) {
                 float flingVelocity = -details.velocity.pixelsPerSecond.dy / _childHeight.Value;
                 if (widget.animationController.value > 0.0f) {
                     widget.animationController.fling(velocity: flingVelocity);
@@ -122,7 +134,7 @@ namespace Unity.UIWidgets.material {
                     widget.onClosing();
                 }
             }
-            else if (widget.animationController.value < BottomSheetUtils._kCloseProgressThreshold) {
+            else if (widget.animationController.value < material_._kCloseProgressThreshold) {
                 if (widget.animationController.value > 0.0f) {
                     widget.animationController.fling(velocity: -1.0f);
                 }
@@ -234,7 +246,7 @@ namespace Unity.UIWidgets.material {
         public readonly ThemeData theme;
 
         public override TimeSpan transitionDuration {
-            get { return BottomSheetUtils._kBottomSheetDuration; }
+            get { return material_._kBottomSheetDuration; }
         }
 
         public override bool barrierDismissible {
