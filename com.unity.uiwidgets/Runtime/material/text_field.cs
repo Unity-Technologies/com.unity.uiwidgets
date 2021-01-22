@@ -573,8 +573,9 @@ namespace Unity.UIWidgets.material {
                     autofocus: widget.autofocus,
                     obscureText: widget.obscureText,
                     autocorrect: widget.autocorrect,
-                    smartDashesType: widget.smartDashesType,
-                    smartQuotesType: widget.smartQuotesType,
+                    //TODO: update this
+                    // smartDashesType: widget.smartDashesType,
+                    // smartQuotesType: widget.smartQuotesType,
                     enableSuggestions: widget.enableSuggestions,
                     maxLines: widget.maxLines,
                     minLines: widget.minLines,

@@ -75,7 +75,7 @@ namespace Unity.UIWidgets.widgets {
 
         public virtual TimeSpan transitionDuration { get; }
 
-        public TimeSpan reverseTransitionDuration {
+        public virtual TimeSpan reverseTransitionDuration {
             get { return transitionDuration; }
         }
         public virtual bool opaque { get; }
