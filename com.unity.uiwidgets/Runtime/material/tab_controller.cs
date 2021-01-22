@@ -3,6 +3,7 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace Unity.UIWidgets.material {
     public class TabController : ChangeNotifier {
@@ -17,25 +18,46 @@ namespace Unity.UIWidgets.material {
 
             _index = initialIndex;
             _previousIndex = initialIndex;
-            _animationController = length < 2
-                ? null
-                : new AnimationController(
-                    value: initialIndex,
-                    upperBound: length.Value - 1,
-                    vsync: vsync);
+            _animationController = AnimationController.unbounded(value: initialIndex, vsync: vsync);
+        }
+
+        internal TabController(
+            int index = 0,
+            int previousIndex = 0,
+            AnimationController animationController = null,
+            int? length = null
+        ) {
+            D.assert(length != null);
+            _index = index;
+            _previousIndex = index;
+            this.length = length.Value;
+            _animationController = animationController;
+        }
+
+        internal TabController _copyWith(
+            int? index = null,
+            int? length = null,
+            int? previousIndex = null
+        ) {
+            return new TabController(
+                index: index ?? _index,
+                length: length ?? this.length,
+                animationController: _animationController,
+                previousIndex: previousIndex ?? _previousIndex
+            );
         }
 
         public Animation<float> animation {
-            get { return _animationController?.view ?? Animations.kAlwaysCompleteAnimation; }
+            get { return _animationController?.view; }
         }
 
-        readonly AnimationController _animationController;
+        AnimationController _animationController;
 
         public readonly int length;
 
         void _changeIndex(int value, TimeSpan? duration = null, Curve curve = null) {
             D.assert(value >= 0 && (value < length || length == 0));
-            D.assert(duration == null ? curve == null : true);
+            D.assert(duration != null || curve == null);
             D.assert(_indexIsChangingCount >= 0);
 
             if (value == _index || length < 2) {
@@ -87,9 +109,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public float offset {
-            get { return length > 1 ? _animationController.value - _index : 0.0f; }
+            get { return _animationController.value - _index; }
             set {
-                D.assert(length > 1);
                 D.assert(value >= -1.0f && value <= 1.0f);
                 D.assert(!indexIsChanging);
                 if (value == offset) {
@@ -101,7 +122,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void dispose() {
-            _animationController?.dispose();
+            _animationController = null;
             base.dispose();
         }
     }
@@ -136,6 +157,8 @@ namespace Unity.UIWidgets.material {
             Widget child = null
         ) : base(key: key) {
             D.assert(length != null);
+            D.assert(length >= 0);
+            D.assert(length == 0 || (initialIndex >= 0 && initialIndex < length));
             D.assert(child != null);
             this.length = length;
             this.initialIndex = initialIndex;
@@ -149,8 +172,7 @@ namespace Unity.UIWidgets.material {
         public readonly Widget child;
 
         public static TabController of(BuildContext context) {
-            _TabControllerScope scope =
-                (_TabControllerScope) context.inheritFromWidgetOfExactType(typeof(_TabControllerScope));
+            _TabControllerScope scope = context.dependOnInheritedWidgetOfExactType<_TabControllerScope>();
             return scope?.controller;
         }
 
@@ -182,6 +204,25 @@ namespace Unity.UIWidgets.material {
                 enabled: TickerMode.of(context),
                 child: widget.child
             );
+        }
+
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            var _oldWidget = (DefaultTabController) oldWidget;
+            base.didUpdateWidget(oldWidget);
+            if (_oldWidget.length != widget.length) {
+                int newIndex = 0;
+                int previousIndex = _controller.previousIndex;
+                if (_controller.index >= widget.length) {
+                    newIndex = Mathf.Max(0, widget.length.Value - 1);
+                    previousIndex = _controller.index;
+                }
+
+                _controller = _controller._copyWith(
+                    length: widget.length,
+                    index: newIndex,
+                    previousIndex: previousIndex
+                );
+            }
         }
     }
 }

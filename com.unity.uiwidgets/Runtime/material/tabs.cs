@@ -41,6 +41,7 @@ namespace Unity.UIWidgets.material {
             Key key = null,
             string text = null,
             Widget icon = null,
+            EdgeInsets iconMargin = null,
             Widget child = null
         ) : base(key: key) {
             D.assert(text != null || child != null || icon != null);
@@ -48,6 +49,7 @@ namespace Unity.UIWidgets.material {
             this.text = text;
             this.icon = icon;
             this.child = child;
+            this.iconMargin = iconMargin ?? EdgeInsets.only(bottom: 10.0f);
         }
 
         public readonly string text;
@@ -55,6 +57,8 @@ namespace Unity.UIWidgets.material {
         public readonly Widget child;
 
         public readonly Widget icon;
+
+        public readonly EdgeInsets iconMargin;
 
         Widget _buildLabelText() {
             return child ?? new Text(text, softWrap: false, overflow: TextOverflow.fade);
@@ -82,7 +86,7 @@ namespace Unity.UIWidgets.material {
                     children: new List<Widget> {
                         new Container(
                             child: icon,
-                            margin: EdgeInsets.only(bottom: 10.0f)
+                            margin: iconMargin
                         ),
                         _buildLabelText()
                     }
@@ -143,19 +147,19 @@ namespace Unity.UIWidgets.material {
             ThemeData themeData = Theme.of(context);
             TabBarTheme tabBarTheme = TabBarTheme.of(context);
             Animation<float> animation = (Animation<float>) listenable;
-            
+
             TextStyle defaultStyle = (labelStyle
                                       ?? tabBarTheme.labelStyle
-                                      ?? themeData.primaryTextTheme.body2).copyWith(inherit: true);
+                                      ?? themeData.primaryTextTheme.bodyText1).copyWith(inherit: true);
             TextStyle defaultUnselectedStyle = (unselectedLabelStyle
-                                               ?? tabBarTheme.unselectedLabelStyle
-                                               ?? labelStyle
-                                               ?? themeData.primaryTextTheme.body2).copyWith(inherit: true);
+                                                ?? tabBarTheme.unselectedLabelStyle
+                                                ?? labelStyle
+                                                ?? themeData.primaryTextTheme.bodyText1).copyWith(inherit: true);
             TextStyle textStyle = selected
                 ? TextStyle.lerp(defaultStyle, defaultUnselectedStyle, animation.value)
                 : TextStyle.lerp(defaultUnselectedStyle, defaultStyle, animation.value);
 
-            Color selectedColor = labelColor ?? tabBarTheme.labelColor ?? themeData.primaryTextTheme.body2.color;
+            Color selectedColor = labelColor ?? tabBarTheme.labelColor ?? themeData.primaryTextTheme.bodyText1.color;
             Color unselectedColor = unselectedLabelColor ??
                                     tabBarTheme.unselectedLabelColor ?? selectedColor.withAlpha(0xB2);
             Color color = selected
@@ -379,7 +383,7 @@ namespace Unity.UIWidgets.material {
         }
 
         static bool _tabOffsetsEqual(List<float> a, List<float> b) {
-            if (a?.Count != b?.Count) {
+            if (a == null || b == null || a.Count != b.Count) {
                 return false;
             }
 
@@ -414,6 +418,18 @@ namespace Unity.UIWidgets.material {
             get { return controller.animation; }
         }
 
+        public override void removeStatusListener(AnimationStatusListener listener) {
+            if (parent != null) {
+                base.removeStatusListener(listener);
+            }
+        }
+
+        public override void removeListener(VoidCallback listener) {
+            if (parent != null) {
+                base.removeListener(listener);
+            }
+        }
+
         public override float value {
             get { return TabsUtils._indexChangeProgress(controller); }
         }
@@ -434,6 +450,18 @@ namespace Unity.UIWidgets.material {
 
         public override Animation<float> parent {
             get { return controller.animation; }
+        }
+
+        public override void removeStatusListener(AnimationStatusListener listener) {
+            if (parent != null) {
+                base.removeStatusListener(listener);
+            }
+        }
+
+        public override void removeListener(VoidCallback listener) {
+            if (parent != null) {
+                base.removeListener(listener);
+            }
         }
 
         public override float value {
@@ -571,7 +599,7 @@ namespace Unity.UIWidgets.material {
                 foreach (Widget item in tabs) {
                     if (item is Tab) {
                         Tab tab = (Tab) item;
-                        if (tab.text != null && tab.icon != null) {
+                        if ((tab.text != null || tab.child != null) && tab.icon != null) {
                             return Size.fromHeight(TabsUtils._kTextAndIconTabHeight + indicatorWeight);
                         }
                     }
@@ -628,6 +656,10 @@ namespace Unity.UIWidgets.material {
             }
         }
 
+        bool _controllerIsValid {
+            get { return _controller?.animation != null; }
+        }
+
         void _updateTabController() {
             TabController newController = widget.controller ?? DefaultTabController.of(context);
             D.assert(() => {
@@ -643,21 +675,11 @@ namespace Unity.UIWidgets.material {
 
                 return true;
             });
-            D.assert(() => {
-                if (newController.length != widget.tabs.Count) {
-                    throw new UIWidgetsError(
-                        $"Controller's length property {newController.length} does not match the\n" +
-                        $"number of tab elements {widget.tabs.Count} present in TabBar's tabs property."
-                    );
-                }
-
-                return true;
-            });
             if (newController == _controller) {
                 return;
             }
 
-            if (_controller != null) {
+            if (_controllerIsValid) {
                 _controller.animation.removeListener(_handleTabControllerAnimationTick);
                 _controller.removeListener(_handleTabControllerTick);
             }
@@ -671,7 +693,7 @@ namespace Unity.UIWidgets.material {
         }
 
         void _initIndicatorPainter() {
-            _indicatorPainter = _controller == null
+            _indicatorPainter = (!_controllerIsValid)
                 ? null
                 : new _IndicatorPainter(
                     controller: _controller,
@@ -717,11 +739,12 @@ namespace Unity.UIWidgets.material {
 
         public override void dispose() {
             _indicatorPainter.dispose();
-            if (_controller != null) {
+            if (_controllerIsValid) {
                 _controller.animation.removeListener(_handleTabControllerAnimationTick);
                 _controller.removeListener(_handleTabControllerTick);
             }
 
+            _controller = null;
             base.dispose();
         }
 
@@ -834,7 +857,16 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
+            D.assert(() => {
+                if (_controller.length != widget.tabs.Count) {
+                    throw new UIWidgetsError(
+                        $"Controller's length property {_controller.length} does not match the\n" +
+                        $"number of tab elements {widget.tabs.Count} present in TabBar's tabs property."
+                    );
+                }
 
+                return true;
+            });
             if (_controller.length == 0) {
                 return new Container(
                     height: TabsUtils._kTabHeight + widget.indicatorWeight
@@ -968,8 +1000,13 @@ namespace Unity.UIWidgets.material {
         TabController _controller;
         PageController _pageController;
         List<Widget> _children;
+        List<Widget> _childrenWithKey;
         int? _currentIndex = null;
         int _warpUnderwayCount = 0;
+
+        bool _controllerIsValid {
+            get { return _controller?.animation != null; }
+        }
 
         void _updateTabController() {
             TabController newController = widget.controller ?? DefaultTabController.of(context);
@@ -986,21 +1023,12 @@ namespace Unity.UIWidgets.material {
 
                 return true;
             });
-            D.assert(() => {
-                if (newController.length != widget.children.Count) {
-                    throw new UIWidgetsError(
-                        $"Controller's length property {newController.length} does not match the\n" +
-                        $"number of elements {widget.children.Count} present in TabBarView's children property."
-                    );
-                }
 
-                return true;
-            });
             if (newController == _controller) {
                 return;
             }
 
-            if (_controller != null) {
+            if (_controllerIsValid) {
                 _controller.animation.removeListener(_handleTabControllerAnimationTick);
             }
 
@@ -1013,7 +1041,7 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            _children = widget.children;
+            _updateChildren();
         }
 
         public override void didChangeDependencies() {
@@ -1031,16 +1059,22 @@ namespace Unity.UIWidgets.material {
             }
 
             if (widget.children != _oldWidget.children && _warpUnderwayCount == 0) {
-                _children = widget.children;
+                _updateChildren();
             }
         }
 
         public override void dispose() {
-            if (_controller != null) {
+            if (_controllerIsValid) {
                 _controller.animation.removeListener(_handleTabControllerAnimationTick);
             }
 
+            _controller = null;
             base.dispose();
+        }
+
+        void _updateChildren() {
+            _children = widget.children;
+            _childrenWithKey = KeyedSubtree.ensureUniqueKeysForList(widget.children);
         }
 
         void _handleTabControllerAnimationTick() {
@@ -1071,18 +1105,18 @@ namespace Unity.UIWidgets.material {
             }
 
             D.assert((_currentIndex.Value - previousIndex).abs() > 1);
-            int initialPage = 0;
+            int initialPage = _currentIndex.Value > previousIndex
+                ? _currentIndex.Value - 1
+                : _currentIndex.Value + 1;
+            List<Widget> originalChildren = _childrenWithKey;
+
             setState(() => {
                 _warpUnderwayCount += 1;
-                _children = new List<Widget>(widget.children);
-                if (_currentIndex > previousIndex) {
-                    _children[_currentIndex.Value - 1] = _children[previousIndex];
-                    initialPage = _currentIndex.Value - 1;
-                }
-                else {
-                    _children[_currentIndex.Value + 1] = _children[previousIndex];
-                    initialPage = _currentIndex.Value + 1;
-                }
+
+                _childrenWithKey = new List<Widget>(_childrenWithKey);
+                Widget temp = _childrenWithKey[initialPage];
+                _childrenWithKey[initialPage] = _childrenWithKey[previousIndex];
+                _childrenWithKey[previousIndex] = temp;
             });
 
             _pageController.jumpToPage(initialPage);
@@ -1094,7 +1128,12 @@ namespace Unity.UIWidgets.material {
 
                 setState(() => {
                     _warpUnderwayCount -= 1;
-                    _children = widget.children;
+                    if (widget.children != _children) {
+                        _updateChildren();
+                    }
+                    else {
+                        _childrenWithKey = originalChildren;
+                    }
                 });
 
                 return Future.value();
@@ -1130,6 +1169,17 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
+            D.assert(() => {
+                if (_controller.length != widget.children.Count) {
+                    throw new UIWidgetsError(
+                        $"Controller's length property {_controller.length} does not match the\n" +
+                        $"number of tabs {widget.children.Count} present in TabBar's tabs property."
+                    );
+                }
+
+                return true;
+            });
+
             return new NotificationListener<ScrollNotification>(
                 onNotification: _handleScrollNotification,
                 child: new PageView(
@@ -1138,7 +1188,7 @@ namespace Unity.UIWidgets.material {
                     physics: widget.physics == null
                         ? TabsUtils._kTabBarViewPhysics
                         : TabsUtils._kTabBarViewPhysics.applyTo(widget.physics),
-                    children: _children
+                    children: _childrenWithKey
                 )
             );
         }

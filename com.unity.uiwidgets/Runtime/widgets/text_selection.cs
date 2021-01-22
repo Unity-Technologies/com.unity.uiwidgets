@@ -659,13 +659,13 @@ namespace Unity.UIWidgets.widgets {
             );
         }
     }
-    public abstract class TextSelectionGestureDetectorBuilderDelegate {
+    public interface TextSelectionGestureDetectorBuilderDelegate {
 
-        public GlobalKey<EditableTextState> editableTextKey { get; }
-        public bool forcePressEnabled {
+        GlobalKey<EditableTextState> editableTextKey { get; }
+        bool forcePressEnabled {
             get;
         }
-        public bool selectionEnabled { get; }
+        bool selectionEnabled { get; }
     }
     
     public class TextSelectionGestureDetector : StatefulWidget {
