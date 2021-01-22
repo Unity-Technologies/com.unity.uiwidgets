@@ -434,6 +434,8 @@ namespace Unity.UIWidgets.widgets {
             return Future.value(true).to<bool>();
         }
 
+        public void didChangeAccessibilityFeatures() {}
+
         Route<object> _onUnknownRoute(RouteSettings settings) {
             D.assert(() => {
                 if (widget.onUnknownRoute == null) {

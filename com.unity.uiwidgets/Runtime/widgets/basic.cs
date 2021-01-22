@@ -1418,7 +1418,7 @@ public class Align : SingleChildRenderObjectWidget {
         }
 
         public PointerExitEventListener getHandleExit() {
-            return widget.onExit == null ? (PointerExitEventListener) null : handleExit;
+            return widget.onExit == null ? (PointerExitEventListener) null  : handleExit;
         } 
         public override Widget build(BuildContext context) {
             return new _RawMouseRegion(this);
@@ -1426,12 +1426,12 @@ public class Align : SingleChildRenderObjectWidget {
     }
 
     public class _RawMouseRegion : SingleChildRenderObjectWidget { 
-        public _RawMouseRegion(_MouseRegionState owner) : base(child: owner.widget.child)
-        {
+        public _RawMouseRegion(_MouseRegionState owner) : base(child: owner.widget.child) {
+            this.owner = owner;
         }
 
         public readonly _MouseRegionState owner;
-        public override RenderObject createRenderObject(BuildContext context) { 
+        public override RenderObject createRenderObject(BuildContext context) {
             MouseRegion widget = owner.widget;
             return new RenderMouseRegion(
               onEnter: widget.onEnter,

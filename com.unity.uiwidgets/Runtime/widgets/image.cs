@@ -409,10 +409,10 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _resolveImage() {
-            ScrollAwareImageProvider<object> provider = new ScrollAwareImageProvider<object>(
+            /*ScrollAwareImageProvider<object> provider = new ScrollAwareImageProvider<object>(
                 context: _scrollAwareContext,
                 imageProvider: (ImageProvider<object>)widget.image
-            );
+            );*/
             ImageStream newStream =
                 widget.image.resolve(ImageUtils.createLocalImageConfiguration(
                     context,

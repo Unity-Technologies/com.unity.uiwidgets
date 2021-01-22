@@ -1116,8 +1116,7 @@ namespace Unity.UIWidgets.rendering {
         ColorFilter _colorFilter;
         
         
-        //[!!!]builder.pushColorFilter?
-        /*public override void addToScene(ui.SceneBuilder builder, Offset layerOffset = null ) {
+        public override void addToScene(ui.SceneBuilder builder, Offset layerOffset = null ) {
             D.assert(colorFilter != null);
             engineLayer =  builder.pushColorFilter(
                 colorFilter,
@@ -1125,7 +1124,7 @@ namespace Unity.UIWidgets.rendering {
             );
             addChildrenToScene(builder, layerOffset);
             builder.pop();
-        }*/
+        }
         
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
@@ -1156,8 +1155,7 @@ namespace Unity.UIWidgets.rendering {
 
     ui.ImageFilter _imageFilter;
     
-    //[!!!] builder.pushImageFilter?
-    /*public override void addToScene(ui.SceneBuilder builder,  Offset layerOffset = null) {
+    public override void addToScene(ui.SceneBuilder builder,  Offset layerOffset = null) {
         D.assert(imageFilter != null);
         engineLayer = builder.pushImageFilter(
             imageFilter,
@@ -1165,7 +1163,7 @@ namespace Unity.UIWidgets.rendering {
         );
         addChildrenToScene(builder, layerOffset);
         builder.pop();
-    }*/
+    }
     
     public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
         base.debugFillProperties(properties);
