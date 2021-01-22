@@ -237,10 +237,18 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
+        public List<TextBox> inlinePlaceholderBoxes {
+            get {
+                return _inlinePlaceholderBoxes;
+            }
+        }
+
         List<TextBox> _inlinePlaceholderBoxes;
 
-        List<float> inlinePlaceholderScales {
-            get { return _inlinePlaceholderScales; }
+        public List<float> inlinePlaceholderScales {
+            get {
+                return _inlinePlaceholderScales;
+            }
         }
 
         List<float> _inlinePlaceholderScales;
