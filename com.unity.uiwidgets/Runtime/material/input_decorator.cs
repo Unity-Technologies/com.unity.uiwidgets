@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -119,7 +117,7 @@ namespace Unity.UIWidgets.material {
             D.assert(fillColor != null);
             D.assert(hoverAnimation != null);
             D.assert(hoverColorTween != null);
-            
+
             this.borderAnimation = borderAnimation;
             this.border = border;
             this.gapAnimation = gapAnimation;
@@ -136,8 +134,10 @@ namespace Unity.UIWidgets.material {
         public readonly Color fillColor;
         public readonly ColorTween hoverColorTween;
         public readonly Animation<float> hoverAnimation;
-        
-        Color blendedColor => Color.alphaBlend(hoverColorTween.evaluate(hoverAnimation), fillColor);
+
+        Color blendedColor {
+            get { return Color.alphaBlend(hoverColorTween.evaluate(hoverAnimation), fillColor); }
+        }
 
         public override void paint(Canvas canvas, Size size) {
             InputBorder borderValue = border.evaluate(borderAnimation);
@@ -212,7 +212,7 @@ namespace Unity.UIWidgets.material {
 
     class _BorderContainerState : TickerProviderStateMixin<_BorderContainer> {
         readonly static TimeSpan _kHoverDuration = new TimeSpan(0, 0, 0, 0, 15);
-        
+
         AnimationController _controller;
         AnimationController _hoverColorController;
         Animation<float> _borderAnimation;
@@ -223,10 +223,10 @@ namespace Unity.UIWidgets.material {
         public override void initState() {
             base.initState();
             _hoverColorController = new AnimationController(
-                      duration: _kHoverDuration,
-                  value: widget.isHovering ? 1.0f : 0.0f,
-                  vsync: this
-                      );
+                duration: _kHoverDuration,
+                value: widget.isHovering ? 1.0f : 0.0f,
+                vsync: this
+            );
             _controller = new AnimationController(
                 duration: InputDecoratorConstants._kTransitionDuration,
                 vsync: this
@@ -263,13 +263,16 @@ namespace Unity.UIWidgets.material {
                 _controller.setValue(0.0f);
                 _controller.forward();
             }
+
             if (widget.hoverColor != oldWidget.hoverColor) {
                 _hoverColorTween = new ColorTween(begin: Colors.transparent, end: widget.hoverColor);
             }
+
             if (widget.isHovering != oldWidget.isHovering) {
                 if (widget.isHovering) {
                     _hoverColorController.forward();
-                } else {
+                }
+                else {
                     _hoverColorController.reverse();
                 }
             }
@@ -278,7 +281,8 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             return new CustomPaint(
                 foregroundPainter: new _InputBorderPainter(
-                    repaint: ListenableUtils.merge(new List<Listenable> {_borderAnimation, widget.gap, _hoverColorController}),
+                    repaint: ListenableUtils.merge(new List<Listenable>
+                        {_borderAnimation, widget.gap, _hoverColorController}),
                     borderAnimation: _borderAnimation,
                     border: _border,
                     gapAnimation: widget.gapAnimation,
@@ -617,7 +621,7 @@ namespace Unity.UIWidgets.material {
             return Equals(contentPadding, other.contentPadding) && isCollapsed == other.isCollapsed &&
                    floatingLabelHeight.Equals(other.floatingLabelHeight) &&
                    floatingLabelProgress.Equals(other.floatingLabelProgress) &&
-                   Equals(border, other.border) && Equals(borderGap, other.borderGap) && 
+                   Equals(border, other.border) && Equals(borderGap, other.borderGap) &&
                    Equals(alignLabelWithHint, other.alignLabelWithHint) &&
                    Equals(isDense, other.isDense) && Equals(visualDensity, other.visualDensity) &&
                    Equals(icon, other.icon) && Equals(input, other.input) &&
@@ -668,7 +672,7 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ (helperError != null ? helperError.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (counter != null ? counter.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (container != null ? container.GetHashCode() : 0);
-                
+
                 return hashCode;
             }
         }
@@ -901,6 +905,7 @@ namespace Unity.UIWidgets.material {
                 markNeedsLayout();
             }
         }
+
         TextDirection _textDirection;
 
         public TextBaseline? textBaseline {
@@ -942,6 +947,7 @@ namespace Unity.UIWidgets.material {
                 markNeedsLayout();
             }
         }
+
         TextAlignVertical _textAlignVertical;
 
         public bool isFocused {
@@ -970,7 +976,7 @@ namespace Unity.UIWidgets.material {
         }
 
         bool _expands = false;
-        
+
         bool _isOutlineAligned {
             get { return !decoration.isCollapsed && decoration.border.isOutline; }
         }
@@ -1063,14 +1069,14 @@ namespace Unity.UIWidgets.material {
             D.assert(
                 layoutConstraints.maxWidth < float.PositiveInfinity,
                 () => "An InputDecorator, which is typically created by a TextField, cannot " +
-            "have an unbounded width.\n" +
-            "This happens when the parent widget does not provide a finite width " +
-            "constraint. For example, if the InputDecorator is contained by a Row, " +
-            "then its width must be constrained. An Expanded widget or a SizedBox " +
-            "can be used to constrain the width of the InputDecorator or the " +
-            "TextField that contains it."
-                );
-            
+                      "have an unbounded width.\n" +
+                      "This happens when the parent widget does not provide a finite width " +
+                      "constraint. For example, if the InputDecorator is contained by a Row, " +
+                      "then its width must be constrained. An Expanded widget or a SizedBox " +
+                      "can be used to constrain the width of the InputDecorator or the " +
+                      "TextField that contains it."
+            );
+
             Dictionary<RenderBox, float> boxToBaseline = new Dictionary<RenderBox, float>();
             BoxConstraints boxConstraints = layoutConstraints.loosen();
             if (prefix != null) {
@@ -1094,13 +1100,13 @@ namespace Unity.UIWidgets.material {
             }
 
             float inputWidth = Math.Max(0.0f, constraints.maxWidth - (
-                _boxSize(icon).width
-                + contentPadding.left
-                + _boxSize(prefixIcon).width
-                + _boxSize(prefix).width
-                + _boxSize(suffix).width
-                + _boxSize(suffixIcon).width
-                + contentPadding.right));
+                                                  _boxSize(icon).width
+                                                  + contentPadding.left
+                                                  + _boxSize(prefixIcon).width
+                                                  + _boxSize(prefix).width
+                                                  + _boxSize(suffix).width
+                                                  + _boxSize(suffixIcon).width
+                                                  + contentPadding.right));
             if (label != null) {
                 boxToBaseline[label] = _layoutLineBox(label,
                     boxConstraints.copyWith(maxWidth: inputWidth)
@@ -1201,7 +1207,9 @@ namespace Unity.UIWidgets.material {
                 + contentPadding.bottom
                 + densityOffset.dy
             );
-            float minContainerHeight = decoration.isDense.Value || expands ? 0.0f : Constants.kMinInteractiveDimension + densityOffset.dy;
+            float minContainerHeight = decoration.isDense.Value || expands
+                ? 0.0f
+                : Constants.kMinInteractiveDimension + densityOffset.dy;
             float maxContainerHeight = boxConstraints.maxHeight - bottomHeight + densityOffset.dy;
             float containerHeight = expands
                 ? maxContainerHeight
@@ -1217,23 +1225,23 @@ namespace Unity.UIWidgets.material {
 
             // The baselines that will be used to draw the actual input text content.
             float topInputBaseline = contentPadding.top
-                                  + topHeight
-                                  + inputInternalBaseline
-                                  + baselineAdjustment
-                                  + interactiveAdjustment;
-            
+                                     + topHeight
+                                     + inputInternalBaseline
+                                     + baselineAdjustment
+                                     + interactiveAdjustment;
+
             float maxContentHeight = containerHeight
-                                            - contentPadding.top
-                                            - topHeight
-                                            - contentPadding.bottom;
+                                     - contentPadding.top
+                                     - topHeight
+                                     - contentPadding.bottom;
             float alignableHeight = fixAboveInput + inputHeight + fixBelowInput;
             float maxVerticalOffset = maxContentHeight - alignableHeight;
             float textAlignVerticalOffset = maxVerticalOffset * textAlignVerticalFactor;
             float inputBaseline = topInputBaseline + textAlignVerticalOffset + densityOffset.dy / 2.0f;
-            
+
             float outlineCenterBaseline = inputInternalBaseline
-                                                 + baselineAdjustment / 2.0f
-                                                 + (containerHeight - (2.0f + inputHeight)) / 2.0f;
+                                          + baselineAdjustment / 2.0f
+                                          + (containerHeight - (2.0f + inputHeight)) / 2.0f;
             float outlineTopBaseline = topInputBaseline;
             float outlineBottomBaseline = topInputBaseline + maxVerticalOffset;
             float outlineBaseline = _interpolateThree(
@@ -1285,6 +1293,7 @@ namespace Unity.UIWidgets.material {
                 if (begin >= middle) {
                     return middle;
                 }
+
                 t = textAlignVertical.y + 1;
                 return begin + (middle - begin) * t;
             }
@@ -1292,6 +1301,7 @@ namespace Unity.UIWidgets.material {
             if (middle >= end) {
                 return middle;
             }
+
             t = textAlignVertical.y;
             return middle + (end - middle) * t;
         }
@@ -1635,13 +1645,13 @@ namespace Unity.UIWidgets.material {
                     renderObject.label = child;
                     break;
                 case _DecorationSlot.hint:
-                    renderObject.hint =  child;
+                    renderObject.hint = child;
                     break;
                 case _DecorationSlot.prefix:
                     renderObject.prefix = child;
                     break;
                 case _DecorationSlot.suffix:
-                    renderObject.suffix =  child;
+                    renderObject.suffix = child;
                     break;
                 case _DecorationSlot.prefixIcon:
                     renderObject.prefixIcon = child;
@@ -1843,9 +1853,10 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            
+
             bool labelIsInitiallyFloating = widget.decoration.floatingLabelBehavior == FloatingLabelBehavior.always ||
-                                            (widget.decoration.hasFloatingPlaceholder == true && widget._labelShouldWithdraw);
+                                            (widget.decoration.hasFloatingPlaceholder == true &&
+                                             widget._labelShouldWithdraw);
             _floatingLabelController = new AnimationController(
                 duration: InputDecoratorConstants._kTransitionDuration,
                 vsync: this,
@@ -1879,8 +1890,8 @@ namespace Unity.UIWidgets.material {
         public InputDecoration decoration {
             get {
                 _effectiveDecoration = _effectiveDecoration ?? widget.decoration.applyDefaults(
-                    Theme.of(context).inputDecorationTheme
-                );
+                                           Theme.of(context).inputDecorationTheme
+                                       );
                 return _effectiveDecoration;
             }
         }
@@ -1889,13 +1900,18 @@ namespace Unity.UIWidgets.material {
             get { return widget.textAlign; }
         }
 
-        bool isFocused => widget.isFocused && decoration.enabled == true;
-        
-        bool isHovering => widget.isHovering && decoration.enabled == true;
+        bool isFocused {
+            get { return widget.isFocused && decoration.enabled == true; }
+        }
+
+        bool isHovering {
+            get { return widget.isHovering && decoration.enabled == true; }
+        }
 
         bool _floatingLabelEnabled {
             get {
-                return decoration.hasFloatingPlaceholder == true && decoration.floatingLabelBehavior != FloatingLabelBehavior.never;
+                return decoration.hasFloatingPlaceholder == true &&
+                       decoration.floatingLabelBehavior != FloatingLabelBehavior.never;
             }
         }
 
@@ -1909,12 +1925,15 @@ namespace Unity.UIWidgets.material {
             if (widget.decoration != old.decoration) {
                 _effectiveDecoration = null;
             }
-            
-            bool floatBehaviourChanged = widget.decoration.floatingLabelBehavior != old.decoration.floatingLabelBehavior ||
-                                         widget.decoration.hasFloatingPlaceholder != old.decoration.hasFloatingPlaceholder;          
+
+            bool floatBehaviourChanged =
+                widget.decoration.floatingLabelBehavior != old.decoration.floatingLabelBehavior ||
+                widget.decoration.hasFloatingPlaceholder != old.decoration.hasFloatingPlaceholder;
 
             if (widget._labelShouldWithdraw != old._labelShouldWithdraw || floatBehaviourChanged) {
-                if (_floatingLabelEnabled && (widget._labelShouldWithdraw || widget.decoration.floatingLabelBehavior == FloatingLabelBehavior.always)){
+                if (_floatingLabelEnabled && (widget._labelShouldWithdraw ||
+                                              widget.decoration.floatingLabelBehavior ==
+                                              FloatingLabelBehavior.always)) {
                     _floatingLabelController.forward();
                 }
                 else {
@@ -1943,7 +1962,7 @@ namespace Unity.UIWidgets.material {
 
             return themeData.hintColor;
         }
-        
+
         Color _getDefaultBorderColor(ThemeData themeData) {
             if (isFocused) {
                 switch (themeData.brightness) {
@@ -1953,14 +1972,18 @@ namespace Unity.UIWidgets.material {
                         return themeData.primaryColor;
                 }
             }
+
             if (decoration.filled == true) {
                 return themeData.hintColor;
             }
+
             Color enabledColor = themeData.colorScheme.onSurface.withOpacity(0.38f);
             if (isHovering) {
-                Color hoverColor = decoration.hoverColor ?? themeData.inputDecorationTheme?.hoverColor ?? themeData.hoverColor;
+                Color hoverColor = decoration.hoverColor ??
+                                   themeData.inputDecorationTheme?.hoverColor ?? themeData.hoverColor;
                 return Color.alphaBlend(hoverColor.withOpacity(0.12f), enabledColor);
             }
+
             return enabledColor;
         }
 
@@ -1987,7 +2010,7 @@ namespace Unity.UIWidgets.material {
 
             return lightEnabled;
         }
-        
+
         Color _getHoverColor(ThemeData themeData) {
             if (decoration.filled == null || !decoration.filled.Value || isFocused || decoration.enabled != true) {
                 return Colors.transparent;
@@ -2184,10 +2207,10 @@ namespace Unity.UIWidgets.material {
                     heightFactor: 1.0f,
                     child: new ConstrainedBox(
                         constraints: decoration.prefixIconConstraints ?? themeData.visualDensity.effectiveConstraints(
-                                new BoxConstraints(
-                                        minWidth: Constants.kMinInteractiveDimension,
-                                        minHeight: Constants.kMinInteractiveDimension
-                                )),
+                                         new BoxConstraints(
+                                             minWidth: Constants.kMinInteractiveDimension,
+                                             minHeight: Constants.kMinInteractiveDimension
+                                         )),
                         child: IconTheme.merge(
                             data: new IconThemeData(
                                 color: iconColor,
@@ -2205,10 +2228,10 @@ namespace Unity.UIWidgets.material {
                     heightFactor: 1.0f,
                     child: new ConstrainedBox(
                         constraints: decoration.suffixIconConstraints ?? themeData.visualDensity.effectiveConstraints(
-                                new BoxConstraints(
-                                    minWidth: Constants.kMinInteractiveDimension,
-                                    minHeight: Constants.kMinInteractiveDimension
-                                )),
+                                         new BoxConstraints(
+                                             minWidth: Constants.kMinInteractiveDimension,
+                                             minHeight: Constants.kMinInteractiveDimension
+                                         )),
                         child: IconTheme.merge(
                             data: new IconThemeData(
                                 color: iconColor,
@@ -2253,20 +2276,20 @@ namespace Unity.UIWidgets.material {
                     (4.0f + 0.75f * inlineLabelStyle.fontSize) * MediaQuery.textScaleFactorOf(context);
                 if (decoration.filled == true) {
                     contentPadding = decorationContentPadding ?? (decorationIsDense
-                        ? EdgeInsets.fromLTRB(12.0f, 8.0f, 12.0f, 8.0f)
-                        : EdgeInsets.fromLTRB(12.0f, 12.0f, 12.0f, 12.0f));
+                                         ? EdgeInsets.fromLTRB(12.0f, 8.0f, 12.0f, 8.0f)
+                                         : EdgeInsets.fromLTRB(12.0f, 12.0f, 12.0f, 12.0f));
                 }
                 else {
                     contentPadding = decorationContentPadding ?? (decorationIsDense
-                        ? EdgeInsets.fromLTRB(0.0f, 8.0f, 0.0f, 8.0f)
-                        : EdgeInsets.fromLTRB(0.0f, 12.0f, 0.0f, 12.0f));
+                                         ? EdgeInsets.fromLTRB(0.0f, 8.0f, 0.0f, 8.0f)
+                                         : EdgeInsets.fromLTRB(0.0f, 12.0f, 0.0f, 12.0f));
                 }
             }
             else {
                 floatingLabelHeight = 0.0f;
                 contentPadding = decorationContentPadding ?? (decorationIsDense
-                    ? EdgeInsets.fromLTRB(12.0f, 20.0f, 12.0f, 12.0f)
-                    : EdgeInsets.fromLTRB(12.0f, 24.0f, 12.0f, 16.0f));
+                                     ? EdgeInsets.fromLTRB(12.0f, 20.0f, 12.0f, 12.0f)
+                                     : EdgeInsets.fromLTRB(12.0f, 24.0f, 12.0f, 16.0f));
             }
 
             return new _Decorator(
@@ -2409,7 +2432,7 @@ namespace Unity.UIWidgets.material {
             border = border ?? InputBorder.none;
             D.assert(!(!hasFloatingPlaceholder && floatingLabelBehavior == FloatingLabelBehavior.always),
                 () => "hasFloatingPlaceholder=false conflicts with FloatingLabelBehavior.always");
-            
+
             InputDecoration decoration = new InputDecoration(
                 icon: null,
                 labelText: null,
@@ -2482,7 +2505,7 @@ namespace Unity.UIWidgets.material {
         public readonly int? errorMaxLines;
 
         public readonly bool? hasFloatingPlaceholder;
-        
+
         public readonly FloatingLabelBehavior? floatingLabelBehavior;
 
         public readonly bool? isDense;
@@ -2492,7 +2515,7 @@ namespace Unity.UIWidgets.material {
         public bool isCollapsed;
 
         public readonly Widget prefixIcon;
-        
+
         public readonly BoxConstraints prefixIconConstraints;
 
         public readonly Widget prefix;
@@ -2502,7 +2525,7 @@ namespace Unity.UIWidgets.material {
         public readonly TextStyle prefixStyle;
 
         public readonly Widget suffixIcon;
-        
+
         public readonly BoxConstraints suffixIconConstraints;
 
         public readonly Widget suffix;
@@ -2520,9 +2543,9 @@ namespace Unity.UIWidgets.material {
         public readonly bool? filled;
 
         public readonly Color fillColor;
-        
+
         public readonly Color focusColor;
-        
+
         public readonly Color hoverColor;
 
         public readonly InputBorder errorBorder;
@@ -2590,7 +2613,7 @@ namespace Unity.UIWidgets.material {
                 labelStyle: labelStyle ?? this.labelStyle,
                 helperText: helperText ?? this.helperText,
                 helperStyle: helperStyle ?? this.helperStyle,
-                helperMaxLines : helperMaxLines ?? this.helperMaxLines,
+                helperMaxLines: helperMaxLines ?? this.helperMaxLines,
                 hintText: hintText ?? this.hintText,
                 hintStyle: hintStyle ?? this.hintStyle,
                 hintMaxLines: hintMaxLines ?? this.hintMaxLines,
@@ -2634,7 +2657,7 @@ namespace Unity.UIWidgets.material {
                 labelStyle: labelStyle ?? theme.labelStyle,
                 helperStyle: helperStyle ?? theme.helperStyle,
                 hintStyle: hintStyle ?? theme.hintStyle,
-                helperMaxLines : helperMaxLines ?? theme.helperMaxLines,
+                helperMaxLines: helperMaxLines ?? theme.helperMaxLines,
                 errorStyle: errorStyle ?? theme.errorStyle,
                 errorMaxLines: errorMaxLines ?? theme.errorMaxLines,
                 hasFloatingPlaceholder: hasFloatingPlaceholder ?? theme.hasFloatingPlaceholder,
@@ -2820,7 +2843,7 @@ namespace Unity.UIWidgets.material {
             if (hasFloatingPlaceholder == false) {
                 description.Add($"hasFloatingPlaceholder: false");
             }
-            
+
             if (floatingLabelBehavior != null) {
                 description.Add($"floatingLabelBehavior: {floatingLabelBehavior}");
             }
@@ -2852,7 +2875,7 @@ namespace Unity.UIWidgets.material {
             if (prefixStyle != null) {
                 description.Add($"prefixStyle: ${prefixStyle}");
             }
-            
+
             if (prefixIconConstraints != null) {
                 description.Add($"prefixIconConstraints: ${prefixIconConstraints}");
             }
@@ -2872,7 +2895,7 @@ namespace Unity.UIWidgets.material {
             if (suffixStyle != null) {
                 description.Add($"suffixStyle: ${suffixStyle}");
             }
-            
+
             if (suffixIconConstraints != null) {
                 description.Add($"suffixIconConstraints: ${suffixIconConstraints}");
             }
@@ -2896,11 +2919,11 @@ namespace Unity.UIWidgets.material {
             if (fillColor != null) {
                 description.Add($"fillColor: ${fillColor}");
             }
-            
+
             if (focusColor != null) {
                 description.Add($"focusColor: ${focusColor}");
             }
-            
+
             if (hoverColor != null) {
                 description.Add($"hoverColor: ${hoverColor}");
             }
@@ -2974,7 +2997,7 @@ namespace Unity.UIWidgets.material {
             D.assert(filled != null);
             D.assert(!(hasFloatingPlaceholder != true && floatingLabelBehavior == FloatingLabelBehavior.always),
                 () => "hasFloatingPlaceholder=false conflicts with FloatingLabelBehavior.always");
-            
+
             this.labelStyle = labelStyle;
             this.helperStyle = helperStyle;
             this.helperMaxLines = helperMaxLines;
@@ -3015,7 +3038,7 @@ namespace Unity.UIWidgets.material {
         public readonly int? errorMaxLines;
 
         public readonly bool? hasFloatingPlaceholder;
-        
+
         public readonly FloatingLabelBehavior? floatingLabelBehavior;
 
         public readonly bool? isDense;
@@ -3033,9 +3056,9 @@ namespace Unity.UIWidgets.material {
         public readonly bool? filled;
 
         public readonly Color fillColor;
-        
+
         public readonly Color focusColor;
-        
+
         public readonly Color hoverColor;
 
         public readonly InputBorder errorBorder;
@@ -3051,14 +3074,14 @@ namespace Unity.UIWidgets.material {
         public readonly InputBorder border;
 
         public readonly bool alignLabelWithHint;
-        
+
         InputDecorationTheme copyWith(
             TextStyle labelStyle = null,
             TextStyle helperStyle = null,
             int? helperMaxLines = null,
             TextStyle hintStyle = null,
             TextStyle errorStyle = null,
-            int? errorMaxLines = null, 
+            int? errorMaxLines = null,
             bool? hasFloatingPlaceholder = null,
             FloatingLabelBehavior? floatingLabelBehavior = null,
             bool? isDense = null,
@@ -3078,37 +3101,37 @@ namespace Unity.UIWidgets.material {
             InputBorder enabledBorder = null,
             InputBorder border = null,
             bool? alignLabelWithHint = null
-            ) {
+        ) {
             return new InputDecorationTheme(
-              labelStyle: labelStyle ?? this.labelStyle,
-              helperStyle: helperStyle ?? this.helperStyle,
-              helperMaxLines: helperMaxLines ?? this.helperMaxLines,
-              hintStyle: hintStyle ?? this.hintStyle,
-              errorStyle: errorStyle ?? this.errorStyle,
-              errorMaxLines: errorMaxLines ?? this.errorMaxLines,
-              hasFloatingPlaceholder: hasFloatingPlaceholder ?? this.hasFloatingPlaceholder,
-              floatingLabelBehavior: floatingLabelBehavior ?? this.floatingLabelBehavior,
-              isDense: isDense ?? this.isDense,
-              contentPadding: contentPadding ?? this.contentPadding,
-              isCollapsed: isCollapsed ?? this.isCollapsed,
-              prefixStyle: prefixStyle ?? this.prefixStyle,
-              suffixStyle: suffixStyle ?? this.suffixStyle,
-              counterStyle: counterStyle ?? this.counterStyle,
-              filled: filled ?? this.filled,
-              fillColor: fillColor ?? this.fillColor,
-              focusColor: focusColor ?? this.focusColor,
-              hoverColor: hoverColor ?? this.hoverColor,
-              errorBorder: errorBorder ?? this.errorBorder,
-              focusedBorder: focusedBorder ?? this.focusedBorder,
-              focusedErrorBorder: focusedErrorBorder ?? this.focusedErrorBorder,
-              disabledBorder: disabledBorder ?? this.disabledBorder,
-              enabledBorder: enabledBorder ?? this.enabledBorder,
-              border: border ?? this.border,
-              alignLabelWithHint: alignLabelWithHint ?? this.alignLabelWithHint
+                labelStyle: labelStyle ?? this.labelStyle,
+                helperStyle: helperStyle ?? this.helperStyle,
+                helperMaxLines: helperMaxLines ?? this.helperMaxLines,
+                hintStyle: hintStyle ?? this.hintStyle,
+                errorStyle: errorStyle ?? this.errorStyle,
+                errorMaxLines: errorMaxLines ?? this.errorMaxLines,
+                hasFloatingPlaceholder: hasFloatingPlaceholder ?? this.hasFloatingPlaceholder,
+                floatingLabelBehavior: floatingLabelBehavior ?? this.floatingLabelBehavior,
+                isDense: isDense ?? this.isDense,
+                contentPadding: contentPadding ?? this.contentPadding,
+                isCollapsed: isCollapsed ?? this.isCollapsed,
+                prefixStyle: prefixStyle ?? this.prefixStyle,
+                suffixStyle: suffixStyle ?? this.suffixStyle,
+                counterStyle: counterStyle ?? this.counterStyle,
+                filled: filled ?? this.filled,
+                fillColor: fillColor ?? this.fillColor,
+                focusColor: focusColor ?? this.focusColor,
+                hoverColor: hoverColor ?? this.hoverColor,
+                errorBorder: errorBorder ?? this.errorBorder,
+                focusedBorder: focusedBorder ?? this.focusedBorder,
+                focusedErrorBorder: focusedErrorBorder ?? this.focusedErrorBorder,
+                disabledBorder: disabledBorder ?? this.disabledBorder,
+                enabledBorder: enabledBorder ?? this.enabledBorder,
+                border: border ?? this.border,
+                alignLabelWithHint: alignLabelWithHint ?? this.alignLabelWithHint
             );
         }
-        
-        
+
+
         public static bool operator ==(InputDecorationTheme left, InputDecorationTheme right) {
             return Equals(left, right);
         }
@@ -3202,7 +3225,8 @@ namespace Unity.UIWidgets.material {
                 defaultValue: defaultTheme.labelStyle));
             properties.add(new DiagnosticsProperty<TextStyle>("helperStyle", helperStyle,
                 defaultValue: defaultTheme.helperStyle));
-            properties.add(new IntProperty("helperMaxLines", helperMaxLines, defaultValue: defaultTheme.helperMaxLines));
+            properties.add(new IntProperty("helperMaxLines", helperMaxLines,
+                defaultValue: defaultTheme.helperMaxLines));
             properties.add(new DiagnosticsProperty<TextStyle>("hintStyle", hintStyle,
                 defaultValue: defaultTheme.hintStyle));
             properties.add(new DiagnosticsProperty<TextStyle>("errorStyle", errorStyle,
@@ -3210,7 +3234,8 @@ namespace Unity.UIWidgets.material {
             properties.add(new IntProperty("errorMaxLines", errorMaxLines, defaultValue: defaultTheme.errorMaxLines));
             properties.add(new DiagnosticsProperty<bool?>("hasFloatingPlaceholder", hasFloatingPlaceholder,
                 defaultValue: defaultTheme.hasFloatingPlaceholder));
-            properties.add(new DiagnosticsProperty<FloatingLabelBehavior?>("floatingLabelBehavior", floatingLabelBehavior, defaultValue: defaultTheme.floatingLabelBehavior));
+            properties.add(new DiagnosticsProperty<FloatingLabelBehavior?>("floatingLabelBehavior",
+                floatingLabelBehavior, defaultValue: defaultTheme.floatingLabelBehavior));
             properties.add(new DiagnosticsProperty<bool?>("isDense", isDense, defaultValue: defaultTheme.isDense));
             properties.add(new DiagnosticsProperty<EdgeInsets>("contentPadding", contentPadding,
                 defaultValue: defaultTheme.contentPadding));
@@ -3223,7 +3248,7 @@ namespace Unity.UIWidgets.material {
             properties.add(new DiagnosticsProperty<TextStyle>("counterStyle", counterStyle,
                 defaultValue: defaultTheme.counterStyle));
             properties.add(new DiagnosticsProperty<bool?>("filled", filled, defaultValue: defaultTheme.filled));
-            properties.add(new ColorProperty("fillColor", fillColor, defaultValue: defaultTheme.fillColor)); 
+            properties.add(new ColorProperty("fillColor", fillColor, defaultValue: defaultTheme.fillColor));
             properties.add(new ColorProperty("focusColor", focusColor, defaultValue: defaultTheme.focusColor));
             properties.add(new ColorProperty("hoverColor", hoverColor, defaultValue: defaultTheme.hoverColor));
             properties.add(new DiagnosticsProperty<InputBorder>("errorBorder", errorBorder,

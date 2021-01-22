@@ -55,11 +55,11 @@ namespace Unity.UIWidgets.material {
         public abstract string formatYear(DateTime date);
 
         public abstract string formatCompactDate(DateTime date);
-        
+
         public abstract string formatShortDate(DateTime date);
-        
+
         public abstract string formatShortMonthDay(DateTime date);
-        
+
         public abstract DateTime? parseCompactDate(string inputString);
 
         public abstract string formatMediumDate(DateTime date);
@@ -71,7 +71,7 @@ namespace Unity.UIWidgets.material {
         public abstract List<string> narrowWeekdays { get; }
 
         public abstract int firstDayOfWeekIndex { get; }
-        
+
         public abstract string modalBarrierDismissLabel { get; }
 
         public static MaterialLocalizations of(BuildContext context) {
@@ -114,7 +114,7 @@ namespace Unity.UIWidgets.material {
             "Sun",
         };
 
-        static readonly List<String> _weekdays = new List<string>() {
+        static readonly List<string> _weekdays = new List<string>() {
             "Monday",
             "Tuesday",
             "Wednesday",
@@ -124,7 +124,7 @@ namespace Unity.UIWidgets.material {
             "Sunday",
         };
 
-        static readonly List<String> _narrowWeekdays = new List<string>() {
+        static readonly List<string> _narrowWeekdays = new List<string>() {
             "S",
             "M",
             "T",
@@ -134,7 +134,7 @@ namespace Unity.UIWidgets.material {
             "S",
         };
 
-        static readonly List<String> _shortMonths = new List<string>() {
+        static readonly List<string> _shortMonths = new List<string>() {
             "Jan",
             "Feb",
             "Mar",
@@ -149,7 +149,7 @@ namespace Unity.UIWidgets.material {
             "Dec",
         };
 
-        static readonly List<String> _months = new List<string>() {
+        static readonly List<string> _months = new List<string>() {
             "January",
             "February",
             "March",
@@ -163,17 +163,19 @@ namespace Unity.UIWidgets.material {
             "November",
             "December",
         };
-        
+
         static int _getDaysInMonth(int year, int month) {
             if (month == 2) {
                 bool isLeapYear = (year % 4 == 0) && (year % 100 != 0) ||
-                                        (year % 400 == 0);
+                                  (year % 400 == 0);
                 if (isLeapYear) {
                     return 29;
                 }
+
                 return 28;
             }
-            int[] daysInMonth = new int[] { 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+            int[] daysInMonth = new int[] {31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
             return daysInMonth[month - 1];
         }
 
@@ -214,7 +216,7 @@ namespace Unity.UIWidgets.material {
             string year = date.Year.ToString().PadLeft(4, '0');
             return $"{month}/{day}/{year}";
         }
-        
+
         public override string formatShortDate(DateTime date) {
             string month = _shortMonths[date.Month - 1];
             return $"{month} {date.Day}, {date.Year}";
@@ -262,6 +264,7 @@ namespace Unity.UIWidgets.material {
             if (!success || day < 1 || day > _getDaysInMonth(year, month)) {
                 return null;
             }
+
             return new DateTime(year, month, day);
         }
 
@@ -280,6 +283,7 @@ namespace Unity.UIWidgets.material {
                 case DayPeriod.pm:
                     return postMeridiemAbbreviation;
             }
+
             return null;
         }
 
@@ -297,6 +301,7 @@ namespace Unity.UIWidgets.material {
                     result.Append(',');
                 }
             }
+
             return result.ToString();
         }
 
@@ -440,7 +445,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string modalBarrierDismissLabel {
-            get { return "Dismiss";  }
+            get { return "Dismiss"; }
         }
 
         public override ScriptCategory scriptCategory {

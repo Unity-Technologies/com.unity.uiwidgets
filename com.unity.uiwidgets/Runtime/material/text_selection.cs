@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -18,21 +16,22 @@ namespace Unity.UIWidgets.material {
     public static class MaterialUtils {
         public static readonly TextSelectionControls materialTextSelectionControls =
             new _MaterialTextSelectionControls();
-        
+
         internal const float _kHandleSize = 22.0f;
-        
+
         internal const float _kToolbarScreenPadding = 8.0f;
-        
+
         internal const float _kToolbarHeight = 44.0f;
-        
+
         internal const float _kToolbarContentDistanceBelow = _kHandleSize - 2.0f;
-        
-        internal const float _kToolbarContentDistance = 8.0f; 
+
+        internal const float _kToolbarContentDistance = 8.0f;
     }
-    
+
     public class _TextSelectionToolbar : StatefulWidget {
         public _TextSelectionToolbar(Key key = null, VoidCallback handleCut = null,
-            VoidCallback handleCopy = null, VoidCallback handlePaste = null, VoidCallback handleSelectAll = null, bool isAbove = false) : base(key: key) {
+            VoidCallback handleCopy = null, VoidCallback handlePaste = null, VoidCallback handleSelectAll = null,
+            bool isAbove = false) : base(key: key) {
             this.handleCut = handleCut;
             this.handleCopy = handleCopy;
             this.handlePaste = handlePaste;
@@ -53,10 +52,10 @@ namespace Unity.UIWidgets.material {
 
     public class _TextSelectionToolbarState : TickerProviderStateMixin<_TextSelectionToolbar> {
         bool _overflowOpen = false;
-        
+
         UniqueKey _containerKey = new UniqueKey();
-        
-        FlatButton _getItem(VoidCallback onPressed, String label) {
+
+        FlatButton _getItem(VoidCallback onPressed, string label) {
             D.assert(onPressed != null);
             return new FlatButton(
                 child: new Text(label),
@@ -65,7 +64,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
-            var _oldWidget = (_TextSelectionToolbar)oldWidget;
+            var _oldWidget = (_TextSelectionToolbar) oldWidget;
             if (((widget.handleCut == null) != (_oldWidget.handleCut == null))
                 || ((widget.handleCopy == null) != (_oldWidget.handleCopy == null))
                 || ((widget.handlePaste == null) != (_oldWidget.handlePaste == null))
@@ -73,9 +72,10 @@ namespace Unity.UIWidgets.material {
                 _containerKey = new UniqueKey();
                 _overflowOpen = false;
             }
+
             base.didUpdateWidget(oldWidget);
         }
-        
+
         public override Widget build(BuildContext context) {
             MaterialLocalizations localizations = MaterialLocalizations.of(context);
             List<Widget> items = new List<Widget>();
@@ -83,30 +83,29 @@ namespace Unity.UIWidgets.material {
             if (widget.handleCut != null) {
                 items.Add(_getItem(widget.handleCut, localizations.cutButtonLabel));
             }
+
             if (widget.handleCopy != null) {
                 items.Add(_getItem(widget.handleCopy, localizations.copyButtonLabel));
             }
+
             if (widget.handlePaste != null) {
                 items.Add(_getItem(widget.handlePaste, localizations.pasteButtonLabel));
             }
+
             if (widget.handleSelectAll != null) {
                 items.Add(_getItem(widget.handleSelectAll, localizations.selectAllButtonLabel));
             }
-            
+
             if (items.isEmpty()) {
                 return new Container(width: 0.0f, height: 0.0f);
             }
-            
+
             items.Insert(0, new IconButton(
-                icon: new Icon(_overflowOpen ? Icons.arrow_back : Icons.more_vert),
-                onPressed: () => {
-                setState(() => {
-                _overflowOpen = !_overflowOpen; 
-                });
-            },
-            tooltip: _overflowOpen
-                    ? localizations.backButtonTooltip
-                    : localizations.moreButtonTooltip
+                    icon: new Icon(_overflowOpen ? Icons.arrow_back : Icons.more_vert),
+                    onPressed: () => { setState(() => { _overflowOpen = !_overflowOpen; }); },
+                    tooltip: _overflowOpen
+                        ? localizations.backButtonTooltip
+                        : localizations.moreButtonTooltip
                 )
             );
 
@@ -133,11 +132,11 @@ namespace Unity.UIWidgets.material {
             Key key = null,
             Widget child = null,
             bool overflowOpen = false
-            ) : base(key: key, child: child) {
+        ) : base(key: key, child: child) {
             D.assert(child != null);
             this.overflowOpen = overflowOpen;
         }
-        
+
         public readonly bool overflowOpen;
 
         public override RenderObject createRenderObject(BuildContext context) {
@@ -153,10 +152,10 @@ namespace Unity.UIWidgets.material {
     class _TextSelectionToolbarContainerRenderBox : RenderProxyBox {
         public _TextSelectionToolbarContainerRenderBox(
             bool overflowOpen = false
-            ) : base() {
+        ) : base() {
             _overflowOpen = overflowOpen;
         }
-        
+
         float? _closedWidth;
 
         public bool overflowOpen {
@@ -170,18 +169,19 @@ namespace Unity.UIWidgets.material {
                 markNeedsLayout();
             }
         }
+
         bool _overflowOpen;
 
         protected override void performLayout() {
             child.layout(constraints.loosen(), parentUsesSize: true);
-            
+
             if (!overflowOpen && _closedWidth == null) {
                 _closedWidth = child.size.width;
             }
 
             size = constraints.constrain(new Size(
                 (_closedWidth == null || child.size.width > _closedWidth) ? child.size.width : _closedWidth.Value,
-                 child.size.height
+                child.size.height
             ));
 
             _ToolbarParentData childParentData = child.parentData as _ToolbarParentData;
@@ -202,9 +202,9 @@ namespace Unity.UIWidgets.material {
                 offset: childParentData.offset,
                 position: position,
                 hitTest: (BoxHitTestResult boxResult, Offset boxTransformed) => {
-                D.assert(boxTransformed == position - childParentData.offset);
-                return child.hitTest(boxResult, position: boxTransformed);
-            }
+                    D.assert(boxTransformed == position - childParentData.offset);
+                    return child.hitTest(boxResult, position: boxTransformed);
+                }
             );
         }
 
@@ -231,7 +231,7 @@ namespace Unity.UIWidgets.material {
             this.isAbove = isAbove;
             this.overflowOpen = overflowOpen;
         }
-        
+
         public readonly bool isAbove;
         public readonly bool overflowOpen;
 
@@ -248,26 +248,31 @@ namespace Unity.UIWidgets.material {
             _renderObject.overflowOpen = overflowOpen;
         }
 
-        public override Element createElement() => new _TextSelectionToolbarItemsElement(this);
+        public override Element createElement() {
+            return new _TextSelectionToolbarItemsElement(this);
+        }
     }
-    
+
     class _ToolbarParentData : ContainerBoxParentData<RenderBox> {
         public bool shouldPaint;
 
-        public override string ToString() => $"{base.ToString()}; shouldPaint={shouldPaint}";
+        public override string ToString() {
+            return $"{base.ToString()}; shouldPaint={shouldPaint}";
+        }
     }
 
     class _TextSelectionToolbarItemsElement : MultiChildRenderObjectElement {
         public _TextSelectionToolbarItemsElement(
-            MultiChildRenderObjectWidget widget) : 
+            MultiChildRenderObjectWidget widget) :
             base(widget: widget) {
         }
+
         static bool _shouldPaint(Element child) {
             return (child.renderObject.parentData as _ToolbarParentData).shouldPaint;
         }
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            foreach(var child in children.Where(_shouldPaint)) {
+            foreach (var child in children.Where(_shouldPaint)) {
                 visitor(child);
             }
         }
@@ -277,11 +282,11 @@ namespace Unity.UIWidgets.material {
         public _TextSelectionToolbarItemsRenderBox(
             bool isAbove = false,
             bool overflowOpen = false
-            ) : base() {
+        ) : base() {
             _isAbove = isAbove;
             _overflowOpen = overflowOpen;
         }
-        
+
         int _lastIndexThatFits = -1;
 
         public bool isAbove {
@@ -295,6 +300,7 @@ namespace Unity.UIWidgets.material {
                 markNeedsLayout();
             }
         }
+
         bool _isAbove;
 
         public bool overflowOpen {
@@ -308,8 +314,9 @@ namespace Unity.UIWidgets.material {
                 markNeedsLayout();
             }
         }
+
         bool _overflowOpen;
-        
+
         void _layoutChildren() {
             BoxConstraints sizedConstraints = _overflowOpen
                 ? constraints
@@ -322,7 +329,7 @@ namespace Unity.UIWidgets.material {
             float width = 0.0f;
             visitChildren((RenderObject renderObjectChild) => {
                 i++;
-                
+
                 if (_lastIndexThatFits != -1 && !overflowOpen) {
                     return;
                 }
@@ -335,7 +342,7 @@ namespace Unity.UIWidgets.material {
                     _lastIndexThatFits = i - 1;
                 }
             });
-            
+
             RenderBox navButton = firstChild;
             if (_lastIndexThatFits != -1
                 && _lastIndexThatFits == childCount - 2
@@ -343,80 +350,83 @@ namespace Unity.UIWidgets.material {
                 _lastIndexThatFits = -1;
             }
         }
-        
+
         bool _shouldPaintChild(RenderObject renderObjectChild, int index) {
             if (renderObjectChild == firstChild) {
                 return _lastIndexThatFits != -1;
             }
-            
+
             if (_lastIndexThatFits == -1) {
                 return true;
             }
 
             return (index > _lastIndexThatFits) == overflowOpen;
         }
-        
+
         void _placeChildren() {
-    int i = -1;
-    Size nextSize = new Size(0.0f, 0.0f);
-    float fitWidth = 0.0f;
-    RenderBox navButton = firstChild;
-    float overflowHeight = overflowOpen && !isAbove ? navButton.size.height : 0.0f;
-    visitChildren((RenderObject renderObjectChild) => {
-      i++;
+            int i = -1;
+            Size nextSize = new Size(0.0f, 0.0f);
+            float fitWidth = 0.0f;
+            RenderBox navButton = firstChild;
+            float overflowHeight = overflowOpen && !isAbove ? navButton.size.height : 0.0f;
+            visitChildren((RenderObject renderObjectChild) => {
+                i++;
 
-      RenderBox child = renderObjectChild as RenderBox;
-      _ToolbarParentData childParentData = child.parentData as _ToolbarParentData;
+                RenderBox child = renderObjectChild as RenderBox;
+                _ToolbarParentData childParentData = child.parentData as _ToolbarParentData;
 
-      if (renderObjectChild == navButton) {
-        return;
-      }
-      
-      if (!_shouldPaintChild(renderObjectChild, i)) {
-        childParentData.shouldPaint = false;
-        return;
-      }
-      
-      childParentData.shouldPaint = true;
+                if (renderObjectChild == navButton) {
+                    return;
+                }
 
-      if (!overflowOpen) {
-        childParentData.offset = new Offset(fitWidth, 0.0f);
-        fitWidth += child.size.width;
-        nextSize = new Size(
-          fitWidth,
-          Mathf.Max(child.size.height, nextSize.height)
-        );
-      } else {
-        childParentData.offset = new Offset(0.0f, overflowHeight);
-        overflowHeight += child.size.height;
-        nextSize = new Size(
-          Mathf.Max(child.size.width, nextSize.width),
-          overflowHeight
-        );
-      }
-    });
-    
-    _ToolbarParentData navButtonParentData = navButton.parentData as _ToolbarParentData;
-    if (_shouldPaintChild(firstChild, 0)) {
-      navButtonParentData.shouldPaint = true;
-      if (overflowOpen) {
-        navButtonParentData.offset = isAbove
-          ? new Offset(0.0f, overflowHeight)
-          : Offset.zero;
-        nextSize = new Size(
-          nextSize.width,
-          isAbove ? nextSize.height + navButton.size.height : nextSize.height
-        );
-      } else {
-        navButtonParentData.offset = new Offset(fitWidth, 0.0f);
-        nextSize = new Size(nextSize.width + navButton.size.width, nextSize.height);
-      }
-    } else {
-      navButtonParentData.shouldPaint = false;
-    }
+                if (!_shouldPaintChild(renderObjectChild, i)) {
+                    childParentData.shouldPaint = false;
+                    return;
+                }
 
-    size = nextSize;
-  }
+                childParentData.shouldPaint = true;
+
+                if (!overflowOpen) {
+                    childParentData.offset = new Offset(fitWidth, 0.0f);
+                    fitWidth += child.size.width;
+                    nextSize = new Size(
+                        fitWidth,
+                        Mathf.Max(child.size.height, nextSize.height)
+                    );
+                }
+                else {
+                    childParentData.offset = new Offset(0.0f, overflowHeight);
+                    overflowHeight += child.size.height;
+                    nextSize = new Size(
+                        Mathf.Max(child.size.width, nextSize.width),
+                        overflowHeight
+                    );
+                }
+            });
+
+            _ToolbarParentData navButtonParentData = navButton.parentData as _ToolbarParentData;
+            if (_shouldPaintChild(firstChild, 0)) {
+                navButtonParentData.shouldPaint = true;
+                if (overflowOpen) {
+                    navButtonParentData.offset = isAbove
+                        ? new Offset(0.0f, overflowHeight)
+                        : Offset.zero;
+                    nextSize = new Size(
+                        nextSize.width,
+                        isAbove ? nextSize.height + navButton.size.height : nextSize.height
+                    );
+                }
+                else {
+                    navButtonParentData.offset = new Offset(fitWidth, 0.0f);
+                    nextSize = new Size(nextSize.width + navButton.size.width, nextSize.height);
+                }
+            }
+            else {
+                navButtonParentData.shouldPaint = false;
+            }
+
+            size = nextSize;
+        }
 
         protected override void performLayout() {
             _lastIndexThatFits = -1;
@@ -451,7 +461,7 @@ namespace Unity.UIWidgets.material {
             RenderBox child = lastChild;
             while (child != null) {
                 _ToolbarParentData childParentData = child.parentData as _ToolbarParentData;
-                
+
                 if (!childParentData.shouldPaint) {
                     child = childParentData.previousSibling;
                     continue;
@@ -461,15 +471,17 @@ namespace Unity.UIWidgets.material {
                     offset: childParentData.offset,
                     position: position,
                     hitTest: (BoxHitTestResult boxResult, Offset boxTransformed) => {
-                    D.assert(boxTransformed == position - childParentData.offset);
-                    return child.hitTest(boxResult, position: boxTransformed);
-                }
+                        D.assert(boxTransformed == position - childParentData.offset);
+                        return child.hitTest(boxResult, position: boxTransformed);
+                    }
                 );
                 if (isHit) {
                     return true;
                 }
+
                 child = childParentData.previousSibling;
             }
+
             return false;
         }
     }
@@ -489,9 +501,11 @@ namespace Unity.UIWidgets.material {
             if (position - width / 2.0f < min) {
                 return min;
             }
+
             if (position + width / 2.0f > max) {
                 return max - width;
             }
+
             return position - width / 2.0f;
         }
 
@@ -543,7 +557,9 @@ namespace Unity.UIWidgets.material {
     }
 
     class _MaterialTextSelectionControls : TextSelectionControls {
-        public static readonly TextSelectionControls materialTextSelectionControls = new _MaterialTextSelectionControls();
+        public static readonly TextSelectionControls materialTextSelectionControls =
+            new _MaterialTextSelectionControls();
+
         public override Size getHandleSize(float textLineHeight) {
             return new Size(MaterialUtils._kHandleSize,
                 MaterialUtils._kHandleSize);
@@ -560,45 +576,55 @@ namespace Unity.UIWidgets.material {
             Offset selectionMidpoint, List<TextSelectionPoint> endpoints, TextSelectionDelegate selectionDelegate) {
             D.assert(WidgetsD.debugCheckHasMediaQuery(context));
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
-            
+
             TextSelectionPoint startTextSelectionPoint = endpoints[0];
             TextSelectionPoint endTextSelectionPoint = endpoints.Count > 1
                 ? endpoints[1]
                 : endpoints[0];
             const float closedToolbarHeightNeeded = MaterialUtils._kToolbarScreenPadding
-                                                     + MaterialUtils._kToolbarHeight
-                                                     + MaterialUtils._kToolbarContentDistance;
+                                                    + MaterialUtils._kToolbarHeight
+                                                    + MaterialUtils._kToolbarContentDistance;
             float paddingTop = MediaQuery.of(context).padding.top;
             float availableHeight = globalEditableRegion.top
-                                           + startTextSelectionPoint.point.dy
-                                           - textLineHeight
-                                           - paddingTop;
+                                    + startTextSelectionPoint.point.dy
+                                    - textLineHeight
+                                    - paddingTop;
             bool fitsAbove = closedToolbarHeightNeeded <= availableHeight;
             Offset anchor = new Offset(
                 globalEditableRegion.left + selectionMidpoint.dx,
                 fitsAbove
-                    ? globalEditableRegion.top + startTextSelectionPoint.point.dy - textLineHeight - MaterialUtils._kToolbarContentDistance
-                    : globalEditableRegion.top + endTextSelectionPoint.point.dy + MaterialUtils._kToolbarContentDistanceBelow
+                    ? globalEditableRegion.top + startTextSelectionPoint.point.dy - textLineHeight -
+                      MaterialUtils._kToolbarContentDistance
+                    : globalEditableRegion.top + endTextSelectionPoint.point.dy +
+                      MaterialUtils._kToolbarContentDistanceBelow
             );
-            
+
             return new Stack(
-                       children: new List<Widget>(){
-            new CustomSingleChildLayout(
-                layoutDelegate: new _TextSelectionToolbarLayout(
-                anchor,
-                MaterialUtils._kToolbarScreenPadding + paddingTop,
-                fitsAbove
-            ),
-            child: new _TextSelectionToolbar(
-                    handleCut: canCut(selectionDelegate) ? () => handleCut(selectionDelegate) : (VoidCallback)null,
-                    handleCopy: canCopy(selectionDelegate) ? () => handleCopy(selectionDelegate) : (VoidCallback)null,
-                    handlePaste: canPaste(selectionDelegate) ? () => handlePaste(selectionDelegate) : (VoidCallback)null,
-                    handleSelectAll: canSelectAll(selectionDelegate) ? () => handleSelectAll(selectionDelegate) : (VoidCallback)null,
-                    isAbove: fitsAbove
-                )
-                ),
+                children: new List<Widget>() {
+                    new CustomSingleChildLayout(
+                        layoutDelegate: new _TextSelectionToolbarLayout(
+                            anchor,
+                            MaterialUtils._kToolbarScreenPadding + paddingTop,
+                            fitsAbove
+                        ),
+                        child: new _TextSelectionToolbar(
+                            handleCut: canCut(selectionDelegate)
+                                ? () => handleCut(selectionDelegate)
+                                : (VoidCallback) null,
+                            handleCopy: canCopy(selectionDelegate)
+                                ? () => handleCopy(selectionDelegate)
+                                : (VoidCallback) null,
+                            handlePaste: canPaste(selectionDelegate)
+                                ? () => handlePaste(selectionDelegate)
+                                : (VoidCallback) null,
+                            handleSelectAll: canSelectAll(selectionDelegate)
+                                ? () => handleSelectAll(selectionDelegate)
+                                : (VoidCallback) null,
+                            isAbove: fitsAbove
+                        )
+                    ),
                 }
-                );
+            );
         }
 
         public override Widget buildHandle(BuildContext context, TextSelectionHandleType type, float textLineHeight) {
@@ -611,7 +637,7 @@ namespace Unity.UIWidgets.material {
                     )
                 )
             );
-            
+
             switch (type) {
                 case TextSelectionHandleType.left: // points up-right
                     return new Transform(
@@ -640,7 +666,7 @@ namespace Unity.UIWidgets.material {
                     return new Offset(MaterialUtils._kHandleSize / 2, -4);
             }
         }
-        
+
         new bool canSelectAll(TextSelectionDelegate selectionDelegate) {
             TextEditingValue value = selectionDelegate.textEditingValue;
             return selectionDelegate.selectAllEnabled &&

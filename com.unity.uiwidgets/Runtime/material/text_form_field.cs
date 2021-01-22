@@ -67,13 +67,15 @@ namespace UIWidgets.Runtime.material {
                 _TextFormFieldState state = (_TextFormFieldState) field;
                 InputDecoration effectiveDecoration = (decoration ?? new InputDecoration())
                     .applyDefaults(Theme.of(field.context).inputDecorationTheme);
+
                 void onChangedHandler(string value) {
                     if (onChanged != null) {
                         onChanged(value);
                     }
+
                     field.didChange(value);
                 }
-                
+
                 return new TextField(
                     controller: state._effectiveController,
                     focusNode: focusNode,
@@ -92,8 +94,10 @@ namespace UIWidgets.Runtime.material {
                     showCursor: showCursor,
                     obscureText: obscureText,
                     autocorrect: autocorrect,
-                    smartDashesType: smartDashesType ?? (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
-                    smartQuotesType: smartQuotesType ?? (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
+                    smartDashesType: smartDashesType ??
+                                     (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
+                    smartQuotesType: smartQuotesType ??
+                                     (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
                     enableSuggestions: enableSuggestions,
                     maxLengthEnforced: maxLengthEnforced,
                     maxLines: maxLines,
