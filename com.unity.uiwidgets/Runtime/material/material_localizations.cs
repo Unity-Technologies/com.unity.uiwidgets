@@ -12,6 +12,7 @@ namespace Unity.UIWidgets.material {
         public abstract string backButtonTooltip { get; }
         public abstract string closeButtonTooltip { get; }
         public abstract string deleteButtonTooltip { get; }
+        public abstract string moreButtonTooltip { get; }
         public abstract string nextMonthTooltip { get; }
         public abstract string previousMonthTooltip { get; }
         public abstract string nextPageTooltip { get; }
@@ -52,6 +53,14 @@ namespace Unity.UIWidgets.material {
         public abstract string formatTimeOfDay(TimeOfDay timeOfDay, bool alwaysUse24HourFormat = false);
 
         public abstract string formatYear(DateTime date);
+
+        public abstract string formatCompactDate(DateTime date);
+        
+        public abstract string formatShortDate(DateTime date);
+        
+        public abstract string formatShortMonthDay(DateTime date);
+        
+        public abstract DateTime? parseCompactDate(string inputString);
 
         public abstract string formatMediumDate(DateTime date);
 
@@ -154,6 +163,19 @@ namespace Unity.UIWidgets.material {
             "November",
             "December",
         };
+        
+        static int _getDaysInMonth(int year, int month) {
+            if (month == 2) {
+                bool isLeapYear = (year % 4 == 0) && (year % 100 != 0) ||
+                                        (year % 400 == 0);
+                if (isLeapYear) {
+                    return 29;
+                }
+                return 28;
+            }
+            int[] daysInMonth = new int[] { 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+            return daysInMonth[month - 1];
+        }
 
         public override string formatHour(TimeOfDay timeOfDay, bool alwaysUse24HourFormat = false) {
             TimeOfDayFormat format = timeOfDayFormat(alwaysUse24HourFormat: alwaysUse24HourFormat);
@@ -186,6 +208,18 @@ namespace Unity.UIWidgets.material {
             return date.Year.ToString();
         }
 
+        public override string formatCompactDate(DateTime date) {
+            string month = _formatTwoDigitZeroPad(date.Month);
+            string day = _formatTwoDigitZeroPad(date.Day);
+            string year = date.Year.ToString().PadLeft(4, '0');
+            return $"{month}/{day}/{year}";
+        }
+        
+        public override string formatShortDate(DateTime date) {
+            string month = _shortMonths[date.Month - 1];
+            return $"{month} {date.Day}, {date.Year}";
+        }
+
         public override string formatMediumDate(DateTime date) {
             string day = _shortWeekdays[((int) date.DayOfWeek + 6) % 7];
             string month = _shortMonths[date.Month - 1];
@@ -201,6 +235,34 @@ namespace Unity.UIWidgets.material {
             string year = formatYear(date);
             string month = _months[date.Month - 1];
             return $"{month} {year}";
+        }
+
+        public override string formatShortMonthDay(DateTime date) {
+            string month = _shortMonths[date.Month - 1];
+            return $"{month} {date.Day}";
+        }
+
+        public override DateTime? parseCompactDate(string inputString) {
+            string[] inputParts = inputString.Split('/');
+            if (inputParts.Length != 3) {
+                return null;
+            }
+
+            bool success = int.TryParse(inputParts[2], out int year);
+            if (!success || year < 1) {
+                return null;
+            }
+
+            success = int.TryParse(inputParts[0], out int month);
+            if (!success || month < 1 || month > 12) {
+                return null;
+            }
+
+            success = int.TryParse(inputParts[1], out int day);
+            if (!success || day < 1 || day > _getDaysInMonth(year, month)) {
+                return null;
+            }
+            return new DateTime(year, month, day);
         }
 
         public override List<string> narrowWeekdays {
@@ -268,6 +330,10 @@ namespace Unity.UIWidgets.material {
 
         public override string deleteButtonTooltip {
             get { return "Delete"; }
+        }
+
+        public override string moreButtonTooltip {
+            get { return "More"; }
         }
 
         public override string nextMonthTooltip {
