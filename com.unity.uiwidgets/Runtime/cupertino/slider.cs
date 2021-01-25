@@ -17,7 +17,7 @@ namespace Unity.UIWidgets.cupertino {
         public static readonly Color _kTrackColor = new Color(0xFFB5B5B5);
         public const float _kSliderHeight = 2.0f * (CupertinoThumbPainter.radius + _kPadding);
         public const float _kSliderWidth = 176.0f; // Matches Material Design slider.
-        public static readonly TimeSpan _kDiscreteTransitionDuration = new TimeSpan(0, 0, 0, 0, 500);
+        public static readonly TimeSpan _kDiscreteTransitionDuration = TimeSpan.FromMilliseconds(500);
         public const float _kAdjustmentUnit = 0.1f; // Matches iOS implementation of material slider.
     }
 
@@ -31,12 +31,14 @@ namespace Unity.UIWidgets.cupertino {
             float min = 0.0f,
             float max = 1.0f,
             int? divisions = null,
-            Color activeColor = null
+            Color activeColor = null,
+            Color thumbColor = null
         ) : base(key: key) {
             D.assert(value != null);
             D.assert(onChanged != null);
             D.assert(value >= min && value <= max);
             D.assert(divisions == null || divisions > 0);
+            D.assert(thumbColor != null);
             this.value = value.Value;
             this.onChanged = onChanged;
             this.onChangeStart = onChangeStart;
@@ -45,6 +47,7 @@ namespace Unity.UIWidgets.cupertino {
             this.max = max;
             this.divisions = divisions;
             this.activeColor = activeColor;
+            this.thumbColor = thumbColor ?? CupertinoColors.white;
         }
 
         public readonly float value;
@@ -62,6 +65,8 @@ namespace Unity.UIWidgets.cupertino {
         public readonly int? divisions;
 
         public readonly Color activeColor;
+
+        public readonly Color thumbColor;
 
         public override State createState() {
             return new _CupertinoSliderState();
@@ -98,7 +103,11 @@ namespace Unity.UIWidgets.cupertino {
             return new _CupertinoSliderRenderObjectWidget(
                 value: (widget.value - widget.min) / (widget.max - widget.min),
                 divisions: widget.divisions,
-                activeColor: widget.activeColor ?? CupertinoTheme.of(context).primaryColor,
+                activeColor: CupertinoDynamicColor.resolve(
+                    widget.activeColor ?? CupertinoTheme.of(context).primaryColor,
+                    context
+                ),
+                thumbColor: widget.thumbColor,
                 onChanged: widget.onChanged != null ? (ValueChanged<float>) _handleChanged : null,
                 onChangeStart: widget.onChangeStart != null ? (ValueChanged<float>) _handleDragStart : null,
                 onChangeEnd: widget.onChangeEnd != null ? (ValueChanged<float>) _handleDragEnd : null,
@@ -113,6 +122,7 @@ namespace Unity.UIWidgets.cupertino {
             float? value = null,
             int? divisions = null,
             Color activeColor = null,
+            Color thumbColor = null,
             ValueChanged<float> onChanged = null,
             ValueChanged<float> onChangeStart = null,
             ValueChanged<float> onChangeEnd = null,
@@ -125,11 +135,13 @@ namespace Unity.UIWidgets.cupertino {
             this.onChangeStart = onChangeStart;
             this.onChangeEnd = onChangeEnd;
             this.vsync = vsync;
+            this.thumbColor = thumbColor;
         }
 
         public readonly float? value;
         public readonly int? divisions;
         public readonly Color activeColor;
+        public readonly Color thumbColor;
         public readonly ValueChanged<float> onChanged;
         public readonly ValueChanged<float> onChangeStart;
         public readonly ValueChanged<float> onChangeEnd;
@@ -140,10 +152,13 @@ namespace Unity.UIWidgets.cupertino {
                 value: value ?? 0.0f,
                 divisions: divisions,
                 activeColor: activeColor,
+                thumbColor: CupertinoDynamicColor.resolve(thumbColor, context),
+                trackColor: CupertinoDynamicColor.resolve(CupertinoColors.systemFill, context),
                 onChanged: onChanged,
                 onChangeStart: onChangeStart,
                 onChangeEnd: onChangeEnd,
-                vsync: vsync
+                vsync: vsync,
+                textDirection: Directionality.of(context)
             );
         }
 
@@ -152,9 +167,12 @@ namespace Unity.UIWidgets.cupertino {
             renderObject.value = value ?? 0.0f;
             renderObject.divisions = divisions;
             renderObject.activeColor = activeColor;
+            renderObject.thumbColor = CupertinoDynamicColor.resolve(thumbColor, context);
+            renderObject.trackColor = CupertinoDynamicColor.resolve(CupertinoColors.systemFill, context);
             renderObject.onChanged = onChanged;
             renderObject.onChangeStart = onChangeStart;
             renderObject.onChangeEnd = onChangeEnd;
+            renderObject.textDirection = Directionality.of(context);
         }
     }
 
@@ -163,19 +181,25 @@ namespace Unity.UIWidgets.cupertino {
             float value,
             int? divisions = null,
             Color activeColor = null,
+            Color thumbColor = null,
+            Color trackColor = null,
             ValueChanged<float> onChanged = null,
             ValueChanged<float> onChangeStart = null,
             ValueChanged<float> onChangeEnd = null,
-            TickerProvider vsync = null
+            TickerProvider vsync = null,
+            TextDirection? textDirection = null
         ) : base(additionalConstraints: BoxConstraints.tightFor(width: SliderUtils._kSliderWidth,
             height: SliderUtils._kSliderHeight)) {
-            D.assert(value >= 0.0f && value <= 1.0f);
+            D.assert(value >= 0.0f && value <= 1.0f && value != null) ;
             _value = value;
             _divisions = divisions;
             _activeColor = activeColor;
+            _thumbColor = thumbColor;
+            _trackColor = trackColor;
             _onChanged = onChanged;
             this.onChangeStart = onChangeStart;
             this.onChangeEnd = onChangeEnd;
+            _textDirection = textDirection;
             _drag = new HorizontalDragGestureRecognizer();
             _drag.onStart = _handleDragStart;
             _drag.onUpdate = _handleDragUpdate;
@@ -236,6 +260,34 @@ namespace Unity.UIWidgets.cupertino {
 
         Color _activeColor;
 
+        public Color thumbColor {
+            get {
+                return _thumbColor;
+            }
+            set {
+                if (value == _thumbColor)
+                    return;
+                _thumbColor = value;
+                markNeedsPaint();
+            }
+        }
+        Color _thumbColor;
+
+
+        public Color trackColor {
+            get {
+                return _trackColor;
+            }
+            set {
+                if (value == _trackColor)
+                    return;
+                _trackColor = value;
+                markNeedsPaint();
+            }
+        }
+        Color _trackColor;
+       
+
         public ValueChanged<float> onChanged {
             get { return _onChanged; }
             set {
@@ -251,6 +303,22 @@ namespace Unity.UIWidgets.cupertino {
 
         public ValueChanged<float> onChangeStart;
         public ValueChanged<float> onChangeEnd;
+
+        public TextDirection? textDirection {
+            get {
+                return _textDirection;
+            }
+            set {
+                D.assert(value != null);
+                if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                markNeedsPaint();
+            }
+        }
+        TextDirection? _textDirection;
+        
+
 
 
         AnimationController _position;
@@ -279,11 +347,16 @@ namespace Unity.UIWidgets.cupertino {
 
         float _thumbCenter {
             get {
-                float visualPosition = _value;
-
-                return MathUtils.lerpFloat(_trackLeft + CupertinoThumbPainter.radius,
-                    _trackRight - CupertinoThumbPainter.radius,
-                    visualPosition);
+                float visualPosition = 0.0f;
+                switch (textDirection) {
+                    case TextDirection.rtl:
+                        visualPosition = 1.0f - _value;
+                        break;
+                    case TextDirection.ltr:
+                        visualPosition = _value;
+                        break;
+                }
+                return MathUtils.lerpFloat(_trackLeft + CupertinoThumbPainter.radius, _trackRight - CupertinoThumbPainter.radius, visualPosition);
             }
         }
 
@@ -300,9 +373,16 @@ namespace Unity.UIWidgets.cupertino {
                 float extent = Mathf.Max(SliderUtils._kPadding,
                     size.width - 2.0f * (SliderUtils._kPadding + CupertinoThumbPainter.radius));
                 float? valueDelta = details.primaryDelta / extent;
-                _currentDragValue += valueDelta ?? 0.0f;
-
+                switch (textDirection) {
+                    case TextDirection.rtl:
+                        _currentDragValue -= valueDelta ?? 0.0f;
+                        break;
+                    case TextDirection.ltr:
+                        _currentDragValue += valueDelta ?? 0.0f;
+                        break;
+                }
                 onChanged(_discretizedCurrentDragValue);
+               
             }
         }
 
@@ -342,14 +422,23 @@ namespace Unity.UIWidgets.cupertino {
 
         CupertinoThumbPainter _thumbPainter = new CupertinoThumbPainter();
 
-        public override
-            void paint(PaintingContext context, Offset offset) {
-            float visualPosition;
-            Color leftColor;
-            Color rightColor;
-            visualPosition = _position.value;
-            leftColor = SliderUtils._kTrackColor;
-            rightColor = _activeColor;
+        public override void paint(PaintingContext context, Offset offset) {
+            float visualPosition = 0.0f;
+            Color leftColor = null ;
+            Color rightColor = null;
+            switch (textDirection) {
+                case TextDirection.rtl:
+                    visualPosition = 1.0f - _position.value;
+                    leftColor = _activeColor;
+                    rightColor = trackColor;
+                    break;
+                case TextDirection.ltr:
+                    visualPosition = _position.value;
+                    leftColor = trackColor;
+                    rightColor = _activeColor;
+                    break;
+            }
+           
 
             float trackCenter = offset.dy + size.height / 2.0f;
             float trackLeft = offset.dx + _trackLeft;
@@ -373,8 +462,7 @@ namespace Unity.UIWidgets.cupertino {
             }
 
             Offset thumbCenter = new Offset(trackActive, trackCenter);
-            _thumbPainter.paint(canvas,
-                Rect.fromCircle(center: thumbCenter, radius: CupertinoThumbPainter.radius));
+            new CupertinoThumbPainter(color: thumbColor).paint(canvas, Rect.fromCircle(center: thumbCenter, radius: CupertinoThumbPainter.radius));
         }
     }
 }

@@ -10,9 +10,9 @@ namespace Unity.UIWidgets.cupertino {
     public class CupertinoTabController : ChangeNotifier {
 
         public CupertinoTabController(int initialIndex = 0) {
-            _index = initialIndex;
             D.assert(initialIndex != null);
             D.assert(initialIndex >= 0);
+            _index = initialIndex;
         }
 
         public bool _isDisposed = false;
@@ -49,8 +49,8 @@ namespace Unity.UIWidgets.cupertino {
             D.assert(tabBuilder != null);
             D.assert(
                 controller == null || controller.index < tabBar.items.Count, () =>
-                    "The CupertinoTabController's current index ${controller.index} is " +
-                    "out of bounds for the tab bar with ${tabBar.items.length} tabs"
+                    $"The CupertinoTabController's current index {controller.index} is " +
+                    $"out of bounds for the tab bar with {tabBar.items.Count} tabs"
             );
             this.tabBar = tabBar;
             this.controller = controller;
@@ -79,7 +79,6 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() {
             base.initState();
-            //_currentPage = widget.tabBar.currentIndex;
             _updateTabController();
         }
         void _updateTabController( bool shouldDisposeOldController = false ) {
@@ -104,7 +103,7 @@ namespace Unity.UIWidgets.cupertino {
         void _onCurrentIndexChange() {
             D.assert(
                 _controller.index >= 0 && _controller.index < widget.tabBar.items.Count,()=>
-                "The $runtimeType's current index ${_controller.index} is " +
+                $"The {GetType()}'s current index {_controller.index} is " +
             $"out of bounds for the tab bar with {widget.tabBar.items.Count} tabs"
                 );
             setState(()=> {});
@@ -119,32 +118,12 @@ namespace Unity.UIWidgets.cupertino {
                 _controller.index = widget.tabBar.items.Count - 1;
             }
         }
-        /*public override void didUpdateWidget(StatefulWidget _oldWidget) {
-            CupertinoTabScaffold oldWidget = _oldWidget as CupertinoTabScaffold;
-            base.didUpdateWidget(oldWidget);
-            if (_currentPage >= widget.tabBar.items.Count) {
-                _currentPage = widget.tabBar.items.Count - 1;
-                D.assert(_currentPage >= 0,
-                    () => "CupertinoTabBar is expected to keep at least 2 tabs after updating"
-                );
-            }
-
-            if (widget.tabBar.currentIndex != oldWidget.tabBar.currentIndex) {
-                _currentPage = widget.tabBar.currentIndex;
-            }
-        }*/
-
         public override Widget build(BuildContext context) {
             List<Widget> stacked = new List<Widget> { };
 
             MediaQueryData existingMediaQuery = MediaQuery.of(context);
             MediaQueryData newMediaQuery = MediaQuery.of(context);
 
-            /*Widget content = new _TabSwitchingView(
-                currentTabIndex: _currentPage,
-                tabNumber: widget.tabBar.items.Count,
-                tabBuilder: widget.tabBuilder
-            );*/
             Widget content = new _TabSwitchingView(
                 currentTabIndex: _controller.index,
                 tabNumber: widget.tabBar.items.Count,
@@ -182,23 +161,7 @@ namespace Unity.UIWidgets.cupertino {
                     child: content
                 )
             );
-
             stacked.Add(content);
-
-            /*if (widget.tabBar != null) {
-                stacked.Add(new Align(
-                    alignment: Alignment.bottomCenter,
-                    child: widget.tabBar.copyWith(
-                        currentIndex: _currentPage,
-                        onTap: (int newIndex) => {
-                            setState(() => { _currentPage = newIndex; });
-                            if (widget.tabBar.onTap != null) {
-                                widget.tabBar.onTap(newIndex);
-                            }
-                        }
-                    )
-                ));
-            }*/
             stacked.Add(
                 new MediaQuery(
                         data: existingMediaQuery.copyWith(textScaleFactor: 1),
@@ -220,7 +183,6 @@ namespace Unity.UIWidgets.cupertino {
                 decoration: new BoxDecoration(
                     color: CupertinoDynamicColor.resolve(widget.backgroundColor, context)
                            ?? CupertinoTheme.of(context).scaffoldBackgroundColor
-                    //color: widget.backgroundColor ?? CupertinoTheme.of(context).scaffoldBackgroundColor
                 ),
                 child: new Stack(
                     children: stacked
@@ -229,14 +191,14 @@ namespace Unity.UIWidgets.cupertino {
         }
         
         public override void dispose() {
-            // Only dispose `_controller` when the state instance owns it.
+          
             if (widget.controller == null) {
                 _controller?.dispose();
             } else if (_controller?._isDisposed == false) {
                 _controller.removeListener(_onCurrentIndexChange);
             }
 
-             base.dispose();
+            base.dispose();
         }
     
     }
@@ -264,7 +226,7 @@ namespace Unity.UIWidgets.cupertino {
     }
 
     class _TabSwitchingViewState : State<_TabSwitchingView> {
-        //List<Widget> tabs;
+    
         public readonly List<bool> shouldBuildTab = new List<bool>();
         public readonly List<FocusScopeNode> tabFocusNodes = new List<FocusScopeNode>();
         public readonly List<FocusScopeNode> discardedNodes = new List<FocusScopeNode>();
@@ -303,7 +265,7 @@ namespace Unity.UIWidgets.cupertino {
                 for (int i = widget.tabNumber; i < shouldBuildTab.Count; i++) {
                     shouldBuildTab.RemoveAt(i);
                 }
-               ;
+               
             }
             _focusActiveTab();
         }
@@ -320,11 +282,11 @@ namespace Unity.UIWidgets.cupertino {
                 }
 
                 else {
-                    
                     List<FocusScopeNode> scopeNodes = new List<FocusScopeNode>();
                     var length = widget.tabNumber - tabFocusNodes.Count;
                     for (int i = 0; i < length; i++) {
-                        tabFocusNodes.Add(new FocusScopeNode());
+                        tabFocusNodes.Add(new FocusScopeNode(debugLabel: $"CupertinoTabScaffold Tab {i + tabFocusNodes.Count}")
+                        );
                     }
 
                 }
@@ -337,11 +299,14 @@ namespace Unity.UIWidgets.cupertino {
             foreach(FocusScopeNode focusScopeNode in tabFocusNodes) {
                 focusScopeNode.dispose();
             }
-
+            foreach( FocusScopeNode focusScopeNode in discardedNodes) {
+                focusScopeNode.dispose();
+            }
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
+
             List<Widget> stages = new List<Widget>();
             int count = widget.tabNumber;
             for (int i = 0; i < count; i++) {

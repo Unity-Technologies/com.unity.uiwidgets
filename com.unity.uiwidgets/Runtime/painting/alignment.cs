@@ -526,7 +526,7 @@ namespace Unity.UIWidgets.painting {
             this.y = y;
         }
 
-        public readonly double y;
+        public readonly float y;
 
         public static readonly TextAlignVertical top = new TextAlignVertical(y: -1.0f);
 

@@ -6,6 +6,7 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     public interface CustomPainter : Listenable {
+        
         void paint(Canvas canvas, Size size);
 
         bool shouldRepaint(CustomPainter oldDelegate);
