@@ -91,9 +91,9 @@ namespace Unity.UIWidgets.cupertino {
             TextStyle pickerTextStyle = null,
             TextStyle dateTimePickerTextStyle = null
         ) {
-            D.assert((_navActionTextStyle != null && _actionTextStyle != null) || _primaryColor != null);
             _defaults = defaults ?? new _TextThemeDefaultsBuilder(CupertinoColors.label, CupertinoColors.inactiveGray);
             _primaryColor = primaryColor ?? CupertinoColors.systemBlue;
+            D.assert((_navActionTextStyle != null && _actionTextStyle != null) || _primaryColor != null);
             _textStyle = textStyle;
             _actionTextStyle = actionTextStyle;
             _tabLabelTextStyle = tabLabelTextStyle;

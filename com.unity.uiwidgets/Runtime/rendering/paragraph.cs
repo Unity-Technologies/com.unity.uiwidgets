@@ -13,24 +13,23 @@ using StrutStyle = Unity.UIWidgets.painting.StrutStyle;
 
 namespace Unity.UIWidgets.rendering {
     public enum TextOverflow {
-        /// Clip the overflowing text to fix its container.
         clip,
-
-        /// Fade the overflowing text to transparent.
         fade,
-
-        /// Use an ellipsis to indicate that the text has overflowed.
         ellipsis,
-        
-        /// Render overflowing text outside of its container.
-        visible,
+        visible
     }
 
-    
-    public class RenderParagraph : RenderBox{
-        // ContainerRenderObjectMixin<RenderBox, TextParentData>,
-        //RenderBoxContainerDefaultsMixin<RenderBox, TextParentData>,
-        //RelayoutWhenSystemFontsChangeMixin
+    public class TextParentData : ContainerBoxParentData<RenderBox> {
+        public float scale;
+        public override string ToString() {
+            List<string> values = new List<string>();
+            if (offset != null) values.Add("offset=$offset");
+            if (scale != null) values.Add("scale=$scale");
+            values.Add(base.ToString());
+            return string.Join("; ", values);
+        }
+    }
+    public class RenderParagraph : RenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<RenderBox, TextParentData> {
         static readonly string _kEllipsis = "\u2026";
 
         bool _softWrap;
@@ -44,7 +43,7 @@ namespace Unity.UIWidgets.rendering {
 
         public RenderParagraph(
             InlineSpan text = null,
-            TextAlign textAlign = TextAlign.left,
+            TextAlign textAlign = TextAlign.start,
             TextDirection textDirection = TextDirection.ltr,
             bool softWrap = true,
             TextOverflow overflow = TextOverflow.clip,
@@ -55,19 +54,11 @@ namespace Unity.UIWidgets.rendering {
             TextWidthBasis textWidthBasis = TextWidthBasis.parent,
             ui.TextHeightBehavior textHeightBehavior = null,
             List<RenderBox> children = null
-            //Action onSelectionChanged = null,
-            //Color selectionColor = null
         ) {
             D.assert(maxLines == null || maxLines > 0);
             D.assert(text != null);
             D.assert(text.debugAssertIsValid());
-            D.assert(textAlign != null);
-            D.assert(textDirection != null);
-            D.assert(softWrap != null);
-            D.assert(overflow != null);
-            D.assert(textScaleFactor != null);
             D.assert(maxLines == null || maxLines > 0);
-            D.assert(textWidthBasis != null);
             _softWrap = softWrap;
             _overflow = overflow;
             _textPainter = new TextPainter(
@@ -82,15 +73,16 @@ namespace Unity.UIWidgets.rendering {
                 textWidthBasis: textWidthBasis,
                 textHeightBehavior: textHeightBehavior
             );
-
-            _selection = null;
-            this.onSelectionChanged = onSelectionChanged;
-            this.selectionColor = selectionColor;
-            //addAll(children);
+            //addAll(children);[!!!]?
             _extractPlaceholderSpans(text);
-            //_resetHoverHandler();
         }
 
+        public override void setupParentData(RenderObject child) {
+            if (!(child.parentData is TextParentData))
+                child.parentData = new TextParentData();
+        }
+        
+        
         public Action onSelectionChanged;
         public Color selectionColor;
 
@@ -120,7 +112,6 @@ namespace Unity.UIWidgets.rendering {
                         _textPainter.text = value;
                         _extractPlaceholderSpans(value);
                         markNeedsPaint();
-                        //markNeedsSemanticsUpdate();
                         break;
                     case RenderComparison.layout:
                         _textPainter.text = value;
@@ -128,18 +119,6 @@ namespace Unity.UIWidgets.rendering {
                         _extractPlaceholderSpans(value);
                         markNeedsLayout();
                         break;
-                    /*case RenderComparison.function:
-                        _textPainter.text = value;
-                        markNeedsPaint();
-                        break;
-                    case RenderComparison.paint:
-                        _textPainter.text = value;
-                        markNeedsPaint();
-                        break;
-                    case RenderComparison.layout:
-                        _textPainter.text = value;
-                        markNeedsLayout();
-                        break;*/
                 }
 
                 
@@ -158,7 +137,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public TextAlign textAlign {
-            get { return _textPainter.textAlign; }
+            get { return _textPainter.textAlign.Value; }
             set {
                 if (_textPainter.textAlign == value) {
                     return;
@@ -176,7 +155,7 @@ namespace Unity.UIWidgets.rendering {
                     return;
                 }
 
-                _textPainter.textDirection = textDirection;
+                _textPainter.textDirection = value;
                 markNeedsLayout();
             }
         }
@@ -184,6 +163,24 @@ namespace Unity.UIWidgets.rendering {
         protected Offset getOffsetForCaret(TextPosition position, Rect caretPrototype) {
             D.assert(_textPainter != null);
             return _textPainter.getOffsetForCaret(position, caretPrototype);
+        }
+        
+        List<ui.TextBox> getBoxesForSelection(TextSelection selection) {
+            D.assert(!debugNeedsLayout);
+            _layoutTextWithConstraints(constraints);
+            return _textPainter.getBoxesForSelection(selection);
+        }
+        
+        TextPosition getPositionForOffset(Offset offset) {
+            D.assert(!debugNeedsLayout);
+            _layoutTextWithConstraints(constraints);
+            return _textPainter.getPositionForOffset(offset);
+        }
+        
+        TextRange getWordBoundary(TextPosition position) {
+            D.assert(!debugNeedsLayout);
+            _layoutTextWithConstraints(constraints);
+            return _textPainter.getWordBoundary(position);
         }
 
         public bool softWrap {
@@ -207,7 +204,6 @@ namespace Unity.UIWidgets.rendering {
 
                 _overflow = value;
                 _textPainter.ellipsis = value == TextOverflow.ellipsis ? _kEllipsis : null;
-                // _textPainter.e
                 markNeedsLayout();
             }
         }
@@ -220,6 +216,7 @@ namespace Unity.UIWidgets.rendering {
                 }
 
                 _textPainter.textScaleFactor = value;
+                _overflowShader = null;
                 markNeedsLayout();
             }
         }
@@ -233,6 +230,7 @@ namespace Unity.UIWidgets.rendering {
                 }
 
                 _textPainter.maxLines = value;
+                _overflowShader = null;
                 markNeedsLayout();
             }
         }
@@ -264,7 +262,6 @@ namespace Unity.UIWidgets.rendering {
         public TextWidthBasis textWidthBasis {
             get { return _textPainter.textWidthBasis; }
             set {
-                D.assert(value != null);
                 if (_textPainter.textWidthBasis == value)
                     return;
                 _textPainter.textWidthBasis = value;
@@ -293,16 +290,28 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected internal override float computeMinIntrinsicWidth(float height) {
-            _layoutText();
+            if (!_canComputeIntrinsics()) {
+                return 0.0f;
+            }
+            _computeChildrenWidthWithMinIntrinsics(height);
+            _layoutText(); // layout with infinite width.
             return _textPainter.minIntrinsicWidth;
         }
 
         protected internal override float computeMaxIntrinsicWidth(float height) {
-            _layoutText();
+            if (!_canComputeIntrinsics()) {
+                return 0.0f;
+            }
+            _computeChildrenWidthWithMaxIntrinsics(height);
+            _layoutText(); // layout with infinite width.
             return _textPainter.maxIntrinsicWidth;
         }
 
         float _computeIntrinsicHeight(float width) {
+            if (!_canComputeIntrinsics()) {
+                return 0.0f;
+            }
+            _computeChildrenHeightWithMinIntrinsics(width);
             _layoutText(minWidth: width, maxWidth: width);
             return _textPainter.height;
         }
@@ -316,13 +325,125 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+            D.assert(!debugNeedsLayout);
+            D.assert(constraints != null);
+            D.assert(constraints.debugAssertIsValid());
             _layoutTextWithConstraints(constraints);
-            return _textPainter.computeDistanceToActualBaseline(baseline);
+            return _textPainter.computeDistanceToActualBaseline(TextBaseline.alphabetic);
         }
 
+        bool _canComputeIntrinsics() {
+            foreach (PlaceholderSpan span in _placeholderSpans) {
+                switch (span.alignment) {
+                    case ui.PlaceholderAlignment.baseline:
+                    case ui.PlaceholderAlignment.aboveBaseline:
+                    case ui.PlaceholderAlignment.belowBaseline: {
+                        D.assert(RenderObject.debugCheckingIntrinsics,
+                        () => "Intrinsics are not available for PlaceholderAlignment.baseline, " +
+                        "PlaceholderAlignment.aboveBaseline, or PlaceholderAlignment.belowBaseline,");
+                        return false;
+                    }
+                    case ui.PlaceholderAlignment.top:
+                    case ui.PlaceholderAlignment.middle:
+                    case ui.PlaceholderAlignment.bottom: {
+                        continue;
+                    }
+                }
+            }
+            return true;
+        }
+
+        void _computeChildrenWidthWithMaxIntrinsics(float height) {
+            RenderBox child = firstChild;
+            List<PlaceholderDimensions> placeholderDimensions = new List<PlaceholderDimensions>(childCount);
+            int childIndex = 0;
+            while (child != null) {
+                placeholderDimensions[childIndex] = new PlaceholderDimensions(
+                size: new Size(child.getMaxIntrinsicWidth(height), height),
+                alignment: _placeholderSpans[childIndex].alignment,
+                baseline: _placeholderSpans[childIndex].baseline.Value,
+                baselineOffset:0.0f
+            );
+            child = childAfter(child);
+            childIndex += 1;
+            }
+            _textPainter.setPlaceholderDimensions(placeholderDimensions);
+        }
+
+        void _computeChildrenWidthWithMinIntrinsics(float height) {
+            RenderBox child = firstChild;
+            List<PlaceholderDimensions> placeholderDimensions = new List<PlaceholderDimensions>(childCount);
+            int childIndex = 0;
+            while (child != null) {
+                float intrinsicWidth = child.getMinIntrinsicWidth(height);
+                float intrinsicHeight = child.getMinIntrinsicHeight(intrinsicWidth);
+                placeholderDimensions[childIndex] = new PlaceholderDimensions(
+                    size: new Size(intrinsicWidth, intrinsicHeight),
+                    alignment: _placeholderSpans[childIndex].alignment,
+                    baseline: _placeholderSpans[childIndex].baseline.Value,
+                    baselineOffset:0.0f
+                );
+                child = childAfter(child);
+                childIndex += 1;
+            }
+            _textPainter.setPlaceholderDimensions(placeholderDimensions);
+        }
+
+        void _computeChildrenHeightWithMinIntrinsics(float width) {
+            RenderBox child = firstChild;
+            List<PlaceholderDimensions> placeholderDimensions = new List<PlaceholderDimensions>(childCount);
+            int childIndex = 0;
+            while (child != null) {
+                float intrinsicHeight = child.getMinIntrinsicHeight(width);
+                float intrinsicWidth = child.getMinIntrinsicWidth(intrinsicHeight);
+                placeholderDimensions[childIndex] = new PlaceholderDimensions(
+                    size: new Size(intrinsicWidth, intrinsicHeight),
+                    alignment: _placeholderSpans[childIndex].alignment,
+                    baseline: _placeholderSpans[childIndex].baseline.Value,
+                    baselineOffset:0.0f
+                );
+                child = childAfter(child);
+                childIndex += 1;
+            }
+            _textPainter.setPlaceholderDimensions(placeholderDimensions);
+        }
 
         protected override bool hitTestSelf(Offset position) {
             return true;
+        }
+        
+        protected override bool hitTestChildren(BoxHitTestResult boxHitTestResult, Offset position = null) {
+            RenderBox child = firstChild;
+            while (child != null) {
+                TextParentData textParentData = child.parentData as TextParentData;
+                Matrix4 transform = Matrix4.translationValues(
+                    textParentData.offset.dx,
+                    textParentData.offset.dy,
+                    0.0f
+                );
+                    transform.scale(
+                    textParentData.scale,
+                    textParentData.scale,
+                    textParentData.scale
+                );
+                bool isHit = boxHitTestResult.addWithPaintTransform(
+                    transform: transform,
+                    position: position,
+                    hitTest: (BoxHitTestResult result, Offset transformed) => {
+                        D.assert(() => {
+                            Offset manualPosition = (position - textParentData.offset) / textParentData.scale;
+                            return (transformed.dx - manualPosition.dx).abs() < foundation_.precisionErrorTolerance
+                                   && (transformed.dy - manualPosition.dy).abs() < foundation_.precisionErrorTolerance;
+                        });
+                        return child.hitTest(result, position: transformed);
+                    }
+                );
+                if (isHit) {
+                    return true;
+                }
+                child = childAfter(child);
+            }
+            return false;
         }
 
         bool _hasFocus = false;
@@ -501,11 +622,78 @@ namespace Unity.UIWidgets.rendering {
             Offset offset = ((BoxHitTestEntry) entry).localPosition;
             TextPosition position = _textPainter.getPositionForOffset(offset);
             InlineSpan span = _textPainter.text.getSpanForPosition(position);
-            (span as TextSpan)?.recognizer?.addPointer((PointerDownEvent) evt);
+            if (span == null) {
+                return;
+            }
+            if (span is TextSpan) {
+                TextSpan textSpan = (TextSpan)span;
+                textSpan.recognizer?.addPointer(evt as PointerDownEvent);
+            }
+        }
+        
+        bool debugHasOverflowShader {
+            get { return _overflowShader != null; }
         }
 
+
+        void _layoutChildren(BoxConstraints constraints) {
+            if (childCount == 0) {
+                return;
+            }
+            RenderBox child = firstChild;
+            _placeholderDimensions = new List<PlaceholderDimensions>(childCount);
+            int childIndex = 0;
+            while (child != null) {
+                child.layout(
+                    new BoxConstraints(
+                        maxWidth: constraints.maxWidth
+                    ),
+                    parentUsesSize: true
+                );
+                float baselineOffset;
+                switch (_placeholderSpans[childIndex].alignment) {
+                    case ui.PlaceholderAlignment.baseline: {
+                        baselineOffset = child.getDistanceToBaseline(
+                        _placeholderSpans[childIndex].baseline.Value
+                        ).Value;
+                        break;
+                    }
+                    default: {
+                        baselineOffset = 0.0f;
+                        break;
+                    }
+                }
+                _placeholderDimensions[childIndex] = new PlaceholderDimensions(
+                    size: child.size,
+                    alignment: _placeholderSpans[childIndex].alignment,
+                    baseline: _placeholderSpans[childIndex].baseline.Value,
+                    baselineOffset: baselineOffset
+                );
+                child = childAfter(child);
+                childIndex += 1;
+            }
+        }
+        
+        void _setParentData() {
+            RenderBox child = firstChild;
+            int childIndex = 0;
+            while (child != null && childIndex < _textPainter.inlinePlaceholderBoxes.Count) {
+                TextParentData textParentData = child.parentData as TextParentData;
+                textParentData.offset = new Offset(
+                    _textPainter.inlinePlaceholderBoxes[childIndex].left,
+                    _textPainter.inlinePlaceholderBoxes[childIndex].top
+                );
+                textParentData.scale = _textPainter.inlinePlaceholderScales[childIndex];
+                child = childAfter(child);
+                childIndex += 1;
+            }
+        }
+        
         protected override void performLayout() {
+             BoxConstraints constraints = this.constraints;
+             _layoutChildren(constraints);
             _layoutTextWithConstraints(constraints);
+             _setParentData();
             var textSize = _textPainter.size;
             var textDidExceedMaxLines = _textPainter.didExceedMaxLines;
             size = constraints.constrain(textSize);
@@ -514,26 +702,73 @@ namespace Unity.UIWidgets.rendering {
             var didOverflowWidth = size.width < textSize.width;
             var hasVisualOverflow = didOverflowWidth || didOverflowHeight;
             if (hasVisualOverflow) {
+                /*switch (_overflow) {
+                    case TextOverflow.visible:
+                        _needsClipping = false;
+                        break;
+                    case TextOverflow.clip:
+                    case TextOverflow.ellipsis:
+                    case TextOverflow.fade:
+                        _needsClipping = true;
+                        break;
+                }*/
                 switch (_overflow) {
-                case TextOverflow.visible:
-                    _needsClipping = false;
-                    break;
-                case TextOverflow.clip:
-                case TextOverflow.ellipsis:
-                case TextOverflow.fade:
-                    _needsClipping = true;
-                    break;
+                    case TextOverflow.visible:
+                        _needsClipping = false;
+                        _overflowShader = null;
+                        break;
+                    case TextOverflow.clip:
+                    case TextOverflow.ellipsis:
+                        _needsClipping = true;
+                        _overflowShader = null;
+                        break;
+                    case TextOverflow.fade:
+                        D.assert(textDirection != null);
+                        _needsClipping = true;
+                        TextPainter fadeSizePainter = new TextPainter(
+                            text: new TextSpan(style: _textPainter.text.style, text: "\u2026"),
+                            textDirection: textDirection.Value,
+                            textScaleFactor: textScaleFactor,
+                            locale: locale
+                        );
+                        fadeSizePainter.layout();
+                        if (didOverflowWidth) {
+                            float fadeEnd = 0, fadeStart = 0;
+                            switch (textDirection) {
+                                case TextDirection.rtl:
+                                    fadeEnd = 0.0f;
+                                    fadeStart = fadeSizePainter.width;
+                                    break;
+                                case TextDirection.ltr:
+                                    fadeEnd = size.width;
+                                    fadeStart = fadeEnd - fadeSizePainter.width;
+                                    break;
+                            }
+                            _overflowShader = ui.Gradient.linear(
+                                    new Offset(fadeStart, 0.0f),
+                                    new Offset(fadeEnd, 0.0f),
+                                    new List<Color>{new Color(0xFFFFFFFF), new Color(0x00FFFFFF)}
+                                );
+                        } else {
+                            float fadeEnd = size.height;
+                            float fadeStart = fadeEnd - fadeSizePainter.height / 2.0f;
+                            _overflowShader = ui.Gradient.linear(
+                                new Offset(0.0f, fadeStart),
+                                new Offset(0.0f, fadeEnd),
+                                new List<Color> {new Color(0xFFFFFFFF), new Color(0x00FFFFFF)}
+                            );
+                        }
+                        break;
                 }
             }
             else {
                 _needsClipping = false;
+                _overflowShader = null;
             }
-
-            _selectionRects = null;
         }
 
 
-        void paintParagraph(PaintingContext context, Offset offset) {
+        /*void paintParagraph(PaintingContext context, Offset offset) {
             _layoutTextWithConstraints(constraints);
             var canvas = context.canvas;
 
@@ -567,6 +802,61 @@ namespace Unity.UIWidgets.rendering {
             else {
                 paintParagraph(context, offset);
             }
+        } */
+        
+        public override void paint(PaintingContext context2, Offset offset2) {
+              _layoutTextWithConstraints(constraints);
+
+            D.assert(() => {
+              if (RenderingDebugUtils.debugRepaintTextRainbowEnabled) {
+                  Paint paint = new Paint();
+                  paint.color = RenderingDebugUtils.debugCurrentRepaintColor.toColor();
+                context2.canvas.drawRect(offset2 & size, paint);
+              }
+              return true;
+            });
+
+            if (_needsClipping) {
+              Rect bounds = offset2 & size;
+              if (_overflowShader != null) {
+                  context2.canvas.saveLayer(bounds, new Paint());
+              } else {
+                context2.canvas.save();
+              }
+              context2.canvas.clipRect(bounds);
+            }
+            _textPainter.paint(context2.canvas, offset2);
+
+            RenderBox child = firstChild;
+            int childIndex = 0;
+            while (child != null && childIndex < _textPainter.inlinePlaceholderBoxes.Count) {
+                TextParentData textParentData = child.parentData as TextParentData;
+
+                float scale = textParentData.scale;
+                context2.pushTransform(
+                    needsCompositing,
+                    offset2 + textParentData.offset,
+                    Matrix4.diagonal3Values(scale, scale, scale),
+                    (PaintingContext context, Offset offset) => {
+                    context.paintChild(
+                        child,
+                        offset
+                    );
+                }
+                );
+                child = childAfter(child);
+                childIndex += 1;
+            }
+            if (_needsClipping) {
+                if (_overflowShader != null) {
+                    context2.canvas.translate(offset2.dx, offset2.dy);
+                    Paint paint = new Paint();
+                    paint.blendMode = BlendMode.modulate;
+                    paint.shader = _overflowShader;
+                    context2.canvas.drawRect(Offset.zero & size, paint);
+                }
+                context2.canvas.restore();
+            }
         }
 
 
@@ -588,7 +878,10 @@ namespace Unity.UIWidgets.rendering {
             _textPainter.layout(minWidth, widthMatters ? maxWidth : float.PositiveInfinity);
         }
 
+        List<PlaceholderDimensions> _placeholderDimensions;
+        
         void _layoutTextWithConstraints(BoxConstraints constraints) {
+            _textPainter.setPlaceholderDimensions(_placeholderDimensions);
             _layoutText(minWidth: constraints.minWidth, maxWidth: constraints.maxWidth);
         }
 
@@ -606,6 +899,7 @@ namespace Unity.UIWidgets.rendering {
                 ifFalse: "no wrapping except at line break characters", showName: true));
             properties.add(new EnumProperty<TextOverflow>("overflow", overflow));
             properties.add(new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: 1.0f));
+            properties.add(new DiagnosticsProperty<Locale>("locale", locale, defaultValue: null));
             properties.add(new IntProperty("maxLines", maxLines, ifNull: "unlimited"));
         }
     }

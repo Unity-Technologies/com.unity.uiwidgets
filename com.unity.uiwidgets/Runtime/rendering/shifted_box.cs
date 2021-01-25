@@ -260,6 +260,7 @@ namespace Unity.UIWidgets.rendering {
         TextDirection? _textDirection;
         
         protected void alignChild() {
+            _resolve();
             D.assert(child != null);
             D.assert(!child.debugNeedsLayout);
             D.assert(child.hasSize);

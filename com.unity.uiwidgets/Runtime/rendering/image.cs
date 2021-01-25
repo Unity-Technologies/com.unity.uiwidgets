@@ -359,7 +359,7 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new DiagnosticsProperty<bool>("invertColors", invertColors));
             properties.add(new EnumProperty<FilterQuality>("filterMode", filterQuality));
             properties.add(new FlagProperty("matchTextDirection", value: matchTextDirection, ifTrue: "match text direction"));
-            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
 
         }
     }

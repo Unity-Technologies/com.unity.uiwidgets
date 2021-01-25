@@ -48,8 +48,6 @@ namespace Unity.UIWidgets.widgets {
             );
         public abstract Size getHandleSize(float textLineHeight);
 
-        public abstract Size handleSize { get; }// [!!!]useless?
-
         public virtual bool canCut(TextSelectionDelegate _delegate) {
             return _delegate.cutEnabled && !_delegate.textEditingValue.selection.isCollapsed;
         }

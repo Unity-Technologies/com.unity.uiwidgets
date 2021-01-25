@@ -2007,9 +2007,9 @@ namespace Unity.UIWidgets.widgets {
             return Future.value(false).to<bool>();
         }
 
-        public void didChangeAccessibilityFeatures() {
-           
-        }
+
+        public void didChangeAccessibilityFeatures() {}
+
 
         void _selectionChangedCallback() {
             setState(() => { });

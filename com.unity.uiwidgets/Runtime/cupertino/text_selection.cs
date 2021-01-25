@@ -642,10 +642,6 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
 
-        public override Size handleSize {
-            get { return CupertinoTextSelectionUtils._kSelectionOffset; }
-        }
-
         public override Offset getHandleAnchor(TextSelectionHandleType type, float textLineHeight) {
             Size handleSize = getHandleSize(textLineHeight);
             switch (type) {

@@ -949,9 +949,9 @@ namespace Unity.UIWidgets.widgets {
             return Future.value(false).to<bool>();
         }
 
-        public void didChangeAccessibilityFeatures() {
-          
-        }
+
+        public void didChangeAccessibilityFeatures() {}
+
 
         void _formatAndSetValue(TextEditingValue value, bool isIMEInput = false) {
             var textChanged = _value?.text != value?.text || isIMEInput;

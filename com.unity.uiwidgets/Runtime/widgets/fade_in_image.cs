@@ -301,13 +301,13 @@ namespace Unity.UIWidgets.widgets {
                     weight: (float) widget.fadeInDuration?.Milliseconds
                 ));
 
-                //[!!!] drive
-                /*_placeholderOpacityAnimation = animation.drive(list).addStatusListener((AnimationStatus status) =>{
+                
+                _placeholderOpacityAnimation = animation.drive(new TweenSequence<float>(list));
+                _placeholderOpacityAnimation.addStatusListener((AnimationStatus status) =>{
                     if (_placeholderOpacityAnimation.isCompleted) {
-                        // Need to rebuild to remove placeholder now that it is invisibile.
                         setState(() => {});
                     }
-                });*/
+                });
 
                 List<TweenSequenceItem<float>> list2 = new List<TweenSequenceItem<float>>();
                 list2.Add(new TweenSequenceItem<float>(
@@ -318,7 +318,7 @@ namespace Unity.UIWidgets.widgets {
                     tween: _targetOpacity.chain(new CurveTween(curve: widget.fadeInCurve)),
                     weight: (float) widget.fadeInDuration?.Milliseconds
                 ));
-                //_targetOpacityAnimation = animation.drive(list2);[!!!] animation.cs drive
+                _targetOpacityAnimation = animation.drive(new TweenSequence<float>(list2));
                 if (!widget.isTargetLoaded && _isValid(_placeholderOpacity) && _isValid(_targetOpacity)) {
                     controller.setValue(controller.upperBound);
                 }
