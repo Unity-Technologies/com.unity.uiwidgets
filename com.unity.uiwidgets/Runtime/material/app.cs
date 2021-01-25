@@ -11,7 +11,7 @@ using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-    static class AppUtils {
+    public partial class material_ {
         public static readonly TextStyle _errorTextStyle = new TextStyle(
             color: new Color(0xD0FF0000),
             fontFamily: "monospace",
@@ -23,6 +23,13 @@ namespace Unity.UIWidgets.material {
         );
     }
 
+    public enum ThemeMode {
+        system,
+
+        light,
+
+        dark,
+    }
 
     public class MaterialApp : StatefulWidget {
         public MaterialApp(
@@ -32,6 +39,7 @@ namespace Unity.UIWidgets.material {
             Dictionary<string, WidgetBuilder> routes = null,
             string initialRoute = null,
             RouteFactory onGenerateRoute = null,
+            InitialRouteListFactory onGenerateInitialRoutes = null,
             RouteFactory onUnknownRoute = null,
             List<NavigatorObserver> navigatorObservers = null,
             TransitionBuilder builder = null,
@@ -39,17 +47,24 @@ namespace Unity.UIWidgets.material {
             Color color = null,
             ThemeData theme = null,
             ThemeData darkTheme = null,
+            ThemeMode themeMode = ThemeMode.system,
             Locale locale = null,
             List<LocalizationsDelegate> localizationsDelegates = null,
             LocaleListResolutionCallback localeListResolutionCallback = null,
             LocaleResolutionCallback localeResolutionCallback = null,
             List<Locale> supportedLocales = null,
-            bool showPerformanceOverlay = false
+            bool showPerformanceOverlay = false,
+            bool checkerboardRasterCacheImages = false,
+            bool checkerboardOffscreenLayers = false,
+            bool debugShowCheckedModeBanner = true,
+            Dictionary<LogicalKeySet, Intent> shortcuts = null,
+            Dictionary<LocalKey, ActionFactory> actions = null
         ) : base(key: key) {
             supportedLocales = supportedLocales ?? new List<Locale> {new Locale("en", "US")};
             this.navigatorKey = navigatorKey;
             this.home = home;
             this.routes = routes ?? new Dictionary<string, WidgetBuilder>();
+            this.onGenerateInitialRoutes = onGenerateInitialRoutes;
             this.initialRoute = initialRoute;
             this.onGenerateRoute = onGenerateRoute;
             this.onUnknownRoute = onUnknownRoute;
@@ -59,12 +74,18 @@ namespace Unity.UIWidgets.material {
             this.color = color;
             this.theme = theme;
             this.darkTheme = darkTheme;
+            this.themeMode = themeMode;
             this.locale = locale;
             this.localizationsDelegates = localizationsDelegates;
             this.localeListResolutionCallback = localeListResolutionCallback;
             this.localeResolutionCallback = localeResolutionCallback;
             this.supportedLocales = supportedLocales;
             this.showPerformanceOverlay = showPerformanceOverlay;
+            this.checkerboardRasterCacheImages = checkerboardRasterCacheImages;
+            this.checkerboardOffscreenLayers = checkerboardOffscreenLayers;
+            this.debugShowCheckedModeBanner = debugShowCheckedModeBanner;
+            this.shortcuts = shortcuts;
+            this.actions = actions;
         }
 
         public readonly GlobalKey<NavigatorState> navigatorKey;
@@ -77,6 +98,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly RouteFactory onGenerateRoute;
 
+        public readonly InitialRouteListFactory onGenerateInitialRoutes;
+
         public readonly RouteFactory onUnknownRoute;
 
         public readonly List<NavigatorObserver> navigatorObservers;
@@ -88,6 +111,8 @@ namespace Unity.UIWidgets.material {
         public readonly ThemeData theme;
 
         public readonly ThemeData darkTheme;
+
+        public readonly ThemeMode themeMode;
 
         public readonly Color color;
 
@@ -103,15 +128,24 @@ namespace Unity.UIWidgets.material {
 
         public readonly bool showPerformanceOverlay;
 
+        public readonly bool checkerboardRasterCacheImages;
+
+        public readonly bool checkerboardOffscreenLayers;
+
+        public readonly bool debugShowCheckedModeBanner;
+
+        public readonly Dictionary<LogicalKeySet, Intent> shortcuts;
+
+        public readonly Dictionary<LocalKey, ActionFactory> actions;
+
         public override State createState() {
             return new _MaterialAppState();
         }
     }
 
-
     class _MaterialAppState : State<MaterialApp> {
         HeroController _heroController;
-        
+
         public override void initState() {
             base.initState();
             _heroController = new HeroController(createRectTween: _createRectTween);
@@ -123,6 +157,7 @@ namespace Unity.UIWidgets.material {
             if (widget.navigatorKey != (oldWidget as MaterialApp).navigatorKey) {
                 _heroController = new HeroController(createRectTween: _createRectTween);
             }
+
             _updateNavigator();
         }
 
@@ -151,7 +186,7 @@ namespace Unity.UIWidgets.material {
                 if (widget.localizationsDelegates != null) {
                     _delegates.AddRange(widget.localizationsDelegates);
                 }
-                
+
                 _delegates.Add(DefaultCupertinoLocalizations.del);
                 _delegates.Add(DefaultMaterialLocalizations.del);
                 return new List<LocalizationsDelegate>(_delegates);
@@ -169,19 +204,20 @@ namespace Unity.UIWidgets.material {
                 routes: widget.routes,
                 initialRoute: widget.initialRoute,
                 onGenerateRoute: widget.onGenerateRoute,
+                onGenerateInitialRoutes: widget.onGenerateInitialRoutes,
                 onUnknownRoute: widget.onUnknownRoute,
                 builder: (BuildContext _context, Widget child) => {
-                    ThemeData theme;
-                    Brightness platformBrightness = MediaQuery.platformBrightnessOf(_context);
-                    if (platformBrightness == Brightness.dark && widget.darkTheme != null) {
-                        theme = widget.darkTheme;
+                    ThemeMode mode = widget.themeMode;
+                    ThemeData theme = null;
+                    if (widget.darkTheme != null) {
+                        ui.Brightness platformBrightness = MediaQuery.platformBrightnessOf(context);
+                        if (mode == ThemeMode.dark ||
+                            (mode == ThemeMode.system && platformBrightness == ui.Brightness.dark)) {
+                            theme = widget.darkTheme;
+                        }
                     }
-                    else if (widget.theme != null) {
-                        theme = widget.theme;
-                    }
-                    else {
-                        theme = ThemeData.fallback();
-                    }
+
+                    theme = theme ?? widget.theme ?? ThemeData.fallback();
 
                     return new AnimatedTheme(
                         data: theme,
@@ -193,13 +229,25 @@ namespace Unity.UIWidgets.material {
                             : child
                     );
                 },
-                textStyle: AppUtils._errorTextStyle,
+                textStyle: material_._errorTextStyle,
                 locale: widget.locale,
                 localizationsDelegates: _localizationsDelegates,
                 localeResolutionCallback: widget.localeResolutionCallback,
                 localeListResolutionCallback: widget.localeListResolutionCallback,
                 supportedLocales: widget.supportedLocales,
-                showPerformanceOverlay: widget.showPerformanceOverlay
+                showPerformanceOverlay: widget.showPerformanceOverlay,
+                checkerboardRasterCacheImages: widget.checkerboardRasterCacheImages,
+                checkerboardOffscreenLayers: widget.checkerboardOffscreenLayers,
+                debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,
+                inspectorSelectButtonBuilder: (BuildContext contextIn, VoidCallback onPressed) => {
+                    return new FloatingActionButton(
+                        child: new Icon(Icons.search),
+                        onPressed: onPressed,
+                        mini: true
+                    );
+                },
+                shortcuts: widget.shortcuts,
+                actions: widget.actions
             );
 
             return result;

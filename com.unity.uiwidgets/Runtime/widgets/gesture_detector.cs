@@ -39,7 +39,8 @@ namespace Unity.UIWidgets.widgets {
     public delegate void GestureRecognizerFactoryInitializer<T>(T instance) where T : GestureRecognizer;
 
     public class GestureRecognizerFactoryWithHandlers<T> : GestureRecognizerFactory<T> where T : GestureRecognizer {
-        public GestureRecognizerFactoryWithHandlers(GestureRecognizerFactoryConstructor<T> constructor,
+        public GestureRecognizerFactoryWithHandlers(
+            GestureRecognizerFactoryConstructor<T> constructor,
             GestureRecognizerFactoryInitializer<T> initializer) {
             D.assert(constructor != null);
             D.assert(initializer != null);
@@ -88,6 +89,10 @@ namespace Unity.UIWidgets.widgets {
             GestureDragUpdateCallback onHorizontalDragUpdate = null,
             GestureDragEndCallback onHorizontalDragEnd = null,
             GestureDragCancelCallback onHorizontalDragCancel = null,
+            GestureForcePressStartCallback onForcePressStart = null,
+            GestureForcePressPeakCallback onForcePressPeak = null,
+            GestureForcePressUpdateCallback onForcePressUpdate = null,
+            GestureForcePressEndCallback onForcePressEnd = null,
             GestureDragDownCallback onPanDown = null,
             GestureDragStartCallback onPanStart = null,
             GestureDragUpdateCallback onPanUpdate = null,
@@ -156,6 +161,10 @@ namespace Unity.UIWidgets.widgets {
             this.onHorizontalDragUpdate = onHorizontalDragUpdate;
             this.onHorizontalDragEnd = onHorizontalDragEnd;
             this.onHorizontalDragCancel = onHorizontalDragCancel;
+            this.onForcePressEnd = onForcePressEnd;
+            this.onForcePressPeak = onForcePressPeak;
+            this.onForcePressStart = onForcePressStart;
+            this.onForcePressUpdate = onForcePressUpdate;
             this.onPanDown = onPanDown;
             this.onPanStart = onPanStart;
             this.onPanUpdate = onPanUpdate;
@@ -202,6 +211,10 @@ namespace Unity.UIWidgets.widgets {
         public readonly GestureScaleEndCallback onScaleEnd;
         public readonly HitTestBehavior behavior;
         public readonly DragStartBehavior dragStartBehavior;
+        public readonly GestureForcePressStartCallback onForcePressStart;
+        public readonly GestureForcePressPeakCallback onForcePressPeak;
+        public readonly GestureForcePressUpdateCallback onForcePressUpdate;
+        public readonly GestureForcePressEndCallback onForcePressEnd;
 
         public override Widget build(BuildContext context) {
             var gestures = new Dictionary<Type, GestureRecognizerFactory>();
@@ -324,6 +337,22 @@ namespace Unity.UIWidgets.widgets {
                         }
                     );
             }
+            if (onForcePressStart != null ||
+                onForcePressPeak != null ||
+                onForcePressUpdate != null ||
+                onForcePressEnd != null) {
+                gestures[typeof(ForcePressGestureRecognizer)] = 
+                    new GestureRecognizerFactoryWithHandlers<ForcePressGestureRecognizer>(
+                    () => new ForcePressGestureRecognizer(debugOwner: this),
+                    (ForcePressGestureRecognizer instance) => {
+                        instance.onStart = onForcePressStart;
+                        instance.onPeak = onForcePressPeak;
+                        instance.onUpdate = onForcePressUpdate;
+                        instance.onEnd = onForcePressEnd;
+                    }
+                );
+            }
+
 
             return new RawGestureDetector(
                 gestures: gestures,
@@ -453,10 +482,10 @@ namespace Unity.UIWidgets.widgets {
         public override Widget build(BuildContext context) {
             Widget result = new Listener(
                 onPointerDown: _handlePointerDown,
-                onPointerScroll: _handlePointerScroll,
                 behavior: widget.behavior ?? _defaultBehavior,
                 child: widget.child
             );
+           
             return result;
         }
 

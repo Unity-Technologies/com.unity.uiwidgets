@@ -1,3 +1,4 @@
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -60,10 +61,14 @@ namespace Unity.UIWidgets.material {
                     notchMargin: widget.notchMargin
                 )
                 : new ShapeBorderClipper(shape: new RoundedRectangleBorder());
+            
+            float elevation = widget.elevation ?? babTheme.elevation ?? _defaultElevation;
+            Color color = widget.color ?? babTheme.color ?? Theme.of(context).bottomAppBarColor;
+            Color effectiveColor = ElevationOverlay.applyOverlay(context, color, elevation);
             return new PhysicalShape(
                 clipper: clipper,
-                elevation: widget.elevation ?? babTheme.elevation ?? _defaultElevation,
-                color: widget.color ?? babTheme.color ?? Theme.of(context).bottomAppBarColor,
+                elevation: elevation,
+                color: effectiveColor,
                 clipBehavior: widget.clipBehavior,
                 child: new Material(
                     type: MaterialType.transparency,

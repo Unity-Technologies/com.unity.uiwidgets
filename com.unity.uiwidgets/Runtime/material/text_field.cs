@@ -588,7 +588,7 @@ namespace Unity.UIWidgets.material {
                     onSelectionHandleTapped: _handleSelectionHandleTapped,
                     inputFormatters: formatters,
                     rendererIgnoresPointer: true,
-                    cursorWidth: widget.cursorWidth,
+                    cursorWidth: widget.cursorWidth.Value,
                     cursorRadius: cursorRadius,
                     cursorColor: cursorColor,
                     selectionHeightStyle: widget.selectionHeightStyle,

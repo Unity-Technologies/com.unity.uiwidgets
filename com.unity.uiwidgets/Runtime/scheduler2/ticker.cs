@@ -91,7 +91,7 @@ namespace Unity.UIWidgets.scheduler2 {
             return _future;
         }
 
-        DiagnosticsNode describeForError(string name) {
+        public DiagnosticsNode describeForError(string name) {
             return new DiagnosticsProperty<Ticker>(name, this, description: toString(debugIncludeStack: true));
         }
 

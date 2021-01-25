@@ -91,7 +91,9 @@ namespace Unity.UIWidgets.cupertino {
             TextStyle pickerTextStyle = null,
             TextStyle dateTimePickerTextStyle = null
         ) {
+            _defaults = defaults ?? new _TextThemeDefaultsBuilder(CupertinoColors.label, CupertinoColors.inactiveGray);
             _primaryColor = primaryColor ?? CupertinoColors.systemBlue;
+            D.assert((_navActionTextStyle != null && _actionTextStyle != null) || _primaryColor != null);
             _textStyle = textStyle;
             _actionTextStyle = actionTextStyle;
             _tabLabelTextStyle = tabLabelTextStyle;
@@ -100,11 +102,6 @@ namespace Unity.UIWidgets.cupertino {
             _navActionTextStyle = navActionTextStyle;
             _pickerTextStyle = pickerTextStyle;
             _dateTimePickerTextStyle = dateTimePickerTextStyle;
-            _defaults = defaults ??
-                        //new _TextThemeDefaultsBuilder(Color.white,Color.white);
-                        new _TextThemeDefaultsBuilder(CupertinoColors.label, CupertinoColors.inactiveGray);
-            D.assert((_navActionTextStyle != null && _actionTextStyle != null) || _primaryColor != null);
-
         }
         /*public static CupertinoTextThemeData _raw(
             _TextThemeDefaultsBuilder _defaults,
@@ -219,15 +216,15 @@ namespace Unity.UIWidgets.cupertino {
 
 
         public new CupertinoTextThemeData copyWith(
-            Color primaryColor,
-            TextStyle textStyle,
-            TextStyle actionTextStyle,
-            TextStyle tabLabelTextStyle,
-            TextStyle navTitleTextStyle,
-            TextStyle navLargeTitleTextStyle,
-            TextStyle navActionTextStyle,
-            TextStyle pickerTextStyle,
-            TextStyle dateTimePickerTextStyle
+            Color primaryColor = null,
+            TextStyle textStyle = null,
+            TextStyle actionTextStyle = null,
+            TextStyle tabLabelTextStyle = null,
+            TextStyle navTitleTextStyle = null,
+            TextStyle navLargeTitleTextStyle = null,
+            TextStyle navActionTextStyle = null,
+            TextStyle pickerTextStyle = null,
+            TextStyle dateTimePickerTextStyle = null
         ) {
             return new CupertinoTextThemeData(
                 _defaults,

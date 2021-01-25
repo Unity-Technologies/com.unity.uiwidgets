@@ -1,4 +1,5 @@
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -114,7 +115,7 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Brightness?>("brightness", brightness, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("color", color, defaultValue: null));
+            properties.add(new ColorProperty("color", color, defaultValue: null));
             properties.add(new DiagnosticsProperty<float?>("elevation", elevation, defaultValue: null));
             properties.add(new DiagnosticsProperty<IconThemeData>("iconTheme", iconTheme, defaultValue: null));
             properties.add(new DiagnosticsProperty<IconThemeData>("actionsIconTheme", actionsIconTheme, defaultValue: null));

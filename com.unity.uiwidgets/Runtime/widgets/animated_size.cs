@@ -10,7 +10,7 @@ namespace Unity.UIWidgets.widgets {
         public AnimatedSize(
             Key key = null,
             Widget child = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             Curve curve = null,
             TimeSpan? duration = null,
             TimeSpan? reverseDuration = null,
@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.widgets {
             this.vsync = vsync;
         }
 
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
 
         public readonly Curve curve;
 
@@ -41,7 +41,9 @@ namespace Unity.UIWidgets.widgets {
                 duration: duration,
                 reverseDuration: reverseDuration,
                 curve: curve,
-                vsync: vsync);
+                vsync: vsync,
+                textDirection: Directionality.of(context)
+                );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
@@ -51,6 +53,7 @@ namespace Unity.UIWidgets.widgets {
             _renderObject.reverseDuration = reverseDuration;
             _renderObject.curve = curve;
             _renderObject.vsync = vsync;
+            _renderObject.textDirection = Directionality.of(context);
         }
         
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {

@@ -181,7 +181,8 @@ namespace Unity.UIWidgets.widgets {
 
                 if (debugNewCanvasSaveCount < debugPreviousCanvasSaveCount) {
                     throw new UIWidgetsError(new List<DiagnosticsNode>{
-                        new ErrorSummary($"The {painter} custom painter called canvas.restore() " +
+                        new ErrorSummary(
+                            $"The {painter} custom painter called canvas.restore() " +
                             $"{debugPreviousCanvasSaveCount - debugNewCanvasSaveCount} more " +
                             "times than it called canvas.save() or canvas.saveLayer()."
                         ),

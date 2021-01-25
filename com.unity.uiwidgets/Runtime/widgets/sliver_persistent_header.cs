@@ -17,7 +17,7 @@ namespace Unity.UIWidgets.widgets {
             get { return null; }
         }
 
-        public OverScrollHeaderStretchConfiguration stretchConfiguration {
+        public virtual OverScrollHeaderStretchConfiguration stretchConfiguration {
             get { return null; }
         }
 
@@ -142,8 +142,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void insertChildRenderObject(RenderObject child, object slot) {
-            D.assert((bool) (renderObject as RenderSliverPersistentHeader).debugValidateChild(child));
-            (renderObject as RenderSliverPersistentHeader).child = (RenderBox) child;
+            D.assert((bool) ((RenderSliverPersistentHeader)renderObject).debugValidateChild(child));
+            ((RenderSliverPersistentHeader)renderObject).child = (RenderBox) child;
         }
 
         protected override void moveChildRenderObject(RenderObject child, object slot) {

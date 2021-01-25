@@ -354,172 +354,168 @@ namespace Unity.UIWidgets.cupertino {
                     )
             );
         }
-        public override Widget build(BuildContext context) {
-          List<Widget> widgets = new List<Widget>();
-          widgets.Add(new  AnimatedBuilder(
-            builder: _buildAnimation,
-            animation: widget.controller
-          ));
-          return new Stack(
-            children: widgets
-          );
+        public override Widget build(BuildContext context) { 
+            List<Widget> widgets = new List<Widget>();
+            widgets.Add(new  AnimatedBuilder(
+                builder: _buildAnimation,
+                animation: widget.controller)
+            ); 
+            return new Stack(
+                children: widgets
+                );
         }
     }
-    public class _ContextMenuRoute : PopupRoute {
-      public _ContextMenuRoute(
-        List<Widget> actions = null,
-        _ContextMenuLocation contextMenuLocation = default,
-        string barrierLabel = null,
-        _ContextMenuPreviewBuilderChildless builder = null,
-        ImageFilter filter = null,
-        Rect previousChildRect = null,
-        RouteSettings settings = null
-      ) : base(
-        filter: filter,
-        settings: settings
-      ){
-        D.assert(actions != null && actions.isNotEmpty());
-        D.assert(contextMenuLocation != null);
-        this.barrierLabel = barrierLabel;
-         _actions = actions;
-        _builder = builder;
-        _contextMenuLocation = contextMenuLocation;
-        _previousChildRect = previousChildRect;
-      } 
-      public readonly static Color _kModalBarrierColor = new Color(0x6604040F);
-      public readonly TimeSpan _kModalPopupTransitionDuration =new TimeSpan(0, 0, 0, 0, 335);
-      public readonly List<Widget> _actions;
-      public readonly _ContextMenuPreviewBuilderChildless _builder;
-      public readonly GlobalKey _childGlobalKey = new LabeledGlobalKey<State<StatefulWidget>>();
-      public readonly _ContextMenuLocation _contextMenuLocation;
-      public bool _externalOffstage = false;
-      public bool _internalOffstage = false;
-      public Orientation _lastOrientation;
-      public readonly Rect _previousChildRect;
-      public float _scale = 1.0f;
-      public readonly GlobalKey _sheetGlobalKey = new LabeledGlobalKey<State<StatefulWidget>>();//GlobalKey();
-      public readonly static CurveTween _curve = new CurveTween(
-        curve: Curves.easeOutBack
-      ); 
-      public readonly static  CurveTween _curveReverse = new CurveTween(
-        curve: Curves.easeInBack
-      );
-      public readonly static RectTween _rectTween = new RectTween();
-      public readonly static Animatable<Rect> _rectAnimatable = _rectTween.chain(_curve);
-      public readonly static RectTween _rectTweenReverse = new RectTween();
-      public readonly static Animatable<Rect> _rectAnimatableReverse = _rectTweenReverse.chain(_curveReverse);
+    public class _ContextMenuRoute : PopupRoute { 
+        public _ContextMenuRoute(
+            List<Widget> actions = null, 
+            _ContextMenuLocation contextMenuLocation = default, 
+            string barrierLabel = null, 
+            _ContextMenuPreviewBuilderChildless builder = null, 
+            ImageFilter filter = null, 
+            Rect previousChildRect = null, 
+            RouteSettings settings = null
+            ) : base(filter: filter, settings: settings){ 
+            
+            D.assert(actions != null && actions.isNotEmpty());
+            D.assert(contextMenuLocation != null);
+            this.barrierLabel = barrierLabel;
+            _actions = actions;
+            _builder = builder;
+            _contextMenuLocation = contextMenuLocation;
+            _previousChildRect = previousChildRect;
+        } 
+        public readonly static Color _kModalBarrierColor = new Color(0x6604040F);
+        public readonly TimeSpan _kModalPopupTransitionDuration =new TimeSpan(0, 0, 0, 0, 335);
+        public readonly List<Widget> _actions;
+        public readonly _ContextMenuPreviewBuilderChildless _builder;
+        public readonly GlobalKey _childGlobalKey = new LabeledGlobalKey<State<StatefulWidget>>();
+        public readonly _ContextMenuLocation _contextMenuLocation;
+        public bool _externalOffstage = false;
+        public bool _internalOffstage = false;
+        public Orientation _lastOrientation;
+        public readonly Rect _previousChildRect;
+        public float _scale = 1.0f;
+        public readonly GlobalKey _sheetGlobalKey = new LabeledGlobalKey<State<StatefulWidget>>();//GlobalKey();
+        public readonly static CurveTween _curve = new CurveTween(
+            curve: Curves.easeOutBack
+        ); 
+        public readonly static  CurveTween _curveReverse = new CurveTween(
+            curve: Curves.easeInBack
+        );
+        public readonly static RectTween _rectTween = new RectTween();
+        public readonly static Animatable<Rect> _rectAnimatable = _rectTween.chain(_curve);
+        public readonly static RectTween _rectTweenReverse = new RectTween();
+        public readonly static Animatable<Rect> _rectAnimatableReverse = _rectTweenReverse.chain(_curveReverse);
 
-      public readonly static RectTween _sheetRectTween = new RectTween();
-      public readonly Animatable<Rect> _sheetRectAnimatable = _sheetRectTween.chain(_curve);
-      public readonly Animatable<Rect> _sheetRectAnimatableReverse = _sheetRectTween.chain(_curveReverse);
-      public readonly static  Tween< float> _sheetScaleTween = new FloatTween(0.0f,0.0f);
-      public readonly static  Animatable< float> _sheetScaleAnimatable = _sheetScaleTween.chain(_curve);
-      public readonly static  Animatable< float> _sheetScaleAnimatableReverse = _sheetScaleTween.chain(_curveReverse);
-      public readonly Tween< float> _opacityTween = new FloatTween(begin: 0.0f, end: 1.0f);
-      public Animation< float> _sheetOpacity;
+        public readonly static RectTween _sheetRectTween = new RectTween();
+        public readonly Animatable<Rect> _sheetRectAnimatable = _sheetRectTween.chain(_curve);
+        public readonly Animatable<Rect> _sheetRectAnimatableReverse = _sheetRectTween.chain(_curveReverse);
+        public readonly static  Tween< float> _sheetScaleTween = new FloatTween(0.0f,0.0f);
+        public readonly static  Animatable< float> _sheetScaleAnimatable = _sheetScaleTween.chain(_curve);
+        public readonly static  Animatable< float> _sheetScaleAnimatableReverse = _sheetScaleTween.chain(_curveReverse);
+        public readonly Tween< float> _opacityTween = new FloatTween(begin: 0.0f, end: 1.0f);
+        public Animation< float> _sheetOpacity;
       
-      public readonly string barrierLabel;
+        public readonly string barrierLabel;
       //public override string barrierLabel;
-      public Color barrierColor {
-        get { return _kModalBarrierColor; }
-      }
-      
-      public bool barrierDismissible{ 
-        get { return false; }
-      }
-
-      public bool semanticsDismissible { 
-        get { return true; }
-      }
-
-      public TimeSpan transitionDuration {
-        get {
-          return _kModalPopupTransitionDuration;
+        public Color barrierColor {
+            get { return _kModalBarrierColor; }
         }
-      }
-      public static Rect _getScaledRect(GlobalKey globalKey,  float scale) {
-        Rect childRect = CupertinoContextMenuUtils._getRect(globalKey);
-        Size sizeScaled = childRect.size * scale;
-        Offset offsetScaled = new Offset(
-          childRect.left + (childRect.size.width - sizeScaled.width) / 2,
-          childRect.top + (childRect.size.height - sizeScaled.height) / 2
-        );
-        return offsetScaled & sizeScaled;
-      }
-      /*public static AlignmentDirectional getSheetAlignment(_ContextMenuLocation contextMenuLocation) {
-        switch (contextMenuLocation) {
-          case _ContextMenuLocation.center:
-            return AlignmentDirectional.topCenter;
-          case _ContextMenuLocation.right:
-            return AlignmentDirectional.topEnd;
-          default:
-            return AlignmentDirectional.topStart;
+        public bool barrierDismissible{ 
+            get { return false; }
         }
-      }*/
-      public static Rect _getSheetRectBegin(Orientation orientation, _ContextMenuLocation contextMenuLocation, Rect childRect, Rect sheetRect) {
-        switch (contextMenuLocation) {
-          case _ContextMenuLocation.center:
-            Offset target1 = (orientation == Orientation.portrait) 
-              ? childRect.bottomCenter 
-              : childRect.topCenter;
-            Offset centered = target1 - new Offset(sheetRect.width / 2, 0.0f);
-            return centered & sheetRect.size;
-          case _ContextMenuLocation.right:
-            Offset target2 = ((orientation == Orientation.portrait) 
-            ? childRect.bottomRight 
-            : childRect.topRight);
-            return (target2 - new Offset(sheetRect.width, 0.0f)) & sheetRect.size;
-          default:
-            Offset target3 = orientation == Orientation.portrait
-              ? childRect.bottomLeft
-              : childRect.topLeft;
-            return target3 & sheetRect.size;
-        }
-      }
-      public void _onDismiss(BuildContext context, float scale, float opacity) {
-        _scale = scale;
-        _opacityTween.end = opacity;
-        _sheetOpacity = _opacityTween.animate(
-          new CurvedAnimation(
-            parent: animation,
-            curve: new Interval(0.9f, 1.0f)
-        ));
-        Navigator.of(context).pop<object>();
-      }
 
-      public void _updateTweenRects() {
-        Rect childRect = _scale == null 
-          ? CupertinoContextMenuUtils._getRect(_childGlobalKey) 
-          : _getScaledRect(_childGlobalKey, _scale);
-        _rectTween.begin = _previousChildRect;
-        _rectTween.end = childRect;
-        Rect childRectOriginal = CupertinoContextMenuUtils.fromCenter(
-          center: _previousChildRect.center,
-          width: _previousChildRect.width / CupertinoContextMenuUtils._kOpenScale,
-          height: _previousChildRect.height / CupertinoContextMenuUtils._kOpenScale
-        );
-        Rect sheetRect = CupertinoContextMenuUtils._getRect(_sheetGlobalKey);
-        Rect sheetRectBegin = _getSheetRectBegin(
-          _lastOrientation,
-          _contextMenuLocation,
-          childRectOriginal,
-          sheetRect
-        );
-        _sheetRectTween.begin = sheetRectBegin;
-        _sheetRectTween.end = sheetRect;
-        _sheetScaleTween.begin = 0.0f;
-        _sheetScaleTween.end = _scale;
-        _rectTweenReverse.begin = childRectOriginal; 
-        _rectTweenReverse.end = childRect;
-      }
-      public void _setOffstageInternally() {
-        base.offstage = _externalOffstage || _internalOffstage;
-        changedInternalState();
-      }
-      public bool didPop(object result) {
-        _updateTweenRects();
-        return base.didPop(result);
-      }
+        public bool semanticsDismissible { 
+            get { return true; }
+        }
+
+        public TimeSpan transitionDuration {
+            get {
+                return _kModalPopupTransitionDuration;
+            }
+        }
+        /*public static AlignmentDirectional getSheetAlignment(_ContextMenuLocation contextMenuLocation) {
+            switch (contextMenuLocation) {
+                case _ContextMenuLocation.center:
+                    return AlignmentDirectional.topCenter;
+                case _ContextMenuLocation.right:
+                    return AlignmentDirectional.topEnd;
+                default:
+                    return AlignmentDirectional.topStart;
+            }
+        }*/
+        public static Rect _getScaledRect(GlobalKey globalKey,  float scale) {
+            Rect childRect = CupertinoContextMenuUtils._getRect(globalKey);
+            Size sizeScaled = childRect.size * scale;
+            Offset offsetScaled = new Offset(
+            childRect.left + (childRect.size.width - sizeScaled.width) / 2,
+            childRect.top + (childRect.size.height - sizeScaled.height) / 2
+            );
+            return offsetScaled & sizeScaled;
+        }
+        public static Rect _getSheetRectBegin(Orientation orientation, _ContextMenuLocation contextMenuLocation, Rect childRect, Rect sheetRect) { 
+            switch (contextMenuLocation) { 
+                case _ContextMenuLocation.center: 
+                    Offset target1 = (orientation == Orientation.portrait) 
+                        ? childRect.bottomCenter
+                        : childRect.topCenter;
+                    Offset centered = target1 - new Offset(sheetRect.width / 2, 0.0f);
+                    return centered & sheetRect.size;
+                case _ContextMenuLocation.right: 
+                    Offset target2 = ((orientation == Orientation.portrait) 
+                        ? childRect.bottomRight 
+                        : childRect.topRight); 
+                    return (target2 - new Offset(sheetRect.width, 0.0f)) & sheetRect.size; 
+                default: 
+                    Offset target3 = orientation == Orientation.portrait 
+                        ? childRect.bottomLeft 
+                        : childRect.topLeft; 
+                    return target3 & sheetRect.size;
+            }
+        } 
+        public void _onDismiss(BuildContext context, float scale, float opacity) { 
+            _scale = scale;
+            _opacityTween.end = opacity;
+            _sheetOpacity = _opacityTween.animate(
+                new CurvedAnimation(
+                    parent: animation, 
+                    curve: new Interval(0.9f, 1.0f)
+                  ));
+            Navigator.of(context).pop<object>();
+        }
+        public void _updateTweenRects() { 
+            Rect childRect = _scale == null 
+                ? CupertinoContextMenuUtils._getRect(_childGlobalKey) 
+                : _getScaledRect(_childGlobalKey, _scale); 
+            _rectTween.begin = _previousChildRect; 
+            _rectTween.end = childRect; 
+            Rect childRectOriginal = CupertinoContextMenuUtils.fromCenter(
+                center: _previousChildRect.center,
+                width: _previousChildRect.width / CupertinoContextMenuUtils._kOpenScale,
+                height: _previousChildRect.height / CupertinoContextMenuUtils._kOpenScale
+            ); 
+            Rect sheetRect = CupertinoContextMenuUtils._getRect(_sheetGlobalKey);
+            Rect sheetRectBegin = _getSheetRectBegin(
+                _lastOrientation,
+                _contextMenuLocation,
+                childRectOriginal,
+                sheetRect
+            ); 
+            _sheetRectTween.begin = sheetRectBegin;
+            _sheetRectTween.end = sheetRect;
+            _sheetScaleTween.begin = 0.0f;
+            _sheetScaleTween.end = _scale;
+            _rectTweenReverse.begin = childRectOriginal; 
+            _rectTweenReverse.end = childRect;
+        }
+        public void _setOffstageInternally() {
+            base.offstage = _externalOffstage || _internalOffstage;
+            changedInternalState();
+        }
+        public bool didPop(object result) {
+            _updateTweenRects();
+            return base.didPop(result);
+        }
 
         public bool offstage{
            set{
@@ -527,289 +523,279 @@ namespace Unity.UIWidgets.cupertino {
                _setOffstageInternally();
            }
         }
-        
-      
-      public TickerFuture didPush() {
-        _internalOffstage = true;
-        _setOffstageInternally();
-        SchedulerBinding.instance.addPostFrameCallback((TimeSpan timeSpan)=>{
-          _updateTweenRects();
-          _internalOffstage = false;
-          _setOffstageInternally();
-        });
-        return base.didPush();
-      }
 
-      public Animation<float> createAnimation() { 
-        Animation< float> animation = base.createAnimation();
-        _sheetOpacity = _opacityTween.animate(new CurvedAnimation(
-          parent: animation,
-          curve: Curves.linear
-        ));
-        return animation;
-      }
-      public override Widget buildPage(BuildContext context, Animation< float> animation, Animation< float> secondaryAnimation) {
-        return null;
-      }
-      public override Widget buildTransitions(BuildContext context1, Animation< float> animation, Animation< float> secondaryAnimation, Widget child) {
-        return new OrientationBuilder(
-          builder: (BuildContext context2, Orientation orientation)=>{
-            _lastOrientation = orientation;
-            if (!animation.isCompleted) {
-              bool reverse = animation.status == AnimationStatus.reverse;
-              Rect rect = reverse
-                ? _rectAnimatableReverse.evaluate(animation)
-                : _rectAnimatable.evaluate(animation);
-              Rect sheetRect = reverse
-                ? _sheetRectAnimatableReverse.evaluate(animation)
-                : _sheetRectAnimatable.evaluate(animation);
-              float sheetScale = reverse
-                ? _sheetScaleAnimatableReverse.evaluate(animation)
-                : _sheetScaleAnimatable.evaluate(animation); 
-              List<Widget> widgets = new List<Widget>();
-              widgets.Add(
-                Positioned.fromRect(
-                  rect: sheetRect,
-                  child: new Opacity(
-                    opacity: _sheetOpacity.value,
-                    child: Transform.scale(
-                      //alignment: getSheetAlignment(_contextMenuLocation),
-                      scale: sheetScale,
-                      child: new _ContextMenuSheet(
-                        key: _sheetGlobalKey,
+        public TickerFuture didPush() {
+            _internalOffstage = true;
+            _setOffstageInternally();
+            SchedulerBinding.instance.addPostFrameCallback((TimeSpan timeSpan)=>{
+                _updateTweenRects();
+                _internalOffstage = false;
+                _setOffstageInternally();
+            });
+            return base.didPush();
+        }
+        public Animation<float> createAnimation() { 
+            Animation< float> animation = base.createAnimation();
+            _sheetOpacity = _opacityTween.animate(new CurvedAnimation(
+                parent: animation,
+                curve: Curves.linear
+            ));
+            return animation;
+        }
+        public override Widget buildPage(BuildContext context, Animation< float> animation, Animation< float> secondaryAnimation) {
+            return null;
+        }
+        public override Widget buildTransitions(BuildContext context1, Animation< float> animation, Animation< float> secondaryAnimation, Widget child) {
+            return new OrientationBuilder(
+                builder: (BuildContext context2, Orientation orientation)=>{ 
+                    _lastOrientation = orientation; 
+                    if (!animation.isCompleted) { 
+                        bool reverse = animation.status == AnimationStatus.reverse;
+                        Rect rect = reverse 
+                            ? _rectAnimatableReverse.evaluate(animation) 
+                            : _rectAnimatable.evaluate(animation);
+                        Rect sheetRect = reverse
+                            ? _sheetRectAnimatableReverse.evaluate(animation)
+                            : _sheetRectAnimatable.evaluate(animation);
+                        float sheetScale = reverse
+                            ? _sheetScaleAnimatableReverse.evaluate(animation)
+                            : _sheetScaleAnimatable.evaluate(animation); 
+                        List<Widget> widgets = new List<Widget>(); 
+                        widgets.Add(
+                            Positioned.fromRect(
+                                rect: sheetRect, 
+                                child: new Opacity(
+                                    opacity: _sheetOpacity.value, 
+                                    child: Transform.scale( 
+                                        //alignment: getSheetAlignment(_contextMenuLocation),
+                                        scale: sheetScale, 
+                                        child: new _ContextMenuSheet(
+                                            key: _sheetGlobalKey, 
+                                            actions: _actions, 
+                                            contextMenuLocation: _contextMenuLocation, 
+                                            orientation: orientation
+                                            )
+                                        )
+                                    )
+                                )
+                            ); 
+                        widgets.Add(
+                            Positioned.fromRect(
+                                key: _childGlobalKey, 
+                                rect: rect, 
+                                child: _builder(context2, animation)
+                                )); 
+                        return new Stack(
+                            children: widgets
+                            ); 
+                    } 
+                    return new _ContextMenuRouteStatic(
                         actions: _actions,
+                        child: _builder(context1, animation),
+                        childGlobalKey: _childGlobalKey,
                         contextMenuLocation: _contextMenuLocation,
-                        orientation: orientation
-                      )
-                    )
-                  )
-                )
-              );
-              widgets.Add(
-                Positioned.fromRect(
-                  key: _childGlobalKey,
-                  rect: rect,
-                  child: _builder(context2, animation)
-                )
-              );
-              return new Stack(
-                children: widgets
-              );
+                        onDismiss: _onDismiss,
+                        orientation: orientation,
+                        sheetGlobalKey: _sheetGlobalKey
+                        );
+                }
+            );
+        }
+    }
+    public class _ContextMenuRouteStatic : StatefulWidget { 
+        public _ContextMenuRouteStatic(
+            Key key = null,
+            List<Widget> actions = null,
+            Widget child = null,
+            GlobalKey childGlobalKey = null,
+            _ContextMenuLocation contextMenuLocation = default,
+            _DismissCallback onDismiss =default,
+            Orientation orientation = default,
+            GlobalKey sheetGlobalKey = null
+            ) : base(key: key) {
+            
+            D.assert(contextMenuLocation != default);
+            D.assert(orientation != default);
+            this.actions = actions;
+            this.child = child;
+            this.childGlobalKey = childGlobalKey; 
+            this.contextMenuLocation = contextMenuLocation;
+            this.onDismiss = onDismiss;
+            this.orientation = orientation;
+            this.sheetGlobalKey = sheetGlobalKey;
+        }
+        public readonly List<Widget> actions;
+        public readonly Widget child;
+        public readonly GlobalKey childGlobalKey;
+        public readonly _ContextMenuLocation contextMenuLocation;
+        public readonly _DismissCallback onDismiss;
+        public readonly Orientation orientation;
+        public readonly GlobalKey sheetGlobalKey;
+
+        public override State createState() { 
+            return new _ContextMenuRouteStaticState();
+        }
+    }
+
+    public class _ContextMenuRouteStaticState : TickerProviderStateMixin<_ContextMenuRouteStatic> {
+        public readonly static  float _kMinScale = 0.8f;
+        public readonly static  float _kSheetScaleThreshold = 0.9f;
+        public readonly static  float _kPadding = 20.0f;
+        public readonly static  float _kDamping = 400.0f;
+        public readonly static TimeSpan _kMoveControllerDuration = TimeSpan.FromMilliseconds(600);
+        Offset _dragOffset;
+        public float _lastScale = 1.0f;
+        public AnimationController _moveController;
+        public AnimationController _sheetController;
+        public Animation<Offset> _moveAnimation;
+        public Animation< float> _sheetScaleAnimation;
+        public Animation< float> _sheetOpacityAnimation; 
+        public static float _getScale(Orientation orientation,  float maxDragDistance,  float dy) { 
+            float dyDirectional = dy <= 0.0f ? dy : -dy;
+            return Mathf.Max(
+                _kMinScale, 
+                (maxDragDistance + dyDirectional) / maxDragDistance
+            );
+        } 
+        void _onPanStart(DragStartDetails details) {
+            _moveController.setValue(1.0f) ;
+            _setDragOffset(Offset.zero);
+        } 
+        void _onPanUpdate(DragUpdateDetails details) {
+            _setDragOffset(_dragOffset + details.delta);
+        } 
+        void _onPanEnd(DragEndDetails details) { 
+            if (details.velocity.pixelsPerSecond.dy.abs() >= CupertinoContextMenuUtils.kMinFlingVelocity) { 
+                bool flingIsAway = details.velocity.pixelsPerSecond.dy > 0; 
+                float finalPosition = flingIsAway 
+                    ? _moveAnimation.value.dy + 100.0f
+                    : 0.0f; 
+                if (flingIsAway && _sheetController.status != AnimationStatus.forward) { 
+                    _sheetController.forward();
+                } else if (!flingIsAway && _sheetController.status != AnimationStatus.reverse) {
+                    _sheetController.reverse();
+                }
+
+                _moveAnimation = new OffsetTween(
+                    begin: new Offset(0.0f, _moveAnimation.value.dy),
+                    end:new  Offset(0.0f, finalPosition)
+                ).animate(_moveController);
+                _moveController.reset();
+                _moveController.duration = TimeSpan.FromMilliseconds(64);
+                _moveController.forward();
+                _moveController.addStatusListener(_flingStatusListener);
+                return; 
+            } 
+            if (_lastScale == _kMinScale) {
+                widget.onDismiss(context, _lastScale, _sheetOpacityAnimation.value);
+                return;
             }
-          return new _ContextMenuRouteStatic(
-            actions: _actions,
-            child: _builder(context1, animation),
-            childGlobalKey: _childGlobalKey,
-            contextMenuLocation: _contextMenuLocation,
-            onDismiss: _onDismiss,
-            orientation: orientation,
-            sheetGlobalKey: _sheetGlobalKey
-          );
+            _moveController.addListener(_moveListener);
+            _moveController.reverse();
+    }
+
+    void _moveListener() { 
+        if (_lastScale > _kSheetScaleThreshold) {
+            _moveController.removeListener(_moveListener); 
+            if (_sheetController.status != AnimationStatus.dismissed) { 
+                _sheetController.reverse();
+            }
         }
-      );
     }
-  }
-  public class _ContextMenuRouteStatic : StatefulWidget {
-    public _ContextMenuRouteStatic(
-      Key key = null,
-      List<Widget> actions = null,
-      Widget child = null,
-      GlobalKey childGlobalKey = null,
-      _ContextMenuLocation contextMenuLocation = default,
-      _DismissCallback onDismiss =default,
-      Orientation orientation = default,
-      GlobalKey sheetGlobalKey = null
-    ) : base(key: key) {
-      D.assert(contextMenuLocation != null);
-      D.assert(orientation != null);
-      this.actions = actions;
-      this.child = child;
-      this.childGlobalKey = childGlobalKey;
-      this.contextMenuLocation = contextMenuLocation;
-      this.onDismiss = onDismiss;
-      this.orientation = orientation;
-      this.sheetGlobalKey = sheetGlobalKey;
-    }
-    public readonly List<Widget> actions;
-    public readonly Widget child;
-    public readonly GlobalKey childGlobalKey;
-    public readonly _ContextMenuLocation contextMenuLocation;
-    public readonly _DismissCallback onDismiss;
-    public readonly Orientation orientation;
-    public readonly GlobalKey sheetGlobalKey;
 
-    public override State createState() {
-      return new _ContextMenuRouteStaticState();
-    }
-  }
-
-  public class _ContextMenuRouteStaticState : TickerProviderStateMixin<_ContextMenuRouteStatic> {
-    public readonly static  float _kMinScale = 0.8f;
-    public readonly static  float _kSheetScaleThreshold = 0.9f;
-    public readonly static  float _kPadding = 20.0f;
-    public readonly static  float _kDamping = 400.0f;
-    public readonly static TimeSpan _kMoveControllerDuration = new TimeSpan(0,0,0,600);
-    public Offset _dragOffset;
-    public float _lastScale = 1.0f;
-    public AnimationController _moveController;
-    public AnimationController _sheetController;
-    public Animation<Offset> _moveAnimation;
-    public Animation< float> _sheetScaleAnimation;
-    public Animation< float> _sheetOpacityAnimation;
-    public static float _getScale(Orientation orientation,  float maxDragDistance,  float dy) {
-      float dyDirectional = dy <= 0.0 ? dy : -dy;
-      return Mathf.Max(
-        _kMinScale,
-        (maxDragDistance + dyDirectional) / maxDragDistance
-      );
-    }
-    void _onPanStart(DragStartDetails details) {
-      _moveController.setValue(1.0f) ;
-      _setDragOffset(Offset.zero);
-    }
-    void _onPanUpdate(DragUpdateDetails details) {
-      _setDragOffset(_dragOffset + details.delta);
-    }
-    void _onPanEnd(DragEndDetails details) {
-      if (details.velocity.pixelsPerSecond.dy.abs() >= CupertinoContextMenuUtils.kMinFlingVelocity) {
-        bool flingIsAway = details.velocity.pixelsPerSecond.dy > 0;
-        float finalPosition = flingIsAway
-          ? _moveAnimation.value.dy + 100.0f
-          : 0.0f;
-        if (flingIsAway && _sheetController.status != AnimationStatus.forward) {
-          _sheetController.forward();
-        } else if (!flingIsAway && _sheetController.status != AnimationStatus.reverse) {
-          _sheetController.reverse();
+    void _flingStatusListener(AnimationStatus status) { 
+        if (status != AnimationStatus.completed) { 
+            return;
         }
-
-        _moveAnimation = new OffsetTween(
-          begin: new Offset(0.0f, _moveAnimation.value.dy),
-          end:new  Offset(0.0f, finalPosition)
-        ).animate(_moveController);
-        _moveController.reset();
-        _moveController.duration = new  TimeSpan(0,0,0,64);
-        _moveController.forward();
-        _moveController.addStatusListener(_flingStatusListener);
-        return;
-      }
-      if (_lastScale == _kMinScale) {
+        _moveController.duration = _kMoveControllerDuration;
+        _moveController.removeStatusListener(_flingStatusListener);
+        if (_moveAnimation.value.dy == 0.0) {
+            return;
+        }
         widget.onDismiss(context, _lastScale, _sheetOpacityAnimation.value);
-        return;
-      }
-
-      // Otherwise animate back home.
-      _moveController.addListener(_moveListener);
-      _moveController.reverse();
     }
-
-    void _moveListener() {
-      if (_lastScale > _kSheetScaleThreshold) {
-        _moveController.removeListener(_moveListener);
-        if (_sheetController.status != AnimationStatus.dismissed) {
-          _sheetController.reverse();
+    Alignment _getChildAlignment(Orientation orientation, _ContextMenuLocation contextMenuLocation) { 
+        switch (contextMenuLocation) { 
+            case _ContextMenuLocation.center: 
+                return orientation == Orientation.portrait 
+                    ? Alignment.bottomCenter 
+                    : Alignment.topRight;
+            case _ContextMenuLocation.right: 
+                return orientation == Orientation.portrait 
+                    ? Alignment.bottomCenter
+                    : Alignment.topLeft;
+            default:
+                return orientation == Orientation.portrait
+                    ? Alignment.bottomCenter
+                    : Alignment.topRight;
         }
-      }
-    }
-
-    void _flingStatusListener(AnimationStatus status) {
-      if (status != AnimationStatus.completed) {
-        return;
-      }
-      _moveController.duration = _kMoveControllerDuration;
-      _moveController.removeStatusListener(_flingStatusListener);
-      if (_moveAnimation.value.dy == 0.0) {
-        return;
-      }
-      widget.onDismiss(context, _lastScale, _sheetOpacityAnimation.value);
-    }
-
-    Alignment _getChildAlignment(Orientation orientation, _ContextMenuLocation contextMenuLocation) {
-      switch (contextMenuLocation) {
-        case _ContextMenuLocation.center:
-          return orientation == Orientation.portrait
-            ? Alignment.bottomCenter
-            : Alignment.topRight;
-        case _ContextMenuLocation.right:
-          return orientation == Orientation.portrait
-            ? Alignment.bottomCenter
-            : Alignment.topLeft;
-        default:
-          return orientation == Orientation.portrait
-            ? Alignment.bottomCenter
-            : Alignment.topRight;
-      }
     }
 
     void _setDragOffset(Offset dragOffset) {
-      // Allow horizontal and negative vertical movement, but damp it.
-      float endX = _kPadding * dragOffset.dx / _kDamping;
-      float endY = dragOffset.dy >= 0.0
-        ? dragOffset.dy
-        : _kPadding * dragOffset.dy / _kDamping;
-      setState(() =>{
-        _dragOffset = dragOffset;
-        _moveAnimation = new OffsetTween(
-          begin: Offset.zero,
-          end: new Offset(
-            endX.clamp(-_kPadding, _kPadding) ,
-            endY
-          )
-        ).animate(
-          new CurvedAnimation(
-            parent: _moveController,
-            curve: Curves.elasticIn
-          )
+        float endX = _kPadding * dragOffset.dx / _kDamping;
+        float endY = dragOffset.dy >= 0.0 
+            ? dragOffset.dy 
+            : _kPadding * dragOffset.dy / _kDamping; 
+        setState(() =>{ 
+            _dragOffset = dragOffset;
+            _moveAnimation = new OffsetTween(
+                begin: Offset.zero,
+                end: new Offset(
+                    endX.clamp(-_kPadding, _kPadding) , 
+                    endY
+                    )).animate(
+                new CurvedAnimation(
+                    parent: _moveController, 
+                    curve: Curves.elasticIn
+                    )
         );
-        if (_lastScale <= _kSheetScaleThreshold
-            && _sheetController.status != AnimationStatus.forward
-            && _sheetScaleAnimation.value != 0.0f) {
-          _sheetController.forward();
-        } else if (_lastScale > _kSheetScaleThreshold
-            && _sheetController.status != AnimationStatus.reverse
-            && _sheetScaleAnimation.value != 1.0f) {
-          _sheetController.reverse();
-        }
-      });
+        if (_lastScale <= _kSheetScaleThreshold && _sheetController.status != AnimationStatus.forward
+                                                && _sheetScaleAnimation.value != 0.0f) { 
+            _sheetController.forward();
+        } else if (_lastScale > _kSheetScaleThreshold && _sheetController.status != AnimationStatus.reverse
+                                                      && _sheetScaleAnimation.value != 1.0f) { 
+            _sheetController.reverse();
+        } 
+        });
     }
-
-    List<Widget> _getChildren(Orientation orientation, _ContextMenuLocation contextMenuLocation) {
-      Expanded child = new Expanded(
-        child: new Align(
-          alignment: _getChildAlignment(
-            widget.orientation,
-            widget.contextMenuLocation
-          ),
-          child: new AnimatedBuilder(
-            animation: _moveController,
-            builder: _buildChildAnimation,
-            child: widget.child
-          )
-        )
-      );
-      Container spacer = new Container(
-        width: _kPadding,
-        height: _kPadding
-      );
-      Expanded sheet = new Expanded(
-        child: new AnimatedBuilder(
-          animation: _sheetController,
-          builder: _buildSheetAnimation,
-          child: new _ContextMenuSheet(
-            key: widget.sheetGlobalKey,
-            actions: widget.actions,
-            contextMenuLocation: widget.contextMenuLocation,
-            orientation: widget.orientation
-          )
-        )
-      );
-      List<Widget> centerWidgets = new List<Widget>();
-      centerWidgets.Add(child);
-      centerWidgets.Add(spacer);
-      centerWidgets.Add(sheet);
-      List<Widget> rightWidgets = new List<Widget>();
-      rightWidgets.Add(sheet);
-      rightWidgets.Add(spacer);
-      rightWidgets.Add(child);
+    List<Widget> _getChildren(Orientation orientation, _ContextMenuLocation contextMenuLocation) { 
+        Expanded child = new Expanded(
+            child: new Align(
+                alignment: _getChildAlignment(
+                    widget.orientation, 
+                    widget.contextMenuLocation
+                ), 
+                child: new AnimatedBuilder(
+                    animation: _moveController,
+                    builder: _buildChildAnimation,
+                    child: widget.child
+                )
+            )
+        );
+        Container spacer = new Container(
+            width: _kPadding,
+            height: _kPadding
+            );
+        Expanded sheet = new Expanded(
+            child: new AnimatedBuilder(
+                animation: _sheetController,
+                builder: _buildSheetAnimation,
+                child: new _ContextMenuSheet(
+                    key: widget.sheetGlobalKey,
+                    actions: widget.actions,
+                    contextMenuLocation: widget.contextMenuLocation,
+                    orientation: widget.orientation
+                )
+            )
+        ); 
+        List<Widget> centerWidgets = new List<Widget>();
+        centerWidgets.Add(child);
+        centerWidgets.Add(spacer);
+        centerWidgets.Add(sheet);
+        List<Widget> rightWidgets = new List<Widget>();
+        rightWidgets.Add(sheet);
+        rightWidgets.Add(spacer);
+        rightWidgets.Add(child);
       switch (contextMenuLocation) {
         case _ContextMenuLocation.center:
             return new List<Widget>{child, spacer, sheet};
@@ -865,8 +851,8 @@ namespace Unity.UIWidgets.cupertino {
         vsync: this
       );
       _sheetController = new AnimationController(
-        duration: new TimeSpan(0,0,0,100),
-        //reverseDuration: new TimeSpan(0,0,0,300),/// TBC ???
+        duration: TimeSpan.FromMilliseconds(100),
+        reverseDuration: TimeSpan.FromMilliseconds(300),/// TBC ???
         vsync: this
       );
       _sheetScaleAnimation = new FloatTween(
@@ -1010,20 +996,20 @@ namespace Unity.UIWidgets.cupertino {
       T offValue = default,
       float? intervalOn = null,
       float? intervalOff = null
-    ) /*: super(
-                      first: new Tween<T>(begin: offValue, end: onValue).animate(
-                          new CurvedAnimation(
-                              parent: controller,
-                              curve: new Interval(intervalOn, intervalOn)
-                          )
-                      ),
-                      next: new Tween<T>(begin: onValue, end: offValue).animate(
-                          new CurvedAnimation(
-                              parent: controller,
-                              curve: new Interval(intervalOff, intervalOff)
-                          )
-                          )
-                      )*////?????
+    ) : base(
+        first: new Tween<T>(begin: offValue, end: onValue).animate(
+            new CurvedAnimation(
+                parent: controller,
+                curve: new Interval(intervalOn == null ? 0.0f : (float)intervalOn, intervalOn == null ? 0.0f : (float)intervalOn)
+                )
+            ),
+        next: new Tween<T>(begin: onValue, end: offValue).animate(
+            new CurvedAnimation(
+                parent: controller,
+                curve: new Interval(intervalOff == null ? 0.0f : (float)intervalOff, intervalOff == null ? 0.0f : (float)intervalOff)
+                )
+            )
+        )
     {
       D.assert(intervalOn != null && intervalOn >= 0.0 && intervalOn <= 1.0);
       D.assert(intervalOff !=null && intervalOff >= 0.0 && intervalOff <= 1.0);
@@ -1032,7 +1018,7 @@ namespace Unity.UIWidgets.cupertino {
     public readonly T _offValue;
     public override T value {
       get {
-        return next.value; // == _offValue ? next.value : first.value; ????/
+        return next.value.Equals( _offValue) ? next.value : first.value; 
       }
     }
 

@@ -71,6 +71,14 @@ namespace Unity.UIWidgets.rendering {
             owner.requestVisualUpdate();
         }
 
+        public void prepareInitialFrame() {
+            D.assert(owner != null);
+            D.assert(_rootTransform == null);
+            scheduleInitialLayout();
+            scheduleInitialPaint((OffsetLayer)_updateMatricesAndCreateNewRootLayer());
+            D.assert(_rootTransform != null);
+        }
+        
         Matrix4 _rootTransform;
 
         public Layer _updateMatricesAndCreateNewRootLayer() {

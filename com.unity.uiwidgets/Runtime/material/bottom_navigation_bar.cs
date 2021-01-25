@@ -37,8 +37,12 @@ namespace Unity.UIWidgets.material {
             float iconSize = 24.0f,
             Color selectedItemColor = null,
             Color unselectedItemColor = null,
+            IconThemeData selectedIconTheme = null,
+            IconThemeData unselectedIconTheme = null,
             float selectedFontSize = 14.0f,
             float unselectedFontSize = 12.0f,
+            TextStyle selectedLabelStyle = null,
+            TextStyle unselectedLabelStyle = null,
             bool showSelectedLabels = true,
             bool? showUnselectedLabels = null
         ) : base(key: key) {
@@ -64,9 +68,13 @@ namespace Unity.UIWidgets.material {
             this.iconSize = iconSize;
             this.selectedItemColor = selectedItemColor ?? fixedColor;
             this.unselectedItemColor = unselectedItemColor;
+            this.selectedIconTheme = selectedIconTheme;
+            this.unselectedIconTheme = unselectedIconTheme;
             this.selectedFontSize = selectedFontSize;
             this.unselectedFontSize = unselectedFontSize;
             this.showSelectedLabels = showSelectedLabels;
+            this.selectedLabelStyle = selectedLabelStyle;
+            this.unselectedLabelStyle = unselectedLabelStyle;
             this.showUnselectedLabels = showUnselectedLabels ?? _defaultShowUnselected(_type(type, items));
         }
 
@@ -92,6 +100,15 @@ namespace Unity.UIWidgets.material {
         public readonly Color selectedItemColor;
 
         public readonly Color unselectedItemColor;
+
+        public readonly IconThemeData selectedIconTheme;
+
+        public readonly IconThemeData unselectedIconTheme;
+
+        public readonly TextStyle selectedLabelStyle;
+
+        public readonly TextStyle unselectedLabelStyle;
+
 
         public readonly float selectedFontSize;
 
@@ -139,8 +156,10 @@ namespace Unity.UIWidgets.material {
             ColorTween colorTween = null,
             float? flex = null,
             bool selected = false,
-            float? selectedFontSize = null,
-            float? unselectedFontSize = null,
+            IconThemeData selectedIconTheme = null,
+            IconThemeData unselectedIconTheme = null,
+            TextStyle selectedLabelStyle = null,
+            TextStyle unselectedLabelStyle = null,
             bool? showSelectedLabels = null,
             bool? showUnselectedLabels = null,
             string indexLabel = null
@@ -148,8 +167,9 @@ namespace Unity.UIWidgets.material {
             D.assert(type != null);
             D.assert(item != null);
             D.assert(animation != null);
-            D.assert(selectedFontSize != null && selectedFontSize >= 0);
-            D.assert(unselectedFontSize != null && unselectedFontSize >= 0);
+            D.assert(selectedLabelStyle != null);
+            D.assert(unselectedLabelStyle != null);
+
             this.type = type;
             this.item = item;
             this.animation = animation;
@@ -158,8 +178,10 @@ namespace Unity.UIWidgets.material {
             this.colorTween = colorTween;
             this.flex = flex;
             this.selected = selected;
-            this.selectedFontSize = selectedFontSize.Value;
-            this.unselectedFontSize = unselectedFontSize.Value;
+            this.selectedLabelStyle = selectedLabelStyle;
+            this.unselectedLabelStyle = unselectedLabelStyle;
+            this.selectedIconTheme = selectedIconTheme;
+            this.unselectedIconTheme = unselectedIconTheme;
             this.showSelectedLabels = showSelectedLabels ?? false;
             this.showUnselectedLabels = showUnselectedLabels ?? false;
             this.indexLabel = indexLabel;
@@ -173,31 +195,57 @@ namespace Unity.UIWidgets.material {
         public readonly ColorTween colorTween;
         public readonly float? flex;
         public readonly bool selected;
-        public readonly float selectedFontSize;
-        public readonly float unselectedFontSize;
+        public readonly IconThemeData selectedIconTheme;
+        public readonly IconThemeData unselectedIconTheme;
+        public readonly TextStyle selectedLabelStyle;
+        public readonly TextStyle unselectedLabelStyle;
         public readonly string indexLabel;
         public readonly bool showSelectedLabels;
         public readonly bool showUnselectedLabels;
 
         public override Widget build(BuildContext context) {
             int size;
-            float bottomPadding = selectedFontSize / 2.0f;
-            float topPadding = selectedFontSize / 2.0f;
+
+            float selectedFontSize = selectedLabelStyle.fontSize ?? 0;
+
+            float selectedIconSize = selectedIconTheme?.size ?? iconSize ?? 0;
+            float unselectedIconSize = unselectedIconTheme?.size ?? iconSize ?? 0;
+            float selectedIconDiff = Mathf.Max(selectedIconSize - unselectedIconSize, 0);
+            float unselectedIconDiff = Mathf.Max(unselectedIconSize - selectedIconSize, 0);
+
+            float bottomPadding = 0;
+            float topPadding = 0;
             if (showSelectedLabels && !showUnselectedLabels) {
                 bottomPadding = new FloatTween(
-                    begin: 0.0f,
-                    end: selectedFontSize / 2.0f
+                    begin: selectedIconDiff / 2.0f,
+                    end: selectedFontSize / 2.0f - unselectedIconDiff / 2.0f
                 ).evaluate(animation);
                 topPadding = new FloatTween(
-                    begin: selectedFontSize,
-                    end: selectedFontSize / 2.0f
+                    begin: selectedFontSize + selectedIconDiff / 2.0f,
+                    end: selectedFontSize / 2.0f - unselectedIconDiff / 2.0f
+                ).evaluate(animation);
+            }
+            else if (!showSelectedLabels && !showUnselectedLabels) {
+                bottomPadding = new FloatTween(
+                    begin: selectedIconDiff / 2.0f,
+                    end: unselectedIconDiff / 2.0f
+                ).evaluate(animation);
+                topPadding = new FloatTween(
+                    begin: selectedFontSize + selectedIconDiff / 2.0f,
+                    end: selectedFontSize + unselectedIconDiff / 2.0f
+                ).evaluate(animation);
+            }
+            else {
+                bottomPadding = new FloatTween(
+                    begin: selectedFontSize / 2.0f + selectedIconDiff / 2.0f,
+                    end: selectedFontSize / 2.0f + unselectedIconDiff / 2.0f
+                ).evaluate(animation);
+                topPadding = new FloatTween(
+                    begin: selectedFontSize / 2.0f + selectedIconDiff / 2.0f,
+                    end: selectedFontSize / 2.0f + unselectedIconDiff / 2.0f
                 ).evaluate(animation);
             }
 
-            if (!showSelectedLabels && !showUnselectedLabels) {
-                bottomPadding = 0.0f;
-                topPadding = selectedFontSize;
-            }
             switch (type) {
                 case BottomNavigationBarType.fix:
                     size = 1;
@@ -227,14 +275,16 @@ namespace Unity.UIWidgets.material {
                                             animation: animation,
                                             iconSize: iconSize,
                                             selected: selected,
-                                            item: item
+                                            item: item,
+                                            selectedIconTheme: selectedIconTheme,
+                                            unselectedIconTheme: unselectedIconTheme
                                         ),
                                         new _Label(
                                             colorTween: colorTween,
                                             animation: animation,
                                             item: item,
-                                            selectedFontSize: selectedFontSize,
-                                            unselectedFontSize: unselectedFontSize,
+                                            selectedLabelStyle: selectedLabelStyle,
+                                            unselectedLabelStyle: unselectedLabelStyle,
                                             showSelectedLabels: showSelectedLabels,
                                             showUnselectedLabels: showUnselectedLabels
                                         )
@@ -256,7 +306,9 @@ namespace Unity.UIWidgets.material {
             Animation<float> animation = null,
             float? iconSize = null,
             bool? selected = null,
-            BottomNavigationBarItem item = null
+            BottomNavigationBarItem item = null,
+            IconThemeData selectedIconTheme = null,
+            IconThemeData unselectedIconTheme = null
         ) : base(key: key) {
             D.assert(selected != null);
             D.assert(item != null);
@@ -265,26 +317,36 @@ namespace Unity.UIWidgets.material {
             this.iconSize = iconSize;
             this.selected = selected;
             this.item = item;
+            this.selectedIconTheme = selectedIconTheme;
+            this.unselectedIconTheme = unselectedIconTheme;
         }
 
-        ColorTween colorTween;
-        Animation<float> animation;
-        float? iconSize;
-        bool? selected;
-        BottomNavigationBarItem item;
+        public readonly ColorTween colorTween;
+        public readonly Animation<float> animation;
+        public readonly float? iconSize;
+        public readonly bool? selected;
+        public readonly BottomNavigationBarItem item;
+        public readonly IconThemeData selectedIconTheme;
+        public readonly IconThemeData unselectedIconTheme;
 
         public override Widget build(BuildContext context) {
             Color iconColor = colorTween.evaluate(animation);
+            IconThemeData defaultIconTheme = new IconThemeData(
+                color: iconColor,
+                size: iconSize
+            );
+            IconThemeData iconThemeData = IconThemeData.lerp(
+                defaultIconTheme.merge(unselectedIconTheme),
+                defaultIconTheme.merge(selectedIconTheme),
+                animation.value
+            );
 
             return new Align(
                 alignment: Alignment.topCenter,
                 heightFactor: 1.0f,
                 child: new Container(
                     child: new IconTheme(
-                        data: new IconThemeData(
-                            color: iconColor,
-                            size: iconSize
-                        ),
+                        data: iconThemeData,
                         child: selected == true ? item.activeIcon : item.icon
                     )
                 )
@@ -298,23 +360,23 @@ namespace Unity.UIWidgets.material {
             ColorTween colorTween = null,
             Animation<float> animation = null,
             BottomNavigationBarItem item = null,
-            float? selectedFontSize = null,
-            float? unselectedFontSize = null,
+            TextStyle selectedLabelStyle = null,
+            TextStyle unselectedLabelStyle = null,
             bool? showSelectedLabels = null,
             bool? showUnselectedLabels = null
         ) : base(key: key) {
             D.assert(colorTween != null);
             D.assert(animation != null);
             D.assert(item != null);
-            D.assert(selectedFontSize != null);
-            D.assert(unselectedFontSize != null);
+            D.assert(selectedLabelStyle != null);
+            D.assert(unselectedLabelStyle != null);
             D.assert(showSelectedLabels != null);
             D.assert(showUnselectedLabels != null);
             this.colorTween = colorTween;
             this.animation = animation;
             this.item = item;
-            this.selectedFontSize = selectedFontSize.Value;
-            this.unselectedFontSize = unselectedFontSize.Value;
+            this.selectedLabelStyle = selectedLabelStyle;
+            this.unselectedLabelStyle = unselectedLabelStyle;
             this.showSelectedLabels = showSelectedLabels.Value;
             this.showUnselectedLabels = showUnselectedLabels.Value;
         }
@@ -322,16 +384,24 @@ namespace Unity.UIWidgets.material {
         public readonly ColorTween colorTween;
         public readonly Animation<float> animation;
         public readonly BottomNavigationBarItem item;
-        public readonly float selectedFontSize;
-        public readonly float unselectedFontSize;
+        public readonly TextStyle selectedLabelStyle;
+        public readonly TextStyle unselectedLabelStyle;
         public readonly bool showSelectedLabels;
         public readonly bool showUnselectedLabels;
 
         public override Widget build(BuildContext context) {
+            float selectedFontSize = selectedLabelStyle.fontSize ?? 0;
+            float unselectedFontSize = unselectedLabelStyle.fontSize ?? 0;
+
+            TextStyle customStyle = TextStyle.lerp(
+                unselectedLabelStyle,
+                selectedLabelStyle,
+                animation.value
+            );
             float t = new FloatTween(begin: unselectedFontSize / selectedFontSize, end: 1.0f)
-                    .evaluate(animation);
+                .evaluate(animation);
             Widget text = DefaultTextStyle.merge(
-                style: new TextStyle(
+                style: customStyle.copyWith(
                     fontSize: selectedFontSize,
                     color: colorTween.evaluate(animation)
                 ),
@@ -359,6 +429,7 @@ namespace Unity.UIWidgets.material {
                     child: text
                 );
             }
+
             return new Align(
                 alignment: Alignment.bottomCenter,
                 heightFactor: 1.0f,
@@ -495,10 +566,19 @@ namespace Unity.UIWidgets.material {
             }
         }
 
+        static TextStyle _effectiveTextStyle(TextStyle textStyle, float fontSize) {
+            textStyle = textStyle ?? new TextStyle();
+            return textStyle.fontSize == null ? textStyle.copyWith(fontSize: fontSize) : textStyle;
+        }
+
         List<Widget> _createTiles() {
             MaterialLocalizations localizations = MaterialLocalizations.of(context);
             D.assert(localizations != null);
             ThemeData themeData = Theme.of(context);
+            TextStyle effectiveSelectedLabelStyle =
+                _effectiveTextStyle(widget.selectedLabelStyle, widget.selectedFontSize);
+            TextStyle effectiveUnselectedLabelStyle =
+                _effectiveTextStyle(widget.unselectedLabelStyle, widget.unselectedFontSize);
             Color themeColor;
             switch (themeData.brightness) {
                 case Brightness.light:
@@ -537,8 +617,10 @@ namespace Unity.UIWidgets.material {
                     widget.items[i],
                     _animations[i],
                     widget.iconSize,
-                    selectedFontSize: widget.selectedFontSize,
-                    unselectedFontSize: widget.unselectedFontSize,
+                    selectedIconTheme: widget.selectedIconTheme,
+                    unselectedIconTheme: widget.unselectedIconTheme,
+                    selectedLabelStyle: effectiveSelectedLabelStyle,
+                    unselectedLabelStyle: effectiveUnselectedLabelStyle,
                     onTap: () => {
                         if (widget.onTap != null) {
                             widget.onTap(index);
@@ -549,7 +631,7 @@ namespace Unity.UIWidgets.material {
                     selected: i == widget.currentIndex,
                     showSelectedLabels: widget.showSelectedLabels,
                     showUnselectedLabels: widget.showUnselectedLabels,
-                    indexLabel: localizations.tabLabel(tabIndex: i+1, tabCount: widget.items.Count)
+                    indexLabel: localizations.tabLabel(tabIndex: i + 1, tabCount: widget.items.Count)
                 ));
             }
 

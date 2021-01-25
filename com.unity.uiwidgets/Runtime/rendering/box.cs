@@ -28,10 +28,6 @@ namespace Unity.UIWidgets.rendering {
             float maxWidth = float.PositiveInfinity,
             float minHeight = 0.0f,
             float maxHeight = float.PositiveInfinity) {
-            D.assert(minWidth != null);
-            D.assert(maxWidth != null);
-            D.assert(minHeight != null);
-            D.assert (maxHeight != null);
             this.minWidth = minWidth;
             this.maxWidth = maxWidth;
             this.minHeight = minHeight;
@@ -637,9 +633,9 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public bool addWithRawTransform(
-            Matrix4 transform,
-            Offset position,
-            BoxHitTest hitTest
+            Matrix4 transform = null,
+            Offset position = null,
+            BoxHitTest hitTest = null
         ) {
             D.assert(hitTest != null);
             Offset transformedPosition = position == null || transform == null

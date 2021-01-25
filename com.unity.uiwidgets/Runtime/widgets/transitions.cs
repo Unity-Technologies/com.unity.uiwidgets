@@ -242,32 +242,29 @@ namespace Unity.UIWidgets.widgets {
 
     public class SliverFadeTransition : SingleChildRenderObjectWidget {
         public SliverFadeTransition(
-            Animation<float> opacity ,
+            Animation<float> opacity = null,
             Key key = null,
-            bool alwaysIncludeSemantics = false,
             Widget sliver = null
         ) : base(key: key, child: sliver) {
             D.assert(opacity != null);
+            this.opacity = opacity;
         }
         public readonly Animation<float> opacity;
-        public readonly bool alwaysIncludeSemantics;
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderSliverAnimatedOpacity(
-                opacity: opacity,
-                alwaysIncludeSemantics: alwaysIncludeSemantics
+                opacity: opacity
             );
         }
+        
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             renderObject = (RenderSliverAnimatedOpacity)renderObject;
-            
             ((RenderSliverAnimatedOpacity)renderObject).opacity = opacity;
-            ((RenderSliverAnimatedOpacity)renderObject).alwaysIncludeSemantics = alwaysIncludeSemantics;
-        
+
         }
+        
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Animation<float>>("opacity", opacity));
-            properties.add(new FlagProperty("alwaysIncludeSemantics", value: alwaysIncludeSemantics, ifTrue: "alwaysIncludeSemantics"));
         }
     }
     public class RelativeRectTween : Tween<RelativeRect> {

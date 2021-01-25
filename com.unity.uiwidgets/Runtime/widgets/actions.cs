@@ -12,8 +12,8 @@ namespace Unity.UIWidgets.widgets {
     public delegate void OnInvokeCallback(FocusNode node, Intent tag);
     public class Intent : Diagnosticable {
         public Intent(LocalKey key) : base() {
-            this.key = key;
             D.assert(key != null);
+            this.key = key;
         }
 
         public static readonly Intent doNothing = new Intent(DoNothingAction.key);
@@ -29,8 +29,8 @@ namespace Unity.UIWidgets.widgets {
     public abstract class UiWidgetAction : Diagnosticable {
 
         public UiWidgetAction(LocalKey intentKey) {
-            this.intentKey = intentKey;
             D.assert(intentKey != null);
+            this.intentKey = intentKey;
         }
 
         public readonly LocalKey intentKey;
@@ -48,6 +48,7 @@ namespace Unity.UIWidgets.widgets {
     class CallbackAction : UiWidgetAction  {
         public CallbackAction(LocalKey intentKey, OnInvokeCallback onInvoke) : base(intentKey: intentKey) {
             D.assert(onInvoke != null);
+            this.onInvoke = onInvoke;
         }
         protected readonly OnInvokeCallback onInvoke;
 
@@ -75,7 +76,6 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class Actions : InheritedWidget {
-
         public Actions(
             Key key = null,
             ActionDispatcher dispatcher = null,
@@ -126,7 +126,6 @@ namespace Unity.UIWidgets.widgets {
                 if (nullOk) {
                     return true;
                 }
-
                 if (inherited == null) {
                     throw new UIWidgetsError("Unable to find an $Actions widget in the context.\n" +
                                              "Actions.of() was called with a context that does not contain an " +
@@ -158,7 +157,6 @@ namespace Unity.UIWidgets.widgets {
                 if (!(element.widget is Actions)) {
                     return true;
                 }
-
                 actionsElement = element;
                 Actions actions = element.widget as Actions;
                 action = actions.actions[intent.key]?.Invoke();
@@ -202,7 +200,7 @@ namespace Unity.UIWidgets.widgets {
 
             return _findDispatcher(actionsElement).invokeAction(action, intent, focusNode: focusNode);
         }
-
+       
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<ActionDispatcher>("dispatcher", dispatcher));
@@ -377,7 +375,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
-            //oldWidget =(FocusableActionDetector) oldWidget;
+            oldWidget =(FocusableActionDetector) oldWidget;
             base.didUpdateWidget(oldWidget);
             if (widget.enabled != ((FocusableActionDetector)oldWidget).enabled) {
               SchedulerBinding.instance.addPostFrameCallback((TimeSpan timespan)=> {
@@ -421,7 +419,6 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public abstract class ActivateAction : UiWidgetAction {
-
         public ActivateAction() : base(key) {
         }
         public readonly static LocalKey key = new ValueKey<Type>(typeof(ActivateAction));

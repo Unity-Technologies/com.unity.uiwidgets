@@ -181,7 +181,7 @@ namespace Unity.UIWidgets.material {
                         width: UserAccountsDrawerHeaderUtils._kAccountDetailsHeight,
                         child: new Center(
                             child: Transform.rotate(
-                                degree: _animation.value * Mathf.PI,
+                                angle: _animation.value * Mathf.PI,
                                 child: new Icon(
                                     Icons.arrow_drop_down,
                                     color: widget.arrowColor

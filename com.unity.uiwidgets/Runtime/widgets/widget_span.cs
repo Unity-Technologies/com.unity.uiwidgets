@@ -18,7 +18,7 @@ namespace Unity.UIWidgets.widgets {
             style: style
         ) {
             D.assert(child != null);
-            D.assert(!(
+            D.assert(baseline != null ||!(
                 (alignment == PlaceholderAlignment.aboveBaseline) ||
                 (alignment == PlaceholderAlignment.belowBaseline) ||
                 (alignment == PlaceholderAlignment.baseline)
@@ -26,7 +26,7 @@ namespace Unity.UIWidgets.widgets {
             this.child = child;
         }
 
-        public Widget child;
+        public readonly Widget child;
 
         public override void build(
             ParagraphBuilder builder,
@@ -76,7 +76,7 @@ namespace Unity.UIWidgets.widgets {
         public override RenderComparison compareTo(InlineSpan other) {
             if (this == other)
                 return RenderComparison.identical;
-            if (style.GetType() == GetType())
+            if (style.GetType() != GetType())
                 return RenderComparison.layout;
             if ((style == null) != (other.style == null))
                 return RenderComparison.layout;
@@ -144,6 +144,12 @@ namespace Unity.UIWidgets.widgets {
         public static bool operator !=(WidgetSpan left, WidgetSpan right) {
             return !Equals(left, right);
         }
+        
+        public override InlineSpan getSpanForPosition(TextPosition position) {
+            D.assert(debugAssertIsValid());
+            return null;
+        }
+        
         public override bool debugAssertIsValid() {
             return true;
         }

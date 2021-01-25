@@ -9,6 +9,7 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using AsyncCallback = Unity.UIWidgets.foundation.AsyncCallback;
 using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
@@ -120,13 +121,23 @@ namespace Unity.UIWidgets.material {
 
         public override Size preferredSize { get; }
 
-        public bool? _getEffectiveCenterTitle(ThemeData themeData) {
+        public bool? _getEffectiveCenterTitle(ThemeData theme) {
             if (centerTitle != null) {
                 return centerTitle;
             }
 
-            switch (themeData.platform) {
+            D.assert(theme.platform != null);
+
+            switch (theme.platform) {
+                case RuntimePlatform.Android:
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
+                    return false;
                 case RuntimePlatform.IPhonePlayer:
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
                     return actions == null || actions.Count < 2;
                 default:
                     return false;
@@ -152,7 +163,7 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
-            ThemeData themeData = Theme.of(context);
+            ThemeData theme = Theme.of(context);
             AppBarTheme appBarTheme = AppBarTheme.of(context);
             ScaffoldState scaffold = Scaffold.of(context, nullOk: true);
             ModalRoute parentRoute = ModalRoute.of(context);
@@ -163,17 +174,17 @@ namespace Unity.UIWidgets.material {
             bool useCloseButton = parentRoute is PageRoute && ((PageRoute) parentRoute).fullscreenDialog;
 
             IconThemeData overallIconTheme = widget.iconTheme
-                                            ?? appBarTheme.iconTheme
-                                            ?? themeData.primaryIconTheme;
+                                             ?? appBarTheme.iconTheme
+                                             ?? theme.primaryIconTheme;
             IconThemeData actionsIconTheme = widget.actionsIconTheme
                                              ?? appBarTheme.actionsIconTheme
                                              ?? overallIconTheme;
-            TextStyle centerStyle = widget.textTheme?.title
-                                    ?? appBarTheme.textTheme?.title
-                                    ?? themeData.primaryTextTheme.title;
-            TextStyle sideStyle = widget.textTheme?.body1
-                                  ?? appBarTheme.textTheme?.body1
-                                  ?? themeData.primaryTextTheme.body1;
+            TextStyle centerStyle = widget.textTheme?.headline6
+                                    ?? appBarTheme.textTheme?.headline6
+                                    ?? theme.primaryTextTheme.headline6;
+            TextStyle sideStyle = widget.textTheme?.bodyText2
+                                  ?? appBarTheme.textTheme?.bodyText2
+                                  ?? theme.primaryTextTheme.bodyText2;
 
             if (widget.toolbarOpacity != 1.0f) {
                 float opacity =
@@ -217,11 +228,32 @@ namespace Unity.UIWidgets.material {
 
             Widget title = widget.title;
             if (title != null) {
+                bool namesRoute;
+
+                switch (theme.platform) {
+                    case RuntimePlatform.Android:
+                    case RuntimePlatform.LinuxEditor:
+                    case RuntimePlatform.LinuxPlayer:
+                    case RuntimePlatform.WindowsEditor:
+                    case RuntimePlatform.WindowsPlayer:
+                        namesRoute = true;
+                        break;
+                    case RuntimePlatform.IPhonePlayer:
+                    case RuntimePlatform.OSXEditor:
+                    case RuntimePlatform.OSXPlayer:
+                        break;
+                    default:
+                        break;
+                }
+
+                title = new _AppBarTitleBox(child: title);
+
                 title = new DefaultTextStyle(
                     style: centerStyle,
                     softWrap: false,
                     overflow: TextOverflow.ellipsis,
-                    child: title);
+                    child: title
+                );
             }
 
             Widget actions = null;
@@ -249,7 +281,7 @@ namespace Unity.UIWidgets.material {
                 leading: leading,
                 middle: title,
                 trailing: actions,
-                centerMiddle: widget._getEffectiveCenterTitle(themeData).Value,
+                centerMiddle: widget._getEffectiveCenterTitle(theme).Value,
                 middleSpacing: widget.titleSpacing);
 
             Widget appBar = new ClipRect(
@@ -287,6 +319,7 @@ namespace Unity.UIWidgets.material {
 
             if (widget.primary) {
                 appBar = new SafeArea(
+                    bottom: false,
                     top: true,
                     child: appBar);
             }
@@ -307,7 +340,7 @@ namespace Unity.UIWidgets.material {
 
             Brightness brightness = widget.brightness
                                     ?? appBarTheme.brightness
-                                    ?? themeData.primaryColorBrightness;
+                                    ?? theme.primaryColorBrightness;
             SystemUiOverlayStyle overlayStyle = brightness == Brightness.dark
                 ? SystemUiOverlayStyle.light
                 : SystemUiOverlayStyle.dark;
@@ -317,7 +350,7 @@ namespace Unity.UIWidgets.material {
                 child: new Material(
                     color: widget.backgroundColor
                            ?? appBarTheme.color
-                           ?? themeData.primaryColor,
+                           ?? theme.primaryColor,
                     elevation: widget.elevation
                                ?? appBarTheme.elevation
                                ?? _defaultElevation,
@@ -366,8 +399,7 @@ namespace Unity.UIWidgets.material {
         }
 
         RenderSliverFloatingPersistentHeader _headerRenderer() {
-            return (RenderSliverFloatingPersistentHeader) context.ancestorRenderObjectOfType(
-                new TypeMatcher<RenderSliverFloatingPersistentHeader>());
+            return context.findAncestorRenderObjectOfType<RenderSliverFloatingPersistentHeader>();
         }
 
         void _isScrollingListener() {
@@ -412,7 +444,9 @@ namespace Unity.UIWidgets.material {
             float? topPadding,
             bool floating,
             bool pinned,
-            FloatingHeaderSnapConfiguration snapConfiguration
+            FloatingHeaderSnapConfiguration snapConfiguration,
+            OverScrollHeaderStretchConfiguration stretchConfiguration,
+            ShapeBorder shape
         ) {
             D.assert(primary || topPadding == 0.0);
             this.leading = leading;
@@ -436,8 +470,10 @@ namespace Unity.UIWidgets.material {
             this.topPadding = topPadding;
             this.floating = floating;
             this.pinned = pinned;
-            _snapConfiguration = snapConfiguration;
+            this.snapConfiguration = snapConfiguration;
             _bottomHeight = bottom?.preferredSize?.height ?? 0.0f;
+            this.snapConfiguration = snapConfiguration;
+            this.stretchConfiguration = stretchConfiguration;
         }
 
         public readonly Widget leading;
@@ -461,6 +497,7 @@ namespace Unity.UIWidgets.material {
         public readonly float? topPadding;
         public readonly bool floating;
         public readonly bool pinned;
+        public readonly ShapeBorder shape;
 
         readonly float _bottomHeight;
 
@@ -476,11 +513,9 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        public override FloatingHeaderSnapConfiguration snapConfiguration {
-            get { return _snapConfiguration; }
-        }
+        public override FloatingHeaderSnapConfiguration snapConfiguration { get; }
 
-        FloatingHeaderSnapConfiguration _snapConfiguration;
+        public override OverScrollHeaderStretchConfiguration stretchConfiguration { get; }
 
         public override Widget build(BuildContext context, float shrinkOffset, bool overlapsContent) {
             float? visibleMainHeight = maxExtent - shrinkOffset - topPadding;
@@ -510,6 +545,7 @@ namespace Unity.UIWidgets.material {
                     primary: primary,
                     centerTitle: centerTitle,
                     titleSpacing: titleSpacing,
+                    shape: shape,
                     toolbarOpacity: toolbarOpacity,
                     bottomOpacity: pinned
                         ? 1.0f
@@ -541,7 +577,8 @@ namespace Unity.UIWidgets.material {
                    || topPadding != oldDelegate.topPadding
                    || pinned != oldDelegate.pinned
                    || floating != oldDelegate.floating
-                   || snapConfiguration != oldDelegate.snapConfiguration;
+                   || snapConfiguration != oldDelegate.snapConfiguration
+                   || stretchConfiguration != oldDelegate.stretchConfiguration;
         }
 
         public override string ToString() {
@@ -572,9 +609,15 @@ namespace Unity.UIWidgets.material {
             float? expandedHeight = null,
             bool floating = false,
             bool pinned = false,
-            bool snap = false
+            bool snap = false,
+            bool stretch = false,
+            float stretchTriggerOffset = 100.0f,
+            AsyncCallback onStretchTrigger = null,
+            ShapeBorder shape = null
         ) : base(key: key) {
             D.assert(floating || !snap, () => "The 'snap' argument only makes sense for floating app bars.");
+            D.assert(stretchTriggerOffset > 0.0);
+
             this.leading = leading;
             this.automaticallyImplyLeading = true;
             this.title = title;
@@ -595,6 +638,10 @@ namespace Unity.UIWidgets.material {
             this.floating = floating;
             this.pinned = pinned;
             this.snap = snap;
+            this.stretch = stretch;
+            this.stretchTriggerOffset = stretchTriggerOffset;
+            this.onStretchTrigger = onStretchTrigger;
+            this.shape = shape;
         }
 
 
@@ -619,7 +666,7 @@ namespace Unity.UIWidgets.material {
         public readonly Brightness? brightness;
 
         public readonly IconThemeData iconTheme;
-        
+
         public readonly IconThemeData actionsIconTheme;
 
         public readonly TextTheme textTheme;
@@ -628,6 +675,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly bool? centerTitle;
 
+        public readonly bool? excludeHeaderSemantics;
+
         public readonly float titleSpacing;
 
         public readonly float? expandedHeight;
@@ -635,8 +684,16 @@ namespace Unity.UIWidgets.material {
         public readonly bool floating;
 
         public readonly bool pinned;
+        
+        public readonly ShapeBorder shape;
 
         public readonly bool snap;
+        
+        public readonly bool stretch;
+
+        public readonly float stretchTriggerOffset;
+
+        public readonly AsyncCallback onStretchTrigger;
 
         public override State createState() {
             return new _SliverAppBarState();
@@ -645,6 +702,7 @@ namespace Unity.UIWidgets.material {
 
     class _SliverAppBarState : TickerProviderStateMixin<SliverAppBar> {
         FloatingHeaderSnapConfiguration _snapConfiguration;
+        OverScrollHeaderStretchConfiguration _stretchConfiguration;
 
         void _updateSnapConfiguration() {
             if (widget.snap && widget.floating) {
@@ -658,10 +716,22 @@ namespace Unity.UIWidgets.material {
                 _snapConfiguration = null;
             }
         }
+        
+        void _updateStretchConfiguration() {
+            if (widget.stretch) {
+                _stretchConfiguration = new OverScrollHeaderStretchConfiguration(
+                    stretchTriggerOffset: widget.stretchTriggerOffset,
+                    onStretchTrigger: widget.onStretchTrigger
+                );
+            } else {
+                _stretchConfiguration = null;
+            }
+        }
 
         public override void initState() {
             base.initState();
             _updateSnapConfiguration();
+            _updateStretchConfiguration();
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
@@ -669,6 +739,10 @@ namespace Unity.UIWidgets.material {
             SliverAppBar oldWidget = _oldWidget as SliverAppBar;
             if (widget.snap != oldWidget.snap || widget.floating != oldWidget.floating) {
                 _updateSnapConfiguration();
+            }
+
+            if (widget.stretch != oldWidget.stretch) {
+                _updateStretchConfiguration();
             }
         }
 
@@ -707,10 +781,47 @@ namespace Unity.UIWidgets.material {
                         topPadding: topPadding,
                         floating: widget.floating,
                         pinned: widget.pinned,
-                        snapConfiguration: _snapConfiguration
+                        shape: widget.shape,
+                        snapConfiguration: _snapConfiguration,
+                        stretchConfiguration: _stretchConfiguration
                     )
                 )
             );
+        }
+    }
+
+    internal class _AppBarTitleBox : SingleChildRenderObjectWidget {
+        internal _AppBarTitleBox(Key key = null, Widget child = null) : base(key: key, child: child) {
+            D.assert(child != null);
+        }
+
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new _RenderAppBarTitleBox(
+                textDirection: Directionality.of(context)
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            if (renderObject is _RenderAppBarTitleBox renderAppBarTitleBox) {
+                renderAppBarTitleBox.textDirection = Directionality.of(context);
+            }
+        }
+    }
+
+    class _RenderAppBarTitleBox : RenderAligningShiftedBox {
+        internal _RenderAppBarTitleBox(
+            RenderBox child = null,
+            TextDirection textDirection = TextDirection.ltr
+        ) : base(child: child, alignment: Alignment.center, textDirection: textDirection) {
+        }
+
+        protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
+            BoxConstraints innerConstraints = constraints.copyWith(maxHeight: float.PositiveInfinity);
+            child.layout(innerConstraints, parentUsesSize: true);
+            size = constraints.constrain(child.size);
+            alignChild();
         }
     }
 }

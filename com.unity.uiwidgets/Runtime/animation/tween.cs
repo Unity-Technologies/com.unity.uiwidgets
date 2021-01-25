@@ -75,7 +75,7 @@ namespace Unity.UIWidgets.animation {
         }
     }
 
-    public abstract class Tween<T> : Animatable<T>, IEquatable<Tween<T>> {
+    public class Tween<T> : Animatable<T>, IEquatable<Tween<T>> {
         public Tween(T begin, T end) {
             this.begin = begin;
             this.end = end;
@@ -85,8 +85,12 @@ namespace Unity.UIWidgets.animation {
 
         public virtual T end { get; set; }
 
-        public abstract T lerp(float t);
-        
+        public virtual T lerp(float t) {
+            D.assert(begin != null);
+            D.assert(end != null);
+            return default; //begin + (end - begin) * t as T;
+        }
+
         public override T transform(float t) {
             if (t == 0.0)
                 return begin;

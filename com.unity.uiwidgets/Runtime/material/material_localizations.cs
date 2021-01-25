@@ -38,6 +38,8 @@ namespace Unity.UIWidgets.material {
 
         public abstract string postMeridiemAbbreviation { get; }
 
+        public abstract string dialogLabel { get; }
+
         public abstract string searchFieldLabel { get; }
 
         public abstract TimeOfDayFormat timeOfDayFormat(bool alwaysUse24HourFormat = false);
@@ -359,6 +361,12 @@ namespace Unity.UIWidgets.material {
 
         public override string showMenuTooltip {
             get { return "Show menu"; }
+        }
+
+        public override string dialogLabel {
+            get {
+                return "Dialog";
+            }
         }
 
         public override string searchFieldLabel {
