@@ -43,16 +43,22 @@ namespace Unity.UIWidgets.material {
 
         Clip clipBehavior { get; }
 
+        FocusNode focusNode { get; }
+
+        bool autofocus { get; }
+
         Color backgroundColor { get; }
 
         EdgeInsets padding { get; }
+
+        VisualDensity visualDensity { get; }
 
         EdgeInsets labelPadding { get; }
 
         MaterialTapTargetSize? materialTapTargetSize { get; }
 
         float? elevation { get; }
-        
+
         Color shadowColor { get; }
     }
 
@@ -64,6 +70,12 @@ namespace Unity.UIWidgets.material {
         Color deleteIconColor { get; }
 
         string deleteButtonTooltipMessage { get; }
+    }
+
+    public interface CheckmarkableChipAttributes {
+        bool? showCheckmark { get; }
+
+        Color checkmarkColor { get; }
     }
 
     public interface SelectableChipAttributes {
@@ -78,7 +90,7 @@ namespace Unity.UIWidgets.material {
         string tooltip { get; }
 
         ShapeBorder avatarBorder { get; }
-        
+
         Color selectedShadowColor { get; }
     }
 
@@ -109,8 +121,11 @@ namespace Unity.UIWidgets.material {
             string deleteButtonTooltipMessage = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
+            FocusNode focusNode = null,
+            bool autofocus = false,
             Color backgroundColor = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
             Color shadowColor = null
@@ -127,6 +142,8 @@ namespace Unity.UIWidgets.material {
             _deleteButtonTooltipMessage = deleteButtonTooltipMessage;
             _shape = shape;
             _clipBehavior = clipBehavior;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
             _backgroundColor = backgroundColor;
             _padding = padding;
             _materialTapTargetSize = materialTapTargetSize;
@@ -170,6 +187,10 @@ namespace Unity.UIWidgets.material {
 
         Clip _clipBehavior;
 
+        public FocusNode focusNode { get; }
+
+        public bool autofocus { get; }
+
         public Color backgroundColor {
             get { return _backgroundColor; }
         }
@@ -179,6 +200,8 @@ namespace Unity.UIWidgets.material {
         public EdgeInsets padding {
             get { return _padding; }
         }
+
+        public VisualDensity visualDensity { get; }
 
         EdgeInsets _padding;
 
@@ -238,8 +261,11 @@ namespace Unity.UIWidgets.material {
                 tapEnabled: false,
                 shape: shape,
                 clipBehavior: clipBehavior,
+                focusNode: focusNode,
+                autofocus: autofocus,
                 backgroundColor: backgroundColor,
                 padding: padding,
+                visualDensity: visualDensity,
                 materialTapTargetSize: materialTapTargetSize,
                 elevation: elevation,
                 shadowColor: shadowColor,
@@ -252,6 +278,7 @@ namespace Unity.UIWidgets.material {
         ChipAttributes,
         DeletableChipAttributes,
         SelectableChipAttributes,
+        CheckmarkableChipAttributes,
         DisabledChipAttributes,
         TappableChipAttributes {
         public InputChip(
@@ -274,13 +301,18 @@ namespace Unity.UIWidgets.material {
             string tooltip = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
+            FocusNode focusNode = null,
+            bool autofocus = false,
             Color backgroundColor = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
             Color shadowColor = null,
             Color selectedShadowColor = null,
-            ShapeBorder avatarBorder = null
+            ShapeBorder avatarBorder = null,
+            bool showCheckmark = false,
+            Color checkmarkColor = null
         ) : base(key: key) {
             D.assert(label != null);
             D.assert(pressElevation == null || pressElevation >= 0.0f);
@@ -304,12 +336,17 @@ namespace Unity.UIWidgets.material {
             _tooltip = tooltip;
             _shape = shape;
             _clipBehavior = clipBehavior;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
             _backgroundColor = backgroundColor;
             _padding = padding;
+            this.visualDensity = visualDensity;
             _materialTapTargetSize = materialTapTargetSize;
             _elevation = elevation;
             _shadowColor = shadowColor;
             _selectedShadowColor = selectedShadowColor;
+            this.showCheckmark = showCheckmark;
+            this.checkmarkColor = checkmarkColor;
         }
 
         public Widget avatar {
@@ -420,6 +457,10 @@ namespace Unity.UIWidgets.material {
 
         Clip _clipBehavior;
 
+        public FocusNode focusNode { get; }
+
+        public bool autofocus { get; }
+
         public Color backgroundColor {
             get { return _backgroundColor; }
         }
@@ -431,6 +472,8 @@ namespace Unity.UIWidgets.material {
         }
 
         EdgeInsets _padding;
+
+        public VisualDensity visualDensity { get; }
 
         public MaterialTapTargetSize? materialTapTargetSize {
             get { return _materialTapTargetSize; }
@@ -455,10 +498,14 @@ namespace Unity.UIWidgets.material {
         }
 
         Color _selectedShadowColor;
-        
+
         public ShapeBorder avatarBorder {
             get { return _avatarBorder; }
         }
+
+        public bool? showCheckmark { get; }
+
+        public Color checkmarkColor { get; }
 
         ShapeBorder _avatarBorder;
 
@@ -483,12 +530,17 @@ namespace Unity.UIWidgets.material {
                 tooltip: tooltip,
                 shape: shape,
                 clipBehavior: clipBehavior,
+                focusNode: focusNode,
+                autofocus: autofocus,
                 backgroundColor: backgroundColor,
                 padding: padding,
+                visualDensity: visualDensity,
                 materialTapTargetSize: materialTapTargetSize,
                 elevation: elevation,
                 shadowColor: shadowColor,
                 selectedShadowColor: selectedShadowColor,
+                showCheckmark: showCheckmark,
+                checkmarkColor: checkmarkColor,
                 isEnabled: isEnabled == true &&
                            (onSelected != null || onDeleted != null || onPressed != null),
                 avatarBorder: avatarBorder
@@ -514,8 +566,11 @@ namespace Unity.UIWidgets.material {
             string tooltip = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
+            FocusNode focusNode = null,
+            bool autofocus = false,
             Color backgroundColor = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
             Color shadowColor = null,
@@ -539,8 +594,11 @@ namespace Unity.UIWidgets.material {
             _tooltip = tooltip;
             _shape = shape;
             _clipBehavior = clipBehavior;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
             _backgroundColor = backgroundColor;
             _padding = padding;
+            this.visualDensity = visualDensity;
             _materialTapTargetSize = materialTapTargetSize;
             _elevation = elevation;
             _shadowColor = shadowColor;
@@ -619,6 +677,9 @@ namespace Unity.UIWidgets.material {
 
         Clip _clipBehavior;
 
+        public FocusNode focusNode { get; }
+        public bool autofocus { get; }
+
         public Color backgroundColor {
             get { return _backgroundColor; }
         }
@@ -630,6 +691,8 @@ namespace Unity.UIWidgets.material {
         }
 
         EdgeInsets _padding;
+
+        public VisualDensity visualDensity { get; }
 
         public MaterialTapTargetSize? materialTapTargetSize {
             get { return _materialTapTargetSize; }
@@ -681,10 +744,13 @@ namespace Unity.UIWidgets.material {
                 tooltip: tooltip,
                 shape: shape,
                 clipBehavior: clipBehavior,
+                focusNode: focusNode,
+                autofocus: autofocus,
                 disabledColor: disabledColor,
                 selectedColor: selectedColor ?? chipTheme.secondarySelectedColor,
                 backgroundColor: backgroundColor,
                 padding: padding,
+                visualDensity: visualDensity,
                 isEnabled: isEnabled,
                 materialTapTargetSize: materialTapTargetSize,
                 elevation: elevation,
@@ -698,6 +764,7 @@ namespace Unity.UIWidgets.material {
     public class FilterChip : StatelessWidget,
         ChipAttributes,
         SelectableChipAttributes,
+        CheckmarkableChipAttributes,
         DisabledChipAttributes {
         public FilterChip(
             Key key = null,
@@ -713,13 +780,18 @@ namespace Unity.UIWidgets.material {
             string tooltip = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
+            FocusNode focusNode = null,
+            bool autofocus = false,
             Color backgroundColor = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
             Color shadowColor = null,
             Color selectedShadowColor = null,
-            ShapeBorder avatarBorder = null
+            ShapeBorder avatarBorder = null,
+            bool showCheckmark = false,
+            Color checkmarkColor = null
         ) : base(key: key) {
             D.assert(label != null);
             D.assert(pressElevation == null || pressElevation >= 0.0f);
@@ -737,12 +809,17 @@ namespace Unity.UIWidgets.material {
             _tooltip = tooltip;
             _shape = shape;
             _clipBehavior = clipBehavior;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
             _backgroundColor = backgroundColor;
             _padding = padding;
+            this.visualDensity = visualDensity;
             _materialTapTargetSize = materialTapTargetSize;
             _elevation = elevation;
             _shadowColor = shadowColor;
             _selectedShadowColor = selectedShadowColor;
+            this.showCheckmark = showCheckmark;
+            this.checkmarkColor = checkmarkColor;
         }
 
         public Widget avatar {
@@ -817,6 +894,10 @@ namespace Unity.UIWidgets.material {
 
         Clip _clipBehavior;
 
+        public FocusNode focusNode { get; }
+
+        public bool autofocus { get; }
+
         public Color backgroundColor {
             get { return _backgroundColor; }
         }
@@ -828,6 +909,8 @@ namespace Unity.UIWidgets.material {
         }
 
         EdgeInsets _padding;
+
+        public VisualDensity visualDensity { get; }
 
         public MaterialTapTargetSize? materialTapTargetSize {
             get { return _materialTapTargetSize; }
@@ -853,6 +936,10 @@ namespace Unity.UIWidgets.material {
 
         Color _selectedShadowColor;
 
+        public bool? showCheckmark { get; }
+
+        public Color checkmarkColor { get; }
+
         public ShapeBorder avatarBorder {
             get { return _avatarBorder; }
         }
@@ -876,15 +963,20 @@ namespace Unity.UIWidgets.material {
                 tooltip: tooltip,
                 shape: shape,
                 clipBehavior: clipBehavior,
+                focusNode: focusNode,
+                autofocus: autofocus,
                 backgroundColor: backgroundColor,
                 disabledColor: disabledColor,
                 selectedColor: selectedColor,
                 padding: padding,
+                visualDensity: visualDensity,
                 isEnabled: isEnabled,
                 materialTapTargetSize: materialTapTargetSize,
                 elevation: elevation,
                 shadowColor: shadowColor,
                 selectedShadowColor: selectedShadowColor,
+                showCheckmark: showCheckmark,
+                checkmarkColor: checkmarkColor,
                 avatarBorder: avatarBorder
             );
         }
@@ -902,8 +994,11 @@ namespace Unity.UIWidgets.material {
             string tooltip = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
+            FocusNode focusNode = null,
+            bool autofocus = false,
             Color backgroundColor = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
             Color shadowColor = null
@@ -912,7 +1007,7 @@ namespace Unity.UIWidgets.material {
             D.assert(
                 onPressed != null,
                 () => "Rather than disabling an ActionChip by setting onPressed to null, " +
-                "remove it from the interface entirely."
+                      "remove it from the interface entirely."
             );
             D.assert(pressElevation == null || pressElevation >= 0.0f);
             D.assert(elevation == null || elevation >= 0.0f);
@@ -925,8 +1020,11 @@ namespace Unity.UIWidgets.material {
             _tooltip = tooltip;
             _shape = shape;
             _clipBehavior = clipBehavior;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
             _backgroundColor = backgroundColor;
             _padding = padding;
+            this.visualDensity = visualDensity;
             _materialTapTargetSize = materialTapTargetSize;
             _elevation = elevation;
             _shadowColor = shadowColor;
@@ -987,6 +1085,10 @@ namespace Unity.UIWidgets.material {
 
         Clip _clipBehavior;
 
+        public FocusNode focusNode { get; }
+
+        public bool autofocus { get; }
+
         public Color backgroundColor {
             get { return _backgroundColor; }
         }
@@ -998,6 +1100,8 @@ namespace Unity.UIWidgets.material {
         }
 
         EdgeInsets _padding;
+
+        public VisualDensity visualDensity { get; }
 
         public MaterialTapTargetSize? materialTapTargetSize {
             get { return _materialTapTargetSize; }
@@ -1029,7 +1133,10 @@ namespace Unity.UIWidgets.material {
                 backgroundColor: backgroundColor,
                 shape: shape,
                 clipBehavior: clipBehavior,
+                focusNode: focusNode,
+                autofocus: autofocus,
                 padding: padding,
+                visualDensity: visualDensity,
                 labelPadding: labelPadding,
                 isEnabled: true,
                 materialTapTargetSize: materialTapTargetSize,
@@ -1043,6 +1150,7 @@ namespace Unity.UIWidgets.material {
         ChipAttributes,
         DeletableChipAttributes,
         SelectableChipAttributes,
+        CheckmarkableChipAttributes,
         DisabledChipAttributes,
         TappableChipAttributes {
         public RawChip(
@@ -1051,6 +1159,7 @@ namespace Unity.UIWidgets.material {
             Widget label = null,
             TextStyle labelStyle = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             EdgeInsets labelPadding = null,
             Widget deleteIcon = null,
             VoidCallback onDeleted = null,
@@ -1061,18 +1170,21 @@ namespace Unity.UIWidgets.material {
             float? pressElevation = null,
             bool? tapEnabled = true,
             bool? selected = null,
-            bool showCheckmark = true,
             bool? isEnabled = true,
             Color disabledColor = null,
             Color selectedColor = null,
             string tooltip = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
+            FocusNode focusNode = null,
+            bool autofocus = false,
             Color backgroundColor = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
             Color shadowColor = null,
             Color selectedShadowColor = null,
+            bool? showCheckmark = true,
+            Color checkmarkColor = null,
             ShapeBorder avatarBorder = null
         ) : base(key: key) {
             D.assert(label != null);
@@ -1085,6 +1197,7 @@ namespace Unity.UIWidgets.material {
             _label = label;
             _labelStyle = labelStyle;
             _padding = padding;
+            this.visualDensity = visualDensity;
             _labelPadding = labelPadding;
             _deleteIcon = deleteIcon;
             _onDeleted = onDeleted;
@@ -1095,18 +1208,21 @@ namespace Unity.UIWidgets.material {
             _pressElevation = pressElevation;
             _tapEnabled = tapEnabled;
             _selected = selected;
-            _showCheckmark = showCheckmark;
             _isEnabled = isEnabled;
             _disabledColor = disabledColor;
             _selectedColor = selectedColor;
             _tooltip = tooltip;
             _shape = shape;
             _clipBehavior = clipBehavior;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
             _backgroundColor = backgroundColor;
             _materialTapTargetSize = materialTapTargetSize;
             _elevation = elevation;
             _shadowColor = shadowColor;
             _selectedShadowColor = selectedShadowColor;
+            this.showCheckmark = showCheckmark;
+            this.checkmarkColor = checkmarkColor;
         }
 
 
@@ -1218,6 +1334,10 @@ namespace Unity.UIWidgets.material {
 
         Clip _clipBehavior;
 
+        public FocusNode focusNode { get; }
+
+        public bool autofocus { get; }
+
         public Color backgroundColor {
             get { return _backgroundColor; }
         }
@@ -1229,6 +1349,8 @@ namespace Unity.UIWidgets.material {
         }
 
         EdgeInsets _padding;
+
+        public VisualDensity visualDensity { get; }
 
         public MaterialTapTargetSize? materialTapTargetSize {
             get { return _materialTapTargetSize; }
@@ -1253,18 +1375,16 @@ namespace Unity.UIWidgets.material {
         }
 
         Color _selectedShadowColor;
-        
+
+        public bool? showCheckmark { get; }
+
+        public Color checkmarkColor { get; }
+
         public ShapeBorder avatarBorder {
             get { return _avatarBorder; }
         }
 
         ShapeBorder _avatarBorder;
-
-        public bool showCheckmark {
-            get { return _showCheckmark; }
-        }
-
-        bool _showCheckmark;
 
         public bool? tapEnabled {
             get { return _tapEnabled; }
@@ -1290,6 +1410,12 @@ namespace Unity.UIWidgets.material {
         Animation<float> enableAnimation;
         Animation<float> selectionFade;
 
+
+        readonly HashSet<MaterialState> _states = new HashSet<MaterialState>();
+
+        public readonly GlobalKey deleteIconKey = GlobalKey.key();
+
+
         public bool hasDeleteButton {
             get { return widget.onDeleted != null; }
         }
@@ -1309,12 +1435,14 @@ namespace Unity.UIWidgets.material {
         bool _isTapping = false;
 
         public bool isTapping {
-            get { return !canTap ? false : _isTapping; }
+            get { return canTap && _isTapping; }
         }
 
         public override void initState() {
             D.assert(widget.onSelected == null || widget.onPressed == null);
             base.initState();
+            _updateState(MaterialState.disabled, !(widget.isEnabled != null && widget.isEnabled.Value));
+            _updateState(MaterialState.selected, widget.selected != null && widget.selected.Value);
             selectController = new AnimationController(
                 duration: ChipUtils._kSelectDuration,
                 value: widget.selected == true ? 1.0f : 0.0f,
@@ -1341,11 +1469,11 @@ namespace Unity.UIWidgets.material {
             );
 
             float checkmarkPercentage = (float) (ChipUtils._kCheckmarkDuration.TotalMilliseconds /
-                                        ChipUtils._kSelectDuration.TotalMilliseconds);
+                                                 ChipUtils._kSelectDuration.TotalMilliseconds);
             float checkmarkReversePercentage = (float) (ChipUtils._kCheckmarkReverseDuration.TotalMilliseconds /
-                                               ChipUtils._kSelectDuration.TotalMilliseconds);
+                                                        ChipUtils._kSelectDuration.TotalMilliseconds);
             float avatarDrawerReversePercentage = (float) (ChipUtils._kReverseDrawerDuration.TotalMilliseconds /
-                                                  ChipUtils._kSelectDuration.TotalMilliseconds);
+                                                           ChipUtils._kSelectDuration.TotalMilliseconds);
             checkmarkAnimation = new CurvedAnimation(
                 parent: selectController,
                 curve: new Interval(1.0f - checkmarkPercentage, 1.0f, curve: Curves.fastOutSlowIn),
@@ -1382,12 +1510,24 @@ namespace Unity.UIWidgets.material {
             base.dispose();
         }
 
+        void _updateState(MaterialState state, bool value) {
+            if (value) {
+                _states.Add(state);
+            }
+            else {
+                _states.Remove(state);
+            }
+        }
+
         void _handleTapDown(TapDownDetails details) {
             if (!canTap) {
                 return;
             }
 
-            setState(() => { _isTapping = true; });
+            setState(() => {
+                _isTapping = true;
+                _updateState(MaterialState.pressed, true);
+            });
         }
 
         void _handleTapCancel() {
@@ -1395,7 +1535,10 @@ namespace Unity.UIWidgets.material {
                 return;
             }
 
-            setState(() => { _isTapping = false; });
+            setState(() => {
+                _isTapping = false;
+                _updateState(MaterialState.pressed, false);
+            });
         }
 
         void _handleTap() {
@@ -1403,9 +1546,20 @@ namespace Unity.UIWidgets.material {
                 return;
             }
 
-            setState(() => { _isTapping = false; });
+            setState(() => {
+                _isTapping = false;
+                _updateState(MaterialState.pressed, false);
+            });
             widget.onSelected?.Invoke(!widget.selected == true);
             widget.onPressed?.Invoke();
+        }
+
+        void _handleFocus(bool isFocused) {
+            setState(() => { _updateState(MaterialState.focused, isFocused); });
+        }
+
+        void _handleHover(bool isHovered) {
+            setState(() => { _updateState(MaterialState.hovered, isHovered); });
         }
 
         Color getBackgroundColor(ChipThemeData theme) {
@@ -1425,6 +1579,7 @@ namespace Unity.UIWidgets.material {
             base.didUpdateWidget(oldWidget);
             if (oldWidget.isEnabled != widget.isEnabled) {
                 setState(() => {
+                    _updateState(MaterialState.disabled, !(widget.isEnabled != null && widget.isEnabled.Value));
                     if (widget.isEnabled == true) {
                         enableController.forward();
                     }
@@ -1447,6 +1602,7 @@ namespace Unity.UIWidgets.material {
 
             if (oldWidget.selected != widget.selected) {
                 setState(() => {
+                    _updateState(MaterialState.selected, widget.selected != null && widget.selected.Value);
                     if (widget.selected == true) {
                         selectController.forward();
                     }
@@ -1479,7 +1635,12 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        Widget _buildDeleteIcon(BuildContext context, ThemeData theme, ChipThemeData chipTheme) {
+        Widget _buildDeleteIcon(
+            BuildContext context,
+            ThemeData theme,
+            ChipThemeData chipTheme,
+            GlobalKey deleteIconKey
+        ) {
             if (!hasDeleteButton) {
                 return null;
             }
@@ -1487,9 +1648,14 @@ namespace Unity.UIWidgets.material {
             return _wrapWithTooltip(
                 widget.deleteButtonTooltipMessage ?? MaterialLocalizations.of(context)?.deleteButtonTooltip,
                 widget.onDeleted,
-                new InkResponse(
-                    onTap: widget.isEnabled == true
-                        ? () => { widget.onDeleted(); }
+                new GestureDetector(
+                    key: deleteIconKey,
+                    behavior: HitTestBehavior.opaque,
+                    onTap: widget.isEnabled != null && widget.isEnabled.Value
+                        ? () => {
+                            Feedback.forTap(context);
+                            widget.onDeleted();
+                        }
                         : (GestureTapCallback) null,
                     child: new IconTheme(
                         data: theme.iconTheme.copyWith(
@@ -1518,19 +1684,35 @@ namespace Unity.UIWidgets.material {
             float elevation = widget.elevation ?? (chipTheme.elevation ?? _defaultElevation);
             float pressElevation = widget.pressElevation ?? (chipTheme.pressElevation ?? _defaultPressElevation);
             Color shadowColor = widget.shadowColor ?? chipTheme.shadowColor ?? _defaultShadowColor;
-            Color selectedShadowColor = widget.selectedShadowColor ?? chipTheme.selectedShadowColor ?? _defaultShadowColor;
-            bool selected = widget.selected ?? false;
+            Color selectedShadowColor =
+                widget.selectedShadowColor ?? chipTheme.selectedShadowColor ?? _defaultShadowColor;
+            Color checkmarkColor = widget.checkmarkColor ?? chipTheme.checkmarkColor;
+            bool showCheckmark = widget.showCheckmark ?? chipTheme.showCheckmark ?? true;
+
+            TextStyle effectiveLabelStyle = widget.labelStyle ?? chipTheme.labelStyle;
+            Color resolvedLabelColor = MaterialStateProperty<Color>.resolveAs(effectiveLabelStyle?.color, _states);
+            TextStyle resolvedLabelStyle = effectiveLabelStyle?.copyWith(color: resolvedLabelColor);
 
             Widget result = new Material(
                 elevation: isTapping ? pressElevation : elevation,
-                shadowColor: selected ? selectedShadowColor : shadowColor,
+                shadowColor: widget.selected ?? false ? selectedShadowColor : shadowColor,
                 animationDuration: pressedAnimationDuration,
                 shape: shape,
                 clipBehavior: widget.clipBehavior,
                 child: new InkWell(
+                    onFocusChange: _handleFocus,
+                    focusNode: widget.focusNode,
+                    autofocus: widget.autofocus,
+                    canRequestFocus: widget.isEnabled ?? false,
                     onTap: canTap ? _handleTap : (GestureTapCallback) null,
                     onTapDown: canTap ? _handleTapDown : (GestureTapDownCallback) null,
                     onTapCancel: canTap ? _handleTapCancel : (GestureTapCancelCallback) null,
+                    onHover: canTap ? _handleHover : (ValueChanged<bool>) null,
+                    splashFactory: new _LocationAwareInkRippleFactory(
+                        hasDeleteButton,
+                        context,
+                        deleteIconKey
+                    ),
                     customBorder: shape,
                     child: new AnimatedBuilder(
                         animation: ListenableUtils.merge(new List<Listenable>
@@ -1552,7 +1734,7 @@ namespace Unity.UIWidgets.material {
                                         textAlign: TextAlign.left,
                                         maxLines: 1,
                                         softWrap: false,
-                                        style: widget.labelStyle ?? chipTheme.labelStyle,
+                                        style: resolvedLabelStyle,
                                         child: widget.label
                                     ),
                                     avatar: new AnimatedSwitcher(
@@ -1561,15 +1743,18 @@ namespace Unity.UIWidgets.material {
                                         switchInCurve: Curves.fastOutSlowIn
                                     ),
                                     deleteIcon: new AnimatedSwitcher(
-                                        child: _buildDeleteIcon(context, theme, chipTheme),
+                                        child: _buildDeleteIcon(context, theme, chipTheme, deleteIconKey),
                                         duration: ChipUtils._kDrawerDuration,
                                         switchInCurve: Curves.fastOutSlowIn
                                     ),
                                     brightness: chipTheme.brightness,
-                                    padding: widget.padding ?? chipTheme.padding,
-                                    labelPadding: widget.labelPadding ?? chipTheme.labelPadding,
+                                    padding: (widget.padding ?? chipTheme.padding).resolve(textDirection),
+                                    visualDensity: widget.visualDensity ?? theme.visualDensity,
+                                    labelPadding:
+                                    (widget.labelPadding ?? chipTheme.labelPadding).resolve(textDirection),
                                     showAvatar: hasAvatar,
-                                    showCheckmark: widget.showCheckmark,
+                                    showCheckmark: showCheckmark,
+                                    checkmarkColor: checkmarkColor,
                                     canTapBody: canTap
                                 ),
                                 value: widget.selected,
@@ -1585,9 +1770,11 @@ namespace Unity.UIWidgets.material {
                 )
             );
             BoxConstraints constraints;
+            Offset densityAdjustment = (widget.visualDensity ?? theme.visualDensity).baseSizeAdjustment;
             switch (widget.materialTapTargetSize ?? theme.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
-                    constraints = new BoxConstraints(minHeight: 48.0f);
+                    constraints =
+                        new BoxConstraints(minHeight: Constants.kMinInteractiveDimension + densityAdjustment.dy);
                     break;
                 case MaterialTapTargetSize.shrinkWrap:
                     constraints = new BoxConstraints();
@@ -1639,7 +1826,15 @@ namespace Unity.UIWidgets.material {
                 return false;
             }
 
-            return child.hitTest(result, position: new Offset(position.dx, size.height / 2));
+            Offset offset = new Offset(position.dx, size.height / 2);
+            return result.addWithRawTransform(
+                transform: MatrixUtils.forceToPoint(offset),
+                position: position,
+                hitTest: (BoxHitTestResult result, Offset position) => {
+                    D.assert(position == offset);
+                    return child.hitTest(result, position: offset);
+                }
+            );
         }
     }
 
@@ -1682,6 +1877,7 @@ namespace Unity.UIWidgets.material {
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             _RenderChip renderObject = _renderObject as _RenderChip;
             renderObject.theme = theme;
+            renderObject.textDirection = Directionality.of(context);
             renderObject.value = value ?? false;
             renderObject.isEnabled = isEnabled ?? false;
             renderObject.checkmarkAnimation = checkmarkAnimation;
@@ -1694,6 +1890,7 @@ namespace Unity.UIWidgets.material {
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderChip(
                 theme: theme,
+                textDirection: Directionality.of(context),
                 value: value,
                 isEnabled: isEnabled,
                 checkmarkAnimation: checkmarkAnimation,
@@ -1736,6 +1933,7 @@ namespace Unity.UIWidgets.material {
             _ChipSlot slot = childToSlot[child];
             childToSlot.Remove(child);
             slotToChild.Remove(slot);
+            base.forgetChild(child);
         }
 
         void _mountChild(Widget widget, _ChipSlot slot) {
@@ -1825,9 +2023,11 @@ namespace Unity.UIWidgets.material {
             Widget deleteIcon = null,
             Brightness? brightness = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             EdgeInsets labelPadding = null,
             bool? showAvatar = null,
             bool? showCheckmark = null,
+            Color checkmarkColor = null,
             bool? canTapBody = null
         ) {
             this.avatar = avatar;
@@ -1835,9 +2035,11 @@ namespace Unity.UIWidgets.material {
             this.deleteIcon = deleteIcon;
             this.brightness = brightness;
             this.padding = padding;
+            this.visualDensity = visualDensity;
             this.labelPadding = labelPadding;
             this.showAvatar = showAvatar;
             this.showCheckmark = showCheckmark;
+            this.checkmarkColor = checkmarkColor;
             this.canTapBody = canTapBody;
         }
 
@@ -1846,9 +2048,11 @@ namespace Unity.UIWidgets.material {
         public readonly Widget deleteIcon;
         public readonly Brightness? brightness;
         public readonly EdgeInsets padding;
+        public readonly VisualDensity visualDensity;
         public readonly EdgeInsets labelPadding;
         public readonly bool? showAvatar;
         public readonly bool? showCheckmark;
+        public readonly Color checkmarkColor;
         public readonly bool? canTapBody;
 
         public override bool Equals(object obj) {
@@ -1876,6 +2080,7 @@ namespace Unity.UIWidgets.material {
                    && labelPadding == other.labelPadding
                    && showAvatar == other.showAvatar
                    && showCheckmark == other.showCheckmark
+                   && checkmarkColor == other.checkmarkColor
                    && canTapBody == other.canTapBody;
         }
 
@@ -1896,6 +2101,7 @@ namespace Unity.UIWidgets.material {
             hashCode = (hashCode * 397) ^ labelPadding.GetHashCode();
             hashCode = (hashCode * 397) ^ showAvatar.GetHashCode();
             hashCode = (hashCode * 397) ^ showCheckmark.GetHashCode();
+            hashCode = (hashCode * 397) ^ checkmarkColor.GetHashCode();
             hashCode = (hashCode * 397) ^ canTapBody.GetHashCode();
             return hashCode;
         }
@@ -1904,6 +2110,7 @@ namespace Unity.UIWidgets.material {
     class _RenderChip : RenderBox {
         public _RenderChip(
             _ChipRenderTheme theme = null,
+            TextDirection textDirection = TextDirection.ltr,
             bool? value = null,
             bool? isEnabled = null,
             Animation<float> checkmarkAnimation = null,
@@ -1914,6 +2121,7 @@ namespace Unity.UIWidgets.material {
         ) {
             D.assert(theme != null);
             _theme = theme;
+            this.textDirection = textDirection;
             checkmarkAnimation.addListener(markNeedsPaint);
             avatarDrawerAnimation.addListener(markNeedsLayout);
             deleteDrawerAnimation.addListener(markNeedsLayout);
@@ -2006,6 +2214,20 @@ namespace Unity.UIWidgets.material {
                 }
             }
         }
+
+        public TextDirection textDirection {
+            get => _textDirection;
+            set {
+                if (_textDirection == value) {
+                    return;
+                }
+
+                _textDirection = value;
+                markNeedsLayout();
+            }
+        }
+
+        TextDirection _textDirection;
 
         public bool isDrawingCheckmark {
             get { return theme.showCheckmark == true && (!(checkmarkAnimation?.isDismissed ?? !value)) == true; }
@@ -2115,28 +2337,37 @@ namespace Unity.UIWidgets.material {
         Size _layoutLabel(float iconSizes, Size size) {
             Size rawSize = _boxSize(label);
             if (constraints.maxWidth.isFinite()) {
+                float maxWidth = Mathf.Max(
+                    0.0f,
+                    constraints.maxWidth
+                    - iconSizes
+                    - theme.labelPadding.horizontal
+                    - theme.padding.horizontal
+                );
                 label.layout(constraints.copyWith(
                         minWidth: 0.0f,
-                        maxWidth: Mathf.Max(
-                            0.0f, constraints.maxWidth - iconSizes - theme.labelPadding.horizontal
-                        ),
+                        maxWidth: maxWidth,
                         minHeight: rawSize.height,
                         maxHeight: size.height
                     ),
                     parentUsesSize: true
                 );
-            }
-            else {
-                label.layout(
-                    new BoxConstraints(
-                        minHeight: rawSize.height,
-                        maxHeight: size.height,
-                        minWidth: 0.0f,
-                        maxWidth: size.width
-                    ),
-                    parentUsesSize: true
+                Size updatedSize = _boxSize(label);
+                return new Size(
+                    updatedSize.width + theme.labelPadding.horizontal,
+                    updatedSize.height + theme.labelPadding.vertical
                 );
             }
+
+            label.layout(
+                new BoxConstraints(
+                    minHeight: rawSize.height,
+                    maxHeight: size.height,
+                    minWidth: 0.0f,
+                    maxWidth: size.width
+                ),
+                parentUsesSize: true
+            );
 
             return new Size(
                 rawSize.width + theme.labelPadding.horizontal,
@@ -2193,19 +2424,34 @@ namespace Unity.UIWidgets.material {
                 return false;
             }
 
-            RenderBox hitTestChild;
-            if (position.dx / size.width > 0.66f) {
-                hitTestChild = deleteIcon ?? label ?? avatar;
-            }
-            else {
-                hitTestChild = label ?? avatar;
+            bool tapIsOnDeleteIcon = material_._tapIsOnDeleteIcon(
+                hasDeleteButton: deleteIcon != null,
+                tapPosition: position,
+                chipSize: size,
+                textDirection: textDirection
+            );
+            RenderBox hitTestChild = tapIsOnDeleteIcon
+                ? (deleteIcon ?? label ?? avatar)
+                : (label ?? avatar);
+
+            if (hitTestChild != null) {
+                Offset center = hitTestChild.size.center(Offset.zero);
+                return result.addWithRawTransform(
+                    transform: MatrixUtils.forceToPoint(center),
+                    position: position,
+                    hitTest: (BoxHitTestResult result, Offset position) => {
+                        D.assert(position == center);
+                        return hitTestChild.hitTest(result, position: center);
+                    }
+                );
             }
 
-            return hitTestChild?.hitTest(result, position: hitTestChild.size.center(Offset.zero)) ?? false;
+            return false;
         }
 
         protected override void performLayout() {
             BoxConstraints contentConstraints = constraints.loosen();
+            Offset densityAdjustment = new Offset(0.0f, theme.visualDensity.baseSizeAdjustment.dy / 2.0f);
             label.layout(contentConstraints, parentUsesSize: true);
             float contentSize = Mathf.Max(
                 ChipUtils._kChipHeight - theme.padding.vertical + theme.labelPadding.vertical,
@@ -2219,59 +2465,112 @@ namespace Unity.UIWidgets.material {
             Size overallSize = new Size(
                 avatarSize.width + labelSize.width + deleteIconSize.width,
                 contentSize
-            );
+            ) + densityAdjustment;
 
 
             const float left = 0.0f;
+            float right = overallSize.width;
 
             Offset centerLayout(Size boxSize, float x) {
                 D.assert(contentSize >= boxSize.height);
-                return new Offset(x, (contentSize - boxSize.height) / 2.0f);
+                Offset boxOffset = null;
+                switch (textDirection) {
+                    case TextDirection.rtl:
+                        boxOffset = new Offset(x - boxSize.width,
+                            (contentSize - boxSize.height + densityAdjustment.dy) / 2.0f);
+                        break;
+                    case TextDirection.ltr:
+                        boxOffset = new Offset(x, (contentSize - boxSize.height + densityAdjustment.dy) / 2.0f);
+                        break;
+                }
+
+                return boxOffset;
             }
 
             Offset avatarOffset = Offset.zero;
             Offset labelOffset = Offset.zero;
             Offset deleteIconOffset = Offset.zero;
-            float start = left;
-            if (theme.showCheckmark == true || theme.showAvatar == true) {
-                avatarOffset = centerLayout(avatarSize, start - _boxSize(avatar).width + avatarSize.width);
-                start += avatarSize.width;
-            }
+            switch (textDirection) {
+                case TextDirection.rtl:
+                    float startRight = right;
+                    if ((theme.showCheckmark ?? false) || (theme.showAvatar ?? false)) {
+                        avatarOffset = centerLayout(avatarSize, startRight);
+                        startRight -= avatarSize.width;
+                    }
 
-            labelOffset = centerLayout(labelSize, start);
-            start += labelSize.width;
-            if (theme.canTapBody == true) {
-                pressRect = Rect.fromLTWH(
-                    0.0f,
-                    0.0f, deleteIconShowing
-                        ? start + theme.padding.left
-                        : overallSize.width + theme.padding.horizontal,
-                    overallSize.height + theme.padding.vertical
-                );
-            }
-            else {
-                pressRect = Rect.zero;
-            }
+                    labelOffset = centerLayout(labelSize, startRight);
+                    startRight -= labelSize.width;
+                    if (deleteIconShowing) {
+                        deleteButtonRect = Rect.fromLTWH(
+                            0.0f,
+                            0.0f,
+                            deleteIconSize.width + theme.padding.right,
+                            overallSize.height + theme.padding.vertical
+                        );
+                        deleteIconOffset = centerLayout(deleteIconSize, startRight);
+                    }
+                    else {
+                        deleteButtonRect = Rect.zero;
+                    }
 
-            start -= _boxSize(deleteIcon).width - deleteIconSize.width;
-            if (deleteIconShowing) {
-                deleteIconOffset = centerLayout(deleteIconSize, start);
-                deleteButtonRect = Rect.fromLTWH(
-                    start + theme.padding.left,
-                    0.0f,
-                    deleteIconSize.width + theme.padding.right,
-                    overallSize.height + theme.padding.vertical
-                );
-            }
-            else {
-                deleteButtonRect = Rect.zero;
+                    startRight -= deleteIconSize.width;
+                    if (theme.canTapBody ?? false) {
+                        pressRect = Rect.fromLTWH(
+                            deleteButtonRect.width,
+                            0.0f,
+                            overallSize.width - deleteButtonRect.width + theme.padding.horizontal,
+                            overallSize.height + theme.padding.vertical
+                        );
+                    }
+                    else {
+                        pressRect = Rect.zero;
+                    }
+
+                    break;
+                case TextDirection.ltr:
+                    float startLeft = left;
+                    if ((theme.showCheckmark ?? false) || (theme.showAvatar?? false)) {
+                        avatarOffset = centerLayout(avatarSize, startLeft - _boxSize(avatar).width + avatarSize.width);
+                        startLeft += avatarSize.width;
+                    }
+
+                    labelOffset = centerLayout(labelSize, startLeft);
+                    startLeft += labelSize.width;
+                    if (theme.canTapBody ?? false) {
+                        pressRect = Rect.fromLTWH(
+                            0.0f,
+                            0.0f,
+                            deleteIconShowing
+                                ? startLeft + theme.padding.left
+                                : overallSize.width + theme.padding.horizontal,
+                            overallSize.height + theme.padding.vertical
+                        );
+                    }
+                    else {
+                        pressRect = Rect.zero;
+                    }
+
+                    startLeft -= _boxSize(deleteIcon).width - deleteIconSize.width;
+                    if (deleteIconShowing) {
+                        deleteIconOffset = centerLayout(deleteIconSize, startLeft);
+                        deleteButtonRect = Rect.fromLTWH(
+                            startLeft + theme.padding.left,
+                            0.0f,
+                            deleteIconSize.width + theme.padding.right,
+                            overallSize.height + theme.padding.vertical
+                        );
+                    }
+                    else {
+                        deleteButtonRect = Rect.zero;
+                    }
+
+                    break;
             }
 
             labelOffset = labelOffset +
                           new Offset(
                               0.0f,
-                              ((labelSize.height - theme.labelPadding.vertical) - _boxSize(label).height) /
-                              2.0f
+                              ((labelSize.height - theme.labelPadding.vertical) - _boxSize(label).height) /2.0f
                           );
             _boxParentData(avatar).offset = theme.padding.topLeft + avatarOffset;
             _boxParentData(label).offset =
@@ -2284,10 +2583,10 @@ namespace Unity.UIWidgets.material {
             size = constraints.constrain(paddedSize);
             D.assert(size.height == constraints.constrainHeight(paddedSize.height),
                 () => $"Constrained height {size.height} doesn't match expected height " +
-                $"{constraints.constrainWidth(paddedSize.height)}");
+                      $"{constraints.constrainWidth(paddedSize.height)}");
             D.assert(size.width == constraints.constrainWidth(paddedSize.width),
                 () => $"Constrained width {size.width} doesn't match expected width " +
-                $"{constraints.constrainWidth(paddedSize.width)}");
+                      $"{constraints.constrainWidth(paddedSize.width)}");
         }
 
         static ColorTween selectionScrimTween = new ColorTween(
@@ -2325,19 +2624,24 @@ namespace Unity.UIWidgets.material {
 
         void _paintCheck(Canvas canvas, Offset origin, float size) {
             Color paintColor;
-            switch (theme.brightness) {
-                case Brightness.light:
-                    paintColor = theme.showAvatar == true
-                        ? Colors.white
-                        : Colors.black.withAlpha(ChipUtils._kCheckmarkAlpha);
-                    break;
-                case Brightness.dark:
-                    paintColor = theme.showAvatar == true
-                        ? Colors.black
-                        : Colors.white.withAlpha(ChipUtils._kCheckmarkAlpha);
-                    break;
-                default:
-                    throw new Exception("Unknown brightness: " + theme.brightness);
+            if (theme.checkmarkColor != null) {
+                paintColor = theme.checkmarkColor;
+            }
+            else {
+                switch (theme.brightness) {
+                    case Brightness.light:
+                        paintColor = theme.showAvatar == true
+                            ? Colors.white
+                            : Colors.black.withAlpha(ChipUtils._kCheckmarkAlpha);
+                        break;
+                    case Brightness.dark:
+                        paintColor = theme.showAvatar == true
+                            ? Colors.black
+                            : Colors.white.withAlpha(ChipUtils._kCheckmarkAlpha);
+                        break;
+                    default:
+                        throw new Exception("Unknown brightness: " + theme.brightness);
+                }
             }
 
             ColorTween fadeTween = new ColorTween(begin: Colors.transparent, end: paintColor);
@@ -2488,6 +2792,96 @@ namespace Unity.UIWidgets.material {
 
         protected override bool hitTestSelf(Offset position) {
             return deleteButtonRect.contains(position) || pressRect.contains(position);
+        }
+    }
+
+    class _LocationAwareInkRippleFactory : InteractiveInkFeatureFactory {
+        internal _LocationAwareInkRippleFactory(
+            bool? hasDeleteButton = null,
+            BuildContext chipContext = null,
+            GlobalKey deleteIconKey = null
+        ) {
+            this.hasDeleteButton = hasDeleteButton;
+            this.chipContext = chipContext;
+            this.deleteIconKey = deleteIconKey;
+        }
+
+        public readonly bool? hasDeleteButton;
+        public readonly BuildContext chipContext;
+        public readonly GlobalKey deleteIconKey;
+
+        public override InteractiveInkFeature create(
+            MaterialInkController controller = null,
+            RenderBox referenceBox = null,
+            Offset position = null,
+            Color color = null,
+            TextDirection? textDirection = null,
+            bool containedInkWell = false,
+            RectCallback rectCallback = null,
+            BorderRadius borderRadius = null,
+            ShapeBorder customBorder = null,
+            float? radius = null,
+            VoidCallback onRemoved = null
+        ) {
+            bool tapIsOnDeleteIcon = material_._tapIsOnDeleteIcon(
+                hasDeleteButton: hasDeleteButton ?? false,
+                tapPosition: position,
+                chipSize: chipContext.size,
+                textDirection: textDirection
+            );
+
+            BuildContext splashContext = tapIsOnDeleteIcon
+                ? deleteIconKey.currentContext
+                : chipContext;
+
+            InteractiveInkFeatureFactory splashFactory = Theme.of(splashContext).splashFactory;
+
+            if (tapIsOnDeleteIcon) {
+                RenderBox currentBox = referenceBox;
+                referenceBox = deleteIconKey.currentContext.findRenderObject() as RenderBox;
+                position = referenceBox.globalToLocal(currentBox.localToGlobal(position));
+                containedInkWell = false;
+            }
+
+            return splashFactory.create(
+                controller: controller,
+                referenceBox: referenceBox,
+                position: position,
+                color: color,
+                textDirection: textDirection,
+                containedInkWell: containedInkWell,
+                rectCallback: rectCallback,
+                borderRadius: borderRadius,
+                customBorder: customBorder,
+                radius: radius,
+                onRemoved: onRemoved
+            );
+        }
+    }
+
+    public partial class material_ {
+        internal static bool _tapIsOnDeleteIcon(
+            bool hasDeleteButton = false,
+            Offset tapPosition = null,
+            Size chipSize = null,
+            TextDirection? textDirection = null
+        ) {
+            bool tapIsOnDeleteIcon;
+            if (!hasDeleteButton) {
+                tapIsOnDeleteIcon = false;
+            }
+            else {
+                switch (textDirection) {
+                    case TextDirection.ltr:
+                        tapIsOnDeleteIcon = tapPosition.dx / chipSize.width > 0.66;
+                        break;
+                    case TextDirection.rtl:
+                        tapIsOnDeleteIcon = tapPosition.dx / chipSize.width < 0.33;
+                        break;
+                }
+            }
+
+            return tapIsOnDeleteIcon;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.material {
         }
 
         Color _color;
-        
+
         protected void paintInkCircle(
             Canvas canvas,
             Matrix4 transform,
@@ -52,7 +52,6 @@ namespace Unity.UIWidgets.material {
             ShapeBorder customBorder = null,
             BorderRadius borderRadius = null,
             RectCallback clipCallback = null) {
-            
             borderRadius = borderRadius ?? BorderRadius.zero;
             D.assert(canvas != null);
             D.assert(transform != null);
@@ -64,25 +63,28 @@ namespace Unity.UIWidgets.material {
             canvas.save();
             if (originOffset == null) {
                 canvas.transform(transform.storage);
-            } else {
+            }
+            else {
                 canvas.translate(originOffset.dx, originOffset.dy);
             }
+
             if (clipCallback != null) {
                 Rect rect = clipCallback();
                 if (customBorder != null) {
                     canvas.clipPath(customBorder.getOuterPath(rect, textDirection: textDirection));
-                } 
+                }
                 else if (borderRadius != BorderRadius.zero) {
                     canvas.clipRRect(RRect.fromRectAndCorners(
                         rect,
                         topLeft: borderRadius.topLeft, topRight: borderRadius.topRight,
                         bottomLeft: borderRadius.bottomLeft, bottomRight: borderRadius.bottomRight
                     ));
-                } 
+                }
                 else {
                     canvas.clipRect(rect);
                 }
             }
+
             canvas.drawCircle(center, radius, paint);
             canvas.restore();
         }
@@ -97,6 +99,7 @@ namespace Unity.UIWidgets.material {
             RenderBox referenceBox = null,
             Offset position = null,
             Color color = null,
+            TextDirection? textDirection = null,
             bool containedInkWell = false,
             RectCallback rectCallback = null,
             BorderRadius borderRadius = null,
@@ -262,13 +265,13 @@ namespace Unity.UIWidgets.material {
     public class _InkResponseState<T> : AutomaticKeepAliveClientMixin<T> where T : InkResponse {
         HashSet<InteractiveInkFeature> _splashes;
         InteractiveInkFeature _currentSplash;
-        
+
         bool _hovering = false;
         readonly Dictionary<_HighlightType, InkHighlight> _highlights = new Dictionary<_HighlightType, InkHighlight>();
         Dictionary<LocalKey, ActionFactory> _actionMap;
 
         bool highlightsExist => _highlights.Values.Count(highlight => highlight != null) != 0;
-        
+
         void _handleAction(FocusNode node, Intent intent) {
             _startSplash(context: node.context);
             _handleTap(node.context);
@@ -277,7 +280,7 @@ namespace Unity.UIWidgets.material {
         UiWidgetAction _createAction() {
             return new CallbackAction(
                 ActivateAction.key,
-                onInvoke:  _handleAction
+                onInvoke: _handleAction
             );
         }
 
@@ -305,7 +308,7 @@ namespace Unity.UIWidgets.material {
         protected override bool wantKeepAlive {
             get { return highlightsExist || (_splashes != null && _splashes.isNotEmpty()); }
         }
-        
+
         Color getHighlightColorForType(_HighlightType type) {
             switch (type) {
                 case _HighlightType.pressed:
@@ -315,19 +318,20 @@ namespace Unity.UIWidgets.material {
                 case _HighlightType.hover:
                     return widget.hoverColor ?? Theme.of(context).hoverColor;
             }
+
             D.assert(false, () => $"Unhandled {typeof(_HighlightType)} {type}");
             return null;
         }
-        
+
         TimeSpan getFadeDurationForType(_HighlightType type) {
             switch (type) {
                 case _HighlightType.pressed:
-                    return new TimeSpan(0, 0, 0, 0,  200);
+                    return new TimeSpan(0, 0, 0, 0, 200);
                 case _HighlightType.hover:
                 case _HighlightType.focus:
                     return new TimeSpan(0, 0, 0, 0, 50);
             }
-            
+
             D.assert(false, () => $"Unhandled {typeof(_HighlightType)} {type}");
             return TimeSpan.Zero;
         }
@@ -359,7 +363,7 @@ namespace Unity.UIWidgets.material {
                         onRemoved: handleInkRemoval,
                         textDirection: Directionality.of(context),
                         fadeDuration: getFadeDurationForType(type)
-                        );
+                    );
                     updateKeepAlive();
                 }
                 else {
@@ -405,6 +409,7 @@ namespace Unity.UIWidgets.material {
                     if (_currentSplash == splash) {
                         _currentSplash = null;
                     }
+
                     updateKeepAlive();
                 }
             }
@@ -423,14 +428,13 @@ namespace Unity.UIWidgets.material {
 
             return splash;
         }
-        
+
         void _handleFocusHighlightModeChange(FocusHighlightMode mode) {
             if (!mounted) {
                 return;
             }
-            setState(() =>{
-                _updateFocusHighlights();
-            });
+
+            setState(() => { _updateFocusHighlights(); });
         }
 
         void _updateFocusHighlights() {
@@ -445,10 +449,12 @@ namespace Unity.UIWidgets.material {
                     break;
                 }
             }
+
             updateHighlight(_HighlightType.focus, value: showFocus);
         }
 
         bool _hasFocus = false;
+
         void _handleFocusUpdate(bool hasFocus) {
             _hasFocus = hasFocus;
             _updateFocusHighlights();
@@ -464,8 +470,8 @@ namespace Unity.UIWidgets.material {
                 widget.onTapDown(details);
             }
         }
-        
-        void _startSplash(TapDownDetails details = null, BuildContext context = null) { 
+
+        void _startSplash(TapDownDetails details = null, BuildContext context = null) {
             D.assert(details != null || context != null);
 
             Offset globalPosition;
@@ -473,9 +479,11 @@ namespace Unity.UIWidgets.material {
                 RenderBox referenceBox = context.findRenderObject() as RenderBox;
                 D.assert(referenceBox.hasSize, () => "InkResponse must be done with layout before starting a splash.");
                 globalPosition = referenceBox.localToGlobal(referenceBox.paintBounds.center);
-            } else {
+            }
+            else {
                 globalPosition = details.globalPosition;
             }
+
             InteractiveInkFeature splash = _createInkFeature(globalPosition);
             _splashes = _splashes ?? new HashSet<InteractiveInkFeature>();
             _splashes.Add(splash);
@@ -531,23 +539,22 @@ namespace Unity.UIWidgets.material {
             }
 
             D.assert(_currentSplash == null);
-            foreach ( _HighlightType highlight in _highlights.Keys) {
+            foreach (_HighlightType highlight in _highlights.Keys) {
                 _highlights[highlight]?.dispose();
                 _highlights[highlight] = null;
             }
+
             base.deactivate();
         }
-        
+
         bool _isWidgetEnabled(InkResponse widget) {
             return widget.onTap != null || widget.onDoubleTap != null || widget.onLongPress != null;
         }
-        
+
         bool enabled {
-            get {
-                return  _isWidgetEnabled(widget);
-            }
+            get { return _isWidgetEnabled(widget); }
         }
-        
+
         void _handleMouseEnter(PointerEnterEvent Event) {
             _handleHoverChange(true);
         }
@@ -566,7 +573,7 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             D.assert(widget.debugCheckContext(context));
             base.build(context);
-            foreach ( _HighlightType type in _highlights.Keys) {
+            foreach (_HighlightType type in _highlights.Keys) {
                 if (_highlights[type] != null) {
                     _highlights[type].color = getHighlightColorForType(type);
                 }
@@ -575,8 +582,9 @@ namespace Unity.UIWidgets.material {
             if (_currentSplash != null) {
                 _currentSplash.color = widget.splashColor ?? Theme.of(context).splashColor;
             }
+
             bool canRequestFocus = enabled && widget.canRequestFocus;
-            
+
             return new Actions(
                 actions: _actionMap,
                 child: new Focus(
@@ -585,14 +593,18 @@ namespace Unity.UIWidgets.material {
                     onFocusChange: _handleFocusUpdate,
                     autofocus: widget.autofocus,
                     child: new MouseRegion(
-                        onEnter: enabled ? _handleMouseEnter : (PointerEnterEventListener)null,
-                        onExit: enabled ? _handleMouseExit : (PointerExitEventListener)null,
+                        onEnter: enabled ? _handleMouseEnter : (PointerEnterEventListener) null,
+                        onExit: enabled ? _handleMouseExit : (PointerExitEventListener) null,
                         child: new GestureDetector(
-                            onTapDown: enabled ? _handleTapDown : (GestureTapDownCallback)null,
+                            onTapDown: enabled ? _handleTapDown : (GestureTapDownCallback) null,
                             onTap: enabled ? () => _handleTap(context) : (GestureTapCallback) null,
-                            onTapCancel: enabled ? _handleTapCancel : (GestureTapCancelCallback)null,
-                            onDoubleTap: widget.onDoubleTap != null ? _handleDoubleTap : (GestureDoubleTapCallback)null,
-                            onLongPress: widget.onLongPress != null ? () => _handleLongPress(context) : (GestureLongPressCallback)null,
+                            onTapCancel: enabled ? _handleTapCancel : (GestureTapCancelCallback) null,
+                            onDoubleTap: widget.onDoubleTap != null
+                                ? _handleDoubleTap
+                                : (GestureDoubleTapCallback) null,
+                            onLongPress: widget.onLongPress != null
+                                ? () => _handleLongPress(context)
+                                : (GestureLongPressCallback) null,
                             behavior: HitTestBehavior.opaque,
                             child: widget.child
                         )

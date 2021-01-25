@@ -52,6 +52,7 @@ namespace Unity.UIWidgets.material {
             RenderBox referenceBox = null,
             Offset position = null,
             Color color = null,
+            TextDirection? textDirection = null,
             bool containedInkWell = false,
             RectCallback rectCallback = null,
             BorderRadius borderRadius = null,
@@ -63,6 +64,7 @@ namespace Unity.UIWidgets.material {
             D.assert(referenceBox != null);
             D.assert(position != null);
             D.assert(color != null);
+            D.assert(textDirection != null);
             return new InkRipple(
                 controller: controller,
                 referenceBox: referenceBox,
@@ -73,7 +75,9 @@ namespace Unity.UIWidgets.material {
                 borderRadius: borderRadius,
                 customBorder: customBorder,
                 radius: radius,
-                onRemoved: onRemoved);
+                onRemoved: onRemoved,
+                textDiretion: textDirection
+            );
         }
     }
 

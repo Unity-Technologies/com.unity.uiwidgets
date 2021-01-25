@@ -61,6 +61,7 @@ namespace Unity.UIWidgets.material {
             RenderBox referenceBox = null,
             Offset position = null,
             Color color = null,
+            TextDirection? textDirection = null,
             bool containedInkWell = false,
             RectCallback rectCallback = null,
             BorderRadius borderRadius = null,
@@ -72,6 +73,7 @@ namespace Unity.UIWidgets.material {
             D.assert(referenceBox != null);
             D.assert(position != null);
             D.assert(color != null);
+            D.assert(textDirection != null);
             return new InkSplash(
                 controller: controller,
                 referenceBox: referenceBox,
@@ -82,7 +84,9 @@ namespace Unity.UIWidgets.material {
                 borderRadius: borderRadius,
                 customBorder: customBorder,
                 radius: radius,
-                onRemoved: onRemoved);
+                onRemoved: onRemoved,
+                textDirection: textDirection
+            );
         }
     }
 
@@ -149,8 +153,8 @@ namespace Unity.UIWidgets.material {
         readonly RectCallback _clipCallback;
 
         readonly bool _repositionToReferenceBox;
-        
-        readonly  TextDirection _textDirection;
+
+        readonly TextDirection _textDirection;
 
         Animation<float> _radius;
         AnimationController _radiusController;
@@ -192,16 +196,16 @@ namespace Unity.UIWidgets.material {
             }
 
             paintInkCircle(
-                      canvas: canvas,
-                  transform: transform,
-                  paint: paint,
-                  center: center,
-                  textDirection: _textDirection,
-                 radius: _radius.value,
-                  customBorder: _customBorder,
-                  borderRadius: _borderRadius,
-                  clipCallback: _clipCallback
-                );
+                canvas: canvas,
+                transform: transform,
+                paint: paint,
+                center: center,
+                textDirection: _textDirection,
+                radius: _radius.value,
+                customBorder: _customBorder,
+                borderRadius: _borderRadius,
+                clipCallback: _clipCallback
+            );
         }
     }
 }
