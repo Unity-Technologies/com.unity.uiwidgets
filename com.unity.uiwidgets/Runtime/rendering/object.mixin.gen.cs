@@ -2,13 +2,14 @@
 
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace Unity.UIWidgets.rendering {
 
     public abstract class RenderObjectWithChildMixinRenderObject<ChildType> : RenderObject, RenderObjectWithChildMixin<ChildType>, RenderObjectWithChildMixin where ChildType : RenderObject {
-        public bool debugValidateChild(RenderObject child) {
+        public virtual bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
@@ -89,7 +90,7 @@ namespace Unity.UIWidgets.rendering {
 
 
     public abstract class RenderObjectWithChildMixinRenderBox<ChildType> : RenderBox, RenderObjectWithChildMixin<ChildType>, RenderObjectWithChildMixin where ChildType : RenderObject {
-        public bool debugValidateChild(RenderObject child) {
+        public virtual bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
@@ -468,12 +469,11 @@ namespace Unity.UIWidgets.rendering {
 
         public virtual void insert(ChildType child, ChildType after = null) {
             D.assert(child != this, ()=>"A RenderObject cannot be inserted into itself.");
-            D.assert(after != this,()=>
-                "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
+            D.assert(after != this,
+                ()=>"A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
             D.assert(child != after, ()=>"A RenderObject cannot be inserted after itself.");
             D.assert(child != _firstChild);
             D.assert(child != _lastChild);
-
             adoptChild(child);
             _insertIntoChildList(child, after);
         }
@@ -767,12 +767,11 @@ namespace Unity.UIWidgets.rendering {
 
         public virtual void insert(ChildType child, ChildType after = null) {
             D.assert(child != this, ()=>"A RenderObject cannot be inserted into itself.");
-            D.assert(after != this,()=>
-                "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
+            D.assert(after != this,
+                ()=>"A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
             D.assert(child != after, ()=>"A RenderObject cannot be inserted after itself.");
             D.assert(child != _firstChild);
             D.assert(child != _lastChild);
-
             adoptChild(child);
             _insertIntoChildList(child, after);
         }
@@ -1067,11 +1066,10 @@ namespace Unity.UIWidgets.rendering {
         public virtual void insert(ChildType child, ChildType after = null) {
             D.assert(child != this, ()=>"A RenderObject cannot be inserted into itself.");
             D.assert(after != this,
-               ()=> "A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
-            D.assert(child != after,()=> "A RenderObject cannot be inserted after itself.");
+                ()=>"A RenderObject cannot simultaneously be both the parent and the sibling of another RenderObject.");
+            D.assert(child != after, ()=>"A RenderObject cannot be inserted after itself.");
             D.assert(child != _firstChild);
             D.assert(child != _lastChild);
-
             adoptChild(child);
             _insertIntoChildList(child, after);
         }
@@ -1318,5 +1316,26 @@ public abstract class RenderConstrainedLayoutBuilderMixinRenderSliver<Constraint
             invokeLayoutCallback(_callback);
         }
     }
+
+
+    
+     
+    public abstract class RelayoutWhenSystemFontsChangeMixinRenderBox : RenderBox {
+    
+        protected void systemFontsDidChange() {
+            markNeedsLayout();
+        }
+        
+        public override void attach(object owner) {
+            base.attach(owner);
+            PaintingBinding.instance.systemFonts.addListener(systemFontsDidChange);
+          }
+        
+        public override void detach() {
+            PaintingBinding.instance.systemFonts.removeListener(systemFontsDidChange);
+            base.detach();
+        }
+        
+    }  
 
 }
