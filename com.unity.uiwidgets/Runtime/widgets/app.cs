@@ -179,105 +179,102 @@ namespace Unity.UIWidgets.widgets {
                       "will know what kind of PageRoute transition to build."
             );
         } 
-        // [!!!]too many errors here
-        /*public static readonly Dictionary<LogicalKeySet, Intent> _defaultShortcuts = new Dictionary<LogicalKeySet, Intent>(){
-    // Activation
-    {new LogicalKeySet(LogicalKeyboardKey.enter), new Intent(ActivateAction.key)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.space), new Intent(ActivateAction.key)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.gameButtonA), new Intent(ActivateAction.key)},
+        
+        public static readonly Dictionary<LogicalKeySet, Intent> _defaultShortcuts = new Dictionary<LogicalKeySet, Intent>(){
+            // Activation
+            {new LogicalKeySet(LogicalKeyboardKey.enter), new Intent(ActivateAction.key)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.space), new Intent(ActivateAction.key)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.gameButtonA), new Intent(ActivateAction.key)},
 
-    // Keyboard traversal.
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.tab), new Intent(NextFocusAction.key)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab), new Intent(PreviousFocusAction.key)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowLeft), new DirectionalFocusIntent(TraversalDirection.left)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowRight), new DirectionalFocusIntent(TraversalDirection.right)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowDown), new DirectionalFocusIntent(TraversalDirection.down)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowUp), new DirectionalFocusIntent(TraversalDirection.up)},
+            // Keyboard traversal.
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.tab), new Intent(NextFocusAction.key)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab), new Intent(PreviousFocusAction.key)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowLeft), new DirectionalFocusIntent(TraversalDirection.left)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowRight), new DirectionalFocusIntent(TraversalDirection.right)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowDown), new DirectionalFocusIntent(TraversalDirection.down)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowUp), new DirectionalFocusIntent(TraversalDirection.up)},
 
-    // Scrolling
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowUp), new ScrollIntent(direction: AxisDirection.up)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowDown), new ScrollIntent(direction: AxisDirection.down)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowLeft), new ScrollIntent(direction: AxisDirection.left)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowRight), new ScrollIntent(direction: AxisDirection.right)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.pageUp), new ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.pageDown), new ScrollIntent(direction: AxisDirection.down, type: ScrollIncrementType.page)},
-  };
+            // Scrolling
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowUp), new ScrollIntent(direction: AxisDirection.up)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowDown), new ScrollIntent(direction: AxisDirection.down)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowLeft), new ScrollIntent(direction: AxisDirection.left)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowRight), new ScrollIntent(direction: AxisDirection.right)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.pageUp), new ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.pageDown), new ScrollIntent(direction: AxisDirection.down, type: ScrollIncrementType.page)},
+        };
 
-  // Default shortcuts for the web platform.
-  public static readonly Dictionary<LogicalKeySet, Intent> _defaultWebShortcuts = new Dictionary<LogicalKeySet, Intent>(){
-    // Activation
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.space), new Intent(ActivateAction.key)},
+        // Default shortcuts for the web platform.
+        public static readonly Dictionary<LogicalKeySet, Intent> _defaultWebShortcuts = new Dictionary<LogicalKeySet, Intent>(){
+            // Activation
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.space), new Intent(ActivateAction.key)},
 
-    // Keyboard traversal.
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.tab), new Intent(NextFocusAction.key)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab),new Intent(PreviousFocusAction.key)},
+            // Keyboard traversal.
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.tab), new Intent(NextFocusAction.key)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab),new Intent(PreviousFocusAction.key)},
 
-    // Scrolling
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowUp), new ScrollIntent(direction: AxisDirection.up)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowDown), new ScrollIntent(direction: AxisDirection.down)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowLeft), new ScrollIntent(direction: AxisDirection.left)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowRight), new ScrollIntent(direction: AxisDirection.right)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.pageUp), new ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page)},
-    {new widgets.LogicalKeySet(LogicalKeyboardKey.pageDown), new ScrollIntent(direction: AxisDirection.down, type: ScrollIncrementType.page)},
-  };
+            // Scrolling
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowUp), new ScrollIntent(direction: AxisDirection.up)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowDown), new ScrollIntent(direction: AxisDirection.down)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowLeft), new ScrollIntent(direction: AxisDirection.left)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.arrowRight), new ScrollIntent(direction: AxisDirection.right)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.pageUp), new ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page)},
+            {new widgets.LogicalKeySet(LogicalKeyboardKey.pageDown), new ScrollIntent(direction: AxisDirection.down, type: ScrollIncrementType.page)},
+        };
 
-  // Default shortcuts for the macOS platform.
-  public static readonly Dictionary<LogicalKeySet, Intent> _defaultMacOsShortcuts = new Dictionary<LogicalKeySet, Intent>(){
-    // Activation
-    new LogicalKeySet(LogicalKeyboardKey.enter), new Intent(ActivateAction.key),
-    new LogicalKeySet(LogicalKeyboardKey.space), new Intent(ActivateAction.key),
+        // Default shortcuts for the macOS platform.
+        public static readonly Dictionary<LogicalKeySet, Intent> _defaultMacOsShortcuts = new Dictionary<LogicalKeySet, Intent>(){
+            // Activation
+            {new LogicalKeySet(LogicalKeyboardKey.enter), new Intent(ActivateAction.key)},
+            {new LogicalKeySet(LogicalKeyboardKey.space), new Intent(ActivateAction.key)},
 
-    // Keyboard traversal
-    {new LogicalKeySet(LogicalKeyboardKey.tab), new Intent(NextFocusAction.key)},
-    {new LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab), new Intent(PreviousFocusAction.key)},
-    {new LogicalKeySet(LogicalKeyboardKey.arrowLeft), new DirectionalFocusIntent(TraversalDirection.left)},
-    {new LogicalKeySet(LogicalKeyboardKey.arrowRight), new DirectionalFocusIntent(TraversalDirection.right)},
-    {new LogicalKeySet(LogicalKeyboardKey.arrowDown), new DirectionalFocusIntent(TraversalDirection.down)},
-    {new LogicalKeySet(LogicalKeyboardKey.arrowUp), new DirectionalFocusIntent(TraversalDirection.up)},
+            // Keyboard traversal
+            {new LogicalKeySet(LogicalKeyboardKey.tab), new Intent(NextFocusAction.key)},
+            {new LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab), new Intent(PreviousFocusAction.key)},
+            {new LogicalKeySet(LogicalKeyboardKey.arrowLeft), new DirectionalFocusIntent(TraversalDirection.left)},
+            {new LogicalKeySet(LogicalKeyboardKey.arrowRight), new DirectionalFocusIntent(TraversalDirection.right)},
+            {new LogicalKeySet(LogicalKeyboardKey.arrowDown), new DirectionalFocusIntent(TraversalDirection.down)},
+            {new LogicalKeySet(LogicalKeyboardKey.arrowUp), new DirectionalFocusIntent(TraversalDirection.up)},
 
-    // Scrolling
-    {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowUp), new  ScrollIntent(direction: AxisDirection.up)},
-    {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowDown), new ScrollIntent(direction: AxisDirection.down)},
-    {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowLeft), new ScrollIntent(direction: AxisDirection.left)},
-    {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowRight), new ScrollIntent(direction: AxisDirection.right)},
-    {new LogicalKeySet(LogicalKeyboardKey.pageUp), new ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page)},
-    {new LogicalKeySet(LogicalKeyboardKey.pageDown), new ScrollIntent(direction: AxisDirection.down, type: ScrollIncrementType.page)},
-  };
+            // Scrolling
+            {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowUp), new  ScrollIntent(direction: AxisDirection.up)},
+            {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowDown), new ScrollIntent(direction: AxisDirection.down)},
+            {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowLeft), new ScrollIntent(direction: AxisDirection.left)},
+            {new LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowRight), new ScrollIntent(direction: AxisDirection.right)},
+            {new LogicalKeySet(LogicalKeyboardKey.pageUp), new ScrollIntent(direction: AxisDirection.up, type: ScrollIncrementType.page)},
+            {new LogicalKeySet(LogicalKeyboardKey.pageDown), new ScrollIntent(direction: AxisDirection.down, type: ScrollIncrementType.page)},
+        };
 
-  /// Generates the default shortcut key bindings based on the
-  /// [defaultTargetPlatform].
-  ///
-  /// Used by [WidgetsApp] to assign a default value to [WidgetsApp.shortcuts].
-  public static Dictionary<LogicalKeySet, Intent> defaultShortcuts {
-      get {
-          if (kIsWeb) {
-              return _defaultWebShortcuts;
-          }
-          switch (defaultTargetPlatform) {
-              case TargetPlatform.android:
-              case TargetPlatform.fuchsia:
-              case TargetPlatform.linux:
-              case TargetPlatform.windows:
-                  return _defaultShortcuts;
-              case TargetPlatform.macOS:
-                  return _defaultMacOsShortcuts;
-              case TargetPlatform.iOS:
-                  // No keyboard support on iOS yet.
-                  break;
-          }
-          return new Dictionary<LogicalKeySet, Intent>();
-      }
-  }
+  
+        public static Dictionary<LogicalKeySet, Intent> defaultShortcuts {
+            get {
+                if (foundation_.kIsWeb) {
+                    return _defaultWebShortcuts;
+                }
+                switch (Application.platform) {
+                    case RuntimePlatform.Android:
+                    //case TargetPlatform.fuchsia:
+                    case RuntimePlatform.LinuxPlayer:
+                    case RuntimePlatform.WindowsPlayer:
+                        return _defaultShortcuts;
+                    case RuntimePlatform.OSXPlayer:
+                        return _defaultMacOsShortcuts;
+                    case RuntimePlatform.IPhonePlayer:
+                        // No keyboard support on iOS yet.
+                        break;
+                }
+                return new Dictionary<LogicalKeySet, Intent>();
+            }
+        }
 
-  /// The default value of [WidgetsApp.actions].
-  public static readonly Dictionary<LocalKey, ActionFactory> defaultActions = new Dictionary<LocalKey, ActionFactory>(){
-      {DoNothingAction.key, () => new  DoNothingAction()},
-      {RequestFocusAction.key, () => new RequestFocusAction()},
-      {NextFocusAction.key, () => new NextFocusAction()},
-      {PreviousFocusAction.key, () => new PreviousFocusAction()},
-      {DirectionalFocusAction.key, () => new DirectionalFocusAction()},
-      {ScrollAction.key, () => new ScrollAction()},
-  };*/
+    /// The default value of [WidgetsApp.actions].
+    public static readonly Dictionary<LocalKey, ActionFactory> defaultActions = new Dictionary<LocalKey, ActionFactory>(){
+        {DoNothingAction.key, () => new  DoNothingAction()},
+        {RequestFocusAction.key, () => new RequestFocusAction()},
+        {NextFocusAction.key, () => new NextFocusAction()},
+        {PreviousFocusAction.key, () => new PreviousFocusAction()},
+        {DirectionalFocusAction.key, () => new DirectionalFocusAction()},
+        {ScrollAction.key, () => new ScrollAction()},
+    };
         
         public override State createState() {
             return new _WidgetsAppState();
@@ -436,6 +433,8 @@ namespace Unity.UIWidgets.widgets {
             navigator.pushNamed<bool>(route);
             return Future.value(true).to<bool>();
         }
+
+        public void didChangeAccessibilityFeatures() {}
 
         Route<object> _onUnknownRoute(RouteSettings settings) {
             D.assert(() => {
@@ -794,6 +793,7 @@ namespace Unity.UIWidgets.widgets {
 
     public class _MediaQueryFromWindow : StatefulWidget {
         public _MediaQueryFromWindow(Key key = null, Widget child = null) : base(key: key) {
+            this.child = child;
         }
         public readonly Widget child;
 

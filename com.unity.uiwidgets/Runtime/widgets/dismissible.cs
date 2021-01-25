@@ -111,7 +111,6 @@ namespace Unity.UIWidgets.widgets {
             Axis axis,
             Animation<Offset> moveAnimation
         ) : base(reclip: moveAnimation) {
-            D.assert(moveAnimation != null);
             this.axis = axis;
             this.moveAnimation = moveAnimation;
         }
@@ -145,7 +144,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override bool shouldReclip(CustomClipper<Rect> oldClipper) {
-            D.assert(oldClipper is _DismissibleClipper);
+            //D.assert(oldClipper is _DismissibleClipper);
             _DismissibleClipper clipper = oldClipper as _DismissibleClipper;
             return clipper.axis != axis
                    || clipper.moveAnimation.value != moveAnimation.value;
@@ -335,6 +334,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         _FlingGestureKind _describeFlingGesture(Velocity velocity) {
+            D.assert(widget.direction != null);
             if (_dragExtent == 0.0f) {
                 return _FlingGestureKind.none;
             }
@@ -539,7 +539,7 @@ namespace Unity.UIWidgets.widgets {
             );
 
             if (background != null) {
-                List<Widget> children = new List<Widget> { };
+                List<Widget> children = new List<Widget>();
 
                 if (!_moveAnimation.isDismissed) {
                     children.Add(Positioned.fill(
@@ -555,6 +555,7 @@ namespace Unity.UIWidgets.widgets {
 
                 children.Add(content);
                 content = new Stack(children: children);
+                
             }
 
             return new GestureDetector(

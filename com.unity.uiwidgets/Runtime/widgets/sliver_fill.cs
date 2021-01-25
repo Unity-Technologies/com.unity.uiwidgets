@@ -13,9 +13,7 @@ namespace Unity.UIWidgets.widgets {
             float viewportFraction = 1.0f, 
             bool padEnds = true
             ) : base(key: key) {
-            D.assert(viewportFraction != null);
             D.assert(viewportFraction > 0.0);
-            D.assert(padEnds != null);
             this._delegate = _delegate;
             this.viewportFraction = viewportFraction;
             this.padEnds = padEnds;
@@ -41,7 +39,6 @@ namespace Unity.UIWidgets.widgets {
             SliverChildDelegate _delegate = null, 
             float viewportFraction = 1.0f
             ) :base(key: key, del: _delegate) {
-            D.assert(viewportFraction != null);
             D.assert(viewportFraction > 0.0);
             this.viewportFraction = viewportFraction;
 
@@ -62,7 +59,6 @@ namespace Unity.UIWidgets.widgets {
             int viewportFraction = 0,
             Widget sliver = null
         ) : base(child: sliver) {
-            D.assert(viewportFraction != null);
             D.assert(viewportFraction >= 0);
             D.assert(viewportFraction <= 0.5);
             this.viewportFraction = viewportFraction;
@@ -144,8 +140,6 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null,
             bool hasScrollBody = true,
             bool fillOverscroll = false) : base(key: key) {
-            D.assert(hasScrollBody != null);
-            D.assert(fillOverscroll != null);
             this.child = child;
             this.hasScrollBody = hasScrollBody;
             this.fillOverscroll = fillOverscroll;
@@ -161,7 +155,8 @@ namespace Unity.UIWidgets.widgets {
             return new _SliverFillRemainingAndOverscroll(child: child);
         }
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties); properties.add(new DiagnosticsProperty<Widget>("child", child));
+            base.debugFillProperties(properties); 
+            properties.add(new DiagnosticsProperty<Widget>("child", child));
             List<string> flags = new List<string>();
             if (hasScrollBody)
                 flags.Add("scrollable"); 
@@ -169,7 +164,7 @@ namespace Unity.UIWidgets.widgets {
                 flags.Add("fillOverscroll");
             if (flags.isEmpty()) 
                 flags.Add("nonscrollable"); 
-            //properties.add(IterableProperty<string>("mode", flags));
+            properties.add(new EnumerableProperty<string>("mode", flags));
         }
     }
 

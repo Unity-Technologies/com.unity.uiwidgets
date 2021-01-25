@@ -63,16 +63,16 @@ namespace Unity.UIWidgets.widgets {
     public class Container : StatelessWidget {
         public Container(
             Key key = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             EdgeInsets padding = null,
             Color color = null,
             Decoration decoration = null,
-            Decoration forgroundDecoration = null,
+            Decoration foregroundDecoration = null,
             float? width = null,
             float? height = null,
             BoxConstraints constraints = null,
             EdgeInsets margin = null,
-            Matrix4 transfrom = null,
+            Matrix4 transform = null,
             Widget child = null,
             Clip clipBehavior = Clip.none
         ) : base(key: key) {
@@ -88,21 +88,22 @@ namespace Unity.UIWidgets.widgets {
             
             this.alignment = alignment;
             this.padding = padding;
-            foregroundDecoration = forgroundDecoration;
-            this.margin = margin;
-            transform = transfrom;
-            this.child = child;
+            this.foregroundDecoration = foregroundDecoration;
             this.color = color;
-            this.decoration = decoration ?? (color != null ? new BoxDecoration(color) : null);
+            this.decoration = decoration;// ?? (color != null ? new BoxDecoration(color) : null);
             this.constraints = (width != null || height != null)
                 ? (constraints != null ? constraints.tighten(width, height) : BoxConstraints.tightFor(width, height))
                 : constraints;
+            this.margin = margin;
+            this.transform = transform;
+            this.child = child;
+            this.clipBehavior = clipBehavior ;
             
-            this.clipBehavior = clipBehavior;
+           
         }
 
         public readonly Widget child;
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
         public readonly EdgeInsets padding;
         public readonly Decoration decoration;
         public readonly Decoration foregroundDecoration;
@@ -117,13 +118,11 @@ namespace Unity.UIWidgets.widgets {
                 if (decoration == null || decoration.padding == null) {
                     return padding;
                 }
-
-                Debug.LogError("EdgeInsets needs to be update to EdgeInsetsGeometry");
+                //Debug.LogError("EdgeInsets needs to be update to EdgeInsetsGeometry");
                 EdgeInsets decorationPadding = (EdgeInsets)decoration.padding;
                 if (padding == null) {
                     return decorationPadding;
                 }
-
                 return padding.add(decorationPadding);
             }
         }
@@ -191,7 +190,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment",
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment",
                 alignment, showName: false, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<EdgeInsets>("padding",
                 padding, defaultValue: foundation_.kNullDefaultValue));
@@ -215,11 +214,12 @@ namespace Unity.UIWidgets.widgets {
     /// A clipper that uses [Decoration.getClipPath] to clip.
     public class _DecorationClipper : CustomClipper<Path> {
         public _DecorationClipper(
-            TextDirection textDirection = TextDirection.rtl,
+            TextDirection? textDirection = null,
             Decoration decoration = null
         ) {
             D.assert(decoration != null);
-            textDirection =  TextDirection.ltr;
+            this.textDirection =  textDirection ?? TextDirection.ltr;
+            this.decoration = decoration;
         } 
 
         public readonly TextDirection textDirection;

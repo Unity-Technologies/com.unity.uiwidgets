@@ -8,10 +8,10 @@ using Unity.UIWidgets.painting;
 namespace Unity.UIWidgets.widgets {
     class _ChildEntry {
         public _ChildEntry(
-            AnimationController controller,
-            Animation<float> animation,
-            Widget transition,
-            Widget widgetChild
+            AnimationController controller = null,
+            Animation<float> animation = null,
+            Widget transition = null,
+            Widget widgetChild = null
         ) {
             D.assert(animation != null);
             D.assert(transition != null);
@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.widgets {
         public Widget widgetChild;
 
         public override string ToString() {
-            return "Entry#${shortHash(this)}($widgetChild)";
+            return $"Entry#{foundation_.shortHash(this)}({widgetChild})";
         }
     }
 
@@ -51,13 +51,13 @@ namespace Unity.UIWidgets.widgets {
             AnimatedSwitcherLayoutBuilder layoutBuilder = null
         ) : base(key: key) {
             D.assert(duration != null);
+            this.child = child;
+            this.duration = duration;
+            this.reverseDuration = reverseDuration;
             this.switchInCurve = switchInCurve ?? Curves.linear;
             this.switchOutCurve = switchOutCurve ?? Curves.linear;
             this.transitionBuilder = transitionBuilder ?? defaultTransitionBuilder;
             this.layoutBuilder = layoutBuilder ?? defaultLayoutBuilder;
-            this.child = child;
-            this.duration = duration;
-            this.reverseDuration = reverseDuration;
         }
 
         public readonly Widget child;
@@ -186,10 +186,10 @@ namespace Unity.UIWidgets.widgets {
         }
 
         _ChildEntry _newEntry(
-            Widget child,
-            AnimatedSwitcherTransitionBuilder builder,
-            AnimationController controller,
-            Animation<float> animation
+            Widget child = null,
+            AnimatedSwitcherTransitionBuilder builder = null,
+            AnimationController controller = null,
+            Animation<float> animation = null
         ) {
             _ChildEntry entry = new _ChildEntry(
                 widgetChild: child,

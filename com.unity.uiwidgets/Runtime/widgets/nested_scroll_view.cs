@@ -137,13 +137,15 @@ namespace Unity.UIWidgets.widgets {
                             reverse: widget.reverse,
                             physics: widget.physics != null
                                 ? widget.physics.applyTo(new ClampingScrollPhysics())
-                                : new ClampingScrollPhysics(),
-                            controller: _coordinator._outerController,
-                            slivers: widget._buildSlivers(
-                                _context, _coordinator._innerController, _lastHasScrolledBody
-                            ),
-                            handle: _absorberHandle
-                        );
+                            : new ClampingScrollPhysics(),
+                        controller: _coordinator._outerController,
+                        slivers: widget._buildSlivers(
+                            context,
+                            _coordinator._innerController,
+                            _lastHasScrolledBody
+                        ),
+                        handle: _absorberHandle
+                            );
                     }
                 )
             );
@@ -152,7 +154,7 @@ namespace Unity.UIWidgets.widgets {
 
     class _NestedScrollViewCustomScrollView : CustomScrollView {
         public _NestedScrollViewCustomScrollView(
-            Axis scrollDirection,
+            Axis scrollDirection, 
             bool reverse,
             ScrollPhysics physics,
             ScrollController controller,
@@ -286,7 +288,6 @@ namespace Unity.UIWidgets.widgets {
                 if (!_outerController.hasClients) {
                     return null;
                 }
-
                 return _outerController.nestedPositions.Single();
             }
         }
@@ -334,7 +335,6 @@ namespace Unity.UIWidgets.widgets {
             if (userScrollDirection == value) {
                 return;
             }
-
             _userScrollDirection = value;
             _outerPosition.didUpdateScrollDirection(value);
             foreach (_NestedScrollPosition position in _innerPositions) {
@@ -373,7 +373,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void goBallistic(float velocity) {
-            beginActivity(createOuterBallisticScrollActivity(velocity),
+            beginActivity(
+                createOuterBallisticScrollActivity(velocity),
                 (_NestedScrollPosition position) => createInnerBallisticScrollActivity(position, velocity)
             );
         }
@@ -541,7 +542,8 @@ namespace Unity.UIWidgets.widgets {
             _outerPosition.updateCanDrag(maxInnerExtent);
         }
 
-        public Future animateTo(float to,
+        public Future animateTo(
+            float to,
             TimeSpan duration,
             Curve curve
         ) {
@@ -667,7 +669,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string ToString() {
-            return "$GetType()(outer=$_outerController; inner=$_innerController)";
+            return $"{GetType()}(outer={_outerController}; inner={_innerController})";
         }
     }
 

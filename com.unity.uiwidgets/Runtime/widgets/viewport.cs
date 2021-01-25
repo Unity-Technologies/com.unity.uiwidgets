@@ -157,8 +157,7 @@ namespace Unity.UIWidgets.widgets {
             AxisDirection? crossAxisDirection = null,
             ViewportOffset offset = null,
             List<Widget> slivers = null
-        ) : base(key: key, children: slivers) {
-            slivers = slivers ?? new List<Widget>();
+        ) : base(key: key, children: slivers ?? new List<Widget>()) {
             D.assert(offset != null);
             this.axisDirection = axisDirection;
             this.crossAxisDirection = crossAxisDirection;

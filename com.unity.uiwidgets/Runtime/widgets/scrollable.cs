@@ -65,7 +65,7 @@ namespace Unity.UIWidgets.widgets {
             return widget == null ? null : widget.scrollable;
         }
 
-        static bool recommendDeferredLoadingForContext(BuildContext context) {
+        public static bool recommendDeferredLoadingForContext(BuildContext context) {
             _ScrollableScope widget = context.getElementForInheritedWidgetOfExactType<_ScrollableScope>()?.widget as _ScrollableScope;
             if (widget == null) {
                 return false;

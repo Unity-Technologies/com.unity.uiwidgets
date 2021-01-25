@@ -252,6 +252,20 @@ SceneBuilder_pushOpacity(SceneBuilder* ptr, int alpha, float dx, float dy) {
 }
 
 UIWIDGETS_API(EngineLayer*)
+SceneBuilder_pushColorFilter(SceneBuilder* ptr, ColorFilter* filter) {
+  const auto layer = ptr->pushColorFilter(filter);
+  layer->AddRef();
+  return layer.get();
+}
+
+UIWIDGETS_API(EngineLayer*)
+SceneBuilder_pushImageFilter(SceneBuilder* ptr, ImageFilter* filter) {
+  const auto layer = ptr->pushImageFilter(filter);
+  layer->AddRef();
+  return layer.get();
+}
+
+UIWIDGETS_API(EngineLayer*)
 SceneBuilder_pushBackdropFilter(SceneBuilder* ptr, ImageFilter* filter) {
   const auto layer = ptr->pushBackdropFilter(filter);
   layer->AddRef();

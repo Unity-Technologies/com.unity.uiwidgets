@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
-using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
+using Debug = UnityEngine.Debug;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
@@ -71,7 +72,7 @@ namespace Unity.UIWidgets.rendering {
                 D.assert(debugAlsoPaintedParent || child._layer.attached);
                 child._layer.removeAllChildren();
             }
-
+            D.assert(child._layer is OffsetLayer);
             D.assert(() => {
                 child._layer.debugCreator = child.debugCreator ?? child.GetType().ToString();
                 return true;
@@ -234,10 +235,10 @@ namespace Unity.UIWidgets.rendering {
 
         public void pushLayer(ContainerLayer childLayer, PaintingContextCallback painter, Offset offset,
             Rect childPaintBounds = null) {
-            D.assert(!childLayer.attached);
-            D.assert(childLayer.parent == null);
             D.assert(painter != null);
-
+            if (childLayer.hasChildren) {
+                childLayer.removeAllChildren();
+            }
             stopRecordingIfNeeded();
             appendLayer(childLayer);
 
@@ -250,46 +251,87 @@ namespace Unity.UIWidgets.rendering {
             return new PaintingContext(childLayer, bounds);
         }
 
-        public void pushClipRect(bool needsCompositing, Offset offset, Rect clipRect, PaintingContextCallback painter,
-            Clip clipBehavior = Clip.hardEdge) {
+        public ClipRectLayer pushClipRect(
+            bool needsCompositing, 
+            Offset offset, 
+            Rect clipRect, 
+            PaintingContextCallback painter,
+            Clip clipBehavior = Clip.hardEdge, 
+            ClipRectLayer oldLayer = null) {
             Rect offsetClipRect = clipRect.shift(offset);
             if (needsCompositing) {
-                pushLayer(new ClipRectLayer(offsetClipRect, clipBehavior: clipBehavior),
-                    painter, offset, childPaintBounds: offsetClipRect);
+                ClipRectLayer layer = oldLayer ?? new ClipRectLayer();
+                layer.clipRect = offsetClipRect;
+                layer.clipBehavior = clipBehavior;
+                pushLayer(layer, painter, offset, childPaintBounds: offsetClipRect);
+                return layer;
             }
             else {
                 clipRectAndPaint(offsetClipRect, clipBehavior, offsetClipRect, () => painter(this, offset));
+                return null;
             }
         }
 
-        public void pushClipRRect(bool needsCompositing, Offset offset, Rect bounds, RRect clipRRect,
-            PaintingContextCallback painter, Clip clipBehavior = Clip.antiAlias) {
+        public ClipRRectLayer pushClipRRect(
+            bool needsCompositing, 
+            Offset offset, 
+            Rect bounds, 
+            RRect clipRRect,
+            PaintingContextCallback painter, 
+            Clip clipBehavior = Clip.antiAlias,
+            ClipRRectLayer oldLayer = null) {
             Rect offsetBounds = bounds.shift(offset);
             RRect offsetClipRRect = clipRRect.shift(offset);
             if (needsCompositing) {
-                pushLayer(new ClipRRectLayer(offsetClipRRect, clipBehavior: clipBehavior),
-                    painter, offset, childPaintBounds: offsetBounds);
+                ClipRRectLayer layer = oldLayer ?? new ClipRRectLayer();
+                layer.clipRRect = offsetClipRRect;
+                layer.clipBehavior = clipBehavior;
+                pushLayer(layer, painter, offset, childPaintBounds: offsetBounds);
+                return layer;
             }
             else {
                 clipRRectAndPaint(offsetClipRRect, clipBehavior, offsetBounds, () => painter(this, offset));
+                return null;
             }
         }
 
-        public void pushClipPath(bool needsCompositing, Offset offset, Rect bounds, Path clipPath,
-            PaintingContextCallback painter, Clip clipBehavior = Clip.antiAlias) {
+        public ClipPathLayer pushClipPath(
+            bool needsCompositing, 
+            Offset offset, 
+            Rect bounds, 
+            Path clipPath,
+            PaintingContextCallback painter, 
+            Clip clipBehavior = Clip.antiAlias,
+            ClipPathLayer oldLayer = null) {
             Rect offsetBounds = bounds.shift(offset);
             Path offsetClipPath = clipPath.shift(offset);
             if (needsCompositing) {
-                pushLayer(new ClipPathLayer(clipPath: offsetClipPath, clipBehavior: clipBehavior), painter, offset,
-                    childPaintBounds: offsetBounds);
+                ClipPathLayer layer = oldLayer ?? new ClipPathLayer();
+                layer.clipPath = offsetClipPath;
+                layer.clipBehavior = clipBehavior;
+                pushLayer(layer, painter, offset, childPaintBounds: offsetBounds);
+                return layer;
             }
             else {
                 clipPathAndPaint(offsetClipPath, clipBehavior, offsetBounds, () => painter(this, offset));
+                return null;
             }
         }
+        
+        public ColorFilterLayer pushColorFilter(Offset offset, ColorFilter colorFilter, PaintingContextCallback painter, ColorFilterLayer oldLayer = null) {
+            D.assert(colorFilter != null);
+            ColorFilterLayer layer = oldLayer ?? new ColorFilterLayer();
+            layer.colorFilter = colorFilter;
+            pushLayer(layer, painter, offset);
+            return layer;
+        }
 
-        public void pushTransform(bool needsCompositing, Offset offset, Matrix4 transform,
-            PaintingContextCallback painter) {
+        public TransformLayer pushTransform(
+            bool needsCompositing, 
+            Offset offset, 
+            Matrix4 transform,
+            PaintingContextCallback painter,
+            TransformLayer oldLayer = null) {
             Matrix4 effectiveTransform;
             if (offset == null || offset == Offset.zero) {
                 effectiveTransform = transform;
@@ -301,27 +343,26 @@ namespace Unity.UIWidgets.rendering {
             }
 
             if (needsCompositing) {
-                // it could just be "scale == 0", ignore the assertion.
-                // D.assert(invertible);
+                TransformLayer layer = oldLayer ?? new TransformLayer();
+                layer.transform = effectiveTransform;
 
                 pushLayer(
-                    new TransformLayer(effectiveTransform),
+                    layer,
                     painter,
                     offset,
                     childPaintBounds:  MatrixUtils.inverseTransformRect(effectiveTransform, estimatedBounds)
                 );
+                return layer;
             }
             else {
                 canvas.save();
                 canvas.transform(effectiveTransform._m4storage);
                 painter(this, offset);
                 canvas.restore();
+                return null;
             }
         }
-
-        public void pushOpacity(Offset offset, int alpha, PaintingContextCallback painter) {
-            pushLayer(new OpacityLayer(alpha: alpha), painter, offset);
-        }
+        
         public OpacityLayer pushOpacity(Offset offset, int alpha, PaintingContextCallback painter,  OpacityLayer oldLayer = null) {
             OpacityLayer layer = oldLayer ?? new OpacityLayer();
             layer.alpha = alpha;
@@ -335,16 +376,11 @@ namespace Unity.UIWidgets.rendering {
                 $"{GetType()}#{GetHashCode()}(layer: {_containerLayer}, canvas bounds: {estimatedBounds}";
         }
         
-        public ColorFilterLayer pushColorFilter(Offset offset, ColorFilter colorFilter, PaintingContextCallback painter, ColorFilterLayer oldLayer = null) {
-            D.assert(colorFilter != null);
-            ColorFilterLayer layer = oldLayer ?? new ColorFilterLayer();
-            layer.colorFilter = colorFilter;
-            pushLayer(layer, painter, offset);
-            return layer;
-        }
     }
 
     public abstract class Constraints {
+        
+        protected Constraints(){}
         public abstract bool isTight { get; }
 
         public abstract bool isNormalized { get; }
@@ -508,6 +544,15 @@ namespace Unity.UIWidgets.rendering {
             _needsCompositing = isRepaintBoundary || alwaysNeedsCompositing;
         }
 
+        void reassemble() {
+            markNeedsLayout();
+            markNeedsCompositingBitsUpdate();
+            markNeedsPaint();
+            visitChildren((RenderObject child) =>{
+                child.reassemble();
+            });
+        }
+        
         public ParentData parentData;
 
         public virtual void setupParentData(RenderObject child) {
@@ -693,43 +738,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(node._relayoutBoundary == node);
             return true;
         }
-        // TODO
-        /*void markNeedsSemanticsUpdate() { 
-            D.assert(!attached || !owner._debugDoingSemantics);
-            if (!attached || owner._semanticsOwner == null) {
-              _cachedSemanticsConfiguration = null;
-              return;
-            }
-
-            bool wasSemanticsBoundary = _semantics != null && _cachedSemanticsConfiguration?.isSemanticBoundary == true;
-            _cachedSemanticsConfiguration = null;
-            bool isEffectiveSemanticsBoundary = _semanticsConfiguration.isSemanticBoundary && wasSemanticsBoundary;
-            RenderObject node = this;
-
-            while (!isEffectiveSemanticsBoundary && node.parent is RenderObject) {
-                if (node != this && node._needsSemanticsUpdate)
-                    break;
-                node._needsSemanticsUpdate = true;
-
-                node = node.parent as RenderObject;
-                isEffectiveSemanticsBoundary = node._semanticsConfiguration.isSemanticBoundary;
-                if (isEffectiveSemanticsBoundary && node._semantics == null) {
-                    return;
-                }
-            }
-            if (node != this && _semantics != null && _needsSemanticsUpdate) {
-
-                owner._nodesNeedingSemantics.remove(this);
-            }
-            if (!node._needsSemanticsUpdate) {
-                node._needsSemanticsUpdate = true;
-                if (owner != null) {
-                    D.assert(node._semanticsConfiguration.isSemanticBoundary || node.parent is! RenderObject);
-                    owner._nodesNeedingSemantics.add(node);
-                    owner.requestVisualUpdate();
-                }
-            }
-        }*/
+        
         public virtual void markNeedsLayout() {
             D.assert(_debugCanPerformMutations);
             if (_needsLayout) {
@@ -779,8 +788,12 @@ namespace Unity.UIWidgets.rendering {
             if (_relayoutBoundary != this) {
                 _relayoutBoundary = null;
                 _needsLayout = true;
-                visitChildren(child => { child._cleanRelayoutBoundary(); });
+                visitChildren(_cleanChildRelayoutBoundary);
             }
+        }
+        
+        static void _cleanChildRelayoutBoundary(RenderObject child) {
+            child._cleanRelayoutBoundary();
         }
 
         public void scheduleInitialLayout() {
@@ -852,12 +865,11 @@ namespace Unity.UIWidgets.rendering {
             D.assert(!_debugDoingThisLayout);
 
             RenderObject relayoutBoundary;
-            if (!parentUsesSize || sizedByParent || constraints.isTight || !(this.parent is RenderObject)) {
+            if (!parentUsesSize || sizedByParent || constraints.isTight || !(parent is RenderObject)) {
                 relayoutBoundary = this;
             }
             else {
-                RenderObject parent = (RenderObject) this.parent;
-                relayoutBoundary = parent._relayoutBoundary;
+                relayoutBoundary = (parent as RenderObject)._relayoutBoundary;
             }
 
             D.assert(() => {
@@ -883,6 +895,9 @@ namespace Unity.UIWidgets.rendering {
             }
 
             _constraints = constraints;
+            if (_relayoutBoundary != null && relayoutBoundary != _relayoutBoundary) {
+                visitChildren(_cleanChildRelayoutBoundary);
+            }
             _relayoutBoundary = relayoutBoundary;
 
             D.assert(!_debugMutationsLocked);
@@ -975,6 +990,13 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
+        /// Rotate this render object (not yet implemented).
+        void rotate(
+            int oldAngle, // 0..3
+            int newAngle, // 0..3
+            TimeSpan time
+        ) { }
+        
         public bool debugDoingThisPaint {
             get { return _debugDoingThisPaint; }
         }
@@ -1006,19 +1028,16 @@ namespace Unity.UIWidgets.rendering {
                 return _layer;
             }
             set {
-                D.assert(!isRepaintBoundary);
+                D.assert(
+                    !isRepaintBoundary,
+                    () => "Attempted to set a layer to a repaint boundary render object.\n" +
+                "The framework creates and assigns an OffsetLayer to a repaint " +
+                "boundary automatically."
+                    );
                 _layer = value;
             }
         }
-
-        public void setLayer(ContainerLayer newLayer) {
-            D.assert(
-                !isRepaintBoundary,()=>
-                "Attempted to set a layer to a repaint boundary render object.\n" +
-                "The framework creates and assigns an OffsetLayer to a repaint "+
-                "boundary automatically.");
-            _layer = newLayer;
-        }
+        
         public ContainerLayer debugLayer {
             get {
                 ContainerLayer result = null;
@@ -1129,7 +1148,7 @@ namespace Unity.UIWidgets.rendering {
                     return true;
                 });
 
-                D.assert(_layer != null);
+                D.assert(_layer is OffsetLayer);
 
                 if (owner != null) {
                     owner._nodesNeedingPaint.Add(this);
@@ -1137,9 +1156,9 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
             else if (this.parent is RenderObject) {
-                D.assert(_layer == null);
-                var parent = (RenderObject) this.parent;
+                RenderObject parent = this.parent as RenderObject;
                 parent.markNeedsPaint();
+                D.assert(parent == this.parent);
             }
             else {
                 D.assert(() => {
@@ -1212,14 +1231,17 @@ namespace Unity.UIWidgets.rendering {
         internal void _paintWithContext(PaintingContext context, Offset offset) {
             D.assert(() => {
                 if (_debugDoingThisPaint) {
-                    throw new UIWidgetsError(
-                        "Tried to paint a RenderObject reentrantly.\n" +
-                        "The following RenderObject was already being painted when it was " +
-                        "painted again:\n" +
-                        "  " + toStringShallow(joiner: "\n    ") + "\n" +
-                        "Since this typically indicates an infinite recursion, it is " +
-                        "disallowed."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("Tried to paint a RenderObject reentrantly."),
+                        describeForError(
+                            "The following RenderObject was already being painted when it was " +
+                            "painted again"
+                        ),
+                        new ErrorDescription(
+                            "Since this typically indicates an infinite recursion, it is " +
+                            "disallowed."
+                        )
+                    });
                 }
 
                 return true;
@@ -1231,17 +1253,24 @@ namespace Unity.UIWidgets.rendering {
 
             D.assert(() => {
                 if (_needsCompositingBitsUpdate) {
-                    throw new UIWidgetsError(
-                        "Tried to paint a RenderObject before its compositing bits were " +
-                        "updated.\n" +
-                        "The following RenderObject was marked as having dirty compositing " +
-                        "bits at the time that it was painted:\n" +
-                        "  " + toStringShallow(joiner: "\n    ") + "\n" +
-                        "A RenderObject that still has dirty compositing bits cannot be " +
-                        "painted because this indicates that the tree has not yet been " +
-                        "properly configured for creating the layer tree.\n" +
-                        "This usually indicates an error in the Flutter framework itself."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary(
+                            "Tried to paint a RenderObject before its compositing bits were " +
+                            "updated."
+                        ),
+                        describeForError(
+                            "The following RenderObject was marked as having dirty compositing " +
+                            "bits at the time that it was painted"
+                        ),
+                        new ErrorDescription(
+                            "A RenderObject that still has dirty compositing bits cannot be " +
+                            "painted because this indicates that the tree has not yet been " +
+                            "properly configured for creating the layer tree."
+                        ),
+                        new ErrorHint(
+                            "This usually indicates an error in the Flutter framework itself."
+                        )
+                    });
                 }
 
                 return true;
@@ -1287,6 +1316,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public Matrix4 getTransformTo(RenderObject ancestor) {
+            bool ancestorSpecified = ancestor != null;
             D.assert(attached);
 
             if (ancestor == null) {
@@ -1301,7 +1331,8 @@ namespace Unity.UIWidgets.rendering {
                 D.assert(renderer != null);
                 renderers.Add(renderer);
             }
-
+            if (ancestorSpecified)
+                renderers.Add(ancestor);
             var transform = Matrix4.identity();
             for (int index = renderers.Count - 1; index > 0; index -= 1) {
                 renderers[index].applyPaintTransform(renderers[index - 1], transform);
@@ -1340,6 +1371,9 @@ namespace Unity.UIWidgets.rendering {
                 header += " NEEDS-PAINT";
             }
 
+            if (_needsCompositingBitsUpdate)
+                header += " NEEDS-COMPOSITING-BITS-UPDATE";
+            
             if (!attached) {
                 header += " DETACHED";
             }
@@ -1347,7 +1381,7 @@ namespace Unity.UIWidgets.rendering {
             return header;
         }
 
-        public override string toString(DiagnosticLevel minLevel = DiagnosticLevel.debug) {
+        public override string toString(DiagnosticLevel minLevel = DiagnosticLevel.info) {
             return toStringShort();
         }
 
@@ -1394,6 +1428,7 @@ namespace Unity.UIWidgets.rendering {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
+            properties.add(new FlagProperty("needsCompositing", value: _needsCompositing, ifTrue: "needs compositing"));
             properties.add(new DiagnosticsProperty<object>(
                 "creator", debugCreator, defaultValue: foundation_.kNullDefaultValue,
                 level: DiagnosticLevel.debug));
@@ -1404,6 +1439,8 @@ namespace Unity.UIWidgets.rendering {
                 defaultValue: foundation_.kNullDefaultValue));
         }
 
+        public override List<DiagnosticsNode> debugDescribeChildren() => new List<DiagnosticsNode>();
+        
         public virtual void showOnScreen(
             RenderObject descendant = null,
             Rect rect = null,
@@ -1423,7 +1460,7 @@ namespace Unity.UIWidgets.rendering {
                 );
             }
         }
-    public DiagnosticsNode describeForError(String name, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.shallow) {
+    public DiagnosticsNode describeForError(string name, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.shallow) {
             return toDiagnosticsNode(name: name, style: style);
         }
     }
@@ -1454,9 +1491,16 @@ namespace Unity.UIWidgets.rendering {
         RenderObject childAfter(RenderObject child);
     }
 
+    public interface RelayoutWhenSystemFontsChangeMixin {
+        void systemFontsDidChange();
+        void attach(PipelineOwner owner);
+        void detach();
+    }
+
     public class UIWidgetsErrorDetailsForRendering : UIWidgetsErrorDetails {
         public UIWidgetsErrorDetailsForRendering(
             Exception exception = null,
+            StackTrace stack = null,
             string library = null,
             DiagnosticsNode context = null,
             RenderObject renderObject = null,

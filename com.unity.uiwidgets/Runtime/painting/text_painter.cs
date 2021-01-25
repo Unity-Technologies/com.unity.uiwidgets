@@ -53,7 +53,7 @@ namespace Unity.UIWidgets.painting {
 
     public class TextPainter {
         InlineSpan _text;
-        TextAlign _textAlign;
+        TextAlign? _textAlign;
         TextDirection? _textDirection;
         float _textScaleFactor;
         Paragraph _layoutTemplate;
@@ -90,7 +90,7 @@ namespace Unity.UIWidgets.painting {
             _textHeightBehavior = textHeightBehavior;
         }
 
-        void markNeedsLayout() {
+        public void markNeedsLayout() {
             _paragraph = null;
             _needsLayout = true;
             _previousCaretPosition = null;
@@ -159,7 +159,7 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        public TextAlign textAlign {
+        public TextAlign? textAlign {
             get { return _textAlign; }
             set {
                 if (_textAlign == value) {
@@ -237,10 +237,18 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
+        public List<TextBox> inlinePlaceholderBoxes {
+            get {
+                return _inlinePlaceholderBoxes;
+            }
+        }
+
         List<TextBox> _inlinePlaceholderBoxes;
 
-        List<float> inlinePlaceholderScales {
-            get { return _inlinePlaceholderScales; }
+        public List<float> inlinePlaceholderScales {
+            get {
+                return _inlinePlaceholderScales;
+            }
         }
 
         List<float> _inlinePlaceholderScales;
@@ -252,7 +260,7 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        void setPlaceholderDimensions(List<PlaceholderDimensions> value) {
+        public void setPlaceholderDimensions(List<PlaceholderDimensions> value) {
             if (value == null || value.isEmpty() || value.equalsList(_placeholderDimensions)) {
                 return;
             }
@@ -413,7 +421,7 @@ namespace Unity.UIWidgets.painting {
             return _paragraph.getWordBoundary(position);
         }
 
-        TextRange getLineBoundary(TextPosition position) {
+        public TextRange getLineBoundary(TextPosition position) {
             D.assert(!_needsLayout);
             return _paragraph.getLineBoundary(position);
         }
@@ -579,5 +587,22 @@ namespace Unity.UIWidgets.painting {
         bool _isUnicodeDirectionality(int? value) {
             return value == 0x200F || value == 0x200E;
         }
+        
+         public int getOffsetAfter(int offset) {
+            int? nextCodeUnit = _text.codeUnitAt(offset);
+            if (nextCodeUnit == null)
+                return 0;
+            // TODO(goderbauer): doesn't handle extended grapheme clusters with more than one Unicode scalar value (https://github.com/flutter/flutter/issues/13404).
+            return _isUtf16Surrogate(nextCodeUnit.Value) ? offset + 2 : offset + 1;
+        }
+         
+         public int getOffsetBefore(int offset) {
+             int? prevCodeUnit = _text.codeUnitAt(offset - 1);
+             if (prevCodeUnit == null)
+                 return 0;
+             // TODO(goderbauer): doesn't handle extended grapheme clusters with more than one Unicode scalar value (https://github.com/flutter/flutter/issues/13404).
+             return _isUtf16Surrogate(prevCodeUnit.Value) ? offset - 2 : offset - 1;
+         }
+        
     }
 }

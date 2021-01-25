@@ -5,7 +5,7 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.widgets {
     class _Placeholderpainter : AbstractCustomPainter {
         public _Placeholderpainter(
-            Color color,
+            Color color = null,
             float strokeWidth = 0f
         ) {
             this.color = color;

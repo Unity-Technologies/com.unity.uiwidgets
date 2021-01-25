@@ -24,12 +24,11 @@ namespace Unity.UIWidgets.cupertino {
 
         public static CupertinoUserInterfaceLevelData? of(BuildContext context, bool nullOk = false ) {
             D.assert(context != null);
-            D.assert(nullOk != null);
             CupertinoUserInterfaceLevel query = context.dependOnInheritedWidgetOfExactType<CupertinoUserInterfaceLevel>(null);
             if (query != null)
               return query._data;
-            //if (nullOk)
-            //  return ;
+            if (nullOk)
+              return null;
             throw new UIWidgetsError(
               "CupertinoUserInterfaceLevel.of() called with a context that does not contain a CupertinoUserInterfaceLevel.\n" +
               "No CupertinoUserInterfaceLevel ancestor could be found starting from the context that was passed "+
@@ -47,17 +46,9 @@ namespace Unity.UIWidgets.cupertino {
           }
 
           public override bool updateShouldNotify(InheritedWidget oldWidget) {
-              //throw new System.NotImplementedException();              
-              //oldWidget._data != _data;
-              /// ????? 
-              if (oldWidget.GetType() == typeof(CupertinoUserInterfaceLevel)) {
-                  return updateShouldNotify(oldWidget);
-              }
-
-              return false;
+              oldWidget = (CupertinoUserInterfaceLevel) oldWidget;
+              return ((CupertinoUserInterfaceLevel) oldWidget)._data != _data;
           }
-          public bool updateShouldNotify(CupertinoUserInterfaceLevel oldWidget) => oldWidget._data != _data;
-
     }
 
 }

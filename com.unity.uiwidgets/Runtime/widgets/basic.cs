@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.widgets {
     public class Directionality : InheritedWidget {
         public Directionality(
             Widget child,
-            TextDirection textDirection,
+            TextDirection textDirection ,
             Key key = null
         ) : base(key, child) {
             this.textDirection = textDirection;
@@ -32,7 +32,64 @@ namespace Unity.UIWidgets.widgets {
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
             return textDirection != ((Directionality) oldWidget).textDirection;
         }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection));
+        }
     }
+    public class Opacity : SingleChildRenderObjectWidget {
+        public Opacity(
+            Key key = null, 
+            float opacity = 0.0f, 
+            Widget child = null) : base(key, child) {
+            D.assert(opacity >= 0.0 && opacity <= 1.0);
+            this.opacity = opacity;
+        }
+
+        public readonly float opacity;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderOpacity(opacity: opacity);
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            ((RenderOpacity) renderObject).opacity = opacity;
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new FloatProperty("opacity", opacity));
+        }
+    }
+    
+    public class ShaderMask : SingleChildRenderObjectWidget { 
+        public ShaderMask(
+            Key key = null,
+            ShaderCallback shaderCallback = null,
+            BlendMode blendMode = BlendMode.modulate,
+            Widget child = null
+        ) : base(key: key, child: child){
+            D.assert(shaderCallback != null);
+            D.assert(blendMode != null);
+            this.shaderCallback = shaderCallback;
+            this.blendMode = blendMode;
+        }
+
+        public readonly ShaderCallback shaderCallback;
+        public readonly BlendMode blendMode;
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderShaderMask(
+                shaderCallback: shaderCallback,
+                blendMode: blendMode
+            );
+        }
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            renderObject = (RenderShaderMask)renderObject;
+            ((RenderShaderMask)renderObject).shaderCallback = shaderCallback;
+            ((RenderShaderMask)renderObject).blendMode = blendMode;
+        }
+    }
+
 
     public class BackdropFilter : SingleChildRenderObjectWidget {
         public BackdropFilter(
@@ -55,21 +112,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class Opacity : SingleChildRenderObjectWidget {
-        public Opacity(float opacity, Key key = null, Widget child = null) : base(key, child) {
-            this.opacity = opacity;
-        }
-
-        public readonly float opacity;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderOpacity(opacity: opacity);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderOpacity) renderObject).opacity = opacity;
-        }
-    }
+    
 
     public class CustomPaint : SingleChildRenderObjectWidget {
         public CustomPaint(
@@ -165,13 +208,13 @@ namespace Unity.UIWidgets.widgets {
     public class ClipRRect : SingleChildRenderObjectWidget {
         public ClipRRect(
             Key key = null,
-            BorderRadius borderRadius = null,//[!!!]borderRadius = BorderRadius.zero
+            BorderRadius borderRadius = null,
             CustomClipper<RRect> clipper = null,
             Clip clipBehavior = Clip.antiAlias,
             Widget child = null
         ) : base(key: key, child: child) {
-            D.assert(borderRadius != null || clipper != null);
-            this.borderRadius = borderRadius;
+           
+            this.borderRadius = borderRadius ?? BorderRadius.zero;
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -269,7 +312,8 @@ namespace Unity.UIWidgets.widgets {
                 builder: (BuildContext context) => {
                     return new ClipPath(
                         clipper: new ShapeBorderClipper(
-                            shape: shape
+                            shape: shape,
+                            textDirection: Directionality.of(context)
                         ),
                         clipBehavior: clipBehavior,
                         child: child
@@ -308,112 +352,536 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new DiagnosticsProperty<CustomClipper<Path>>("clipper", clipper, defaultValue: null));
         }
     }
-
-    public class LimitedBox : SingleChildRenderObjectWidget {
-        public LimitedBox(
+    public class PhysicalModel : SingleChildRenderObjectWidget {
+        public PhysicalModel(
             Key key = null,
-            float maxWidth = float.MaxValue,
-            float maxHeight = float.MaxValue,
-            Widget child = null
-        ) : base(key, child) {
-            D.assert(maxWidth >= 0.0);
-            D.assert(maxHeight >= 0.0);
-
-            this.maxHeight = maxHeight;
-            this.maxWidth = maxWidth;
+            BoxShape shape = BoxShape.rectangle,
+            Clip clipBehavior = Clip.none,
+            BorderRadius borderRadius = null,
+            float elevation = 0.0f,
+            Color color = null,
+            Color shadowColor = null,
+            Widget child = null) : base(key: key, child: child) {
+            D.assert(color != null);
+            D.assert(elevation >= 0.0f);
+            D.assert(clipBehavior != null);
+            this.shape = shape;
+            this.clipBehavior = clipBehavior;
+            this.borderRadius = borderRadius;
+            this.elevation = elevation;
+            this.color = color;
+            this.shadowColor = shadowColor ?? new Color(0xFF000000);
         }
 
-        public readonly float maxWidth;
-        public readonly float maxHeight;
+        public readonly BoxShape shape;
+
+        public readonly Clip clipBehavior;
+
+        public readonly BorderRadius borderRadius;
+
+        public readonly float elevation;
+
+        public readonly Color color;
+
+        public readonly Color shadowColor;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderLimitedBox(
-                maxWidth: maxWidth,
-                maxHeight: maxHeight
+            return new RenderPhysicalModel(
+                shape: shape,
+                clipBehavior: clipBehavior,
+                borderRadius: borderRadius,
+                elevation: elevation,
+                color: color,
+                shadowColor: shadowColor);
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            RenderPhysicalModel _renderObject = (RenderPhysicalModel) renderObject;
+            _renderObject.shape = shape;
+            _renderObject.clipBehavior = clipBehavior;
+            _renderObject.borderRadius = borderRadius;
+            _renderObject.elevation = elevation;
+            _renderObject.color = color;
+            _renderObject.shadowColor = shadowColor;
+        }
+
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new EnumProperty<BoxShape>("shape", shape));
+            properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", borderRadius));
+            properties.add(new FloatProperty("elevation", elevation));
+            properties.add(new ColorProperty("color", color));
+            properties.add(new ColorProperty("shadowColor", shadowColor));
+        }
+    }
+    
+    public class PhysicalShape : SingleChildRenderObjectWidget {
+        public PhysicalShape(
+            Key key = null,
+            CustomClipper<Path> clipper = null,
+            Clip clipBehavior = Clip.none,
+            float elevation = 0.0f,
+            Color color = null,
+            Color shadowColor = null,
+            Widget child = null) : base(key: key, child: child) {
+            D.assert(clipper != null);
+            D.assert(color != null);
+            D.assert(elevation >= 0.0f);
+            this.clipper = clipper;
+            this.clipBehavior = clipBehavior;
+            this.elevation = elevation;
+            this.color = color;
+            this.shadowColor = shadowColor ?? new Color(0xFF000000);
+        }
+
+        public readonly CustomClipper<Path> clipper;
+
+        public readonly Clip clipBehavior;
+
+        public readonly float elevation;
+
+        public readonly Color color;
+
+        public readonly Color shadowColor;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderPhysicalShape(
+                clipper: clipper,
+                clipBehavior: clipBehavior,
+                elevation: elevation,
+                color: color,
+                shadowColor: shadowColor);
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            RenderPhysicalShape _renderObject = (RenderPhysicalShape) renderObject;
+            _renderObject.clipper = clipper;
+            _renderObject.elevation = elevation;
+            _renderObject.color = color;
+            _renderObject.shadowColor = shadowColor;
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<CustomClipper<Path>>("clipper", clipper));
+            properties.add(new FloatProperty("elevation", elevation));
+            properties.add(new ColorProperty("color", color));
+            properties.add(new ColorProperty("shadowColor", shadowColor));
+        }
+    }
+    public class Transform : SingleChildRenderObjectWidget {
+        public Transform(
+            Key key = null,
+            Matrix4 transform = null,
+            Offset origin = null,
+            AlignmentGeometry alignment = null,
+            bool transformHitTests = true,
+            Widget child = null
+        ) : base(key, child) {
+            D.assert(transform != null);
+            this.transform = transform;
+            this.origin = origin;
+            this.alignment = alignment;
+            this.transformHitTests = transformHitTests;
+        }
+
+        public static Transform rotate(
+            Key key = null,
+            float angle = 0.0f,
+            Offset origin = null,
+            AlignmentGeometry alignment = null,
+            bool transformHitTests = true,
+            Widget child = null
+        ) {
+            return new Transform(key,
+                Matrix4.rotationZ(angle),
+                origin,
+                alignment, 
+                transformHitTests, 
+                child);
+        }
+
+
+        public static Transform translate(
+            Key key = null,
+            Offset offset = null,
+            bool transformHitTests = true,
+            Widget child = null
+        ) {
+            return new Transform(
+                key,
+                Matrix4.translationValues(offset.dx, offset.dy, 0.0f), 
+                null,
+                null, 
+                transformHitTests, 
+                child);
+        }
+
+        public static Transform scale(
+            Key key = null,
+            float scale = 1.0f,
+            Offset origin = null,
+            AlignmentGeometry alignment = null,
+            bool transformHitTests = true,
+            Widget child = null
+        ) {
+            return new Transform(key,
+                Matrix4.diagonal3Values(scale, scale, 1.0f),
+                origin, 
+                alignment ?? Alignment.center, 
+                transformHitTests, 
+                child);
+        }
+
+        public readonly Matrix4 transform;
+        public readonly Offset origin;
+        public readonly AlignmentGeometry alignment;
+        public readonly bool transformHitTests;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderTransform(
+                transform: transform,
+                origin: origin,
+                alignment: alignment,
+                textDirection: Directionality.of(context),
+                transformHitTests: transformHitTests
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
-            var renderObject = (RenderLimitedBox) renderObjectRaw;
-            renderObject.maxWidth = maxWidth;
-            renderObject.maxHeight = maxHeight;
+            var renderObject = (RenderTransform) renderObjectRaw;
+            renderObject.transform = transform;
+            renderObject.origin = origin;
+            renderObject.alignment = alignment;
+            renderObject.textDirection = Directionality.of(context);
+            renderObject.transformHitTests = transformHitTests;
+        }
+    }
+    public class CompositedTransformTarget : SingleChildRenderObjectWidget {
+        public CompositedTransformTarget(
+            Key key = null,
+            LayerLink link = null,
+            Widget child = null
+        ) : base(key: key, child: child) {
+            D.assert(link != null);
+            this.link = link;
         }
 
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new FloatProperty("maxWidth", maxWidth, defaultValue: float.PositiveInfinity));
-            properties.add(new FloatProperty("maxHeight", maxHeight, defaultValue: float.PositiveInfinity));
+        public readonly LayerLink link;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderLeaderLayer(
+                link: link
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            ((RenderLeaderLayer) renderObject).link = link;
         }
     }
 
-    public class OverflowBox : SingleChildRenderObjectWidget {
-        public OverflowBox(
+    public class CompositedTransformFollower : SingleChildRenderObjectWidget {
+        public CompositedTransformFollower(
             Key key = null,
-            Alignment alignment = null,
-            float? minWidth = null,
-            float? maxWidth = null,
-            float? minHeight = null,
-            float? maxHeight = null,
+            LayerLink link = null,
+            bool showWhenUnlinked = true,
+            Offset offset = null,
             Widget child = null
         ) : base(key: key, child: child) {
-            this.alignment = alignment ?? Alignment.center;
-            this.minWidth = minWidth;
-            this.maxWidth = maxWidth;
-            this.minHeight = minHeight;
-            this.maxHeight = maxHeight;
+            D.assert(link != null);
+            this.showWhenUnlinked = showWhenUnlinked;
+            this.offset = offset ?? Offset.zero;
+            this.link = link;
         }
 
-        public readonly Alignment alignment;
-
-        public readonly float? minWidth;
-
-        public readonly float? maxWidth;
-
-        public readonly float? minHeight;
-
-        public readonly float? maxHeight;
+        public readonly LayerLink link;
+        public readonly bool showWhenUnlinked;
+        public readonly Offset offset;
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderConstrainedOverflowBox(
+            return new RenderFollowerLayer(
+                link: link,
+                showWhenUnlinked: showWhenUnlinked,
+                offset: offset
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            ((RenderFollowerLayer) renderObject).link = link;
+            ((RenderFollowerLayer) renderObject).showWhenUnlinked = showWhenUnlinked;
+            ((RenderFollowerLayer) renderObject).offset = offset;
+        }
+    }
+
+    public class FittedBox : SingleChildRenderObjectWidget {
+        public FittedBox(
+            Key key = null,
+            BoxFit fit = BoxFit.contain,
+            AlignmentGeometry alignment = null,
+            Widget child = null
+        ) : base(key: key, child: child) {
+            this.fit = fit;
+            this.alignment = alignment ?? Alignment.center;
+        }
+
+        public readonly BoxFit fit;
+
+        public readonly AlignmentGeometry alignment;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderFittedBox(
+                fit: fit,
                 alignment: alignment,
-                minWidth: minWidth,
-                maxWidth: maxWidth,
-                minHeight: minHeight,
-                maxHeight: maxHeight
+                textDirection: Directionality.of(context)
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
-            RenderConstrainedOverflowBox renderObject = _renderObject as RenderConstrainedOverflowBox;
+            RenderFittedBox renderObject = _renderObject as RenderFittedBox;
+            renderObject.fit = fit;
             renderObject.alignment = alignment;
-            renderObject.minWidth = minWidth;
-            renderObject.maxWidth = maxWidth;
-            renderObject.minHeight = minHeight;
-            renderObject.maxHeight = maxHeight;
+            renderObject.textDirection = Directionality.of(context);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
-            properties.add(new FloatProperty("minWidth", minWidth, defaultValue: null));
-            properties.add(new FloatProperty("maxWidth", maxWidth, defaultValue: null));
-            properties.add(new FloatProperty("minHeight", minHeight, defaultValue: null));
-            properties.add(new FloatProperty("maxHeight", maxHeight, defaultValue: null));
+            properties.add(new EnumProperty<BoxFit>("fit", fit));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
+        }
+    }
+    public class FractionalTranslation : SingleChildRenderObjectWidget {
+        public FractionalTranslation(
+            Key key = null, 
+            Offset translation = null,
+            bool transformHitTests = true, 
+            Widget child = null) : base(key: key, child: child) {
+            this.translation = translation;
+            this.transformHitTests = transformHitTests;
+        }
+
+        public readonly Offset translation;
+        public readonly bool transformHitTests;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderFractionalTranslation(
+                translation: translation,
+                transformHitTests: transformHitTests
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            ((RenderFractionalTranslation) renderObject).translation = translation;
+            ((RenderFractionalTranslation) renderObject).transformHitTests = transformHitTests;
+        }
+    }
+    public class RotatedBox : SingleChildRenderObjectWidget {
+        public RotatedBox(
+            Key key = null,
+            int? quarterTurns = null,
+            Widget child = null
+        ) : base(key: key, child: child) {
+            D.assert(quarterTurns != null);
+            this.quarterTurns = quarterTurns;
+        }
+
+
+        public readonly int? quarterTurns;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderRotatedBox(quarterTurns ?? 0);
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            (renderObject as RenderRotatedBox).quarterTurns = quarterTurns ?? 0;
+        }
+    }
+    public class Padding : SingleChildRenderObjectWidget {
+        public Padding(
+            Key key = null,
+            EdgeInsets padding = null,
+            Widget child = null
+        ) : base(key, child) {
+            D.assert(padding != null);
+            this.padding = padding;
+        }
+
+        public readonly EdgeInsets padding;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderPadding(
+                padding: padding,
+                textDirection: Directionality.of(context)
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
+            var renderObject = (RenderPadding) renderObjectRaw;
+            renderObject.padding = padding;
+            renderObject.textDirection = Directionality.of(context);
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
+        }
+    }
+public class Align : SingleChildRenderObjectWidget {
+        public Align(
+            Key key = null,
+            AlignmentGeometry alignment = null,
+            float? widthFactor = null,
+            float? heightFactor = null,
+            Widget child = null
+        ) : base(key, child) {
+            D.assert(widthFactor == null || widthFactor >= 0.0);
+            D.assert(heightFactor == null || heightFactor >= 0.0);
+
+            this.alignment = alignment ?? Alignment.center;
+            this.widthFactor = widthFactor;
+            this.heightFactor = heightFactor;
+        }
+
+        public readonly AlignmentGeometry alignment;
+
+        public readonly float? widthFactor;
+
+        public readonly float? heightFactor;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderPositionedBox(
+                alignment: alignment,
+                widthFactor: widthFactor,
+                heightFactor: heightFactor,
+                textDirection: Directionality.of(context)
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
+            var renderObject = (RenderPositionedBox) renderObjectRaw;
+            renderObject.alignment = alignment;
+            renderObject.widthFactor = widthFactor;
+            renderObject.heightFactor = heightFactor;
+            renderObject.textDirection = Directionality.of(context);
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
+            properties.add(new FloatProperty("widthFactor",
+                widthFactor, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FloatProperty("heightFactor",
+                heightFactor, defaultValue: foundation_.kNullDefaultValue));
         }
     }
 
+    public class Center : Align {
+        public Center(
+            Key key = null,
+            float? widthFactor = null,
+            float? heightFactor = null,
+            Widget child = null)
+            : base(
+                key: key,
+                widthFactor: widthFactor,
+                heightFactor: heightFactor,
+                child: child) {
+        }
+    }
+
+    public class CustomSingleChildLayout : SingleChildRenderObjectWidget {
+        public CustomSingleChildLayout(
+            Key key = null,
+            SingleChildLayoutDelegate layoutDelegate = null, 
+            Widget child = null) : base(key: key, child: child) {
+            D.assert(layoutDelegate != null);
+            this.layoutDelegate = layoutDelegate;
+        }
+
+        public readonly SingleChildLayoutDelegate layoutDelegate;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderCustomSingleChildLayoutBox(layoutDelegate: layoutDelegate);
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            ((RenderCustomSingleChildLayoutBox) renderObject).layoutDelegate = layoutDelegate;
+        }
+    }
+
+    public class LayoutId : ParentDataWidget<MultiChildLayoutParentData> {
+        public LayoutId(
+            Key key = null,
+            object id = null,
+            Widget child = null
+        ) : base(key: key ?? new ValueKey<object>(id), child: child) {
+            D.assert(child != null);
+            D.assert(id != null);
+            this.id = id;
+        }
+
+        public readonly object id;
+
+        public override void applyParentData(RenderObject renderObject) {
+            D.assert(renderObject.parentData is MultiChildLayoutParentData);
+            MultiChildLayoutParentData parentData = (MultiChildLayoutParentData) renderObject.parentData;
+            if (parentData.id != id) {
+                parentData.id = id;
+                var targetParent = renderObject.parent;
+                if (targetParent is RenderObject) {
+                    ((RenderObject) targetParent).markNeedsLayout();
+                }
+            }
+        }
+
+        public override Type debugTypicalAncestorWidgetClass { get => typeof(CustomMultiChildLayout); }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<object>("id", id));
+        }
+    }
+    public class CustomMultiChildLayout : MultiChildRenderObjectWidget {
+        public CustomMultiChildLayout(
+            Key key = null,
+            MultiChildLayoutDelegate layoutDelegate = null,
+            List<Widget> children = null
+        ) : base(key: key, children: children ?? new List<Widget>()) {
+            D.assert(layoutDelegate != null);
+            this.layoutDelegate = layoutDelegate;
+        }
+
+        public readonly MultiChildLayoutDelegate layoutDelegate;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderCustomMultiChildLayoutBox(layoutDelegate: layoutDelegate);
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            ((RenderCustomMultiChildLayoutBox) renderObject).layoutDelegate = layoutDelegate;
+        }
+    }
+    
     public class SizedBox : SingleChildRenderObjectWidget {
-        public SizedBox(Key key = null, float? width = null, float? height = null, Widget child = null)
+        public SizedBox(
+            Key key = null, 
+            float? width = null, 
+            float? height = null, 
+            Widget child = null)
             : base(key: key, child: child) {
             this.width = width;
             this.height = height;
         }
 
-        public static SizedBox expand(Key key = null, Widget child = null) {
+        public static SizedBox expand(
+            Key key = null, 
+            Widget child = null) {
             return new SizedBox(key, float.PositiveInfinity, float.PositiveInfinity, child);
         }
 
-        public static SizedBox shrink(Key key = null, Widget child = null) {
+        public static SizedBox shrink(
+            Key key = null, 
+            Widget child = null) {
             return new SizedBox(key, 0, 0, child);
         }
 
@@ -477,7 +945,6 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-
     public class ConstrainedBox : SingleChildRenderObjectWidget {
         public ConstrainedBox(
             Key key = null,
@@ -507,30 +974,33 @@ namespace Unity.UIWidgets.widgets {
                 constraints, showName: false));
         }
     }
-
     public class UnconstrainedBox : SingleChildRenderObjectWidget {
         public UnconstrainedBox(
             Key key = null,
             Widget child = null,
-            Alignment alignment = null,
+            TextDirection? textDirection = null,
+            AlignmentGeometry alignment = null,
             Axis? constrainedAxis = null
         ) : base(key: key, child: child) {
             this.alignment = alignment ?? Alignment.center;
+            this.textDirection = textDirection;
             this.constrainedAxis = constrainedAxis;
         }
 
-        public readonly Alignment alignment;
-
+        public readonly AlignmentGeometry alignment;
+        public readonly TextDirection? textDirection;
         public readonly Axis? constrainedAxis;
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             RenderUnconstrainedBox renderObject = _renderObject as RenderUnconstrainedBox;
             renderObject.alignment = alignment;
             renderObject.constrainedAxis = constrainedAxis;
+            renderObject.textDirection = textDirection ?? Directionality.of(context);
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderUnconstrainedBox(
+                textDirection: textDirection ?? Directionality.of(context),
                 alignment: alignment,
                 constrainedAxis: constrainedAxis
             );
@@ -538,15 +1008,17 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
             properties.add(new EnumProperty<Axis?>("constrainedAxis", null));
+            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
         }
     }
+
 
     public class FractionallySizedBox : SingleChildRenderObjectWidget {
         public FractionallySizedBox(
             Key key = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             float? widthFactor = null,
             float? heightFactor = null,
             Widget child = null
@@ -562,13 +1034,14 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly float? heightFactor;
 
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderFractionallySizedOverflowBox(
                 alignment: alignment,
                 widthFactor: widthFactor,
-                heightFactor: heightFactor
+                heightFactor: heightFactor,
+                textDirection: Directionality.of(context)
             );
         }
 
@@ -577,16 +1050,261 @@ namespace Unity.UIWidgets.widgets {
             renderObject.alignment = alignment;
             renderObject.widthFactor = widthFactor;
             renderObject.heightFactor = heightFactor;
+            renderObject.textDirection = Directionality.of(context);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
             properties.add(new FloatProperty("widthFactor", widthFactor, defaultValue: null));
             properties.add(new FloatProperty("heightFactor", heightFactor, defaultValue: null));
         }
     }
+    public class LimitedBox : SingleChildRenderObjectWidget {
+        public LimitedBox(
+            Key key = null,
+            float maxWidth = float.PositiveInfinity,
+            float maxHeight = float.PositiveInfinity,
+            Widget child = null
+        ) : base(key, child) {
+            D.assert(maxWidth >= 0.0);
+            D.assert(maxHeight >= 0.0);
 
+            this.maxHeight = maxHeight;
+            this.maxWidth = maxWidth;
+        }
+
+        public readonly float maxWidth;
+        public readonly float maxHeight;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderLimitedBox(
+                maxWidth: maxWidth,
+                maxHeight: maxHeight
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
+            var renderObject = (RenderLimitedBox) renderObjectRaw;
+            renderObject.maxWidth = maxWidth;
+            renderObject.maxHeight = maxHeight;
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new FloatProperty("maxWidth", maxWidth, defaultValue: float.PositiveInfinity));
+            properties.add(new FloatProperty("maxHeight", maxHeight, defaultValue: float.PositiveInfinity));
+        }
+    }
+
+    public class OverflowBox : SingleChildRenderObjectWidget {
+        public OverflowBox(
+            Key key = null,
+            AlignmentGeometry alignment = null,
+            float? minWidth = null,
+            float? maxWidth = null,
+            float? minHeight = null,
+            float? maxHeight = null,
+            Widget child = null
+        ) : base(key: key, child: child) {
+            this.alignment = alignment ?? Alignment.center;
+            this.minWidth = minWidth;
+            this.maxWidth = maxWidth;
+            this.minHeight = minHeight;
+            this.maxHeight = maxHeight;
+        }
+
+        public readonly AlignmentGeometry alignment;
+
+        public readonly float? minWidth;
+
+        public readonly float? maxWidth;
+
+        public readonly float? minHeight;
+
+        public readonly float? maxHeight;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderConstrainedOverflowBox(
+                alignment: alignment,
+                minWidth: minWidth,
+                maxWidth: maxWidth,
+                minHeight: minHeight,
+                maxHeight: maxHeight,
+                textDirection: Directionality.of(context)
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
+            RenderConstrainedOverflowBox renderObject = _renderObject as RenderConstrainedOverflowBox;
+            renderObject.alignment = alignment;
+            renderObject.minWidth = minWidth;
+            renderObject.maxWidth = maxWidth;
+            renderObject.minHeight = minHeight;
+            renderObject.maxHeight = maxHeight;
+            renderObject.textDirection = Directionality.of(context);
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
+            properties.add(new FloatProperty("minWidth", minWidth, defaultValue: null));
+            properties.add(new FloatProperty("maxWidth", maxWidth, defaultValue: null));
+            properties.add(new FloatProperty("minHeight", minHeight, defaultValue: null));
+            properties.add(new FloatProperty("maxHeight", maxHeight, defaultValue: null));
+        }
+    }
+
+    public class SizedOverflowBox : SingleChildRenderObjectWidget { 
+        public SizedOverflowBox(
+            Key key = null,
+            Size size = null,
+            AlignmentGeometry alignment = null,
+            Widget child = null) : base(key: key, child: child) {
+            D.assert(size != null);
+            D.assert(alignment != null);
+            this.size = size;
+            this.alignment = alignment ?? Alignment.center;
+        }
+
+        public readonly AlignmentGeometry alignment; 
+        public readonly  Size size;
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderSizedOverflowBox(
+              alignment: alignment,
+              requestedSize: size,
+              textDirection: Directionality.of(context)
+            );
+        }
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            renderObject = (RenderSizedOverflowBox)renderObject;
+            ((RenderSizedOverflowBox) renderObject).alignment = alignment;
+            ((RenderSizedOverflowBox) renderObject).requestedSize = size;
+            ((RenderSizedOverflowBox)renderObject).textDirection = Directionality.of(context);
+        }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
+            properties.add(new DiagnosticsProperty<Size>("size", size, defaultValue: null));
+        }
+    }
+
+    public class Offstage : SingleChildRenderObjectWidget {
+        public Offstage(
+            Key key = null, 
+            bool offstage = true, 
+            Widget child = null) : base(key: key, child: child) {
+            this.offstage = offstage;
+        }
+
+        public readonly bool offstage;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderOffstage(offstage: offstage);
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            ((RenderOffstage) renderObject).offstage = offstage;
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<bool>("offstage", offstage));
+        }
+
+        public override Element createElement() {
+            return new _OffstageElement(this);
+        }
+    }
+    class _OffstageElement : SingleChildRenderObjectElement {
+        internal _OffstageElement(Offstage widget) : base(widget) {
+        }
+
+        new Offstage widget {
+            get { return (Offstage) base.widget; }
+        }
+
+        public override void debugVisitOnstageChildren(ElementVisitor visitor) {
+            if (!widget.offstage) {
+                base.debugVisitOnstageChildren(visitor);
+            }
+        }
+    }
+    
+    public class IntrinsicWidth : SingleChildRenderObjectWidget {
+        public IntrinsicWidth(
+            Key key = null, 
+            float? stepWidth = null, 
+            float? stepHeight = null, 
+            Widget child = null)
+            : base(key: key, child: child) {
+            D.assert(stepWidth == null || stepWidth >= 0.0f);
+            D.assert(stepHeight == null || stepHeight >= 0.0f);
+            this.stepWidth = stepWidth;
+            this.stepHeight = stepHeight;
+        }
+
+        public readonly float? stepWidth;
+
+        public readonly float? stepHeight;
+
+        float? _stepWidth {
+            get { return stepWidth == 0.0f ? null : stepWidth; }
+        }
+
+        float? _stepHeight {
+            get { return stepHeight == 0.0f ? null : stepHeight; }
+        }
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderIntrinsicWidth(stepWidth: _stepWidth, stepHeight: _stepHeight);
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
+            var renderObject = (RenderIntrinsicWidth) renderObjectRaw;
+            renderObject.stepWidth = _stepWidth;
+            renderObject.stepHeight = _stepHeight;
+        }
+    }
+
+    public class IntrinsicHeight : SingleChildRenderObjectWidget {
+        public IntrinsicHeight(Key key = null, Widget child = null)
+            : base(key: key, child: child) {
+        }
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderIntrinsicHeight();
+        }
+    }
+
+    public class Baseline : SingleChildRenderObjectWidget {
+        public Baseline(
+            Key key = null,
+            float? baseline = null,
+            TextBaseline? baselineType = null,
+            Widget child = null
+        ) : base(key: key, child: child) {
+            D.assert(baseline != null);
+            D.assert(baselineType != null);
+            this.baseline = baseline;
+            this.baselineType = baselineType;
+        }
+
+        public readonly float? baseline;
+
+        public readonly TextBaseline? baselineType;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderBaseline(baseline: baseline ?? 0.0f, baselineType: baselineType ?? TextBaseline.alphabetic);
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
+            RenderBaseline renderObject = (RenderBaseline) renderObjectRaw;
+            renderObject.baseline = baseline ?? 0.0f;
+            renderObject.baselineType = baselineType ?? TextBaseline.alphabetic;
+        }
+    }
+    
     public class SliverToBoxAdapter : SingleChildRenderObjectWidget {
         public SliverToBoxAdapter(
             Key key = null,
@@ -598,17 +1316,463 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    public class SliverPadding : SingleChildRenderObjectWidget {
+        public SliverPadding(
+            Key key = null,
+            EdgeInsets padding = null,
+            Widget sliver = null
+        ) : base(key: key, child: sliver) {
+            D.assert(padding != null);
+            this.padding = padding;
+        }
 
+        public readonly EdgeInsets padding;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderSliverPadding(
+                padding: padding,
+                textDirection: Directionality.of(context)
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
+            var renderObject = (RenderSliverPadding) renderObjectRaw;
+            renderObject.padding = padding;
+            renderObject.textDirection = Directionality.of(context);
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
+        }
+    }
+    public class AspectRatio : SingleChildRenderObjectWidget {
+        public AspectRatio(
+            Key key = null,
+            float? aspectRatio = null,
+            Widget child = null
+        ) : base(key: key, child: child) {
+            D.assert(aspectRatio != null);
+            this.aspectRatio = aspectRatio;
+        }
+    
+        public readonly float? aspectRatio;
+    
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderAspectRatio(aspectRatio: aspectRatio ?? 0.0f);
+        }
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            ((RenderAspectRatio) renderObject).aspectRatio = aspectRatio ?? 0.0f;
+        }
+    
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new FloatProperty("aspectRatio", aspectRatio));
+        }
+    }
+
+    public class MouseRegion : StatefulWidget { 
+        public MouseRegion(
+            Key key = null,
+            PointerEnterEventListener onEnter = null,
+            PointerExitEventListener onExit = null,
+            PointerHoverEventListener onHover= null,
+            bool opaque  = true,
+            Widget child = null
+            ) : base(key: key) {
+                D.assert(opaque != null);
+                this.onEnter = onEnter;
+                this.onExit = onExit;
+                this.onHover = onHover;
+                this.opaque = opaque;
+                this.child = child;
+
+        }
+
+        public readonly PointerEnterEventListener onEnter;
+        public readonly PointerHoverEventListener onHover;
+        public readonly PointerExitEventListener onExit;
+        public readonly bool opaque;
+        public readonly Widget child;
+
+        public override State createState() {
+            return new _MouseRegionState();
+        }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            List<string> listeners = new List<string>();
+            if (onEnter != null)
+              listeners.Add("enter");
+            if (onExit != null)
+              listeners.Add("exit");
+            if (onHover != null)
+              listeners.Add("hover");
+            properties.add(new EnumerableProperty<string>("listeners", listeners, ifEmpty: "<none>"));
+            properties.add(new DiagnosticsProperty<bool>("opaque", opaque, defaultValue: true));
+        }
+    } 
+    public class _MouseRegionState : State<MouseRegion> { 
+        void handleExit(PointerExitEvent _event) {
+            if (widget.onExit != null && mounted)
+                widget.onExit(_event);
+        }
+
+        public PointerExitEventListener getHandleExit() {
+            return widget.onExit == null ? (PointerExitEventListener) null  : handleExit;
+        } 
+        public override Widget build(BuildContext context) {
+            return new _RawMouseRegion(this);
+        }
+    }
+
+    public class _RawMouseRegion : SingleChildRenderObjectWidget { 
+        public _RawMouseRegion(_MouseRegionState owner) : base(child: owner.widget.child) {
+            this.owner = owner;
+        }
+
+        public readonly _MouseRegionState owner;
+        public override RenderObject createRenderObject(BuildContext context) {
+            MouseRegion widget = owner.widget;
+            return new RenderMouseRegion(
+              onEnter: widget.onEnter,
+              onHover: widget.onHover,
+              onExit: owner.getHandleExit(),
+              opaque: widget.opaque
+            );
+        } 
+        void updateRenderObject(BuildContext context, RenderMouseRegion renderObject) { 
+            MouseRegion widget = owner.widget;
+            renderObject.onEnter = widget.onEnter;
+            renderObject.onHover = widget.onHover;
+            renderObject.onExit = owner.getHandleExit();
+            renderObject.opaque = widget.opaque;
+        }
+    }
+
+    public class ListBody : MultiChildRenderObjectWidget {
+        public ListBody(
+            Key key = null,
+            Axis mainAxis = Axis.vertical,
+            bool reverse = false,
+            List<Widget> children = null
+        ) : base(key: key, children: children ?? new List<Widget>()) {
+            this.mainAxis = mainAxis;
+            this.reverse = reverse;
+        }
+
+        public readonly Axis mainAxis;
+
+        public readonly bool reverse;
+
+
+        AxisDirection _getDirection(BuildContext context) {
+            return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, mainAxis,
+                       reverse) ?? AxisDirection.right;
+        }
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderListBody(
+                axisDirection: _getDirection(context));
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            RenderListBody _renderObject = (RenderListBody) renderObject;
+            _renderObject.axisDirection = _getDirection(context);
+        }
+    }
+
+    public class Stack : MultiChildRenderObjectWidget {
+        public Stack(
+            Key key = null,
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null,
+            StackFit fit = StackFit.loose,
+            Overflow overflow = Overflow.clip,
+            List<Widget> children = null
+        ) : base(key: key, children: children) {
+            this.alignment = alignment ?? AlignmentDirectional.topStart;
+            this.fit = fit;
+            this.overflow = overflow;
+            this.textDirection = textDirection;
+        }
+
+        public readonly AlignmentGeometry alignment;
+        public readonly StackFit fit;
+        public readonly Overflow overflow;
+        public readonly TextDirection? textDirection;
+
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderStack(
+                alignment: alignment,
+                textDirection: textDirection ?? Directionality.of(context),
+                fit: fit,
+                overflow: overflow
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
+            var renderObject = (RenderStack) renderObjectRaw;
+            renderObject.alignment = alignment;
+            renderObject.textDirection = Directionality.of(context);
+            renderObject.fit = fit;
+            renderObject.overflow = overflow;
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
+            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
+            properties.add(new EnumProperty<StackFit>("fit", fit));
+            properties.add(new EnumProperty<Overflow>("overflow", overflow));
+        }
+    }
+
+    public class IndexedStack : Stack {
+        public IndexedStack(
+            Key key = null,
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null,
+            StackFit sizing = StackFit.loose,
+            int index = 0,
+            List<Widget> children = null
+        ) : base(key: key, alignment: alignment ?? AlignmentDirectional.topStart, textDirection: textDirection , fit: sizing, children: children) {
+            this.index = index;
+        }
+
+        public readonly int index;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderIndexedStack(
+                alignment: alignment,
+                textDirection: textDirection ?? Directionality.of(context),
+                index: index
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            RenderIndexedStack renderIndexedStack = renderObject as RenderIndexedStack;
+            renderIndexedStack.index = index;
+            renderIndexedStack.alignment = alignment;
+            renderIndexedStack.textDirection = textDirection ?? Directionality.of(context);
+        }
+    }
+
+    public class Positioned : ParentDataWidget<StackParentData> {
+        public Positioned(
+            Key key = null, 
+            float? left = null, 
+            float? top = null,
+            float? right = null, 
+            float? bottom = null, 
+            float? width = null, 
+            float? height = null,
+            Widget child = null) :
+            base(key, child) {
+            D.assert(left == null || right == null || width == null);
+            D.assert(top == null || bottom == null || height == null);
+            this.left = left;
+            this.top = top;
+            this.right = right;
+            this.bottom = bottom;
+            this.width = width;
+            this.height = height;
+        }
+
+        public static Positioned fromRect(
+            Rect rect = null, 
+            Widget child = null, 
+            Key key = null) {
+            return new Positioned( key: key, 
+                left: rect.left,
+                top: rect.top, 
+                width: rect.width, 
+                height: rect.height,
+                right:null,
+                bottom:null,
+                child:child);
+        }
+
+        public static Positioned fromRelativeRect(
+            Key key = null,
+            RelativeRect rect = null, 
+            Widget child = null
+            ) {
+            return new Positioned( key: key, left: rect.left,
+                top: rect.top, 
+                right: rect.right, 
+                bottom: rect.bottom, 
+                height:null,
+                width:null,
+                child:child);
+        }
+
+        public static Positioned fill(
+            Widget child = null, 
+            Key key = null) {
+            return new Positioned(
+                key: key, 
+                left: 0.0f,
+                top: 0.0f,
+                right: 0.0f, bottom: 0.0f,
+                child:child);
+        }
+
+        public static Positioned directional(
+            Key key = null,
+            TextDirection? textDirection = null,
+            float? start = null, 
+            float? top = null,
+            float? end = null, 
+            float? bottom = null, 
+            float? width = null, 
+            float? height = null,
+            Widget child = null
+            ) {
+            float? left = null;
+            float? right = null;
+            switch (textDirection) {
+                case TextDirection.rtl:
+                    left = end;
+                    right = start;
+                    break;
+                case TextDirection.ltr:
+                    left = start;
+                    right = end;
+                    break;
+            }
+
+            return new Positioned( 
+                key: key, 
+                left: left, 
+                top: top, 
+                right: right, 
+                bottom: bottom, 
+                width: width,
+                height: height,
+                child:child);
+        }
+
+        public readonly float? left;
+
+        public readonly float? top;
+
+        public readonly float? right;
+
+        public readonly float? bottom;
+
+        public readonly float? width;
+
+        public readonly float? height;
+
+        public override void applyParentData(RenderObject renderObject) {
+            D.assert(renderObject.parentData is StackParentData);
+            StackParentData parentData = (StackParentData) renderObject.parentData;
+            bool needsLayout = false;
+
+            if (parentData.left != left) {
+                parentData.left = left;
+                needsLayout = true;
+            }
+
+            if (parentData.top != top) {
+                parentData.top = top;
+                needsLayout = true;
+            }
+
+            if (parentData.right != right) {
+                parentData.right = right;
+                needsLayout = true;
+            }
+
+            if (parentData.bottom != bottom) {
+                parentData.bottom = bottom;
+                needsLayout = true;
+            }
+
+            if (parentData.width != width) {
+                parentData.width = width;
+                needsLayout = true;
+            }
+
+            if (parentData.height != height) {
+                parentData.height = height;
+                needsLayout = true;
+            }
+
+            if (needsLayout) {
+                var targetParent = renderObject.parent;
+                if (targetParent is RenderObject) {
+                    ((RenderObject) targetParent).markNeedsLayout();
+                }
+            }
+        }
+
+        public override Type debugTypicalAncestorWidgetClass {
+            get { return typeof(Stack); }
+        }
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new FloatProperty("left", left, defaultValue: null));
+            properties.add(new FloatProperty("top", top, defaultValue: null));
+            properties.add(new FloatProperty("right", right, defaultValue: null));
+            properties.add(new FloatProperty("bottom", bottom, defaultValue: null));
+            properties.add(new FloatProperty("width", width, defaultValue: null));
+            properties.add(new FloatProperty("height", height, defaultValue: null));
+        }
+    }
+    public class PositionedDirectional : StatelessWidget {
+        public PositionedDirectional(
+            Key key = null,
+            float? start = null,
+            float? top = null,
+            float? end = null,
+            float? bottom = null,
+            float? width = null,
+            float? height = null,
+            Widget child = null
+        ) : base(key: key) {
+            this.child = child;
+            this.start = start;
+            this.top = top;
+            this.end = end;
+            this.bottom = bottom;
+            this.width = width;
+        }
+
+        public readonly float? start;
+        public readonly float? top;
+        public readonly float? end;
+        public readonly float? bottom;
+        public readonly float? width;
+        public readonly float? height;
+        public readonly Widget child;
+        public override Widget build(BuildContext context) {
+            return Positioned.directional(
+              textDirection: Directionality.of(context),
+              start: start,
+              top: top,
+              end: end,
+              bottom: bottom,
+              width: width,
+              height: height,
+              child: child
+            );
+        }
+    }
+
+    
     public class Flex : MultiChildRenderObjectWidget {
         public Flex(
-            Axis direction = Axis.vertical,
-            TextDirection? textDirection = null,
-            TextBaseline? textBaseline = null,
             Key key = null,
+            Axis direction = Axis.vertical,
             MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
             MainAxisSize mainAxisSize = MainAxisSize.max,
             CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+            TextDirection? textDirection = null,
             VerticalDirection verticalDirection = VerticalDirection.down,
+            TextBaseline? textBaseline = null,
             List<Widget> children = null
         ) : base(key, children) {
             this.direction = direction;
@@ -681,456 +1845,20 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new EnumProperty<TextBaseline?>("textBaseline", textBaseline, defaultValue: null));
         }
     }
-
-    public class Offstage : SingleChildRenderObjectWidget {
-        public Offstage(Key key = null, bool offstage = true, Widget child = null) : base(key: key, child: child) {
-            this.offstage = offstage;
-        }
-
-        public readonly bool offstage;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderOffstage(offstage: offstage);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderOffstage) renderObject).offstage = offstage;
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<bool>("offstage", offstage));
-        }
-
-        public override Element createElement() {
-            return new _OffstageElement(this);
-        }
-    }
-
-    public class MouseRegion : StatefulWidget { 
-        public MouseRegion(
-            Key key = null,
-            PointerEnterEventListener onEnter = null,
-            PointerExitEventListener onExit = null,
-            PointerHoverEventListener onHover= null,
-            bool opaque  = true,
-            Widget child = null) : base(key: key) {
-                D.assert(opaque != null);
-                this.onEnter = onEnter;
-                this.onExit = onExit;
-                this.onHover = onHover;
-                this.opaque = opaque;
-                this.child = child;
-
-        }
-
-        public readonly PointerEnterEventListener onEnter;
-        public readonly PointerHoverEventListener onHover;
-        public readonly PointerExitEventListener onExit;
-        public readonly bool opaque;
-        public readonly Widget child;
-
-        public override State createState() {
-            return new _MouseRegionState();
-        }
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            List<string> listeners = new List<string>();
-            if (onEnter != null)
-              listeners.Add("enter");
-            if (onExit != null)
-              listeners.Add("exit");
-            if (onHover != null)
-              listeners.Add("hover");
-            properties.add(new EnumerableProperty<string>("listeners", listeners, ifEmpty: "<none>"));
-            properties.add(new DiagnosticsProperty<bool>("opaque", opaque, defaultValue: true));
-        }
-    } 
-    public class _MouseRegionState : State<MouseRegion> { 
-        void handleExit(PointerExitEvent _event) {
-            if (widget.onExit != null && mounted)
-                widget.onExit(_event);
-        }
-
-        public PointerExitEventListener getHandleExit() {
-            return widget.onExit == null ? (PointerExitEventListener) null : handleExit;
-        } 
-        public override Widget build(BuildContext context) {
-            return new _RawMouseRegion(this);
-        }
-    }
-
-    public class _RawMouseRegion : SingleChildRenderObjectWidget { 
-        public _RawMouseRegion(_MouseRegionState owner) : base(child: owner.widget.child)
-        {
-        }
-
-        public readonly _MouseRegionState owner;
-        public override RenderObject createRenderObject(BuildContext context) { 
-            MouseRegion widget = owner.widget;
-            return new RenderMouseRegion(
-              onEnter: widget.onEnter,
-              onHover: widget.onHover,
-              onExit: owner.getHandleExit(),
-              opaque: widget.opaque
-            );
-        } 
-        void updateRenderObject(BuildContext context, RenderMouseRegion renderObject) { 
-            MouseRegion widget = owner.widget;
-            renderObject.onEnter = widget.onEnter;
-            renderObject.onHover = widget.onHover;
-            renderObject.onExit = owner.getHandleExit();
-            renderObject.opaque = widget.opaque;
-        }
-    }
     
-    class _OffstageElement : SingleChildRenderObjectElement {
-        internal _OffstageElement(Offstage widget) : base(widget) {
-        }
-
-        new Offstage widget {
-            get { return (Offstage) base.widget; }
-        }
-
-        public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            if (!widget.offstage) {
-                base.debugVisitOnstageChildren(visitor);
-            }
-        }
-    }
-
-    public class AspectRatio : SingleChildRenderObjectWidget {
-        public AspectRatio(
-            Key key = null,
-            float aspectRatio = 1.0f,
-            Widget child = null
-        ) : base(key: key, child: child) {
-            this.aspectRatio = aspectRatio;
-        }
-
-        public readonly float aspectRatio;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderAspectRatio(aspectRatio: aspectRatio);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderAspectRatio) renderObject).aspectRatio = aspectRatio;
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new FloatProperty("aspectRatio", aspectRatio));
-        }
-    }
-
-    public class IntrinsicWidth : SingleChildRenderObjectWidget {
-        public IntrinsicWidth(Key key = null, float? stepWidth = null, float? stepHeight = null, Widget child = null)
-            : base(key: key, child: child) {
-            D.assert(stepWidth == null || stepWidth >= 0.0f);
-            D.assert(stepHeight == null || stepHeight >= 0.0f);
-            this.stepWidth = stepWidth;
-            this.stepHeight = stepHeight;
-        }
-
-        public readonly float? stepWidth;
-
-        public readonly float? stepHeight;
-
-        float? _stepWidth {
-            get { return stepWidth == 0.0f ? null : stepWidth; }
-        }
-
-        float? _stepHeight {
-            get { return stepHeight == 0.0f ? null : stepHeight; }
-        }
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderIntrinsicWidth(stepWidth: _stepWidth, stepHeight: _stepHeight);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
-            var renderObject = (RenderIntrinsicWidth) renderObjectRaw;
-            renderObject.stepWidth = _stepWidth;
-            renderObject.stepHeight = _stepHeight;
-        }
-    }
-
-    public class IntrinsicHeight : SingleChildRenderObjectWidget {
-        public IntrinsicHeight(Key key = null, Widget child = null)
-            : base(key: key, child: child) {
-        }
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderIntrinsicHeight();
-        }
-    }
-
-    public class Baseline : SingleChildRenderObjectWidget {
-        public Baseline(
-            Key key = null,
-            float? baseline = null,
-            TextBaseline? baselineType = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
-            D.assert(baseline != null);
-            D.assert(baselineType != null);
-            this.baseline = baseline.Value;
-            this.baselineType = baselineType.Value;
-        }
-
-        public readonly float baseline;
-
-        public readonly TextBaseline baselineType;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderBaseline(baseline: baseline, baselineType: baselineType);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
-            RenderBaseline renderObject = (RenderBaseline) renderObjectRaw;
-            renderObject.baseline = baseline;
-            renderObject.baselineType = baselineType;
-        }
-    }
-
-    public class ListBody : MultiChildRenderObjectWidget {
-        public ListBody(
-            Key key = null,
-            Axis mainAxis = Axis.vertical,
-            bool reverse = false,
-            List<Widget> children = null
-        ) : base(key: key, children: children ?? new List<Widget>()) {
-            this.mainAxis = mainAxis;
-            this.reverse = reverse;
-        }
-
-        public readonly Axis mainAxis;
-
-        public readonly bool reverse;
-
-
-        AxisDirection _getDirection(BuildContext context) {
-            return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, mainAxis,
-                       reverse) ?? AxisDirection.right;
-        }
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderListBody(
-                axisDirection: _getDirection(context));
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            RenderListBody _renderObject = (RenderListBody) renderObject;
-            _renderObject.axisDirection = _getDirection(context);
-        }
-    }
-
-    public class Stack : MultiChildRenderObjectWidget {
-        public Stack(
-            Key key = null,
-            Alignment alignment = null,
-            StackFit fit = StackFit.loose,
-            Overflow overflow = Overflow.clip,
-            TextDirection textDirection = default,
-            List<Widget> children = null
-        ) : base(key: key, children: children) {
-            this.alignment = alignment ?? Alignment.bottomLeft;
-            this.fit = fit;
-            this.overflow = overflow;
-            this.textDirection = textDirection;
-        }
-
-        public readonly Alignment alignment;
-        public readonly StackFit fit;
-        public readonly Overflow overflow;
-        public readonly TextDirection textDirection;
-
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderStack(
-                alignment: alignment,
-                textDirection: Directionality.of(context),
-                fit: fit,
-                overflow: overflow
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
-            var renderObject = (RenderStack) renderObjectRaw;
-            renderObject.alignment = alignment;
-            renderObject.textDirection = Directionality.of(context);
-            renderObject.fit = fit;
-            renderObject.overflow = overflow;
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
-            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection, defaultValue: null));
-            properties.add(new EnumProperty<StackFit>("fit", fit));
-            properties.add(new EnumProperty<Overflow>("overflow", overflow));
-        }
-    }
-
-    public class IndexedStack : Stack {
-        public IndexedStack(
-            Key key = null,
-            Alignment alignment = null,
-            StackFit sizing = StackFit.loose,
-            int index = 0,
-            List<Widget> children = null
-        ) : base(key: key, alignment: alignment ?? Alignment.topLeft, fit: sizing, children: children) {
-            this.index = index;
-        }
-
-        public readonly int index;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderIndexedStack(
-                index: index,
-                alignment: alignment
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            RenderIndexedStack renderIndexedStack = renderObject as RenderIndexedStack;
-            renderIndexedStack.index = index;
-            renderIndexedStack.alignment = alignment;
-        }
-    }
-
-    public class Positioned : ParentDataWidget<StackParentData> {
-        public Positioned(Widget child, Key key = null, float? left = null, float? top = null,
-            float? right = null, float? bottom = null, float? width = null, float? height = null) :
-            base(key, child) {
-            D.assert(left == null || right == null || width == null);
-            D.assert(top == null || bottom == null || height == null);
-            this.left = left;
-            this.top = top;
-            this.right = right;
-            this.bottom = bottom;
-            this.width = width;
-            this.height = height;
-        }
-
-        public static Positioned fromRect(Rect rect, Widget child, Key key = null) {
-            return new Positioned(child, key: key, left: rect.left,
-                top: rect.top, width: rect.width, height: rect.height);
-        }
-
-        public static Positioned fromRelativeRect(RelativeRect rect, Widget child, Key key = null) {
-            return new Positioned(child, key: key, left: rect.left,
-                top: rect.top, right: rect.right, bottom: rect.bottom);
-        }
-
-        public static Positioned fill(Widget child, Key key = null) {
-            return new Positioned(child, key: key, left: 0.0f,
-                top: 0.0f, right: 0.0f, bottom: 0.0f);
-        }
-
-        public static Positioned directional(Widget child, TextDirection textDirection, Key key = null,
-            float? start = null, float? top = null,
-            float? end = null, float? bottom = null, float? width = null, float? height = null) {
-            float? left = null;
-            float? right = null;
-            switch (textDirection) {
-                case TextDirection.rtl:
-                    left = end;
-                    right = start;
-                    break;
-                case TextDirection.ltr:
-                    left = start;
-                    right = end;
-                    break;
-            }
-
-            return new Positioned(child, key: key, left: left, top: top, right: right, bottom: bottom, width: width,
-                height: height);
-        }
-
-        public readonly float? left;
-
-        public readonly float? top;
-
-        public readonly float? right;
-
-        public readonly float? bottom;
-
-        public readonly float? width;
-
-        public readonly float? height;
-
-        public override void applyParentData(RenderObject renderObject) {
-            D.assert(renderObject.parentData is StackParentData);
-            StackParentData parentData = (StackParentData) renderObject.parentData;
-            bool needsLayout = false;
-
-            if (parentData.left != left) {
-                parentData.left = left;
-                needsLayout = true;
-            }
-
-            if (parentData.top != top) {
-                parentData.top = top;
-                needsLayout = true;
-            }
-
-            if (parentData.right != right) {
-                parentData.right = right;
-                needsLayout = true;
-            }
-
-            if (parentData.bottom != bottom) {
-                parentData.bottom = bottom;
-                needsLayout = true;
-            }
-
-            if (parentData.width != width) {
-                parentData.width = width;
-                needsLayout = true;
-            }
-
-            if (parentData.height != height) {
-                parentData.height = height;
-                needsLayout = true;
-            }
-
-            if (needsLayout) {
-                var targetParent = renderObject.parent;
-                if (targetParent is RenderObject) {
-                    ((RenderObject) targetParent).markNeedsLayout();
-                }
-            }
-        }
-
-        public override Type debugTypicalAncestorWidgetClass {
-            get { return typeof(Stack); }
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new FloatProperty("left", left, defaultValue: null));
-            properties.add(new FloatProperty("top", top, defaultValue: null));
-            properties.add(new FloatProperty("right", right, defaultValue: null));
-            properties.add(new FloatProperty("bottom", bottom, defaultValue: null));
-            properties.add(new FloatProperty("width", width, defaultValue: null));
-            properties.add(new FloatProperty("height", height, defaultValue: null));
-        }
-    }
 
     public class Row : Flex {
         public Row(
-            TextDirection? textDirection = null,
-            TextBaseline? textBaseline = null,
             Key key = null,
             MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
             MainAxisSize mainAxisSize = MainAxisSize.max,
             CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+            TextDirection? textDirection = null,
             VerticalDirection verticalDirection = VerticalDirection.down,
+            TextBaseline? textBaseline = null,
             List<Widget> children = null
         ) : base(
-            children: children,
+            children: children ?? new List<Widget>(),
             key: key,
             direction: Axis.horizontal,
             textDirection: textDirection,
@@ -1145,16 +1873,16 @@ namespace Unity.UIWidgets.widgets {
 
     public class Column : Flex {
         public Column(
-            TextDirection? textDirection = null,
-            TextBaseline? textBaseline = null,
             Key key = null,
             MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
             MainAxisSize mainAxisSize = MainAxisSize.max,
             CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+            TextDirection? textDirection = null,
             VerticalDirection verticalDirection = VerticalDirection.down,
+            TextBaseline? textBaseline = null,
             List<Widget> children = null
         ) : base(
-            children: children,
+            children: children ?? new List<Widget>(),
             key: key,
             direction: Axis.vertical,
             textDirection: textDirection,
@@ -1304,564 +2032,8 @@ namespace Unity.UIWidgets.widgets {
                 defaultValue: VerticalDirection.down));
         }
     }
-    public class ShaderMask : SingleChildRenderObjectWidget { 
-        public ShaderMask(
-            Key key = null,
-            ShaderCallback shaderCallback = null,
-            BlendMode blendMode = BlendMode.modulate,
-            Widget child = null
-        ) : base(key: key, child: child){
-            D.assert(shaderCallback != null);
-            D.assert(blendMode != null);
-        }
 
-        public readonly ShaderCallback shaderCallback;
-        public readonly BlendMode blendMode;
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderShaderMask(
-                shaderCallback: shaderCallback,
-                blendMode: blendMode
-            );
-        }
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            renderObject = (RenderShaderMask)renderObject;
-            ((RenderShaderMask)renderObject).shaderCallback = shaderCallback;
-            ((RenderShaderMask)renderObject).blendMode = blendMode;
-        }
-    }
 
-
-    
-
-    public class PhysicalModel : SingleChildRenderObjectWidget {
-        public PhysicalModel(
-            Key key = null,
-            BoxShape shape = BoxShape.rectangle,
-            Clip clipBehavior = Clip.none,
-            BorderRadius borderRadius = null,
-            float elevation = 0.0f,
-            Color color = null,
-            Color shadowColor = null,
-            Widget child = null) : base(key: key, child: child) {
-            D.assert(color != null);
-            D.assert(elevation >= 0.0f);
-            D.assert(clipBehavior != null);
-            this.shape = shape;
-            this.clipBehavior = clipBehavior;
-            this.borderRadius = borderRadius;
-            this.elevation = elevation;
-            this.color = color;
-            this.shadowColor = shadowColor ?? new Color(0xFF000000);
-        }
-
-        public readonly BoxShape shape;
-
-        public readonly Clip clipBehavior;
-
-        public readonly BorderRadius borderRadius;
-
-        public readonly float elevation;
-
-        public readonly Color color;
-
-        public readonly Color shadowColor;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderPhysicalModel(
-                shape: shape,
-                clipBehavior: clipBehavior,
-                borderRadius: borderRadius,
-                elevation: elevation,
-                color: color,
-                shadowColor: shadowColor);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            RenderPhysicalModel _renderObject = (RenderPhysicalModel) renderObject;
-            _renderObject.shape = shape;
-            _renderObject.clipBehavior = clipBehavior;
-            _renderObject.borderRadius = borderRadius;
-            _renderObject.elevation = elevation;
-            _renderObject.color = color;
-            _renderObject.shadowColor = shadowColor;
-        }
-
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new EnumProperty<BoxShape>("shape", shape));
-            properties.add(new DiagnosticsProperty<BorderRadius>("borderRadius", borderRadius));
-            properties.add(new FloatProperty("elevation", elevation));
-            properties.add(new ColorProperty("color", color));
-            properties.add(new ColorProperty("shadowColor", shadowColor));
-        }
-    }
-
-
-    public class PhysicalShape : SingleChildRenderObjectWidget {
-        public PhysicalShape(
-            Key key = null,
-            CustomClipper<Path> clipper = null,
-            Clip clipBehavior = Clip.none,
-            float elevation = 0.0f,
-            Color color = null,
-            Color shadowColor = null,
-            Widget child = null) : base(key: key, child: child) {
-            D.assert(clipper != null);
-            D.assert(color != null);
-            D.assert(elevation >= 0.0f);
-            this.clipper = clipper;
-            this.clipBehavior = clipBehavior;
-            this.elevation = elevation;
-            this.color = color;
-            this.shadowColor = shadowColor ?? new Color(0xFF000000);
-        }
-
-        public readonly CustomClipper<Path> clipper;
-
-        public readonly Clip clipBehavior;
-
-        public readonly float elevation;
-
-        public readonly Color color;
-
-        public readonly Color shadowColor;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderPhysicalShape(
-                clipper: clipper,
-                clipBehavior: clipBehavior,
-                elevation: elevation,
-                color: color,
-                shadowColor: shadowColor);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            RenderPhysicalShape _renderObject = (RenderPhysicalShape) renderObject;
-            _renderObject.clipper = clipper;
-            _renderObject.elevation = elevation;
-            _renderObject.color = color;
-            _renderObject.shadowColor = shadowColor;
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<CustomClipper<Path>>("clipper", clipper));
-            properties.add(new FloatProperty("elevation", elevation));
-            properties.add(new ColorProperty("color", color));
-            properties.add(new ColorProperty("shadowColor", shadowColor));
-        }
-    }
-
-    public class RotatedBox : SingleChildRenderObjectWidget {
-        public RotatedBox(
-            Key key = null,
-            int? quarterTurns = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
-            D.assert(quarterTurns != null);
-            this.quarterTurns = quarterTurns;
-        }
-
-
-        public readonly int? quarterTurns;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderRotatedBox(quarterTurns ?? 0);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            (renderObject as RenderRotatedBox).quarterTurns = quarterTurns ?? 0;
-        }
-    }
-
-
-    public class Padding : SingleChildRenderObjectWidget {
-        public Padding(
-            Key key = null,
-            EdgeInsets padding = null,
-            Widget child = null
-        ) : base(key, child) {
-            D.assert(padding != null);
-            this.padding = padding;
-        }
-
-        public readonly EdgeInsets padding;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderPadding(
-                padding: padding
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
-            var renderObject = (RenderPadding) renderObjectRaw;
-            renderObject.padding = padding;
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
-        }
-    }
-
-    public class Transform : SingleChildRenderObjectWidget {
-        public Transform(
-            Key key = null,
-            Matrix4 transform = null,
-            Offset origin = null,
-            Alignment alignment = null,
-            bool transformHitTests = true,
-            Widget child = null
-        ) : base(key, child) {
-            D.assert(transform != null);
-            this.transform = new Matrix4(transform);
-            this.origin = origin;
-            this.alignment = alignment;
-            this.transformHitTests = transformHitTests;
-        }
-
-        Transform(
-            Key key = null,
-            Offset origin = null,
-            Alignment alignment = null,
-            bool transformHitTests = true,
-            Widget child = null,
-            float degree = 0.0f
-        ) : base(key: key, child: child) {
-            transform = Matrix4.rotationZ(degree);
-            this.origin = origin;
-            this.alignment = alignment;
-            this.transformHitTests = transformHitTests;
-        }
-
-        public static Transform rotate(
-            Key key = null,
-            float degree = 0.0f,
-            Offset origin = null,
-            Alignment alignment = null,
-            bool transformHitTests = true,
-            Widget child = null
-        ) {
-            return new Transform(key, origin, alignment, transformHitTests, child, degree);
-        }
-
-        Transform(
-            Key key = null,
-            Offset offset = null,
-            bool transformHitTests = true,
-            Widget child = null
-        ) : base(key: key, child: child) {
-            D.assert(offset != null);
-            transform = Matrix4.translationValues(offset.dx, offset.dy, 0);
-            origin = null;
-            alignment = null;
-            this.transformHitTests = transformHitTests;
-        }
-
-        public static Transform translate(
-            Key key = null,
-            Offset offset = null,
-            bool transformHitTests = true,
-            Widget child = null
-        ) {
-            return new Transform(key, offset, transformHitTests, child);
-        }
-
-        Transform(
-            Key key = null,
-            float scale = 1.0f,
-            Offset origin = null,
-            Alignment alignment = null,
-            bool transformHitTests = true,
-            Widget child = null
-        ) : base(key: key, child: child) {
-            transform = Matrix4.translationValues(scale, scale, scale);
-            this.origin = origin;
-            this.alignment = alignment;
-            this.transformHitTests = transformHitTests;
-        }
-
-        public static Transform scale(
-            Key key = null,
-            float scale = 1.0f,
-            Offset origin = null,
-            Alignment alignment = null,
-            bool transformHitTests = true,
-            Widget child = null
-        ) {
-            return new Transform(key, scale, origin, alignment, transformHitTests, child);
-        }
-
-        public readonly Matrix4 transform;
-        public readonly Offset origin;
-        public readonly Alignment alignment;
-        public readonly bool transformHitTests;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderTransform(
-                transform: transform,
-                origin: origin,
-                alignment: alignment,
-                transformHitTests: transformHitTests
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
-            var renderObject = (RenderTransform) renderObjectRaw;
-            renderObject.transform = transform;
-            renderObject.origin = origin;
-            renderObject.alignment = alignment;
-            renderObject.transformHitTests = transformHitTests;
-        }
-    }
-
-    public class CompositedTransformTarget : SingleChildRenderObjectWidget {
-        public CompositedTransformTarget(
-            Key key = null,
-            LayerLink link = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
-            D.assert(link != null);
-            this.link = link;
-        }
-
-        public readonly LayerLink link;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderLeaderLayer(
-                link: link
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderLeaderLayer) renderObject).link = link;
-        }
-    }
-
-    public class CompositedTransformFollower : SingleChildRenderObjectWidget {
-        public CompositedTransformFollower(
-            Key key = null,
-            LayerLink link = null,
-            bool showWhenUnlinked = true,
-            Offset offset = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
-            D.assert(link != null);
-            this.showWhenUnlinked = showWhenUnlinked;
-            this.offset = offset ?? Offset.zero;
-            this.link = link;
-        }
-
-        public readonly LayerLink link;
-        public readonly bool showWhenUnlinked;
-        public readonly Offset offset;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderFollowerLayer(
-                link: link,
-                showWhenUnlinked: showWhenUnlinked,
-                offset: offset
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderFollowerLayer) renderObject).link = link;
-            ((RenderFollowerLayer) renderObject).showWhenUnlinked = showWhenUnlinked;
-            ((RenderFollowerLayer) renderObject).offset = offset;
-        }
-    }
-
-    public class FittedBox : SingleChildRenderObjectWidget {
-        public FittedBox(
-            Key key = null,
-            BoxFit fit = BoxFit.contain,
-            Alignment alignment = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
-            this.fit = fit;
-            this.alignment = alignment ?? Alignment.center;
-        }
-
-        public readonly BoxFit fit;
-
-        public readonly Alignment alignment;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderFittedBox(
-                fit: fit,
-                alignment: alignment
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
-            RenderFittedBox renderObject = _renderObject as RenderFittedBox;
-            renderObject.fit = fit;
-            renderObject.alignment = alignment;
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new EnumProperty<BoxFit>("fit", fit));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
-        }
-    }
-
-    public class FractionalTranslation : SingleChildRenderObjectWidget {
-        public FractionalTranslation(Key key = null, Offset translation = null,
-            bool transformHitTests = true, Widget child = null) : base(key: key, child: child) {
-            this.translation = translation;
-            this.transformHitTests = transformHitTests;
-        }
-
-        public readonly Offset translation;
-        public readonly bool transformHitTests;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderFractionalTranslation(
-                translation: translation,
-                transformHitTests: transformHitTests
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderFractionalTranslation) renderObject).translation = translation;
-            ((RenderFractionalTranslation) renderObject).transformHitTests = transformHitTests;
-        }
-    }
-
-    public class Align : SingleChildRenderObjectWidget {
-        public Align(
-            Key key = null,
-            AlignmentGeometry alignment = null,
-            float? widthFactor = null,
-            float? heightFactor = null,
-            Widget child = null
-        ) : base(key, child) {
-            D.assert(widthFactor == null || widthFactor >= 0.0);
-            D.assert(heightFactor == null || heightFactor >= 0.0);
-            //TODO: update to AlignmentGeometry
-            this.alignment = (Alignment) alignment ?? Alignment.center;
-            this.widthFactor = widthFactor;
-            this.heightFactor = heightFactor;
-        }
-
-        public readonly Alignment alignment;
-
-        public readonly float? widthFactor;
-
-        public readonly float? heightFactor;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderPositionedBox(
-                alignment: alignment,
-                widthFactor: widthFactor,
-                heightFactor: heightFactor
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
-            var renderObject = (RenderPositionedBox) renderObjectRaw;
-            renderObject.alignment = alignment;
-            renderObject.widthFactor = widthFactor;
-            renderObject.heightFactor = heightFactor;
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
-            properties.add(new FloatProperty("widthFactor",
-                widthFactor, defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new FloatProperty("heightFactor",
-                heightFactor, defaultValue: foundation_.kNullDefaultValue));
-        }
-    }
-
-    public class Center : Align {
-        public Center(
-            Key key = null,
-            float? widthFactor = null,
-            float? heightFactor = null,
-            Widget child = null)
-            : base(
-                key: key,
-                widthFactor: widthFactor,
-                heightFactor: heightFactor,
-                child: child) {
-        }
-    }
-
-    public class CustomSingleChildLayout : SingleChildRenderObjectWidget {
-        public CustomSingleChildLayout(Key key = null,
-            SingleChildLayoutDelegate layoutDelegate = null, Widget child = null) : base(key: key, child: child) {
-            D.assert(layoutDelegate != null);
-            this.layoutDelegate = layoutDelegate;
-        }
-
-        public readonly SingleChildLayoutDelegate layoutDelegate;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderCustomSingleChildLayoutBox(layoutDelegate: layoutDelegate);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderCustomSingleChildLayoutBox) renderObject).layoutDelegate = layoutDelegate;
-        }
-    }
-
-    public class LayoutId : ParentDataWidget<MultiChildLayoutParentData> {
-        public LayoutId(
-            Key key = null,
-            object id = null,
-            Widget child = null
-        ) : base(key: key ?? new ValueKey<object>(id), child: child) {
-            D.assert(child != null);
-            D.assert(id != null);
-            this.id = id;
-        }
-
-        public readonly object id;
-
-        public override void applyParentData(RenderObject renderObject) {
-            D.assert(renderObject.parentData is MultiChildLayoutParentData);
-            MultiChildLayoutParentData parentData = (MultiChildLayoutParentData) renderObject.parentData;
-            if (parentData.id != id) {
-                parentData.id = id;
-                var targetParent = renderObject.parent;
-                if (targetParent is RenderObject) {
-                    ((RenderObject) targetParent).markNeedsLayout();
-                }
-            }
-        }
-
-        public override Type debugTypicalAncestorWidgetClass { get => typeof(CustomMultiChildLayout); }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<object>("id", id));
-        }
-    }
-
-    public class CustomMultiChildLayout : MultiChildRenderObjectWidget {
-        public CustomMultiChildLayout(
-            Key key = null,
-            MultiChildLayoutDelegate layoutDelegate = null,
-            List<Widget> children = null
-        ) : base(key: key, children: children ?? new List<Widget>()) {
-            D.assert(layoutDelegate != null);
-            this.layoutDelegate = layoutDelegate;
-        }
-
-        public readonly MultiChildLayoutDelegate layoutDelegate;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderCustomMultiChildLayoutBox(layoutDelegate: layoutDelegate);
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderCustomMultiChildLayoutBox) renderObject).layoutDelegate = layoutDelegate;
-        }
-    }
 
     public static class LayoutUtils {
         public static AxisDirection getAxisDirectionFromAxisReverseAndDirectionality(
@@ -1883,66 +2055,25 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class SliverPadding : SingleChildRenderObjectWidget {
-        public SliverPadding(
-            Key key = null,
-            EdgeInsets padding = null,
-            Widget sliver = null
-        ) : base(key: key, child: sliver) {
-            D.assert(padding != null);
-            this.padding = padding;
-        }
 
-        public readonly EdgeInsets padding;
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderSliverPadding(
-                padding: padding
-            );
-        }
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
-            var renderObject = (RenderSliverPadding) renderObjectRaw;
-            renderObject.padding = padding;
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
-        }
-    }
     
-    //[!!!] class Flow?
+   
     /*public class Flow : MultiChildRenderObjectWidget {
-        /// Creates a flow layout.
-        ///
-        /// Wraps each of the given children in a [RepaintBoundary] to avoid
-        /// repainting the children when the flow repaints.
-        ///
-        /// The [delegate] argument must not be null.
+      
         public Flow(
-            Key key,
-            FlowDelegate _delegate,
+            Key key = null,
+            FlowDelegate _delegate = null,
             List<Widget> children = null
             ) 
-            : base(key: key, children: RepaintBoundary.wrapAll(children)) {
+            : base(key: key, children: RepaintBoundary.wrapAll(children ?? new List<Widget>())) {
                 D.assert(_delegate != null);
             }
-            // https://github.com/dart-lang/sdk/issues/29277
-
-            /// Creates a flow layout.
-            ///
-            /// Does not wrap the given children in repaint boundaries, unlike the default
-            /// constructor. Useful when the child is trivial to paint or already contains
-            /// a repaint boundary.
-            ///
-            /// The [delegate] argument must not be null.
-            Flow.unwrapped(
-                Key key,
-                FlowDelegate _delegate,
+           
+        public static Flow unwrapped(
+                Key key = null,
+                FlowDelegate _delegate = null,
                 List<Widget> children = null
-            ) : 
-            base(key: key, children: children) {
+            ) : base(key: key, children: children) {
                     D.assert(_delegate != null);
                 }
 
@@ -1974,12 +2105,8 @@ namespace Unity.UIWidgets.widgets {
             TextHeightBehavior textHeightBehavior = null
         ) : base(key: key, children: _extractChildren(text)) {
             D.assert(text != null);
-            D.assert(textAlign != null);
-            D.assert(softWrap != null);
-            D.assert(overflow != null);
-            D.assert(textScaleFactor != null);
             D.assert(maxLines == null || maxLines > 0);
-            D.assert(textWidthBasis != null);
+            
             this.text = text;
             this.textAlign = textAlign;
             this.textDirection = textDirection;
@@ -2056,7 +2183,7 @@ namespace Unity.UIWidgets.widgets {
             properties.add( new EnumProperty<TextDirection>("textDirection", textDirection.Value, defaultValue: null));
             properties.add( new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width", ifFalse: "no wrapping except at line break characters", showName: true));
             properties.add( new EnumProperty<TextOverflow>("overflow", overflow, defaultValue: TextOverflow.clip));
-            //properties.add( new DoubleProperty("textScaleFactor", textScaleFactor, defaultValue: 1.0));
+            properties.add( new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: 1.0));
             properties.add( new IntProperty("maxLines", maxLines, ifNull: "unlimited"));
             properties.add( new EnumProperty<TextWidthBasis>("textWidthBasis", textWidthBasis, defaultValue: TextWidthBasis.parent));
             properties.add( new StringProperty("text", text.toPlainText()));
@@ -2072,9 +2199,10 @@ namespace Unity.UIWidgets.widgets {
             Color color = null,
             BlendMode colorBlendMode = BlendMode.srcIn,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
+            bool matchTextDirection = false,
             bool invertColors = false,
             FilterQuality filterQuality = FilterQuality.low
         ) : base(key) {
@@ -2089,6 +2217,7 @@ namespace Unity.UIWidgets.widgets {
             this.repeat = repeat;
             this.centerSlice = centerSlice;
             this.invertColors = invertColors;
+            this.matchTextDirection = matchTextDirection;
             this.filterQuality = filterQuality;
         }
 
@@ -2099,13 +2228,17 @@ namespace Unity.UIWidgets.widgets {
         public readonly Color color;
         public readonly BlendMode colorBlendMode;
         public readonly BoxFit? fit;
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
         public readonly ImageRepeat repeat;
         public readonly Rect centerSlice;
         public readonly bool invertColors;
+        public readonly bool matchTextDirection;
         public readonly FilterQuality filterQuality;
 
         public override RenderObject createRenderObject(BuildContext context) {
+            TextDirection? textDirection = null;
+            if ((matchTextDirection || !(alignment is Alignment)))
+                textDirection = Directionality.of(context);
             return new RenderImage(
                 image: image,
                 width: width,
@@ -2117,14 +2250,18 @@ namespace Unity.UIWidgets.widgets {
                 alignment: alignment,
                 repeat: repeat,
                 centerSlice: centerSlice,
+                matchTextDirection: matchTextDirection,
+                textDirection:  textDirection,
                 invertColors: invertColors,
-                filterQuality:  filterQuality
+                filterQuality: filterQuality
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            TextDirection? textDirection = null;
+            if ((matchTextDirection || !(alignment is Alignment)))
+                textDirection = Directionality.of(context);
             var renderImage = (RenderImage) renderObject;
-
             renderImage.image = image;
             renderImage.width = width;
             renderImage.height = height;
@@ -2135,6 +2272,8 @@ namespace Unity.UIWidgets.widgets {
             renderImage.fit = fit;
             renderImage.repeat = repeat;
             renderImage.centerSlice = centerSlice;
+            renderImage.matchTextDirection = matchTextDirection;
+            renderImage.textDirection = textDirection;
             renderImage.invertColors = invertColors;
             renderImage.filterQuality = filterQuality;
         }
@@ -2150,11 +2289,12 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<BoxFit?>("fit", fit, defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment,
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new EnumProperty<ImageRepeat>("repeat", repeat, defaultValue: ImageRepeat.noRepeat));
             properties.add(new DiagnosticsProperty<Rect>("centerSlice", centerSlice,
                 defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FlagProperty("matchTextDirection", value: matchTextDirection, ifTrue: "match text direction"));
             properties.add(new DiagnosticsProperty<bool>("invertColors", invertColors));
             properties.add(new EnumProperty<FilterQuality>("filterMode", filterQuality));
         }
@@ -2177,10 +2317,33 @@ namespace Unity.UIWidgets.widgets {
             DefaultAssetBundle result =
                 (DefaultAssetBundle) context.dependOnInheritedWidgetOfExactType<DefaultAssetBundle>();
             return result?.bundle;
+
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
             return bundle != ((DefaultAssetBundle) oldWidget).bundle;
+        }
+    }
+    public class WidgetToRenderBoxAdapter : LeafRenderObjectWidget {
+        public WidgetToRenderBoxAdapter(
+            RenderBox renderBox = null,
+            VoidCallback onBuild = null
+            ) :base(key: new GlobalObjectKey<State>(renderBox)) {
+            D.assert(renderBox != null);
+            this.onBuild = onBuild;
+        }
+
+      
+        public readonly RenderBox renderBox;
+        public readonly VoidCallback onBuild;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return renderBox;
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            if (onBuild != null)
+                onBuild();
         }
     }
 
@@ -2189,17 +2352,12 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             PointerDownEventListener onPointerDown = null,
             PointerMoveEventListener onPointerMove = null,
-            PointerEnterEventListener onPointerEnter = null,
-            PointerExitEventListener onPointerExit = null,
+            PointerEnterEventListener onPointerEnter = null,//
+            PointerExitEventListener onPointerExit = null,//
             PointerHoverEventListener onPointerHover = null,
             PointerUpEventListener onPointerUp = null,
             PointerCancelEventListener onPointerCancel = null,
             PointerSignalEventListener onPointerSignal = null,
-            PointerScrollEventListener onPointerScroll = null,
-            PointerDragFromEditorEnterEventListener onPointerDragFromEditorEnter = null,
-            PointerDragFromEditorHoverEventListener onPointerDragFromEditorHover = null,
-            PointerDragFromEditorExitEventListener onPointerDragFromEditorExit = null,
-            PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease = null,
             HitTestBehavior behavior = HitTestBehavior.deferToChild,
             Widget child = null
         ) : base(key: key) {
@@ -2210,15 +2368,9 @@ namespace Unity.UIWidgets.widgets {
             this.onPointerCancel = onPointerCancel;
             this.onPointerSignal = onPointerSignal;
             this.onPointerHover = onPointerHover;
-            this.onPointerExit = onPointerExit;
-            this.onPointerEnter = onPointerEnter;
-            this.onPointerScroll = onPointerScroll;
+            //this.onPointerExit = onPointerExit;
+            //this.onPointerEnter = onPointerEnter;
             this.behavior = behavior;
-
-            this.onPointerDragFromEditorEnter = onPointerDragFromEditorEnter;
-            this.onPointerDragFromEditorHover = onPointerDragFromEditorHover;
-            this.onPointerDragFromEditorExit = onPointerDragFromEditorExit;
-            this.onPointerDragFromEditorRelease = onPointerDragFromEditorRelease;
         }
 
 
@@ -2240,17 +2392,17 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly PointerExitEventListener onPointerExit;
 
-        public readonly PointerScrollEventListener onPointerScroll;
+        //public readonly PointerScrollEventListener onPointerScroll;
 
         public readonly HitTestBehavior behavior;
 
-        public readonly PointerDragFromEditorEnterEventListener onPointerDragFromEditorEnter;
+        //public readonly PointerDragFromEditorEnterEventListener onPointerDragFromEditorEnter;
 
-        public readonly PointerDragFromEditorHoverEventListener onPointerDragFromEditorHover;
+        //public readonly PointerDragFromEditorHoverEventListener onPointerDragFromEditorHover;
 
-        public readonly PointerDragFromEditorExitEventListener onPointerDragFromEditorExit;
+        //public readonly PointerDragFromEditorExitEventListener onPointerDragFromEditorExit;
 
-        public readonly PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease;
+        //public readonly PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease;
 
         public readonly Widget _child;
 
@@ -2267,7 +2419,6 @@ namespace Unity.UIWidgets.widgets {
                     child: result
                 );
             }
-
             result = new _PointerListener(
                 onPointerDown: onPointerDown,
                 onPointerUp: onPointerUp,
@@ -2360,7 +2511,10 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class RepaintBoundary : SingleChildRenderObjectWidget {
-        public RepaintBoundary(Key key = null, Widget child = null) : base(key: key, child: child) {
+        public RepaintBoundary(
+            Key key = null,
+            Widget child = null) : 
+            base(key: key, child: child) {
         }
 
         public static RepaintBoundary wrap(Widget child, int childIndex) {
@@ -2442,8 +2596,8 @@ namespace Unity.UIWidgets.widgets {
 
     public class MetaData : SingleChildRenderObjectWidget {
         public MetaData(
-            object metaData,
             Key key = null,
+            object metaData = null,
             HitTestBehavior behavior = HitTestBehavior.deferToChild,
             Widget child = null) : base(key: key, child: child) {
             this.metaData = metaData;
@@ -2475,7 +2629,7 @@ namespace Unity.UIWidgets.widgets {
 
     public class KeyedSubtree : StatelessWidget {
         public KeyedSubtree(
-            Key key,
+            Key key = null,
             Widget child = null
         ) : base(key: key) {
             D.assert(child != null);
@@ -2528,23 +2682,49 @@ namespace Unity.UIWidgets.widgets {
         }
     }
     
+    public delegate Widget StatefulWidgetBuilder(BuildContext context, StateSetter setState);
+    public class StatefulBuilder : StatefulWidget {
+        public StatefulBuilder(
+            Key key = null,
+            StatefulWidgetBuilder builder = null
+        ) : base(key: key) {
+            D.assert(builder != null);
+            this.builder = builder;
+        }
+
+
+        public readonly StatefulWidgetBuilder builder;
+
+        public override State createState() {
+            return new _StatefulBuilderState();
+        }
+    }
+    public class _StatefulBuilderState : State<StatefulBuilder> {
+        public override Widget build(BuildContext context) {
+            return widget.builder(context, setState);
+        }
+    }
+
+    
     public class ColoredBox : SingleChildRenderObjectWidget {
-        /// Creates a widget that paints its area with the specified [Color].
-        ///
-        /// The [color] parameter must not be null.
-        public ColoredBox(Color color = null, Widget child = null, Key key = null) : base(key: key, child: child) {
+       
+        public ColoredBox(
+            Color color = null, 
+            Widget child = null,
+            Key key = null) : base(key: key, child: child) {
             D.assert(color != null);
             this.color = color;
         }
-        /// The color to paint the background area with.
+       
         public readonly Color color;
         
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderColoredBox(color: color);
         }
         
-        public  void updateRenderObject(BuildContext context, _RenderColoredBox renderObject) {
-            renderObject.color = color; 
+        public override void updateRenderObject(BuildContext context,RenderObject renderObject) {
+            renderObject = (_RenderColoredBox) renderObject;
+            ((_RenderColoredBox) renderObject).color = color; 
         }
 
 

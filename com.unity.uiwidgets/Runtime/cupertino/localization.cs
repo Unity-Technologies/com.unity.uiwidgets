@@ -45,6 +45,8 @@ namespace Unity.UIWidgets.cupertino {
 
         public abstract string postMeridiemAbbreviation { get; }
 
+        public abstract string todayLabel { get; }
+
         public abstract string alertDialogLabel { get; }
 
         public abstract string timerPickerHour(int hour);
@@ -188,6 +190,10 @@ namespace Unity.UIWidgets.cupertino {
 
         public override string postMeridiemAbbreviation {
             get { return "PM"; }
+        }
+
+        public override string todayLabel {
+            get { return "Today"; }
         }
 
         public override string alertDialogLabel {
