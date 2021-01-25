@@ -533,8 +533,8 @@ namespace Unity.UIWidgets.material {
 
             TextStyle currentTextStyle = textStyle ?? toggleButtonsTheme.textStyle ?? theme.textTheme.bodyText2;
             BoxConstraints currentConstraints = constraints ?? toggleButtonsTheme.constraints ??
-                                                new BoxConstraints(minWidth: Constants.kMinInteractiveDimension,
-                                                    minHeight: Constants.kMinInteractiveDimension);
+                                                new BoxConstraints(minWidth: material_.kMinInteractiveDimension,
+                                                    minHeight: material_.kMinInteractiveDimension);
 
             Widget result = new ClipRRect(
                 borderRadius: clipRadius,

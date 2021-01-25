@@ -139,11 +139,11 @@ namespace Unity.UIWidgets.material {
             Size size;
             switch (widget.materialTapTargetSize ?? themeData.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
-                    size = new Size(2 * Constants.kRadialReactionRadius + 8.0f,
-                        2 * Constants.kRadialReactionRadius + 8.0f);
+                    size = new Size(2 * material_.kRadialReactionRadius + 8.0f,
+                        2 * material_.kRadialReactionRadius + 8.0f);
                     break;
                 case MaterialTapTargetSize.shrinkWrap:
-                    size = new Size(2 * Constants.kRadialReactionRadius, 2 * Constants.kRadialReactionRadius);
+                    size = new Size(2 * material_.kRadialReactionRadius, 2 * material_.kRadialReactionRadius);
                     break;
                 default:
                     throw new Exception("Unknown target size: " + widget.materialTapTargetSize);

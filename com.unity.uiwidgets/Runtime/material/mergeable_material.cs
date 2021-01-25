@@ -584,7 +584,7 @@ namespace Unity.UIWidgets.material {
 
             return new _MergeableMaterialListBody(
                 mainAxis: widget.mainAxis,
-                boxShadows: ShadowConstants.kElevationToShadow[widget.elevation],
+                boxShadows: material_.kElevationToShadow[widget.elevation],
                 items: _children,
                 children: widgets
             );

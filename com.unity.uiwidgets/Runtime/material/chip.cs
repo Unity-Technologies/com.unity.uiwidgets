@@ -1774,7 +1774,7 @@ namespace Unity.UIWidgets.material {
             switch (widget.materialTapTargetSize ?? theme.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
                     constraints =
-                        new BoxConstraints(minHeight: Constants.kMinInteractiveDimension + densityAdjustment.dy);
+                        new BoxConstraints(minHeight: material_.kMinInteractiveDimension + densityAdjustment.dy);
                     break;
                 case MaterialTapTargetSize.shrinkWrap:
                     constraints = new BoxConstraints();

@@ -103,7 +103,7 @@ namespace Unity.UIWidgets.material {
         int _indexIsChangingCount = 0;
 
         public void animateTo(int value, TimeSpan? duration = null, Curve curve = null) {
-            duration = duration ?? Constants.kTabScrollDuration;
+            duration = duration ?? material_.kTabScrollDuration;
             curve = curve ?? Curves.ease;
             _changeIndex(value, duration: duration, curve: curve);
         }

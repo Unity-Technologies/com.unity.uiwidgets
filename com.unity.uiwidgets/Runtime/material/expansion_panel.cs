@@ -131,7 +131,7 @@ namespace Unity.UIWidgets.material {
             TimeSpan? animationDuration = null) : base(key: key) {
             this.children = children ?? new List<ExpansionPanel>();
             this.expansionCallback = expansionCallback;
-            this.animationDuration = animationDuration ?? Constants.kThemeChangeDuration;
+            this.animationDuration = animationDuration ?? material_.kThemeChangeDuration;
             _allowOnlyOnePanelOpen = false;
             initialOpenPanelValue = null;
         }
@@ -144,7 +144,7 @@ namespace Unity.UIWidgets.material {
             object initialOpenPanelValue = null) : base(key: key) {
             this.children = children ?? new List<ExpansionPanel>();
             this.expansionCallback = expansionCallback;
-            this.animationDuration = animationDuration ?? Constants.kThemeChangeDuration;
+            this.animationDuration = animationDuration ?? material_.kThemeChangeDuration;
             _allowOnlyOnePanelOpen = true;
             this.initialOpenPanelValue = initialOpenPanelValue;
         }

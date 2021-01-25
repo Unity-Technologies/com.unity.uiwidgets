@@ -670,7 +670,7 @@ namespace Unity.UIWidgets.material {
                 color: backgroundColor,
                 child: new ConstrainedBox(
                     constraints: new BoxConstraints(
-                        minHeight: Constants.kBottomNavigationBarHeight + additionalBottomPadding),
+                        minHeight: material_.kBottomNavigationBarHeight + additionalBottomPadding),
                     child: new CustomPaint(
                         painter: new _RadialPainter(
                             circles: _circles.ToList()

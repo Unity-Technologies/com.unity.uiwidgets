@@ -493,7 +493,7 @@ namespace Unity.UIWidgets.material {
 
 
         public TimeSpan getAnimationDuration(MaterialButton button) {
-            return button.animationDuration ?? Constants.kThemeChangeDuration;
+            return button.animationDuration ?? material_.kThemeChangeDuration;
         }
 
         public BoxConstraints getConstraints(MaterialButton button) {

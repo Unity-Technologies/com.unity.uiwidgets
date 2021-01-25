@@ -93,7 +93,7 @@ namespace Unity.UIWidgets.material {
         public override void initState() {
             base.initState();
             overlayController = new AnimationController(
-                duration: Constants.kRadialReactionDuration,
+                duration: material_.kRadialReactionDuration,
                 vsync: this
             );
             valueIndicatorController = new AnimationController(

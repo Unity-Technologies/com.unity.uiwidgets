@@ -20,9 +20,9 @@ namespace Unity.UIWidgets.material {
         internal const float _kTrackWidth = 33.0f;
         internal const float _kTrackRadius = _kTrackHeight / 2.0f;
         internal const float _kThumbRadius = 10.0f;
-        internal const float _kSwitchWidth = _kTrackWidth - 2 * _kTrackRadius + 2 * Constants.kRadialReactionRadius;
-        internal const float _kSwitchHeight = 2 * Constants.kRadialReactionRadius + 8.0f;
-        internal const float _kSwitchHeightCollapsed = 2 * Constants.kRadialReactionRadius;
+        internal const float _kSwitchWidth = _kTrackWidth - 2 * _kTrackRadius + 2 * material_.kRadialReactionRadius;
+        internal const float _kSwitchHeight = 2 * material_.kRadialReactionRadius + 8.0f;
+        internal const float _kSwitchHeightCollapsed = 2 * material_.kRadialReactionRadius;
 
         public Switch(
             Key key = null,
@@ -432,7 +432,7 @@ namespace Unity.UIWidgets.material {
         }
 
         float _trackInnerLength {
-            get { return size.width - 2.0f * Constants.kRadialReactionRadius; }
+            get { return size.width - 2.0f * material_.kRadialReactionRadius; }
         }
 
         HorizontalDragGestureRecognizer _drag;
@@ -481,7 +481,7 @@ namespace Unity.UIWidgets.material {
                 color: color,
                 image: image == null ? null : new DecorationImage(image: image),
                 shape: BoxShape.circle,
-                boxShadow: ShadowConstants.kElevationToShadow[1]
+                boxShadow: material_.kElevationToShadow[1]
             );
         }
 
@@ -515,7 +515,7 @@ namespace Unity.UIWidgets.material {
 
             // Paint the track
             Paint paint = new Paint {color = trackColor};
-            float trackHorizontalPadding = Constants.kRadialReactionRadius - Switch._kTrackRadius;
+            float trackHorizontalPadding = material_.kRadialReactionRadius - Switch._kTrackRadius;
             Rect trackRect = Rect.fromLTWH(
                 offset.dx + trackHorizontalPadding,
                 offset.dy + (size.height - Switch._kTrackHeight) / 2.0f,
@@ -526,7 +526,7 @@ namespace Unity.UIWidgets.material {
             canvas.drawRRect(trackRRect, paint);
 
             Offset thumbPosition = new Offset(
-                Constants.kRadialReactionRadius + visualPosition * _trackInnerLength,
+                material_.kRadialReactionRadius + visualPosition * _trackInnerLength,
                 size.height / 2.0f
             );
 

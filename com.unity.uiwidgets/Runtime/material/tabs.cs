@@ -773,7 +773,7 @@ namespace Unity.UIWidgets.material {
 
         void _scrollToCurrentIndex() {
             float offset = _tabCenteredScrollOffset(_currentIndex);
-            _scrollController.animateTo(offset, duration: Constants.kTabScrollDuration, curve: Curves.ease);
+            _scrollController.animateTo(offset, duration: material_.kTabScrollDuration, curve: Curves.ease);
         }
 
         void _scrollToControllerValue() {
@@ -880,7 +880,7 @@ namespace Unity.UIWidgets.material {
                 wrappedTabs.Add(new Center(
                         heightFactor: 1.0f,
                         child: new Padding(
-                            padding: widget.labelPadding ?? tabBarTheme.labelPadding ?? Constants.kTabLabelPadding,
+                            padding: widget.labelPadding ?? tabBarTheme.labelPadding ?? material_.kTabLabelPadding,
                             child: new KeyedSubtree(
                                 key: _tabKeys[i],
                                 child: widget.tabs[i]
@@ -1099,7 +1099,7 @@ namespace Unity.UIWidgets.material {
 
             int previousIndex = _controller.previousIndex;
             if ((_currentIndex.Value - previousIndex).abs() == 1) {
-                _pageController.animateToPage(_currentIndex.Value, duration: Constants.kTabScrollDuration,
+                _pageController.animateToPage(_currentIndex.Value, duration: material_.kTabScrollDuration,
                     curve: Curves.ease);
                 return;
             }
@@ -1120,7 +1120,7 @@ namespace Unity.UIWidgets.material {
             });
 
             _pageController.jumpToPage(initialPage);
-            _pageController.animateToPage(_currentIndex.Value, duration: Constants.kTabScrollDuration,
+            _pageController.animateToPage(_currentIndex.Value, duration: material_.kTabScrollDuration,
                 curve: Curves.ease).then((value) => {
                 if (!mounted) {
                     return Future.value();

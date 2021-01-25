@@ -15,7 +15,7 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace Unity.UIWidgets.material {
-    class InputDecoratorConstants {
+    public partial class material_ {
         public static readonly TimeSpan _kTransitionDuration = new TimeSpan(0, 0, 0, 0, 200);
         public static readonly Curve _kTransitionCurve = Curves.fastOutSlowIn;
     }
@@ -228,12 +228,12 @@ namespace Unity.UIWidgets.material {
                 vsync: this
             );
             _controller = new AnimationController(
-                duration: InputDecoratorConstants._kTransitionDuration,
+                duration: material_._kTransitionDuration,
                 vsync: this
             );
             _borderAnimation = new CurvedAnimation(
                 parent: _controller,
-                curve: InputDecoratorConstants._kTransitionCurve
+                curve: material_._kTransitionCurve
             );
             _border = new _InputBorderTween(
                 begin: widget.border,
@@ -378,7 +378,7 @@ namespace Unity.UIWidgets.material {
         public override void initState() {
             base.initState();
             _controller = new AnimationController(
-                duration: InputDecoratorConstants._kTransitionDuration,
+                duration: material_._kTransitionDuration,
                 vsync: this
             );
             if (widget.errorText != null) {
@@ -1209,7 +1209,7 @@ namespace Unity.UIWidgets.material {
             );
             float minContainerHeight = decoration.isDense.Value || expands
                 ? 0.0f
-                : Constants.kMinInteractiveDimension + densityOffset.dy;
+                : material_.kMinInteractiveDimension + densityOffset.dy;
             float maxContainerHeight = boxConstraints.maxHeight - bottomHeight + densityOffset.dy;
             float containerHeight = expands
                 ? maxContainerHeight
@@ -1772,8 +1772,8 @@ namespace Unity.UIWidgets.material {
             return DefaultTextStyle.merge(
                 style: style,
                 child: new AnimatedOpacity(
-                    duration: InputDecoratorConstants._kTransitionDuration,
-                    curve: InputDecoratorConstants._kTransitionCurve,
+                    duration: material_._kTransitionDuration,
+                    curve: material_._kTransitionCurve,
                     opacity: labelIsFloating ? 1.0f : 0.0f,
                     child: child ?? new Text(text, style: style)
                 )
@@ -1858,14 +1858,14 @@ namespace Unity.UIWidgets.material {
                                             (widget.decoration.hasFloatingPlaceholder == true &&
                                              widget._labelShouldWithdraw);
             _floatingLabelController = new AnimationController(
-                duration: InputDecoratorConstants._kTransitionDuration,
+                duration: material_._kTransitionDuration,
                 vsync: this,
                 value: labelIsInitiallyFloating ? 1.0f : 0.0f
             );
             _floatingLabelController.addListener(_handleChange);
 
             _shakingLabelController = new AnimationController(
-                duration: InputDecoratorConstants._kTransitionDuration,
+                duration: material_._kTransitionDuration,
                 vsync: this
             );
         }
@@ -2108,8 +2108,8 @@ namespace Unity.UIWidgets.material {
                 ? null
                 : new AnimatedOpacity(
                     opacity: (isEmpty && !_hasInlineLabel) ? 1.0f : 0.0f,
-                    duration: InputDecoratorConstants._kTransitionDuration,
-                    curve: InputDecoratorConstants._kTransitionCurve,
+                    duration: material_._kTransitionDuration,
+                    curve: material_._kTransitionCurve,
                     child: new Text(decoration.hintText,
                         style: hintStyle,
                         overflow: TextOverflow.ellipsis,
@@ -2147,12 +2147,12 @@ namespace Unity.UIWidgets.material {
                 : new _Shaker(
                     animation: _shakingLabelController.view,
                     child: new AnimatedOpacity(
-                        duration: InputDecoratorConstants._kTransitionDuration,
-                        curve: InputDecoratorConstants._kTransitionCurve,
+                        duration: material_._kTransitionDuration,
+                        curve: material_._kTransitionCurve,
                         opacity: _shouldShowLabel ? 1.0f : 0.0f,
                         child: new AnimatedDefaultTextStyle(
-                            duration: InputDecoratorConstants._kTransitionDuration,
-                            curve: InputDecoratorConstants._kTransitionCurve,
+                            duration: material_._kTransitionDuration,
+                            curve: material_._kTransitionCurve,
                             style: widget._labelShouldWithdraw
                                 ? _getFloatingLabelStyle(themeData)
                                 : inlineLabelStyle,
@@ -2208,8 +2208,8 @@ namespace Unity.UIWidgets.material {
                     child: new ConstrainedBox(
                         constraints: decoration.prefixIconConstraints ?? themeData.visualDensity.effectiveConstraints(
                                          new BoxConstraints(
-                                             minWidth: Constants.kMinInteractiveDimension,
-                                             minHeight: Constants.kMinInteractiveDimension
+                                             minWidth: material_.kMinInteractiveDimension,
+                                             minHeight: material_.kMinInteractiveDimension
                                          )),
                         child: IconTheme.merge(
                             data: new IconThemeData(
@@ -2229,8 +2229,8 @@ namespace Unity.UIWidgets.material {
                     child: new ConstrainedBox(
                         constraints: decoration.suffixIconConstraints ?? themeData.visualDensity.effectiveConstraints(
                                          new BoxConstraints(
-                                             minWidth: Constants.kMinInteractiveDimension,
-                                             minHeight: Constants.kMinInteractiveDimension
+                                             minWidth: material_.kMinInteractiveDimension,
+                                             minHeight: material_.kMinInteractiveDimension
                                          )),
                         child: IconTheme.merge(
                             data: new IconThemeData(

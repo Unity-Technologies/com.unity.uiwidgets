@@ -114,7 +114,7 @@ namespace Unity.UIWidgets.material {
                 .clamp(0.0f, 1.0f);
 
             if (widget.background != null) {
-                float fadeStart = Mathf.Max(0.0f, 1.0f - Constants.kToolbarHeight / deltaExtent);
+                float fadeStart = Mathf.Max(0.0f, 1.0f - material_.kToolbarHeight / deltaExtent);
                 float fadeEnd = 1.0f;
                 D.assert(fadeStart <= fadeEnd);
 

@@ -15,7 +15,7 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
     static class AppBarUtils {
-        internal const float _kLeadingWidth = Constants.kToolbarHeight;
+        internal const float _kLeadingWidth = material_.kToolbarHeight;
     }
 
     class _ToolbarContainerLayout : SingleChildLayoutDelegate {
@@ -23,11 +23,11 @@ namespace Unity.UIWidgets.material {
         }
 
         public override BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-            return constraints.tighten(height: Constants.kToolbarHeight);
+            return constraints.tighten(height: material_.kToolbarHeight);
         }
 
         public override Size getSize(BoxConstraints constraints) {
-            return new Size(constraints.maxWidth, Constants.kToolbarHeight);
+            return new Size(constraints.maxWidth, material_.kToolbarHeight);
         }
 
         public override Offset getPositionForChild(Size size, Size childSize) {
@@ -80,7 +80,7 @@ namespace Unity.UIWidgets.material {
             this.titleSpacing = titleSpacing;
             this.toolbarOpacity = toolbarOpacity;
             this.bottomOpacity = bottomOpacity;
-            preferredSize = Size.fromHeight(Constants.kToolbarHeight + (bottom?.preferredSize?.height ?? 0.0f));
+            preferredSize = Size.fromHeight(material_.kToolbarHeight + (bottom?.preferredSize?.height ?? 0.0f));
         }
 
         public readonly Widget leading;
@@ -302,7 +302,7 @@ namespace Unity.UIWidgets.material {
                     children: new List<Widget> {
                         new Flexible(
                             child: new ConstrainedBox(
-                                constraints: new BoxConstraints(maxHeight: Constants.kToolbarHeight),
+                                constraints: new BoxConstraints(maxHeight: material_.kToolbarHeight),
                                 child: appBar
                             )
                         ),
@@ -502,13 +502,13 @@ namespace Unity.UIWidgets.material {
         readonly float _bottomHeight;
 
         public override float? minExtent {
-            get { return collapsedHeight ?? (topPadding + Constants.kToolbarHeight + _bottomHeight); }
+            get { return collapsedHeight ?? (topPadding + material_.kToolbarHeight + _bottomHeight); }
         }
 
         public override float? maxExtent {
             get {
                 return Mathf.Max(
-                    (topPadding ?? 0.0f) + (expandedHeight ?? Constants.kToolbarHeight + _bottomHeight),
+                    (topPadding ?? 0.0f) + (expandedHeight ?? material_.kToolbarHeight + _bottomHeight),
                     minExtent ?? 0.0f);
             }
         }
@@ -520,7 +520,7 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context, float shrinkOffset, bool overlapsContent) {
             float? visibleMainHeight = maxExtent - shrinkOffset - topPadding;
             float toolbarOpacity = !pinned || (!floating && bottom != null)
-                ? ((visibleMainHeight - _bottomHeight) / Constants.kToolbarHeight)?.clamp(0.0f, 1.0f) ?? 1.0f
+                ? ((visibleMainHeight - _bottomHeight) / material_.kToolbarHeight)?.clamp(0.0f, 1.0f) ?? 1.0f
                 : 1.0f;
             Widget appBar = FlexibleSpaceBar.createSettings(
                 minExtent: minExtent,

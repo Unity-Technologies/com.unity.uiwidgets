@@ -119,7 +119,7 @@ namespace Unity.UIWidgets.material {
 
             Widget item = new AnimatedDefaultTextStyle(
                 style: style,
-                duration: Constants.kThemeChangeDuration,
+                duration: material_.kThemeChangeDuration,
                 child: new Baseline(
                     baseline: widget.height - PopupMenuUtils._kBaselineOffsetFromBottom,
                     baselineType: style.textBaseline,
@@ -165,7 +165,7 @@ namespace Unity.UIWidgets.material {
 
             Widget item = new AnimatedDefaultTextStyle(
                 style: style,
-                duration: Constants.kThemeChangeDuration,
+                duration: material_.kThemeChangeDuration,
                 child: new Baseline(
                     baseline: widget.height - PopupMenuUtils._kBaselineOffsetFromBottom,
                     baselineType: style.textBaseline,

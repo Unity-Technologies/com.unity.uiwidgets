@@ -72,7 +72,7 @@ namespace Unity.UIWidgets.material {
             this.shape = shape;
             this.borderOnForeground = borderOnForeground;
             this.clipBehavior = clipBehavior;
-            this.animationDuration = animationDuration ?? Constants.kThemeChangeDuration;
+            this.animationDuration = animationDuration ?? material_.kThemeChangeDuration;
             this.child = child;
         }
 

@@ -18,7 +18,7 @@ using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-    class DropdownConstants {
+    public partial class material_ {
         public static readonly TimeSpan _kDropdownMenuDuration = new TimeSpan(0, 0, 0, 0, 300);
         public const float _kMenuItemHeight = 48.0f;
         public const float _kDenseButtonHeight = 24.0f;
@@ -40,7 +40,7 @@ namespace Unity.UIWidgets.material {
             _painter = new BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(2.0f),
-                boxShadow: ShadowConstants.kElevationToShadow[elevation ?? 0]
+                boxShadow: material_.kElevationToShadow[elevation ?? 0]
             ).createBoxPainter();
             this.color = color;
             this.elevation = elevation;
@@ -56,15 +56,15 @@ namespace Unity.UIWidgets.material {
         public readonly BoxPainter _painter;
 
         public override void paint(Canvas canvas, Size size) {
-            float selectedItemOffset = selectedIndex ?? 0 * DropdownConstants._kMenuItemHeight +
-                                       Constants.kMaterialListPadding.top;
+            float selectedItemOffset = selectedIndex ?? 0 * material_._kMenuItemHeight +
+                                       material_.kMaterialListPadding.top;
             FloatTween top = new FloatTween(
-                begin: selectedItemOffset.clamp(0.0f, size.height - DropdownConstants._kMenuItemHeight),
+                begin: selectedItemOffset.clamp(0.0f, size.height - material_._kMenuItemHeight),
                 end: 0.0f
             );
 
             FloatTween bottom = new FloatTween(
-                begin: (top.begin + DropdownConstants._kMenuItemHeight).clamp(DropdownConstants._kMenuItemHeight,
+                begin: (top.begin + material_._kMenuItemHeight).clamp(material_._kMenuItemHeight,
                     size.height),
                 end: size.height
             );
@@ -185,8 +185,8 @@ namespace Unity.UIWidgets.material {
                             child: new Scrollbar(
                                 child: new ListView(
                                     controller: widget.route.scrollController,
-                                    padding: Constants.kMaterialListPadding,
-                                    itemExtent: DropdownConstants._kMenuItemHeight,
+                                    padding: material_.kMaterialListPadding,
+                                    itemExtent: material_._kMenuItemHeight,
                                     shrinkWrap: true,
                                     children: children
                                 )
@@ -214,7 +214,7 @@ namespace Unity.UIWidgets.material {
         public readonly float menuHeight;
 
         public override BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-            float maxHeight = Mathf.Max(0.0f, constraints.maxHeight - 2 * DropdownConstants._kMenuItemHeight);
+            float maxHeight = Mathf.Max(0.0f, constraints.maxHeight - 2 * material_._kMenuItemHeight);
             float width = Mathf.Min(constraints.maxWidth, buttonRect.width);
             return new BoxConstraints(
                 minWidth: width,
@@ -316,7 +316,7 @@ namespace Unity.UIWidgets.material {
         public ScrollController scrollController;
 
         public override TimeSpan transitionDuration {
-            get { return DropdownConstants._kDropdownMenuDuration; }
+            get { return material_._kDropdownMenuDuration; }
         }
 
         public override bool barrierDismissible {
@@ -390,21 +390,21 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
             float availableHeight = constraints.maxHeight;
-            float maxMenuHeight = availableHeight - 2.0f * DropdownConstants._kMenuItemHeight;
+            float maxMenuHeight = availableHeight - 2.0f * material_._kMenuItemHeight;
 
             float buttonTop = buttonRect.top;
             float buttonBottom = Mathf.Min(buttonRect.bottom, availableHeight);
 
-            float topLimit = Mathf.Min(DropdownConstants._kMenuItemHeight, buttonTop);
-            float bottomLimit = Mathf.Max(availableHeight - DropdownConstants._kMenuItemHeight, buttonBottom);
+            float topLimit = Mathf.Min(material_._kMenuItemHeight, buttonTop);
+            float bottomLimit = Mathf.Max(availableHeight - material_._kMenuItemHeight, buttonBottom);
 
-            float? selectedItemOffset = selectedIndex * DropdownConstants._kMenuItemHeight +
-                                        Constants.kMaterialListPadding.top;
+            float? selectedItemOffset = selectedIndex * material_._kMenuItemHeight +
+                                        material_.kMaterialListPadding.top;
 
             float? menuTop = (buttonTop - selectedItemOffset) -
-                             (DropdownConstants._kMenuItemHeight - buttonRect.height) / 2.0f;
-            float preferredMenuHeight = (items.Count * DropdownConstants._kMenuItemHeight) +
-                                        Constants.kMaterialListPadding.vertical;
+                             (material_._kMenuItemHeight - buttonRect.height) / 2.0f;
+            float preferredMenuHeight = (items.Count * material_._kMenuItemHeight) +
+                                        material_.kMaterialListPadding.vertical;
 
             float menuHeight = Mathf.Min(maxMenuHeight, preferredMenuHeight);
 
@@ -474,7 +474,7 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                height: DropdownConstants._kMenuItemHeight,
+                height: material_._kMenuItemHeight,
                 alignment: Alignment.centerLeft,
                 child: child
             );
@@ -646,14 +646,14 @@ namespace Unity.UIWidgets.material {
             RenderBox itemBox = (RenderBox) context.findRenderObject();
             Rect itemRect = itemBox.localToGlobal(Offset.zero) & itemBox.size;
             EdgeInsets menuMargin = ButtonTheme.of(context).alignedDropdown
-                ? DropdownConstants._kAlignedMenuMargin
-                : DropdownConstants._kUnalignedMenuMargin;
+                ? material_._kAlignedMenuMargin
+                : material_._kUnalignedMenuMargin;
 
             D.assert(_dropdownRoute == null);
             _dropdownRoute = new _DropdownRoute<T>(
                 items: widget.items,
                 buttonRect: menuMargin.inflateRect(itemRect),
-                padding: DropdownConstants._kMenuItemPadding,
+                padding: material_._kMenuItemPadding,
                 selectedIndex: _selectedIndex ?? 0,
                 elevation: widget.elevation,
                 theme: Theme.of(context, shadowThemeOnly: true),
@@ -677,7 +677,7 @@ namespace Unity.UIWidgets.material {
         float? _denseButtonHeight {
             get {
                 return Mathf.Max(_textStyle.fontSize ?? 0.0f,
-                    Mathf.Max(widget.iconSize, DropdownConstants._kDenseButtonHeight));
+                    Mathf.Max(widget.iconSize, material_._kDenseButtonHeight));
             }
         }
 
@@ -737,8 +737,8 @@ namespace Unity.UIWidgets.material {
             }
 
             EdgeInsets padding = ButtonTheme.of(context).alignedDropdown
-                ? DropdownConstants._kAlignedButtonPadding
-                : DropdownConstants._kUnalignedButtonPadding;
+                ? material_._kAlignedButtonPadding
+                : material_._kUnalignedButtonPadding;
 
             IndexedStack innerItemsWidget = new IndexedStack(
                 index: _enabled ? (_selectedIndex ?? hintIndex) : hintIndex,
