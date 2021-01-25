@@ -1830,9 +1830,9 @@ namespace Unity.UIWidgets.material {
             return result.addWithRawTransform(
                 transform: MatrixUtils.forceToPoint(offset),
                 position: position,
-                hitTest: (BoxHitTestResult result, Offset position) => {
-                    D.assert(position == offset);
-                    return child.hitTest(result, position: offset);
+                hitTest: (BoxHitTestResult _result, Offset _position) => {
+                    D.assert(_position == offset);
+                    return child.hitTest(_result, position: offset);
                 }
             );
         }
@@ -2439,9 +2439,9 @@ namespace Unity.UIWidgets.material {
                 return result.addWithRawTransform(
                     transform: MatrixUtils.forceToPoint(center),
                     position: position,
-                    hitTest: (BoxHitTestResult result, Offset position) => {
-                        D.assert(position == center);
-                        return hitTestChild.hitTest(result, position: center);
+                    hitTest: (BoxHitTestResult _result, Offset _position) => {
+                        D.assert(_position == center);
+                        return hitTestChild.hitTest(_result, position: center);
                     }
                 );
             }
@@ -2529,7 +2529,7 @@ namespace Unity.UIWidgets.material {
                     break;
                 case TextDirection.ltr:
                     float startLeft = left;
-                    if ((theme.showCheckmark ?? false) || (theme.showAvatar?? false)) {
+                    if ((theme.showCheckmark ?? false) || (theme.showAvatar ?? false)) {
                         avatarOffset = centerLayout(avatarSize, startLeft - _boxSize(avatar).width + avatarSize.width);
                         startLeft += avatarSize.width;
                     }
@@ -2570,7 +2570,7 @@ namespace Unity.UIWidgets.material {
             labelOffset = labelOffset +
                           new Offset(
                               0.0f,
-                              ((labelSize.height - theme.labelPadding.vertical) - _boxSize(label).height) /2.0f
+                              ((labelSize.height - theme.labelPadding.vertical) - _boxSize(label).height) / 2.0f
                           );
             _boxParentData(avatar).offset = theme.padding.topLeft + avatarOffset;
             _boxParentData(label).offset =
@@ -2866,7 +2866,7 @@ namespace Unity.UIWidgets.material {
             Size chipSize = null,
             TextDirection? textDirection = null
         ) {
-            bool tapIsOnDeleteIcon;
+            bool tapIsOnDeleteIcon = false;
             if (!hasDeleteButton) {
                 tapIsOnDeleteIcon = false;
             }
