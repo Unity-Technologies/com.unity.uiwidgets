@@ -37,11 +37,11 @@ namespace Unity.UIWidgets.painting {
         }
 
 
-        float horizontal {
+        public float horizontal {
             get { return _left + _right + _start + _end; }
         }
 
-        float vertical {
+        public float vertical {
             get { return _top + _bottom; }
         }
 
@@ -330,9 +330,9 @@ namespace Unity.UIWidgets.painting {
         public static EdgeInsetsDirectional fromSTEB(float start, float top, float end, float bottom) {
             return new EdgeInsetsDirectional(start, top, end, bottom);
         }
-
-        public static EdgeInsetsDirectional only(float start = 0, float top = 0, float end = 0, float bottom = 0) {
-            return new EdgeInsetsDirectional(start, top, end, bottom);
+        
+        public static EdgeInsetsDirectional only( float start = 0.0f, float top = 0.0f,float end = 0.0f,float bottom = 0.0f) {
+            return new EdgeInsetsDirectional(start,top,end,bottom);
         }
 
         static EdgeInsetsDirectional zero = only();

@@ -9,7 +9,6 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key: key, child: child) {
             D.assert(data != null);
             D.assert(child != null);
-
             this.data = data;
         }
 
@@ -19,33 +18,33 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) {
             return new Builder(
-                builder: context => new IconTheme(
+                builder: (BuildContext context)=> {
+                return new IconTheme(
                     key: key,
                     data: _getInheritedIconThemeData(context).merge(data),
                     child: child
-                )
+                );
+            }
             );
         }
 
         public readonly IconThemeData data;
 
         public static IconThemeData of(BuildContext context) {
-            IconThemeData iconThemeData = _getInheritedIconThemeData(context);
-            return iconThemeData.isConcrete ? iconThemeData : 
-                iconThemeData.copyWith(
+            IconThemeData iconThemeData = _getInheritedIconThemeData(context).resolve(context);
+            return iconThemeData.isConcrete
+                ? iconThemeData
+                : iconThemeData.copyWith(
                     size: iconThemeData.size ??  IconThemeData.fallback().size,
-                    color: iconThemeData.color ??  IconThemeData.fallback().color,
-                    opacity: iconThemeData.opacity ??  IconThemeData.fallback().opacity
+            color: iconThemeData.color ?? IconThemeData.fallback().color,
+            opacity: iconThemeData.opacity ?? IconThemeData.fallback().opacity
                 );
         }
 
         static IconThemeData _getInheritedIconThemeData(BuildContext context) {
             IconTheme iconTheme = (IconTheme) context.dependOnInheritedWidgetOfExactType<IconTheme>();
-            if (iconTheme != null) {
-                return iconTheme.data;
-            }
-
-            return IconThemeData.fallback();
+            
+            return iconTheme?.data ?? IconThemeData.fallback();
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {

@@ -7,8 +7,14 @@ using UnityEngine;
 
 namespace Unity.UIWidgets.widgets {
     public class NavigationToolbar : StatelessWidget {
-        public NavigationToolbar(Key key = null, Widget leading = null, Widget middle = null,
-            Widget trailing = null, bool centerMiddle = true, float middleSpacing = kMiddleSpacing) : base(key) {
+        public NavigationToolbar(
+            Key key = null,
+            Widget leading = null, 
+            Widget middle = null,
+            Widget trailing = null, 
+            bool centerMiddle = true, 
+            float middleSpacing = kMiddleSpacing
+            ) : base(key) {
             this.leading = leading;
             this.middle = middle;
             this.trailing = trailing;
@@ -60,14 +66,14 @@ namespace Unity.UIWidgets.widgets {
 
     class _ToolbarLayout : MultiChildLayoutDelegate {
         public _ToolbarLayout(
-            bool? centerMiddle = true,
+            bool? centerMiddle = null,
             float? middleSpacing = null,
             TextDirection? textDirection = null
         ) {
             D.assert(textDirection != null);
             D.assert(middleSpacing != null);
             this.centerMiddle = centerMiddle ?? true;
-            this.middleSpacing = middleSpacing ?? 0.0f;
+            this.middleSpacing = middleSpacing  ?? 0.0f;
             this.textDirection = textDirection ?? TextDirection.ltr;
         }
 
@@ -129,8 +135,7 @@ namespace Unity.UIWidgets.widgets {
                 float middleStartMargin = leadingWidth + middleSpacing;
                 float middleStart = middleStartMargin;
                 float middleY = (size.height - middleSize.height) / 2.0f;
-                // If the centered middle will not fit between the leading and trailing
-                // widgets, then align its left or right edge with the adjacent boundary.
+                
                 if (centerMiddle) {
                     middleStart = (size.width - middleSize.width) / 2.0f;
                     if (middleStart + middleSize.width > size.width - trailingWidth) {

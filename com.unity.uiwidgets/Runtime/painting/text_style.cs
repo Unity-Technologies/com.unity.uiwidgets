@@ -123,8 +123,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         public ParagraphStyle getParagraphStyle(
-            TextAlign textAlign,
-            TextDirection textDirection,
+            TextAlign? textAlign = null,
+            TextDirection? textDirection = null,
             float? textScaleFactor = 1.0f,
             string ellipsis = null,
             int? maxLines = null,

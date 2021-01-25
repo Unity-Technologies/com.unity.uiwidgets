@@ -102,10 +102,8 @@ namespace Unity.UIWidgets.widgets {
         public ScrollEndNotification(
             ScrollMetrics metrics = null,
             BuildContext context = null,
-            DragEndDetails dragDetails = null,
-            float overscroll = 0,
-            float velocity = 0
-        ) : base(metrics: metrics, context: context) {
+            DragEndDetails dragDetails = null
+            ) : base(metrics: metrics, context: context) {
             this.dragDetails = dragDetails;
         }
 

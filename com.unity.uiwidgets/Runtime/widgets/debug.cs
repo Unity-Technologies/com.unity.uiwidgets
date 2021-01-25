@@ -11,6 +11,11 @@ namespace Unity.UIWidgets.widgets {
         public static bool debugPrintGlobalKeyedWidgetLifecycle = false;
 
         public static bool debugPrintScheduleBuildForStacks = false;
+        
+        public static bool debugProfileBuildsEnabled = false;
+
+       
+        public static bool debugHighlightDeprecatedWidgets = false;
 
         static Key _firstNonUniqueKey(IEnumerable<Widget> widgets) {
             var keySet = new HashSet<Key>();
@@ -35,7 +40,7 @@ namespace Unity.UIWidgets.widgets {
                     throw new UIWidgetsError(
                         "Duplicate keys found.\n" +
                         "If multiple keyed nodes exist as children of another node, they must have unique keys.\n" +
-                        parent + " has multiple children with key " + children + "."
+                        parent + " has multiple children with key " + nonUniqueKey + "."
                     );
                 }
 
@@ -70,7 +75,7 @@ namespace Unity.UIWidgets.widgets {
                 if (widget == built) {
                     throw new UIWidgetsError(
                         "A build function returned context.widget.\n" +
-                        "The offending widget is: $widget\n" +
+                        $"The offending widget is: {widget}\n" +
                         "Build functions must never return their BuildContext parameter\'s widget or a child that contains 'context.widget'. " +
                         "Doing so introduces a loop in the widget tree that can cause the app to crash."
                     );
@@ -106,7 +111,7 @@ namespace Unity.UIWidgets.widgets {
                     context.findAncestorWidgetOfExactType<Directionality>() == null) {
                     throw new UIWidgetsError(new List<DiagnosticsNode>{
                         new ErrorSummary("No Directionality widget found."),
-                        new ErrorDescription("${context.widget.runtimeType} widgets require a Directionality widget ancestor.\n"),
+                        new ErrorDescription($"{context.widget.GetType()} widgets require a Directionality widget ancestor.\n"),
                         context.describeWidget("The specific widget that could not find a Directionality ancestor was"),
                         context.describeOwnershipChain("The ownership chain for the affected widget is"),
                         new ErrorHint(
@@ -126,6 +131,21 @@ namespace Unity.UIWidgets.widgets {
         }
 
         internal static UIWidgetsErrorDetails _debugReportException(
+            DiagnosticsNode context,
+            Exception exception,
+            InformationCollector informationCollector = null
+        ) {
+            var details = new UIWidgetsErrorDetails(
+                exception: exception,
+                library: "widgets library",
+                context: context,
+                informationCollector: informationCollector
+            );
+            UIWidgetsError.reportError(details);
+            return details;
+        }
+
+        internal static UIWidgetsErrorDetails _debugReportException(
             string context,
             Exception exception,
             InformationCollector informationCollector = null
@@ -139,5 +159,22 @@ namespace Unity.UIWidgets.widgets {
             UIWidgetsError.reportError(details);
             return details;
         }
+        
+        /// See [the widgets library](widgets/widgets-library.html) for a complete list.
+        public static bool debugAssertAllWidgetVarsUnset(string reason) {
+            D.assert(()=> {
+                if (debugPrintRebuildDirtyWidgets ||
+                    debugPrintBuildScope ||
+                    debugPrintScheduleBuildForStacks ||
+                    debugPrintGlobalKeyedWidgetLifecycle ||
+                    debugProfileBuildsEnabled ||
+                    debugHighlightDeprecatedWidgets) {
+                    throw new UIWidgetsError(reason);
+                }
+                return true;
+            });
+            return true;
+        }
+
     }
 }

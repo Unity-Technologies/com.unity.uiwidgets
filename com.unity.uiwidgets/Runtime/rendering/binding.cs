@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.rendering {
         public void initRenderView() {
             D.assert(renderView == null);
             renderView = new RenderView(configuration: createViewConfiguration());
-            renderView.scheduleInitialFrame();
+            renderView.prepareInitialFrame();
         }
 
         public MouseTracker mouseTracker {
@@ -50,6 +50,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected virtual void handleMetricsChanged() {
+            D.assert(renderView != null);
             renderView.configuration = createViewConfiguration();
             scheduleForcedFrame();
         }
@@ -79,6 +80,30 @@ namespace Unity.UIWidgets.rendering {
             _mouseTracker.schedulePostFrameCheck();
         }
 
+        int _firstFrameDeferredCount = 0;
+        bool _firstFrameSent = false;
+        bool sendFramesToEngine {
+            get {
+                return _firstFrameSent || _firstFrameDeferredCount == 0;
+            }
+        }
+        
+        void deferFirstFrame() {
+            D.assert(_firstFrameDeferredCount >= 0);
+            _firstFrameDeferredCount += 1;
+        }
+
+        void allowFirstFrame() {
+            D.assert(_firstFrameDeferredCount > 0);
+            _firstFrameDeferredCount -= 1;
+            if (!_firstFrameSent)
+                scheduleWarmUpFrame();
+        }
+        
+        void resetFirstFrameSent() {
+            _firstFrameSent = false;
+        }
+        
         readonly protected bool inEditorWindow;
         
 
@@ -91,10 +116,14 @@ namespace Unity.UIWidgets.rendering {
         }*/
 
         protected virtual void drawFrame() {
+            D.assert(renderView != null);
             pipelineOwner.flushLayout();
             pipelineOwner.flushCompositingBits();
             pipelineOwner.flushPaint();
-            renderView.compositeFrame();
+            if (sendFramesToEngine) {
+                renderView.compositeFrame();
+                _firstFrameSent = true;
+            }
         }
 
         public override void hitTest(HitTestResult result, Offset position) {

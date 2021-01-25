@@ -48,7 +48,7 @@ namespace Unity.UIWidgets.widgets {
                 () => "Two or more provided keys are identical. Each key must appear only once.");
         }
 
-        public KeySet(HashSet<T> keys) 
+        public KeySet (HashSet<T> keys) 
         {
             D.assert(keys != null);
             D.assert(keys.isNotEmpty);
@@ -56,13 +56,13 @@ namespace Unity.UIWidgets.widgets {
             foreach (var key in keys) {
                 _keys.Add(key);
             }
+            
         }
 
         public HashSet<T> keys 
         {
             get { return new HashSet<T>(_keys); }
         }
-
         public readonly HashSet<T> _keys;
         
         
@@ -70,6 +70,7 @@ namespace Unity.UIWidgets.widgets {
         public static readonly List<int> _tempHashStore4 = new List<int>() {0, 0, 0, 0}; // used to sort exactly 4 keys
         
         public int _hashCode;
+
 
         public bool Equals(KeySet<T> other)
         {
@@ -144,18 +145,26 @@ namespace Unity.UIWidgets.widgets {
                     sortedHashes[3] = iterator.GetHashCode();
                 }
                 sortedHashes.Sort();
-                return _hashCode  = (_hashCode * 397) ^ (sortedHashes != null ? sortedHashes.GetHashCode() : 0);;
+                return _hashCode  = (_hashCode * 397) ^ (sortedHashes != null ? sortedHashes.GetHashCode() : 0); 
             }
         }
+        public static bool operator ==(KeySet<T> left, KeySet<T> right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(KeySet<T> left, KeySet<T> right) {
+            return !Equals(left, right);
+        }
+
     }
     
     public class LogicalKeySet : KeySet<LogicalKeyboardKey> {
 
         public LogicalKeySet(
             LogicalKeyboardKey key1,
-            LogicalKeyboardKey key2 = default(LogicalKeyboardKey),
-            LogicalKeyboardKey key3 = default(LogicalKeyboardKey),
-            LogicalKeyboardKey key4 = default(LogicalKeyboardKey)
+            LogicalKeyboardKey key2 = null,
+            LogicalKeyboardKey key3 = null,
+            LogicalKeyboardKey key4 = null
         ) : base(key1: key1, key2: key2, key3: key3, key4: key4){ }
         
         public LogicalKeySet(HashSet<LogicalKeyboardKey> keys) : base(keys) { }
@@ -167,12 +176,9 @@ namespace Unity.UIWidgets.widgets {
             LogicalKeyboardKey.shift,
         };
 
-      /// Returns a description of the key set that is short and readable.
-      ///
-      /// Intended to be used in debug mode for logging purposes.
-      public string debugDescribeKeys() {
-          List<LogicalKeyboardKey> sortedKeys = keys.ToList();
-             sortedKeys.Sort(
+        public string debugDescribeKeys() { 
+            List<LogicalKeyboardKey> sortedKeys = keys.ToList();
+            sortedKeys.Sort(
              (LogicalKeyboardKey a, LogicalKeyboardKey b) => { 
                  bool aIsModifier = a.synonyms.isNotEmpty() || _modifiers.Contains(a);
                  bool bIsModifier = b.synonyms.isNotEmpty() || _modifiers.Contains(b);
@@ -181,14 +187,12 @@ namespace Unity.UIWidgets.widgets {
                  } else if (bIsModifier && !aIsModifier) {
                      return 1;
                  }
-                 return a.debugName.CompareTo(b.debugName);
+                 return a.debugName.CompareTo(b.debugName); 
              }
-        ); 
-          List<string> result = new List<string>();
-          foreach (var key in sortedKeys) {
-              result.Add(key.debugName);
-          }
-          return string.Join(" + ", result.ToArray());
+            ); 
+            var results = sortedKeys.Select((LogicalKeyboardKey key) => key.debugName.ToString());
+            return string.Join(" + ",results);
+         
       }
       
       
@@ -204,24 +208,24 @@ namespace Unity.UIWidgets.widgets {
             string name,
             Dictionary<LogicalKeySet, Intent> value,
             bool showName = true,
-            Object defaultValue =  null,//foundation_.kNoDefaultValue
+            object defaultValue =  null,
             DiagnosticLevel level = DiagnosticLevel.info,
             string description = null
         ) : base(
                 name: name,
                 value: value,
                 showName: showName,
-                defaultValue: defaultValue,
+                defaultValue: defaultValue ?? foundation_.kNoDefaultValue,
                 level: level,
                 description: description
             ) 
             {
-                D.assert(showName != null);
-                D.assert(level != null);
+               
             }
 
     
         protected override string valueToString( TextTreeConfiguration parentConfiguration = null) {
+            
             List<string> res = new List<string>();
             foreach (var key in value.Keys) {
                 string temp = "{" + key.debugDescribeKeys() + "}:" + value[key];
@@ -238,17 +242,10 @@ namespace Unity.UIWidgets.widgets {
         bool modal = false
       ) {
           shortcuts = shortcuts ?? new Dictionary<LogicalKeySet, Intent>();
-          D.assert(shortcuts != null);
           this.modal = modal;
           this.shortcuts = shortcuts;
-        } 
+        }
 
-      /// True if the [ShortcutManager] should not pass on keys that it doesn't
-      /// handle to any key-handling widgets that are ancestors to this one.
-      ///
-      /// Setting [modal] to true is the equivalent of always handling any key given
-      /// to it, even if that key doesn't appear in the [shortcuts] map. Keys that
-      /// don't appear in the map will be dropped.
       public readonly bool modal;
 
 
@@ -262,11 +259,7 @@ namespace Unity.UIWidgets.widgets {
           }
       }
 
-      /// Handles a key pressed `event` in the given `context`.
-      ///
-      /// The optional `keysPressed` argument provides an override to keys that the
-      /// [RawKeyboard] reports. If not specified, uses [RawKeyboard.keysPressed]
-      /// instead.
+      
       public bool handleKeypress(
         BuildContext context,
         RawKeyEvent rawKeyEvent,
@@ -279,14 +272,12 @@ namespace Unity.UIWidgets.widgets {
         LogicalKeySet keySet = keysPressed ?? new LogicalKeySet(RawKeyboard.instance.keysPressed);
         Intent matchedIntent = _shortcuts[keySet];
         if (matchedIntent == null) {
-          // If there's not a more specific match, We also look for any keys that
-          // have synonyms in the map.  This is for things like left and right shift
-          // keys mapping to just the "shift" pseudo-key.
+         
           HashSet<LogicalKeyboardKey> pseudoKeys = new HashSet<LogicalKeyboardKey>{};
           foreach (LogicalKeyboardKey setKey in keySet.keys) {
             HashSet<LogicalKeyboardKey> synonyms = setKey.synonyms;
             if (synonyms.isNotEmpty()) {
-              // There currently aren't any synonyms that match more than one key.
+             
               pseudoKeys.Add(synonyms.First());
             } else {
               pseudoKeys.Add(setKey);
@@ -312,9 +303,7 @@ namespace Unity.UIWidgets.widgets {
     }
       
     public class Shortcuts : StatefulWidget {
-      /// Creates a ActionManager object.
-      ///
-      /// The [child] argument must not be null.
+      
       public Shortcuts(
         Key key = null,
         ShortcutManager manager = null,

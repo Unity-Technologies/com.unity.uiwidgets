@@ -209,7 +209,7 @@ namespace Unity.UIWidgets.rendering {
 
         MultiChildLayoutDelegate _delegate;
         
-        /*public override void attach(PipelineOwner owner) {
+        public override void attach(object owner) {
             base.attach(owner);
             _delegate?._relayout?.addListener(markNeedsLayout);
         }
@@ -217,7 +217,7 @@ namespace Unity.UIWidgets.rendering {
         public override void detach() {
             _delegate?._relayout?.removeListener(markNeedsLayout);
             base.detach();
-        }*/
+        }
 
         Size _getSize(BoxConstraints constraints) {
             D.assert(constraints.debugAssertIsValid());

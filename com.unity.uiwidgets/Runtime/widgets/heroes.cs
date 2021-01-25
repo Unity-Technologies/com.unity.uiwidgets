@@ -30,11 +30,6 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class HeroUtils {
-        /*public static Rect _globalBoundingBoxFor(BuildContext context) {
-            RenderBox box = (RenderBox) context.findRenderObject();
-            D.assert(box != null && box.hasSize);
-            return MatrixUtils.transformRect( box.getTransformTo(null), Offset.zero & box.size);
-        }*/
         public  static Rect _boundingBoxFor(BuildContext context, BuildContext ancestorContext = null) {
             RenderBox box = context.findRenderObject() as RenderBox;
             D.assert(box != null && box.hasSize);
@@ -68,11 +63,8 @@ namespace Unity.UIWidgets.widgets {
 
 
         public readonly object tag;
-
         public readonly CreateRectTween createRectTween;
-
         public readonly Widget child;
-
         public readonly HeroFlightShuttleBuilder flightShuttleBuilder;
         public readonly HeroPlaceholderBuilder placeholderBuilder;
         
@@ -83,8 +75,10 @@ namespace Unity.UIWidgets.widgets {
             BuildContext context, 
             bool isUserGestureTransition, 
             NavigatorState navigator) {
+            
             D.assert(context != null);
             D.assert(navigator != null);
+            
             Dictionary<object, _HeroState> result = new Dictionary<object, _HeroState> { };
             
             void inviteHero(StatefulElement hero, object tag) {
@@ -149,6 +143,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class _HeroState : State<Hero> {
+        
         GlobalKey _key = GlobalKey.key();
         Size _placeholderSize;
         bool _shouldIncludeChild = true;
@@ -214,8 +209,8 @@ namespace Unity.UIWidgets.widgets {
             _HeroState toHero = null,
             CreateRectTween createRectTween = null,
             HeroFlightShuttleBuilder shuttleBuilder = null,
-            bool isUserGestureTransition = false,
-            bool isDiverted = false
+            bool? isUserGestureTransition = null,
+            bool? isDiverted = null
         ) {
             D.assert(fromHero.widget.tag.Equals(toHero.widget.tag));
             this.type = type;
@@ -227,8 +222,8 @@ namespace Unity.UIWidgets.widgets {
             this.toHero = toHero;
             this.createRectTween = createRectTween;
             this.shuttleBuilder = shuttleBuilder;
-            this.isUserGestureTransition = isUserGestureTransition;
-            this.isDiverted = isDiverted;
+            this.isUserGestureTransition = isUserGestureTransition ?? false;
+            this.isDiverted = isDiverted ?? false;
         }
 
         public readonly HeroFlightDirection type;
@@ -251,8 +246,8 @@ namespace Unity.UIWidgets.widgets {
             get {
                 return new CurvedAnimation(
                     parent: (type == HeroFlightDirection.push) ? toRoute.animation : fromRoute.animation,
-                    curve: Curves.fastOutSlowIn
-                    , reverseCurve: isDiverted ? null : Curves.fastOutSlowIn.flipped
+                    curve: Curves.fastOutSlowIn, 
+                    reverseCurve: isDiverted ? null : Curves.fastOutSlowIn.flipped
                 );
             }
         }
@@ -350,7 +345,6 @@ namespace Unity.UIWidgets.widgets {
         public void _handleAnimationUpdate(AnimationStatus status) {
             if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
                 _proxyAnimation.parent = null;
-
                 D.assert(overlayEntry != null);
                 overlayEntry.remove();
                 overlayEntry = null;
@@ -368,7 +362,8 @@ namespace Unity.UIWidgets.widgets {
                 HeroFlightDirection type = initialManifest.type;
                 switch (type) {
                     case HeroFlightDirection.pop:
-                        return initial.value == 1.0f && initialManifest.isUserGestureTransition
+                        return initial.value == 1.0f && 
+                               initialManifest.isUserGestureTransition 
                             ? initial.status == AnimationStatus.completed
                             : initial.status == AnimationStatus.reverse;
                     case HeroFlightDirection.push:
@@ -473,7 +468,7 @@ namespace Unity.UIWidgets.widgets {
             RouteSettings from = manifest.fromRoute.settings;
             RouteSettings to = manifest.toRoute.settings;
             object tag = manifest.tag;
-            return $"HeroFlight(for: {tag}, from: {from}, to: {to} ${_proxyAnimation.parent})";
+            return $"HeroFlight(for: {tag}, from: {from}, to: {to} {_proxyAnimation.parent})";
         }
     }
 
@@ -595,7 +590,6 @@ namespace Unity.UIWidgets.widgets {
                 if (toHeroes.ContainsKey(tag)) {
                     HeroFlightShuttleBuilder fromShuttleBuilder = fromHeroes[tag].widget.flightShuttleBuilder;
                     HeroFlightShuttleBuilder toShuttleBuilder = toHeroes[tag].widget.flightShuttleBuilder;
-                    //bool isDiverted = _flights[tag] != null;
                     bool isDiverted = _flights.ContainsKey(tag);
                     _HeroFlightManifest manifest = new _HeroFlightManifest(
                         type: flightType,

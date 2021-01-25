@@ -58,7 +58,7 @@ namespace Unity.UIWidgets.widgets {
                 size: window.physicalSize / window.devicePixelRatio,
                 devicePixelRatio: window.devicePixelRatio,
                 textScaleFactor: window.textScaleFactor,
-                //platformBrightness: window.platformBrightness, // TODO: remove comment when window.platformBrightness is ready
+                platformBrightness: window.platformBrightness, // TODO: remove comment when window.platformBrightness is ready
                 padding: EdgeInsets.fromWindowPadding(window.padding, window.devicePixelRatio),
                 viewPadding : EdgeInsets.fromWindowPadding(window.viewPadding, window.devicePixelRatio),
                 viewInsets: EdgeInsets.fromWindowPadding(window.viewInsets, window.devicePixelRatio),
@@ -119,10 +119,10 @@ namespace Unity.UIWidgets.widgets {
             float? physicalDepth = null,
             
             bool? alwaysUse24HourFormat = null,
-            bool? accessibleNavigation = null,
-            bool? invertColors = null,
             bool? highContrast = null,
             bool? disableAnimations = null,
+            bool? invertColors = null,
+            bool? accessibleNavigation = null,
             bool? boldText = null
         ) {
             return new MediaQueryData(
@@ -150,20 +150,19 @@ namespace Unity.UIWidgets.widgets {
             bool removeRight = false,
             bool removeBottom = false
         ) {
-            if (!(removeLeft || removeTop || removeRight || removeBottom)) {
+            
+            if (!(removeLeft || removeTop || removeRight || removeBottom))
                 return this;
-            }
-
             return new MediaQueryData(
                 size: size,
                 devicePixelRatio: devicePixelRatio,
                 textScaleFactor: textScaleFactor,
                 platformBrightness: platformBrightness,
                 padding: padding.copyWith(
-                    left: removeLeft ? (float?) 0.0 : null,
-                    top: removeTop ? (float?) 0.0 : null,
-                    right: removeRight ? (float?) 0.0 : null,
-                    bottom: removeBottom ? (float?) 0.0 : null
+                    left: removeLeft ? (float?)0.0f : null,
+                    top: removeTop ?(float?) 0.0f : null,
+                    right: removeRight ? (float?)0.0f : null,
+                    bottom: removeBottom ?(float?) 0.0f : null
                 ),
                 viewPadding: viewPadding.copyWith(
                     left: removeLeft ? (float?)Mathf.Max(0.0f, viewPadding.left - padding.left) : null,
@@ -179,6 +178,7 @@ namespace Unity.UIWidgets.widgets {
                 accessibleNavigation: accessibleNavigation,
                 boldText: boldText
             );
+            
         }
 
         public MediaQueryData removeViewInsets(
@@ -422,8 +422,6 @@ namespace Unity.UIWidgets.widgets {
 
         public static MediaQueryData of(BuildContext context, bool nullOk = false) {
             D.assert(context != null);
-            //MediaQuery query = context.dependOnInheritedWidgetOfExactType<MediaQuery>();
-
             MediaQuery query = (MediaQuery) context.dependOnInheritedWidgetOfExactType<MediaQuery>();
             if (query != null) {
                 return query.data;

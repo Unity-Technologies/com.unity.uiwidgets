@@ -587,6 +587,11 @@ namespace Unity.UIWidgets.material {
             return Future.value(false).to<bool>();
         }
 
+        public void didChangeAccessibilityFeatures() {
+            //FIX ME!!!!
+            throw new NotImplementedException();
+        }
+
         public void didChangePlatformBrightness() {
         }
 

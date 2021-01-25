@@ -139,7 +139,8 @@ namespace Unity.UIWidgets.widgets {
             didUpdateScrollDirection(value);
         }
 
-        public override Future animateTo(float to,
+        public override Future animateTo(
+            float to,
             TimeSpan duration,
             Curve curve
         ) {
