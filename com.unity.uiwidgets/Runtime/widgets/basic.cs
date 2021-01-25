@@ -1734,6 +1734,11 @@ public class Align : SingleChildRenderObjectWidget {
             Widget child = null
         ) : base(key: key) {
             this.child = child;
+            this.start = start;
+            this.top = top;
+            this.end = end;
+            this.bottom = bottom;
+            this.width = width;
         }
 
         public readonly float? start;
@@ -2325,6 +2330,7 @@ public class Align : SingleChildRenderObjectWidget {
             VoidCallback onBuild = null
             ) :base(key: new GlobalObjectKey<State>(renderBox)) {
             D.assert(renderBox != null);
+            this.onBuild = onBuild;
         }
 
       
@@ -2352,11 +2358,6 @@ public class Align : SingleChildRenderObjectWidget {
             PointerUpEventListener onPointerUp = null,
             PointerCancelEventListener onPointerCancel = null,
             PointerSignalEventListener onPointerSignal = null,
-           // PointerScrollEventListener onPointerScroll = null,
-           // PointerDragFromEditorEnterEventListener onPointerDragFromEditorEnter = null,
-           // PointerDragFromEditorHoverEventListener onPointerDragFromEditorHover = null,
-           // PointerDragFromEditorExitEventListener onPointerDragFromEditorExit = null,
-           // PointerDragFromEditorReleaseEventListener onPointerDragFromEditorRelease = null,
             HitTestBehavior behavior = HitTestBehavior.deferToChild,
             Widget child = null
         ) : base(key: key) {
@@ -2369,7 +2370,6 @@ public class Align : SingleChildRenderObjectWidget {
             this.onPointerHover = onPointerHover;
             //this.onPointerExit = onPointerExit;
             //this.onPointerEnter = onPointerEnter;
-           // this.onPointerScroll = onPointerScroll;
             this.behavior = behavior;
         }
 

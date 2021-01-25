@@ -232,7 +232,7 @@ namespace Unity.UIWidgets.widgets {
             FocusTraversalPolicy policy = null,
             Widget child = null
         ) : base(key: key) {
-            policy = policy ?? new ReadingOrderTraversalPolicy();
+            this.policy = policy ?? new ReadingOrderTraversalPolicy();
             this.child = child;
         }
 
@@ -327,7 +327,7 @@ namespace Unity.UIWidgets.widgets {
             ) {
                 groupNode = marker?.focusNode;
                 policy = marker?.policy ?? defaultPolicy ?? new ReadingOrderTraversalPolicy();
-                members = members ?? new List<FocusNode>();
+                this.members = members ?? new List<FocusNode>();
             }
             public readonly FocusNode groupNode;
             public readonly FocusTraversalPolicy policy;

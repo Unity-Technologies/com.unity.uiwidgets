@@ -227,8 +227,7 @@ namespace Unity.UIWidgets.widgets {
             Curve fadeInCurve,
             Key key = null
         ) : base(key: key, duration: fadeInDuration + fadeOutDuration) {
-          
-           
+            
             this.target = target;
             this.placeholder = placeholder;
             this.isTargetLoaded = isTargetLoaded;
@@ -255,20 +254,6 @@ namespace Unity.UIWidgets.widgets {
             FloatTween _placeholderOpacity;
             Animation<float> _targetOpacityAnimation;
             Animation<float> _placeholderOpacityAnimation;
-
-            /*@override
-            void forEachTween(TweenVisitor<dynamic> visitor) {
-                _targetOpacity = visitor(
-                    _targetOpacity,
-                    widget.isTargetLoaded ? 1.0 : 0.0,
-                    (dynamic value) => Tween<double>(begin: value as double),
-                ) as Tween<double>;
-                _placeholderOpacity = visitor(
-                    _placeholderOpacity,
-                    widget.isTargetLoaded ? 0.0 : 1.0,
-                    (dynamic value) => Tween<double>(begin: value as double),
-                ) as Tween<double>;
-            }*/
 
             protected override void forEachTween(TweenVisitor visitor) {
                 _targetOpacity = (FloatTween) visitor.visit(

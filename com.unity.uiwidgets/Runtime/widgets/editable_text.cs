@@ -681,9 +681,6 @@ namespace Unity.UIWidgets.widgets {
             float caretStart;
             float caretEnd;
             if (_isMultiline) {
-                // The caret is vertically centered within the line. Expand the caret's
-                // height so that it spans the line because we're going to ensure that the entire
-                // expanded caret is scrolled into view.
                 float lineHeight = renderEditable.preferredLineHeight;
                 float caretOffset = (lineHeight - caretRect.height) / 2;
                 caretStart = caretRect.top - caretOffset;
@@ -839,13 +836,6 @@ namespace Unity.UIWidgets.widgets {
                 );
                 _selectionOverlay.handlesVisible = widget.showSelectionHandles;
                 _selectionOverlay.showHandles();
-                /*bool longPress = cause == SelectionChangedCause.longPress;
-                if (cause != SelectionChangedCause.keyboard && (_value.text.isNotEmpty() || longPress)) {
-                    _selectionOverlay.showHandles();
-                }
-                if (longPress || cause == SelectionChangedCause.doubleTap) {
-                    _selectionOverlay.showToolbar();
-                }*/
                 if (widget.onSelectionChanged != null) {
                     widget.onSelectionChanged(selection, cause);
                 }
@@ -951,7 +941,36 @@ namespace Unity.UIWidgets.widgets {
 
         public void didChangeAccessibilityFeatures() {}
 
+        //_WhitespaceDirectionalityFormatter _whitespaceFormatter;
         void _formatAndSetValue(TextEditingValue value, bool isIMEInput = false) {
+            //whitespaceFormatter ??= new _WhitespaceDirectionalityFormatter(textDirection: _textDirection);
+
+            bool textChanged = _value?.text != value?.text;
+            bool isRepeatText = value?.text == _lastFormattedUnmodifiedTextEditingValue?.text;
+            bool isRepeatSelection = value?.selection == _lastFormattedUnmodifiedTextEditingValue?.selection; 
+            bool isRepeatComposing = value?.composing == _lastFormattedUnmodifiedTextEditingValue?.composing;
+           
+            if (!isRepeatText && textChanged && widget.inputFormatters != null && widget.inputFormatters.isNotEmpty()) {
+                foreach (TextInputFormatter formatter in widget.inputFormatters) {
+                    value = formatter.formatEditUpdate(_value, value);
+                }
+                //value = _whitespaceFormatter.formatEditUpdate(_value, value);
+                _lastFormattedValue = value;
+            }
+
+            _value = value;
+           
+            if (isRepeatText && isRepeatSelection && isRepeatComposing && textChanged && _lastFormattedValue != null) {
+                _value = _lastFormattedValue;
+            }
+
+          
+            _updateRemoteEditingValueIfNeeded();
+
+            if (textChanged && widget.onChanged != null)
+                widget.onChanged(value.text);
+            _lastFormattedUnmodifiedTextEditingValue = _receivedRemoteTextEditingValue;
+            /*
             var textChanged = _value?.text != value?.text || isIMEInput;
             if (textChanged && widget.inputFormatters != null && widget.inputFormatters.isNotEmpty()) {
                 foreach (var formatter in widget.inputFormatters) {
@@ -968,7 +987,7 @@ namespace Unity.UIWidgets.widgets {
 
             if (textChanged && widget.onChanged != null) {
                 widget.onChanged(value.text);
-            }
+            }*/
         }
 
         void _onCursorColorTick() {
@@ -1245,43 +1264,18 @@ namespace Unity.UIWidgets.widgets {
             );
         }
 
-        // unity keyboard has a preview view with editing function, text selection & cursor function of this widget is disable
-        // in the case
+       
         bool _unityKeyboard() {
             return TouchScreenKeyboard.isSupported && widget.unityTouchKeyboard;
         }
 
-        /*Offset _getImePos() {
-            if (_hasInputConnection && _textInputConnection.imeRequired()) {
-                var localPos = renderEditable.getLocalRectForCaret(_value.selection.basePos).bottomLeft;
-                return renderEditable.localToGlobal(localPos);
-            }
-
-            return null;
-        }*/
+        
 
         bool _imePosUpdateScheduled = false;
 
-        /*void _updateImePosIfNeed() {
-            if (!_hasInputConnection || !_textInputConnection.imeRequired()) {
-                return;
-            }
-
-            if (_imePosUpdateScheduled) {
-                return;
-            }
-
-            _imePosUpdateScheduled = true;
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                _imePosUpdateScheduled = false;
-                if (!_hasInputConnection) {
-                    return;
-                }
-
-                _textInputConnection.setIMEPos(_getImePos());
-            });
-        }*/
+        
     }
+    
 
     class _Editable : LeafRenderObjectWidget {
         public readonly TextSpan textSpan;

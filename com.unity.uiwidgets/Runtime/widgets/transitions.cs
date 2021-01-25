@@ -242,7 +242,7 @@ namespace Unity.UIWidgets.widgets {
 
     public class SliverFadeTransition : SingleChildRenderObjectWidget {
         public SliverFadeTransition(
-            Animation<float> opacity = default,
+            Animation<float> opacity = null,
             Key key = null,
             Widget sliver = null
         ) : base(key: key, child: sliver) {

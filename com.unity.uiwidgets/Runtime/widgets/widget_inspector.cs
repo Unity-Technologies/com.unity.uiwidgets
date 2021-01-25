@@ -1441,6 +1441,7 @@ namespace Unity.UIWidgets.widgets {
             RenderObject target 
         ) {
             D.assert(target != null);
+            this.target = target;
             containerLayer = new _ScreenshotContainerLayer();
         }
 
@@ -1471,8 +1472,7 @@ namespace Unity.UIWidgets.widgets {
             ContainerLayer containerLayer = null,
             Rect estimatedBounds = null,
             _ScreenshotData screenshotData = null
-          ) : 
-            base(containerLayer, estimatedBounds) {
+          ) : base(containerLayer, estimatedBounds) {
               _data = screenshotData;
         }
 
@@ -2210,8 +2210,12 @@ namespace Unity.UIWidgets.widgets {
         public readonly string tooltip;
         public readonly TextDirection textDirection;
 
-        public _InspectorOverlayRenderState(Rect overlayRect, _TransformedRect selected,
-            List<_TransformedRect> candidates, string tooltip, TextDirection textDirection) {
+        public _InspectorOverlayRenderState(
+            Rect overlayRect, 
+            _TransformedRect selected,
+            List<_TransformedRect> candidates, 
+            string tooltip, 
+            TextDirection textDirection) {
             this.overlayRect = overlayRect;
             this.selected = selected;
             this.candidates = candidates;

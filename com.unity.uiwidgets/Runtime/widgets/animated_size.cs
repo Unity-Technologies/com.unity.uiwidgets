@@ -10,7 +10,7 @@ namespace Unity.UIWidgets.widgets {
         public AnimatedSize(
             Key key = null,
             Widget child = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             Curve curve = null,
             TimeSpan? duration = null,
             TimeSpan? reverseDuration = null,
@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.widgets {
             this.vsync = vsync;
         }
 
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
 
         public readonly Curve curve;
 

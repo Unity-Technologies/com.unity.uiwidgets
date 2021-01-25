@@ -722,7 +722,7 @@ namespace Unity.UIWidgets.widgets {
 
     public class FocusManager : DiagnosticableTreeMixinChangeNotifier{
         public FocusManager() 
-        {
+        { 
             rootScope._manager = this;
             RawKeyboard.instance.addListener(_handleRawKeyEvent);
             GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);

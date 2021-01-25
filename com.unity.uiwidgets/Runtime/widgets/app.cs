@@ -793,6 +793,7 @@ namespace Unity.UIWidgets.widgets {
 
     public class _MediaQueryFromWindow : StatefulWidget {
         public _MediaQueryFromWindow(Key key = null, Widget child = null) : base(key: key) {
+            this.child = child;
         }
         public readonly Widget child;
 
