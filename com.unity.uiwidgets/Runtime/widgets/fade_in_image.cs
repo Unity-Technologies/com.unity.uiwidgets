@@ -17,7 +17,7 @@ namespace Unity.UIWidgets.widgets {
             ImageProvider placeholder,
             ImageErrorWidgetBuilder placeholderErrorBuilder,
             ImageProvider image,
-            ImageErrorWidgetBuilder imageErrorBuilder,
+            ImageErrorWidgetBuilder imageErrorBuilder = null,
             TimeSpan? fadeOutDuration = null,
             Curve fadeOutCurve = null,
             TimeSpan? fadeInDuration = null,
@@ -25,11 +25,12 @@ namespace Unity.UIWidgets.widgets {
             float? width = null,
             float? height = null,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
-            Key key = null
+            Key key = null,
+            bool matchTextDirection = false
         ) : base(key) {
-            D.assert(placeholder != null);
+           
             D.assert(image != null);
             D.assert(fadeOutDuration != null);
             D.assert(fadeOutCurve != null);
@@ -49,13 +50,15 @@ namespace Unity.UIWidgets.widgets {
             this.fadeInCurve = fadeInCurve ?? Curves.easeIn;
             this.alignment = alignment ?? Alignment.center;
             this.repeat = repeat;
+            this.matchTextDirection = matchTextDirection;
         }
 
         public static FadeInImage memoryNetwork(
-            byte[] placeholder,
-            ImageErrorWidgetBuilder placeholderErrorBuilder,
-            string image,
-            ImageErrorWidgetBuilder imageErrorBuilder,
+            byte[] placeholder ,
+            string image ,
+            Key key = null,
+            ImageErrorWidgetBuilder placeholderErrorBuilder = null,
+            ImageErrorWidgetBuilder imageErrorBuilder = null,
             float placeholderScale = 1.0f,
             float imageScale = 1.0f,
             TimeSpan? fadeOutDuration = null,
@@ -65,31 +68,28 @@ namespace Unity.UIWidgets.widgets {
             float? width = null,
             float? height = null,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
-            Key key = null,
-            int placeholderCacheWidth = default,
-            int placeholderCacheHeight = default,
-            int imageCacheWidth = default,
-            int imageCacheHeight = default
+            bool matchTextDirection = false,
+            int? placeholderCacheWidth = null,
+            int? placeholderCacheHeight = null,
+            int? imageCacheWidth = null,
+            int? imageCacheHeight = null
         ) {
-            D.assert(placeholder != null);
-            D.assert(image != null);
-            D.assert(fadeOutDuration != null);
-            D.assert(fadeOutCurve != null);
-            D.assert(fadeInDuration != null);
-            D.assert(fadeInCurve != null);
-            D.assert(alignment != null);
-            var memoryImage = new MemoryImage(placeholder, placeholderScale);
-            var networkImage = new NetworkImage(image, imageScale);
-            /*placeholder = ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight,
-                new MemoryImage(placeholder, scale: placeholderScale));
-            image = ResizeImage.resizeIfNeeded(imageCacheWidth, imageCacheHeight,
-                new NetworkImage(image, scale: imageScale));*/
+            alignment = alignment ?? Alignment.center;
+            fadeOutDuration = fadeOutDuration  ?? TimeSpan.FromMilliseconds( 300 );
+            fadeOutCurve = fadeOutCurve ?? Curves.easeOut;
+            fadeInDuration = fadeInDuration ?? TimeSpan.FromMilliseconds( 700 );
+            fadeInCurve = fadeInCurve ?? Curves.easeIn;
+            ImageProvider memoryImage = new MemoryImage(placeholder, placeholderScale);
+            ImageProvider networkImage = new NetworkImage(image, imageScale);
+            
+            //placeholder = ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight, memoryImage);
+            //image = ResizeImage.resizeIfNeeded(imageCacheWidth, imageCacheHeight, networkImage);
             return new FadeInImage(
-                placeholder: memoryImage,
+                placeholder: ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight, memoryImage),
                 placeholderErrorBuilder: placeholderErrorBuilder,
-                image: networkImage,
+                image: ResizeImage.resizeIfNeeded(imageCacheWidth, imageCacheHeight, networkImage),
                 imageErrorBuilder: imageErrorBuilder,
                 fadeOutDuration: fadeOutDuration,
                 fadeOutCurve: fadeOutCurve,
@@ -99,15 +99,16 @@ namespace Unity.UIWidgets.widgets {
                 fit: fit,
                 alignment: alignment,
                 repeat: repeat,
+                matchTextDirection: matchTextDirection,
                 key: key
             );
         }
 
         public static FadeInImage assetNetwork(
             string placeholder,
-            ImageErrorWidgetBuilder placeholderErrorBuilder,
             string image,
-            ImageErrorWidgetBuilder imageErrorBuilder,
+            ImageErrorWidgetBuilder placeholderErrorBuilder = null,
+            ImageErrorWidgetBuilder imageErrorBuilder = null,
             AssetBundle bundle = null,
             float? placeholderScale = null,
             float imageScale = 1.0f,
@@ -118,32 +119,31 @@ namespace Unity.UIWidgets.widgets {
             float? width = null,
             float? height = null,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
+            bool matchTextDirection = false,
             Key key = null,
-            int placeholderCacheWidth = default,
-            int placeholderCacheHeight = default,
-            int imageCacheWidth = default,
-            int imageCacheHeight = default
+            int? placeholderCacheWidth = null,
+            int? placeholderCacheHeight = null,
+            int? imageCacheWidth = null,
+            int? imageCacheHeight = null
         ) {
-            D.assert(placeholder != null);
-            D.assert(image != null);
+           
             fadeOutDuration = fadeOutDuration ?? new TimeSpan(0, 0, 0, 0, 300);
             fadeOutCurve = fadeOutCurve ?? Curves.easeOut;
             fadeInDuration = fadeInDuration ?? new TimeSpan(0, 0, 0, 0, 700);
             fadeInCurve = Curves.easeIn;
             alignment = alignment ?? Alignment.center;
-            var imageProvider = placeholderScale != null
-                ? new ExactAssetImage(placeholder, bundle: bundle, scale: placeholderScale ?? 1.0f)
-                : (ImageProvider) new AssetImage(placeholder, bundle: bundle);
-            /*placeholder = placeholderScale != null
-                ? ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight, ExactAssetImage(placeholder, bundle: bundle, scale: placeholderScale))
-                : ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight, AssetImage(placeholder, bundle: bundle));*/
-            var networkImage = new NetworkImage(image, imageScale);
+            var holder = placeholderScale ?? 1.0f;
+            var _placeholder = placeholderScale != null
+                ? ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight,
+                    new ExactAssetImage(placeholder, bundle: bundle, scale: holder))
+                : ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight,
+                    new AssetImage(placeholder, bundle: bundle));
             return new FadeInImage(
-                placeholder: imageProvider,
+                placeholder: _placeholder,
                 placeholderErrorBuilder: placeholderErrorBuilder,
-                image: networkImage,
+                image: ResizeImage.resizeIfNeeded(imageCacheWidth, imageCacheHeight, new NetworkImage(image, scale: imageScale)),
                 imageErrorBuilder: imageErrorBuilder,
                 fadeOutDuration: fadeOutDuration,
                 fadeOutCurve: fadeOutCurve,
@@ -153,6 +153,7 @@ namespace Unity.UIWidgets.widgets {
                 fit: fit,
                 alignment: alignment,
                 repeat: repeat,
+                matchTextDirection: matchTextDirection,
                 key: key
             );
         }
@@ -168,8 +169,9 @@ namespace Unity.UIWidgets.widgets {
         public readonly float? width;
         public readonly float? height;
         public readonly BoxFit? fit;
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
         public readonly ImageRepeat repeat;
+        public readonly bool matchTextDirection;
 
         public Image _image(
             ImageProvider image = null,
@@ -179,15 +181,16 @@ namespace Unity.UIWidgets.widgets {
             D.assert(image != null);
             return new Image(
                 image: image,
-                //errorBuilder: errorBuilder,
-                //frameBuilder: frameBuilder,
+                errorBuilder: errorBuilder,
+                frameBuilder: frameBuilder,
                 width: width,
                 height: height,
                 fit: fit,
                 alignment: alignment,
                 repeat: repeat,
-                //matchTextDirection: matchTextDirection,
+                matchTextDirection: matchTextDirection,
                 gaplessPlayback: true
+                
             );
         }
 
@@ -195,23 +198,19 @@ namespace Unity.UIWidgets.widgets {
             Widget result = _image(
                 image: image,
                 errorBuilder: imageErrorBuilder,
-                frameBuilder: (BuildContext context1, Widget child, int frame, bool wasSynchronouslyLoaded) => {
-                    if (wasSynchronouslyLoaded)
-                        return child;
-                    return new _AnimatedFadeOutFadeIn(
-                        key: key,
-                        target: child,
-                        placeholder: _image(
-                            image: placeholder,
-                            errorBuilder: placeholderErrorBuilder
-                        ),
-                        isTargetLoaded: frame != null,
-                        fadeInDuration: fadeInDuration,
-                        fadeOutDuration: fadeOutDuration,
-                        fadeInCurve: fadeInCurve,
-                        fadeOutCurve: fadeOutCurve
-                    );
-                }
+                frameBuilder: (BuildContext context1, Widget child, int frame, bool wasSynchronouslyLoaded)=> {
+                if (wasSynchronouslyLoaded)
+                    return child;
+                return new _AnimatedFadeOutFadeIn(
+                    target: child,
+                    placeholder: _image(image: placeholder, errorBuilder: placeholderErrorBuilder),
+                    isTargetLoaded: frame != null,
+                    fadeInDuration: fadeInDuration,
+                    fadeOutDuration: fadeOutDuration,
+                    fadeInCurve: fadeInCurve,
+                    fadeOutCurve: fadeOutCurve
+                );
+            }
             );
             return result;
         }
@@ -219,22 +218,16 @@ namespace Unity.UIWidgets.widgets {
 
     public class _AnimatedFadeOutFadeIn : ImplicitlyAnimatedWidget {
         public _AnimatedFadeOutFadeIn(
-            Key key,
-            Widget target,
-            Widget placeholder,
-            bool isTargetLoaded,
+            Widget target ,
+            Widget placeholder ,
+            bool isTargetLoaded ,
             TimeSpan fadeOutDuration,
             TimeSpan fadeInDuration,
             Curve fadeOutCurve,
-            Curve fadeInCurve
+            Curve fadeInCurve,
+            Key key = null
         ) : base(key: key, duration: fadeInDuration + fadeOutDuration) {
-            D.assert(target != null);
-            D.assert(placeholder != null);
-            D.assert(isTargetLoaded != null);
-            D.assert(fadeOutDuration != null);
-            D.assert(fadeOutCurve != null);
-            D.assert(fadeInDuration != null);
-            D.assert(fadeInCurve != null);
+            
             this.target = target;
             this.placeholder = placeholder;
             this.isTargetLoaded = isTargetLoaded;
@@ -261,20 +254,6 @@ namespace Unity.UIWidgets.widgets {
             FloatTween _placeholderOpacity;
             Animation<float> _targetOpacityAnimation;
             Animation<float> _placeholderOpacityAnimation;
-
-            /*@override
-            void forEachTween(TweenVisitor<dynamic> visitor) {
-                _targetOpacity = visitor(
-                    _targetOpacity,
-                    widget.isTargetLoaded ? 1.0 : 0.0,
-                    (dynamic value) => Tween<double>(begin: value as double),
-                ) as Tween<double>;
-                _placeholderOpacity = visitor(
-                    _placeholderOpacity,
-                    widget.isTargetLoaded ? 0.0 : 1.0,
-                    (dynamic value) => Tween<double>(begin: value as double),
-                ) as Tween<double>;
-            }*/
 
             protected override void forEachTween(TweenVisitor visitor) {
                 _targetOpacity = (FloatTween) visitor.visit(
@@ -307,13 +286,13 @@ namespace Unity.UIWidgets.widgets {
                     weight: (float) widget.fadeInDuration?.Milliseconds
                 ));
 
-                //[!!!] drive
-                /*_placeholderOpacityAnimation = animation.drive(list).addStatusListener((AnimationStatus status) =>{
+                
+                _placeholderOpacityAnimation = animation.drive(new TweenSequence<float>(list));
+                _placeholderOpacityAnimation.addStatusListener((AnimationStatus status) =>{
                     if (_placeholderOpacityAnimation.isCompleted) {
-                        // Need to rebuild to remove placeholder now that it is invisibile.
                         setState(() => {});
                     }
-                });*/
+                });
 
                 List<TweenSequenceItem<float>> list2 = new List<TweenSequenceItem<float>>();
                 list2.Add(new TweenSequenceItem<float>(
@@ -324,9 +303,9 @@ namespace Unity.UIWidgets.widgets {
                     tween: _targetOpacity.chain(new CurveTween(curve: widget.fadeInCurve)),
                     weight: (float) widget.fadeInDuration?.Milliseconds
                 ));
-                //_targetOpacityAnimation = animation.drive(list2);[!!!] animation.cs drive
+                _targetOpacityAnimation = animation.drive(new TweenSequence<float>(list2));
                 if (!widget.isTargetLoaded && _isValid(_placeholderOpacity) && _isValid(_targetOpacity)) {
-                    //controller.value = controller.upperBound;[!!!] animation_controller.cs value set
+                    controller.setValue(controller.upperBound);
                 }
             }
 
@@ -347,7 +326,7 @@ namespace Unity.UIWidgets.widgets {
 
                 return new Stack(
                     fit: StackFit.passthrough,
-                    alignment: Alignment.center,//AlignmentDirectional.center,[!!!]
+                    alignment: AlignmentDirectional.center,
                     textDirection: TextDirection.ltr,
                     children: new List<Widget>() {
                         target,

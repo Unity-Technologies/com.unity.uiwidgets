@@ -38,6 +38,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool maintainBottomViewPadding;
 
         public override Widget build(BuildContext context) {
+            D.assert(WidgetsD.debugCheckHasMediaQuery(context));
             MediaQueryData data = MediaQuery.of(context);
             EdgeInsets padding = data.padding;
             if (data.padding.bottom == 0.0 && data.viewInsets.bottom != 0.0 && maintainBottomViewPadding)
@@ -77,8 +78,8 @@ namespace Unity.UIWidgets.widgets {
             bool right = true,
             bool bottom = true,
             EdgeInsets minimum = null,
-            Widget sliver = null) : base(key: key) {
-            D.assert(sliver != null);
+            Widget sliver = null
+            ) : base(key: key) {
             this.left = left;
             this.top = top;
             this.right = right;

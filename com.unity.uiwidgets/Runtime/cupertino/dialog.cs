@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -27,7 +29,6 @@ namespace Unity.UIWidgets.cupertino {
             inherit:false,
             fontSize: 13.4f,
             fontWeight: FontWeight.w400,
-            //color: CupertinoColors.black,
             height: 1.036f,
             letterSpacing: -0.25f,
             textBaseline: TextBaseline.alphabetic
@@ -56,10 +57,8 @@ namespace Unity.UIWidgets.cupertino {
         public const float _kMinButtonFontSize = 10.0f;
         public const float _kDialogCornerRadius = 12.0f;
         public const float _kDividerThickness = 1.0f;
-        public const float _kMaxRegularTextScaleFactor = 1.4f;
+        
 
-        //public static readonly Color _kDialogColor = new Color(0xC0FFFFFF);
-        //public static readonly Color _kDialogPressedColor = new Color(0x90FFFFFF);
         public static readonly Color _kButtonDividerColor = new Color(0x40FFFFFF);
 
         public static readonly Color _kDialogColor = CupertinoDynamicColor.withBrightness(
@@ -70,6 +69,7 @@ namespace Unity.UIWidgets.cupertino {
             color: new Color(0xFFE1E1E1),
             darkColor: new Color(0xFF2E2E2E)
         );
+        public const float _kMaxRegularTextScaleFactor = 1.4f;
 
         public static bool _isInAccessibilityMode(BuildContext context) {
             MediaQueryData data = MediaQuery.of(context, nullOk: true);
@@ -85,15 +85,18 @@ namespace Unity.UIWidgets.cupertino {
             Widget content = null,
             List<Widget> actions = null,
             ScrollController scrollController = null,
-            ScrollController actionScrollController = null
+            ScrollController actionScrollController = null,
+            TimeSpan? insetAnimationDuration = null,
+            Curve insetAnimationCurve = null
         ) : base(key: key) {
             D.assert(actions != null);
-
             this.title = title;
             this.content = content;
             this.actions = actions ?? new List<Widget>();
             this.scrollController = scrollController;
             this.actionScrollController = actionScrollController;
+            this.insetAnimationDuration = insetAnimationDuration ?? TimeSpan.FromMilliseconds(100);
+            this.insetAnimationCurve = insetAnimationCurve ?? Curves.decelerate;
         }
 
         public readonly Widget title;
@@ -101,8 +104,11 @@ namespace Unity.UIWidgets.cupertino {
         public readonly List<Widget> actions;
         public readonly ScrollController scrollController;
         public readonly ScrollController actionScrollController;
+        readonly TimeSpan? m_InsetAnimationDuration;
+        public readonly TimeSpan insetAnimationDuration;
+        public readonly Curve insetAnimationCurve;
 
-        Widget _buildContent() {
+        Widget _buildContent(BuildContext context) {
             List<Widget> children = new List<Widget>();
             if (title != null || content != null) {
                 Widget titleSection = new _CupertinoDialogAlertContentSection(
@@ -114,7 +120,7 @@ namespace Unity.UIWidgets.cupertino {
             }
 
             return new Container(
-                color: CupertinoDialogUtils._kDialogColor,
+                color: CupertinoDynamicColor.resolve(CupertinoDialogUtils._kDialogColor, context),
                 child: new Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -142,30 +148,45 @@ namespace Unity.UIWidgets.cupertino {
             bool isInAccessibilityMode = CupertinoDialogUtils._isInAccessibilityMode(context);
 
             float textScaleFactor = MediaQuery.of(context).textScaleFactor;
-            return new MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                    textScaleFactor: Mathf.Max(textScaleFactor, 1.0f)
-                ),
+            return  new CupertinoUserInterfaceLevel(
+                data: CupertinoUserInterfaceLevelData.elevatedlayer,
+                child: new MediaQuery(
+                    data: MediaQuery.of(context).copyWith(
+                        textScaleFactor: Mathf.Max(textScaleFactor, 1.0f)
+                    ),
                 child: new LayoutBuilder(
                     builder: (BuildContext _context, BoxConstraints constraints) => {
-                        return new Center(
-                            child: new Container(
-                                margin: EdgeInsets.symmetric(vertical: CupertinoDialogUtils._kEdgePadding),
-                                width: isInAccessibilityMode
-                                    ? CupertinoDialogUtils._kAccessibilityCupertinoDialogWidth
-                                    : CupertinoDialogUtils._kCupertinoDialogWidth,
-                                child: new CupertinoPopupSurface(
-                                    isSurfacePainted: false,
-                                    child: new _CupertinoDialogRenderWidget(
-                                        contentSection: _buildContent(),
-                                        actionsSection: _buildActions()
+                        return new AnimatedPadding(
+                            padding: MediaQuery.of(_context).viewInsets + EdgeInsets.symmetric(horizontal: 40.0f, vertical: 24.0f),
+                            duration: insetAnimationDuration,
+                            curve: insetAnimationCurve,
+                            child: MediaQuery.removeViewInsets(
+                                removeLeft: true,
+                                removeTop: true,
+                                removeRight: true,
+                                removeBottom: true,
+                                context: _context,
+                                child: new Center(
+                                child: new Container(
+                                    margin: EdgeInsets.symmetric(vertical: CupertinoDialogUtils._kEdgePadding),
+                                    width: isInAccessibilityMode
+                                        ? CupertinoDialogUtils._kAccessibilityCupertinoDialogWidth
+                                        : CupertinoDialogUtils._kCupertinoDialogWidth,
+                                    child: new CupertinoPopupSurface(
+                                        isSurfacePainted: false,
+                                        child: new _CupertinoDialogRenderWidget(
+                                            contentSection: _buildContent(_context),
+                                            actionsSection: _buildActions()
+                                        )
                                     )
                                 )
+                            )
                             )
                         );
                     }
                 )
-            );
+            )
+                );
         }
     }
 
@@ -213,7 +234,7 @@ namespace Unity.UIWidgets.cupertino {
                     child: new Container(
                         decoration: CupertinoDialogUtils._kCupertinoDialogBlurOverlayDecoration,
                         child: new Container(
-                            color: isSurfacePainted ? CupertinoDialogUtils._kDialogColor : null,
+                            color: isSurfacePainted ? CupertinoDynamicColor.resolve(CupertinoDialogUtils._kDialogColor, context) : null,
                             child: child
                         )
                     )
@@ -224,9 +245,9 @@ namespace Unity.UIWidgets.cupertino {
 
     class _CupertinoDialogRenderWidget : RenderObjectWidget {
         public _CupertinoDialogRenderWidget(
-            Widget contentSection,
-            Widget actionsSection,
-            Key key = null
+            Key key = null,
+            Widget contentSection = null,
+            Widget actionsSection = null
         ) : base(key: key) {
             this.contentSection = contentSection;
             this.actionsSection = actionsSection;
@@ -238,13 +259,16 @@ namespace Unity.UIWidgets.cupertino {
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderCupertinoDialog(
                 dividerThickness: CupertinoDialogUtils._kDividerThickness / MediaQuery.of(context).devicePixelRatio,
-                isInAccessibilityMode: CupertinoDialogUtils._isInAccessibilityMode(context)
+                isInAccessibilityMode: CupertinoDialogUtils._isInAccessibilityMode(context),
+                dividerColor: CupertinoDynamicColor.resolve(CupertinoColors.separator, context)
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             ((_RenderCupertinoDialog) renderObject).isInAccessibilityMode =
                 CupertinoDialogUtils._isInAccessibilityMode(context);
+            ((_RenderCupertinoDialog) renderObject).dividerColor = 
+                CupertinoDynamicColor.resolve(CupertinoColors.separator, context);
         }
 
         public override Element createElement() {
@@ -258,6 +282,7 @@ namespace Unity.UIWidgets.cupertino {
 
         Element _contentElement;
         Element _actionsElement;
+
 
         public new _CupertinoDialogRenderWidget widget {
             get { return base.widget as _CupertinoDialogRenderWidget; }
@@ -320,6 +345,7 @@ namespace Unity.UIWidgets.cupertino {
                 D.assert(_actionsElement == child);
                 _actionsElement = null;
             }
+            base.forgetChild(child);
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
@@ -339,12 +365,18 @@ namespace Unity.UIWidgets.cupertino {
             RenderBox contentSection = null,
             RenderBox actionsSection = null,
             float dividerThickness = 0.0f,
-            bool isInAccessibilityMode = false
+            bool isInAccessibilityMode = false,
+            Color dividerColor = null
         ) {
             _contentSection = contentSection;
             _actionsSection = actionsSection;
             _dividerThickness = dividerThickness;
             _isInAccessibilityMode = isInAccessibilityMode;
+            _dividerPaint = new Paint() {
+                color = dividerColor,
+                style = PaintingStyle.fill
+            };
+
         }
 
         public RenderBox contentSection {
@@ -406,11 +438,22 @@ namespace Unity.UIWidgets.cupertino {
 
         readonly float _dividerThickness;
 
-        readonly Paint _dividerPaint = new Paint() {
-            color = CupertinoDialogUtils._kButtonDividerColor,
-            style = PaintingStyle.fill
-        };
 
+        public readonly Paint _dividerPaint;
+
+        public Color dividerColor {
+            get {
+                return _dividerPaint.color;
+            }
+            set {
+                if (dividerColor == value) {
+                    return;
+                }
+
+                _dividerPaint.color = value;
+                markNeedsPaint();
+            }
+        }
         public override void attach(object owner) {
             base.attach(owner);
             if (null != contentSection) {
@@ -598,8 +641,7 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
 
-        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null
-        ) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             BoxParentData contentSectionParentData = contentSection.parentData as BoxParentData;
             BoxParentData actionsSectionParentData = actionsSection.parentData as BoxParentData;
             return result.addWithPaintOffset(
@@ -642,6 +684,13 @@ namespace Unity.UIWidgets.cupertino {
         public readonly ScrollController scrollController;
 
         public override Widget build(BuildContext context) {
+            if (title == null && content == null) {
+                return new SingleChildScrollView(
+                    controller: scrollController,
+                    child: new Container(width: 0.0f, height: 0.0f)
+                );
+            }
+
             float textScaleFactor = MediaQuery.of(context).textScaleFactor;
             List<Widget> titleContentGroup = new List<Widget>();
             if (title != null) {
@@ -653,7 +702,9 @@ namespace Unity.UIWidgets.cupertino {
                         top: CupertinoDialogUtils._kEdgePadding * textScaleFactor
                     ),
                     child: new DefaultTextStyle(
-                        style: CupertinoDialogUtils._kCupertinoDialogTitleStyle,
+                        style: CupertinoDialogUtils._kCupertinoDialogTitleStyle.copyWith(
+                            color: CupertinoDynamicColor.resolve(CupertinoColors.label, context)
+                        ),
                         textAlign: TextAlign.center,
                         child: title
                     )
@@ -670,7 +721,9 @@ namespace Unity.UIWidgets.cupertino {
                             top: title == null ? CupertinoDialogUtils._kEdgePadding : 1.0f
                         ),
                         child: new DefaultTextStyle(
-                            style: CupertinoDialogUtils._kCupertinoDialogContentStyle,
+                            style: CupertinoDialogUtils._kCupertinoDialogContentStyle.copyWith(
+                                color: CupertinoDynamicColor.resolve(CupertinoColors.label, context)
+                            ),
                             textAlign: TextAlign.center,
                             child: content
                         )
@@ -774,9 +827,9 @@ namespace Unity.UIWidgets.cupertino {
 //ParentDataWidget<_DialogActionButtonParentData>
     class _DialogActionButtonParentDataWidget : ParentDataWidget<_ActionButtonParentData> {
         public _DialogActionButtonParentDataWidget(
-            Widget child,
+            Key key = null,
             bool isPressed = false,
-            Key key = null
+            Widget child = null
         ) : base(key: key, child: child) {
             this.isPressed = isPressed;
         }
@@ -794,6 +847,12 @@ namespace Unity.UIWidgets.cupertino {
                 }
             }
         }
+
+        public override Type debugTypicalAncestorWidgetClass {
+            get {
+                return typeof(_CupertinoDialogActionsRenderWidget);
+            }
+        }
     }
 
     class _DialogActionButtonParentData : MultiChildLayoutParentData {
@@ -808,12 +867,13 @@ namespace Unity.UIWidgets.cupertino {
 
     public class CupertinoDialogAction : StatelessWidget {
         public CupertinoDialogAction(
-            Widget child,
+            Key key = null,
             VoidCallback onPressed = null,
             bool isDefaultAction = false,
             bool isDestructiveAction = false,
-            TextStyle textStyle = null
-        ) {
+            TextStyle textStyle = null,
+            Widget child = null
+        ):base(key:key) {
             D.assert(child != null);
             this.onPressed = onPressed;
             this.isDefaultAction = isDefaultAction;
@@ -883,11 +943,18 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override Widget build(BuildContext context) {
-            TextStyle style = CupertinoDialogUtils._kCupertinoDialogActionStyle;
+            TextStyle style = CupertinoDialogUtils._kCupertinoDialogActionStyle.copyWith(
+                color: CupertinoDynamicColor.resolve(
+                    isDestructiveAction ?  CupertinoColors.systemRed : CupertinoColors.systemBlue,
+                    context
+                )
+            );
             style = style.merge(textStyle);
-            if (isDestructiveAction) {
-                style = style.copyWith(color: CupertinoColors.destructiveRed);
+            
+            if (isDefaultAction) {
+                style = style.copyWith(fontWeight: FontWeight.w600);
             }
+
 
             if (!enabled) {
                 style = style.copyWith(color: style.color.withOpacity(0.5f));
@@ -936,7 +1003,10 @@ namespace Unity.UIWidgets.cupertino {
                 dialogWidth: CupertinoDialogUtils._isInAccessibilityMode(context)
                     ? CupertinoDialogUtils._kAccessibilityCupertinoDialogWidth
                     : CupertinoDialogUtils._kCupertinoDialogWidth,
-                dividerThickness: _dividerThickness
+                dividerThickness: _dividerThickness,
+                dialogColor: CupertinoDynamicColor.resolve(CupertinoDialogUtils._kDialogColor, context),
+                dialogPressedColor: CupertinoDynamicColor.resolve(CupertinoDialogUtils._kDialogPressedColor, context),
+                dividerColor: CupertinoDynamicColor.resolve(CupertinoColors.separator, context)
             );
         }
 
@@ -946,22 +1016,43 @@ namespace Unity.UIWidgets.cupertino {
                     ? CupertinoDialogUtils._kAccessibilityCupertinoDialogWidth
                     : CupertinoDialogUtils._kCupertinoDialogWidth;
             (renderObject as _RenderCupertinoDialogActions).dividerThickness = _dividerThickness;
+            (renderObject as _RenderCupertinoDialogActions).dialogColor =
+                CupertinoDynamicColor.resolve( CupertinoDialogUtils._kDialogColor, context);
+            (renderObject as _RenderCupertinoDialogActions).dialogPressedColor =
+                CupertinoDynamicColor.resolve( CupertinoDialogUtils._kDialogPressedColor, context);
+            (renderObject as _RenderCupertinoDialogActions).dividerColor = 
+                CupertinoDynamicColor.resolve(CupertinoColors.separator, context);
         }
     }
 
     class _RenderCupertinoDialogActions : RenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<
         RenderBox, MultiChildLayoutParentData> {
         public _RenderCupertinoDialogActions(
-            float dialogWidth,
             List<RenderBox> children = null,
-            float dividerThickness = 0.0f
+            float? dialogWidth = null,
+            float dividerThickness = 0.0f,
+            Color dialogColor = null,
+            Color dialogPressedColor = null,
+            Color dividerColor = null
         ) {
             _dialogWidth = dialogWidth;
+            _buttonBackgroundPaint = new Paint() {
+                color = dialogColor,
+                style = PaintingStyle.fill
+            };
+            _pressedButtonBackgroundPaint = new Paint(){
+                color = dialogPressedColor,
+                style = PaintingStyle.fill
+            };
+            _dividerPaint = new Paint(){
+                color = dividerColor,
+                style = PaintingStyle.fill
+            };
             _dividerThickness = dividerThickness;
             addAll(children);
         }
 
-        public float dialogWidth {
+        public float? dialogWidth {
             get { return _dialogWidth; }
             set {
                 if (value != _dialogWidth) {
@@ -970,8 +1061,7 @@ namespace Unity.UIWidgets.cupertino {
                 }
             }
         }
-
-        float _dialogWidth;
+        float? _dialogWidth;
 
 
         public float dividerThickness {
@@ -983,24 +1073,43 @@ namespace Unity.UIWidgets.cupertino {
                 }
             }
         }
-
         float _dividerThickness;
 
-        readonly Paint _buttonBackgroundPaint = new Paint() {
-            color = CupertinoDialogUtils._kDialogColor,
-            style = PaintingStyle.fill
-        };
+        public readonly  Paint _buttonBackgroundPaint;
 
-        readonly Paint _pressedButtonBackgroundPaint = new Paint() {
-            color = CupertinoDialogUtils._kDialogPressedColor,
-            style = PaintingStyle.fill
-        };
+        public Color dialogColor {
+            set{
+                if (value == _buttonBackgroundPaint.color)
+                    return;
 
+                _buttonBackgroundPaint.color = value;
+                markNeedsPaint();
+            }
+         }
 
-        readonly Paint _dividerPaint = new Paint() {
-            color = CupertinoDialogUtils._kButtonDividerColor,
-            style = PaintingStyle.fill
-        };
+        public readonly Paint _pressedButtonBackgroundPaint;
+
+        public Color dialogPressedColor {
+            set{
+                if (value == _pressedButtonBackgroundPaint.color)
+                    return;
+
+                _pressedButtonBackgroundPaint.color = value;
+                markNeedsPaint();
+            }
+        }
+
+        public readonly Paint _dividerPaint;
+
+        public Color dividerColor{
+            set {
+                if (value == _dividerPaint.color)
+                    return;
+
+                _dividerPaint.color = value;
+                markNeedsPaint();
+            }
+        }
 
         List<RenderBox> _pressedButtons {
             get {
@@ -1045,11 +1154,11 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         protected internal override float computeMinIntrinsicWidth(float height) {
-            return dialogWidth;
+            return dialogWidth ?? 0.0f;
         }
 
         protected internal override float computeMaxIntrinsicWidth(float height) {
-            return dialogWidth;
+            return dialogWidth ?? 0.0f;
         }
 
         protected internal override float computeMinIntrinsicHeight(float width) {
@@ -1080,7 +1189,8 @@ namespace Unity.UIWidgets.cupertino {
             }
             else {
                 float perButtonWidth = (width - dividerThickness) / 2.0f;
-                minHeight = Mathf.Max(firstChild.getMinIntrinsicHeight(perButtonWidth),
+                minHeight = Mathf.Max(
+                    firstChild.getMinIntrinsicHeight(perButtonWidth),
                     lastChild.getMinIntrinsicHeight(perButtonWidth)
                 );
             }
@@ -1106,7 +1216,8 @@ namespace Unity.UIWidgets.cupertino {
             else if (childCount == 2) {
                 if (_isSingleButtonRow(width)) {
                     float perButtonWidth = (width - dividerThickness) / 2.0f;
-                    maxHeight = Mathf.Max(firstChild.getMaxIntrinsicHeight(perButtonWidth),
+                    maxHeight = Mathf.Max(
+                        firstChild.getMaxIntrinsicHeight(perButtonWidth),
                         lastChild.getMaxIntrinsicHeight(perButtonWidth)
                     );
                 }
@@ -1130,7 +1241,6 @@ namespace Unity.UIWidgets.cupertino {
                 heightAccumulation += button.getMaxIntrinsicHeight(width);
                 button = childAfter(button);
             }
-
             return heightAccumulation;
         }
 
@@ -1153,14 +1263,15 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         protected override void performLayout() {
-            if (_isSingleButtonRow(dialogWidth)) {
+            BoxConstraints constraints = this.constraints;
+            if (_isSingleButtonRow(dialogWidth ?? 0.0f)) {
                 if (childCount == 1) {
                     firstChild.layout(
                         constraints,
                         parentUsesSize: true
                     );
                     size = constraints.constrain(
-                        new Size(dialogWidth, firstChild.size.height)
+                        new Size(dialogWidth ?? 0.0f, firstChild.size.height)
                     );
                 }
                 else {
@@ -1184,8 +1295,11 @@ namespace Unity.UIWidgets.cupertino {
                     secondButtonParentData.offset =
                         new Offset(firstChild.size.width + dividerThickness, 0.0f);
                     size = constraints.constrain(
-                        new Size(dialogWidth,
-                            Mathf.Max(firstChild.size.height, lastChild.size.height
+                        new Size(
+                            dialogWidth ?? 0.0f,
+                            Mathf.Max(
+                                firstChild.size.height, 
+                                lastChild.size.height
                             )
                         )
                     );
@@ -1217,7 +1331,7 @@ namespace Unity.UIWidgets.cupertino {
                 }
 
                 size = constraints.constrain(
-                    new Size(dialogWidth, verticalOffset)
+                    new Size(dialogWidth ?? 0.0f, verticalOffset)
                 );
             }
         }
@@ -1257,8 +1371,7 @@ namespace Unity.UIWidgets.cupertino {
             }
 
             Path backgroundFillPath = new Path();
-
-            // backgroundFillPath.fillType = PathFillType.evenOdd;
+            backgroundFillPath.fillType = PathFillType.evenOdd;
             backgroundFillPath.addRect(Rect.fromLTWH(0.0f, 0.0f, size.width, size.height));
             backgroundFillPath.addRect(verticalDivider);
 
@@ -1275,7 +1388,8 @@ namespace Unity.UIWidgets.cupertino {
             }
 
             canvas.drawPath(
-                pressedBackgroundFillPath, _pressedButtonBackgroundPaint
+                pressedBackgroundFillPath, 
+                _pressedButtonBackgroundPaint
             );
             Path dividersPath = new Path();
             dividersPath.addRect(verticalDivider);
@@ -1287,7 +1401,7 @@ namespace Unity.UIWidgets.cupertino {
         void _drawButtonBackgroundsAndDividersStacked(Canvas canvas, Offset offset) {
             Offset dividerOffset = new Offset(0.0f, dividerThickness);
             Path backgroundFillPath = new Path();
-            // ..fillType = PathFillType.evenOdd
+            backgroundFillPath.fillType = PathFillType.evenOdd;
             backgroundFillPath.addRect(Rect.fromLTWH(0.0f, 0.0f, size.width, size.height));
             Path pressedBackgroundFillPath = new Path();
             Path dividersPath = new Path();
@@ -1349,7 +1463,8 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-        protected override bool hitTestChildren(BoxHitTestResult result,
+        protected override bool hitTestChildren(
+            BoxHitTestResult result,
             Offset position = null
         ) {
             return defaultHitTestChildren(result, position: position);

@@ -11,7 +11,10 @@ using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.widgets {
     public class OverlayEntry {
-        public OverlayEntry(WidgetBuilder builder = null, bool opaque = false, bool maintainState = false) {
+        public OverlayEntry(
+            WidgetBuilder builder = null, 
+            bool opaque = false, 
+            bool maintainState = false) {
             D.assert(builder != null);
             _opaque = opaque;
             _maintainState = maintainState;
@@ -45,7 +48,7 @@ namespace Unity.UIWidgets.widgets {
 
                 _maintainState = value;
                 D.assert(_overlay != null);
-                _overlay._didChangeEntryOpacity();
+                _overlay?._didChangeEntryOpacity();
             }
         }
 
@@ -95,7 +98,8 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class _OverlayEntryWidgetState : State<_OverlayEntryWidget> {
-        public override Widget build(BuildContext context) {
+        public override Widget build(
+            BuildContext context) {
             return new TickerMode(
                 enabled: widget.tickerEnabled,
                 child: widget.entry.builder(context)
@@ -382,7 +386,7 @@ namespace Unity.UIWidgets.widgets {
 
     class _RenderTheatre : ContainerRenderObjectMixinRenderBox<RenderBox, StackParentData> {
         internal _RenderTheatre(
-            TextDirection textDirection,
+            TextDirection textDirection ,
             List<RenderBox> children = null,
             int skipCount = 0
         ) {
@@ -406,17 +410,7 @@ namespace Unity.UIWidgets.widgets {
             if (_resolvedAlignment != null) {
                 return;
             }
-            //FIXME: wait for changes on painting/alignment.cs (by Siyao)
-            //then uncomment the line below and remove the switch clauses
-            //_resolvedAlignment = AlignmentDirectional.topStart.resolve(textDirection);
-            switch (textDirection) {
-                case TextDirection.rtl:
-                    _resolvedAlignment = new Alignment(-1, -1);
-                    break;
-                case TextDirection.ltr:
-                    _resolvedAlignment = new Alignment(1, -1);
-                    break;
-            }
+            _resolvedAlignment = AlignmentDirectional.topStart.resolve(textDirection);
         }
 
         void _markNeedResolution() {

@@ -2,18 +2,6 @@
 using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.widgets {
-    class _FocusScopeMarker : InheritedWidget {
-        public _FocusScopeMarker(FocusScopeNode node, Widget child, Key key = null) : base(key, child) {
-            D.assert(node != null);
-            this.node = node;
-        }
-
-        public readonly FocusScopeNode node;
-
-        public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            return node != ((_FocusScopeMarker) oldWidget).node;
-        }
-    }
 
     public class FocusScope : Focus {
         public FocusScope(
@@ -37,7 +25,6 @@ namespace Unity.UIWidgets.widgets {
             onKey: onKey,
             debugLabel: debugLabel) {
             D.assert(child != null);
-            D.assert(autofocus != null);
         }
         public static FocusScopeNode of(BuildContext context) {
             D.assert(context != null);
@@ -88,8 +75,6 @@ namespace Unity.UIWidgets.widgets {
             bool includeSemantics = true
           )  :base(key:key) {
             D.assert(child != null);
-            D.assert(autofocus != null);
-            D.assert(includeSemantics != null);
             this.child = child;
             this.focusNode = focusNode;
             this.autofocus = autofocus;
@@ -113,8 +98,6 @@ namespace Unity.UIWidgets.widgets {
 
         public static FocusNode of(BuildContext context,  bool nullOk = false, bool scopeOk = false ) {
             D.assert(context != null);
-            D.assert(nullOk != null);
-            D.assert(scopeOk != null);
             _FocusMarker marker = context.dependOnInheritedWidgetOfExactType<_FocusMarker>();
             FocusNode node = marker?.notifier;
             if (node == null) {
@@ -270,13 +253,6 @@ namespace Unity.UIWidgets.widgets {
         public override Widget build(BuildContext context) {
             _focusAttachment.reparent();
             Widget child = widget.child;
-            /*if (widget.includeSemantics) {
-              child = Semantics(
-                focusable: _canRequestFocus,
-                focused: _hasPrimaryFocus,
-                child: widget.child,
-              );
-            }*/
             return new _FocusMarker(
               node: focusNode,
               child: child

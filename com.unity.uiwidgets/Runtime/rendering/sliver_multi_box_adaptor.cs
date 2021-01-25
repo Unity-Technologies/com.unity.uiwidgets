@@ -98,6 +98,14 @@ namespace Unity.UIWidgets.rendering {
 
         public bool debugChildIntegrityEnabled {
             get { return _debugChildIntegrityEnabled;}
+            set {
+                D.assert(value != null);
+                D.assert(() =>{
+                    _debugChildIntegrityEnabled = value;
+                    return _debugVerifyChildOrder() &&
+                           (!_debugChildIntegrityEnabled || _debugDanglingKeepAlives.isEmpty());
+                });
+            }
         }
         public void setDebugChildIntegrityEnabled(bool enabled) {
             D.assert(enabled != null);

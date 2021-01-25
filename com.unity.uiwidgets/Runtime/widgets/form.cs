@@ -113,8 +113,7 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null,
             FormState formState = null,
             int? generation = null
-        ) :
-            base(key: key, child: child) {
+        ) : base(key: key, child: child) {
             _formState = formState;
             _generation = generation;
         }
@@ -199,12 +198,11 @@ namespace Unity.UIWidgets.widgets {
             get { return _errorText != null; }
         }
 
-        //[!!!] call?
-        /*public bool isValid {
+        public bool isValid {
             get {
-                return widget.validator?.call(_value) == null;
+                return widget.validator?.Invoke(_value) == null;
             }
-        }*/
+        }
 
         public void save() {
             if (widget.onSaved != null) {

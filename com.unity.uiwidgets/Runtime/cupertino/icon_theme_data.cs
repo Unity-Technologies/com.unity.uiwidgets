@@ -20,7 +20,10 @@ namespace Unity.UIWidgets.cupertino {
             Color resolvedColor = CupertinoDynamicColor.resolve(color, context);
             return resolvedColor == color ? this : copyWith(color: resolvedColor);
         }
-        public new CupertinoIconThemeData copyWith(Color color = null , float? opacity = null, float? size = null) 
+        public new CupertinoIconThemeData copyWith(
+            Color color = null , 
+            float? opacity = null, 
+            float? size = null) 
         {
             return new CupertinoIconThemeData(
                 color: color ?? this.color,

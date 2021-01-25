@@ -340,7 +340,9 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public class RenderAspectRatio : RenderProxyBox {
-        public RenderAspectRatio(float aspectRatio, RenderBox child = null) : base(child) {
+        public RenderAspectRatio(
+            float aspectRatio, 
+            RenderBox child = null) : base(child) {
             _aspectRatio = aspectRatio;
         }
 
@@ -836,24 +838,28 @@ namespace Unity.UIWidgets.rendering {
 
     public class ShapeBorderClipper : CustomClipper<Path> {
         public ShapeBorderClipper(
-            ShapeBorder shape = null) {
+            ShapeBorder shape = null,
+            TextDirection? textDirection = null
+            ) {
             D.assert(shape != null);
             this.shape = shape;
+            this.textDirection = textDirection;
         }
 
         public readonly ShapeBorder shape;
+        public readonly TextDirection? textDirection;
 
         public override Path getClip(Size size) {
-            return shape.getOuterPath(Offset.zero & size);
+            return shape.getOuterPath(Offset.zero & size, textDirection: textDirection);
         }
 
         public override bool shouldReclip(CustomClipper<Path> oldClipper) {
-            if (oldClipper.GetType() != GetType()) {
+            if (oldClipper.GetType() != typeof(ShapeBorderClipper))
                 return true;
-            }
-
-            ShapeBorderClipper typedOldClipper = (ShapeBorderClipper) oldClipper;
-            return typedOldClipper.shape != shape;
+            ShapeBorderClipper typedOldClipper = oldClipper as ShapeBorderClipper;
+            return typedOldClipper.shape != shape
+                   || typedOldClipper.textDirection != textDirection;
+        
         }
     }
 
@@ -1589,15 +1595,17 @@ namespace Unity.UIWidgets.rendering {
 
     public class RenderTransform : RenderProxyBox {
         public RenderTransform(
-            Matrix4 transform,
+            Matrix4 transform ,
             Offset origin = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null,
             bool transformHitTests = true,
             RenderBox child = null
         ) : base(child) {
             this.transform = transform;
             this.origin = origin;
             this.alignment = alignment;
+            this.textDirection = textDirection;
             this.transformHitTests = transformHitTests;
         }
 
@@ -1615,7 +1623,7 @@ namespace Unity.UIWidgets.rendering {
 
         Offset _origin;
 
-        public Alignment alignment {
+        public AlignmentGeometry alignment {
             get { return _alignment; }
             set {
                 if (_alignment == value) {
@@ -1627,7 +1635,22 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        Alignment _alignment;
+        AlignmentGeometry _alignment;
+
+
+        public TextDirection? textDirection {
+            get { return _textDirection; }
+            set {
+                if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                markNeedsPaint();
+                //markNeedsSemanticsUpdate();
+            }
+        }
+
+        TextDirection? _textDirection; 
+        
 
         public bool transformHitTests;
 
@@ -1676,7 +1699,7 @@ namespace Unity.UIWidgets.rendering {
 
         Matrix4 _effectiveTransform {
             get {
-                Alignment resolvedAlignment = alignment;
+                Alignment resolvedAlignment = alignment?.resolve(textDirection);
                 if (_origin == null && resolvedAlignment == null) {
                     return _transform;
                 }
@@ -1743,19 +1766,22 @@ namespace Unity.UIWidgets.rendering {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Matrix4>("transform matrix", _transform));
             properties.add(new DiagnosticsProperty<Offset>("origin", origin));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
             properties.add(new DiagnosticsProperty<bool>("transformHitTests", transformHitTests));
+            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
         }
     }
 
     public class RenderFittedBox : RenderProxyBox {
         public RenderFittedBox(
             BoxFit fit = BoxFit.contain,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null,
             RenderBox child = null
         ) : base(child) {
             _fit = fit;
             _alignment = alignment ?? Alignment.center;
+            _textDirection = textDirection;
         }
 
         Alignment _resolvedAlignment;
@@ -1764,8 +1790,7 @@ namespace Unity.UIWidgets.rendering {
             if (_resolvedAlignment != null) {
                 return;
             }
-
-            _resolvedAlignment = alignment;
+            _resolvedAlignment = alignment.resolve(textDirection);
         }
 
         void _markNeedResolution() {
@@ -1788,7 +1813,7 @@ namespace Unity.UIWidgets.rendering {
 
         BoxFit _fit;
 
-        public Alignment alignment {
+        public AlignmentGeometry alignment {
             get { return _alignment; }
             set {
                 D.assert(value != null);
@@ -1801,8 +1826,22 @@ namespace Unity.UIWidgets.rendering {
                 _markNeedResolution();
             }
         }
+        AlignmentGeometry _alignment;
 
-        Alignment _alignment;
+        public TextDirection? textDirection {
+            get {
+                return _textDirection;
+            }
+            set {
+                if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                _clearPaintData();
+                _markNeedResolution();
+            }
+        }
+        TextDirection? _textDirection;
+        
 
         protected override void performLayout() {
             if (child != null) {
@@ -1900,7 +1939,8 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new EnumProperty<BoxFit>("fit", fit));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
+            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
         }
     }
 

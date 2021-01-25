@@ -18,6 +18,8 @@ namespace Unity.UIWidgets.rendering {
         public int flex;
 
         public FlexFit fit;
+
+        public override string ToString() => $"{base.ToString()}; flex={flex}; fit={fit}";
     }
 
     public enum MainAxisSize {
@@ -165,6 +167,47 @@ namespace Unity.UIWidgets.rendering {
 
         public TextBaseline _textBaseline;
 
+        bool _debugHasNecessaryDirections {
+            get  {
+                if (firstChild != null && lastChild != firstChild) {
+                    // i.e. there's more than one child
+                    switch (direction) {
+                        case Axis.horizontal:
+                            D.assert(textDirection != null, () => "Horizontal $runtimeType with multiple children has a null textDirection, so the layout order is undefined.");
+                            break;
+                        case Axis.vertical:
+                            D.assert(verticalDirection != null, () => "Vertical $runtimeType with multiple children has a null verticalDirection, so the layout order is undefined.");
+                            break;
+                    }
+                }
+                if (mainAxisAlignment == MainAxisAlignment.start ||
+                mainAxisAlignment == MainAxisAlignment.end) {
+                    switch (direction) {
+                        case Axis.horizontal:
+                            D.assert(textDirection != null, () => "Horizontal $runtimeType with $mainAxisAlignment has a null textDirection, so the alignment cannot be resolved.");
+                            break;
+                        case Axis.vertical:
+                            D.assert(verticalDirection != null, () => "Vertical $runtimeType with $mainAxisAlignment has a null verticalDirection, so the alignment cannot be resolved.");
+                            break;
+                    }
+                }
+                if (crossAxisAlignment == CrossAxisAlignment.start ||
+                crossAxisAlignment == CrossAxisAlignment.end) {
+                    switch (direction) {
+                        case Axis.horizontal:
+                            D.assert(verticalDirection != null, () => "Horizontal $runtimeType with $crossAxisAlignment has a null verticalDirection, so the alignment cannot be resolved.");
+                            break;
+                        case Axis.vertical:
+                            D.assert(textDirection != null, () => "Vertical $runtimeType with $crossAxisAlignment has a null textDirection, so the alignment cannot be resolved.");
+                            break;
+                    }
+                }
+                return true;
+            }
+        }
+        
+        
+        
         public float _overflow;
         
         bool _hasOverflow {
@@ -180,9 +223,9 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public float _getIntrinsicSize(
-            Axis sizingDirection,
-            float extent,
-            _ChildSizingFunction childSize
+            Axis? sizingDirection = null,
+            float? extent = null,
+            _ChildSizingFunction childSize = null
         ) {
             if (_direction == sizingDirection) {
                 float totalFlex = 0.0f;
@@ -194,11 +237,11 @@ namespace Unity.UIWidgets.rendering {
                     int flex = _getFlex(child);
                     totalFlex += flex;
                     if (flex > 0) {
-                        float flexFraction = childSize(child, extent) / _getFlex(child);
+                        float flexFraction = childSize(child, extent.Value) / _getFlex(child);
                         maxFlexFractionSoFar = Mathf.Max(maxFlexFractionSoFar, flexFraction);
                     }
                     else {
-                        inflexibleSpace += childSize(child, extent);
+                        inflexibleSpace += childSize(child, extent.Value);
                     }
 
                     var childParentData = (FlexParentData) child.parentData;
@@ -208,7 +251,7 @@ namespace Unity.UIWidgets.rendering {
                 return maxFlexFractionSoFar * totalFlex + inflexibleSpace;
             }
             else {
-                float availableMainSpace = extent;
+                float? availableMainSpace = extent;
                 int totalFlex = 0;
                 float inflexibleSpace = 0.0f;
                 float maxCrossSize = 0.0f;
@@ -239,7 +282,7 @@ namespace Unity.UIWidgets.rendering {
                     child = childParentData.nextSibling;
                 }
 
-                float spacePerFlex = Mathf.Max(0.0f, (availableMainSpace - inflexibleSpace) / totalFlex);
+                float spacePerFlex = Mathf.Max(0.0f, ((availableMainSpace - inflexibleSpace) / totalFlex).Value);
 
                 child = firstChild;
                 while (child != null) {
@@ -329,8 +372,11 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
+            D.assert(_debugHasNecessaryDirections);
+            BoxConstraints constraints = this.constraints;
             int totalFlex = 0;
             int totalChildren = 0;
+            D.assert(constraints != null);
             float maxMainSize = _direction == Axis.horizontal
                 ? constraints.maxWidth
                 : constraints.maxHeight;
@@ -381,7 +427,7 @@ namespace Unity.UIWidgets.rendering {
                     allocatedSize += _getMainSize(child);
                     crossSize = Mathf.Max(crossSize, _getCrossSize(child));
                 }
-
+                D.assert(child.parentData == childParentData);
                 child = childParentData.nextSibling;
             }
 
@@ -620,22 +666,21 @@ namespace Unity.UIWidgets.rendering {
                 ),
                 new ErrorDescription(
                     $"The edge of the {GetType()} that is overflowing has been marked " +
-                "in the rendering with a yellow and black striped pattern. This is " +
-                "usually caused by the contents being too big for the $runtimeType."
-                    ),
+                    "in the rendering with a yellow and black striped pattern. This is " +
+                    "usually caused by the contents being too big for the $runtimeType."
+                ),
                 new ErrorHint(
                     "Consider applying a flex factor (e.g. using an Expanded widget) to " +
                     $"force the children of the {GetType()} to fit within the available " +
                     "space instead of being sized to their natural size."
-                    ),
+                ),
                 new ErrorHint(
                     "This is considered an error condition because it indicates that there " +
                     "is content that cannot be seen. If the content is legitimately bigger " +
                     "than the available space, consider clipping it with a ClipRect widget " +
                     "before putting it in the flex, or using a scrollable container rather " +
                     "than a Flex, like a ListView."
-                    )
-                    };
+                )};
                 
                 Rect overflowChildRect;
                 switch (_direction) {
@@ -657,6 +702,27 @@ namespace Unity.UIWidgets.rendering {
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             return defaultHitTestChildren(result, position: position);
+        }
+        
+        public override Rect describeApproximatePaintClip(RenderObject child) => _hasOverflow ? Offset.zero & size : null;
+        
+        
+        public override string toStringShort() {
+            String header = base.toStringShort();
+            if (_overflow is float && _hasOverflow)
+                header += " OVERFLOWING";
+            return header;
+        }
+        
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new EnumProperty<Axis>("direction", direction));
+            properties.add(new EnumProperty<MainAxisAlignment>("mainAxisAlignment", mainAxisAlignment));
+            properties.add(new EnumProperty<MainAxisSize>("mainAxisSize", mainAxisSize));
+            properties.add(new EnumProperty<CrossAxisAlignment>("crossAxisAlignment", crossAxisAlignment));
+            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection, defaultValue: null));
+            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", verticalDirection, defaultValue: null));
+            properties.add(new EnumProperty<TextBaseline>("textBaseline", textBaseline, defaultValue: null));
         }
     }
 }

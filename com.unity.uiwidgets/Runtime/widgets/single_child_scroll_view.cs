@@ -306,6 +306,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
             if (child == null) {
                 size = constraints.smallest;
             }
@@ -396,7 +397,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             RenderBox targetBox = (RenderBox) target;
-            Matrix4 transform = targetBox.getTransformTo(this);
+            Matrix4 transform = targetBox.getTransformTo(child);
             Rect bounds = MatrixUtils.transformRect(transform, rect);
             Size contentSize = child.size;
 

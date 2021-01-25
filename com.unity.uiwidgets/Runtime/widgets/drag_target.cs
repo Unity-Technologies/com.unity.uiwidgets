@@ -37,10 +37,10 @@ namespace Unity.UIWidgets.widgets {
 
     public class Draggable<T> : StatefulWidget {
         public Draggable(
-            T data,
             Key key = null,
             Widget child = null,
             Widget feedback = null,
+            T data = default,
             Axis? axis = null,
             Widget childWhenDragging = null,
             Offset feedbackOffset = null,
@@ -50,7 +50,8 @@ namespace Unity.UIWidgets.widgets {
             VoidCallback onDragStarted = null,
             DraggableCanceledCallback onDraggableCanceled = null,
             DragEndCallback onDragEnd = null,
-            VoidCallback onDragCompleted = null) : base(key) {
+            VoidCallback onDragCompleted = null
+            ) : base(key) {
             D.assert(child != null);
             D.assert(feedback != null);
             D.assert(maxSimultaneousDrags == null || maxSimultaneousDrags >= 0);
@@ -60,11 +61,7 @@ namespace Unity.UIWidgets.widgets {
             this.data = data;
             this.axis = axis;
             this.childWhenDragging = childWhenDragging;
-            if (feedbackOffset == null) {
-                feedbackOffset = Offset.zero;
-            }
-
-            this.feedbackOffset = feedbackOffset;
+            this.feedbackOffset = feedbackOffset ?? Offset.zero;
             this.dragAnchor = dragAnchor;
             this.affinity = affinity;
             this.maxSimultaneousDrags = maxSimultaneousDrags;
@@ -122,10 +119,10 @@ namespace Unity.UIWidgets.widgets {
 
     public class LongPressDraggable<T> : Draggable<T> {
         public LongPressDraggable(
-            T data,
             Key key = null,
             Widget child = null,
             Widget feedback = null,
+            T data = default,
             Axis? axis = null,
             Widget childWhenDragging = null,
             Offset feedbackOffset = null,
@@ -180,7 +177,6 @@ namespace Unity.UIWidgets.widgets {
             if (_activeCount > 0) {
                 return;
             }
-
             _recognizer.dispose();
             _recognizer = null;
         }
@@ -393,8 +389,8 @@ namespace Unity.UIWidgets.widgets {
 
     public class _DragAvatar<T> : Drag {
         public _DragAvatar(
-            T data,
             OverlayState overlayState,
+            T data = default,
             Axis? axis = null,
             Offset initialPosition = null,
             Offset dragStartPoint = null,
@@ -402,14 +398,9 @@ namespace Unity.UIWidgets.widgets {
             Offset feedbackOffset = null,
             _OnDragEnd onDragEnd = null
         ) {
-            if (initialPosition == null) {
-                initialPosition = Offset.zero;
-            }
+           
 
-            if (dragStartPoint == null) {
-                dragStartPoint = Offset.zero;
-            }
-
+           
             if (feedbackOffset == null) {
                 feedbackOffset = Offset.zero;
             }
@@ -418,15 +409,14 @@ namespace Unity.UIWidgets.widgets {
             this.overlayState = overlayState;
             this.data = data;
             this.axis = axis;
-            this.dragStartPoint = dragStartPoint;
+            this.dragStartPoint = dragStartPoint ?? Offset.zero;
             this.feedback = feedback;
-            this.feedbackOffset = feedbackOffset;
+            this.feedbackOffset = feedbackOffset ?? Offset.zero;
             this.onDragEnd = onDragEnd;
 
             _entry = new OverlayEntry(_build);
-
             this.overlayState.insert(_entry);
-            _position = initialPosition;
+            _position = initialPosition ?? Offset.zero;
             updateDrag(initialPosition);
         }
 

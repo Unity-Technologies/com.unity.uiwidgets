@@ -116,8 +116,7 @@ namespace Unity.UIWidgets.widgets {
             float friction = 0.015f,
             Tolerance tolerance = null
         ) : base(tolerance: tolerance) {
-            D.assert(_flingVelocityPenetration(0.0f) ==
-                     _initialVelocityPenetration);
+            D.assert(_flingVelocityPenetration(0.0f) == _initialVelocityPenetration);
             this.position = position;
             this.velocity = velocity;
             this.friction = friction;

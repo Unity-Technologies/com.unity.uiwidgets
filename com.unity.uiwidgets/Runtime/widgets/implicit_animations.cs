@@ -45,6 +45,15 @@ namespace Unity.UIWidgets.widgets {
             return EdgeInsets.lerp(begin, end, t);
         }
     }
+    public class EdgeInsetsGeometryTween : Tween<EdgeInsetsGeometry> {
+        public EdgeInsetsGeometryTween(
+            EdgeInsetsGeometry begin = null,
+            EdgeInsetsGeometry end = null) : base(begin: begin, end: end) {
+        }
+        public override EdgeInsetsGeometry lerp(float t) {
+            return EdgeInsetsGeometry.lerp(begin, end, t);
+        }
+    }
 
 
     public class BorderRadiusTween : Tween<BorderRadius> {
@@ -184,13 +193,11 @@ namespace Unity.UIWidgets.widgets {
         protected AnimationController controller {
             get { return _controller; }
         }
-
         AnimationController _controller;
 
         public Animation<float> animation {
             get { return _animation; }
         }
-
         Animation<float> _animation;
 
         public override void initState() {
@@ -290,7 +297,7 @@ namespace Unity.UIWidgets.widgets {
     public class AnimatedContainer : ImplicitlyAnimatedWidget {
         public AnimatedContainer(
             Key key = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             EdgeInsets padding = null,
             Color color = null,
             Decoration decoration = null,
@@ -329,7 +336,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly Widget child;
 
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
 
         public readonly EdgeInsets padding;
 
@@ -351,7 +358,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment, showName: false,
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment, showName: false,
                 defaultValue: null));
             properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: null));
             properties.add(new DiagnosticsProperty<Decoration>("bg", decoration, defaultValue: null));
@@ -366,7 +373,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class _AnimatedContainerState : AnimatedWidgetBaseState<AnimatedContainer> {
-        AlignmentTween _alignment;
+        AlignmentGeometryTween _alignment;
         EdgeInsetsTween _padding;
         DecorationTween _decoration;
         DecorationTween _foregroundDecoration;
@@ -376,8 +383,8 @@ namespace Unity.UIWidgets.widgets {
 
 
         protected override void forEachTween(TweenVisitor visitor) {
-            _alignment = (AlignmentTween) visitor.visit(this, _alignment, widget.alignment,
-                (Alignment value) => new AlignmentTween(begin: value));
+            _alignment = (AlignmentGeometryTween) visitor.visit(this, _alignment, widget.alignment,
+                (AlignmentGeometry value) => new AlignmentGeometryTween(begin: value));
             _padding = (EdgeInsetsTween) visitor.visit(this, _padding, widget.padding,
                 (EdgeInsets value) => new EdgeInsetsTween(begin: value));
             _decoration = (DecorationTween) visitor.visit(this, _decoration, widget.decoration,
@@ -399,17 +406,17 @@ namespace Unity.UIWidgets.widgets {
                 alignment: _alignment?.evaluate(animation),
                 padding: _padding?.evaluate(animation),
                 decoration: _decoration?.evaluate(animation),
-                forgroundDecoration: _foregroundDecoration?.evaluate(animation),
+                foregroundDecoration: _foregroundDecoration?.evaluate(animation),
                 constraints: _constraints?.evaluate(animation),
                 margin: _margin?.evaluate(animation),
-                transfrom: _transform?.evaluate(animation)
+                transform: _transform?.evaluate(animation)
             );
         }
 
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new DiagnosticsProperty<AlignmentTween>("alignment", _alignment, showName: false,
+            description.add(new DiagnosticsProperty<AlignmentGeometryTween>("alignment", _alignment, showName: false,
                 defaultValue: null));
             description.add(new DiagnosticsProperty<EdgeInsetsTween>("padding", _padding, defaultValue: null));
             description.add(new DiagnosticsProperty<DecorationTween>("bg", _decoration, defaultValue: null));
@@ -425,7 +432,7 @@ namespace Unity.UIWidgets.widgets {
     public class AnimatedPadding : ImplicitlyAnimatedWidget {
         public AnimatedPadding(
             Key key = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Widget child = null,
             Curve curve = null,
             TimeSpan? duration = null,
@@ -437,7 +444,7 @@ namespace Unity.UIWidgets.widgets {
             this.child = child;
         }
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly Widget child;
 
@@ -447,16 +454,16 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding));
         }
     }
 
     class _AnimatedPaddingState : AnimatedWidgetBaseState<AnimatedPadding> {
-        EdgeInsetsTween _padding;
+        EdgeInsetsGeometryTween _padding;
 
         protected override void forEachTween(TweenVisitor visitor) {
-            _padding = (EdgeInsetsTween) visitor.visit(this, _padding, widget.padding,
-                (EdgeInsets value) => new EdgeInsetsTween(begin: value));
+            _padding = (EdgeInsetsGeometryTween) visitor.visit(this, _padding, widget.padding,
+                (EdgeInsetsGeometry value) => new EdgeInsetsGeometryTween(begin: value));
         }
 
         public override Widget build(BuildContext context) {
@@ -470,7 +477,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new DiagnosticsProperty<EdgeInsetsTween>("padding", _padding,
+            description.add(new DiagnosticsProperty<EdgeInsetsGeometryTween>("padding", _padding,
                 defaultValue: foundation_.kNullDefaultValue));
         }
     }
@@ -478,7 +485,7 @@ namespace Unity.UIWidgets.widgets {
     public class AnimatedAlign : ImplicitlyAnimatedWidget {
         public AnimatedAlign(
             Key key = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             Widget child = null,
             Curve curve = null,
             TimeSpan? duration = null,
@@ -489,7 +496,7 @@ namespace Unity.UIWidgets.widgets {
             this.child = child;
         }
 
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
 
         public readonly Widget child;
 
@@ -499,16 +506,16 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties: properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", value: alignment));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", value: alignment));
         }
     }
 
     class _AnimatedAlignState : AnimatedWidgetBaseState<AnimatedAlign> {
-        AlignmentTween _alignment;
+        AlignmentGeometryTween _alignment;
 
         protected override void forEachTween(TweenVisitor visitor) {
-            _alignment = (AlignmentTween) visitor.visit(this, tween: _alignment,
-                targetValue: widget.alignment, constructor: value => new AlignmentTween(begin: value));
+            _alignment = (AlignmentGeometryTween) visitor.visit(this, tween: _alignment,
+                targetValue: widget.alignment, constructor: value => new   AlignmentGeometryTween(begin: value));
         }
 
         public override Widget build(BuildContext context) {
@@ -520,7 +527,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(properties: description);
-            description.add(new DiagnosticsProperty<AlignmentTween>("alignment", value: _alignment, defaultValue: null));
+            description.add(new DiagnosticsProperty<AlignmentGeometryTween>("alignment", value: _alignment, defaultValue: null));
         }
     }
 
@@ -660,7 +667,7 @@ namespace Unity.UIWidgets.widgets {
             Curve curve = null,
             TimeSpan? duration = null,
             VoidCallback onEnd = null
-        ) : base(key: key, curve: curve, duration: duration, onEnd: onEnd) {
+        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration, onEnd: onEnd) {
             D.assert(start == null || end == null || width == null);
             D.assert(top == null || bottom == null || height == null);
             this.child = child;
@@ -761,12 +768,12 @@ namespace Unity.UIWidgets.widgets {
             base(key: key, curve: curve ?? Curves.linear, duration: duration, onEnd: onEnd) {
             D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0);
             this.child = child;
-            this.opacity = opacity ?? 1.0f;
+            this.opacity = opacity;
         }
 
         public readonly Widget child;
 
-        public readonly float opacity;
+        public readonly float? opacity;
 
         public override State createState() {
             return new _AnimatedOpacityState();
@@ -806,16 +813,18 @@ namespace Unity.UIWidgets.widgets {
         protected SliverAnimatedOpacity(
             Key key = null,
             Widget sliver = null,
-            float opacity = default,
-            Curve curve = null,//Curve curve = Curve.linear
+            float? opacity = null,
+            Curve curve = null,
             TimeSpan duration = default,
             VoidCallback onEnd = null
-        ) : base(key: key, curve: curve, duration: duration, onEnd: onEnd) {
+        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration, onEnd: onEnd) {
             D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0);
+            this.opacity = opacity;
+            this.sliver = sliver;
         }
           
       public readonly Widget sliver;
-      public readonly float opacity;
+      public readonly float? opacity;
       
       public override State createState() {
           return new _SliverAnimatedOpacityState();
@@ -832,7 +841,7 @@ namespace Unity.UIWidgets.widgets {
         Animation<float> _opacityAnimation;
         
       protected override void forEachTween(TweenVisitor visitor) {
-        _opacity = (FloatTween) visitor.visit(this,_opacity, widget.opacity, (float value) => new FloatTween(begin: value, 0));
+        _opacity = (FloatTween) visitor.visit(this, _opacity, widget.opacity ?? 0.0f, (float value) => new FloatTween(begin: value, 0));
       }
       
       protected override void didUpdateTweens() {
@@ -857,19 +866,27 @@ namespace Unity.UIWidgets.widgets {
             bool softWrap = true,
             TextOverflow? overflow = null,
             int? maxLines = null,
+            TextWidthBasis textWidthBasis = TextWidthBasis.parent,
+            ui.TextHeightBehavior textHeightBehavior = null,
             Curve curve = null,
-            TimeSpan? duration = null
-        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration) {
+            TimeSpan? duration = null,
+            VoidCallback onEnd = null
+        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration, onEnd: onEnd) {
             D.assert(duration != null);
             D.assert(style != null);
             D.assert(child != null);
+            D.assert(overflow != null);
             D.assert(maxLines == null || maxLines > 0);
+           
             this.child = child;
             this.style = style;
             this.textAlign = textAlign;
             this.softWrap = softWrap;
             this.overflow = overflow ?? TextOverflow.clip;
             this.maxLines = maxLines;
+            this.textHeightBehavior = textHeightBehavior;
+            this.textWidthBasis = textWidthBasis;
+            
         }
 
         public readonly Widget child;
@@ -879,10 +896,16 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool softWrap;
 
         public readonly TextAlign? textAlign;
+        
+        public readonly ui.TextHeightBehavior textHeightBehavior;
+
+        public readonly TextWidthBasis textWidthBasis;
 
         public readonly TextOverflow overflow;
 
         public readonly int? maxLines;
+
+        public readonly VoidCallback onEnd;
 
         public override State createState() {
             return new _AnimatedDefaultTextStyleState();
@@ -890,13 +913,14 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
+           
             style?.debugFillProperties(properties);
-            properties.add(new EnumProperty<TextAlign>("textAlign", textAlign ?? TextAlign.center,
-                defaultValue: null));
-            properties.add(new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width",
-                ifFalse: "no wrapping except at line break characters", showName: true));
+            properties.add(new EnumProperty<TextAlign>("textAlign", textAlign ?? TextAlign.start, defaultValue: null));
+            properties.add(new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width", ifFalse: "no wrapping except at line break characters", showName: true));
             properties.add(new EnumProperty<TextOverflow>("overflow", overflow, defaultValue: null));
             properties.add(new IntProperty("maxLines", maxLines, defaultValue: null));
+            properties.add(new EnumProperty<TextWidthBasis>("textWidthBasis", textWidthBasis, defaultValue: TextWidthBasis.parent));
+            properties.add(new DiagnosticsProperty<ui.TextHeightBehavior>("textHeightBehavior", textHeightBehavior, defaultValue: null));
         }
     }
 
@@ -916,7 +940,10 @@ namespace Unity.UIWidgets.widgets {
                 softWrap: widget.softWrap,
                 overflow: widget.overflow,
                 maxLines: widget.maxLines,
-                child: widget.child);
+                textWidthBasis: widget.textWidthBasis,
+                textHeightBehavior: widget.textHeightBehavior,
+                child: widget.child
+            );
         }
     }
 
@@ -934,14 +961,14 @@ namespace Unity.UIWidgets.widgets {
             Color shadowColor = null,
             bool animateShadowColor = true,
             Curve curve = null,
-            TimeSpan? duration = null
-        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration) {
+            TimeSpan? duration = null,
+            VoidCallback onEnd = null
+        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration,onEnd: onEnd) {
             D.assert(child != null);
             D.assert(shape != null);
             D.assert(elevation != null && elevation >= 0.0f);
             D.assert(color != null);
             D.assert(shadowColor != null);
-            D.assert(duration != null);
             this.child = child;
             this.shape = shape ?? BoxShape.circle;
             this.clipBehavior = clipBehavior;
@@ -984,6 +1011,7 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new DiagnosticsProperty<bool>("animateColor", animateColor));
             properties.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor));
             properties.add(new DiagnosticsProperty<bool>("animateShadowColor", animateShadowColor));
+        
         }
     }
 

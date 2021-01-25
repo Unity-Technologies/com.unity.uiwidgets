@@ -33,6 +33,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
+            oldWidget = (AutomaticKeepAlive)oldWidget;
             base.didUpdateWidget(oldWidget);
             _updateChild();
         }
@@ -50,20 +51,17 @@ namespace Unity.UIWidgets.widgets {
                     handle.removeListener(_handles[handle]);
                 }
             }
-
             base.dispose();
         }
 
         bool _addClient(KeepAliveNotification notification) {
             Listenable handle = notification.handle;
             _handles = _handles ?? new Dictionary<Listenable, VoidCallback>();
-
             D.assert(!_handles.ContainsKey(handle));
             _handles[handle] = _createCallback(handle);
             handle.addListener(_handles[handle]);
             if (!_keepingAlive) {
                 _keepingAlive = true;
-                //ParentDataElement 
                 ParentDataElement<KeepAliveParentDataMixin> childElement = _getChildElement();
                 if (childElement != null) {
                     _updateParentDataOfChild(childElement);
@@ -73,7 +71,6 @@ namespace Unity.UIWidgets.widgets {
                         if (!mounted) {
                             return;
                         }
-
                         ParentDataElement<KeepAliveParentDataMixin> childElement1 = _getChildElement();
                         D.assert(childElement1 != null);
                         _updateParentDataOfChild(childElement1);

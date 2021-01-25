@@ -20,6 +20,8 @@ namespace Unity.UIWidgets.widgets {
         Future<bool> didPopRoute();
 
         Future<bool> didPushRoute(string route);
+
+        void didChangeAccessibilityFeatures();
     }
 
     public static partial class ui_ {

@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.rendering {
     public interface IListWheelChildManager {
         int? childCount { get; }
         bool childExistsAt(int index);
-        void createChild(int index, RenderBox after);
+        void createChild(int index, RenderBox after = null);
         void removeChild(RenderBox child);
     }
 
@@ -45,10 +45,8 @@ namespace Unity.UIWidgets.rendering {
             D.assert(perspective > 0);
             D.assert(perspective <= 0.01f, () => perspectiveTooHighMessage);
             D.assert(magnification > 0);
-            D.assert(overAndUnderCenterOpacity != null);
             D.assert(overAndUnderCenterOpacity >= 0 && overAndUnderCenterOpacity <= 1);
             D.assert(itemExtent > 0);
-            D.assert(squeeze != null);
             D.assert(squeeze > 0);
             D.assert(
                 !renderChildrenOutsideViewport || !clipToSize,
@@ -194,7 +192,6 @@ namespace Unity.UIWidgets.rendering {
                 return _overAndUnderCenterOpacity;
             }
             set {
-                D.assert(value != null);
                 D.assert(value >= 0 && value <= 1);
                 if (value == _overAndUnderCenterOpacity)
                     return;
@@ -225,7 +222,6 @@ namespace Unity.UIWidgets.rendering {
                 return _squeeze;
             }
             set {
-                D.assert(value != null);
                 D.assert(value > 0);
                 if (value == _squeeze)
                     return;
@@ -439,7 +435,7 @@ namespace Unity.UIWidgets.rendering {
                 minWidth: 0.0f
             );
 
-            float visibleHeight = size.height;
+            float visibleHeight = size.height * _squeeze;
             if (renderChildrenOutsideViewport) {
                 visibleHeight *= 2;
             }
@@ -565,7 +561,7 @@ namespace Unity.UIWidgets.rendering {
 
             float fractionalY = (untransformedPaintingCoordinates.dy + _itemExtent / 2.0f) / size.height;
 
-            float angle = -(fractionalY - 0.5f) * 2.0f * _maxVisibleRadian;
+            float angle = -(fractionalY - 0.5f) * 2.0f * _maxVisibleRadian / squeeze;
             if (angle > Mathf.PI / 2.0f || angle < -Mathf.PI / 2.0f) {
                 return;
             }
@@ -585,18 +581,11 @@ namespace Unity.UIWidgets.rendering {
             Offset offsetToCenter =
                 new Offset(untransformedPaintingCoordinates.dx, -deltaY - _topScrollMarginExtent);
 
-            if (!useMagnifier) {
+            bool shouldApplyOffCenterDim = overAndUnderCenterOpacity < 1;
+            if (useMagnifier || shouldApplyOffCenterDim) {
+                _paintChildWithMagnifier(context, offset, child, transform, offsetToCenter, untransformedPaintingCoordinates);
+            } else {
                 _paintChildCylindrically(context, offset, child, transform, offsetToCenter);
-            }
-            else {
-                _paintChildWithMagnifier(
-                    context,
-                    offset,
-                    child,
-                    transform,
-                    offsetToCenter,
-                    untransformedPaintingCoordinates
-                );
             }
         }
 
@@ -604,7 +593,6 @@ namespace Unity.UIWidgets.rendering {
             PaintingContext context,
             Offset offset,
             RenderBox child,
-            // Matrix4x4 cylindricalTransform,
             Matrix4 cylindricalTransform,
             Offset offsetToCenter,
             Offset untransformedPaintingCoordinates
@@ -620,35 +608,36 @@ namespace Unity.UIWidgets.rendering {
             if (isAfterMagnifierTopLine && isBeforeMagnifierBottomLine) {
                 Rect centerRect = Rect.fromLTWH(
                     0.0f,
-                    magnifierTopLinePosition, size.width, _itemExtent * _magnification);
+                    magnifierTopLinePosition, 
+                    size.width, 
+                    _itemExtent * _magnification);
                 Rect topHalfRect = Rect.fromLTWH(
                     0.0f,
                     0.0f, size.width,
                     magnifierTopLinePosition);
                 Rect bottomHalfRect = Rect.fromLTWH(
                     0.0f,
-                    magnifierBottomLinePosition, size.width,
+                    magnifierBottomLinePosition, 
+                    size.width,
                     magnifierTopLinePosition);
 
                 context.pushClipRect(
-                    false,
+                    needsCompositing,
                     offset,
                     centerRect,
                     (PaintingContext context1, Offset offset1) => {
                         context1.pushTransform(
-                            false,
+                            needsCompositing,
                             offset1,
                             cylindricalTransform,
                             // this._centerOriginTransform(cylindricalTransform),
                             (PaintingContext context2, Offset offset2) => {
-                                context2.paintChild(
-                                    child,
-                                    offset2 + untransformedPaintingCoordinates);
+                                context2.paintChild(child, offset2 + untransformedPaintingCoordinates);
                             });
                     });
 
                 context.pushClipRect(
-                    false,
+                    needsCompositing,
                     offset,
                     untransformedPaintingCoordinates.dy <= magnifierTopLinePosition
                         ? topHalfRect
@@ -679,19 +668,48 @@ namespace Unity.UIWidgets.rendering {
             PaintingContext context,
             Offset offset,
             RenderBox child,
-            // Matrix4x4 cylindricalTransform,
             Matrix4 cylindricalTransform,
             Offset offsetToCenter
         ) {
+            PaintingContextCallback painter = (PaintingContext _context, Offset _offset) => {
+                _context.paintChild(
+                    child,
+                    _offset + offsetToCenter
+                );
+            };
+            PaintingContextCallback opacityPainter = (PaintingContext context2, Offset offset2) =>{
+                context2.pushOpacity(offset2, (overAndUnderCenterOpacity * 255).round(), painter);
+            };
+
             context.pushTransform(
-                false,
+                needsCompositing,
                 offset,
-                cylindricalTransform,
-                // this._centerOriginTransform(cylindricalTransform),
-                (PaintingContext _context, Offset _offset) => { _context.paintChild(child, _offset + offsetToCenter); }
+                _centerOriginTransform(cylindricalTransform),
+                // Pre-transform painting function.
+                overAndUnderCenterOpacity == 1 ? painter : opacityPainter
             );
         }
 
+        Matrix4 _centerOriginTransform(Matrix4 originalMatrix) {
+            Matrix4 result = Matrix4.identity();
+            Offset centerOriginTranslation = Alignment.center.alongSize(size);
+            result.translate(centerOriginTranslation.dx * (-_offAxisFraction * 2 + 1),
+                centerOriginTranslation.dy);
+            result.multiply(originalMatrix);
+            result.translate(-centerOriginTranslation.dx * (-_offAxisFraction * 2 + 1),
+                -centerOriginTranslation.dy);
+            return result;
+        }
+        
+        Matrix4 _magnifyTransform() {
+            Matrix4 magnify = Matrix4.identity();
+            magnify.translate(size.width * (-_offAxisFraction + 0.5), size.height / 2);
+            magnify.scale(_magnification, _magnification, _magnification);
+            magnify.translate(-size.width * (-_offAxisFraction + 0.5), -size.height / 2);
+            return magnify;
+        }
+        
+        
         public override Rect describeApproximatePaintClip(RenderObject child) {
             if (child != null && _shouldClipAtCurrentOffset()) {
                 return Offset.zero & size;
@@ -700,8 +718,7 @@ namespace Unity.UIWidgets.rendering {
             return null;
         }
 
-        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null
-        ) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             return false;
         }
 
@@ -717,7 +734,7 @@ namespace Unity.UIWidgets.rendering {
 
             ListWheelParentData parentData = (ListWheelParentData) child.parentData;
             float targetOffset = parentData.offset.dy;
-            Matrix4 transform = target.getTransformTo(this);
+            Matrix4 transform = target.getTransformTo(child);
             Rect bounds = MatrixUtils.transformRect(transform, rect);
             Rect targetRect = bounds.translate(0.0f, (size.height - itemExtent) / 2);
 

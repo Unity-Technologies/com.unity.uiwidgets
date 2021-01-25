@@ -507,6 +507,8 @@ namespace Unity.UIWidgets.cupertino {
                 padding: widget.padding,
                 child: new RepaintBoundary(
                     child: new EditableText(
+                        smartDashesType: SmartDashesType.disabled,
+                        smartQuotesType:SmartQuotesType.disabled,
                         key: _editableTextKey,
                         controller: controller,
                         focusNode: _effectiveFocusNode,
