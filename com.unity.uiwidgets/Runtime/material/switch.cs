@@ -1,13 +1,11 @@
+using System.Collections.Generic;
 using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler2;
-using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using ImageUtils = Unity.UIWidgets.widgets.ImageUtils;
 
 namespace Unity.UIWidgets.material {
     enum _SwitchType {
@@ -33,9 +31,15 @@ namespace Unity.UIWidgets.material {
             Color inactiveThumbColor = null,
             Color inactiveTrackColor = null,
             ImageProvider activeThumbImage = null,
+            ImageErrorListener onActiveThumbImageError = null,
             ImageProvider inactiveThumbImage = null,
+            ImageErrorListener onInactiveThumbImageError = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            Color focusColor = null,
+            Color hoverColor = null,
+            FocusNode focusNode = null,
+            bool autofocus = false
         ) : this(
             key: key,
             value: value,
@@ -45,10 +49,16 @@ namespace Unity.UIWidgets.material {
             inactiveThumbColor: inactiveThumbColor,
             inactiveTrackColor: inactiveTrackColor,
             activeThumbImage: activeThumbImage,
+            onActiveThumbImageError: onActiveThumbImageError,
             inactiveThumbImage: inactiveThumbImage,
+            onInactiveThumbImageError: onInactiveThumbImageError,
             materialTapTargetSize: materialTapTargetSize,
             switchType: _SwitchType.material,
-            dragStartBehavior: dragStartBehavior
+            dragStartBehavior: dragStartBehavior,
+            focusColor: focusColor,
+            hoverColor: hoverColor,
+            focusNode: focusNode,
+            autofocus: autofocus
         ) {
         }
 
@@ -61,24 +71,38 @@ namespace Unity.UIWidgets.material {
             Color inactiveThumbColor = null,
             Color inactiveTrackColor = null,
             ImageProvider activeThumbImage = null,
+            ImageErrorListener onActiveThumbImageError = null,
             ImageProvider inactiveThumbImage = null,
+            ImageErrorListener onInactiveThumbImageError = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             _SwitchType switchType = _SwitchType.material,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            Color focusColor = null,
+            Color hoverColor = null,
+            FocusNode focusNode = null,
+            bool autofocus = false
         ) : base(key: key) {
             D.assert(value != null);
             this.value = value.Value;
             D.assert(onChanged != null);
+            D.assert(activeThumbImage != null || onActiveThumbImageError == null);
+            D.assert(inactiveThumbImage != null || onInactiveThumbImageError == null);
             this.onChanged = onChanged;
             this.activeColor = activeColor;
             this.activeTrackColor = activeTrackColor;
             this.inactiveThumbColor = inactiveThumbColor;
             this.inactiveTrackColor = inactiveTrackColor;
             this.activeThumbImage = activeThumbImage;
+            this.onActiveThumbImageError = onActiveThumbImageError;
             this.inactiveThumbImage = inactiveThumbImage;
+            this.onInactiveThumbImageError = onInactiveThumbImageError;
             this.materialTapTargetSize = materialTapTargetSize;
             _switchType = switchType;
             this.dragStartBehavior = dragStartBehavior;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
         }
 
         public static Switch adaptive(
@@ -90,9 +114,15 @@ namespace Unity.UIWidgets.material {
             Color inactiveThumbColor = null,
             Color inactiveTrackColor = null,
             ImageProvider activeThumbImage = null,
+            ImageErrorListener onActiveThumbImageError = null,
             ImageProvider inactiveThumbImage = null,
+            ImageErrorListener onInactiveThumbImageError = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.down
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            Color focusColor = null,
+            Color hoverColor = null,
+            FocusNode focusNode = null,
+            bool autofocus = false
         ) {
             return new Switch(key: key,
                 value: value,
@@ -102,9 +132,16 @@ namespace Unity.UIWidgets.material {
                 inactiveThumbColor: inactiveThumbColor,
                 inactiveTrackColor: inactiveTrackColor,
                 activeThumbImage: activeThumbImage,
+                onActiveThumbImageError: onActiveThumbImageError,
                 inactiveThumbImage: inactiveThumbImage,
+                onInactiveThumbImageError: onInactiveThumbImageError,
                 materialTapTargetSize: materialTapTargetSize,
-                switchType: _SwitchType.adaptive
+                switchType: _SwitchType.adaptive,
+                dragStartBehavior: dragStartBehavior,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
+                focusNode: focusNode,
+                autofocus: autofocus
             );
         }
 
@@ -122,13 +159,25 @@ namespace Unity.UIWidgets.material {
 
         public readonly ImageProvider activeThumbImage;
 
+        public readonly ImageErrorListener onActiveThumbImageError;
+
         public readonly ImageProvider inactiveThumbImage;
+
+        public readonly ImageErrorListener onInactiveThumbImageError;
 
         public readonly MaterialTapTargetSize? materialTapTargetSize;
 
         internal readonly _SwitchType _switchType;
 
         public readonly DragStartBehavior dragStartBehavior;
+
+        public readonly Color focusColor;
+
+        public readonly Color hoverColor;
+
+        public readonly FocusNode focusNode;
+
+        public readonly bool autofocus;
 
         public override State createState() {
             return new _SwitchState();
@@ -143,6 +192,45 @@ namespace Unity.UIWidgets.material {
     }
 
     class _SwitchState : TickerProviderStateMixin<Switch> {
+        Dictionary<LocalKey, ActionFactory> _actionMap;
+
+        public override void initState() {
+            base.initState();
+            _actionMap = new Dictionary<LocalKey, ActionFactory>();
+            _actionMap[ActivateAction.key] = _createAction;
+        }
+
+        void _actionHandler(FocusNode node, Intent intent) {
+            if (widget.onChanged != null) {
+                widget.onChanged(!widget.value);
+            }
+
+            RenderObject renderObject = node.context.findRenderObject();
+        }
+
+        UiWidgetAction _createAction() {
+            return new CallbackAction(
+                ActivateAction.key,
+                onInvoke: _actionHandler
+            );
+        }
+
+        bool _focused = false;
+
+        void _handleFocusHighlightChanged(bool focused) {
+            if (focused != _focused) {
+                setState(() => { _focused = focused; });
+            }
+        }
+
+        bool _hovering = false;
+
+        void _handleHoverChanged(bool hovering) {
+            if (hovering != _hovering) {
+                setState(() => { _hovering = hovering; });
+            }
+        }
+
         Size getSwitchSize(ThemeData theme) {
             switch (widget.materialTapTargetSize ?? theme.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
@@ -155,6 +243,14 @@ namespace Unity.UIWidgets.material {
             return null;
         }
 
+        bool enabled {
+            get { return widget.onChanged != null; }
+        }
+
+        internal void _didFinishDragging() {
+            setState(() => { });
+        }
+
         Widget buildMaterialSwitch(BuildContext context) {
             D.assert(material_.debugCheckHasMaterial(context));
             ThemeData theme = Theme.of(context);
@@ -162,11 +258,13 @@ namespace Unity.UIWidgets.material {
 
             Color activeThumbColor = widget.activeColor ?? theme.toggleableActiveColor;
             Color activeTrackColor = widget.activeTrackColor ?? activeThumbColor.withAlpha(0x80);
+            Color hoverColor = widget.hoverColor ?? theme.hoverColor;
+            Color focusColor = widget.focusColor ?? theme.focusColor;
 
             Color inactiveThumbColor;
             Color inactiveTrackColor;
-            if (widget.onChanged != null) {
-                Color black32 = new Color(0x52000000); // Black with 32% opacity
+            if (enabled) {
+                Color black32 = new Color(0x52000000);
                 inactiveThumbColor = widget.inactiveThumbColor ??
                                      (isDark ? Colors.grey.shade400 : Colors.grey.shade50);
                 inactiveTrackColor = widget.inactiveTrackColor ?? (isDark ? Colors.white30 : black32);
@@ -177,52 +275,46 @@ namespace Unity.UIWidgets.material {
                 inactiveTrackColor = widget.inactiveTrackColor ?? (isDark ? Colors.white10 : Colors.black12);
             }
 
-            return new _SwitchRenderObjectWidget(
-                dragStartBehavior: widget.dragStartBehavior,
-                value: widget.value,
-                activeColor: activeThumbColor,
-                inactiveColor: inactiveThumbColor,
-                activeThumbImage: widget.activeThumbImage,
-                inactiveThumbImage: widget.inactiveThumbImage,
-                activeTrackColor: activeTrackColor,
-                inactiveTrackColor: inactiveTrackColor,
-                configuration: ImageUtils.createLocalImageConfiguration(context),
-                onChanged: widget.onChanged,
-                additionalConstraints: BoxConstraints.tight(getSwitchSize(theme)),
-                vsync: this
+            return new FocusableActionDetector(
+                actions: _actionMap,
+                focusNode: widget.focusNode,
+                autofocus: widget.autofocus,
+                enabled: enabled,
+                onShowFocusHighlight: _handleFocusHighlightChanged,
+                onShowHoverHighlight: _handleHoverChanged,
+                child: new Builder(
+                    builder: (BuildContext context) => {
+                        return new _SwitchRenderObjectWidget(
+                            dragStartBehavior: widget.dragStartBehavior,
+                            value: widget.value,
+                            activeColor: activeThumbColor,
+                            inactiveColor: inactiveThumbColor,
+                            hoverColor: hoverColor,
+                            focusColor: focusColor,
+                            activeThumbImage: widget.activeThumbImage,
+                            onActiveThumbImageError: widget.onActiveThumbImageError,
+                            inactiveThumbImage: widget.inactiveThumbImage,
+                            onInactiveThumbImageError: widget.onInactiveThumbImageError,
+                            activeTrackColor: activeTrackColor,
+                            inactiveTrackColor: inactiveTrackColor,
+                            configuration: ImageUtils.createLocalImageConfiguration(context),
+                            onChanged: widget.onChanged,
+                            additionalConstraints: BoxConstraints.tight(getSwitchSize(theme)),
+                            hasFocus: _focused,
+                            hovering: _hovering,
+                            state: this
+                        );
+                    }
+                )
             );
         }
-
-//        Widget buildCupertinoSwitch(BuildContext context) {
-//            Size size = this.getSwitchSize(Theme.of(context));
-//            return new Container(
-//                width: size.width, // Same size as the Material switch.
-//                height: size.height,
-//                alignment: Alignment.center,
-//                child: CupertinoSwitch(
-//                    value: this.widget.value,
-//                    onChanged: this.widget.onChanged,
-//                    activeColor: this.widget.activeColor
-//                )
-//            );
-//        }
 
         public override Widget build(BuildContext context) {
             switch (widget._switchType) {
                 case _SwitchType.material:
                     return buildMaterialSwitch(context);
-
                 case _SwitchType.adaptive: {
                     return buildMaterialSwitch(context);
-//                    ThemeData theme = Theme.of(context);
-//                    D.assert(theme.platform != null);
-//                    switch (theme.platform) {
-//                        case TargetPlatform.android:
-//                            return buildMaterialSwitch(context);
-//                        case TargetPlatform.iOS:
-//                            return buildCupertinoSwitch(context);
-//                    }
-//                    break;
                 }
             }
 
@@ -237,43 +329,61 @@ namespace Unity.UIWidgets.material {
             bool? value = null,
             Color activeColor = null,
             Color inactiveColor = null,
+            Color hoverColor = null,
+            Color focusColor = null,
             ImageProvider activeThumbImage = null,
+            ImageErrorListener onActiveThumbImageError = null,
             ImageProvider inactiveThumbImage = null,
+            ImageErrorListener onInactiveThumbImageError = null,
             Color activeTrackColor = null,
             Color inactiveTrackColor = null,
             ImageConfiguration configuration = null,
             ValueChanged<bool?> onChanged = null,
-            TickerProvider vsync = null,
             BoxConstraints additionalConstraints = null,
-            DragStartBehavior? dragStartBehavior = null
+            DragStartBehavior? dragStartBehavior = null,
+            bool hasFocus = false,
+            bool hovering = false,
+            _SwitchState state = null
         ) : base(key: key) {
             D.assert(value != null);
             this.value = value.Value;
             this.activeColor = activeColor;
             this.inactiveColor = inactiveColor;
+            this.hoverColor = hoverColor;
+            this.focusColor = focusColor;
             this.activeThumbImage = activeThumbImage;
+            this.onActiveThumbImageError = onActiveThumbImageError;
             this.inactiveThumbImage = inactiveThumbImage;
+            this.onInactiveThumbImageError = onInactiveThumbImageError;
             this.activeTrackColor = activeTrackColor;
             this.inactiveTrackColor = inactiveTrackColor;
             this.configuration = configuration;
             this.onChanged = onChanged;
-            this.vsync = vsync;
             this.additionalConstraints = additionalConstraints;
             this.dragStartBehavior = dragStartBehavior;
+            this.hasFocus = hasFocus;
+            this.hovering = hovering;
+            this.state = state;
         }
 
         public readonly bool value;
         public readonly Color activeColor;
         public readonly Color inactiveColor;
+        public readonly Color hoverColor;
+        public readonly Color focusColor;
         public readonly ImageProvider activeThumbImage;
+        public readonly ImageErrorListener onActiveThumbImageError;
         public readonly ImageProvider inactiveThumbImage;
+        public readonly ImageErrorListener onInactiveThumbImageError;
         public readonly Color activeTrackColor;
         public readonly Color inactiveTrackColor;
         public readonly ImageConfiguration configuration;
         public readonly ValueChanged<bool?> onChanged;
-        public readonly TickerProvider vsync;
         public readonly BoxConstraints additionalConstraints;
         public readonly DragStartBehavior? dragStartBehavior;
+        public readonly bool hasFocus;
+        public readonly bool hovering;
+        public readonly _SwitchState state;
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderSwitch(
@@ -281,14 +391,21 @@ namespace Unity.UIWidgets.material {
                 value: value,
                 activeColor: activeColor,
                 inactiveColor: inactiveColor,
+                hoverColor: hoverColor,
+                focusColor: focusColor,
                 activeThumbImage: activeThumbImage,
+                onActiveThumbImageError: onActiveThumbImageError,
                 inactiveThumbImage: inactiveThumbImage,
+                onInactiveThumbImageError: onInactiveThumbImageError,
                 activeTrackColor: activeTrackColor,
                 inactiveTrackColor: inactiveTrackColor,
                 configuration: configuration,
                 onChanged: onChanged,
                 additionalConstraints: additionalConstraints,
-                vsync: vsync
+                textDirection: Directionality.of(context),
+                hasFocus: hasFocus,
+                hovering: hovering,
+                state: state
             );
         }
 
@@ -298,15 +415,22 @@ namespace Unity.UIWidgets.material {
             renderObject.value = value;
             renderObject.activeColor = activeColor;
             renderObject.inactiveColor = inactiveColor;
+            renderObject.hoverColor = hoverColor;
+            renderObject.focusColor = focusColor;
             renderObject.activeThumbImage = activeThumbImage;
+            renderObject.onActiveThumbImageError = onActiveThumbImageError;
             renderObject.inactiveThumbImage = inactiveThumbImage;
+            renderObject.onInactiveThumbImageError = onInactiveThumbImageError;
             renderObject.activeTrackColor = activeTrackColor;
             renderObject.inactiveTrackColor = inactiveTrackColor;
             renderObject.configuration = configuration;
             renderObject.onChanged = onChanged;
             renderObject.additionalConstraints = additionalConstraints;
+            renderObject.textDirection = Directionality.of(context);
             renderObject.dragStartBehavior = dragStartBehavior;
-            renderObject.vsync = vsync;
+            renderObject.hasFocus = hasFocus;
+            renderObject.hovering = hovering;
+            renderObject.vsync = state;
         }
     }
 
@@ -315,26 +439,40 @@ namespace Unity.UIWidgets.material {
             bool? value = null,
             Color activeColor = null,
             Color inactiveColor = null,
+            Color hoverColor = null,
+            Color focusColor = null,
             ImageProvider activeThumbImage = null,
+            ImageErrorListener onActiveThumbImageError = null,
             ImageProvider inactiveThumbImage = null,
+            ImageErrorListener onInactiveThumbImageError = null,
             Color activeTrackColor = null,
             Color inactiveTrackColor = null,
             ImageConfiguration configuration = null,
             BoxConstraints additionalConstraints = null,
+            TextDirection? textDirection = null,
             ValueChanged<bool?> onChanged = null,
-            TickerProvider vsync = null,
-            DragStartBehavior? dragStartBehavior = null
+            DragStartBehavior? dragStartBehavior = null,
+            bool hasFocus = false,
+            bool hovering = false,
+            _SwitchState state = null
         ) : base(
             value: value,
             tristate: false,
             activeColor: activeColor,
             inactiveColor: inactiveColor,
+            hoverColor: hoverColor,
+            focusColor: focusColor,
             onChanged: onChanged,
             additionalConstraints: additionalConstraints,
-            vsync: vsync
+            hasFocus: hasFocus,
+            hovering: hovering,
+            vsync: state
         ) {
+            D.assert(textDirection != null);
             _activeThumbImage = activeThumbImage;
+            _onActiveThumbImageError = onActiveThumbImageError;
             _inactiveThumbImage = inactiveThumbImage;
+            _onInactiveThumbImageError = onInactiveThumbImageError;
             _activeTrackColor = activeTrackColor;
             _inactiveTrackColor = inactiveTrackColor;
             _configuration = configuration;
@@ -360,6 +498,20 @@ namespace Unity.UIWidgets.material {
 
         ImageProvider _activeThumbImage;
 
+        public ImageErrorListener onActiveThumbImageError {
+            get { return _onActiveThumbImageError; }
+            set {
+                if (value == _onActiveThumbImageError) {
+                    return;
+                }
+
+                _onActiveThumbImageError = value;
+                markNeedsPaint();
+            }
+        }
+
+        ImageErrorListener _onActiveThumbImageError;
+
         public ImageProvider inactiveThumbImage {
             get { return _inactiveThumbImage; }
             set {
@@ -373,6 +525,20 @@ namespace Unity.UIWidgets.material {
         }
 
         ImageProvider _inactiveThumbImage;
+
+        public ImageErrorListener onInactiveThumbImageError {
+            get { return _onInactiveThumbImageError; }
+            set {
+                if (value == _onInactiveThumbImageError) {
+                    return;
+                }
+
+                _onInactiveThumbImageError = value;
+                markNeedsPaint();
+            }
+        }
+
+        ImageErrorListener _onInactiveThumbImageError;
 
         public Color activeTrackColor {
             get { return _activeTrackColor; }
@@ -419,11 +585,47 @@ namespace Unity.UIWidgets.material {
 
         ImageConfiguration _configuration;
 
+        public TextDirection textDirection {
+            get { return _textDirection; }
+            set {
+                if (_textDirection == value) {
+                    return;
+                }
+
+                _textDirection = value;
+                markNeedsPaint();
+            }
+        }
+
+        TextDirection _textDirection;
+
         public DragStartBehavior? dragStartBehavior {
             get { return _drag.dragStartBehavior; }
             set { _drag.dragStartBehavior = value ?? DragStartBehavior.down; }
         }
 
+        _SwitchState state;
+
+        public override bool? value {
+            get { return base.value; }
+            set {
+                D.assert(value != null);
+                base.value = value;
+
+                if (_needsPositionAnimation) {
+                    _needsPositionAnimation = false;
+                    position.curve = null;
+                    position.reverseCurve = null;
+
+                    if (value == true) {
+                        positionController.forward();
+                    }
+                    else {
+                        positionController.reverse();
+                    }
+                }
+            }
+        }
 
         public override void detach() {
             _cachedThumbPainter?.Dispose();
@@ -436,6 +638,8 @@ namespace Unity.UIWidgets.material {
         }
 
         HorizontalDragGestureRecognizer _drag;
+
+        bool _needsPositionAnimation = false;
 
         void _handleDragStart(DragStartDetails details) {
             if (isInteractive) {
@@ -453,14 +657,14 @@ namespace Unity.UIWidgets.material {
         }
 
         void _handleDragEnd(DragEndDetails details) {
-            if (position.value >= 0.5) {
-                positionController.forward();
-            }
-            else {
-                positionController.reverse();
+            _needsPositionAnimation = true;
+
+            if ((position.value >= 0.5f) != value) {
+                onChanged(!value);
             }
 
             reactionController.reverse();
+            state._didFinishDragging();
         }
 
         public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
@@ -474,12 +678,14 @@ namespace Unity.UIWidgets.material {
 
         Color _cachedThumbColor;
         ImageProvider _cachedThumbImage;
+        ImageErrorListener _cachedThumbErrorListener;
         BoxPainter _cachedThumbPainter;
 
-        BoxDecoration _createDefaultThumbDecoration(Color color, ImageProvider image) {
+        BoxDecoration _createDefaultThumbDecoration(Color color, ImageProvider image,
+            ImageErrorListener errorListener) {
             return new BoxDecoration(
                 color: color,
-                image: image == null ? null : new DecorationImage(image: image),
+                image: image == null ? null : new DecorationImage(image: image, onError: errorListener),
                 shape: BoxShape.circle,
                 boxShadow: ShadowConstants.kElevationToShadow[1]
             );
@@ -513,6 +719,10 @@ namespace Unity.UIWidgets.material {
                 ? (currentValue < 0.5 ? inactiveThumbImage : activeThumbImage)
                 : inactiveThumbImage;
 
+            ImageErrorListener thumbErrorListener = isEnabled
+                ? (currentValue < 0.5f ? onInactiveThumbImageError : onActiveThumbImageError)
+                : onInactiveThumbImageError;
+
             // Paint the track
             Paint paint = new Paint {color = trackColor};
             float trackHorizontalPadding = Constants.kRadialReactionRadius - Switch._kTrackRadius;
@@ -536,10 +746,11 @@ namespace Unity.UIWidgets.material {
                 _isPainting = true;
                 BoxPainter thumbPainter;
                 if (_cachedThumbPainter == null || thumbColor != _cachedThumbColor ||
-                    thumbImage != _cachedThumbImage) {
+                    thumbImage != _cachedThumbImage || thumbErrorListener != _cachedThumbErrorListener) {
                     _cachedThumbColor = thumbColor;
                     _cachedThumbImage = thumbImage;
-                    _cachedThumbPainter = _createDefaultThumbDecoration(thumbColor, thumbImage)
+                    _cachedThumbErrorListener = thumbErrorListener;
+                    _cachedThumbPainter = _createDefaultThumbDecoration(thumbColor, thumbImage, thumbErrorListener)
                         .createBoxPainter(_handleDecorationChanged);
                 }
 
