@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.cupertino {
         public const float _kScrollbarMinLength = 36.0f;
         public const float _kScrollbarMinOverscrollLength = 8.0f;
 
-        public static readonly TimeSpan _kScrollbarTimeToFade = TimeSpan.FromMilliseconds(50);
+        public static readonly TimeSpan _kScrollbarTimeToFade = TimeSpan.FromMilliseconds(1200);
         public static readonly TimeSpan _kScrollbarFadeDuration = TimeSpan.FromMilliseconds(250);
         public static readonly TimeSpan _kScrollbarResizeDuration = TimeSpan.FromMilliseconds(100);
         
@@ -115,6 +115,37 @@ namespace Unity.UIWidgets.cupertino {
                 _painter.updateThickness(_thickness, _radius);
             });
         }
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            if (_painter == null) {
+                _painter = _buildCupertinoScrollbarPainter(context);
+            } else {
+                _painter.textDirection = Directionality.of(context);
+                _painter.color = CupertinoDynamicColor.resolve(CupertinoScrollbarUtils._kScrollbarColor, context);
+                _painter.padding = MediaQuery.of(context).padding;
+            }
+            WidgetsBinding.instance.addPostFrameCallback((TimeSpan duration)=> {
+                if (widget.isAlwaysShown) {
+                    D.assert(widget.controller != null);
+                    widget.controller.position.didUpdateScrollPositionBy(0);
+                }
+            });
+        }
+        
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            oldWidget = (CupertinoScrollbar) oldWidget;
+            base.didUpdateWidget(oldWidget);
+            if (widget.isAlwaysShown != ((CupertinoScrollbar)oldWidget).isAlwaysShown) {
+                if (widget.isAlwaysShown == true) {
+                    D.assert(widget.controller != null);
+                    _fadeoutAnimationController.animateTo(1.0f);
+                } else {
+                    _fadeoutAnimationController.reverse();
+                }
+            }
+        }
+
+
 
 
         public ScrollbarPainter _buildCupertinoScrollbarPainter(BuildContext context) {
@@ -208,10 +239,10 @@ namespace Unity.UIWidgets.cupertino {
                 return;
             }
             _handleDragScrollEnd(details.velocity.pixelsPerSecond.dy);
-            /*if (details.velocity.pixelsPerSecond.dy.abs() < 10 &&
+            if (details.velocity.pixelsPerSecond.dy.abs() < 10 &&
                 (details.localPosition.dy - _pressStartY).abs() > 0) {
                 //HapticFeedback.mediumImpact();
-            }*/
+            }
             _currentController = null;
         }
         
@@ -239,18 +270,15 @@ namespace Unity.UIWidgets.cupertino {
 
             if (notification is ScrollUpdateNotification ||
                 notification is OverscrollNotification) {
-              // Any movements always makes the scrollbar start showing up.
-              if (_fadeoutAnimationController.status != AnimationStatus.forward) {
-                _fadeoutAnimationController.forward();
-              }
-
-              _fadeoutTimer?.cancel();
-              _painter.update(notification.metrics, notification.metrics.axisDirection);
+                if (_fadeoutAnimationController.status != AnimationStatus.forward) {
+                    _fadeoutAnimationController.forward();
+                }
+                _fadeoutTimer?.cancel();
+                _painter.update(notification.metrics, notification.metrics.axisDirection);
             } else if (notification is ScrollEndNotification) {
-              // On iOS, the scrollbar can only go away once the user lifted the finger.
-              if (_dragScrollbarPositionY == null) {
-                _startFadeoutTimer();
-              }
+                if (_dragScrollbarPositionY == null) {
+                    _startFadeoutTimer();
+                }
             }
             return false;
         }
@@ -278,7 +306,13 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-
+        public override void dispose() {
+            _fadeoutAnimationController.dispose();
+            _thicknessAnimationController.dispose();
+            _fadeoutTimer?.cancel();
+            _painter.dispose();
+            base.dispose();
+        }
 
 
         ScrollbarPainter _buildCupertinoScrollbarPainter() {
@@ -298,13 +332,7 @@ namespace Unity.UIWidgets.cupertino {
         
 
 
-        public override void dispose() {
-            _fadeoutAnimationController.dispose();
-            _thicknessAnimationController.dispose();
-            _fadeoutTimer?.cancel();
-            _painter.dispose();
-            base.dispose();
-        }
+        
 
         public override Widget build(BuildContext context) {
             return new NotificationListener<ScrollNotification>(

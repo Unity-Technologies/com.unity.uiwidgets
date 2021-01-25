@@ -194,14 +194,14 @@ namespace Unity.UIWidgets.cupertino {
                         child: ListWheelScrollView.useDelegate(
                             controller: widget.scrollController ?? _controller,
                             physics: new FixedExtentScrollPhysics(), 
-                            diameterRatio: (float)widget.diameterRatio,
+                            diameterRatio: widget.diameterRatio ?? CupertinoPickerUtils._kDefaultDiameterRatio,
                             perspective: CupertinoPickerUtils._kDefaultPerspective,
                             offAxisFraction: widget.offAxisFraction,
                             useMagnifier: widget.useMagnifier,
                             magnification: widget.magnification,
                             overAndUnderCenterOpacity: CupertinoPickerUtils._kOverAndUnderCenterOpacity,
-                            itemExtent: (float)widget.itemExtent,
-                            squeeze: (float)widget.squeeze,
+                            itemExtent: widget.itemExtent ?? 1f,
+                            squeeze: widget.squeeze ?? CupertinoPickerUtils._kSqueeze,
                             onSelectedItemChanged: _handleSelectedItemChanged,
                             childDelegate: widget.childDelegate
                             )

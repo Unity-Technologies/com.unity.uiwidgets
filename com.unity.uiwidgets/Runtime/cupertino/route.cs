@@ -88,6 +88,7 @@ namespace Unity.UIWidgets.cupertino {
             Animation<float> animation,
             Animation<float> secondaryAnimation, 
             Widget child) {
+            
             CurvedAnimation fadeAnimation = new CurvedAnimation(
                 parent: animation,
                 curve: Curves.easeInOut
@@ -122,12 +123,12 @@ namespace Unity.UIWidgets.cupertino {
                 barrierColor: CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
                 transitionDuration: TimeSpan.FromMilliseconds(250),
                 pageBuilder: (BuildContext context1, Animation<float> animation, Animation<float> secondaryAnimation)=> {
-                return builder(context1);
-            },
-            transitionBuilder: _buildCupertinoDialogTransitions,
-            useRootNavigator: useRootNavigator,
-            routeSettings: routeSettings
-                );
+                    return builder(context1);
+                },
+                transitionBuilder: _buildCupertinoDialogTransitions,
+                useRootNavigator: useRootNavigator,
+                routeSettings: routeSettings
+            );
         }
     }
 
@@ -265,8 +266,7 @@ namespace Unity.UIWidgets.cupertino {
             string title = "",
             bool maintainState = true,
             bool fullscreenDialog = false
-        ) :
-            base(settings: settings, fullscreenDialog: fullscreenDialog) {
+        ) : base(settings: settings, fullscreenDialog: fullscreenDialog) {
             D.assert(builder != null);
             D.assert(opaque);
             this.builder = builder;
@@ -306,7 +306,7 @@ namespace Unity.UIWidgets.cupertino {
         public override bool maintainState { get; }
 
         public override TimeSpan transitionDuration {
-            get { return new TimeSpan(0, 0, 0, 0, 400); }
+            get { return TimeSpan.FromMilliseconds(400); }
         }
 
         public override Color barrierColor {
@@ -318,14 +318,9 @@ namespace Unity.UIWidgets.cupertino {
             get { return null; }
         }
 
-
-        /*public override bool canTransitionFrom(TransitionRoute<object> previousRoute) {
-            return previousRoute is CupertinoPageRoute<object>;
-        }*/
-
-        /*public override bool canTransitionTo(TransitionRoute<object> nextRoute) {
-            return nextRoute is CupertinoPageRoute<object> && !((CupertinoPageRoute<object>) nextRoute).fullscreenDialog;
-        }*/
+        public override bool canTransitionTo(TransitionRoute nextRoute) {
+            return nextRoute is CupertinoPageRoute && !((CupertinoPageRoute) nextRoute).fullscreenDialog;
+        }
 
         static bool isPopGestureInProgress(PageRoute route) {
             return route.navigator.userGestureInProgress;
@@ -373,16 +368,17 @@ namespace Unity.UIWidgets.cupertino {
         }
 
 
-        public override Widget buildPage(BuildContext context, Animation<float> animation,
-            Animation<float> secondaryAnimation) {
+        public override Widget buildPage(BuildContext context, Animation<float> animation, Animation<float> secondaryAnimation) {
+
+
             Widget result = builder(context);
-
-            D.assert(() => {
+            D.assert(() =>{
                 if (result == null) {
-                    throw new UIWidgetsError(
-                        $"The builder for route {settings.name} returned null.\nRoute builders must never return null.");
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary($"The builder for route \"{settings.name}\" returned null."),
+                        new ErrorDescription("Route builders must never return null."),
+                    });
                 }
-
                 return true;
             });
             return result;
@@ -407,8 +403,6 @@ namespace Unity.UIWidgets.cupertino {
             bool linearTransition = isPopGestureInProgress(route);
             if (route.fullscreenDialog) {
                 return new CupertinoFullscreenDialogTransition(
-                    //animation: animation,
-                    //child: child
                     primaryRouteAnimation: animation,
                     secondaryRouteAnimation: secondaryAnimation,
                     child: child,
@@ -442,10 +436,10 @@ namespace Unity.UIWidgets.cupertino {
 
     class CupertinoPageTransition : StatelessWidget {
         public CupertinoPageTransition(
-            Animation<float> primaryRouteAnimation,
-            Animation<float> secondaryRouteAnimation,
-            Widget child,
             bool linearTransition,
+            Animation<float> primaryRouteAnimation = null,
+            Animation<float> secondaryRouteAnimation = null,
+            Widget child = null,
             Key key = null
         ) : base(key: key) {
             _primaryPositionAnimation =
@@ -509,7 +503,7 @@ namespace Unity.UIWidgets.cupertino {
             Animation<float> primaryRouteAnimation = null,
             Animation<float> secondaryRouteAnimation = null,
             Widget child = null,
-            bool linearTransition =false
+            bool linearTransition = false
             
         ) : base(key: key) {
             _positionAnimation = new CurvedAnimation(
@@ -578,7 +572,6 @@ namespace Unity.UIWidgets.cupertino {
         _CupertinoBackGestureController _backGestureController;
         HorizontalDragGestureRecognizer _recognizer;
 
-
         public override void initState() {
             base.initState();
             _recognizer = new HorizontalDragGestureRecognizer(debugOwner: this);
@@ -609,8 +602,7 @@ namespace Unity.UIWidgets.cupertino {
         void _handleDragEnd(DragEndDetails details) {
             D.assert(mounted);
             D.assert(_backGestureController != null);
-            _backGestureController.dragEnd(
-                _convertToLogical(details.velocity.pixelsPerSecond.dx / context.size.width) ?? 0);
+            _backGestureController.dragEnd(_convertToLogical(details.velocity.pixelsPerSecond.dx / context.size.width) ?? 0);
             _backGestureController = null;
         }
 
@@ -692,7 +684,7 @@ namespace Unity.UIWidgets.cupertino {
                 animateForward = velocity <= 0;
             }
             else {
-                animateForward = controller.value > 0.5;
+                animateForward = controller.value > 0.5f;
             }
             if (animateForward) {
                 int droppedPageForwardAnimationTime = Mathf.Min(
