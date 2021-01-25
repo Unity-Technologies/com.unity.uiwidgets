@@ -208,15 +208,16 @@ namespace Unity.UIWidgets.rendering {
     public class RenderStack : RenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<RenderBox,
         StackParentData> {
         public RenderStack(
-            StackFit? fit,
-            Overflow? overflow,
-            TextDirection textDirection,
             List<RenderBox> children = null,
-            Alignment alignment = null) {
-            this.textDirection = textDirection;
-            _alignment = alignment ?? Alignment.topLeft;
-            _fit = fit ?? StackFit.loose;
-            _overflow = overflow ?? Overflow.clip;
+            AlignmentGeometry alignment =  null,
+            TextDirection? textDirection = null,
+            StackFit fit = StackFit.loose,
+            Overflow overflow = Overflow.clip
+            ) {
+            _textDirection = textDirection;
+            _alignment = alignment ?? AlignmentDirectional.topStart;
+            _fit = fit;
+            _overflow = overflow;
             addAll(children);
         }
 
@@ -227,6 +228,11 @@ namespace Unity.UIWidgets.rendering {
                 child.parentData = new StackParentData();
             }
         }
+        void _resolve() {
+            if (_resolvedAlignment != null)
+                return;
+            _resolvedAlignment = alignment.resolve(textDirection);
+        }
         
         Alignment _resolvedAlignment;
 
@@ -235,7 +241,7 @@ namespace Unity.UIWidgets.rendering {
             markNeedsLayout();
         }
         
-        public TextDirection  textDirection {
+        public TextDirection?  textDirection {
             get {
                 return _textDirection;
             }
@@ -248,13 +254,13 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        TextDirection _textDirection;
+        TextDirection? _textDirection;
         
         
         
-        Alignment _alignment;
+        AlignmentGeometry _alignment;
 
-        public Alignment alignment {
+        public AlignmentGeometry alignment {
             get { return _alignment; }
             set {
                 if (_alignment == value) {
@@ -404,121 +410,74 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
+            _resolve();
+            D.assert(_resolvedAlignment != null);
             _hasVisualOverflow = false;
             bool hasNonPositionedChildren = false;
             if (childCount == 0) {
-                size = constraints.biggest;
-                return;
+              size = constraints.biggest;
+              D.assert(size.isFinite);
+              return;
             }
 
             float width = constraints.minWidth;
             float height = constraints.minHeight;
 
             BoxConstraints nonPositionedConstraints = null;
+            D.assert(fit != null);
             switch (fit) {
-                case StackFit.loose:
-                    nonPositionedConstraints = constraints.loosen();
-                    break;
-                case StackFit.expand:
-                    nonPositionedConstraints = BoxConstraints.tight(constraints.biggest);
-                    break;
-                case StackFit.passthrough:
-                    nonPositionedConstraints = constraints;
-                    break;
+              case StackFit.loose:
+                nonPositionedConstraints = constraints.loosen();
+                break;
+              case StackFit.expand:
+                nonPositionedConstraints = BoxConstraints.tight(constraints.biggest);
+                break;
+              case StackFit.passthrough:
+                nonPositionedConstraints = constraints;
+                break;
             }
-
+            D.assert(nonPositionedConstraints != null);
 
             RenderBox child = firstChild;
             while (child != null) {
-                StackParentData childParentData = (StackParentData) child.parentData;
+              StackParentData childParentData = child.parentData as StackParentData;
 
-                if (!childParentData.isPositioned) {
-                    hasNonPositionedChildren = true;
+              if (!childParentData.isPositioned) {
+                hasNonPositionedChildren = true;
 
-                    child.layout(nonPositionedConstraints, parentUsesSize: true);
+                child.layout(nonPositionedConstraints, parentUsesSize: true);
 
-                    Size childSize = child.size;
-                    width = Mathf.Max(width, childSize.width);
-                    height = Mathf.Max(height, childSize.height);
-                }
+                Size childSize = child.size;
+                width = Mathf.Max(width, childSize.width);
+                height =  Mathf.Max(height, childSize.height);
+              }
 
-                child = childParentData.nextSibling;
+              child = childParentData.nextSibling;
             }
 
             if (hasNonPositionedChildren) {
-                size = new Size(width, height);
-                D.assert(size.width == constraints.constrainWidth(width));
-                D.assert(size.height == constraints.constrainHeight(height));
+              size = new Size(width, height);
+              D.assert(size.width == constraints.constrainWidth(width));
+              D.assert(size.height == constraints.constrainHeight(height));
+            } else {
+              size = constraints.biggest;
             }
-            else {
-                size = constraints.biggest;
-            }
+
+            D.assert(size.isFinite);
 
             child = firstChild;
             while (child != null) {
-                StackParentData childParentData = (StackParentData) child.parentData;
+              StackParentData childParentData = child.parentData as StackParentData;
 
-                if (!childParentData.isPositioned) {
-                    childParentData.offset = _alignment.alongOffset(size - child.size);
-                }
-                else {
-                    BoxConstraints childConstraints = new BoxConstraints();
+              if (!childParentData.isPositioned) {
+                childParentData.offset = _resolvedAlignment.alongOffset(size - child.size as Offset);
+              } else {
+                _hasVisualOverflow = layoutPositionedChild(child, childParentData, size, _resolvedAlignment) || _hasVisualOverflow;
+              }
 
-                    if (childParentData.left != null && childParentData.right != null) {
-                        childConstraints =
-                            childConstraints.tighten(
-                                width: size.width - childParentData.right - childParentData.left);
-                    }
-                    else if (childParentData.width != null) {
-                        childConstraints = childConstraints.tighten(width: childParentData.width);
-                    }
-
-                    if (childParentData.top != null && childParentData.bottom != null) {
-                        childConstraints =
-                            childConstraints.tighten(
-                                height: size.height - childParentData.bottom - childParentData.top);
-                    }
-                    else if (childParentData.height != null) {
-                        childConstraints = childConstraints.tighten(height: childParentData.height);
-                    }
-
-                    child.layout(childConstraints, parentUsesSize: true);
-
-                    float x;
-                    if (childParentData.left != null) {
-                        x = childParentData.left.Value;
-                    }
-                    else if (childParentData.right != null) {
-                        x = size.width - childParentData.right.Value - child.size.width;
-                    }
-                    else {
-                        x = _alignment.alongOffset(size - child.size).dx;
-                    }
-
-                    if (x < 0.0 || x + child.size.width > size.width) {
-                        _hasVisualOverflow = true;
-                    }
-
-                    float y;
-                    if (childParentData.top != null) {
-                        y = childParentData.top.Value;
-                    }
-                    else if (childParentData.bottom != null) {
-                        y = size.height - childParentData.bottom.Value - child.size.height;
-                    }
-                    else {
-                        y = _alignment.alongOffset(size - child.size).dy;
-                    }
-
-                    if (y < 0.0 || y + child.size.height > size.height) {
-                        _hasVisualOverflow = true;
-                    }
-
-                    childParentData.offset = new Offset(x, y);
-                }
-
-                D.assert(child.parentData == childParentData);
-                child = childParentData.nextSibling;
+              D.assert(child.parentData == childParentData);
+              child = childParentData.nextSibling;
             }
         }
 
@@ -545,7 +504,7 @@ namespace Unity.UIWidgets.rendering {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
             properties.add(new EnumProperty<StackFit>("fit", fit));
             properties.add(new EnumProperty<Overflow>("overflow", overflow));
         }
@@ -554,14 +513,17 @@ namespace Unity.UIWidgets.rendering {
     class RenderIndexedStack : RenderStack {
         public RenderIndexedStack(
             List<RenderBox> children = null,
-            Alignment alignment = null,
-            TextDirection textDirection = default,
-            int? index = 0
-        ) : base(fit: null, overflow: null, textDirection: textDirection, children: children, alignment: alignment ?? Alignment.topLeft) {
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null,
+            int index = 0
+        ) :  base(
+            children: children,
+            alignment: alignment ?? AlignmentDirectional.topStart,
+            textDirection: textDirection) {
             _index = index;
         }
 
-        public int? index {
+        public int index {
             get { return _index; }
             set {
                 if (_index != value) {
@@ -571,7 +533,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        int? _index;
+        int _index;
 
         RenderBox _childAtIndex() {
             D.assert(index != null);

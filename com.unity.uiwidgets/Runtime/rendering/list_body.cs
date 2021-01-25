@@ -47,6 +47,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
             D.assert(() => {
                 switch (mainAxis) {
                     case Axis.horizontal:
@@ -63,12 +64,17 @@ namespace Unity.UIWidgets.rendering {
                         break;
                 }
 
-                throw new UIWidgetsError(
-                    "RenderListBody must have unlimited space along its main axis.\n" +
-                    "RenderListBody does not clip or resize its children, so it must be " +
-                    "placed in a parent that does not constrain the main " +
-                    "axis. You probably want to put the RenderListBody inside a " +
-                    "RenderViewport with a matching main axis.");
+                throw new UIWidgetsError(new List<DiagnosticsNode>{
+                    new ErrorSummary("RenderListBody must have unlimited space along its main axis."),
+                    new ErrorDescription(
+                        "RenderListBody does not clip or resize its children, so it must be " +
+                        "placed in a parent that does not constrain the main axis."
+                    ),
+                    new ErrorHint(
+                        "You probably want to put the RenderListBody inside a " +
+                        "RenderViewport with a matching main axis."
+                    )
+                });
             });
 
             D.assert(() => {
@@ -87,16 +93,23 @@ namespace Unity.UIWidgets.rendering {
                         break;
                 }
 
-                throw new UIWidgetsError(
-                    "RenderListBody must have a bounded constraint for its cross axis.\n" +
-                    "RenderListBody forces its children to expand to fit the RenderListBody\"s container, " +
-                    "so it must be placed in a parent that constrains the cross " +
-                    "axis to a finite dimension. If you are attempting to nest a RenderListBody with " +
-                    "one direction inside one of another direction, you will want to " +
-                    "wrap the inner one inside a box that fixes the dimension in that direction, " +
-                    "for example, a RenderIntrinsicWidth or RenderIntrinsicHeight object. " +
-                    "This is relatively expensive, however."
-                );
+                throw new UIWidgetsError(new List<DiagnosticsNode>{
+                    new ErrorSummary("RenderListBody must have a bounded constraint for its cross axis."),
+                    new ErrorDescription(
+                        "RenderListBody forces its children to expand to fit the RenderListBody's container, " +
+                        "so it must be placed in a parent that constrains the cross " +
+                        "axis to a finite dimension."
+                    ),
+                    // TODO(jacobr): this hint is a great candidate to promote to being an
+                    // automated quick fix in the future.
+                    new ErrorHint(
+                        "If you are attempting to nest a RenderListBody with " +
+                        "one direction inside one of another direction, you will want to " +
+                        "wrap the inner one inside a box that fixes the dimension in that direction, " +
+                        "for example, a RenderIntrinsicWidth or RenderIntrinsicHeight object. " +
+                        "This is relatively expensive, however." // (that's why we don't do it automatically)
+                    )
+                });
             });
 
             float mainAxisExtent = 0.0f;
@@ -221,7 +234,6 @@ namespace Unity.UIWidgets.rendering {
                 case Axis.vertical:
                     return _getIntrinsicCrossAxis((RenderBox child) => child.getMinIntrinsicWidth(height));
             }
-
             D.assert(false);
             return 0.0f;
         }

@@ -205,7 +205,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        bool containsKey(Object key) {
+        public bool containsKey(Object key) {
             return _pendingImages[key] != null || _cache[key] != null;
         }
 

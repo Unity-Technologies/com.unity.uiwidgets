@@ -565,13 +565,6 @@ namespace Unity.UIWidgets.material {
                 MaterialUtils._kHandleSize);
         }
 
-        public override Size handleSize {
-            get {
-                return new Size(MaterialUtils._kHandleSize,
-                    MaterialUtils._kHandleSize);
-            }
-        }
-
         public override Widget buildToolbar(BuildContext context, Rect globalEditableRegion, float textLineHeight,
             Offset selectionMidpoint, List<TextSelectionPoint> endpoints, TextSelectionDelegate selectionDelegate) {
             D.assert(WidgetsD.debugCheckHasMediaQuery(context));

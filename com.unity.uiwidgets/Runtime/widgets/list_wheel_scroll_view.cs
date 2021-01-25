@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
@@ -134,14 +135,14 @@ namespace Unity.UIWidgets.widgets {
 
     class ListWheelScrollViewUtils {
         public static int _getItemFromOffset(
-            float offset,
-            float itemExtent,
-            float minScrollExtent,
-            float maxScrollExtent
+            float? offset = null,
+            float? itemExtent = null,
+            float? minScrollExtent = null,
+            float? maxScrollExtent = null
         ) {
-            return (_clipOffsetToScrollableRange(offset, minScrollExtent, maxScrollExtent) / itemExtent).round();
+            var _itemExtent = itemExtent ?? 1.0f;
+            return (_clipOffsetToScrollableRange(offset ?? 0.0f , minScrollExtent ?? 0.0f, maxScrollExtent ?? 0.0f) / _itemExtent).round();
         }
-
         public static float _clipOffsetToScrollableRange(
             float offset,
             float minScrollExtent,
@@ -177,9 +178,9 @@ namespace Unity.UIWidgets.widgets {
 
         public Future animateToItem(
             int itemIndex,
-            TimeSpan duration,
-            Curve curve
-        ) {///////
+            TimeSpan? duration = null,
+            Curve curve = null
+        ) {
             if (!hasClients) {
                 return null;
             }
@@ -187,7 +188,7 @@ namespace Unity.UIWidgets.widgets {
             foreach (_FixedExtentScrollPosition position in positions.Cast<_FixedExtentScrollPosition>()) {
                 futures.Add(position.animateTo(
                     itemIndex * position.itemExtent,
-                    duration: duration,
+                    duration: duration ?? new TimeSpan(0,0,0,0,0),
                     curve: curve
                 ));
             }
@@ -201,7 +202,9 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public override ScrollPosition createScrollPosition(ScrollPhysics physics, ScrollContext context,
+        public override ScrollPosition createScrollPosition(
+            ScrollPhysics physics, 
+            ScrollContext context,
             ScrollPosition oldPosition) {
             return new _FixedExtentScrollPosition(
                 physics: physics,
@@ -227,20 +230,20 @@ namespace Unity.UIWidgets.widgets {
 
     public class FixedExtentMetrics : FixedScrollMetrics, IFixedExtentMetrics {
         public FixedExtentMetrics(
-            int itemIndex,
-            float minScrollExtent = 0.0f,
-            float maxScrollExtent = 0.0f,
-            float pixels = 0.0f,
-            float viewportDimension = 0.0f,
-            AxisDirection axisDirection = AxisDirection.down
+            float? minScrollExtent = null,
+            float? maxScrollExtent = null,
+            float? pixels = null,
+            float? viewportDimension = null,
+            AxisDirection axisDirection = AxisDirection.down,
+            int? itemIndex = null
         ) : base(
-            minScrollExtent: minScrollExtent,
-            maxScrollExtent: maxScrollExtent,
-            pixels: pixels,
-            viewportDimension: viewportDimension,
+            minScrollExtent: minScrollExtent ?? 0.0f,
+            maxScrollExtent: maxScrollExtent ?? 0.0f,
+            pixels: pixels ?? 0.0f,
+            viewportDimension: viewportDimension ?? 0.0f,
             axisDirection: axisDirection
         ) {
-            this.itemIndex = itemIndex;
+            this.itemIndex = itemIndex ?? 0;
         }
 
         public int itemIndex { get; set; }
@@ -262,13 +265,15 @@ namespace Unity.UIWidgets.widgets {
                 itemIndex: itemIndex ?? this.itemIndex
             );
         }
+       
+
     }
 
     class _FixedExtentScrollPosition : ScrollPositionWithSingleContext, IFixedExtentMetrics {
         public _FixedExtentScrollPosition(
-            ScrollPhysics physics,
-            ScrollContext context,
-            int initialItem,
+            ScrollPhysics physics = null,
+            ScrollContext context = null,
+            int? initialItem = null,
             bool keepScrollOffset = true,
             ScrollPosition oldPosition = null,
             string debugLabel = null
@@ -288,7 +293,7 @@ namespace Unity.UIWidgets.widgets {
 
         static float _getItemExtentFromScrollContext(ScrollContext context) {
             _FixedExtentScrollableState scrollable = (_FixedExtentScrollableState) context;
-            return scrollable.itemExtent;
+            return scrollable.itemExtent ?? 0.0f;
         }
 
         public float itemExtent {
@@ -329,12 +334,12 @@ namespace Unity.UIWidgets.widgets {
 
     class _FixedExtentScrollable : Scrollable {
         public _FixedExtentScrollable(
-            float itemExtent,
-            ViewportBuilder viewportBuilder,
             Key key = null,
             AxisDirection axisDirection = AxisDirection.down,
             ScrollController controller = null,
-            ScrollPhysics physics = null
+            ScrollPhysics physics = null,
+            float? itemExtent = null,
+            ViewportBuilder viewportBuilder = null
         ) : base(
             key: key,
             axisDirection: axisDirection,
@@ -345,7 +350,7 @@ namespace Unity.UIWidgets.widgets {
             this.itemExtent = itemExtent;
         }
 
-        public readonly float itemExtent;
+        public readonly float? itemExtent;
 
         public override State createState() {
             return new _FixedExtentScrollableState();
@@ -353,7 +358,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class _FixedExtentScrollableState : ScrollableState {
-        public float itemExtent {
+        public float? itemExtent {
             get {
                 _FixedExtentScrollable actualWidget = (_FixedExtentScrollable) widget;
                 return actualWidget.itemExtent;
@@ -409,7 +414,8 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (settlingItemIndex == metrics.itemIndex) {
-                return new SpringSimulation(spring,
+                return new SpringSimulation(
+                    spring,
                     metrics.pixels,
                     settlingPixels,
                     velocity,
@@ -420,15 +426,14 @@ namespace Unity.UIWidgets.widgets {
             return FrictionSimulation.through(
                 metrics.pixels,
                 settlingPixels,
-                velocity, tolerance.velocity * velocity.sign()
+                velocity, 
+                tolerance.velocity * velocity.sign()
             );
         }
     }
 
     public class ListWheelScrollView : StatefulWidget {
         public ListWheelScrollView(
-            float itemExtent,
-            List<Widget> children = null,
             Key key = null,
             ScrollController controller = null,
             ScrollPhysics physics = null,
@@ -438,28 +443,27 @@ namespace Unity.UIWidgets.widgets {
             bool useMagnifier = false,
             float magnification = 1.0f,
             float overAndUnderCenterOpacity = 1.0f,
+            float? itemExtent = null,
             float squeeze = 1.0f,
             ValueChanged<int> onSelectedItemChanged = null,
             bool clipToSize = true,
             bool renderChildrenOutsideViewport = false,
-            ListWheelChildDelegate childDelegate = null
+            List<Widget> children = null
         ) : base(key: key) {
             D.assert(children != null || childDelegate != null);
             D.assert(diameterRatio > 0.0, () => RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(perspective > 0);
             D.assert(perspective <= 0.01f, () => RenderListWheelViewport.perspectiveTooHighMessage);
             D.assert(magnification > 0);
-            D.assert(overAndUnderCenterOpacity != null);
             D.assert(overAndUnderCenterOpacity >= 0 && overAndUnderCenterOpacity <= 1);
             D.assert(itemExtent > 0);
-            D.assert(squeeze != null);
             D.assert(squeeze > 0);
             D.assert(
                 !renderChildrenOutsideViewport || !clipToSize,
                 () => RenderListWheelViewport.clipToSizeAndRenderChildrenOutsideViewportConflict
             );
 
-            this.childDelegate = childDelegate ?? new ListWheelChildListDelegate(children: children);
+            childDelegate = new ListWheelChildListDelegate(children: children);
             this.overAndUnderCenterOpacity = overAndUnderCenterOpacity;
             this.itemExtent = itemExtent;
             this.squeeze = squeeze;
@@ -476,11 +480,6 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public static ListWheelScrollView useDelegate(
-            float itemExtent,
-            float overAndUnderCenterOpacity = 1.0f,
-            float squeeze = 1.0f,
-            List<Widget> children = null,
-            ListWheelChildDelegate childDelegate = null,
             Key key = null,
             ScrollController controller = null,
             ScrollPhysics physics = null,
@@ -489,14 +488,29 @@ namespace Unity.UIWidgets.widgets {
             float offAxisFraction = 0.0f,
             bool useMagnifier = false,
             float magnification = 1.0f,
+            float? itemExtent = null,
+            float squeeze = 1.0f,
             ValueChanged<int> onSelectedItemChanged = null,
+            float overAndUnderCenterOpacity = 1.0f,
             bool clipToSize = true,
-            bool renderChildrenOutsideViewport = false
+            bool renderChildrenOutsideViewport = false,
+            ListWheelChildDelegate childDelegate = null
         ) {
-            return new ListWheelScrollView(
+            D.assert(childDelegate != null);
+            D.assert(diameterRatio > 0.0, ()=>RenderListWheelViewport.diameterRatioZeroMessage);
+            D.assert(perspective > 0);
+            D.assert(perspective <= 0.01,()=> RenderListWheelViewport.perspectiveTooHighMessage);
+            D.assert(magnification > 0);
+            D.assert(overAndUnderCenterOpacity >= 0 && overAndUnderCenterOpacity <= 1);
+            D.assert(itemExtent != null);
+            D.assert(itemExtent > 0);
+            D.assert(squeeze > 0);
+            D.assert(
+                !renderChildrenOutsideViewport || !clipToSize,()=>
+                RenderListWheelViewport.clipToSizeAndRenderChildrenOutsideViewportConflict
+            );
+            var view =  new ListWheelScrollView(
                 itemExtent: itemExtent,
-                children: children,
-                childDelegate: childDelegate,
                 key: key,
                 controller: controller,
                 physics: physics,
@@ -509,6 +523,8 @@ namespace Unity.UIWidgets.widgets {
                 clipToSize: clipToSize,
                 renderChildrenOutsideViewport: renderChildrenOutsideViewport
             );
+            view.childDelegate = childDelegate;
+            return view;
         }
 
         public readonly ScrollController controller;
@@ -518,13 +534,13 @@ namespace Unity.UIWidgets.widgets {
         public readonly float offAxisFraction;
         public readonly bool useMagnifier;
         public readonly float magnification;
-        public readonly float itemExtent;
+        public readonly float? itemExtent;
         public readonly float overAndUnderCenterOpacity;
         public readonly float squeeze;
         public readonly ValueChanged<int> onSelectedItemChanged;
         public readonly bool clipToSize;
         public readonly bool renderChildrenOutsideViewport;
-        public readonly ListWheelChildDelegate childDelegate;
+        public ListWheelChildDelegate childDelegate;
 
         public override State createState() {
             return new _ListWheelScrollViewState();
@@ -560,7 +576,6 @@ namespace Unity.UIWidgets.widgets {
                         && notification is ScrollUpdateNotification
                         && notification.metrics is FixedExtentMetrics metrics) {
                         int currentItemIndex = metrics.itemIndex;
-
                         if (currentItemIndex != _lastReportedItemIndex) {
                             _lastReportedItemIndex = currentItemIndex;
                             int trueIndex = widget.childDelegate.trueIndexOf(currentItemIndex);
@@ -582,7 +597,7 @@ namespace Unity.UIWidgets.widgets {
                             useMagnifier: widget.useMagnifier,
                             magnification: widget.magnification,
                             overAndUnderCenterOpacity: widget.overAndUnderCenterOpacity,
-                            itemExtent: widget.itemExtent,
+                            itemExtent: widget.itemExtent ?? 0.0f,
                             squeeze: widget.squeeze,
                             clipToSize: widget.clipToSize,
                             renderChildrenOutsideViewport: widget.renderChildrenOutsideViewport,
@@ -660,12 +675,8 @@ namespace Unity.UIWidgets.widgets {
             owner.buildScope(this, () => {
                 bool insertFirst = after == null;
                 D.assert(insertFirst || _childElements[index - 1] != null);
-                // Debug.Log($"{index}: {this._childElements.getOrDefault(index)}");
-
                 Element newChild = updateChild(_childElements.getOrDefault(index), retrieveWidget(index),
                     index);
-
-                // Debug.Log(newChild);
                 if (newChild != null) {
                     _childElements[index] = newChild;
                 }
@@ -703,12 +714,7 @@ namespace Unity.UIWidgets.widgets {
         protected override void insertChildRenderObject(RenderObject child, object slot) {
             RenderListWheelViewport renderObject = this.renderObject;
             D.assert(renderObject.debugValidateChild(child));
-
-            renderObject.insert((RenderBox) child,
-                (RenderBox) _childElements.getOrDefault((int) slot - 1)?.renderObject);
-            // Debug.Log($"insert: {this._childElements.getOrDefault((int) slot - 1)}");
-
-
+            renderObject.insert(child as RenderBox, after: _childElements[(int)slot - 1]?.renderObject as RenderBox);
             D.assert(renderObject == this.renderObject);
         }
 
@@ -738,27 +744,27 @@ namespace Unity.UIWidgets.widgets {
 
     public class ListWheelViewport : RenderObjectWidget {
         public ListWheelViewport(
-            float itemExtent,
-            ViewportOffset offset,
-            ListWheelChildDelegate childDelegate,
             Key key = null,
             float diameterRatio = RenderListWheelViewport.defaultDiameterRatio,
             float perspective = RenderListWheelViewport.defaultPerspective,
             float offAxisFraction = 0.0f,
             bool useMagnifier = false,
             float magnification = 1.0f,
+            float overAndUnderCenterOpacity = 1.0f,
+            float? itemExtent = null,
+            float squeeze = 1.0f,
             bool clipToSize = true,
             bool renderChildrenOutsideViewport = false,
-            float overAndUnderCenterOpacity = 1.0f,
-            float squeeze = 1.0f
+            ViewportOffset offset = null,
+            ListWheelChildDelegate childDelegate = null
         ) : base(key: key) {
             D.assert(childDelegate != null);
             D.assert(offset != null);
             D.assert(diameterRatio > 0, () => RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(perspective > 0);
             D.assert(perspective <= 0.01, () => RenderListWheelViewport.perspectiveTooHighMessage);
-            D.assert(overAndUnderCenterOpacity != null);
             D.assert(overAndUnderCenterOpacity >= 0 && overAndUnderCenterOpacity <= 1);
+            D.assert(itemExtent != null);
             D.assert(itemExtent > 0);
             D.assert(
                 !renderChildrenOutsideViewport || !clipToSize,
@@ -785,7 +791,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly bool useMagnifier;
         public readonly float magnification;
         public readonly float overAndUnderCenterOpacity;
-        public readonly float itemExtent;
+        public readonly float? itemExtent;
         public readonly float squeeze;
         public readonly bool clipToSize;
         public readonly bool renderChildrenOutsideViewport;
@@ -807,7 +813,7 @@ namespace Unity.UIWidgets.widgets {
                 useMagnifier: useMagnifier,
                 magnification: magnification,
                 overAndUnderCenterOpacity: overAndUnderCenterOpacity,
-                itemExtent: itemExtent,
+                itemExtent: itemExtent ?? 0.0f,
                 squeeze: squeeze,
                 clipToSize: clipToSize,
                 renderChildrenOutsideViewport: renderChildrenOutsideViewport
@@ -823,7 +829,7 @@ namespace Unity.UIWidgets.widgets {
             viewport.useMagnifier = useMagnifier;
             viewport.magnification = magnification;
             viewport.overAndUnderCenterOpacity = overAndUnderCenterOpacity;
-            viewport.itemExtent = itemExtent;
+            viewport.itemExtent = itemExtent ?? 0.0f;
             viewport.squeeze = squeeze;
             viewport.clipToSize = clipToSize;
             viewport.renderChildrenOutsideViewport = renderChildrenOutsideViewport;

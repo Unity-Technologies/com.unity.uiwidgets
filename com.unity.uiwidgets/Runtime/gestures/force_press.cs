@@ -61,8 +61,8 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public GestureForcePressStartCallback onStart;
-        GestureForcePressUpdateCallback onUpdate;
-        GestureForcePressPeakCallback onPeak;
+        public GestureForcePressUpdateCallback onUpdate;
+        public GestureForcePressPeakCallback onPeak;
         public GestureForcePressEndCallback onEnd;
         public readonly float startPressure;
         public readonly float peakPressure;

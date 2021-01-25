@@ -45,6 +45,8 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key: key) {
             D.assert(themes != null);
             D.assert(child != null);
+            this.child = child;
+            this.themes = themes;
         }
 
         public readonly List<InheritedTheme> themes;

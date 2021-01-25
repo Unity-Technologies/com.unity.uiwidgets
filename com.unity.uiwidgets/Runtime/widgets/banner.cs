@@ -37,22 +37,32 @@ namespace Unity.UIWidgets.widgets {
 
     public class BannerPainter : AbstractCustomPainter {
         public BannerPainter(
-            string message,
-            BannerLocation? location,
+            string message = null,
+            TextDirection? textDirection = null,
+            BannerLocation? location = null,
+            TextDirection? layoutDirection = null,
             Color color = null,
             TextStyle textStyle = null
         ) : base (repaint: PaintingBinding.instance.systemFonts) {
             D.assert(message != null);
+            D.assert(textDirection != null);
             D.assert(location != null);
-            this.color = color ?? BannerConstants._kColor;
+
             this.message = message;
+            this.textDirection = textDirection;
             this.location = location;
+            this.layoutDirection = layoutDirection;
+            this.color = color ?? BannerConstants._kColor;
             this.textStyle = textStyle ?? BannerConstants._kTextStyle;
         }
 
         public readonly string message;
+        
+        public readonly TextDirection? textDirection;
 
         public readonly BannerLocation? location;
+        
+        public readonly TextDirection? layoutDirection;
 
         public readonly Color color;
 
@@ -74,7 +84,8 @@ namespace Unity.UIWidgets.widgets {
             _paintBanner.color = color;
             _textPainter = new TextPainter(
                 text: new TextSpan(style: textStyle, text: message),
-                textAlign: TextAlign.center
+                textAlign: TextAlign.center,
+                textDirection: textDirection ?? TextDirection.ltr
             );
             _prepared = true;
         }
@@ -108,18 +119,36 @@ namespace Unity.UIWidgets.widgets {
         }
 
         float _translationX(float width) {
-            switch (location) {
-                case BannerLocation.bottomEnd:
-                    return width - BannerConstants._kBottomOffset;
-                case BannerLocation.topEnd:
-                    return width;
-                case BannerLocation.bottomStart:
-                    return BannerConstants._kBottomOffset;
-                case BannerLocation.topStart:
-                    return 0.0f;
-                default:
-                    throw new Exception("Unknown location: " + location);
+            D.assert(location != null);
+            D.assert(layoutDirection != null);
+            switch (layoutDirection) {
+                case TextDirection.rtl:
+                    switch (location) {
+                        case BannerLocation.bottomEnd:
+                            return BannerConstants._kBottomOffset;
+                        case BannerLocation.topEnd:
+                            return 0.0f;
+                        case BannerLocation.bottomStart:
+                            return width - BannerConstants._kBottomOffset;
+                        case BannerLocation.topStart:
+                            return width;
+                    }
+                    break;
+                case TextDirection.ltr:
+                    switch (location) {
+                        case BannerLocation.bottomEnd:
+                            return width - BannerConstants._kBottomOffset;
+                        case BannerLocation.topEnd:
+                            return width;
+                        case BannerLocation.bottomStart:
+                            return BannerConstants._kBottomOffset;
+                        case BannerLocation.topStart:
+                            return 0.0f;
+                    }
+                    break;
+                
             }
+            return 0.0f;
         }
 
         float _translationY(float height) {
@@ -138,16 +167,31 @@ namespace Unity.UIWidgets.widgets {
 
         float _rotation {
             get {
-                switch (location) {
-                    case BannerLocation.bottomStart:
-                    case BannerLocation.topEnd:
-                        return Mathf.PI / 4.0f;
-                    case BannerLocation.bottomEnd:
-                    case BannerLocation.topStart:
-                        return -Mathf.PI / 4.0f;
-                    default:
-                        throw new Exception("Unknown location: " + location);
+                D.assert(location != null);
+                D.assert(layoutDirection != null);
+                switch (layoutDirection) {
+                    case TextDirection.rtl:
+                        switch (location) {
+                            case BannerLocation.bottomStart:
+                            case BannerLocation.topEnd:
+                                return -Mathf.PI / 4.0f;
+                            case BannerLocation.bottomEnd:
+                            case BannerLocation.topStart:
+                                return Mathf.PI / 4.0f;
+                        }
+                        break;
+                    case TextDirection.ltr:
+                        switch (location) {
+                            case BannerLocation.bottomStart:
+                            case BannerLocation.topEnd:
+                                return Mathf.PI / 4.0f;
+                            case BannerLocation.bottomEnd:
+                            case BannerLocation.topStart:
+                                return -Mathf.PI / 4.0f;
+                        }
+                        break;
                 }
+                return 0.0f;
             }
         }
     }
@@ -157,13 +201,18 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             Widget child = null,
             string message = null,
+            TextDirection? textDirection = null,
             BannerLocation? location = null,
+            TextDirection? layoutDirection = null,
             Color color = null,
             TextStyle textStyle = null
         ) : base(key: key) {
             D.assert(message != null);
+            D.assert(location != null);
             this.child = child;
             this.message = message;
+            this.layoutDirection = layoutDirection;
+            this.textDirection = textDirection;
             this.location = location;
             this.color = color ?? BannerConstants._kColor;
             this.textStyle = textStyle ?? BannerConstants._kTextStyle;
@@ -172,6 +221,10 @@ namespace Unity.UIWidgets.widgets {
         public readonly Widget child;
 
         public readonly string message;
+        
+        public readonly TextDirection? textDirection;
+        
+        public readonly TextDirection? layoutDirection;
 
         public readonly BannerLocation? location;
 
@@ -180,11 +233,13 @@ namespace Unity.UIWidgets.widgets {
         public readonly TextStyle textStyle;
 
         public override Widget build(BuildContext context) {
-            D.assert(WidgetsD.debugCheckHasDirectionality(context));
+            D.assert((textDirection != null && layoutDirection != null)|| WidgetsD.debugCheckHasDirectionality(context));
             return new CustomPaint(
                 foregroundPainter: new BannerPainter(
                     message: message,
+                    textDirection: textDirection ?? Directionality.of(context),
                     location: location,
+                    layoutDirection: layoutDirection ?? Directionality.of(context),
                     color: color,
                     textStyle: textStyle
                 ),
@@ -195,9 +250,11 @@ namespace Unity.UIWidgets.widgets {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new StringProperty("message", message, showName: false));
-            properties.add(new EnumProperty<BannerLocation?>("location", location));
+            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
+            properties.add(new EnumProperty<BannerLocation>("location", (BannerLocation)location));
+            properties.add(new EnumProperty<TextDirection>("layoutDirection", (TextDirection)layoutDirection, defaultValue: null));
             properties.add(new ColorProperty("color", color, showName: false));
-            textStyle?.debugFillProperties(properties);
+            textStyle?.debugFillProperties(properties, prefix: "text ");
         }
     }
 
@@ -219,6 +276,7 @@ namespace Unity.UIWidgets.widgets {
                 result = new Banner(
                     child: result,
                     message: "DEBUG",
+                    textDirection: TextDirection.ltr,
                     location: BannerLocation.topEnd
                 );
                 return true;

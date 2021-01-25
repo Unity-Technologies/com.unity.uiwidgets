@@ -14,6 +14,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
+using Debug = System.Diagnostics.Debug;
 using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
@@ -38,7 +39,7 @@ namespace Unity.UIWidgets.widgets {
         public static Color _kHighlightedRenderObjectBorderColor = Color.fromARGB(128, 64, 64, 128);
 
         bool _isDebugCreator(DiagnosticsNode node) => node is DiagnosticsDebugCreator; 
-        List<DiagnosticsNode> transformDebugCreator(IEnumerable<DiagnosticsNode> properties) { 
+        IEnumerable transformDebugCreator(IEnumerable<DiagnosticsNode> properties) { 
             List<DiagnosticsNode> result = new List<DiagnosticsNode>();
             List<DiagnosticsNode> pending = new List<DiagnosticsNode>();
             bool foundStackTrace = false;
@@ -71,12 +72,12 @@ namespace Unity.UIWidgets.widgets {
             _locationToId[location] = id;
             return id;
         }
-        public List<DiagnosticsNode> _parseDiagnosticsNode(DiagnosticsNode node) { 
+        public IEnumerable _parseDiagnosticsNode(DiagnosticsNode node) { 
             if (!_isDebugCreator(node))
                 return null;
             DebugCreator debugCreator = node.value as DebugCreator;
             Element element = debugCreator.element;
-            return _describeRelevantUserCode(element).ToList();
+            return _describeRelevantUserCode(element);
         }
         public IEnumerable<DiagnosticsNode> _describeRelevantUserCode(Element element) {
             if (!WidgetInspectorService.instance.isWidgetCreationTracked()) {
@@ -88,7 +89,6 @@ namespace Unity.UIWidgets.widgets {
                         ),
                     new ErrorSpacer()
                 };
-                
             }
 
             List<DiagnosticsNode> nodes = new List<DiagnosticsNode>();
@@ -400,35 +400,6 @@ namespace Unity.UIWidgets.widgets {
             layerOffset = layerOffset ?? Offset.zero;
             addChildrenToScene(builder, layerOffset);
         }
-    }
-
-    
-
-    
-    public class _SerializeConfig {
-        public _SerializeConfig(string groupName, bool summaryTree = false,
-            int subtreeDepth = 1, List<Diagnosticable> pathToInclude = null,
-            bool includeProperties = false, bool expandPropertyValues = true) {
-            this.groupName = groupName;
-            this.summaryTree = summaryTree;
-            this.subtreeDepth = subtreeDepth;
-            this.pathToInclude = pathToInclude;
-            this.includeProperties = includeProperties;
-            this.expandPropertyValues = expandPropertyValues;
-        }
-
-        public static _SerializeConfig merge(_SerializeConfig from, int? subtreeDepth = null,
-            List<Diagnosticable> pathToInclude = null) {
-            return new _SerializeConfig(from.groupName, from.summaryTree, subtreeDepth ?? from.subtreeDepth,
-                pathToInclude ?? from.pathToInclude, from.includeProperties, from.expandPropertyValues);
-        }
-
-        public readonly string groupName;
-        public readonly bool summaryTree;
-        public readonly int subtreeDepth;
-        public readonly List<Diagnosticable> pathToInclude;
-        public readonly bool includeProperties;
-        public readonly bool expandPropertyValues;
     }
 
     public delegate void InspectorSelectionChangedCallback();
@@ -923,10 +894,9 @@ namespace Unity.UIWidgets.widgets {
                 return null;
             }
 
-            _InspectorReferenceData data;
-            _idToReferenceData.TryGetValue(id, out data);
+            _InspectorReferenceData data = _idToReferenceData.getOrDefault(id);
             if (data == null) {
-                throw new UIWidgetsError("Id does not exist.");
+                throw new UIWidgetsError(new List<DiagnosticsNode>{new ErrorSummary("Id does not exist.")});
             }
 
             return data.obj;
@@ -982,15 +952,15 @@ namespace Unity.UIWidgets.widgets {
                     if (ReferenceEquals(obj, selection.currentElement)) {
                         return false;
                     }
-
                     selection.currentElement = (Element) obj;
+                    // [!!!] developer.inspect(selection.currentElement);
                 }
                 else {
                     if (obj == selection.current) {
                         return false;
                     }
-
                     selection.current = (RenderObject) obj;
+                    // [!!!] developer.inspect(selection.current);
                 }
 
                 if (selectionChangedCallback != null) {
@@ -1026,7 +996,7 @@ namespace Unity.UIWidgets.widgets {
             else if (value is Element)
                 path = _getElementParentChain((Element)value, groupName);
             else
-                throw new UIWidgetsError($"Cannot get parent chain for node of type {value.GetType()}");
+                throw new UIWidgetsError(new List<DiagnosticsNode>{new ErrorSummary($"Cannot get parent chain for node of type {value.GetType()}")});
 
             return path.Select(
                     (_DiagnosticsPathNode node) => 
@@ -1128,25 +1098,27 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public List<DiagnosticsNode> _truncateNodes(IEnumerable<DiagnosticsNode>nodes, int maxDescendentsTruncatableNode) {
-            int count = 0;
-            foreach (var node in  nodes) {
-                if (node is DiagnosticsNode) {
-                    if (((DiagnosticsNode) node).value is Element) {
-                        count++;
-                    }
-                }
+
+            bool isElement = true;
+            foreach (var node in nodes) {
+                if (!(node.value is Element)) {
+                    isElement = false;
+                    break;
+                } 
             }
-            if (count == nodes.Count() && isWidgetCreationTracked()) {
+            if (isElement && isWidgetCreationTracked()) {
                 List<DiagnosticsNode> localNodes = nodes.Where((DiagnosticsNode node) =>
                     _isValueCreatedByLocalProject(node.value)).ToList();
                 if (localNodes.isNotEmpty()) {
                     return localNodes;
                 }
             }
+            
+
             //return nodes.take(maxDescendentsTruncatableNode).toList();
             List<DiagnosticsNode> results = new List<DiagnosticsNode>();
             for (int i = 0; i < maxDescendentsTruncatableNode; i++) {
-                results.Add(nodes.ToList()[i]);
+                results.Add(nodes.ElementAt(i));
             }
             return results;
         }
@@ -1349,7 +1321,7 @@ namespace Unity.UIWidgets.widgets {
         public Dictionary<string, object> _getSelectedWidget(string previousSelectionId, string groupName) {
             DiagnosticsNode previousSelection = toObject(previousSelectionId) as DiagnosticsNode;
             Element current = selection?.currentElement;
-            return _nodeToJson(current == previousSelection?.value ? previousSelection : current?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
+            return _nodeToJson(Equals(current, previousSelection?.value) ? previousSelection : current?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
         }
         string getSelectedSummaryWidget(string previousSelectionId, string groupName) {
             return _safeJsonEncode(_getSelectedSummaryWidget(previousSelectionId, groupName));
@@ -1371,7 +1343,7 @@ namespace Unity.UIWidgets.widgets {
                 }
                 current = firstLocal;
             }
-            return _nodeToJson(current == previousSelection?.value ? previousSelection : current?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
+            return _nodeToJson(Equals(current, previousSelection?.value) ? previousSelection : current?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
         }
 
         public bool isWidgetCreationTracked() {
@@ -1469,6 +1441,7 @@ namespace Unity.UIWidgets.widgets {
             RenderObject target 
         ) {
             D.assert(target != null);
+            this.target = target;
             containerLayer = new _ScreenshotContainerLayer();
         }
 
@@ -1489,9 +1462,9 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(foundTarget);
                 return containerLayer.offset;
             }
-        }
-        public void SetScreenshotOffset(Offset offset) {
-            containerLayer.offset = offset;
+            set {
+                containerLayer.offset = value;
+            }
         }
     }
     public class _ScreenshotPaintingContext : PaintingContext { 
@@ -1499,8 +1472,7 @@ namespace Unity.UIWidgets.widgets {
             ContainerLayer containerLayer = null,
             Rect estimatedBounds = null,
             _ScreenshotData screenshotData = null
-          ) : 
-            base(containerLayer, estimatedBounds) {
+          ) : base(containerLayer, estimatedBounds) {
               _data = screenshotData;
         }
 
@@ -1612,7 +1584,7 @@ namespace Unity.UIWidgets.widgets {
               D.assert(!_data.includeInScreenshot);
               D.assert(!_data.foundTarget);
               _data.foundTarget = true;
-              _data.SetScreenshotOffset(offset);
+              _data.screenshotOffset = offset;
               _data.includeInScreenshot = true;
             }
             base.paintChild(child, offset);
@@ -1643,7 +1615,7 @@ namespace Unity.UIWidgets.widgets {
                 data.containerLayer.append(new _ProxyLayer(repaintBoundary.debugLayer));
                 data.foundTarget = true;
                 OffsetLayer offsetLayer = repaintBoundary.debugLayer as OffsetLayer;
-                data.SetScreenshotOffset( offsetLayer.offset);
+                data.screenshotOffset = offsetLayer.offset;
             } else {
                 PaintingContext.debugInstrumentRepaintCompositedChild(
                     repaintBoundary,
@@ -1679,9 +1651,9 @@ namespace Unity.UIWidgets.widgets {
         public InspectorSerializationDelegate(
             string groupName = null,
             bool? summaryTree = null,
-            int? maxDescendentsTruncatableNode = null,
+            int? maxDescendentsTruncatableNode = -1,
             bool? expandPropertyValues = null,
-            int? subtreeDepth = null,
+            int? subtreeDepth = 1,
             bool? includeProperties = null,
             WidgetInspectorService service = null,
             AddAdditionalPropertiesCallback addAdditionalPropertiesCallback = null
@@ -2035,6 +2007,8 @@ namespace Unity.UIWidgets.widgets {
             return Future.value(false).to<bool>();
         }
 
+        public void didChangeAccessibilityFeatures() {}
+
         void _selectionChangedCallback() {
             setState(() => { });
         }
@@ -2236,8 +2210,12 @@ namespace Unity.UIWidgets.widgets {
         public readonly string tooltip;
         public readonly TextDirection textDirection;
 
-        public _InspectorOverlayRenderState(Rect overlayRect, _TransformedRect selected,
-            List<_TransformedRect> candidates, string tooltip, TextDirection textDirection) {
+        public _InspectorOverlayRenderState(
+            Rect overlayRect, 
+            _TransformedRect selected,
+            List<_TransformedRect> candidates, 
+            string tooltip, 
+            TextDirection textDirection) {
             this.overlayRect = overlayRect;
             this.selected = selected;
             this.candidates = candidates;

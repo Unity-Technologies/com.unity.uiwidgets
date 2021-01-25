@@ -4,10 +4,14 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Object = System.Object;
 using Rect = Unity.UIWidgets.ui.Rect;
 using TextRange = Unity.UIWidgets.ui.TextRange;
 
@@ -43,8 +47,6 @@ namespace Unity.UIWidgets.widgets {
             TextSelectionDelegate selectionDelegate
             );
         public abstract Size getHandleSize(float textLineHeight);
-
-        public abstract Size handleSize { get; }
 
         public virtual bool canCut(TextSelectionDelegate _delegate) {
             return _delegate.cutEnabled && !_delegate.textEditingValue.selection.isCollapsed;
@@ -132,21 +134,30 @@ namespace Unity.UIWidgets.widgets {
             TextEditingValue value = null,
             BuildContext context = null, 
             Widget debugRequiredFor = null,
-            LayerLink layerLink = null,
+            LayerLink toolbarLayerLink = null,
+            LayerLink startHandleLayerLink = null,
+            LayerLink endHandleLayerLink = null,
             RenderEditable renderObject = null,
             TextSelectionControls selectionControls = null,
+            bool handlesVisible = false,
             TextSelectionDelegate selectionDelegate = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start) {
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start, 
+            VoidCallback onSelectionHandleTapped = null) {
             D.assert(value != null);
             D.assert(context != null);
+            D.assert(handlesVisible != null);
+            _handlesVisible = handlesVisible;
             this.context = context;
             this.debugRequiredFor = debugRequiredFor;
-            this.layerLink = layerLink;
+            this.toolbarLayerLink = toolbarLayerLink;
+            this.startHandleLayerLink = startHandleLayerLink;
+            this.endHandleLayerLink = endHandleLayerLink;
             this.renderObject = renderObject;
             this.selectionControls = selectionControls;
             this.selectionDelegate = selectionDelegate;
+            this.onSelectionHandleTapped = onSelectionHandleTapped;
             _value = value;
-            OverlayState overlay = Overlay.of(context);
+            OverlayState overlay = Overlay.of(context, rootOverlay: true);
             D.assert(overlay != null, () => $"No Overlay widget exists above {context}.\n" +
                                             "Usually the Navigator created by WidgetsApp provides the overlay. Perhaps your " +
                                             "app content was created above the Navigator with the WidgetsApp builder parameter.");
@@ -156,17 +167,24 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly BuildContext context;
         public readonly Widget debugRequiredFor;
-        public readonly LayerLink layerLink;
+        public readonly LayerLink toolbarLayerLink;
+        public readonly LayerLink startHandleLayerLink;
+        public readonly LayerLink endHandleLayerLink;
         public readonly RenderEditable renderObject;
         public readonly TextSelectionControls selectionControls;
         public readonly TextSelectionDelegate selectionDelegate;
         public readonly DragStartBehavior dragStartBehavior;
+        public readonly VoidCallback onSelectionHandleTapped;
 
         public static readonly TimeSpan fadeDuration = TimeSpan.FromMilliseconds(150);
         AnimationController _toolbarController;
 
         Animation<float> _toolbarOpacity {
             get { return _toolbarController.view; }
+        }
+
+        TextEditingValue  value {
+            get { return _value; }
         }
 
         TextEditingValue _value;
@@ -179,6 +197,29 @@ namespace Unity.UIWidgets.widgets {
             get { return _value.selection; }
         }
 
+        bool _handlesVisible = false;
+        public bool handlesVisible {
+            get {
+                return _handlesVisible;
+            }
+            set {
+                D.assert(value != null);
+                if (_handlesVisible == value)
+                    return;
+                _handlesVisible = value;
+                // If we are in build state, it will be too late to update visibility.
+                // We will need to schedule the build in next frame.
+                if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+                    SchedulerBinding.instance.addPostFrameCallback((TimeSpan timespan) => {
+                        _markNeedsBuild();
+                    });
+                } else {
+                    _markNeedsBuild();
+                }
+            }
+            
+        }
+        
         public void showHandles() {
             D.assert(_handles == null);
             _handles = new List<OverlayEntry> {
@@ -187,13 +228,21 @@ namespace Unity.UIWidgets.widgets {
                 new OverlayEntry(builder: (BuildContext context) =>
                     _buildHandle(context, _TextSelectionHandlePosition.end)),
             };
-            Overlay.of(this.context, debugRequiredFor: debugRequiredFor).insertAll(_handles);
+            Overlay.of(this.context, rootOverlay: true, debugRequiredFor: debugRequiredFor).insertAll(_handles);
         }
 
+        public void hideHandles() {
+            if (_handles != null) {
+                _handles[0].remove();
+                _handles[1].remove();
+                _handles = null;
+            }
+        }
+        
         public void showToolbar() {
             D.assert(_toolbar == null);
             _toolbar = new OverlayEntry(builder: _buildToolbar);
-            Overlay.of(context, debugRequiredFor: debugRequiredFor).insert(_toolbar);
+            Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor).insert(_toolbar);
             _toolbarController.forward(from: 0.0f);
         }
 
@@ -225,7 +274,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public bool handlesAreVisible {
-            get { return _handles != null; }
+            get { return _handles != null && handlesVisible; }
         }
 
 
@@ -239,11 +288,16 @@ namespace Unity.UIWidgets.widgets {
                 _handles[1].remove();
                 _handles = null;
             }
+            if (_toolbar != null) {
+                hideToolbar();
+            }
+        }
 
-            _toolbar?.remove();
-            _toolbar = null;
-
+        void hideToolbar() {
+            D.assert(_toolbar != null);
             _toolbarController.stop();
+            _toolbar.remove();
+            _toolbar = null;
         }
 
         public void dispose() {
@@ -257,17 +311,21 @@ namespace Unity.UIWidgets.widgets {
                 return new Container(); // hide the second handle when collapsed
             }
 
-            return new _TextSelectionHandleOverlay(
-                onSelectionHandleChanged: (TextSelection newSelection) => {
-                    _handleSelectionHandleChanged(newSelection, position);
-                },
-                onSelectionHandleTapped: _handleSelectionHandleTapped,
-                layerLink: layerLink,
-                renderObject: renderObject,
-                selection: _selection,
-                selectionControls: selectionControls,
-                position: position,
-                dragStartBehavior: dragStartBehavior
+            return new Visibility(
+                visible: handlesVisible,
+                child: new _TextSelectionHandleOverlay(
+                    onSelectionHandleChanged: (TextSelection newSelection) => {
+                        _handleSelectionHandleChanged(newSelection, position);
+                    },
+                    onSelectionHandleTapped: onSelectionHandleTapped,
+                    startHandleLayerLink: startHandleLayerLink,
+                    endHandleLayerLink: endHandleLayerLink,
+                    renderObject: renderObject,
+                    selection: _selection,
+                    selectionControls: selectionControls,
+                    position: position,
+                    dragStartBehavior: dragStartBehavior
+                )
             );
         }
 
@@ -278,22 +336,31 @@ namespace Unity.UIWidgets.widgets {
 
             // Find the horizontal midpoint, just above the selected text.
             List<TextSelectionPoint> endpoints = renderObject.getEndpointsForSelection(_selection);
-            Offset midpoint = new Offset(
-                (endpoints.Count == 1) ? endpoints[0].point.dx : (endpoints[0].point.dx + endpoints[1].point.dx) / 2.0f,
-                endpoints[0].point.dy - renderObject.preferredLineHeight
-            );
 
             Rect editingRegion = Rect.fromPoints(renderObject.localToGlobal(Offset.zero),
                 renderObject.localToGlobal(renderObject.size.bottomRight(Offset.zero))
             );
 
+            bool isMultiline = endpoints.last().point.dy - endpoints.first().point.dy >
+                                     renderObject.preferredLineHeight / 2;
+            
+            float midX = isMultiline
+                ? editingRegion.width / 2
+                : (endpoints.first().point.dx + endpoints.last().point.dx) / 2;
+
+            Offset midpoint = new Offset(
+                midX,
+                endpoints[0].point.dy - renderObject.preferredLineHeight
+            );
+            
             return new FadeTransition(
                 opacity: _toolbarOpacity,
                 child: new CompositedTransformFollower(
-                    link: layerLink,
+                    link: toolbarLayerLink,
                     showWhenUnlinked: false,
                     offset: -editingRegion.topLeft,
-                    child: selectionControls.buildToolbar(context,
+                    child: selectionControls.buildToolbar(
+                        context,
                         editingRegion,
                         renderObject.preferredLineHeight,
                         midpoint,
@@ -318,18 +385,6 @@ namespace Unity.UIWidgets.widgets {
                 _value.copyWith(selection: newSelection, composing: TextRange.empty);
             selectionDelegate.bringIntoView(textPosition);
         }
-
-        void _handleSelectionHandleTapped() {
-            if (_value.selection.isCollapsed) {
-                if (_toolbar != null) {
-                    _toolbar?.remove();
-                    _toolbar = null;
-                }
-                else {
-                    showToolbar();
-                }
-            }
-        }
     }
 
     class _TextSelectionHandleOverlay : StatefulWidget {
@@ -337,7 +392,8 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             TextSelection selection = null,
             _TextSelectionHandlePosition position = _TextSelectionHandlePosition.start,
-            LayerLink layerLink = null,
+            LayerLink startHandleLayerLink = null,
+            LayerLink endHandleLayerLink = null,
             RenderEditable renderObject = null,
             ValueChanged<TextSelection> onSelectionHandleChanged = null,
             VoidCallback onSelectionHandleTapped = null,
@@ -346,7 +402,8 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key: key) {
             this.selection = selection;
             this.position = position;
-            this.layerLink = layerLink;
+            this.startHandleLayerLink = startHandleLayerLink;
+            this.endHandleLayerLink = endHandleLayerLink;
             this.renderObject = renderObject;
             this.onSelectionHandleChanged = onSelectionHandleChanged;
             this.onSelectionHandleTapped = onSelectionHandleTapped;
@@ -356,7 +413,8 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly TextSelection selection;
         public readonly _TextSelectionHandlePosition position;
-        public readonly LayerLink layerLink;
+        public readonly LayerLink startHandleLayerLink;
+        public readonly LayerLink endHandleLayerLink;
         public readonly RenderEditable renderObject;
         public readonly ValueChanged<TextSelection> onSelectionHandleChanged;
         public readonly VoidCallback onSelectionHandleTapped;
@@ -386,6 +444,7 @@ namespace Unity.UIWidgets.widgets {
 
         AnimationController _controller;
 
+        const float kMinInteractiveDimension = 48.0f;
         Animation<float> _opacity {
             get { return _controller.view; }
         }
@@ -420,8 +479,10 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _handleDragStart(DragStartDetails details) {
-            _dragPosition = details.globalPosition +
-                            new Offset(0.0f, -widget.selectionControls.handleSize.height);
+            Size handleSize = widget.selectionControls.getHandleSize(
+                widget.renderObject.preferredLineHeight
+            );
+            _dragPosition = details.globalPosition + new Offset(0.0f, -handleSize.height);
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
@@ -457,53 +518,84 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _handleTap() {
-            widget.onSelectionHandleTapped();
+            if (widget.onSelectionHandleTapped != null)
+                widget.onSelectionHandleTapped();
         }
 
         public override Widget build(BuildContext context) {
             List<TextSelectionPoint> endpoints =
                 widget.renderObject.getEndpointsForSelection(widget.selection);
             Offset point = null;
+            
+            LayerLink layerLink = null;
             TextSelectionHandleType type = TextSelectionHandleType.left;
 
             switch (widget.position) {
                 case _TextSelectionHandlePosition.start:
-                    point = endpoints[0].point;
-                    type = _chooseType(endpoints[0], TextSelectionHandleType.left, TextSelectionHandleType.right);
+                    layerLink = widget.startHandleLayerLink;
+                    type = _chooseType(
+                        widget.renderObject.textDirection,
+                        TextSelectionHandleType.left,
+                        TextSelectionHandleType.right
+                    );
                     break;
                 case _TextSelectionHandlePosition.end:
-                    D.assert(endpoints.Count == 2);
-                    point = endpoints[1].point;
-                    type = _chooseType(endpoints[1], TextSelectionHandleType.right, TextSelectionHandleType.left);
+                    D.assert(!widget.selection.isCollapsed);
+                    layerLink = widget.endHandleLayerLink;
+                    type = _chooseType(
+                        widget.renderObject.textDirection,
+                        TextSelectionHandleType.right,
+                        TextSelectionHandleType.left
+                    );
                     break;
             }
 
-            Size viewport = widget.renderObject.size;
-            point = new Offset(
-                point.dx.clamp(0.0f, viewport.width),
-                point.dy.clamp(0.0f, viewport.height)
+            Offset handleAnchor = widget.selectionControls.getHandleAnchor(
+                type,
+                widget.renderObject.preferredLineHeight
+            );
+            Size handleSize = widget.selectionControls.getHandleSize(
+                widget.renderObject.preferredLineHeight
+            );
+
+            Rect handleRect = Rect.fromLTWH(
+                -handleAnchor.dx,
+                -handleAnchor.dy,
+                handleSize.width,
+                handleSize.height
+            );
+            
+            Rect interactiveRect = handleRect.expandToInclude(
+                Rect.fromCircle(center: handleRect.center, radius: kMinInteractiveDimension/ 2)
+            );
+            RelativeRect padding = RelativeRect.fromLTRB(
+                Mathf.Max((interactiveRect.width - handleRect.width) / 2, 0),
+                Mathf.Max((interactiveRect.height - handleRect.height) / 2, 0),
+                Mathf.Max((interactiveRect.width - handleRect.width) / 2, 0),
+                Mathf.Max((interactiveRect.height - handleRect.height) / 2, 0)
             );
 
             return new CompositedTransformFollower(
-                link: widget.layerLink,
+                link: layerLink,
+                offset: interactiveRect.topLeft,
                 showWhenUnlinked: false,
                 child: new FadeTransition(
                     opacity: _opacity,
                     child: new GestureDetector(
+                        behavior: HitTestBehavior.translucent,
                         dragStartBehavior: widget.dragStartBehavior,
                         onPanStart: _handleDragStart,
                         onPanUpdate: _handleDragUpdate,
                         onTap: _handleTap,
-                        child: new Stack(
-                            overflow: Overflow.visible,
-                            children: new List<Widget>() {
-                                new Positioned(
-                                    left: point.dx,
-                                    top: point.dy,
-                                    child: widget.selectionControls.buildHandle(context, type,
-                                        widget.renderObject.preferredLineHeight)
-                                )
-                            }
+                        child: new Padding(
+                            padding: EdgeInsets.only(
+                                left: padding.left,
+                                top: padding.top,
+                                right: padding.right,
+                                bottom: padding.bottom
+                                ), 
+                            child: widget.selectionControls.buildHandle(context, type,
+                                widget.renderObject.preferredLineHeight)
                         )
                     )
                 )
@@ -511,7 +603,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         TextSelectionHandleType _chooseType(
-            TextSelectionPoint endpoint,
+            TextDirection? textDirection,
             TextSelectionHandleType ltrType,
             TextSelectionHandleType rtlType
         ) {
@@ -519,15 +611,15 @@ namespace Unity.UIWidgets.widgets {
                 return TextSelectionHandleType.collapsed;
             }
 
-            D.assert(endpoint.direction != null);
-            switch (endpoint.direction) {
+            D.assert(textDirection != null);
+            switch (textDirection) {
                 case TextDirection.ltr:
                     return ltrType;
                 case TextDirection.rtl:
                     return rtlType;
             }
 
-            D.assert(() => throw new UIWidgetsError($"invalid endpoint.direction {endpoint.direction}"));
+            D.assert(() => throw new UIWidgetsError($"invalid endpoint.direction {textDirection}"));
             return ltrType;
         }
     }
@@ -602,7 +694,7 @@ namespace Unity.UIWidgets.widgets {
       protected void onSingleLongTapEnd(LongPressEndDetails details) {
         if (shouldShowSelectionToolbar)
           editableText.showToolbar();
-      }
+      } 
 
       protected void onDoubleTapDown(TapDownDetails details) {
         if (_delegate.selectionEnabled) {
@@ -878,9 +970,9 @@ namespace Unity.UIWidgets.widgets {
         public override Widget build(BuildContext context) {
             Dictionary<Type, GestureRecognizerFactory> gestures = new Dictionary<Type, GestureRecognizerFactory>();
 
-            gestures.Add(typeof(TapGestureRecognizer), new GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-                    () => new TapGestureRecognizer(debugOwner: this),
-                    instance => {
+            gestures.Add(typeof(_TransparentTapGestureRecognizer), new GestureRecognizerFactoryWithHandlers<_TransparentTapGestureRecognizer>(
+                    () => new _TransparentTapGestureRecognizer(debugOwner: this),
+                    (_TransparentTapGestureRecognizer instance) => {
                         instance.onTapDown = _handleTapDown;
                         instance.onTapUp = _handleTapUp;
                         instance.onTapCancel = _handleTapCancel;
@@ -939,6 +1031,17 @@ namespace Unity.UIWidgets.widgets {
                 behavior: widget.behavior,
                 child: widget.child
             );
+        }
+    }
+    public class _TransparentTapGestureRecognizer : TapGestureRecognizer {
+        public _TransparentTapGestureRecognizer(Object debugOwner = default) : base(debugOwner: debugOwner) {}
+        
+        public override void rejectGesture(int pointer) {
+            if (state == GestureRecognizerState.ready) {
+                acceptGesture(pointer);
+            } else {
+                base.rejectGesture(pointer);
+            }
         }
     }
 }

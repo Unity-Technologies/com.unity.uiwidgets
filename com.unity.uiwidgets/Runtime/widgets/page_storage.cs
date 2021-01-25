@@ -149,7 +149,7 @@ namespace Unity.UIWidgets.widgets {
 
         public static PageStorageBucket of(BuildContext context) {
             PageStorage widget = context.findAncestorWidgetOfExactType<PageStorage>();
-            return widget == null ? null : widget.bucket;
+            return widget?.bucket;
         }
 
         public override Widget build(BuildContext context) {

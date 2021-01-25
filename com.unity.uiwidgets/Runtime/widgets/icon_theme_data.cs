@@ -43,8 +43,8 @@ namespace Unity.UIWidgets.widgets {
                 size: other.size
             );
         }
-        
-        IconThemeData resolve(BuildContext context) => this;
+
+        public IconThemeData resolve(BuildContext context) => this;
         
         public bool isConcrete {
             get { return color != null && opacity != null && size != null; }

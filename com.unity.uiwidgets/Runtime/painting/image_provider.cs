@@ -230,7 +230,7 @@ namespace Unity.UIWidgets.painting {
             return new ImageStream();
         }
 
-        void resolveStreamForKey(ImageConfiguration configuration, ImageStream stream, T key,
+        public virtual void resolveStreamForKey(ImageConfiguration configuration, ImageStream stream, T key,
             ImageErrorListener handleError) {
             if (stream.completer != null) {
                 ImageStreamCompleter completerEdge = PaintingBinding.instance.imageCache.putIfAbsent(

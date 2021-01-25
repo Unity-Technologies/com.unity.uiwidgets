@@ -89,16 +89,29 @@ namespace Unity.UIWidgets.rendering {
 
     public class RenderPadding : RenderShiftedBox {
         public RenderPadding(
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
+            TextDirection? textDirection = null,
             RenderBox child = null
         ) : base(child) {
             D.assert(padding != null);
             D.assert(padding.isNonNegative);
-
+            _textDirection = textDirection;
             _padding = padding;
         }
+        EdgeInsets _resolvedPadding;
+        
+        void _resolve() {
+            if (_resolvedPadding != null)
+                return;
+            _resolvedPadding = padding.resolve(textDirection);
+            D.assert(_resolvedPadding.isNonNegative);
+        }
 
-        public EdgeInsets padding {
+        void _markNeedResolution() {
+            _resolvedPadding = null;
+            markNeedsLayout();
+        }
+        public EdgeInsetsGeometry padding {
             get { return _padding; }
             set {
                 D.assert(value != null);
@@ -112,86 +125,115 @@ namespace Unity.UIWidgets.rendering {
                 markNeedsLayout();
             }
         }
+        EdgeInsetsGeometry _padding;
 
-        EdgeInsets _padding;
+        public TextDirection? textDirection {
+            get { return _textDirection; }
+            set {if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                _markNeedResolution(); }
+        }
+        TextDirection? _textDirection;
+       
 
         protected internal override float computeMinIntrinsicWidth(float height) {
-            if (child != null) {
-                return child.getMinIntrinsicWidth(Mathf.Max(0.0f, height - _padding.vertical)) +
-                       _padding.horizontal;
-            }
-
-            return _padding.horizontal;
+            _resolve();
+            float totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
+            float totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+            if (child != null) // next line relies on double.infinity absorption
+                return child.getMinIntrinsicWidth(Mathf.Max(0.0f, height - totalVerticalPadding)) + totalHorizontalPadding;
+            return totalHorizontalPadding;
         }
 
         protected internal override float computeMaxIntrinsicWidth(float height) {
-            if (child != null) {
-                return child.getMaxIntrinsicWidth(Mathf.Max(0.0f, height - _padding.vertical)) +
-                       _padding.horizontal;
-            }
-
-            return _padding.horizontal;
+            _resolve();
+            float totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
+            float totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+            if (child != null) // next line relies on double.infinity absorption
+                return child.getMaxIntrinsicWidth(Mathf.Max(0.0f, height - totalVerticalPadding)) + totalHorizontalPadding;
+            return totalHorizontalPadding;
         }
 
         protected internal override float computeMinIntrinsicHeight(float width) {
-            if (child != null) {
-                return child.getMinIntrinsicHeight(Mathf.Max(0.0f, width - _padding.horizontal)) +
-                       _padding.vertical;
-            }
-
-            return _padding.vertical;
+            _resolve();
+            float totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
+            float totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+            if (child != null) // next line relies on double.infinity absorption
+                return child.getMinIntrinsicHeight(Mathf.Max(0.0f, width - totalHorizontalPadding)) + totalVerticalPadding;
+            return totalVerticalPadding;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (child != null) {
-                return child.getMaxIntrinsicHeight(Mathf.Max(0.0f, width - _padding.horizontal)) +
-                       _padding.vertical;
-            }
-
-            return _padding.vertical;
+            _resolve();
+            float totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
+            float totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+            if (child != null) // next line relies on double.infinity absorption
+                return child.getMaxIntrinsicHeight(Mathf.Max(0.0f, width - totalHorizontalPadding)) + totalVerticalPadding;
+            return totalVerticalPadding;
         }
 
         protected override void performLayout() {
+             BoxConstraints constraints = this.constraints;
+            _resolve();
+            D.assert(_resolvedPadding != null);
             if (child == null) {
-                size = constraints.constrain(_padding.inflateSize(Size.zero));
+                size = constraints.constrain(new Size(
+                    _resolvedPadding.left + _resolvedPadding.right,
+                    _resolvedPadding.top + _resolvedPadding.bottom
+                ));
                 return;
             }
-
-            var innerConstraints = constraints.deflate(_padding);
+             BoxConstraints innerConstraints = constraints.deflate(_resolvedPadding);
             child.layout(innerConstraints, parentUsesSize: true);
-
-            var childParentData = (BoxParentData) child.parentData;
-            childParentData.offset = _padding.topLeft;
-            size = constraints.constrain(_padding.inflateSize(child.size));
+             BoxParentData childParentData = child.parentData as BoxParentData;
+            childParentData.offset = new Offset(_resolvedPadding.left, _resolvedPadding.top);
+            size = constraints.constrain(new Size(
+                _resolvedPadding.left + child.size.width + _resolvedPadding.right,
+                _resolvedPadding.top + child.size.height + _resolvedPadding.bottom
+            ));
         }
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {
             base.debugPaintSize(context, offset);
-            D.assert(() => {
+            D.assert(()=> {
                 Rect outerRect = offset & size;
-                D.debugPaintPadding(context.canvas, outerRect,
-                    child != null ? _padding.deflateRect(outerRect) : null);
+                D.debugPaintPadding(context.canvas, outerRect, child != null ? _resolvedPadding.deflateRect(outerRect) : null);
                 return true;
             });
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding));
+            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
         }
     }
 
     public abstract class RenderAligningShiftedBox : RenderShiftedBox {
         protected RenderAligningShiftedBox(
-            Alignment alignment = null,
-            RenderBox child = null,
-            //TODO : update textdirection
-            TextDirection? textDirection = null
+            AlignmentGeometry  alignment = null,
+            TextDirection? textDirection = null,
+            RenderBox child = null
         ) : base(child) {
             _alignment = alignment ?? Alignment.center;
+            _textDirection = textDirection;
+        }
+        
+        Alignment _resolvedAlignment;
+
+        void _resolve() {
+            if (_resolvedAlignment != null)
+                return;
+            _resolvedAlignment = alignment.resolve(textDirection);
         }
 
-        public Alignment alignment {
+        void _markNeedResolution() {
+            _resolvedAlignment = null;
+            markNeedsLayout();
+        }
+
+        public AlignmentGeometry alignment {
             get { return _alignment; }
             set {
                 D.assert(value != null);
@@ -204,35 +246,35 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        Alignment _alignment;
+        AlignmentGeometry _alignment;
 
-        TextDirection _textDirection;
-
-        public TextDirection textDirection {
-            get { return _textDirection; }
-
+        public TextDirection? textDirection {
+            get { return _textDirection;}
             set {
                 if (_textDirection == value)
                     return;
                 _textDirection = value;
-                //TODO: complete _markNeedResolution
-                // _markNeedResolution();
+                _markNeedResolution();
             }
         }
-
+        TextDirection? _textDirection;
+        
         protected void alignChild() {
+            _resolve();
             D.assert(child != null);
             D.assert(!child.debugNeedsLayout);
             D.assert(child.hasSize);
             D.assert(hasSize);
-
+            D.assert(_resolvedAlignment != null);
             var childParentData = (BoxParentData) child.parentData;
-            childParentData.offset = _alignment.alongOffset(size - child.size);
+            childParentData.offset = _resolvedAlignment.alongOffset(size - child.size);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
+            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
+        
         }
     }
 
@@ -241,11 +283,11 @@ namespace Unity.UIWidgets.rendering {
             RenderBox child = null,
             float? widthFactor = null,
             float? heightFactor = null,
-            Alignment alignment = null
-        ) : base(alignment, child) {
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null
+        ) : base(child: child, alignment: alignment ?? Alignment.center, textDirection: textDirection){
             D.assert(widthFactor == null || widthFactor >= 0.0);
             D.assert(heightFactor == null || heightFactor >= 0.0);
-
             _widthFactor = widthFactor;
             _heightFactor = heightFactor;
         }
@@ -281,6 +323,7 @@ namespace Unity.UIWidgets.rendering {
         float? _heightFactor;
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
             bool shrinkWrapWidth = _widthFactor != null || float.IsPositiveInfinity(constraints.maxWidth);
             bool shrinkWrapHeight = _heightFactor != null || float.IsPositiveInfinity(constraints.maxHeight);
 
@@ -382,8 +425,9 @@ namespace Unity.UIWidgets.rendering {
             float? maxWidth = null,
             float? minHeight = null,
             float? maxHeight = null,
-            Alignment alignment = null
-        ) : base(alignment, child) {
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null
+        ) : base(child: child, alignment: alignment ?? Alignment.center, textDirection: textDirection){
             _minWidth = minWidth;
             _maxWidth = maxWidth;
             _minHeight = minHeight;
@@ -469,14 +513,23 @@ namespace Unity.UIWidgets.rendering {
                 alignChild();
             }
         }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new FloatProperty("minWidth", minWidth, ifNull: "use parent minWidth constraint"));
+            properties.add(new FloatProperty("maxWidth", maxWidth, ifNull: "use parent maxWidth constraint"));
+            properties.add(new FloatProperty("minHeight", minHeight, ifNull: "use parent minHeight constraint"));
+            properties.add(new FloatProperty("maxHeight", maxHeight, ifNull: "use parent maxHeight constraint"));
+        }
     }
 
-    public class RenderUnconstrainedBox : RenderAligningShiftedBox {
+    public class RenderUnconstrainedBox : RenderAligningShiftedBox {//, DebugOverflowIndicatorMixin
         public RenderUnconstrainedBox(
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null,
             Axis? constrainedAxis = null,
             RenderBox child = null
-        ) : base(alignment, child) {
+        ) : base(alignment , textDirection ,child) {
+            D.assert(alignment != null);
             _constrainedAxis = constrainedAxis;
         }
 
@@ -491,7 +544,6 @@ namespace Unity.UIWidgets.rendering {
                 markNeedsLayout();
             }
         }
-
         public Axis? _constrainedAxis;
 
         public Rect _overflowContainerRect = Rect.zero;
@@ -499,6 +551,7 @@ namespace Unity.UIWidgets.rendering {
         public bool _isOverflowing = false;
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
             if (child != null) {
                 BoxConstraints childConstraints = null;
                 if (constrainedAxis != null) {
@@ -553,14 +606,26 @@ namespace Unity.UIWidgets.rendering {
                 return true;
             });
         }
+        public override Rect describeApproximatePaintClip(RenderObject child) {
+            return _isOverflowing ? Offset.zero & size : null;
+        }
+
+        public override string toStringShort() {
+            string header = base.toStringShort();
+            if (_isOverflowing)
+                header += "OVERFLOWING";
+            return header;
+        }
     }
 
     public class RenderSizedOverflowBox : RenderAligningShiftedBox {
         public RenderSizedOverflowBox(
             RenderBox child = null,
             Size requestedSize = null,
-            Alignment alignment = null
-        ) : base(alignment, child) {
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null
+        ) : base(child: child, alignment: alignment ?? Alignment.center, textDirection: textDirection) {
+            D.assert(requestedSize != null);
             _requestedSize = requestedSize;
         }
 
@@ -616,15 +681,19 @@ namespace Unity.UIWidgets.rendering {
             RenderBox child = null,
             float? widthFactor = null,
             float? heightFactor = null,
-            Alignment alignment = null
-        ) : base(alignment, child) {
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null
+        ) : base(child: child, alignment: alignment ?? Alignment.center, textDirection: textDirection){
             _widthFactor = widthFactor;
             _heightFactor = heightFactor;
+            D.assert(_widthFactor == null || _widthFactor >= 0.0);
+            D.assert(_heightFactor == null || _heightFactor >= 0.0);
         }
 
         public float? widthFactor {
             get { return _widthFactor; }
             set {
+                D.assert(value == null || value >= 0.0f);
                 if (_widthFactor == value) {
                     return;
                 }
@@ -639,6 +708,7 @@ namespace Unity.UIWidgets.rendering {
         public float? heightFactor {
             get { return _heightFactor; }
             set {
+                D.assert(value == null || value >= 0.0);
                 if (_heightFactor == value) {
                     return;
                 }
@@ -734,6 +804,11 @@ namespace Unity.UIWidgets.rendering {
                     _getInnerConstraints(constraints).constrain(Size.zero));
             }
         }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new FloatProperty("widthFactor", _widthFactor, ifNull: "pass-through"));
+            properties.add(new FloatProperty("heightFactor", _heightFactor, ifNull: "pass-through"));
+        }
     }
 
     public abstract class SingleChildLayoutDelegate {
@@ -759,8 +834,10 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public class RenderCustomSingleChildLayoutBox : RenderShiftedBox {
-        public RenderCustomSingleChildLayoutBox(RenderBox child = null,
-            SingleChildLayoutDelegate layoutDelegate = null) : base(child) {
+        public RenderCustomSingleChildLayoutBox(
+            RenderBox child = null,
+            SingleChildLayoutDelegate layoutDelegate = null
+            ) : base(child) {
             D.assert(layoutDelegate != null);
             _delegate = layoutDelegate;
         }
@@ -866,10 +943,10 @@ namespace Unity.UIWidgets.rendering {
         public float baseline {
             get { return _baseline; }
             set {
+                D.assert(value != null);
                 if (_baseline == value) {
                     return;
                 }
-
                 _baseline = value;
                 markNeedsLayout();
             }
@@ -881,6 +958,7 @@ namespace Unity.UIWidgets.rendering {
         public TextBaseline baselineType {
             get { return _baselineType; }
             set {
+                D.assert(value != null);
                 if (_baselineType == value) {
                     return;
                 }
@@ -906,6 +984,11 @@ namespace Unity.UIWidgets.rendering {
             else {
                 performResize();
             }
+        }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new FloatProperty("baseline", baseline));
+            properties.add(new EnumProperty<TextBaseline>("baselineType", baselineType));
         }
     }
 }

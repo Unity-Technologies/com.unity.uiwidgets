@@ -101,25 +101,20 @@ namespace Unity.UIWidgets.rendering {
     public class RenderSliverAnimatedOpacity :RenderAnimatedOpacityMixinRenderSliver<RenderSliver>{
         public RenderSliverAnimatedOpacity(
             Animation<float> opacity ,
-            RenderSliver sliver = null,
-            bool alwaysIncludeSemantics = false
+            RenderSliver sliver = null
         )  {
             D.assert(opacity != null);
             this.opacity = opacity;
-            this.alwaysIncludeSemantics = alwaysIncludeSemantics;
             child = sliver;
         }
     }
     public class RenderSliverOpacity : RenderProxySliver {
         public RenderSliverOpacity(
             RenderSliver sliver = null,
-            float opacity = 1.0f, 
-            bool alwaysIncludeSemantics = false
+            float opacity = 1.0f
         ) : base( child:sliver) {
             D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0);
-            D.assert(alwaysIncludeSemantics != null);
             _opacity = opacity;
-            _alwaysIncludeSemantics = alwaysIncludeSemantics;
             _alpha = ui.Color.getAlphaFromOpacity(opacity);
             child = sliver;
         }
@@ -149,25 +144,15 @@ namespace Unity.UIWidgets.rendering {
             }
         }
         float _opacity;
-
-        public bool alwaysIncludeSemantics {
-            get { return _alwaysIncludeSemantics;}
-            set { 
-                if (value == _alwaysIncludeSemantics)
-                    return;
-                _alwaysIncludeSemantics = value;
-               // markNeedsSemanticsUpdate(); 
-            }
-        }
-        bool _alwaysIncludeSemantics;
+        
         public override void paint(PaintingContext context, Offset offset) {
             if (child != null && child.geometry.visible) {
                 if (_alpha == 0) {
-                    setLayer(null);
+                    layer = null;
                     return;
                 } 
                 if (_alpha == 255) {
-                    setLayer(null);
+                    layer = null;
                     context.paintChild(child, offset);
                     return;
                 }
@@ -178,7 +163,7 @@ namespace Unity.UIWidgets.rendering {
                     base.paint,
                     oldLayer: layer as OpacityLayer
                 );
-                setLayer(opacity);
+                layer = opacity;
             }
         }
         /*public override void visitChildrenForSemantics(RenderObject visitor) {
@@ -189,7 +174,6 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) { 
             base.debugFillProperties(properties);
             properties.add(new FloatProperty("opacity", opacity));
-            properties.add(new FlagProperty("alwaysIncludeSemantics", value: alwaysIncludeSemantics, ifTrue: "alwaysIncludeSemantics"));
         }
     }
 
@@ -202,7 +186,6 @@ namespace Unity.UIWidgets.rendering {
                 child = sliver;
                 D.assert(ignoring != null);
                 _ignoring = ignoring;
-                _ignoringSemantics = ignoringSemantics;
         }
 
 
@@ -219,26 +202,6 @@ namespace Unity.UIWidgets.rendering {
         }
         bool _ignoring;
 
-
-        public bool? ignoringSemantics {
-            get { return _ignoringSemantics; }
-            set {
-                if (value == _ignoringSemantics)
-                    return ;
-                bool oldEffectiveValue = _effectiveIgnoringSemantics;
-                _ignoringSemantics = value;
-                //if (oldEffectiveValue != _effectiveIgnoringSemantics)
-                //    markNeedsSemanticsUpdate();
-                
-            }
-        }
-        bool? _ignoringSemantics;
-
-
-        bool _effectiveIgnoringSemantics {
-            get { return ignoringSemantics ?? ignoring; }
-        }
-
         public override bool hitTest(SliverHitTestResult result, float mainAxisPosition = 0, float crossAxisPosition = 0) { 
             return !ignoring && base.hitTest(
                 result,
@@ -253,7 +216,6 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<bool>("ignoring", ignoring));
-            properties.add(new DiagnosticsProperty<bool>("ignoringSemantics", _effectiveIgnoringSemantics, description: ignoringSemantics == null ? $"implicitly {_effectiveIgnoringSemantics}" : null));
         }
     }
     public class RenderSliverOffstage : RenderProxySliver {

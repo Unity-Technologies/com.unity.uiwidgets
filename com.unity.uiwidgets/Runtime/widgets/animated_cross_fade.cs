@@ -11,8 +11,7 @@ namespace Unity.UIWidgets.widgets {
         showSecond
     }
 
-    public delegate Widget AnimatedCrossFadeBuilder(Widget topChild, Key topChildKey, Widget bottomChild,
-        Key bottomChildKey);
+    public delegate Widget AnimatedCrossFadeBuilder(Widget topChild, Key topChildKey, Widget bottomChild, Key bottomChildKey);
 
 
     public class AnimatedCrossFade : StatefulWidget {
@@ -98,10 +97,10 @@ namespace Unity.UIWidgets.widgets {
 
 
     public class _AnimatedCrossFadeState : TickerProviderStateMixin<AnimatedCrossFade> {
+        
         AnimationController _controller;
         Animation<float> _firstAnimation;
         Animation<float> _secondAnimation;
-
 
         public override void initState() {
             base.initState();
@@ -172,8 +171,7 @@ namespace Unity.UIWidgets.widgets {
         public override Widget build(BuildContext context) {
             Key kFirstChildKey = new ValueKey<CrossFadeState>(CrossFadeState.showFirst);
             Key kSecondChildKey = new ValueKey<CrossFadeState>(CrossFadeState.showSecond);
-            bool transitioningForwards = _controller.status == AnimationStatus.completed ||
-                                         _controller.status == AnimationStatus.forward;
+            bool transitioningForwards = _controller.status == AnimationStatus.completed || _controller.status == AnimationStatus.forward;
 
             Key topKey;
             Widget topChild;
@@ -181,6 +179,7 @@ namespace Unity.UIWidgets.widgets {
             Key bottomKey;
             Widget bottomChild;
             Animation<float> bottomAnimation;
+            
             if (transitioningForwards) {
                 topKey = kSecondChildKey;
                 topChild = widget.secondChild;

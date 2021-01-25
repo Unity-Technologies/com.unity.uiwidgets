@@ -271,6 +271,18 @@ namespace Unity.UIWidgets.ui {
             return layer;
         }
 
+        public ColorFilterEngineLayer pushColorFilter(ColorFilter colorFilter, ColorFilterEngineLayer oldLayer = null) {
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushColorFilter"));
+            ColorFilterEngineLayer layer = new ColorFilterEngineLayer(SceneBuilder_pushColorFilter(_ptr, colorFilter._toNativeColorFilter()._ptr));
+            return layer;
+        }
+
+        public ImageFilterEngineLayer pushImageFilter(ImageFilter imageFilter, ImageFilterEngineLayer oldLayer = null) {
+            D.assert(_debugCheckCanBeUsedAsOldLayer(oldLayer, "pushImageFilter"));
+            ImageFilterEngineLayer layer = new ImageFilterEngineLayer(SceneBuilder_pushImageFilter(_ptr, imageFilter._toNativeImageFilter()._ptr));
+            return layer;
+        }
+        
         public BackdropFilterEngineLayer pushBackdropFilter(
             ImageFilter filter,
             BackdropFilterEngineLayer oldLayer = null) {
@@ -405,6 +417,12 @@ namespace Unity.UIWidgets.ui {
 
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_pushOpacity(IntPtr ptr, int alpha, float dx, float dy);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushColorFilter(IntPtr ptr, IntPtr filter);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr SceneBuilder_pushImageFilter(IntPtr ptr, IntPtr filter);
 
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr SceneBuilder_pushBackdropFilter(IntPtr ptr, IntPtr filter);
