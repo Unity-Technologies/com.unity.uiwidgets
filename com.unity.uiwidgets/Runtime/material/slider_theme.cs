@@ -11,7 +11,7 @@ using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-    public class SliderTheme : InheritedWidget {
+    public class SliderTheme : InheritedTheme {
         public SliderTheme(
             Key key = null,
             SliderThemeData data = null,
@@ -25,8 +25,13 @@ namespace Unity.UIWidgets.material {
         public readonly SliderThemeData data;
 
         public static SliderThemeData of(BuildContext context) {
-            SliderTheme inheritedTheme = (SliderTheme) context.inheritFromWidgetOfExactType(typeof(SliderTheme));
+            SliderTheme inheritedTheme = context.dependOnInheritedWidgetOfExactType<SliderTheme>();
             return inheritedTheme != null ? inheritedTheme.data : Theme.of(context).sliderTheme;
+        }
+
+        public override Widget wrap(BuildContext context, Widget child) {
+            SliderTheme ancestorTheme = context.findAncestorWidgetOfExactType<SliderTheme>();
+            return ReferenceEquals(this, ancestorTheme) ? child : new SliderTheme(data: data, child: child);
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
@@ -41,6 +46,11 @@ namespace Unity.UIWidgets.material {
         onlyForContinuous,
         always,
         never
+    }
+
+    public enum Thumb {
+        start,
+        end
     }
 
     public class SliderThemeData : Diagnosticable {
@@ -176,13 +186,15 @@ namespace Unity.UIWidgets.material {
 
         public readonly Color thumbColor;
 
+        public readonly Color overlappingShapeStrokeColor;
+
         public readonly Color disabledThumbColor;
 
         public readonly Color overlayColor;
 
         public readonly Color valueIndicatorColor;
 
-        public readonly SliderTrackShape trackShape;
+        public readonly SliderComponentShape overlayShap;
 
         public readonly SliderTickMarkShape tickMarkShape;
 
@@ -190,11 +202,25 @@ namespace Unity.UIWidgets.material {
 
         public readonly SliderComponentShape thumbShape;
 
+        public readonly SliderTrackShape trackShape;
+
         public readonly SliderComponentShape valueIndicatorShape;
+        
+        public readonly RangeSliderTickMarkShape rangeTickMarkShape;
+        
+        public readonly RangeSliderThumbShape rangeThumbShape;
+        
+        public readonly RangeSliderTrackShape rangeTrackShape;
+        
+        public readonly RangeSliderValueIndicatorShape rangeValueIndicatorShape;
 
         public readonly ShowValueIndicator showValueIndicator;
 
         public readonly TextStyle valueIndicatorTextStyle;
+
+        public readonly float minThumbSeparation;
+        
+        public readonly RangeThumbSelector thumbSelector; 
 
         public SliderThemeData copyWith(
             float? trackHeight = null,

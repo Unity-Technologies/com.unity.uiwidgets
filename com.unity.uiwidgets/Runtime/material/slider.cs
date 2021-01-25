@@ -16,6 +16,11 @@ using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.material {
+    public enum _SliderType {
+        material, 
+        adaptive
+    }
+    
     public class Slider : StatefulWidget {
         public Slider(
             Key key = null,
@@ -28,7 +33,8 @@ namespace Unity.UIWidgets.material {
             int? divisions = null,
             string label = null,
             Color activeColor = null,
-            Color inactiveColor = null
+            Color inactiveColor = null,
+            _SliderType _sliderType = _SliderType.material
         ) : base(key: key) {
             D.assert(value != null);
             D.assert(min <= max);
@@ -44,6 +50,36 @@ namespace Unity.UIWidgets.material {
             this.label = label;
             this.activeColor = activeColor;
             this.inactiveColor = inactiveColor;
+            this._sliderType = _sliderType;
+        }
+        
+        public static Slider adaptive(
+            Key key = null,
+            float? value = null,
+            ValueChanged<float> onChanged = null,
+            ValueChanged<float> onChangeStart = null,
+            ValueChanged<float> onChangeEnd = null,
+            float min = 0.0f,
+            float max = 1.0f,
+            int? divisions = null,
+            string label = null,
+            Color activeColor = null,
+            Color inactiveColor = null
+        ) {
+            return new Slider(
+                key: key,
+                value: value,
+                onChanged: onChanged,
+                onChangeStart: onChangeStart,
+                onChangeEnd: onChangeEnd,
+                min: min,
+                max: max,
+                divisions: divisions,
+                label: label,
+                activeColor: activeColor,
+                inactiveColor: inactiveColor,
+                _sliderType: _SliderType.adaptive
+                );
         }
 
         public readonly float value;
@@ -66,6 +102,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly Color inactiveColor;
 
+        public readonly _SliderType _sliderType;
+
         public override State createState() {
             return new _SliderState();
         }
@@ -74,8 +112,15 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new FloatProperty("value", value));
+            properties.add(new ObjectFlagProperty<ValueChanged<float>>("onChanged", onChanged, ifNull: "disabled"));
+            properties.add(ObjectFlagProperty<ValueChanged<float>>.has("onChangeStart", onChangeStart));
+            properties.add(ObjectFlagProperty<ValueChanged<float>>.has("onChangeEnd", onChangeEnd));
             properties.add(new FloatProperty("min", min));
             properties.add(new FloatProperty("max", max));
+            properties.add(new IntProperty("divisions", divisions));
+            properties.add(new StringProperty("label", label));
+            properties.add(new ColorProperty("activeColor", activeColor));
+            properties.add(new ColorProperty("inactiveColor", inactiveColor));
         }
     }
 
@@ -152,6 +197,14 @@ namespace Unity.UIWidgets.material {
                 ? (value - widget.min) / (widget.max - widget.min)
                 : 0.0f;
         }
+        
+        const double _defaultTrackHeight = 2;
+        static readonly SliderTrackShape _defaultTrackShape = new RoundedRectSliderTrackShape();
+        static readonly SliderTickMarkShape _defaultTickMarkShape = new RoundSliderTickMarkShape();
+        static readonly SliderComponentShape _defaultOverlayShape = new RoundSliderOverlayShape();
+        static readonly SliderComponentShape _defaultThumbShape = new RoundSliderThumbShape();
+        static readonly SliderComponentShape _defaultValueIndicatorShape = new PaddleSliderValueIndicatorShape();
+        static readonly ShowValueIndicator _defaultShowValueIndicator = ShowValueIndicator.onlyForDiscrete;
 
         public override Widget build(BuildContext context) {
             D.assert(material_.debugCheckHasMaterial(context));
