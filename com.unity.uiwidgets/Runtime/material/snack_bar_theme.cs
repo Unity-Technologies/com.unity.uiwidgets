@@ -15,13 +15,13 @@ namespace Unity.UIWidgets.material {
 
     public class SnackBarThemeData : Diagnosticable, IEquatable<SnackBarThemeData> {
         public SnackBarThemeData(
-            Color backgroundColor,
-            Color actionTextColor,
-            Color disabledActionTextColor,
-            TextStyle contentTextStyle,
-            float? elevation,
-            ShapeBorder shape,
-            SnackBarBehavior? behavior
+            Color backgroundColor = null,
+            Color actionTextColor = null,
+            Color disabledActionTextColor = null,
+            TextStyle contentTextStyle = null,
+            float? elevation = null,
+            ShapeBorder shape = null,
+            SnackBarBehavior? behavior = null
         ) {
             D.assert(elevation == null || elevation >= 0.0f);
 
@@ -68,7 +68,7 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        static SnackBarThemeData lerp(SnackBarThemeData a, SnackBarThemeData b, float t) {
+        public static SnackBarThemeData lerp(SnackBarThemeData a, SnackBarThemeData b, float t) {
             return new SnackBarThemeData(
                 backgroundColor: Color.lerp(a?.backgroundColor, b?.backgroundColor, t),
                 actionTextColor: Color.lerp(a?.actionTextColor, b?.actionTextColor, t),
