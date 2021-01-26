@@ -1,24 +1,18 @@
-using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
+
 namespace Unity.UIWidgets.rendering {
 
-     public abstract class RenderAnimatedOpacityMixinRenderSliver<ChildType> : RenderProxySliver,  RenderAnimatedOpacityMixin<ChildType> where ChildType : RenderObject {
-         
-         
-         public int _alpha { get; set; }
-
-         public new bool alwaysNeedsCompositing {
+     public abstract class RenderAnimatedOpacityMixinRenderSliver<ChildType> : RenderProxySliver, RenderAnimatedOpacityMixin<ChildType> where ChildType : RenderObject {
+        
+           
+        public int _alpha { get; set;}
+        public new bool alwaysNeedsCompositing {
             get { return child != null && _currentlyNeedsCompositing;}
         }
-
-         public bool _currentlyNeedsCompositing { get; set; }
-
-        
+         public bool _currentlyNeedsCompositing { get;set; }
 
         public Animation<float> opacity {
             get { return _opacity; }
@@ -34,8 +28,9 @@ namespace Unity.UIWidgets.rendering {
                 _updateOpacity();
             }
         }
-
         public Animation<float> _opacity { get; set; }
+
+
         public bool alwaysIncludeSemantics {
             get { return _alwaysIncludeSemantics; }
             set { 
@@ -46,22 +41,14 @@ namespace Unity.UIWidgets.rendering {
                 
             }
         }
-
-        public bool _alwaysIncludeSemantics { get; set; }
-
-        public override void attach(object owner) {
-            owner = (PipelineOwner) owner;
-            base.attach(owner);
-            _opacity.addListener(_updateOpacity);
-            _updateOpacity(); 
-        }
-
+       public bool _alwaysIncludeSemantics { get; set; }
+        
         public void attach(PipelineOwner owner) {
             base.attach(owner);
             _opacity.addListener(_updateOpacity);
-            _updateOpacity(); 
+            _updateOpacity();
         }
-
+        
         public override void detach() {
             _opacity.removeListener(_updateOpacity);
             base.detach();
@@ -77,6 +64,7 @@ namespace Unity.UIWidgets.rendering {
                 markNeedsPaint(); 
                 //if (oldAlpha == 0 || _alpha == 0) 
                 //    markNeedsSemanticsUpdate();
+              
             }
         }
         public override void paint(PaintingContext context, Offset offset) {
@@ -94,21 +82,59 @@ namespace Unity.UIWidgets.rendering {
                 layer = context.pushOpacity(offset, _alpha, base.paint, oldLayer: layer as OpacityLayer);
             }
         }
-
-       
+        
         public void visitChildrenForSemantics(RenderObjectVisitor visitor) {
             if (child != null && (_alpha != 0 || alwaysIncludeSemantics))
                 visitor(child);
         }
-
+        
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Animation<float>>("opacity", opacity));
             properties.add(new FlagProperty("alwaysIncludeSemantics", value: alwaysIncludeSemantics, ifTrue: "alwaysIncludeSemantics"));
         }
-
-
+        
+        public bool debugValidateChild(RenderObject child) {
+            D.assert(() => {
+                if (!(child is ChildType)) {
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary(
+                            $"A {GetType()} expected a child of type {typeof(ChildType)} but received a " +
+                            $"child of type {child.GetType()}."
+                        ),
+                        new ErrorDescription(
+                            "RenderObjects expect specific types of children because they " +
+                            "coordinate with their children during layout and paint. For " +
+                            "example, a RenderSliver cannot be the child of a RenderBox because " +
+                            "a RenderSliver does not understand the RenderBox layout protocol."
+                        ),
+                        new ErrorSpacer(),
+                        new DiagnosticsProperty<dynamic>(
+                            "The $runtimeType that expected a $ChildType child was created by",
+                            debugCreator,
+                            style: DiagnosticsTreeStyle.errorProperty
+                        ),
+                        new ErrorSpacer(),
+                        new DiagnosticsProperty<dynamic>(
+                            "The ${child.runtimeType} that did not match the expected child type " +
+                            "was created by",
+                            child.debugCreator,
+                            style: DiagnosticsTreeStyle.errorProperty
+                        ),
+                    });
+                }
+                return true;
+            });
+            return true;
+        }
+        
         public ChildType child { get; set; }
+        
+        RenderObject RenderObjectWithChildMixin.child {
+            get { return child; }
+            set { child = (ChildType) value; }
+        }
+
      }
 
 

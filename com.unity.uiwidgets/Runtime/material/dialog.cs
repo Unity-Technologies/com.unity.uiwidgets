@@ -9,6 +9,8 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
@@ -162,7 +164,7 @@ namespace Unity.UIWidgets.material {
 
             ThemeData theme = Theme.of(context);
             DialogTheme dialogTheme = DialogTheme.of(context);
-
+            
             Widget titleWidget = null;
             Widget contentWidget = null;
             Widget actionsWidget = null;
@@ -386,17 +388,19 @@ namespace Unity.UIWidgets.material {
         public static Future<T> showDialog<T>(
             BuildContext context = null,
             bool barrierDismissible = true,
+            Widget child = null,
             WidgetBuilder builder = null,
             bool useRootNavigator = true,
             RouteSettings routeSettings = null
         ) {
+            D.assert(child == null || builder == null);
             D.assert(debugCheckHasMaterialLocalizations(context));
 
             ThemeData theme = Theme.of(context, shadowThemeOnly: true);
             return widgets.DialogUtils.showGeneralDialog<T>(
                 context: context,
                 pageBuilder: (buildContext, animation, secondaryAnimation) => {
-                    Widget pageChild = new Builder(builder: builder);
+                    Widget pageChild = child ?? new Builder(builder: builder);
                     return new SafeArea(
                         child: new Builder(
                             builder: (_) => theme != null

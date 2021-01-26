@@ -903,7 +903,7 @@ namespace Unity.UIWidgets.rendering {
         readonly List<float> _rowTops = new List<float>();
         List<float> _columnLefts;
 
-        Rect getRowBox(int row) {
+       public Rect getRowBox(int row) {
             D.assert(row >= 0);
             D.assert(row < rows);
 
