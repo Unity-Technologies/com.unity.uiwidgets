@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.material {
             TextStyle contentTextStyle,
             float? elevation,
             ShapeBorder shape,
-            SnackBarBehavior behavior
+            SnackBarBehavior? behavior
         ) {
             D.assert(elevation == null || elevation >= 0.0f);
 
@@ -46,7 +46,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly ShapeBorder shape;
 
-        public readonly SnackBarBehavior behavior;
+        public readonly SnackBarBehavior? behavior;
 
         public SnackBarThemeData copyWith(
             Color backgroundColor,
@@ -89,7 +89,7 @@ namespace Unity.UIWidgets.material {
                 new DiagnosticsProperty<TextStyle>("contentTextStyle", contentTextStyle, defaultValue: null));
             properties.add(new FloatProperty("elevation", elevation, defaultValue: null));
             properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: null));
-            properties.add(new DiagnosticsProperty<SnackBarBehavior>("behavior", behavior, defaultValue: null));
+            properties.add(new DiagnosticsProperty<SnackBarBehavior?>("behavior", behavior, defaultValue: null));
         }
 
         public static bool operator ==(SnackBarThemeData self, SnackBarThemeData other) {
