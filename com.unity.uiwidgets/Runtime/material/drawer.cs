@@ -9,6 +9,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
     static class DrawerUtils {
@@ -58,7 +59,10 @@ namespace Unity.UIWidgets.material {
             Widget child = null,
             DrawerAlignment? alignment = null,
             DrawerCallback drawerCallback = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+            Color scrimColor = null,
+            bool? enableOpenDragGesture = true,
+            float? edgeDragWidth = null
         ) : base(key: key) {
             D.assert(child != null);
             D.assert(alignment != null);
@@ -66,6 +70,9 @@ namespace Unity.UIWidgets.material {
             this.alignment = alignment ?? DrawerAlignment.start;
             this.drawerCallback = drawerCallback;
             this.dragStartBehavior = dragStartBehavior;
+            this.scrimColor = scrimColor;
+            this.enableOpenDragGesture = enableOpenDragGesture;
+            this.edgeDragWidth = edgeDragWidth;
         }
 
         public readonly Widget child;
@@ -76,6 +83,12 @@ namespace Unity.UIWidgets.material {
 
         public readonly DrawerCallback drawerCallback;
 
+        public readonly Color scrimColor;
+
+        public readonly bool? enableOpenDragGesture;
+
+        public readonly float? edgeDragWidth;
+
         public override State createState() {
             return new DrawerControllerState();
         }
@@ -85,6 +98,7 @@ namespace Unity.UIWidgets.material {
     public class DrawerControllerState : SingleTickerProviderStateMixin<DrawerController> {
         public override void initState() {
             base.initState();
+            _scrimColorTween = _buildScrimColorTween();
             _controller = new AnimationController(duration: DrawerUtils._kBaseSettleDuration, vsync: this);
             _controller.addListener(_animationChanged);
             _controller.addStatusListener(_animationStatusChanged);
@@ -94,6 +108,12 @@ namespace Unity.UIWidgets.material {
             _historyEntry?.remove();
             _controller.dispose();
             base.dispose();
+        }
+
+        public override void didUpdateWidget(StatefulWidget statefulWidget) {
+            base.didUpdateWidget(statefulWidget);
+            if (statefulWidget is DrawerController oldWidget && widget.scrimColor != oldWidget.scrimColor)
+                _scrimColorTween = _buildScrimColorTween();
         }
 
         void _animationChanged() {
@@ -184,7 +204,7 @@ namespace Unity.UIWidgets.material {
 
             _controller.setValue(_controller.value + delta);
 
-            bool opened = _controller.value > 0.5;
+            bool opened = _controller.value > 0.5f;
             if (opened != _previouslyOpened && widget.drawerCallback != null) {
                 widget.drawerCallback(opened);
             }
@@ -207,9 +227,20 @@ namespace Unity.UIWidgets.material {
                         break;
                 }
 
-                _controller.fling(velocity: visualVelocity);
+                switch (Directionality.of(context)) {
+                    case TextDirection.rtl:
+                        _controller.fling(velocity: -visualVelocity);
+                        if (widget.drawerCallback != null)
+                            widget.drawerCallback(visualVelocity < 0.0f);
+                        break;
+                    case TextDirection.ltr:
+                        _controller.fling(velocity: visualVelocity);
+                        if (widget.drawerCallback != null)
+                            widget.drawerCallback(visualVelocity > 0.0f);
+                        break;
+                }
             }
-            else if (_controller.value < 0.5) {
+            else if (_controller.value < 0.5f) {
                 close();
             }
             else {
@@ -231,8 +262,12 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        ColorTween _color = new ColorTween(begin: Colors.transparent, end: Colors.black54);
+        ColorTween _scrimColorTween;
         GlobalKey _gestureDetectorKey = GlobalKey.key();
+
+        ColorTween _buildScrimColorTween() {
+            return new ColorTween(begin: Colors.transparent, end: widget.scrimColor ?? Colors.black54);
+        }
 
         Alignment _drawerOuterAlignment {
             get {
@@ -263,23 +298,58 @@ namespace Unity.UIWidgets.material {
         Widget _buildDrawer(BuildContext context) {
             bool drawerIsStart = widget.alignment == DrawerAlignment.start;
             EdgeInsets padding = MediaQuery.of(context).padding;
-            float dragAreaWidth = drawerIsStart ? padding.left : padding.right;
+            TextDirection textDirection = Directionality.of(context);
 
-            dragAreaWidth = Mathf.Max(dragAreaWidth, DrawerUtils._kEdgeDragWidth);
+            float? dragAreaWidth = widget.edgeDragWidth;
+            if (widget.edgeDragWidth == null) {
+                switch (textDirection) {
+                    case TextDirection.ltr:
+                        dragAreaWidth = DrawerUtils._kEdgeDragWidth +
+                                        (drawerIsStart ? padding.left : padding.right);
+                        break;
+                    case TextDirection.rtl:
+                        dragAreaWidth = DrawerUtils._kEdgeDragWidth +
+                                        (drawerIsStart ? padding.right : padding.left);
+                        break;
+                }
+            }
+
             if (_controller.status == AnimationStatus.dismissed) {
-                return new Align(
-                    alignment: _drawerOuterAlignment,
-                    child: new GestureDetector(
-                        key: _gestureDetectorKey,
-                        onHorizontalDragUpdate: _move,
-                        onHorizontalDragEnd: _settle,
-                        behavior: HitTestBehavior.translucent,
-                        dragStartBehavior: widget.dragStartBehavior ?? DragStartBehavior.down,
-                        child: new Container(width: dragAreaWidth)
-                    )
-                );
+                if (widget.enableOpenDragGesture ?? false) {
+                    return new Align(
+                        alignment: _drawerOuterAlignment,
+                        child: new GestureDetector(
+                            key: _gestureDetectorKey,
+                            onHorizontalDragUpdate: _move,
+                            onHorizontalDragEnd: _settle,
+                            behavior: HitTestBehavior.translucent,
+                            dragStartBehavior: widget.dragStartBehavior ?? DragStartBehavior.down,
+                            child: new Container(width: dragAreaWidth)
+                        )
+                    );
+                }
+                else {
+                    return SizedBox.shrink();
+                }
             }
             else {
+                bool? platformHasBackButton = null;
+                switch (Theme.of(context).platform) {
+                    case RuntimePlatform.Android:
+                        platformHasBackButton = true;
+                        break;
+                    case RuntimePlatform.IPhonePlayer:
+                    case RuntimePlatform.OSXEditor:
+                    case RuntimePlatform.OSXPlayer:
+                    case RuntimePlatform.LinuxEditor:
+                    case RuntimePlatform.LinuxPlayer:
+                    case RuntimePlatform.WindowsEditor:
+                    case RuntimePlatform.WindowsPlayer:
+                        platformHasBackButton = false;
+                        break;
+                }
+
+                D.assert(platformHasBackButton != null);
                 return new GestureDetector(
                     key: _gestureDetectorKey,
                     onHorizontalDragDown: _handleDragDown,
@@ -292,8 +362,11 @@ namespace Unity.UIWidgets.material {
                             children: new List<Widget> {
                                 new GestureDetector(
                                     onTap: close,
-                                    child: new Container(
-                                        color: _color.evaluate(_controller)
+                                    child: new MouseRegion(
+                                        opaque: true,
+                                        child: new Container( // The drawer's "scrim"
+                                            color: _scrimColorTween.evaluate(_controller)
+                                        )
                                     )
                                 ),
                                 new Align(
@@ -305,7 +378,8 @@ namespace Unity.UIWidgets.material {
                                             child: new FocusScope(
                                                 key: _drawerKey,
                                                 node: _focusScopeNode,
-                                                child: widget.child)
+                                                child: widget.child
+                                            )
                                         )
                                     )
                                 )

@@ -202,8 +202,8 @@ namespace Unity.UIWidgets.rendering
             bool ignoring = true
             )
         {
-            this._ignoring = ignoring;
-            this.child = sliver;
+            _ignoring = ignoring;
+            child = sliver;
         }
 
 
