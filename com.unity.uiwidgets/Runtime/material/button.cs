@@ -50,7 +50,7 @@ namespace Unity.UIWidgets.material {
             visualDensity = visualDensity ?? new VisualDensity();
             padding = padding ?? EdgeInsets.zero;
             constraints = constraints ?? new BoxConstraints(minWidth: 88.0f, minHeight: 36.0f);
-            TimeSpan _animationDuration = animationDuration ?? Constants.kThemeChangeDuration;
+            TimeSpan _animationDuration = animationDuration ?? material_.kThemeChangeDuration;
 
             this.onPressed = onPressed;
             this.onLongPress = onLongPress;
@@ -289,8 +289,8 @@ namespace Unity.UIWidgets.material {
             switch (widget.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
                     minSize = new Size(
-                        Constants.kMinInteractiveDimension + densityAdjustment.dx,
-                        Constants.kMinInteractiveDimension + densityAdjustment.dy
+                        material_.kMinInteractiveDimension + densityAdjustment.dx,
+                        material_.kMinInteractiveDimension + densityAdjustment.dy
                     );
                     D.assert(minSize.width >= 0.0f);
                     D.assert(minSize.height >= 0.0f);

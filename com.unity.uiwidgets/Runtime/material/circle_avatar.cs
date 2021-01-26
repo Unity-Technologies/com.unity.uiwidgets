@@ -14,15 +14,18 @@ namespace UIWidgetsGallery.gallery {
             Widget child = null,
             Color backgroundColor = null,
             ImageProvider backgroundImage = null,
+            ImageErrorListener onBackgroundImageError = null,
             Color foregroundColor = null,
             float? radius = null,
             float? minRadius = null,
             float? maxRadius = null
         ) : base(key: key) {
             D.assert(radius == null || (minRadius == null && maxRadius == null));
+            D.assert(backgroundImage != null || onBackgroundImageError == null);
             this.child = child;
             this.backgroundColor = backgroundColor;
             this.backgroundImage = backgroundImage;
+            this.onBackgroundImageError = onBackgroundImageError;
             this.foregroundColor = foregroundColor;
             this.radius = radius;
             this.minRadius = minRadius;
@@ -36,6 +39,8 @@ namespace UIWidgetsGallery.gallery {
         public readonly Color foregroundColor;
 
         public readonly ImageProvider backgroundImage;
+
+        public readonly ImageErrorListener onBackgroundImageError;
 
         public readonly float? radius;
 
@@ -72,7 +77,7 @@ namespace UIWidgetsGallery.gallery {
         public override Widget build(BuildContext context) {
             D.assert(WidgetsD.debugCheckHasMediaQuery(context));
             ThemeData theme = Theme.of(context);
-            TextStyle textStyle = theme.primaryTextTheme.subhead.copyWith(color: foregroundColor);
+            TextStyle textStyle = theme.primaryTextTheme.subtitle1.copyWith(color: foregroundColor);
             Color effectiveBackgroundColor = backgroundColor;
             if (effectiveBackgroundColor == null) {
                 switch (ThemeData.estimateBrightnessForColor(textStyle.color)) {
@@ -104,11 +109,15 @@ namespace UIWidgetsGallery.gallery {
                     maxWidth: maxDiameter,
                     maxHeight: maxDiameter
                 ),
-                duration: Constants.kThemeChangeDuration,
+                duration: material_.kThemeChangeDuration,
                 decoration: new BoxDecoration(
                     color: effectiveBackgroundColor,
                     image: backgroundImage != null
-                        ? new DecorationImage(image: backgroundImage, fit: BoxFit.cover)
+                        ? new DecorationImage(
+                            image: backgroundImage,
+                            onError: onBackgroundImageError,
+                            fit: BoxFit.cover
+                        )
                         : null,
                     shape: BoxShape.circle
                 ),

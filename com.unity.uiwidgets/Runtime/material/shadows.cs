@@ -3,7 +3,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.material {
-    public class ShadowConstants {
+    public partial class material_ {
         static readonly Color _kKeyUmbraOpacity = new Color(0x33000000); // alpha = 0.2
         static readonly Color _kKeyPenumbraOpacity = new Color(0x24000000); // alpha = 0.14
         static readonly Color _kAmbientShadowOpacity = new Color(0x1F000000); // alpha = 0.12

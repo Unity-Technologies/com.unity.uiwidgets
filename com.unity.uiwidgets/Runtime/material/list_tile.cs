@@ -276,7 +276,7 @@ namespace Unity.UIWidgets.material {
             TextStyle titleStyle = _titleTextStyle(theme, tileTheme);
             Widget titleText = new AnimatedDefaultTextStyle(
                 style: titleStyle,
-                duration: Constants.kThemeChangeDuration,
+                duration: material_.kThemeChangeDuration,
                 child: title ?? new SizedBox()
             );
 
@@ -286,7 +286,7 @@ namespace Unity.UIWidgets.material {
                 subtitleStyle = _subtitleTextStyle(theme, tileTheme);
                 subtitleText = new AnimatedDefaultTextStyle(
                     style: subtitleStyle,
-                    duration: Constants.kThemeChangeDuration,
+                    duration: material_.kThemeChangeDuration,
                     child: subtitle);
             }
 

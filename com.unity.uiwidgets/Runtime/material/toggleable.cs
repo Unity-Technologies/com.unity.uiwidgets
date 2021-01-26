@@ -11,7 +11,7 @@ namespace Unity.UIWidgets.material {
         public static readonly TimeSpan _kToggleDuration = new TimeSpan(0, 0, 0, 0, 200);
 
         public static readonly Animatable<float> _kRadialReactionRadiusTween =
-            new FloatTween(begin: 0.0f, end: Constants.kRadialReactionRadius);
+            new FloatTween(begin: 0.0f, end: material_.kRadialReactionRadius);
         
         public static readonly TimeSpan _kReactionFadeDuration = new TimeSpan(0, 0, 0, 0, 50);
     }
@@ -38,8 +38,8 @@ namespace Unity.UIWidgets.material {
             _tristate = tristate;
             _activeColor = activeColor;
             _inactiveColor = inactiveColor;
-            _hoverColor = hoverColor ?? activeColor.withAlpha(Constants.kRadialReactionAlpha);
-            _focusColor = focusColor ?? activeColor.withAlpha(Constants.kRadialReactionAlpha);
+            _hoverColor = hoverColor ?? activeColor.withAlpha(material_.kRadialReactionAlpha);
+            _focusColor = focusColor ?? activeColor.withAlpha(material_.kRadialReactionAlpha);
             _onChanged = onChanged;
             _hasFocus = hasFocus;
             _hovering = hovering;
@@ -63,7 +63,7 @@ namespace Unity.UIWidgets.material {
             _position.addListener(markNeedsPaint);
 
             _reactionController = new AnimationController(
-                duration: Constants.kRadialReactionDuration,
+                duration: material_.kRadialReactionDuration,
                 vsync: vsync);
             _reaction = new CurvedAnimation(
                 parent: _reactionController,
@@ -412,13 +412,13 @@ namespace Unity.UIWidgets.material {
             if (!_reaction.isDismissed || !_reactionFocusFade.isDismissed || !_reactionHoverFade.isDismissed) {
                 Paint reactionPaint = new Paint();
                 reactionPaint.color = Color.lerp(
-                    Color.lerp(activeColor.withAlpha(Constants.kRadialReactionAlpha), hoverColor,
+                    Color.lerp(activeColor.withAlpha(material_.kRadialReactionAlpha), hoverColor,
                         _reactionHoverFade.value),
                     focusColor,
                     _reactionFocusFade.value);
                 Offset center = Offset.lerp(_downPosition ?? origin, origin, _reaction.value);
                 float reactionRadius = hasFocus || hovering
-                    ? Constants.kRadialReactionRadius
+                    ? material_.kRadialReactionRadius
                     : ToggleableUtils._kRadialReactionRadiusTween.evaluate(_reaction);
 
                 if (reactionRadius > 0.0f) {

@@ -10,7 +10,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.material {
-    class OutlineButtonConstants {
+    public partial class material_ {
         public static readonly TimeSpan _kPressDuration = new TimeSpan(0, 0, 0, 0, 150);
 
         public static readonly TimeSpan _kElevationDuration = new TimeSpan(0, 0, 0, 0, 75);
@@ -275,7 +275,7 @@ namespace Unity.UIWidgets.material {
 
 
             _controller = new AnimationController(
-                duration: OutlineButtonConstants._kPressDuration,
+                duration: material_._kPressDuration,
                 vsync: this
             );
             _fillAnimation = new CurvedAnimation(
@@ -386,7 +386,7 @@ namespace Unity.UIWidgets.material {
                         ),
                         clipBehavior:
                         widget.clipBehavior,
-                        animationDuration: OutlineButtonConstants._kElevationDuration,
+                        animationDuration: material_._kElevationDuration,
                         child:
                         widget.child
                     );

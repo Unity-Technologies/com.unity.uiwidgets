@@ -9,7 +9,7 @@ using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-    public class ChipTheme : InheritedWidget {
+    public class ChipTheme : InheritedTheme {
         public ChipTheme(
             Key key = null,
             ChipThemeData data = null,
@@ -23,8 +23,13 @@ namespace Unity.UIWidgets.material {
         public readonly ChipThemeData data;
 
         public static ChipThemeData of(BuildContext context) {
-            ChipTheme inheritedTheme = (ChipTheme) context.inheritFromWidgetOfExactType(typeof(ChipTheme));
+            ChipTheme inheritedTheme = (ChipTheme) context.dependOnInheritedWidgetOfExactType<ChipTheme>();
             return inheritedTheme?.data ?? Theme.of(context).chipTheme;
+        }
+
+        public override Widget wrap(BuildContext context, Widget child) {
+            ChipTheme ancestorTheme = context.findAncestorWidgetOfExactType<ChipTheme>();
+            return ReferenceEquals(this, ancestorTheme) ? child : new ChipTheme(data: data, child: child);
         }
 
         public override bool updateShouldNotify(InheritedWidget _oldWidget) {
@@ -42,6 +47,8 @@ namespace Unity.UIWidgets.material {
             Color secondarySelectedColor = null,
             Color shadowColor = null,
             Color selectedShadowColor = null,
+            bool? showCheckmark = null,
+            Color checkmarkColor = null,
             EdgeInsets labelPadding = null,
             EdgeInsets padding = null,
             ShapeBorder shape = null,
@@ -68,6 +75,8 @@ namespace Unity.UIWidgets.material {
             this.secondarySelectedColor = secondarySelectedColor;
             this.shadowColor = shadowColor;
             this.selectedShadowColor = selectedShadowColor;
+            this.showCheckmark = showCheckmark;
+            this.checkmarkColor = checkmarkColor;
             this.labelPadding = labelPadding;
             this.padding = padding;
             this.shape = shape;
@@ -144,6 +153,10 @@ namespace Unity.UIWidgets.material {
 
         public readonly Color selectedShadowColor;
 
+        public readonly bool? showCheckmark;
+
+        public readonly Color checkmarkColor;
+
         public readonly EdgeInsets labelPadding;
 
         public readonly EdgeInsets padding;
@@ -168,6 +181,7 @@ namespace Unity.UIWidgets.material {
             Color secondarySelectedColor = null,
             Color shadowColor = null,
             Color selectedShadowColor = null,
+            Color checkmarkColor = null,
             EdgeInsets labelPadding = null,
             EdgeInsets padding = null,
             ShapeBorder shape = null,
@@ -185,6 +199,7 @@ namespace Unity.UIWidgets.material {
                 secondarySelectedColor: secondarySelectedColor ?? this.secondarySelectedColor,
                 shadowColor: shadowColor ?? this.shadowColor,
                 selectedShadowColor: selectedShadowColor ?? this.selectedShadowColor,
+                checkmarkColor: checkmarkColor ?? this.checkmarkColor,
                 labelPadding: labelPadding ?? this.labelPadding,
                 padding: padding ?? this.padding,
                 shape: shape ?? this.shape,
@@ -209,6 +224,7 @@ namespace Unity.UIWidgets.material {
                 secondarySelectedColor: Color.lerp(a?.secondarySelectedColor, b?.secondarySelectedColor, t),
                 shadowColor: Color.lerp(a?.shadowColor, b?.shadowColor, t),
                 selectedShadowColor: Color.lerp(a?.selectedShadowColor, b?.selectedShadowColor, t),
+                checkmarkColor: Color.lerp(a?.checkmarkColor, b?.checkmarkColor, t),
                 labelPadding: EdgeInsets.lerp(a?.labelPadding, b?.labelPadding, t),
                 padding: EdgeInsets.lerp(a?.padding, b?.padding, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t),
@@ -228,6 +244,7 @@ namespace Unity.UIWidgets.material {
             hashCode = (hashCode * 397) ^ secondarySelectedColor.GetHashCode();
             hashCode = (hashCode * 397) ^ shadowColor?.GetHashCode() ?? 0;
             hashCode = (hashCode * 397) ^ selectedShadowColor?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ checkmarkColor?.GetHashCode() ?? 0;
             hashCode = (hashCode * 397) ^ labelPadding.GetHashCode();
             hashCode = (hashCode * 397) ^ padding.GetHashCode();
             hashCode = (hashCode * 397) ^ shape.GetHashCode();
@@ -247,6 +264,7 @@ namespace Unity.UIWidgets.material {
                    && other.secondarySelectedColor == secondarySelectedColor
                    && other.shadowColor == shadowColor
                    && other.selectedShadowColor == selectedShadowColor
+                   && other.checkmarkColor == checkmarkColor
                    && other.labelPadding == labelPadding
                    && other.padding == padding
                    && other.shape == shape
@@ -289,20 +307,22 @@ namespace Unity.UIWidgets.material {
                 brightness: defaultTheme.brightness,
                 labelStyle: defaultTheme.textTheme.body2
             );
-            properties.add(new DiagnosticsProperty<Color>("backgroundColor", backgroundColor,
+            properties.add(new ColorProperty("backgroundColor", backgroundColor,
                 defaultValue: defaultData.backgroundColor));
-            properties.add(new DiagnosticsProperty<Color>("deleteIconColor", deleteIconColor,
+            properties.add(new ColorProperty("deleteIconColor", deleteIconColor,
                 defaultValue: defaultData.deleteIconColor));
-            properties.add(new DiagnosticsProperty<Color>("disabledColor", disabledColor,
+            properties.add(new ColorProperty("disabledColor", disabledColor,
                 defaultValue: defaultData.disabledColor));
-            properties.add(new DiagnosticsProperty<Color>("selectedColor", selectedColor,
+            properties.add(new ColorProperty("selectedColor", selectedColor,
                 defaultValue: defaultData.selectedColor));
-            properties.add(new DiagnosticsProperty<Color>("secondarySelectedColor", secondarySelectedColor,
+            properties.add(new ColorProperty("secondarySelectedColor", secondarySelectedColor,
                 defaultValue: defaultData.secondarySelectedColor));
-            properties.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor,
+            properties.add(new ColorProperty("shadowColor", shadowColor,
                 defaultValue: defaultData.shadowColor));
-            properties.add(new DiagnosticsProperty<Color>("selectedShadowColor", selectedShadowColor,
+            properties.add(new ColorProperty("selectedShadowColor", selectedShadowColor,
                 defaultValue: defaultData.selectedShadowColor));
+            properties.add(new ColorProperty("checkMarkColor", checkmarkColor,
+                defaultValue: defaultData.checkmarkColor));
             properties.add(new DiagnosticsProperty<EdgeInsets>("labelPadding", labelPadding,
                 defaultValue: defaultData.labelPadding));
             properties.add(

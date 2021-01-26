@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -26,15 +27,25 @@ namespace Unity.UIWidgets.material {
             ValueChanged<bool?> onChanged = null,
             Color activeColor = null,
             Color checkColor = null,
-            MaterialTapTargetSize? materialTapTargetSize = null
+            Color focusColor = null,
+            Color hoverColor = null,
+            MaterialTapTargetSize? materialTapTargetSize = null,
+            VisualDensity visualDensity = null,
+            FocusNode focusNode = null,
+            bool autofocus = false
         ) : base(key: key) {
             D.assert(tristate || value != null);
             this.value = value;
             this.onChanged = onChanged;
             this.activeColor = activeColor;
             this.checkColor = checkColor;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
             this.tristate = tristate;
             this.materialTapTargetSize = materialTapTargetSize;
+            this.visualDensity = visualDensity;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
         }
 
         public readonly bool? value;
@@ -49,6 +60,16 @@ namespace Unity.UIWidgets.material {
 
         public readonly MaterialTapTargetSize? materialTapTargetSize;
 
+        public readonly VisualDensity visualDensity;
+
+        public readonly Color focusColor;
+
+        public readonly Color hoverColor;
+
+        public readonly FocusNode focusNode;
+
+        public readonly bool autofocus;
+
         public const float width = 18.0f;
 
         public override State createState() {
@@ -57,34 +78,104 @@ namespace Unity.UIWidgets.material {
     }
 
     class _CheckboxState : TickerProviderStateMixin<Checkbox> {
+        bool enabled {
+            get { return widget.onChanged != null; }
+        }
+
+        Dictionary<LocalKey, ActionFactory> _actionMap;
+
+        public override void initState() {
+            base.initState();
+            _actionMap = new Dictionary<LocalKey, ActionFactory> {
+                {ActivateAction.key, _createAction}
+            };
+        }
+
+        void _actionHandler(FocusNode node, Intent intent) {
+            if (widget.onChanged != null) {
+                switch (widget.value) {
+                    case false:
+                        widget.onChanged(true);
+                        break;
+                    case true:
+                        widget.onChanged(widget.tristate);
+                        break;
+                    default: // case null:
+                        widget.onChanged(false);
+                        break;
+                }
+            }
+
+            RenderObject renderObject = node.context.findRenderObject();
+            // renderObject.sendSemanticsEvent(const TapSemanticEvent());
+        }
+
+        UiWidgetAction _createAction() {
+            return new CallbackAction(
+                ActivateAction.key,
+                onInvoke: _actionHandler
+            );
+        }
+
+        bool _focused = false;
+
+        void _handleFocusHighlightChanged(bool focused) {
+            if (focused != _focused) {
+                setState(() => { _focused = focused; });
+            }
+        }
+
+        bool _hovering = false;
+
+        void _handleHoverChanged(bool hovering) {
+            if (hovering != _hovering) {
+                setState(() => { _hovering = hovering; });
+            }
+        }
+
         public override Widget build(BuildContext context) {
             D.assert(material_.debugCheckHasMaterial(context));
             ThemeData themeData = Theme.of(context);
             Size size;
             switch (widget.materialTapTargetSize ?? themeData.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
-                    size = new Size(2 * Constants.kRadialReactionRadius + 8.0f,
-                        2 * Constants.kRadialReactionRadius + 8.0f);
+                    size = new Size(2 * material_.kRadialReactionRadius + 8.0f,
+                        2 * material_.kRadialReactionRadius + 8.0f);
                     break;
                 case MaterialTapTargetSize.shrinkWrap:
-                    size = new Size(2 * Constants.kRadialReactionRadius, 2 * Constants.kRadialReactionRadius);
+                    size = new Size(2 * material_.kRadialReactionRadius, 2 * material_.kRadialReactionRadius);
                     break;
                 default:
                     throw new Exception("Unknown target size: " + widget.materialTapTargetSize);
             }
 
+            size += (widget.visualDensity ?? themeData.visualDensity).baseSizeAdjustment;
             BoxConstraints additionalConstraints = BoxConstraints.tight(size);
-            return new _CheckboxRenderObjectWidget(
-                value: widget.value,
-                tristate: widget.tristate,
-                activeColor: widget.activeColor ?? themeData.toggleableActiveColor,
-                checkColor: widget.checkColor ?? new Color(0xFFFFFFFF),
-                inactiveColor: widget.onChanged != null
-                    ? themeData.unselectedWidgetColor
-                    : themeData.disabledColor,
-                onChanged: widget.onChanged,
-                additionalConstraints: additionalConstraints,
-                vsync: this
+            return new FocusableActionDetector(
+                actions: _actionMap,
+                focusNode: widget.focusNode,
+                autofocus: widget.autofocus,
+                enabled: enabled,
+                onShowFocusHighlight: _handleFocusHighlightChanged,
+                onShowHoverHighlight: _handleHoverChanged,
+                child: new Builder(
+                    builder: (BuildContext _context) => {
+                        return new _CheckboxRenderObjectWidget(
+                            value: widget.value,
+                            tristate: widget.tristate,
+                            activeColor: widget.activeColor ?? themeData.toggleableActiveColor,
+                            checkColor: widget.checkColor ?? new Color(0xFFFFFFFF),
+                            inactiveColor: enabled ? themeData.unselectedWidgetColor : themeData.disabledColor,
+                            focusColor: widget.focusColor ?? themeData.focusColor,
+                            hoverColor: widget.hoverColor ?? themeData.hoverColor,
+                            onChanged: widget.onChanged,
+                            additionalConstraints: additionalConstraints,
+                            vsync: this,
+                            hasFocus: _focused,
+                            hovering: _hovering
+                        );
+                    }
+                )
             );
         }
     }
@@ -97,9 +188,13 @@ namespace Unity.UIWidgets.material {
             Color activeColor = null,
             Color checkColor = null,
             Color inactiveColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             ValueChanged<bool?> onChanged = null,
             TickerProvider vsync = null,
-            BoxConstraints additionalConstraints = null
+            BoxConstraints additionalConstraints = null,
+            bool? hasFocus = null,
+            bool? hovering = null
         ) : base(key: key) {
             D.assert(tristate || value != null);
             D.assert(activeColor != null);
@@ -110,16 +205,24 @@ namespace Unity.UIWidgets.material {
             this.activeColor = activeColor;
             this.checkColor = checkColor;
             this.inactiveColor = inactiveColor;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
             this.onChanged = onChanged;
             this.vsync = vsync;
             this.additionalConstraints = additionalConstraints;
+            this.hasFocus = hasFocus;
+            this.hovering = hovering;
         }
 
         public readonly bool? value;
         public readonly bool tristate;
+        public readonly bool? hasFocus;
+        public readonly bool? hovering;
         public readonly Color activeColor;
         public readonly Color checkColor;
         public readonly Color inactiveColor;
+        public readonly Color focusColor;
+        public readonly Color hoverColor;
         public readonly ValueChanged<bool?> onChanged;
         public readonly TickerProvider vsync;
         public readonly BoxConstraints additionalConstraints;
@@ -131,9 +234,13 @@ namespace Unity.UIWidgets.material {
                 activeColor: activeColor,
                 checkColor: checkColor,
                 inactiveColor: inactiveColor,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
                 onChanged: onChanged,
                 vsync: vsync,
-                additionalConstraints: additionalConstraints
+                additionalConstraints: additionalConstraints,
+                hasFocus: hasFocus,
+                hovering: hovering
             );
         }
 
@@ -143,10 +250,14 @@ namespace Unity.UIWidgets.material {
             renderObject.tristate = tristate;
             renderObject.activeColor = activeColor;
             renderObject.checkColor = checkColor;
+            renderObject.focusColor = focusColor;
+            renderObject.hoverColor = hoverColor;
             renderObject.inactiveColor = inactiveColor;
             renderObject.onChanged = onChanged;
             renderObject.additionalConstraints = additionalConstraints;
             renderObject.vsync = vsync;
+            renderObject.hasFocus = hasFocus ?? false;
+            renderObject.hovering = hovering ?? false;
         }
     }
 
@@ -158,18 +269,26 @@ namespace Unity.UIWidgets.material {
             Color activeColor = null,
             Color checkColor = null,
             Color inactiveColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             BoxConstraints additionalConstraints = null,
             ValueChanged<bool?> onChanged = null,
-            TickerProvider vsync = null
+            TickerProvider vsync = null,
+            bool? hasFocus = null,
+            bool? hovering = null
         ) : base(
-                value: value,
-                tristate: tristate,
-                activeColor: activeColor,
-                inactiveColor: inactiveColor,
-                onChanged: onChanged,
-                additionalConstraints: additionalConstraints,
-                vsync: vsync
-            ) {
+            value: value,
+            tristate: tristate,
+            activeColor: activeColor,
+            inactiveColor: inactiveColor,
+            focusColor: focusColor,
+            hoverColor: hoverColor,
+            onChanged: onChanged,
+            additionalConstraints: additionalConstraints,
+            vsync: vsync,
+            hasFocus: hasFocus ?? false,
+            hovering: hovering ?? false
+        ) {
             _oldValue = value;
             this.checkColor = checkColor;
         }
@@ -201,10 +320,12 @@ namespace Unity.UIWidgets.material {
                 : (t >= 0.25f ? activeColor : Color.lerp(inactiveColor, activeColor, t * 4.0f));
         }
 
-        void _initStrokePaint(Paint paint) {
+        Paint _createStrokePaint() {
+            var paint = new Paint();
             paint.color = checkColor;
             paint.style = PaintingStyle.stroke;
             paint.strokeWidth = CheckboxUtils._kStrokeWidth;
+            return paint;
         }
 
         void _drawBorder(Canvas canvas, RRect outer, float t, Paint paint) {
@@ -251,6 +372,7 @@ namespace Unity.UIWidgets.material {
             Canvas canvas = context.canvas;
             paintRadialReaction(canvas, offset, size.center(Offset.zero));
 
+            Paint strokePaint = _createStrokePaint();
             Offset origin = offset + (size / 2.0f - Size.square(CheckboxUtils._kEdgeSize) / 2.0f);
             AnimationStatus status = position.status;
             float tNormalized = status == AnimationStatus.forward || status == AnimationStatus.completed
@@ -269,13 +391,12 @@ namespace Unity.UIWidgets.material {
                 else {
                     canvas.drawRRect(outer, paint);
 
-                    _initStrokePaint(paint);
                     float tShrink = (t - 0.5f) * 2.0f;
                     if (_oldValue == null || value == null) {
-                        _drawDash(canvas, origin, tShrink, paint);
+                        _drawDash(canvas, origin, tShrink, strokePaint);
                     }
                     else {
-                        _drawCheck(canvas, origin, tShrink, paint);
+                        _drawCheck(canvas, origin, tShrink, strokePaint);
                     }
                 }
             }
@@ -286,23 +407,22 @@ namespace Unity.UIWidgets.material {
                 paint.color = _colorAt(1.0f);
                 canvas.drawRRect(outer, paint);
 
-                _initStrokePaint(paint);
                 if (tNormalized <= 0.5f) {
                     float tShrink = 1.0f - tNormalized * 2.0f;
                     if (_oldValue == true) {
-                        _drawCheck(canvas, origin, tShrink, paint);
+                        _drawCheck(canvas, origin, tShrink, strokePaint);
                     }
                     else {
-                        _drawDash(canvas, origin, tShrink, paint);
+                        _drawDash(canvas, origin, tShrink, strokePaint);
                     }
                 }
                 else {
                     float tExpand = (tNormalized - 0.5f) * 2.0f;
                     if (value == true) {
-                        _drawCheck(canvas, origin, tExpand, paint);
+                        _drawCheck(canvas, origin, tExpand, strokePaint);
                     }
                     else {
-                        _drawDash(canvas, origin, tExpand, paint);
+                        _drawDash(canvas, origin, tExpand, strokePaint);
                     }
                 }
             }
