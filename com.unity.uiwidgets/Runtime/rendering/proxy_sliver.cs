@@ -113,10 +113,9 @@ namespace Unity.UIWidgets.rendering {
             RenderSliver sliver = null,
             float opacity = 1.0f
         ) : base( child:sliver) {
-            D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0);
+            D.assert(opacity >= 0.0 && opacity <= 1.0);
             _opacity = opacity;
             _alpha = ui.Color.getAlphaFromOpacity(opacity);
-            child = sliver;
         }
 
 
@@ -127,8 +126,7 @@ namespace Unity.UIWidgets.rendering {
 
         public float opacity {
             get { return _opacity; }
-            set { 
-                D.assert(value != null);
+            set {
                 D.assert(value >= 0.0 && value <= 1.0);
                 if (_opacity == value) 
                     return;
@@ -138,9 +136,7 @@ namespace Unity.UIWidgets.rendering {
                 _alpha = ui.Color.getAlphaFromOpacity(_opacity);
                 if (didNeedCompositing != alwaysNeedsCompositing) 
                     markNeedsCompositingBitsUpdate();
-                markNeedsPaint(); 
-                //if (wasVisible != (_alpha != 0) && !alwaysIncludeSemantics) 
-                //    markNeedsSemanticsUpdate();
+                markNeedsPaint();
             }
         }
         float _opacity;
@@ -157,20 +153,15 @@ namespace Unity.UIWidgets.rendering {
                     return;
                 }
                 D.assert(needsCompositing);
-                var opacity = context.pushOpacity(
+                layer = context.pushOpacity(
                     offset,
                     _alpha,
                     base.paint,
                     oldLayer: layer as OpacityLayer
                 );
-                layer = opacity;
             }
         }
-        /*public override void visitChildrenForSemantics(RenderObject visitor) {
-            visitor = (RenderObjectVisitor)visitor;
-            if (child != null && (_alpha != 0 || alwaysIncludeSemantics))
-              visitor(child);
-        }*/
+
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) { 
             base.debugFillProperties(properties);
             properties.add(new FloatProperty("opacity", opacity));
@@ -182,22 +173,17 @@ namespace Unity.UIWidgets.rendering {
             RenderSliver sliver = null,
             bool ignoring = true,
             bool? ignoringSemantics = null
-            ):base(child:sliver){
-                child = sliver;
-                D.assert(ignoring != null);
-                _ignoring = ignoring;
+            ) : base(child:sliver){
+            _ignoring = ignoring;
         }
 
 
         public bool ignoring {
             get { return _ignoring; }
             set {
-                D.assert(value != null);
                 if (value == _ignoring)
                     return;
                 _ignoring = value;
-                //if (_ignoringSemantics == null || !_ignoringSemantics)
-                //    markNeedsSemanticsUpdate();
             }
         }
         bool _ignoring;
@@ -209,10 +195,7 @@ namespace Unity.UIWidgets.rendering {
                 crossAxisPosition: crossAxisPosition
               );
         }
-        /*public override void visitChildrenForSemantics(RenderObjectVisitor visitor) {
-            if (child != null && !_effectiveIgnoringSemantics)
-            visitor(child);
-         }*/
+
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<bool>("ignoring", ignoring));
@@ -221,16 +204,13 @@ namespace Unity.UIWidgets.rendering {
     public class RenderSliverOffstage : RenderProxySliver {
         public RenderSliverOffstage(
             RenderSliver sliver = null,
-            bool offstage = true): base(child:sliver)  {
-              D.assert(offstage != null);
-              _offstage = offstage;
-              child = sliver;
+            bool offstage = true): base(child:sliver) {
+            _offstage = offstage;
         }
 
         public bool offstage {
             get { return _offstage; }
             set {
-                D.assert(value != null);
                 if (value == _offstage)
                     return;
                 _offstage = value;
@@ -268,12 +248,7 @@ namespace Unity.UIWidgets.rendering {
                 return;
             context.paintChild(child, offset);
         }
-
-        /*public override void visitChildrenForSemantics(RenderObjectVisitor visitor) {
-            if (offstage)
-              return;
-            base.visitChildrenForSemantics(visitor);
-          }*/ 
+        
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<bool>("offstage", offstage));

@@ -1118,7 +1118,7 @@ namespace Unity.UIWidgets.rendering {
             _needsCompositingBitsUpdate = false;
         }
 
-        bool debugNeedsPaint {
+        public bool debugNeedsPaint {
             get {
                 bool result = false;
                 D.assert(() => {
@@ -1489,12 +1489,6 @@ namespace Unity.UIWidgets.rendering {
         RenderObject lastChild { get; }
         RenderObject childBefore(RenderObject child);
         RenderObject childAfter(RenderObject child);
-    }
-
-    public interface RelayoutWhenSystemFontsChangeMixin {
-        void systemFontsDidChange();
-        void attach(PipelineOwner owner);
-        void detach();
     }
 
     public class UIWidgetsErrorDetailsForRendering : UIWidgetsErrorDetails {

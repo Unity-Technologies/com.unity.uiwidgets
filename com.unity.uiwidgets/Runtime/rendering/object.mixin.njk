@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -460,4 +461,26 @@ public {{abstract}} class RenderConstrainedLayoutBuilderMixin{{with}}<Constraint
 {{ RenderConstrainedLayoutBuilderMixin('abstract', 'RenderObject', 'Constraints') }}
 {{ RenderConstrainedLayoutBuilderMixin('', 'RenderBox', 'BoxConstraints') }}
 {{ RenderConstrainedLayoutBuilderMixin('abstract', 'RenderSliver', 'SliverConstraints') }}
+
+{% macro RelayoutWhenSystemFontsChangeMixin(with) %} 
+    public abstract class RelayoutWhenSystemFontsChangeMixin{{with}} : {{with}} {
+    
+        protected void systemFontsDidChange() {
+            markNeedsLayout();
+        }
+        
+        public override void attach(object owner) {
+            base.attach(owner);
+            PaintingBinding.instance.systemFonts.addListener(systemFontsDidChange);
+          }
+        
+        public override void detach() {
+            PaintingBinding.instance.systemFonts.removeListener(systemFontsDidChange);
+            base.detach();
+        }
+        
+    }  
+    {% endmacro %}
+    
+    {{ RelayoutWhenSystemFontsChangeMixin('RenderBox') }}
 }
