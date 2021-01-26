@@ -98,7 +98,7 @@ namespace Unity.UIWidgets.rendering {
 
             if (firstChild != null) {
                 int leadingGarbage = _calculateLeadingGarbage(firstIndex);
-                int trailingGarbage = _calculateTrailingGarbage(targetLastIndex.Value);
+                int trailingGarbage = targetLastIndex == null ? 0: _calculateTrailingGarbage(targetLastIndex.Value);
                 collectGarbage(leadingGarbage, trailingGarbage);
             }
             else {

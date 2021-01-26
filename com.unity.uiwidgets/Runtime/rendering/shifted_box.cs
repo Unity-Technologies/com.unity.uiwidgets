@@ -974,7 +974,7 @@ namespace Unity.UIWidgets.rendering {
                 child.layout(constraints.loosen(), parentUsesSize: true);
                 float? childBaseline = child.getDistanceToBaseline(baselineType);
                 float actualBaseline = baseline;
-                float top = actualBaseline - childBaseline.Value;
+                float top = actualBaseline - (childBaseline ?? 0.0f);
                 var childParentData = (BoxParentData) child.parentData;
                 childParentData.offset = new Offset(0.0f, top);
                 Size childSize = child.size;

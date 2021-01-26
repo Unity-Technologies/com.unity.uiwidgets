@@ -1294,7 +1294,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly StrutStyle strutStyle;
         public readonly Color selectionColor;
         public readonly float textScaleFactor;
-        public readonly TextAlign? textAlign;
+        public readonly TextAlign textAlign;
         public readonly TextDirection? textDirection;
         public readonly bool obscureText;
         public readonly TextWidthBasis textWidthBasis;
@@ -1336,7 +1336,7 @@ namespace Unity.UIWidgets.widgets {
             StrutStyle strutStyle = null,
             Color selectionColor = null,
             float textScaleFactor = 1.0f,
-            TextAlign? textAlign = null,
+            TextAlign textAlign = TextAlign.start,
             TextDirection? textDirection = null,
             Locale locale = null,
             bool obscureText = false,
@@ -1417,7 +1417,7 @@ namespace Unity.UIWidgets.widgets {
                 strutStyle: strutStyle,
                 selectionColor: selectionColor,
                 textScaleFactor: textScaleFactor,
-                textAlign: textAlign ?? TextAlign.start,
+                textAlign: textAlign,
                 textDirection: textDirection,
                 locale: locale ?? Localizations.localeOf(context, nullOk: true),
                 selection: value.selection,
