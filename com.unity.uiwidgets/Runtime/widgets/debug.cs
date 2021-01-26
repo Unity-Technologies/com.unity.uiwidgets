@@ -14,12 +14,6 @@ namespace Unity.UIWidgets.widgets {
         
         public static bool debugProfileBuildsEnabled = false;
 
-       
-        public static bool debugHighlightDeprecatedWidgets = false;
-
-        public static bool debugProfileBuildsEnabled = false;
-
-
         public static bool debugHighlightDeprecatedWidgets = false;
 
         static Key _firstNonUniqueKey(IEnumerable<Widget> widgets) {
