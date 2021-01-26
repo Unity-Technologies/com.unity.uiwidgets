@@ -132,7 +132,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly VoidCallback onVisible;
 
-        static AnimationController createAnimationController(TickerProvider vsync) {
+        internal static AnimationController createAnimationController(TickerProvider vsync) {
             return new AnimationController(
                 duration: SnackBarUtils._snackBarTransitionDuration,
                 debugLabel: "SnackBar",
@@ -140,7 +140,7 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        SnackBar withAnimation(Animation<float> newAnimation, Key fallbackKey = null) {
+        internal SnackBar withAnimation(Animation<float> newAnimation, Key fallbackKey = null) {
             return new SnackBar(
                 key: key ?? fallbackKey,
                 content: content,
