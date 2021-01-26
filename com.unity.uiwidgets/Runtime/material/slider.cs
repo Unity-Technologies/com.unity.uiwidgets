@@ -335,7 +335,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _RenderSlider : RenderBox {
+    class _RenderSlider : RelayoutWhenSystemFontsChangeMixinRenderBox {
         static float _positionAnimationDurationMilliSeconds = 75;
         static float _minimumInteractionTimeMilliSeconds = 500;
 
@@ -346,19 +346,18 @@ namespace Unity.UIWidgets.material {
             int? divisions = null,
             string label = null,
             SliderThemeData sliderTheme = null,
-            ThemeData theme = null,
             MediaQueryData mediaQueryData = null,
             RuntimePlatform? platform = null,
             ValueChanged<float> onChanged = null,
             ValueChanged<float> onChangeStart = null,
             ValueChanged<float> onChangeEnd = null,
             _SliderState state = null,
-            TextDirection? texDirection = null
+            TextDirection? textDirection = null
         ) {
             D.assert(value != null && value >= 0.0 && value <= 1.0);
             D.assert(state != null);
             D.assert(textDirection != null);
-            
+
             this.onChangeStart = onChangeStart;
             this.onChangeEnd = onChangeEnd;
             _platform = platform;
@@ -366,10 +365,10 @@ namespace Unity.UIWidgets.material {
             _value = value.Value;
             _divisions = divisions;
             _sliderTheme = sliderTheme;
-            _theme = theme;
             _mediaQueryData = mediaQueryData;
             _onChanged = onChanged;
             _state = state;
+            _textDirection = textDirection.Value;
 
             _updateLabelPainter();
             GestureArenaTeam team = new GestureArenaTeam();
@@ -419,7 +418,7 @@ namespace Unity.UIWidgets.material {
                 float maxValue = 0;
                 foreach (Size size in _sliderPartSizes) {
                     if (size.width > maxValue) {
-                        maxValue = size.width;
+                        maxValue = size.height;
                     }
                 }
 
@@ -606,6 +605,19 @@ namespace Unity.UIWidgets.material {
         public ValueChanged<float> onChangeStart;
         public ValueChanged<float> onChangeEnd;
 
+        public TextDirection textDirection {
+            get { return _textDirection; }
+            set {
+                if (value == _textDirection) {
+                    return;
+                }
+                _textDirection = value;
+                _updateLabelPainter();
+            }
+        }
+        
+        TextDirection _textDirection;
+
         public bool showValueIndicator {
             get {
                 bool showValueIndicator = false;
@@ -632,6 +644,8 @@ namespace Unity.UIWidgets.material {
             get {
                 switch (_platform) {
                     case RuntimePlatform.IPhonePlayer:
+                    case RuntimePlatform.OSXPlayer:
+                    case RuntimePlatform.OSXEditor:
                         return 0.1f;
                     default:
                         return 0.05f;
@@ -646,6 +660,7 @@ namespace Unity.UIWidgets.material {
                     style: _sliderTheme.valueIndicatorTextStyle,
                     text: label
                 );
+                _labelPainter.textDirection = textDirection;
                 _labelPainter.textScaleFactor = _mediaQueryData.textScaleFactor;
                 _labelPainter.layout();
             }
@@ -655,6 +670,12 @@ namespace Unity.UIWidgets.material {
 
             markNeedsLayout();
         }
+        
+        protected override void systemFontsDidChange() {
+               base.systemFontsDidChange();
+                _labelPainter.markNeedsLayout();
+                _updateLabelPainter();
+              }
 
         public override void attach(object owner) {
             base.attach(owner);
@@ -673,6 +694,12 @@ namespace Unity.UIWidgets.material {
         }
 
         float _getValueFromVisualPosition(float visualPosition) {
+            switch (textDirection) {
+                case TextDirection.rtl:
+                    return 1.0f - visualPosition;
+                case TextDirection.ltr:
+                    return visualPosition;
+            }
             return visualPosition;
         }
 
@@ -742,7 +769,14 @@ namespace Unity.UIWidgets.material {
         void _handleDragUpdate(DragUpdateDetails details) {
             if (isInteractive) {
                 float valueDelta = details.primaryDelta.Value / _trackRect.width;
-                _currentDragValue += valueDelta;
+                switch (textDirection) {
+                    case TextDirection.rtl:
+                        _currentDragValue -= valueDelta;
+                        break;
+                    case TextDirection.ltr:
+                        _currentDragValue += valueDelta;
+                        break;
+                }
                 onChanged(_discretize(_currentDragValue));
             }
         }
@@ -806,6 +840,14 @@ namespace Unity.UIWidgets.material {
         public override void paint(PaintingContext context, Offset offset) {
             float value = _state.positionController.value;
             float visualPosition = value;
+            switch (textDirection) {
+                case TextDirection.rtl:
+                    visualPosition = 1.0f - value;
+                    break;
+                case TextDirection.ltr:
+                    visualPosition = value;
+                    break;
+            }
 
             Rect trackRect = _sliderTheme.trackShape.getPreferredRect(
                 parentBox: this,
@@ -822,6 +864,7 @@ namespace Unity.UIWidgets.material {
                 parentBox: this,
                 sliderTheme: _sliderTheme,
                 enableAnimation: _enableAnimation,
+                textDirection: _textDirection,
                 thumbCenter: thumbCenter,
                 isDiscrete: isDiscrete,
                 isEnabled: isInteractive
@@ -837,6 +880,7 @@ namespace Unity.UIWidgets.material {
                     labelPainter: _labelPainter,
                     parentBox: this,
                     sliderTheme: _sliderTheme,
+                    textDirection: _textDirection,
                     value: _value
                 );
             }
@@ -860,6 +904,7 @@ namespace Unity.UIWidgets.material {
                             parentBox: this,
                             sliderTheme: _sliderTheme,
                             enableAnimation: _enableAnimation,
+                            textDirection: _textDirection,
                             thumbCenter: thumbCenter,
                             isEnabled: isInteractive
                         );
@@ -878,6 +923,7 @@ namespace Unity.UIWidgets.material {
                         labelPainter: _labelPainter,
                         parentBox: this,
                         sliderTheme: _sliderTheme,
+                        textDirection: _textDirection,
                         value: _value
                     );
                 }
@@ -892,6 +938,7 @@ namespace Unity.UIWidgets.material {
                 labelPainter: _labelPainter,
                 parentBox: this,
                 sliderTheme: _sliderTheme,
+                textDirection: _textDirection,
                 value: _value
             );
         }
