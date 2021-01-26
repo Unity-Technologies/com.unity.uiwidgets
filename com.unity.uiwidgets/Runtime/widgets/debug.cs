@@ -11,10 +11,10 @@ namespace Unity.UIWidgets.widgets {
         public static bool debugPrintGlobalKeyedWidgetLifecycle = false;
 
         public static bool debugPrintScheduleBuildForStacks = false;
-        
+
         public static bool debugProfileBuildsEnabled = false;
 
-       
+
         public static bool debugHighlightDeprecatedWidgets = false;
 
         static Key _firstNonUniqueKey(IEnumerable<Widget> widgets) {
@@ -61,6 +61,22 @@ namespace Unity.UIWidgets.widgets {
             return false;
         }
 
+        public static bool debugCheckHasTable(BuildContext context) {
+            D.assert(() => {
+                if (!(context.widget is Table) && context.findAncestorWidgetOfExactType<Table>() == null) {
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary("No Table widget found."),
+                        new ErrorDescription($"{context.widget.GetType()} widgets require a Table widget ancestor."),
+                        context.describeWidget("The specific widget that could not find a Table ancestor was"),
+                        context.describeOwnershipChain("The ownership chain for the affected widget is")
+                    });
+                }
+
+                return true;
+            });
+            return true;
+        }
+
         public static void debugWidgetBuilderValue(Widget widget, Widget built) {
             D.assert(() => {
                 if (built == null) {
@@ -90,7 +106,8 @@ namespace Unity.UIWidgets.widgets {
                 if (!(context.widget is MediaQuery) && context.findAncestorWidgetOfExactType<MediaQuery>() == null) {
                     throw new UIWidgetsError(new List<DiagnosticsNode> {
                         new ErrorSummary("No MediaQuery widget found."),
-                        new ErrorDescription($"{context.widget.GetType()} widgets require a MediaQuery widget ancestor."),
+                        new ErrorDescription(
+                            $"{context.widget.GetType()} widgets require a MediaQuery widget ancestor."),
                         context.describeWidget("The specific widget that could not find a MediaQuery ancestor was"),
                         context.describeOwnershipChain("The ownership chain for the affected widget is"),
                         new ErrorHint(
@@ -109,9 +126,10 @@ namespace Unity.UIWidgets.widgets {
             D.assert(() => {
                 if (!(context.widget is Directionality) &&
                     context.findAncestorWidgetOfExactType<Directionality>() == null) {
-                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
                         new ErrorSummary("No Directionality widget found."),
-                        new ErrorDescription($"{context.widget.GetType()} widgets require a Directionality widget ancestor.\n"),
+                        new ErrorDescription(
+                            $"{context.widget.GetType()} widgets require a Directionality widget ancestor.\n"),
                         context.describeWidget("The specific widget that could not find a Directionality ancestor was"),
                         context.describeOwnershipChain("The ownership chain for the affected widget is"),
                         new ErrorHint(
@@ -159,10 +177,10 @@ namespace Unity.UIWidgets.widgets {
             UIWidgetsError.reportError(details);
             return details;
         }
-        
+
         /// See [the widgets library](widgets/widgets-library.html) for a complete list.
         public static bool debugAssertAllWidgetVarsUnset(string reason) {
-            D.assert(()=> {
+            D.assert(() => {
                 if (debugPrintRebuildDirtyWidgets ||
                     debugPrintBuildScope ||
                     debugPrintScheduleBuildForStacks ||
@@ -171,10 +189,10 @@ namespace Unity.UIWidgets.widgets {
                     debugHighlightDeprecatedWidgets) {
                     throw new UIWidgetsError(reason);
                 }
+
                 return true;
             });
             return true;
         }
-
     }
 }

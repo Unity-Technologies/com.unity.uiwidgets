@@ -108,9 +108,9 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Color>("backgroundColor", backgroundColor));
+            properties.add(new ColorProperty("backgroundColor", backgroundColor));
             properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape));
-            properties.add(new DiagnosticsProperty<float?>("elevation", elevation));
+            properties.add(new FloatProperty("elevation", elevation));
             properties.add(new DiagnosticsProperty<TextStyle>("titleTextStyle", titleTextStyle));
             properties.add(new DiagnosticsProperty<TextStyle>("contentTextStyle", contentTextStyle));
         }
