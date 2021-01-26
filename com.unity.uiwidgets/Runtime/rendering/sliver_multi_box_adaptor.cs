@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public bool keptAlive { get; }
-    }
+    } 
 
     public interface RenderSliverBoxChildManager {
         void createChild(int index, RenderBox after = null);
@@ -99,7 +99,6 @@ namespace Unity.UIWidgets.rendering {
         public bool debugChildIntegrityEnabled {
             get { return _debugChildIntegrityEnabled;}
             set {
-                D.assert(value != null);
                 D.assert(() =>{
                     _debugChildIntegrityEnabled = value;
                     return _debugVerifyChildOrder() &&
@@ -166,7 +165,7 @@ namespace Unity.UIWidgets.rendering {
                 childManager.didAdoptChild(child);
                 D.assert(()=> {
                     if (_keepAliveBucket.ContainsKey(childParentData.index))
-                        _debugDanglingKeepAlives.Add(_keepAliveBucket[childParentData.index]);
+                        _debugDanglingKeepAlives.Add(_keepAliveBucket.getOrDefault(childParentData.index));
                     return true;
                 });
                 _keepAliveBucket[childParentData.index] = child;

@@ -5,6 +5,36 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.rendering {
+
+    public class RenderSliverFillViewport : RenderSliverFixedExtentBoxAdaptor {
+        public RenderSliverFillViewport(
+            RenderSliverBoxChildManager childManager = null,
+            float viewportFraction = 1.0f
+        ) :
+            base(childManager: childManager) {
+            D.assert(viewportFraction > 0.0);
+            _viewportFraction = viewportFraction;
+        }
+
+        public override float itemExtent {
+            get { return constraints.viewportMainAxisExtent * viewportFraction; }
+            set { }
+        }
+
+        float _viewportFraction;
+
+        public float viewportFraction {
+            get { return _viewportFraction; }
+            set {
+                if (_viewportFraction == value) {
+                    return;
+                }
+
+                _viewportFraction = value;
+                markNeedsLayout();
+            }
+        }
+    }
     
     class RenderSliverFillRemainingWithScrollable : RenderSliverSingleBoxAdapter {
         public RenderSliverFillRemainingWithScrollable(RenderBox child = null) : base(child: child) {
@@ -75,69 +105,6 @@ namespace Unity.UIWidgets.rendering {
                 setChildParentData(child, constraints, geometry); 
         } 
     }
-
-    public class RenderSliverFillViewport : RenderSliverFixedExtentBoxAdaptor {
-        public RenderSliverFillViewport(
-            RenderSliverBoxChildManager childManager = null,
-            float viewportFraction = 1.0f
-        ) :
-            base(childManager: childManager) {
-            D.assert(viewportFraction > 0.0);
-            _viewportFraction = viewportFraction;
-        }
-
-        public override float itemExtent {
-            get { return constraints.viewportMainAxisExtent * viewportFraction; }
-            set { }
-        }
-
-        float _viewportFraction;
-
-        public float viewportFraction {
-            get { return _viewportFraction; }
-            set {
-                if (_viewportFraction == value) {
-                    return;
-                }
-
-                _viewportFraction = value;
-                markNeedsLayout();
-            }
-        }
-
-
-        float _padding {
-            get { return (1.0f - viewportFraction) * constraints.viewportMainAxisExtent * 0.5f; }
-        }
-
-        protected override float indexToLayoutOffset(float itemExtent, int index) {
-            return _padding + base.indexToLayoutOffset(itemExtent, index);
-        }
-
-        protected override int getMinChildIndexForScrollOffset(float scrollOffset, float itemExtent) {
-            return base.getMinChildIndexForScrollOffset(Mathf.Max(scrollOffset - _padding, 0.0f), itemExtent);
-        }
-
-        protected override int getMaxChildIndexForScrollOffset(float scrollOffset, float itemExtent) {
-            return base.getMaxChildIndexForScrollOffset(Mathf.Max(scrollOffset - _padding, 0.0f), itemExtent);
-        }
-
-        protected override float estimateMaxScrollOffset(SliverConstraints constraints,
-            int firstIndex = 0,
-            int lastIndex = 0,
-            float leadingScrollOffset = 0.0f,
-            float trailingScrollOffset = 0.0f
-        ) {
-            float padding = _padding;
-            return childManager.estimateMaxScrollOffset(
-                       constraints,
-                       firstIndex: firstIndex,
-                       lastIndex: lastIndex,
-                       leadingScrollOffset: leadingScrollOffset - padding,
-                       trailingScrollOffset: trailingScrollOffset - padding
-                   ) + padding + padding;
-        }
-    }
     
     public class RenderSliverFillRemainingAndOverscroll : RenderSliverSingleBoxAdapter {
    
@@ -181,6 +148,4 @@ namespace Unity.UIWidgets.rendering {
                 setChildParentData(child, constraints, geometry);
         }
     }
-
-
 }
