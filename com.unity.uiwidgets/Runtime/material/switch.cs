@@ -283,7 +283,7 @@ namespace Unity.UIWidgets.material {
                 onShowFocusHighlight: _handleFocusHighlightChanged,
                 onShowHoverHighlight: _handleHoverChanged,
                 child: new Builder(
-                    builder: (BuildContext context) => {
+                    builder: (BuildContext subContext) => {
                         return new _SwitchRenderObjectWidget(
                             dragStartBehavior: widget.dragStartBehavior,
                             value: widget.value,
@@ -297,7 +297,7 @@ namespace Unity.UIWidgets.material {
                             onInactiveThumbImageError: widget.onInactiveThumbImageError,
                             activeTrackColor: activeTrackColor,
                             inactiveTrackColor: inactiveTrackColor,
-                            configuration: ImageUtils.createLocalImageConfiguration(context),
+                            configuration: ImageUtils.createLocalImageConfiguration(subContext),
                             onChanged: widget.onChanged,
                             additionalConstraints: BoxConstraints.tight(getSwitchSize(theme)),
                             hasFocus: _focused,

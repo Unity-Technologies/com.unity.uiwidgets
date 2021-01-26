@@ -198,7 +198,7 @@ namespace Unity.UIWidgets.material {
                 : 0.0f;
         }
         
-        const double _defaultTrackHeight = 2;
+        const float _defaultTrackHeight = 2f;
         static readonly SliderTrackShape _defaultTrackShape = new RoundedRectSliderTrackShape();
         static readonly SliderTickMarkShape _defaultTickMarkShape = new RoundSliderTickMarkShape();
         static readonly SliderComponentShape _defaultOverlayShape = new RoundSliderOverlayShape();
@@ -210,34 +210,61 @@ namespace Unity.UIWidgets.material {
             D.assert(material_.debugCheckHasMaterial(context));
             D.assert(WidgetsD.debugCheckHasMediaQuery(context));
 
-            SliderThemeData sliderTheme = SliderTheme.of(context);
-
-            if (widget.activeColor != null || widget.inactiveColor != null) {
-                sliderTheme = sliderTheme.copyWith(
-                    activeTrackColor: widget.activeColor,
-                    inactiveTrackColor: widget.inactiveColor,
-                    activeTickMarkColor: widget.inactiveColor,
-                    inactiveTickMarkColor: widget.activeColor,
-                    thumbColor: widget.activeColor,
-                    valueIndicatorColor: widget.activeColor,
-                    overlayColor: widget.activeColor?.withAlpha(0x29)
-                );
-            }
-
-            return new _SliderRenderObjectWidget(
-                value: _unlerp(widget.value),
-                divisions: widget.divisions,
-                label: widget.label,
-                sliderTheme: sliderTheme,
-                mediaQueryData: MediaQuery.of(context),
-                onChanged: (widget.onChanged != null) && (widget.max > widget.min)
-                    ? _handleChanged
-                    : (ValueChanged<float>) null,
-                onChangeStart: widget.onChangeStart != null ? _handleDragStart : (ValueChanged<float>) null,
-                onChangeEnd: widget.onChangeEnd != null ? _handleDragEnd : (ValueChanged<float>) null,
-                state: this
-            );
+            switch (widget._sliderType) {
+                  case _SliderType.material:
+                    return _buildMaterialSlider(context);
+            
+                  case _SliderType.adaptive: {
+                    ThemeData theme = Theme.of(context);
+                    return _buildMaterialSlider(context);
+                  }
+                }
+            
+                D.assert(false);
+                return null;
         }
+        
+        Widget _buildMaterialSlider(BuildContext context) {
+     ThemeData theme = Theme.of(context);
+    SliderThemeData sliderTheme = SliderTheme.of(context);
+    
+    sliderTheme = sliderTheme.copyWith(
+      trackHeight: sliderTheme.trackHeight ?? _defaultTrackHeight,
+      activeTrackColor: widget.activeColor ?? sliderTheme.activeTrackColor ?? theme.colorScheme.primary,
+      inactiveTrackColor: widget.inactiveColor ?? sliderTheme.inactiveTrackColor ?? theme.colorScheme.primary.withOpacity(0.24f),
+      disabledActiveTrackColor: sliderTheme.disabledActiveTrackColor ?? theme.colorScheme.onSurface.withOpacity(0.32f),
+      disabledInactiveTrackColor: sliderTheme.disabledInactiveTrackColor ?? theme.colorScheme.onSurface.withOpacity(0.12f),
+      activeTickMarkColor: widget.inactiveColor ?? sliderTheme.activeTickMarkColor ?? theme.colorScheme.onPrimary.withOpacity(0.54f),
+      inactiveTickMarkColor: widget.activeColor ?? sliderTheme.inactiveTickMarkColor ?? theme.colorScheme.primary.withOpacity(0.54f),
+      disabledActiveTickMarkColor: sliderTheme.disabledActiveTickMarkColor ?? theme.colorScheme.onPrimary.withOpacity(0.12f),
+      disabledInactiveTickMarkColor: sliderTheme.disabledInactiveTickMarkColor ?? theme.colorScheme.onSurface.withOpacity(0.12f),
+      thumbColor: widget.activeColor ?? sliderTheme.thumbColor ?? theme.colorScheme.primary,
+      disabledThumbColor: sliderTheme.disabledThumbColor ?? theme.colorScheme.onSurface.withOpacity(0.38f),
+      overlayColor: widget.activeColor?.withOpacity(0.12f) ?? sliderTheme.overlayColor ?? theme.colorScheme.primary.withOpacity(0.12f),
+      valueIndicatorColor: widget.activeColor ?? sliderTheme.valueIndicatorColor ?? theme.colorScheme.primary,
+      trackShape: sliderTheme.trackShape ?? _defaultTrackShape,
+      tickMarkShape: sliderTheme.tickMarkShape ?? _defaultTickMarkShape,
+      thumbShape: sliderTheme.thumbShape ?? _defaultThumbShape,
+      overlayShape: sliderTheme.overlayShape ?? _defaultOverlayShape,
+      valueIndicatorShape: sliderTheme.valueIndicatorShape ?? _defaultValueIndicatorShape,
+      showValueIndicator: sliderTheme.showValueIndicator ?? _defaultShowValueIndicator,
+      valueIndicatorTextStyle: sliderTheme.valueIndicatorTextStyle ?? theme.textTheme.bodyText1.copyWith(
+        color: theme.colorScheme.onPrimary
+      )
+    );
+
+    return new _SliderRenderObjectWidget(
+      value: _unlerp(widget.value),
+      divisions: widget.divisions,
+      label: widget.label,
+      sliderTheme: sliderTheme,
+      mediaQueryData: MediaQuery.of(context),
+      onChanged: (widget.onChanged != null) && (widget.max > widget.min) ? _handleChanged : (ValueChanged<float>)null,
+      onChangeStart: widget.onChangeStart != null ? _handleDragStart : (ValueChanged<float>)null,
+      onChangeEnd: widget.onChangeEnd != null ? _handleDragEnd : (ValueChanged<float>)null,
+      state: this
+    );
+  }
     }
 
     class _SliderRenderObjectWidget : LeafRenderObjectWidget {
@@ -281,12 +308,12 @@ namespace Unity.UIWidgets.material {
                 divisions: divisions,
                 label: label,
                 sliderTheme: sliderTheme,
-                theme: Theme.of(context),
                 mediaQueryData: mediaQueryData,
                 onChanged: onChanged,
                 onChangeStart: onChangeStart,
                 onChangeEnd: onChangeEnd,
                 state: state,
+                textDirection: Directionality.of(context),
                 platform: Theme.of(context).platform
             );
         }
@@ -303,6 +330,7 @@ namespace Unity.UIWidgets.material {
             _renderObject.onChanged = onChanged;
             _renderObject.onChangeStart = onChangeStart;
             _renderObject.onChangeEnd = onChangeEnd;
+            _renderObject.textDirection = Directionality.of(context);
             _renderObject.platform = Theme.of(context).platform;
         }
     }
@@ -324,10 +352,13 @@ namespace Unity.UIWidgets.material {
             ValueChanged<float> onChanged = null,
             ValueChanged<float> onChangeStart = null,
             ValueChanged<float> onChangeEnd = null,
-            _SliderState state = null
+            _SliderState state = null,
+            TextDirection? texDirection = null
         ) {
             D.assert(value != null && value >= 0.0 && value <= 1.0);
             D.assert(state != null);
+            D.assert(textDirection != null);
+            
             this.onChangeStart = onChangeStart;
             this.onChangeEnd = onChangeEnd;
             _platform = platform;
@@ -408,7 +439,7 @@ namespace Unity.UIWidgets.material {
         }
 
         float _minPreferredTrackHeight {
-            get { return _sliderTheme.trackHeight; }
+            get { return _sliderTheme.trackHeight.Value; }
         }
 
         _SliderState _state;
