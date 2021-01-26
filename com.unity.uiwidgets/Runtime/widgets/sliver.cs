@@ -141,7 +141,7 @@ namespace Unity.UIWidgets.widgets {
             this.children = children;
             this.addAutomaticKeepAlives = addAutomaticKeepAlives;
             this.addRepaintBoundaries = addRepaintBoundaries;
-            _keyToIndex = new Dictionary<Key, int>(){{null,0}};
+            _keyToIndex = new Dictionary<Key, int>(){{Key.key("null"), 0}};
         }
 
         public readonly bool addAutomaticKeepAlives;
@@ -161,22 +161,21 @@ namespace Unity.UIWidgets.widgets {
             if (_isConstantInstance) {
                 return null;
             }
-            // Lazily fill the [_keyToIndex].
             if (!_keyToIndex.ContainsKey(key)) {
-                int index = _keyToIndex.getOrDefault(null);
+                int index = _keyToIndex.getOrDefault(Key.key("null"));
                 while (index < children.Count) {
                     Widget child = children[index];
-                    if (child.key != null) {
+                    if (child.key != Key.key("null")) {
                         _keyToIndex[child.key] = index;
                     }
                     if (child.key == key) {
                         // Record current index for next function call.
-                        _keyToIndex[null] = index + 1;
+                        _keyToIndex[Key.key("null")] = index + 1;
                         return index;
                     }
                     index += 1;
                 }
-                _keyToIndex[null] = index;
+                _keyToIndex[Key.key("null")] = index;
             } else {
                 return _keyToIndex[key];
             }

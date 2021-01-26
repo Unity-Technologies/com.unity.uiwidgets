@@ -20,8 +20,7 @@ namespace Unity.UIWidgets.cupertino {
                         darkColor: new Color(0xF01D1D1D)
                  ),
                 CupertinoColors.systemBackground,
-                textThemeDefaults  : 
-                //new _CupertinoTextThemeDefaults(Color.black,Color.white)
+                textThemeDefaults  :
                 new _CupertinoTextThemeDefaults(CupertinoColors.label, CupertinoColors.inactiveGray)
             );
         
@@ -97,8 +96,8 @@ namespace Unity.UIWidgets.cupertino {
             Color primaryContrastingColor = null,
             CupertinoTextThemeData textTheme = null,
             Color barBackgroundColor = null,
-            Color scaffoldBackgroundColor = null
-            //,_CupertinoThemeDefaults defaults = null
+            Color scaffoldBackgroundColor = null,
+            _CupertinoThemeDefaults defaults = null
         ) {
             this.brightness = brightness;// ?? Brightness.light;
             _primaryColor = primaryColor;
@@ -106,7 +105,7 @@ namespace Unity.UIWidgets.cupertino {
             _textTheme = textTheme;
             _barBackgroundColor = barBackgroundColor;
             _scaffoldBackgroundColor = scaffoldBackgroundColor;
-            _defaults =  CupertinoThemeDataUtils._kDefaultTheme;
+            _defaults =  defaults ?? CupertinoThemeDataUtils._kDefaultTheme;
 
         }
 
@@ -126,9 +125,9 @@ namespace Unity.UIWidgets.cupertino {
                 primaryContrastingColor: primaryContrastingColor,
                 textTheme: textTheme,
                 barBackgroundColor: barBackgroundColor,
-                scaffoldBackgroundColor: scaffoldBackgroundColor);
-            themeData._defaults = defaults;
-                //, defaults : defaults);
+                scaffoldBackgroundColor: scaffoldBackgroundColor,
+                defaults);
+           
             return themeData;
         }
 
@@ -136,39 +135,25 @@ namespace Unity.UIWidgets.cupertino {
 
         public readonly Brightness? brightness;
 
-        /*public bool _isLight {
-            get { return brightness == Brightness.light; }
-        }*/
-
         public Color primaryColor {
             get {
                 return _primaryColor ?? _defaults.primaryColor;
-                
-                //return (_isLight ? CupertinoColors.activeBlue : CupertinoColors.activeOrange);
             }
         }
-
         readonly Color _primaryColor;
 
         public Color primaryContrastingColor {
             get {
                 return _primaryContrastingColor ?? _defaults.primaryContrastingColor;
-                 // return (_isLight ? CupertinoColors.white : CupertinoColors.black);
             }
         }
-
         readonly Color _primaryContrastingColor;
 
         public CupertinoTextThemeData textTheme {
             get {
                 return _textTheme ?? _defaults.textThemeDefaults.createDefaults(primaryColor: primaryColor);
-                /*       return new CupertinoTextThemeData(
-                           brightness: brightness,
-                           primaryColor: primaryColor
-                       );*/
             }
         }
-
         readonly CupertinoTextThemeData _textTheme;
 
         public Color barBackgroundColor {
@@ -176,16 +161,13 @@ namespace Unity.UIWidgets.cupertino {
                 return _barBackgroundColor ?? _defaults.barBackgroundColor;
             }
         }
-
         readonly Color _barBackgroundColor;
 
         public Color scaffoldBackgroundColor {
             get {
                 return _scaffoldBackgroundColor ??  _defaults.scaffoldBackgroundColor;
-                  //return    (_isLight ? CupertinoColors.white : CupertinoColors.black);
             }
         }
-
         readonly Color _scaffoldBackgroundColor;
 
         public CupertinoThemeData noDefault() {
@@ -260,26 +242,21 @@ namespace Unity.UIWidgets.cupertino {
             CupertinoTextThemeData textTheme,
             Color barBackgroundColor,
             Color scaffoldBackgroundColor
-
         ) : base(
             brightness,
             primaryColor,
             primaryContrastingColor,
             textTheme,
             barBackgroundColor,
-            scaffoldBackgroundColor) {
-            _defaults = null;
-        }
-        /*{
-            this.brightness = brightness;
+            scaffoldBackgroundColor,
+            null) {
             this.primaryColor = primaryColor;
             this.primaryContrastingColor = primaryContrastingColor;
             this.textTheme = textTheme;
             this.barBackgroundColor = barBackgroundColor;
             this.scaffoldBackgroundColor = scaffoldBackgroundColor;
-            _defaults = null;
-        }*/
-
+        }
+       
         public new readonly Brightness? brightness;
 
         public new readonly Color primaryColor;
@@ -308,11 +285,11 @@ namespace Unity.UIWidgets.cupertino {
       
         public new CupertinoThemeData copyWith(
             Brightness? brightness = null,
-                Color primaryColor = null,
+            Color primaryColor = null,
             Color primaryContrastingColor = null,
-                CupertinoTextThemeData textTheme = null,
+            CupertinoTextThemeData textTheme = null,
             Color barBackgroundColor = null,
-                Color scaffoldBackgroundColor = null
+            Color scaffoldBackgroundColor = null
         ) {
             return new _NoDefaultCupertinoThemeData(
                 brightness ?? this.brightness,
@@ -415,42 +392,42 @@ namespace Unity.UIWidgets.cupertino {
         public readonly Color inactiveGray;
 
 
-        public new TextStyle textStyle {
+        public override TextStyle textStyle {
             get {
                 return base.textStyle.copyWith(color: labelColor);
 
             }
         }
 
-        public new TextStyle tabLabelTextStyle {
+        public override TextStyle tabLabelTextStyle {
             get {
                 return base.tabLabelTextStyle.copyWith(color: inactiveGray);
             }
         }
 
 
-        public new TextStyle navTitleTextStyle {
+        public override TextStyle navTitleTextStyle {
             get {
                 return base.navTitleTextStyle.copyWith(color: labelColor);
             }
         }
 
 
-        public new TextStyle navLargeTitleTextStyle {
+        public override TextStyle navLargeTitleTextStyle {
             get {
                 return base.navLargeTitleTextStyle.copyWith(color: labelColor);
             }
         }
 
     
-        public new TextStyle  pickerTextStyle {
+        public override TextStyle  pickerTextStyle {
             get {
                 return base.pickerTextStyle.copyWith(color: labelColor);
             }
         }
 
     
-        public new TextStyle dateTimePickerTextStyle {
+        public override TextStyle dateTimePickerTextStyle {
             get {
                 return base.dateTimePickerTextStyle.copyWith(color: labelColor);
             }

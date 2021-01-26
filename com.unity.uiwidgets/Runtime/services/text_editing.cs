@@ -8,6 +8,11 @@ namespace Unity.UIWidgets.service {
         public readonly int extentOffset;
         public readonly TextAffinity affinity;
         public readonly bool isDirectional;
+        public TextPosition _base {
+            get{
+                return new TextPosition(offset: baseOffset, affinity: affinity);
+            }
+        }
 
         public TextSelection(int baseOffset, int extentOffset, TextAffinity affinity = TextAffinity.downstream,
             bool isDirectional = false) : base(baseOffset < extentOffset ? baseOffset : extentOffset,

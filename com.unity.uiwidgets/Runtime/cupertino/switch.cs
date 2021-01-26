@@ -431,7 +431,7 @@ namespace Unity.UIWidgets.cupertino {
             );
 
             context.pushClipRRect(needsCompositing, Offset.zero, thumbBounds, trackRRect,
-                (PaintingContext innerContext, Offset offset) => {
+                (PaintingContext innerContext, Offset offset1) => {
                     CupertinoThumbPainter.switchThumb().paint(innerContext.canvas, thumbBounds);
                 });
         }

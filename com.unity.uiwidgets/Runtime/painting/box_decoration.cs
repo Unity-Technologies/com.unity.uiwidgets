@@ -36,14 +36,14 @@ namespace Unity.UIWidgets.painting {
         }
 
         public BoxDecoration copyWith(
-            Color color,
-            DecorationImage image,
-            Border border,
-            BorderRadius borderRadius,
-            List<BoxShadow> boxShadow,
-            Gradient gradient,
-            BlendMode? backgroundBlendMode,
-            BoxShape? shape
+            Color color = null,
+            DecorationImage image = null,
+            Border border = null,
+            BorderRadius borderRadius = null,
+            List<BoxShadow> boxShadow = null,
+            Gradient gradient = null,
+            BlendMode? backgroundBlendMode = null,
+            BoxShape? shape = null
         ) {
             return new BoxDecoration(
                 color: color ?? this.color,
