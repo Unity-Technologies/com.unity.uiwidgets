@@ -482,9 +482,8 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (oldScope != null && child.context != null && child.enclosingScope != oldScope) {
-                UnityEngine.Debug.Log(
-                    "FocusTraversalGroup.of(child.context, nullOk: true)?.changedScope(node: child, oldScope: oldScope);");
-                //FocusTraversalGroup.of(child.context, nullOk: true)?.changedScope(node: child, oldScope: oldScope);
+                //UnityEngine.Debug.Log("FocusTraversalGroup.of(child.context, nullOk: true)?.changedScope(node: child, oldScope: oldScope);");
+                FocusTraversalGroup.of(child.context, nullOk: true)?.changedScope(node: child, oldScope: oldScope);
             }
 
             if (child._requestFocusWhenReparented) {
