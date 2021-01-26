@@ -340,7 +340,6 @@ namespace Unity.UIWidgets.rendering {
         public int indexOf(RenderBox child) {
             D.assert(child != null);
             SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
-            D.assert(childParentData.index != null);
             return childParentData.index;
         }
 
@@ -426,7 +425,7 @@ namespace Unity.UIWidgets.rendering {
                     addExtent = true;
                     break;
             }
-
+            D.assert(mainAxisUnit != null);
             RenderBox child = firstChild;
             while (child != null) {
                 float mainAxisDelta = childMainAxisPosition(child) ?? 0.0f;
@@ -451,8 +450,7 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(DiagnosticsNode.message(firstChild != null
-                ? "currently live children: " + indexOf(firstChild) + " to " + indexOf(lastChild)
-                : "no children current live"));
+                ? $"currently live children: {indexOf(firstChild)} to {indexOf(lastChild)}" : "no children current live"));
         }
 
         public bool debugAssertChildListIsNonEmptyAndContiguous() {
