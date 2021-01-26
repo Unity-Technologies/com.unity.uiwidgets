@@ -278,9 +278,6 @@ namespace Unity.UIWidgets.widgets {
             return other.GetType() == GetType() &&
                    other.key == key;
         }
-
-        //public abstract Route createRoute(BuildContext context);
-
         public override string ToString() {
             return $"{GetType()}(\"{name}\",{key},{arguments})";
         }
@@ -689,7 +686,6 @@ namespace Unity.UIWidgets.widgets {
         public _RouteEntry(
             Route route,
             _RouteLifecycle initialState
-
         ) {
             D.assert(
                 initialState == _RouteLifecycle.staging ||

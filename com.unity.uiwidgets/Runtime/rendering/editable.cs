@@ -95,7 +95,7 @@ namespace Unity.UIWidgets.rendering {
         }
     }
 
-    public class RenderEditable : RenderBox, RelayoutWhenSystemFontsChangeMixin {
+    public class RenderEditable : RelayoutWhenSystemFontsChangeMixinRenderBox {
         public RenderEditable(
             TextSpan text = null, 
             TextDirection? textDirection = null,
@@ -802,16 +802,6 @@ namespace Unity.UIWidgets.rendering {
             return true;
         }
 
-        public void attach(PipelineOwner owner) {
-            _tap = new TapGestureRecognizer(debugOwner: this);
-            _tap.onTapDown = _handleTapDown;
-            _tap.onTap = _handleTap;
-            _longPress = new LongPressGestureRecognizer(debugOwner: this);
-            _longPress.onLongPress = _handleLongPress;
-            _offset.addListener(markNeedsLayout);
-            _showCursor.addListener(markNeedsPaint);
-        }
-        
         string _cachedPlainText;
         string _plainText {
             get {
@@ -1168,14 +1158,13 @@ namespace Unity.UIWidgets.rendering {
 
         public override void attach(object ownerObject) {
             base.attach(ownerObject);
-            attach((PipelineOwner)ownerObject);
-            /*_tap = new TapGestureRecognizer(debugOwner: this);
+            _tap = new TapGestureRecognizer(debugOwner: this);
             _tap.onTapDown = _handleTapDown;
             _tap.onTap = _handleTap;
             _longPress = new LongPressGestureRecognizer(debugOwner: this);
             _longPress.onLongPress = _handleLongPress;
             _offset.addListener(markNeedsLayout);
-            _showCursor.addListener(markNeedsPaint);*/
+            _showCursor.addListener(markNeedsPaint);
         }
 
         public override void detach() {

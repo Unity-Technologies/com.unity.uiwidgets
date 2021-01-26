@@ -9,8 +9,7 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             ImageFilter imageFilter = null,
             Widget child = null
-        ) : 
-        base(key: key, child: child) {
+        ) : base(key: key, child: child) {
             D.assert(imageFilter != null);
             this.imageFilter = imageFilter;
         }

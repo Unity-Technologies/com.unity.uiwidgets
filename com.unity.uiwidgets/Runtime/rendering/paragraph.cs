@@ -712,6 +712,7 @@ namespace Unity.UIWidgets.rendering {
                         _needsClipping = true;
                         break;
                 }*/
+                //[!!!]need to replace it?
                 switch (_overflow) {
                     case TextOverflow.visible:
                         _needsClipping = false;
@@ -803,29 +804,30 @@ namespace Unity.UIWidgets.rendering {
                 paintParagraph(context, offset);
             }
         } */
+        // need to replace it?
         
-        public override void paint(PaintingContext context2, Offset offset2) {
+        public override void paint(PaintingContext context, Offset offset) {
               _layoutTextWithConstraints(constraints);
 
             D.assert(() => {
               if (RenderingDebugUtils.debugRepaintTextRainbowEnabled) {
                   Paint paint = new Paint();
                   paint.color = RenderingDebugUtils.debugCurrentRepaintColor.toColor();
-                context2.canvas.drawRect(offset2 & size, paint);
+                context.canvas.drawRect(offset & size, paint);
               }
               return true;
             });
 
             if (_needsClipping) {
-              Rect bounds = offset2 & size;
+              Rect bounds = offset & size;
               if (_overflowShader != null) {
-                  context2.canvas.saveLayer(bounds, new Paint());
+                  context.canvas.saveLayer(bounds, new Paint());
               } else {
-                context2.canvas.save();
+                context.canvas.save();
               }
-              context2.canvas.clipRect(bounds);
+              context.canvas.clipRect(bounds);
             }
-            _textPainter.paint(context2.canvas, offset2);
+            _textPainter.paint(context.canvas, offset);
 
             RenderBox child = firstChild;
             int childIndex = 0;
@@ -833,29 +835,28 @@ namespace Unity.UIWidgets.rendering {
                 TextParentData textParentData = child.parentData as TextParentData;
 
                 float scale = textParentData.scale;
-                context2.pushTransform(
+                context.pushTransform(
                     needsCompositing,
-                    offset2 + textParentData.offset,
+                    offset + textParentData.offset,
                     Matrix4.diagonal3Values(scale, scale, scale),
-                    (PaintingContext context, Offset offset) => {
-                    context.paintChild(
+                    (PaintingContext context2, Offset offset2) => {
+                    context2.paintChild(
                         child,
-                        offset
+                        offset2
                     );
-                }
-                );
+                });
                 child = childAfter(child);
                 childIndex += 1;
             }
             if (_needsClipping) {
                 if (_overflowShader != null) {
-                    context2.canvas.translate(offset2.dx, offset2.dy);
+                    context.canvas.translate(offset.dx, offset.dy);
                     Paint paint = new Paint();
                     paint.blendMode = BlendMode.modulate;
                     paint.shader = _overflowShader;
-                    context2.canvas.drawRect(Offset.zero & size, paint);
+                    context.canvas.drawRect(Offset.zero & size, paint);
                 }
-                context2.canvas.restore();
+                context.canvas.restore();
             }
         }
 
@@ -878,6 +879,11 @@ namespace Unity.UIWidgets.rendering {
             _textPainter.layout(minWidth, widthMatters ? maxWidth : float.PositiveInfinity);
         }
 
+        /*public override void systemFontsDidChange() {
+            base.systemFontsDidChange();
+            _textPainter.markNeedsLayout();
+        }*/
+        
         List<PlaceholderDimensions> _placeholderDimensions;
         
         void _layoutTextWithConstraints(BoxConstraints constraints) {
