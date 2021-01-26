@@ -11,6 +11,11 @@ namespace Unity.UIWidgets.widgets {
         public static bool debugPrintGlobalKeyedWidgetLifecycle = false;
 
         public static bool debugPrintScheduleBuildForStacks = false;
+        
+        public static bool debugProfileBuildsEnabled = false;
+
+       
+        public static bool debugHighlightDeprecatedWidgets = false;
 
         public static bool debugProfileBuildsEnabled = false;
 
@@ -189,7 +194,6 @@ namespace Unity.UIWidgets.widgets {
                     debugHighlightDeprecatedWidgets) {
                     throw new UIWidgetsError(reason);
                 }
-
                 return true;
             });
             return true;

@@ -1118,7 +1118,7 @@ namespace Unity.UIWidgets.rendering {
             _needsCompositingBitsUpdate = false;
         }
 
-        bool debugNeedsPaint {
+        public bool debugNeedsPaint {
             get {
                 bool result = false;
                 D.assert(() => {

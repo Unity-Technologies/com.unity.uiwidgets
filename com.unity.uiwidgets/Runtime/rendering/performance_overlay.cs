@@ -17,10 +17,6 @@ namespace Unity.UIWidgets.rendering {
             bool checkerboardRasterCacheImages = false,
             bool checkerboardOffscreenLayers = false
         ) {
-            D.assert(optionsMask != null);
-            D.assert(rasterizerThreshold != null);
-            D.assert(checkerboardRasterCacheImages != null);
-            D.assert(checkerboardOffscreenLayers != null);
             _optionsMask = optionsMask;
             _rasterizerThreshold = rasterizerThreshold;
             _checkerboardRasterCacheImages = checkerboardRasterCacheImages;
@@ -46,7 +42,6 @@ namespace Unity.UIWidgets.rendering {
                 return _rasterizerThreshold;
             }
             set {
-                D.assert(value != null);
                 if (value == _rasterizerThreshold)
                     return;
                 _rasterizerThreshold = value;
@@ -60,7 +55,6 @@ namespace Unity.UIWidgets.rendering {
                 return _checkerboardRasterCacheImages;
             }
             set {
-                D.assert(value != null);
                 if (value == _checkerboardRasterCacheImages)
                     return;
                 _checkerboardRasterCacheImages = value;
@@ -72,7 +66,6 @@ namespace Unity.UIWidgets.rendering {
         public bool checkerboardOffscreenLayers {
             get { return _checkerboardOffscreenLayers; }
             set {
-                D.assert(value != null);
                 if (value == _checkerboardOffscreenLayers)
                     return;
                 _checkerboardOffscreenLayers = value;

@@ -334,6 +334,9 @@ namespace Unity.UIWidgets.painting {
         public static EdgeInsetsDirectional only( float start = 0.0f, float top = 0.0f,float end = 0.0f,float bottom = 0.0f) {
             return new EdgeInsetsDirectional(start,top,end,bottom);
         }
+        public static EdgeInsetsDirectional only( float start = 0.0f, float top = 0.0f,float end = 0.0f,float bottom = 0.0f) {
+            return new EdgeInsetsDirectional(start,top,end,bottom);
+        }
 
         static EdgeInsetsDirectional zero = only();
 
