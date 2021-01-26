@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
@@ -26,19 +28,20 @@ namespace Unity.UIWidgets.widgets {
     }
 
 
-    public class _LayoutBuilderElement<ConstraintType> :  RenderObjectElement
-        where ConstraintType : Constraints {
+    public class _LayoutBuilderElement<ConstraintType> :  RenderObjectElement where ConstraintType : Constraints {
         public _LayoutBuilderElement(ConstrainedLayoutBuilder<ConstraintType> widget) 
             : base(widget) {
         }
 
         public new ConstrainedLayoutBuilder<ConstraintType> widget {
             get {
-                return base.widget as ConstrainedLayoutBuilder<ConstraintType>;
+                return (ConstrainedLayoutBuilder<ConstraintType>)base.widget ;
             }
         }
         public new RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject> renderObject {
-            get { return base.renderObject as RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject>;}
+            get {
+                return base.renderObject as RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject> ;
+            }
         }
         Element _child;
 
@@ -54,7 +57,7 @@ namespace Unity.UIWidgets.widgets {
         }
         public override void mount(Element parent, object newSlot) {
             base.mount(parent, newSlot); // Creates the renderObject.
-            renderObject.updateCallback(_layout);
+            ((RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject>)renderObject).updateCallback(_layout);
         }
 
         public override void update(Widget newWidget) {
@@ -79,14 +82,33 @@ namespace Unity.UIWidgets.widgets {
         
         public void _layout(ConstraintType constraints) {
             owner.buildScope(this, ()=> {
+                
                 Widget built = null;
                 if (widget.builder != null) {
-                    built = widget.builder(this, constraints); 
-                    WidgetsD.debugWidgetBuilderValue(widget, built);
+                    try {
+                        built = widget.builder(this, constraints);
+                        WidgetsD.debugWidgetBuilderValue(widget, built);
+                    } catch (Exception e) {
+                        _debugDoingBuild = false;
+                        IEnumerable<DiagnosticsNode> informationCollector() {
+                            yield return new DiagnosticsDebugCreator(new DebugCreator(this));
+                        }
+                        built = ErrorWidget.builder(WidgetsD._debugReportException("building " + this, e, informationCollector));
+                    
+                    }
                 }
-                _child = updateChild(_child, built, null); 
-                D.assert(_child != null);
-                
+                try {
+                    _child = updateChild(_child, built, null);
+                    D.assert(_child != null);
+                } catch (Exception e) {
+                    _debugDoingBuild = false;
+
+                    IEnumerable<DiagnosticsNode> informationCollector() {
+                        yield return new DiagnosticsDebugCreator(new DebugCreator(this));
+                    }
+                    built = ErrorWidget.builder(WidgetsD._debugReportException("building " + this, e, informationCollector));
+                }
+
             });
         }
 

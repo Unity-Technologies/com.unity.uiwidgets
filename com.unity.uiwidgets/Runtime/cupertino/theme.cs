@@ -12,18 +12,18 @@ namespace Unity.UIWidgets.cupertino {
         
         public static readonly _CupertinoThemeDefaults _kDefaultTheme = 
             new _CupertinoThemeDefaults(
-                brightness:null,
+                null,
                 CupertinoColors.systemBlue,
                 CupertinoColors.systemBackground,
                 CupertinoDynamicColor.withBrightness(
-                         color: new Color(0xF0F9F9F9),
-                        darkColor: new Color(0xF01D1D1D)
-                 ),
+                    color: new Color(0xF0F9F9F9),
+                    darkColor: new Color(0xF01D1D1D)
+                    // Values extracted from navigation bar. For toolbar or tabbar the dark color is 0xF0161616.
+                ),
                 CupertinoColors.systemBackground,
-                textThemeDefaults  :
                 new _CupertinoTextThemeDefaults(CupertinoColors.label, CupertinoColors.inactiveGray)
             );
-        
+
 
 
     }
@@ -46,9 +46,9 @@ namespace Unity.UIWidgets.cupertino {
         public readonly Widget child;
 
         public static CupertinoThemeData of(BuildContext context) { 
-            _InheritedCupertinoTheme inheritedTheme = context.dependOnInheritedWidgetOfExactType<_InheritedCupertinoTheme>();
-            return ((inheritedTheme?.theme?.data) ?? new CupertinoThemeData()).resolveFrom(context, nullOk: true);
-        
+            _InheritedCupertinoTheme inheritedTheme = context.dependOnInheritedWidgetOfExactType<_InheritedCupertinoTheme>(); 
+            var result = (inheritedTheme?.theme?.data ?? new CupertinoThemeData()).resolveFrom(context, nullOk: true);
+            return result;
         }
 
         public static Brightness? brightnessOf(BuildContext context, bool nullOk = false) {
@@ -184,7 +184,7 @@ namespace Unity.UIWidgets.cupertino {
         public CupertinoThemeData resolveFrom(BuildContext context,  bool nullOk = false ) {
             Color convertColor(Color color) => CupertinoDynamicColor.resolve(color, context, nullOk: nullOk);
 
-            return _rawWithDefaults(
+            return new CupertinoThemeData(
                 brightness:brightness,
                 primaryColor:convertColor(_primaryColor),
                 primaryContrastingColor:convertColor(_primaryContrastingColor),

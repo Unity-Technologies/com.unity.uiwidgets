@@ -944,7 +944,6 @@ namespace Unity.UIWidgets.rendering {
             RRect clipRRect = null,
             Clip clipBehavior = Clip.antiAlias
         ) {
-            D.assert(clipRRect != null);
             D.assert(clipBehavior != Clip.none);
             _clipRRect = clipRRect;
             _clipBehavior = clipBehavior;

@@ -3073,7 +3073,7 @@ namespace Unity.UIWidgets.widgets {
             get { return _renderObject; }
         }
 
-        bool _debugDoingBuild = false;
+        public bool _debugDoingBuild = false;
 
         public override bool debugDoingBuild {
             get { return _debugDoingBuild; }
