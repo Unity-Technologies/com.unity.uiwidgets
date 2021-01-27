@@ -12,9 +12,7 @@ using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
     public enum CacheExtentStyle {
-        /// Treat the [Viewport.cacheExtent] as logical pixels.
         pixel,
-        /// Treat the [Viewport.cacheExtent] as a multiplier of the main axis extent.
         viewport,
     }
     public interface RenderAbstractViewport {
@@ -68,10 +66,7 @@ namespace Unity.UIWidgets.rendering {
         ) {
             D.assert(offset != null);
             D.assert(AxisUtils.axisDirectionToAxis(axisDirection) != AxisUtils.axisDirectionToAxis(crossAxisDirection));
-            D.assert(axisDirection != null);
-            D.assert(crossAxisDirection != null);
-            D.assert(cacheExtentStyle != null);
-            D.assert(cacheExtent != null || cacheExtentStyle == CacheExtentStyle.pixel);
+            D.assert(cacheExtentStyle == CacheExtentStyle.pixel);
             _axisDirection = axisDirection;
             _crossAxisDirection = crossAxisDirection;
             _offset = offset;
@@ -156,7 +151,6 @@ namespace Unity.UIWidgets.rendering {
                 return _cacheExtentStyle;
             }
             set {
-                D.assert(value != null);
                 if (value == _cacheExtentStyle) {
                     return;
                 }
@@ -180,14 +174,18 @@ namespace Unity.UIWidgets.rendering {
             D.assert(() => {
                 if (!debugCheckingIntrinsics) {
                     D.assert(!(this is RenderShrinkWrappingViewport));
-                    throw new UIWidgetsError(
-                        GetType() + " does not support returning intrinsic dimensions.\n" +
-                        "Calculating the intrinsic dimensions would require instantiating every child of " +
-                        "the viewport, which defeats the point of viewports being lazy.\n" +
-                        "If you are merely trying to shrink-wrap the viewport in the main axis direction, " +
-                        "consider a RenderShrinkWrappingViewport render object (ShrinkWrappingViewport widget), " +
-                        "which achieves that effect without implementing the intrinsic dimension API."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary($"{GetType()} does not support returning intrinsic dimensions."),
+                        new ErrorDescription(
+                            "Calculating the intrinsic dimensions would require instantiating every child of " +
+                            "the viewport, which defeats the point of viewports being lazy."
+                        ),
+                        new ErrorHint(
+                            "If you are merely trying to shrink-wrap the viewport in the main axis direction, " +
+                            "consider a RenderShrinkWrappingViewport render object (ShrinkWrappingViewport widget), " +
+                            "which achieves that effect without implementing the intrinsic dimension API."
+                        ),
+                    });
                 }
 
                 return true;
@@ -308,7 +306,7 @@ namespace Unity.UIWidgets.rendering {
             RenderSliver child = (RenderSliver) childRaw;
 
             Rect viewportClip = Offset.zero & size;
-            if (child.constraints.overlap == 0.0) {
+            if (child.constraints.overlap == 0.0 || !child.constraints.viewportMainAxisExtent.isFinite()) {
                 return viewportClip;
             }
 
@@ -442,7 +440,7 @@ namespace Unity.UIWidgets.rendering {
             RenderBox pivot = null;
             bool onlySlivers = target is RenderSliver;
             while (child.parent != this) {
-                D.assert(child.parent != null, () => $"target must be a descendant of ${this}");
+                D.assert(child.parent != null, () => $"{target} must be a descendant of {this}");
                 if (child is RenderBox) {
                     pivot = (RenderBox) child;
                 }
@@ -488,11 +486,29 @@ namespace Unity.UIWidgets.rendering {
                         targetMainAxisExtent = bounds.height;
                         break;
                     case AxisDirection.right:
-                        leadingScrollOffset += bounds.left;
+                        float offset2 = 0.0f;
+                        switch (growthDirection) {
+                            case GrowthDirection.forward:
+                                offset2 = bounds.left;
+                                break;
+                            case GrowthDirection.reverse:
+                                offset2 = bounds.right;
+                                break;
+                        }
+                        leadingScrollOffset += offset2;
                         targetMainAxisExtent = bounds.width;
                         break;
                     case AxisDirection.down:
-                        leadingScrollOffset += bounds.top;
+                        float offset3 = 0.0f;
+                        switch (growthDirection) {
+                            case GrowthDirection.forward:
+                                offset3 = bounds.top;
+                                break;
+                            case GrowthDirection.reverse:
+                                offset3 = bounds.bottom;
+                                break;
+                        }
+                        leadingScrollOffset += offset3;
                         targetMainAxisExtent = bounds.height;
                         break;
                     case AxisDirection.left:
@@ -712,8 +728,6 @@ namespace Unity.UIWidgets.rendering {
                 return MatrixUtils.transformRect(transform, rect ?? descendant.paintBounds);
             }
 
-            D.assert(targetOffset != null);
-
             offset.moveTo(targetOffset.offset, duration: duration.Value, curve: curve);
             return targetOffset.rect;
         }
@@ -788,19 +802,23 @@ namespace Unity.UIWidgets.rendering {
                     switch (axis) {
                         case Axis.vertical:
                             if (!constraints.hasBoundedHeight) {
-                                throw new UIWidgetsError(
-                                    "Vertical viewport was given unbounded height.\n" +
-                                    "Viewports expand in the scrolling direction to fill their container." +
-                                    "In this case, a vertical viewport was given an unlimited amount of " +
-                                    "vertical space in which to expand. This situation typically happens " +
-                                    "when a scrollable widget is nested inside another scrollable widget.\n" +
-                                    "If this widget is always nested in a scrollable widget there " +
-                                    "is no need to use a viewport because there will always be enough " +
-                                    "vertical space for the children. In this case, consider using a " +
-                                    "Column instead. Otherwise, consider using the \"shrinkWrap\" property " +
-                                    "(or a ShrinkWrappingViewport) to size the height of the viewport " +
-                                    "to the sum of the heights of its children."
-                                );
+                                throw new UIWidgetsError(new List<DiagnosticsNode> { 
+                                    new ErrorSummary("Vertical viewport was given unbounded height."),
+                                    new ErrorDescription(
+                                        "Vertical viewport was given unbounded height.\n" +
+                                        "Viewports expand in the scrolling direction to fill their container." +
+                                        "In this case, a vertical viewport was given an unlimited amount of " +
+                                        "vertical space in which to expand. This situation typically happens " +
+                                        "when a scrollable widget is nested inside another scrollable widget.\n"
+                                    ), 
+                                    new ErrorHint("If this widget is always nested in a scrollable widget there " +
+                                        "is no need to use a viewport because there will always be enough " +
+                                        "vertical space for the children. In this case, consider using a " +
+                                        "Column instead. Otherwise, consider using the \"shrinkWrap\" property " +
+                                        "(or a ShrinkWrappingViewport) to size the height of the viewport " +
+                                        "to the sum of the heights of its children."
+                                    )
+                                });
                             }
 
                             if (!constraints.hasBoundedWidth) {
@@ -816,19 +834,23 @@ namespace Unity.UIWidgets.rendering {
                             break;
                         case Axis.horizontal:
                             if (!constraints.hasBoundedWidth) {
-                                throw new UIWidgetsError(
-                                    "Horizontal viewport was given unbounded width.\n" +
-                                    "Viewports expand in the scrolling direction to fill their container." +
-                                    "In this case, a horizontal viewport was given an unlimited amount of " +
-                                    "horizontal space in which to expand. This situation typically happens " +
-                                    "when a scrollable widget is nested inside another scrollable widget.\n" +
-                                    "If this widget is always nested in a scrollable widget there " +
-                                    "is no need to use a viewport because there will always be enough " +
-                                    "horizontal space for the children. In this case, consider using a " +
-                                    "Row instead. Otherwise, consider using the \"shrinkWrap\" property " +
-                                    "(or a ShrinkWrappingViewport) to size the width of the viewport " +
-                                    "to the sum of the widths of its children."
-                                );
+                                throw new UIWidgetsError(new List<DiagnosticsNode>{
+                                    new ErrorSummary("Horizontal viewport was given unbounded width."),
+                                    new ErrorDescription(
+                                        "Viewports expand in the scrolling direction to fill their container. " +
+                                        "In this case, a horizontal viewport was given an unlimited amount of " +
+                                        "horizontal space in which to expand. This situation typically happens " +
+                                        "when a scrollable widget is nested inside another scrollable widget."
+                                    ),
+                                    new ErrorHint(
+                                        "If this widget is always nested in a scrollable widget there " +
+                                        "is no need to use a viewport because there will always be enough " +
+                                        "horizontal space for the children. In this case, consider using a " +
+                                        "Row instead. Otherwise, consider using the \"shrinkWrap\" property " +
+                                        "(or a ShrinkWrappingViewport) to size the width of the viewport " +
+                                        "to the sum of the widths of its children."
+                                    )
+                                });
                             }
 
                             if (!constraints.hasBoundedHeight) {
@@ -875,7 +897,8 @@ namespace Unity.UIWidgets.rendering {
                 offset.applyContentDimensions(0.0f, 0.0f);
                 return;
             }
-
+            D.assert(center.parent == this);
+            
             float mainAxisExtent = 0.0f;
             float crossAxisExtent = 0.0f;
             switch (axis) {
@@ -890,7 +913,7 @@ namespace Unity.UIWidgets.rendering {
             }
 
             float centerOffsetAdjustment = center.centerOffsetAdjustment;
-
+            
             int count = 0;
             do {
                 var correction = _attemptLayout(mainAxisExtent, crossAxisExtent,
@@ -918,7 +941,7 @@ namespace Unity.UIWidgets.rendering {
                         "RenderViewport render objects, during layout, can retry if either their " +
                         "slivers or their ViewportOffset decide that the offset should be corrected " +
                         "to take into account information collected during that layout.\n" +
-                        "In the case of this RenderViewport object, however, this happened $count " +
+                        $"In the case of this RenderViewport object, however, this happened {count} " +
                         "times and still there was no consensus on the scroll offset. This usually " +
                         "indicates a bug. Specifically, it means that one of the following three " +
                         "problems is being experienced by the RenderViewport object:\n" +
@@ -1222,14 +1245,18 @@ namespace Unity.UIWidgets.rendering {
         protected override bool debugThrowIfNotCheckingIntrinsics() {
             D.assert(() => {
                 if (!debugCheckingIntrinsics) {
-                    throw new UIWidgetsError(
-                        GetType() + " does not support returning intrinsic dimensions.\n" +
-                        "Calculating the intrinsic dimensions would require instantiating every child of " +
-                        "the viewport, which defeats the point of viewports being lazy.\n" +
-                        "If you are merely trying to shrink-wrap the viewport in the main axis direction, " +
-                        "you should be able to achieve that effect by just giving the viewport loose " +
-                        "constraints, without needing to measure its intrinsic dimensions."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary($"{GetType()} does not support returning intrinsic dimensions."),
+                        new ErrorDescription(
+                            "Calculating the intrinsic dimensions would require instantiating every child of " +
+                            "the viewport, which defeats the point of viewports being lazy."
+                        ),
+                        new ErrorHint(
+                            "If you are merely trying to shrink-wrap the viewport in the main axis direction, " +
+                            "you should be able to achieve that effect by just giving the viewport loose " +
+                            "constraints, without needing to measure its intrinsic dimensions."
+                        )
+                    });
                 }
 
                 return true;
@@ -1242,6 +1269,7 @@ namespace Unity.UIWidgets.rendering {
         bool _hasVisualOverflow = false;
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
             if (firstChild == null) {
                 switch (axis) {
                     case Axis.vertical:

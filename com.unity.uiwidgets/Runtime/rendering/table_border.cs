@@ -64,10 +64,12 @@ namespace Unity.UIWidgets.rendering {
 
         public EdgeInsets dimensions {
             get {
-                return EdgeInsets.fromLTRB(left.width,
+                return EdgeInsets.fromLTRB(
+                    left.width,
                     top.width,
                     right.width,
-                    bottom.width);
+                    bottom.width
+                );
             }
         }
 
