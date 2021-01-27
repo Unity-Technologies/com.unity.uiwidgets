@@ -1,6 +1,7 @@
 using System;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.material {
@@ -31,8 +32,7 @@ namespace Unity.UIWidgets.material {
         static readonly ThemeData _kFallbackTheme = ThemeData.fallback();
 
         public static ThemeData of(BuildContext context, bool shadowThemeOnly = false) {
-            _InheritedTheme inheritedTheme =
-                (_InheritedTheme) context.inheritFromWidgetOfExactType(typeof(_InheritedTheme));
+            _InheritedTheme inheritedTheme = context.dependOnInheritedWidgetOfExactType<_InheritedTheme>();
             if (shadowThemeOnly) {
                 if (inheritedTheme == null || inheritedTheme.theme.isMaterialAppTheme) {
                     return null;
@@ -64,7 +64,7 @@ namespace Unity.UIWidgets.material {
     }
 
 
-    class _InheritedTheme : InheritedWidget {
+    class _InheritedTheme : InheritedTheme {
         public _InheritedTheme(
             Key key = null,
             Theme theme = null,
@@ -75,6 +75,11 @@ namespace Unity.UIWidgets.material {
         }
 
         public readonly Theme theme;
+
+        public override Widget wrap(BuildContext context, Widget child) {
+            _InheritedTheme ancestorTheme = context.findAncestorWidgetOfExactType<_InheritedTheme>();
+            return ReferenceEquals(this, ancestorTheme) ? child : new Theme(data: theme.data, child: child);
+        }
 
         public override bool updateShouldNotify(InheritedWidget old) {
             return theme.data != ((_InheritedTheme) old).theme.data;
@@ -100,8 +105,9 @@ namespace Unity.UIWidgets.material {
             bool isMaterialAppTheme = false,
             Curve curve = null,
             TimeSpan? duration = null,
+            VoidCallback onEnd = null,
             Widget child = null
-        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration ?? ThemeUtils.kThemeAnimationDuration) {
+        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration ?? ThemeUtils.kThemeAnimationDuration, onEnd: onEnd) {
             D.assert(child != null);
             D.assert(data != null);
             this.data = data;

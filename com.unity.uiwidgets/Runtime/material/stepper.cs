@@ -5,7 +5,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -98,7 +97,7 @@ namespace Unity.UIWidgets.material {
         static readonly Color _kCircleActiveLight = Colors.white;
         static readonly Color _kCircleActiveDark = Colors.black87;
         static readonly Color _kDisabledLight = Colors.black38;
-        static readonly Color _kDisabledDark = Colors.white30;
+        static readonly Color _kDisabledDark = Colors.white38;
         static readonly float _kStepSize = 24.0f;
         static readonly float _kTriangleHeight = 24.0f * 0.866025f;
 
@@ -320,13 +319,13 @@ namespace Unity.UIWidgets.material {
                 case StepState.indexed:
                 case StepState.editing:
                 case StepState.complete:
-                    return textTheme.body2;
+                    return textTheme.bodyText1;
                 case StepState.disabled:
-                    return textTheme.body2.copyWith(
+                    return textTheme.bodyText1.copyWith(
                         color: _isDark() ? _kDisabledDark : _kDisabledLight
                     );
                 case StepState.error:
-                    return textTheme.body2.copyWith(
+                    return textTheme.bodyText1.copyWith(
                         color: _isDark() ? _kErrorDark : _kErrorLight
                     );
             }
@@ -356,7 +355,7 @@ namespace Unity.UIWidgets.material {
             return null;
         }
 
-        Widget _buildheaderText(int index) {
+        Widget _buildHeaderText(int index) {
             List<Widget> children = new List<Widget> {
                 new AnimatedDefaultTextStyle(
                     style: _titleStyle(index),
@@ -401,7 +400,7 @@ namespace Unity.UIWidgets.material {
                         ),
                         new Container(
                             margin: EdgeInsets.only(12.0f),
-                            child: _buildheaderText(index)
+                            child: _buildHeaderText(index)
                         )
                     }
                 )
@@ -474,6 +473,7 @@ namespace Unity.UIWidgets.material {
                                         }
                                     }
                                     : (GestureTapCallback) null,
+                                canRequestFocus: widget.steps[_i].state != StepState.disabled,
                                 child: _buildVerticalHeader(_i)
                             ),
                             _buildVerticalBody(_i)
@@ -503,6 +503,7 @@ namespace Unity.UIWidgets.material {
                                     }
                                 })
                             : null,
+                        canRequestFocus: widget.steps[i].state != StepState.disabled,
                         child: new Row(
                             children: new List<Widget> {
                                 new Container(
@@ -511,7 +512,7 @@ namespace Unity.UIWidgets.material {
                                 ),
                                 new Container(
                                     margin: EdgeInsets.only(left: 12.0f),
-                                    child: _buildheaderText(_i)
+                                    child: _buildHeaderText(_i)
                                 )
                             }
                         )
@@ -562,9 +563,12 @@ namespace Unity.UIWidgets.material {
             D.assert(material_.debugCheckHasMaterial(context));
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
             D.assert(() => {
-                if (context.ancestorWidgetOfExactType(typeof(Stepper)) != null) {
+                if (context.findAncestorWidgetOfExactType<Stepper>() != null) {
                     throw new UIWidgetsError(
-                        "Steppers must not be nested. The material specification advises that one should avoid embedding steppers within steppers. "
+                        "Steppers must not be nested.\n" +
+                        " The material specification advises that one should avoid embedding " +
+                        "steppers within steppers. " +
+                        "https://material.io/archive/guidelines/components/steppers.html#steppers-usage"
                     );
                 }
 
