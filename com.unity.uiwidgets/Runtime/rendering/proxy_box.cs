@@ -1356,7 +1356,7 @@ namespace Unity.UIWidgets.rendering {
             _borderRadius = borderRadius;
         }
         
-        public PhysicalModelLayer layer { // [!!!] override
+        public new PhysicalModelLayer layer {
             get {
                 return base.layer as PhysicalModelLayer;
             }
@@ -1492,7 +1492,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(elevation >= 0.0);
         }
 
-        public PhysicalModelLayer layer { // [!!!] override
+        public new PhysicalModelLayer layer {
             get {
                 return base.layer as PhysicalModelLayer;
             }
@@ -3122,7 +3122,7 @@ namespace Unity.UIWidgets.rendering {
             get { return true; }
         }
 
-        public FollowerLayer layer { // [!!!] override
+        public new FollowerLayer layer {
             get {
                 return base.layer as FollowerLayer;
             }
