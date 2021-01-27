@@ -20,6 +20,7 @@ using System;
 using UIWidgetsGallery.gallery;
 using Color = Unity.UIWidgets.ui.Color;
 using Random = UnityEngine.Random;
+
 namespace UIWidgetsSample
 {
     public class TextTest : UIWidgetsPanel
@@ -28,114 +29,56 @@ namespace UIWidgetsSample
         {
             base.OnEnable();
         }
+
         protected override void main()
         {
             ui_.runApp(new MyApp());
         }
+
         class MyApp : StatelessWidget
         {
             public override Widget build(BuildContext context)
             {
                 return new CupertinoApp(
-                    home: new HomeScreen()
+                    home: new HomeScreen()//new DetailScreen1("ok")
+                    //color: Color.white
                 );
             }
         }
+
         class HomeScreen : StatelessWidget
         {
             public override Widget build(BuildContext context)
             {
-                 return new CupertinoPageScaffold(
-                     child: new Center(
-                         child: new CupertinoButton(
-                             child: new Text(
-                                 "THIS IS TAB #",
-                                 style: new TextStyle(color: Color.fromARGB(255, 255, 0, 0))
-                             ),
-                             onPressed: () =>
-                             {
-                                 Navigator.of(context).push(
-                                     new CupertinoPageRoute(builder: (contex3) =>
-                                     {
-                                         return
-                                             new Container(color: Color.fromARGB(255, 0, 255, 0));
-                                     })
-                                );
-                             }
-                         )//,
-                         //new Text("hello world!", style: CupertinoTheme.of(context).textTheme.navTitleTextStyle)
-                     ),
-                     backgroundColor: Color.fromARGB(255, 255, 255, 0)
-                 );
-                /*List<BottomNavigationBarItem> items = new List<BottomNavigationBarItem>();
-                items.Add(new BottomNavigationBarItem(
-                    icon: new Icon(CupertinoIcons.bell),
-                    title: new Text("views")
-                ));
-                items.Add(new BottomNavigationBarItem(
-                    icon: new Icon(CupertinoIcons.eye_solid),
-                    title: new Text("articles")
-                ));
-                return new CupertinoTabScaffold(
-                    tabBar: new CupertinoTabBar(
-                        items: items
-                    ),
-                    tabBuilder: ((contex, index) =>
-                    {
-                        //return new Center(child: new Text("hello"));
-                        return new CupertinoTabView(
-                            builder: (contex1) =>
-                            {
-                                return new CupertinoPageScaffold(
-                                    navigationBar: new CupertinoNavigationBar(
-                                        middle: (index == 0) ? new Text("views") : new Text("articles")
-                                    ),
-                                    child: new Center(
-                                        child: new CupertinoButton(
-                                            child: new Text(
-                                                "THIS IS TAB #",
-                                                style: CupertinoTheme.of(contex1)
-                                                    .textTheme
-                                                    .navTitleTextStyle
-                                                //.copyWith(fontSize:32)
-                                            ),
-                                            onPressed: () =>
-                                            {
-                                                Navigator.of(contex1).push(
-                                                    new CupertinoPageRoute(builder: (contex3) =>
-                                                    {
-                                                        return
-                                                            new CupertinoAlertDemo(); //DetailScreen1(index == 0 ? "views" : "articles");
-                                                    })
-                                                );
-                                            }
-                                        )
-                                    )
-                                );
-                            }
-                        );
-                    })
-                );*/
+                
+                //return new CupertinoNavigationDemo();
+                //return new CupertinoAlertDemo();
+                return new CupertinoPickerDemo();
             }
         }
+
         public class DetailScreen1 : StatelessWidget
-        {
-            public DetailScreen1(string topic)
             {
-                this.topic = topic;
-            }
-            public string topic;
-            public override Widget build(BuildContext context)
-            {
-                return new CupertinoPageScaffold(
-                    navigationBar: new CupertinoNavigationBar(
-                        //middle: new Text("Details")
-                    ),
-                    child: new Center(
-                        child: new Text("hello world")
-                    )
-                );
+                public DetailScreen1(string topic)
+                {
+                    this.topic = topic;
+                }
+
+                public string topic;
+
+                public override Widget build(BuildContext context)
+                {
+                    return new CupertinoPageScaffold(
+                        //backgroundColor: Color.white,
+                        child: new Center(
+                            child: new Text(
+                                "hello world"
+                                 //style : new TextStyle(color: CupertinoColors.activeBlue)
+                                //style : new TextStyle(color: Color.white)
+                            )
+                        )
+                    );
+                }
             }
         }
     }
-}
