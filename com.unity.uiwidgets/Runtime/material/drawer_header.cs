@@ -64,7 +64,7 @@ namespace Unity.UIWidgets.material {
                     child: child == null
                         ? null
                         : new DefaultTextStyle(
-                            style: theme.textTheme.body2,
+                            style: theme.textTheme.bodyText1,
                             child: MediaQuery.removePadding(
                                 context: context,
                                 removeTop: true,

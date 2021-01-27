@@ -151,7 +151,7 @@ namespace Unity.UIWidgets.cupertino {
                 );
             }
 
-            Orientation orientation = MediaQuery.of(context).orientation;
+            Orientation? orientation = MediaQuery.of(context).orientation;
 
             float actionSheetWidth;
             if (orientation == Orientation.portrait) {
