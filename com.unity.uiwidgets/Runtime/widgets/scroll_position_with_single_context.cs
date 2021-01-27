@@ -113,7 +113,7 @@ namespace Unity.UIWidgets.widgets {
             beginActivity(new IdleScrollActivity(this));
         }
 
-        public void goBallistic(float velocity) {
+        public virtual void goBallistic(float velocity) {
             D.assert(_pixels != null);
             Simulation simulation = physics.createBallisticSimulation(this, velocity);
             if (simulation != null) {

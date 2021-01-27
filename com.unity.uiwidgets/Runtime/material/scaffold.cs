@@ -7,7 +7,6 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
@@ -1775,251 +1774,256 @@ namespace Unity.UIWidgets.material {
     }
 
 
-public class ScaffoldFeatureController<T, U> where T : Widget {
-    public ScaffoldFeatureController(
-        T _widget,
-        Completer _completer,
-        VoidCallback close,
-        StateSetter setState) {
-        this._widget = _widget;
-        this._completer = _completer;
-        this.close = close;
-        this.setState = setState;
-    }
-
-    public readonly T _widget;
-
-    public readonly Completer _completer;
-
-    public Completer closed {
-        get { return _completer; }
-    }
-
-    public readonly VoidCallback close;
-
-    public readonly StateSetter setState;
-}
-
- class _BottomSheetSuspendedCurve : ParametricCurve<float> {
-    public _BottomSheetSuspendedCurve(
-        float startingPoint,
-        Curve curve = null
-    ) {
-        curve = curve ?? Curves.easeOutCubic;
-        this.startingPoint = startingPoint;
-        this.curve = curve;
-    }
-    
-    public readonly float startingPoint;
-    
-    public readonly Curve curve;
-
-    public override float transform(float t) {
-        D.assert(t >= 0.0f && t <= 1.0f);
-        D.assert(startingPoint >= 0.0 && startingPoint <= 1.0);
-
-        if (t < startingPoint) {
-            return t;
+    public class ScaffoldFeatureController<T, U> where T : Widget {
+        public ScaffoldFeatureController(
+            T _widget,
+            Completer _completer,
+            VoidCallback close,
+            StateSetter setState) {
+            this._widget = _widget;
+            this._completer = _completer;
+            this.close = close;
+            this.setState = setState;
         }
 
-        if (t == 1.0f) {
-            return t;
+        public readonly T _widget;
+
+        public readonly Completer _completer;
+
+        public Completer closed {
+            get { return _completer; }
         }
 
-        float curveProgress = (t - startingPoint) / (1 - startingPoint);
-        float transformed = curve.transform(curveProgress);
-        return Mathf.Lerp(startingPoint, 1, transformed);
+        public readonly VoidCallback close;
+
+        public readonly StateSetter setState;
     }
 
-    public override string ToString() {
-        return $"{foundation_.describeIdentity(this)}({startingPoint}, {curve})";
-    }
-}
-
-public class _StandardBottomSheet : StatefulWidget {
-    public _StandardBottomSheet(
-        Key key = null,
-        AnimationController animationController = null,
-        bool enableDrag = true,
-        VoidCallback onClosing = null,
-        VoidCallback onDismissed = null,
-        WidgetBuilder builder = null,
-        bool isPersistent = false,
-        Color backgroundColor = null,
-        float? elevation = null,
-        ShapeBorder shape = null,
-        Clip? clipBehavior = null
-        ) : base ( key: key ) {
-        this.animationController = animationController;
-        this.enableDrag = enableDrag;
-        this.onClosing = onClosing;
-        this.onDismissed = onDismissed;
-        this.builder = builder;
-        this.isPersistent = isPersistent;
-        this.backgroundColor = backgroundColor;
-        this.elevation = elevation;
-        this.shape = shape;
-        this.clipBehavior = clipBehavior;
-    }
-
-    public readonly  AnimationController animationController; 
-    public readonly  bool enableDrag;
-    public readonly  VoidCallback onClosing;
-    public readonly  VoidCallback onDismissed;
-    public readonly  WidgetBuilder builder;
-    public readonly  bool isPersistent;
-    public readonly  Color backgroundColor;
-    public readonly  float? elevation;
-    public readonly  ShapeBorder shape;
-    public readonly  Clip? clipBehavior;
-
-    public override State createState() => new _StandardBottomSheetState();
-}
-
-
-class _StandardBottomSheetState : State<_StandardBottomSheet> {
-    ParametricCurve<float> animationCurve = ScaffoldUtils._standardBottomSheetCurve;
-    public override void initState() {
-        base.initState();
-        D.assert(widget.animationController != null);
-        D.assert(widget.animationController.status == AnimationStatus.forward
-                 || widget.animationController.status == AnimationStatus.completed);
-        widget.animationController.addStatusListener(_handleStatusChange);
-    }
-
-    public override void didUpdateWidget(StatefulWidget oldWidget) {
-        base.didUpdateWidget(oldWidget);
-        _StandardBottomSheet _oldWidget = (_StandardBottomSheet) oldWidget;
-        D.assert(widget.animationController == _oldWidget.animationController);
-    }
-
-    public Future close() {
-        D.assert(widget.animationController != null);
-        widget.animationController.reverse();
-        if (widget.onClosing != null) {
-            widget.onClosing();
+    class _BottomSheetSuspendedCurve : ParametricCurve<float> {
+        public _BottomSheetSuspendedCurve(
+            float startingPoint,
+            Curve curve = null
+        ) {
+            curve = curve ?? Curves.easeOutCubic;
+            this.startingPoint = startingPoint;
+            this.curve = curve;
         }
 
-        return null;
-    }
-    
-    void _handleDragStart(DragStartDetails details) {
-        animationCurve = Curves.linear;
+        public readonly float startingPoint;
+
+        public readonly Curve curve;
+
+        public override float transform(float t) {
+            D.assert(t >= 0.0f && t <= 1.0f);
+            D.assert(startingPoint >= 0.0 && startingPoint <= 1.0);
+
+            if (t < startingPoint) {
+                return t;
+            }
+
+            if (t == 1.0f) {
+                return t;
+            }
+
+            float curveProgress = (t - startingPoint) / (1 - startingPoint);
+            float transformed = curve.transform(curveProgress);
+            return Mathf.Lerp(startingPoint, 1, transformed);
+        }
+
+        public override string ToString() {
+            return $"{foundation_.describeIdentity(this)}({startingPoint}, {curve})";
+        }
     }
 
-    void _handleDragEnd(DragEndDetails details, bool? isClosing = null) {
-        // Allow the bottom sheet to animate smoothly from its current position.
-        animationCurve = new _BottomSheetSuspendedCurve(
-            widget.animationController.value,
-            curve: ScaffoldUtils._standardBottomSheetCurve
-        );
+    public class _StandardBottomSheet : StatefulWidget {
+        public _StandardBottomSheet(
+            Key key = null,
+            AnimationController animationController = null,
+            bool enableDrag = true,
+            VoidCallback onClosing = null,
+            VoidCallback onDismissed = null,
+            WidgetBuilder builder = null,
+            bool isPersistent = false,
+            Color backgroundColor = null,
+            float? elevation = null,
+            ShapeBorder shape = null,
+            Clip? clipBehavior = null
+        ) : base(key: key) {
+            this.animationController = animationController;
+            this.enableDrag = enableDrag;
+            this.onClosing = onClosing;
+            this.onDismissed = onDismissed;
+            this.builder = builder;
+            this.isPersistent = isPersistent;
+            this.backgroundColor = backgroundColor;
+            this.elevation = elevation;
+            this.shape = shape;
+            this.clipBehavior = clipBehavior;
+        }
+
+        public readonly AnimationController animationController;
+        public readonly bool enableDrag;
+        public readonly VoidCallback onClosing;
+        public readonly VoidCallback onDismissed;
+        public readonly WidgetBuilder builder;
+        public readonly bool isPersistent;
+        public readonly Color backgroundColor;
+        public readonly float? elevation;
+        public readonly ShapeBorder shape;
+        public readonly Clip? clipBehavior;
+
+        public override State createState() {
+            return new _StandardBottomSheetState();
+        }
     }
 
-    void _handleStatusChange(AnimationStatus status) {
-        if (status == AnimationStatus.dismissed && widget.onDismissed != null) {
-            widget.onDismissed();
+
+    class _StandardBottomSheetState : State<_StandardBottomSheet> {
+        ParametricCurve<float> animationCurve = ScaffoldUtils._standardBottomSheetCurve;
+
+        public override void initState() {
+            base.initState();
+            D.assert(widget.animationController != null);
+            D.assert(widget.animationController.status == AnimationStatus.forward
+                     || widget.animationController.status == AnimationStatus.completed);
+            widget.animationController.addStatusListener(_handleStatusChange);
         }
-    }
-    
-    bool extentChanged(DraggableScrollableNotification notification) {
-         float extentRemaining = 1.0f - notification.extent;
-         ScaffoldState scaffold = Scaffold.of(context);
-        if (extentRemaining < ScaffoldUtils._kBottomSheetDominatesPercentage) {
-            scaffold._floatingActionButtonVisibilityValue = extentRemaining * ScaffoldUtils._kBottomSheetDominatesPercentage * 10;
-            scaffold.showBodyScrim(true,  Mathf.Max(
-                ScaffoldUtils._kMinBottomSheetScrimOpacity,
-                ScaffoldUtils._kMaxBottomSheetScrimOpacity - scaffold._floatingActionButtonVisibilityValue
-            ));
-        } else {
-            scaffold._floatingActionButtonVisibilityValue = 1.0f;
-            scaffold.showBodyScrim(false, 0.0f);
+
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            base.didUpdateWidget(oldWidget);
+            _StandardBottomSheet _oldWidget = (_StandardBottomSheet) oldWidget;
+            D.assert(widget.animationController == _oldWidget.animationController);
         }
-        
-        if (notification.extent == notification.minExtent && scaffold.widget.bottomSheet == null) {
-            close();
+
+        public Future close() {
+            D.assert(widget.animationController != null);
+            widget.animationController.reverse();
+            if (widget.onClosing != null) {
+                widget.onClosing();
+            }
+
+            return null;
         }
-        return false;
-    }
-    
-    Widget _wrapBottomSheet(Widget bottomSheet) {
-        return new NotificationListener<DraggableScrollableNotification>(
+
+        void _handleDragStart(DragStartDetails details) {
+            animationCurve = Curves.linear;
+        }
+
+        void _handleDragEnd(DragEndDetails details, bool? isClosing = null) {
+            // Allow the bottom sheet to animate smoothly from its current position.
+            animationCurve = new _BottomSheetSuspendedCurve(
+                widget.animationController.value,
+                curve: ScaffoldUtils._standardBottomSheetCurve
+            );
+        }
+
+        void _handleStatusChange(AnimationStatus status) {
+            if (status == AnimationStatus.dismissed && widget.onDismissed != null) {
+                widget.onDismissed();
+            }
+        }
+
+        bool extentChanged(DraggableScrollableNotification notification) {
+            float extentRemaining = 1.0f - notification.extent;
+            ScaffoldState scaffold = Scaffold.of(context);
+            if (extentRemaining < ScaffoldUtils._kBottomSheetDominatesPercentage) {
+                scaffold._floatingActionButtonVisibilityValue =
+                    extentRemaining * ScaffoldUtils._kBottomSheetDominatesPercentage * 10;
+                scaffold.showBodyScrim(true, Mathf.Max(
+                    ScaffoldUtils._kMinBottomSheetScrimOpacity,
+                    ScaffoldUtils._kMaxBottomSheetScrimOpacity - scaffold._floatingActionButtonVisibilityValue
+                ));
+            }
+            else {
+                scaffold._floatingActionButtonVisibilityValue = 1.0f;
+                scaffold.showBodyScrim(false, 0.0f);
+            }
+
+            if (notification.extent == notification.minExtent && scaffold.widget.bottomSheet == null) {
+                close();
+            }
+
+            return false;
+        }
+
+        Widget _wrapBottomSheet(Widget bottomSheet) {
+            return new NotificationListener<DraggableScrollableNotification>(
                 onNotification: extentChanged,
                 child: bottomSheet
-        );
-    }
-
-    public override Widget build(BuildContext context) {
-        if (widget.animationController != null) {
-            return new AnimatedBuilder(
-                animation: widget.animationController,
-                builder: (BuildContext subContext, Widget subChild) => {
-                return new Align(
-                    alignment: AlignmentDirectional.topStart,
-                    heightFactor: animationCurve.transform(widget.animationController.value),
-                    child: subChild
-                );
-            },
-            child: _wrapBottomSheet(
-                    new BottomSheet(
-                        animationController: widget.animationController,
-                        enableDrag: widget.enableDrag,
-                        onDragStart: _handleDragStart,
-                        onDragEnd: _handleDragEnd,
-                        onClosing: widget.onClosing,
-                        builder: widget.builder,
-                        backgroundColor: widget.backgroundColor,
-                        elevation: widget.elevation,
-                        shape: widget.shape,
-                        clipBehavior: widget.clipBehavior
-                    )
-                )
-                );
+            );
         }
-        
-        return _wrapBottomSheet(
-            new BottomSheet(
-                onClosing: widget.onClosing,
-                builder: widget.builder,
-                backgroundColor: widget.backgroundColor
-            )
-        );
+
+        public override Widget build(BuildContext context) {
+            if (widget.animationController != null) {
+                return new AnimatedBuilder(
+                    animation: widget.animationController,
+                    builder: (BuildContext subContext, Widget subChild) => {
+                        return new Align(
+                            alignment: AlignmentDirectional.topStart,
+                            heightFactor: animationCurve.transform(widget.animationController.value),
+                            child: subChild
+                        );
+                    },
+                    child: _wrapBottomSheet(
+                        new BottomSheet(
+                            animationController: widget.animationController,
+                            enableDrag: widget.enableDrag,
+                            onDragStart: _handleDragStart,
+                            onDragEnd: _handleDragEnd,
+                            onClosing: widget.onClosing,
+                            builder: widget.builder,
+                            backgroundColor: widget.backgroundColor,
+                            elevation: widget.elevation,
+                            shape: widget.shape,
+                            clipBehavior: widget.clipBehavior
+                        )
+                    )
+                );
+            }
+
+            return _wrapBottomSheet(
+                new BottomSheet(
+                    onClosing: widget.onClosing,
+                    builder: widget.builder,
+                    backgroundColor: widget.backgroundColor
+                )
+            );
+        }
     }
-}
 
 
-public class PersistentBottomSheetController<T> : ScaffoldFeatureController<_StandardBottomSheet, T> {
-    public PersistentBottomSheetController(
-        _StandardBottomSheet widget,
-        Completer completer,
-        VoidCallback close,
-        StateSetter setState,
-        bool _isLocalHistoryEntry
-    ) : base(widget, completer, close, setState) {
-        this._isLocalHistoryEntry = _isLocalHistoryEntry;
+    public class PersistentBottomSheetController<T> : ScaffoldFeatureController<_StandardBottomSheet, T> {
+        public PersistentBottomSheetController(
+            _StandardBottomSheet widget,
+            Completer completer,
+            VoidCallback close,
+            StateSetter setState,
+            bool _isLocalHistoryEntry
+        ) : base(widget, completer, close, setState) {
+            this._isLocalHistoryEntry = _isLocalHistoryEntry;
+        }
+
+        public readonly bool _isLocalHistoryEntry;
     }
 
-    public readonly bool _isLocalHistoryEntry;
-}
+    class _ScaffoldScope : InheritedWidget {
+        public _ScaffoldScope(
+            Key key = null,
+            bool? hasDrawer = null,
+            _ScaffoldGeometryNotifier geometryNotifier = null,
+            Widget child = null
+        ) : base(key: key, child: child) {
+            D.assert(hasDrawer != null);
+            this.hasDrawer = hasDrawer.Value;
+            this.geometryNotifier = geometryNotifier;
+        }
 
-class _ScaffoldScope : InheritedWidget {
-    public _ScaffoldScope(
-        Key key = null,
-        bool? hasDrawer = null,
-        _ScaffoldGeometryNotifier geometryNotifier = null,
-        Widget child = null
-    ) : base(key: key, child: child) {
-        D.assert(hasDrawer != null);
-        this.hasDrawer = hasDrawer.Value;
-        this.geometryNotifier = geometryNotifier;
+        public readonly bool hasDrawer;
+        public readonly _ScaffoldGeometryNotifier geometryNotifier;
+
+        public override bool updateShouldNotify(InheritedWidget oldWidget) {
+            _ScaffoldScope _oldWidget = (_ScaffoldScope) oldWidget;
+            return hasDrawer != _oldWidget.hasDrawer;
+        }
     }
-
-    public readonly bool hasDrawer;
-    public readonly _ScaffoldGeometryNotifier geometryNotifier;
-
-    public override bool updateShouldNotify(InheritedWidget oldWidget) {
-        _ScaffoldScope _oldWidget = (_ScaffoldScope) oldWidget;
-        return hasDrawer != _oldWidget.hasDrawer;
-    }
-}
-
 }
