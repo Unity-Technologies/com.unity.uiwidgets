@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
@@ -18,8 +19,14 @@ namespace Unity.UIWidgets.material {
             T value = null,
             T groupValue = null,
             ValueChanged<T> onChanged = null,
+            bool toggleable = false,
             Color activeColor = null,
-            MaterialTapTargetSize? materialTapTargetSize = null
+            Color focusColor = null,
+            Color hoverColor = null,
+            MaterialTapTargetSize? materialTapTargetSize = null,
+            VisualDensity visualDensity = null,
+            FocusNode focusNode = null,
+            bool autofocus = false
         ) : base(key: key) {
             D.assert(value != null);
             D.assert(groupValue != null);
@@ -27,8 +34,14 @@ namespace Unity.UIWidgets.material {
             this.value = value;
             this.groupValue = groupValue;
             this.onChanged = onChanged;
+            this.toggleable = toggleable;
             this.activeColor = activeColor;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
             this.materialTapTargetSize = materialTapTargetSize;
+            this.visualDensity = visualDensity;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
         }
 
         public readonly T value;
@@ -36,10 +49,22 @@ namespace Unity.UIWidgets.material {
         public readonly T groupValue;
 
         public readonly ValueChanged<T> onChanged;
+        
+        public readonly  bool toggleable;
 
         public readonly Color activeColor;
 
         public readonly MaterialTapTargetSize? materialTapTargetSize;
+        
+        public readonly VisualDensity visualDensity;
+
+        public readonly Color focusColor;
+        
+        public readonly Color hoverColor;
+
+        public readonly FocusNode focusNode;
+
+        public readonly bool autofocus;
 
         public override State createState() {
             return new _RadioState<T>();
@@ -47,15 +72,55 @@ namespace Unity.UIWidgets.material {
     }
 
     class _RadioState<T> : TickerProviderStateMixin<Radio<T>> where T : class {
-        bool _enabled {
+        bool enabled {
             get { return widget.onChanged != null; }
+        }
+        
+        Dictionary<LocalKey, ActionFactory> _actionMap;
+
+        public override void initState() {
+            base.initState();
+            _actionMap = new Dictionary<LocalKey, ActionFactory>();
+            _actionMap[ActivateAction.key] = _createAction;
+        }
+
+        void _actionHandler(FocusNode node, Intent intent) {
+            if (widget.onChanged != null) {
+                widget.onChanged(widget.value);
+            }
+            RenderObject renderObject = node.context.findRenderObject();
+        }
+
+        UiWidgetAction _createAction() {
+            return new CallbackAction(
+                ActivateAction.key,
+                onInvoke: _actionHandler
+            );
+        }
+
+        bool _focused = false;
+        void _handleHighlightChanged(bool focused) {
+            if (_focused != focused) {
+                setState(() =>{ _focused = focused; });
+            }
+        }
+
+        bool _hovering = false;
+        void _handleHoverChanged(bool hovering) {
+            if (_hovering != hovering) {
+                setState(() => { _hovering = hovering; });
+            }
         }
 
         Color _getInactiveColor(ThemeData themeData) {
-            return _enabled ? themeData.unselectedWidgetColor : themeData.disabledColor;
+            return enabled ? themeData.unselectedWidgetColor : themeData.disabledColor;
         }
 
         void _handleChanged(bool? selected) {
+            if (selected == null) {
+                widget.onChanged(null);
+                return;
+            }
             if (selected == true) {
                 widget.onChanged(widget.value);
             }
@@ -76,15 +141,32 @@ namespace Unity.UIWidgets.material {
                 default:
                     throw new Exception("Unknown material tap target size");
             }
-
+            size += (widget.visualDensity ?? themeData.visualDensity).baseSizeAdjustment;
             BoxConstraints additionalConstraints = BoxConstraints.tight(size);
-            return new _RadioRenderObjectWidget(
-                selected: widget.value == widget.groupValue,
-                activeColor: widget.activeColor ?? themeData.toggleableActiveColor,
-                inactiveColor: _getInactiveColor(themeData),
-                onChanged: _enabled ? _handleChanged : (ValueChanged<bool?>) null,
-                additionalConstraints: additionalConstraints,
-                vsync: this
+            return new FocusableActionDetector(
+                actions: _actionMap,
+                focusNode: widget.focusNode,
+                autofocus: widget.autofocus,
+                enabled: enabled,
+                onShowFocusHighlight: _handleHighlightChanged,
+                onShowHoverHighlight: _handleHoverChanged,
+                child: new Builder(
+                    builder: (BuildContext subContext) => {
+                    return new _RadioRenderObjectWidget(
+                    selected: widget.value == widget.groupValue,
+                    activeColor: widget.activeColor ?? themeData.toggleableActiveColor,
+                    inactiveColor: _getInactiveColor(themeData),
+                    focusColor: widget.focusColor ?? themeData.focusColor,
+                    hoverColor: widget.hoverColor ?? themeData.hoverColor,
+                    onChanged: enabled ? _handleChanged : (ValueChanged<bool?>)null,
+                    toggleable: widget.toggleable,
+                    additionalConstraints: additionalConstraints,
+                    vsync: this,
+                    hasFocus: _focused,
+                    hovering: _hovering
+                );
+            }
+            )
             );
         }
     }
@@ -95,38 +177,59 @@ namespace Unity.UIWidgets.material {
             bool? selected = null,
             Color activeColor = null,
             Color inactiveColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             BoxConstraints additionalConstraints = null,
             ValueChanged<bool?> onChanged = null,
-            TickerProvider vsync = null
+            bool? toggleable = null,
+            TickerProvider vsync = null,
+            bool hasFocus = false,
+            bool hovering = false
         ) : base(key: key) {
             D.assert(selected != null);
             D.assert(activeColor != null);
             D.assert(inactiveColor != null);
             D.assert(additionalConstraints != null);
             D.assert(vsync != null);
-            this.selected = selected;
+            D.assert(toggleable != null);
+            this.selected = selected.Value;
             this.activeColor = activeColor;
             this.inactiveColor = inactiveColor;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
             this.additionalConstraints = additionalConstraints;
             this.onChanged = onChanged;
+            this.toggleable = toggleable.Value;
             this.vsync = vsync;
+            this.hasFocus = hasFocus;
+            this.hovering = hovering;
         }
 
-        public readonly bool? selected;
+        public readonly bool selected;
+        public readonly  bool hasFocus;
+        public readonly  bool hovering;
         public readonly Color activeColor;
         public readonly Color inactiveColor;
-        public readonly BoxConstraints additionalConstraints;
+        public readonly  Color focusColor;
+        public readonly  Color hoverColor;
         public readonly ValueChanged<bool?> onChanged;
+        public readonly  bool toggleable;
         public readonly TickerProvider vsync;
+        public readonly BoxConstraints additionalConstraints;
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderRadio(
                 value: selected,
                 activeColor: activeColor,
                 inactiveColor: inactiveColor,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
                 onChanged: onChanged,
+                tristate: toggleable,
                 vsync: vsync,
-                additionalConstraints: additionalConstraints
+                additionalConstraints: additionalConstraints,
+                hasFocus: hasFocus,
+                hovering: hovering
             );
         }
 
@@ -135,9 +238,14 @@ namespace Unity.UIWidgets.material {
             renderObject.value = selected;
             renderObject.activeColor = activeColor;
             renderObject.inactiveColor = inactiveColor;
+            renderObject.focusColor = focusColor;
+            renderObject.hoverColor = hoverColor;
             renderObject.onChanged = onChanged;
+            renderObject.tristate = toggleable;
             renderObject.additionalConstraints = additionalConstraints;
             renderObject.vsync = vsync;
+            renderObject.hasFocus = hasFocus;
+            renderObject.hovering = hovering;
         }
     }
 
@@ -146,17 +254,26 @@ namespace Unity.UIWidgets.material {
             bool? value,
             Color activeColor,
             Color inactiveColor,
+            Color focusColor,
+            Color hoverColor,
             ValueChanged<bool?> onChanged,
+            bool tristate,
             BoxConstraints additionalConstraints,
-            TickerProvider vsync
+            TickerProvider vsync,
+            bool hasFocus,
+            bool hovering
         ) : base(
             value: value,
-            tristate: false,
             activeColor: activeColor,
             inactiveColor: inactiveColor,
+            focusColor: focusColor,
+            hoverColor: hoverColor,
             onChanged: onChanged,
+            tristate: tristate,
             additionalConstraints: additionalConstraints,
-            vsync: vsync
+            vsync: vsync,
+            hasFocus: hasFocus,
+            hovering: hovering
         ) {
         }
 

@@ -465,7 +465,7 @@ public {{abstract}} class RenderConstrainedLayoutBuilderMixin{{with}}<Constraint
 {% macro RelayoutWhenSystemFontsChangeMixin(with) %} 
     public abstract class RelayoutWhenSystemFontsChangeMixin{{with}} : {{with}} {
     
-        protected void systemFontsDidChange() {
+        protected virtual void systemFontsDidChange() {
             markNeedsLayout();
         }
         

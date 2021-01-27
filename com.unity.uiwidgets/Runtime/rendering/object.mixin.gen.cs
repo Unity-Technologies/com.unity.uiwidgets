@@ -1322,7 +1322,7 @@ public abstract class RenderConstrainedLayoutBuilderMixinRenderSliver<Constraint
      
     public abstract class RelayoutWhenSystemFontsChangeMixinRenderBox : RenderBox {
     
-        protected void systemFontsDidChange() {
+        protected virtual void systemFontsDidChange() {
             markNeedsLayout();
         }
         
