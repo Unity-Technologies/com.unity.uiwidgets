@@ -583,7 +583,7 @@ namespace Unity.UIWidgets.material {
             base.initState();
 
             _previousController = new AnimationController(
-                duration: FloatingActionButtonLocationUtils.kFloatingActionButtonSegue,
+                duration: material_.kFloatingActionButtonSegue,
                 vsync: this);
             _previousController.addStatusListener(_handlePreviousAnimationStatusChanged);
 
@@ -636,7 +636,7 @@ namespace Unity.UIWidgets.material {
         }
 
         static readonly Animatable<float> _entranceTurnTween = new FloatTween(
-            begin: 1.0f - FloatingActionButtonLocationUtils.kFloatingActionButtonTurnInterval,
+            begin: 1.0f - material_.kFloatingActionButtonTurnInterval,
             end: 1.0f
         ).chain(new CurveTween(curve: Curves.easeIn));
 
@@ -1352,12 +1352,12 @@ namespace Unity.UIWidgets.material {
                 lowerBound: 0.0f,
                 upperBound: 1.0f,
                 value: 1.0f,
-                duration: FloatingActionButtonLocationUtils.kFloatingActionButtonSegue +
-                          FloatingActionButtonLocationUtils.kFloatingActionButtonSegue
+                duration: material_.kFloatingActionButtonSegue +
+                          material_.kFloatingActionButtonSegue
             );
 
             _floatingActionButtonVisibilityController = new AnimationController(
-                duration: FloatingActionButtonLocationUtils.kFloatingActionButtonSegue,
+                duration: material_.kFloatingActionButtonSegue,
                 vsync: this
             );
         }

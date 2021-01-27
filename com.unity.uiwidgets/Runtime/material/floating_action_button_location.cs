@@ -1,10 +1,11 @@
 using System;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.material {
-    public static class FloatingActionButtonLocationUtils {
+    public partial class material_ {
         public const float kFloatingActionButtonMargin = 16.0f;
 
         public static readonly TimeSpan kFloatingActionButtonSegue = new TimeSpan(0, 0, 0, 0, 200);
@@ -64,7 +65,7 @@ namespace Unity.UIWidgets.material {
         public abstract Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry);
 
         public override string ToString() {
-            return GetType().ToString();
+            return foundation_.objectRuntimeType(this, "FloatingActionButtonLocation");
         }
     }
 
@@ -79,11 +80,11 @@ namespace Unity.UIWidgets.material {
             float bottomSheetHeight = scaffoldGeometry.bottomSheetSize.height;
             float fabHeight = scaffoldGeometry.floatingActionButtonSize.height;
             float snackBarHeight = scaffoldGeometry.snackBarSize.height;
-            float fabY = contentBottom - fabHeight - FloatingActionButtonLocationUtils.kFloatingActionButtonMargin;
+            float fabY = contentBottom - fabHeight - material_.kFloatingActionButtonMargin;
             if (snackBarHeight > 0.0f) {
                 fabY = Mathf.Min(fabY,
                     contentBottom - snackBarHeight - fabHeight -
-                    FloatingActionButtonLocationUtils.kFloatingActionButtonMargin);
+                    material_.kFloatingActionButtonMargin);
             }
 
             if (bottomSheetHeight > 0.0f) {
@@ -103,18 +104,18 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
-            float fabX = FloatingActionButtonLocationUtils._endOffset(scaffoldGeometry);
+            float fabX = material_._endOffset(scaffoldGeometry);
 
             float contentBottom = scaffoldGeometry.contentBottom;
             float bottomSheetHeight = scaffoldGeometry.bottomSheetSize.height;
             float fabHeight = scaffoldGeometry.floatingActionButtonSize.height;
             float snackBarHeight = scaffoldGeometry.snackBarSize.height;
 
-            float fabY = contentBottom - fabHeight - FloatingActionButtonLocationUtils.kFloatingActionButtonMargin;
+            float fabY = contentBottom - fabHeight - material_.kFloatingActionButtonMargin;
             if (snackBarHeight > 0.0f) {
                 fabY = Mathf.Min(fabY,
                     contentBottom - snackBarHeight - fabHeight -
-                    FloatingActionButtonLocationUtils.kFloatingActionButtonMargin);
+                    material_.kFloatingActionButtonMargin);
             }
 
             if (bottomSheetHeight > 0.0f) {
@@ -143,7 +144,7 @@ namespace Unity.UIWidgets.material {
             if (snackBarHeight > 0.0f) {
                 fabY = Mathf.Min(fabY,
                     contentBottom - snackBarHeight - fabHeight -
-                    FloatingActionButtonLocationUtils.kFloatingActionButtonMargin);
+                    material_.kFloatingActionButtonMargin);
             }
 
             if (bottomSheetHeight > 0.0f) {
@@ -160,7 +161,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
-            float fabX = FloatingActionButtonLocationUtils._endOffset(scaffoldGeometry);
+            float fabX = material_._endOffset(scaffoldGeometry);
             return new Offset(fabX, getDockedY(scaffoldGeometry));
         }
 
@@ -189,8 +190,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
-            return new Offset(FloatingActionButtonLocationUtils._startOffset(scaffoldGeometry),
-                FloatingActionButtonLocationUtils._straddleAppBar(scaffoldGeometry));
+            return new Offset(material_._startOffset(scaffoldGeometry),
+                material_._straddleAppBar(scaffoldGeometry));
         }
 
         public override string ToString() {
@@ -203,8 +204,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
-            return new Offset(FloatingActionButtonLocationUtils._startOffset(scaffoldGeometry, offset: 4.0f),
-                FloatingActionButtonLocationUtils._straddleAppBar(scaffoldGeometry));
+            return new Offset(material_._startOffset(scaffoldGeometry, offset: 4.0f),
+                material_._straddleAppBar(scaffoldGeometry));
         }
 
         public override string ToString() {
@@ -217,8 +218,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
-            return new Offset(FloatingActionButtonLocationUtils._endOffset(scaffoldGeometry),
-                FloatingActionButtonLocationUtils._straddleAppBar(scaffoldGeometry));
+            return new Offset(material_._endOffset(scaffoldGeometry),
+                material_._straddleAppBar(scaffoldGeometry));
         }
 
         public override string ToString() {
@@ -243,7 +244,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string ToString() {
-            return GetType().ToString();
+            return foundation_.objectRuntimeType(this, "FloatingActionButtonAnimator");
         }
     }
 
@@ -271,7 +272,7 @@ namespace Unity.UIWidgets.material {
         }
 
         static readonly Animatable<float> _rotationTween = new FloatTween(
-            begin: 1.0f - FloatingActionButtonLocationUtils.kFloatingActionButtonTurnInterval * 2.0f,
+            begin: 1.0f - material_.kFloatingActionButtonTurnInterval * 2.0f,
             end: 1.0f
         );
 
