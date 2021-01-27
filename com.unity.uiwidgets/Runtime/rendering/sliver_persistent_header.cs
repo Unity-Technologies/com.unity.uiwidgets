@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -17,7 +18,6 @@ namespace Unity.UIWidgets.rendering {
             float stretchTriggerOffset = 100.0f,
             AsyncCallback onStretchTrigger = null
         ) {
-            D.assert(stretchTriggerOffset != null);
             this.stretchTriggerOffset = stretchTriggerOffset;
             this.onStretchTrigger = onStretchTrigger;
         }
@@ -35,6 +35,7 @@ namespace Unity.UIWidgets.rendering {
             this.stretchConfiguration = stretchConfiguration;
         }
 
+        float _lastStretchOffset;
         public virtual float? maxExtent { get; }
 
         public virtual float? minExtent { get; }
@@ -89,24 +90,35 @@ namespace Unity.UIWidgets.rendering {
                     return true;
                 }
 
-                throw new UIWidgetsError(
-                    "The maxExtent for this $runtimeType is less than its minExtent.\n" +
-                    "The specified maxExtent was: ${maxExtent.toStringAsFixed(1)}\n" +
-                    "The specified minExtent was: ${minExtent.toStringAsFixed(1)}\n"
-                );
+                throw new UIWidgetsError(new List<DiagnosticsNode>{
+                   new ErrorSummary($"The maxExtent for this {GetType()} is less than its minExtent."),
+                   new FloatProperty("The specified maxExtent was", maxExtent),
+                   new FloatProperty("The specified minExtent was", minExtent),
+                });
             });
+            float stretchOffset = 0.0f;
+            if (stretchConfiguration != null && childMainAxisPosition(child) == 0.0)
+                stretchOffset += constraints.overlap.abs();
             child?.layout(
-                this.constraints.asBoxConstraints(
-                    maxExtent: Mathf.Max(minExtent ?? 0.0f, maxExtent - shrinkOffset)),
+                constraints.asBoxConstraints(
+                    maxExtent: Mathf.Max(minExtent?? 0.0f, maxExtent - shrinkOffset) + stretchOffset
+                ),
                 parentUsesSize: true
             );
+            if (stretchConfiguration != null &&
+                stretchConfiguration.onStretchTrigger != null &&
+                stretchOffset >= stretchConfiguration.stretchTriggerOffset &&
+                _lastStretchOffset <= stretchConfiguration.stretchTriggerOffset) {
+                stretchConfiguration.onStretchTrigger();
+            }
+            _lastStretchOffset = stretchOffset;
         }
 
         public override float? childMainAxisPosition(RenderObject child) {
             return base.childMainAxisPosition(this.child);
         }
 
-        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition, float crossAxisPosition) {
+        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f, float crossAxisPosition = 0.0f) {
             D.assert(geometry.hitTestExtent > 0.0f);
             if (child != null) {
                 return RenderSliverHelpers.hitTestBoxChild(this, new BoxHitTestResult(result), child, mainAxisPosition: mainAxisPosition,
@@ -146,19 +158,6 @@ namespace Unity.UIWidgets.rendering {
                 context.paintChild(child, offset);
             }
         }
-
-        protected bool excludeFromSemanticsScrolling {
-            get { return _excludeFromSemanticsScrolling; }
-            set {
-                if (_excludeFromSemanticsScrolling == value) {
-                    return;
-                }
-
-                _excludeFromSemanticsScrolling = value;
-            }
-        }
-
-        bool _excludeFromSemanticsScrolling = false;
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
@@ -204,7 +203,7 @@ namespace Unity.UIWidgets.rendering {
                 maxPaintExtent: maxExtent ?? 0.0f,
                 hasVisualOverflow: true
             );
-            _childPosition = Mathf.Min(0.0f, paintExtent ?? 0.0f - childExtent);
+            _childPosition = updateGeometry();
         }
 
         public override float? childMainAxisPosition(RenderObject child) {
@@ -220,21 +219,23 @@ namespace Unity.UIWidgets.rendering {
         ) : base(child: child,
             stretchConfiguration: stretchConfiguration) {
         }
-
+        
         protected override void performLayout() {
+            SliverConstraints constraints = this.constraints;
             float? maxExtent = this.maxExtent;
             bool overlapsContent = constraints.overlap > 0.0f;
-            excludeFromSemanticsScrolling =
-                overlapsContent || (constraints.scrollOffset > maxExtent - minExtent);
             layoutChild(constraints.scrollOffset, maxExtent ?? 0.0f, overlapsContent: overlapsContent);
-            float? layoutExtent =
-                (maxExtent - constraints.scrollOffset)?.clamp(0.0f, constraints.remainingPaintExtent);
+            float effectiveRemainingPaintExtent = Mathf.Max(0, constraints.remainingPaintExtent - constraints.overlap);
+            float? layoutExtent = (maxExtent - constraints.scrollOffset)?.clamp(0.0f, effectiveRemainingPaintExtent);
+            float stretchOffset = stretchConfiguration != null ?
+                constraints.overlap.abs() :
+                0.0f;
             geometry = new SliverGeometry(
                 scrollExtent: maxExtent ?? 0.0f,
                 paintOrigin: constraints.overlap,
-                paintExtent: Mathf.Min(childExtent, constraints.remainingPaintExtent),
+                paintExtent: Mathf.Min(childExtent, effectiveRemainingPaintExtent),
                 layoutExtent: layoutExtent,
-                maxPaintExtent: maxExtent ?? 0.0f,
+                maxPaintExtent: (maxExtent ?? 0.0f) + stretchOffset,
                 maxScrollObstructionExtent: minExtent ?? 0.0f,
                 cacheExtent: layoutExtent > 0.0f ? -constraints.cacheOrigin + layoutExtent : layoutExtent,
                 hasVisualOverflow: true
@@ -253,6 +254,8 @@ namespace Unity.UIWidgets.rendering {
             TimeSpan? duration = null
         ) {
             D.assert(vsync != null);
+            D.assert(curve != null);
+            D.assert(duration != null);
             this.vsync = vsync;
             this.curve = curve ?? Curves.ease;
             this.duration = duration ?? new TimeSpan(0, 0, 0, 0, 300);
@@ -314,6 +317,10 @@ namespace Unity.UIWidgets.rendering {
         FloatingHeaderSnapConfiguration _snapConfiguration;
 
         protected virtual float updateGeometry() {
+            float stretchOffset = 0.0f;
+            if (stretchConfiguration != null && _childPosition == 0.0) {
+                stretchOffset += constraints.overlap.abs();
+            }
             float? maxExtent = this.maxExtent;
             float? paintExtent = maxExtent - _effectiveScrollOffset;
             float? layoutExtent = maxExtent - constraints.scrollOffset;
@@ -322,11 +329,10 @@ namespace Unity.UIWidgets.rendering {
                 paintOrigin: Mathf.Min(constraints.overlap, 0.0f),
                 paintExtent: paintExtent?.clamp(0.0f, constraints.remainingPaintExtent) ?? 0.0f,
                 layoutExtent: layoutExtent?.clamp(0.0f, constraints.remainingPaintExtent),
-                maxPaintExtent: maxExtent ?? 0.0f,
-                maxScrollObstructionExtent: maxExtent ?? 0.0f,
+                maxPaintExtent: (maxExtent ?? 0.0f) + stretchOffset,
                 hasVisualOverflow: true
             );
-            return Mathf.Min(0.0f, paintExtent ?? 0.0f - childExtent);
+            return stretchOffset > 0 ? 0.0f : Mathf.Min(0.0f, paintExtent??0.0f - childExtent);
         }
 
         public void maybeStartSnapAnimation(ScrollDirection direction) {
@@ -371,6 +377,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
+            SliverConstraints constraints = this.constraints;
             float? maxExtent = this.maxExtent;
             if (((constraints.scrollOffset < _lastActualScrollOffset) ||
                  (_effectiveScrollOffset < maxExtent))) {
@@ -393,10 +400,12 @@ namespace Unity.UIWidgets.rendering {
             else {
                 _effectiveScrollOffset = constraints.scrollOffset;
             }
-
             bool overlapsContent = _effectiveScrollOffset < constraints.scrollOffset;
-            excludeFromSemanticsScrolling = overlapsContent;
-            layoutChild(_effectiveScrollOffset, maxExtent ?? 0.0f, overlapsContent: overlapsContent);
+            layoutChild(
+                _effectiveScrollOffset,
+                maxExtent ?? 0.0f, 
+                overlapsContent: overlapsContent
+            );
             _childPosition = updateGeometry();
             _lastActualScrollOffset = constraints.scrollOffset;
         }
@@ -439,7 +448,7 @@ namespace Unity.UIWidgets.rendering {
                 scrollExtent: maxExtent ?? 0.0f,
                 paintExtent: clampedPaintExtent ?? 0.0f,
                 layoutExtent: layoutExtent?.clamp(0.0f, clampedPaintExtent ?? 0.0f),
-                maxPaintExtent: maxExtent + stretchOffset ?? 0.0f,
+                maxPaintExtent: (maxExtent ?? 0.0f) + (stretchOffset ?? 0.0f),
                 maxScrollObstructionExtent: maxExtent ?? 0.0f,
                 hasVisualOverflow: true
             );

@@ -5,6 +5,7 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using Debug = System.Diagnostics.Debug;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
@@ -163,6 +164,11 @@ namespace Unity.UIWidgets.rendering {
         public static bool operator !=(RelativeRect a, RelativeRect b) {
             return !(a == b);
         }
+        
+        public override string ToString() {
+            return
+                $"RelativeRect.fromLTRB({left:F1}, {top :F1}, {right :F1}, {bottom :F1})";
+        }
     }
 
     public class StackParentData : ContainerParentDataMixinBoxParentData<RenderBox> {
@@ -192,6 +198,19 @@ namespace Unity.UIWidgets.rendering {
                 left = value.left;
             }
         }
+        public override string ToString() {
+            List<string> values = new List<string>();
+                if (top != null) values.Add($"top={top:F1}");
+            if (right != null) values.Add($"right={right:F1}");
+            if (bottom != null) values.Add($"bottom=${bottom:F1}");
+            if (left != null) values.Add($"left=${left:F1}");
+            if (width != null) values.Add($"width=${width:F1}");
+            if (height != null) values.Add($"height=${height:F1}");
+            if (values.isEmpty())
+                values.Add("not positioned");
+            values.Add(base.ToString());
+            return string.Join("; ", values);
+        }
     }
 
     public enum StackFit {
@@ -210,7 +229,7 @@ namespace Unity.UIWidgets.rendering {
         public RenderStack(
             List<RenderBox> children = null,
             AlignmentGeometry alignment =  null,
-            TextDirection? textDirection = null,
+            TextDirection textDirection = TextDirection.ltr,
             StackFit fit = StackFit.loose,
             Overflow overflow = Overflow.clip
             ) {
@@ -263,6 +282,7 @@ namespace Unity.UIWidgets.rendering {
         public AlignmentGeometry alignment {
             get { return _alignment; }
             set {
+                D.assert(value != null);
                 if (_alignment == value) {
                     return;
                 }
@@ -305,6 +325,7 @@ namespace Unity.UIWidgets.rendering {
             RenderBox child = firstChild;
             while (child != null) {
                 StackParentData childParentData = child.parentData as StackParentData;
+                D.assert(childParentData != null);
                 if (!childParentData.isPositioned)
                     extent = Math.Max(extent, getter(child));
                 D.assert(child.parentData == childParentData);
@@ -316,38 +337,20 @@ namespace Unity.UIWidgets.rendering {
 
         public delegate float mainChildSizeGetter(RenderBox child);
 
-        float _getIntrinsicDimension(mainChildSizeGetter getter) {
-            float extent = 0.0f;
-            RenderBox child = firstChild;
-            while (child != null) {
-                StackParentData childParentData = (StackParentData) child.parentData;
-                if (!childParentData.isPositioned) {
-                    extent = Mathf.Max(extent, getter(child));
-                }
-
-                D.assert(child.parentData == childParentData);
-                if (childParentData != null) {
-                    child = childParentData.nextSibling;
-                }
-            }
-
-            return extent;
-        }
-
         protected internal override float computeMinIntrinsicWidth(float height) {
-            return _getIntrinsicDimension((RenderBox child) => child.getMinIntrinsicWidth(height));
+            return getIntrinsicDimension(firstChild,(RenderBox child) => child.getMinIntrinsicWidth(height));
         }
 
         protected internal override float computeMaxIntrinsicWidth(float height) {
-            return _getIntrinsicDimension((RenderBox child) => child.getMaxIntrinsicWidth(height));
+            return getIntrinsicDimension(firstChild,(RenderBox child) => child.getMaxIntrinsicWidth(height));
         }
 
         protected internal override float computeMinIntrinsicHeight(float width) {
-            return _getIntrinsicDimension((RenderBox child) => child.getMinIntrinsicHeight(width));
+            return getIntrinsicDimension(firstChild,(RenderBox child) => child.getMinIntrinsicHeight(width));
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            return _getIntrinsicDimension((RenderBox child) => child.getMaxIntrinsicHeight(width));
+            return getIntrinsicDimension(firstChild,(RenderBox child) => child.getMaxIntrinsicHeight(width));
         }
 
         protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
@@ -425,7 +428,6 @@ namespace Unity.UIWidgets.rendering {
             float height = constraints.minHeight;
 
             BoxConstraints nonPositionedConstraints = null;
-            D.assert(fit != null);
             switch (fit) {
               case StackFit.loose:
                 nonPositionedConstraints = constraints.loosen();
@@ -442,7 +444,7 @@ namespace Unity.UIWidgets.rendering {
             RenderBox child = firstChild;
             while (child != null) {
               StackParentData childParentData = child.parentData as StackParentData;
-
+              D.assert(childParentData != null);
               if (!childParentData.isPositioned) {
                 hasNonPositionedChildren = true;
 
@@ -505,6 +507,7 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment));
+            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection?? TextDirection.ltr));
             properties.add(new EnumProperty<StackFit>("fit", fit));
             properties.add(new EnumProperty<Overflow>("overflow", overflow));
         }
@@ -519,7 +522,7 @@ namespace Unity.UIWidgets.rendering {
         ) :  base(
             children: children,
             alignment: alignment ?? AlignmentDirectional.topStart,
-            textDirection: textDirection) {
+            textDirection: textDirection?? TextDirection.ltr) {
             _index = index;
         }
 
@@ -536,7 +539,6 @@ namespace Unity.UIWidgets.rendering {
         int _index;
 
         RenderBox _childAtIndex() {
-            D.assert(index != null);
             RenderBox child = firstChild;
             int i = 0;
             while (child != null && i < index) {
@@ -550,8 +552,8 @@ namespace Unity.UIWidgets.rendering {
             return child;
         }
 
-        protected override bool hitTestChildren(BoxHitTestResult result, Offset position) {
-            if (firstChild == null || index == null) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
+            if (firstChild == null) {
                 return false;
             }
 
@@ -569,7 +571,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paintStack(PaintingContext context, Offset offset) {
-            if (firstChild == null || index == null) {
+            if (firstChild == null) {
                 return;
             }
 

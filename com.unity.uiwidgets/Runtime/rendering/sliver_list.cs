@@ -57,7 +57,7 @@ namespace Unity.UIWidgets.rendering {
                 }
                 else {
                     float firstChildScrollOffset = earliestScrollOffset - paintExtentOf(firstChild);
-                    if (firstChildScrollOffset < -SliverGeometry.precisionErrorTolerance) {
+                    if (firstChildScrollOffset < -foundation_.precisionErrorTolerance) {
                         float correction = 0.0f;
                         while (earliestUsefulChild != null) {
                             D.assert(firstChild == earliestUsefulChild);

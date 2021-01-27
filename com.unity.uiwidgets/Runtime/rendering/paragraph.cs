@@ -137,7 +137,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public TextAlign textAlign {
-            get { return _textPainter.textAlign.Value; }
+            get { return _textPainter.textAlign; }
             set {
                 if (_textPainter.textAlign == value) {
                     return;
@@ -361,7 +361,7 @@ namespace Unity.UIWidgets.rendering {
                 placeholderDimensions[childIndex] = new PlaceholderDimensions(
                 size: new Size(child.getMaxIntrinsicWidth(height), height),
                 alignment: _placeholderSpans[childIndex].alignment,
-                baseline: _placeholderSpans[childIndex].baseline.Value,
+                baseline: _placeholderSpans[childIndex].baseline,
                 baselineOffset:0.0f
             );
             child = childAfter(child);
@@ -380,7 +380,7 @@ namespace Unity.UIWidgets.rendering {
                 placeholderDimensions[childIndex] = new PlaceholderDimensions(
                     size: new Size(intrinsicWidth, intrinsicHeight),
                     alignment: _placeholderSpans[childIndex].alignment,
-                    baseline: _placeholderSpans[childIndex].baseline.Value,
+                    baseline: _placeholderSpans[childIndex].baseline,
                     baselineOffset:0.0f
                 );
                 child = childAfter(child);
@@ -399,7 +399,7 @@ namespace Unity.UIWidgets.rendering {
                 placeholderDimensions[childIndex] = new PlaceholderDimensions(
                     size: new Size(intrinsicWidth, intrinsicHeight),
                     alignment: _placeholderSpans[childIndex].alignment,
-                    baseline: _placeholderSpans[childIndex].baseline.Value,
+                    baseline: _placeholderSpans[childIndex].baseline,
                     baselineOffset:0.0f
                 );
                 child = childAfter(child);
@@ -654,8 +654,8 @@ namespace Unity.UIWidgets.rendering {
                 switch (_placeholderSpans[childIndex].alignment) {
                     case ui.PlaceholderAlignment.baseline: {
                         baselineOffset = child.getDistanceToBaseline(
-                        _placeholderSpans[childIndex].baseline.Value
-                        ).Value;
+                        _placeholderSpans[childIndex].baseline
+                        ) ?? 0.0f;
                         break;
                     }
                     default: {
@@ -666,7 +666,7 @@ namespace Unity.UIWidgets.rendering {
                 _placeholderDimensions[childIndex] = new PlaceholderDimensions(
                     size: child.size,
                     alignment: _placeholderSpans[childIndex].alignment,
-                    baseline: _placeholderSpans[childIndex].baseline.Value,
+                    baseline: _placeholderSpans[childIndex].baseline,
                     baselineOffset: baselineOffset
                 );
                 child = childAfter(child);

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -39,12 +40,12 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         }
 
         public override string ToString() {
-            return "SliverGridGeometry(" +
-                   "scrollOffset: $scrollOffset, " +
-                   "crossAxisOffset: $crossAxisOffset, " +
-                   "mainAxisExtent: $mainAxisExtent, " +
-                   "crossAxisExtent: $crossAxisExtent" +
-                   ")";
+            List<string> properties = new List<string>();
+            properties.Add("scrollOffset: $scrollOffset");
+            properties.Add("crossAxisOffset: $crossAxisOffset");
+            properties.Add("mainAxisExtent: $mainAxisExtent");
+            properties.Add("crossAxisExtent: $crossAxisExtent");
+            return $"SliverGridGeometry({string.Join(", ",properties)})";
         }
     }
 
@@ -70,11 +71,11 @@ namespace com.unity.uiwidgets.Runtime.rendering {
             float? childCrossAxisExtent = null,
             bool? reverseCrossAxis = null
         ) {
-            D.assert(crossAxisCount != null && crossAxisCount > 0);
-            D.assert(mainAxisStride != null && mainAxisStride >= 0);
-            D.assert(crossAxisStride != null && crossAxisStride >= 0);
-            D.assert(childMainAxisExtent != null && childMainAxisExtent >= 0);
-            D.assert(childCrossAxisExtent != null && childCrossAxisExtent >= 0);
+            D.assert(crossAxisCount > 0);
+            D.assert(mainAxisStride >= 0);
+            D.assert(crossAxisStride >= 0);
+            D.assert(childMainAxisExtent >= 0);
+            D.assert(childCrossAxisExtent >= 0);
             D.assert(reverseCrossAxis != null);
             this.crossAxisCount = crossAxisCount;
             this.mainAxisStride = mainAxisStride;
@@ -142,6 +143,9 @@ namespace com.unity.uiwidgets.Runtime.rendering {
     }
 
     public abstract class SliverGridDelegate {
+
+        protected SliverGridDelegate() { }
+
         public abstract SliverGridLayout getLayout(SliverConstraints constraints);
 
         public abstract bool shouldRelayout(SliverGridDelegate oldDelegate);
@@ -270,7 +274,7 @@ namespace com.unity.uiwidgets.Runtime.rendering {
         public float crossAxisOffset;
 
         public override string ToString() {
-            return "crossAxisOffset=$crossAxisOffset; ${base.ToString()}";
+            return $"crossAxisOffset={crossAxisOffset}; {base.ToString()}";
         }
     }
 
@@ -391,7 +395,7 @@ namespace com.unity.uiwidgets.Runtime.rendering {
                 SliverGridGeometry gridGeometry = layout.getGeometryForChildIndex(index);
                 BoxConstraints childConstraints = gridGeometry.getBoxConstraints(constraints);
                 RenderBox child = childAfter(trailingChildWithLayout);
-                if (child == null) {
+                if (child == null || indexOf(child) != index) {
                     child = insertAndLayoutChild(childConstraints, after: trailingChildWithLayout);
                     if (child == null) {
                         break;
@@ -402,7 +406,6 @@ namespace com.unity.uiwidgets.Runtime.rendering {
                 }
 
                 trailingChildWithLayout = child;
-                D.assert(child != null);
                 SliverGridParentData childParentData = child.parentData as SliverGridParentData;
                 childParentData.layoutOffset = gridGeometry.scrollOffset ?? 0.0f;
                 childParentData.crossAxisOffset = gridGeometry.crossAxisOffset ?? 0.0f;
@@ -418,18 +421,21 @@ namespace com.unity.uiwidgets.Runtime.rendering {
             D.assert(indexOf(firstChild) == firstIndex);
             D.assert(targetLastIndex == null || lastIndex <= targetLastIndex);
 
-            float estimatedTotalExtent = childManager.estimateMaxScrollOffset(constraints,
+            float estimatedTotalExtent = childManager.estimateMaxScrollOffset(
+                constraints,
                 firstIndex: firstIndex,
                 lastIndex: lastIndex,
                 leadingScrollOffset: leadingScrollOffset ?? 0.0f,
                 trailingScrollOffset: trailingScrollOffset ?? 0.0f
             );
 
-            float paintExtent = calculatePaintOffset(constraints,
+            float paintExtent = calculatePaintOffset(
+                constraints,
                 from: leadingScrollOffset ?? 0.0f,
                 to: trailingScrollOffset ?? 0.0f
             );
-            float cacheExtent = calculateCacheOffset(constraints,
+            float cacheExtent = calculateCacheOffset(
+                constraints,
                 from: leadingScrollOffset ?? 0.0f,
                 to: trailingScrollOffset ?? 0.0f
             );

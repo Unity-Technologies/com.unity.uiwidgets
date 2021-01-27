@@ -9,7 +9,7 @@ namespace Unity.UIWidgets.widgets {
     class WidgetSpan : PlaceholderSpan,IEquatable<WidgetSpan> {
         public WidgetSpan(
             Widget child ,
-            TextBaseline? baseline = null,
+            TextBaseline baseline = TextBaseline.alphabetic,
             TextStyle style = null,
             PlaceholderAlignment alignment = PlaceholderAlignment.bottom
         ) : base(

@@ -81,7 +81,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         bool _debugVectorMoreOrLessEquals(Vector4 a, Vector4 b,
-            double epsilon = SliverGeometry.precisionErrorTolerance) {
+            double epsilon = foundation_.precisionErrorTolerance) {
             bool result = true;
             D.assert(() => {
                 Vector4 difference = a - b;

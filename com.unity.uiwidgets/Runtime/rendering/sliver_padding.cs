@@ -16,7 +16,6 @@ namespace Unity.UIWidgets.rendering {
             get {
                 D.assert(constraints != null);
                 D.assert(constraints.axisDirection != null);
-                D.assert(constraints.growthDirection != null);
                 D.assert(resolvedPadding != null);
                 switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) {
                     case AxisDirection.up:
@@ -36,7 +35,6 @@ namespace Unity.UIWidgets.rendering {
             get { 
                 D.assert(constraints != null);
                 D.assert(constraints.axisDirection != null);
-                D.assert(constraints.growthDirection != null);
                 D.assert(resolvedPadding != null);
                 switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) {
                     case AxisDirection.up:
@@ -150,9 +148,7 @@ namespace Unity.UIWidgets.rendering {
                     ), 
                 hasVisualOverflow: childLayoutGeometry.hasVisualOverflow
                 );
-            SliverPhysicalParentData childParentData = child.parentData as SliverPhysicalParentData; 
-            D.assert(constraints.axisDirection != null); 
-            D.assert(constraints.growthDirection != null); 
+            SliverPhysicalParentData childParentData = child.parentData as SliverPhysicalParentData;
             switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) { 
                 case AxisDirection.up: 
                     childParentData.paintOffset = new Offset(resolvedPadding.left, calculatePaintOffset(constraints, from: resolvedPadding.bottom + childLayoutGeometry.scrollExtent, to: resolvedPadding.bottom + childLayoutGeometry.scrollExtent + resolvedPadding.top)); 
@@ -199,7 +195,6 @@ namespace Unity.UIWidgets.rendering {
             D.assert(child == this.child);
             D.assert(constraints != null);
             D.assert(constraints.axisDirection != null);
-            D.assert(constraints.growthDirection != null);
             D.assert(resolvedPadding != null);
             switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) {
               case AxisDirection.up:
@@ -287,7 +282,7 @@ namespace Unity.UIWidgets.rendering {
             get { return _padding; }
             set {
                 D.assert(value != null);
-                D.assert(value.isNonNegative);
+                D.assert(padding.isNonNegative);
                 if (_padding == value) {
                     return;
                 }
@@ -305,7 +300,7 @@ namespace Unity.UIWidgets.rendering {
                 if (_textDirection == value)
                     return;
                 _textDirection = value;
-                //_markNeedsResolution();
+                _markNeedsResolution();
             }
         }
         TextDirection _textDirection;
