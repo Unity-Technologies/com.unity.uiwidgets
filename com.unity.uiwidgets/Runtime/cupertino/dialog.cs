@@ -837,8 +837,8 @@ namespace Unity.UIWidgets.cupertino {
         public readonly bool isPressed;
 
         public override void applyParentData(RenderObject renderObject) {
-            D.assert(renderObject.parentData is _DialogActionButtonParentData);
-            _DialogActionButtonParentData parentData = renderObject.parentData as _DialogActionButtonParentData;
+            D.assert(renderObject.parentData is _ActionButtonParentData);
+            _ActionButtonParentData parentData = renderObject.parentData as _ActionButtonParentData;
             if (parentData.isPressed != isPressed) {
                 parentData.isPressed = isPressed;
                 AbstractNodeMixinDiagnosticableTree targetParent = renderObject.parent;
@@ -855,7 +855,7 @@ namespace Unity.UIWidgets.cupertino {
         }
     }
 
-    class _DialogActionButtonParentData : MultiChildLayoutParentData {
+    /*class _DialogActionButtonParentData : MultiChildLayoutParentData {
         public _DialogActionButtonParentData(
             bool isPressed = false
         ) {
@@ -863,7 +863,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public bool isPressed;
-    }
+    }*/
 
     public class CupertinoDialogAction : StatelessWidget {
         public CupertinoDialogAction(
@@ -1117,8 +1117,8 @@ namespace Unity.UIWidgets.cupertino {
 
                 RenderBox currentChild = firstChild;
                 while (currentChild != null) {
-                    D.assert(currentChild.parentData is _DialogActionButtonParentData);
-                    _DialogActionButtonParentData parentData = currentChild.parentData as _DialogActionButtonParentData;
+                    D.assert(currentChild.parentData is _ActionButtonParentData);
+                    _ActionButtonParentData parentData = currentChild.parentData as _ActionButtonParentData;
                     if (parentData.isPressed) {
                         childList.Add(currentChild);
                     }
@@ -1134,8 +1134,8 @@ namespace Unity.UIWidgets.cupertino {
             get {
                 RenderBox currentChild = firstChild;
                 while (currentChild != null) {
-                    D.assert(currentChild.parentData is _DialogActionButtonParentData);
-                    _DialogActionButtonParentData parentData = currentChild.parentData as _DialogActionButtonParentData;
+                    D.assert(currentChild.parentData is _ActionButtonParentData);
+                    _ActionButtonParentData parentData = currentChild.parentData as _ActionButtonParentData;
                     if (parentData.isPressed) {
                         return true;
                     }
@@ -1148,8 +1148,8 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override void setupParentData(RenderObject child) {
-            if (!(child.parentData is _DialogActionButtonParentData)) {
-                child.parentData = new _DialogActionButtonParentData();
+            if (!(child.parentData is _ActionButtonParentData)) {
+                child.parentData = new _ActionButtonParentData();
             }
         }
 
@@ -1410,15 +1410,15 @@ namespace Unity.UIWidgets.cupertino {
             RenderBox prevChild = null;
 
             while (child != null) {
-                D.assert(child.parentData is _DialogActionButtonParentData);
-                _DialogActionButtonParentData currentButtonParentData =
-                    child.parentData as _DialogActionButtonParentData;
+                D.assert(child.parentData is _ActionButtonParentData);
+                _ActionButtonParentData currentButtonParentData =
+                    child.parentData as _ActionButtonParentData;
                 bool isButtonPressed = currentButtonParentData.isPressed;
                 bool isPrevButtonPressed = false;
                 if (prevChild != null) {
-                    D.assert(prevChild.parentData is _DialogActionButtonParentData);
-                    _DialogActionButtonParentData previousButtonParentData =
-                        prevChild.parentData as _DialogActionButtonParentData;
+                    D.assert(prevChild.parentData is _ActionButtonParentData);
+                    _ActionButtonParentData previousButtonParentData =
+                        prevChild.parentData as _ActionButtonParentData;
                     isPrevButtonPressed = previousButtonParentData.isPressed;
                 }
 

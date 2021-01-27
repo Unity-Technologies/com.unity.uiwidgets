@@ -53,7 +53,8 @@ namespace UIWidgetsSample
                 
                 //return new CupertinoNavigationDemo();
                 //return new CupertinoAlertDemo();
-                return new CupertinoPickerDemo();
+                //return new CupertinoPickerDemo();
+                return new CupertinoSwitchDemo();
             }
         }
 

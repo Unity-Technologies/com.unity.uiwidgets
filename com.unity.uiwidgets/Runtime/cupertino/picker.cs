@@ -23,6 +23,7 @@ namespace Unity.UIWidgets.cupertino {
 
     public class CupertinoPicker : StatefulWidget {
         public CupertinoPicker(
+            List<Widget> children,
             Key key = null,
             float? diameterRatio = null,
             Color backgroundColor = null,
@@ -33,12 +34,11 @@ namespace Unity.UIWidgets.cupertino {
             float? squeeze = null,
             float? itemExtent = null,
             ValueChanged<int> onSelectedItemChanged = null,
-            List<Widget> children = null, 
             bool looping = false
         ) : base(key: key) {
             diameterRatio = diameterRatio == null ? CupertinoPickerUtils._kDefaultDiameterRatio : diameterRatio;
             squeeze = squeeze == null ? CupertinoPickerUtils._kSqueeze : squeeze;
-            D.assert(children != null);
+           // D.assert(children != null);
             D.assert(diameterRatio > 0.0f, ()=>RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(magnification > 0);
             D.assert(itemExtent != null);
@@ -58,7 +58,7 @@ namespace Unity.UIWidgets.cupertino {
                 : new ListWheelChildListDelegate(children: children);
         }
 
-        public static CupertinoPicker builder(
+        public CupertinoPicker(
             Key key = null,
             float? diameterRatio = null,
             Color backgroundColor = null,
@@ -80,19 +80,17 @@ namespace Unity.UIWidgets.cupertino {
             D.assert(itemExtent != null);
             D.assert(itemExtent > 0);
             D.assert(squeeze > 0);
-            CupertinoPicker picker = new CupertinoPicker(
-                key, 
-                diameterRatio ,
-                backgroundColor,
-                offAxisFraction ,
-                useMagnifier ,
-                magnification ,
-                scrollController,
-                squeeze ,
-                itemExtent,
-                onSelectedItemChanged);
-                picker.childDelegate = new ListWheelChildBuilderDelegate(builder: itemBuilder, childCount: childCount);
-            return picker;
+            this.diameterRatio = diameterRatio;
+            this.backgroundColor = backgroundColor;
+            this.offAxisFraction = offAxisFraction;
+            this.useMagnifier = useMagnifier;
+            this.magnification = magnification;
+            this.scrollController = scrollController;
+            this.squeeze = squeeze;
+            this.itemExtent = itemExtent;
+            this.onSelectedItemChanged = onSelectedItemChanged;
+            childDelegate =new ListWheelChildBuilderDelegate(builder: itemBuilder, childCount: childCount);
+            
         }
 
         public readonly float? diameterRatio;
@@ -191,7 +189,7 @@ namespace Unity.UIWidgets.cupertino {
                 Positioned.fill(
                     child: new _CupertinoPickerSemantics(
                         scrollController: widget.scrollController ?? _controller,
-                        child: ListWheelScrollView.useDelegate(
+                        child: new ListWheelScrollView(
                             controller: widget.scrollController ?? _controller,
                             physics: new FixedExtentScrollPhysics(), 
                             diameterRatio: widget.diameterRatio ?? CupertinoPickerUtils._kDefaultDiameterRatio,

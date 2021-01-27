@@ -38,7 +38,7 @@ namespace Unity.UIWidgets.cupertino {
             D.assert(onChanged != null);
             D.assert(value >= min && value <= max);
             D.assert(divisions == null || divisions > 0);
-            D.assert(thumbColor != null);
+           
             this.value = value.Value;
             this.onChanged = onChanged;
             this.onChangeStart = onChangeStart;

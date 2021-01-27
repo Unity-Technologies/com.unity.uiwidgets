@@ -68,10 +68,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public int trueIndexOf(int index) {
-            while (index < 0) {
-                index += children.Count;
-            }
-
+            
             return index % children.Count;
         }
 
@@ -79,12 +76,7 @@ namespace Unity.UIWidgets.widgets {
             if (children.isEmpty()) {
                 return null;
             }
-
-            while (index < 0) {
-                index += children.Count;
-            }
-
-            return new Container(child: children[index % children.Count]);
+            return new Container(child: children[Mathf.Abs(index % children.Count)]);
         }
 
         public bool shouldRebuild(ListWheelChildDelegate oldDelegate) {
@@ -197,7 +189,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void jumpToItem(int itemIndex) {
-            foreach (_FixedExtentScrollPosition position in positions) {
+            foreach (_FixedExtentScrollPosition position in positions.Cast<_FixedExtentScrollPosition>()) {
                 position.jumpTo(itemIndex * position.itemExtent);
             }
         }
@@ -434,6 +426,7 @@ namespace Unity.UIWidgets.widgets {
 
     public class ListWheelScrollView : StatefulWidget {
         public ListWheelScrollView(
+            List<Widget> children,
             Key key = null,
             ScrollController controller = null,
             ScrollPhysics physics = null,
@@ -447,10 +440,9 @@ namespace Unity.UIWidgets.widgets {
             float squeeze = 1.0f,
             ValueChanged<int> onSelectedItemChanged = null,
             bool clipToSize = true,
-            bool renderChildrenOutsideViewport = false,
-            List<Widget> children = null
+            bool renderChildrenOutsideViewport = false
         ) : base(key: key) {
-            D.assert(children != null || childDelegate != null);
+            //D.assert(children != null);
             D.assert(diameterRatio > 0.0, () => RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(perspective > 0);
             D.assert(perspective <= 0.01f, () => RenderListWheelViewport.perspectiveTooHighMessage);
@@ -479,7 +471,7 @@ namespace Unity.UIWidgets.widgets {
             this.renderChildrenOutsideViewport = renderChildrenOutsideViewport;
         }
 
-        public static ListWheelScrollView useDelegate(
+        public ListWheelScrollView (
             Key key = null,
             ScrollController controller = null,
             ScrollPhysics physics = null,
@@ -495,7 +487,7 @@ namespace Unity.UIWidgets.widgets {
             bool clipToSize = true,
             bool renderChildrenOutsideViewport = false,
             ListWheelChildDelegate childDelegate = null
-        ) {
+        ) : base(key: key) {
             D.assert(childDelegate != null);
             D.assert(diameterRatio > 0.0, ()=>RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(perspective > 0);
@@ -509,22 +501,20 @@ namespace Unity.UIWidgets.widgets {
                 !renderChildrenOutsideViewport || !clipToSize,()=>
                 RenderListWheelViewport.clipToSizeAndRenderChildrenOutsideViewportConflict
             );
-            var view =  new ListWheelScrollView(
-                itemExtent: itemExtent,
-                key: key,
-                controller: controller,
-                physics: physics,
-                diameterRatio: diameterRatio,
-                perspective: perspective,
-                offAxisFraction: offAxisFraction,
-                useMagnifier: useMagnifier,
-                magnification: magnification,
-                onSelectedItemChanged: onSelectedItemChanged,
-                clipToSize: clipToSize,
-                renderChildrenOutsideViewport: renderChildrenOutsideViewport
-            );
-            view.childDelegate = childDelegate;
-            return view;
+            this.controller = controller;
+            this.physics = physics;
+            this.diameterRatio = diameterRatio;
+            this.perspective = perspective;
+            this.offAxisFraction = offAxisFraction;
+            this.useMagnifier = useMagnifier;
+            this.magnification = magnification;
+            this.overAndUnderCenterOpacity = overAndUnderCenterOpacity;
+            this.itemExtent = itemExtent;
+            this.squeeze = squeeze;
+            this.onSelectedItemChanged = onSelectedItemChanged;
+            this.clipToSize = clipToSize;
+            this.renderChildrenOutsideViewport = renderChildrenOutsideViewport;
+            this.childDelegate = childDelegate;
         }
 
         public readonly ScrollController controller;
@@ -597,7 +587,7 @@ namespace Unity.UIWidgets.widgets {
                             useMagnifier: widget.useMagnifier,
                             magnification: widget.magnification,
                             overAndUnderCenterOpacity: widget.overAndUnderCenterOpacity,
-                            itemExtent: widget.itemExtent ?? 0.0f,
+                            itemExtent: widget.itemExtent ,
                             squeeze: widget.squeeze,
                             clipToSize: widget.clipToSize,
                             renderChildrenOutsideViewport: widget.renderChildrenOutsideViewport,
@@ -618,7 +608,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public new RenderListWheelViewport renderObject {
-            get { return (RenderListWheelViewport) base.renderObject; }
+            get { return (RenderListWheelViewport)base.renderObject; }
         }
 
 
@@ -649,7 +639,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             int firstIndex = _childElements.First()?.Key ?? 0;
-            int lastIndex = _childElements.Last()?.Key ?? 0;
+            int lastIndex = _childElements.Last()?.Key ?? _childElements.Count;
 
             for (int index = firstIndex; index <= lastIndex; ++index) {
                 Element newChild = updateChild(_childElements[index], retrieveWidget(index), index);
@@ -675,8 +665,7 @@ namespace Unity.UIWidgets.widgets {
             owner.buildScope(this, () => {
                 bool insertFirst = after == null;
                 D.assert(insertFirst || _childElements[index - 1] != null);
-                Element newChild = updateChild(_childElements.getOrDefault(index), retrieveWidget(index),
-                    index);
+                Element newChild = updateChild(_childElements.getOrDefault(index), retrieveWidget(index), index);
                 if (newChild != null) {
                     _childElements[index] = newChild;
                 }
@@ -714,12 +703,14 @@ namespace Unity.UIWidgets.widgets {
         protected override void insertChildRenderObject(RenderObject child, object slot) {
             RenderListWheelViewport renderObject = this.renderObject;
             D.assert(renderObject.debugValidateChild(child));
-            renderObject.insert(child as RenderBox, after: _childElements[(int)slot - 1]?.renderObject as RenderBox);
+            int slotNum = (int) slot;
+            if(slotNum >= 1)
+                renderObject.insert(child as RenderBox, after: _childElements.getOrDefault(slotNum - 1).renderObject as RenderBox);
             D.assert(renderObject == this.renderObject);
         }
 
-        protected override void moveChildRenderObject(RenderObject child, dynamic slot) {
-            const string moveChildRenderObjectErrorMessage =
+        protected override void moveChildRenderObject(RenderObject child, dynamic slot) { 
+            string moveChildRenderObjectErrorMessage =
                 "Currently we maintain the list in contiguous increasing order, so " +
                 "moving children around is not allowed.";
             D.assert(false, () => moveChildRenderObjectErrorMessage);
@@ -770,19 +761,18 @@ namespace Unity.UIWidgets.widgets {
                 !renderChildrenOutsideViewport || !clipToSize,
                 () => RenderListWheelViewport.clipToSizeAndRenderChildrenOutsideViewportConflict
             );
-
-            this.itemExtent = itemExtent;
-            this.offset = offset;
-            this.childDelegate = childDelegate;
             this.diameterRatio = diameterRatio;
             this.perspective = perspective;
             this.offAxisFraction = offAxisFraction;
             this.useMagnifier = useMagnifier;
             this.magnification = magnification;
+            this.overAndUnderCenterOpacity = overAndUnderCenterOpacity;
+            this.itemExtent = itemExtent;
+            this.squeeze = squeeze;
             this.clipToSize = clipToSize;
             this.renderChildrenOutsideViewport = renderChildrenOutsideViewport;
-            this.overAndUnderCenterOpacity = overAndUnderCenterOpacity;
-            this.squeeze = squeeze;
+            this.offset = offset;
+            this.childDelegate = childDelegate;
         }
 
         public readonly float diameterRatio;
@@ -813,7 +803,7 @@ namespace Unity.UIWidgets.widgets {
                 useMagnifier: useMagnifier,
                 magnification: magnification,
                 overAndUnderCenterOpacity: overAndUnderCenterOpacity,
-                itemExtent: itemExtent ?? 0.0f,
+                itemExtent: itemExtent ?? 1.0f ,
                 squeeze: squeeze,
                 clipToSize: clipToSize,
                 renderChildrenOutsideViewport: renderChildrenOutsideViewport
@@ -829,7 +819,7 @@ namespace Unity.UIWidgets.widgets {
             viewport.useMagnifier = useMagnifier;
             viewport.magnification = magnification;
             viewport.overAndUnderCenterOpacity = overAndUnderCenterOpacity;
-            viewport.itemExtent = itemExtent ?? 0.0f;
+            viewport.itemExtent = itemExtent ?? 1.0f;
             viewport.squeeze = squeeze;
             viewport.clipToSize = clipToSize;
             viewport.renderChildrenOutsideViewport = renderChildrenOutsideViewport;
