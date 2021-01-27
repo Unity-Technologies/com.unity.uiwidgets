@@ -519,10 +519,13 @@ namespace Unity.UIWidgets.widgets {
                 
                 void processElement(int index) {
                     _currentlyUpdatingChildIndex = index;
-                    if (_childElements[index] != null && _childElements[index] != newChildren[index]) {
+                    if(_childElements.getOrDefault(index) != null && 
+                       _childElements.getOrDefault(index) != newChildren.getOrDefault(index))
+                   // if (_childElements[index] != null && _childElements[index] != newChildren[index])
+                    {
                         _childElements[index] = updateChild(_childElements[index], null, index);
                     }
-                    Element newChild = updateChild(newChildren[index], _build(index), index);
+                    Element newChild = updateChild(newChildren.getOrDefault(index), _build(index), index);
                     if (newChild != null) {
                         _childElements[index] = newChild;
                         SliverMultiBoxAdaptorParentData parentData = newChild.renderObject.parentData as SliverMultiBoxAdaptorParentData;
@@ -610,7 +613,18 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override Element updateChild(Element child, Widget newWidget, object newSlot) {
-            SliverMultiBoxAdaptorParentData oldParentData = null;
+            
+            SliverMultiBoxAdaptorParentData oldParentData = child?.renderObject?.parentData as SliverMultiBoxAdaptorParentData;
+            Element newChild = base.updateChild(child, newWidget, newSlot);
+            SliverMultiBoxAdaptorParentData newParentData = newChild?.renderObject?.parentData as SliverMultiBoxAdaptorParentData;
+
+            // Preserve the old layoutOffset if the renderObject was swapped out.
+            if (oldParentData != newParentData && oldParentData != null && newParentData != null) {
+                newParentData.layoutOffset = oldParentData.layoutOffset;
+            }
+            return newChild;
+            
+            /*SliverMultiBoxAdaptorParentData oldParentData = null;
             if (child != null && child.renderObject != null) {
                 oldParentData = (SliverMultiBoxAdaptorParentData) child.renderObject.parentData;
             }
@@ -626,7 +640,7 @@ namespace Unity.UIWidgets.widgets {
                 newParentData.layoutOffset = oldParentData.layoutOffset;
             }
 
-            return newChild;
+            return newChild;*/
         }
 
         internal override void forgetChild(Element child) {
