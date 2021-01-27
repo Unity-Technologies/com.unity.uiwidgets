@@ -4,6 +4,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 
 namespace Unity.UIWidgets.widgets {
     public delegate Widget LayoutWidgetBuilder(BuildContext context, BoxConstraints constraints);
@@ -38,11 +39,16 @@ namespace Unity.UIWidgets.widgets {
                 return (ConstrainedLayoutBuilder<ConstraintType>)base.widget ;
             }
         }
-        public new RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject> renderObject {
+        public RenderConstrainedLayoutBuilder<ConstraintType> renderObject_builder {
             get {
-                return base.renderObject as RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject> ;
+                return base.renderObject as RenderConstrainedLayoutBuilder<ConstraintType> ;
             }
         }
+
+        public RenderObjectWithChildMixin renderObject_childMxin {
+            get { return base.renderObject as RenderObjectWithChildMixin; }
+        }
+        
         Element _child;
 
         public override void visitChildren(ElementVisitor visitor) {
@@ -57,7 +63,7 @@ namespace Unity.UIWidgets.widgets {
         }
         public override void mount(Element parent, object newSlot) {
             base.mount(parent, newSlot); // Creates the renderObject.
-            ((RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject>)renderObject).updateCallback(_layout);
+            renderObject_builder.updateCallback(_layout);
         }
 
         public override void update(Widget newWidget) {
@@ -65,7 +71,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(widget != newWidget);
             base.update(newWidget);
             D.assert(widget == newWidget);
-            renderObject.updateCallback(_layout);
+            renderObject_builder.updateCallback(_layout);
             renderObject.markNeedsLayout();
         }
 
@@ -75,7 +81,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void unmount() {
-            renderObject.updateCallback(null);
+            renderObject_builder.updateCallback(null);
             base.unmount();
         }
 
@@ -113,7 +119,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void insertChildRenderObject(RenderObject child, object slot) {
-            RenderObjectWithChildMixin<RenderObject> renderObject = this.renderObject;
+            RenderObjectWithChildMixin renderObject = renderObject_childMxin;
             D.assert(slot == null);
             D.assert(renderObject.debugValidateChild(child));
             renderObject.child = child;
@@ -125,7 +131,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
-            RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, RenderObject> renderObject = this.renderObject;
+            RenderObjectWithChildMixin renderObject = renderObject_childMxin;
             D.assert(renderObject.child == child);
             renderObject.child = null;
             D.assert(renderObject == this.renderObject);
@@ -133,9 +139,8 @@ namespace Unity.UIWidgets.widgets {
 
     }
 
-    public interface RenderConstrainedLayoutBuilder<ConstraintType,ChildType>
-        where ConstraintType : Constraints 
-        where ChildType : RenderObject
+    public interface RenderConstrainedLayoutBuilder<ConstraintType>
+        where ConstraintType : Constraints
     {
 
         LayoutCallback<ConstraintType> _callback { get; set; }
@@ -178,25 +183,6 @@ namespace Unity.UIWidgets.widgets {
     }
     
     public class _RenderLayoutBuilder : RenderConstrainedLayoutBuilderMixinRenderBox<BoxConstraints, RenderBox> {
-        public _RenderLayoutBuilder(
-            LayoutCallback<BoxConstraints> callback = null) { 
-            _callback = callback;
-        }
-
-        public LayoutCallback<BoxConstraints> callback {
-            get { return _callback; }
-            set {
-                if (value == _callback) {
-                    return;
-                }
-
-                _callback = value;
-                markNeedsLayout();
-            }
-        }
-
-        LayoutCallback<BoxConstraints> _callback;
-
         bool _debugThrowIfNotCheckingIntrinsics() {
             D.assert(() => {
                 if (!debugCheckingIntrinsics) {
@@ -233,8 +219,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void performLayout() {
-            D.assert(callback != null);
-            invokeLayoutCallback(callback);
+            D.assert(_callback != null);
+            invokeLayoutCallback(_callback);
             if (child != null) {
                 child.layout(constraints, parentUsesSize: true);
                 size = constraints.constrain(child.size);
