@@ -132,6 +132,8 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class SliverChildListDelegate : SliverChildDelegate {
+        static readonly Key _defaultNullKey = Key.key("SliverChildListDelegate##DefaultNullKey");
+        
         public SliverChildListDelegate(
             List<Widget> children,
             bool addAutomaticKeepAlives = true,
@@ -141,7 +143,7 @@ namespace Unity.UIWidgets.widgets {
             this.children = children;
             this.addAutomaticKeepAlives = addAutomaticKeepAlives;
             this.addRepaintBoundaries = addRepaintBoundaries;
-            _keyToIndex = new Dictionary<Key, int>(){{Key.key("null"), 0}};
+            _keyToIndex = new Dictionary<Key, int>{{_defaultNullKey, 0}};
         }
 
         public readonly bool addAutomaticKeepAlives;
@@ -162,20 +164,20 @@ namespace Unity.UIWidgets.widgets {
                 return null;
             }
             if (!_keyToIndex.ContainsKey(key)) {
-                int index = _keyToIndex.getOrDefault(Key.key("null"));
+                int index = _keyToIndex.getOrDefault(_defaultNullKey);
                 while (index < children.Count) {
                     Widget child = children[index];
-                    if (child.key != Key.key("null")) {
+                    if (child.key != _defaultNullKey) {
                         _keyToIndex[child.key] = index;
                     }
                     if (child.key == key) {
                         // Record current index for next function call.
-                        _keyToIndex[Key.key("null")] = index + 1;
+                        _keyToIndex[_defaultNullKey] = index + 1;
                         return index;
                     }
                     index += 1;
                 }
-                _keyToIndex[Key.key("null")] = index;
+                _keyToIndex[_defaultNullKey] = index;
             } else {
                 return _keyToIndex[key];
             }
@@ -199,11 +201,13 @@ namespace Unity.UIWidgets.widgets {
             if (index < 0 || index >= children.Count)
                 return null;
             Widget child = children[index];
-            Key key = child.key != null? new _SaltedValueKey(child.key) : null; 
+            
             D.assert(
                 child != null,()=>
-                "The sliver's children must not contain null values, but a null value was found at index $index"
+                    "The sliver's children must not contain null values, but a null value was found at index $index"
             );
+            
+            Key key = child.key != null? new _SaltedValueKey(child.key) : null;
             if (addRepaintBoundaries)
                 child = new RepaintBoundary(child: child);
             if (addAutomaticKeepAlives)
