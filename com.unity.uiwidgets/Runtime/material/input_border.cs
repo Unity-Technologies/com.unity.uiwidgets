@@ -289,63 +289,64 @@ namespace Unity.UIWidgets.material {
         }
 
         Path _gapBorderPath(Canvas canvas, RRect center, float start, float extent) {
+             RRect scaledRRect = center.scaleRadii();
             Rect tlCorner = Rect.fromLTWH(
-                center.left,
-                center.top,
-                center.tlRadiusX * 2.0f,
-                center.tlRadiusY * 2.0f
+                scaledRRect.left,
+                scaledRRect.top,
+                scaledRRect.tlRadiusX * 2.0f,
+                scaledRRect.tlRadiusY * 2.0f
             );
             Rect trCorner = Rect.fromLTWH(
-                center.right - center.trRadiusX * 2.0f,
-                center.top,
-                center.trRadiusX * 2.0f,
-                center.trRadiusY * 2.0f
+                scaledRRect.right - scaledRRect.trRadiusX * 2.0f,
+                scaledRRect.top,
+                scaledRRect.trRadiusX * 2.0f,
+                scaledRRect.trRadiusY * 2.0f
             );
             Rect brCorner = Rect.fromLTWH(
-                center.right - center.brRadiusX * 2.0f,
-                center.bottom - center.brRadiusY * 2.0f,
-                center.brRadiusX * 2.0f,
-                center.brRadiusY * 2.0f
+                scaledRRect.right - scaledRRect.brRadiusX * 2.0f,
+                scaledRRect.bottom - scaledRRect.brRadiusY * 2.0f,
+                scaledRRect.brRadiusX * 2.0f,
+                scaledRRect.brRadiusY * 2.0f
             );
             Rect blCorner = Rect.fromLTWH(
-                center.left,
-                center.bottom - center.brRadiusY * 2.0f,
-                center.blRadiusX * 2.0f,
-                center.blRadiusY * 2.0f
+                scaledRRect.left,
+                scaledRRect.bottom - scaledRRect.brRadiusY * 2.0f,
+                scaledRRect.blRadiusX * 2.0f,
+                scaledRRect.blRadiusY * 2.0f
             );
 
             const float cornerArcSweep = Mathf.PI / 2.0f;
-            float tlCornerArcSweep = start < center.tlRadiusX
-                ? Mathf.Asin((start / center.tlRadiusX).clamp(-1.0f, 1.0f))
+            float tlCornerArcSweep = start < scaledRRect.tlRadiusX
+                ? Mathf.Asin((start / scaledRRect.tlRadiusX).clamp(-1.0f, 1.0f))
                 : Mathf.PI / 2.0f;
 
             Path path = new Path();
             path.addArc(tlCorner, Mathf.PI, tlCornerArcSweep);
-            path.moveTo(center.left + center.tlRadiusX, center.top);
+            path.moveTo(scaledRRect.left + scaledRRect.tlRadiusX, scaledRRect.top);
 
-            if (start > center.tlRadiusX) {
-                path.lineTo(center.left + start, center.top);
+            if (start > scaledRRect.tlRadiusX) {
+                path.lineTo(scaledRRect.left + start, scaledRRect.top);
             }
 
             const float trCornerArcStart = (3 * Mathf.PI) / 2.0f;
             const float trCornerArcSweep = cornerArcSweep;
-            if (start + extent < center.width - center.trRadiusX) {
+            if (start + extent < scaledRRect.width - scaledRRect.trRadiusX) {
                 path.relativeMoveTo(extent, 0.0f);
-                path.lineTo(center.right - center.trRadiusX, center.top);
+                path.lineTo(scaledRRect.right - scaledRRect.trRadiusX, scaledRRect.top);
                 path.addArc(trCorner, trCornerArcStart, trCornerArcSweep);
             }
-            else if (start + extent < center.width) {
-                float dx = center.width - (start + extent);
-                float sweep = Mathf.Acos(dx / center.trRadiusX);
+            else if (start + extent < scaledRRect.width) {
+                float dx = scaledRRect.width - (start + extent);
+                float sweep = Mathf.Acos(dx / scaledRRect.trRadiusX);
                 path.addArc(trCorner, trCornerArcStart + sweep, trCornerArcSweep - sweep);
             }
 
-            path.moveTo(center.right, center.top + center.trRadiusY);
-            path.lineTo(center.right, center.bottom - center.brRadiusY);
+            path.moveTo(scaledRRect.right, scaledRRect.top + scaledRRect.trRadiusY);
+            path.lineTo(scaledRRect.right, scaledRRect.bottom - scaledRRect.brRadiusY);
             path.addArc(brCorner, 0.0f, cornerArcSweep);
-            path.lineTo(center.left + center.blRadiusX, center.bottom);
+            path.lineTo(scaledRRect.left + scaledRRect.blRadiusX, scaledRRect.bottom);
             path.addArc(blCorner, Mathf.PI / 2.0f, cornerArcSweep);
-            path.lineTo(center.left, center.top + center.trRadiusY);
+            path.lineTo(scaledRRect.left, scaledRRect.top + scaledRRect.trRadiusY);
             return path;
         }
 

@@ -61,8 +61,7 @@ namespace Unity.UIWidgets.animation {
     }
 
     class FlippedTweenSequence : TweenSequence<float> {
-
-        FlippedTweenSequence(List<TweenSequenceItem<float>> items)
+        public FlippedTweenSequence(List<TweenSequenceItem<float>> items)
             : base(items) {
             D.assert(items != null);
         }

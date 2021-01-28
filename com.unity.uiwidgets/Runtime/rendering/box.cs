@@ -1106,7 +1106,6 @@ namespace Unity.UIWidgets.rendering {
 
                     information.Add(new DiagnosticsProperty<BoxConstraints>("The constraints that applied to the ${runtimeType} were", constraints, style: DiagnosticsTreeStyle.errorProperty));
                     information.Add(new DiagnosticsProperty<Size>("The exact size it was given was", _size, style: DiagnosticsTreeStyle.errorProperty));
-                    information.Add(new ErrorHint("See https://flutter.dev/docs/development/ui/layout/box-constraints for more information."));
                     throw new UIWidgetsError(information);
                 }
 
@@ -1117,7 +1116,7 @@ namespace Unity.UIWidgets.rendering {
                         new DiagnosticsProperty<Size>("Size", _size, style: DiagnosticsTreeStyle.errorProperty),
                         new ErrorHint(
                             "If you are not writing your own RenderBox subclass, then this is not " +
-                            "your fault. Contact support: https://github.com/flutter/flutter/issues/new?template=BUG.md"
+                            "your fault."
                         )
                     });
                 }

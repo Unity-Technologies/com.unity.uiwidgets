@@ -103,7 +103,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _DropdownMenuItemButton<T> : StatefulWidget where T : class {
+    class _DropdownMenuItemButton<T> : StatefulWidget {
         internal _DropdownMenuItemButton(
             Key key = null,
             _DropdownRoute<T> route = null,
@@ -128,7 +128,7 @@ namespace Unity.UIWidgets.material {
         public override State createState() => new _DropdownMenuItemButtonState<T>();
     }
 
-    class _DropdownMenuItemButtonState<T> : State<_DropdownMenuItemButton<T>> where T : class {
+    class _DropdownMenuItemButtonState<T> : State<_DropdownMenuItemButton<T>>  {
         void _handleFocusChange(bool focused) {
             bool inTraditionalMode = false;
             switch (FocusManager.instance.highlightMode) {
@@ -198,7 +198,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _DropdownMenu<T> : StatefulWidget where T : class {
+    class _DropdownMenu<T> : StatefulWidget {
         public _DropdownMenu(
             Key key = null,
             EdgeInsets padding = null,
@@ -226,7 +226,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _DropdownMenuState<T> : State<_DropdownMenu<T>> where T : class {
+    class _DropdownMenuState<T> : State<_DropdownMenu<T>> {
         CurvedAnimation _fadeOpacity;
         CurvedAnimation _resize;
 
@@ -292,7 +292,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _DropdownMenuRouteLayout<T> : SingleChildLayoutDelegate where T : class {
+    class _DropdownMenuRouteLayout<T> : SingleChildLayoutDelegate {
         public _DropdownMenuRouteLayout(
             Rect buttonRect,
             _DropdownRoute<T> route = null,
@@ -349,7 +349,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _DropdownRouteResult<T> where T : class {
+    class _DropdownRouteResult<T> {
         public _DropdownRouteResult(T result) {
             this.result = result;
         }
@@ -365,7 +365,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public bool Equals(_DropdownRouteResult<T> other) {
-            return result == other.result;
+            return result.Equals(other.result);
         }
 
         public override bool Equals(object obj) {
@@ -403,7 +403,7 @@ namespace Unity.UIWidgets.material {
         public readonly float? scrollOffset;
     }
 
-    class _DropdownRoute<T> : PopupRoute<_DropdownRouteResult<T>> where T : class {
+    class _DropdownRoute<T> : PopupRoute<_DropdownRouteResult<T>>  {
         public _DropdownRoute(
             List<_MenuItem<T>> items = null,
             EdgeInsets padding = null,
@@ -526,7 +526,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _DropdownRoutePage<T> : StatelessWidget where T : class {
+    class _DropdownRoutePage<T> : StatelessWidget {
         public _DropdownRoutePage(
             Key key = null,
             _DropdownRoute<T> route = null,
@@ -605,7 +605,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _MenuItem<T> : SingleChildRenderObjectWidget where T : class {
+    class _MenuItem<T> : SingleChildRenderObjectWidget  {
         internal _MenuItem(
             Key key = null,
             ValueChanged<Size> onLayout = null,
@@ -664,11 +664,11 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    public class DropdownMenuItem<T> : _DropdownMenuItemContainer where T : class {
+    public class DropdownMenuItem<T> : _DropdownMenuItemContainer {
         public DropdownMenuItem(
             Key key = null,
             VoidCallback onTap = null,
-            T value = null,
+            T value = default,
             Widget child = null
         ) : base(key: key, child: child) {
             D.assert(child != null);
@@ -697,12 +697,12 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    public class DropdownButton<T> : StatefulWidget where T : class {
+    public class DropdownButton<T> : StatefulWidget{
         public DropdownButton(
             Key key = null,
             List<DropdownMenuItem<T>> items = null,
             material_.DropdownButtonBuilder selectedItemBuilder = null,
-            T value = null,
+            T value = default,
             Widget hint = null,
             Widget disabledHint = null,
             ValueChanged<T> onChanged = null,
@@ -724,7 +724,7 @@ namespace Unity.UIWidgets.material {
         ) :
             base(key: key) {
             D.assert(items == null || items.isEmpty() || value == null ||
-                     items.Where((DropdownMenuItem<T> item) => { return item.value == value; }).Count() == 1,
+                     items.Where((DropdownMenuItem<T> item) => { return item.value.Equals(value); }).Count() == 1,
                 () => "There should be exactly one item with [DropdownButton]'s value: " +
                       $"{value}. \n" +
                       "Either zero or 2 or more [DropdownMenuItem]s were detected " +
@@ -802,7 +802,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _DropdownButtonState<T> : State<DropdownButton<T>>, WidgetsBindingObserver where T : class {
+    class _DropdownButtonState<T> : State<DropdownButton<T>>, WidgetsBindingObserver{
         int? _selectedIndex;
         _DropdownRoute<T> _dropdownRoute;
         Orientation? _lastOrientation;
@@ -824,7 +824,7 @@ namespace Unity.UIWidgets.material {
             base.initState();
             _updateSelectedIndex();
             if (widget.focusNode == null) {
-                _internalNode = _internalNode?? _createFocusNode();
+                _internalNode = _internalNode ?? _createFocusNode();
             }
 
             _actionMap = new Dictionary<LocalKey, ActionFactory>() {
@@ -848,7 +848,7 @@ namespace Unity.UIWidgets.material {
         public void didChangeMetrics() {
             _removeDropdownRoute();
         }
-        
+
         void _removeDropdownRoute() {
             _dropdownRoute?._dismiss();
             _dropdownRoute = null;
@@ -874,7 +874,7 @@ namespace Unity.UIWidgets.material {
             if (oldWidget is DropdownButton<T> dropdownButton && widget.focusNode != dropdownButton.focusNode) {
                 dropdownButton.focusNode?.removeListener(_handleFocusChanged);
                 if (widget.focusNode == null) {
-                    _internalNode =_internalNode?? _createFocusNode();
+                    _internalNode = _internalNode ?? _createFocusNode();
                 }
 
                 _hasPrimaryFocus = focusNode.hasPrimaryFocus;

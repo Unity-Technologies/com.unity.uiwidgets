@@ -1,4 +1,5 @@
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -13,9 +14,18 @@ namespace Unity.UIWidgets.material {
                 case RuntimePlatform.Android:
                     return
                         Future.value(); // SystemSound.play(SystemSoundType.click); TODO: replace with unity equivalent
-                default:
+                case RuntimePlatform.IPhonePlayer:
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
                     return Future.value();
             }
+
+            D.assert(false, () => $"Unhandled TargetPlatform {_platform(context)}");
+            return Future.value();
         }
 
         public static GestureTapCallback wrapForTap(GestureTapCallback callback, BuildContext context) {
@@ -33,9 +43,17 @@ namespace Unity.UIWidgets.material {
             switch (_platform(context)) {
                 case RuntimePlatform.Android:
                     return Future.value(); // HapticFeedback.vibrate(); TODO
-                default:
+                case RuntimePlatform.IPhonePlayer:
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
                     return Future.value();
             }
+            D.assert(false, ()=>$"Unhandled TargetPlatform {_platform(context)}");
+            return Future.value();
         }
 
         public static GestureLongPressCallback

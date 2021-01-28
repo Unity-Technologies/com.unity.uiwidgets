@@ -104,7 +104,7 @@ namespace Unity.UIWidgets.material {
             this.onTap = onTap;
         }
 
-        static readonly DataCell empty = new DataCell(new Container(width: 0.0f, height: 0.0f));
+        public static readonly DataCell empty = new DataCell(new Container(width: 0.0f, height: 0.0f));
 
         public readonly Widget child;
 

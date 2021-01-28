@@ -18,6 +18,7 @@ namespace Unity.UIWidgets.material {
             Key key = null,
             Widget leading = null,
             Widget title = null,
+            Widget subtitle = null,
             Color backgroundColor = null,
             ValueChanged<bool> onExpansionChanged = null,
             List<Widget> children = null,
@@ -27,6 +28,7 @@ namespace Unity.UIWidgets.material {
             D.assert(title != null);
             this.leading = leading;
             this.title = title;
+            this.subtitle = subtitle;
             this.backgroundColor = backgroundColor;
             this.onExpansionChanged = onExpansionChanged;
             this.children = children ?? new List<Widget>();
@@ -37,6 +39,8 @@ namespace Unity.UIWidgets.material {
         public readonly Widget leading;
 
         public readonly Widget title;
+
+        public readonly Widget subtitle;
 
         public readonly ValueChanged<bool> onExpansionChanged;
 
@@ -139,6 +143,7 @@ namespace Unity.UIWidgets.material {
                                 onTap: _handleTap,
                                 leading: widget.leading,
                                 title: widget.title,
+                                subtitle: widget.subtitle,
                                 trailing: widget.trailing ?? new RotationTransition(
                                               turns: _iconTurns,
                                               child: new Icon(Icons.expand_more)
@@ -158,7 +163,7 @@ namespace Unity.UIWidgets.material {
         public override void didChangeDependencies() {
             ThemeData theme = Theme.of(context);
             _borderColorTween.end = theme.dividerColor;
-            _headerColorTween.begin = theme.textTheme.subhead.color;
+            _headerColorTween.begin = theme.textTheme.subtitle1.color;
             _headerColorTween.end = theme.accentColor;
             _iconColorTween.begin = theme.unselectedWidgetColor;
             _iconColorTween.end = theme.accentColor;

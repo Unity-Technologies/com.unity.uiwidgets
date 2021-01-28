@@ -18,7 +18,7 @@ namespace Unity.UIWidgets.material {
         drawer
     }
 
-    public class ListTileTheme : InheritedWidget {
+    public class ListTileTheme : InheritedTheme {
         public ListTileTheme(
             Key key = null,
             bool dense = false,
@@ -75,8 +75,23 @@ namespace Unity.UIWidgets.material {
         public readonly EdgeInsets contentPadding;
 
         public static ListTileTheme of(BuildContext context) {
-            ListTileTheme result = (ListTileTheme) context.inheritFromWidgetOfExactType(typeof(ListTileTheme));
+            ListTileTheme result = context.dependOnInheritedWidgetOfExactType<ListTileTheme>();
             return result ?? new ListTileTheme();
+        }
+
+        public override Widget wrap(BuildContext context, Widget child) {
+            ListTileTheme ancestorTheme = context.findAncestorWidgetOfExactType<ListTileTheme>();
+            return ReferenceEquals(this, ancestorTheme)
+                ? child
+                : new ListTileTheme(
+                    dense: dense,
+                    style: style,
+                    selectedColor: selectedColor,
+                    iconColor: iconColor,
+                    textColor: textColor,
+                    contentPadding: contentPadding,
+                    child: child
+                );
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
@@ -223,7 +238,7 @@ namespace Unity.UIWidgets.material {
         }
 
         bool _isDenseLayout(ListTileTheme tileTheme) {
-            return dense != null ? dense ?? false : (tileTheme?.dense ?? false);
+            return dense ?? tileTheme?.dense ?? false;
         }
 
         TextStyle _titleTextStyle(ThemeData theme, ListTileTheme tileTheme) {
@@ -231,15 +246,15 @@ namespace Unity.UIWidgets.material {
             if (tileTheme != null) {
                 switch (tileTheme.style) {
                     case ListTileStyle.drawer:
-                        style = theme.textTheme.body2;
+                        style = theme.textTheme.bodyText1;
                         break;
                     case ListTileStyle.list:
-                        style = theme.textTheme.subhead;
+                        style = theme.textTheme.subtitle1;
                         break;
                 }
             }
             else {
-                style = theme.textTheme.subhead;
+                style = theme.textTheme.subtitle1;
             }
 
             Color color = _textColor(theme, tileTheme, style.color);
@@ -249,7 +264,7 @@ namespace Unity.UIWidgets.material {
         }
 
         TextStyle _subtitleTextStyle(ThemeData theme, ListTileTheme tileTheme) {
-            TextStyle style = theme.textTheme.body1;
+            TextStyle style = theme.textTheme.bodyText2;
             Color color = _textColor(theme, tileTheme, theme.textTheme.caption.color);
             return _isDenseLayout(tileTheme)
                 ? style.copyWith(color: color, fontSize: 12.0f)
@@ -304,6 +319,7 @@ namespace Unity.UIWidgets.material {
             return new InkWell(
                 onTap: enabled ? onTap : null,
                 onLongPress: enabled ? onLongPress : null,
+                canRequestFocus: enabled,
                 child: new SafeArea(
                     top: false,
                     bottom: false,
@@ -421,6 +437,7 @@ namespace Unity.UIWidgets.material {
             _ListTileSlot slot = childToSlot[child];
             childToSlot.Remove(child);
             slotToChild.Remove(slot);
+            base.forgetChild(child);
         }
 
         void _mountChild(Widget widget, _ListTileSlot slot) {
@@ -468,7 +485,7 @@ namespace Unity.UIWidgets.material {
             _updateChild(widget.trailing, _ListTileSlot.trailing);
         }
 
-        void _updateRenderObject(RenderObject child, _ListTileSlot slot) {
+        void _updateRenderObject(RenderBox child, _ListTileSlot slot) {
             switch (slot) {
                 case _ListTileSlot.leading:
                     renderObject.leading = (RenderBox) child;
@@ -489,7 +506,7 @@ namespace Unity.UIWidgets.material {
             D.assert(child is RenderBox);
             D.assert(slotValue is _ListTileSlot);
             _ListTileSlot slot = (_ListTileSlot) slotValue;
-            _updateRenderObject(child, slot);
+            _updateRenderObject((RenderBox) child, slot);
             D.assert(renderObject.childToSlot.Keys.Contains(child));
             D.assert(renderObject.slotToChild.Keys.Contains(slot));
         }
@@ -779,6 +796,7 @@ namespace Unity.UIWidgets.material {
         }
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
             bool hasLeading = leading != null;
             bool hasSubtitle = subtitle != null;
             bool hasTrailing = trailing != null;

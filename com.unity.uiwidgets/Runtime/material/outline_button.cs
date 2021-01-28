@@ -20,10 +20,13 @@ namespace Unity.UIWidgets.material {
         public OutlineButton(
             Key key = null,
             VoidCallback onPressed = null,
+            VoidCallback onLongPress = null,
             ButtonTextTheme? textTheme = null,
             Color textColor = null,
             Color disabledTextColor = null,
             Color color = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             float? highlightElevation = null,
@@ -31,23 +34,32 @@ namespace Unity.UIWidgets.material {
             Color disabledBorderColor = null,
             Color highlightedBorderColor = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
+            FocusNode focusNode = null,
+            bool autofocus = false,
             Widget child = null
         ) :
             base(
                 key: key,
                 onPressed: onPressed,
+                onLongPress: onLongPress,
                 textTheme: textTheme,
                 textColor: textColor,
                 disabledTextColor: disabledTextColor,
                 color: color,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
                 highlightColor: highlightColor,
                 splashColor: splashColor,
                 highlightElevation: highlightElevation,
                 padding: padding,
+                visualDensity: visualDensity,
                 shape: shape,
                 clipBehavior: clipBehavior,
+                focusNode: focusNode,
+                autofocus: autofocus,
                 child: child
             ) {
             D.assert(highlightElevation == null || highlightElevation >= 0.0f);
@@ -59,10 +71,13 @@ namespace Unity.UIWidgets.material {
         public static OutlineButton icon(
             Key key = null,
             VoidCallback onPressed = null,
+            VoidCallback onLongPress = null,
             ButtonTextTheme? textTheme = null,
             Color textColor = null,
             Color disabledTextColor = null,
             Color color = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             float? highlightElevation = null,
@@ -70,29 +85,37 @@ namespace Unity.UIWidgets.material {
             Color disabledBorderColor = null,
             BorderSide borderSide = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
             Widget icon = null,
+            FocusNode focusNode = null,
+            bool autofocus = false,
             Widget label = null
         ) {
             return new _OutlineButtonWithIcon(
-                key,
-                onPressed,
-                textTheme,
-                textColor,
-                disabledTextColor,
-                color,
-                highlightColor,
-                splashColor,
-                highlightElevation,
-                highlightedBorderColor,
-                disabledBorderColor,
-                borderSide,
-                padding,
-                shape,
-                clipBehavior,
-                icon,
-                label
+                key: key,
+                onPressed: onPressed,
+                onLongPress: onLongPress,
+                textTheme: textTheme,
+                textColor: textColor,
+                disabledTextColor: disabledTextColor,
+                color: color,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
+                highlightColor: highlightColor,
+                splashColor: splashColor,
+                highlightElevation: highlightElevation,
+                highlightedBorderColor: highlightedBorderColor,
+                disabledBorderColor: disabledBorderColor,
+                borderSide: borderSide,
+                padding: padding,
+                visualDensity: visualDensity,
+                shape: shape,
+                clipBehavior: clipBehavior,
+                focusNode: focusNode,
+                autofocus: autofocus,
+                label: label
             );
         }
 
@@ -106,11 +129,14 @@ namespace Unity.UIWidgets.material {
             ButtonThemeData buttonTheme = ButtonTheme.of(context);
             return new _OutlineButton(
                 onPressed: onPressed,
+                onLongPress: onLongPress,
                 brightness: buttonTheme.getBrightness(this),
                 textTheme: textTheme,
                 textColor: buttonTheme.getTextColor(this),
                 disabledTextColor: buttonTheme.getDisabledTextColor(this),
                 color: color,
+                focusColor: buttonTheme.getFocusColor(this),
+                hoverColor: buttonTheme.getHoverColor(this),
                 highlightColor: buttonTheme.getHighlightColor(this),
                 splashColor: buttonTheme.getSplashColor(this),
                 highlightElevation: buttonTheme.getHighlightElevation(this),
@@ -118,31 +144,19 @@ namespace Unity.UIWidgets.material {
                 disabledBorderColor: disabledBorderColor,
                 highlightedBorderColor: highlightedBorderColor ?? buttonTheme.colorScheme.primary,
                 padding: buttonTheme.getPadding(this),
+                visualDensity: visualDensity,
                 shape: buttonTheme.getShape(this),
                 clipBehavior: clipBehavior,
+                focusNode: focusNode,
                 child: child
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new ObjectFlagProperty<VoidCallback>("onPressed", onPressed, ifNull: "disabled"));
-            properties.add(new DiagnosticsProperty<ButtonTextTheme?>("textTheme", textTheme, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("textColor", textColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("disabledTextColor", disabledTextColor,
-                defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("color", color, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("highlightColor", highlightColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("splashColor", splashColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<float?>("highlightElevation", highlightElevation,
-                defaultValue: null));
             properties.add(new DiagnosticsProperty<BorderSide>("borderSide", borderSide, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("disabledBorderColor", disabledBorderColor,
-                defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("highlightedBorderColor", highlightedBorderColor,
-                defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: null));
-            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: null));
+            properties.add(new ColorProperty("disabledBorderColor", disabledBorderColor, defaultValue: null));
+            properties.add(new ColorProperty("highlightedBorderColor", highlightedBorderColor, defaultValue: null));
         }
     }
 
@@ -150,10 +164,13 @@ namespace Unity.UIWidgets.material {
         public _OutlineButtonWithIcon(
             Key key = null,
             VoidCallback onPressed = null,
+            VoidCallback onLongPress = null,
             ButtonTextTheme? textTheme = null,
             Color textColor = null,
             Color disabledTextColor = null,
             Color color = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             float? highlightElevation = null,
@@ -161,18 +178,24 @@ namespace Unity.UIWidgets.material {
             Color disabledBorderColor = null,
             BorderSide borderSide = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
+            FocusNode focusNode = null,
+            bool autofocus = false,
             Widget icon = null,
             Widget label = null
         ) :
             base(
                 key: key,
                 onPressed: onPressed,
+                onLongPress: onLongPress,
                 textTheme: textTheme,
                 textColor: textColor,
                 disabledTextColor: disabledTextColor,
                 color: color,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
                 highlightColor: highlightColor,
                 splashColor: splashColor,
                 highlightElevation: highlightElevation,
@@ -180,8 +203,11 @@ namespace Unity.UIWidgets.material {
                 highlightedBorderColor: highlightedBorderColor,
                 borderSide: borderSide,
                 padding: padding,
+                visualDensity: visualDensity,
                 shape: shape,
                 clipBehavior: clipBehavior,
+                focusNode: focusNode,
+                autofocus: autofocus,
                 child: new Row(
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
@@ -201,11 +227,14 @@ namespace Unity.UIWidgets.material {
         public _OutlineButton(
             Key key = null,
             VoidCallback onPressed = null,
+            VoidCallback onLongPress = null,
             Brightness? brightness = null,
             ButtonTextTheme? textTheme = null,
             Color textColor = null,
             Color disabledTextColor = null,
             Color color = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             float? highlightElevation = null,
@@ -213,18 +242,24 @@ namespace Unity.UIWidgets.material {
             Color disabledBorderColor = null,
             Color highlightedBorderColor = null,
             EdgeInsets padding = null,
+            VisualDensity visualDensity = null,
             ShapeBorder shape = null,
             Clip? clipBehavior = Clip.none,
+            FocusNode focusNode = null,
+            bool autofocus = false,
             Widget child = null
         ) : base(key: key) {
             D.assert(highlightElevation != null && highlightElevation >= 0.0f);
             D.assert(highlightedBorderColor != null);
             this.onPressed = onPressed;
+            this.onLongPress = onLongPress;
             this.brightness = brightness;
             this.textTheme = textTheme;
             this.textColor = textColor;
             this.disabledTextColor = disabledTextColor;
             this.color = color;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
             this.highlightColor = highlightColor;
             this.splashColor = splashColor;
             this.highlightElevation = highlightElevation;
@@ -232,17 +267,23 @@ namespace Unity.UIWidgets.material {
             this.disabledBorderColor = disabledBorderColor;
             this.highlightedBorderColor = highlightedBorderColor;
             this.padding = padding;
+            this.visualDensity = visualDensity;
             this.shape = shape;
             this.clipBehavior = clipBehavior;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
             this.child = child;
         }
 
         public readonly VoidCallback onPressed;
+        public readonly VoidCallback onLongPress;
         public readonly Brightness? brightness;
         public readonly ButtonTextTheme? textTheme;
         public readonly Color textColor;
         public readonly Color disabledTextColor;
         public readonly Color color;
+        public readonly Color focusColor;
+        public readonly Color hoverColor;
         public readonly Color highlightColor;
         public readonly Color splashColor;
         public readonly float? highlightElevation;
@@ -250,12 +291,15 @@ namespace Unity.UIWidgets.material {
         public readonly Color disabledBorderColor;
         public readonly Color highlightedBorderColor;
         public readonly EdgeInsets padding;
+        public readonly VisualDensity visualDensity;
         public readonly ShapeBorder shape;
         public readonly Clip? clipBehavior;
+        public readonly FocusNode focusNode;
+        public readonly bool autofocus;
         public readonly Widget child;
 
         public bool enabled {
-            get { return onPressed != null; }
+            get { return onPressed != null || onLongPress != null; }
         }
 
         public override State createState() {
@@ -334,6 +378,19 @@ namespace Unity.UIWidgets.material {
             return colorTween.evaluate(_fillAnimation);
         }
 
+        Color _outlineColor {
+            get {
+                // TODO: what is the meaning of this line?
+                if (widget.borderSide?.color is MaterialStateProperty<Color>)
+                    return widget.borderSide.color;
+                if (!widget.enabled)
+                    return widget.disabledBorderColor;
+                if (_pressed)
+                    return widget.highlightedBorderColor;
+                return widget.borderSide?.color;
+            }
+        }
+
         BorderSide _getOutline() {
             if (widget.borderSide?.style == BorderStyle.none) {
                 return widget.borderSide;
@@ -346,7 +403,7 @@ namespace Unity.UIWidgets.material {
             Color themeColor = Theme.of(context).colorScheme.onSurface.withOpacity(0.12f);
 
             return new BorderSide(
-                color: specifiedColor ?? themeColor,
+                color: _outlineColor ?? themeColor,
                 width: widget.borderSide?.width ?? 1.0f
             );
         }
@@ -363,6 +420,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
+            ThemeData theme = Theme.of(context);
             return new AnimatedBuilder(
                 animation: _controller,
                 builder: (BuildContext _context, Widget child) => {
@@ -371,21 +429,27 @@ namespace Unity.UIWidgets.material {
                         disabledTextColor: widget.disabledTextColor,
                         color: _getFillColor(),
                         splashColor: widget.splashColor,
+                        focusColor: widget.focusColor,
+                        hoverColor: widget.hoverColor,
                         highlightColor: widget.highlightColor,
                         disabledColor: Colors.transparent,
                         onPressed: widget.onPressed,
+                        onLongPress: widget.onLongPress,
                         elevation: 0.0f,
                         disabledElevation: 0.0f,
+                        focusElevation: 0.0f,
+                        hoverElevation: 0.0f,
                         highlightElevation: _getHighlightElevation(),
                         onHighlightChanged: _handleHighlightChanged,
                         padding:
                         widget.padding,
+                        visualDensity: widget.visualDensity ?? theme.visualDensity,
                         shape: new _OutlineBorder(
                             shape: widget.shape,
                             side: _getOutline()
                         ),
-                        clipBehavior:
-                        widget.clipBehavior,
+                        clipBehavior: widget.clipBehavior,
+                        focusNode: widget.focusNode,
                         animationDuration: material_._kElevationDuration,
                         child:
                         widget.child
@@ -491,5 +555,27 @@ namespace Unity.UIWidgets.material {
         public override int GetHashCode() {
             return (shape.GetHashCode() * 397) ^ side.GetHashCode();
         }
+
+        public ShapeBorder resolve(HashSet<MaterialState> states) {
+            return new _OutlineBorder(
+                shape: shape,
+                side: side.copyWith(color: MaterialStateProperty<Color>.resolveAs(side.color, states)
+                )
+            );
+        }
+
+
+        public static ShapeBorder resolveAs<ShapeBorder>(ShapeBorder value, HashSet<MaterialState> states) {
+            if (value is MaterialStateProperty<ShapeBorder> materialStateProperty) {
+                MaterialStateProperty<ShapeBorder> property = materialStateProperty;
+                return property.resolve(states);
+            }
+
+            return value;
+        }
+
+        public static MaterialStateProperty<ShapeBorder> resolveWith<ShapeBorder>(
+            material_.MaterialPropertyResolver<ShapeBorder> callback) =>
+            new _MaterialStateProperty<ShapeBorder>(callback);
     }
 }
