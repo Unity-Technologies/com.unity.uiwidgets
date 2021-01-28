@@ -1635,13 +1635,11 @@ namespace Unity.UIWidgets.widgets {
             D.assert(child != null);
             D.assert(child._parent == this);
 
-            ElementVisitor visit = null;
-            visit = (element) => {
+            void visit(Element element) {
                 element._updateSlot(newSlot);
-                if (!(element is RenderObjectElement)) {
+                if (!(element is RenderObjectElement))
                     element.visitChildren(visit);
-                }
-            };
+            }
             visit(child);
         }
 

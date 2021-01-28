@@ -116,7 +116,10 @@ namespace Unity.UIWidgets.cupertino {
                     content: content,
                     scrollController: scrollController
                 );
-                children.Add(new Flexible(flex: 3, child: titleSection));
+                children.Add(new Flexible
+                (
+                    flex: 3, 
+                    child: titleSection));
             }
 
             return new Container(
@@ -146,7 +149,6 @@ namespace Unity.UIWidgets.cupertino {
         public override Widget build(BuildContext context) {
             CupertinoLocalizations localizations = CupertinoLocalizations.of(context);
             bool isInAccessibilityMode = CupertinoDialogUtils._isInAccessibilityMode(context);
-
             float textScaleFactor = MediaQuery.of(context).textScaleFactor;
             return  new CupertinoUserInterfaceLevel(
                 data: CupertinoUserInterfaceLevelData.elevatedlayer,
@@ -167,19 +169,19 @@ namespace Unity.UIWidgets.cupertino {
                                 removeBottom: true,
                                 context: _context,
                                 child: new Center(
-                                child: new Container(
-                                    margin: EdgeInsets.symmetric(vertical: CupertinoDialogUtils._kEdgePadding),
-                                    width: isInAccessibilityMode
-                                        ? CupertinoDialogUtils._kAccessibilityCupertinoDialogWidth
-                                        : CupertinoDialogUtils._kCupertinoDialogWidth,
-                                    child: new CupertinoPopupSurface(
-                                        isSurfacePainted: false,
-                                        child: new _CupertinoDialogRenderWidget(
-                                            contentSection: _buildContent(_context),
-                                            actionsSection: _buildActions()
+                                    child: new Container(
+                                        margin: EdgeInsets.symmetric(vertical: CupertinoDialogUtils._kEdgePadding),
+                                        width: isInAccessibilityMode
+                                            ? CupertinoDialogUtils._kAccessibilityCupertinoDialogWidth
+                                            : CupertinoDialogUtils._kCupertinoDialogWidth,
+                                        child: new CupertinoPopupSurface(
+                                            isSurfacePainted: false,
+                                            child: new _CupertinoDialogRenderWidget(
+                                                contentSection: _buildContent(_context),
+                                                actionsSection: _buildActions()
+                                            )
                                         )
                                     )
-                                )
                             )
                             )
                         );
@@ -313,7 +315,7 @@ namespace Unity.UIWidgets.cupertino {
 
         protected override void insertChildRenderObject(RenderObject child, object slot) {
             D.assert(slot != null);
-            switch (slot) {
+            switch ((_AlertDialogSections)slot) {
                 case _AlertDialogSections.contentSection:
                     renderObject.contentSection = child as RenderBox;
                     break;
@@ -324,11 +326,12 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-        protected override void moveChildRenderObject(RenderObject child, object slot) {
-            D.assert(false);
+        protected override void moveChildRenderObject(RenderObject child,object slot) {
+            //D.assert(false);
         }
 
         public override void update(Widget newWidget) {
+            newWidget = (RenderObjectWidget) newWidget;
             base.update(newWidget);
             _contentElement = updateChild(_contentElement, widget.contentSection,
                 _AlertDialogSections.contentSection);
@@ -825,7 +828,7 @@ namespace Unity.UIWidgets.cupertino {
         }
     }
 
-    class _DialogActionButtonParentDataWidget : ParentDataWidget<_DialogActionButtonParentData> {
+    class _DialogActionButtonParentDataWidget : ParentDataWidget<_ActionButtonParentData> {
         public _DialogActionButtonParentDataWidget(
             Key key = null,
             bool isPressed = false,
