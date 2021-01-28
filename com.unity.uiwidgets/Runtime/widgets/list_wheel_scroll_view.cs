@@ -664,7 +664,7 @@ namespace Unity.UIWidgets.widgets {
         public void createChild(int index, RenderBox after) {
             owner.buildScope(this, () => {
                 bool insertFirst = after == null;
-                D.assert(insertFirst || _childElements[index - 1] != null);
+                D.assert(insertFirst || _childElements.getOrDefault(index - 1) != null);
                 Element newChild = updateChild(_childElements.getOrDefault(index), retrieveWidget(index), index);
                 if (newChild != null) {
                     _childElements[index] = newChild;

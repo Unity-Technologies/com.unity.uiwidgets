@@ -482,12 +482,13 @@ namespace Unity.UIWidgets.cupertino {
                     _onSelectedItemChange(index); 
                 },
                 itemBuilder: (BuildContext context, int index) => {
-                    var startDay = initialDateTime.Day + index;
+                    
                     var rangeStart = new DateTime(
                         year:initialDateTime.Year, 
                         month:initialDateTime.Month, 
-                        day:startDay
+                        day:initialDateTime.Day
                     );
+                    rangeStart.AddDays(index);
                     
                     var rangeEnd  = rangeStart.AddDays(1);
                     

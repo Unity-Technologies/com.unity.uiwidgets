@@ -1070,10 +1070,8 @@ namespace Unity.UIWidgets.widgets {
             D.assert(!_debugBuilding);
             D.assert(() => {
                 if (WidgetsD.debugPrintBuildScope) {
-                    Debug.LogFormat("buildScope called with context {0}; dirty list is: {1}",
-                        context, _dirtyElements);
+                    Debug.LogFormat($"buildScope called with context {context}; dirty list is: {_dirtyElements}");
                 }
-
                 _debugStateLockLevel += 1;
                 _debugBuilding = true;
                 return true;
@@ -1089,10 +1087,8 @@ namespace Unity.UIWidgets.widgets {
                         debugPreviousBuildTarget = _debugCurrentBuildTarget;
                         _debugCurrentBuildTarget = context;
                         return true;
-                    });
-
+                    }); 
                     _dirtyElementsNeedsResorting = false;
-
                     try {
                         callback();
                     }
