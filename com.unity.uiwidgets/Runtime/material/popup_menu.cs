@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -16,12 +14,10 @@ using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-    public static partial class PopupMenuUtils {
+    public partial class material_ {
         internal static readonly TimeSpan _kMenuDuration = new TimeSpan(0, 0, 0, 0, 300);
-        internal const float _kBaselineOffsetFromBottom = 20.0f;
         internal const float _kMenuCloseIntervalEnd = 2.0f / 3.0f;
         internal const float _kMenuHorizontalPadding = 16.0f;
-        internal const float _kMenuItemHeight = 48.0f;
         internal const float _kMenuDividerHeight = 16.0f;
         internal const float _kMenuMaxWidth = 5.0f * _kMenuWidthStep;
         internal const float _kMenuMinWidth = 2.0f * _kMenuWidthStep;
@@ -41,7 +37,7 @@ namespace Unity.UIWidgets.material {
 
 
     public class PopupMenuDivider : PopupMenuEntry<object> {
-        public PopupMenuDivider(Key key = null, float height = PopupMenuUtils._kMenuDividerHeight) : base(key: key) {
+        public PopupMenuDivider(Key key = null, float height = material_._kMenuDividerHeight) : base(key: key) {
             _height = height;
         }
 
@@ -66,17 +62,68 @@ namespace Unity.UIWidgets.material {
         }
     }
 
+    class _MenuItem : SingleChildRenderObjectWidget {
+        internal _MenuItem(
+            Key key = null,
+            ValueChanged<Size> onLayout = null,
+            Widget child = null
+        ) : base(key: key, child: child) {
+            Debug.Log(onLayout != null);
+            this.onLayout = onLayout;
+        }
+
+        public readonly ValueChanged<Size> onLayout;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new _RenderMenuItemDuplicated(onLayout);
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            if (renderObject is _RenderMenuItemDuplicated renderMenuItemDuplicated) {
+                renderMenuItemDuplicated.onLayout = onLayout;
+            }
+        }
+    }
+
+    class _RenderMenuItemDuplicated : RenderShiftedBox {
+        internal _RenderMenuItemDuplicated(
+            ValueChanged<Size> onLayout,
+            RenderBox child = null
+        ) : base(child) {
+            D.assert(onLayout != null);
+            this.onLayout = onLayout;
+        }
+
+        public ValueChanged<Size> onLayout;
+
+        protected override void performLayout() {
+            if (child == null) {
+                size = Size.zero;
+            }
+            else {
+                child.layout(constraints, parentUsesSize: true);
+                size = constraints.constrain(child.size);
+            }
+
+            BoxParentData childParentData = child.parentData as BoxParentData;
+            childParentData.offset = Offset.zero;
+            onLayout(size);
+        }
+    }
+
     public class PopupMenuItem<T> : PopupMenuEntry<T> {
         public PopupMenuItem(
             Key key = null,
             T value = default,
             bool enabled = true,
-            float height = PopupMenuUtils._kMenuItemHeight,
+            float height = material_.kMinInteractiveDimension,
+            TextStyle textStyle = null,
             Widget child = null
         ) : base(key: key) {
             this.value = value;
             this.enabled = enabled;
             _height = height;
+            this.textStyle = textStyle;
             this.child = child;
         }
 
@@ -85,6 +132,8 @@ namespace Unity.UIWidgets.material {
         public readonly bool enabled;
 
         readonly float _height;
+
+        public readonly TextStyle textStyle;
 
         public override float height {
             get { return _height; }
@@ -112,7 +161,8 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             ThemeData theme = Theme.of(context);
-            TextStyle style = theme.textTheme.subhead;
+            PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
+            TextStyle style = widget.textStyle ?? popupMenuTheme.textStyle ?? theme.textTheme.subtitle1;
             if (!widget.enabled) {
                 style = style.copyWith(color: theme.disabledColor);
             }
@@ -120,9 +170,10 @@ namespace Unity.UIWidgets.material {
             Widget item = new AnimatedDefaultTextStyle(
                 style: style,
                 duration: material_.kThemeChangeDuration,
-                child: new Baseline(
-                    baseline: widget.height - PopupMenuUtils._kBaselineOffsetFromBottom,
-                    baselineType: style.textBaseline,
+                child: new Container(
+                    alignment: AlignmentDirectional.centerStart,
+                    constraints: new BoxConstraints(minHeight: widget.height),
+                    padding: EdgeInsets.symmetric(horizontal: material_._kMenuHorizontalPadding),
                     child: buildChild()
                 )
             );
@@ -137,11 +188,8 @@ namespace Unity.UIWidgets.material {
 
             return new InkWell(
                 onTap: widget.enabled ? handleTap : (GestureTapCallback) null,
-                child: new Container(
-                    height: widget.height,
-                    padding: EdgeInsets.symmetric(horizontal: PopupMenuUtils._kMenuHorizontalPadding),
-                    child: item
-                )
+                canRequestFocus: widget.enabled,
+                child: item
             );
         }
     }
@@ -158,7 +206,8 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             ThemeData theme = Theme.of(context);
-            TextStyle style = theme.textTheme.subhead;
+            PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
+            TextStyle style = widget.textStyle ?? popupMenuTheme.textStyle ?? theme.textTheme.subtitle1;
             if (!widget.enabled) {
                 style = style.copyWith(color: theme.disabledColor);
             }
@@ -166,9 +215,10 @@ namespace Unity.UIWidgets.material {
             Widget item = new AnimatedDefaultTextStyle(
                 style: style,
                 duration: material_.kThemeChangeDuration,
-                child: new Baseline(
-                    baseline: widget.height - PopupMenuUtils._kBaselineOffsetFromBottom,
-                    baselineType: style.textBaseline,
+                child: new Container(
+                    alignment: AlignmentDirectional.centerStart,
+                    constraints: new BoxConstraints(minHeight: widget.height),
+                    padding: EdgeInsets.symmetric(horizontal: material_._kMenuHorizontalPadding),
                     child: buildChild()
                 )
             );
@@ -183,11 +233,8 @@ namespace Unity.UIWidgets.material {
 
             return new InkWell(
                 onTap: widget.enabled ? handleTap : (GestureTapCallback) null,
-                child: new Container(
-                    height: widget.height,
-                    padding: EdgeInsets.symmetric(horizontal: PopupMenuUtils._kMenuHorizontalPadding),
-                    child: item
-                )
+                canRequestFocus: widget.enabled,
+                child: item
             );
         }
     }
@@ -269,10 +316,15 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             float unit = 1.0f / (route.items.Count + 1.5f);
             List<Widget> children = new List<Widget>();
+            PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
 
             for (int i = 0; i < route.items.Count; i += 1) {
                 float start = (i + 1) * unit;
                 float end = (start + 1.5f * unit).clamp(0.0f, 1.0f);
+                CurvedAnimation opacityCurvedAnimation = new CurvedAnimation(
+                    parent: route.animation,
+                    curve: new Interval(start, end)
+                );
                 Widget item = route.items[i];
                 if (route.initialValue != null && route.items[i].represents((T) route.initialValue)) {
                     item = new Container(
@@ -281,13 +333,15 @@ namespace Unity.UIWidgets.material {
                     );
                 }
 
-                children.Add(new FadeTransition(
-                    opacity: new CurvedAnimation(
-                        parent: route.animation,
-                        curve: new Interval(start, end)
-                    ),
-                    child: item
-                ));
+                children.Add(
+                    new _MenuItem(
+                        onLayout: (Size size) => { route.itemSizes[i] = size; },
+                        child: new FadeTransition(
+                            opacity: opacityCurvedAnimation,
+                            child: item
+                        )
+                    )
+                );
             }
 
             CurveTween opacity = new CurveTween(curve: new Interval(0.0f, 1.0f / 3.0f));
@@ -296,14 +350,14 @@ namespace Unity.UIWidgets.material {
 
             Widget child = new ConstrainedBox(
                 constraints: new BoxConstraints(
-                    minWidth: PopupMenuUtils._kMenuMinWidth,
-                    maxWidth: PopupMenuUtils._kMenuMaxWidth
+                    minWidth: material_._kMenuMinWidth,
+                    maxWidth: material_._kMenuMaxWidth
                 ),
                 child: new IntrinsicWidth(
-                    stepWidth: PopupMenuUtils._kMenuWidthStep,
+                    stepWidth: material_._kMenuWidthStep,
                     child: new SingleChildScrollView(
                         padding: EdgeInsets.symmetric(
-                            vertical: PopupMenuUtils._kMenuVerticalPadding
+                            vertical: material_._kMenuVerticalPadding
                         ),
                         child: new ListBody(children: children)
                     )
@@ -316,8 +370,10 @@ namespace Unity.UIWidgets.material {
                     return new Opacity(
                         opacity: opacity.evaluate(route.animation),
                         child: new Material(
+                            shape: route.shape ?? popupMenuTheme.shape,
+                            color: route.color ?? popupMenuTheme.color,
                             type: MaterialType.card,
-                            elevation: route.elevation,
+                            elevation: route.elevation ?? popupMenuTheme.elevation ?? 8.0f,
                             child: new Align(
                                 alignment: Alignment.topRight,
                                 widthFactor: width.evaluate(route.animation),
@@ -333,33 +389,40 @@ namespace Unity.UIWidgets.material {
     }
 
     class _PopupMenuRouteLayout : SingleChildLayoutDelegate {
-        public _PopupMenuRouteLayout(RelativeRect position, float? selectedItemOffset) {
+        public _PopupMenuRouteLayout(RelativeRect position, List<Size> itemSizes, int selectedItemIndex,
+            TextDirection? textDirection) {
             this.position = position;
-            this.selectedItemOffset = selectedItemOffset;
+            this.itemSizes = itemSizes;
+            this.selectedItemIndex = selectedItemIndex;
+            this.textDirection = textDirection;
         }
 
         public readonly RelativeRect position;
 
-        public readonly float? selectedItemOffset;
+        public List<Size> itemSizes;
+
+        public readonly int selectedItemIndex;
+
+        public readonly TextDirection? textDirection;
 
         public override BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-            return BoxConstraints.loose(constraints.biggest -
-                                        new Offset(
-                                            PopupMenuUtils._kMenuScreenPadding * 2.0f,
-                                            PopupMenuUtils._kMenuScreenPadding * 2.0f));
+            return BoxConstraints.loose(
+                constraints.biggest - new Offset(material_._kMenuScreenPadding * 2.0f,
+                    material_._kMenuScreenPadding * 2.0f)
+            );
         }
 
         public override Offset getPositionForChild(Size size, Size childSize) {
-            float y;
-            if (selectedItemOffset == null) {
-                y = position.top;
-            }
-            else {
-                y = position.top + (size.height - position.top - position.bottom) / 2.0f -
-                    selectedItemOffset.Value;
+            float y = position.top;
+            if (selectedItemIndex != null && itemSizes != null) {
+                float selectedItemOffset = material_._kMenuVerticalPadding;
+                for (int index = 0; index < selectedItemIndex; index += 1)
+                    selectedItemOffset += itemSizes[index].height;
+                selectedItemOffset += itemSizes[selectedItemIndex].height / 2;
+                y = position.top + (size.height - position.top - position.bottom) / 2.0f - selectedItemOffset;
             }
 
-            float x;
+            float x = 0;
             if (position.left > position.right) {
                 x = size.width - position.right - childSize.width;
             }
@@ -367,28 +430,46 @@ namespace Unity.UIWidgets.material {
                 x = position.left;
             }
             else {
-                x = position.left;
+                D.assert(textDirection != null);
+                switch (textDirection) {
+                    case TextDirection.rtl:
+                        x = size.width - position.right - childSize.width;
+                        break;
+                    case TextDirection.ltr:
+                        x = position.left;
+                        break;
+                }
             }
 
-            if (x < PopupMenuUtils._kMenuScreenPadding) {
-                x = PopupMenuUtils._kMenuScreenPadding;
+            if (x < material_._kMenuScreenPadding) {
+                x = material_._kMenuScreenPadding;
             }
-            else if (x + childSize.width > size.width - PopupMenuUtils._kMenuScreenPadding) {
-                x = size.width - childSize.width - PopupMenuUtils._kMenuScreenPadding;
+            else if (x + childSize.width > size.width - material_._kMenuScreenPadding) {
+                x = size.width - childSize.width - material_._kMenuScreenPadding;
             }
 
-            if (y < PopupMenuUtils._kMenuScreenPadding) {
-                y = PopupMenuUtils._kMenuScreenPadding;
+            if (y < material_._kMenuScreenPadding) {
+                y = material_._kMenuScreenPadding;
             }
-            else if (y + childSize.height > size.height - PopupMenuUtils._kMenuScreenPadding) {
-                y = size.height - childSize.height - PopupMenuUtils._kMenuScreenPadding;
+            else if (y + childSize.height > size.height - material_._kMenuScreenPadding) {
+                y = size.height - childSize.height - material_._kMenuScreenPadding;
             }
 
             return new Offset(x, y);
         }
 
         public override bool shouldRelayout(SingleChildLayoutDelegate oldDelegate) {
-            return position != ((_PopupMenuRouteLayout) oldDelegate).position;
+            if (oldDelegate is _PopupMenuRouteLayout popupMenu) {
+                D.assert(itemSizes.Count == popupMenu.itemSizes.Count);
+
+                return position != popupMenu.position
+                       || selectedItemIndex != popupMenu.selectedItemIndex
+                       || textDirection != popupMenu.textDirection
+                       || !itemSizes.equalsList(popupMenu.itemSizes);
+            }
+            else {
+                return false;
+            }
         }
     }
 
@@ -396,33 +477,52 @@ namespace Unity.UIWidgets.material {
         public _PopupMenuRoute(
             RelativeRect position = null,
             List<PopupMenuEntry<T>> items = null,
-            object initialValue = null,
-            float elevation = 8.0f,
-            ThemeData theme = null
+            T initialValue = default,
+            float? elevation = 8.0f,
+            ThemeData theme = null,
+            PopupMenuThemeData popupMenuTheme = null,
+            string barrierLabel = null,
+            ShapeBorder shape = null,
+            Color color = null,
+            BuildContext showMenuContext = null,
+            bool? captureInheritedThemes = null
         ) {
             this.position = position;
             this.items = items;
             this.initialValue = initialValue;
             this.elevation = elevation;
             this.theme = theme;
+            this.popupMenuTheme = popupMenuTheme;
+            this.barrierLabel = barrierLabel;
+            this.shape = shape;
+            this.color = color;
+            this.showMenuContext = showMenuContext;
+            this.captureInheritedThemes = captureInheritedThemes;
+            itemSizes = new List<Size>(items.Count);
         }
 
         public readonly RelativeRect position;
         public readonly List<PopupMenuEntry<T>> items;
-        public readonly object initialValue;
-        public readonly float elevation;
+        public readonly List<Size> itemSizes;
+        public readonly T initialValue;
+        public readonly float? elevation;
         public readonly ThemeData theme;
+        public readonly ShapeBorder shape;
+        public readonly Color color;
+        public readonly PopupMenuThemeData popupMenuTheme;
+        public readonly BuildContext showMenuContext;
+        public readonly bool? captureInheritedThemes;
 
         public override Animation<float> createAnimation() {
             return new CurvedAnimation(
                 parent: base.createAnimation(),
                 curve: Curves.linear,
-                reverseCurve: new Interval(0.0f, PopupMenuUtils._kMenuCloseIntervalEnd)
+                reverseCurve: new Interval(0.0f, material_._kMenuCloseIntervalEnd)
             );
         }
 
         public override TimeSpan transitionDuration {
-            get { return PopupMenuUtils._kMenuDuration; }
+            get { return material_._kMenuDuration; }
         }
 
         public override bool barrierDismissible {
@@ -433,24 +533,25 @@ namespace Unity.UIWidgets.material {
             get { return null; }
         }
 
+        public override string barrierLabel { get; }
+
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            float? selectedItemOffset = null;
+            int? selectedItemIndex = null;
             if (initialValue != null) {
-                float y = PopupMenuUtils._kMenuVerticalPadding;
-                foreach (PopupMenuEntry<T> entry in items) {
-                    if (entry.represents((T) initialValue)) {
-                        selectedItemOffset = y + entry.height / 2.0f;
-                        break;
-                    }
-
-                    y += entry.height;
+                for (int index = 0; selectedItemIndex == null && index < items.Count; index += 1) {
+                    if (items[index].represents(initialValue))
+                        selectedItemIndex = index;
                 }
             }
 
             Widget menu = new _PopupMenu<T>(route: this);
-            if (theme != null) {
-                menu = new Theme(data: theme, child: menu);
+            if (captureInheritedThemes ?? false) {
+                menu = InheritedTheme.captureAll(showMenuContext, menu);
+            }
+            else {
+                if (theme != null)
+                    menu = new Theme(data: theme, child: menu);
             }
 
             return MediaQuery.removePadding(
@@ -463,7 +564,9 @@ namespace Unity.UIWidgets.material {
                     builder: _ => new CustomSingleChildLayout(
                         layoutDelegate: new _PopupMenuRouteLayout(
                             position,
-                            selectedItemOffset
+                            itemSizes,
+                            selectedItemIndex ?? 0,
+                            Directionality.of(context)
                         ),
                         child: menu
                     ))
@@ -471,26 +574,36 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    public static partial class PopupMenuUtils {
+    public partial class material_ {
         public static Future<T> showMenu<T>(
             BuildContext context,
             RelativeRect position,
             List<PopupMenuEntry<T>> items,
             T initialValue,
-            float elevation = 8.0f
+            float? elevation,
+            ShapeBorder shape,
+            Color color,
+            bool captureInheritedThemes = true,
+            bool useRootNavigator = false
         ) {
             D.assert(context != null);
             D.assert(position != null);
             D.assert(items != null && items.isNotEmpty());
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
-            return Navigator.push<T>(context, new _PopupMenuRoute<T>(
+            return Navigator.of(context, rootNavigator: useRootNavigator).push(new _PopupMenuRoute<T>(
                 position: position,
                 items: items,
                 initialValue: initialValue,
                 elevation: elevation,
-                theme: Theme.of(context, shadowThemeOnly: true)
-            ));
+                theme: Theme.of(context, shadowThemeOnly: true),
+                popupMenuTheme: PopupMenuTheme.of(context),
+                barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                shape: shape,
+                color: color,
+                showMenuContext: context,
+                captureInheritedThemes: captureInheritedThemes
+            )).to<T>();
         }
     }
 
@@ -508,16 +621,20 @@ namespace Unity.UIWidgets.material {
             PopupMenuItemSelected<T> onSelected = null,
             PopupMenuCanceled onCanceled = null,
             string tooltip = null,
-            float elevation = 8.0f,
+            float? elevation = null,
             EdgeInsets padding = null,
             Widget child = null,
             Icon icon = null,
-            Offset offset = null
+            Offset offset = null,
+            bool enabled = true,
+            ShapeBorder shape = null,
+            Color color = null,
+            bool captureInheritedThemes = true
         ) : base(key: key) {
             offset = offset ?? Offset.zero;
             D.assert(itemBuilder != null);
             D.assert(offset != null);
-            D.assert(!(child != null && icon != null));
+            D.assert(!(child != null && icon != null), () => "You can only pass [child] or [icon], not both.");
 
             this.itemBuilder = itemBuilder;
             this.initialValue = initialValue;
@@ -542,23 +659,32 @@ namespace Unity.UIWidgets.material {
 
         public readonly string tooltip;
 
-        public readonly float elevation;
+        public readonly float? elevation;
 
         public readonly EdgeInsets padding;
 
         public readonly Widget child;
 
-        public readonly Icon icon;
+        public readonly Widget icon;
 
         public readonly Offset offset;
 
+        public readonly bool enabled;
+
+        public readonly ShapeBorder shape;
+
+        public readonly Color color;
+
+        public readonly bool captureInheritedThemes;
+
         public override State createState() {
-            return new _PopupMenuButtonState<T>();
+            return new PopupMenuButtonState<T>();
         }
     }
 
-    class _PopupMenuButtonState<T> : State<PopupMenuButton<T>> {
+    public class PopupMenuButtonState<T> : State<PopupMenuButton<T>> {
         void showButtonMenu() {
+            PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
             RenderBox button = (RenderBox) context.findRenderObject();
             RenderBox overlay = (RenderBox) Overlay.of(context).context.findRenderObject();
             RelativeRect position = RelativeRect.fromRect(
@@ -568,35 +694,38 @@ namespace Unity.UIWidgets.material {
                 ),
                 Offset.zero & overlay.size
             );
-            PopupMenuUtils.showMenu(
-                    context: context,
-                    elevation: widget.elevation,
-                    items: widget.itemBuilder(context),
-                    initialValue: widget.initialValue,
-                    position: position
-                )
-                .then(newValue => {
-                    if (!mounted) {
-                        return;
-                    }
-
-                    if (newValue == null) {
-                        if (widget.onCanceled != null) {
-                            widget.onCanceled();
+            List<PopupMenuEntry<T>> items = widget.itemBuilder(context);
+            if (items.isNotEmpty()) {
+                material_.showMenu<T>(
+                        context: context,
+                        elevation: widget.elevation ?? popupMenuTheme.elevation,
+                        items: items,
+                        initialValue: widget.initialValue,
+                        position: position,
+                        shape: widget.shape ?? popupMenuTheme.shape,
+                        color: widget.color ?? popupMenuTheme.color,
+                        captureInheritedThemes: widget.captureInheritedThemes
+                    )
+                    .then(newValue => {
+                        if (!mounted)
+                            return;
+                        if (newValue == null) {
+                            if (widget.onCanceled != null)
+                                widget.onCanceled();
+                            return;
                         }
 
-                        return;
-                    }
-
-                    if (widget.onSelected != null) {
-                        widget.onSelected((T) newValue);
-                    }
-                });
+                        if (widget.onSelected != null)
+                            widget.onSelected((T) newValue);
+                    });
+            }
         }
 
         Icon _getIcon(RuntimePlatform platform) {
             switch (platform) {
                 case RuntimePlatform.IPhonePlayer:
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
                     return new Icon(Icons.more_horiz);
                 default:
                     return new Icon(Icons.more_vert);
@@ -605,17 +734,23 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
-            return widget.child != null
-                ? (Widget) new InkWell(
-                    onTap: showButtonMenu,
-                    child: widget.child
-                )
-                : new IconButton(
-                    icon: widget.icon ?? _getIcon(Theme.of(context).platform),
-                    padding: widget.padding,
-                    tooltip: widget.tooltip ?? MaterialLocalizations.of(context).showMenuTooltip,
-                    onPressed: showButtonMenu
+            if (widget.child != null)
+                return new Tooltip(
+                    message: widget.tooltip ?? MaterialLocalizations.of(context).showMenuTooltip,
+                    child: new InkWell(
+                        onTap: widget.enabled ? showButtonMenu : (GestureTapCallback) null,
+                        canRequestFocus: widget.enabled,
+                        child: widget.child
+                    )
                 );
+
+
+            return new IconButton(
+                icon: widget.icon ?? _getIcon(Theme.of(context).platform),
+                padding: widget.padding,
+                tooltip: widget.tooltip ?? MaterialLocalizations.of(context).showMenuTooltip,
+                onPressed: widget.enabled ? showButtonMenu : (VoidCallback) null
+            );
         }
     }
 }

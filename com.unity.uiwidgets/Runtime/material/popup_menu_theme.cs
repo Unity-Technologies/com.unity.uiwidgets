@@ -120,7 +120,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly PopupMenuThemeData data;
 
-        static PopupMenuThemeData of(BuildContext context) {
+        public static PopupMenuThemeData of(BuildContext context) {
             PopupMenuTheme popupMenuTheme = context.dependOnInheritedWidgetOfExactType<PopupMenuTheme>();
             return popupMenuTheme?.data ?? Theme.of(context).popupMenuTheme;
         }
