@@ -502,7 +502,7 @@ namespace Unity.UIWidgets.material {
         case RuntimePlatform.OSXEditor:
         case RuntimePlatform.OSXPlayer:
             forcePressEnabled = true;
-            textSelectionControls = CupertinoTextSelectionUtils.cupertinoTextSelectionControls;
+            textSelectionControls = CupertinoTextFieldUtils.cupertinoTextSelectionControls;
             paintCursorAboveText = true;
             cursorOpacityAnimates = true;
             cursorColor = cursorColor ?? CupertinoTheme.of(context).primaryColor;

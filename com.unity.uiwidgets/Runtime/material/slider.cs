@@ -671,7 +671,7 @@ namespace Unity.UIWidgets.material {
             markNeedsLayout();
         }
         
-        protected override void systemFontsDidChange() {
+        public override void systemFontsDidChange() {
                base.systemFontsDidChange();
                 _labelPainter.markNeedsLayout();
                 _updateLabelPainter();
