@@ -7,7 +7,6 @@ namespace Unity.UIWidgets.rendering {
     public class TextureBox : RenderBox {
 
         public TextureBox(int textureId) {
-            D.assert(textureId != null);
             _textureId = textureId;
         }
 

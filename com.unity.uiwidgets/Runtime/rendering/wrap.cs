@@ -475,7 +475,6 @@ namespace Unity.UIWidgets.rendering {
                     throw new Exception("Unknown axis: " + direction);
             }
 
-            D.assert(childConstraints != null);
             float spacing = this.spacing;
             float runSpacing = this.runSpacing;
             List<_RunMetrics> runMetrics = new List<_RunMetrics> { };
@@ -577,11 +576,11 @@ namespace Unity.UIWidgets.rendering {
             child = firstChild;
             for (int i = 0; i < runCount; ++i) {
                 _RunMetrics metrics = runMetrics[i];
-                runMainAxisExtent = metrics.mainAxisExtent;
-                runCrossAxisExtent = metrics.crossAxisExtent;
-                childCount = metrics.childCount;
+                float runMainAxisExtent2 = metrics.mainAxisExtent;
+                float runCrossAxisExtent2 = metrics.crossAxisExtent;
+                float childCount2 = metrics.childCount;
 
-                float mainAxisFreeSpace = Mathf.Max(0.0f, containerMainAxisExtent - runMainAxisExtent);
+                float mainAxisFreeSpace = Mathf.Max(0.0f, containerMainAxisExtent - runMainAxisExtent2);
                 float childLeadingSpace = 0.0f;
                 float childBetweenSpace = 0.0f;
 
@@ -595,14 +594,14 @@ namespace Unity.UIWidgets.rendering {
                         childLeadingSpace = mainAxisFreeSpace / 2.0f;
                         break;
                     case WrapAlignment.spaceBetween:
-                        childBetweenSpace = childCount > 1 ? mainAxisFreeSpace / (childCount - 1) : 0.0f;
+                        childBetweenSpace = childCount2 > 1 ? mainAxisFreeSpace / (childCount2 - 1) : 0.0f;
                         break;
                     case WrapAlignment.spaceAround:
-                        childBetweenSpace = mainAxisFreeSpace / childCount;
+                        childBetweenSpace = mainAxisFreeSpace / childCount2;
                         childLeadingSpace = childBetweenSpace / 2.0f;
                         break;
                     case WrapAlignment.spaceEvenly:
-                        childBetweenSpace = mainAxisFreeSpace / (childCount + 1);
+                        childBetweenSpace = mainAxisFreeSpace / (childCount2 + 1);
                         childLeadingSpace = childBetweenSpace;
                         break;
                 }
@@ -612,7 +611,7 @@ namespace Unity.UIWidgets.rendering {
                     flipMainAxis ? containerMainAxisExtent - childLeadingSpace : childLeadingSpace;
 
                 if (flipCrossAxis) {
-                    crossAxisOffset -= runCrossAxisExtent;
+                    crossAxisOffset -= runCrossAxisExtent2;
                 }
 
                 while (child != null) {
@@ -625,7 +624,7 @@ namespace Unity.UIWidgets.rendering {
                     float childMainAxisExtent = _getMainAxisExtent(child);
                     float childCrossAxisExtent = _getCrossAxisExtent(child);
                     float childCrossAxisOffset =
-                        _getChildCrossAxisOffset(flipCrossAxis, runCrossAxisExtent, childCrossAxisExtent);
+                        _getChildCrossAxisOffset(flipCrossAxis, runCrossAxisExtent2, childCrossAxisExtent);
                     if (flipMainAxis) {
                         childMainPosition -= childMainAxisExtent;
                     }
@@ -645,7 +644,7 @@ namespace Unity.UIWidgets.rendering {
                     crossAxisOffset -= runBetweenSpace;
                 }
                 else {
-                    crossAxisOffset += runCrossAxisExtent + runBetweenSpace;
+                    crossAxisOffset += runCrossAxisExtent2 + runBetweenSpace;
                 }
             }
         }

@@ -73,7 +73,7 @@ namespace Unity.UIWidgets.rendering {
                 textWidthBasis: textWidthBasis,
                 textHeightBehavior: textHeightBehavior
             );
-            //addAll(children);[!!!]?
+            addAll(children);
             _extractPlaceholderSpans(text);
         }
 
@@ -804,7 +804,7 @@ namespace Unity.UIWidgets.rendering {
                 paintParagraph(context, offset);
             }
         } */
-        // need to replace it?
+        // [!!!]need to replace it?
         
         public override void paint(PaintingContext context, Offset offset) {
               _layoutTextWithConstraints(constraints);

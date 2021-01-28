@@ -1356,7 +1356,7 @@ namespace Unity.UIWidgets.rendering {
             _borderRadius = borderRadius;
         }
         
-        public PhysicalModelLayer layer { // [!!!] override
+        public new PhysicalModelLayer layer {
             get {
                 return base.layer as PhysicalModelLayer;
             }
@@ -1492,7 +1492,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(elevation >= 0.0);
         }
 
-        public PhysicalModelLayer layer { // [!!!] override
+        public new PhysicalModelLayer layer {
             get {
                 return base.layer as PhysicalModelLayer;
             }
@@ -1652,7 +1652,8 @@ namespace Unity.UIWidgets.rendering {
 
         protected override bool hitTestSelf(Offset position) {
             return _decoration.hitTest(size, position);
-            // [!!!] hitTest no textDirection
+            // [!!!] function hitTest has no textDirection parameter, if add this parameter, another two function under
+            // painting folder have to change, too. I'm not sure if we need to add this.
             // return _decoration.hitTest(size, position, textDirection: configuration.textDirection);
         }
 
@@ -2039,7 +2040,8 @@ namespace Unity.UIWidgets.rendering {
                 return null;
             }
         }*/
-        //[!!!]
+        // [!!!] unable to change this function type from void to TransformLayer, context.pushClipRect() at line 2054
+        // Expected a method with 'void _paintChildWithTransform(PaintingContext, Offset)' signature
 
         public override void paint(PaintingContext context, Offset offset) {
             if (size.isEmpty || child.size.isEmpty) {
@@ -3122,7 +3124,7 @@ namespace Unity.UIWidgets.rendering {
             get { return true; }
         }
 
-        public FollowerLayer layer { // [!!!] override
+        public new FollowerLayer layer {
             get {
                 return base.layer as FollowerLayer;
             }
