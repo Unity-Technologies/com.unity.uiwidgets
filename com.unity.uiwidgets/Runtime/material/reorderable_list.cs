@@ -16,13 +16,15 @@ namespace Unity.UIWidgets.material {
 
     public class ReorderableListView : StatefulWidget {
         public ReorderableListView(
+            Key key = null,
             Widget header = null,
             List<Widget> children = null,
             ReorderCallback onReorder = null,
+            ScrollController scrollController = null,
             Axis scrollDirection = Axis.vertical,
             EdgeInsets padding = null,
             bool reverse = false
-        ) {
+        ) : base(key: key) {
             D.assert(onReorder != null);
             D.assert(children != null);
             D.assert(
@@ -31,6 +33,7 @@ namespace Unity.UIWidgets.material {
             );
             this.header = header;
             this.children = children;
+            this.scrollController = scrollController;
             this.scrollDirection = scrollDirection;
             this.padding = padding;
             this.onReorder = onReorder;
@@ -42,6 +45,8 @@ namespace Unity.UIWidgets.material {
         public readonly List<Widget> children;
 
         public readonly Axis scrollDirection;
+        
+        public readonly ScrollController scrollController;
 
         public readonly EdgeInsets padding;
 
@@ -67,6 +72,7 @@ namespace Unity.UIWidgets.material {
                     return new _ReorderableListContent(
                         header: widget.header,
                         children: widget.children,
+                        scrollController: widget.scrollController,
                         scrollDirection: widget.scrollDirection,
                         onReorder: widget.onReorder,
                         padding: widget.padding,
@@ -89,6 +95,7 @@ namespace Unity.UIWidgets.material {
         public _ReorderableListContent(
             Widget header,
             List<Widget> children,
+            ScrollController scrollController,
             Axis scrollDirection,
             EdgeInsets padding,
             ReorderCallback onReorder,
@@ -96,6 +103,7 @@ namespace Unity.UIWidgets.material {
         ) {
             this.header = header;
             this.children = children;
+            this.scrollController = scrollController;
             this.scrollDirection = scrollDirection;
             this.padding = padding;
             this.onReorder = onReorder;
@@ -104,6 +112,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly Widget header;
         public readonly List<Widget> children;
+        public readonly ScrollController scrollController;
         public readonly Axis scrollDirection;
         public readonly EdgeInsets padding;
         public readonly ReorderCallback onReorder;
@@ -172,7 +181,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void didChangeDependencies() {
-            _scrollController = PrimaryScrollController.of(context) ?? new ScrollController();
+            _scrollController = widget.scrollController ?? PrimaryScrollController.of(context) ?? new ScrollController();
             base.didChangeDependencies();
         }
 
@@ -363,14 +372,7 @@ namespace Unity.UIWidgets.material {
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
             return new LayoutBuilder(builder: (BuildContext _, BoxConstraints constraints) => {
                 List<Widget> wrappedChildren = new List<Widget> { };
-                if (widget.header != null) {
-                    wrappedChildren.Add(widget.header);
-                }
-
-                for (int i = 0; i < widget.children.Count; i += 1) {
-                    wrappedChildren.Add(_wrap(widget.children[i], i, constraints));
-                }
-
+                
                 Key endWidgetKey = Key.key("DraggableList - End Widget");
                 Widget finalDropArea;
                 switch (widget.scrollDirection) {
@@ -392,13 +394,21 @@ namespace Unity.UIWidgets.material {
                 }
 
                 if (widget.reverse == true) {
-                    wrappedChildren.Insert(0, _wrap(
+                    wrappedChildren.Add(_wrap(
                         finalDropArea,
                         widget.children.Count,
                         constraints)
                     );
                 }
-                else {
+                if (widget.header != null) {
+                    wrappedChildren.Add(widget.header);
+                }
+                for (int i = 0; i < widget.children.Count; i += 1) {
+                    wrappedChildren.Add(_wrap(widget.children[i], i, constraints));
+                }
+
+                
+                if (widget.reverse != true) {
                     wrappedChildren.Add(_wrap(
                         finalDropArea, widget.children.Count,
                         constraints)

@@ -103,7 +103,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly bool boldText;
 
-        public Orientation orientation {
+        public Orientation? orientation {
             get { return size.width > size.height ? Orientation.landscape : Orientation.portrait; }
         }
 

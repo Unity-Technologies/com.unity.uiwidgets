@@ -8,8 +8,8 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
-    static class IconButtonUtils {
-        public const float _kMinButtonSize = 48.0f;
+    public partial class material_ {
+        public const float _kMinButtonSize = kMinInteractiveDimension;
     }
 
 
@@ -17,36 +17,56 @@ namespace Unity.UIWidgets.material {
         public IconButton(
             Key key = null,
             float iconSize = 24.0f,
+            VisualDensity visualDensity = null,
             EdgeInsets padding = null,
             Alignment alignment = null,
             Widget icon = null,
             Color color = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
-            Color disableColor = null,
+            Color disabledColor = null,
             VoidCallback onPressed = null,
-            string tooltip = null) : base(key: key) {
+            FocusNode focusNode = null,
+            bool autofocus = false,
+            string tooltip = null,
+            bool? enableFeedback = true,
+            BoxConstraints constraints = null
+        ) : base(key: key) {
             D.assert(icon != null);
-
             this.iconSize = iconSize;
+            this.visualDensity = visualDensity;
             this.padding = padding ?? EdgeInsets.all(8.0f);
             this.alignment = alignment ?? Alignment.center;
             this.icon = icon;
             this.color = color;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
             this.highlightColor = highlightColor;
             this.splashColor = splashColor;
-            disabledColor = disableColor;
+            this.disabledColor = disabledColor;
             this.onPressed = onPressed;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
             this.tooltip = tooltip;
+            this.enableFeedback = enableFeedback;
+            this.constraints = constraints;
         }
 
         public readonly float iconSize;
+
+        public readonly VisualDensity visualDensity;
 
         public readonly EdgeInsets padding;
 
         public readonly Alignment alignment;
 
         public readonly Widget icon;
+
+        public readonly Color focusColor;
+
+        public readonly Color hoverColor;
 
         public readonly Color color;
 
@@ -58,10 +78,19 @@ namespace Unity.UIWidgets.material {
 
         public readonly VoidCallback onPressed;
 
+        public readonly FocusNode focusNode;
+
+        public readonly bool autofocus;
+
         public readonly string tooltip;
+
+        public readonly bool? enableFeedback;
+
+        public readonly BoxConstraints constraints;
 
         public override Widget build(BuildContext context) {
             D.assert(material_.debugCheckHasMaterial(context));
+            ThemeData theme = Theme.of(context);
             Color currentColor;
             if (onPressed != null) {
                 currentColor = color;
@@ -70,9 +99,17 @@ namespace Unity.UIWidgets.material {
                 currentColor = disabledColor ?? Theme.of(context).disabledColor;
             }
 
+            VisualDensity effectiveVisualDensity = visualDensity ?? theme.visualDensity;
+
+            BoxConstraints unadjustedConstraints = constraints ?? new BoxConstraints(
+                minWidth: material_._kMinButtonSize,
+                minHeight: material_._kMinButtonSize
+            );
+            BoxConstraints adjustedConstraints = effectiveVisualDensity.effectiveConstraints(unadjustedConstraints);
+
+
             Widget result = new ConstrainedBox(
-                constraints: new BoxConstraints(minWidth: IconButtonUtils._kMinButtonSize,
-                    minHeight: IconButtonUtils._kMinButtonSize),
+                constraints: adjustedConstraints,
                 child: new Padding(
                     padding: padding,
                     child: new SizedBox(
@@ -83,8 +120,10 @@ namespace Unity.UIWidgets.material {
                             child: IconTheme.merge(
                                 data: new IconThemeData(
                                     size: iconSize,
-                                    color: currentColor),
-                                child: icon)
+                                    color: currentColor
+                                ),
+                                child: icon
+                            )
                         )
                     )
                 )
@@ -97,12 +136,18 @@ namespace Unity.UIWidgets.material {
             }
 
             return new InkResponse(
+                focusNode: focusNode,
+                autofocus: autofocus,
+                canRequestFocus: onPressed != null,
                 onTap: () => {
                     if (onPressed != null) {
                         onPressed();
                     }
                 },
+                enableFeedback: enableFeedback ?? false,
                 child: result,
+                focusColor: focusColor ?? Theme.of(context).focusColor,
+                hoverColor: hoverColor ?? Theme.of(context).hoverColor,
                 highlightColor: highlightColor ?? Theme.of(context).highlightColor,
                 splashColor: splashColor ?? Theme.of(context).splashColor,
                 radius: Mathf.Max(
@@ -115,8 +160,17 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Widget>("icon", icon, showName: false));
+            properties.add(new StringProperty("tooltip", tooltip, defaultValue: null, quoted: false));
             properties.add(new ObjectFlagProperty<VoidCallback>("onPressed", onPressed, ifNull: "disabled"));
             properties.add(new StringProperty("tooltip", tooltip, defaultValue: null, quoted: false));
+            properties.add(new ColorProperty("color", color, defaultValue: null));
+            properties.add(new ColorProperty("disabledColor", disabledColor, defaultValue: null));
+            properties.add(new ColorProperty("focusColor", focusColor, defaultValue: null));
+            properties.add(new ColorProperty("hoverColor", hoverColor, defaultValue: null));
+            properties.add(new ColorProperty("highlightColor", highlightColor, defaultValue: null));
+            properties.add(new ColorProperty("splashColor", splashColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding, defaultValue: null));
+            properties.add(new DiagnosticsProperty<FocusNode>("focusNode", focusNode, defaultValue: null));
         }
     }
 }

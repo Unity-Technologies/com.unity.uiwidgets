@@ -29,6 +29,15 @@ namespace Unity.UIWidgets.material {
     }
 
     public abstract class SearchDelegate<T> {
+        public SearchDelegate(
+            string searchFieldLabel = null,
+            TextInputType keyboardType = null,
+            TextInputAction textInputAction = TextInputAction.search
+        ) {
+            this.searchFieldLabel = searchFieldLabel;
+            this.keyboardType = keyboardType;
+            this.textInputAction = textInputAction;
+        }
         public abstract Widget buildSuggestions(BuildContext context);
         public abstract Widget buildResults(BuildContext context);
         public abstract Widget buildLeading(BuildContext context);
@@ -55,29 +64,35 @@ namespace Unity.UIWidgets.material {
         }
 
         public virtual void showResults(BuildContext context) {
-            _focusNode.unfocus();
+            _focusNode?.unfocus();
             _currentBody = _SearchBody.results;
         }
 
         public virtual void showSuggestions(BuildContext context) {
-            FocusScope.of(context).requestFocus(_focusNode);
+            D.assert(_focusNode != null, () => "_focusNode must be set by route before showSuggestions is called.");
+            _focusNode.requestFocus();
             _currentBody = _SearchBody.suggestions;
         }
 
         public virtual void close(BuildContext context, object result) {
             _currentBody = null;
-            _focusNode.unfocus();
+            _focusNode?.unfocus();
             var state = Navigator.of(context);
             state.popUntil((Route route) => route == _route);
             state.pop(result);
         }
 
+        public readonly string searchFieldLabel;
 
+        public readonly TextInputType keyboardType;
+
+        public readonly TextInputAction textInputAction;
+        
         public virtual Animation<float> transitionAnimation {
             get { return _proxyAnimation; }
         }
 
-        readonly internal FocusNode _focusNode = new FocusNode();
+        internal FocusNode _focusNode;
 
         readonly internal TextEditingController _queryTextController = new TextEditingController();
 
@@ -115,6 +130,8 @@ namespace Unity.UIWidgets.material {
         public override Color barrierColor {
             get { return null; }
         }
+
+        public override string barrierLabel => null;
 
         public override TimeSpan transitionDuration {
             get { return new TimeSpan(0, 0, 0, 0, 300); }
@@ -180,20 +197,24 @@ namespace Unity.UIWidgets.material {
     }
 
     class _SearchPageState<T> : State<_SearchPage<T>> {
+        
+        FocusNode focusNode = new FocusNode();
         public override void initState() {
             base.initState();
-            queryTextController.addListener(_onQueryChanged);
+            widget.del._queryTextController.addListener(_onQueryChanged);
             widget.animation.addStatusListener(_onAnimationStatusChanged);
             widget.del._currentBodyNotifier.addListener(_onSearchBodyChanged);
-            widget.del._focusNode.addListener(_onFocusChanged);
+            focusNode.addListener(_onFocusChanged);
+            widget.del._focusNode = focusNode;
         }
 
         public override void dispose() {
             base.dispose();
-            queryTextController.removeListener(_onQueryChanged);
+            widget.del._queryTextController.removeListener(_onQueryChanged);
             widget.animation.removeStatusListener(_onAnimationStatusChanged);
             widget.del._currentBodyNotifier.removeListener(_onSearchBodyChanged);
-            widget.del._focusNode.removeListener(_onFocusChanged);
+            widget.del._focusNode = null;
+            focusNode.dispose();
         }
 
         void _onAnimationStatusChanged(AnimationStatus status) {
@@ -203,12 +224,25 @@ namespace Unity.UIWidgets.material {
 
             widget.animation.removeStatusListener(_onAnimationStatusChanged);
             if (widget.del._currentBody == _SearchBody.suggestions) {
-                FocusScope.of(context).requestFocus(widget.del._focusNode);
+                focusNode.requestFocus();
+            }
+        }
+
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            var _oldWidget = (_SearchPage<T>) oldWidget;
+            base.didUpdateWidget(oldWidget);
+            if (widget.del != _oldWidget.del) {
+                _oldWidget.del._queryTextController.removeListener(_onQueryChanged);
+                widget.del._queryTextController.addListener(_onQueryChanged);
+                _oldWidget.del._currentBodyNotifier.removeListener(_onSearchBodyChanged);
+                widget.del._currentBodyNotifier.addListener(_onSearchBodyChanged);
+                _oldWidget.del._focusNode = null;
+                widget.del._focusNode = focusNode;
             }
         }
 
         void _onFocusChanged() {
-            if (widget.del._focusNode.hasFocus && widget.del._currentBody != _SearchBody.suggestions) {
+            if (focusNode.hasFocus && widget.del._currentBody != _SearchBody.suggestions) {
                 widget.del.showSuggestions(context);
             }
         }
@@ -225,7 +259,7 @@ namespace Unity.UIWidgets.material {
             material_.debugCheckHasMaterialLocalizations(context);
 
             ThemeData theme = widget.del.appBarTheme(context);
-            string searchFieldLabel = MaterialLocalizations.of(context).searchFieldLabel;
+            string searchFieldLabel = widget.del.searchFieldLabel ?? MaterialLocalizations.of(context).searchFieldLabel;
             Widget body = null;
             switch (widget.del._currentBody) {
                 case _SearchBody.suggestions:
@@ -245,6 +279,8 @@ namespace Unity.UIWidgets.material {
             string routeName;
             switch (Theme.of(this.context).platform) {
                 case RuntimePlatform.IPhonePlayer:
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
                     routeName = "";
                     break;
                 case RuntimePlatform.Android:
@@ -260,14 +296,16 @@ namespace Unity.UIWidgets.material {
                     brightness: theme.primaryColorBrightness,
                     leading: widget.del.buildLeading(context),
                     title: new TextField(
-                        controller: queryTextController,
-                        focusNode: widget.del._focusNode,
-                        style: theme.textTheme.title,
-                        textInputAction: TextInputAction.search,
+                        controller: widget.del._queryTextController,
+                        focusNode: focusNode,
+                        style: theme.textTheme.headline6,
+                        textInputAction: widget.del.textInputAction,
+                        keyboardType: widget.del.keyboardType,
                         onSubmitted: (string _) => { widget.del.showResults(context); },
                         decoration: new InputDecoration(
                             border: InputBorder.none,
-                            hintText: searchFieldLabel
+                            hintText: searchFieldLabel,
+                            hintStyle: theme.inputDecorationTheme.hintStyle
                         )
                     ),
                     actions: widget.del.buildActions(context)

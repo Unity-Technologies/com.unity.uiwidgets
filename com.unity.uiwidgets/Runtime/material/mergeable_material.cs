@@ -123,9 +123,10 @@ namespace Unity.UIWidgets.material {
             _children.AddRange(widget.children);
 
             for (int i = 0; i < _children.Count; i++) {
-                if (_children[i] is MaterialGap) {
+                MergeableMaterialItem child = _children[i];
+                if (child is MaterialGap) {
                     _initGap((MaterialGap) _children[i]);
-                    _animationTuples[_children[i].key].controller.setValue(1.0f);
+                    _animationTuples[child.key].controller.setValue(1.0f);
                 }
             }
 
@@ -295,8 +296,9 @@ namespace Unity.UIWidgets.material {
                                 float gapSizeSum = 0.0f;
 
                                 while (startOld < j) {
-                                    if (_children[startOld] is MaterialGap) {
-                                        MaterialGap gap = (MaterialGap) _children[startOld];
+                                    MergeableMaterialItem child = _children[startOld];
+                                    if (child is MaterialGap materialGap) {
+                                        MaterialGap gap = materialGap;
                                         gapSizeSum += gap.size;
                                     }
 
@@ -339,29 +341,29 @@ namespace Unity.UIWidgets.material {
                                 float gapSizeSum = 0.0f;
 
                                 for (int k = startNew; k < i; k++) {
-                                    if (newChildren[k] is MaterialGap) {
-                                        MaterialGap gap = (MaterialGap) newChildren[k];
-                                        gapSizeSum += gap.size;
+                                    MergeableMaterialItem newChild = newChildren[k];
+                                    if (newChild is MaterialGap materialGap) {
+                                        gapSizeSum += materialGap.size;
                                     }
                                 }
 
                                 for (int k = startNew; k < i; k++) {
-                                    if (newChildren[k] is MaterialGap) {
-                                        MaterialGap gap = (MaterialGap) newChildren[k];
-
-                                        _animationTuples[gap.key].gapStart = gapSize * gap.size / gapSizeSum;
-                                        _animationTuples[gap.key].controller.setValue(0.0f);
-                                        _animationTuples[gap.key].controller.forward();
+                                    MergeableMaterialItem newChild = newChildren[k];
+                                    if (newChild is MaterialGap materialGap) {
+                                        _animationTuples[materialGap.key].gapStart =
+                                            gapSize * materialGap.size / gapSizeSum;
+                                        _animationTuples[materialGap.key].controller.setValue(0.0f);
+                                        _animationTuples[materialGap.key].controller.forward();
                                     }
                                 }
                             }
                         }
                         else {
                             for (int k = 0; k < newLength; k++) {
-                                _insertChild(startOld + k, newChildren[startNew + k]);
+                                MergeableMaterialItem newChild = newChildren[startNew + k];
+                                _insertChild(startOld + k, newChild);
 
-                                if (newChildren[startNew + k] is MaterialGap) {
-                                    MaterialGap gap = (MaterialGap) newChildren[startNew + k];
+                                if (newChild is MaterialGap gap) {
                                     _animationTuples[gap.key].controller.forward();
                                 }
                             }
@@ -374,9 +376,9 @@ namespace Unity.UIWidgets.material {
                             float gapSizeSum = 0.0f;
 
                             while (startOld < j) {
-                                if (_children[startOld] is MaterialGap) {
-                                    MaterialGap gap = (MaterialGap) _children[startOld];
-                                    gapSizeSum += gap.size;
+                                MergeableMaterialItem child = _children[startOld];
+                                if (child is MaterialGap materialGap) {
+                                    gapSizeSum += materialGap.size;
                                 }
 
                                 _removeChild(startOld);

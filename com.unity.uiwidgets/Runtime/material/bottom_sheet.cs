@@ -477,40 +477,4 @@ namespace Unity.UIWidgets.material {
             return bottomSheet;
         }
     }
-
-    class _BottomSheetSuspendedCurve : ParametricCurve<float> {
-        internal _BottomSheetSuspendedCurve(
-            float startingPoint,
-            Curve curve = null
-        ) {
-            D.assert(curve != null);
-            this.startingPoint = startingPoint;
-            this.curve = curve ?? Curves.easeOutCubic;
-        }
-
-        public readonly float startingPoint;
-
-        public readonly Curve curve;
-
-        public override float transform(float t) {
-            D.assert(t >= 0.0 && t <= 1.0);
-            D.assert(startingPoint >= 0.0 && startingPoint <= 1.0);
-
-            if (t < startingPoint) {
-                return t;
-            }
-
-            if (t == 1.0) {
-                return t;
-            }
-
-            float curveProgress = (t - startingPoint) / (1 - startingPoint);
-            float transformed = curve.transform(curveProgress);
-            return Mathf.Lerp(startingPoint, 1, transformed);
-        }
-
-        public override string ToString() {
-            return $"{foundation_.describeIdentity(this)}({startingPoint}, {curve})";
-        }
-    }
 }

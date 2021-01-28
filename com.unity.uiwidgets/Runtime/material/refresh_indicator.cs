@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
@@ -40,7 +39,8 @@ namespace Unity.UIWidgets.material {
             RefreshCallback onRefresh = null,
             Color color = null,
             Color backgroundColor = null,
-            ScrollNotificationPredicate notificationPredicate = null
+            ScrollNotificationPredicate notificationPredicate = null,
+            float strokenWidth = 2.0f
         ) : base(key: key) {
             D.assert(child != null);
             D.assert(onRefresh != null);
@@ -63,6 +63,8 @@ namespace Unity.UIWidgets.material {
         public readonly Color backgroundColor;
 
         public readonly ScrollNotificationPredicate notificationPredicate;
+
+        public readonly float strokeWidth;
 
         public override State createState() {
             return new RefreshIndicatorState();
@@ -323,65 +325,69 @@ namespace Unity.UIWidgets.material {
             return _pendingRefreshFuture;
         }
 
-        GlobalKey _key = GlobalKey.key();
-
         public override Widget build(BuildContext context) {
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
             Widget child = new NotificationListener<ScrollNotification>(
-                key: _key,
                 onNotification: _handleScrollNotification,
                 child: new NotificationListener<OverscrollIndicatorNotification>(
                     onNotification: _handleGlowNotification,
                     child: widget.child
                 )
             );
-            if (_mode == null) {
-                D.assert(_dragOffset == null);
-                D.assert(_isIndicatorAtTop == null);
-                return child;
-            }
+            D.assert(() => {
+                if (_mode == null) {
+                    D.assert(_dragOffset == null);
+                    D.assert(_isIndicatorAtTop == null);
+                }
+                else {
+                    D.assert(_dragOffset != null);
+                    D.assert(_isIndicatorAtTop != null);
+                }
 
-            D.assert(_dragOffset != null);
-            D.assert(_isIndicatorAtTop != null);
+                return true;
+            });
 
             bool showIndeterminateIndicator =
                 _mode == _RefreshIndicatorMode.refresh || _mode == _RefreshIndicatorMode.done;
 
-            return new Stack(
-                children: new List<Widget> {
-                    child,
-                    new Positioned(
-                        top: _isIndicatorAtTop == true ? 0.0f : (float?) null,
-                        bottom: _isIndicatorAtTop != true ? 0.0f : (float?) null,
-                        left: 0.0f,
-                        right: 0.0f,
-                        child: new SizeTransition(
-                            axisAlignment: _isIndicatorAtTop == true ? 1.0f : -1.0f,
-                            sizeFactor: _positionFactor, // this is what brings it down
-                            child: new Container(
-                                padding: _isIndicatorAtTop == true
-                                    ? EdgeInsets.only(top: widget.displacement)
-                                    : EdgeInsets.only(bottom: widget.displacement),
-                                alignment: _isIndicatorAtTop == true
-                                    ? Alignment.topCenter
-                                    : Alignment.bottomCenter,
-                                child: new ScaleTransition(
-                                    scale: _scaleFactor,
-                                    child: new AnimatedBuilder(
-                                        animation: _positionController,
-                                        builder: (BuildContext _context, Widget _child) => {
-                                            return new RefreshProgressIndicator(
-                                                value: showIndeterminateIndicator ? (float?) null : _value.value,
-                                                valueColor: _valueColor,
-                                                backgroundColor: widget.backgroundColor
-                                            );
-                                        }
-                                    )
+            List<Widget> children = new List<Widget> {child};
+            if (_mode != null) {
+                children.Add(new Positioned(
+                    top: _isIndicatorAtTop == true ? 0.0f : (float?) null,
+                    bottom: _isIndicatorAtTop != true ? 0.0f : (float?) null,
+                    left: 0.0f,
+                    right: 0.0f,
+                    child: new SizeTransition(
+                        axisAlignment: _isIndicatorAtTop == true ? 1.0f : -1.0f,
+                        sizeFactor: _positionFactor, // this is what brings it down
+                        child: new Container(
+                            padding: _isIndicatorAtTop == true
+                                ? EdgeInsets.only(top: widget.displacement)
+                                : EdgeInsets.only(bottom: widget.displacement),
+                            alignment: _isIndicatorAtTop == true
+                                ? Alignment.topCenter
+                                : Alignment.bottomCenter,
+                            child: new ScaleTransition(
+                                scale: _scaleFactor,
+                                child: new AnimatedBuilder(
+                                    animation: _positionController,
+                                    builder: (BuildContext _context, Widget _child) => {
+                                        return new RefreshProgressIndicator(
+                                            value: showIndeterminateIndicator ? (float?) null : _value.value,
+                                            valueColor: _valueColor,
+                                            backgroundColor: widget.backgroundColor,
+                                            strokeWidth: widget.strokeWidth
+                                        );
+                                    }
                                 )
                             )
                         )
                     )
-                }
+                ));
+            }
+
+            return new Stack(
+                children: children
             );
         }
     }

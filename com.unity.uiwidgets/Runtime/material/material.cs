@@ -101,7 +101,7 @@ namespace Unity.UIWidgets.material {
 
         public static MaterialInkController of(BuildContext context) {
             _RenderInkFeatures result =
-                (_RenderInkFeatures) context.ancestorRenderObjectOfType(new TypeMatcher<_RenderInkFeatures>());
+                (_RenderInkFeatures) context.findAncestorRenderObjectOfType<_RenderInkFeatures>();
             return result;
         }
 
@@ -114,9 +114,8 @@ namespace Unity.UIWidgets.material {
             base.debugFillProperties(properties);
             properties.add(new EnumProperty<MaterialType>("type", type));
             properties.add(new FloatProperty("elevation", elevation, defaultValue: 0.0f));
-            properties.add(new DiagnosticsProperty<Color>("color", color, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor,
-                defaultValue: new Color(0xFF000000)));
+            properties.add(new ColorProperty("color", color, defaultValue: null));
+            properties.add(new ColorProperty("shadowColor", shadowColor, defaultValue: new Color(0xFF000000)));
             textStyle?.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: null));
             properties.add(new DiagnosticsProperty<bool>("borderOnForeground", borderOnForeground,
@@ -133,18 +132,22 @@ namespace Unity.UIWidgets.material {
         readonly GlobalKey _inkFeatureRenderer = GlobalKey.key(debugLabel: "ink renderer");
 
         Color _getBackgroundColor(BuildContext context) {
-            if (widget.color != null) {
-                return widget.color;
+            ThemeData theme = Theme.of(context);
+            Color color = widget.color;
+            if (color == null) {
+                switch (widget.type) {
+                    case MaterialType.canvas:
+                        color = theme.canvasColor;
+                        break;
+                    case MaterialType.card:
+                        color = theme.cardColor;
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            switch (widget.type) {
-                case MaterialType.canvas:
-                    return Theme.of(context).canvasColor;
-                case MaterialType.card:
-                    return Theme.of(context).cardColor;
-                default:
-                    return null;
-            }
+            return color;
         }
 
         public override Widget build(BuildContext context) {
@@ -157,7 +160,7 @@ namespace Unity.UIWidgets.material {
             Widget contents = widget.child;
             if (contents != null) {
                 contents = new AnimatedDefaultTextStyle(
-                    style: widget.textStyle ?? Theme.of(context).textTheme.body1,
+                    style: widget.textStyle ?? Theme.of(context).textTheme.bodyText2,
                     duration: widget.animationDuration,
                     child: contents
                 );
@@ -168,7 +171,7 @@ namespace Unity.UIWidgets.material {
                     _RenderInkFeatures renderer =
                         (_RenderInkFeatures) _inkFeatureRenderer.currentContext.findRenderObject();
                     renderer._didChangeLayout();
-                    return true;
+                    return false;
                 },
                 child: new _InkFeatures(
                     key: _inkFeatureRenderer,
@@ -187,7 +190,7 @@ namespace Unity.UIWidgets.material {
                     clipBehavior: widget.clipBehavior,
                     borderRadius: BorderRadius.zero,
                     elevation: widget.elevation,
-                    color: backgroundColor,
+                    color: ElevationOverlay.applyOverlay(context, backgroundColor, widget.elevation),
                     shadowColor: widget.shadowColor,
                     animateColor: false,
                     child: contents
@@ -378,7 +381,7 @@ namespace Unity.UIWidgets.material {
             get { return _controller; }
         }
 
-        public _RenderInkFeatures _controller;
+        public readonly _RenderInkFeatures _controller;
 
         public readonly RenderBox referenceBox;
 
@@ -488,8 +491,8 @@ namespace Unity.UIWidgets.material {
             base.debugFillProperties(description);
             description.add(new DiagnosticsProperty<ShapeBorder>("shape", shape));
             description.add(new FloatProperty("elevation", elevation));
-            description.add(new DiagnosticsProperty<Color>("color", color));
-            description.add(new DiagnosticsProperty<Color>("shadowColor", shadowColor));
+            description.add(new ColorProperty("color", color));
+            description.add(new ColorProperty("shadowColor", shadowColor));
         }
     }
 
@@ -509,6 +512,7 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             ShapeBorder shape = _border.evaluate(animation);
+            float elevation = _elevation.evaluate(animation);
             return new PhysicalShape(
                 child: new _ShapeBorderPaint(
                     child: widget.child,
@@ -518,7 +522,7 @@ namespace Unity.UIWidgets.material {
                     shape: shape),
                 clipBehavior: widget.clipBehavior,
                 elevation: _elevation.evaluate(animation),
-                color: widget.color,
+                color: ElevationOverlay.applyOverlay(context, widget.color, elevation),
                 shadowColor: _shadowColor.evaluate(animation)
             );
         }

@@ -81,7 +81,8 @@ namespace Unity.UIWidgets.material {
             ColorScheme colorScheme = null,
             DialogTheme dialogTheme = null,
             FloatingActionButtonThemeData floatingActionButtonTheme = null,
-            Typography typography = null
+            Typography typography = null,
+            SnackBarThemeData snackBarTheme = null
         ) {
             brightness = brightness ?? Brightness.light;
             bool isDark = brightness == Brightness.dark;
@@ -190,6 +191,7 @@ namespace Unity.UIWidgets.material {
             );
             dialogTheme = dialogTheme ?? new DialogTheme();
             floatingActionButtonTheme = floatingActionButtonTheme ?? new FloatingActionButtonThemeData();
+            snackBarTheme = snackBarTheme ?? new SnackBarThemeData();
 
             D.assert(brightness != null);
             D.assert(primaryColor != null);
@@ -239,6 +241,7 @@ namespace Unity.UIWidgets.material {
             D.assert(chipTheme != null);
             D.assert(dialogTheme != null);
             D.assert(floatingActionButtonTheme != null);
+            D.assert(snackBarTheme != null);
 
             this.brightness = brightness ?? Brightness.light;
             this.primaryColor = primaryColor;
@@ -290,6 +293,7 @@ namespace Unity.UIWidgets.material {
             this.dialogTheme = dialogTheme;
             this.floatingActionButtonTheme = floatingActionButtonTheme;
             this.typography = typography;
+            this.snackBarTheme = snackBarTheme;
         }
 
         public static ThemeData raw(
@@ -342,7 +346,8 @@ namespace Unity.UIWidgets.material {
             ColorScheme colorScheme = null,
             DialogTheme dialogTheme = null,
             FloatingActionButtonThemeData floatingActionButtonTheme = null,
-            Typography typography = null
+            Typography typography = null,
+            SnackBarThemeData snackBarTheme = null
         ) {
             D.assert(brightness != null);
             D.assert(primaryColor != null);
@@ -394,6 +399,7 @@ namespace Unity.UIWidgets.material {
             D.assert(chipTheme != null);
             D.assert(dialogTheme != null);
             D.assert(floatingActionButtonTheme != null);
+            D.assert(snackBarTheme != null);
 
             return new ThemeData(
                 brightness: brightness,
@@ -445,7 +451,8 @@ namespace Unity.UIWidgets.material {
                 colorScheme: colorScheme,
                 dialogTheme: dialogTheme,
                 floatingActionButtonTheme: floatingActionButtonTheme,
-                typography: typography);
+                typography: typography,
+                snackBarTheme: snackBarTheme);
         }
 
         public static ThemeData light() {
@@ -644,7 +651,8 @@ namespace Unity.UIWidgets.material {
             ColorScheme colorScheme = null,
             DialogTheme dialogTheme = null,
             FloatingActionButtonThemeData floatingActionButtonTheme = null,
-            Typography typography = null
+            Typography typography = null,
+            SnackBarThemeData snackBarTheme = null
         ) {
             return raw(
                 brightness: brightness ?? this.brightness,
@@ -696,7 +704,8 @@ namespace Unity.UIWidgets.material {
                 colorScheme: colorScheme ?? this.colorScheme,
                 dialogTheme: dialogTheme ?? this.dialogTheme,
                 floatingActionButtonTheme: floatingActionButtonTheme ?? this.floatingActionButtonTheme,
-                typography: typography ?? this.typography
+                typography: typography ?? this.typography,
+                snackBarTheme: snackBarTheme ?? this.snackBarTheme
             );
         }
 
@@ -785,7 +794,8 @@ namespace Unity.UIWidgets.material {
                 dialogTheme: DialogTheme.lerp(a.dialogTheme, b.dialogTheme, t),
                 floatingActionButtonTheme: FloatingActionButtonThemeData.lerp(a.floatingActionButtonTheme,
                     b.floatingActionButtonTheme, t),
-                typography: Typography.lerp(a.typography, b.typography, t)
+                typography: Typography.lerp(a.typography, b.typography, t),
+                snackBarTheme: SnackBarThemeData.lerp(a.snackBarTheme, b.snackBarTheme, t)
             );
         }
 
@@ -847,7 +857,8 @@ namespace Unity.UIWidgets.material {
                    other.colorScheme == colorScheme &&
                    other.dialogTheme == dialogTheme &&
                    other.floatingActionButtonTheme == floatingActionButtonTheme &&
-                   other.typography == typography;
+                   other.typography == typography &&
+                   other.snackBarTheme == snackBarTheme;
         }
 
         public override bool Equals(object obj) {
@@ -932,6 +943,7 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ dialogTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ floatingActionButtonTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ typography.GetHashCode();
+                hashCode = (hashCode * 397) ^ snackBarTheme.GetHashCode(); 
 
                 _cachedHashCode = hashCode;
                 return hashCode;
@@ -1022,6 +1034,7 @@ namespace Unity.UIWidgets.material {
                 floatingActionButtonTheme, defaultValue: defaultData.floatingActionButtonTheme));
             properties.add(new DiagnosticsProperty<Typography>("typography", typography,
                 defaultValue: defaultData.typography));
+            properties.add(new DiagnosticsProperty<SnackBarThemeData>("snackBarTheme", snackBarTheme, defaultValue: defaultData.snackBarTheme, level: DiagnosticLevel.debug));
         }
     }
 

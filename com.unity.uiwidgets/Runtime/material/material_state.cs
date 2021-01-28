@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.material {
         }
 
         static MaterialStateColor resolveWith(material_.MaterialPropertyResolver<Color> callback) =>
-            new material._MaterialStateColor(callback);
+            new _MaterialStateColor(callback);
 
         public abstract Color resolve(HashSet<MaterialState> states);
 

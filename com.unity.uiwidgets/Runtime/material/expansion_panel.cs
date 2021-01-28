@@ -8,9 +8,11 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.material {
-    static class ExpansionPanelUtils {
-        public const float _kPanelHeaderCollapsedHeight = 48.0f;
-        public const float _kPanelHeaderExpandedHeight = 64.0f;
+    public partial class material_ {
+        public const float _kPanelHeaderCollapsedHeight = kMinInteractiveDimension;
+
+        public static readonly EdgeInsets _kPanelHeaderExpandedDefaultPadding = EdgeInsets.symmetric(
+            vertical: 64.0f - _kPanelHeaderCollapsedHeight);
     }
 
 
@@ -128,10 +130,13 @@ namespace Unity.UIWidgets.material {
             Key key = null,
             List<ExpansionPanel> children = null,
             ExpansionPanelCallback expansionCallback = null,
-            TimeSpan? animationDuration = null) : base(key: key) {
+            TimeSpan? animationDuration = null,
+            EdgeInsets expandedHeaderPadding = null
+        ) : base(key: key) {
             this.children = children ?? new List<ExpansionPanel>();
             this.expansionCallback = expansionCallback;
             this.animationDuration = animationDuration ?? material_.kThemeChangeDuration;
+            this.expandedHeaderPadding = expandedHeaderPadding ?? material_._kPanelHeaderExpandedDefaultPadding;
             _allowOnlyOnePanelOpen = false;
             initialOpenPanelValue = null;
         }
@@ -141,10 +146,13 @@ namespace Unity.UIWidgets.material {
             List<ExpansionPanel> children = null,
             ExpansionPanelCallback expansionCallback = null,
             TimeSpan? animationDuration = null,
-            object initialOpenPanelValue = null) : base(key: key) {
+            object initialOpenPanelValue = null,
+            EdgeInsets expandedHeaderPadding = null
+        ) : base(key: key) {
             this.children = children ?? new List<ExpansionPanel>();
             this.expansionCallback = expansionCallback;
             this.animationDuration = animationDuration ?? material_.kThemeChangeDuration;
+            this.expandedHeaderPadding = expandedHeaderPadding ?? material_._kPanelHeaderExpandedDefaultPadding;
             _allowOnlyOnePanelOpen = true;
             this.initialOpenPanelValue = initialOpenPanelValue;
         }
@@ -176,6 +184,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly object initialOpenPanelValue;
 
+        public readonly EdgeInsets expandedHeaderPadding;
+
         public override State createState() {
             return new _ExpansionPanelListState();
         }
@@ -188,11 +198,12 @@ namespace Unity.UIWidgets.material {
         public override void initState() {
             base.initState();
             if (widget._allowOnlyOnePanelOpen) {
-                D.assert(_allIdentifierUnique(), () => "All object identifiers are not unique!");
+                D.assert(_allIdentifierUnique(), () => "All ExpansionPanelRadio identifier values must be unique.");
                 foreach (ExpansionPanelRadio child in widget.children) {
-                    if (widget.initialOpenPanelValue != null &&
-                        child.value == widget.initialOpenPanelValue) {
-                        _currentOpenPanel = child;
+                    if (widget.initialOpenPanelValue != null) {
+                        _currentOpenPanel =
+                            searchPanelByValue(widget.children.Cast<ExpansionPanelRadio>().ToList(),
+                                widget.initialOpenPanelValue);
                     }
                 }
             }
@@ -202,22 +213,21 @@ namespace Unity.UIWidgets.material {
             base.didUpdateWidget(oldWidget);
             ExpansionPanelList _oldWidget = (ExpansionPanelList) oldWidget;
             if (widget._allowOnlyOnePanelOpen) {
-                D.assert(_allIdentifierUnique(), () => "All object identifiers are not unique!");
-                foreach (ExpansionPanelRadio newChild in widget.children) {
-                    if (widget.initialOpenPanelValue != null &&
-                        newChild.value == widget.initialOpenPanelValue) {
-                        _currentOpenPanel = newChild;
-                    }
+                D.assert(_allIdentifierUnique(), () => "All ExpansionPanelRadio identifier values must be unique.");
+                if (!_oldWidget._allowOnlyOnePanelOpen) {
+                    _currentOpenPanel =
+                        searchPanelByValue(widget.children.Cast<ExpansionPanelRadio>().ToList(),
+                            widget.initialOpenPanelValue);
                 }
             }
-            else if (_oldWidget._allowOnlyOnePanelOpen) {
+            else {
                 _currentOpenPanel = null;
             }
         }
 
         bool _allIdentifierUnique() {
             Dictionary<object, bool> identifierMap = new Dictionary<object, bool>();
-            foreach (ExpansionPanelRadio child in widget.children) {
+            foreach (ExpansionPanelRadio child in widget.children.Cast<ExpansionPanelRadio>()) {
                 identifierMap[child.value] = true;
             }
 
@@ -249,17 +259,21 @@ namespace Unity.UIWidgets.material {
                     }
                 }
 
-                _currentOpenPanel = isExpanded ? null : pressedChild;
+                setState(() => { _currentOpenPanel = isExpanded ? null : pressedChild; });
+            }
+        }
+
+        public ExpansionPanelRadio searchPanelByValue(List<ExpansionPanelRadio> panels, Object value) {
+            foreach (ExpansionPanelRadio panel in panels) {
+                if (panel.value == value)
+                    return panel;
             }
 
-            setState(() => { });
+            return null;
         }
 
         public override Widget build(BuildContext context) {
             List<MergeableMaterialItem> items = new List<MergeableMaterialItem>();
-            EdgeInsets kExpandedEdgeInsets = EdgeInsets.symmetric(
-                vertical: ExpansionPanelUtils._kPanelHeaderExpandedHeight -
-                          ExpansionPanelUtils._kPanelHeaderCollapsedHeight);
 
             for (int index = 0; index < widget.children.Count; index++) {
                 int expandIndex = index;
@@ -273,46 +287,48 @@ namespace Unity.UIWidgets.material {
                     context,
                     _isChildExpanded(index)
                 );
-                Row header = new Row(
+
+
+                Widget expandIconContainer = new Container(
+                    //TODO: update to EdgeInsetsGeometry
+                    margin: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(end: 8.0f),
+                    child: new ExpandIcon(
+                        isExpanded: _isChildExpanded(index),
+                        padding: EdgeInsets.all(16.0f),
+                        onPressed: !child.canTapOnHeader
+                            ? (bool isExpanded) => _handlePressed(isExpanded, index)
+                            : (ValueChanged<bool>) null
+                    )
+                );
+                Widget header = new Row(
                     children: new List<Widget> {
                         new Expanded(
                             child: new AnimatedContainer(
                                 duration: widget.animationDuration,
                                 curve: Curves.fastOutSlowIn,
-                                margin: _isChildExpanded(index) ? kExpandedEdgeInsets : EdgeInsets.zero,
+                                margin: _isChildExpanded(index) ? widget.expandedHeaderPadding : EdgeInsets.zero,
                                 child: new ConstrainedBox(
                                     constraints: new BoxConstraints(
-                                        minHeight: ExpansionPanelUtils._kPanelHeaderCollapsedHeight),
+                                        minHeight: material_._kPanelHeaderCollapsedHeight),
                                     child: headerWidget
                                 )
                             )
                         ),
-                        new Container(
-                            margin: EdgeInsets.fromLTRB(0, 0, 8, 0),
-                            child: new ExpandIcon(
-                                isExpanded: _isChildExpanded(index),
-                                padding: EdgeInsets.all(16.0f),
-                                onPressed: !child.canTapOnHeader
-                                    ? (ValueChanged<bool>) ((bool isExpanded) => {
-                                        _handlePressed(isExpanded, expandIndex);
-                                    })
-                                    : null
-                            )
-                        )
+                        expandIconContainer,
                     }
                 );
+                if (child.canTapOnHeader) {
+                    header = new InkWell(
+                        onTap: () => _handlePressed(_isChildExpanded(index), index),
+                        child: header
+                    );
+                }
 
                 items.Add(new MaterialSlice(
                         key: new _SaltedKey<BuildContext, int>(context, index * 2),
                         child: new Column(
                             children: new List<Widget> {
-                                child.canTapOnHeader
-                                    ? (Widget) new InkWell(
-                                        onTap: () =>
-                                            _handlePressed(_isChildExpanded(expandIndex), expandIndex),
-                                        child: header
-                                    )
-                                    : header,
+                                header,
                                 new AnimatedCrossFade(
                                     firstChild: new Container(height: 0.0f),
                                     secondChild: child.body,

@@ -1,9 +1,8 @@
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
-namespace uiwidgets {
+namespace Unity.UIWidgets.material {
     public class ElevationOverlay {
         private ElevationOverlay() {
         }

@@ -110,14 +110,14 @@ namespace Unity.UIWidgets.widgets {
     
     public class EditableText : StatefulWidget {
         public EditableText(
-            SmartDashesType smartDashesType,
-            SmartQuotesType smartQuotesType,
             Key key = null,
             TextEditingController controller = null,
             FocusNode focusNode = null,
             bool readOnly = false,
             bool obscureText = false,
             bool autocorrect = true,
+            SmartDashesType? smartDashesType = null,
+            SmartQuotesType? smartQuotesType = null,
             bool enableSuggestions = true,
             TextStyle style = null,
             StrutStyle strutStyle = null,
@@ -165,8 +165,8 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key) {
             D.assert(controller != null);
             D.assert(focusNode != null);
-            smartDashesType = (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled);
-            smartQuotesType = (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled);
+            smartDashesType = smartDashesType ?? (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled);
+            smartQuotesType = smartQuotesType ?? (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled);
             D.assert(enableInteractiveSelection != null);
             D.assert(style != null);
             D.assert(cursorColor != null);
@@ -216,8 +216,8 @@ namespace Unity.UIWidgets.widgets {
             this.obscureText = obscureText;
             this.autocorrect = autocorrect;
             this.style = style;
-            this.smartDashesType = smartDashesType;
-            this.smartQuotesType = smartQuotesType;
+            this.smartDashesType = smartDashesType.Value;
+            this.smartQuotesType = smartQuotesType.Value;
             this.showCursor = showCursor;
             this.textWidthBasis = textWidthBasis;
             this.onSelectionHandleTapped = onSelectionHandleTapped;
@@ -728,8 +728,8 @@ namespace Unity.UIWidgets.widgets {
                         inputType: widget.keyboardType,
                         obscureText: widget.obscureText,
                         autocorrect: widget.autocorrect,
-                        smartDashesType: widget.obscureText ? SmartDashesType.disabled : SmartDashesType.enabled,
-                        smartQuotesType: widget.obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled,
+                        smartDashesType: widget.smartDashesType,
+                        smartQuotesType: widget.smartQuotesType,
                         enableSuggestions: widget.enableSuggestions,
                         inputAction: widget.textInputAction ?? (widget.keyboardType == TextInputType.multiline
                             ? TextInputAction.newline
@@ -1344,8 +1344,8 @@ namespace Unity.UIWidgets.widgets {
             Locale locale = null,
             bool obscureText = false,
             bool autocorrect = false,
-            SmartDashesType smartDashesType = SmartDashesType.disabled,
-            SmartQuotesType smartQuotesType = SmartQuotesType.disabled,
+            SmartDashesType? smartDashesType = null,
+            SmartQuotesType? smartQuotesType = null,
             bool? enableSuggestions = null,
             ViewportOffset offset = null,
             SelectionChangedHandler onSelectionChanged = null,
@@ -1384,8 +1384,8 @@ namespace Unity.UIWidgets.widgets {
             this.textDirection = textDirection;
             this.obscureText = obscureText;
             this.autocorrect = autocorrect;
-            this.smartDashesType = smartDashesType;
-            this.smartQuotesType = smartQuotesType;
+            this.smartDashesType = smartDashesType.Value;
+            this.smartQuotesType = smartQuotesType.Value;
             this.enableSuggestions = enableSuggestions;
             this.offset = offset;
             this.onSelectionChanged = onSelectionChanged;
