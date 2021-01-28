@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.material {
     }
 
     public partial class material_ {
-        public delegate bool SelectableDayPredicate(DateTime day);
+        public delegate bool SelectableDayPredicate(DateTime? day);
     }
 
 }

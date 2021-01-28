@@ -12,7 +12,7 @@ using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-    public static class DatePickerDialogUtils {
+    public partial class material_ {
         public static readonly Size _calendarPortraitDialogSize = new Size(330.0f, 518.0f);
         public static readonly Size _calendarLandscapeDialogSize = new Size(496.0f, 346.0f);
         public static readonly Size _inputPortraitDialogSize = new Size(330.0f, 270.0f);
@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.material {
             DateTime firstDate,
             DateTime lastDate,
             DatePickerEntryMode initialEntryMode = DatePickerEntryMode.calendar,
-            SelectableDayPredicate selectableDayPredicate = null,
+            material_.SelectableDayPredicate selectableDayPredicate = null,
             string helpText = null,
             string cancelText = null,
             string confirmText = null,
@@ -113,7 +113,7 @@ namespace Unity.UIWidgets.material {
             DateTime? firstDate = null,
             DateTime? lastDate = null,
             DatePickerEntryMode initialEntryMode = DatePickerEntryMode.calendar,
-            SelectableDayPredicate selectableDayPredicate = null,
+            material_.SelectableDayPredicate selectableDayPredicate = null,
             string cancelText = null,
             string confirmText = null,
             string helpText = null,
@@ -127,9 +127,9 @@ namespace Unity.UIWidgets.material {
             D.assert(firstDate != null);
             D.assert(lastDate != null);
 
-            initialDate = utils.dateOnly(initialDate);
-            firstDate = utils.dateOnly(firstDate);
-            lastDate = utils.dateOnly(lastDate);
+            initialDate = utils.dateOnly(initialDate.Value);
+            firstDate = utils.dateOnly(firstDate.Value);
+            lastDate = utils.dateOnly(lastDate.Value);
 
             D.assert(
                 !lastDate.Value.isBefore(firstDate.Value),
@@ -144,7 +144,7 @@ namespace Unity.UIWidgets.material {
                 () => $"initialDate {initialDate} must be on or before lastDate {lastDate}."
             );
             D.assert(
-                selectableDayPredicate == null || initialDate == null || selectableDayPredicate(initialDate),
+                selectableDayPredicate == null || initialDate == null || selectableDayPredicate(initialDate.Value),
                 () => $"Provided initialDate {initialDate} must satisfy provided selectableDayPredicate."
             );
 
@@ -171,7 +171,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly DatePickerEntryMode initialEntryMode;
 
-        public readonly SelectableDayPredicate selectableDayPredicate;
+        public readonly material_.SelectableDayPredicate selectableDayPredicate;
 
         public readonly string cancelText;
 
@@ -251,18 +251,18 @@ namespace Unity.UIWidgets.material {
                 case DatePickerEntryMode.calendar:
                     switch (orientation) {
                         case Orientation.portrait:
-                            return DatePickerDialogUtils._calendarPortraitDialogSize;
+                            return material_._calendarPortraitDialogSize;
                         case Orientation.landscape:
-                            return DatePickerDialogUtils._calendarLandscapeDialogSize;
+                            return material_._calendarLandscapeDialogSize;
                     }
 
                     break;
                 case DatePickerEntryMode.input:
                     switch (orientation) {
                         case Orientation.portrait:
-                            return DatePickerDialogUtils._inputPortraitDialogSize;
+                            return material_._inputPortraitDialogSize;
                         case Orientation.landscape:
-                            return DatePickerDialogUtils._inputLandscapeDialogSize;
+                            return material_._inputLandscapeDialogSize;
                     }
 
                     break;
@@ -363,7 +363,7 @@ namespace Unity.UIWidgets.material {
                 child: new AnimatedContainer(
                     width: dialogSize.width,
                     height: dialogSize.height,
-                    duration: DatePickerDialogUtils._dialogSizeAnimationDuration,
+                    duration: material_._dialogSizeAnimationDuration,
                     curve: Curves.easeIn,
                     child: new MediaQuery(
                         data: MediaQuery.of(context).copyWith(

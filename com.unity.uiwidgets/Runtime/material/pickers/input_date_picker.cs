@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.material {
             DateTime? lastDate = null,
             ValueChanged<DateTime> onDateSubmitted = null,
             ValueChanged<DateTime> onDateSaved = null,
-            SelectableDayPredicate selectableDayPredicate = null,
+            material_.SelectableDayPredicate selectableDayPredicate = null,
             string errorFormatText = null,
             string errorInvalidText = null,
             string fieldHintText = null,
@@ -39,9 +39,9 @@ namespace Unity.UIWidgets.material {
             D.assert(firstDate != null);
             D.assert(lastDate != null);
 
-            initialDate = initialDate != null ? utils.dateOnly(initialDate) : null;
-            firstDate = utils.dateOnly(firstDate);
-            lastDate = utils.dateOnly(lastDate);
+            initialDate = initialDate != null ? utils.dateOnly(initialDate.Value) : (DateTime?)null;
+            firstDate = utils.dateOnly(firstDate.Value);
+            lastDate = utils.dateOnly(lastDate.Value);
 
             D.assert(
                 !lastDate.Value.isBefore(firstDate.Value),
@@ -56,13 +56,13 @@ namespace Unity.UIWidgets.material {
                 () => $"initialDate {initialDate} must be on or before lastDate {lastDate}."
             );
             D.assert(
-                selectableDayPredicate == null || initialDate == null || selectableDayPredicate(initialDate),
+                selectableDayPredicate == null || initialDate == null || selectableDayPredicate(initialDate.Value),
                 () => $"Provided initialDate {initialDate} must satisfy provided selectableDayPredicate."
             );
 
             this.initialDate = initialDate;
-            this.firstDate = firstDate;
-            this.lastDate = lastDate;
+            this.firstDate = firstDate.Value;
+            this.lastDate = lastDate.Value;
             this.onDateSubmitted = onDateSubmitted;
             this.onDateSaved = onDateSaved;
             this.selectableDayPredicate = selectableDayPredicate;
@@ -83,7 +83,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly ValueChanged<DateTime> onDateSaved;
 
-        public readonly SelectableDayPredicate selectableDayPredicate;
+        public readonly material_.SelectableDayPredicate selectableDayPredicate;
 
         public readonly string errorFormatText;
 
