@@ -103,21 +103,21 @@ namespace Unity.UIWidgets.cupertino {
             _pickerTextStyle = pickerTextStyle;
             _dateTimePickerTextStyle = dateTimePickerTextStyle;
         }
-        /*public static CupertinoTextThemeData _raw(
+        public static CupertinoTextThemeData _raw(
             _TextThemeDefaultsBuilder _defaults,
             Color primaryColor,
-            TextStyle textStyle = null,
-            TextStyle actionTextStyle = null,
-            TextStyle tabLabelTextStyle = null,
-            TextStyle navTitleTextStyle = null,
-            TextStyle navLargeTitleTextStyle = null,
-            TextStyle navActionTextStyle = null,
-            TextStyle pickerTextStyle = null,
-            TextStyle dateTimePickerTextStyle = null
+            TextStyle textStyle,
+            TextStyle actionTextStyle ,
+            TextStyle tabLabelTextStyle ,
+            TextStyle navTitleTextStyle ,
+            TextStyle navLargeTitleTextStyle ,
+            TextStyle navActionTextStyle ,
+            TextStyle pickerTextStyle,
+            TextStyle dateTimePickerTextStyle 
         ) {
             var textThemeData = new CupertinoTextThemeData(
+                _defaults,
                 primaryColor,
-                null,
                 textStyle,
                 actionTextStyle,
                 tabLabelTextStyle,
@@ -127,17 +127,16 @@ namespace Unity.UIWidgets.cupertino {
                 pickerTextStyle,
                 dateTimePickerTextStyle
                 );
-            textThemeData._defaults = _defaults;
             return textThemeData;
 
-        }*/
+        }
 
-        public readonly _TextThemeDefaultsBuilder _defaults;
+        public _TextThemeDefaultsBuilder _defaults;
         readonly Color _primaryColor;
         readonly Brightness? _brightness;
         
         readonly TextStyle _textStyle; 
-        public TextStyle textStyle {
+        public virtual TextStyle textStyle {
             get {
                 return _textStyle ?? _defaults.textStyle;
             }
@@ -145,7 +144,7 @@ namespace Unity.UIWidgets.cupertino {
 
         readonly TextStyle _actionTextStyle;
 
-        public TextStyle actionTextStyle {
+        public virtual TextStyle actionTextStyle {
             get {
                 return _actionTextStyle ?? _defaults.actionTextStyle(primaryColor: _primaryColor);
                        
@@ -154,13 +153,13 @@ namespace Unity.UIWidgets.cupertino {
 
         readonly TextStyle _tabLabelTextStyle;
 
-        public TextStyle tabLabelTextStyle {
+        public virtual TextStyle tabLabelTextStyle {
             get { return _tabLabelTextStyle ??  _defaults.tabLabelTextStyle;}
         }
 
         readonly TextStyle _navTitleTextStyle;
 
-        public TextStyle navTitleTextStyle {
+        public virtual TextStyle navTitleTextStyle {
             get {
                 return _navTitleTextStyle ??  _defaults.navTitleTextStyle;
                        
@@ -170,7 +169,7 @@ namespace Unity.UIWidgets.cupertino {
         readonly TextStyle _navLargeTitleTextStyle;
 
         /// Typography of large titles in sliver navigation bars.
-        public TextStyle navLargeTitleTextStyle {
+        public virtual TextStyle navLargeTitleTextStyle {
             get {
                 return _navLargeTitleTextStyle ??  _defaults.navLargeTitleTextStyle;
             }
@@ -178,14 +177,14 @@ namespace Unity.UIWidgets.cupertino {
 
         readonly TextStyle _navActionTextStyle;
 
-        public TextStyle navActionTextStyle {
+        public virtual TextStyle navActionTextStyle {
             get {
                 return _navActionTextStyle ??  _defaults.navActionTextStyle(primaryColor: _primaryColor);
             }
         }
         readonly TextStyle _pickerTextStyle;
 
-        public TextStyle pickerTextStyle {
+        public virtual TextStyle pickerTextStyle {
             get {
                 return _pickerTextStyle ?? _defaults.pickerTextStyle;
             }
@@ -193,7 +192,7 @@ namespace Unity.UIWidgets.cupertino {
 
         readonly TextStyle _dateTimePickerTextStyle;
 
-        public TextStyle dateTimePickerTextStyle {
+        public virtual TextStyle dateTimePickerTextStyle {
             get {
                 return _dateTimePickerTextStyle ?? _defaults.dateTimePickerTextStyle;
             }

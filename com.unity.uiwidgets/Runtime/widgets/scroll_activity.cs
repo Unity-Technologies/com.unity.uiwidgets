@@ -178,7 +178,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly float? motionStartDistanceThreshold;
 
-        TimeSpan _lastNonStationaryTimestamp;
+        TimeSpan? _lastNonStationaryTimestamp;
 
         bool _retainMomentum;
 

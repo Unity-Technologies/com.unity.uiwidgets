@@ -1050,7 +1050,7 @@ namespace Unity.UIWidgets.widgets {
         public static Future<T> showGeneralDialog<T>(
             BuildContext context = null,
             RoutePageBuilder pageBuilder = null,
-            bool barrierDismissible = false,
+            bool? barrierDismissible = null,
             string barrierLabel = null,
             Color barrierColor = null,
             TimeSpan? transitionDuration = null,
@@ -1058,17 +1058,18 @@ namespace Unity.UIWidgets.widgets {
             bool useRootNavigator = true,
             RouteSettings routeSettings = null
         ) {
+            //D.assert(!barrierDismissible || barrierLabel != null);
             D.assert(pageBuilder != null);
-            return Navigator.of(context, rootNavigator: true).push<T>(
+            return Navigator.of(context, rootNavigator: true).push(
                 new _DialogRoute(
-                pageBuilder: pageBuilder,
-                barrierDismissible: barrierDismissible,
-                barrierLabel: barrierLabel,
-                barrierColor: barrierColor,
-                transitionDuration: transitionDuration,
-                transitionBuilder: transitionBuilder,
-                settings: routeSettings) as Route<T>
-                ); //.to<object>();
+                    pageBuilder: pageBuilder,
+                    barrierDismissible: barrierDismissible ?? false,
+                    barrierLabel: barrierLabel,
+                    barrierColor: barrierColor,
+                    transitionDuration: transitionDuration,
+                    transitionBuilder: transitionBuilder,
+                    settings: routeSettings)  as Route
+            ).to<T>();
         }
     }
 

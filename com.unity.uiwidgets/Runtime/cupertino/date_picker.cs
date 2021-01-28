@@ -470,7 +470,7 @@ namespace Unity.UIWidgets.cupertino {
                     }
                     return false;
             },
-            child: CupertinoPicker.builder(
+            child: new CupertinoPicker(
                 scrollController: dateController,
                 offAxisFraction: offAxisFraction,
                 itemExtent: CupertinoDatePickerUtils._kItemExtent,
@@ -481,22 +481,20 @@ namespace Unity.UIWidgets.cupertino {
                 onSelectedItemChanged: (int index)=> { 
                     _onSelectedItemChange(index); 
                 },
-                itemBuilder: (BuildContext context, int index) =>{ 
-                    DateTime rangeStart = new DateTime(
-                        initialDateTime.Year, 
-                        initialDateTime.Month, 
-                        initialDateTime.Day + index
+                itemBuilder: (BuildContext context, int index) => {
+                    
+                    var rangeStart = new DateTime(
+                        year:initialDateTime.Year, 
+                        month:initialDateTime.Month, 
+                        day:initialDateTime.Day
                     );
-
-                    DateTime rangeEnd = new DateTime(
-                        initialDateTime.Year, 
-                        initialDateTime.Month, 
-                        initialDateTime.Day + index + 1
-                    );
+                    rangeStart.AddDays(index);
+                    
+                    var rangeEnd  = rangeStart.AddDays(1);
                     
                     DateTime now = DateTime.Now;
                     
-                    if (widget.minimumDate?.CompareTo(rangeEnd) > 0  ) 
+                    if (widget.minimumDate?.CompareTo(rangeEnd) > 0 ) 
                         return null; 
                     if (widget.maximumDate?.CompareTo(rangeStart) > 0) 
                         return null;
@@ -772,24 +770,26 @@ namespace Unity.UIWidgets.cupertino {
                 if (textDirectionFactor == -1) 
                     padding = padding.flipped;
 
-                pickers.Add(new LayoutId(
-                    id: i,
-                    child: pickerBuilders[i](
-                      offAxisFraction,
-                      (BuildContext context1, Widget child) =>{
-                        return new Container(
-                            alignment: i == columnWidths.Count - 1
-                                ? alignCenterLeft
-                                : alignCenterRight,
-                            padding: padding,
-                            child: new Container(
-                                alignment: i == columnWidths.Count - 1 ? alignCenterLeft : alignCenterRight,
-                                width:  i == 0 || i == columnWidths.Count - 1
-                                    ? (float?) null : (float)(columnWidths[i] + CupertinoDatePickerUtils._kDatePickerPadSize),
-                                child: child
-                                )
-                            ); 
-                    }
+                float width = columnWidths[i];
+                pickers.Add(
+                    new LayoutId(
+                            id: i,
+                            child: pickerBuilders[i](
+                            offAxisFraction,
+                          (BuildContext context1, Widget child) =>{
+                            return new Container(
+                                alignment: i == columnWidths.Count - 1
+                                    ? alignCenterLeft
+                                    : alignCenterRight,
+                                padding: padding,
+                                child: new Container(
+                                    alignment: i == columnWidths.Count - 1 ? alignCenterLeft : alignCenterRight,
+                                    width:  i == 0 || i == columnWidths.Count - 1
+                                        ? (float?) null : (float)(width + CupertinoDatePickerUtils._kDatePickerPadSize),
+                                    child: child
+                                    )
+                                ); 
+                        }
                     )
                   ));
             }
@@ -885,7 +885,13 @@ namespace Unity.UIWidgets.cupertino {
                 CupertinoDatePicker._getColumnWidth(_PickerColumnType.year, localizations, context);
         }
 
-        DateTime _lastDayInMonth(int year, int month) => new DateTime(year, month + 1, 0);
+        DateTime _lastDayInMonth(int year, int month) {
+            //new DateTime(year, month + 1, 0);
+            var date = new DateTime(year,month,1);
+            date.AddMonths(1);
+            date.Subtract(new TimeSpan(1, 0, 0, 0));
+            return date;
+        }
 
         Widget _buildDayPicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) {
             int daysInCurrentMonth = _lastDayInMonth(selectedYear, selectedMonth).Day;
@@ -992,7 +998,7 @@ namespace Unity.UIWidgets.cupertino {
 
                     return false;
                 },
-                child: CupertinoPicker.builder(
+                child: new CupertinoPicker (
                     scrollController: yearController,
                     itemExtent: CupertinoDatePickerUtils._kItemExtent,
                     offAxisFraction: offAxisFraction,

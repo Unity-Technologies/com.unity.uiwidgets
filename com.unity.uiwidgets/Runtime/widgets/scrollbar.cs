@@ -109,7 +109,7 @@ namespace Unity.UIWidgets.widgets {
             notifyListeners();
         }
 
-        void updateThickness(float nextThickness, Radius nextRadius) {
+        public void updateThickness(float nextThickness, Radius nextRadius) {
             thickness = nextThickness;
             radius = nextRadius;
             notifyListeners();
@@ -201,8 +201,8 @@ namespace Unity.UIWidgets.widgets {
                        + _lastMetrics.viewportDimension;
             }
         }
-        
-        float getTrackToScroll(float thumbOffsetLocal) {
+
+        public float getTrackToScroll(float thumbOffsetLocal) {
             float scrollableExtent = _lastMetrics.maxScrollExtent - _lastMetrics.minScrollExtent;
             float thumbMovableExtent = _trackExtent - _thumbExtent();
 
@@ -237,8 +237,8 @@ namespace Unity.UIWidgets.widgets {
 
             _paintThumbCrossAxis(canvas, size, thumbOffset, thumbExtent, _lastAxisDirection.Value);
         }
-        
-        bool hitTestInteractive(Offset position) {
+
+        public bool hitTestInteractive(Offset position) {
             if (_thumbRect == null) {
                 return false;
             }

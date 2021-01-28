@@ -720,7 +720,8 @@ namespace Unity.UIWidgets.widgets {
         );
       }
 
-      protected void onDragSelectionEnd(DragEndDetails details) {/* Subclass should override this method if needed. */}
+      protected virtual void onDragSelectionEnd(DragEndDetails details)
+      {/* Subclass should override this method if needed. */}
 
       public Widget buildGestureDetector(
         Key key = null,
@@ -751,6 +752,15 @@ namespace Unity.UIWidgets.widgets {
             );
         }
     }
+    /*public abstract class TextSelectionGestureDetectorBuilderDelegate {
+
+        public GlobalKey<EditableTextState> editableTextKey { get; }
+        public bool forcePressEnabled {
+            get;
+        }
+        public bool selectionEnabled { get; }
+    }*/
+    
     public interface TextSelectionGestureDetectorBuilderDelegate {
 
         GlobalKey<EditableTextState> editableTextKey { get; }

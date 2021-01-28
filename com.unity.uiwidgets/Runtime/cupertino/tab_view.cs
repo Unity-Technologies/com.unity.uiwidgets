@@ -53,8 +53,8 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
-            base.didUpdateWidget(oldWidget);
             CupertinoTabView _oldWidget = (CupertinoTabView) oldWidget;
+            base.didUpdateWidget(oldWidget);
             if (widget.navigatorKey != _oldWidget.navigatorKey
                 || widget.navigatorObservers != _oldWidget.navigatorObservers) {
                 _updateObservers();

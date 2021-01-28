@@ -441,7 +441,7 @@ namespace Unity.UIWidgets.rendering {
 
 {% macro RenderConstrainedLayoutBuilderMixin(abstract, with, constraint) %}
 public {{abstract}} class RenderConstrainedLayoutBuilderMixin{{with}}<ConstraintType, ChildType> : RenderObjectWithChildMixin{{with}}<ChildType>,
-        RenderConstrainedLayoutBuilder<ConstraintType, ChildType>
+        RenderConstrainedLayoutBuilder<ConstraintType>
         where ConstraintType : {{constraint}} 
         where ChildType : {{with}} {
         

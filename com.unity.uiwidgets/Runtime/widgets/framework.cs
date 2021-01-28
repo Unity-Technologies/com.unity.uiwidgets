@@ -1070,10 +1070,8 @@ namespace Unity.UIWidgets.widgets {
             D.assert(!_debugBuilding);
             D.assert(() => {
                 if (WidgetsD.debugPrintBuildScope) {
-                    Debug.LogFormat("buildScope called with context {0}; dirty list is: {1}",
-                        context, _dirtyElements);
+                    Debug.LogFormat($"buildScope called with context {context}; dirty list is: {_dirtyElements}");
                 }
-
                 _debugStateLockLevel += 1;
                 _debugBuilding = true;
                 return true;
@@ -1089,10 +1087,8 @@ namespace Unity.UIWidgets.widgets {
                         debugPreviousBuildTarget = _debugCurrentBuildTarget;
                         _debugCurrentBuildTarget = context;
                         return true;
-                    });
-
+                    }); 
                     _dirtyElementsNeedsResorting = false;
-
                     try {
                         callback();
                     }
@@ -1635,13 +1631,11 @@ namespace Unity.UIWidgets.widgets {
             D.assert(child != null);
             D.assert(child._parent == this);
 
-            ElementVisitor visit = null;
-            visit = (element) => {
+            void visit(Element element) {
                 element._updateSlot(newSlot);
-                if (!(element is RenderObjectElement)) {
+                if (!(element is RenderObjectElement))
                     element.visitChildren(visit);
-                }
-            };
+            }
             visit(child);
         }
 
@@ -3073,7 +3067,7 @@ namespace Unity.UIWidgets.widgets {
             get { return _renderObject; }
         }
 
-        bool _debugDoingBuild = false;
+        public bool _debugDoingBuild = false;
 
         public override bool debugDoingBuild {
             get { return _debugDoingBuild; }

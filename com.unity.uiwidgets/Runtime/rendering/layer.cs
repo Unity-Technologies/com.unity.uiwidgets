@@ -869,7 +869,6 @@ namespace Unity.UIWidgets.rendering {
             Rect clipRect = null,
             Clip clipBehavior = Clip.hardEdge
         ) {
-            D.assert(clipRect != null);
             D.assert(clipBehavior != Clip.none);
             _clipRect = clipRect;
             _clipBehavior = clipBehavior;
@@ -945,7 +944,6 @@ namespace Unity.UIWidgets.rendering {
             RRect clipRRect = null,
             Clip clipBehavior = Clip.antiAlias
         ) {
-            D.assert(clipRRect != null);
             D.assert(clipBehavior != Clip.none);
             _clipRRect = clipRRect;
             _clipBehavior = clipBehavior;

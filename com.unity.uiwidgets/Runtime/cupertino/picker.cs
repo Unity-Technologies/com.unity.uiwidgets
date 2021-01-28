@@ -7,16 +7,23 @@ using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.cupertino {
     static class CupertinoPickerUtils {
-        public static Color _kHighlighterBorder = new Color(0xFF7F7F7F);
-        public static Color _kDefaultBackground = new Color(0xFFD2D4DB);
-        public const float _kDefaultDiameterRatio = 1.35f;
-        public const float _kDefaultPerspective = 0.004f;
-        public const float _kForegroundScreenOpacityFraction = 0.7f;
+        public static Color _kHighlighterBorder = CupertinoDynamicColor.withBrightness(
+            color: new Color(0x33000000),
+            darkColor: new Color(0x33FFFFFF)
+        );
+        public const float _kDefaultDiameterRatio = 1.07f;
+        public const float _kDefaultPerspective = 0.003f;
+        public const float _kSqueeze = 1.45f;
         public const float _kOverAndUnderCenterOpacity = 0.447f;
+        
+        public static Color _kDefaultBackground = new Color(0xFFD2D4DB);
+        public const float _kForegroundScreenOpacityFraction = 0.7f;
+       
     }
 
     public class CupertinoPicker : StatefulWidget {
         public CupertinoPicker(
+            List<Widget> children,
             Key key = null,
             float? diameterRatio = null,
             Color backgroundColor = null,
@@ -27,12 +34,11 @@ namespace Unity.UIWidgets.cupertino {
             float? squeeze = null,
             float? itemExtent = null,
             ValueChanged<int> onSelectedItemChanged = null,
-            List<Widget> children = null, 
             bool looping = false
         ) : base(key: key) {
             diameterRatio = diameterRatio == null ? CupertinoPickerUtils._kDefaultDiameterRatio : diameterRatio;
-            squeeze = squeeze == null ? CupertinoDatePickerUtils._kSqueeze : squeeze;
-            D.assert(children != null);
+            squeeze = squeeze == null ? CupertinoPickerUtils._kSqueeze : squeeze;
+           // D.assert(children != null);
             D.assert(diameterRatio > 0.0f, ()=>RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(magnification > 0);
             D.assert(itemExtent != null);
@@ -50,11 +56,9 @@ namespace Unity.UIWidgets.cupertino {
             childDelegate = looping
                 ? (ListWheelChildDelegate) new ListWheelChildLoopingListDelegate(children: children)
                 : new ListWheelChildListDelegate(children: children);
-
-
         }
 
-        public static CupertinoPicker builder(
+        public CupertinoPicker(
             Key key = null,
             float? diameterRatio = null,
             Color backgroundColor = null,
@@ -69,26 +73,24 @@ namespace Unity.UIWidgets.cupertino {
             int? childCount = null
         ) {
             diameterRatio = diameterRatio == null ? CupertinoPickerUtils._kDefaultDiameterRatio : diameterRatio;
-            squeeze = squeeze == null ? CupertinoDatePickerUtils._kSqueeze : squeeze;
+            squeeze = squeeze == null ?  CupertinoPickerUtils._kSqueeze : squeeze;
             D.assert(itemBuilder != null);
             D.assert(diameterRatio > 0.0f,()=> RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(magnification > 0);
             D.assert(itemExtent != null);
             D.assert(itemExtent > 0);
             D.assert(squeeze > 0);
-            CupertinoPicker picker = new CupertinoPicker(
-                key, 
-                diameterRatio ,
-                backgroundColor,
-                offAxisFraction ,
-                useMagnifier ,
-                magnification ,
-                scrollController,
-                squeeze ,
-                itemExtent,
-                onSelectedItemChanged);
-                picker.childDelegate = new ListWheelChildBuilderDelegate(builder: itemBuilder, childCount: childCount);
-            return picker;
+            this.diameterRatio = diameterRatio;
+            this.backgroundColor = backgroundColor;
+            this.offAxisFraction = offAxisFraction;
+            this.useMagnifier = useMagnifier;
+            this.magnification = magnification;
+            this.scrollController = scrollController;
+            this.squeeze = squeeze;
+            this.itemExtent = itemExtent;
+            this.onSelectedItemChanged = onSelectedItemChanged;
+            childDelegate =new ListWheelChildBuilderDelegate(builder: itemBuilder, childCount: childCount);
+            
         }
 
         public readonly float? diameterRatio;
@@ -187,17 +189,17 @@ namespace Unity.UIWidgets.cupertino {
                 Positioned.fill(
                     child: new _CupertinoPickerSemantics(
                         scrollController: widget.scrollController ?? _controller,
-                        child: ListWheelScrollView.useDelegate(
+                        child: new ListWheelScrollView(
                             controller: widget.scrollController ?? _controller,
                             physics: new FixedExtentScrollPhysics(), 
-                            diameterRatio: (float)widget.diameterRatio,
+                            diameterRatio: widget.diameterRatio ?? CupertinoPickerUtils._kDefaultDiameterRatio,
                             perspective: CupertinoPickerUtils._kDefaultPerspective,
                             offAxisFraction: widget.offAxisFraction,
                             useMagnifier: widget.useMagnifier,
                             magnification: widget.magnification,
                             overAndUnderCenterOpacity: CupertinoPickerUtils._kOverAndUnderCenterOpacity,
-                            itemExtent: (float)widget.itemExtent,
-                            squeeze: (float)widget.squeeze,
+                            itemExtent: widget.itemExtent ?? 1f,
+                            squeeze: widget.squeeze ?? CupertinoPickerUtils._kSqueeze,
                             onSelectedItemChanged: _handleSelectedItemChanged,
                             childDelegate: widget.childDelegate
                             )
@@ -236,7 +238,7 @@ namespace Unity.UIWidgets.cupertino {
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             renderObject = (_RenderCupertinoPickerSemantics) renderObject;
             ((_RenderCupertinoPickerSemantics)renderObject).textDirection = Directionality.of(context);
-            ((_RenderCupertinoPickerSemantics) renderObject).controller = scrollController;
+            ((_RenderCupertinoPickerSemantics)renderObject).controller = scrollController;
         }
     }
     public class _RenderCupertinoPickerSemantics : RenderProxyBox { 
@@ -286,6 +288,7 @@ namespace Unity.UIWidgets.cupertino {
             _currentIndex = controller.selectedItem;
             //markNeedsSemanticsUpdate();
         } 
+        
         
        
     }

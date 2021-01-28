@@ -939,9 +939,12 @@ namespace Unity.UIWidgets.widgets {
             return Future.value(false).to<bool>();
         }
 
+
         public void didChangeAccessibilityFeatures() {}
 
+
         //_WhitespaceDirectionalityFormatter _whitespaceFormatter;
+
         void _formatAndSetValue(TextEditingValue value, bool isIMEInput = false) {
             //whitespaceFormatter ??= new _WhitespaceDirectionalityFormatter(textDirection: _textDirection);
 

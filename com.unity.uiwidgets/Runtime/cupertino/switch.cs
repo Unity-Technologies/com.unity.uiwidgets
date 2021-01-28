@@ -23,8 +23,8 @@ namespace Unity.UIWidgets.cupertino {
         public const float _kSwitchHeight = 39.0f;
         public const float _kCupertinoSwitchDisabledOpacity = 0.5f;
         public static readonly Color _kTrackColor = CupertinoColors.lightBackgroundGray;
-        public static readonly TimeSpan _kReactionDuration = new TimeSpan(0, 0, 0, 0, 300);
-        public static readonly TimeSpan _kToggleDuration = new TimeSpan(0, 0, 0, 0, 200);
+        public static readonly TimeSpan _kReactionDuration = TimeSpan.FromMilliseconds(300);
+        public static readonly TimeSpan _kToggleDuration = TimeSpan.FromMilliseconds(200);
     }
 
     public class CupertinoSwitch : StatefulWidget {
@@ -33,11 +33,13 @@ namespace Unity.UIWidgets.cupertino {
             ValueChanged<bool> onChanged,
             Key key = null,
             Color activeColor = null,
+            Color trackColor = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start
         ) : base(key: key) {
             this.value = value;
             this.onChanged = onChanged;
             this.activeColor = activeColor;
+            this.trackColor = trackColor;
             this.dragStartBehavior = dragStartBehavior;
         }
 
@@ -46,6 +48,8 @@ namespace Unity.UIWidgets.cupertino {
         public readonly ValueChanged<bool> onChanged;
 
         public readonly Color activeColor;
+        
+        public readonly Color trackColor;
 
         public readonly DragStartBehavior dragStartBehavior;
 
@@ -61,17 +65,153 @@ namespace Unity.UIWidgets.cupertino {
     }
 
     class _CupertinoSwitchState : TickerProviderStateMixin<CupertinoSwitch> {
+        public TapGestureRecognizer _tap;
+        public HorizontalDragGestureRecognizer _drag;
+
+        AnimationController _positionController;
+        public CurvedAnimation position;
+
+        AnimationController _reactionController;
+        public Animation<float> _reaction;
+
+        bool isInteractive {
+            get {
+                return  widget.onChanged != null;
+            }
+        }
+        bool needsPositionAnimation = false;
+        
+        public override void initState() {
+            base.initState();
+
+            _tap = new TapGestureRecognizer();
+            _tap.onTapDown = _handleTapDown;
+            _tap.onTapUp = _handleTapUp;
+            _tap.onTap = _handleTap;
+            _tap.onTapCancel = _handleTapCancel;
+            _drag = new HorizontalDragGestureRecognizer();
+            _drag.onStart = _handleDragStart;
+            _drag.onUpdate = _handleDragUpdate;
+            _drag.onEnd = _handleDragEnd;
+            _drag.dragStartBehavior = widget.dragStartBehavior;
+
+            _positionController = new AnimationController(
+                duration: CupertinoSwitchUtils._kToggleDuration,
+                value: widget.value ? 1.0f : 0.0f,
+                vsync: this
+            );
+            position = new CurvedAnimation(
+                parent: _positionController,
+                curve: Curves.linear
+            );
+            _reactionController = new AnimationController(
+                duration: CupertinoSwitchUtils._kReactionDuration,
+                vsync: this
+            );
+            _reaction = new CurvedAnimation(
+                parent: _reactionController,
+                curve: Curves.ease
+            );
+        }
+
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            oldWidget = (CupertinoSwitch) oldWidget;
+            base.didUpdateWidget(oldWidget);
+            _drag.dragStartBehavior = widget.dragStartBehavior;
+
+            if (needsPositionAnimation || ((CupertinoSwitch) oldWidget).value != widget.value)
+                _resumePositionAnimation(isLinear: needsPositionAnimation);
+        }
+        void _resumePositionAnimation( bool isLinear = true ) {
+            needsPositionAnimation = false;
+            position.curve = isLinear ? null : Curves.ease;
+            position.reverseCurve = isLinear ? null : Curves.ease.flipped;
+            if (widget.value)
+                _positionController.forward();
+            else
+                _positionController.reverse();
+        }
+
+        void _handleTapDown(TapDownDetails details) {
+            if (isInteractive)
+                needsPositionAnimation = false;
+            _reactionController.forward();
+        }
+
+        void _handleTap() {
+            if (isInteractive) {
+                widget.onChanged(!widget.value);
+                //_emitVibration();
+            }
+        }
+
+        void _handleTapUp(TapUpDetails details) {
+            if (isInteractive) {
+                needsPositionAnimation = false;
+                _reactionController.reverse();
+            }
+        }
+
+        void _handleTapCancel() {
+            if (isInteractive)
+                _reactionController.reverse();
+        }
+
+        void _handleDragStart(DragStartDetails details) {
+            if (isInteractive) {
+                needsPositionAnimation = false;
+                _reactionController.forward();
+                //_emitVibration();
+            }
+        }
+
+        void _handleDragUpdate(DragUpdateDetails details) {
+            if (isInteractive) {
+                position.curve = null;
+                    position.reverseCurve = null;
+                float? delta = details.primaryDelta / CupertinoSwitchUtils._kTrackInnerLength;
+                switch (Directionality.of(context)) {
+                    case TextDirection.rtl:
+                        _positionController.setValue( _positionController.value - delta ?? 0.0f);
+                        break;
+                    case TextDirection.ltr:
+                        _positionController.setValue( _positionController.value + delta ?? 0.0f);
+                        break;
+                }
+            }
+        }
+
+        void _handleDragEnd(DragEndDetails details) {
+            setState(()=> { needsPositionAnimation = true; });
+            if (position.value >= 0.5 != widget.value)
+                widget.onChanged(!widget.value);
+            _reactionController.reverse();
+        }
         public override Widget build(BuildContext context) {
+            if (needsPositionAnimation)
+                _resumePositionAnimation();
             return new Opacity(
                 opacity: widget.onChanged == null ? CupertinoSwitchUtils._kCupertinoSwitchDisabledOpacity : 1.0f,
                 child: new _CupertinoSwitchRenderObjectWidget(
                     value: widget.value,
-                    activeColor: widget.activeColor ?? CupertinoColors.activeGreen,
+                    activeColor: CupertinoDynamicColor.resolve(
+                        widget.activeColor ?? CupertinoColors.systemGreen,
+                        context
+                    ),
+                    trackColor: CupertinoDynamicColor.resolve(widget.trackColor ?? CupertinoColors.secondarySystemFill, context),
                     onChanged: widget.onChanged,
-                    vsync: this,
-                    dragStartBehavior: widget.dragStartBehavior
+                    textDirection: Directionality.of(context),
+                    state: this
                 )
             );
+        }
+        public override void dispose() {
+            _tap.dispose();
+            _drag.dispose();
+
+            _positionController.dispose();
+            _reactionController.dispose();
+            base.dispose();
         }
     }
 
@@ -80,31 +220,36 @@ namespace Unity.UIWidgets.cupertino {
             Key key = null,
             bool value = false,
             Color activeColor = null,
+            Color trackColor = null,
             ValueChanged<bool> onChanged = null,
-            TickerProvider vsync = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            TextDirection? textDirection = null,
+            _CupertinoSwitchState state = null
         ) : base(key: key) {
             this.value = value;
             this.activeColor = activeColor;
+            this.trackColor = trackColor;
             this.onChanged = onChanged;
-            this.vsync = vsync;
-            this.dragStartBehavior = dragStartBehavior;
+            this.state = state;
+            this.textDirection = textDirection;
+
         }
 
         public readonly bool value;
         public readonly Color activeColor;
+        public readonly Color trackColor;
         public readonly ValueChanged<bool> onChanged;
-        public readonly TickerProvider vsync;
-        public readonly DragStartBehavior dragStartBehavior;
+        public readonly _CupertinoSwitchState state;
+        public readonly TextDirection? textDirection;
+        
         
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderCupertinoSwitch(
                 value: value,
                 activeColor: activeColor,
+                trackColor: trackColor,
                 onChanged: onChanged,
-                textDirection: Directionality.of(context),
-                vsync: vsync,
-                dragStartBehavior: dragStartBehavior
+                textDirection: textDirection,
+                state: state
             );
         }
 
@@ -112,10 +257,9 @@ namespace Unity.UIWidgets.cupertino {
             var _renderObject = renderObject as _RenderCupertinoSwitch;
             _renderObject.value = value;
             _renderObject.activeColor = activeColor;
+            _renderObject.trackColor = trackColor;
             _renderObject.onChanged = onChanged;
-            _renderObject.textDirection = Directionality.of(context);
-            _renderObject.vsync = vsync;
-            _renderObject.dragStartBehavior = dragStartBehavior;
+            _renderObject.textDirection = textDirection;
         }
     }
 
@@ -124,101 +268,46 @@ namespace Unity.UIWidgets.cupertino {
         public _RenderCupertinoSwitch(
             bool value,
             Color activeColor,
-            TextDirection textDirection,
-            TickerProvider vsync,
+            Color trackColor = null,
+            TextDirection? textDirection = null,
             ValueChanged<bool> onChanged = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            _CupertinoSwitchState state = null
         ) : base(additionalConstraints: BoxConstraints.tightFor(
             width: CupertinoSwitchUtils._kSwitchWidth,
             height: CupertinoSwitchUtils._kSwitchHeight)
         ) {
-            D.assert(activeColor != null);
-            D.assert(vsync != null);
+            D.assert(state != null);
             _value = value;
             _activeColor = activeColor;
+            _trackColor = trackColor;
             _onChanged = onChanged;
             _textDirection = textDirection;
-            _vsync = vsync;
+            _state = state;
+            state.position.addListener(markNeedsPaint);
+            state._reaction.addListener(markNeedsPaint);
 
-            _tap = new TapGestureRecognizer() {
-                onTapDown = _handleTapDown,
-                onTap = _handleTap,
-                onTapUp = _handleTapUp,
-                onTapCancel = _handleTapCancel,
-            };
 
-            _drag = new HorizontalDragGestureRecognizer() {
-                onStart = _handleDragStart,
-                onUpdate = _handleDragUpdate,
-                onEnd = _handleDragEnd,
-                dragStartBehavior = dragStartBehavior
-            };
-
-            _positionController = new AnimationController(
-                duration: CupertinoSwitchUtils._kToggleDuration,
-                value: value ? 1.0f : 0.0f,
-                vsync: vsync
-            );
-            _position = new CurvedAnimation(
-                parent: _positionController,
-                curve: Curves.linear
-            );
-            _position.addListener(markNeedsPaint);
-            _position.addStatusListener(_handlePositionStateChanged);
-
-            _reactionController = new AnimationController(
-                duration: CupertinoSwitchUtils._kReactionDuration,
-                vsync: vsync
-            );
-            _reaction = new CurvedAnimation(
-                parent: _reactionController,
-                curve: Curves.ease
-            );
-            _reaction.addListener(markNeedsPaint);
         }
 
         AnimationController _positionController;
         CurvedAnimation _position;
         AnimationController _reactionController;
         Animation<float> _reaction;
+        public readonly _CupertinoSwitchState _state;
 
         public bool value {
             get { return _value; }
             set {
-                if (value == _value) {
+                D.assert(value != null);
+                if (value == _value)
                     return;
-                }
-
                 _value = value;
-                // this.markNeedsSemanticsUpdate();
-                _position.curve = Curves.ease;
-                _position.reverseCurve = Curves.ease.flipped;
-                if (value) {
-                    _positionController.forward();
-                }
-                else {
-                    _positionController.reverse();
-                }
+                //markNeedsSemanticsUpdate();
             }
         }
 
         bool _value;
 
-        public TickerProvider vsync {
-            get { return _vsync; }
-            set {
-                D.assert(value != null);
-                if (value == _vsync) {
-                    return;
-                }
-
-                _vsync = value;
-                _positionController.resync(vsync);
-                _reactionController.resync(vsync);
-            }
-        }
-
-        TickerProvider _vsync;
 
         public Color activeColor {
             get { return _activeColor; }
@@ -234,6 +323,19 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         Color _activeColor;
+
+        public Color trackColor {
+            get { return _trackColor; }
+            set {
+                D.assert(value != null);
+                if (value == _trackColor)
+                    return;
+                _trackColor = value;
+                markNeedsPaint();
+            }
+        }
+
+        Color _trackColor;
 
         public ValueChanged<bool> onChanged {
             get { return _onChanged; }
@@ -252,7 +354,7 @@ namespace Unity.UIWidgets.cupertino {
 
         ValueChanged<bool> _onChanged;
 
-        public TextDirection textDirection {
+        public TextDirection? textDirection {
             get { return _textDirection; }
             set {
                 if (_textDirection == value) {
@@ -264,140 +366,10 @@ namespace Unity.UIWidgets.cupertino {
             }
         }
 
-        TextDirection _textDirection;
-
-
-        public DragStartBehavior dragStartBehavior {
-            get { return _drag.dragStartBehavior; }
-            set {
-                if (_drag.dragStartBehavior == value) {
-                    return;
-                }
-
-                _drag.dragStartBehavior = value;
-            }
-        }
+        TextDirection? _textDirection;
 
         public bool isInteractive {
             get { return onChanged != null; }
-        }
-
-        TapGestureRecognizer _tap;
-        HorizontalDragGestureRecognizer _drag;
-
-        public override void attach(object _owner) {
-            base.attach(_owner);
-            if (value) {
-                _positionController.forward();
-            }
-            else {
-                _positionController.reverse();
-            }
-
-            if (isInteractive) {
-                switch (_reactionController.status) {
-                    case AnimationStatus.forward:
-                        _reactionController.forward();
-                        break;
-                    case AnimationStatus.reverse:
-                        _reactionController.reverse();
-                        break;
-                    case AnimationStatus.dismissed:
-                    case AnimationStatus.completed:
-                        break;
-                }
-            }
-        }
-
-        public override void detach() {
-            _positionController.stop();
-            _reactionController.stop();
-            base.detach();
-        }
-
-        void _handlePositionStateChanged(AnimationStatus status) {
-            if (isInteractive) {
-                if (status == AnimationStatus.completed && !_value) {
-                    onChanged(true);
-                }
-                else if (status == AnimationStatus.dismissed && _value) {
-                    onChanged(false);
-                }
-            }
-        }
-
-        void _handleTapDown(TapDownDetails details) {
-            if (isInteractive) {
-                _reactionController.forward();
-            }
-        }
-
-        void _handleTap() {
-            if (isInteractive) {
-                onChanged(!_value);
-                _emitVibration();
-            }
-        }
-
-        void _handleTapUp(TapUpDetails details) {
-            if (isInteractive) {
-                _reactionController.reverse();
-            }
-        }
-
-        void _handleTapCancel() {
-            if (isInteractive) {
-                _reactionController.reverse();
-            }
-        }
-
-        void _handleDragStart(DragStartDetails details) {
-            if (isInteractive) {
-                _reactionController.forward();
-                _emitVibration();
-            }
-        }
-
-        void _handleDragUpdate(DragUpdateDetails details) {
-            if (isInteractive) {
-                _position.curve = null;
-                _position.reverseCurve = null;
-                float delta = details.primaryDelta / CupertinoSwitchUtils._kTrackInnerLength ?? 0f;
-
-                _positionController.setValue(_positionController.value + delta);
-
-                // switch (this.textDirection) {
-                //     case TextDirection.rtl:
-                //         this._positionController.setValue(this._positionController.value - delta);
-                //         break;
-                //     case TextDirection.ltr:
-                //         this._positionController.setValue(this._positionController.value + delta);
-                //         break;
-                // }
-            }
-        }
-
-        void _handleDragEnd(DragEndDetails details) {
-            if (_position.value >= 0.5) {
-                _positionController.forward();
-            }
-            else {
-                _positionController.reverse();
-            }
-
-            _reactionController.reverse();
-        }
-
-        void _emitVibration() {
-            // switch (Platform defaultTargetPlatform) {
-            //     case TargetPlatform.iOS:
-            //         HapticFeedback.lightImpact();
-            //         break;
-            //     case TargetPlatform.fuchsia:
-            //     case TargetPlatform.android:
-            //         break;
-            // }
-            return;
         }
 
         protected override bool hitTestSelf(Offset position) {
@@ -407,30 +379,17 @@ namespace Unity.UIWidgets.cupertino {
         public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
             D.assert(debugHandleEvent(evt, entry));
             if (evt is PointerDownEvent && isInteractive) {
-                _drag.addPointer(evt as PointerDownEvent);
-                _tap.addPointer(evt as PointerDownEvent);
+                _state._drag.addPointer((PointerDownEvent) evt);
+                _state._tap.addPointer((PointerDownEvent) evt);
             }
         }
 
-        // public override void describeSemanticsConfiguration(SemanticsConfiguration config) {
-        //     base.describeSemanticsConfiguration(config);
-        //
-        //     if (isInteractive)
-        //         config.onTap = _handleTap;
-        //
-        //     config.isEnabled = isInteractive;
-        //     config.isToggled = _value;
-        // }
-
-        public readonly CupertinoThumbPainter _thumbPainter = new CupertinoThumbPainter();
-
         public override void paint(PaintingContext context, Offset offset) {
             Canvas canvas = context.canvas;
+            float currentValue = _state.position.value;
+            float currentReactionValue = _state._reaction.value;
 
-            float currentValue = _position.value;
-            float currentReactionValue = _reaction.value;
-
-            float visualPosition = 0f;
+            float visualPosition = 0.0f;
             switch (textDirection) {
                 case TextDirection.rtl:
                     visualPosition = 1.0f - currentValue;
@@ -440,24 +399,15 @@ namespace Unity.UIWidgets.cupertino {
                     break;
             }
 
-            Color trackColor = _value ? activeColor : CupertinoSwitchUtils._kTrackColor;
-            float borderThickness =
-                1.5f + (CupertinoSwitchUtils._kTrackRadius - 1.5f) * Mathf.Max(currentReactionValue, currentValue);
-
-            Paint paint = new Paint();
-            paint.color = trackColor;
-
+            Paint paint = new Paint() {color = Color.lerp(trackColor, activeColor, currentValue)};
             Rect trackRect = Rect.fromLTWH(
                 offset.dx + (size.width - CupertinoSwitchUtils._kTrackWidth) / 2.0f,
                 offset.dy + (size.height - CupertinoSwitchUtils._kTrackHeight) / 2.0f,
                 CupertinoSwitchUtils._kTrackWidth,
                 CupertinoSwitchUtils._kTrackHeight
             );
-            RRect outerRRect = RRect.fromRectAndRadius(trackRect, Radius.circular(CupertinoSwitchUtils
-                ._kTrackRadius));
-            RRect innerRRect = RRect.fromRectAndRadius(trackRect.deflate(borderThickness), Radius.circular
-                (CupertinoSwitchUtils._kTrackRadius));
-            canvas.drawDRRect(outerRRect, innerRRect, paint);
+            RRect trackRRect = RRect.fromRectAndRadius(trackRect, Radius.circular(CupertinoSwitchUtils._kTrackRadius));
+            canvas.drawRRect(trackRRect, paint);
 
             float currentThumbExtension = CupertinoThumbPainter.extension * currentReactionValue;
             float thumbLeft = Mathf.Lerp(
@@ -473,15 +423,18 @@ namespace Unity.UIWidgets.cupertino {
                 visualPosition
             );
             float thumbCenterY = offset.dy + size.height / 2.0f;
-
-            _thumbPainter.paint(canvas, Rect.fromLTRB(
+            Rect thumbBounds = Rect.fromLTRB(
                 thumbLeft,
                 thumbCenterY - CupertinoThumbPainter.radius,
                 thumbRight,
                 thumbCenterY + CupertinoThumbPainter.radius
-            ));
-        }
+            );
 
+            context.pushClipRRect(needsCompositing, Offset.zero, thumbBounds, trackRRect,
+                (PaintingContext innerContext, Offset offset1) => {
+                    CupertinoThumbPainter.switchThumb().paint(innerContext.canvas, thumbBounds);
+                });
+        }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
@@ -491,5 +444,7 @@ namespace Unity.UIWidgets.cupertino {
                 ifFalse: "disabled",
                 showName: true, defaultValue: true));
         }
+
+
     }
 }

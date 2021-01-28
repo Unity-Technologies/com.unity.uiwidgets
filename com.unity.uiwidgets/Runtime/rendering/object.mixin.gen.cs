@@ -1262,7 +1262,7 @@ namespace Unity.UIWidgets.rendering {
 
 
 public abstract class RenderConstrainedLayoutBuilderMixinRenderObject<ConstraintType, ChildType> : RenderObjectWithChildMixinRenderObject<ChildType>,
-        RenderConstrainedLayoutBuilder<ConstraintType, ChildType>
+        RenderConstrainedLayoutBuilder<ConstraintType>
         where ConstraintType : Constraints 
         where ChildType : RenderObject {
         
@@ -1281,7 +1281,7 @@ public abstract class RenderConstrainedLayoutBuilderMixinRenderObject<Constraint
     }
 
 public  class RenderConstrainedLayoutBuilderMixinRenderBox<ConstraintType, ChildType> : RenderObjectWithChildMixinRenderBox<ChildType>,
-        RenderConstrainedLayoutBuilder<ConstraintType, ChildType>
+        RenderConstrainedLayoutBuilder<ConstraintType>
         where ConstraintType : BoxConstraints 
         where ChildType : RenderBox {
         
@@ -1300,7 +1300,7 @@ public  class RenderConstrainedLayoutBuilderMixinRenderBox<ConstraintType, Child
     }
 
 public abstract class RenderConstrainedLayoutBuilderMixinRenderSliver<ConstraintType, ChildType> : RenderObjectWithChildMixinRenderSliver<ChildType>,
-        RenderConstrainedLayoutBuilder<ConstraintType, ChildType>
+        RenderConstrainedLayoutBuilder<ConstraintType>
         where ConstraintType : SliverConstraints 
         where ChildType : RenderSliver {
         

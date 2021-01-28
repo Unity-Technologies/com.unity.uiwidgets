@@ -141,7 +141,7 @@ namespace Unity.UIWidgets.widgets {
             this.children = children;
             this.addAutomaticKeepAlives = addAutomaticKeepAlives;
             this.addRepaintBoundaries = addRepaintBoundaries;
-            _keyToIndex = new Dictionary<Key, int>(){{null,0}};
+            _keyToIndex = new Dictionary<Key, int>(){{Key.key("null"), 0}};
         }
 
         public readonly bool addAutomaticKeepAlives;
@@ -161,22 +161,21 @@ namespace Unity.UIWidgets.widgets {
             if (_isConstantInstance) {
                 return null;
             }
-            // Lazily fill the [_keyToIndex].
             if (!_keyToIndex.ContainsKey(key)) {
-                int index = _keyToIndex.getOrDefault(null);
+                int index = _keyToIndex.getOrDefault(Key.key("null"));
                 while (index < children.Count) {
                     Widget child = children[index];
-                    if (child.key != null) {
+                    if (child.key != Key.key("null")) {
                         _keyToIndex[child.key] = index;
                     }
                     if (child.key == key) {
                         // Record current index for next function call.
-                        _keyToIndex[null] = index + 1;
+                        _keyToIndex[Key.key("null")] = index + 1;
                         return index;
                     }
                     index += 1;
                 }
-                _keyToIndex[null] = index;
+                _keyToIndex[Key.key("null")] = index;
             } else {
                 return _keyToIndex[key];
             }
@@ -507,6 +506,7 @@ namespace Unity.UIWidgets.widgets {
         RenderBox _currentBeforeChild;
 
         protected override void performRebuild() {
+            //_didUnderflow = false;
             _childWidgets.Clear();
             base.performRebuild();
             _currentBeforeChild = null;
@@ -514,13 +514,18 @@ namespace Unity.UIWidgets.widgets {
             
             try {
                 SplayTree<int, Element> newChildren = new SplayTree<int, Element>();
+                
                 Dictionary<int, float> indexToLayoutOffset = new Dictionary<int, float>();
+                
                 void processElement(int index) {
                     _currentlyUpdatingChildIndex = index;
-                    if (_childElements[index] != null && _childElements[index] != newChildren[index]) {
+                    if(_childElements.getOrDefault(index) != null && 
+                       _childElements.getOrDefault(index) != newChildren.getOrDefault(index))
+                   // if (_childElements[index] != null && _childElements[index] != newChildren[index])
+                    {
                         _childElements[index] = updateChild(_childElements[index], null, index);
                     }
-                    Element newChild = updateChild(newChildren[index], _build(index), index);
+                    Element newChild = updateChild(newChildren.getOrDefault(index), _build(index), index);
                     if (newChild != null) {
                         _childElements[index] = newChild;
                         SliverMultiBoxAdaptorParentData parentData = newChild.renderObject.parentData as SliverMultiBoxAdaptorParentData;
@@ -535,6 +540,7 @@ namespace Unity.UIWidgets.widgets {
                         _childElements.Remove(index);
                     }
                 }
+                
                 foreach ( int index in _childElements.Keys.ToList()) {
                      Key key = _childElements[index].widget.key;
                      int? newIndex = key == null ? null : widget.del.findIndexByKey(key);
@@ -549,12 +555,13 @@ namespace Unity.UIWidgets.widgets {
                         if (childParentData != null)
                             childParentData.layoutOffset = null;
 
-                        newChildren[newIndex ?? 0] = _childElements[index];
+                        newChildren[(int)newIndex] = _childElements[index];
                         
                         newChildren.putIfAbsent(index, () => null);
                       
                         _childElements.Remove(index);
-                    } else {
+                    } 
+                    else {
                         newChildren.putIfAbsent(index, () => _childElements[index]);
                     }
                 }
@@ -566,7 +573,8 @@ namespace Unity.UIWidgets.widgets {
                 if (_didUnderflow) { 
                     int lastKey = _childElements.Count == 0 ? -1 : _childElements.Keys.Last();
                     int rightBoundary = lastKey + 1;
-                    newChildren[rightBoundary] = _childElements[rightBoundary];
+                    if(newChildren.ContainsKey(rightBoundary))
+                        newChildren[rightBoundary] = _childElements.getOrDefault(rightBoundary);
                     processElement(rightBoundary);
                 }
             } finally {
@@ -605,7 +613,18 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override Element updateChild(Element child, Widget newWidget, object newSlot) {
-            SliverMultiBoxAdaptorParentData oldParentData = null;
+            
+            SliverMultiBoxAdaptorParentData oldParentData = child?.renderObject?.parentData as SliverMultiBoxAdaptorParentData;
+            Element newChild = base.updateChild(child, newWidget, newSlot);
+            SliverMultiBoxAdaptorParentData newParentData = newChild?.renderObject?.parentData as SliverMultiBoxAdaptorParentData;
+
+            // Preserve the old layoutOffset if the renderObject was swapped out.
+            if (oldParentData != newParentData && oldParentData != null && newParentData != null) {
+                newParentData.layoutOffset = oldParentData.layoutOffset;
+            }
+            return newChild;
+            
+            /*SliverMultiBoxAdaptorParentData oldParentData = null;
             if (child != null && child.renderObject != null) {
                 oldParentData = (SliverMultiBoxAdaptorParentData) child.renderObject.parentData;
             }
@@ -621,7 +640,7 @@ namespace Unity.UIWidgets.widgets {
                 newParentData.layoutOffset = oldParentData.layoutOffset;
             }
 
-            return newChild;
+            return newChild;*/
         }
 
         internal override void forgetChild(Element child) {
@@ -723,7 +742,7 @@ namespace Unity.UIWidgets.widgets {
             childParentData.index = _currentlyUpdatingChildIndex.Value;
         }
 
-        bool _didUnderflow = false;
+        public bool _didUnderflow = false;
 
         public void setDidUnderflow(bool value) {
             _didUnderflow = value;
