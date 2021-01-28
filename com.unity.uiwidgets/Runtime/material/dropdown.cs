@@ -183,7 +183,7 @@ namespace Unity.UIWidgets.material {
 
             Widget child = new FadeTransition(
                 opacity: opacity,
-                child: new material.InkWell(
+                child: new InkWell(
                     autofocus: widget.itemIndex == widget.route.selectedIndex,
                     child: new Container(
                         padding: widget.padding,
