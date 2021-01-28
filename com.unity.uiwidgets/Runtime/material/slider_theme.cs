@@ -1837,9 +1837,9 @@ namespace Unity.UIWidgets.material {
         }
     }
     
-    public delegate Thumb RangeThumbSelector(TextDirection textDirection,
+    public delegate Thumb? RangeThumbSelector(TextDirection textDirection,
     RangeValues values,
-    double tapValue,
+    float tapValue,
     Size thumbSize,
     Size trackSize,
     float dx
