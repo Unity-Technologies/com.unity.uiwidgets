@@ -356,7 +356,7 @@ namespace Unity.UIWidgets.cupertino {
                         visualPosition = _value;
                         break;
                 }
-                return MathUtils.lerpFloat(_trackLeft + CupertinoThumbPainter.radius, _trackRight - CupertinoThumbPainter.radius, visualPosition);
+                return Mathf.Lerp(_trackLeft + CupertinoThumbPainter.radius, _trackRight - CupertinoThumbPainter.radius, visualPosition);
             }
         }
 
