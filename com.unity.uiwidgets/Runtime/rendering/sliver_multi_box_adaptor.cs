@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public bool keptAlive { get; }
-    }
+    } 
 
     public interface RenderSliverBoxChildManager {
         void createChild(int index, RenderBox after = null);
@@ -99,7 +99,6 @@ namespace Unity.UIWidgets.rendering {
         public bool debugChildIntegrityEnabled {
             get { return _debugChildIntegrityEnabled;}
             set {
-                D.assert(value != null);
                 D.assert(() =>{
                     _debugChildIntegrityEnabled = value;
                     return _debugVerifyChildOrder() &&
@@ -166,7 +165,7 @@ namespace Unity.UIWidgets.rendering {
                 childManager.didAdoptChild(child);
                 D.assert(()=> {
                     if (_keepAliveBucket.ContainsKey(childParentData.index))
-                        _debugDanglingKeepAlives.Add(_keepAliveBucket[childParentData.index]);
+                        _debugDanglingKeepAlives.Add(_keepAliveBucket.getOrDefault(childParentData.index));
                     return true;
                 });
                 _keepAliveBucket[childParentData.index] = child;
@@ -341,7 +340,6 @@ namespace Unity.UIWidgets.rendering {
         public int indexOf(RenderBox child) {
             D.assert(child != null);
             SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
-            D.assert(childParentData.index != null);
             return childParentData.index;
         }
 
@@ -427,7 +425,7 @@ namespace Unity.UIWidgets.rendering {
                     addExtent = true;
                     break;
             }
-
+            D.assert(mainAxisUnit != null);
             RenderBox child = firstChild;
             while (child != null) {
                 float mainAxisDelta = childMainAxisPosition(child) ?? 0.0f;
@@ -452,8 +450,7 @@ namespace Unity.UIWidgets.rendering {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(DiagnosticsNode.message(firstChild != null
-                ? "currently live children: " + indexOf(firstChild) + " to " + indexOf(lastChild)
-                : "no children current live"));
+                ? $"currently live children: {indexOf(firstChild)} to {indexOf(lastChild)}" : "no children current live"));
         }
 
         public bool debugAssertChildListIsNonEmptyAndContiguous() {

@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -1320,9 +1321,9 @@ public abstract class RenderConstrainedLayoutBuilderMixinRenderSliver<Constraint
 
     
      
-    public abstract class RelayoutWhenSystemFontsChangeMixinRenderBox : RenderBox {
+    public abstract class RelayoutWhenSystemFontsChangeMixinRenderBox : RenderBox, RelayoutWhenSystemFontsChangeMixin {
     
-        protected void systemFontsDidChange() {
+        public virtual void systemFontsDidChange() {
             markNeedsLayout();
         }
         
@@ -1338,4 +1339,34 @@ public abstract class RenderConstrainedLayoutBuilderMixinRenderSliver<Constraint
         
     }  
 
+    
+        
+         
+    
+    public abstract class
+            RelayoutWhenSystemFontsChangeMixinRenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<ChildType, ParentDataType>
+            : RenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<ChildType, ParentDataType>, RelayoutWhenSystemFontsChangeMixin
+            where ChildType : RenderBox
+            where ParentDataType : ContainerParentDataMixinBoxParentData<ChildType> {
+
+            public virtual void systemFontsDidChange() {
+                markNeedsLayout();
+            }
+            
+            public override void attach(object owner) {
+                base.attach(owner);
+                PaintingBinding.instance.systemFonts.addListener(systemFontsDidChange);
+            }
+            
+            public override void detach() {
+                PaintingBinding.instance.systemFonts.removeListener(systemFontsDidChange);
+                base.detach();
+            }
+            
+        }  
+    
+    
+
+    
+    
 }

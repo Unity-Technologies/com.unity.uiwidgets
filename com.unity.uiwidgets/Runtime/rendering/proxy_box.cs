@@ -1354,7 +1354,7 @@ namespace Unity.UIWidgets.rendering {
             _borderRadius = borderRadius;
         }
         
-        public PhysicalModelLayer layer { // [!!!] override
+        public new PhysicalModelLayer layer {
             get {
                 return base.layer as PhysicalModelLayer;
             }
@@ -1490,7 +1490,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(elevation >= 0.0);
         }
 
-        public PhysicalModelLayer layer { // [!!!] override
+        public new PhysicalModelLayer layer {
             get {
                 return base.layer as PhysicalModelLayer;
             }
@@ -1649,9 +1649,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestSelf(Offset position) {
-            return _decoration.hitTest(size, position);
-            // [!!!] hitTest no textDirection
-            // return _decoration.hitTest(size, position, textDirection: configuration.textDirection);
+            return _decoration.hitTest(size, position, textDirection: configuration.textDirection);
         }
 
         public override void paint(PaintingContext context, Offset offset) {
@@ -2016,18 +2014,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        
-        void _paintChildWithTransform(PaintingContext context, Offset offset) {
-            Offset childOffset = _transform.getAsTranslation();
-            if (childOffset == null) {
-                context.pushTransform(needsCompositing, offset, _transform, base.paint,
-                    oldLayer: layer is TransformLayer ? layer as TransformLayer : null);
-            }
-            else {
-                base.paint(context, offset + childOffset);
-            }
-        }
-        /*TransformLayer _paintChildWithTransform(PaintingContext context, Offset offset) {
+        TransformLayer _paintChildWithTransform(PaintingContext context, Offset offset) {
             Offset childOffset = _transform.getAsTranslation();
             if (childOffset == null) {
                 return context.pushTransform(needsCompositing, offset, _transform, base.paint,
@@ -2037,9 +2024,8 @@ namespace Unity.UIWidgets.rendering {
                 base.paint(context, offset + childOffset);
                 return null;
             }
-        }*/
-        //[!!!]
-
+        }
+        
         public override void paint(PaintingContext context, Offset offset) {
             if (size.isEmpty || child.size.isEmpty) {
                 return;
@@ -2048,8 +2034,8 @@ namespace Unity.UIWidgets.rendering {
             _updatePaintData();
             if (child != null) {
                 if (_hasVisualOverflow == true) {
-                    context.pushClipRect(needsCompositing, offset, Offset.zero & size,
-                        painter: _paintChildWithTransform,
+                    layer = context.pushClipRect(needsCompositing, offset, Offset.zero & size,
+                        painter: (PaintingContext subContext, Offset subOffset) => { _paintChildWithTransform(subContext, subOffset); },
                         oldLayer: layer is ClipRectLayer ? layer as ClipRectLayer : null);
                 }
                 else{
@@ -3121,7 +3107,7 @@ namespace Unity.UIWidgets.rendering {
             get { return true; }
         }
 
-        public FollowerLayer layer { // [!!!] override
+        public new FollowerLayer layer {
             get {
                 return base.layer as FollowerLayer;
             }

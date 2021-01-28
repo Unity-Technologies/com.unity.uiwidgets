@@ -51,8 +51,8 @@ namespace Unity.UIWidgets.rendering {
                 D.assert(!debugNeedsLayout);
 
                 result = child.getDistanceToActualBaseline(baseline);
+                var childParentData = (BoxParentData) child.parentData;
                 if (result != null) {
-                    var childParentData = (BoxParentData) child.parentData;
                     result += childParentData.offset.dy;
                 }
             }
@@ -670,7 +670,7 @@ namespace Unity.UIWidgets.rendering {
         protected override void performLayout() {
             size = constraints.constrain(_requestedSize);
             if (child != null) {
-                child.layout(constraints);
+                child.layout(constraints, parentUsesSize: true);
                 alignChild();
             }
         }
@@ -943,7 +943,6 @@ namespace Unity.UIWidgets.rendering {
         public float baseline {
             get { return _baseline; }
             set {
-                D.assert(value != null);
                 if (_baseline == value) {
                     return;
                 }
@@ -958,7 +957,6 @@ namespace Unity.UIWidgets.rendering {
         public TextBaseline baselineType {
             get { return _baselineType; }
             set {
-                D.assert(value != null);
                 if (_baselineType == value) {
                     return;
                 }
@@ -972,10 +970,11 @@ namespace Unity.UIWidgets.rendering {
 
         protected override void performLayout() {
             if (child != null) {
+                BoxConstraints constraints = this.constraints;
                 child.layout(constraints.loosen(), parentUsesSize: true);
                 float? childBaseline = child.getDistanceToBaseline(baselineType);
                 float actualBaseline = baseline;
-                float top = actualBaseline - childBaseline.Value;
+                float top = actualBaseline - (childBaseline ?? 0.0f);
                 var childParentData = (BoxParentData) child.parentData;
                 childParentData.offset = new Offset(0.0f, top);
                 Size childSize = child.size;

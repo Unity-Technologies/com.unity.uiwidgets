@@ -705,7 +705,8 @@ namespace Unity.UIWidgets.rendering {
             markNeedsLayout();
         }
         
-        public void systemFontsDidChange() {
+        public override void systemFontsDidChange() {
+            base.systemFontsDidChange();
             _textPainter.markNeedsLayout();
             _textLayoutLastMaxWidth = null;
             _textLayoutLastMinWidth = null;
@@ -794,7 +795,7 @@ namespace Unity.UIWidgets.rendering {
         
         bool _onlyWhitespace(TextRange range) {
             for (int i = range.start; i < range.end; i++) {
-                int codeUnit = text.codeUnitAt(i).Value;
+                int codeUnit = text.codeUnitAt(i) ?? 0;
                 if (!EditableUtils._isWhitespace(codeUnit)) {
                     return false;
                 }
@@ -825,7 +826,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public TextAlign? textAlign {
+        public TextAlign textAlign {
             get { return _textPainter.textAlign; }
             set {
                 if (_textPainter.textAlign == value) {

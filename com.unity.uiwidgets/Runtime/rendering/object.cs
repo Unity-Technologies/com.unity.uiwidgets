@@ -1493,10 +1493,10 @@ namespace Unity.UIWidgets.rendering {
 
     public interface RelayoutWhenSystemFontsChangeMixin {
         void systemFontsDidChange();
-        void attach(PipelineOwner owner);
+        void attach(object owner);
         void detach();
     }
-
+    
     public class UIWidgetsErrorDetailsForRendering : UIWidgetsErrorDetails {
         public UIWidgetsErrorDetailsForRendering(
             Exception exception = null,

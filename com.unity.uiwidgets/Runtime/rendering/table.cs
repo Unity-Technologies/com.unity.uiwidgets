@@ -254,6 +254,7 @@ namespace Unity.UIWidgets.rendering {
             int? rows = null,
             Dictionary<int, TableColumnWidth> columnWidths = null,
             TableColumnWidth defaultColumnWidth = null,
+            TextDirection? textDirection = null,
             TableBorder border = null,
             List<Decoration> rowDecorations = null,
             ImageConfiguration configuration = null,
@@ -261,12 +262,10 @@ namespace Unity.UIWidgets.rendering {
             TextBaseline? textBaseline = null,
             List<List<RenderBox>> children = null
         ) {
-            defaultColumnWidth = defaultColumnWidth ?? new FlexColumnWidth(1.0f);
-            configuration = configuration ?? ImageConfiguration.empty;
             D.assert(columns == null || columns >= 0);
             D.assert(rows == null || rows >= 0);
             D.assert(rows == null || children == null);
-
+            _textDirection = textDirection ?? TextDirection.ltr;
             _columns = columns ?? (children != null && children.isNotEmpty() ? children[0].Count : 0);
             _rows = rows ?? 0;
             _children = new List<RenderBox>();
@@ -275,10 +274,10 @@ namespace Unity.UIWidgets.rendering {
             }
 
             _columnWidths = columnWidths ?? new Dictionary<int, TableColumnWidth>();
-            _defaultColumnWidth = defaultColumnWidth;
+            _defaultColumnWidth = defaultColumnWidth ?? new FlexColumnWidth(1.0f);
             _border = border;
             this.rowDecorations = rowDecorations;
-            _configuration = configuration;
+            _configuration = configuration ?? ImageConfiguration.empty;
             _defaultVerticalAlignment = defaultVerticalAlignment;
             _textBaseline = textBaseline;
 
@@ -406,7 +405,21 @@ namespace Unity.UIWidgets.rendering {
 
         TableColumnWidth _defaultColumnWidth;
 
+        TextDirection textDirection {
+            get {
+                return _textDirection;
+            }
+            set {
+                if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                markNeedsLayout();
+            }
+        }
 
+        TextDirection _textDirection;
+        
+        
         public TableBorder border {
             get { return _border; }
             set {
@@ -647,7 +660,10 @@ namespace Unity.UIWidgets.rendering {
                     painter?.Dispose();
                 }
 
-                _rowDecorationPainters = null;
+                _rowDecorationPainters = new List<BoxPainter>();
+                for (int i = 0; i < _rowDecorations.Count; i++) {
+                    _rowDecorationPainters.Add(null);
+                }
             }
 
             foreach (RenderBox child in _children) {
@@ -715,6 +731,7 @@ namespace Unity.UIWidgets.rendering {
         float? _baselineDistance;
 
         public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+            D.assert(!debugNeedsLayout);
             return _baselineDistance;
         }
 
@@ -820,7 +837,7 @@ namespace Unity.UIWidgets.rendering {
                         }
                     }
 
-                    D.assert(tableWidth >= targetWidth);
+                    D.assert(tableWidth + foundation_.precisionErrorTolerance >= targetWidth);
                 }
             }
             else if (tableWidth < minWidthConstraint) {
@@ -844,15 +861,14 @@ namespace Unity.UIWidgets.rendering {
 
                 //(Xingwei Zhu) this deficit is double and set to be 0.00000001f in flutter.
                 //since we use float by default, making it larger should make sense in most cases
-                float minimumDeficit = 0.0001f;
-                while (deficit > minimumDeficit && totalFlex > minimumDeficit) {
+                while (deficit > foundation_.precisionErrorTolerance && totalFlex > foundation_.precisionErrorTolerance) {
                     float newTotalFlex = 0.0f;
                     for (int x = 0; x < columns; x++) {
                         if (flexes[x] != null) {
                             //(Xingwei Zhu) in case deficit * flexes[x].Value / totalFlex => 0 if deficit is really small, leading to dead loop,
                             //we amend it with a default larger value to ensure that this loop will eventually end
                             float newWidth =
-                                widths[x] - Mathf.Max(minimumDeficit, deficit * flexes[x].Value / totalFlex);
+                                widths[x] - Mathf.Max(foundation_.precisionErrorTolerance, deficit * flexes[x].Value / totalFlex);
                             D.assert(newWidth.isFinite());
                             if (newWidth <= minWidths[x]) {
                                 deficit -= widths[x] - minWidths[x];
@@ -873,29 +889,28 @@ namespace Unity.UIWidgets.rendering {
                     totalFlex = newTotalFlex;
                 }
 
-                if (deficit > 0.0f) {
-                    do {
-                        float delta = deficit / availableColumns;
-                        int newAvailableColumns = 0;
-                        for (int x = 0; x < columns; x++) {
-                            float availableDelta = widths[x] - minWidths[x];
-                            if (availableDelta > 0.0f) {
-                                if (availableDelta <= delta) {
-                                    deficit -= widths[x] - minWidths[x];
-                                    widths[x] = minWidths[x];
-                                }
-                                else {
-                                    deficit -= availableDelta;
-                                    widths[x] -= availableDelta;
-                                    newAvailableColumns += 1;
-                                }
+                while (deficit > foundation_.precisionErrorTolerance && availableColumns > 0) {
+                    float delta = deficit / availableColumns;
+                    D.assert(delta != 0);
+                    int newAvailableColumns = 0;
+                    for (int x = 0; x < columns; x++) {
+                        float availableDelta = widths[x] - minWidths[x];
+                        if (availableDelta > 0.0f) {
+                            if (availableDelta <= delta) {
+                                deficit -= widths[x] - minWidths[x];
+                                widths[x] = minWidths[x];
+                            }
+                            else {
+                                deficit -= availableDelta;
+                                widths[x] -= availableDelta;
+                                newAvailableColumns += 1;
                             }
                         }
-
-                        availableColumns = newAvailableColumns;
-                    } while (deficit > 0.0f && availableColumns > 0);
+                    }
+                    availableColumns = newAvailableColumns;
                 }
             }
+            
 
             return widths;
         }
@@ -906,11 +921,12 @@ namespace Unity.UIWidgets.rendering {
        public Rect getRowBox(int row) {
             D.assert(row >= 0);
             D.assert(row < rows);
-
+            D.assert(!debugNeedsLayout);
             return Rect.fromLTRB(0.0f, _rowTops[row], size.width, _rowTops[row + 1]);
         }
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
             int rows = this.rows;
             int columns = this.columns;
             D.assert(_children.Count == rows * columns);
@@ -921,14 +937,26 @@ namespace Unity.UIWidgets.rendering {
 
             List<float> widths = _computeColumnWidths(constraints);
             List<float> positions = new List<float>();
-            float tableWidth = 0.0f;
-            positions.Add(0.0f);
-            for (int x = 1; x < columns; x++) {
-                positions.Add(positions[x - 1] + widths[x - 1]);
+            for (int i = 0; i < columns; i++) {
+                positions.Add(0.0f);
             }
-
-            _columnLefts = positions;
-            tableWidth = positions[positions.Count - 1] + widths[widths.Count - 1];
+            float tableWidth = 0.0f;
+            switch (textDirection) {
+                case TextDirection.rtl:
+                    positions[columns - 1] = 0.0f;
+                    for (int x = columns - 2; x >= 0; x -= 1)
+                        positions[x] = positions[x+1] + widths[x+1];
+                    _columnLefts = positions;
+                    tableWidth = positions[0] + widths[0];
+                    break;
+                case TextDirection.ltr:
+                    positions[0] = 0.0f;
+                    for (int x = 1; x < columns; x += 1)
+                        positions[x] = positions[x-1] + widths[x-1];
+                    _columnLefts = positions;
+                    tableWidth = positions[columns - 1] + widths[columns - 1];
+                    break;
+            }
 
             _rowTops.Clear();
             _baselineDistance = null;
@@ -1076,6 +1104,7 @@ namespace Unity.UIWidgets.rendering {
 
             D.assert(_rowTops.Count == this.rows + 1);
             if (_rowDecorations != null) {
+                D.assert(_rowDecorations.Count == _rowDecorationPainters.Count);
                 Canvas canvas = context.canvas;
                 for (int y = 0; y < rows; y++) {
                     if (_rowDecorations.Count <= y) {

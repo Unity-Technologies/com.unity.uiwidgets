@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.rendering {
             return string.Join("; ", values);
         }
     }
-    public class RenderParagraph : RenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<RenderBox, TextParentData> {
+    public class RenderParagraph : RelayoutWhenSystemFontsChangeMixinRenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<RenderBox, TextParentData> {
         static readonly string _kEllipsis = "\u2026";
 
         bool _softWrap;
@@ -73,7 +73,7 @@ namespace Unity.UIWidgets.rendering {
                 textWidthBasis: textWidthBasis,
                 textHeightBehavior: textHeightBehavior
             );
-            //addAll(children);[!!!]?
+            addAll(children);
             _extractPlaceholderSpans(text);
         }
 
@@ -137,7 +137,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public TextAlign textAlign {
-            get { return _textPainter.textAlign.Value; }
+            get { return _textPainter.textAlign; }
             set {
                 if (_textPainter.textAlign == value) {
                     return;
@@ -361,7 +361,7 @@ namespace Unity.UIWidgets.rendering {
                 placeholderDimensions[childIndex] = new PlaceholderDimensions(
                 size: new Size(child.getMaxIntrinsicWidth(height), height),
                 alignment: _placeholderSpans[childIndex].alignment,
-                baseline: _placeholderSpans[childIndex].baseline.Value,
+                baseline: _placeholderSpans[childIndex].baseline,
                 baselineOffset:0.0f
             );
             child = childAfter(child);
@@ -380,7 +380,7 @@ namespace Unity.UIWidgets.rendering {
                 placeholderDimensions[childIndex] = new PlaceholderDimensions(
                     size: new Size(intrinsicWidth, intrinsicHeight),
                     alignment: _placeholderSpans[childIndex].alignment,
-                    baseline: _placeholderSpans[childIndex].baseline.Value,
+                    baseline: _placeholderSpans[childIndex].baseline,
                     baselineOffset:0.0f
                 );
                 child = childAfter(child);
@@ -399,7 +399,7 @@ namespace Unity.UIWidgets.rendering {
                 placeholderDimensions[childIndex] = new PlaceholderDimensions(
                     size: new Size(intrinsicWidth, intrinsicHeight),
                     alignment: _placeholderSpans[childIndex].alignment,
-                    baseline: _placeholderSpans[childIndex].baseline.Value,
+                    baseline: _placeholderSpans[childIndex].baseline,
                     baselineOffset:0.0f
                 );
                 child = childAfter(child);
@@ -654,8 +654,8 @@ namespace Unity.UIWidgets.rendering {
                 switch (_placeholderSpans[childIndex].alignment) {
                     case ui.PlaceholderAlignment.baseline: {
                         baselineOffset = child.getDistanceToBaseline(
-                        _placeholderSpans[childIndex].baseline.Value
-                        ).Value;
+                        _placeholderSpans[childIndex].baseline
+                        ) ?? 0.0f;
                         break;
                     }
                     default: {
@@ -666,7 +666,7 @@ namespace Unity.UIWidgets.rendering {
                 _placeholderDimensions[childIndex] = new PlaceholderDimensions(
                     size: child.size,
                     alignment: _placeholderSpans[childIndex].alignment,
-                    baseline: _placeholderSpans[childIndex].baseline.Value,
+                    baseline: _placeholderSpans[childIndex].baseline,
                     baselineOffset: baselineOffset
                 );
                 child = childAfter(child);
@@ -702,17 +702,6 @@ namespace Unity.UIWidgets.rendering {
             var didOverflowWidth = size.width < textSize.width;
             var hasVisualOverflow = didOverflowWidth || didOverflowHeight;
             if (hasVisualOverflow) {
-                /*switch (_overflow) {
-                    case TextOverflow.visible:
-                        _needsClipping = false;
-                        break;
-                    case TextOverflow.clip:
-                    case TextOverflow.ellipsis:
-                    case TextOverflow.fade:
-                        _needsClipping = true;
-                        break;
-                }*/
-                //[!!!]need to replace it?
                 switch (_overflow) {
                     case TextOverflow.visible:
                         _needsClipping = false;
@@ -767,44 +756,6 @@ namespace Unity.UIWidgets.rendering {
                 _overflowShader = null;
             }
         }
-
-
-        /*void paintParagraph(PaintingContext context, Offset offset) {
-            _layoutTextWithConstraints(constraints);
-            var canvas = context.canvas;
-
-            if (_needsClipping) {
-                var bounds = offset & size;
-                canvas.save();
-                canvas.clipRect(bounds);
-            }
-
-            if (_selection != null && selectionColor != null && _selection.isValid) {
-                if (!_selection.isCollapsed) {
-                    _selectionRects =
-                        _selectionRects ?? _textPainter.getBoxesForSelection(_selection);
-                    _paintSelection(canvas, offset);
-                }
-            }
-
-            _textPainter.paint(canvas, offset);
-            if (_needsClipping) {
-                canvas.restore();
-            }
-        }
-
-        public override void paint(PaintingContext context, Offset offset) {
-            if (_hoverAnnotation != null) {
-                AnnotatedRegionLayer<MouseTrackerAnnotation> layer = new AnnotatedRegionLayer<MouseTrackerAnnotation>(
-                    _hoverAnnotation, size: size, offset: offset);
-
-                context.pushLayer(layer, paintParagraph, offset);
-            }
-            else {
-                paintParagraph(context, offset);
-            }
-        } */
-        // need to replace it?
         
         public override void paint(PaintingContext context, Offset offset) {
               _layoutTextWithConstraints(constraints);
@@ -879,10 +830,10 @@ namespace Unity.UIWidgets.rendering {
             _textPainter.layout(minWidth, widthMatters ? maxWidth : float.PositiveInfinity);
         }
 
-        /*public override void systemFontsDidChange() {
+        public override void systemFontsDidChange() {
             base.systemFontsDidChange();
             _textPainter.markNeedsLayout();
-        }*/
+        }
         
         List<PlaceholderDimensions> _placeholderDimensions;
         

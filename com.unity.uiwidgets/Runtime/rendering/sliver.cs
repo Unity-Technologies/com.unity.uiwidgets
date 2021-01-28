@@ -248,8 +248,7 @@ namespace Unity.UIWidgets.rendering {
                     }
                     diagnosticInfo.Add(new DiagnosticsProperty<SliverConstraints>("The offending constraints were", this, style: DiagnosticsTreeStyle.errorProperty));
                     
-                    throw new UIWidgetsError(
-                        diagnosticInfo);
+                    throw new UIWidgetsError(diagnosticInfo);
                 }
                 return true;
             });
@@ -265,7 +264,7 @@ namespace Unity.UIWidgets.rendering {
             if (ReferenceEquals(this, other)) {
                 return true;
             }
-
+            D.assert(other.debugAssertIsValid());
             return axisDirection == other.axisDirection
                    && growthDirection == other.growthDirection
                    && userScrollDirection == other.userScrollDirection
@@ -321,27 +320,20 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override string ToString() {
-            string result = "";
-            result += ($"{axisDirection}") +" , ";
-            result +=($"{growthDirection}")+" , ";
-            result +=($"{userScrollDirection}")+" , ";
-            result +=($"scrollOffset: {scrollOffset : F1}")+" , ";
-            result +=($"remainingPaintExtent: {remainingPaintExtent : F1}")+" , ";
-            if (overlap != 0.0) 
-                result +=($"overlap: {overlap: F1}")+" , ";
-            result +=($"crossAxisExtent: {crossAxisExtent : F1}")+" , ";
-            result +=($"crossAxisDirection: crossAxisDirection")+" , ";
-            result +=($"viewportMainAxisExtent: {viewportMainAxisExtent : F1}")+" , ";
-            result +=($"remainingCacheExtent: {remainingCacheExtent : F1}")+" , ";
-            result +=($"cacheOrigin: {cacheOrigin : F1}");
-                
-            return $"SliverConstraints({result})";
-            
-            return
-                $"SliverConstraints({axisDirection}， {growthDirection}， {userScrollDirection}， scrollOffset: {scrollOffset:F1}, remainingPaintExtent: {remainingCacheExtent:F1}, " +
-                $"{(overlap != 0.0f ? "overlap: " + overlap.ToString("F1") + ", " : "")}crossAxisExtent: {crossAxisExtent:F1}, crossAxisDirection: {crossAxisDirection}, " +
-                $"viewportMainAxisExtent: {viewportMainAxisExtent:F1}, remainingCacheExtent: {remainingCacheExtent:F1} " +
-                $"cacheOrigin: {cacheOrigin:F1})";
+            List<string> properties = new List<string>();
+            properties.Add($"{axisDirection}");
+            properties.Add($"{growthDirection}");
+            properties.Add($"{userScrollDirection}");
+            properties.Add($"scrollOffset: {scrollOffset : F1}");
+            properties.Add($"remainingPaintExtent: {remainingPaintExtent : F1}");
+            if (overlap != 0.0)
+                properties.Add($"overlap: {overlap: F1}");
+            properties.Add($"crossAxisExtent: {crossAxisExtent : F1}");
+            properties.Add($"crossAxisDirection: {crossAxisDirection}");
+            properties.Add($"viewportMainAxisExtent: {viewportMainAxisExtent : F1}");
+            properties.Add($"remainingCacheExtent: {remainingCacheExtent : F1}");
+            properties.Add($"cacheOrigin: {cacheOrigin : F1}");
+            return $"SliverConstraints({string.Join(", ",properties)})";
         }
     }
 
@@ -387,7 +379,6 @@ namespace Unity.UIWidgets.rendering {
         public readonly bool hasVisualOverflow;
         public readonly float? scrollOffsetCorrection;
         public readonly float cacheExtent;
-        public const float precisionErrorTolerance = 1e-10f;
 
         internal static List<DiagnosticsNode> _debugCompareFloats(string labelA, float valueA, string labelB, float valueB) {
             List<DiagnosticsNode> diagnosticInfo = new List<DiagnosticsNode>();
@@ -435,7 +426,7 @@ namespace Unity.UIWidgets.rendering {
                     );
                 }
 
-                if (paintExtent - maxPaintExtent > precisionErrorTolerance) {
+                if (paintExtent - maxPaintExtent > foundation_.precisionErrorTolerance) {
                     var details = _debugCompareFloats("maxPaintExtent", maxPaintExtent, "paintExtent",
                         paintExtent);
                     details.Add(new ErrorDescription("By definition, a sliver can\"t paint more than the maximum that it can paint!"));
@@ -502,17 +493,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public bool addWithAxisOffset(
-            Offset paintOffset,
             float mainAxisOffset,
             float crossAxisOffset,
             float mainAxisPosition,
             float crossAxisPosition,
-            SliverHitTest hitTest
+            Offset paintOffset = null,
+            SliverHitTest hitTest = null
         ) {
-            D.assert(mainAxisOffset != null);
-            D.assert(crossAxisOffset != null);
-            D.assert(mainAxisPosition != null);
-            D.assert(crossAxisPosition != null);
             D.assert(hitTest != null);
             if (paintOffset != null) {
                 pushTransform(Matrix4.translationValues(-paintOffset.dx, -paintOffset.dy, 0));
@@ -530,7 +517,8 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public class SliverHitTestEntry : HitTestEntry {
-        public SliverHitTestEntry(RenderSliver target,
+        public SliverHitTestEntry(
+            RenderSliver target,
             float mainAxisPosition = 0.0f,
             float crossAxisPosition = 0.0f
         ) : base(target) {
@@ -595,38 +583,35 @@ namespace Unity.UIWidgets.rendering {
                     }
 
                     D.assert(!debugDoingThisResize);
-                    string contract = "", violation = "", hint = "";
+                    DiagnosticsNode contract, violation, hint = null;
                     if (debugDoingThisLayout) {
                         D.assert(sizedByParent);
-                        violation = "It appears that the geometry setter was called from performLayout().";
-                        hint = "";
+                        violation = new ErrorDescription("It appears that the geometry setter was called from performLayout().");
                     }
                     else {
-                        violation =
-                            "The geometry setter was called from outside layout (neither performResize() nor performLayout() were being run for this object).";
+                        violation = new ErrorDescription("The geometry setter was called from outside layout (neither performResize() nor performLayout() were being run for this object).");
                         if (owner != null && owner.debugDoingLayout) {
-                            hint =
-                                "Only the object itself can set its geometry. It is a contract violation for other objects to set it.";
+                            hint = new ErrorDescription("Only the object itself can set its geometry. It is a contract violation for other objects to set it.");
                         }
                     }
 
                     if (sizedByParent) {
-                        contract =
-                            "Because this RenderSliver has sizedByParent set to true, it must set its geometry in performResize().";
+                        contract = new ErrorDescription("Because this RenderSliver has sizedByParent set to true, it must set its geometry in performResize().");
                     }
                     else {
-                        contract =
-                            "Because this RenderSliver has sizedByParent set to false, it must set its geometry in performLayout().";
+                        contract = new ErrorDescription(
+                            "Because this RenderSliver has sizedByParent set to false, it must set its geometry in performLayout().");
                     }
 
-                    throw new UIWidgetsError(
-                        "RenderSliver geometry setter called incorrectly.\n" +
-                        violation + "\n" +
-                        hint + "\n" +
-                        contract + "\n" +
-                        "The RenderSliver in question is:\n" +
-                        "  " + this
-                    );
+                    List<DiagnosticsNode> information = new List<DiagnosticsNode>();
+                    information.Add(new ErrorSummary("RenderSliver geometry setter called incorrectly."));
+                    information.Add(violation);
+                    if (hint != null) {
+                        information.Add(hint);
+                    }
+                    information.Add(contract);
+                    information.Add(describeForError("The RenderSliver in question is"));
+                    throw new UIWidgetsError(information);
                 });
 
                 _geometry = value;
@@ -636,7 +621,6 @@ namespace Unity.UIWidgets.rendering {
 
         public override Rect paintBounds {
             get {
-                D.assert(constraints.axis != null);
                 switch (constraints.axis) {
                     case Axis.horizontal:
                         return Rect.fromLTWH(
@@ -651,8 +635,6 @@ namespace Unity.UIWidgets.rendering {
                             geometry.paintExtent
                         );
                 }
-
-               // D.assert(false);
                 return null;
             }
         }
@@ -675,18 +657,16 @@ namespace Unity.UIWidgets.rendering {
                         informationCollector: infoCollector);
                 });
             D.assert(() => {
-                if (geometry.paintExtent > constraints.remainingPaintExtent) {
+                if (geometry.paintOrigin + geometry.paintExtent > constraints.remainingPaintExtent) {
                     List<DiagnosticsNode> diagnosticInfo = new List<DiagnosticsNode>();
                     diagnosticInfo.Add(new ErrorSummary("SliverGeometry has a paintOffset that exceeds the remainingPaintExtent from the constraints."));
                     diagnosticInfo.Add(describeForError("The render object whose geometry violates the constraints is the following:"));
                     diagnosticInfo.AddRange(SliverGeometry._debugCompareFloats("remainingPaintExtent", constraints.remainingPaintExtent,
-                        "paintExtent", geometry.paintExtent));
+                        "paintOrigin + paintExtent", geometry.paintOrigin + geometry.paintExtent));
                     diagnosticInfo.Add(new ErrorDescription("The paintExtent must cause the child sliver to paint within the viewport, and so " +
                                                             "cannot exceed the remainingPaintExtent."));
                     
-                    throw new UIWidgetsError(
-                        diagnosticInfo
-                    );
+                    throw new UIWidgetsError(diagnosticInfo);
                 }
 
                 return true;
@@ -701,7 +681,7 @@ namespace Unity.UIWidgets.rendering {
             get { return 0.0f; }
         }
 
-        public virtual bool hitTest(SliverHitTestResult result, float mainAxisPosition = 0, float crossAxisPosition = 0) {
+        public virtual bool hitTest(SliverHitTestResult result, float mainAxisPosition = 0.0f, float crossAxisPosition = 0.0f) {
             if (mainAxisPosition >= 0.0f && mainAxisPosition < geometry.hitTestExtent &&
                 crossAxisPosition >= 0.0f && crossAxisPosition < constraints.crossAxisExtent) {
                 if (hitTestChildren(result, mainAxisPosition: mainAxisPosition,
@@ -719,12 +699,12 @@ namespace Unity.UIWidgets.rendering {
             return false;
         }
 
-        protected virtual bool hitTestSelf(float mainAxisPosition = 0, float crossAxisPosition = 0) {
+        protected virtual bool hitTestSelf(float mainAxisPosition = 0.0f, float crossAxisPosition = 0.0f) {
             return false;
         }
 
-        protected virtual bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0,
-            float crossAxisPosition = 0) {
+        protected virtual bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f,
+            float crossAxisPosition = 0.0f) {
             return false;
         }
 
@@ -776,8 +756,6 @@ namespace Unity.UIWidgets.rendering {
                 case AxisDirection.left:
                     return new Size(-geometry.paintExtent, constraints.crossAxisExtent);
             }
-
-            //D.assert(false);
             return null;
         }
 
@@ -909,9 +887,7 @@ namespace Unity.UIWidgets.rendering {
             });
         }
 
-        public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
-            entry = (SliverHitTestEntry) entry;
-        }
+        public override void handleEvent(PointerEvent evt, HitTestEntry entry) { }
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<SliverGeometry>("geometry", geometry));
@@ -921,7 +897,6 @@ namespace Unity.UIWidgets.rendering {
     public static class RenderSliverHelpers {
         public static bool _getRightWayUp(SliverConstraints constraints) {
             D.assert(constraints != null);
-
             bool rightWayUp = true;
 
             switch (constraints.axisDirection) {
@@ -959,7 +934,6 @@ namespace Unity.UIWidgets.rendering {
             float? absoluteCrossAxisPosition = crossAxisPosition - crossAxisDelta;
             Offset paintOffset = null;
             Offset transformedPosition = null;
-            D.assert(it.constraints.axis != null);
             switch (it.constraints.axis) {
             case Axis.horizontal:
                 if (!rightWayUp) {
@@ -1045,7 +1019,9 @@ namespace Unity.UIWidgets.rendering {
                         new Offset(-(geometry.scrollExtent - (geometry.paintExtent + constraints.scrollOffset)),
                             0.0f);
                     break;
+                
             }
+            D.assert(childParentData.paintOffset != null);
         }
 
         protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f,
@@ -1091,6 +1067,7 @@ namespace Unity.UIWidgets.rendering {
                 return;
             }
 
+            SliverConstraints constraints = this.constraints;
             child.layout(constraints.asBoxConstraints(), parentUsesSize: true);
 
             float childExtent = 0.0f;

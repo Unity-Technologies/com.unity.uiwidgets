@@ -223,9 +223,9 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public float _getIntrinsicSize(
-            Axis? sizingDirection = null,
-            float? extent = null,
-            _ChildSizingFunction childSize = null
+            Axis sizingDirection,
+            float extent,
+            _ChildSizingFunction childSize
         ) {
             if (_direction == sizingDirection) {
                 float totalFlex = 0.0f;
@@ -237,11 +237,11 @@ namespace Unity.UIWidgets.rendering {
                     int flex = _getFlex(child);
                     totalFlex += flex;
                     if (flex > 0) {
-                        float flexFraction = childSize(child, extent.Value) / _getFlex(child);
+                        float flexFraction = childSize(child, extent) / _getFlex(child);
                         maxFlexFractionSoFar = Mathf.Max(maxFlexFractionSoFar, flexFraction);
                     }
                     else {
-                        inflexibleSpace += childSize(child, extent.Value);
+                        inflexibleSpace += childSize(child, extent);
                     }
 
                     var childParentData = (FlexParentData) child.parentData;
@@ -282,7 +282,7 @@ namespace Unity.UIWidgets.rendering {
                     child = childParentData.nextSibling;
                 }
 
-                float spacePerFlex = Mathf.Max(0.0f, ((availableMainSpace - inflexibleSpace) / totalFlex).Value);
+                float spacePerFlex = Mathf.Max(0.0f, ((availableMainSpace - inflexibleSpace) / totalFlex) ?? 0.0f);
 
                 child = firstChild;
                 while (child != null) {

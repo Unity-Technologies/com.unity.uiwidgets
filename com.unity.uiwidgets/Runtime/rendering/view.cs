@@ -20,11 +20,7 @@ namespace Unity.UIWidgets.rendering {
         public readonly float devicePixelRatio;
 
         public Matrix4 toMatrix() {
-    
-
             return Matrix4.diagonal3Values(devicePixelRatio, devicePixelRatio, 0);
-
-            //return new Matrix4().identity();
         }
 
         public override string ToString() {
@@ -35,11 +31,13 @@ namespace Unity.UIWidgets.rendering {
     public class RenderView : RenderObjectWithChildMixinRenderObject<RenderBox> {
         public RenderView(
             RenderBox child = null,
-            ViewConfiguration configuration = null) {
+            ViewConfiguration configuration = null,
+            ui.Window window = null) {
             D.assert(configuration != null);
 
             this.child = child;
             _configuration = configuration;
+            _window = window;
         }
 
         public Size size {
@@ -58,18 +56,13 @@ namespace Unity.UIWidgets.rendering {
 
                 _configuration = value;
                 replaceRootLayer((OffsetLayer) _updateMatricesAndCreateNewRootLayer());
+                D.assert(_rootTransform != null);
                 markNeedsLayout();
             }
         }
 
         ViewConfiguration _configuration;
-
-        public void scheduleInitialFrame() {
-            D.assert(owner != null);
-            scheduleInitialLayout();
-            scheduleInitialPaint((OffsetLayer) _updateMatricesAndCreateNewRootLayer());
-            owner.requestVisualUpdate();
-        }
+        ui.Window _window;
 
         public void prepareInitialFrame() {
             D.assert(owner != null);
@@ -81,9 +74,9 @@ namespace Unity.UIWidgets.rendering {
         
         Matrix4 _rootTransform;
 
-        public Layer _updateMatricesAndCreateNewRootLayer() {
+        public TransformLayer _updateMatricesAndCreateNewRootLayer() {
             _rootTransform = configuration.toMatrix();
-            ContainerLayer rootLayer = new TransformLayer(transform: _rootTransform);
+            TransformLayer rootLayer = new TransformLayer(transform: _rootTransform);
             rootLayer.attach(this);
             return rootLayer;
         }
@@ -97,6 +90,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
+            D.assert(_rootTransform != null);
             _size = configuration.size;
             D.assert(_size.isFinite);
 
@@ -115,12 +109,6 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public IEnumerable<MouseTrackerAnnotation> hitTestMouseTrackers(Offset position) {
-            // Layer hit testing is done using device pixels, so we have to convert
-            // the logical coordinates of the event location back to device pixels
-            // here.
-            /*return layer.find<MouseTrackerAnnotation>(
-                position * configuration.devicePixelRatio
-            );*/
             return layer.findAllAnnotations<MouseTrackerAnnotation>(
                 position * configuration.devicePixelRatio
             ).annotations;
