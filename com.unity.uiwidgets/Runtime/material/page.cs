@@ -29,10 +29,6 @@ namespace Unity.UIWidgets.material {
             get { return null; }
         }
 
-        public override bool canTransitionFrom(TransitionRoute previousRoute) {
-            return previousRoute is MaterialPageRoute;
-        }
-
         public override bool canTransitionTo(TransitionRoute nextRoute) {
             return nextRoute is MaterialPageRoute && !((MaterialPageRoute) nextRoute).fullscreenDialog;
         }
