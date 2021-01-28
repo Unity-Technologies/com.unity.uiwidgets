@@ -1651,10 +1651,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override bool hitTestSelf(Offset position) {
-            return _decoration.hitTest(size, position);
-            // [!!!] function hitTest has no textDirection parameter, if add this parameter, another two function under
-            // painting folder have to change, too. I'm not sure if we need to add this.
-            // return _decoration.hitTest(size, position, textDirection: configuration.textDirection);
+            return _decoration.hitTest(size, position, textDirection: configuration.textDirection);
         }
 
         public override void paint(PaintingContext context, Offset offset) {
@@ -2018,18 +2015,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        
-        void _paintChildWithTransform(PaintingContext context, Offset offset) {
-            Offset childOffset = _transform.getAsTranslation();
-            if (childOffset == null) {
-                context.pushTransform(needsCompositing, offset, _transform, base.paint,
-                    oldLayer: layer is TransformLayer ? layer as TransformLayer : null);
-            }
-            else {
-                base.paint(context, offset + childOffset);
-            }
-        }
-        /*TransformLayer _paintChildWithTransform(PaintingContext context, Offset offset) {
+        TransformLayer _paintChildWithTransform(PaintingContext context, Offset offset) {
             Offset childOffset = _transform.getAsTranslation();
             if (childOffset == null) {
                 return context.pushTransform(needsCompositing, offset, _transform, base.paint,
@@ -2039,10 +2025,8 @@ namespace Unity.UIWidgets.rendering {
                 base.paint(context, offset + childOffset);
                 return null;
             }
-        }*/
-        // [!!!] unable to change this function type from void to TransformLayer, context.pushClipRect() at line 2054
-        // Expected a method with 'void _paintChildWithTransform(PaintingContext, Offset)' signature
-
+        }
+        
         public override void paint(PaintingContext context, Offset offset) {
             if (size.isEmpty || child.size.isEmpty) {
                 return;
@@ -2051,8 +2035,8 @@ namespace Unity.UIWidgets.rendering {
             _updatePaintData();
             if (child != null) {
                 if (_hasVisualOverflow == true) {
-                    context.pushClipRect(needsCompositing, offset, Offset.zero & size,
-                        painter: _paintChildWithTransform,
+                    layer = context.pushClipRect(needsCompositing, offset, Offset.zero & size,
+                        painter: (PaintingContext subContext, Offset subOffset) => { _paintChildWithTransform(subContext, subOffset); },
                         oldLayer: layer is ClipRectLayer ? layer as ClipRectLayer : null);
                 }
                 else{

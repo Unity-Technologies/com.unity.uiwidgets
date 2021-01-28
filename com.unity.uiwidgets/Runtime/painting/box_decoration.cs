@@ -241,7 +241,7 @@ namespace Unity.UIWidgets.painting {
             properties.add(new DiagnosticsProperty<BoxShape>("shape", shape, defaultValue: BoxShape.rectangle));
         }
 
-        public override bool hitTest(Size size, Offset position) {
+        public override bool hitTest(Size size, Offset position, TextDirection textDirection) {
             D.assert((Offset.zero & size).contains(position));
             switch (shape) {
                 case BoxShape.rectangle:

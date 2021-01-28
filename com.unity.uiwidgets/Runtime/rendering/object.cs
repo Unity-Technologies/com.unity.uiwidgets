@@ -1491,6 +1491,12 @@ namespace Unity.UIWidgets.rendering {
         RenderObject childAfter(RenderObject child);
     }
 
+    public interface RelayoutWhenSystemFontsChangeMixin {
+        void systemFontsDidChange();
+        void attach(object owner);
+        void detach();
+    }
+    
     public class UIWidgetsErrorDetailsForRendering : UIWidgetsErrorDetails {
         public UIWidgetsErrorDetailsForRendering(
             Exception exception = null,
