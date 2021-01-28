@@ -488,8 +488,8 @@ public {{abstract}} class RenderConstrainedLayoutBuilderMixin{{with}}<Constraint
 {% macro RelayoutWhenSystemFontsChangeMixin(with) %} 
     
     public abstract class
-            RelayoutWhenSystemFontsChangeMixinRenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<ChildType, ParentDataType>
-            : RenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<ChildType, ParentDataType>
+            RelayoutWhenSystemFontsChangeMixin{{with | safe}}
+            : {{with | safe}}
             where ChildType : RenderBox
             where ParentDataType : ContainerParentDataMixinBoxParentData<ChildType> {
             
@@ -589,7 +589,7 @@ public {{abstract}} class RenderConstrainedLayoutBuilderMixin{{with}}<Constraint
     
     {% endmacro %}
         
-        {{ RelayoutWhenSystemFontsChangeMixin('') }}
+        {{ RelayoutWhenSystemFontsChangeMixin('RenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<ChildType, ParentDataType>')}}
     
     
 }
