@@ -534,7 +534,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public  void attach(object owner) {
+        public override void attach(object owner) {
             base.attach(owner);
             /*if (_hoverAnnotation != null) {
                 RendererBinding.instance.mouseTracker.attachAnnotation(_hoverAnnotation);
@@ -830,7 +830,7 @@ namespace Unity.UIWidgets.rendering {
             _textPainter.layout(minWidth, widthMatters ? maxWidth : float.PositiveInfinity);
         }
 
-        public void systemFontsDidChange() {
+        public override void systemFontsDidChange() {
             base.systemFontsDidChange();
             _textPainter.markNeedsLayout();
         }

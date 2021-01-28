@@ -705,7 +705,7 @@ namespace Unity.UIWidgets.rendering {
             markNeedsLayout();
         }
         
-        public void systemFontsDidChange() {
+        public override void systemFontsDidChange() {
             base.systemFontsDidChange();
             _textPainter.markNeedsLayout();
             _textLayoutLastMaxWidth = null;
