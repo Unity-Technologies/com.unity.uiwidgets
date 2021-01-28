@@ -187,8 +187,8 @@ namespace Unity.UIWidgets.painting {
             properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape));
         }
 
-        public override bool hitTest(Size size, Offset position) {
-            return shape.getOuterPath(Offset.zero & size).contains(position);
+        public override bool hitTest(Size size, Offset position, TextDirection textDirection) {
+            return shape.getOuterPath(Offset.zero & size, textDirection: textDirection).contains(position);
         }
 
         public override BoxPainter createBoxPainter(VoidCallback onChanged = null) {

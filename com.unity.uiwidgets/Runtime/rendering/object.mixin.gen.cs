@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -1320,9 +1321,9 @@ public abstract class RenderConstrainedLayoutBuilderMixinRenderSliver<Constraint
 
     
      
-    public abstract class RelayoutWhenSystemFontsChangeMixinRenderBox : RenderBox {
+    public abstract class RelayoutWhenSystemFontsChangeMixinRenderBox : RenderBox, RelayoutWhenSystemFontsChangeMixin {
     
-        protected void systemFontsDidChange() {
+        public void systemFontsDidChange() {
             markNeedsLayout();
         }
         
@@ -1338,4 +1339,111 @@ public abstract class RenderConstrainedLayoutBuilderMixinRenderSliver<Constraint
         
     }  
 
+    
+        
+         
+    
+    public abstract class
+            RelayoutWhenSystemFontsChangeMixinRenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<ChildType, ParentDataType>
+            : RenderBoxContainerDefaultsMixinContainerRenderObjectMixinRenderBox<ChildType, ParentDataType>
+            where ChildType : RenderBox
+            where ParentDataType : ContainerParentDataMixinBoxParentData<ChildType> {
+            
+            public float? defaultComputeDistanceToFirstActualBaseline(TextBaseline baseline) {
+                var child = firstChild;
+                while (child != null) {
+                    var childParentData = (ParentDataType) child.parentData;
+                    float? result = child.getDistanceToActualBaseline(baseline);
+                    if (result != null) {
+                        return result.Value + childParentData.offset.dy;
+                    }
+    
+                    child = childParentData.nextSibling;
+                }
+    
+                return null;
+            }
+    
+            public float? defaultComputeDistanceToHighestActualBaseline(TextBaseline baseline) {
+                float? result = null;
+                var child = firstChild;
+                while (child != null) {
+                    var childParentData = (ParentDataType) child.parentData;
+                    float? candidate = child.getDistanceToActualBaseline(baseline);
+                    if (candidate != null) {
+                        candidate += childParentData.offset.dy;
+                        if (result != null) {
+                            result = Mathf.Min(result.Value, candidate.Value);
+                        } else {
+                            result = candidate;
+                        }
+                    }
+    
+                    child = childParentData.nextSibling;
+                }
+    
+                return result;
+            }
+    
+            public void defaultPaint(PaintingContext context, Offset offset) {
+                var child = firstChild;
+                while (child != null) {
+                    var childParentData = (ParentDataType) child.parentData;
+                    context.paintChild(child, childParentData.offset + offset);
+                    child = childParentData.nextSibling;
+                }
+            }
+    
+           public bool defaultHitTestChildren(BoxHitTestResult result, Offset position) {
+                ChildType child = lastChild;
+                while (child != null) {
+                    ParentDataType childParentData = child.parentData as ParentDataType;
+                    bool isHit = result.addWithPaintOffset(
+                        offset: childParentData.offset,
+                        position: position,
+                        hitTest: (BoxHitTestResult boxHitTestResult, Offset transformed) => {
+                            D.assert(transformed == position - childParentData.offset);
+                            return child.hitTest(boxHitTestResult, position: transformed);
+                        }
+                    );
+    
+                    if (isHit) 
+                        return true;
+                    child = childParentData.previousSibling;
+                    }
+                return false;
+            }
+    
+            public List<ChildType> getChildrenAsList() {
+                var result = new List<ChildType>();
+                var child = firstChild;
+                while (child != null) {
+                    var childParentData = (ParentDataType) child.parentData;
+                    result.Add(child);
+                    child = childParentData.nextSibling;
+                }
+    
+                return result;
+            }
+            
+            public void systemFontsDidChange() {
+                markNeedsLayout();
+            }
+            
+            public override void attach(object owner) {
+                base.attach(owner);
+                PaintingBinding.instance.systemFonts.addListener(systemFontsDidChange);
+            }
+            
+            public override void detach() {
+                PaintingBinding.instance.systemFonts.removeListener(systemFontsDidChange);
+                base.detach();
+            }
+            
+        }  
+    
+    
+
+    
+    
 }

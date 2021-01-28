@@ -57,7 +57,7 @@ namespace Unity.UIWidgets.painting {
                    ?? (t < 0.5 ? (a.lerpTo(null, t * 2.0f) ?? a) : (b.lerpFrom(null, (t - 0.5f) * 2.0f) ?? b));
         }
 
-        public virtual bool hitTest(Size size, Offset position) {
+        public virtual bool hitTest(Size size, Offset position, TextDirection textDirection) {
             return true;
         }
 

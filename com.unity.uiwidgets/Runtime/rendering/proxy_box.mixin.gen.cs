@@ -1,6 +1,4 @@
 ﻿using Unity.UIWidgets.ui;
-using Unity.UIWidgets.gestures;
-using UnityEngine;
 
 namespace Unity.UIWidgets.rendering {
 
@@ -13,17 +11,19 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
+
         protected internal override float computeMinIntrinsicWidth(float height) {
             if (child != null) {
                 return child.getMinIntrinsicWidth(height);
             }
-
             return 0.0f;
         }
+
 
         protected internal override float computeMaxIntrinsicWidth(float height) {
             if (child != null) {
                 return child.getMaxIntrinsicWidth(height);
+
             }
 
             return 0.0f;
@@ -32,16 +32,18 @@ namespace Unity.UIWidgets.rendering {
         protected internal override float computeMinIntrinsicHeight(float width) {
             if (child != null) {
                 return child.getMinIntrinsicHeight(width);
+
             }
 
             return 0.0f;
         }
 
+
         protected internal override float computeMaxIntrinsicHeight(float width) {
             if (child != null) {
                 return child.getMaxIntrinsicHeight(width);
-            }
 
+            }
             return 0.0f;
         }
 
@@ -65,6 +67,7 @@ namespace Unity.UIWidgets.rendering {
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             if (child != null) {
                 return child.hitTest(result, position);
+
             }
 
             return false;

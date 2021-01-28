@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
-using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.foundation;
+using UnityEngine;
 
 namespace Unity.UIWidgets.rendering {
 
@@ -60,6 +57,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
+
        public bool defaultHitTestChildren(BoxHitTestResult result, Offset position) {
             ChildType child = lastChild;
             while (child != null) {
@@ -67,16 +65,16 @@ namespace Unity.UIWidgets.rendering {
                 bool isHit = result.addWithPaintOffset(
                     offset: childParentData.offset,
                     position: position,
-                    hitTest: (BoxHitTestResult boxHitTestResult, Offset transformed) => {
-                        D.assert(transformed == position - childParentData.offset);
-                        return child.hitTest(boxHitTestResult, position: transformed);
-                    }
+                    hitTest: (boxHitTestResult, transformed) => {
+                    D.assert(transformed == position - childParentData.offset);
+                    return child.hitTest(boxHitTestResult, position: transformed);
+                }
                 );
-
                 if (isHit) 
                     return true;
                 child = childParentData.previousSibling;
-                }
+
+            }
             return false;
         }
 
