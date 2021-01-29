@@ -149,7 +149,7 @@ namespace Unity.UIWidgets.material {
 
             return new RawMaterialButton(
                 onPressed: onPressed,
-                onLongPress:() => onLongPress(),
+                onLongPress:() => onLongPress?.Invoke(),
                 enableFeedback: enableFeedback?? true,
                 onHighlightChanged: onHighlightChanged,
                 fillColor: buttonTheme.getFillColor(this),
