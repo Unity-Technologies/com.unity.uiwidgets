@@ -31,6 +31,7 @@ namespace Unity.UIWidgets.material {
     public class ThemeData : Diagnosticable, IEquatable<ThemeData> {
         public ThemeData(
             Brightness? brightness = null,
+            VisualDensity visualDensity = null,
             MaterialColor primarySwatch = null,
             Color primaryColor = null,
             Brightness? primaryColorBrightness = null,
@@ -75,6 +76,7 @@ namespace Unity.UIWidgets.material {
             ChipThemeData chipTheme = null,
             RuntimePlatform? platform = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
+            bool? applyElevationOverlayColor = null,
             PageTransitionsTheme pageTransitionsTheme = null,
             AppBarTheme appBarTheme = null,
             BottomAppBarTheme bottomAppBarTheme = null,
@@ -86,6 +88,7 @@ namespace Unity.UIWidgets.material {
         ) {
             brightness = brightness ?? Brightness.light;
             bool isDark = brightness == Brightness.dark;
+            visualDensity = visualDensity ?? new VisualDensity();
 
             primarySwatch = primarySwatch ?? Colors.blue;
             primaryColor = primaryColor ?? (isDark ? Colors.grey[900] : primarySwatch);
@@ -152,6 +155,8 @@ namespace Unity.UIWidgets.material {
             TextTheme defaultAccentTextTheme = accentIsDark ? typography.white : typography.black;
             accentTextTheme = defaultAccentTextTheme.merge(accentTextTheme);
             materialTapTargetSize = materialTapTargetSize ?? MaterialTapTargetSize.padded;
+            applyElevationOverlayColor = applyElevationOverlayColor ?? false;
+            
             if (fontFamily != null) {
                 textTheme = textTheme.apply(fontFamily: fontFamily);
                 primaryTextTheme = primaryTextTheme.apply(fontFamily: fontFamily);
@@ -194,6 +199,7 @@ namespace Unity.UIWidgets.material {
             snackBarTheme = snackBarTheme ?? new SnackBarThemeData();
 
             D.assert(brightness != null);
+            D.assert(visualDensity != null);
             D.assert(primaryColor != null);
             D.assert(primaryColorBrightness != null);
             D.assert(primaryColorLight != null);
@@ -230,6 +236,7 @@ namespace Unity.UIWidgets.material {
             D.assert(primaryIconTheme != null);
             D.assert(accentIconTheme != null);
             D.assert(materialTapTargetSize != null);
+            D.assert(applyElevationOverlayColor != null);
             D.assert(pageTransitionsTheme != null);
             D.assert(appBarTheme != null);
             D.assert(bottomAppBarTheme != null);
@@ -244,6 +251,7 @@ namespace Unity.UIWidgets.material {
             D.assert(snackBarTheme != null);
 
             this.brightness = brightness ?? Brightness.light;
+            this.visualDensity = visualDensity;
             this.primaryColor = primaryColor;
             this.primaryColorBrightness = primaryColorBrightness ?? Brightness.light;
             this.primaryColorLight = primaryColorLight;
@@ -286,6 +294,7 @@ namespace Unity.UIWidgets.material {
             this.chipTheme = chipTheme;
             this.platform = platform.Value;
             this.materialTapTargetSize = materialTapTargetSize ?? MaterialTapTargetSize.padded;
+            this.applyElevationOverlayColor = applyElevationOverlayColor.Value;
             this.pageTransitionsTheme = pageTransitionsTheme;
             this.appBarTheme = appBarTheme;
             this.bottomAppBarTheme = bottomAppBarTheme;
@@ -298,6 +307,7 @@ namespace Unity.UIWidgets.material {
 
         public static ThemeData raw(
             Brightness? brightness = null,
+            VisualDensity visualDensity = null,
             Color primaryColor = null,
             Brightness? primaryColorBrightness = null,
             Color primaryColorLight = null,
@@ -340,6 +350,7 @@ namespace Unity.UIWidgets.material {
             ChipThemeData chipTheme = null,
             RuntimePlatform? platform = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
+            bool? applyElevationOverlayColor = null,
             PageTransitionsTheme pageTransitionsTheme = null,
             AppBarTheme appBarTheme = null,
             BottomAppBarTheme bottomAppBarTheme = null,
@@ -350,6 +361,7 @@ namespace Unity.UIWidgets.material {
             SnackBarThemeData snackBarTheme = null
         ) {
             D.assert(brightness != null);
+            D.assert(visualDensity != null);
             D.assert(primaryColor != null);
             D.assert(primaryColorBrightness != null);
             D.assert(primaryColorLight != null);
@@ -388,6 +400,7 @@ namespace Unity.UIWidgets.material {
             D.assert(accentIconTheme != null);
             D.assert(platform != null);
             D.assert(materialTapTargetSize != null);
+            D.assert(applyElevationOverlayColor != null);
             D.assert(pageTransitionsTheme != null);
             D.assert(appBarTheme != null);
             D.assert(bottomAppBarTheme != null);
@@ -445,6 +458,7 @@ namespace Unity.UIWidgets.material {
                 chipTheme: chipTheme,
                 platform: platform,
                 materialTapTargetSize: materialTapTargetSize,
+                applyElevationOverlayColor: applyElevationOverlayColor,
                 pageTransitionsTheme: pageTransitionsTheme,
                 appBarTheme: appBarTheme,
                 bottomAppBarTheme: bottomAppBarTheme,
@@ -453,6 +467,38 @@ namespace Unity.UIWidgets.material {
                 floatingActionButtonTheme: floatingActionButtonTheme,
                 typography: typography,
                 snackBarTheme: snackBarTheme);
+        }
+
+        public static ThemeData from(
+            ColorScheme colorScheme,
+            TextTheme textTheme = null
+            ) {
+            D.assert(colorScheme != null);
+            
+            bool isDark = colorScheme.brightness == Brightness.dark;
+            
+            Color primarySurfaceColor = isDark ? colorScheme.surface : colorScheme.primary;
+            Color onPrimarySurfaceColor = isDark ? colorScheme.onSurface : colorScheme.onPrimary;
+
+            return new ThemeData(
+                brightness: colorScheme.brightness,
+                primaryColor: primarySurfaceColor,
+                primaryColorBrightness: ThemeData.estimateBrightnessForColor(primarySurfaceColor),
+                canvasColor: colorScheme.background,
+                accentColor: colorScheme.secondary,
+                accentColorBrightness: ThemeData.estimateBrightnessForColor(colorScheme.secondary),
+                scaffoldBackgroundColor: colorScheme.background,
+                bottomAppBarColor: colorScheme.surface,
+                cardColor: colorScheme.surface,
+                dividerColor: colorScheme.onSurface.withOpacity(0.12f),
+                backgroundColor: colorScheme.background,
+                dialogBackgroundColor: colorScheme.background,
+                errorColor: colorScheme.error,
+                textTheme: textTheme,
+                indicatorColor: onPrimarySurfaceColor,
+                applyElevationOverlayColor: isDark,
+                colorScheme: colorScheme
+            );
         }
 
         public static ThemeData light() {
@@ -603,6 +649,7 @@ namespace Unity.UIWidgets.material {
 
         public ThemeData copyWith(
             Brightness? brightness = null,
+            VisualDensity visualDensity = null,
             Color primaryColor = null,
             Brightness? primaryColorBrightness = null,
             Color primaryColorLight = null,
@@ -645,6 +692,7 @@ namespace Unity.UIWidgets.material {
             ChipThemeData chipTheme = null,
             RuntimePlatform? platform = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
+            bool? applyElevationOverlayColor = null,
             PageTransitionsTheme pageTransitionsTheme = null,
             AppBarTheme appBarTheme = null,
             BottomAppBarTheme bottomAppBarTheme = null,
@@ -656,6 +704,7 @@ namespace Unity.UIWidgets.material {
         ) {
             return raw(
                 brightness: brightness ?? this.brightness,
+                visualDensity: visualDensity ?? this.visualDensity,
                 primaryColor: primaryColor ?? this.primaryColor,
                 primaryColorBrightness: primaryColorBrightness ?? this.primaryColorBrightness,
                 primaryColorLight: primaryColorLight ?? this.primaryColorLight,
@@ -698,6 +747,7 @@ namespace Unity.UIWidgets.material {
                 chipTheme: chipTheme ?? this.chipTheme,
                 platform: platform ?? this.platform,
                 materialTapTargetSize: materialTapTargetSize ?? this.materialTapTargetSize,
+                applyElevationOverlayColor: applyElevationOverlayColor ?? this.applyElevationOverlayColor,
                 pageTransitionsTheme: pageTransitionsTheme ?? this.pageTransitionsTheme,
                 appBarTheme: appBarTheme ?? this.appBarTheme,
                 bottomAppBarTheme: bottomAppBarTheme ?? this.bottomAppBarTheme,
@@ -745,6 +795,7 @@ namespace Unity.UIWidgets.material {
             D.assert(b != null);
             return raw(
                 brightness: t < 0.5 ? a.brightness : b.brightness,
+                visualDensity: VisualDensity.lerp(a.visualDensity, b.visualDensity, t),
                 primaryColor: Color.lerp(a.primaryColor, b.primaryColor, t),
                 primaryColorBrightness: t < 0.5 ? a.primaryColorBrightness : b.primaryColorBrightness,
                 primaryColorLight: Color.lerp(a.primaryColorLight, b.primaryColorLight, t),
@@ -787,6 +838,7 @@ namespace Unity.UIWidgets.material {
                 chipTheme: ChipThemeData.lerp(a.chipTheme, b.chipTheme, t),
                 platform: t < 0.5 ? a.platform : b.platform,
                 materialTapTargetSize: t < 0.5 ? a.materialTapTargetSize : b.materialTapTargetSize,
+                applyElevationOverlayColor: t < 0.5 ? a.applyElevationOverlayColor : b.applyElevationOverlayColor,
                 pageTransitionsTheme: t < 0.5 ? a.pageTransitionsTheme : b.pageTransitionsTheme,
                 appBarTheme: AppBarTheme.lerp(a.appBarTheme, b.appBarTheme, t),
                 bottomAppBarTheme: BottomAppBarTheme.lerp(a.bottomAppBarTheme, b.bottomAppBarTheme, t),
@@ -809,6 +861,7 @@ namespace Unity.UIWidgets.material {
             }
 
             return other.brightness == brightness &&
+                   other.visualDensity == visualDensity && 
                    other.primaryColor == primaryColor &&
                    other.primaryColorBrightness == primaryColorBrightness &&
                    other.primaryColorLight == primaryColorLight &&
@@ -851,6 +904,7 @@ namespace Unity.UIWidgets.material {
                    other.chipTheme == chipTheme &&
                    other.platform == platform &&
                    other.materialTapTargetSize == materialTapTargetSize &&
+                   other.applyElevationOverlayColor == applyElevationOverlayColor &&
                    other.pageTransitionsTheme == pageTransitionsTheme &&
                    other.appBarTheme == appBarTheme &&
                    other.bottomAppBarTheme == bottomAppBarTheme &&
@@ -894,6 +948,7 @@ namespace Unity.UIWidgets.material {
 
             unchecked {
                 var hashCode = brightness.GetHashCode();
+                hashCode = (hashCode * 397) ^ visualDensity.GetHashCode();
                 hashCode = (hashCode * 397) ^ primaryColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ primaryColorBrightness.GetHashCode();
                 hashCode = (hashCode * 397) ^ primaryColorLight.GetHashCode();
@@ -936,6 +991,7 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ chipTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ platform.GetHashCode();
                 hashCode = (hashCode * 397) ^ materialTapTargetSize.GetHashCode();
+                hashCode = (hashCode * 397) ^ applyElevationOverlayColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ pageTransitionsTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ appBarTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ bottomAppBarTheme.GetHashCode();
@@ -1022,6 +1078,7 @@ namespace Unity.UIWidgets.material {
             properties.add(new DiagnosticsProperty<ChipThemeData>("chipTheme", chipTheme));
             properties.add(
                 new DiagnosticsProperty<MaterialTapTargetSize>("materialTapTargetSize", materialTapTargetSize));
+            properties.add(new DiagnosticsProperty<bool>("applyElevationOverlayColor", applyElevationOverlayColor, level: DiagnosticLevel.debug));
             properties.add(
                 new DiagnosticsProperty<PageTransitionsTheme>("pageTransitionsTheme", pageTransitionsTheme));
             properties.add(new DiagnosticsProperty<AppBarTheme>("appBarTheme", appBarTheme));
@@ -1187,7 +1244,7 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        static VisualDensity lerp(VisualDensity a, VisualDensity b, float t) {
+        internal static VisualDensity lerp(VisualDensity a, VisualDensity b, float t) {
             return new VisualDensity(
                 horizontal: Mathf.Lerp(a.horizontal, b.horizontal, t),
                 vertical: Mathf.Lerp(a.horizontal, b.horizontal, t)
@@ -1217,7 +1274,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public static bool operator !=(VisualDensity self, object other) {
-            return Equals(self, other);
+            return !Equals(self, other);
         }
 
         public bool Equals(VisualDensity other) {
