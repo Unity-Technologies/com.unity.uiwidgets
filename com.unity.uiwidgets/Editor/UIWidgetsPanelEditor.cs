@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.Editor {
             
             EditorGUILayout.PropertyField(serializedObject.FindProperty("fonts"), true);
 
-            EditorGUILayout.PropertyField(pixelRatioProperty);
+            // EditorGUILayout.PropertyField(pixelRatioProperty);
             EditorGUILayout.PropertyField(antiAliasingProperty);
             UIWidgetsPanel panel = (UIWidgetsPanel)target;
             

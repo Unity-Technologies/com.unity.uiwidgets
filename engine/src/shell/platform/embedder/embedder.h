@@ -129,11 +129,14 @@ typedef enum {
   kAdd,
   kRemove,
   kHover,
+  kMouseDown,
+  kMouseUp,
 } UIWidgetsPointerPhase;
 
 typedef enum {
+  kUIWidgetsPointerDeviceKindTouch = 0,
   kUIWidgetsPointerDeviceKindMouse = 1,
-  kUIWidgetsPointerDeviceKindTouch,
+  kUIWidgetsPointerDeviceKindKeyboard = 7,
 } UIWidgetsPointerDeviceKind;
 
 typedef enum {

@@ -172,7 +172,9 @@ namespace Unity.UIWidgets.engine2 {
             return result;
         }
 
-        public float devicePixelRatioOverride;
+        public float devicePixelRatioOverride {
+            get => Screen.dpi / 96.0f;
+        }
 
         public float hardwareAntiAliasing;
         // RectTransform rectTransform {

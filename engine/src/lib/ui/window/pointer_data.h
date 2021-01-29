@@ -38,13 +38,16 @@ struct alignas(4) PointerData {
     kDown,
     kMove,
     kUp,
+    kMouseDown,
+    kMouseUp,
   };
 
   enum class DeviceKind : int64_t {
     kTouch,
     kMouse,
     kStylus,
-    kInvertedStylus,
+    kInvertedStylus,    
+    kKeyboard,
   };
 
   enum class SignalKind : int64_t {

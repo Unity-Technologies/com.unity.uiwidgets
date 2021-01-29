@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.service;
 using UnityEngine;
 
 namespace Unity.UIWidgets.gestures {
@@ -187,6 +188,19 @@ namespace Unity.UIWidgets.gestures {
                                 radiusMin: radiusMin,
                                 radiusMax: radiusMax
                             );
+                            break;
+                        default:
+                        //TODO: PUT KEYBOARD TO A PROPRER POSITION
+                            if (datum.kind == PointerDeviceKind.keyboard) {
+                                var keyBoardEvent = new Event();
+                                if (datum.change == PointerChange.kMouseDown) {
+                                    keyBoardEvent.type = EventType.KeyDown;
+                                }else if (datum.change == PointerChange.kMouseUp) {
+                                    keyBoardEvent.type = EventType.KeyUp;
+                                }
+                                keyBoardEvent.keyCode = (KeyCode)datum.buttons;
+                                RawKeyboard.instance._handleKeyEvent(keyBoardEvent);
+                            }
                             break;
                     }
                 }
