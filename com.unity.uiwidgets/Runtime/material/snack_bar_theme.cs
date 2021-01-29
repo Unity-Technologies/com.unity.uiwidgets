@@ -97,7 +97,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public static bool operator !=(SnackBarThemeData self, SnackBarThemeData other) {
-            return Equals(self, other);
+            return !Equals(self, other);
         }
 
         public bool Equals(SnackBarThemeData other) {
@@ -138,9 +138,9 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^
                            (disabledActionTextColor != null ? disabledActionTextColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (contentTextStyle != null ? contentTextStyle.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ elevation.GetHashCode();
+                hashCode = (hashCode * 397) ^ elevation?.GetHashCode() ?? 0;
                 hashCode = (hashCode * 397) ^ (shape != null ? shape.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int) behavior;
+                hashCode = (hashCode * 397) ^ behavior?.GetHashCode() ?? 0;
                 return hashCode;
             }
         }
