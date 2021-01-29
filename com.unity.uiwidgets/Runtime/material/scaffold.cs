@@ -1790,8 +1790,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly Completer _completer;
 
-        public Completer closed {
-            get { return _completer; }
+        public Future closed {
+            get { return _completer.future; }
         }
 
         public readonly VoidCallback close;
