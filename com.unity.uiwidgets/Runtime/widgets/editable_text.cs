@@ -208,8 +208,9 @@ namespace Unity.UIWidgets.widgets {
                     inputFormatters.Add(formatter);
                 }
             }
+            showCursor = showCursor ?? !readOnly;
+
             this.readOnly = readOnly;
-            this.showCursor = !readOnly;
             this.keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
             this.locale = locale;
             this.scrollPadding = scrollPadding;
@@ -220,7 +221,7 @@ namespace Unity.UIWidgets.widgets {
             this.style = style;
             this.smartDashesType = smartDashesType.Value;
             this.smartQuotesType = smartQuotesType.Value;
-            this.showCursor = showCursor;
+            this.showCursor = showCursor.Value;
             this.textWidthBasis = textWidthBasis;
             this.onSelectionHandleTapped = onSelectionHandleTapped;
             this.scrollController = scrollController;
@@ -285,7 +286,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly TextWidthBasis textWidthBasis;
         public readonly VoidCallback onSelectionHandleTapped;
         public readonly ScrollController scrollController;
-        public readonly bool? showCursor;
+        public readonly bool showCursor;
         public readonly ui.BoxHeightStyle selectionHeightStyle;
         public readonly ui.BoxWidthStyle selectionWidthStyle;
         public readonly bool forceLine;
@@ -427,7 +428,7 @@ namespace Unity.UIWidgets.widgets {
             _cursorBlinkOpacityController.addListener(_onCursorColorTick);
             _floatingCursorResetController = new AnimationController(vsync: this);
             _floatingCursorResetController.addListener(_onFloatingCursorResetTick);
-            _cursorVisibilityNotifier.value = widget.showCursor ?? false;
+            _cursorVisibilityNotifier.value = widget.showCursor;
         }
 
         public override void didChangeDependencies() {
@@ -1002,7 +1003,7 @@ namespace Unity.UIWidgets.widgets {
         void _onCursorColorTick() {
             renderEditable.cursorColor =
                 widget.cursorColor.withOpacity(_cursorBlinkOpacityController.value);
-            _cursorVisibilityNotifier.value = widget.showCursor.Value && _cursorBlinkOpacityController.value > 0;
+            _cursorVisibilityNotifier.value = widget.showCursor && _cursorBlinkOpacityController.value > 0;
         }
 
         public bool cursorCurrentlyVisible {
@@ -1215,7 +1216,7 @@ namespace Unity.UIWidgets.widgets {
                               cursorColor: _cursorColor,
                               backgroundCursorColor: widget.backgroundCursorColor,
                               showCursor: EditableText.debugDeterministicCursor
-                                  ? new ValueNotifier<bool>(widget.showCursor ?? false)
+                                  ? new ValueNotifier<bool>(widget.showCursor)
                                   : _cursorVisibilityNotifier,
                               forceLine: widget.forceLine,
                               readOnly: widget.readOnly,
