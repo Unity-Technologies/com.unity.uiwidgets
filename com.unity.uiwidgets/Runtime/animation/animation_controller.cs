@@ -374,6 +374,7 @@ namespace Unity.UIWidgets.animation {
 
                 return true;
             });
+            _ticker.Dispose();
             _ticker = null;
             base.dispose();
         }

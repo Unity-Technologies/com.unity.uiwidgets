@@ -12,7 +12,10 @@ namespace Unity.UIWidgets.material {
             float? indent = null,
             float? endIndent = null,
             Color color = null) : base(key: key) {
-            D.assert(height >= 0.0);
+            D.assert(height == null || height >= 0.0);
+            D.assert(thickness == null || thickness >= 0.0);
+            D.assert(indent == null || indent >= 0.0);
+            D.assert(endIndent == null || endIndent >= 0.0);
             this.height = height;
             this.thickness = thickness;
             this.indent = indent;
@@ -66,8 +69,8 @@ namespace Unity.UIWidgets.material {
                     child: new Container(
                         height: thickness,
                         //TODO: update to EdgeInsetsGeometry
-                        margin: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(start: indent,
-                            end: endIndent),
+                        /*margin: EdgeInsetsDirectional.only(start: indent,
+                            end: endIndent),*/
                         decoration: new BoxDecoration(
                             border: new Border(
                                 bottom: createBorderSide(context, color: color, width: thickness))

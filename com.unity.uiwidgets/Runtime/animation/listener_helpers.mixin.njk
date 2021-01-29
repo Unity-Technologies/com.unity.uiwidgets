@@ -75,7 +75,7 @@ namespace Unity.UIWidgets.animation {
                 D.assert(() => {
                       IEnumerable<DiagnosticsNode> infoCollector() {
                           yield return new DiagnosticsProperty<AnimationLocalListenersMixin{{with | safe}}>(
-                              "The " + this.GetType() + " notifying listeners was:",
+                              "The " + this.GetType() + " notifying listeners was",
                               this,
                               style: DiagnosticsTreeStyle.errorProperty
                           );
@@ -132,7 +132,7 @@ namespace Unity.UIWidgets.animation {
                     D.assert(() => {
                         IEnumerable<DiagnosticsNode> infoCollector() {
                             yield return new DiagnosticsProperty<AnimationLocalStatusListenersMixin{{with | safe}}>(
-                                "The " + this.GetType() + " notifying status listeners was:",
+                                "The " + this.GetType() + " notifying status listeners was",
                                 this,
                                 style: DiagnosticsTreeStyle.errorProperty
                             );
