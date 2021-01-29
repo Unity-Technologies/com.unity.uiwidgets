@@ -547,6 +547,7 @@ namespace Unity.UIWidgets.material {
             this.fabMoveAnimation = fabMoveAnimation;
             this.fabMotionAnimator = fabMotionAnimator;
             this.geometryNotifier = geometryNotifier;
+            this.currentController = currentController;
         }
 
         public readonly Widget child;

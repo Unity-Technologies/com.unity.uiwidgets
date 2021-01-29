@@ -126,6 +126,7 @@ namespace Unity.UIWidgets.material {
             TextStyle headline = null,
             TextStyle title = null,
             TextStyle subhead = null,
+            TextStyle subtitle= null,
             TextStyle body2 = null,
             TextStyle body1 = null
         ) {

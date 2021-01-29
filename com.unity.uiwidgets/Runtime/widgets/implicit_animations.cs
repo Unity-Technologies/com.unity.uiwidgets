@@ -872,6 +872,7 @@ namespace Unity.UIWidgets.widgets {
             TimeSpan? duration = null,
             VoidCallback onEnd = null
         ) : base(key: key, curve: curve ?? Curves.linear, duration: duration, onEnd: onEnd) {
+            overflow = overflow ?? TextOverflow.clip;
             D.assert(duration != null);
             D.assert(style != null);
             D.assert(child != null);
@@ -882,7 +883,7 @@ namespace Unity.UIWidgets.widgets {
             this.style = style;
             this.textAlign = textAlign;
             this.softWrap = softWrap;
-            this.overflow = overflow ?? TextOverflow.clip;
+            this.overflow = overflow.Value;
             this.maxLines = maxLines;
             this.textHeightBehavior = textHeightBehavior;
             this.textWidthBasis = textWidthBasis;
