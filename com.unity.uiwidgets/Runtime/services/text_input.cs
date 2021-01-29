@@ -308,7 +308,6 @@ namespace Unity.UIWidgets.service {
             TextRange composing = null) {
             
             D.assert(text != null);
-            D.assert(selection != null);
             this.text = text;
             this.composing = composing ?? TextRange.empty;
 

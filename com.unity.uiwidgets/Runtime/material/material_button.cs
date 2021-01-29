@@ -76,6 +76,7 @@ namespace Unity.UIWidgets.material {
             this.height = height;
             this.enableFeedback = enableFeedback;
             this.child = child;
+            this.autofocus = autofocus;
         }
 
         public readonly VoidCallback onPressed;
