@@ -356,7 +356,7 @@ namespace Unity.UIWidgets.widgets {
             properties.add( new DiagnosticsProperty<bool>("enableSuggestions", enableSuggestions, defaultValue: true));
             style?.debugFillProperties(properties);
             properties.add( new EnumProperty<TextAlign>("textAlign", textAlign, defaultValue: null));
-            properties.add( new EnumProperty<TextDirection>("textDirection", textDirection.Value, defaultValue: null));
+            properties.add( new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
             properties.add( new DiagnosticsProperty<Locale>("locale", locale, defaultValue: null));
             properties.add( new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: null));
             properties.add( new IntProperty("maxLines", maxLines, defaultValue: 1));

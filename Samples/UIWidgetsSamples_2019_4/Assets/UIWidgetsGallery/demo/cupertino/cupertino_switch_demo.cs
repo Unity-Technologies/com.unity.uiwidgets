@@ -62,33 +62,12 @@ namespace UIWidgetsGallery.gallery {
                                             ),
                                         }
                                     ),
-                                    new MyPrefilledText()
                                 }
                             )
                         )
                     )
                 )
             );
-        }
-    }
-    public class MyPrefilledText : StatefulWidget
-    {
-        public override State createState() => new _MyPrefilledTextState();
-    }
-
-    class _MyPrefilledTextState : State<MyPrefilledText>
-    {
-        TextEditingController _textController;
-
-        public override void initState()
-        {
-            base.initState();
-            _textController = new TextEditingController(text: "initial text");
-        }
-
-        public override Widget build(BuildContext context)
-        {
-            return new CupertinoTextField(controller: _textController);
         }
     }
 }
