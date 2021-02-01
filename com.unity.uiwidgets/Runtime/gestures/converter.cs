@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -34,6 +35,7 @@ namespace Unity.UIWidgets.gestures {
                 var radiusMax = _toLogicalPixels(datum.radiusMax, devicePixelRatio);
                 var timeStamp = datum.timeStamp;
                 var kind = datum.kind;
+                // TODO: datum.signalKind is not nullable, "else" could not be reached
                 if (datum.signalKind == null || datum.signalKind == ui.PointerSignalKind.none) {
                     switch (datum.change) {
                         case PointerChange.add: {
@@ -198,8 +200,11 @@ namespace Unity.UIWidgets.gestures {
                                 }else if (datum.change == PointerChange.kMouseUp) {
                                     keyBoardEvent.type = EventType.KeyUp;
                                 }
+
                                 keyBoardEvent.keyCode = (KeyCode)datum.buttons;
+
                                 RawKeyboard.instance._handleKeyEvent(keyBoardEvent);
+                                TextInput.OnGUI();
                             }
                             break;
                     }
@@ -228,6 +233,7 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
+        public static Event KeyEvent = null;
         static float _toLogicalPixels(float physicalPixels, float devicePixelRatio) {
             return physicalPixels / devicePixelRatio;
         }

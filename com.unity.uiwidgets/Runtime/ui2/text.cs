@@ -1282,7 +1282,7 @@ namespace Unity.UIWidgets.ui {
 
         public string textInside(string text) {
             D.assert(isNormalized);
-            return text.Substring(start, end);
+            return text.Substring(start, end - start);
         }
 
         public override string ToString() {

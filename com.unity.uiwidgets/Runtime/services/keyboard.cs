@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
@@ -132,7 +134,8 @@ namespace Unity.UIWidgets.service {
             }
             
             
-            var currentEvent = Event.current;
+            var currentEvent = PointerEventConverter.KeyEvent;
+            Debug.Log($"event: {currentEvent}");
             var oldValue = _value;
 
             if (currentEvent != null && currentEvent.type == EventType.KeyDown) {
@@ -166,9 +169,10 @@ namespace Unity.UIWidgets.service {
                         _value = _value.insert(new string(ch, 1));
                     }
                 }
-                else if (!string.IsNullOrEmpty(Input.compositionString)) {
+                else if (!string.IsNullOrEmpty(currentEvent.keyCode.ToString())) {
                     isIMEInput = true;
-                    _value = _value.compose(Input.compositionString);
+                    Debug.Log($"event:? {currentEvent}");
+                    _value = _value.compose(currentEvent.keyCode.ToString());
                 }
                 
                 currentEvent.Use();
@@ -177,11 +181,15 @@ namespace Unity.UIWidgets.service {
             if (_value != oldValue) {
                 if (this.isIMEInput) {
                     var isIMEInput = this.isIMEInput;
-                    Window.instance.run(() => { TextInput._updateEditingState(_client, _value, isIMEInput); });
+                    Timer.create(TimeSpan.Zero, () => {
+                        TextInput._updateEditingState(_client, _value, isIMEInput);
+                    });
                     this.isIMEInput = false;
                 }
                 else {
-                    Window.instance.run(() => { TextInput._updateEditingState(_client, _value); });
+                    Timer.create(TimeSpan.Zero, () => {
+                        TextInput._updateEditingState(_client, _value);
+                    });
                 }
             }
         }

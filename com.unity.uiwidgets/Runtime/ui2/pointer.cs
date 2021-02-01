@@ -19,8 +19,8 @@ namespace Unity.UIWidgets.ui{
         mouse = 1,
         stylus,
         invertedStylus,
-        unknown,
         keyboard = 4,
+        unknown,
     }
 
     public enum PointerSignalKind {

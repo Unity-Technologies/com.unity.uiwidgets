@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -373,6 +374,7 @@ namespace Unity.UIWidgets.engine2 {
         void Input_OnGUI() {
             Event e = Event.current;
             if (e.isKey) {
+                PointerEventConverter.KeyEvent = e;
                 UIWidgetsPanel_onKey(_ptr, e.keyCode, e.type == EventType.KeyDown);
                 if (e.character != 0) {
                     UIWidgetsPanel_onChar(_ptr, e.character);
