@@ -750,8 +750,8 @@ namespace UIWidgetsGallery.gallery {
                     child: new DecoratedBox(
                         decoration: new BoxDecoration(
                             color: CupertinoTheme.of(context).brightness == Brightness.light
-                                ? CupertinoColors.activeOrange
-                                : CupertinoColors.activeGreen
+                                ? CupertinoColors.extraLightBackgroundGray
+                                : CupertinoColors.darkBackgroundGray
                         ),
                         child: new ListView(
                             children: new List<Widget> {
