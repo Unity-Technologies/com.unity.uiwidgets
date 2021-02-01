@@ -407,7 +407,12 @@ namespace Unity.UIWidgets.material {
                 position: center,
                 hitTest: (BoxHitTestResult boxHitTest, Offset offsetPosition) => {
                     D.assert(offsetPosition == center);
-                    return child.hitTest(boxHitTest, position: center);
+                    //WARNING: inconsistent with flutter (zxw): I believe that there is a bug here in flutter
+                    //in flutter, the following line is "return child.hitTest(boxHitTest, position: center); ". This is nonsense since it will always return true regardless of the value of the input parameter: position.
+                    //we have tested a bit in flutter and found that, since an inputPadding has a Semantics as it parent which shares the same size, the Semantics's hitTest can hide this bug in flutter
+                    //Therefore this bug only occurs in UIWidgets
+                    //We are not very clear whether this is the best fix though. Please feel free to optimize it
+                    return child.hitTest(boxHitTest, position: position);
                 }
             );
         }
