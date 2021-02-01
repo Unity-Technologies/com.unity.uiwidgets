@@ -187,43 +187,7 @@ namespace Unity.UIWidgets.widgets {
     public interface _RenderSliverPersistentHeaderForWidgetsMixin {
         _SliverPersistentHeaderElement _element { get; set; }
 
-        float? minExtent {
-            get;
-        }
-
-        float? maxExtent {
-            get;
-        }
-
-        void updateChild(float shrinkOffset, bool overlapsContent);
         void triggerRebuild();
-    }
-    
-    public class _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeader : RenderSliverPersistentHeader {
-        _SliverPersistentHeaderElement _element;
-
-        float? minExtent {
-            get {
-                return _element.widget.layoutDelegate.minExtent;
-            }
-        }
-
-        float? maxExtent {
-            get {
-                return _element.widget.layoutDelegate.minExtent;
-            }
-        }
-
-        void updateChild(float shrinkOffset, bool overlapsContent) {
-            D.assert(_element != null);
-            _element._build(shrinkOffset, overlapsContent);
-        }
-
-        void triggerRebuild() {
-            markNeedsLayout();
-        }
-        protected override void performLayout() {
-        }
     }
 
     class _SliverScrollingPersistentHeader : _SliverPersistentHeaderRenderObjectWidget {

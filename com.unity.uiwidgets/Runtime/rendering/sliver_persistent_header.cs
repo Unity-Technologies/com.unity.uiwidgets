@@ -61,7 +61,7 @@ namespace Unity.UIWidgets.rendering {
         bool _lastOverlapsContent = false;
         public OverScrollHeaderStretchConfiguration stretchConfiguration;
 
-        protected void updateChild(float shrinkOffset, bool overlapsContent) {
+        protected virtual void updateChild(float shrinkOffset, bool overlapsContent) {
         }
 
         public override void markNeedsLayout() {

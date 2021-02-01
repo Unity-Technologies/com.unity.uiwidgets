@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.widgets {
              }
          }
  
-         void updateChild(float shrinkOffset, bool overlapsContent) {
+         protected override void updateChild(float shrinkOffset, bool overlapsContent) {
              D.assert(_element != null);
              _element._build(shrinkOffset, overlapsContent);
          }
@@ -37,16 +37,13 @@ namespace Unity.UIWidgets.widgets {
         void _RenderSliverPersistentHeaderForWidgetsMixin.triggerRebuild() {
             triggerRebuild();
         }
-
-        void _RenderSliverPersistentHeaderForWidgetsMixin.updateChild(float shrinkOffset, bool overlapsContent) {
-            updateChild(shrinkOffset, overlapsContent);
-        }
         
         void triggerRebuild() {
             markNeedsLayout();
         }
         
         protected override void performLayout() {
+            base.performLayout();
         }
     }
 
@@ -79,7 +76,7 @@ namespace Unity.UIWidgets.widgets {
              }
          }
  
-         void updateChild(float shrinkOffset, bool overlapsContent) {
+         protected override void updateChild(float shrinkOffset, bool overlapsContent) {
              D.assert(_element != null);
              _element._build(shrinkOffset, overlapsContent);
          }
@@ -87,16 +84,13 @@ namespace Unity.UIWidgets.widgets {
         void _RenderSliverPersistentHeaderForWidgetsMixin.triggerRebuild() {
             triggerRebuild();
         }
-
-        void _RenderSliverPersistentHeaderForWidgetsMixin.updateChild(float shrinkOffset, bool overlapsContent) {
-            updateChild(shrinkOffset, overlapsContent);
-        }
         
         void triggerRebuild() {
             markNeedsLayout();
         }
         
         protected override void performLayout() {
+            base.performLayout();
         }
     }
 
@@ -125,7 +119,7 @@ namespace Unity.UIWidgets.widgets {
              }
          }
  
-         void updateChild(float shrinkOffset, bool overlapsContent) {
+         protected override void updateChild(float shrinkOffset, bool overlapsContent) {
              D.assert(_element != null);
              _element._build(shrinkOffset, overlapsContent);
          }
@@ -133,16 +127,13 @@ namespace Unity.UIWidgets.widgets {
         void _RenderSliverPersistentHeaderForWidgetsMixin.triggerRebuild() {
             triggerRebuild();
         }
-
-        void _RenderSliverPersistentHeaderForWidgetsMixin.updateChild(float shrinkOffset, bool overlapsContent) {
-            updateChild(shrinkOffset, overlapsContent);
-        }
         
         void triggerRebuild() {
             markNeedsLayout();
         }
         
         protected override void performLayout() {
+            base.performLayout();
         }
     }
 
@@ -171,7 +162,7 @@ namespace Unity.UIWidgets.widgets {
              }
          }
  
-         void updateChild(float shrinkOffset, bool overlapsContent) {
+         protected override void updateChild(float shrinkOffset, bool overlapsContent) {
              D.assert(_element != null);
              _element._build(shrinkOffset, overlapsContent);
          }
@@ -179,16 +170,13 @@ namespace Unity.UIWidgets.widgets {
         void _RenderSliverPersistentHeaderForWidgetsMixin.triggerRebuild() {
             triggerRebuild();
         }
-
-        void _RenderSliverPersistentHeaderForWidgetsMixin.updateChild(float shrinkOffset, bool overlapsContent) {
-            updateChild(shrinkOffset, overlapsContent);
-        }
         
         void triggerRebuild() {
             markNeedsLayout();
         }
         
         protected override void performLayout() {
+            base.performLayout();
         }
     }
 
