@@ -122,7 +122,7 @@ namespace Unity.UIWidgets.animation {
                 D.assert(() => {
                       IEnumerable<DiagnosticsNode> infoCollector() {
                           yield return new DiagnosticsProperty<AnimationLocalListenersMixinAnimationEagerListenerMixinAnimation<T>>(
-                              "The " + GetType() + " notifying listeners was",
+                              "The " + GetType() + " notifying listeners was:",
                               this,
                               style: DiagnosticsTreeStyle.errorProperty
                           );
