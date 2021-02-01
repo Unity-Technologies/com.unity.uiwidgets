@@ -53,12 +53,12 @@ namespace Unity.UIWidgets.material {
             MaterialBannerThemeData bannerTheme = MaterialBannerTheme.of(context);
 
             bool isSingleRow = actions.Count == 1 && !forceActionsBelow;
-            EdgeInsetsGeometry padding = this.padding ?? bannerTheme.padding ?? (isSingleRow
+            EdgeInsetsGeometry padding = this.padding ?? bannerTheme?.padding ?? (isSingleRow
                 ? EdgeInsetsDirectional.only(start: 16.0f, top: 2.0f)
                 : EdgeInsetsDirectional.only(start: 16.0f, top: 24.0f, end: 16.0f,
                     bottom: 4.0f));
             EdgeInsetsGeometry leadingPadding = this.leadingPadding
-                                                ?? bannerTheme.padding
+                                                ?? bannerTheme?.padding
                                                 ?? EdgeInsetsDirectional.only(end: 16.0f);
 
             Widget buttonBar = new ButtonBar(
@@ -67,10 +67,10 @@ namespace Unity.UIWidgets.material {
             );
 
             Color backgroundColor = this.backgroundColor
-                                    ?? bannerTheme.backgroundColor
+                                    ?? bannerTheme?.backgroundColor
                                     ?? theme.colorScheme.surface;
             TextStyle textStyle = contentTextStyle
-                                  ?? bannerTheme.contentTextStyle
+                                  ?? bannerTheme?.contentTextStyle
                                   ?? theme.textTheme.bodyText2;
 
             var rowList = new List<Widget>();

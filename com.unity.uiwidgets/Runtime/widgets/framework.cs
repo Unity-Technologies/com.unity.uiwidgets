@@ -2937,7 +2937,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class ParentDataElement<T> : ParentDataElement where T : ParentData {
+    public class ParentDataElement<T> : ParentDataElement where T : IParentData {
         public ParentDataElement(ParentDataWidget<T> widget) : base(widget)
         {
         }
@@ -2951,7 +2951,7 @@ namespace Unity.UIWidgets.widgets {
                     ((RenderObjectElement) child)._updateParentData(widget);
                 }
                 else {
-                    D.assert(!(child is ParentDataElement<ParentData>));
+                    D.assert(!(child is ParentDataElement<IParentData>));
                     child.visitChildren(applyParentDataToChild);
                 }
             };
