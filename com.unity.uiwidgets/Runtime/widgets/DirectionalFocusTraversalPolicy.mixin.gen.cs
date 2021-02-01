@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
+
 namespace Unity.UIWidgets.widgets {
     public class DirectionalFocusTraversalPolicyMixinFocusTraversalPolicy : FocusTraversalPolicy, DirectionalFocusTraversalPolicyMixin {
         protected DirectionalFocusTraversalPolicyMixinFocusTraversalPolicy() {

@@ -111,6 +111,7 @@ namespace UIWidgetsGallery.gallery {
         public readonly List<string> colorNameItems;
 
         public override Widget build(BuildContext context) {
+            
             return new WillPopScope(
                 //onWillPop: () => { return Promise<bool>.Resolved(true); },
                 //onWillPop: this.onWillPop,
@@ -132,6 +133,7 @@ namespace UIWidgetsGallery.gallery {
                                     title: new Text("Profile")
                                 )
                             }
+                            
                         ),
                         tabBuilder: (BuildContext _context, int index) => {
                             D.assert(index >= 0 && index <= 2);
@@ -578,8 +580,8 @@ namespace UIWidgetsGallery.gallery {
                                                         height: 44.0f,
                                                         decoration: new BoxDecoration(
                                                             image: new DecorationImage(
-                                                                image: new AssetImage(
-                                                                    "people/square/trevor"
+                                                                image: new FileImage(
+                                                                    file:""
                                                                 )
                                                             ),
                                                             shape: BoxShape.circle
@@ -591,7 +593,7 @@ namespace UIWidgetsGallery.gallery {
                                                         height: 44.0f,
                                                         decoration: new BoxDecoration(
                                                             image: new DecorationImage(
-                                                                image: new AssetImage(
+                                                                image: new FileImage(
                                                                     "people/square/sandra"
                                                                 )
                                                             ),

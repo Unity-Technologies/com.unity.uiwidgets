@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -409,14 +410,14 @@ namespace Unity.UIWidgets.rendering {
             RenderBox after = null
         ) {
             invokeLayoutCallback<BoxConstraints>((BoxConstraints constraints) => {
-                D.assert(this.constraints == this.constraints);
+                D.assert(constraints == this.constraints);
                 childManager.createChild(index, after: after);
             });
         }
 
         void _destroyChild(RenderBox child) {
             invokeLayoutCallback<BoxConstraints>((BoxConstraints constraints) => {
-                D.assert(this.constraints == this.constraints);
+                D.assert(constraints == this.constraints);
                 childManager.removeChild(child);
             });
         }

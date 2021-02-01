@@ -306,7 +306,7 @@ namespace Unity.UIWidgets.service {
             string text = "",
             TextSelection selection = null,
             TextRange composing = null) {
-            
+            selection = selection ?? TextSelection.collapsed(offset: -1);
             D.assert(text != null);
             D.assert(selection != null);
             this.text = text;
