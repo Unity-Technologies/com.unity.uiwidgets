@@ -242,8 +242,8 @@ namespace Unity.UIWidgets.widgets {
     abstract class _RenderSliverScrollingPersistentHeader : RenderSliverScrollingPersistentHeader {
     }
 
-    class _RenderSliverScrollingPersistentHeaderForWidgets : RenderSliverScrollingPersistentHeader, _RenderSliverPersistentHeaderForWidgetsMixin {
-
+    class _RenderSliverScrollingPersistentHeaderForWidgets : _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeaderRenderSliverScrollingPersistentHeader {
+        
         public _RenderSliverScrollingPersistentHeaderForWidgets(
             RenderBox child = null,
             OverScrollHeaderStretchConfiguration stretchConfiguration = null

@@ -50,6 +50,10 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+
+
+
+
     public abstract class _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeaderRenderSliverFloatingPinnedPersistentHeader : RenderSliverFloatingPinnedPersistentHeader, _RenderSliverPersistentHeaderForWidgetsMixin {
          
         public _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeaderRenderSliverFloatingPinnedPersistentHeader(
@@ -60,6 +64,7 @@ namespace Unity.UIWidgets.widgets {
             snapConfiguration: snapConfiguration,
             stretchConfiguration: stretchConfiguration) {
         }
+
          public _SliverPersistentHeaderElement _element { get; set; }
          
          float? minExtent {
@@ -95,15 +100,17 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+
+
     public abstract class _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeaderRenderSliverPinnedPersistentHeader : RenderSliverPinnedPersistentHeader, _RenderSliverPersistentHeaderForWidgetsMixin {
          
-        
         public _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeaderRenderSliverPinnedPersistentHeader(
             RenderBox child = null,
             OverScrollHeaderStretchConfiguration stretchConfiguration = null
         ) : base(child: child,
             stretchConfiguration: stretchConfiguration) {
         }
+
          public _SliverPersistentHeaderElement _element { get; set; }
          
          float? minExtent {
@@ -139,8 +146,17 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+
+
     public abstract class _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeaderRenderSliverScrollingPersistentHeader : RenderSliverScrollingPersistentHeader, _RenderSliverPersistentHeaderForWidgetsMixin {
          
+        public _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeaderRenderSliverScrollingPersistentHeader(
+            RenderBox child = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(child: child,
+            stretchConfiguration: stretchConfiguration) {
+        }
+
          public _SliverPersistentHeaderElement _element { get; set; }
          
          float? minExtent {
