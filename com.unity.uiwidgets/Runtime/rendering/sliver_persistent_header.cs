@@ -312,7 +312,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        FloatingHeaderSnapConfiguration _snapConfiguration;
+        public FloatingHeaderSnapConfiguration _snapConfiguration;
 
         protected virtual float updateGeometry() {
             float stretchOffset = 0.0f;

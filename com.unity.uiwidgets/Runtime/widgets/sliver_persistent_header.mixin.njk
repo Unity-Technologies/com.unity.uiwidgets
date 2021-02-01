@@ -1,0 +1,49 @@
+using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
+
+namespace Unity.UIWidgets.widgets {
+{% macro _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeader(with) %}
+    public abstract class _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeader{{with}} : {{with}}, _RenderSliverPersistentHeaderForWidgetsMixin {
+         
+         public _SliverPersistentHeaderElement _element { get; set; }
+         
+         float? minExtent {
+             get {
+                 return _element.widget.layoutDelegate.minExtent;
+             }
+         }
+ 
+         float? maxExtent {
+             get {
+                 return _element.widget.layoutDelegate.minExtent;
+             }
+         }
+ 
+         void updateChild(float shrinkOffset, bool overlapsContent) {
+             D.assert(_element != null);
+             _element._build(shrinkOffset, overlapsContent);
+         }
+ 
+        void _RenderSliverPersistentHeaderForWidgetsMixin.triggerRebuild() {
+            triggerRebuild();
+        }
+
+        void _RenderSliverPersistentHeaderForWidgetsMixin.updateChild(float shrinkOffset, bool overlapsContent) {
+            updateChild(shrinkOffset, overlapsContent);
+        }
+        
+        void triggerRebuild() {
+            markNeedsLayout();
+        }
+        
+        protected override void performLayout() {
+        }
+    }
+{% endmacro %}
+
+{{ _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeader('RenderSliverFloatingPersistentHeader') }}
+{{ _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeader('RenderSliverFloatingPinnedPersistentHeader') }}
+{{ _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeader('RenderSliverPinnedPersistentHeader') }}
+{{ _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeader('RenderSliverScrollingPersistentHeader') }}
+
+}

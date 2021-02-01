@@ -79,7 +79,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    class _SliverPersistentHeaderElement : RenderObjectElement {
+    public class _SliverPersistentHeaderElement : RenderObjectElement {
         public _SliverPersistentHeaderElement(_SliverPersistentHeaderRenderObjectWidget widget) : base(widget) {
         }
 
@@ -161,7 +161,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    abstract class _SliverPersistentHeaderRenderObjectWidget : RenderObjectWidget {
+    public abstract class _SliverPersistentHeaderRenderObjectWidget : RenderObjectWidget {
         public _SliverPersistentHeaderRenderObjectWidget(
             Key key = null,
             SliverPersistentHeaderDelegate layoutDelegate = null
@@ -184,8 +184,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    interface _RenderSliverPersistentHeaderForWidgetsMixin {
-        // on RenderSliverPersistentHeader  ???? todo 
+    public interface _RenderSliverPersistentHeaderForWidgetsMixin {
         _SliverPersistentHeaderElement _element { get; set; }
 
         float? minExtent {
@@ -198,6 +197,33 @@ namespace Unity.UIWidgets.widgets {
 
         void updateChild(float shrinkOffset, bool overlapsContent);
         void triggerRebuild();
+    }
+    
+    public class _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeader : RenderSliverPersistentHeader {
+        _SliverPersistentHeaderElement _element;
+
+        float? minExtent {
+            get {
+                return _element.widget.layoutDelegate.minExtent;
+            }
+        }
+
+        float? maxExtent {
+            get {
+                return _element.widget.layoutDelegate.minExtent;
+            }
+        }
+
+        void updateChild(float shrinkOffset, bool overlapsContent) {
+            D.assert(_element != null);
+            _element._build(shrinkOffset, overlapsContent);
+        }
+
+        void triggerRebuild() {
+            markNeedsLayout();
+        }
+        protected override void performLayout() {
+        }
     }
 
     class _SliverScrollingPersistentHeader : _SliverPersistentHeaderRenderObjectWidget {
@@ -270,8 +296,7 @@ namespace Unity.UIWidgets.widgets {
     abstract class _RenderSliverPinnedPersistentHeader : RenderSliverPinnedPersistentHeader {
     }
 
-    class _RenderSliverPinnedPersistentHeaderForWidgets : RenderSliverPinnedPersistentHeader,
-        _RenderSliverPersistentHeaderForWidgetsMixin {
+    class _RenderSliverPinnedPersistentHeaderForWidgets : _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeaderRenderSliverPinnedPersistentHeader {
 
         public _RenderSliverPinnedPersistentHeaderForWidgets(
             RenderBox child = null,
@@ -335,8 +360,7 @@ namespace Unity.UIWidgets.widgets {
     abstract class _RenderSliverFloatingPinnedPersistentHeader : RenderSliverFloatingPinnedPersistentHeader {
     }
 
-    class _RenderSliverFloatingPinnedPersistentHeaderForWidgets : RenderSliverFloatingPinnedPersistentHeader,
-        _RenderSliverPersistentHeaderForWidgetsMixin {
+    class _RenderSliverFloatingPinnedPersistentHeaderForWidgets : _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeaderRenderSliverFloatingPinnedPersistentHeader {
         public _RenderSliverFloatingPinnedPersistentHeaderForWidgets(
             RenderBox child = null,
             FloatingHeaderSnapConfiguration snapConfiguration = null,
@@ -401,8 +425,7 @@ namespace Unity.UIWidgets.widgets {
     abstract class _RenderSliverFloatingPersistentHeader : RenderSliverFloatingPersistentHeader {
     }
 
-    class _RenderSliverFloatingPersistentHeaderForWidgets : RenderSliverFloatingPersistentHeader,
-        _RenderSliverPersistentHeaderForWidgetsMixin {
+    class _RenderSliverFloatingPersistentHeaderForWidgets : _RenderSliverPersistentHeaderForWidgetsMixinOnRenderSliverPersistentHeaderRenderSliverFloatingPersistentHeader {
 
         public _RenderSliverFloatingPersistentHeaderForWidgets(
             RenderBox child = null,

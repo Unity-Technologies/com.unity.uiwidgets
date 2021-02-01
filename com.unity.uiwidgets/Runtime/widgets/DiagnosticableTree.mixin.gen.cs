@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Unity.UIWidgets.ui;
-using UnityEngine;
+
 namespace Unity.UIWidgets.foundation {
     public class DiagnosticableTreeMixinChangeNotifier : ChangeNotifier, DiagnosticableTreeMixin {
         protected DiagnosticableTreeMixinChangeNotifier() {
@@ -63,9 +61,6 @@ namespace Unity.UIWidgets.foundation {
         }
 
         public virtual void debugFillProperties(DiagnosticPropertiesBuilder properties) { }
-
-
-        
     }
 
 }
