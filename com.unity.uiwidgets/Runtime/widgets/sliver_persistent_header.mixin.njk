@@ -15,15 +15,27 @@ namespace Unity.UIWidgets.widgets {
             _snapConfiguration = snapConfiguration;
         }
 
-         public _SliverPersistentHeaderElement _element { get; set; }
+         public _SliverPersistentHeaderElement _element {
+             get {
+                 return sliver_persistent_header_utils._element;
+             }
+             set {
+                 if (value == sliver_persistent_header_utils._element) {
+                     return;
+                 }
+ 
+                 sliver_persistent_header_utils._element = value;
+             }
+             
+         }
          
-         float? minExtent {
+         public override float? minExtent {
              get {
                  return _element.widget.layoutDelegate.minExtent;
              }
          }
  
-         float? maxExtent {
+         public override float? maxExtent {
              get {
                  return _element.widget.layoutDelegate.minExtent;
              }
@@ -62,15 +74,27 @@ namespace Unity.UIWidgets.widgets {
             stretchConfiguration: stretchConfiguration) {
         }
 
-         public _SliverPersistentHeaderElement _element { get; set; }
+         public _SliverPersistentHeaderElement _element {
+             get {
+                 return sliver_persistent_header_utils._element;
+             }
+             set {
+                 if (value == sliver_persistent_header_utils._element) {
+                     return;
+                 }
+ 
+                 sliver_persistent_header_utils._element = value;
+             }
+             
+         }
          
-         float? minExtent {
+         public override float? minExtent {
              get {
                  return _element.widget.layoutDelegate.minExtent;
              }
          }
  
-         float? maxExtent {
+         public override float? maxExtent {
              get {
                  return _element.widget.layoutDelegate.minExtent;
              }
@@ -109,15 +133,27 @@ namespace Unity.UIWidgets.widgets {
             stretchConfiguration: stretchConfiguration) {
         }
 
-         public _SliverPersistentHeaderElement _element { get; set; }
+         public _SliverPersistentHeaderElement _element {
+             get {
+                 return sliver_persistent_header_utils._element;
+             }
+             set {
+                 if (value == sliver_persistent_header_utils._element) {
+                     return;
+                 }
+ 
+                 sliver_persistent_header_utils._element = value;
+             }
+             
+         }
          
-         float? minExtent {
+         public override float? minExtent {
              get {
                  return _element.widget.layoutDelegate.minExtent;
              }
          }
  
-         float? maxExtent {
+         public override float? maxExtent {
              get {
                  return _element.widget.layoutDelegate.minExtent;
              }
@@ -154,15 +190,27 @@ namespace Unity.UIWidgets.widgets {
             stretchConfiguration: stretchConfiguration) {
         }
 
-         public _SliverPersistentHeaderElement _element { get; set; }
+         public _SliverPersistentHeaderElement _element {
+             get {
+                 return sliver_persistent_header_utils._element;
+             }
+             set {
+                 if (value == sliver_persistent_header_utils._element) {
+                     return;
+                 }
+ 
+                 sliver_persistent_header_utils._element = value;
+             }
+             
+         }
          
-         float? minExtent {
+         public override float? minExtent {
              get {
                  return _element.widget.layoutDelegate.minExtent;
              }
          }
  
-         float? maxExtent {
+         public override float? maxExtent {
              get {
                  return _element.widget.layoutDelegate.minExtent;
              }

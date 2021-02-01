@@ -3,6 +3,11 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 
 namespace Unity.UIWidgets.widgets {
+    
+    static class sliver_persistent_header_utils {
+       public static _SliverPersistentHeaderElement _element { get; set; }
+    }
+    
     public abstract class SliverPersistentHeaderDelegate {
         public SliverPersistentHeaderDelegate() {
         }
@@ -93,12 +98,12 @@ namespace Unity.UIWidgets.widgets {
 
         public override void mount(Element parent, object newSlot) {
             base.mount(parent, newSlot);
-            (renderObject as _RenderSliverPersistentHeaderForWidgetsMixin)._element = this;
+            sliver_persistent_header_utils._element = this;
         }
 
         public override void unmount() {
             base.unmount();
-            (renderObject as _RenderSliverPersistentHeaderForWidgetsMixin)._element = null;
+            sliver_persistent_header_utils._element = null;
         }
 
         public override void update(Widget _newWidget) {
@@ -185,7 +190,6 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public interface _RenderSliverPersistentHeaderForWidgetsMixin {
-        _SliverPersistentHeaderElement _element { get; set; }
 
         void triggerRebuild();
     }
@@ -272,8 +276,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public _SliverPersistentHeaderElement _element {
-            get { return _ele; }
-            set { _ele = value; }
+            get { return sliver_persistent_header_utils._element; }
+            set { sliver_persistent_header_utils._element = value; }
         }
 
         _SliverPersistentHeaderElement _ele;
