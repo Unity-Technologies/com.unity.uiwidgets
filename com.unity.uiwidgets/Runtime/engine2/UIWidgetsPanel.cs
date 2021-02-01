@@ -173,9 +173,8 @@ namespace Unity.UIWidgets.engine2 {
             return result;
         }
 
-        public float devicePixelRatioOverride {
-            get => Screen.dpi / 96.0f;
-        }
+        public float devicePixelRatioOverride;
+
 
         public float hardwareAntiAliasing;
         // RectTransform rectTransform {
@@ -374,7 +373,8 @@ namespace Unity.UIWidgets.engine2 {
         void Input_OnGUI() {
             Event e = Event.current;
             if (e.isKey) {
-                PointerEventConverter.KeyEvent = e;
+                PointerEventConverter.KeyEvent.Enqueue(new Event(e));
+
                 UIWidgetsPanel_onKey(_ptr, e.keyCode, e.type == EventType.KeyDown);
                 if (e.character != 0) {
                     UIWidgetsPanel_onChar(_ptr, e.character);

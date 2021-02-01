@@ -233,7 +233,7 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        public static Event KeyEvent = null;
+        public static Queue<Event> KeyEvent = new Queue<Event>();
         static float _toLogicalPixels(float physicalPixels, float devicePixelRatio) {
             return physicalPixels / devicePixelRatio;
         }
