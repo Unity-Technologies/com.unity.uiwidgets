@@ -403,7 +403,7 @@ namespace Unity.UIWidgets.rendering {
             canvas.drawPath(child.clipPath, new Paint() {
                 color = new Color(0xFFAA0000),
                 style = PaintingStyle.stroke,
-                strokeWidth = child.elevation + 10.0f,
+                strokeWidth = child.elevation.Value + 10.0f,
             });
             PictureLayer pictureLayer = new PictureLayer(child.clipPath.getBounds());
             pictureLayer.picture = recorder.endRecording();
@@ -446,11 +446,11 @@ namespace Unity.UIWidgets.rendering {
                 D.assert(physicalModelLayer.lastChild?.debugCreator != physicalModelLayer,
                     () => "debugCheckElevations has either already visited this layer or failed to remove the" +
                           " added picture from it.");
-                float accumulatedElevation = physicalModelLayer.elevation;
+                float accumulatedElevation = physicalModelLayer.elevation.Value;
                 Layer ancestor = physicalModelLayer.parent;
                 while (ancestor != null) {
                     if (ancestor is PhysicalModelLayer modelLayer) {
-                        accumulatedElevation += modelLayer.elevation;
+                        accumulatedElevation += modelLayer.elevation.Value;
                     }
 
                     ancestor = ancestor.parent;
@@ -458,7 +458,7 @@ namespace Unity.UIWidgets.rendering {
 
                 for (int j = 0; j <= i; j++) {
                     PhysicalModelLayer predecessor = physicalModelLayers[j];
-                    float predecessorAccumulatedElevation = predecessor.elevation;
+                    float predecessorAccumulatedElevation = predecessor.elevation.Value;
                     ancestor = predecessor.parent;
                     while (ancestor != null) {
                         if (ancestor == predecessor) {
@@ -466,7 +466,7 @@ namespace Unity.UIWidgets.rendering {
                         }
 
                         if (ancestor is PhysicalModelLayer modelLayer) {
-                            predecessorAccumulatedElevation += modelLayer.elevation;
+                            predecessorAccumulatedElevation += modelLayer.elevation.Value;
                         }
 
                         ancestor = ancestor.parent;
@@ -1778,13 +1778,9 @@ namespace Unity.UIWidgets.rendering {
             float? elevation = null,
             Color color = null,
             Color shadowColor = null) {
-            D.assert(clipPath != null);
-            D.assert(elevation != null);
-            D.assert(color != null);
-            D.assert(shadowColor != null);
             _clipPath = clipPath;
             _clipBehavior = clipBehavior;
-            _elevation = elevation.Value;
+            _elevation = elevation;
             _color = color;
             this.shadowColor = shadowColor;
         }
@@ -1823,7 +1819,7 @@ namespace Unity.UIWidgets.rendering {
         }
         Clip _clipBehavior;
 
-        public float elevation {
+        public float? elevation {
             get { return _elevation; }
             set {
                 if (value != _elevation) {
@@ -1832,7 +1828,7 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
         }
-        float _elevation;
+        float? _elevation;
 
         public Color color {
             get { return _color; }
@@ -1866,9 +1862,8 @@ namespace Unity.UIWidgets.rendering {
             layerOffset = layerOffset ?? Offset.zero;
             
             D.assert(clipPath != null);
-            D.assert(clipBehavior != null);
-            D.assert(elevation != null);
             D.assert(color != null);
+            D.assert(elevation != null);
             D.assert(shadowColor != null);
 
             bool enabled = true;
@@ -1880,7 +1875,7 @@ namespace Unity.UIWidgets.rendering {
             if (enabled) {
                 engineLayer = builder.pushPhysicalShape(
                     path: layerOffset == Offset.zero ? clipPath : clipPath.shift(layerOffset),
-                    elevation: elevation,
+                    elevation: elevation.Value,
                     color: color,
                     shadowColor: shadowColor,
                     clipBehavior: clipBehavior,

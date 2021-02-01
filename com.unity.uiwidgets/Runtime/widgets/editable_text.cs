@@ -182,6 +182,8 @@ namespace Unity.UIWidgets.widgets {
                 "minLines and maxLines must be null when expands is true."
             );
             D.assert(!obscureText || maxLines == 1, () => "Obscured fields cannot be multiline.");
+            
+            scrollPadding = scrollPadding ?? EdgeInsets.all(20.0f);
             D.assert(scrollPadding != null);
             toolbarOptions = toolbarOptions ?? new ToolbarOptions(
                 copy: true,
@@ -206,11 +208,12 @@ namespace Unity.UIWidgets.widgets {
                     inputFormatters.Add(formatter);
                 }
             }
+            showCursor = showCursor ?? !readOnly;
+
             this.readOnly = readOnly;
-            this.showCursor = !readOnly;
             this.keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
             this.locale = locale;
-            this.scrollPadding = scrollPadding ?? EdgeInsets.all(20.0f);
+            this.scrollPadding = scrollPadding;
             this.controller = controller;
             this.focusNode = focusNode;
             this.obscureText = obscureText;
@@ -218,7 +221,7 @@ namespace Unity.UIWidgets.widgets {
             this.style = style;
             this.smartDashesType = smartDashesType.Value;
             this.smartQuotesType = smartQuotesType.Value;
-            this.showCursor = showCursor;
+            this.showCursor = showCursor.Value;
             this.textWidthBasis = textWidthBasis;
             this.onSelectionHandleTapped = onSelectionHandleTapped;
             this.scrollController = scrollController;
@@ -283,7 +286,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly TextWidthBasis textWidthBasis;
         public readonly VoidCallback onSelectionHandleTapped;
         public readonly ScrollController scrollController;
-        public readonly bool? showCursor;
+        public readonly bool showCursor;
         public readonly ui.BoxHeightStyle selectionHeightStyle;
         public readonly ui.BoxWidthStyle selectionWidthStyle;
         public readonly bool forceLine;
@@ -425,7 +428,7 @@ namespace Unity.UIWidgets.widgets {
             _cursorBlinkOpacityController.addListener(_onCursorColorTick);
             _floatingCursorResetController = new AnimationController(vsync: this);
             _floatingCursorResetController.addListener(_onFloatingCursorResetTick);
-            _cursorVisibilityNotifier.value = widget.showCursor ?? false;
+            _cursorVisibilityNotifier.value = widget.showCursor;
         }
 
         public override void didChangeDependencies() {
@@ -451,7 +454,11 @@ namespace Unity.UIWidgets.widgets {
             if (widget.controller.selection != oldWidget.controller.selection) {
                 _selectionOverlay?.update(_value);
             }
-            _selectionOverlay.handlesVisible = widget.showSelectionHandles;
+
+            if (_selectionOverlay != null) {
+                _selectionOverlay.handlesVisible = widget.showSelectionHandles;
+            }
+
             if (widget.focusNode != oldWidget.focusNode) {
                 oldWidget.focusNode.removeListener(_handleFocusChanged);
                 _focusAttachment?.detach();
@@ -472,7 +479,7 @@ namespace Unity.UIWidgets.widgets {
                         fontFamily: style.fontFamily,
                         fontSize: style.fontSize,
                         fontWeight: style.fontWeight,
-                        textDirection: (TextDirection)_textDirection,
+                        textDirection: _textDirection.Value,
                         textAlign: widget.textAlign
                     );
                 }
@@ -996,7 +1003,7 @@ namespace Unity.UIWidgets.widgets {
         void _onCursorColorTick() {
             renderEditable.cursorColor =
                 widget.cursorColor.withOpacity(_cursorBlinkOpacityController.value);
-            _cursorVisibilityNotifier.value = widget.showCursor.Value && _cursorBlinkOpacityController.value > 0;
+            _cursorVisibilityNotifier.value = widget.showCursor && _cursorBlinkOpacityController.value > 0;
         }
 
         public bool cursorCurrentlyVisible {
@@ -1209,7 +1216,7 @@ namespace Unity.UIWidgets.widgets {
                               cursorColor: _cursorColor,
                               backgroundCursorColor: widget.backgroundCursorColor,
                               showCursor: EditableText.debugDeterministicCursor
-                                  ? new ValueNotifier<bool>(widget.showCursor ?? false)
+                                  ? new ValueNotifier<bool>(widget.showCursor)
                                   : _cursorVisibilityNotifier,
                               forceLine: widget.forceLine,
                               readOnly: widget.readOnly,

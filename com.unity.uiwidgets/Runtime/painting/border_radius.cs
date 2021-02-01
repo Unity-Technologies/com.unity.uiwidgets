@@ -183,7 +183,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static bool operator !=(BorderRadiusGeometry left, BorderRadiusGeometry right) {
-            return Equals(left, right);
+            return !Equals(left, right);
         }
 
         public bool Equals(BorderRadiusGeometry other) {

@@ -337,10 +337,10 @@ namespace Unity.UIWidgets.material {
         }
 
         public void updateHighlight(_HighlightType type, bool value) {
-            InkHighlight highlight = _highlights[type];
+            InkHighlight highlight = _highlights.getOrDefault(type);
 
             void handleInkRemoval() {
-                D.assert(_highlights[type] != null);
+                D.assert(_highlights.getOrDefault(type) != null);
                 _highlights[type] = null;
                 updateKeepAlive();
             }
@@ -374,7 +374,7 @@ namespace Unity.UIWidgets.material {
                 highlight.deactivate();
             }
 
-            D.assert(value == (_highlights[type] != null && _highlights[type].active));
+            D.assert(value == (_highlights.getOrDefault(type) != null && _highlights[type].active));
             switch (type) {
                 case _HighlightType.pressed: {
                     if (widget.onHighlightChanged != null)
@@ -424,7 +424,8 @@ namespace Unity.UIWidgets.material {
                 radius: widget.radius,
                 borderRadius: borderRadius,
                 customBorder: customBorder,
-                onRemoved: OnRemoved);
+                onRemoved: OnRemoved,
+                textDirection: Directionality.of(context));
 
             return splash;
         }
@@ -539,7 +540,7 @@ namespace Unity.UIWidgets.material {
             }
 
             D.assert(_currentSplash == null);
-            foreach (_HighlightType highlight in _highlights.Keys) {
+            foreach (_HighlightType highlight in _highlights.Keys.ToList()) {
                 _highlights[highlight]?.dispose();
                 _highlights[highlight] = null;
             }

@@ -224,10 +224,10 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             BottomSheetThemeData bottomSheetTheme = Theme.of(context).bottomSheetTheme;
-            Color color = widget.backgroundColor ?? bottomSheetTheme.backgroundColor;
-            float elevation = widget.elevation ?? bottomSheetTheme.elevation ?? 0;
-            ShapeBorder shape = widget.shape ?? bottomSheetTheme.shape;
-            Clip clipBehavior = widget.clipBehavior ?? bottomSheetTheme.clipBehavior ?? Clip.none;
+            Color color = widget.backgroundColor ?? bottomSheetTheme?.backgroundColor;
+            float elevation = widget.elevation ?? bottomSheetTheme?.elevation ?? 0;
+            ShapeBorder shape = widget.shape ?? bottomSheetTheme?.shape;
+            Clip clipBehavior = widget.clipBehavior ?? bottomSheetTheme?.clipBehavior ?? Clip.none;
 
             Widget bottomSheet = new Material(
                 key: _childKey,

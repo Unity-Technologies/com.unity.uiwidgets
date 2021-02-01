@@ -53,7 +53,7 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             BottomAppBarTheme babTheme = BottomAppBarTheme.of(context);
-            NotchedShape notchedShape = widget.shape ?? babTheme.shape;
+            NotchedShape notchedShape = widget.shape ?? babTheme?.shape;
             CustomClipper<Path> clipper = notchedShape != null
                 ? (CustomClipper<Path>) new _BottomAppBarClipper(
                     geometry: geometryListenable,
@@ -62,8 +62,8 @@ namespace Unity.UIWidgets.material {
                 )
                 : new ShapeBorderClipper(shape: new RoundedRectangleBorder());
             
-            float elevation = widget.elevation ?? babTheme.elevation ?? _defaultElevation;
-            Color color = widget.color ?? babTheme.color ?? Theme.of(context).bottomAppBarColor;
+            float elevation = widget.elevation ?? babTheme?.elevation ?? _defaultElevation;
+            Color color = widget.color ?? babTheme?.color ?? Theme.of(context).bottomAppBarColor;
             Color effectiveColor = ElevationOverlay.applyOverlay(context, color, elevation);
             return new PhysicalShape(
                 clipper: clipper,
