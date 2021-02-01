@@ -485,8 +485,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public abstract Size getPreferredSize(
-            bool? isEnabled,
-            bool? isDiscrete,
+            bool isEnabled,
+            bool isDiscrete,
             TextPainter textPainter = null);
 
         public abstract void paint(
@@ -494,7 +494,7 @@ namespace Unity.UIWidgets.material {
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
+            bool isDiscrete = false,
             TextPainter labelPainter = null,
             RenderBox parentBox = null,
             SliderThemeData sliderTheme = null,
@@ -512,7 +512,7 @@ namespace Unity.UIWidgets.material {
 
         public abstract Size getPreferredSize(
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null);
+            bool isEnabled = false);
 
         public abstract void paint(
             PaintingContext context,
@@ -521,7 +521,7 @@ namespace Unity.UIWidgets.material {
             SliderThemeData sliderTheme = null,
             Animation<float> enableAnimation = null,
             Offset thumbCenter = null,
-            bool? isEnabled = null,
+            bool isEnabled = false,
             TextDirection? textDirection = null);
 
         public static readonly SliderTickMarkShape noTickMark = new _EmptySliderTickMarkShape();
@@ -535,8 +535,8 @@ namespace Unity.UIWidgets.material {
             RenderBox parentBox = null,
             Offset offset = null,
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null,
-            bool? isDiscrete = null);
+            bool isEnabled = false,
+            bool isDiscrete = false);
 
         public abstract void paint(
             PaintingContext context,
@@ -545,8 +545,8 @@ namespace Unity.UIWidgets.material {
             SliderThemeData sliderTheme = null,
             Animation<float> enableAnimation = null,
             Offset thumbCenter = null,
-            bool? isEnabled = null,
-            bool? isDiscrete = null,
+            bool isEnabled = false,
+            bool isDiscrete = false,
             TextDirection? textDirection = null
         );
     }
@@ -555,15 +555,15 @@ namespace Unity.UIWidgets.material {
         public RangeSliderThumbShape() {
         }
 
-        public abstract Size getPreferredSize(bool? isEnabled, bool? isDiscrete);
+        public abstract Size getPreferredSize(bool isEnabled, bool isDiscrete);
 
         public abstract void paint(
             PaintingContext context,
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
-            bool? isEnabled = null,
+            bool isDiscrete = false,
+            bool isEnabled = false,
             bool? isOnTop = null,
             TextDirection? textDirection = null,
             SliderThemeData sliderTheme = null,
@@ -591,7 +591,7 @@ namespace Unity.UIWidgets.material {
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
+            bool isDiscrete = false,
             bool? isOnTop = null,
             TextPainter labelPainter = null,
             RenderBox parentBox = null,
@@ -608,7 +608,7 @@ namespace Unity.UIWidgets.material {
 
         public abstract Size getPreferredSize(
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null
+            bool isEnabled = false
         );
 
         public abstract void paint(
@@ -619,7 +619,7 @@ namespace Unity.UIWidgets.material {
             Animation<float> enableAnimation = null,
             Offset startThumbCenter = null,
             Offset endThumbCenter = null,
-            bool? isEnabled = null,
+            bool isEnabled = false,
             TextDirection? textDirection = null
         );
     }
@@ -632,8 +632,8 @@ namespace Unity.UIWidgets.material {
             RenderBox parentBox = null,
             Offset offset = null,
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null,
-            bool? isDiscrete = null
+            bool isEnabled = false,
+            bool isDiscrete = false
         );
 
         public abstract void paint(
@@ -644,8 +644,8 @@ namespace Unity.UIWidgets.material {
             Animation<float> enableAnimation = null,
             Offset startThumbCenter = null,
             Offset endThumbCenter = null,
-            bool? isEnabled = null,
-            bool? isDiscrete = null,
+            bool isEnabled = false,
+            bool isDiscrete = false,
             TextDirection? textDirection = null
         );
     }
@@ -663,12 +663,10 @@ namespace Unity.UIWidgets.material {
             RenderBox parentBox = null,
             Offset offset = null,
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null,
-            bool? isDiscrete = null) {
+            bool isEnabled = false,
+            bool isDiscrete = false) {
             offset = offset ?? Offset.zero;
-
-            D.assert(isEnabled != null);
-            D.assert(isDiscrete != null);
+            
             D.assert(parentBox != null);
             D.assert(sliderTheme != null);
             float thumbWidth = sliderTheme.thumbShape.getPreferredSize(isEnabled, isDiscrete).width;
@@ -692,8 +690,8 @@ namespace Unity.UIWidgets.material {
             SliderThemeData sliderTheme = null,
             Animation<float> enableAnimation = null,
             Offset thumbCenter = null,
-            bool? isEnabled = false,
-            bool? isDiscrete = false,
+            bool isEnabled = false,
+            bool isDiscrete = false,
             TextDirection? textDirection = null) {
             D.assert(context != null);
             D.assert(offset != null);
@@ -707,8 +705,6 @@ namespace Unity.UIWidgets.material {
             D.assert(enableAnimation != null);
             D.assert(textDirection != null);
             D.assert(thumbCenter != null);
-            D.assert(isEnabled != null);
-            D.assert(isDiscrete != null);
 
             if (sliderTheme.trackHeight == 0) {
                 return;
@@ -764,12 +760,10 @@ namespace Unity.UIWidgets.material {
             RenderBox parentBox = null,
             Offset offset = null,
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null,
-            bool? isDiscrete = null) {
+            bool isEnabled = false,
+            bool isDiscrete = false) {
             offset = offset ?? Offset.zero;
 
-            D.assert(isEnabled != null);
-            D.assert(isDiscrete != null);
             D.assert(parentBox != null);
             D.assert(sliderTheme != null);
             float thumbWidth = sliderTheme.thumbShape.getPreferredSize(isEnabled, isDiscrete).width;
@@ -793,8 +787,8 @@ namespace Unity.UIWidgets.material {
             SliderThemeData sliderTheme = null,
             Animation<float> enableAnimation = null,
             Offset thumbCenter = null,
-            bool? isEnabled = false,
-            bool? isDiscrete = false,
+            bool isEnabled = false,
+            bool isDiscrete = false,
             TextDirection? textDirection = null) {
             D.assert(context != null);
             D.assert(offset != null);
@@ -874,8 +868,8 @@ namespace Unity.UIWidgets.material {
             RenderBox parentBox = null,
             Offset offset = null,
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = false,
-            bool? isDiscrete = false
+            bool isEnabled = false,
+            bool isDiscrete = false
         ) {
             offset = offset ?? Offset.zero;
 
@@ -883,8 +877,7 @@ namespace Unity.UIWidgets.material {
             D.assert(offset != null);
             D.assert(sliderTheme != null);
             D.assert(sliderTheme.overlayShape != null);
-            D.assert(isEnabled != null);
-            D.assert(isDiscrete != null);
+
 
             float overlayWidth = sliderTheme.overlayShape.getPreferredSize(isEnabled, isDiscrete).width;
             float trackHeight = sliderTheme.trackHeight.Value;
@@ -908,8 +901,8 @@ namespace Unity.UIWidgets.material {
             Animation<float> enableAnimation = null,
             Offset startThumbCenter = null,
             Offset endThumbCenter = null,
-            bool? isEnabled = false,
-            bool? isDiscrete = false,
+            bool isEnabled = false,
+            bool isDiscrete = false,
             TextDirection? textDirection = null
         ) {
             D.assert(context != null);
@@ -924,8 +917,6 @@ namespace Unity.UIWidgets.material {
             D.assert(enableAnimation != null);
             D.assert(startThumbCenter != null);
             D.assert(endThumbCenter != null);
-            D.assert(isEnabled != null);
-            D.assert(isDiscrete != null);
             D.assert(textDirection != null);
 
             ColorTween activeTrackColorTween = new ColorTween(begin: sliderTheme.disabledActiveTrackColor,
@@ -983,8 +974,8 @@ namespace Unity.UIWidgets.material {
             RenderBox parentBox = null,
             Offset offset = null,
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = false,
-            bool? isDiscrete = false
+            bool isEnabled = false,
+            bool isDiscrete = false
         ) {
             offset = offset ?? Offset.zero;
 
@@ -993,8 +984,6 @@ namespace Unity.UIWidgets.material {
             D.assert(sliderTheme != null);
             D.assert(sliderTheme.overlayShape != null);
             D.assert(sliderTheme.trackHeight != null);
-            D.assert(isEnabled != null);
-            D.assert(isDiscrete != null);
 
             float overlayWidth = sliderTheme.overlayShape.getPreferredSize(isEnabled, isDiscrete).width;
             float trackHeight = sliderTheme.trackHeight.Value;
@@ -1018,8 +1007,8 @@ namespace Unity.UIWidgets.material {
             Animation<float> enableAnimation = null,
             Offset startThumbCenter = null,
             Offset endThumbCenter = null,
-            bool? isEnabled = false,
-            bool? isDiscrete = false,
+            bool isEnabled = false,
+            bool isDiscrete = false,
             TextDirection? textDirection = null
         ) {
             D.assert(context != null);
@@ -1034,8 +1023,6 @@ namespace Unity.UIWidgets.material {
             D.assert(enableAnimation != null);
             D.assert(startThumbCenter != null);
             D.assert(endThumbCenter != null);
-            D.assert(isEnabled != null);
-            D.assert(isDiscrete != null);
             D.assert(textDirection != null);
 
             ColorTween activeTrackColorTween = new ColorTween(begin: sliderTheme.disabledActiveTrackColor,
@@ -1114,11 +1101,10 @@ namespace Unity.UIWidgets.material {
 
         public override Size getPreferredSize(
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null
+            bool isEnabled = false
         ) {
             D.assert(sliderTheme != null);
             D.assert(sliderTheme.trackHeight != null);
-            D.assert(isEnabled != null);
             return Size.fromRadius(tickMarkRadius ?? sliderTheme.trackHeight.Value / 2f);
         }
 
@@ -1130,7 +1116,7 @@ namespace Unity.UIWidgets.material {
             SliderThemeData sliderTheme = null,
             Animation<float> enableAnimation = null,
             Offset thumbCenter = null,
-            bool? isEnabled = null,
+            bool isEnabled = false,
             TextDirection? textDirection = null
         ) {
             D.assert(context != null);
@@ -1144,7 +1130,6 @@ namespace Unity.UIWidgets.material {
             D.assert(enableAnimation != null);
             D.assert(textDirection != null);
             D.assert(thumbCenter != null);
-            D.assert(isEnabled != null);
 
             Color begin = null;
             Color end = null;
@@ -1186,11 +1171,10 @@ namespace Unity.UIWidgets.material {
 
         public override Size getPreferredSize(
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = false
+            bool isEnabled = false
         ) {
             D.assert(sliderTheme != null);
             D.assert(sliderTheme.trackHeight != null);
-            D.assert(isEnabled != null);
 
             return Size.fromRadius(tickMarkRadius ?? sliderTheme.trackHeight.Value / 2f);
         }
@@ -1203,7 +1187,7 @@ namespace Unity.UIWidgets.material {
             Animation<float> enableAnimation = null,
             Offset startThumbCenter = null,
             Offset endThumbCenter = null,
-            bool? isEnabled = false,
+            bool isEnabled = false,
             TextDirection? textDirection = null
         ) {
             D.assert(context != null);
@@ -1217,7 +1201,6 @@ namespace Unity.UIWidgets.material {
             D.assert(enableAnimation != null);
             D.assert(startThumbCenter != null);
             D.assert(endThumbCenter != null);
-            D.assert(isEnabled != null);
             D.assert(textDirection != null);
 
             bool isBetweenThumbs = false;
@@ -1249,7 +1232,7 @@ namespace Unity.UIWidgets.material {
     class _EmptySliderTickMarkShape : SliderTickMarkShape {
         public override Size getPreferredSize(
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null) {
+            bool isEnabled = false) {
             return Size.zero;
         }
 
@@ -1260,15 +1243,15 @@ namespace Unity.UIWidgets.material {
             SliderThemeData sliderTheme = null,
             Animation<float> enableAnimation = null,
             Offset thumbCenter = null,
-            bool? isEnabled = null,
+            bool isEnabled = false,
             TextDirection? textDirection = null) {
         }
     }
 
     class _EmptySliderComponentShape : SliderComponentShape {
         public override Size getPreferredSize(
-            bool? isEnabled = null,
-            bool? isDiscrete = null,
+            bool isEnabled = false,
+            bool isDiscrete = false,
             TextPainter textPainter = null) {
             return Size.zero;
         }
@@ -1278,7 +1261,7 @@ namespace Unity.UIWidgets.material {
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
+            bool isDiscrete = false,
             TextPainter labelPainter = null,
             RenderBox parentBox = null,
             SliderThemeData sliderTheme = null,
@@ -1305,7 +1288,7 @@ namespace Unity.UIWidgets.material {
         }
 
 
-        public override Size getPreferredSize(bool? isEnabled, bool? isDiscrete, TextPainter textPainter = null) {
+        public override Size getPreferredSize(bool isEnabled, bool isDiscrete, TextPainter textPainter = null) {
             return Size.fromRadius(isEnabled == true ? enabledThumbRadius : _disabledThumbRadius);
         }
 
@@ -1315,7 +1298,7 @@ namespace Unity.UIWidgets.material {
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
+            bool isDiscrete = false,
             TextPainter labelPainter = null,
             RenderBox parentBox = null,
             SliderThemeData sliderTheme = null,
@@ -1363,7 +1346,7 @@ namespace Unity.UIWidgets.material {
             get { return disabledThumbRadius ?? enabledThumbRadius; }
         }
 
-        public override Size getPreferredSize(bool? isEnabled, bool? isDiscrete) {
+        public override Size getPreferredSize(bool isEnabled, bool isDiscrete) {
             return Size.fromRadius(isEnabled == true ? enabledThumbRadius : _disabledThumbRadius);
         }
 
@@ -1372,8 +1355,8 @@ namespace Unity.UIWidgets.material {
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = false,
-            bool? isEnabled = false,
+            bool isDiscrete = false,
+            bool isEnabled = false,
             bool? isOnTop = null,
             TextDirection? textDirection = null,
             SliderThemeData sliderTheme = null,
@@ -1401,10 +1384,10 @@ namespace Unity.UIWidgets.material {
                 bool showValueIndicator = false;
                 switch (sliderTheme.showValueIndicator) {
                     case ShowValueIndicator.onlyForDiscrete:
-                        showValueIndicator = isDiscrete.Value;
+                        showValueIndicator = isDiscrete;
                         break;
                     case ShowValueIndicator.onlyForContinuous:
-                        showValueIndicator = !isDiscrete.Value;
+                        showValueIndicator = !isDiscrete;
                         break;
                     case ShowValueIndicator.always:
                         showValueIndicator = true;
@@ -1440,7 +1423,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly float overlayRadius;
 
-        public override Size getPreferredSize(bool? isEnabled, bool? isDiscrete, TextPainter textPainter = null) {
+        public override Size getPreferredSize(bool isEnabled, bool isDiscrete, TextPainter textPainter = null) {
             return Size.fromRadius(overlayRadius);
         }
 
@@ -1449,7 +1432,7 @@ namespace Unity.UIWidgets.material {
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
+            bool isDiscrete = false,
             TextPainter labelPainter = null,
             RenderBox parentBox = null,
             SliderThemeData sliderTheme = null,
@@ -1477,8 +1460,8 @@ namespace Unity.UIWidgets.material {
         static readonly _PaddleSliderTrackShapePathPainter _pathPainter = new _PaddleSliderTrackShapePathPainter();
 
         public override Size getPreferredSize(
-            bool? isEnabled,
-            bool? isDiscrete,
+            bool isEnabled,
+            bool isDiscrete,
             TextPainter labelPainter = null) {
             D.assert(labelPainter != null);
             return _pathPainter.getPreferredSize(isEnabled, isDiscrete, labelPainter);
@@ -1489,7 +1472,7 @@ namespace Unity.UIWidgets.material {
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
+            bool isDiscrete = false,
             TextPainter labelPainter = null,
             RenderBox parentBox = null,
             SliderThemeData sliderTheme = null,
@@ -1551,7 +1534,7 @@ namespace Unity.UIWidgets.material {
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
+            bool isDiscrete = false,
             bool? isOnTop = null,
             TextPainter labelPainter = null,
             RenderBox parentBox = null,
@@ -1609,8 +1592,8 @@ namespace Unity.UIWidgets.material {
         const bool _debuggingLabelLocation = false;
 
         public Size getPreferredSize(
-            bool? isEnabled,
-            bool? isDiscrete,
+            bool isEnabled,
+            bool isDiscrete,
             TextPainter labelPainter
         ) {
             D.assert(labelPainter != null);

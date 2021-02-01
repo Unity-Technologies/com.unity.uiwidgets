@@ -61,16 +61,16 @@ namespace Unity.UIWidgets.rendering {
             AxisDirection axisDirection = AxisDirection.down,
             AxisDirection crossAxisDirection = AxisDirection.right,
             ViewportOffset offset = null,
-            float cacheExtent = RenderViewportUtils.defaultCacheExtent,
+            float? cacheExtent = null,
             CacheExtentStyle cacheExtentStyle = CacheExtentStyle.pixel
         ) {
             D.assert(offset != null);
             D.assert(AxisUtils.axisDirectionToAxis(axisDirection) != AxisUtils.axisDirectionToAxis(crossAxisDirection));
-            D.assert(cacheExtentStyle == CacheExtentStyle.pixel);
+            D.assert(cacheExtent != null || cacheExtentStyle == CacheExtentStyle.pixel);
             _axisDirection = axisDirection;
             _crossAxisDirection = crossAxisDirection;
             _offset = offset;
-            _cacheExtent = cacheExtent;
+            _cacheExtent = cacheExtent ?? RenderViewportUtils.defaultCacheExtent;
             _cacheExtentStyle = cacheExtentStyle;
         }
 
