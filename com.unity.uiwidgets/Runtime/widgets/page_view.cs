@@ -230,7 +230,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override bool applyViewportDimension(float viewportDimension) {
-            float oldViewportDimensions = this.viewportDimension;
+            float oldViewportDimensions = 0.0f;
+            if (haveDimensions) {
+                oldViewportDimensions = this.viewportDimension;
+            }
+            
             bool result = base.applyViewportDimension(viewportDimension);
             float? oldPixels = null;
             if (havePixels) {

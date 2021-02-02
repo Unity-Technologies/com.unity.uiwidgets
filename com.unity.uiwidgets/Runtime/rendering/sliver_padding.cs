@@ -137,7 +137,7 @@ namespace Unity.UIWidgets.rendering {
                 constraints.remainingPaintExtent
                 ); 
             geometry = new SliverGeometry(
-                scrollExtent: mainAxisPadding ?? 0.0f+ childLayoutGeometry.scrollExtent, 
+                scrollExtent: (mainAxisPadding ?? 0.0f) + childLayoutGeometry.scrollExtent, 
                 paintExtent: paintExtent, 
                 layoutExtent: Mathf.Min(mainAxisPaddingPaintExtent + childLayoutGeometry.layoutExtent, paintExtent), 
                 cacheExtent: Mathf.Min(mainAxisPaddingCacheExtent + childLayoutGeometry.cacheExtent, constraints.remainingCacheExtent), 

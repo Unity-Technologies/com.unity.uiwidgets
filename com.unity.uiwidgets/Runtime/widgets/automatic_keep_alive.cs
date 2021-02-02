@@ -62,7 +62,7 @@ namespace Unity.UIWidgets.widgets {
             handle.addListener(_handles[handle]);
             if (!_keepingAlive) {
                 _keepingAlive = true;
-                ParentDataElement<KeepAliveParentDataMixin> childElement = _getChildElement();
+                ParentDataElement childElement = _getChildElement();
                 if (childElement != null) {
                     _updateParentDataOfChild(childElement);
                 }
@@ -71,7 +71,7 @@ namespace Unity.UIWidgets.widgets {
                         if (!mounted) {
                             return;
                         }
-                        ParentDataElement<KeepAliveParentDataMixin> childElement1 = _getChildElement();
+                        ParentDataElement childElement1 = _getChildElement();
                         D.assert(childElement1 != null);
                         _updateParentDataOfChild(childElement1);
                     });
@@ -81,18 +81,18 @@ namespace Unity.UIWidgets.widgets {
             return false;
         }
         
-        ParentDataElement<KeepAliveParentDataMixin> _getChildElement() {
+        ParentDataElement _getChildElement() {
             D.assert(mounted);
             Element element = (Element) context;
             Element childElement = null;
             element.visitChildren((Element child) => { childElement = child; });
 
-            D.assert(childElement == null || childElement is ParentDataElement<KeepAliveParentDataMixin>);
-            return (ParentDataElement<KeepAliveParentDataMixin>) childElement;
+            D.assert(childElement == null || childElement is ParentDataElement);
+            return (ParentDataElement) childElement;
         }
         
-       void _updateParentDataOfChild(ParentDataElement<KeepAliveParentDataMixin> childElement) {
-           childElement.applyWidgetOutOfTurn((ParentDataWidget<KeepAliveParentDataMixin>) build(context));
+       void _updateParentDataOfChild(ParentDataElement childElement) {
+           childElement.applyWidgetOutOfTurn((ParentDataWidget) build(context));
        }
 
         VoidCallback _createCallback(Listenable handle) {

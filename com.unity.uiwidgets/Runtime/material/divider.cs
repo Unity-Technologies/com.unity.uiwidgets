@@ -12,7 +12,10 @@ namespace Unity.UIWidgets.material {
             float? indent = null,
             float? endIndent = null,
             Color color = null) : base(key: key) {
-            D.assert(height >= 0.0);
+            D.assert(height == null || height >= 0.0);
+            D.assert(thickness == null || thickness >= 0.0);
+            D.assert(indent == null || indent >= 0.0);
+            D.assert(endIndent == null || endIndent >= 0.0);
             this.height = height;
             this.thickness = thickness;
             this.indent = indent;
@@ -33,10 +36,10 @@ namespace Unity.UIWidgets.material {
         public static BorderSide createBorderSide(BuildContext context, Color color = null, float? width = null) {
             Color effectiveColor = color
                                    ?? (context != null
-                                       ? (DividerTheme.of(context).color ?? Theme.of(context).dividerColor)
+                                       ? (DividerTheme.of(context)?.color ?? Theme.of(context).dividerColor)
                                        : null);
             float effectiveWidth = width
-                                   ?? (context != null ? DividerTheme.of(context).thickness : null)
+                                   ?? (context != null ? DividerTheme.of(context)?.thickness : null)
                                    ?? 0.0f;
 
             // Prevent assertion since it is possible that context is null and no color
@@ -55,10 +58,10 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             DividerThemeData dividerTheme = DividerTheme.of(context);
-            float height = this.height ?? dividerTheme.space ?? 16.0f;
-            float thickness = this.thickness ?? dividerTheme.thickness ?? 0.0f;
-            float indent = this.indent ?? dividerTheme.indent ?? 0.0f;
-            float endIndent = this.endIndent ?? dividerTheme.endIndent ?? 0.0f;
+            float height = this.height ?? dividerTheme?.space ?? 16.0f;
+            float thickness = this.thickness ?? dividerTheme?.thickness ?? 0.0f;
+            float indent = this.indent ?? dividerTheme?.indent ?? 0.0f;
+            float endIndent = this.endIndent ?? dividerTheme?.endIndent ?? 0.0f;
 
             return new SizedBox(
                 height: height,
@@ -66,8 +69,8 @@ namespace Unity.UIWidgets.material {
                     child: new Container(
                         height: thickness,
                         //TODO: update to EdgeInsetsGeometry
-                        margin: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(start: indent,
-                            end: endIndent),
+                        /*margin: EdgeInsetsDirectional.only(start: indent,
+                            end: endIndent),*/
                         decoration: new BoxDecoration(
                             border: new Border(
                                 bottom: createBorderSide(context, color: color, width: thickness))

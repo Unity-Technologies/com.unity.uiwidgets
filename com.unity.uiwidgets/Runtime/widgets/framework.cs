@@ -1533,20 +1533,20 @@ namespace Unity.UIWidgets.widgets {
                     hasSameSuperclass = oldElementClass == newWidgetClass;
                     return true;
                 });
-                if (hasSameSuperclass && child.widget == newWidget) {
-                    if (child.slot != newSlot) {
+                if (hasSameSuperclass && Equals(child.widget,newWidget)) {
+                    if (!Equals(child.slot, newSlot)) {
                         updateSlotForChild(child, newSlot);
                     }
 
                     newChild = child;
                 }
                 else if (hasSameSuperclass && Widget.canUpdate(child.widget, newWidget)) {
-                    if (child.slot != newSlot) {
+                    if (!Equals(child.slot, newSlot)) {
                         updateSlotForChild(child, newSlot);
                     }
 
                     child.update(newWidget);
-                    D.assert(child.widget == newWidget);
+                    D.assert(Equals(child.widget, newWidget));
                     D.assert(() => {
                         child.owner._debugElementWasRebuilt(child);
                         return true;
@@ -2937,7 +2937,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class ParentDataElement<T> : ParentDataElement where T : ParentData {
+    public class ParentDataElement<T> : ParentDataElement where T : IParentData {
         public ParentDataElement(ParentDataWidget<T> widget) : base(widget)
         {
         }
@@ -2951,7 +2951,7 @@ namespace Unity.UIWidgets.widgets {
                     ((RenderObjectElement) child)._updateParentData(widget);
                 }
                 else {
-                    D.assert(!(child is ParentDataElement<ParentData>));
+                    D.assert(!(child is ParentDataElement<IParentData>));
                     child.visitChildren(applyParentDataToChild);
                 }
             };

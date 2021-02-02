@@ -7,7 +7,7 @@ namespace Unity.UIWidgets.animation {
 
  
     public abstract class AnimationLazyListenerMixinAnimation<T> : Animation<T> {
-        int _listenerCounter;
+        int _listenerCounter = 0;
 
         protected void didRegisterListener() {
             D.assert(_listenerCounter >= 0);
@@ -74,7 +74,7 @@ namespace Unity.UIWidgets.animation {
                 D.assert(() => {
                       IEnumerable<DiagnosticsNode> infoCollector() {
                           yield return new DiagnosticsProperty<AnimationLocalListenersMixinAnimationLazyListenerMixinAnimation<T>>(
-                              "The " + GetType() + " notifying listeners was:",
+                              "The " + GetType() + " notifying listeners was",
                               this,
                               style: DiagnosticsTreeStyle.errorProperty
                           );
@@ -122,7 +122,7 @@ namespace Unity.UIWidgets.animation {
                 D.assert(() => {
                       IEnumerable<DiagnosticsNode> infoCollector() {
                           yield return new DiagnosticsProperty<AnimationLocalListenersMixinAnimationEagerListenerMixinAnimation<T>>(
-                              "The " + GetType() + " notifying listeners was:",
+                              "The " + GetType() + " notifying listeners was",
                               this,
                               style: DiagnosticsTreeStyle.errorProperty
                           );
@@ -176,7 +176,7 @@ namespace Unity.UIWidgets.animation {
                     D.assert(() => {
                         IEnumerable<DiagnosticsNode> infoCollector() {
                             yield return new DiagnosticsProperty<AnimationLocalStatusListenersMixinAnimationLocalListenersMixinAnimationLazyListenerMixinAnimation<T>>(
-                                "The " + GetType() + " notifying status listeners was:",
+                                "The " + GetType() + " notifying status listeners was",
                                 this,
                                 style: DiagnosticsTreeStyle.errorProperty
                             );
@@ -226,7 +226,7 @@ namespace Unity.UIWidgets.animation {
                     D.assert(() => {
                         IEnumerable<DiagnosticsNode> infoCollector() {
                             yield return new DiagnosticsProperty<AnimationLocalStatusListenersMixinAnimationLazyListenerMixinAnimation<T>>(
-                                "The " + GetType() + " notifying status listeners was:",
+                                "The " + GetType() + " notifying status listeners was",
                                 this,
                                 style: DiagnosticsTreeStyle.errorProperty
                             );
@@ -276,7 +276,7 @@ namespace Unity.UIWidgets.animation {
                     D.assert(() => {
                         IEnumerable<DiagnosticsNode> infoCollector() {
                             yield return new DiagnosticsProperty<AnimationLocalStatusListenersMixinAnimationLocalListenersMixinAnimationEagerListenerMixinAnimation<T>>(
-                                "The " + GetType() + " notifying status listeners was:",
+                                "The " + GetType() + " notifying status listeners was",
                                 this,
                                 style: DiagnosticsTreeStyle.errorProperty
                             );

@@ -67,21 +67,21 @@ namespace Unity.UIWidgets.material {
             ButtonBarThemeData barTheme = ButtonBarTheme.of(context);
 
             ButtonThemeData buttonTheme = parentButtonTheme.copyWith(
-                textTheme: buttonTextTheme ?? barTheme.buttonTextTheme ?? ButtonTextTheme.primary,
-                minWidth: buttonMinWidth ?? barTheme.buttonMinWidth ?? 64.0f,
-                height: buttonHeight ?? barTheme.buttonHeight ?? 36.0f,
-                padding: buttonPadding ?? barTheme.buttonPadding ?? EdgeInsets.symmetric(horizontal: 8.0f),
-                alignedDropdown: buttonAlignedDropdown ?? barTheme.buttonAlignedDropdown ?? false,
-                layoutBehavior: layoutBehavior ?? barTheme.layoutBehavior ?? ButtonBarLayoutBehavior.padded
+                textTheme: buttonTextTheme ?? barTheme?.buttonTextTheme ?? ButtonTextTheme.primary,
+                minWidth: buttonMinWidth ?? barTheme?.buttonMinWidth ?? 64.0f,
+                height: buttonHeight ?? barTheme?.buttonHeight ?? 36.0f,
+                padding: buttonPadding ?? barTheme?.buttonPadding ?? EdgeInsets.symmetric(horizontal: 8.0f),
+                alignedDropdown: buttonAlignedDropdown ?? barTheme?.buttonAlignedDropdown ?? false,
+                layoutBehavior: layoutBehavior ?? barTheme?.layoutBehavior ?? ButtonBarLayoutBehavior.padded
             );
 
             float paddingUnit = buttonTheme.padding.horizontal / 4.0f;
             Widget child = ButtonTheme.fromButtonThemeData(
                 data: buttonTheme,
                 child: new _ButtonBarRow(
-                    mainAxisAlignment: alignment ?? barTheme.alignment ?? MainAxisAlignment.end,
-                    mainAxisSize: mainAxisSize ?? barTheme.mainAxisSize ?? MainAxisSize.max,
-                    overflowDirection: overflowDirection ?? barTheme.overflowDirection ?? VerticalDirection.down,
+                    mainAxisAlignment: alignment ?? barTheme?.alignment ?? MainAxisAlignment.end,
+                    mainAxisSize: mainAxisSize ?? barTheme?.mainAxisSize ?? MainAxisSize.max,
+                    overflowDirection: overflowDirection ?? barTheme?.overflowDirection ?? VerticalDirection.down,
                     children: children.Select((Widget childWidget) => {
                         return (Widget) new Padding(
                             padding: EdgeInsets.symmetric(horizontal: paddingUnit),

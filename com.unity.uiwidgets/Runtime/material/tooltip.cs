@@ -314,16 +314,16 @@ namespace Unity.UIWidgets.material {
               );
             }
 
-            height = widget.height ?? tooltipTheme.height ?? _defaultTooltipHeight;
-            padding = widget.padding ?? tooltipTheme.padding ?? _defaultPadding;
-            margin = widget.margin ?? tooltipTheme.margin ?? _defaultMargin;
-            verticalOffset = widget.verticalOffset ?? tooltipTheme.verticalOffset ?? _defaultVerticalOffset;
-            preferBelow = widget.preferBelow ?? tooltipTheme.preferBelow ?? _defaultPreferBelow;
-            excludeFromSemantics = widget.excludeFromSemantics ?? tooltipTheme.excludeFromSemantics ?? _defaultExcludeFromSemantics;
-            decoration = widget.decoration ?? tooltipTheme.decoration ?? defaultDecoration;
-            textStyle = widget.textStyle ?? tooltipTheme.textStyle ?? defaultTextStyle;
-            waitDuration = widget.waitDuration ?? tooltipTheme.waitDuration ?? _defaultWaitDuration;
-            showDuration = widget.showDuration ?? tooltipTheme.showDuration ?? _defaultShowDuration;
+            height = widget.height ?? tooltipTheme?.height ?? _defaultTooltipHeight;
+            padding = widget.padding ?? tooltipTheme?.padding ?? _defaultPadding;
+            margin = widget.margin ?? tooltipTheme?.margin ?? _defaultMargin;
+            verticalOffset = widget.verticalOffset ?? tooltipTheme?.verticalOffset ?? _defaultVerticalOffset;
+            preferBelow = widget.preferBelow ?? tooltipTheme?.preferBelow ?? _defaultPreferBelow;
+            excludeFromSemantics = widget.excludeFromSemantics ?? tooltipTheme?.excludeFromSemantics ?? _defaultExcludeFromSemantics;
+            decoration = widget.decoration ?? tooltipTheme?.decoration ?? defaultDecoration;
+            textStyle = widget.textStyle ?? tooltipTheme?.textStyle ?? defaultTextStyle;
+            waitDuration = widget.waitDuration ?? tooltipTheme?.waitDuration ?? _defaultWaitDuration;
+            showDuration = widget.showDuration ?? tooltipTheme?.showDuration ?? _defaultShowDuration;
 
             Widget result = new GestureDetector(
               behavior: HitTestBehavior.opaque,
