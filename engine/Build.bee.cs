@@ -292,6 +292,45 @@ class Build
                 "src/shell/gpu/gpu_surface_software_delegate.cc",
                 "src/shell/gpu/gpu_surface_software_delegate.h",
 
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/basic_message_channel.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/binary_messenger.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/encodable_value.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/engine_method_result.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/json_message_codec.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/json_method_codec.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/json_type.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/message_codec.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/method_call.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/method_channel.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/method_codec.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/method_result.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/plugin_registrar.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/plugin_registry.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/standard_message_codec.h",
+                "src/shell/platform/common/cpp/client_wrapper/include/uiwidgets/standard_method_codec.h",
+                
+                "src/shell/platform/common/cpp/client_wrapper/basic_message_channel_unittests.cc",
+                "src/shell/platform/common/cpp/client_wrapper/byte_stream_wrappers.h",
+                "src/shell/platform/common/cpp/client_wrapper/encodable_value_unittests.cc",
+                "src/shell/platform/common/cpp/client_wrapper/engine_method_result.cc",
+                "src/shell/platform/common/cpp/client_wrapper/json_message_codec.cc",
+                "src/shell/platform/common/cpp/client_wrapper/json_method_codec.cc",
+                "src/shell/platform/common/cpp/client_wrapper/method_call_unittests.cc",
+                "src/shell/platform/common/cpp/client_wrapper/method_channel_unittests.cc",
+                "src/shell/platform/common/cpp/client_wrapper/plugin_registrar.cc",
+                "src/shell/platform/common/cpp/client_wrapper/plugin_registrar_unittests.cc",
+                "src/shell/platform/common/cpp/client_wrapper/standard_codec.cc",
+                "src/shell/platform/common/cpp/client_wrapper/standard_codec_serializer.h",
+                "src/shell/platform/common/cpp/client_wrapper/standard_message_codec_unittests.cc",
+                "src/shell/platform/common/cpp/client_wrapper/standard_method_codec_unittests.cc",
+
+                "src/shell/platform/common/cpp/public/uiwidgets_messenger.h",
+                "src/shell/platform/common/cpp/public/uiwidgets_plugin_registrar.h",
+                "src/shell/platform/common/cpp/public/uiwigets_export.h",
+                
+                "src/shell/platform/common/cpp/incoming_message_dispatcher.cc",
+                "src/shell/platform/common/cpp/incoming_message_dispatcher.h",
+
                 "src/shell/platform/embedder/embedder.cc",
                 "src/shell/platform/embedder/embedder.h",
                 "src/shell/platform/embedder/embedder_engine.cc",
@@ -363,6 +402,12 @@ class Build
                 "src/shell/platform/unity/windows/unity_surface_manager.h",
                 "src/shell/platform/unity/windows/win32_task_runner.cc",
                 "src/shell/platform/unity/windows/win32_task_runner.h",
+
+                "src/shell/platform/unity/windows/text_input_plugin.cc",
+                "src/shell/platform/unity/windows/public/uiwidgets_windows.h",
+                "src/shell/platform/unity/windows/uiwidgets_windows.cc",
+                "src/shell/platform/unity/windows/text_input_plugin.h",
+                "src/shell/platform/unity/windows/window_state.h",
         };
 
         var macSources = new NPath[] {

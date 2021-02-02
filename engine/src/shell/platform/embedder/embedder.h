@@ -9,6 +9,22 @@
 extern "C" {
 #endif
 
+    
+#ifndef UIWIDGETS_EXPORT
+#define UIWIDGETS_EXPORT
+#endif  // UIWIDGETS_EXPORT
+
+#ifdef UIWIDGETS_API_SYMBOL_PREFIX
+#define UIWIDGETS_EMBEDDING_CONCAT(a, b) a##b
+#define UIWIDGETS_EMBEDDING_ADD_PREFIX(symbol, prefix) \
+  UIWIDGETS_EMBEDDING_CONCAT(prefix, symbol)
+#define UIWIDGETS_API_SYMBOL(symbol) \
+  UIWIDGETS_EMBEDDING_ADD_PREFIX(symbol, UIWIDGETS_API_SYMBOL_PREFIX)
+#else
+#define UIWIDGETS_API_SYMBOL(symbol) symbol
+#endif
+
+#define UIWIDGETS_ENGINE_VERSION 1
 typedef enum {
   kSuccess = 0,
   kInvalidLibraryVersion,
