@@ -2,17 +2,15 @@ using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.widgets;
 
 namespace UIWidgetsGallery.gallery {
-    /*
-    class CupertinoProgressIndicatorDemo : StatelessWidget {
-        public static string routeName = "/cupertino/progress_indicator";
-
-        public override
-            Widget build(BuildContext context) {
+    public class CupertinoProgressIndicatorDemo : StatelessWidget {
+        public CupertinoProgressIndicatorDemo(){}
+        public override Widget build(BuildContext context) {
             return new CupertinoPageScaffold(
                 navigationBar: new CupertinoNavigationBar(
-                    previousPageTitle: "Cupertino",
-                    middle: new Text("Activity Indicator"),
-                    trailing: new CupertinoDemoDocumentationButton(routeName)
+                    automaticallyImplyLeading: false,
+                    middle: new Text(
+                        "Activity Indicator"
+                    )
                 ),
                 child: new Center(
                     child: new CupertinoActivityIndicator()
@@ -20,5 +18,4 @@ namespace UIWidgetsGallery.gallery {
             );
         }
     }
-    */
 }
