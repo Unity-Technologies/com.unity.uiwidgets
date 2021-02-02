@@ -329,7 +329,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(!_candidateAvatars.Contains(avatar));
             D.assert(!_rejectedAvatars.Contains(avatar));
 
-            if (avatar.data is _DragAvatar<T> && (widget.onWillAccept == null || widget.onWillAccept(avatar.data))) {
+            if (avatar is _DragAvatar<T> && (widget.onWillAccept == null || widget.onWillAccept(avatar.data))) {
                 setState(() => { _candidateAvatars.Add(avatar); });
                 return true;
             }
