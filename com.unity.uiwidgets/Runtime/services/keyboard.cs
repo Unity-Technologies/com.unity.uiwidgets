@@ -132,11 +132,7 @@ namespace Unity.UIWidgets.service {
 
             while (!PointerEventConverter.KeyEvent.isEmpty()) {
                 var currentEvent = PointerEventConverter.KeyEvent.Dequeue();
-                Debug.Log($"event: {currentEvent} c: {currentEvent.character}");
                 var oldValue = _value;
-                if (currentEvent.modifiers == EventModifiers.FunctionKey) {
-                    continue;
-                }
 
                 if (currentEvent != null && currentEvent.type == EventType.KeyDown) {
                     var response = TextInput._handleGlobalInputKey(_client,
@@ -189,7 +185,7 @@ namespace Unity.UIWidgets.service {
                         this.isIMEInput = false;
                     }
                     else {
-                        Timer.create(TimeSpan.Zero, () => { TextInput._updateEditingState(_client, _value); });
+                        Timer.create(TimeSpan.Zero, () => { TextInput._updateEditingState(_client, _value, isIMEInput); });
                     }
                 }
             }

@@ -173,7 +173,7 @@ namespace Unity.UIWidgets.engine2 {
             return result;
         }
 
-        public float devicePixelRatioOverride;
+        public float devicePixelRatioOverride = 1;
 
 
         public float hardwareAntiAliasing;
@@ -373,11 +373,11 @@ namespace Unity.UIWidgets.engine2 {
         void Input_OnGUI() {
             Event e = Event.current;
             if (e.isKey) {
-                PointerEventConverter.KeyEvent.Enqueue(new Event(e));
-
                 UIWidgetsPanel_onKey(_ptr, e.keyCode, e.type == EventType.KeyDown);
-                if (e.character != 0) {
-                    UIWidgetsPanel_onChar(_ptr, e.character);
+                if (e.character != 0 || e.keyCode == KeyCode.Backspace) {
+                    PointerEventConverter.KeyEvent.Enqueue(new Event(e));
+                    // TODO: add on char
+                    // UIWidgetsPanel_onChar(_ptr, e.character);
                 }
             }
         }
