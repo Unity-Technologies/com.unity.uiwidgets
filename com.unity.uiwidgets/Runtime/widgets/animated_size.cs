@@ -16,7 +16,6 @@ namespace Unity.UIWidgets.widgets {
             TimeSpan? reverseDuration = null,
             TickerProvider vsync = null) : base(key: key, child: child) {
             D.assert(duration != null);
-            D.assert(reverseDuration != null);
             D.assert(vsync != null);
             this.alignment = alignment ?? Alignment.center;
             this.curve = curve ?? Curves.linear;

@@ -532,6 +532,10 @@ namespace Unity.UIWidgets.widgets {
         public static Future<T> pushNamed<T>(BuildContext context, string routeName, object arguments = null) {
             return of(context).pushNamed<T>(routeName, arguments: arguments);
         }
+        
+        public static Future pushNamed(BuildContext context, string routeName, object arguments = null) {
+            return of(context).pushNamed(routeName, arguments: arguments);
+        }
 
         public static Future<T> pushReplacementNamed<T,TO>(BuildContext context, string routeName,
             TO result = default , object arguments = null) {
@@ -1647,7 +1651,9 @@ namespace Unity.UIWidgets.widgets {
                 name: name,
                 arguments: arguments
             );
-            Route<T> route = widget.onGenerateRoute(settings) as Route<T>;
+
+            var routeee = widget.onGenerateRoute(settings);
+            Route<T> route = routeee as Route<T>;
             if (route == null && !allowNull) {
                 D.assert(() => {
                     if (widget.onUnknownRoute == null) {
@@ -1686,6 +1692,13 @@ namespace Unity.UIWidgets.widgets {
             object arguments = null
         ) {
             return push<T>(_routeNamed<T>(routeName, arguments: arguments));
+        }
+        
+        public Future pushNamed(
+            string routeName,
+            object arguments = null
+        ) {
+            return push(_routeNamed(routeName, arguments: arguments));
         }
 
         public Future<T> pushReplacementNamed<T, TO>(
