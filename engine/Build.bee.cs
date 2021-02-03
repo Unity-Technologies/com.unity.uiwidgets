@@ -330,6 +330,8 @@ class Build
                 
                 "src/shell/platform/common/cpp/incoming_message_dispatcher.cc",
                 "src/shell/platform/common/cpp/incoming_message_dispatcher.h",
+                "src/shell/platform/common/cpp/text_input_model.cc",
+                "src/shell/platform/common/cpp/text_input_model.h",
 
                 "src/shell/platform/embedder/embedder.cc",
                 "src/shell/platform/embedder/embedder.h",

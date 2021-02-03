@@ -96,8 +96,8 @@ TextInputPlugin::TextInputPlugin(uiwidgets::BinaryMessenger* messenger)
     : channel_(std::make_unique<uiwidgets::MethodChannel<rapidjson::Document>>(
           messenger,
           kChannelName,
-          &uiwidgets::JsonMethodCodec::GetInstance()))/*,
-      active_model_(nullptr)*/ {
+          &uiwidgets::JsonMethodCodec::GetInstance())),
+      active_model_(nullptr) {
   channel_->SetMethodCallHandler(
       [this](
           const uiwidgets::MethodCall<rapidjson::Document>& call,
@@ -116,7 +116,7 @@ void TextInputPlugin::HandleMethodCall(
   if (method.compare(kShowMethod) == 0 || method.compare(kHideMethod) == 0) {
     // These methods are no-ops.
   } else if (method.compare(kClearClientMethod) == 0) {
-    //active_model_ = nullptr;
+    active_model_ = nullptr;
   } else {
     // Every following method requires args.
     if (!method_call.arguments() || method_call.arguments()->IsNull()) {
@@ -138,15 +138,15 @@ void TextInputPlugin::HandleMethodCall(
         return;
       }
       int client_id = client_id_json.GetInt();
-      //active_model_ =
-      //    std::make_unique<TextInputModel>(client_id, client_config);
+      active_model_ =
+          std::make_unique<TextInputModel>(client_id, client_config);
     } else if (method.compare(kSetEditingStateMethod) == 0) {
-      /*if (active_model_ == nullptr) {
+      if (active_model_ == nullptr) {
         result->Error(
             kInternalConsistencyError,
             "Set editing state has been invoked, but no client is set.");
         return;
-      }*/
+      }
       auto text = args.FindMember(kTextKey);
       if (text == args.MemberEnd() || text->value.IsNull()) {
         result->Error(kBadArgumentError,
@@ -163,9 +163,9 @@ void TextInputPlugin::HandleMethodCall(
                       "Selection base/extent values invalid.");
         return;
       }
-     /* active_model_->SetEditingState(selection_base->value.GetInt(),
+      active_model_->SetEditingState(selection_base->value.GetInt(),
                                      selection_extent->value.GetInt(),
-                                     text->value.GetString());*/
+                                     text->value.GetString());
     } else {
       // Unhandled method.
       result->NotImplemented();
@@ -177,9 +177,9 @@ void TextInputPlugin::HandleMethodCall(
   result->Success();
 }
 
-// void TextInputPlugin::SendStateUpdate(const TextInputModel& model) {
-//   channel_->InvokeMethod(kUpdateEditingStateMethod, model.GetState());
-// }
+ void TextInputPlugin::SendStateUpdate(const TextInputModel& model) {
+   channel_->InvokeMethod(kUpdateEditingStateMethod, model.GetState());
+ }
 
 // void TextInputPlugin::EnterPressed(TextInputModel* model) {
 //   if (model->input_type() == kMultilineInputType) {

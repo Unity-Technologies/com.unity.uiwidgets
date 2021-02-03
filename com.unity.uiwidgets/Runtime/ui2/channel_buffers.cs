@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace Unity.UIWidgets.ui {
@@ -106,7 +107,8 @@ namespace Unity.UIWidgets.ui {
         }
 
         _StoredMessage? _pop(string channel) {
-            _RingBuffer<_StoredMessage> queue = _messages[channel];
+            Debug.Log("channel pop up");
+            _RingBuffer<_StoredMessage> queue = _messages.getOrDefault(channel, null);
             _StoredMessage? result = queue?.pop();
             return result;
         }

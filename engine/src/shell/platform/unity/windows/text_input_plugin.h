@@ -10,7 +10,7 @@
 #include "rapidjson/rapidjson.h"
 #include "shell/platform/common/cpp/client_wrapper/include/uiwidgets/binary_messenger.h"
 #include "shell/platform/common/cpp/client_wrapper/include/uiwidgets/method_channel.h"
-//#include "shell/platform/common/cpp/text_input_model.h"
+#include "shell/platform/common/cpp/text_input_model.h"
 //#include "shell/platform/windows/keyboard_hook_handler.h"
 #include "shell/platform/unity/windows/public/uiwidgets_windows.h"
 
@@ -34,6 +34,7 @@ class TextInputPlugin {
   //void SendStateUpdate(const TextInputModel& model);
 
   //void EnterPressed(TextInputModel* model);
+  void TextInputPlugin::SendStateUpdate(const TextInputModel& model);
 
   void HandleMethodCall(
       const uiwidgets::MethodCall<rapidjson::Document>& method_call,
@@ -41,7 +42,7 @@ class TextInputPlugin {
 
   std::unique_ptr<uiwidgets::MethodChannel<rapidjson::Document>> channel_;
 
-  //std::unique_ptr<TextInputModel> active_model_;
+  std::unique_ptr<TextInputModel> active_model_;
 };
 
 }  // namespace uiwidgets

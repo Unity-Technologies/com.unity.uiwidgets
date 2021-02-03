@@ -8,13 +8,15 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.service {
-    public delegate Future<object> Handler(MethodCall call);
+    public delegate Future Handler(MethodCall call);
 
     public class MethodChannel {
         public MethodChannel(string name, MethodCodec codec, BinaryMessenger binaryMessenger = null) {
             codec = new StandardMethodCodec();
             D.assert(name != null);
             D.assert(codec != null);
+            this.name = name;
+            this.codec = codec;
             _binaryMessenger = binaryMessenger;
         }
 
@@ -27,12 +29,42 @@ namespace Unity.UIWidgets.service {
 
         public readonly BinaryMessenger _binaryMessenger;
 
-        /*public void setMethodCallHandler( Handler handler) {
+        public void setMethodCallHandler(Handler handler) {
             binaryMessenger.setMessageHandler(
                 name,
-                handler == null ? null : (byte[] message) => _handleAsMethodCall(message, handler)
-            );
-        }*/
+                handler == null ? (MessageHandler) null : (byte[] message) => {
+                     _handleAsMethodCall(message, handler);
+                     return Future.value().to<byte[]>();
+                });
+        }
+        
+
+        Future<byte[]> _handleAsMethodCall(byte[] message, Handler handler) {
+            MethodCall call = codec.decodeMethodCall(message);
+            try {
+                return handler(call).then(obj => { return codec.encodeSuccessEnvelope(obj); }).to<byte[]>();
+            }
+            catch (PlatformException e) {
+                // TODO: check if this works
+                return Future.value(codec.encodeErrorEnvelope(
+                    code: e.code,
+                    message: e.message,
+                    details: e.details
+                )).to<byte[]>();
+            }
+            catch (MissingPluginException ex) {
+                return null;
+            }
+            catch (Exception e) {
+                return Future.value(
+                    codec.encodeErrorEnvelope(
+                        code: "error",
+                        message: e.ToString(),
+                        details: null
+                    )
+                ).to<byte[]>();
+            }
+        }
 
         // public Future<T> _invokeMethod<T>(string method,  bool missingOk, object arguments )  {
         //     // async
@@ -104,31 +136,56 @@ namespace Unity.UIWidgets.service {
         // }
     }
 
-    // class BasicMessageChannel<T> {
-    //     /// Creates a [BasicMessageChannel] with the specified [name], [codec] and [binaryMessenger].
-    //     ///
-    //     /// The [name] and [codec] arguments cannot be null. The default [ServicesBinding.defaultBinaryMessenger]
-    //     /// instance is used if [binaryMessenger] is null.
-    //     const BasicMessageChannel(this.name, this.codec, { BinaryMessenger binaryMessenger })
-    //     : assert(name != null),
-    //     assert(codec != null),
-    //     _binaryMessenger = binaryMessenger;
-    //
-    //     /// The logical channel on which communication happens, not null.
-    //     final String name;
-    //
-    //     /// The message codec used by this channel, not null.
-    //     final MessageCodec<T> codec;
-    //
-    //     /// The messenger which sends the bytes for this channel, not null.
-    //     BinaryMessenger get binaryMessenger => _binaryMessenger ?? defaultBinaryMessenger; // ignore: deprecated_member_use_from_same_package
-    //     final BinaryMessenger _binaryMessenger;
-    //
-    //     /// Sends the specified [message] to the platform plugins on this channel.
-    //     ///
-    //     /// Returns a [Future] which completes to the received response, which may
-    //     /// be null.
-    //     Future<T> send(T message) async {
-    //         return codec.decodeMessage(await binaryMessenger.send(name, codec.encodeMessage(message)));
-    //     }
+    class BasicMessageChannel<T> {
+        /// Creates a [BasicMessageChannel] with the specified [name], [codec] and [binaryMessenger].
+        ///
+        /// The [name] and [codec] arguments cannot be null. The default [ServicesBinding.defaultBinaryMessenger]
+        /// instance is used if [binaryMessenger] is null.
+        public BasicMessageChannel(string name, MessageCodec<T> codec, BinaryMessenger binaryMessenger = null) {
+            D.assert(name != null);
+            D.assert(codec != null);
+            this.name = name;
+            this.codec = codec;
+            _binaryMessenger = binaryMessenger;
+        }
+
+        /// The logical channel on which communication happens, not null.
+        public readonly string name;
+
+        /// The message codec used by this channel, not null.
+        public readonly MessageCodec<T> codec;
+
+        /// The messenger which sends the bytes for this channel, not null.
+        BinaryMessenger binaryMessenger {
+            get { return _binaryMessenger ?? ServicesBinding.instance.defaultBinaryMessenger; }
+        }
+
+        readonly BinaryMessenger _binaryMessenger;
+
+        /// Sends the specified [message] to the platform plugins on this channel.
+        ///
+        /// Returns a [Future] which completes to the received response, which may
+        /// be null.
+        public Future<T> send(T message) {
+            return binaryMessenger.send(name, codec.encodeMessage(message)).then_<T>(result => {
+                return FutureOr.value(codec.decodeMessage(result));
+            });
+        }
+
+        public delegate Future<T> Handler(T message);
+
+        public void setMessageHandler(Handler handler) {
+            if (handler == null) {
+                binaryMessenger.setMessageHandler(name, null);
+            }
+            else {
+                binaryMessenger.setMessageHandler(name,
+                    (byte[] message) => {
+                        return handler(codec.decodeMessage(message)).then_<byte[]>(result => {
+                            return FutureOr.value(codec.encodeMessage(result));
+                        });
+                    });
+            }
+        }
+    }
 }

@@ -525,6 +525,10 @@ namespace Unity.UIWidgets.external.simplejson
         {
             var sb = EscapeBuilder;
             sb.Length = 0;
+            if(aText == null) {
+                // TODO: template fix
+                aText = "";
+            }
             if (sb.Capacity < aText.Length + aText.Length / 10)
                 sb.Capacity = aText.Length + aText.Length / 10;
             foreach (char c in aText)

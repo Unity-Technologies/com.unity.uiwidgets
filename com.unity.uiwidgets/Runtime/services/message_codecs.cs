@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Globalization;
 using System.Text;
+using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.services;
 
@@ -503,6 +504,12 @@ public class StandardMessageCodec : MessageCodec<object> {
                 writeValue(buffer, entry.Key);
                 writeValue(buffer, entry.Value);
             }
+        } else if (value is JSONObject js) {
+            // TODO: template fix
+            buffer.putUint8(_valueString);
+            byte[] jsBytes = Encoding.UTF8.GetBytes(js.ToString());
+            writeSize(buffer, jsBytes.Length);
+            buffer.putUint8List(jsBytes);
         }
         else {
             throw new ArgumentException(value.ToString());

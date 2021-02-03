@@ -24,10 +24,10 @@ namespace Unity.UIWidgets.service {
             "flutter/textinput",
             new JSONMethodCodec()
         );
-        // public static  BasicMessageChannel<object> keyEvent = new BasicMessageChannel<object>(
-        //       "flutter/keyevent",
-        //       new JSONMessageCodec()
-        // );
+        public static  BasicMessageChannel<object> keyEvent = new BasicMessageChannel<object>(
+              "flutter/keyevent",
+              new JSONMessageCodec()
+        );
 
         // public static  BasicMessageChannel<string> lifecycle = BasicMessageChannel<string>(
         //       "flutter/lifecycle",

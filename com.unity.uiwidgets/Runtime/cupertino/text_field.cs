@@ -369,10 +369,12 @@ namespace Unity.UIWidgets.cupertino {
 
         public GlobalKey<EditableTextState> editableTextKey {
             get {
-                return GlobalKey<EditableTextState>.key();
+                return _editableTextKey;
             }
         }
 
+        public readonly GlobalKey<EditableTextState>  _editableTextKey =  GlobalKey<EditableTextState>.key();
+        
         public bool forcePressEnabled {
             get { return true; }
         }
