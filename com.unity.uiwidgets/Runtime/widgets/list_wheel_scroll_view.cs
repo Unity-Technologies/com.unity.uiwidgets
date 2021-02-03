@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.widgets {
                 return null;
             }
 
-            return new Container(child: children[index]);
+            return new IndexedSemantics(child: children[index], index: index);
         }
 
         public int trueIndexOf(int index) {
@@ -704,8 +704,7 @@ namespace Unity.UIWidgets.widgets {
             RenderListWheelViewport renderObject = this.renderObject;
             D.assert(renderObject.debugValidateChild(child));
             int slotNum = (int) slot;
-            if(slotNum >= 1)
-                renderObject.insert(child as RenderBox, after: _childElements.getOrDefault(slotNum - 1).renderObject as RenderBox);
+            renderObject.insert(child as RenderBox, after: _childElements.getOrDefault(slotNum - 1)?.renderObject as RenderBox);
             D.assert(renderObject == this.renderObject);
         }
 
