@@ -540,7 +540,7 @@ namespace Unity.UIWidgets.material {
             }
 
             D.assert(_currentSplash == null);
-            foreach (_HighlightType highlight in _highlights.Keys) {
+            foreach (_HighlightType highlight in _highlights.Keys.ToList()) {
                 _highlights[highlight]?.dispose();
                 _highlights[highlight] = null;
             }

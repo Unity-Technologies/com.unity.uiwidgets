@@ -36,10 +36,10 @@ namespace Unity.UIWidgets.material {
         public static BorderSide createBorderSide(BuildContext context, Color color = null, float? width = null) {
             Color effectiveColor = color
                                    ?? (context != null
-                                       ? (DividerTheme.of(context).color ?? Theme.of(context).dividerColor)
+                                       ? (DividerTheme.of(context)?.color ?? Theme.of(context).dividerColor)
                                        : null);
             float effectiveWidth = width
-                                   ?? (context != null ? DividerTheme.of(context).thickness : null)
+                                   ?? (context != null ? DividerTheme.of(context)?.thickness : null)
                                    ?? 0.0f;
 
             // Prevent assertion since it is possible that context is null and no color
@@ -58,10 +58,10 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             DividerThemeData dividerTheme = DividerTheme.of(context);
-            float height = this.height ?? dividerTheme.space ?? 16.0f;
-            float thickness = this.thickness ?? dividerTheme.thickness ?? 0.0f;
-            float indent = this.indent ?? dividerTheme.indent ?? 0.0f;
-            float endIndent = this.endIndent ?? dividerTheme.endIndent ?? 0.0f;
+            float height = this.height ?? dividerTheme?.space ?? 16.0f;
+            float thickness = this.thickness ?? dividerTheme?.thickness ?? 0.0f;
+            float indent = this.indent ?? dividerTheme?.indent ?? 0.0f;
+            float endIndent = this.endIndent ?? dividerTheme?.endIndent ?? 0.0f;
 
             return new SizedBox(
                 height: height,
