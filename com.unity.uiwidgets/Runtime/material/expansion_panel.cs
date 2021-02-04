@@ -275,28 +275,28 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             List<MergeableMaterialItem> items = new List<MergeableMaterialItem>();
 
-            for (int index = 0; index < widget.children.Count; index++) {
-                int expandIndex = index;
-                if (_isChildExpanded(index) && index != 0 && !_isChildExpanded(index - 1)) {
+            for (int i = 0; i < widget.children.Count; i++) {
+                int expandIndex = i;
+                if (_isChildExpanded(expandIndex) && expandIndex != 0 && !_isChildExpanded(expandIndex - 1)) {
                     items.Add(new MaterialGap(
-                        key: new _SaltedKey<BuildContext, int>(context, index * 2 - 1)));
+                        key: new _SaltedKey<BuildContext, int>(context, expandIndex * 2 - 1)));
                 }
 
-                ExpansionPanel child = widget.children[index];
+                ExpansionPanel child = widget.children[expandIndex];
                 Widget headerWidget = child.headerBuilder(
                     context,
-                    _isChildExpanded(index)
+                    _isChildExpanded(expandIndex)
                 );
 
 
                 Widget expandIconContainer = new Container(
                     //TODO: update to EdgeInsetsGeometry
-                    margin: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(end: 8.0f),
+                    //margin: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(end: 8.0f),
                     child: new ExpandIcon(
-                        isExpanded: _isChildExpanded(index),
+                        isExpanded: _isChildExpanded(expandIndex),
                         padding: EdgeInsets.all(16.0f),
                         onPressed: !child.canTapOnHeader
-                            ? (bool isExpanded) => _handlePressed(isExpanded, index)
+                            ? (bool isExpanded) => _handlePressed(isExpanded, expandIndex)
                             : (ValueChanged<bool>) null
                     )
                 );
@@ -306,7 +306,7 @@ namespace Unity.UIWidgets.material {
                             child: new AnimatedContainer(
                                 duration: widget.animationDuration,
                                 curve: Curves.fastOutSlowIn,
-                                margin: _isChildExpanded(index) ? widget.expandedHeaderPadding : EdgeInsets.zero,
+                                margin: _isChildExpanded(expandIndex) ? widget.expandedHeaderPadding : EdgeInsets.zero,
                                 child: new ConstrainedBox(
                                     constraints: new BoxConstraints(
                                         minHeight: material_._kPanelHeaderCollapsedHeight),
@@ -319,13 +319,13 @@ namespace Unity.UIWidgets.material {
                 );
                 if (child.canTapOnHeader) {
                     header = new InkWell(
-                        onTap: () => _handlePressed(_isChildExpanded(index), index),
+                        onTap: () => _handlePressed(_isChildExpanded(expandIndex), expandIndex),
                         child: header
                     );
                 }
 
                 items.Add(new MaterialSlice(
-                        key: new _SaltedKey<BuildContext, int>(context, index * 2),
+                        key: new _SaltedKey<BuildContext, int>(context, expandIndex * 2),
                         child: new Column(
                             children: new List<Widget> {
                                 header,
@@ -335,7 +335,7 @@ namespace Unity.UIWidgets.material {
                                     firstCurve: new Interval(0.0f, 0.6f, curve: Curves.fastOutSlowIn),
                                     secondCurve: new Interval(0.4f, 1.0f, curve: Curves.fastOutSlowIn),
                                     sizeCurve: Curves.fastOutSlowIn,
-                                    crossFadeState: _isChildExpanded(index)
+                                    crossFadeState: _isChildExpanded(expandIndex)
                                         ? CrossFadeState.showSecond
                                         : CrossFadeState.showFirst,
                                     duration: widget.animationDuration
@@ -345,9 +345,9 @@ namespace Unity.UIWidgets.material {
                     )
                 );
 
-                if (_isChildExpanded(index) && index != widget.children.Count - 1) {
+                if (_isChildExpanded(expandIndex) && expandIndex != widget.children.Count - 1) {
                     items.Add(new MaterialGap(
-                        key: new _SaltedKey<BuildContext, int>(context, index * 2 + 1)));
+                        key: new _SaltedKey<BuildContext, int>(context, expandIndex * 2 + 1)));
                 }
             }
 

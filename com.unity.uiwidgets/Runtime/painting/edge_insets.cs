@@ -286,7 +286,7 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
-    class EdgeInsetsDirectional : EdgeInsetsGeometry {
+    public class EdgeInsetsDirectional : EdgeInsetsGeometry {
         public EdgeInsetsDirectional(float start, float top, float end, float bottom) {
             this.start = start;
             this.end = end;
