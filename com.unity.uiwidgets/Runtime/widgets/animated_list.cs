@@ -20,7 +20,7 @@ namespace Unity.UIWidgets.widgets {
             while (min < max) {
                 int mid = min + ((max - min) >> 1);
                 T element = sortedList[mid];
-                int comp = element.compareTo(value);
+                int comp = element.CompareTo(value);
                 if (comp == 0) {
                     return mid;
                 }
@@ -34,7 +34,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class _ActiveItem  : Comparable<_ActiveItem> {
+    public class _ActiveItem  : IComparable {
         
         public _ActiveItem(
             AnimationController controller,
@@ -64,14 +64,9 @@ namespace Unity.UIWidgets.widgets {
         public int itemIndex;
 
 
-        public int compareTo(_ActiveItem other) {
-       
-            return itemIndex - other.itemIndex;
-        }
-
-        public int compare(Comparable<_ActiveItem> a, _ActiveItem b) {
-            return 0;
-            //throw new NotImplementedException();
+        public int CompareTo(object other) {
+            D.assert(GetType() == other.GetType());
+            return itemIndex - ((_ActiveItem)other).itemIndex;
         }
     }
     public class AnimatedList : StatefulWidget {
