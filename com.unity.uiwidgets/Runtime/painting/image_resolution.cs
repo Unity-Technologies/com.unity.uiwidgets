@@ -13,6 +13,7 @@ namespace Unity.UIWidgets.painting {
     public class AssetImage : AssetBundleImageProvider, IEquatable<AssetImage> {
         public AssetImage(string assetName,
             AssetBundle bundle = null) {
+            D.assert(false,() => "AssetImage is currently not supported, you can use FileImage instead");
             D.assert(assetName != null);
             this.assetName = assetName;
             this.bundle = bundle;

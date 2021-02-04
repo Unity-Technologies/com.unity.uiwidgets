@@ -1533,7 +1533,7 @@ namespace Unity.UIWidgets.widgets {
                     hasSameSuperclass = oldElementClass == newWidgetClass;
                     return true;
                 });
-                if (hasSameSuperclass && child.widget == newWidget) {
+                if (hasSameSuperclass && Equals(child.widget,newWidget)) {
                     if (!Equals(child.slot, newSlot)) {
                         updateSlotForChild(child, newSlot);
                     }
@@ -1546,7 +1546,7 @@ namespace Unity.UIWidgets.widgets {
                     }
 
                     child.update(newWidget);
-                    D.assert(child.widget == newWidget);
+                    D.assert(Equals(child.widget, newWidget));
                     D.assert(() => {
                         child.owner._debugElementWasRebuilt(child);
                         return true;
