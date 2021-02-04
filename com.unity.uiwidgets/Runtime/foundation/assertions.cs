@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.foundation {
     
     internal abstract class _ErrorDiagnostic : DiagnosticsProperty<List<object>> {
         internal _ErrorDiagnostic(
-            String message,
+            string message,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.flat,
             DiagnosticLevel level = DiagnosticLevel.info
         ) : base(

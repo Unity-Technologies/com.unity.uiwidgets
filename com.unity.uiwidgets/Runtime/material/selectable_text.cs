@@ -352,7 +352,7 @@ namespace Unity.UIWidgets.material {
 
   public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
       base.debugFillProperties(properties);
-      properties.add( new DiagnosticsProperty<String>("data", data, defaultValue: null));
+      properties.add( new DiagnosticsProperty<string>("data", data, defaultValue: null));
       properties.add( new DiagnosticsProperty<FocusNode>("focusNode", focusNode, defaultValue: null));
       properties.add( new DiagnosticsProperty<TextStyle>("style", style, defaultValue: null));
       properties.add( new DiagnosticsProperty<bool>("autofocus", autofocus, defaultValue: false));

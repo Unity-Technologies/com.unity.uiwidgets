@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.material {
         public static readonly Size _inputLandscapeDialogSize = new Size(496f, 160.0f);
         public static readonly TimeSpan _dialogSizeAnimationDuration = new TimeSpan(0, 0, 0, 0, 200);
 
-        public Future<DateTime> showDatePicker(
+        public static Future<DateTime> showDatePicker(
             BuildContext context,
             DateTime initialDate,
             DateTime firstDate,

@@ -20,7 +20,7 @@ namespace Unity.UIWidgets.widgets {
             this.title = title;
         }
 
-        public readonly String title;
+        public readonly string title;
         public readonly Color color;
         public readonly Widget child;
         public override Widget build(BuildContext context) {

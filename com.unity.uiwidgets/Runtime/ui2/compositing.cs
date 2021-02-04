@@ -169,7 +169,7 @@ namespace Unity.UIWidgets.ui {
             return true;
         }
 
-        bool _debugCheckCanBeUsedAsOldLayer(_EngineLayerWrapper layer, String methodName) {
+        bool _debugCheckCanBeUsedAsOldLayer(_EngineLayerWrapper layer, string methodName) {
             D.assert(() => {
                 if (layer == null) {
                     return true;
