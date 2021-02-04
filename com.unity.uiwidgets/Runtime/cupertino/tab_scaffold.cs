@@ -285,9 +285,10 @@ namespace Unity.UIWidgets.cupertino {
                     List<FocusScopeNode> scopeNodes = new List<FocusScopeNode>();
                     var length = widget.tabNumber - tabFocusNodes.Count;
                     for (int i = 0; i < length; i++) {
-                        tabFocusNodes.Add(new FocusScopeNode(debugLabel: $"CupertinoTabScaffold Tab {i + tabFocusNodes.Count}")
+                        scopeNodes.Add(new FocusScopeNode(debugLabel: $"CupertinoTabScaffold Tab {i + tabFocusNodes.Count}")
                         );
                     }
+                    tabFocusNodes.AddRange(scopeNodes);
 
                 }
 
