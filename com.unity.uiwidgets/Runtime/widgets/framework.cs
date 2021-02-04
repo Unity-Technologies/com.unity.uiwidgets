@@ -1534,14 +1534,14 @@ namespace Unity.UIWidgets.widgets {
                     return true;
                 });
                 if (hasSameSuperclass && child.widget == newWidget) {
-                    if (child.slot != newSlot) {
+                    if (!Equals(child.slot, newSlot)) {
                         updateSlotForChild(child, newSlot);
                     }
 
                     newChild = child;
                 }
                 else if (hasSameSuperclass && Widget.canUpdate(child.widget, newWidget)) {
-                    if (child.slot != newSlot) {
+                    if (!Equals(child.slot, newSlot)) {
                         updateSlotForChild(child, newSlot);
                     }
 

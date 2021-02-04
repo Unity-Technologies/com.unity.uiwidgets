@@ -140,7 +140,7 @@ namespace Unity.UIWidgets.service {
 
                     if (response.swallow) {
                         if (response.inputAction != null) {
-                            Window.instance.run(
+                            Timer.create(TimeSpan.Zero,
                                 () => { TextInput._performAction(_client, response.inputAction.Value); });
                         }
 
@@ -161,7 +161,7 @@ namespace Unity.UIWidgets.service {
                         }
 
                         if (ch == '\n') {
-                            Window.instance.run(() => { TextInput._performAction(_client, TextInputAction.newline); });
+                            Timer.create(TimeSpan.Zero, () => { TextInput._performAction(_client, TextInputAction.newline); });
                         }
 
                         if (_validateCharacter(ch)) {
@@ -170,7 +170,6 @@ namespace Unity.UIWidgets.service {
                     }
                     else if (!string.IsNullOrEmpty(currentEvent.keyCode.ToString())) {
                         isIMEInput = true;
-                        Debug.Log($"event:? {currentEvent}");
                         _value = _value.compose(currentEvent.keyCode.ToString());
                     }
 
@@ -222,7 +221,7 @@ namespace Unity.UIWidgets.service {
             if (_keyboard.status == TouchScreenKeyboard.Status.Done) {
                 if (!_screenKeyboardDone) {
                     _screenKeyboardDone = true;
-                    Window.instance.run(() => {
+                    Timer.create(TimeSpan.Zero, () => {
                         TextInput._performAction(_client,
                             TextInputAction.done);
                     });
@@ -240,7 +239,7 @@ namespace Unity.UIWidgets.service {
 
                 _value = newValue;
                 if (changed) {
-                    Window.instance.run(() => {
+                    Timer.create(TimeSpan.Zero, () => {
                         TextInput._updateEditingState(_client,
                             _value);
                     });

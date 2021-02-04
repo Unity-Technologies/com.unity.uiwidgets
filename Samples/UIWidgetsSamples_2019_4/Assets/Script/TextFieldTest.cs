@@ -5,7 +5,7 @@ using Unity.UIWidgets.cupertino;
 
 namespace UIWidgetsSample
 {
-    public class TextField : UIWidgetsPanel
+    public class TextFieldTest : UIWidgetsPanel
     {
         protected void OnEnable()
         {
