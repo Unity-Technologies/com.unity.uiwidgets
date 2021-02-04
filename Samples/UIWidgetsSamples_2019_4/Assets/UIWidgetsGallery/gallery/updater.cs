@@ -35,11 +35,6 @@ namespace UIWidgetsGallery.gallery
 
     internal class UpdaterState : State<Updater>
     {
-        private static void launch(string url)
-        {
-            Process.Start(url);
-        }
-
         public override void initState()
         {
             base.initState();
@@ -61,7 +56,7 @@ namespace UIWidgetsGallery.gallery
                     material_.showDialog<bool>(context: this.context, builder: this._buildDialog).then(wantsUpdate =>
                     {
                         if (wantsUpdate != null && (bool) wantsUpdate)
-                            launch((string) updateUrl);
+                            BrowserUtils.launch((string) updateUrl);
                     });
             });
         }

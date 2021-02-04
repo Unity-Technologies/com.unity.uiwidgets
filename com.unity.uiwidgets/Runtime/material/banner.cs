@@ -6,7 +6,7 @@ using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-    class MaterialBanner : StatelessWidget {
+    public class MaterialBanner : StatelessWidget {
         public MaterialBanner(
             Key key = null,
             Widget content = null,

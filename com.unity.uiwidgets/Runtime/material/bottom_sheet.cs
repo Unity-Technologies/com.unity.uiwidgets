@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.material {
         public static Future<T> showModalBottomSheet<T>(
             BuildContext context,
             WidgetBuilder builder,
-            Color backgroundColor,
+            Color backgroundColor = null,
             float? elevation = null,
             ShapeBorder shape = null,
             Clip? clipBehavior = null,

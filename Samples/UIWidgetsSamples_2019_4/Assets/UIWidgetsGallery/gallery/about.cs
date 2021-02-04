@@ -54,15 +54,10 @@ namespace UIWidgetsGallery.gallery
     }
     public class _LinkTextSpan : TextSpan
     {
-        private static void launch(string url)
-        {
-            Process.Start(url);
-        }
-
         public _LinkTextSpan(TextStyle style = null, string url = null, string text = null) : base(
             style: style,
             text: text ?? url,
-            recognizer: new TapGestureRecognizer {onTap = () => { launch(url); }}
+            recognizer: new TapGestureRecognizer {onTap = () => { BrowserUtils.launch(url); }}
         )
         {
         }
