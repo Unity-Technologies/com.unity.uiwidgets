@@ -86,7 +86,7 @@ namespace UIWidgetsGallery.gallery
                   width: 500,
                   child: new Padding(
                     padding: EdgeInsets.all(16.0f),
-                    child: CupertinoSlidingSegmentedControl<int>(
+                    child: new CupertinoSlidingSegmentedControl<int>(
                       children: children,
                       onValueChanged: onValueChanged,
                       groupValue: currentSegment
