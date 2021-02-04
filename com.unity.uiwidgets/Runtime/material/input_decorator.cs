@@ -933,7 +933,6 @@ namespace Unity.UIWidgets.material {
                 return _textAlignVertical;
             }
             set {
-                D.assert(value != null);
                 if (_textAlignVertical == value) {
                     return;
                 }
@@ -1706,7 +1705,6 @@ namespace Unity.UIWidgets.material {
         ) : base(key: key) {
             D.assert(decoration != null);
             D.assert(textDirection != null);
-            D.assert(textAlignVertical != null);
             D.assert(textBaseline != null);
             D.assert(expands != null);
             this.decoration = decoration;

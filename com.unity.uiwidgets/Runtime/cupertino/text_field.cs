@@ -6,9 +6,11 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using StrutStyle = Unity.UIWidgets.painting.StrutStyle;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 using Brightness = Unity.UIWidgets.ui.Brightness;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.cupertino {
     class CupertinoTextFieldUtils {
@@ -369,14 +371,15 @@ namespace Unity.UIWidgets.cupertino {
 
         public GlobalKey<EditableTextState> editableTextKey {
             get {
-                return GlobalKey<EditableTextState>.key();
+                return _editableTextKey;
             }
         }
+
+        public readonly GlobalKey<EditableTextState>  _editableTextKey =  GlobalKey<EditableTextState>.key();
 
         public bool forcePressEnabled {
             get { return true; }
         }
-        //public readonly GlobalKey<EditableTextState>  editableTextKey =  GlobalKey<EditableTextState>.key();
 
         public bool selectionEnabled {
             get { return widget.selectionEnabled;}
