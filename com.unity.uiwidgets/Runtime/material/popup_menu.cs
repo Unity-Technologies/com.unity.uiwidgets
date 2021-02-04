@@ -622,7 +622,7 @@ namespace Unity.UIWidgets.material {
             PopupMenuCanceled onCanceled = null,
             string tooltip = null,
             float? elevation = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Widget child = null,
             Icon icon = null,
             Offset offset = null,
@@ -661,7 +661,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly float? elevation;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly Widget child;
 

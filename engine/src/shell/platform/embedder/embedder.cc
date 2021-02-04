@@ -842,6 +842,10 @@ inline PointerData::Change ToPointerDataChange(UIWidgetsPointerPhase phase) {
       return PointerData::Change::kRemove;
     case kHover:
       return PointerData::Change::kHover;
+    case kMouseDown:
+      return PointerData::Change::kMouseDown;
+    case kMouseUp:
+      return PointerData::Change::kMouseUp;
   }
   return PointerData::Change::kCancel;
 }
@@ -855,6 +859,8 @@ inline PointerData::DeviceKind ToPointerDataKind(
       return PointerData::DeviceKind::kMouse;
     case kUIWidgetsPointerDeviceKindTouch:
       return PointerData::DeviceKind::kTouch;
+    case kUIWidgetsPointerDeviceKindKeyboard:
+      return PointerData::DeviceKind::kKeyboard;
   }
   return PointerData::DeviceKind::kMouse;
 }

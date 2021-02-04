@@ -152,8 +152,8 @@ namespace Unity.UIWidgets.widgets {
             bool cursorOpacityAnimates = false,
             Offset cursorOffset = null,
             bool paintCursorAboveText = false,
-            ui.BoxHeightStyle selectionHeightStyle = ui.BoxHeightStyle.tight,
-            ui.BoxWidthStyle selectionWidthStyle = ui.BoxWidthStyle.tight,
+            BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+            BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
             EdgeInsets scrollPadding = null,
             Brightness? keyboardAppearance = Brightness.light,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start,
@@ -287,8 +287,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly VoidCallback onSelectionHandleTapped;
         public readonly ScrollController scrollController;
         public readonly bool showCursor;
-        public readonly ui.BoxHeightStyle selectionHeightStyle;
-        public readonly ui.BoxWidthStyle selectionWidthStyle;
+        public readonly BoxHeightStyle selectionHeightStyle;
+        public readonly BoxWidthStyle selectionWidthStyle;
         public readonly bool forceLine;
         public readonly bool showSelectionHandles ;
         public readonly ToolbarOptions toolbarOptions;
@@ -359,7 +359,7 @@ namespace Unity.UIWidgets.widgets {
             properties.add( new DiagnosticsProperty<bool>("enableSuggestions", enableSuggestions, defaultValue: true));
             style?.debugFillProperties(properties);
             properties.add( new EnumProperty<TextAlign>("textAlign", textAlign, defaultValue: null));
-            properties.add( new EnumProperty<TextDirection>("textDirection", textDirection.Value, defaultValue: null));
+            properties.add( new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
             properties.add( new DiagnosticsProperty<Locale>("locale", locale, defaultValue: null));
             properties.add( new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: null));
             properties.add( new IntProperty("maxLines", maxLines, defaultValue: 1));
@@ -1092,7 +1092,7 @@ namespace Unity.UIWidgets.widgets {
 
         void _didChangeTextEditingValue() {
             _updateRemoteEditingValueIfNeeded();
-            //_updateImePosIfNeed();
+            _updateImePosIfNeed();
             _startOrStopCursorTimerIfNeeded();
             _updateOrDisposeSelectionOverlayIfNeeded();
             _textChangedSinceLastCaretUpdate = true;
@@ -1279,10 +1279,36 @@ namespace Unity.UIWidgets.widgets {
             return TouchScreenKeyboard.isSupported && widget.unityTouchKeyboard;
         }
 
-        
+        Offset _getImePos() {
+            if (_hasInputConnection && _textInputConnection.imeRequired()) {
+                var localPos = renderEditable.getLocalRectForCaret(_value.selection.basePos).bottomLeft;
+                return renderEditable.localToGlobal(localPos);
+            }
+
+            return null;
+        }
 
         bool _imePosUpdateScheduled = false;
 
+        void _updateImePosIfNeed() {
+            if (!_hasInputConnection || !_textInputConnection.imeRequired()) {
+                return;
+            }
+
+            if (_imePosUpdateScheduled) {
+                return;
+            }
+
+            _imePosUpdateScheduled = true;
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                _imePosUpdateScheduled = false;
+                if (!_hasInputConnection) {
+                    return;
+                }
+
+                _textInputConnection.setIMEPos(_getImePos());
+            });
+        }
         
     }
     
@@ -1319,8 +1345,8 @@ namespace Unity.UIWidgets.widgets {
         public readonly float? cursorWidth;
         public readonly Radius cursorRadius;
         public readonly Offset cursorOffset;
-        public readonly ui.BoxHeightStyle selectionHeightStyle;
-        public readonly ui.BoxWidthStyle selectionWidthStyle;
+        public readonly BoxHeightStyle selectionHeightStyle;
+        public readonly BoxWidthStyle selectionWidthStyle;
         public readonly bool enableInteractiveSelection;
         public readonly TextSelectionDelegate textSelectionDelegate;
         public readonly bool? paintCursorAboveText;
@@ -1362,8 +1388,8 @@ namespace Unity.UIWidgets.widgets {
             Radius cursorRadius = null,
             Offset cursorOffset = null,
             bool? paintCursorAboveText = null,
-            ui.BoxHeightStyle selectionHeightStyle = ui.BoxHeightStyle.tight,
-            ui.BoxWidthStyle selectionWidthStyle = ui.BoxWidthStyle.tight,
+            BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+            BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
             bool enableInteractiveSelection = true,
             TextSelectionDelegate textSelectionDelegate = null,
             float? devicePixelRatio = null

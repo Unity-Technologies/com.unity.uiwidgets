@@ -26,10 +26,10 @@ namespace Unity.UIWidgets.material {
         public const float _kMenuItemHeight = kMinInteractiveDimension;
         public const float _kDenseButtonHeight = 24.0f;
         public static readonly EdgeInsets _kMenuItemPadding = EdgeInsets.symmetric(horizontal: 16.0f);
-        public static readonly EdgeInsets _kAlignedButtonPadding = EdgeInsets.only(left: 16.0f, right: 4.0f);
+        public static readonly EdgeInsetsGeometry _kAlignedButtonPadding = EdgeInsets.only(left: 16.0f, right: 4.0f);
         public static readonly EdgeInsets _kUnalignedButtonPadding = EdgeInsets.zero;
         public static readonly EdgeInsets _kAlignedMenuMargin = EdgeInsets.zero;
-        public static readonly EdgeInsets _kUnalignedMenuMargin = EdgeInsets.only(left: 16.0f, right: 24.0f);
+        public static readonly EdgeInsetsGeometry _kUnalignedMenuMargin = EdgeInsets.only(left: 16.0f, right: 24.0f);
 
         public delegate List<Widget> DropdownButtonBuilder(BuildContext context);
     }
@@ -406,7 +406,7 @@ namespace Unity.UIWidgets.material {
     class _DropdownRoute<T> : PopupRoute<_DropdownRouteResult<T>>  {
         public _DropdownRoute(
             List<_MenuItem<T>> items = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Rect buttonRect = null,
             int? selectedIndex = null,
             int elevation = 8,
@@ -431,7 +431,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public readonly List<_MenuItem<T>> items;
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
         public readonly Rect buttonRect;
         public readonly int? selectedIndex;
         public readonly int elevation;
@@ -532,7 +532,7 @@ namespace Unity.UIWidgets.material {
             _DropdownRoute<T> route = null,
             BoxConstraints constraints = null,
             List<_MenuItem<T>> items = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Rect buttonRect = null,
             int? selectedIndex = null,
             int elevation = 0,
@@ -555,7 +555,7 @@ namespace Unity.UIWidgets.material {
         public readonly _DropdownRoute<T> route;
         public readonly BoxConstraints constraints;
         public readonly List<_MenuItem<T>> items;
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
         public readonly Rect buttonRect;
         public readonly int? selectedIndex;
         public readonly int elevation;
@@ -931,7 +931,8 @@ namespace Unity.UIWidgets.material {
         void _handleTap() {
             RenderBox itemBox = (RenderBox) context.findRenderObject();
             Rect itemRect = itemBox.localToGlobal(Offset.zero) & itemBox.size;
-            EdgeInsets menuMargin = ButtonTheme.of(context).alignedDropdown
+            TextDirection textDirection = Directionality.of(context);
+            EdgeInsetsGeometry menuMargin = ButtonTheme.of(context).alignedDropdown
                 ? material_._kAlignedMenuMargin
                 : material_._kUnalignedMenuMargin;
 
@@ -951,8 +952,8 @@ namespace Unity.UIWidgets.material {
             D.assert(_dropdownRoute == null);
             _dropdownRoute = new _DropdownRoute<T>(
                 items: menuItems,
-                buttonRect: menuMargin.inflateRect(itemRect),
-                padding: material_._kMenuItemPadding,
+                buttonRect: menuMargin.resolve(textDirection).inflateRect(itemRect),
+                padding: material_._kMenuItemPadding.resolve(textDirection),
                 selectedIndex: _selectedIndex ?? 0,
                 elevation: widget.elevation,
                 theme: Theme.of(context, shadowThemeOnly: true),
@@ -1092,7 +1093,7 @@ namespace Unity.UIWidgets.material {
                 ));
             }
 
-            EdgeInsets padding = ButtonTheme.of(context).alignedDropdown
+            EdgeInsetsGeometry padding = ButtonTheme.of(context).alignedDropdown
                 ? material_._kAlignedButtonPadding
                 : material_._kUnalignedButtonPadding;
 

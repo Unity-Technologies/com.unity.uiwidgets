@@ -296,7 +296,7 @@ namespace Unity.UIWidgets.material {
         public UserAccountsDrawerHeader(
             Key key = null,
             Decoration decoration = null,
-            EdgeInsets margin = null,
+            EdgeInsetsGeometry margin = null,
             Widget currentAccountPicture = null,
             List<Widget> otherAccountsPictures = null,
             Widget accountName = null,
@@ -318,7 +318,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly Decoration decoration;
 
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
 
         public readonly Widget currentAccountPicture;
 

@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.material {
             Widget subtitle = null,
             bool isThreeLine = false,
             bool? dense = null,
-            EdgeInsets contentPadding = null,
+            EdgeInsetsGeometry contentPadding = null,
             Widget secondary = null,
             bool selected = false,
             _SwitchListTileType _switchListTileType = _SwitchListTileType.material
@@ -127,7 +127,7 @@ namespace Unity.UIWidgets.material {
         public readonly bool? dense;
 
 
-        public readonly EdgeInsets contentPadding;
+        public readonly EdgeInsetsGeometry contentPadding;
 
 
         public readonly bool selected;

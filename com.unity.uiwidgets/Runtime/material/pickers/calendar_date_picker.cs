@@ -335,8 +335,7 @@ namespace Unity.UIWidgets.material {
             }
 
             return new Container(
-                //TODO: update to EdgeInsetsGeometry
-                padding: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(start: 16, end: 4),
+                padding: EdgeInsetsDirectional.only(start: 16, end: 4),
                 height: material_._subHeaderHeight,
                 child: new Row(
                     children: rowChildren
@@ -497,8 +496,7 @@ namespace Unity.UIWidgets.material {
             return new Column(
                 children: new List<Widget> {
                     new Container(
-                        //TODO: update EdgeInsetsGeometry
-                        padding: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(start: 16, end: 4),
+                        padding: EdgeInsetsDirectional.only(start: 16, end: 4),
                         height: material_._subHeaderHeight,
                         child:
                         new Row(

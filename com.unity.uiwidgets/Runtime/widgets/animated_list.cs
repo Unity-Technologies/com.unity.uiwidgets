@@ -153,7 +153,7 @@ namespace Unity.UIWidgets.widgets {
                 shrinkWrap: widget.shrinkWrap, 
                 slivers: new List<Widget>{
                     new SliverPadding(
-                        padding: (EdgeInsets)widget.padding ??  EdgeInsets.all(0), 
+                        padding: widget.padding ??  EdgeInsets.all(0), 
                         sliver: new SliverAnimatedList(
                             key: _sliverAnimatedListKey, 
                             itemBuilder: widget.itemBuilder, 

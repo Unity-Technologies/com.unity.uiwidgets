@@ -370,6 +370,23 @@ void UIWidgetsPanel::SendPointerEventWithData(
   }
 }
 
+void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown) {
+  if (process_events_) {
+    UIWidgetsPointerEvent event = {};
+    event.phase = isKeyDown ? UIWidgetsPointerPhase::kMouseDown : UIWidgetsPointerPhase::kMouseUp;
+    event.device_kind =
+        UIWidgetsPointerDeviceKind::kUIWidgetsPointerDeviceKindKeyboard;
+    event.buttons = keyCode;
+    event.struct_size = sizeof(event);
+    event.timestamp =
+        std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::high_resolution_clock::now().time_since_epoch())
+            .count();
+
+    UIWidgetsEngineSendPointerEvent(engine_, &event, 1);
+  }
+}
+
 void UIWidgetsPanel::OnMouseMove(float x, float y) {
   if (process_events_) {
     SendMouseMove(x, y);
@@ -458,6 +475,12 @@ UIWidgetsPanel_registerTexture(UIWidgetsPanel* panel,
 UIWIDGETS_API(void)
 UIWidgetsPanel_unregisterTexture(UIWidgetsPanel* panel, int texture_id) {
   panel->UnregisterTexture(texture_id);
+}
+
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onKey(UIWidgetsPanel* panel, int keyCode, bool isKeyDown) {
+  panel->OnKeyDown(keyCode, isKeyDown);
 }
 
 UIWIDGETS_API(void)

@@ -61,7 +61,7 @@ namespace UIWidgetsGallery.gallery {
                                                 "Disabled - Off"
                                             ),
                                         }
-                                    )
+                                    ),
                                 }
                             )
                         )

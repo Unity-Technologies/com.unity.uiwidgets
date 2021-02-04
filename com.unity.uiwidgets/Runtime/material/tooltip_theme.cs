@@ -9,8 +9,8 @@ namespace Unity.UIWidgets.material {
     public class TooltipThemeData : Diagnosticable, IEquatable<TooltipThemeData> {
         public TooltipThemeData(
             float? height = null,
-            EdgeInsets padding = null,
-            EdgeInsets margin = null,
+            EdgeInsetsGeometry padding = null,
+            EdgeInsetsGeometry margin = null,
             float? verticalOffset = null,
             bool? preferBelow = null,
             bool? excludeFromSemantics = null,
@@ -33,9 +33,9 @@ namespace Unity.UIWidgets.material {
         
         public readonly float? height;
         
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
         
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
         
         public readonly float? verticalOffset;
         
@@ -53,8 +53,8 @@ namespace Unity.UIWidgets.material {
 
         public TooltipThemeData copyWith(
             float? height = null,
-            EdgeInsets padding = null,
-            EdgeInsets margin = null,
+            EdgeInsetsGeometry padding = null,
+            EdgeInsetsGeometry margin = null,
             float? verticalOffset = null,
             bool? preferBelow = null,
             bool? excludeFromSemantics = null,
@@ -83,8 +83,8 @@ namespace Unity.UIWidgets.material {
 
             return new TooltipThemeData(
               height: MathUtils.lerpNullableFloat(a?.height, b?.height, t),
-              padding: EdgeInsets.lerp(a?.padding, b?.padding, t),
-              margin: EdgeInsets.lerp(a?.margin, b?.margin, t),
+              padding: EdgeInsetsGeometry.lerp(a?.padding, b?.padding, t),
+              margin: EdgeInsetsGeometry.lerp(a?.margin, b?.margin, t),
               verticalOffset: MathUtils.lerpNullableFloat(a?.verticalOffset, b?.verticalOffset, t),
               preferBelow: t < 0.5f ? a.preferBelow: b.preferBelow,
               excludeFromSemantics: t < 0.5f ? a.excludeFromSemantics : b.excludeFromSemantics,

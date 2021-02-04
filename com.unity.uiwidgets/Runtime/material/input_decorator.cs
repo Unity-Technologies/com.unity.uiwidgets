@@ -544,7 +544,7 @@ namespace Unity.UIWidgets.material {
 
     class _Decoration : IEquatable<_Decoration> {
         public _Decoration(
-            EdgeInsets contentPadding,
+            EdgeInsetsGeometry contentPadding,
             bool isCollapsed,
             float floatingLabelHeight,
             float floatingLabelProgress,
@@ -588,7 +588,7 @@ namespace Unity.UIWidgets.material {
             this.container = container;
         }
 
-        public readonly EdgeInsets contentPadding;
+        public readonly EdgeInsetsGeometry contentPadding;
         public readonly bool isCollapsed;
         public readonly float floatingLabelHeight;
         public readonly float floatingLabelProgress;
@@ -933,7 +933,6 @@ namespace Unity.UIWidgets.material {
                 return _textAlignVertical;
             }
             set {
-                D.assert(value != null);
                 if (_textAlignVertical == value) {
                     return;
                 }
@@ -1051,7 +1050,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public EdgeInsets contentPadding {
-            get { return decoration.contentPadding; }
+            get { return (EdgeInsets) decoration.contentPadding; }
         }
 
         float _layoutLineBox(RenderBox box, BoxConstraints constraints) {
@@ -1706,7 +1705,6 @@ namespace Unity.UIWidgets.material {
         ) : base(key: key) {
             D.assert(decoration != null);
             D.assert(textDirection != null);
-            D.assert(textAlignVertical != null);
             D.assert(textBaseline != null);
             D.assert(expands != null);
             this.decoration = decoration;
@@ -2264,7 +2262,7 @@ namespace Unity.UIWidgets.material {
             }
 
             TextDirection textDirection = Directionality.of(context);
-            EdgeInsets decorationContentPadding = decoration.contentPadding;
+            EdgeInsets decorationContentPadding = decoration.contentPadding?.resolve(textDirection);
             EdgeInsets contentPadding;
             float? floatingLabelHeight;
             if (decoration.isCollapsed) {
@@ -2341,7 +2339,7 @@ namespace Unity.UIWidgets.material {
             bool? hasFloatingPlaceholder = true,
             FloatingLabelBehavior? floatingLabelBehavior = FloatingLabelBehavior.auto,
             bool? isDense = null,
-            EdgeInsets contentPadding = null,
+            EdgeInsetsGeometry contentPadding = null,
             Widget prefixIcon = null,
             BoxConstraints prefixIconConstraints = null,
             Widget prefix = null,
@@ -2510,7 +2508,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly bool? isDense;
 
-        public readonly EdgeInsets contentPadding;
+        public readonly EdgeInsetsGeometry contentPadding;
 
         public bool isCollapsed;
 
@@ -2580,7 +2578,7 @@ namespace Unity.UIWidgets.material {
             bool? hasFloatingPlaceholder = null,
             FloatingLabelBehavior? floatingLabelBehavior = null,
             bool? isDense = null,
-            EdgeInsets contentPadding = null,
+            EdgeInsetsGeometry contentPadding = null,
             Widget prefixIcon = null,
             Widget prefix = null,
             string prefixText = null,
@@ -2975,7 +2973,7 @@ namespace Unity.UIWidgets.material {
             bool? hasFloatingPlaceholder = true,
             FloatingLabelBehavior? floatingLabelBehavior = FloatingLabelBehavior.auto,
             bool? isDense = false,
-            EdgeInsets contentPadding = null,
+            EdgeInsetsGeometry contentPadding = null,
             bool? isCollapsed = false,
             TextStyle prefixStyle = null,
             TextStyle suffixStyle = null,
@@ -3043,7 +3041,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly bool? isDense;
 
-        public readonly EdgeInsets contentPadding;
+        public readonly EdgeInsetsGeometry contentPadding;
 
         public readonly bool? isCollapsed;
 
@@ -3085,7 +3083,7 @@ namespace Unity.UIWidgets.material {
             bool? hasFloatingPlaceholder = null,
             FloatingLabelBehavior? floatingLabelBehavior = null,
             bool? isDense = null,
-            EdgeInsets contentPadding = null,
+            EdgeInsetsGeometry contentPadding = null,
             bool? isCollapsed = null,
             TextStyle prefixStyle = null,
             TextStyle suffixStyle = null,
@@ -3237,7 +3235,7 @@ namespace Unity.UIWidgets.material {
             properties.add(new DiagnosticsProperty<FloatingLabelBehavior?>("floatingLabelBehavior",
                 floatingLabelBehavior, defaultValue: defaultTheme.floatingLabelBehavior));
             properties.add(new DiagnosticsProperty<bool?>("isDense", isDense, defaultValue: defaultTheme.isDense));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("contentPadding", contentPadding,
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("contentPadding", contentPadding,
                 defaultValue: defaultTheme.contentPadding));
             properties.add(new DiagnosticsProperty<bool?>("isCollapsed", isCollapsed,
                 defaultValue: defaultTheme.isCollapsed));

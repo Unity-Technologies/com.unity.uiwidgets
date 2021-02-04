@@ -33,7 +33,7 @@ namespace Unity.UIWidgets.material {
             BorderSide borderSide = null,
             Color disabledBorderColor = null,
             Color highlightedBorderColor = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
@@ -84,7 +84,7 @@ namespace Unity.UIWidgets.material {
             Color highlightedBorderColor = null,
             Color disabledBorderColor = null,
             BorderSide borderSide = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
@@ -177,7 +177,7 @@ namespace Unity.UIWidgets.material {
             Color highlightedBorderColor = null,
             Color disabledBorderColor = null,
             BorderSide borderSide = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             ShapeBorder shape = null,
             Clip clipBehavior = Clip.none,
@@ -241,7 +241,7 @@ namespace Unity.UIWidgets.material {
             BorderSide borderSide = null,
             Color disabledBorderColor = null,
             Color highlightedBorderColor = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             ShapeBorder shape = null,
             Clip? clipBehavior = Clip.none,
@@ -290,7 +290,7 @@ namespace Unity.UIWidgets.material {
         public readonly BorderSide borderSide;
         public readonly Color disabledBorderColor;
         public readonly Color highlightedBorderColor;
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
         public readonly VisualDensity visualDensity;
         public readonly ShapeBorder shape;
         public readonly Clip? clipBehavior;

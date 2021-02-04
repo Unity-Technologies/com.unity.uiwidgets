@@ -64,14 +64,14 @@ namespace Unity.UIWidgets.widgets {
         public Container(
             Key key = null,
             AlignmentGeometry alignment = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Color color = null,
             Decoration decoration = null,
             Decoration foregroundDecoration = null,
             float? width = null,
             float? height = null,
             BoxConstraints constraints = null,
-            EdgeInsets margin = null,
+            EdgeInsetsGeometry margin = null,
             Matrix4 transform = null,
             Widget child = null,
             Clip clipBehavior = Clip.none
@@ -104,22 +104,21 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly Widget child;
         public readonly AlignmentGeometry alignment;
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
         public readonly Decoration decoration;
         public readonly Decoration foregroundDecoration;
         public readonly BoxConstraints constraints;
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
         public readonly Matrix4 transform;
         public readonly Color color;
         public readonly Clip clipBehavior;
 
-        EdgeInsets _paddingIncludingDecoration {
+        EdgeInsetsGeometry _paddingIncludingDecoration {
             get {
                 if (decoration == null || decoration.padding == null) {
                     return padding;
                 }
-                //Debug.LogError("EdgeInsets needs to be update to EdgeInsetsGeometry");
-                EdgeInsets decorationPadding = (EdgeInsets)decoration.padding;
+                EdgeInsetsGeometry decorationPadding = decoration.padding;
                 if (padding == null) {
                     return decorationPadding;
                 }
@@ -142,7 +141,7 @@ namespace Unity.UIWidgets.widgets {
                 current = new Align(alignment: alignment, child: current);
             }
 
-            EdgeInsets effetivePadding = _paddingIncludingDecoration;
+            EdgeInsetsGeometry effetivePadding = _paddingIncludingDecoration;
             if (effetivePadding != null) {
                 current = new Padding(padding: effetivePadding, child: current);
             }
@@ -192,7 +191,7 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment",
                 alignment, showName: false, defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding",
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding",
                 padding, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<Clip>("clipBehavior", clipBehavior, defaultValue: Clip.none));
             if (color != null)
@@ -204,7 +203,7 @@ namespace Unity.UIWidgets.widgets {
                 foregroundDecoration, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<BoxConstraints>("constraints",
                 constraints, defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("margin",
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("margin",
                 margin, defaultValue: foundation_.kNullDefaultValue));
             properties.add(ObjectFlagProperty<Matrix4>.has("transform",
                 transform));

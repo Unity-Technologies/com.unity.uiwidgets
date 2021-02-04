@@ -40,7 +40,7 @@ namespace UIWidgetsSample
             public override Widget build(BuildContext context)
             {
                 return new CupertinoApp(
-                    home: new HomeScreen()//new DetailScreen1("ok")
+                    home: new HomeScreen() //new DetailScreen1("ok")
                     //color: Color.white
                 );
             }

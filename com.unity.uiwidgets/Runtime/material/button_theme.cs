@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.material {
             ButtonBarLayoutBehavior layoutBehavior = ButtonBarLayoutBehavior.padded,
             float minWidth = 88.0f,
             float height = 36.0f,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             ShapeBorder shape = null,
             bool alignedDropdown = false,
             Color buttonColor = null,
@@ -81,7 +81,7 @@ namespace Unity.UIWidgets.material {
             ButtonTextTheme textTheme = ButtonTextTheme.accent,
             float minWidth = 64.0f,
             float height = 36.0f,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             ShapeBorder shape = null,
             bool alignedDropdown = false,
             Color buttonColor = null,
@@ -151,7 +151,7 @@ namespace Unity.UIWidgets.material {
             ButtonTextTheme textTheme = ButtonTextTheme.normal,
             float minWidth = 88.0f,
             float height = 36.0f,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             ShapeBorder shape = null,
             ButtonBarLayoutBehavior layoutBehavior = ButtonBarLayoutBehavior.padded,
             bool alignedDropdown = false,
@@ -199,7 +199,7 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        public EdgeInsets padding {
+        public EdgeInsetsGeometry padding {
             get {
                 if (_padding != null) {
                     return _padding;
@@ -218,7 +218,7 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        readonly EdgeInsets _padding;
+        readonly EdgeInsetsGeometry _padding;
 
         public ShapeBorder shape {
             get {
@@ -462,7 +462,7 @@ namespace Unity.UIWidgets.material {
         }
 
 
-        public EdgeInsets getPadding(MaterialButton button) {
+        public EdgeInsetsGeometry getPadding(MaterialButton button) {
             if (button.padding != null) {
                 return button.padding;
             }
@@ -527,7 +527,7 @@ namespace Unity.UIWidgets.material {
                 layoutBehavior: layoutBehavior ?? this.layoutBehavior,
                 minWidth: minWidth ?? this.minWidth,
                 height: height ?? this.height,
-                padding: (EdgeInsets) padding ?? this.padding,
+                padding: padding ?? this.padding,
                 shape: shape ?? this.shape,
                 alignedDropdown: alignedDropdown ?? this.alignedDropdown,
                 buttonColor: buttonColor ?? _buttonColor,
@@ -616,7 +616,7 @@ namespace Unity.UIWidgets.material {
                 defaultValue: defaultTheme.textTheme));
             properties.add(new FloatProperty("minWidth", minWidth, defaultValue: defaultTheme.minWidth));
             properties.add(new FloatProperty("height", height, defaultValue: defaultTheme.height));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding,
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding,
                 defaultValue: defaultTheme.padding));
             properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: defaultTheme.shape));
             properties.add(new FlagProperty("alignedDropdown",
