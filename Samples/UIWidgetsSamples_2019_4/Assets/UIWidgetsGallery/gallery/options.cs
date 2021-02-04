@@ -36,6 +36,7 @@ namespace UIWidgetsGallery.gallery
             bool showPerformanceOverlay = false
         )
         {
+            textDirection = textDirection ?? TextDirection.ltr;
             this.themeMode = themeMode;
             this.textScaleFactor = textScaleFactor;
             this.visualDensity = visualDensity;
