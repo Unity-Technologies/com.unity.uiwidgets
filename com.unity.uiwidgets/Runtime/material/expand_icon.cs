@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.material {
             bool isExpanded = false,
             float size = 24.0f,
             ValueChanged<bool> onPressed = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Color color = null,
             Color disabledColor = null,
             Color expandedColor = null
@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly ValueChanged<bool> onPressed;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly Color color;
 

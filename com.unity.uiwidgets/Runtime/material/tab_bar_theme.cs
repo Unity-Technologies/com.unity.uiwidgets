@@ -11,7 +11,7 @@ namespace Unity.UIWidgets.material {
             Decoration indicator = null,
             TabBarIndicatorSize? indicatorSize = null,
             Color labelColor = null,
-            EdgeInsets labelPadding = null,
+            EdgeInsetsGeometry labelPadding = null,
             TextStyle labelStyle = null,
             Color unselectedLabelColor = null,
             TextStyle unselectedLabelStyle = null) {
@@ -30,7 +30,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly Color labelColor;
 
-        public readonly EdgeInsets labelPadding;
+        public readonly EdgeInsetsGeometry labelPadding;
 
         public readonly TextStyle labelStyle;
 
@@ -42,7 +42,7 @@ namespace Unity.UIWidgets.material {
             Decoration indicator = null,
             TabBarIndicatorSize? indicatorSize = null,
             Color labelColor = null,
-            EdgeInsets labelPadding = null,
+            EdgeInsetsGeometry labelPadding = null,
             TextStyle labelStyle = null,
             Color unselectedLabelColor = null,
             TextStyle unselectedLabelStyle = null
@@ -68,7 +68,7 @@ namespace Unity.UIWidgets.material {
                 indicator: Decoration.lerp(a.indicator, b.indicator, t),
                 indicatorSize: t < 0.5 ? a.indicatorSize : b.indicatorSize,
                 labelColor: Color.lerp(a.labelColor, b.labelColor, t),
-                labelPadding: EdgeInsets.lerp(a.labelPadding, b.labelPadding, t),
+                labelPadding: EdgeInsetsGeometry.lerp(a.labelPadding, b.labelPadding, t),
                 labelStyle: TextStyle.lerp(a.labelStyle, b.labelStyle, t),
                 unselectedLabelColor: Color.lerp(a.unselectedLabelColor, b.unselectedLabelColor, t),
                 unselectedLabelStyle: TextStyle.lerp(a.unselectedLabelStyle, b.unselectedLabelStyle, t)

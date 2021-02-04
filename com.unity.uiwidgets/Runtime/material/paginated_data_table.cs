@@ -240,8 +240,7 @@ namespace Unity.UIWidgets.material {
                 headerWidgets.AddRange(
                     widget.actions.Select((Widget action) => {
                         return new Padding(
-                            // TODO: up EdgeInsetsGeometry
-                            padding: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(
+                            padding: EdgeInsetsDirectional.only(
                                 start: 24.0f - 8.0f * 2.0f),
                             child: action
                         );
@@ -330,8 +329,7 @@ namespace Unity.UIWidgets.material {
                                             height: 64.0f,
                                             color: _selectedRowCount > 0 ? themeData.secondaryHeaderColor : null,
                                             child: new Padding(
-                                                //TODO: update EdgeInsets
-                                                padding: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(
+                                                padding: EdgeInsetsDirectional.only(
                                                     start: startPadding, end: 14.0f),
                                                 child: new Row(
                                                     mainAxisAlignment: MainAxisAlignment.end,

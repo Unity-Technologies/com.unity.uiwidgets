@@ -49,8 +49,8 @@ namespace Unity.UIWidgets.material {
             Color selectedShadowColor = null,
             bool? showCheckmark = null,
             Color checkmarkColor = null,
-            EdgeInsets labelPadding = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry labelPadding = null,
+            EdgeInsetsGeometry padding = null,
             ShapeBorder shape = null,
             TextStyle labelStyle = null,
             TextStyle secondaryLabelStyle = null,
@@ -110,8 +110,8 @@ namespace Unity.UIWidgets.material {
             const int selectAlpha = 0x3d; // 12% + 12% = 24%
             const int textLabelAlpha = 0xde; // 87%
             ShapeBorder shape = new StadiumBorder();
-            EdgeInsets labelPadding = EdgeInsets.symmetric(horizontal: 8.0f);
-            EdgeInsets padding = EdgeInsets.all(4.0f);
+            EdgeInsetsGeometry labelPadding = EdgeInsets.symmetric(horizontal: 8.0f);
+            EdgeInsetsGeometry padding = EdgeInsets.all(4.0f);
 
             primaryColor = primaryColor ?? (brightness == Brightness.light ? Colors.black : Colors.white);
             Color backgroundColor = primaryColor.withAlpha(backgroundAlpha);
@@ -157,9 +157,9 @@ namespace Unity.UIWidgets.material {
 
         public readonly Color checkmarkColor;
 
-        public readonly EdgeInsets labelPadding;
+        public readonly EdgeInsetsGeometry labelPadding;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly ShapeBorder shape;
 
@@ -182,8 +182,8 @@ namespace Unity.UIWidgets.material {
             Color shadowColor = null,
             Color selectedShadowColor = null,
             Color checkmarkColor = null,
-            EdgeInsets labelPadding = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry labelPadding = null,
+            EdgeInsetsGeometry padding = null,
             ShapeBorder shape = null,
             TextStyle labelStyle = null,
             TextStyle secondaryLabelStyle = null,
@@ -225,8 +225,8 @@ namespace Unity.UIWidgets.material {
                 shadowColor: Color.lerp(a?.shadowColor, b?.shadowColor, t),
                 selectedShadowColor: Color.lerp(a?.selectedShadowColor, b?.selectedShadowColor, t),
                 checkmarkColor: Color.lerp(a?.checkmarkColor, b?.checkmarkColor, t),
-                labelPadding: EdgeInsets.lerp(a?.labelPadding, b?.labelPadding, t),
-                padding: EdgeInsets.lerp(a?.padding, b?.padding, t),
+                labelPadding: EdgeInsetsGeometry.lerp(a?.labelPadding, b?.labelPadding, t),
+                padding: EdgeInsetsGeometry.lerp(a?.padding, b?.padding, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t),
                 labelStyle: TextStyle.lerp(a?.labelStyle, b?.labelStyle, t),
                 secondaryLabelStyle: TextStyle.lerp(a?.secondaryLabelStyle, b?.secondaryLabelStyle, t),
@@ -323,10 +323,10 @@ namespace Unity.UIWidgets.material {
                 defaultValue: defaultData.selectedShadowColor));
             properties.add(new ColorProperty("checkMarkColor", checkmarkColor,
                 defaultValue: defaultData.checkmarkColor));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("labelPadding", labelPadding,
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("labelPadding", labelPadding,
                 defaultValue: defaultData.labelPadding));
             properties.add(
-                new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: defaultData.padding));
+                new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding, defaultValue: defaultData.padding));
             properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: defaultData.shape));
             properties.add(new DiagnosticsProperty<TextStyle>("labelStyle", labelStyle,
                 defaultValue: defaultData.labelStyle));

@@ -53,7 +53,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly List<StretchMode> stretchModes;
 
-        public readonly EdgeInsets titlePadding;
+        public readonly EdgeInsetsGeometry titlePadding;
 
         public static Widget createSettings(
             float? toolbarOpacity = null,
@@ -205,7 +205,7 @@ namespace Unity.UIWidgets.material {
                             color: titleStyle.color.withOpacity(toolbarOpacity));
 
                         bool effectiveCenterTitle = _getEffectiveCenterTitle(theme).Value;
-                        EdgeInsets padding = widget.titlePadding ??
+                        EdgeInsetsGeometry padding = widget.titlePadding ??
                                              EdgeInsets.only(
                                                  left: effectiveCenterTitle ? 0.0f : 72.0f,
                                                  bottom: 16.0f

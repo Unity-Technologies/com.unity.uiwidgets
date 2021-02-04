@@ -298,14 +298,14 @@ namespace Unity.UIWidgets.widgets {
         public AnimatedContainer(
             Key key = null,
             AlignmentGeometry alignment = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Color color = null,
             Decoration decoration = null,
             Decoration foregroundDecoration = null,
             float? width = null,
             float? height = null,
             BoxConstraints constraints = null,
-            EdgeInsets margin = null,
+            EdgeInsetsGeometry margin = null,
             Matrix4 transform = null,
             Widget child = null,
             Curve curve = null,
@@ -338,7 +338,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly AlignmentGeometry alignment;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly Decoration decoration;
 
@@ -346,7 +346,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly BoxConstraints constraints;
 
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
 
         public readonly Matrix4 transform;
 
@@ -360,41 +360,41 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment, showName: false,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding, defaultValue: null));
             properties.add(new DiagnosticsProperty<Decoration>("bg", decoration, defaultValue: null));
             properties.add(
                 new DiagnosticsProperty<Decoration>("fg", foregroundDecoration, defaultValue: null));
             properties.add(new DiagnosticsProperty<BoxConstraints>("constraints", constraints,
                 defaultValue: null,
                 showName: false));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("margin", margin, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("margin", margin, defaultValue: null));
             properties.add(ObjectFlagProperty<Matrix4>.has("transform", transform));
         }
     }
 
     class _AnimatedContainerState : AnimatedWidgetBaseState<AnimatedContainer> {
         AlignmentGeometryTween _alignment;
-        EdgeInsetsTween _padding;
+        EdgeInsetsGeometryTween _padding;
         DecorationTween _decoration;
         DecorationTween _foregroundDecoration;
         BoxConstraintsTween _constraints;
-        EdgeInsetsTween _margin;
+        EdgeInsetsGeometryTween _margin;
         Matrix4Tween _transform;
 
 
         protected override void forEachTween(TweenVisitor visitor) {
             _alignment = (AlignmentGeometryTween) visitor.visit(this, _alignment, widget.alignment,
                 (AlignmentGeometry value) => new AlignmentGeometryTween(begin: value));
-            _padding = (EdgeInsetsTween) visitor.visit(this, _padding, widget.padding,
-                (EdgeInsets value) => new EdgeInsetsTween(begin: value));
+            _padding = (EdgeInsetsGeometryTween) visitor.visit(this, _padding, widget.padding,
+                ( value) => new EdgeInsetsGeometryTween(begin: value));
             _decoration = (DecorationTween) visitor.visit(this, _decoration, widget.decoration,
                 (Decoration value) => new DecorationTween(begin: value));
             _foregroundDecoration = (DecorationTween) visitor.visit(this, _foregroundDecoration,
                 widget.foregroundDecoration, (Decoration value) => new DecorationTween(begin: value));
             _constraints = (BoxConstraintsTween) visitor.visit(this, _constraints, widget.constraints,
                 (BoxConstraints value) => new BoxConstraintsTween(begin: value));
-            _margin = (EdgeInsetsTween) visitor.visit(this, _margin, widget.margin,
-                (EdgeInsets value) => new EdgeInsetsTween(begin: value));
+            _margin = (EdgeInsetsGeometryTween) visitor.visit(this, _margin, widget.margin,
+                (value) => new EdgeInsetsGeometryTween(begin: value));
             _transform = (Matrix4Tween) visitor.visit(this, _transform, widget.transform,
                 (Matrix4 value) => new Matrix4Tween(begin: value));
         }
@@ -418,13 +418,13 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(description);
             description.add(new DiagnosticsProperty<AlignmentGeometryTween>("alignment", _alignment, showName: false,
                 defaultValue: null));
-            description.add(new DiagnosticsProperty<EdgeInsetsTween>("padding", _padding, defaultValue: null));
+            description.add(new DiagnosticsProperty<EdgeInsetsGeometryTween>("padding", _padding, defaultValue: null));
             description.add(new DiagnosticsProperty<DecorationTween>("bg", _decoration, defaultValue: null));
             description.add(
                 new DiagnosticsProperty<DecorationTween>("fg", _foregroundDecoration, defaultValue: null));
             description.add(new DiagnosticsProperty<BoxConstraintsTween>("constraints", _constraints,
                 showName: false, defaultValue: null));
-            description.add(new DiagnosticsProperty<EdgeInsetsTween>("margin", _margin, defaultValue: null));
+            description.add(new DiagnosticsProperty<EdgeInsetsGeometryTween>("margin", _margin, defaultValue: null));
             description.add(ObjectFlagProperty<Matrix4Tween>.has("transform", _transform));
         }
     }
@@ -468,9 +468,9 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             return new Padding(
-                padding: (EdgeInsets) _padding
+                padding: _padding
                     .evaluate(animation)
-                    .clamp(EdgeInsets.zero, EdgeInsets.infinity),
+                    .clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinity),
                 child: widget.child
             );
         }

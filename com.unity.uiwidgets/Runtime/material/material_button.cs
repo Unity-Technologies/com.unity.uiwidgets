@@ -27,7 +27,7 @@ namespace Unity.UIWidgets.material {
             float? hoverElevation = null,
             float? highlightElevation = null,
             float? disabledElevation = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             ShapeBorder shape = null,
             Clip? clipBehavior = Clip.none,
@@ -121,7 +121,7 @@ namespace Unity.UIWidgets.material {
             get { return onPressed != null || onLongPress != null; }
         }
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly VisualDensity visualDensity;
 

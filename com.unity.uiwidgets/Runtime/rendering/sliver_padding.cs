@@ -250,7 +250,7 @@ namespace Unity.UIWidgets.rendering {
 
     public class RenderSliverPadding : RenderSliverEdgeInsetsPadding {
         public RenderSliverPadding(
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             TextDirection? textDirection = null,
             RenderSliver child = null
         ) {
@@ -278,7 +278,7 @@ namespace Unity.UIWidgets.rendering {
             _resolvedPadding = null;
             markNeedsLayout();
         }
-        public EdgeInsets padding {
+        public EdgeInsetsGeometry padding {
             get { return _padding; }
             set {
                 D.assert(value != null);
@@ -292,7 +292,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        EdgeInsets _padding;
+        EdgeInsetsGeometry _padding;
 
         public TextDirection textDirection {
             get { return _textDirection;}

@@ -22,7 +22,7 @@ namespace Unity.UIWidgets.cupertino {
         public CupertinoButton(
             Key key = null,
             Widget child = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Color color = null,
             Color disabledColor = null,
             float minSize = 44.0f,
@@ -45,7 +45,7 @@ namespace Unity.UIWidgets.cupertino {
         public static CupertinoButton filled(
             Key key = null,
             Widget child = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Color disabledColor = null,
             float minSize = 44.0f,
             float pressedOpacity = 0.4f,
@@ -71,7 +71,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public readonly Widget child;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly Color color;
 

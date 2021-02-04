@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.material {
             Key key = null,
             string text = null,
             Widget icon = null,
-            EdgeInsets iconMargin = null,
+            EdgeInsetsGeometry iconMargin = null,
             Widget child = null
         ) : base(key: key) {
             D.assert(text != null || child != null || icon != null);
@@ -58,7 +58,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly Widget icon;
 
-        public readonly EdgeInsets iconMargin;
+        public readonly EdgeInsetsGeometry iconMargin;
 
         Widget _buildLabelText() {
             return child ?? new Text(text, softWrap: false, overflow: TextOverflow.fade);
@@ -532,12 +532,12 @@ namespace Unity.UIWidgets.material {
             bool isScrollable = false,
             Color indicatorColor = null,
             float indicatorWeight = 2.0f,
-            EdgeInsets indicatorPadding = null,
+            EdgeInsetsGeometry indicatorPadding = null,
             Decoration indicator = null,
             TabBarIndicatorSize? indicatorSize = null,
             Color labelColor = null,
             TextStyle labelStyle = null,
-            EdgeInsets labelPadding = null,
+            EdgeInsetsGeometry labelPadding = null,
             Color unselectedLabelColor = null,
             TextStyle unselectedLabelStyle = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start,
@@ -574,7 +574,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly float indicatorWeight;
 
-        public readonly EdgeInsets indicatorPadding;
+        public readonly EdgeInsetsGeometry indicatorPadding;
 
         public readonly Decoration indicator;
 
@@ -586,7 +586,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly TextStyle labelStyle;
 
-        public readonly EdgeInsets labelPadding;
+        public readonly EdgeInsetsGeometry labelPadding;
 
         public readonly TextStyle unselectedLabelStyle;
 

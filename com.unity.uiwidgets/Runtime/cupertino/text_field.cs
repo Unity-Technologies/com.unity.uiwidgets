@@ -227,7 +227,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public readonly BoxDecoration decoration;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly string placeholder;
 
