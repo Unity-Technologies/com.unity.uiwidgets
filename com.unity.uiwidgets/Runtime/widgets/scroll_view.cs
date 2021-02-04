@@ -214,7 +214,28 @@ namespace Unity.UIWidgets.widgets {
         protected override List<Widget> buildSlivers(BuildContext context) {
             Widget sliver = buildChildLayout(context);
 
-            EdgeInsetsGeometry effectivePadding = padding; // no need to check MediaQuery for now.
+            EdgeInsetsGeometry effectivePadding = padding;
+            if (padding == null) {
+                MediaQueryData mediaQuery = MediaQuery.of(context, nullOk: true);
+                if (mediaQuery != null) {
+                    EdgeInsets mediaQueryHorizontalPadding =
+                        mediaQuery.padding.copyWith(top: 0.0f, bottom: 0.0f);
+                    EdgeInsets mediaQueryVerticalPadding =
+                        mediaQuery.padding.copyWith(left: 0.0f, right: 0.0f);
+                    effectivePadding = scrollDirection == Axis.vertical
+                        ? mediaQueryVerticalPadding
+                        : mediaQueryHorizontalPadding;
+                    sliver = new MediaQuery(
+                        data: mediaQuery.copyWith(
+                            padding: scrollDirection == Axis.vertical
+                                ? mediaQueryHorizontalPadding
+                                : mediaQueryVerticalPadding
+                        ),
+                        child: sliver
+                    );
+                }
+            }
+            
             if (effectivePadding != null) {
                 sliver = new SliverPadding(padding: effectivePadding, sliver: sliver);
             }
