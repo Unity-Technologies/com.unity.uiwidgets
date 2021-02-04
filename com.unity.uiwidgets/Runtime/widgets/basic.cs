@@ -699,14 +699,14 @@ namespace Unity.UIWidgets.widgets {
     public class Padding : SingleChildRenderObjectWidget {
         public Padding(
             Key key = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Widget child = null
         ) : base(key, child) {
             D.assert(padding != null);
             this.padding = padding;
         }
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderPadding(
@@ -723,7 +723,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding));
         }
     }
 public class Align : SingleChildRenderObjectWidget {
@@ -1319,14 +1319,14 @@ public class Align : SingleChildRenderObjectWidget {
     public class SliverPadding : SingleChildRenderObjectWidget {
         public SliverPadding(
             Key key = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Widget sliver = null
         ) : base(key: key, child: sliver) {
             D.assert(padding != null);
             this.padding = padding;
         }
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderSliverPadding(
@@ -1343,7 +1343,7 @@ public class Align : SingleChildRenderObjectWidget {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding));
         }
     }
     public class AspectRatio : SingleChildRenderObjectWidget {

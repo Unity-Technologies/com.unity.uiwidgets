@@ -290,8 +290,7 @@ namespace Unity.UIWidgets.material {
 
 
                 Widget expandIconContainer = new Container(
-                    //TODO: update to EdgeInsetsGeometry
-                    //margin: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(end: 8.0f),
+                    margin: EdgeInsetsDirectional.only(end: 8.0f),
                     child: new ExpandIcon(
                         isExpanded: _isChildExpanded(expandIndex),
                         padding: EdgeInsets.all(16.0f),

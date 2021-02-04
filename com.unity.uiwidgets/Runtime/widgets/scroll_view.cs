@@ -190,7 +190,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             float? cacheExtent = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start,
             ScrollViewKeyboardDismissBehavior keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual
@@ -209,12 +209,12 @@ namespace Unity.UIWidgets.widgets {
             this.padding = padding;
         }
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         protected override List<Widget> buildSlivers(BuildContext context) {
             Widget sliver = buildChildLayout(context);
 
-            EdgeInsets effectivePadding = padding; // no need to check MediaQuery for now.
+            EdgeInsetsGeometry effectivePadding = padding; // no need to check MediaQuery for now.
             if (effectivePadding != null) {
                 sliver = new SliverPadding(padding: effectivePadding, sliver: sliver);
             }
@@ -226,7 +226,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding,
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding,
                 defaultValue: foundation_.kNullDefaultValue));
         }
     }
@@ -240,7 +240,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             float? itemExtent = null,
             bool addAutomaticKeepAlives = true,
             bool addRepaintBoundaries = true,
@@ -277,7 +277,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             float? itemExtent = null,
             IndexedWidgetBuilder itemBuilder = null,
             int? itemCount = null,
@@ -316,7 +316,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             float? itemExtent = null,
             IndexedWidgetBuilder itemBuilder = null,
             int? itemCount = null,
@@ -355,7 +355,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             IndexedWidgetBuilder itemBuilder = null,
             IndexedWidgetBuilder separatorBuilder = null,
             int itemCount = 0,
@@ -414,7 +414,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             IndexedWidgetBuilder itemBuilder = null,
             IndexedWidgetBuilder separatorBuilder = null,
             int itemCount = 0,
@@ -450,7 +450,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             float? itemExtent = null,
             SliverChildDelegate childrenDelegate = null,
             float? cacheExtent = null
@@ -478,7 +478,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             float? itemExtent = null,
             SliverChildDelegate childrenDelegate = null,
             float? cacheExtent = null
@@ -532,7 +532,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             SliverGridDelegate gridDelegate = null,
             bool addAutomaticKeepAlives = true,
             bool addRepaintBoundaries = true,
@@ -565,7 +565,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             SliverGridDelegate gridDelegate = null,
             IndexedWidgetBuilder itemBuilder = null,
             int? itemCount = null,
@@ -600,7 +600,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             SliverGridDelegate gridDelegate = null,
             IndexedWidgetBuilder itemBuilder = null,
             int? itemCount = null,
@@ -634,7 +634,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             SliverGridDelegate gridDelegate = null,
             SliverChildDelegate childrenDelegate = null,
             float? cacheExtent = null,
@@ -665,7 +665,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             SliverGridDelegate gridDelegate = null,
             SliverChildDelegate childrenDelegate = null,
             float? cacheExtent = null,
@@ -695,7 +695,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             int? crossAxisCount = null,
             float mainAxisSpacing = 0.0f,
             float crossAxisSpacing = 0.0f,
@@ -738,7 +738,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             int? crossAxisCount = null,
             float mainAxisSpacing = 0.0f,
             float crossAxisSpacing = 0.0f,
@@ -778,7 +778,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             float? maxCrossAxisExtent = null,
             float mainAxisSpacing = 0.0f,
             float crossAxisSpacing = 0.0f,
@@ -820,7 +820,7 @@ namespace Unity.UIWidgets.widgets {
             bool? primary = null,
             ScrollPhysics physics = null,
             bool shrinkWrap = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             float? maxCrossAxisExtent = null,
             float mainAxisSpacing = 0.0f,
             float crossAxisSpacing = 0.0f,

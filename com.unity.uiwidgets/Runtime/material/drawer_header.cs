@@ -15,8 +15,8 @@ namespace Unity.UIWidgets.material {
         public DrawerHeader(
             Key key = null,
             Decoration decoration = null,
-            EdgeInsets margin = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry margin = null,
+            EdgeInsetsGeometry padding = null,
             TimeSpan? duration = null,
             Curve curve = null,
             Widget child = null
@@ -33,9 +33,9 @@ namespace Unity.UIWidgets.material {
 
         public readonly Decoration decoration;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
 
         public readonly TimeSpan duration;
 

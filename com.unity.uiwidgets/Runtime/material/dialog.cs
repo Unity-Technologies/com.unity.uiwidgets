@@ -103,10 +103,10 @@ namespace Unity.UIWidgets.material {
         public AlertDialog(
             Key key = null,
             Widget title = null,
-            EdgeInsets titlePadding = null,
+            EdgeInsetsGeometry titlePadding = null,
             TextStyle titleTextStyle = null,
             Widget content = null,
-            EdgeInsets contentPadding = null,
+            EdgeInsetsGeometry contentPadding = null,
             TextStyle contentTextStyle = null,
             List<Widget> actions = null,
             EdgeInsetsGeometry actionsPadding = null,
@@ -140,10 +140,10 @@ namespace Unity.UIWidgets.material {
         }
 
         public readonly Widget title;
-        public readonly EdgeInsets titlePadding;
+        public readonly EdgeInsetsGeometry titlePadding;
         public readonly TextStyle titleTextStyle;
         public readonly Widget content;
-        public readonly EdgeInsets contentPadding;
+        public readonly EdgeInsetsGeometry contentPadding;
         public readonly TextStyle contentTextStyle;
         public readonly List<Widget> actions;
         public readonly EdgeInsetsGeometry actionsPadding;
@@ -190,7 +190,7 @@ namespace Unity.UIWidgets.material {
 
             if (actions != null) {
                 actionsWidget = new Padding(
-                    padding: (EdgeInsets)actionsPadding,
+                    padding: actionsPadding,
                     child: new ButtonBar(
                         buttonPadding: buttonPadding,
                         overflowDirection: actionsOverflowDirection,

@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             Axis scrollDirection = Axis.vertical,
             bool reverse = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             bool? primary = null,
             ScrollPhysics physics = null,
             ScrollController controller = null,
@@ -39,7 +39,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly bool reverse;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly ScrollController controller;
 

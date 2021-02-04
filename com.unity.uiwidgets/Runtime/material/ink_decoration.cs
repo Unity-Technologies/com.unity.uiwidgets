@@ -10,7 +10,7 @@ namespace Unity.UIWidgets.material {
     public class Ink : StatefulWidget {
         public Ink(
             Key key = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Color color = null,
             Decoration decoration = null,
             float? width = null,
@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.material {
 
         public static Ink image(
             Key key = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             ImageProvider image = null,
             ImageErrorListener onImageError = null,
             ColorFilter colorFilter = null,
@@ -70,7 +70,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly Widget child;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly Decoration decoration;
 
@@ -78,13 +78,13 @@ namespace Unity.UIWidgets.material {
 
         public readonly float? height;
 
-        public EdgeInsets _paddingIncludingDecoration {
+        public EdgeInsetsGeometry _paddingIncludingDecoration {
             get {
                 if (decoration == null || decoration.padding == null) {
                     return padding;
                 }
 
-                EdgeInsets decorationPadding = (EdgeInsets) decoration.padding;
+                EdgeInsetsGeometry decorationPadding = decoration.padding;
                 if (padding == null) {
                     return decorationPadding;
                 }
@@ -95,7 +95,7 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding, defaultValue: null));
             properties.add(new DiagnosticsProperty<Decoration>("bg", decoration, defaultValue: null));
         }
 
@@ -134,7 +134,7 @@ namespace Unity.UIWidgets.material {
             }
 
             Widget current = widget.child;
-            EdgeInsets effectivePadding = widget._paddingIncludingDecoration;
+            EdgeInsetsGeometry effectivePadding = widget._paddingIncludingDecoration;
             if (effectivePadding != null) {
                 current = new Padding(
                     padding: effectivePadding,

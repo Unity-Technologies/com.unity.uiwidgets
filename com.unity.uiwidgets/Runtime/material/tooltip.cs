@@ -24,8 +24,8 @@ namespace Unity.UIWidgets.material {
             Key key = null,
             string message = null,
             float? height = null,
-            EdgeInsets padding = null,
-            EdgeInsets margin = null,
+            EdgeInsetsGeometry padding = null,
+            EdgeInsetsGeometry margin = null,
             float? verticalOffset = null,
             bool? preferBelow = null,
             bool? excludeFromSemantics = null,
@@ -55,9 +55,9 @@ namespace Unity.UIWidgets.material {
 
         public readonly float? height;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
         
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
         
         public readonly float? verticalOffset;
 
@@ -99,8 +99,8 @@ namespace Unity.UIWidgets.material {
         static float _defaultTooltipHeight = 32.0f;
         static float _defaultVerticalOffset = 24.0f;
         static bool _defaultPreferBelow = true;
-        static EdgeInsets _defaultPadding = EdgeInsets.symmetric(horizontal: 16.0f);
-        static EdgeInsets _defaultMargin = EdgeInsets.all(0.0f);
+        static EdgeInsetsGeometry _defaultPadding = EdgeInsets.symmetric(horizontal: 16.0f);
+        static EdgeInsetsGeometry _defaultMargin = EdgeInsets.all(0.0f);
         static TimeSpan _fadeInDuration = new TimeSpan(0,0,0,0, 150);
         static TimeSpan _fadeOutDuration =new TimeSpan(0,0,0,0, 75);
         static TimeSpan _defaultShowDuration =new TimeSpan(0,0,0,0,1500);
@@ -109,9 +109,9 @@ namespace Unity.UIWidgets.material {
         
         float height;
         
-        EdgeInsets padding;
+        EdgeInsetsGeometry padding;
         
-        EdgeInsets margin;
+        EdgeInsetsGeometry margin;
         
         Decoration decoration;
         
@@ -390,8 +390,8 @@ namespace Unity.UIWidgets.material {
             Key key = null,
             string message = null,
             float? height = null,
-            EdgeInsets padding = null,
-            EdgeInsets margin = null,
+            EdgeInsetsGeometry padding = null,
+            EdgeInsetsGeometry margin = null,
             Decoration decoration = null,
             TextStyle textStyle = null,
             Animation<float> animation = null,
@@ -415,9 +415,9 @@ namespace Unity.UIWidgets.material {
 
         public readonly float? height;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
 
         public readonly Decoration decoration;
 

@@ -52,10 +52,8 @@ namespace Unity.UIWidgets.material {
             var expandChildren = new List<widgets.Widget>();
 
             if (leading != null) {
-                //TODO: EdgeInsetsGeometry
                 expandChildren.Add(new Padding(
-                    padding: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(end: 8.0f), child:
-                    leading));
+                    padding: EdgeInsetsDirectional.only(end: 8.0f), child: leading));
             }
 
             if (title != null && subtitle != null) {
@@ -91,15 +89,13 @@ namespace Unity.UIWidgets.material {
                 ));
 
             if (trailing != null) {
-                //TODO: EdgeInsetsGeometry
                 expandChildren.Add(new Padding(
-                    padding: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(start: 8.0f),
+                    padding: EdgeInsetsDirectional.only(start: 8.0f),
                     child: trailing));
             }
 
             return new Container(
-                //TODO: EdgeInsetsGeometry
-                padding: (EdgeInsets) (EdgeInsetsGeometry) padding,
+                padding: padding,
                 decoration: decoration,
                 height: (title != null && subtitle != null) ? 68.0f : 48.0f,
                 child: new Theme(

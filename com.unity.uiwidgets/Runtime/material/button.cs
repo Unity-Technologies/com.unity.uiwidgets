@@ -28,7 +28,7 @@ namespace Unity.UIWidgets.material {
             float hoverElevation = 4.0f,
             float highlightElevation = 8.0f,
             float disabledElevation = 0.0f,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             BoxConstraints constraints = null,
             ShapeBorder shape = null,
@@ -107,7 +107,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly float disabledElevation;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly VisualDensity visualDensity;
 
@@ -231,14 +231,14 @@ namespace Unity.UIWidgets.material {
             ShapeBorder effectiveShape = MaterialStateProperty<Color>.resolveAs<ShapeBorder>(widget.shape, _states);
             Offset densityAdjustment = widget.visualDensity.baseSizeAdjustment;
             BoxConstraints effectiveConstraints = widget.visualDensity.effectiveConstraints(widget.constraints);
-            EdgeInsets padding = widget.padding.add(
+            EdgeInsetsGeometry padding = widget.padding.add(
                 EdgeInsets.only(
                     left: densityAdjustment.dx,
                     top: densityAdjustment.dy,
                     right: densityAdjustment.dx,
                     bottom: densityAdjustment.dy
                 )
-            ).clamp(EdgeInsets.zero, EdgeInsets.infinity) as EdgeInsets;
+            ).clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinity) as EdgeInsets;
 
             Widget result = new ConstrainedBox(
                 constraints: effectiveConstraints,

@@ -76,7 +76,7 @@ namespace Unity.UIWidgets.material {
             var rowList = new List<Widget>();
             if (leading != null) {
                 rowList.Add(new Padding(
-                    padding: (EdgeInsets) leadingPadding,
+                    padding: leadingPadding,
                     child: leading
                 ));
             }
@@ -93,7 +93,7 @@ namespace Unity.UIWidgets.material {
 
             var columnList = new List<Widget>();
             columnList.Add(new Padding(
-                padding: (EdgeInsets) padding,
+                padding: padding,
                 child: new Row(
                     children: rowList
                 )
