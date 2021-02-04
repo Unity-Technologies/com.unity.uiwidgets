@@ -130,6 +130,47 @@ namespace Unity.UIWidgets.cupertino {
                 routeSettings: routeSettings
             );
         }
+        
+        public static Future<T> showCupertinoDialog<T>(
+            BuildContext context = null,
+            WidgetBuilder builder =null,
+            bool useRootNavigator = true,
+            RouteSettings routeSettings = null
+        ) {
+            D.assert(builder != null);
+            D.assert(useRootNavigator != null);
+            return  DialogUtils.showGeneralDialog<T>(
+                context: context,
+                barrierDismissible: false,
+                barrierColor: CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
+                // This transition duration was eyeballed comparing with iOS
+                transitionDuration: TimeSpan.FromMilliseconds(250),
+            pageBuilder: (BuildContext context1, Animation<float> animation, Animation<float> secondaryAnimation)=> {
+                return builder(context1);
+            },
+            transitionBuilder: _buildCupertinoDialogTransitions,
+            useRootNavigator: useRootNavigator,
+            routeSettings: routeSettings
+                );
+        }
+        public static Future<T> showCupertinoModalPopup<T>(
+            BuildContext context = null,
+            WidgetBuilder builder =null,
+                ImageFilter filter = null,
+            bool useRootNavigator = true,
+            bool? semanticsDismissible =null
+        ) {
+           D.assert(useRootNavigator != null);
+            return Navigator.of(context, rootNavigator: useRootNavigator).push(
+               new _CupertinoModalPopupRoute(
+                    barrierColor: CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
+                    barrierLabel: "Dismiss",
+                    builder: builder,
+                    filter: filter
+                    )
+            ).to<T>();
+        }
+
     }
 
     class _CupertinoEdgeShadowDecoration : Decoration, IEquatable<_CupertinoEdgeShadowDecoration> {
