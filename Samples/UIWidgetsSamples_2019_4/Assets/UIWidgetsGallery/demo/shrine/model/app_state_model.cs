@@ -17,7 +17,7 @@ namespace UIWidgetsGallery.demo.shrine.model
 
         private Dictionary<int, int> _productsInCart = new Dictionary<int, int> { };
 
-        private Dictionary<int, int> productsInCart => new Dictionary<int, int>(this._productsInCart);
+        public Dictionary<int, int> productsInCart => new Dictionary<int, int>(this._productsInCart);
 
         public int totalCartQuantity => this._productsInCart.Values.Sum();
 

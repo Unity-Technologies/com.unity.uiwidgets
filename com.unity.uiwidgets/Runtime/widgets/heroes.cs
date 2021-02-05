@@ -620,7 +620,7 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
             foreach (object tag in toHeroes.Keys) {
-                _HeroState heroState = new _HeroState();
+                _HeroState heroState = null;
                 if (!fromHeroes.TryGetValue(tag, out heroState)) {
                     toHeroes[tag].ensurePlaceholderIsHidden();
                 }

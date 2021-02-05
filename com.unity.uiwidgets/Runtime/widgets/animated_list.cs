@@ -139,12 +139,12 @@ namespace Unity.UIWidgets.widgets {
         public readonly GlobalKey<SliverAnimatedListState> _sliverAnimatedListKey =
             GlobalKey<SliverAnimatedListState>.key();
         
-        void insertItem(int index,  TimeSpan? duration = null ) {
+        public void insertItem(int index,  TimeSpan? duration = null ) {
             duration = duration ?? _kDuration;
             _sliverAnimatedListKey.currentState.insertItem(index, duration: duration);
          }
 
-        void removeItem(int index, AnimatedListRemovedItemBuilder builder, TimeSpan? duration = null ) { 
+        public void removeItem(int index, AnimatedListRemovedItemBuilder builder, TimeSpan? duration = null ) { 
             duration = duration ?? _kDuration; 
             _sliverAnimatedListKey.currentState.removeItem(index, builder, duration: duration);
         }
