@@ -2069,7 +2069,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             D.assert(entry != null);
-            _history.Remove(entry);
+            entry.remove();
             _flushHistoryUpdates(rearrangeOverlay: false);
             D.assert(() => {
                 _debugLocked = false;
@@ -2134,7 +2134,7 @@ namespace Unity.UIWidgets.widgets {
                 _debugLocked = true;
                 return true;
             });
-           // D.assert(_history.Where(_RouteEntry.isRoutePredicate(route)).Count() == 1);
+
             List<_RouteEntry> routeEntries = new List<_RouteEntry>();
             foreach (var historyEntry in _history) {
                 if (_RouteEntry.isRoutePredicate(route)(historyEntry)) {
