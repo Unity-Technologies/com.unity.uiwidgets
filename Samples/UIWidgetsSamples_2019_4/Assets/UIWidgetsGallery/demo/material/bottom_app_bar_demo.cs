@@ -280,7 +280,10 @@ namespace UIWidgetsGallery.demo.material
                         new Expanded(
                             child: new GestureDetector(
                                 behavior: HitTestBehavior.opaque,
-                                onTap: () => { this.onChanged(this.value); },
+                                onTap: () =>
+                                {
+                                    this.onChanged(this.value);
+                                },
                                 child: new Text(this.value.title,
                                     style: theme.textTheme.subtitle1
                                 )
@@ -336,8 +339,7 @@ namespace UIWidgetsGallery.demo.material
                                 width: 2.0f
                             )
                         ),
-                        child: new Text(
-                            namedColor.name
+                        child: new Container(
                         )
                     );
                 }).ToList()

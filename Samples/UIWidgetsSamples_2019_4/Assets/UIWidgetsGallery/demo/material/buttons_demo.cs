@@ -267,7 +267,7 @@ namespace UIWidgetsGallery.demo.material
 
   // https://en.wikipedia.org/wiki/Free_Four
   string dropdown1Value = "Free";
-  string dropdown2Value = "";
+  string dropdown2Value = null;
   string dropdown3Value = "Four";
 
   Widget buildDropdownButton() {

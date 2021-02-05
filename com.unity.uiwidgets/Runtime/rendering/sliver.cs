@@ -725,16 +725,16 @@ namespace Unity.UIWidgets.rendering {
         public virtual float? childMainAxisPosition(RenderObject child) {
             D.assert(() => { throw new UIWidgetsError(GetType() + " does not implement childPosition."); });
 
-            return null;
+            return 0.0f;
         }
 
         public virtual float? childCrossAxisPosition(RenderObject child) {
-            return null;
+            return 0.0f;
         }
 
         public virtual float? childScrollOffset(RenderObject child) {
             D.assert(child.parent == this);
-            return null;
+            return 0.0f;
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {

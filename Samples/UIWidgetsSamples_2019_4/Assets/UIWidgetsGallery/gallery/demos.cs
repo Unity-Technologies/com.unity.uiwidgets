@@ -178,6 +178,14 @@ namespace UIWidgetsGallery.gallery
                     routeName: BottomNavigationDemo.routeName,
                     documentationUrl: "https://docs.flutter.io/flutter/material/BottomNavigationBar-class.html",
                     buildRoute: (BuildContext context) => new BottomNavigationDemo()
+                ),
+                new GalleryDemo(
+                    title: "Buttons",
+                    subtitle: "Flat, raised, dropdown, and more",
+                    icon: GalleryIcons.generic_buttons,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ButtonsDemo.routeName,
+                    buildRoute: (BuildContext context) => new ButtonsDemo()
                 )
             };
 
