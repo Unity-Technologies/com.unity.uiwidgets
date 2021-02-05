@@ -115,6 +115,7 @@ namespace Unity.UIWidgets.material {
                 clipBehavior: clipBehavior,
                 focusNode: focusNode,
                 autofocus: autofocus,
+                icon: icon,
                 label: label
             );
         }
