@@ -477,7 +477,7 @@ namespace Unity.UIWidgets.widgets {
             this.route = route;
         }
 
-        public readonly new ModalRoute<T> route;
+        public new readonly ModalRoute<T> route;
 
         public override State createState() {
             return new _ModalScopeState<T>();
