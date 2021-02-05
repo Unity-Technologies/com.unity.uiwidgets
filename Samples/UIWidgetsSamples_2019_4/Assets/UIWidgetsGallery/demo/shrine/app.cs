@@ -89,7 +89,7 @@ namespace UIWidgetsGallery.demo.shrine
         public override State createState() => new _ShrineAppState();
     }
 
-    public class _ShrineAppState : SingleTickerProviderStateMixin<ShrineApp> {//with SingleTickerProviderStateMixin {
+    public class _ShrineAppState : SingleTickerProviderStateMixin<ShrineApp> {
   
         AnimationController _controller;
       

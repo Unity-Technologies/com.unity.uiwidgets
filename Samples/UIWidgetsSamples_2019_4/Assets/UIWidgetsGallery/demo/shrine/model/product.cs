@@ -34,7 +34,7 @@ namespace UIWidgetsGallery.demo.shrine.model
         public readonly string name;
         public readonly int price;
 
-        public string assetName => $"{this.id}-0.jpg";
+        public string assetName => $"shrine_images/{this.id}-0.jpg";
         public string assetPackage => "shrine_images";
 
 

@@ -58,13 +58,14 @@ namespace UIWidgetsGallery.demo.shrine.supplemental
 
         int _oddCasesIndex(int input) {
             D.assert(input > 0);
-            return (input / 2) * 3 - 1;
+            
+            return ((input + 1) / 2) * 3 - 1;
         }
 
         int _listItemCount(int totalItems) {
             return (totalItems % 3 == 0)
             ? totalItems / 3 * 2
-            : (totalItems / 3) * 2 - 1;
+            : ((totalItems + 2) / 3) * 2 - 1;
         }
 
   

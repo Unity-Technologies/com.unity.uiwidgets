@@ -144,7 +144,7 @@ namespace UIWidgetsGallery.demo.shrine
 
 
 
-public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBottomSheet> { //with TickerProviderStateMixin {
+public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBottomSheet> { 
   public readonly GlobalKey _expandingBottomSheetKey = GlobalKey.key(debugLabel: "Expanding bottom sheet");
   
   float _width = expanding_buttom_sheetUtils._kWidthForCartIcon;
@@ -491,10 +491,10 @@ public class ProductThumbnailRow : StatefulWidget {
   
   void _updateLists() {
     _internalList = ScopedModel<AppStateModel>.of(context).productsInCart.Keys.ToList();
-     HashSet<int> internalSet = new HashSet<int>(_internalList);
+    HashSet<int> internalSet = new HashSet<int>(_internalList);
     HashSet<int> listSet = new HashSet<int>(_list.list);
 
-    HashSet<int> difference = null;
+    HashSet<int> difference = new HashSet<int>();
     foreach (var _set in internalSet)
     {
       if (!listSet.Contains(_set))
