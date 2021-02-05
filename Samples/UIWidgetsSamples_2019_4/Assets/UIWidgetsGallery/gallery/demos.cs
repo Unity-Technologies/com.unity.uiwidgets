@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UIWidgetsGallery.demo.material;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace UIWidgetsGallery.gallery
 {
@@ -142,7 +144,41 @@ namespace UIWidgetsGallery.gallery
         {
             List<GalleryDemo> galleryDemos = new List<GalleryDemo>
             {
-                
+                new GalleryDemo(
+                    title: "Backdrop",
+                    subtitle: $"Select a front layer from back layer",
+                    icon: GalleryIcons.backdrop,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: BackdropDemo.routeName,
+                    buildRoute: (BuildContext context) => new BackdropDemo()
+                ),
+                new GalleryDemo(
+                    title: "Banner",
+                    subtitle: "Displaying a banner within a list",
+                    icon: GalleryIcons.lists_leave_behind,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: BannerDemo.routeName,
+                    documentationUrl: "https://api.flutter.dev/flutter/material/MaterialBanner-class.html",
+                    buildRoute: (BuildContext context) => new BannerDemo()
+                ),
+                new GalleryDemo(
+                    title: "Bottom app bar",
+                    subtitle: "Optional floating action button notch",
+                    icon: GalleryIcons.bottom_app_bar,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: BottomAppBarDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/BottomAppBar-class.html",
+                    buildRoute: (BuildContext context) => new BottomAppBarDemo()
+                ),
+                new GalleryDemo(
+                    title: "Bottom navigation",
+                    subtitle: "Bottom navigation with cross-fading views",
+                    icon: GalleryIcons.bottom_navigation,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: BottomNavigationDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/BottomNavigationBar-class.html",
+                    buildRoute: (BuildContext context) => new BottomNavigationDemo()
+                )
             };
 
             return galleryDemos;
@@ -150,8 +186,8 @@ namespace UIWidgetsGallery.gallery
         
         public static readonly List<GalleryDemo> kAllGalleryDemos = _buildGalleryDemos();
 
-        public static readonly List<GalleryDemoCategory> kAllGalleryDemoCategories =
-        kAllGalleryDemos.Select<GalleryDemo, GalleryDemoCategory>((GalleryDemo demo) => demo.category).ToList();
+        public static readonly HashSet<GalleryDemoCategory> kAllGalleryDemoCategories =
+        new HashSet<GalleryDemoCategory>(kAllGalleryDemos.Select<GalleryDemo, GalleryDemoCategory>((GalleryDemo demo) => demo.category).ToList());
 
 
         static Dictionary<GalleryDemoCategory, List<GalleryDemo>> _generateCategoryToDemos()

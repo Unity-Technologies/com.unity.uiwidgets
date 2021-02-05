@@ -65,7 +65,7 @@ namespace UIWidgetsGallery.demo.material
                 opacity: this._animation,
                 child: new SlideTransition(
                     position: this._animation.drive(
-                        new Tween<Offset>(
+                        new OffsetTween(
                             begin: new Offset(0.0f, 0.02f), // Slightly down.
                             end: Offset.zero
                         )

@@ -40,7 +40,7 @@ namespace UIWidgetsGallery.demo.material
             "A", "B", "C", "D", "E",
         };
 
-        private static readonly Animatable<Offset> _drawerDetailsTween = new Tween<Offset>(
+        private static readonly Animatable<Offset> _drawerDetailsTween = new OffsetTween(
             begin: new Offset(0.0f, -1.0f),
             end: Offset.zero
         ).chain(new CurveTween(

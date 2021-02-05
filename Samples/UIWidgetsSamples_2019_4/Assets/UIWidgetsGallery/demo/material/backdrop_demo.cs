@@ -38,79 +38,79 @@ namespace UIWidgetsGallery.demo.material
                 title: "Accessories",
                 assets: new List<string>
                 {
-                    "products/belt.png",
-                    "products/earrings.png",
-                    "products/backpack.png",
-                    "products/hat.png",
-                    "products/scarf.png",
-                    "products/sunnies.png"
+                    "StreamingAssets/gallery/products/belt.png",
+                    "StreamingAssets/gallery/products/earrings.png",
+                    "StreamingAssets/gallery/products/backpack.png",
+                    "StreamingAssets/gallery/products/hat.png",
+                    "StreamingAssets/gallery/products/scarf.png",
+                    "StreamingAssets/gallery/products/sunnies.png"
                 }
             ),
             new Category(
                 title: "Blue",
                 assets: new List<string>
                 {
-                    "products/backpack.png",
-                    "products/cup.png",
-                    "products/napkins.png",
-                    "products/top.png"
+                    "StreamingAssets/gallery/products/backpack.png",
+                    "StreamingAssets/gallery/products/cup.png",
+                    "StreamingAssets/gallery/products/napkins.png",
+                    "StreamingAssets/gallery/products/top.png"
                 }
             ),
             new Category(
                 title: "Cold Weather",
                 assets: new List<string>
                 {
-                    "products/jacket.png",
-                    "products/jumper.png",
-                    "products/scarf.png",
-                    "products/sweater.png",
-                    "products/sweats.png"
+                    "StreamingAssets/gallery/products/jacket.png",
+                    "StreamingAssets/gallery/products/jumper.png",
+                    "StreamingAssets/gallery/products/scarf.png",
+                    "StreamingAssets/gallery/products/sweater.png",
+                    "StreamingAssets/gallery/products/sweats.png"
                 }
             ),
             new Category(
                 title: "Home",
                 assets: new List<string>
                 {
-                    "products/cup.png",
-                    "products/napkins.png",
-                    "products/planters.png",
-                    "products/table.png",
-                    "products/teaset.png"
+                    "StreamingAssets/gallery/products/cup.png",
+                    "StreamingAssets/gallery/products/napkins.png",
+                    "StreamingAssets/gallery/products/planters.png",
+                    "StreamingAssets/gallery/products/table.png",
+                    "StreamingAssets/gallery/products/teaset.png"
                 }
             ),
             new Category(
                 title: "Tops",
                 assets: new List<string>
                 {
-                    "products/jumper.png",
-                    "products/shirt.png",
-                    "products/sweater.png",
-                    "products/top.png"
+                    "StreamingAssets/gallery/products/jumper.png",
+                    "StreamingAssets/gallery/products/shirt.png",
+                    "StreamingAssets/gallery/products/sweater.png",
+                    "StreamingAssets/gallery/products/top.png"
                 }
             ),
             new Category(
                 title: "Everything",
                 assets: new List<string>
                 {
-                    "products/backpack.png",
-                    "products/belt.png",
-                    "products/cup.png",
-                    "products/dress.png",
-                    "products/earrings.png",
-                    "products/flatwear.png",
-                    "products/hat.png",
-                    "products/jacket.png",
-                    "products/jumper.png",
-                    "products/napkins.png",
-                    "products/planters.png",
-                    "products/scarf.png",
-                    "products/shirt.png",
-                    "products/sunnies.png",
-                    "products/sweater.png",
-                    "products/sweats.png",
-                    "products/table.png",
-                    "products/teaset.png",
-                    "products/top.png"
+                    "StreamingAssets/gallery/products/backpack.png",
+                    "StreamingAssets/gallery/products/belt.png",
+                    "StreamingAssets/gallery/products/cup.png",
+                    "StreamingAssets/gallery/products/dress.png",
+                    "StreamingAssets/gallery/products/earrings.png",
+                    "StreamingAssets/gallery/products/flatwear.png",
+                    "StreamingAssets/gallery/products/hat.png",
+                    "StreamingAssets/gallery/products/jacket.png",
+                    "StreamingAssets/gallery/products/jumper.png",
+                    "StreamingAssets/gallery/products/napkins.png",
+                    "StreamingAssets/gallery/products/planters.png",
+                    "StreamingAssets/gallery/products/scarf.png",
+                    "StreamingAssets/gallery/products/shirt.png",
+                    "StreamingAssets/gallery/products/sunnies.png",
+                    "StreamingAssets/gallery/products/sweater.png",
+                    "StreamingAssets/gallery/products/sweats.png",
+                    "StreamingAssets/gallery/products/table.png",
+                    "StreamingAssets/gallery/products/teaset.png",
+                    "StreamingAssets/gallery/products/top.png"
                 }
             )
         };
@@ -149,9 +149,8 @@ namespace UIWidgetsGallery.demo.material
                                         child: new Column(
                                             children: new List<Widget>
                                             {
-                                                Image.asset(
+                                                Image.file(
                                                     asset,
-                                                    package: "uiwidgets_gallery_assets",
                                                     fit: BoxFit.contain
                                                 ),
                                                 new Container(

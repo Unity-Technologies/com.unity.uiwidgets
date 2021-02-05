@@ -999,7 +999,7 @@ namespace Unity.UIWidgets.material {
             );
 
             //the end will be set to be valid value later, we just make it 1f by default here
-            _thetaTween = new Tween<float>(begin: _getThetaForTime(widget.selectedTime), end: 1f);
+            _thetaTween = new FloatTween(begin: _getThetaForTime(widget.selectedTime), end: 1f);
             _theta = _thetaController
                 .drive(new CurveTween(curve: Curves.fastOutSlowIn))
                 .drive(_thetaTween);

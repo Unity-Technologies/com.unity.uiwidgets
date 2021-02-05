@@ -1313,7 +1313,7 @@ namespace Unity.UIWidgets.material {
             D.assert(sliderTheme.thumbColor != null);
 
             Canvas canvas = context.canvas;
-            Tween<float> radiusTween = new Tween<float>(
+            Tween<float> radiusTween = new FloatTween(
                 begin: _disabledThumbRadius,
                 end: enabledThumbRadius
             );
@@ -1370,7 +1370,7 @@ namespace Unity.UIWidgets.material {
             D.assert(sliderTheme.overlappingShapeStrokeColor != null);
             D.assert(enableAnimation != null);
             Canvas canvas = context.canvas;
-            Tween<float> radiusTween = new Tween<float>(
+            Tween<float> radiusTween = new FloatTween(
                 begin: _disabledThumbRadius,
                 end: enabledThumbRadius
             );

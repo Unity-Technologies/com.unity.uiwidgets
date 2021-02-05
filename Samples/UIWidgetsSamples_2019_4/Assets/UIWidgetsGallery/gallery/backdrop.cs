@@ -246,7 +246,7 @@ namespace UIWidgetsGallery.gallery
         private AnimationController _controller;
         private Animation<float> _frontOpacity;
 
-        private static readonly Animatable<float> _frontOpacityTween = new Tween<float>(begin: 0.2f, end: 1.0f)
+        private static readonly Animatable<float> _frontOpacityTween = new FloatTween(begin: 0.2f, end: 1.0f)
             .chain(new CurveTween(curve: new Interval(0.0f, 0.4f, curve: Curves.easeInOut)));
 
         public override void initState()

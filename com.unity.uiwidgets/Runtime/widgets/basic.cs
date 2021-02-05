@@ -661,6 +661,7 @@ namespace Unity.UIWidgets.widgets {
             Offset translation = null,
             bool transformHitTests = true,
             Widget child = null) : base(key: key, child: child) {
+            D.assert(translation != null);
             this.translation = translation;
             this.transformHitTests = transformHitTests;
         }
