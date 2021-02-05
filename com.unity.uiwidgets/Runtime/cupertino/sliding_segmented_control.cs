@@ -81,7 +81,6 @@ namespace Unity.UIWidgets.cupertino {
         {
             D.assert(children != null);
             D.assert(children.Count >= 2);
-            D.assert(padding != null);
             D.assert(onValueChanged != null);
             D.assert(
                 groupValue == null || children.Keys.Contains(groupValue),()=>
@@ -369,21 +368,21 @@ namespace Unity.UIWidgets.cupertino {
         public _RenderSlidingSegmentedControl(
             int? selectedIndex = null,
             Color thumbColor = null,
-            _SlidingSegmentedControlState<T> state = null
+            _SlidingSegmentedControlState<T> state = null 
           ) { 
-            highlightedIndex = selectedIndex;
-            _thumbColor = thumbColor;
             D.assert(state != null);
-            state.drag.onDown = _onDown;
-            state.drag.onUpdate = _onUpdate;
-            state.drag.onEnd = _onEnd;
-            state.drag.onCancel = _onCancel;
-            state.tap.onTapUp = _onTapUp;
-            state.longPress.onLongPress = ()=> { };
-       }
-        public readonly _SlidingSegmentedControlState<T> state;
-
-  Dictionary<RenderBox, _ChildAnimationManifest> _childAnimations = new Dictionary<RenderBox, _ChildAnimationManifest>{};
+            _highlightedIndex = selectedIndex;
+            _thumbColor = thumbColor;
+            this.state = state;
+            this.state.drag.onDown = _onDown;
+            this.state.drag.onUpdate = _onUpdate;
+            this.state.drag.onEnd = _onEnd;
+            this.state.drag.onCancel = _onCancel;
+            this.state.tap.onTapUp = _onTapUp;
+            this.state.longPress.onLongPress = ()=> { };
+        }
+        public _SlidingSegmentedControlState<T> state;
+        Dictionary<RenderBox, _ChildAnimationManifest> _childAnimations = new Dictionary<RenderBox, _ChildAnimationManifest>{};
 
   
   Rect currentThumbRect;
@@ -402,8 +401,7 @@ namespace Unity.UIWidgets.cupertino {
     base.insert(child, after: after);
     if (_childAnimations == null)
       return;
-
-    D.assert(_childAnimations[child] == null);
+    D.assert(_childAnimations.getOrDefault(child) == null);
     _childAnimations[child] = new _ChildAnimationManifest(separatorOpacity: 1);
   }
 
@@ -852,7 +850,7 @@ namespace Unity.UIWidgets.cupertino {
           transform: MatrixUtils.forceToPoint(center),
           position: center,
           hitTest: (BoxHitTestResult result1, Offset position1)=> {
-            D.assert(position == center);
+            D.assert(position1 == center);
             return child.hitTest(result1, position: center);
           }
         );

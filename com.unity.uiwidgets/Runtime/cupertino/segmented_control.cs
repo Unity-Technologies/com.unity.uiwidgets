@@ -30,16 +30,24 @@ namespace Unity.UIWidgets.cupertino {
         Color selectedColor = null,
         Color borderColor = null,
         Color pressedColor = null,
-        EdgeInsetsGeometry Padding = null
+        EdgeInsetsGeometry padding = null
         ) :base(key: key) 
-        { 
-            D.assert(children != null);
+        { D.assert(children != null);
           D.assert(children.Count >= 2);
           D.assert(onValueChanged != null);
           D.assert(
               groupValue == null || children.Keys.Any((T child) => child.Equals(groupValue)), () =>
                   "The groupValue must be either null or one of the keys in the children map."
           );
+          this.children = children;
+          this.onValueChanged = onValueChanged;
+          this.groupValue = groupValue;
+          this.unselectedColor = unselectedColor;
+          this.selectedColor = selectedColor;
+          this.borderColor = borderColor;
+          this.pressedColor = pressedColor;
+          this.padding = padding;
+
         }
       public readonly Dictionary<T, Widget> children;
       public readonly T groupValue;
@@ -128,7 +136,6 @@ namespace Unity.UIWidgets.cupertino {
         }
         _selectionControllers.Clear();
         _childTweens.Clear();
-
         foreach ( T key in widget.children.Keys) {
            AnimationController animationController = createAnimationController();
           if (widget.groupValue.Equals(key)) {

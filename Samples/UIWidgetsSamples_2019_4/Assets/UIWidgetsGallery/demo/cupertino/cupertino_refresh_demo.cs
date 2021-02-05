@@ -73,31 +73,62 @@ namespace UIWidgetsGallery.gallery {
       
       List<List<string>> randomizedContacts;
 
-      public override void initState() {
+      public override void initState()
+      {
+       
         base.initState();
         repopulateList();
       }
 
-      void repopulateList() {
+      void repopulateList()
+      {
+        //List<string> nullStr = new List<string>();//{" "};
+        randomizedContacts = new List<List<string>>();
+        
         Random random = new Random();
-        for (int index = 0; index < 100; index++ ){
-          contacts[random.Next()].Add(random.Next()%2 == 0 ? true.ToString() : false.ToString());
-          randomizedContacts.Add(contacts[random.Next()]);
+        
+        for (int index = 0; index < 100; index++ )
+        {
+          var id = random.Next(contacts.Count);
+          if (id < contacts.Count)
+          {
+              contacts[id].Add(id %  2 == 0 ? true.ToString() : false.ToString());
+              randomizedContacts.Add(new List<string>());
+              for (int i = 0; i < 4; i++)
+              {
+                randomizedContacts[index].Add(contacts[id][i]);
+              }
+          }
         }
       }
 
       public override Widget build(BuildContext context) {
+        _ListItem getListItem(int index)
+        {
+          if (index < randomizedContacts.Count && index > 0 )
+          {
+            return new _ListItem(
+              name: randomizedContacts[index][0],
+              place: randomizedContacts[index][1],
+              date: randomizedContacts[index][2],
+              called: randomizedContacts[index][3] == "true"
+            );
+          }
+          else
+          {
+            return new _ListItem();
+          }
+        }
+
         return new DefaultTextStyle(
           style: CupertinoTheme.of(context).textTheme.textStyle,
           child: new CupertinoPageScaffold(
             backgroundColor: CupertinoColors.systemGroupedBackground,
             child: new CustomScrollView(
-            
               physics: new BouncingScrollPhysics(parent: new AlwaysScrollableScrollPhysics()),
               slivers: new List<Widget>{
                 new CupertinoSliverNavigationBar(
                   largeTitle: new Text("Refresh"),
-                  
                   previousPageTitle: "Cupertino"
                   //trailing: CupertinoDemoDocumentationButton(CupertinoRefreshControlDemo.routeName),
                 ),
@@ -114,13 +145,9 @@ namespace UIWidgetsGallery.gallery {
                   top: false, // Top safe area is consumed by the navigation bar.
                   sliver: new SliverList(
                     del: new SliverChildBuilderDelegate(
-                      (BuildContext context1, int index)=> {
-                        return new _ListItem(
-                          name: randomizedContacts[index][0],
-                          place: randomizedContacts[index][1],
-                          date: randomizedContacts[index][2],
-                          called: randomizedContacts[index][3] == "true"
-                        );
+                      (BuildContext context1, int index)=>
+                      {
+                        return getListItem(index);
                       },
                       childCount: 20
                     )
@@ -138,7 +165,7 @@ namespace UIWidgetsGallery.gallery {
         string name = null,
         string place = null,
         string date = null,
-        bool? called = null
+        bool called = false
       )
       {
         this.name = name;
@@ -150,7 +177,7 @@ namespace UIWidgetsGallery.gallery {
       public readonly string name;
       public readonly string place;
       public readonly string date;
-      public readonly bool? called;
+      public readonly bool called;
 
       public override Widget build(BuildContext context) {
         return new Container(
@@ -161,7 +188,7 @@ namespace UIWidgetsGallery.gallery {
             children: new List<Widget>{
               new Container(
                 width: 38.0f,
-                child: (bool)called
+                child: called
                     ? new Align(
                         alignment: Alignment.topCenter,
                         child: new Icon(
@@ -172,8 +199,8 @@ namespace UIWidgetsGallery.gallery {
                       )
                     : null
               ),
-            new Expanded(
-              child: new Container(
+              new Expanded(
+                child: new Container(
                   decoration: new  BoxDecoration(
                     border: new Border(
                       bottom: new BorderSide(color: new Color(0xFFBCBBC1), width: 0.0f)
@@ -188,7 +215,7 @@ namespace UIWidgetsGallery.gallery {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: new List<Widget>{
                             new Text(
-                              name,
+                              name ?? "",
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
@@ -197,7 +224,7 @@ namespace UIWidgetsGallery.gallery {
                               )
                             ),
                             new Text(
-                              place,
+                              place ?? "",
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: new TextStyle(
@@ -210,7 +237,7 @@ namespace UIWidgetsGallery.gallery {
                         )
                       ),
                       new Text(
-                        date,
+                        date ?? "",
                         style: new TextStyle(
                           color: CupertinoColors.inactiveGray.resolveFrom(context),
                           fontSize: 15.0f,
