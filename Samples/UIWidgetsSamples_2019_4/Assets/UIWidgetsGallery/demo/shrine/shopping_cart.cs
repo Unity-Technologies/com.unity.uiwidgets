@@ -27,7 +27,7 @@ public class ShoppingCartPage : StatefulWidget {
 public class _ShoppingCartPageState : State<ShoppingCartPage> {
   List<Widget> _createShoppingCartRows(AppStateModel model)
   {
-    List<Widget> widgets = null;
+    List<Widget> widgets = new List<Widget>();
     for (int id = 0; id < model.productsInCart.Count; id++)
     {
       widgets.Add(new ShoppingCartRow(

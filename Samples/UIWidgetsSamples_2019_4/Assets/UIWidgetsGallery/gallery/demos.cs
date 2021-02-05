@@ -143,6 +143,90 @@ namespace UIWidgetsGallery.gallery
 
         public static List<GalleryDemo> _buildGalleryDemos()
         {
+            List<GalleryDemo> cupertinoDemos = new List<GalleryDemo>()
+            {
+                new GalleryDemo(
+                  title: "Activity Indicator",
+                  icon: GalleryIcons.cupertino_progress,
+                  category:GalleryDemoCategory._kCupertinoComponents,
+                  routeName: CupertinoProgressIndicatorDemo.routeName,
+                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoActivityIndicator-class.html",
+                  buildRoute: (BuildContext context) => new CupertinoProgressIndicatorDemo()
+                ),
+                new GalleryDemo(
+                  title: "Alerts",
+                  icon: GalleryIcons.dialogs,
+                  category:GalleryDemoCategory._kCupertinoComponents,
+                  routeName: CupertinoAlertDemo.routeName,
+                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/showCupertinoDialog.html",
+                  buildRoute: (BuildContext context) => new CupertinoAlertDemo()
+                ),
+                new GalleryDemo(
+                  title: "Buttons",
+                  icon: GalleryIcons.generic_buttons,
+                  category:GalleryDemoCategory._kCupertinoComponents,
+                  routeName: CupertinoButtonsDemo.routeName,
+                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoButton-class.html",
+                  buildRoute: (BuildContext context) => new CupertinoButtonsDemo()
+                ),
+                new GalleryDemo(
+                  title: "Navigation",
+                  icon: GalleryIcons.bottom_navigation,
+                  category:GalleryDemoCategory._kCupertinoComponents,
+                  routeName: CupertinoNavigationDemo.routeName,
+                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoTabScaffold-class.html",
+                  buildRoute: (BuildContext context) => new CupertinoNavigationDemo()
+                ),
+                new GalleryDemo(
+                  title: "Pickers",
+                  icon: GalleryIcons.cards,
+                  category:GalleryDemoCategory._kCupertinoComponents,
+                  routeName: CupertinoPickerDemo.routeName,
+                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoPicker-class.html",
+                  buildRoute: (BuildContext context) => new CupertinoPickerDemo()
+                ),
+                new GalleryDemo(
+                  title: "Pull to refresh",
+                  icon: GalleryIcons.cupertino_pull_to_refresh,
+                  category:GalleryDemoCategory._kCupertinoComponents,
+                  routeName: CupertinoRefreshControlDemo.routeName,
+                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSliverRefreshControl-class.html",
+                  buildRoute: (BuildContext context) => new CupertinoRefreshControlDemo()
+                ),
+                new GalleryDemo(
+                  title: "Segmented Control",
+                  icon: GalleryIcons.tabs,
+                  category:GalleryDemoCategory._kCupertinoComponents,
+                  routeName: CupertinoSegmentedControlDemo.routeName,
+                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSegmentedControl-class.html",
+                  buildRoute: (BuildContext context) => new CupertinoSegmentedControlDemo()
+                ),
+                new GalleryDemo(
+                  title: "Sliders",
+                  icon: GalleryIcons.sliders,
+                  category:GalleryDemoCategory._kCupertinoComponents,
+                  routeName: CupertinoSliderDemo.routeName,
+                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSlider-class.html",
+                  buildRoute: (BuildContext context) => new CupertinoSliderDemo()
+                ),
+                new GalleryDemo(
+                  title: "Switches",
+                  icon: GalleryIcons.cupertino_switch,
+                  category:GalleryDemoCategory._kCupertinoComponents,
+                  routeName: CupertinoSwitchDemo.routeName,
+                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSwitch-class.html",
+                  buildRoute: (BuildContext context) => new CupertinoSwitchDemo()
+                ),
+                new GalleryDemo(
+                  title: "Text Fields",
+                  icon: GalleryIcons.text_fields_alt,
+                  category:GalleryDemoCategory._kCupertinoComponents,
+                  routeName: CupertinoTextFieldDemo.routeName,
+                  buildRoute: (BuildContext context) => new CupertinoTextFieldDemo()
+                )
+            };
+
+      
             List<GalleryDemo> galleryDemos = new List<GalleryDemo>
             {
                 new GalleryDemo(
@@ -253,7 +337,7 @@ namespace UIWidgetsGallery.gallery
                 ),
             };
 
-            return galleryDemos;
+            return cupertinoDemos;
         }
         
         public static readonly List<GalleryDemo> kAllGalleryDemos = _buildGalleryDemos();

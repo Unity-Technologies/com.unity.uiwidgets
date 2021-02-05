@@ -163,13 +163,13 @@ namespace UIWidgetsGallery.demo.shrine
                         icon: new Stack(children: new List<Widget>{
                             new Opacity(
                               opacity: animation.value,
-                              child:  new Container(
-                                  width: 44.0f,
-                                  height: 44.0f,
+                              child: new Container(
+                                  width: 20.0f,
+                                  height: 20.0f,
                                   decoration: new BoxDecoration(
                                       image: new DecorationImage(
                                           image: new FileImage(
-                                              file: "logo.png"
+                                              file: "shrine_images/slanted_menu.png"
                                           )
                                       ),
                                       shape: BoxShape.circle
@@ -181,12 +181,12 @@ namespace UIWidgetsGallery.demo.shrine
                               begin: Offset.zero,
                               end: new Offset(1.0f, 0.0f)).evaluate(animation),
                               child: new Container(
-                                  width: 44.0f,
-                                  height: 44.0f,
+                                  width: 20.0f,
+                                  height: 20.0f,
                                   decoration: new BoxDecoration(
                                       image: new DecorationImage(
                                           image: new FileImage(
-                                              file: "logo.png"
+                                              file: "shrine_images/diamond.png"
                                           )
                                       ),
                                       shape: BoxShape.circle
