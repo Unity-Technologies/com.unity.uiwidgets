@@ -35,9 +35,11 @@ namespace UIWidgetsGallery.demo.shrine.supplemental
                         new Padding(
                             padding: EdgeInsets.only(left: 28.0f),
                             child: top != null
-                            ? new ProductCard(
-                            imageAspectRatio: imageAspectRatio,
-                                product: top
+                            ?new SizedBox(
+                                child: new ProductCard(
+                                    imageAspectRatio: imageAspectRatio,
+                                    product: top
+                                )
                             )
                             : new SizedBox(
                                 height: heightOfCards > 0 ? heightOfCards : spacerHeight

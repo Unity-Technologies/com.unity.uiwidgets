@@ -34,7 +34,7 @@ public class _LoginPageState : State<LoginPage> {
           icon: new BackButtonIcon(),
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: () => {
-            Navigator.of(context, rootNavigator: true).pop();
+            Navigator.of(context, rootNavigator: true).pop<object>();
           }
         )
       ),
@@ -90,7 +90,7 @@ public class _LoginPageState : State<LoginPage> {
                         borderRadius: BorderRadius.all(Radius.circular(7.0f))
                       ),
                       onPressed: () => {
-                        Navigator.of(context, rootNavigator: true).pop();
+                        Navigator.of(context, rootNavigator: true).pop<object>();
                       }
                     ),
                     new RaisedButton(

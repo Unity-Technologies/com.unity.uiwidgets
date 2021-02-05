@@ -36,31 +36,35 @@ namespace UIWidgetsGallery.demo.shrine
                         }
                     },
                     child: model.selectedCategory == category
-                    ? new Column(
-                        children: new List<Widget>
-                        {
-                            new SizedBox(height: 16.0f),
-                            new Text(
-                                categoryString,
-                                style: theme.textTheme.bodyText1,
-                                textAlign: TextAlign.center
-                            ),
-                            new SizedBox(height: 14.0f),
-                            new Container(
-                                width: 70.0f,
-                                height: 2.0f,
-                                color: shrineColorsUtils.kShrinePink400
-                            ),
-                        }
+                    ? new Container( 
+                        child:new Column(
+                            children: new List<Widget>
+                            {
+                                new SizedBox(height: 16.0f),
+                                new Text(
+                                    categoryString,
+                                    style: theme.textTheme.bodyText1,
+                                    textAlign: TextAlign.center
+                                ),
+                                new SizedBox(height: 14.0f),
+                                new Container(
+                                    width: 70.0f,
+                                    height: 2.0f,
+                                    color: shrineColorsUtils.kShrinePink400
+                                ),
+                            }
+                        )
                     )
-                    : new Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0f),
-                        child: new Text(
-                            categoryString,
-                            style: theme.textTheme.bodyText1.copyWith(
-                                color: shrineColorsUtils.kShrineBrown900.withAlpha(153)
-                            ),
-                            textAlign: TextAlign.center
+                    : new Container(
+                        child: new Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0f),
+                            child: new Text(
+                                categoryString,
+                                style: theme.textTheme.bodyText1.copyWith(
+                                    color: shrineColorsUtils.kShrineBrown900.withAlpha(153)
+                                ),
+                                textAlign: TextAlign.center
+                            )
                         )
                     )
                 )
@@ -70,12 +74,18 @@ namespace UIWidgetsGallery.demo.shrine
 
   
   public override Widget build(BuildContext context) {
+      var count = Enum.GetNames(typeof(Category)).Length;
+      List<Widget> widgets = new List<Widget>();
+      for (int i = 0;i<count;i++)
+      {
+          widgets.Add( _buildCategory((Category)i, context));
+      }
       return new Center(
       child: new Container(
         padding: EdgeInsets.only(top: 40.0f),
         color: shrineColorsUtils.kShrinePink100,
         child: new ListView(
-          children: Category.values.map((Category c) => _buildCategory(c, context)).toList(),
+          children: widgets
         )
       )
     );

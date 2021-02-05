@@ -15,12 +15,12 @@ namespace UIWidgetsGallery.demo.shrine.supplemental
 
         public readonly List<Product> products;
 
-        List<Container> _buildColumns(BuildContext context) {
+        List<Widget> _buildColumns(BuildContext context) {
             if (products == null || products.isEmpty()) {
-                return new List<Container>();
+                return new List<Widget>();
             }
 
-            List<Container> list = new List<Container>();
+            List<Widget> list = new List<Widget>();
             var len = _listItemCount(products.Count());
             for (int index = 0; index < len; index++)
             {
@@ -68,11 +68,13 @@ namespace UIWidgetsGallery.demo.shrine.supplemental
         }
 
   
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
+            List<Widget> widgets = _buildColumns(context);
             return new ListView(
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.fromLTRB(0.0f, 34.0f, 16.0f, 44.0f),
-                children: _buildColumns(context),
+                children: widgets,
                 physics: new AlwaysScrollableScrollPhysics()
             );
         }

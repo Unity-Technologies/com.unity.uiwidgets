@@ -28,11 +28,7 @@ namespace UIWidgetsGallery.demo.shrine.supplemental
 
   
         public override Widget build(BuildContext context) {
-            NumberFormat formatter = NumberFormat.simpleCurrency(
-            decimalDigits: 0,
-            locale: Localizations.localeOf(context).ToString()
-            );
-
+            
             ThemeData theme = Theme.of(context);
 
             Image imageWidget = Image.asset(
@@ -81,7 +77,7 @@ namespace UIWidgetsGallery.demo.shrine.supplemental
                                             ),
                                             new SizedBox(height: 4.0f),
                                             new Text(
-                                                product == null ? "" : formatter.format(product.price),
+                                                $" $ { product.price:D}",
                                                 style: theme.textTheme.caption
                                             ),
                                         }

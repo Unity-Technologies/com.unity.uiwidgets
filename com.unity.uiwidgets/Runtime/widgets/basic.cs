@@ -706,14 +706,14 @@ namespace Unity.UIWidgets.widgets {
     public class Padding : SingleChildRenderObjectWidget {
         public Padding(
             Key key = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Widget child = null
         ) : base(key, child) {
             D.assert(padding != null);
             this.padding = padding;
         }
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderPadding(
@@ -730,7 +730,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding));
         }
     }
 

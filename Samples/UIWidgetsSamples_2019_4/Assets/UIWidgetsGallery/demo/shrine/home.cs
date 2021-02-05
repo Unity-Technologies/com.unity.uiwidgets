@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UIWidgetsGallery.demo.shrine.model;
+using UIWidgetsGallery.demo.shrine.supplemental;
 using UIWidgetsGallery.gallery;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -18,8 +19,8 @@ namespace UIWidgetsGallery.demo.shrine
     
         public override Widget build(BuildContext context) {
             return new ScopedModelDescendant<AppStateModel>(
-                builder: (BuildContext context, Widget child, AppStateModel model) => {
-                    return AsymmetricView(products: model.getProducts());
+                builder: (BuildContext context1, Widget child, AppStateModel model) => {
+                    return new AsymmetricView(products: model.getProducts());
             });
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Serialization;
 using UIWidgetsGallery.demo.shrine.model;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
@@ -23,7 +24,7 @@ namespace UIWidgetsGallery.demo.shrine
         public static readonly float _kCornerRadius = 24.0f;
         public static readonly float _kWidthForCartIcon = 64.0f;
         
-        Animation<T> _getEmphasizedEasingAnimation<T>(
+        public static Animation<T> _getEmphasizedEasingAnimation<T>(
             T begin,
             T peak,
             T end,
@@ -85,7 +86,7 @@ namespace UIWidgetsGallery.demo.shrine
         
         public override State createState() => new _ExpandingBottomSheetState();
 
-         static _ExpandingBottomSheetState of(BuildContext context, bool isNullOk = false) {
+        public static _ExpandingBottomSheetState of(BuildContext context, bool isNullOk = false) {
           D.assert(context != null);
           _ExpandingBottomSheetState result = context.findAncestorStateOfType<_ExpandingBottomSheetState>();
           if (isNullOk || result != null) {
@@ -98,7 +99,7 @@ namespace UIWidgetsGallery.demo.shrine
 
 
 
-class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerProviderStateMixin {
+public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBottomSheet> { //with TickerProviderStateMixin {
   public readonly GlobalKey _expandingBottomSheetKey = GlobalKey.key(debugLabel: "Expanding bottom sheet");
   
   float _width = expanding_buttom_sheetUtils._kWidthForCartIcon;
@@ -115,7 +116,7 @@ class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerPr
   public override void initState() {
     base.initState();
     _controller = new AnimationController(
-      duration: Duration(milliseconds: 500),
+      duration: TimeSpan.FromMilliseconds(500),
       vsync: this
     );
   }
@@ -134,19 +135,19 @@ class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerPr
         )
       );
     } else {
-      return _getEmphasizedEasingAnimation(
+      return expanding_buttom_sheetUtils._getEmphasizedEasingAnimation(
         begin: _width,
-        peak: _getPeakPoint(begin: _width, end: screenWidth),
+        peak: expanding_buttom_sheetUtils._getPeakPoint(begin: _width, end: screenWidth),
         end: screenWidth,
         isForward: false,
-        parent: new CurvedAnimation(parent: _controller.view, curve: new Interval(0.0f, 0.87f)),
+        parent: new CurvedAnimation(parent: _controller.view, curve: new Interval(0.0f, 0.87f))
       );
     }
   }
 
   Animation<float> _getHeightAnimation(float screenHeight) {
     if (_controller.status == AnimationStatus.forward) {
-      return _getEmphasizedEasingAnimation(
+      return expanding_buttom_sheetUtils._getEmphasizedEasingAnimation(
         begin: expanding_buttom_sheetUtils._kCartHeight,
         peak: expanding_buttom_sheetUtils._kCartHeight + (screenHeight - expanding_buttom_sheetUtils._kCartHeight) * expanding_buttom_sheetUtils._kPeakVelocityProgress,
         end: screenHeight,
@@ -177,7 +178,7 @@ class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerPr
         )
       );
     } else {
-      return _getEmphasizedEasingAnimation(
+      return expanding_buttom_sheetUtils._getEmphasizedEasingAnimation(
         begin: expanding_buttom_sheetUtils._kCornerRadius,
         peak: expanding_buttom_sheetUtils._getPeakPoint(begin: expanding_buttom_sheetUtils._kCornerRadius, end: 0.0f),
         end: 0.0f,
@@ -241,7 +242,7 @@ class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerPr
   }
 
   // Closes the ExpandingBottomSheet if it's open or opening, otherwise does nothing.
-  void close() {
+  public void close() {
     if (_isOpen) {
       _controller.reverse();
     }
@@ -265,7 +266,7 @@ class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerPr
   }
 
   Widget _buildThumbnails(int numProducts) {
-    return new ExcludeSemantics(
+    return new Container(
       child: new Opacity(
         opacity: _thumbnailOpacityAnimation.value,
         child: new Column(
@@ -275,7 +276,7 @@ class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerPr
                 new AnimatedPadding(
                   padding: _cartPaddingFor(numProducts),
                   child: new Icon(Icons.shopping_cart),
-                  duration: new Duration(milliseconds: 225)
+                  duration: TimeSpan.FromMilliseconds(225)
                 ),
                 new Container(
                   // Accounts for the overflow number
@@ -302,7 +303,7 @@ class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerPr
 
   Widget _buildCart(BuildContext context, Widget child) {
 
-     AppStateModel model = ScopedModel.of<AppStateModel>(context);
+     AppStateModel model = ScopedModel<AppStateModel>.of(context);
      int numProducts = model.productsInCart.Keys.Count;
      int totalCartQuantity = model.totalCartQuantity;
      Size screenSize = MediaQuery.of(context).size;
@@ -316,14 +317,11 @@ class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerPr
     _thumbnailOpacityAnimation = _getThumbnailOpacityAnimation();
     _cartOpacityAnimation = _getCartOpacityAnimation();
 
-    return Semantics(
-      button: true,
-      value: $"Shopping cart, {totalCartQuantity} items",
-      child: new Container(
+    return new Container(
         width: _widthAnimation.value,
         height: _heightAnimation.value,
         child: new Material(
-          animationDuration: Duration(milliseconds: 0),
+          animationDuration: TimeSpan.FromMilliseconds(0),
           shape: new BeveledRectangleBorder(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(_shapeAnimation.value)
@@ -335,13 +333,12 @@ class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerPr
             ? _buildShoppingCartPage()
             : _buildThumbnails(numProducts)
         )
-      )
     );
   }
 
   // Builder for the hide and reveal animation when the backdrop opens and closes
   Widget _buildSlideAnimation(BuildContext context, Widget child) {
-    _slideAnimation = _getEmphasizedEasingAnimation(
+    _slideAnimation = expanding_buttom_sheetUtils._getEmphasizedEasingAnimation(
       begin: new Offset(1.0f, 0.0f),
       peak: new Offset(expanding_buttom_sheetUtils._kPeakVelocityProgress, 0.0f),
       end: new Offset(0.0f, 0.0f),
@@ -357,21 +354,21 @@ class _ExpandingBottomSheetState : State<ExpandingBottomSheet> { //with TickerPr
 
   // Closes the cart if the cart is open, otherwise exits the app (this should
   // only be relevant for Android).
-  Future<bool> _onWillPop() async {
-    if (!_isOpen) {
-      await SystemNavigator.pop();
-      return true;
+  Future<bool> _onWillPop()  {
+    if (!_isOpen) { 
+      //SystemNavigator.pop();
+      return Future.value(true).to<bool>();
     }
 
     close();
-    return true;
+    return Future.value(true).to<bool>();
   }
 
  
   public override Widget build(BuildContext context) {
     return new AnimatedSize(
       key: _expandingBottomSheetKey,
-      duration: Duration(milliseconds: 225),
+      duration: TimeSpan.FromMilliseconds(225),
       curve: Curves.easeInOut,
       vsync: this,
       alignment: FractionalOffset.topLeft,
@@ -404,7 +401,7 @@ public class ProductThumbnailRow : StatefulWidget {
 }
 
   public class _ProductThumbnailRowState : State<ProductThumbnailRow> {
-      public readonly GlobalKey<AnimatedListState> _listKey = new GlobalKey<AnimatedListState>();
+      public readonly GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>.key();
   
       _ListModel _list;
       List<int> _internalList;
@@ -414,14 +411,14 @@ public class ProductThumbnailRow : StatefulWidget {
         base.initState();
         _list = new _ListModel(
           listKey: _listKey,
-          initialItems: ScopedModel.of<AppStateModel>(context).productsInCart.keys.toList(),
+          initialItems: ScopedModel<AppStateModel>.of(context).productsInCart.Keys.ToList(),
           removedItemBuilder: _buildRemovedThumbnail
-      );
+        );
     _internalList = new List<int>(_list.list);
   }
 
   Product _productWithId(int productId) { 
-    AppStateModel model = ScopedModel.of<AppStateModel>(context);
+    AppStateModel model = ScopedModel<AppStateModel>.of(context);
     Product product = model.getProductById(productId);
     D.assert(product != null);
     return product;
@@ -444,15 +441,11 @@ public class ProductThumbnailRow : StatefulWidget {
       parent: animation
     );
 
-    return new ProductThumbnail(thumbnailSize, opacity, _productWithId(_list[index]));
+    return new ProductThumbnail(thumbnailSize, opacity, _productWithId(_list.ElementAt(index)));
   }
-
-  // If the lists are the same length, assume nothing has changed.
-  // If the internalList is shorter than the ListModel, an item has been removed.
-  // If the internalList is longer, then an item has been added.
+  
   void _updateLists() {
-    // Update _internalList based on the model
-    _internalList = ScopedModel.of<AppStateModel>(context).productsInCart.keys.toList();
+    _internalList = ScopedModel<AppStateModel>.of(context).productsInCart.Keys.ToList();
      HashSet<int> internalSet = new HashSet<int>(_internalList);
     HashSet<int> listSet = new HashSet<int>(_list.list);
 
@@ -479,11 +472,11 @@ public class ProductThumbnailRow : StatefulWidget {
     while (_internalList.Count != _list.length) {
       int index = 0;
       // Check bounds and that the list elements are the same
-      while (_internalList.isNotEmpty &&
+      while (_internalList.isNotEmpty() &&
           _list.length > 0 &&
           index < _internalList.Count &&
           index < _list.length &&
-          _internalList[index] == _list[index]) {
+          _internalList[index] == _list.ElementAt(index)) {
         index++;
       }
     }
@@ -538,7 +531,7 @@ public class ExtraProductsNumber : StatelessWidget {
   
   public override Widget build(BuildContext context) {
     return new ScopedModelDescendant<AppStateModel>(
-      builder: (BuildContext builder, Widget child, AppStateModel model) => _buildOverflow(model, context),
+      builder: (BuildContext builder, Widget child, AppStateModel model) => _buildOverflow(model, context)
     );
   }
 }
@@ -566,9 +559,8 @@ public class ProductThumbnail : StatelessWidget {
           height: 40.0f,
           decoration: new BoxDecoration(
             image: new DecorationImage(
-              image: new ExactAssetImage(
-                product.assetName,
-                package: product.assetPackage
+              image: new FileImage(
+                product.assetName
               ),
               fit: BoxFit.cover
             ),
@@ -580,23 +572,26 @@ public class ProductThumbnail : StatelessWidget {
     );
   }
 }
-
+public delegate Widget RemovedItemBuilder(int item, BuildContext context, Animation<float> animation) ;
 public class _ListModel {
   public _ListModel(
     GlobalKey<AnimatedListState> listKey,
-    Delegate removedItemBuilder,
-    IEnumerable<int> initialItems
+    RemovedItemBuilder removedItemBuilder,
+    IEnumerable<int> initialItems = null
   )
   {
     D.assert(listKey != null);
     D.assert(removedItemBuilder != null);
     _items = initialItems?.ToList() ?? new List<int>();
+    this.listKey = listKey;
+    this.removedItemBuilder = removedItemBuilder;
+
   }
 
   public readonly GlobalKey<AnimatedListState> listKey;
 
   //public readonly Delegate removedItemBuilder;
-  public delegate Widget removedItemBuilder(int item, BuildContext context, Animation<float> animation);
+  public RemovedItemBuilder removedItemBuilder;
   public readonly List<int> _items;
 
   AnimatedListState _animatedList
@@ -613,7 +608,7 @@ public class _ListModel {
 
   public void _insert(int index, int item) {
     _items.Insert(index, item);
-    _animatedList.insertItem(index, duration: Duration(milliseconds: 225));
+    _animatedList.insertItem(index, duration: TimeSpan.FromMilliseconds(225));
   }
 
   public void remove(int product) {
@@ -623,7 +618,9 @@ public class _ListModel {
     }
   }
 
-  public void _removeAt(int index) {
+  public void _removeAt(int index)
+  {
+    int removedItem = _items.ElementAt(index);
     _items.RemoveAt(index);
     _animatedList.removeItem(index, (BuildContext context, Animation<float> animation) =>{
         return removedItemBuilder(removedItem, context, animation);
@@ -639,7 +636,7 @@ public class _ListModel {
     }
   }
 
-  int operator [](int index) => _items[index];
+  public int ElementAt(int index) => _items[index];
 
   int indexOf(int item) => _items.IndexOf(item);
 

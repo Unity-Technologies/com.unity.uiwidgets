@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
 using UIWidgetsGallery.demo.shrine.model;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace UIWidgetsGallery.demo.shrine
 {
@@ -16,23 +19,27 @@ namespace UIWidgetsGallery.demo.shrine
   }
     
 
-class ShoppingCartPage : StatefulWidget {
+public class ShoppingCartPage : StatefulWidget {
   
   public override State createState() => new _ShoppingCartPageState();
 }
 
 public class _ShoppingCartPageState : State<ShoppingCartPage> {
-  List<Widget> _createShoppingCartRows(AppStateModel model) {
-    return model.productsInCart.Keys
-        .map((int id) => new ShoppingCartRow(
-            product: model.getProductById(id),
-            quantity: model.productsInCart[id],
-            onPressed: () =>{
-              model.removeItemFromCart(id);
-            }
-          )
-        )
-        .toList();
+  List<Widget> _createShoppingCartRows(AppStateModel model)
+  {
+    List<Widget> widgets = null;
+    for (int id = 0; id < model.productsInCart.Count; id++)
+    {
+      widgets.Add(new ShoppingCartRow(
+        product: model.getProductById(id),
+        quantity: model.productsInCart[id],
+        onPressed: ()=> {
+          model.removeItemFromCart(id);
+        }
+      ));
+    }
+
+    return widgets;
   }
   
   public override Widget build(BuildContext context) {
@@ -114,10 +121,6 @@ public class ShoppingCartSummary : StatelessWidget {
   public override Widget build(BuildContext context) {
     TextStyle smallAmountStyle = Theme.of(context).textTheme.bodyText2.copyWith(color: shrineColorsUtils.kShrineBrown600);
     TextStyle largeAmountStyle = Theme.of(context).textTheme.headline4;
-    NumberFormat formatter = NumberFormat.simpleCurrency(
-      decimalDigits: 2,
-      locale: Localizations.localeOf(context).ToString()
-    );
 
     return new Row(
       children: new List<Widget>
@@ -137,7 +140,7 @@ public class ShoppingCartSummary : StatelessWidget {
                       child: new Text("TOTAL")
                     ),
                     new Text(
-                      formatter.format(model.totalCost),
+                      $"${model.totalCost:F}",
                       style: largeAmountStyle
                     )
                   }
@@ -150,7 +153,7 @@ public class ShoppingCartSummary : StatelessWidget {
                       child: new Text("Subtotal:")
                     ),
                     new Text(
-                      formatter.format(model.subtotalCost),
+                      $" $ {model.subtotalCost:F}",
                       style: smallAmountStyle
                     )
                   }
@@ -163,7 +166,7 @@ public class ShoppingCartSummary : StatelessWidget {
                       child: new Text("Shipping:")
                     ),
                     new Text(
-                      formatter.format(model.shippingCost),
+                      $" $ {model.shippingCost:F}",
                       style: smallAmountStyle
                     )
                   }
@@ -177,7 +180,7 @@ public class ShoppingCartSummary : StatelessWidget {
                     child: new Text("Tax:")
                     ),
                     new Text(
-                      formatter.format(model.tax),
+                      $"${model.tax:F}",
                       style: smallAmountStyle
                     )
                   }
@@ -209,16 +212,13 @@ public class ShoppingCartRow : StatelessWidget {
 
   
   public override Widget build(BuildContext context) {
-      NumberFormat formatter = NumberFormat.simpleCurrency(
-      decimalDigits: 0,
-      locale: Localizations.localeOf(context).ToString()
-    );
+    
     ThemeData localTheme = Theme.of(context);
 
     return new Padding(
       padding: EdgeInsets.only(bottom: 16.0f),
       child: new Row(
-        key: ValueKey<int>(product.id),
+        key: new ValueKey<int>(product.id),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: new List<Widget>{
           new SizedBox(
@@ -251,9 +251,9 @@ public class ShoppingCartRow : StatelessWidget {
                             new Row(
                               children: new List<Widget>{
                                 new Expanded(
-                                  child: new Text($"Quantity: {quantity}"),
+                                  child: new Text($"Quantity: {quantity}")
                                 ),
-                                new Text($"x {formatter.format(product.price)}")
+                                new Text($"x  $ {product.price : D} ")
                               }
                             ),
                             new Text(

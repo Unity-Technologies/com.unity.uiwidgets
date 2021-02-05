@@ -107,7 +107,7 @@ namespace UIWidgetsGallery.demo.shrine
                     children: new List<Widget>{
                         new GestureDetector(
                             behavior: HitTestBehavior.opaque,
-                            onTap: onTap,
+                            onTap: () => { onTap?.Invoke();},
                             child: new Container(
                             height: 40.0f,
                             alignment: AlignmentDirectional.centerStart
@@ -121,14 +121,15 @@ namespace UIWidgetsGallery.demo.shrine
             );
         }
     }
+    public delegate void  OnPress();
 
     public class _BackdropTitle : AnimatedWidget {
         public _BackdropTitle(
-            Key key,
-            Animation<float> listenable,
-            Delegate onPress,
-            Widget frontTitle,
-            Widget backTitle
+            Key key = null,
+            Animation<float> listenable = null,
+            OnPress onPress = null,
+            Widget frontTitle = null,
+            Widget backTitle = null
         ) : base(key: key, listenable: listenable)
         {
             D.assert(frontTitle != null);
@@ -138,8 +139,7 @@ namespace UIWidgetsGallery.demo.shrine
             this.onPress = onPress;
         }
 
-        public readonly Delegate onPress;
-        //public delegate void  onPress(); [!!!]
+        public readonly OnPress onPress;
         public readonly Widget frontTitle;
         public readonly Widget backTitle;
 
@@ -159,17 +159,39 @@ namespace UIWidgetsGallery.demo.shrine
                     width: 72.0f,
                     child: new IconButton(
                         padding: EdgeInsets.only(right: 8.0f),
-                        onPressed: onPress,
+                        onPressed: ()=> { onPress?.Invoke();},
                         icon: new Stack(children: new List<Widget>{
                             new Opacity(
                               opacity: animation.value,
-                              child: new ImageIcon(new FileImage("packages/shrine_images/slanted_menu.png"))
+                              child:  new Container(
+                                  width: 44.0f,
+                                  height: 44.0f,
+                                  decoration: new BoxDecoration(
+                                      image: new DecorationImage(
+                                          image: new FileImage(
+                                              file: "logo.png"
+                                          )
+                                      ),
+                                      shape: BoxShape.circle
+                                  )
+                              )
                             ),
                             new FractionalTranslation(
                               translation: new Tween<Offset>(
                               begin: Offset.zero,
                               end: new Offset(1.0f, 0.0f)).evaluate(animation),
-                              child: new ImageIcon(new FileImage("packages/shrine_images/diamond.png"))
+                              child: new Container(
+                                  width: 44.0f,
+                                  height: 44.0f,
+                                  decoration: new BoxDecoration(
+                                      image: new DecorationImage(
+                                          image: new FileImage(
+                                              file: "logo.png"
+                                          )
+                                      ),
+                                      shape: BoxShape.circle
+                                  )
+                              )
                             )
                         })
                     )
@@ -370,18 +392,18 @@ namespace UIWidgetsGallery.demo.shrine
                     new IconButton(
                         icon: new Icon(Icons.search),
                         onPressed: () => {
-                            Navigator.push<Void>(
+                            Navigator.push<object>(
                                 context,
-                                new MaterialPageRoute<Void>(builder: (BuildContext context) => new LoginPage())
+                                new MaterialPageRoute(builder: (BuildContext context2) => new LoginPage())
                             );
                         }
                     ),
                     new IconButton(
                         icon: new Icon(Icons.tune),
                         onPressed: () => {
-                            Navigator.push<void>(
+                            Navigator.push<object>(
                             context,
-                            new MaterialPageRoute<void>(builder: (BuildContext context) => new LoginPage()),
+                            new MaterialPageRoute(builder: (BuildContext context2) => new LoginPage())
                             );
                         }
                     ),
