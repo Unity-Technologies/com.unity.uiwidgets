@@ -31,9 +31,8 @@ namespace UIWidgetsGallery.demo.shrine.supplemental
             
             ThemeData theme = Theme.of(context);
 
-            Image imageWidget = Image.asset(
+            Image imageWidget = Image.file(
                 product.assetName,
-                package: product.assetPackage,
                 fit: BoxFit.cover
             );
 

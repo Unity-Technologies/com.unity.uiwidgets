@@ -491,10 +491,10 @@ public class ProductThumbnailRow : StatefulWidget {
   
   void _updateLists() {
     _internalList = ScopedModel<AppStateModel>.of(context).productsInCart.Keys.ToList();
-     HashSet<int> internalSet = new HashSet<int>(_internalList);
+    HashSet<int> internalSet = new HashSet<int>(_internalList);
     HashSet<int> listSet = new HashSet<int>(_list.list);
 
-    HashSet<int> difference = null;
+    HashSet<int> difference = new HashSet<int>();
     foreach (var _set in internalSet)
     {
       if (!listSet.Contains(_set))

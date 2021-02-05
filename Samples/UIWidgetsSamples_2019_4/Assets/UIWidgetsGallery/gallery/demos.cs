@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UIWidgetsGallery.demo;
 using UIWidgetsGallery.demo.material;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
@@ -144,6 +145,14 @@ namespace UIWidgetsGallery.gallery
         {
             List<GalleryDemo> galleryDemos = new List<GalleryDemo>
             {
+                new GalleryDemo(
+                    title: "Shrine",
+                    subtitle: "Basic shopping app",
+                    icon: GalleryIcons.shrine,
+                    category: GalleryDemoCategory._kDemos,
+                    routeName: ShrineDemo.routeName,
+                    buildRoute: (BuildContext context) => new ShrineDemo()
+                ),
                 new GalleryDemo(
                     title: "Backdrop",
                     subtitle: $"Select a front layer from back layer",
