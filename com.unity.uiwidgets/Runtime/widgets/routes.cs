@@ -473,7 +473,7 @@ namespace Unity.UIWidgets.widgets {
         public _ModalScope(
             Key key = null, 
             ModalRoute<T> route = null) 
-            : base(key) {
+            : base(key, route) {
             this.route = route;
         }
 

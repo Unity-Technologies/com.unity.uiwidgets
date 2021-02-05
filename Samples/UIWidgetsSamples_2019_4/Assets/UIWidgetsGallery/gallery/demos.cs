@@ -186,7 +186,34 @@ namespace UIWidgetsGallery.gallery
                     category: GalleryDemoCategory._kMaterialComponents,
                     routeName: ButtonsDemo.routeName,
                     buildRoute: (BuildContext context) => new ButtonsDemo()
-                )
+                ),
+                new GalleryDemo(
+                    title: "Cards",
+                    subtitle: "Baseline cards with rounded corners",
+                    icon: GalleryIcons.cards,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: CardsDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/Card-class.html",
+                    buildRoute: (BuildContext context) => new CardsDemo()
+                ),
+                new GalleryDemo(
+                    title: "Chips",
+                    subtitle: "Labeled with delete buttons and avatars",
+                    icon: GalleryIcons.chips,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ChipDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/Chip-class.html",
+                    buildRoute: (BuildContext context) => new ChipDemo()
+                ),
+                new GalleryDemo(
+                    title: "Data tables",
+                    subtitle: "Rows and columns",
+                    icon: GalleryIcons.data_table,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: DataTableDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/PaginatedDataTable-class.html",
+                    buildRoute: (BuildContext context) => new DataTableDemo()
+                ),
             };
 
             return galleryDemos;

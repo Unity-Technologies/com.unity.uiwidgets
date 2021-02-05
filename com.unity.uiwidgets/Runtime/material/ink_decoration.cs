@@ -170,7 +170,6 @@ namespace Unity.UIWidgets.material {
             VoidCallback onRemoved = null
         ) : base(controller: controller, referenceBox: referenceBox, onRemoved: onRemoved) {
             D.assert(configuration != null);
-            D.assert(decoration != null);
             D.assert(controller != null);
             D.assert(referenceBox != null);
             _configuration = configuration;

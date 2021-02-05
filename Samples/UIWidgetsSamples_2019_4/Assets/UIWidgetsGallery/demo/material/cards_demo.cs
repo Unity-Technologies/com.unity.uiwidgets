@@ -15,7 +15,7 @@ namespace UIWidgetsGallery.demo.material
 {
     public static class CardsDemoUtils
     {
-        public static readonly string _kGalleryAssetsPackage = "flutter_gallery_assets";
+        public static readonly string _kGalleryAssetsPackage = "StreamingAssets/gallery/";
     }
 
     internal enum CardDemoType
@@ -43,6 +43,14 @@ namespace UIWidgetsGallery.demo.material
             D.assert(description != null);
             D.assert(city != null);
             D.assert(location != null);
+
+            this.assetName = assetName;
+            this.assetPackage = assetPackage;
+            this.title = title;
+            this.description = description;
+            this.city = city;
+            this.location = location;
+            this.type = type;
         }
 
         public readonly string assetName;

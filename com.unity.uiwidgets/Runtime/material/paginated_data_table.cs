@@ -60,6 +60,7 @@ namespace Unity.UIWidgets.material {
             this.availableRowsPerPage = availableRowsPerPage;
             this.onRowsPerPageChanged = onRowsPerPageChanged;
             this.dragStartBehavior = dragStartBehavior;
+            this.source = source;
         }
 
 

@@ -69,11 +69,11 @@ namespace UIWidgetsGallery.demo.material
 
         public static readonly Dictionary<string, string> _avatars = new Dictionary<string, string>()
         {
-            {"hammer", "people/square/ali.png"},
-            {"chisel", "people/square/sandra.png"},
-            {"fryer", "people/square/trevor.png"},
-            {"fabricator", "people/square/stella.png"},
-            {"customer", "people/square/peter.png"},
+            {"hammer", "StreamingAssets/gallery/people/square/ali.png"},
+            {"chisel", "StreamingAssets/gallery/people/square/sandra.png"},
+            {"fryer", "StreamingAssets/gallery/people/square/trevor.png"},
+            {"fabricator", "StreamingAssets/gallery/people/square/stella.png"},
+            {"customer", "StreamingAssets/gallery/people/square/peter.png"},
         };
 
         public static readonly Dictionary<string, HashSet<string>> _toolActions =

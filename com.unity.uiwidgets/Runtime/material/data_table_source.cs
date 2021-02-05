@@ -4,10 +4,10 @@ namespace Unity.UIWidgets.material {
     public abstract class DataTableSource : ChangeNotifier {
         public abstract DataRow getRow(int index);
 
-        public int rowCount { get; }
+        public virtual int rowCount { get; }
 
-        public bool isRowCountApproximate { get; }
+        public virtual bool isRowCountApproximate { get; }
 
-        public int selectedRowCount { get; }
+        public virtual int selectedRowCount { get; }
     }
 }

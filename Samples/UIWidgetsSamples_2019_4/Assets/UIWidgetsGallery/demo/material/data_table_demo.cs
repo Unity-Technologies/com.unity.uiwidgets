@@ -152,11 +152,11 @@ namespace UIWidgetsGallery.demo.material
             );
         }
 
-        private new int rowCount => this._desserts.Count;
+        public override int rowCount => this._desserts.Count;
 
-        private new bool isRowCountApproximate => false;
+        public override bool isRowCountApproximate => false;
 
-        private new int selectedRowCount => this._selectedCount;
+        public override int selectedRowCount => this._selectedCount;
 
         public void _selectAll(bool isChecked)
         {
