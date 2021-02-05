@@ -223,6 +223,34 @@ namespace UIWidgetsGallery.gallery
                     documentationUrl: "https://docs.flutter.io/flutter/material/PaginatedDataTable-class.html",
                     buildRoute: (BuildContext context) => new DataTableDemo()
                 ),
+                new GalleryDemo(
+                    title: "Dialogs",
+                    subtitle: "Simple, alert, and fullscreen",
+                    icon: GalleryIcons.dialogs,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: DialogDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/showDialog.html",
+                    buildRoute: (BuildContext context) => new DialogDemo()
+                ),
+                new GalleryDemo(
+                    title: "Elevations",
+                    subtitle: "Shadow values on cards",
+                    // TODO(larche): Change to custom icon for elevations when one exists.
+                    icon: GalleryIcons.cupertino_progress,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ElevationDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/Material/elevation.html",
+                    buildRoute: (BuildContext context) => new ElevationDemo()
+                ),
+                new GalleryDemo(
+                    title: "Navigation drawer",
+                    subtitle: "Navigation drawer with standard header",
+                    icon: GalleryIcons.menu,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: DrawerDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/Drawer-class.html",
+                    buildRoute: (BuildContext context) => new DrawerDemo()
+                ),
             };
 
             return galleryDemos;
