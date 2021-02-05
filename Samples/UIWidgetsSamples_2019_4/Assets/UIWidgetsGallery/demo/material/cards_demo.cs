@@ -15,7 +15,7 @@ namespace UIWidgetsGallery.demo.material
 {
     public static class CardsDemoUtils
     {
-        public static readonly string _kGalleryAssetsPackage = "StreamingAssets/gallery/";
+        public static readonly string _kGalleryAssetsPackage = "gallery/";
     }
 
     internal enum CardDemoType

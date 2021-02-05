@@ -237,6 +237,10 @@ namespace Unity.UIWidgets.painting {
 
         public static Rect inverseTransformRect(Matrix4 transform, Rect rect) {
             D.assert(rect != null);
+            
+            //FIXME: there is a bug here
+            //In flutter this assertion has been commented, but we cannot do it since the call of Matrix4.tryInvert will fail
+            //we need to find a better way to fix this issue here
             D.assert(transform.determinant() != 0.0);
             if (isIdentity(transform))
                 return rect;
