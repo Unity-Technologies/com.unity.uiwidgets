@@ -144,7 +144,7 @@ namespace UIWidgetsGallery.demo.shrine
 
 
 
-public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBottomSheet> { //with TickerProviderStateMixin {
+public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBottomSheet> { 
   public readonly GlobalKey _expandingBottomSheetKey = GlobalKey.key(debugLabel: "Expanding bottom sheet");
   
   float _width = expanding_buttom_sheetUtils._kWidthForCartIcon;

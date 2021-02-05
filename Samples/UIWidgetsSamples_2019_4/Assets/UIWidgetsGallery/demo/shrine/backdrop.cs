@@ -258,7 +258,7 @@ namespace UIWidgetsGallery.demo.shrine
         public override State createState() => new _BackdropState();
     }
 
-    public class _BackdropState : State<Backdrop> {//with SingleTickerProviderStateMixin { [!!!]
+    public class _BackdropState : SingleTickerProviderStateMixin<Backdrop> {
         public readonly GlobalKey _backdropKey =  GlobalKey.key(debugLabel: "Backdrop");
         AnimationController _controller;
         Animation<RelativeRect> _layerAnimation;
