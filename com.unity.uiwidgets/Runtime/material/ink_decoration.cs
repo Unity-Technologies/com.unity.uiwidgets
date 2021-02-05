@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.material {
             ImageErrorListener onImageError = null,
             ColorFilter colorFilter = null,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             Rect centerSlice = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             float? width = null,
