@@ -200,7 +200,7 @@ namespace Unity.UIWidgets.painting {
                 return new _RoundedRectangleToCircleBorder(
                     side: BorderSide.lerp(border.side, side, t),
                     borderRadius: BorderRadius.lerp(border.borderRadius, borderRadius, t),
-                    circleness: Mathf.Lerp(border.circleness, circleness, t)
+                    circleness: MathUtils.lerpNullableFloat(border.circleness, circleness, t)
                 );
             }
 
@@ -228,7 +228,7 @@ namespace Unity.UIWidgets.painting {
                 return new _RoundedRectangleToCircleBorder(
                     side: BorderSide.lerp(side, border.side, t),
                     borderRadius: BorderRadius.lerp(borderRadius, border.borderRadius, t),
-                    circleness: Mathf.Lerp(circleness, border.circleness, t)
+                    circleness: MathUtils.lerpNullableFloat(circleness, border.circleness, t)
                 );
             }
 

@@ -1828,7 +1828,7 @@ namespace Unity.UIWidgets.material {
 
             float curveProgress = (t - startingPoint) / (1 - startingPoint);
             float transformed = curve.transform(curveProgress);
-            return Mathf.Lerp(startingPoint, 1, transformed);
+            return MathUtils.lerpNullableFloat(startingPoint, 1, transformed);
         }
 
         public override string ToString() {

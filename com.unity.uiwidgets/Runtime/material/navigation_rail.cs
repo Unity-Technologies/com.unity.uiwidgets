@@ -178,7 +178,7 @@ namespace Unity.UIWidgets.material {
                 materialChildren.AddRange(new List<Widget>() {
                     new ConstrainedBox(
                         constraints: new BoxConstraints(
-                            minWidth: Mathf.Lerp(minWidth, minExtendedWidth, _extendedAnimation.value)
+                            minWidth: MathUtils.lerpNullableFloat(minWidth, minExtendedWidth, _extendedAnimation.value)
                         ),
                         child: widget.leading
                     ),
@@ -210,7 +210,7 @@ namespace Unity.UIWidgets.material {
             if (widget.trailing != null) {
                 alignChildren.Add(new ConstrainedBox(
                     constraints: new BoxConstraints(
-                        minWidth: Mathf.Lerp(minWidth, minExtendedWidth, _extendedAnimation.value)
+                        minWidth: MathUtils.lerpNullableFloat(minWidth, minExtendedWidth, _extendedAnimation.value)
                     ),
                     child: widget.trailing
                 ));
@@ -397,8 +397,8 @@ namespace Unity.UIWidgets.material {
                     else {
                         content = new ConstrainedBox(
                             constraints: new BoxConstraints(
-                                minWidth: Mathf.Lerp(minWidth ?? 0, minExtendedWidth ?? 0,
-                                    extendedTransitionAnimation.value)
+                                minWidth: MathUtils.lerpNullableFloat(minWidth, minExtendedWidth,
+                                    extendedTransitionAnimation.value) ?? 0
                             ),
                             child: new ClipRect(
                                 child: new Row(
@@ -425,7 +425,7 @@ namespace Unity.UIWidgets.material {
 
                     float appearingAnimationValue = 1 - _positionAnimation.value;
 
-                    float verticalPadding = Mathf.Lerp(material_._verticalDestinationPaddingNoLabel,
+                    float verticalPadding = MathUtils.lerpNullableFloat(material_._verticalDestinationPaddingNoLabel,
                         material_._verticalDestinationPaddingWithLabel, appearingAnimationValue);
                     content = new Container(
                         constraints: new BoxConstraints(

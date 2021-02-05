@@ -59,9 +59,9 @@ namespace Unity.UIWidgets.material {
                 return null;
             return new BottomSheetThemeData(
                 backgroundColor: Color.lerp(a?.backgroundColor, b?.backgroundColor, t),
-                elevation: Mathf.Lerp(a?.elevation ?? 0, b?.elevation ?? 0, t),
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
                 modalBackgroundColor: Color.lerp(a?.modalBackgroundColor, b?.modalBackgroundColor, t),
-                modalElevation: Mathf.Lerp(a?.modalElevation ?? 0, b?.modalElevation ?? 0, t),
+                modalElevation: MathUtils.lerpNullableFloat(a?.modalElevation, b?.modalElevation, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t),
                 clipBehavior: t < 0.5 ? a?.clipBehavior : b?.clipBehavior
             );

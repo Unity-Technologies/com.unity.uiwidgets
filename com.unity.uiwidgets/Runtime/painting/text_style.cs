@@ -430,7 +430,7 @@ namespace Unity.UIWidgets.painting {
                 decoration: t < 0.5 ? a.decoration : b.decoration,
                 decorationColor: Color.lerp(a.decorationColor, b.decorationColor, t),
                 decorationStyle: t < 0.5 ? a.decorationStyle : b.decorationStyle,
-                decorationThickness: Mathf.Lerp(
+                decorationThickness: MathUtils.lerpNullableFloat(
                     a.decorationThickness ?? b.decorationThickness ?? 0.0f,
                     b.decorationThickness ?? a.decorationThickness ?? 0.0f, t),
                 shadows: t < 0.5f ? a.shadows : b.shadows,

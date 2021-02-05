@@ -211,10 +211,10 @@ namespace Unity.UIWidgets.painting {
             if (b == null)
                 return a._scaleAlpha(1.0f - t);
             return HSLColor.fromAHSL(
-                Mathf.Lerp(a.alpha, b.alpha, t).clamp(0.0f, 1.0f),
-                Mathf.Lerp(a.hue, b.hue, t) % 360.0f,
-                Mathf.Lerp(a.saturation, b.saturation, t).clamp(0.0f, 1.0f),
-                Mathf.Lerp(a.lightness, b.lightness, t).clamp(0.0f, 1.0f)
+                MathUtils.lerpNullableFloat(a.alpha, b.alpha, t).clamp(0.0f, 1.0f),
+                MathUtils.lerpNullableFloat(a.hue, b.hue, t) % 360.0f,
+                MathUtils.lerpNullableFloat(a.saturation, b.saturation, t).clamp(0.0f, 1.0f),
+                MathUtils.lerpNullableFloat(a.lightness, b.lightness, t).clamp(0.0f, 1.0f)
             );
         }
 

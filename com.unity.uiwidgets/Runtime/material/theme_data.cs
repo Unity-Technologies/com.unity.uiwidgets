@@ -1246,8 +1246,8 @@ namespace Unity.UIWidgets.material {
 
         internal static VisualDensity lerp(VisualDensity a, VisualDensity b, float t) {
             return new VisualDensity(
-                horizontal: Mathf.Lerp(a.horizontal, b.horizontal, t),
-                vertical: Mathf.Lerp(a.horizontal, b.horizontal, t)
+                horizontal: MathUtils.lerpNullableFloat(a.horizontal, b.horizontal, t),
+                vertical: MathUtils.lerpNullableFloat(a.horizontal, b.horizontal, t)
             );
         }
 

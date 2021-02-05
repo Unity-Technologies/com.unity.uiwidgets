@@ -180,7 +180,7 @@ namespace Unity.UIWidgets.material {
         }
 
         float _lerp(float value) {
-            return Mathf.Lerp(widget.min, widget.max, value);
+            return MathUtils.lerpNullableFloat(widget.min, widget.max, value);
         }
 
         RangeValues _lerpRangeValues(RangeValues values) {

@@ -2,6 +2,7 @@ using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -81,8 +82,8 @@ namespace Unity.UIWidgets.material {
                 alignment: t < 0.5 ? a.alignment : b.alignment,
                 mainAxisSize: t < 0.5 ? a.mainAxisSize : b.mainAxisSize,
                 buttonTextTheme: t < 0.5 ? a.buttonTextTheme : b.buttonTextTheme,
-                buttonMinWidth: Mathf.Lerp(a?.buttonMinWidth ?? 0, b?.buttonMinWidth ?? 0, t),
-                buttonHeight: Mathf.Lerp(a?.buttonHeight ?? 0, b?.buttonHeight ?? 0, t),
+                buttonMinWidth: MathUtils.lerpNullableFloat(a?.buttonMinWidth, b?.buttonMinWidth, t),
+                buttonHeight: MathUtils.lerpNullableFloat(a?.buttonHeight, b?.buttonHeight, t),
                 buttonPadding: EdgeInsetsGeometry.lerp(a?.buttonPadding, b?.buttonPadding, t),
                 buttonAlignedDropdown: t < 0.5 ? a.buttonAlignedDropdown : b.buttonAlignedDropdown,
                 layoutBehavior: t < 0.5 ? a.layoutBehavior : b.layoutBehavior,
