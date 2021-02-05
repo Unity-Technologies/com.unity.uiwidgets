@@ -104,6 +104,8 @@ namespace Unity.UIWidgets.material {
             D.assert(icon != null);
             D.assert(label != null);
 
+            clipBehavior = clipBehavior ?? Clip.none;
+
             return new _RaisedButtonWithIcon(
                 key: key,
                 onPressed: onPressed,

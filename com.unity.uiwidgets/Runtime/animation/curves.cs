@@ -442,7 +442,7 @@ namespace Unity.UIWidgets.animation {
                 start: 0.0f, end: 1.0f, tolerance: 1e-12f).ToList();
         }
         
-        static readonly List<String> _debugAssertReasons = new List<String>();
+        static readonly List<string> _debugAssertReasons = new List<string>();
 
         readonly List<Curve2DSample> _precomputedSamples;
 

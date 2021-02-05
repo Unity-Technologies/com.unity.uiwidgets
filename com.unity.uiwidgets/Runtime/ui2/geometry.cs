@@ -524,6 +524,14 @@ namespace Unity.UIWidgets.ui{
         public static Rect fromCircle(Offset center, float radius) {
             return new Rect(center.dx - radius, center.dy - radius, center.dx + radius, center.dy + radius);
         }
+        public static Rect fromCenter( Offset center, float width, float height ) {
+            return new Rect(
+                center.dx - width / 2,
+                center.dy - height / 2,
+                center.dx + width / 2,
+                center.dy + height / 2
+            );
+        }
 
         public static Rect fromPoints(Offset a, Offset b) {
             return new Rect(

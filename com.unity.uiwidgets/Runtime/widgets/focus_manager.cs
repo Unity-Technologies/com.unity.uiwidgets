@@ -968,7 +968,7 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new DiagnosticsProperty<FocusNode>("nextFocus", _markedForFocus, defaultValue: null));
             Element element = primaryFocus?.context as Element;
             if (element != null) {
-              properties.add(new DiagnosticsProperty<String>("primaryFocusCreator", element.debugGetCreatorChain(20)));
+              properties.add(new DiagnosticsProperty<string>("primaryFocusCreator", element.debugGetCreatorChain(20)));
             }
         }
     }

@@ -130,7 +130,9 @@ namespace Unity.UIWidgets.painting {
             }
 
             if (_cache.TryGetValue(key, out var image)) {
-                _lruKeys.Remove(image.node);
+                if (image.node != null) {
+                    _lruKeys.Remove(image.node);
+                }
                 _trackLiveImage(key, new _LiveImage(image.completer, image.sizeBytes, () => _liveImages.Remove(key)));
                 image.node = _lruKeys.AddLast(key);
                 return image.completer;

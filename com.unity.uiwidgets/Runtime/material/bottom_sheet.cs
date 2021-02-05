@@ -31,7 +31,7 @@ namespace Unity.UIWidgets.material {
         public static Future<T> showModalBottomSheet<T>(
             BuildContext context,
             WidgetBuilder builder,
-            Color backgroundColor,
+            Color backgroundColor = null,
             float? elevation = null,
             ShapeBorder shape = null,
             Clip? clipBehavior = null,
@@ -319,7 +319,7 @@ namespace Unity.UIWidgets.material {
     class _ModalBottomSheetState<T> : State<_ModalBottomSheet<T>> {
         ParametricCurve<float> animationCurve = material_._modalBottomSheetCurve;
 
-        String _getRouteLabel(MaterialLocalizations localizations) {
+        string _getRouteLabel(MaterialLocalizations localizations) {
             switch (Theme.of(context).platform) {
                 case RuntimePlatform.IPhonePlayer:
                 case RuntimePlatform.OSXEditor:
@@ -352,7 +352,7 @@ namespace Unity.UIWidgets.material {
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
             MediaQueryData mediaQuery = MediaQuery.of(context);
             MaterialLocalizations localizations = MaterialLocalizations.of(context);
-            String routeLabel = _getRouteLabel(localizations);
+            string routeLabel = _getRouteLabel(localizations);
 
             return new AnimatedBuilder(
                 animation: widget.route.animation,

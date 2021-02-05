@@ -594,7 +594,7 @@ namespace Unity.UIWidgets.material {
         bool _down;
 
         static readonly Animatable<float> _turnTween =
-            new Tween<float>(begin: 0.0f, end: Mathf.PI).chain(new CurveTween(curve: Curves.easeIn));
+            new FloatTween(begin: 0.0f, end: Mathf.PI).chain(new CurveTween(curve: Curves.easeIn));
 
         public override void initState() {
             base.initState();

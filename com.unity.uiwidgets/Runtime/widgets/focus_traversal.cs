@@ -726,28 +726,17 @@ namespace Unity.UIWidgets.widgets {
             return sortedList;
         }
     }
-    
-    public interface Comparable<T> {
-      
-        int compareTo(T other);
-        int compare(Comparable<T> a, T b);
-    }
 
-    public abstract class FocusOrder : Diagnosticable , Comparable<FocusOrder> {
+    public abstract class FocusOrder : Diagnosticable , IComparable {
         public FocusOrder() {
         }
 
-        public int compareTo(FocusOrder other) {
+        public int CompareTo(object other) {
             D.assert(
                 GetType() == other.GetType(),()=>
                 "The sorting algorithm must not compare incomparable keys, since they don't "+
             $"know how to order themselves relative to each other. Comparing {this} with {other}");
-            return doCompare(other);
-        }
-
-        public int compare(Comparable<FocusOrder> a, FocusOrder b) {
-            //throw new NotImplementedException();
-            return a.compareTo(b);
+            return doCompare((FocusOrder) other);
         }
 
         protected abstract int doCompare(FocusOrder other);
@@ -833,7 +822,7 @@ namespace Unity.UIWidgets.widgets {
                 "Incompatible order types can't be compared.  Use a FocusTraversalGroup to group " +
                 "similar orders together."
               ); 
-                return a.order.compareTo(b.order); 
+                return a.order.CompareTo(b.order); 
             }); 
             return ordered.Select((_OrderedFocusInfo info) => info.node).Concat(unordered);
         }

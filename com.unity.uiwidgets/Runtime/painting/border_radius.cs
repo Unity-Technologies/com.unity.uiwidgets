@@ -78,7 +78,7 @@ namespace Unity.UIWidgets.painting {
         public abstract BorderRadius resolve(TextDirection? textDirection);
 
         public override string ToString() {
-            String visual = null, logical = null;
+            string visual = null, logical = null;
             if (_topLeft == _topRight &&
                 _topRight == _bottomLeft &&
                 _bottomLeft == _bottomRight) {

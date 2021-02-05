@@ -992,7 +992,7 @@ namespace Unity.UIWidgets.widgets {
     public class NavigatorState : TickerProviderStateMixin<Navigator> {
         public readonly GlobalKey<OverlayState> _overlayKey = GlobalKey<OverlayState>.key();
         public List<_RouteEntry> _history = new List<_RouteEntry>();
-        public readonly FocusScopeNode focusScopeNode = new FocusScopeNode();
+        public readonly FocusScopeNode focusScopeNode = new FocusScopeNode(debugLabel: "Navigator Scope");
         public bool _debugLocked = false; // used to prevent re-entrant calls to push, pop, and friends
 
         public override void initState() {
