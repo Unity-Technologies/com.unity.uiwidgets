@@ -20,7 +20,7 @@ namespace Unity.UIWidgets.painting {
             ImageErrorListener onError = null,
             ColorFilter colorFilter = null,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             Rect centerSlice = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             bool matchTextDirection = false
@@ -40,7 +40,7 @@ namespace Unity.UIWidgets.painting {
         public readonly ImageErrorListener onError;
         public readonly ColorFilter colorFilter;
         public readonly BoxFit? fit;
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
         public readonly Rect centerSlice;
         public readonly ImageRepeat repeat;
         public readonly bool matchTextDirection;
@@ -201,7 +201,7 @@ namespace Unity.UIWidgets.painting {
                 scale: _image.scale,
                 colorFilter: _details.colorFilter,
                 fit: _details.fit,
-                alignment: _details.alignment,
+                alignment: _details.alignment.resolve(configuration.textDirection),
                 centerSlice: _details.centerSlice,
                 repeat: _details.repeat,
                 flipHorizontally: flipHorizontally,

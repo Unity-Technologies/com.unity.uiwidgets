@@ -367,7 +367,7 @@ namespace Unity.UIWidgets.widgets {
 
     public class AlignTransition : AnimatedWidget {
         public AlignTransition(
-            Animation<Alignment> alignment,
+            Animation<AlignmentGeometry> alignment,
             Widget child,
             Key key = null,
             float? widthFactor = null,
@@ -380,8 +380,8 @@ namespace Unity.UIWidgets.widgets {
             this.heightFactor = heightFactor;
         }
 
-        Animation<Alignment> alignment {
-            get { return (Animation<Alignment>) listenable; }
+        Animation<AlignmentGeometry> alignment {
+            get { return (Animation<AlignmentGeometry>) listenable; }
         }
 
         public readonly float? widthFactor;

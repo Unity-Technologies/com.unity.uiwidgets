@@ -174,8 +174,8 @@ namespace Unity.UIWidgets.painting {
 
     public class LinearGradient : Gradient, IEquatable<LinearGradient> {
         public LinearGradient(
-            Alignment begin = null,
-            Alignment end = null,
+            AlignmentGeometry begin = null,
+            AlignmentGeometry end = null,
             List<Color> colors = null,
             List<float> stops = null,
             TileMode tileMode = TileMode.clamp,
@@ -186,16 +186,16 @@ namespace Unity.UIWidgets.painting {
             this.tileMode = tileMode;
         }
 
-        public readonly Alignment begin;
+        public readonly AlignmentGeometry begin;
 
-        public readonly Alignment end;
+        public readonly AlignmentGeometry end;
 
         public readonly TileMode tileMode;
 
         public override Shader createShader(Rect rect, TextDirection? textDirection = null) {
             return ui.Gradient.linear(
-                begin.withinRect(rect),
-                end.withinRect(rect),
+                begin.resolve(textDirection).withinRect(rect),
+                end.resolve(textDirection).withinRect(rect),
                 colors, _impliedStops(),
                 tileMode, _resolveTransform(rect, textDirection)
             );
@@ -247,8 +247,8 @@ namespace Unity.UIWidgets.painting {
                 b._impliedStops(),
                 t);
             return new LinearGradient(
-                begin: Alignment.lerp(a.begin, b.begin, t),
-                end: Alignment.lerp(a.end, b.end, t),
+                begin: AlignmentGeometry.lerp(a.begin, b.begin, t),
+                end: AlignmentGeometry.lerp(a.end, b.end, t),
                 colors: interpolated.colors,
                 stops: interpolated.stops,
                 tileMode: t < 0.5 ? a.tileMode : b.tileMode
@@ -315,19 +315,23 @@ namespace Unity.UIWidgets.painting {
 
     public class RadialGradient : Gradient, IEquatable<RadialGradient> {
         public RadialGradient(
-            Alignment center = null,
+            AlignmentGeometry center = null,
             float radius = 0.5f,
             List<Color> colors = null,
             List<float> stops = null,
             TileMode tileMode = TileMode.clamp,
+            AlignmentGeometry focal = null,
+            float focalRadius = 0.0f,
             GradientTransform transform = null
         ) : base(colors: colors, stops: stops, transform: transform) {
             this.center = center ?? Alignment.center;
             this.radius = radius;
             this.tileMode = tileMode;
+            this.focal = focal;
+            this.focalRadius = focalRadius;
         }
 
-        public readonly Alignment center;
+        public readonly AlignmentGeometry center;
 
         public readonly float radius;
 
@@ -339,7 +343,7 @@ namespace Unity.UIWidgets.painting {
 
         public override Shader createShader(Rect rect, TextDirection? textDirection = null) {
             return ui.Gradient.radial(
-                center.withinRect(rect),
+                center.resolve(textDirection).withinRect(rect),
                 radius * rect.shortestSide,
                 colors, _impliedStops(),
                 tileMode,
@@ -395,11 +399,13 @@ namespace Unity.UIWidgets.painting {
                 b._impliedStops(),
                 t);
             return new RadialGradient(
-                center: Alignment.lerp(a.center, b.center, t),
+                center: AlignmentGeometry.lerp(a.center, b.center, t),
                 radius: Mathf.Max(0.0f, Mathf.Lerp(a.radius, b.radius, t)),
                 colors: interpolated.colors,
                 stops: interpolated.stops,
-                tileMode: t < 0.5 ? a.tileMode : b.tileMode
+                tileMode: t < 0.5 ? a.tileMode : b.tileMode,
+                focal: AlignmentGeometry.lerp(a.focal, b.focal, t),
+                focalRadius: Mathf.Max(0.0f, Mathf.Lerp(a.focalRadius, b.focalRadius, t))
             );
         }
 
@@ -463,7 +469,7 @@ namespace Unity.UIWidgets.painting {
 
     public class SweepGradient : Gradient, IEquatable<SweepGradient> {
         public SweepGradient(
-            Alignment center = null,
+            AlignmentGeometry center = null,
             float startAngle = 0.0f,
             float endAngle = Mathf.PI * 2,
             List<Color> colors = null,
@@ -477,7 +483,7 @@ namespace Unity.UIWidgets.painting {
             this.tileMode = tileMode;
         }
 
-        public readonly Alignment center;
+        public readonly AlignmentGeometry center;
 
         public readonly float startAngle;
 
@@ -488,7 +494,7 @@ namespace Unity.UIWidgets.painting {
 
         public override Shader createShader(Rect rect, TextDirection? textDirection = null) {
             return ui.Gradient.sweep(
-                center.withinRect(rect),
+                center.resolve(textDirection).withinRect(rect),
                 colors, _impliedStops(),
                 tileMode,
                 startAngle, endAngle, _resolveTransform(rect, textDirection)
