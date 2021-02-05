@@ -14,7 +14,7 @@ using Rect = Unity.UIWidgets.ui.Rect;
 using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace Unity.UIWidgets.animation {
-    class TweenSequence<T> : Animatable<T> {
+    public class TweenSequence<T> : Animatable<T> {
         public TweenSequence(List<TweenSequenceItem<T>> items) {
             D.assert(items != null);
             D.assert(items.isNotEmpty);
@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.animation {
         public override float transform(float t) => 1 - base.transform(1 - t);
     }
 
-    class TweenSequenceItem<T> {
+    public class TweenSequenceItem<T> {
 
         public TweenSequenceItem(
             Animatable<T> tween = null,

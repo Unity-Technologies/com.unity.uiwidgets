@@ -588,6 +588,11 @@ namespace Unity.UIWidgets.widgets {
         public static void pop<T>(BuildContext context, T result = default(T) ) {
             of(context).pop<T>(result);
         }
+        
+        public static void pop(BuildContext context, object result = null ) {
+            of(context).pop(result);
+        }
+
 
         public static void popUntil(BuildContext context, RoutePredicate predicate) {
             of(context).popUntil(predicate);

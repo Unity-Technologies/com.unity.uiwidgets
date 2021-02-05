@@ -603,7 +603,7 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ (_hoverColor != null ? _hoverColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (_highlightColor != null ? _highlightColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (_splashColor != null ? _splashColor.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ colorScheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ (colorScheme != null ? colorScheme.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ _materialTapTargetSize.GetHashCode();
                 return hashCode;
             }
