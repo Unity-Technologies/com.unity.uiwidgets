@@ -710,25 +710,25 @@ namespace Unity.UIWidgets.material {
                         )
                     ));
                 }
+            }
 
-                if (_isExtendedFloatingActionButton(widget.child)) {
-                    children.Add(new ScaleTransition(
-                        scale: _extendedCurrentScaleAnimation,
-                        child: new FadeTransition(
-                            opacity: _currentScaleAnimation,
-                            child: widget.child
-                        )
-                    ));
-                }
-                else {
-                    children.Add(new ScaleTransition(
-                        scale: _currentScaleAnimation,
-                        child: new RotationTransition(
-                            turns: _currentRotationAnimation,
-                            child: widget.child
-                        )
-                    ));
-                }
+            if (_isExtendedFloatingActionButton(widget.child)) {
+                children.Add(new ScaleTransition(
+                    scale: _extendedCurrentScaleAnimation,
+                    child: new FadeTransition(
+                        opacity: _currentScaleAnimation,
+                        child: widget.child
+                    )
+                ));
+            }
+            else {
+                children.Add(new ScaleTransition(
+                    scale: _currentScaleAnimation,
+                    child: new RotationTransition(
+                        turns: _currentRotationAnimation,
+                        child: widget.child
+                    )
+                ));
             }
 
             return new Stack(
