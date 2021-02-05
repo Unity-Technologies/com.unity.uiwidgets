@@ -10,14 +10,17 @@ namespace Unity.UIWidgets.ui{
         down,
         move,
         up,
+        kMouseDown,
+        kMouseUp,
     }
 
     public enum PointerDeviceKind {
-        touch,
-        mouse,
+        touch = 0,
+        mouse = 1,
         stylus,
         invertedStylus,
-        unknown
+        keyboard = 4,
+        unknown,
     }
 
     public enum PointerSignalKind {

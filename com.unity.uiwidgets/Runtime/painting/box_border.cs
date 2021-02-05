@@ -671,7 +671,7 @@ namespace Unity.UIWidgets.painting {
 
 
         public override string ToString() {
-            List<String> arguments = new List<string>();
+            List<string> arguments = new List<string>();
             if
                 (top != BorderSide.none) {
                 arguments.Add("top: $top");

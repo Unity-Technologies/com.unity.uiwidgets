@@ -287,7 +287,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void initState() { 
             base.initState();
-            _mask = new _OnOffAnimation<Color>(
+            _mask = new _OnOffAnimationColor(
                 controller: widget.controller,
                 onValue: _lightModeMaskColor,
                 offValue: _masklessColor,
@@ -989,21 +989,29 @@ namespace Unity.UIWidgets.cupertino {
     }
   }
 
-  public class _OnOffAnimation<T> : CompoundAnimation<T> { 
-    public _OnOffAnimation(
+  
+  /**
+   * We cannot use _OnOffAnimation<T> here directly since Tween<T> is an abstract class in UIWidgets (while it is not in flutter)
+   * Refer to "Twee<T>" for the detailed reasons why we do so
+   *
+   * Instead, we should explicitly define classes for each generic type here
+   * 
+   */
+  public class _OnOffAnimationColor : CompoundAnimation<Color> { 
+    public _OnOffAnimationColor(
       AnimationController controller = null,
-      T onValue = default,
-      T offValue = default,
+      Color onValue = default,
+      Color offValue = default,
       float? intervalOn = null,
       float? intervalOff = null
     ) : base(
-        first: new Tween<T>(begin: offValue, end: onValue).animate(
+        first: new ColorTween(begin: offValue, end: onValue).animate(
             new CurvedAnimation(
                 parent: controller,
                 curve: new Interval(intervalOn == null ? 0.0f : (float)intervalOn, intervalOn == null ? 0.0f : (float)intervalOn)
                 )
             ),
-        next: new Tween<T>(begin: onValue, end: offValue).animate(
+        next: new ColorTween(begin: onValue, end: offValue).animate(
             new CurvedAnimation(
                 parent: controller,
                 curve: new Interval(intervalOff == null ? 0.0f : (float)intervalOff, intervalOff == null ? 0.0f : (float)intervalOff)
@@ -1015,8 +1023,8 @@ namespace Unity.UIWidgets.cupertino {
       D.assert(intervalOff !=null && intervalOff >= 0.0 && intervalOff <= 1.0);
       D.assert(intervalOn <= intervalOff);
     }
-    public readonly T _offValue;
-    public override T value {
+    public readonly Color _offValue;
+    public override Color value {
       get {
         return next.value.Equals( _offValue) ? next.value : first.value; 
       }

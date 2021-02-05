@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.material {
     }
 
 
-    public class PopupMenuDivider : PopupMenuEntry<object> {
+    public class PopupMenuDivider<T> : PopupMenuEntry<T> {
         public PopupMenuDivider(Key key = null, float height = material_._kMenuDividerHeight) : base(key: key) {
             _height = height;
         }
@@ -47,16 +47,16 @@ namespace Unity.UIWidgets.material {
             get { return _height; }
         }
 
-        public override bool represents(object value) {
+        public override bool represents(T value) {
             return false;
         }
 
         public override State createState() {
-            return new _PopupMenuDividerState();
+            return new _PopupMenuDividerState<T>();
         }
     }
 
-    class _PopupMenuDividerState : State<PopupMenuDivider> {
+    class _PopupMenuDividerState<T> : State<PopupMenuDivider<T>> {
         public override Widget build(BuildContext context) {
             return new Divider(height: widget.height);
         }
@@ -239,7 +239,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class CheckedPopupMenuItem<T> : PopupMenuItem<T> {
+    public class CheckedPopupMenuItem<T> : PopupMenuItem<T> {
         public CheckedPopupMenuItem(
             Key key = null,
             T value = default,
@@ -622,7 +622,7 @@ namespace Unity.UIWidgets.material {
             PopupMenuCanceled onCanceled = null,
             string tooltip = null,
             float? elevation = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Widget child = null,
             Icon icon = null,
             Offset offset = null,
@@ -661,7 +661,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly float? elevation;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly Widget child;
 

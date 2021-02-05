@@ -25,9 +25,9 @@ namespace Unity.UIWidgets.services {
             });
         }
 
-        public abstract Future<T> loadStructuredData<T>(String key, Func<string, Future<T>> parser);
+        public abstract Future<T> loadStructuredData<T>(string key, Func<string, Future<T>> parser);
 
-        public virtual void evict(String key) {
+        public virtual void evict(string key) {
         }
 
         public override string ToString() => $"{foundation_.describeIdentity(this)}()";
@@ -100,7 +100,7 @@ namespace Unity.UIWidgets.services {
             return base.loadString(key);
         }
 
-        public override Future<T> loadStructuredData<T>(String key, Func<string, Future<T>> parser) {
+        public override Future<T> loadStructuredData<T>(string key, Func<string, Future<T>> parser) {
             D.assert(key != null);
             D.assert(parser != null);
             if (_structuredDataCache.ContainsKey(key))

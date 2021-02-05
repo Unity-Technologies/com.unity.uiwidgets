@@ -1,21 +1,22 @@
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Unity.UIWidgets.async2;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.ui;
 using UnityEngine;
-
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 
 namespace Unity.UIWidgets.service {
-    
-    public delegate RawInputKeyResponse GlobalKeyEventHandlerDelegate(RawKeyEvent rawEvt, bool enableCustomAction = false);
-    
+    public delegate RawInputKeyResponse GlobalKeyEventHandlerDelegate(RawKeyEvent rawEvt,
+        bool enableCustomAction = false);
+
     public class RawInputKeyResponse {
         public readonly bool swallow;
         public readonly char input;
@@ -26,10 +27,10 @@ namespace Unity.UIWidgets.service {
             this.input = input;
             this.inputAction = inputAction;
         }
-        
+
         public static RawInputKeyResponse convert(RawKeyEvent evt) {
             return new RawInputKeyResponse(
-                false, 
+                false,
                 evt.data.unityEvent.character,
                 null);
         }
@@ -37,13 +38,13 @@ namespace Unity.UIWidgets.service {
         public static readonly RawInputKeyResponse swallowResponse = new RawInputKeyResponse(true, '\0', null);
     }
 
-    interface KeyboardDelegate: IDisposable {
+    interface KeyboardDelegate : IDisposable {
         void show();
         void hide();
         void setEditingState(TextEditingValue value);
 
         void setEditableSizeAndTransform(Dictionary<string, object> args);
-        
+
         void setStyle(Dictionary<string, object> args);
         void setIMEPos(Offset imeGlobalPos);
 
@@ -51,22 +52,19 @@ namespace Unity.UIWidgets.service {
         void clearClient();
 
         bool imeRequired();
-        
-        
     }
 
     public interface TextInputUpdateListener {
         void Update();
     }
-    
+
     public interface TextInputOnGUIListener {
         void OnGUI();
     }
 
     class DefaultKeyboardDelegate : KeyboardDelegate, TextInputOnGUIListener {
-
         int _client;
-        
+
         TextEditingValue _value;
 
         public void show() {
@@ -80,11 +78,11 @@ namespace Unity.UIWidgets.service {
         }
 
         public void setEditableSizeAndTransform(Dictionary<string, object> args) {
-             //todo
+            //todo
         }
 
         public void setStyle(Dictionary<string, object> args) {
-             //todo 
+            //todo 
         }
 
         Offset _editorWindowPosToScreenPos(Offset position) {
@@ -101,10 +99,10 @@ namespace Unity.UIWidgets.service {
 
         public void setIMEPos(Offset imeGlobalPos) {
             var uiWidgetWindowAdapter = Window.instance;
-            Offset screenPos = uiWidgetWindowAdapter != null 
-                ? uiWidgetWindowAdapter.windowPosToScreenPos(imeGlobalPos) 
+            Offset screenPos = uiWidgetWindowAdapter != null
+                ? uiWidgetWindowAdapter.windowPosToScreenPos(imeGlobalPos)
                 : _editorWindowPosToScreenPos(imeGlobalPos);
-            
+
             Input.compositionCursorPos = new Vector2(screenPos.dx, screenPos.dy);
         }
 
@@ -130,58 +128,64 @@ namespace Unity.UIWidgets.service {
             if (_client == 0) {
                 return;
             }
-            
-            
-            var currentEvent = Event.current;
-            var oldValue = _value;
 
-            if (currentEvent != null && currentEvent.type == EventType.KeyDown) {
-                var response = TextInput._handleGlobalInputKey(_client,
-                    new RawKeyDownEvent(new RawKeyEventData(currentEvent)));
 
-                if (response.swallow) {
-                    if (response.inputAction != null) {
-                        Window.instance.run(() => { TextInput._performAction(_client, response.inputAction.Value); });
+            while (!PointerEventConverter.KeyEvent.isEmpty()) {
+                var currentEvent = PointerEventConverter.KeyEvent.Dequeue();
+                var oldValue = _value;
+
+                if (currentEvent != null && currentEvent.type == EventType.KeyDown) {
+                    var response = TextInput._handleGlobalInputKey(_client,
+                        new RawKeyDownEvent(new RawKeyEventData(currentEvent)));
+
+                    if (response.swallow) {
+                        if (response.inputAction != null) {
+                            Timer.create(TimeSpan.Zero,
+                                () => { TextInput._performAction(_client, response.inputAction.Value); });
+                        }
+
+                        if (_validateCharacter(response.input)) {
+                            _value = _value.insert(new string(response.input, 1));
+                        }
                     }
-                    
-                    if (_validateCharacter(response.input)) {
-                        _value = _value.insert(new string(response.input, 1));
+                    else if (currentEvent.keyCode == KeyCode.Backspace) {
+                        if (_value.selection.isValid) {
+                            _value = _value.deleteSelection(true);
+                        }
                     }
-                } else if (currentEvent.keyCode == KeyCode.Backspace) {
-                    if (_value.selection.isValid) {
-                        _value = _value.deleteSelection(true);
+                    else if (currentEvent.character != '\0') {
+                        _value = _value.clearCompose();
+                        char ch = currentEvent.character;
+                        if (ch == '\r' || ch == 3) {
+                            ch = '\n';
+                        }
+
+                        if (ch == '\n') {
+                            Timer.create(TimeSpan.Zero, () => { TextInput._performAction(_client, TextInputAction.newline); });
+                        }
+
+                        if (_validateCharacter(ch)) {
+                            _value = _value.insert(new string(ch, 1));
+                        }
                     }
-                } else if (currentEvent.character != '\0') {
-                    _value = _value.clearCompose();
-                    char ch = currentEvent.character;
-                    if (ch == '\r' || ch == 3) {
-                        ch = '\n';
+                    else if (!string.IsNullOrEmpty(currentEvent.keyCode.ToString())) {
+                        isIMEInput = true;
+                        _value = _value.compose(currentEvent.keyCode.ToString());
                     }
 
-                    if (ch == '\n') {
-                        Window.instance.run(() => { TextInput._performAction(_client, TextInputAction.newline); });
-                    }
-                    
-                    if (_validateCharacter(ch)) {
-                        _value = _value.insert(new string(ch, 1));
-                    }
+                    currentEvent.Use();
                 }
-                else if (!string.IsNullOrEmpty(Input.compositionString)) {
-                    isIMEInput = true;
-                    _value = _value.compose(Input.compositionString);
-                }
-                
-                currentEvent.Use();
-            }
 
-            if (_value != oldValue) {
-                if (this.isIMEInput) {
-                    var isIMEInput = this.isIMEInput;
-                    Window.instance.run(() => { TextInput._updateEditingState(_client, _value, isIMEInput); });
-                    this.isIMEInput = false;
-                }
-                else {
-                    Window.instance.run(() => { TextInput._updateEditingState(_client, _value); });
+                if (_value != oldValue) {
+                    if (this.isIMEInput) {
+                        var isIMEInput = this.isIMEInput;
+                        Timer.create(TimeSpan.Zero,
+                            () => { TextInput._updateEditingState(_client, _value, isIMEInput); });
+                        this.isIMEInput = false;
+                    }
+                    else {
+                        Timer.create(TimeSpan.Zero, () => { TextInput._updateEditingState(_client, _value, isIMEInput); });
+                    }
                 }
             }
         }
@@ -193,7 +197,7 @@ namespace Unity.UIWidgets.service {
             return ch >= ' ' || ch == '\t' || ch == '\r' || ch == 10 || ch == '\n';
         }
     }
-    
+
     class UnityTouchScreenKeyboardDelegate : KeyboardDelegate, TextInputUpdateListener {
         int _client;
         string _lastCompositionString;
@@ -217,7 +221,7 @@ namespace Unity.UIWidgets.service {
             if (_keyboard.status == TouchScreenKeyboard.Status.Done) {
                 if (!_screenKeyboardDone) {
                     _screenKeyboardDone = true;
-                    Window.instance.run(() => {
+                    Timer.create(TimeSpan.Zero, () => {
                         TextInput._performAction(_client,
                             TextInputAction.done);
                     });
@@ -232,10 +236,10 @@ namespace Unity.UIWidgets.service {
                         : TextSelection.collapsed(0)
                 );
                 var changed = _value != newValue;
-                
+
                 _value = newValue;
                 if (changed) {
-                    Window.instance.run(() => {
+                    Timer.create(TimeSpan.Zero, () => {
                         TextInput._updateEditingState(_client,
                             _value);
                     });
@@ -338,15 +342,12 @@ namespace Unity.UIWidgets.service {
     }
 
     abstract class AbstractUIWidgetsKeyboardDelegate : KeyboardDelegate {
-        
         protected AbstractUIWidgetsKeyboardDelegate() {
-            UIWidgetsMessageManager.instance.
-                AddChannelMessageDelegate("TextInput", _handleMethodCall);
+            UIWidgetsMessageManager.instance.AddChannelMessageDelegate("TextInput", _handleMethodCall);
         }
-        
+
         public void Dispose() {
-            UIWidgetsMessageManager.instance.
-                RemoveChannelMessageDelegate("TextInput", _handleMethodCall);
+            UIWidgetsMessageManager.instance.RemoveChannelMessageDelegate("TextInput", _handleMethodCall);
         }
 
         public abstract void show();
@@ -354,6 +355,7 @@ namespace Unity.UIWidgets.service {
         public abstract void hide();
 
         public abstract void setEditingState(TextEditingValue value);
+
         public void setEditableSizeAndTransform(Dictionary<string, object> args) {
             throw new NotImplementedException();
         }
@@ -366,13 +368,14 @@ namespace Unity.UIWidgets.service {
         public abstract void setClient(int client, TextInputConfiguration configuration);
 
         public abstract void clearClient();
+
         public virtual bool imeRequired() {
             return false;
         }
 
         void _handleMethodCall(string method, List<JSONNode> args) {
             D.assert(false, () => "keyboard.handleMethodCall is not implemented yet!");
-            
+
             /*if (TextInput._currentConnection == null) {
                 return;
             }
@@ -393,9 +396,9 @@ namespace Unity.UIWidgets.service {
                         throw new UIWidgetsError($"unknown method ${method}");
                 }
             }*/
-        } 
+        }
     }
-    
+
 #if UNITY_WEBGL
     class UIWidgetsWebGLKeyboardDelegate : AbstractUIWidgetsKeyboardDelegate {
         
@@ -445,7 +448,7 @@ namespace Unity.UIWidgets.service {
 
     }
 #endif
-    
+
 #if UNITY_IOS || UNITY_ANDROID
     class UIWidgetsTouchScreenKeyboardDelegate : AbstractUIWidgetsKeyboardDelegate {
 
@@ -490,7 +493,8 @@ namespace Unity.UIWidgets.service {
 #elif UNITY_ANDROID
         internal static void UIWidgetsTextInputShow() {
             using (
-                AndroidJavaClass pluginClass = new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
+                AndroidJavaClass pluginClass =
+ new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
             ) {
                 pluginClass.CallStatic("show");
             }
@@ -498,7 +502,8 @@ namespace Unity.UIWidgets.service {
         
         internal static void UIWidgetsTextInputHide() {
             using (
-                AndroidJavaClass pluginClass = new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
+                AndroidJavaClass pluginClass =
+ new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
             ) {
                 pluginClass.CallStatic("hide");
             }
@@ -506,7 +511,8 @@ namespace Unity.UIWidgets.service {
         
         internal static void UIWidgetsTextInputSetClient(int client, string configuration) {
             using (
-                AndroidJavaClass pluginClass = new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
+                AndroidJavaClass pluginClass =
+ new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
             ) {
                
                 pluginClass.CallStatic("setClient", client, configuration);
@@ -515,7 +521,8 @@ namespace Unity.UIWidgets.service {
         
         internal static void UIWidgetsTextInputSetTextInputEditingState(string jsonText) {
             using (
-                AndroidJavaClass pluginClass = new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
+                AndroidJavaClass pluginClass =
+ new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
             ) {
                 pluginClass.CallStatic("setEditingState", jsonText);
             }
@@ -523,12 +530,13 @@ namespace Unity.UIWidgets.service {
         
         internal static void UIWidgetsTextInputClearTextInputClient() {
             using (
-                AndroidJavaClass pluginClass = new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
+                AndroidJavaClass pluginClass =
+ new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
             ) {
                 pluginClass.CallStatic("clearClient");
             }
         }
 #endif
     }
-#endif  
+#endif
 }

@@ -39,7 +39,9 @@ namespace Unity.UIWidgets.animation {
         readonly Animatable<T> _evaluatable;
 
         public override T value {
-            get { return _evaluatable.evaluate(parent); }
+            get {
+                return  _evaluatable.evaluate(parent);
+            }
         }
 
         public override string ToString() {
@@ -74,8 +76,20 @@ namespace Unity.UIWidgets.animation {
             return $"{_parent}\u27A9{_evaluatable}";
         }
     }
+    
+    /**
+     * We make Tween<T> a abstract class by design here (while it is not a abstract class in flutter
+     * The reason to do so is, in C# we cannot use arithmetic between generic types, therefore the
+     * lerp method cannot be implemented in Tween<T>
+     *
+     * To solve this problem, we make each Tween<T1>, Tween<T2> an explicit subclass T1Tween and T2Tween and
+     * implement the lerp method specifically
+     *
+     * See the implementations in "_OnOffAnimationColor" for some specific workarounds on this issue
+     * 
+     */
 
-    public class Tween<T> : Animatable<T>, IEquatable<Tween<T>> {
+    public abstract class Tween<T> : Animatable<T>, IEquatable<Tween<T>> {
         public Tween(T begin, T end) {
             this.begin = begin;
             this.end = end;
@@ -85,11 +99,7 @@ namespace Unity.UIWidgets.animation {
 
         public virtual T end { get; set; }
 
-        public virtual T lerp(float t) {
-            D.assert(begin != null);
-            D.assert(end != null);
-            return default; //begin + (end - begin) * t as T;
-        }
+        public abstract T lerp(float t);
 
         public override T transform(float t) {
             if (t == 0.0)

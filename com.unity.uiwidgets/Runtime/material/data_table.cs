@@ -218,8 +218,7 @@ namespace Unity.UIWidgets.material {
             ValueChanged<bool?> onCheckboxChanged = null
         ) {
             Widget contents = new Padding(
-                //TODO: update EdgeInsets
-                padding: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(start: horizontalMargin,
+                padding: EdgeInsetsDirectional.only(start: horizontalMargin,
                     end: horizontalMargin / 2.0f),
                 child: new Center(
                     child: new Checkbox(
@@ -275,8 +274,7 @@ namespace Unity.UIWidgets.material {
                 children: rowChild
             );
             label = new Container(
-                // TODO: udpate to EdgetInsets
-                padding: (EdgeInsets) padding,
+                padding: padding,
                 height: headingRowHeight,
                 alignment: numeric ?? false
                     ? Alignment.centerRight
@@ -332,7 +330,7 @@ namespace Unity.UIWidgets.material {
             }
 
             label = new Container(
-                padding: (EdgeInsets) padding,
+                padding: padding,
                 height: dataRowHeight,
                 alignment: numeric ? Alignment.centerRight : (AlignmentGeometry) AlignmentDirectional.centerStart,
                 child: new DefaultTextStyle(
@@ -596,7 +594,7 @@ namespace Unity.UIWidgets.material {
         bool _down;
 
         static readonly Animatable<float> _turnTween =
-            new Tween<float>(begin: 0.0f, end: Mathf.PI).chain(new CurveTween(curve: Curves.easeIn));
+            new FloatTween(begin: 0.0f, end: Mathf.PI).chain(new CurveTween(curve: Curves.easeIn));
 
         public override void initState() {
             base.initState();

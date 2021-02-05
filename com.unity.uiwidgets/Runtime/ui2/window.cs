@@ -494,7 +494,7 @@ namespace Unity.UIWidgets.ui {
         public bool highContrast => (_kHighContrastIndex & _index) != 0;
 
         public override string ToString() {
-            List<String> features = new List<String>();
+            List<string> features = new List<string>();
             if (accessibleNavigation)
                 features.Add("accessibleNavigation");
             if (invertColors)

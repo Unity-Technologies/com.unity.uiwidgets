@@ -307,6 +307,7 @@ namespace Unity.UIWidgets.service {
             TextSelection selection = null,
             TextRange composing = null) {
             selection = selection ?? TextSelection.collapsed(offset: -1);
+            
             D.assert(text != null);
             this.text = text;
             this.composing = composing ?? TextRange.empty;
@@ -608,6 +609,18 @@ namespace Unity.UIWidgets.service {
         
         static int _nextId = 1;
         internal readonly int _id;
+        
+        public void setIMEPos(Offset imeGlobalPos) {
+            D.assert(attached);
+            D.assert(imeGlobalPos != null);
+            D.assert(imeRequired());
+            TextInput.keyboardDelegate.setIMEPos(imeGlobalPos);
+        }
+        
+        public bool imeRequired() {
+            return TextInput.keyboardDelegate != null && TextInput.keyboardDelegate.imeRequired();
+        }
+        
         public static void debugResetId(int to = 1) {
             D.assert(() =>{
                 _nextId = to;

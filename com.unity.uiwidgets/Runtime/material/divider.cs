@@ -119,8 +119,7 @@ namespace Unity.UIWidgets.material {
                 child: new Center(
                     child: new Container(
                         width: thickness,
-                        //TODO: update to EdgeInsetsGeometry
-                        margin: (EdgeInsets) (EdgeInsetsGeometry) EdgeInsetsDirectional.only(top: indent,
+                        margin: EdgeInsetsDirectional.only(top: indent,
                             bottom: endIndent),
                         decoration: new BoxDecoration(
                             border: new Border(

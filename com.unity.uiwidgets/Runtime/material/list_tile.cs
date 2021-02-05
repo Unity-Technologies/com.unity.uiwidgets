@@ -26,7 +26,7 @@ namespace Unity.UIWidgets.material {
             Color selectedColor = null,
             Color iconColor = null,
             Color textColor = null,
-            EdgeInsets contentPadding = null,
+            EdgeInsetsGeometry contentPadding = null,
             Widget child = null) : base(key: key, child: child) {
             this.dense = dense;
             this.style = style;
@@ -43,7 +43,7 @@ namespace Unity.UIWidgets.material {
             Color selectedColor = null,
             Color iconColor = null,
             Color textColor = null,
-            EdgeInsets contentPadding = null,
+            EdgeInsetsGeometry contentPadding = null,
             Widget child = null) {
             D.assert(child != null);
             return new Builder(
@@ -72,7 +72,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly Color textColor;
 
-        public readonly EdgeInsets contentPadding;
+        public readonly EdgeInsetsGeometry contentPadding;
 
         public static ListTileTheme of(BuildContext context) {
             ListTileTheme result = context.dependOnInheritedWidgetOfExactType<ListTileTheme>();
@@ -120,7 +120,7 @@ namespace Unity.UIWidgets.material {
             Widget trailing = null,
             bool isThreeLine = false,
             bool? dense = null,
-            EdgeInsets contentPadding = null,
+            EdgeInsetsGeometry contentPadding = null,
             bool enabled = true,
             GestureTapCallback onTap = null,
             GestureLongPressCallback onLongPress = null,
@@ -152,7 +152,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly bool? dense;
 
-        public readonly EdgeInsets contentPadding;
+        public readonly EdgeInsetsGeometry contentPadding;
 
         public readonly bool enabled;
 
@@ -313,8 +313,9 @@ namespace Unity.UIWidgets.material {
             }
 
             EdgeInsets _defaultContentPadding = EdgeInsets.symmetric(horizontal: 16.0f);
+            TextDirection textDirection = Directionality.of(context);
             EdgeInsets resolvedContentPadding =
-                contentPadding ?? tileTheme?.contentPadding ?? _defaultContentPadding;
+                contentPadding?.resolve(textDirection) ?? tileTheme?.contentPadding?.resolve(textDirection) ?? _defaultContentPadding;
 
             return new InkWell(
                 onTap: enabled ? onTap : null,

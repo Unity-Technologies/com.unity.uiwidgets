@@ -12,7 +12,7 @@ namespace Unity.UIWidgets.material {
             Color color = null,
             Color shadowColor = null,
             float? elevation = null,
-            EdgeInsets margin = null,
+            EdgeInsetsGeometry margin = null,
             ShapeBorder shape = null
         ) {
             D.assert(elevation == null || elevation >= 0.0f);
@@ -32,7 +32,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly float? elevation;
 
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
 
         public readonly ShapeBorder shape;
 
@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.material {
             Color color = null,
             Color shadowColor = null,
             float? elevation = null,
-            EdgeInsets margin = null,
+            EdgeInsetsGeometry margin = null,
             ShapeBorder shape = null
         ) {
             return new CardTheme(
@@ -64,7 +64,7 @@ namespace Unity.UIWidgets.material {
                 color: Color.lerp(a?.color, b?.color, t),
                 shadowColor: Color.lerp(a?.shadowColor, b?.shadowColor, t),
                 elevation: Mathf.Lerp(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
-                margin: EdgeInsets.lerp(a?.margin, b?.margin, t),
+                margin: EdgeInsetsGeometry.lerp(a?.margin, b?.margin, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t)
             );
         }
@@ -94,7 +94,7 @@ namespace Unity.UIWidgets.material {
             properties.add(new ColorProperty("color", color, defaultValue: null));
             properties.add(new ColorProperty("shadowColor", shadowColor, defaultValue: null));
             properties.add(new DiagnosticsProperty<float?>("elevation", elevation, defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("margin", margin, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("margin", margin, defaultValue: null));
             properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: null));
         }
     }

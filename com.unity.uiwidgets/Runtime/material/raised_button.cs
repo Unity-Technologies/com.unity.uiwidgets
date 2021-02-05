@@ -28,7 +28,7 @@ namespace Unity.UIWidgets.material {
             float? hoverElevation = null,
             float? highlightElevation = null,
             float? disabledElevation = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             ShapeBorder shape = null,
             Clip? clipBehavior = Clip.none,
@@ -96,7 +96,7 @@ namespace Unity.UIWidgets.material {
             Clip? clipBehavior = null,
             FocusNode focusNode = null,
             bool autofocus = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             TimeSpan? animationDuration = null,
             Widget icon = null,
@@ -185,7 +185,7 @@ namespace Unity.UIWidgets.material {
                 defaultValue: null));
             properties.add(new DiagnosticsProperty<float?>("disabledElevation", disabledElevation,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", padding, defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding, defaultValue: null));
             properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: null));
             properties.add(new DiagnosticsProperty<MaterialTapTargetSize?>("materialTapTargetSize",
                 materialTapTargetSize, defaultValue: null));
@@ -215,7 +215,7 @@ namespace Unity.UIWidgets.material {
             Clip? clipBehavior = Clip.none,
             FocusNode focusNode = null,
             bool autofocus = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             TimeSpan? animationDuration = null,
             Widget icon = null,

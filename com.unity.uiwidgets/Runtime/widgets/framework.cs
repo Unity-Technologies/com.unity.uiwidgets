@@ -925,13 +925,13 @@ namespace Unity.UIWidgets.widgets {
 
         void visitChildElements(ElementVisitor visitor);
 
-        DiagnosticsNode describeElement(String name, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.errorProperty);
+        DiagnosticsNode describeElement(string name, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.errorProperty);
 
-        DiagnosticsNode describeWidget(String name, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.errorProperty);
+        DiagnosticsNode describeWidget(string name, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.errorProperty);
 
         List<DiagnosticsNode> describeMissingAncestor(Type expectedAncestorType);
 
-        DiagnosticsNode describeOwnershipChain(String name);
+        DiagnosticsNode describeOwnershipChain(string name);
     }
 
     public class BuildOwner {
@@ -1461,7 +1461,7 @@ namespace Unity.UIWidgets.widgets {
             return information;
         }
 
-        public static DiagnosticsNode describeElements(String name, IEnumerable<Element> elements) {
+        public static DiagnosticsNode describeElements(string name, IEnumerable<Element> elements) {
             return new DiagnosticsBlock(
                 name: name,
                 children: elements.Select((Element element) => new DiagnosticsProperty<Element>("", element))
@@ -1475,12 +1475,12 @@ namespace Unity.UIWidgets.widgets {
             return new DiagnosticsProperty<Element>(name, this, style: style);
         }
 
-        public DiagnosticsNode describeWidget(String name,
+        public DiagnosticsNode describeWidget(string name,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.errorProperty) {
             return new DiagnosticsProperty<Element>(name, this, style: style);
         }
 
-        public DiagnosticsNode describeOwnershipChain(String name) {
+        public DiagnosticsNode describeOwnershipChain(string name) {
             return new StringProperty(name, debugGetCreatorChain(10));
         }
 

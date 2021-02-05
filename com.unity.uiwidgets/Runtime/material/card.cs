@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.material {
             float? elevation = null,
             ShapeBorder shape = null,
             bool borderOnForeground = true,
-            EdgeInsets margin = null,
+            EdgeInsetsGeometry margin = null,
             Clip? clipBehavior = null,
             Widget child = null) : base(key: key) {
             D.assert(elevation == null || elevation >= 0.0f);
@@ -39,7 +39,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly Clip? clipBehavior;
 
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
 
         public readonly Widget child;
         

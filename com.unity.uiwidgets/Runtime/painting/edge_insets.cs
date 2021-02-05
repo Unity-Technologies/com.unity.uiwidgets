@@ -88,7 +88,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        protected EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+        public EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
             return _MixedEdgeInsets.fromLRSETB(
                 _left + other._left,
                 _right + other._right,
@@ -233,7 +233,7 @@ namespace Unity.UIWidgets.painting {
                 return false;
             }
 
-            return Equals((EdgeInsets) obj);
+            return Equals((EdgeInsetsGeometry) obj);
         }
 
         public override int GetHashCode() {

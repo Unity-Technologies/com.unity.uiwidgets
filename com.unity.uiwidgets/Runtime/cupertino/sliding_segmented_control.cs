@@ -110,7 +110,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly Dictionary<T, AnimationController> _highlightControllers = new Dictionary<T, AnimationController>();
         public readonly Tween<FontWeight> _highlightTween = new _FontWeightTween(begin: FontWeight.normal, end: FontWeight.w500);
         public readonly Dictionary<T, AnimationController> _pressControllers = new Dictionary<T, AnimationController>(); 
-        public readonly Tween<float> _pressTween = new Tween<float>(begin: 1, end: 0.2f);
+        public readonly Tween<float> _pressTween = new FloatTween(begin: 1, end: 0.2f);
 
         List<T> keys;
 
@@ -355,8 +355,8 @@ namespace Unity.UIWidgets.cupertino {
             float separatorOpacity = 0f) {
                 D.assert(separatorOpacity != null);
                 D.assert(opacity != null);
-                separatorTween = new Tween<float>(begin: separatorOpacity, end: separatorOpacity);
-                opacityTween = new Tween<float>(begin: opacity, end: opacity);
+                separatorTween = new FloatTween(begin: separatorOpacity, end: separatorOpacity);
+                opacityTween = new FloatTween(begin: opacity, end: opacity);
             }
         float opacity; 
         Tween<float> opacityTween;
@@ -390,7 +390,7 @@ namespace Unity.UIWidgets.cupertino {
 
   Tween<Rect> _currentThumbTween;
 
-  Tween<float> _thumbScaleTween = new Tween<float>(begin:    CupertinoSlidingSegmentedControlsUtils._kMinThumbScale, end: 1);
+  Tween<float> _thumbScaleTween = new FloatTween(begin:    CupertinoSlidingSegmentedControlsUtils._kMinThumbScale, end: 1);
   float currentThumbScale = 1;
 
   
@@ -580,7 +580,7 @@ namespace Unity.UIWidgets.cupertino {
 
   void _playThumbScaleAnimation(bool isExpanding = false) {
     D.assert(isExpanding != null);
-    _thumbScaleTween = new Tween<float>(begin: currentThumbScale, end: isExpanding ? 1 : CupertinoSlidingSegmentedControlsUtils._kMinThumbScale);
+    _thumbScaleTween = new FloatTween(begin: currentThumbScale, end: isExpanding ? 1 : CupertinoSlidingSegmentedControlsUtils._kMinThumbScale);
     state.thumbScaleController.animateWith(CupertinoSlidingSegmentedControlsUtils._kThumbSpringAnimationSimulation);
   }
 
@@ -733,7 +733,7 @@ namespace Unity.UIWidgets.cupertino {
           RenderBox child = children[i];
           _ChildAnimationManifest manifest = _childAnimations[child];
           D.assert(manifest != null);
-          manifest.separatorTween = new Tween<float>(
+          manifest.separatorTween = new FloatTween(
             begin: manifest.separatorOpacity,
             end: shouldFadeOut ? 0 : 1
           );

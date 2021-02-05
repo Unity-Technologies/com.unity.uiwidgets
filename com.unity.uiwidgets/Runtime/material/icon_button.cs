@@ -18,7 +18,7 @@ namespace Unity.UIWidgets.material {
             Key key = null,
             float iconSize = 24.0f,
             VisualDensity visualDensity = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             Alignment alignment = null,
             Widget icon = null,
             Color color = null,
@@ -58,7 +58,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly VisualDensity visualDensity;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly Alignment alignment;
 

@@ -21,10 +21,7 @@ namespace UIWidgetsSample {
         {
             ui_.runApp(new MyApp());
         }
-        
-        
-        
-            
+
         class MyApp : StatelessWidget
         {
             public override Widget build(BuildContext context)
@@ -52,38 +49,6 @@ namespace UIWidgetsSample {
             }
         }
     }
-    
-    public class CustomButton : StatelessWidget {
-        public CustomButton(
-            Key key = null,
-            GestureTapCallback onPressed = null,
-            EdgeInsets padding = null,
-            Color backgroundColor = null,
-            Widget child = null
-        ) : base(key: key) {
-            this.onPressed = onPressed;
-            this.padding = padding ?? EdgeInsets.all(8.0f);
-            this.backgroundColor = backgroundColor ?? Colors.white;
-            this.child = child;
-        }
-
-        public readonly GestureTapCallback onPressed;
-        public readonly EdgeInsets padding;
-        public readonly Widget child;
-        public readonly Color backgroundColor;
-
-        public override Widget build(BuildContext context) {
-            return new GestureDetector(
-                onTap: this.onPressed,
-                child: new Container(
-                    padding: this.padding,
-                    color: this.backgroundColor,
-                    child: this.child
-                )
-            );
-        }
-    }
-
 
     class HomeScreen : StatelessWidget {
         public override Widget build(BuildContext context) {

@@ -294,7 +294,7 @@ namespace Unity.UIWidgets.painting {
         }
 
 
-        internal static String _stringify(float x, float y) {
+        internal static string _stringify(float x, float y) {
             if (x == -1.0f && y == -1.0f)
                 return "topLeft";
             if (x == 0.0f && y == -1.0f)
@@ -415,7 +415,7 @@ namespace Unity.UIWidgets.painting {
             return null;
         }
 
-        internal static String _stringify(double start, double y) {
+        internal static string _stringify(double start, double y) {
             if (start == -1.0f && y == -1.0f)
                 return "AlignmentDirectional.topStart";
             if (start == 0.0f && y == -1.0f)

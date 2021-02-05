@@ -685,7 +685,7 @@ namespace Unity.UIWidgets.async2 {
             return handler(implementation.zone, parentDelegate, this, duration, f);
         }
 
-        public override void print(String line) {
+        public override void print(string line) {
             var implementation = _print;
             ZoneDelegate parentDelegate = async_._parentDelegate(implementation.zone);
             PrintHandler handler = implementation.function;

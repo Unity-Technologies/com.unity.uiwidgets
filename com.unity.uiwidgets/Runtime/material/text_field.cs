@@ -308,7 +308,7 @@ namespace Unity.UIWidgets.material {
             properties.add(new ColorProperty("cursorColor", cursorColor, defaultValue: null));
             properties.add(new DiagnosticsProperty<Brightness?>("keyboardAppearance", keyboardAppearance,
                 defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("scrollPadding", scrollPadding,
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("scrollPadding", scrollPadding,
                 defaultValue: EdgeInsets.all(20.0f)));
             properties.add(new FlagProperty("selectionEnabled", value: selectionEnabled, defaultValue: true,
                 ifFalse: "selection disabled"));

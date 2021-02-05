@@ -49,11 +49,11 @@ namespace Unity.UIWidgets.material {
 
         Color backgroundColor { get; }
 
-        EdgeInsets padding { get; }
+        EdgeInsetsGeometry padding { get; }
 
         VisualDensity visualDensity { get; }
 
-        EdgeInsets labelPadding { get; }
+        EdgeInsetsGeometry labelPadding { get; }
 
         MaterialTapTargetSize? materialTapTargetSize { get; }
 
@@ -114,7 +114,7 @@ namespace Unity.UIWidgets.material {
             Widget avatar = null,
             Widget label = null,
             TextStyle labelStyle = null,
-            EdgeInsets labelPadding = null,
+            EdgeInsetsGeometry labelPadding = null,
             Widget deleteIcon = null,
             VoidCallback onDeleted = null,
             Color deleteIconColor = null,
@@ -124,7 +124,7 @@ namespace Unity.UIWidgets.material {
             FocusNode focusNode = null,
             bool autofocus = false,
             Color backgroundColor = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
@@ -169,11 +169,11 @@ namespace Unity.UIWidgets.material {
 
         TextStyle _labelStyle;
 
-        public EdgeInsets labelPadding {
+        public EdgeInsetsGeometry labelPadding {
             get { return _labelPadding; }
         }
 
-        EdgeInsets _labelPadding;
+        EdgeInsetsGeometry _labelPadding;
 
         public ShapeBorder shape {
             get { return _shape; }
@@ -197,13 +197,13 @@ namespace Unity.UIWidgets.material {
 
         Color _backgroundColor;
 
-        public EdgeInsets padding {
+        public EdgeInsetsGeometry padding {
             get { return _padding; }
         }
 
         public VisualDensity visualDensity { get; }
 
-        EdgeInsets _padding;
+        EdgeInsetsGeometry _padding;
 
         public Widget deleteIcon {
             get { return _deleteIcon; }
@@ -286,7 +286,7 @@ namespace Unity.UIWidgets.material {
             Widget avatar = null,
             Widget label = null,
             TextStyle labelStyle = null,
-            EdgeInsets labelPadding = null,
+            EdgeInsetsGeometry labelPadding = null,
             bool selected = false,
             bool isEnabled = true,
             ValueChanged<bool> onSelected = null,
@@ -304,7 +304,7 @@ namespace Unity.UIWidgets.material {
             FocusNode focusNode = null,
             bool autofocus = false,
             Color backgroundColor = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
@@ -367,11 +367,11 @@ namespace Unity.UIWidgets.material {
 
         TextStyle _labelStyle;
 
-        public EdgeInsets labelPadding {
+        public EdgeInsetsGeometry labelPadding {
             get { return _labelPadding; }
         }
 
-        EdgeInsets _labelPadding;
+        EdgeInsetsGeometry _labelPadding;
 
         public bool? selected {
             get { return _selected; }
@@ -467,11 +467,11 @@ namespace Unity.UIWidgets.material {
 
         Color _backgroundColor;
 
-        public EdgeInsets padding {
+        public EdgeInsetsGeometry padding {
             get { return _padding; }
         }
 
-        EdgeInsets _padding;
+        EdgeInsetsGeometry _padding;
 
         public VisualDensity visualDensity { get; }
 
@@ -557,7 +557,7 @@ namespace Unity.UIWidgets.material {
             Widget avatar = null,
             Widget label = null,
             TextStyle labelStyle = null,
-            EdgeInsets labelPadding = null,
+            EdgeInsetsGeometry labelPadding = null,
             ValueChanged<bool> onSelected = null,
             float? pressElevation = null,
             bool? selected = null,
@@ -569,7 +569,7 @@ namespace Unity.UIWidgets.material {
             FocusNode focusNode = null,
             bool autofocus = false,
             Color backgroundColor = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
@@ -623,11 +623,11 @@ namespace Unity.UIWidgets.material {
 
         TextStyle _labelStyle;
 
-        public EdgeInsets labelPadding {
+        public EdgeInsetsGeometry labelPadding {
             get { return _labelPadding; }
         }
 
-        EdgeInsets _labelPadding;
+        EdgeInsetsGeometry _labelPadding;
 
         public ValueChanged<bool> onSelected {
             get { return _onSelected; }
@@ -686,11 +686,11 @@ namespace Unity.UIWidgets.material {
 
         Color _backgroundColor;
 
-        public EdgeInsets padding {
+        public EdgeInsetsGeometry padding {
             get { return _padding; }
         }
 
-        EdgeInsets _padding;
+        EdgeInsetsGeometry _padding;
 
         public VisualDensity visualDensity { get; }
 
@@ -771,7 +771,7 @@ namespace Unity.UIWidgets.material {
             Widget avatar = null,
             Widget label = null,
             TextStyle labelStyle = null,
-            EdgeInsets labelPadding = null,
+            EdgeInsetsGeometry labelPadding = null,
             bool selected = false,
             ValueChanged<bool> onSelected = null,
             float? pressElevation = null,
@@ -783,7 +783,7 @@ namespace Unity.UIWidgets.material {
             FocusNode focusNode = null,
             bool autofocus = false,
             Color backgroundColor = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
@@ -840,11 +840,11 @@ namespace Unity.UIWidgets.material {
 
         TextStyle _labelStyle;
 
-        public EdgeInsets labelPadding {
+        public EdgeInsetsGeometry labelPadding {
             get { return _labelPadding; }
         }
 
-        EdgeInsets _labelPadding;
+        EdgeInsetsGeometry _labelPadding;
 
         public bool? selected {
             get { return _selected; }
@@ -904,11 +904,11 @@ namespace Unity.UIWidgets.material {
 
         Color _backgroundColor;
 
-        public EdgeInsets padding {
+        public EdgeInsetsGeometry padding {
             get { return _padding; }
         }
 
-        EdgeInsets _padding;
+        EdgeInsetsGeometry _padding;
 
         public VisualDensity visualDensity { get; }
 
@@ -988,7 +988,7 @@ namespace Unity.UIWidgets.material {
             Widget avatar = null,
             Widget label = null,
             TextStyle labelStyle = null,
-            EdgeInsets labelPadding = null,
+            EdgeInsetsGeometry labelPadding = null,
             VoidCallback onPressed = null,
             float? pressElevation = null,
             string tooltip = null,
@@ -997,7 +997,7 @@ namespace Unity.UIWidgets.material {
             FocusNode focusNode = null,
             bool autofocus = false,
             Color backgroundColor = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
             MaterialTapTargetSize? materialTapTargetSize = null,
             float? elevation = null,
@@ -1049,11 +1049,11 @@ namespace Unity.UIWidgets.material {
 
         TextStyle _labelStyle;
 
-        public EdgeInsets labelPadding {
+        public EdgeInsetsGeometry labelPadding {
             get { return _labelPadding; }
         }
 
-        EdgeInsets _labelPadding;
+        EdgeInsetsGeometry _labelPadding;
 
         public VoidCallback onPressed {
             get { return _onPressed; }
@@ -1095,11 +1095,11 @@ namespace Unity.UIWidgets.material {
 
         Color _backgroundColor;
 
-        public EdgeInsets padding {
+        public EdgeInsetsGeometry padding {
             get { return _padding; }
         }
 
-        EdgeInsets _padding;
+        EdgeInsetsGeometry _padding;
 
         public VisualDensity visualDensity { get; }
 
@@ -1158,9 +1158,9 @@ namespace Unity.UIWidgets.material {
             Widget avatar = null,
             Widget label = null,
             TextStyle labelStyle = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             VisualDensity visualDensity = null,
-            EdgeInsets labelPadding = null,
+            EdgeInsetsGeometry labelPadding = null,
             Widget deleteIcon = null,
             VoidCallback onDeleted = null,
             Color deleteIconColor = null,
@@ -1244,11 +1244,11 @@ namespace Unity.UIWidgets.material {
 
         TextStyle _labelStyle;
 
-        public EdgeInsets labelPadding {
+        public EdgeInsetsGeometry labelPadding {
             get { return _labelPadding; }
         }
 
-        EdgeInsets _labelPadding;
+        EdgeInsetsGeometry _labelPadding;
 
         public Widget deleteIcon {
             get { return _deleteIcon; }
@@ -1344,11 +1344,11 @@ namespace Unity.UIWidgets.material {
 
         Color _backgroundColor;
 
-        public EdgeInsets padding {
+        public EdgeInsetsGeometry padding {
             get { return _padding; }
         }
 
-        EdgeInsets _padding;
+        EdgeInsetsGeometry _padding;
 
         public VisualDensity visualDensity { get; }
 

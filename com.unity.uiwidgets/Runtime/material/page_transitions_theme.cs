@@ -157,7 +157,7 @@ namespace Unity.UIWidgets.material {
         }
 
         // The scrim obscures the old page by becoming increasingly opaque.
-        internal static readonly Tween<float> _scrimOpacityTween = new Tween<float>(
+        internal static readonly Tween<float> _scrimOpacityTween = new FloatTween(
             begin: 0.0f,
             end: 0.60f
         );
@@ -167,12 +167,12 @@ namespace Unity.UIWidgets.material {
         public static readonly List<TweenSequenceItem<float>> fastOutExtraSlowInTweenSequenceItems =
             new List<TweenSequenceItem<float>> {
                 new TweenSequenceItem<float>(
-                    tween: new Tween<float>(begin: 0.0f, end: 0.4f)
+                    tween: new FloatTween(begin: 0.0f, end: 0.4f)
                         .chain(new CurveTween(curve: new Cubic(0.05f, 0.0f, 0.133333f, 0.06f))),
                     weight: 0.166666f
                 ),
                 new TweenSequenceItem<float>(
-                    tween: new Tween<float>(begin: 0.4f, end: 1.0f)
+                    tween: new FloatTween(begin: 0.4f, end: 1.0f)
                         .chain(new CurveTween(curve: new Cubic(0.208333f, 0.82f, 0.25f, 1.0f))),
                     weight: 1.0f - 0.166666f
                 )
@@ -245,27 +245,27 @@ namespace Unity.UIWidgets.material {
                     .chain(new CurveTween(curve: new Interval(0.2075f, 0.4175f))));
 
             Animation<float> _forwardEndScreenScaleTransition = widget.animation.drive(
-                new Tween<float>(begin: 0.85f, end: 1.00f)
+                new FloatTween(begin: 0.85f, end: 1.00f)
                     .chain(_ZoomPageTransition._scaleCurveSequence));
 
             Animation<float> _forwardStartScreenScaleTransition = widget.secondaryAnimation.drive(
-                new Tween<float>(begin: 1.00f, end: 1.05f)
+                new FloatTween(begin: 1.00f, end: 1.05f)
                     .chain(_ZoomPageTransition._scaleCurveSequence));
 
             Animation<float> _forwardEndScreenFadeTransition = widget.animation.drive(
-                new Tween<float>(begin: 0.0f, end: 1.00f)
+                new FloatTween(begin: 0.0f, end: 1.00f)
                     .chain(new CurveTween(curve: new Interval(0.125f, 0.250f))));
 
             Animation<float> _reverseEndScreenScaleTransition = widget.secondaryAnimation.drive(
-                new Tween<float>(begin: 1.00f, end: 1.10f)
+                new FloatTween(begin: 1.00f, end: 1.10f)
                     .chain(_ZoomPageTransition._flippedScaleCurveSequence));
 
             Animation<float> _reverseStartScreenScaleTransition = widget.animation.drive(
-                new Tween<float>(begin: 0.9f, end: 1.0f)
+                new FloatTween(begin: 0.9f, end: 1.0f)
                     .chain(_ZoomPageTransition._flippedScaleCurveSequence));
 
             Animation<float> _reverseStartScreenFadeTransition = widget.animation.drive(
-                new Tween<float>(begin: 0.0f, end: 1.00f)
+                new FloatTween(begin: 0.0f, end: 1.00f)
                     .chain(new CurveTween(curve: new Interval(1 - 0.2075f, 1 - 0.0825f))));
 
             return new AnimatedBuilder(

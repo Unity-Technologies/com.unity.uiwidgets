@@ -1328,7 +1328,7 @@ namespace Unity.UIWidgets.cupertino {
             numberLabelHeight = textPainter.height;
             numberLabelBaseline = textPainter.computeDistanceToActualBaseline(TextBaseline.alphabetic);
         }
-        Widget _buildLabel(String text, EdgeInsetsDirectional pickerPadding) {
+        Widget _buildLabel(string text, EdgeInsetsDirectional pickerPadding) {
             EdgeInsetsDirectional padding = EdgeInsetsDirectional.only(
                 start: numberLabelWidth
                        + CupertinoDatePickerUtils._kTimerPickerLabelPadSize

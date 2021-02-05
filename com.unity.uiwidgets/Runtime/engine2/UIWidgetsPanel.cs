@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace Unity.UIWidgets.engine2 {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
     public partial class UIWidgetsPanel {
         RenderTexture _renderTexture;
-    
+
         void _createRenderTexture(int width, int height, float devicePixelRatio) {
             D.assert(_renderTexture == null);
 
@@ -33,37 +34,36 @@ namespace Unity.UIWidgets.engine2 {
 
             texture = _renderTexture;
         }
-    
+
         void _destroyRenderTexture() {
             D.assert(_renderTexture != null);
             texture = null;
             ObjectUtils.SafeDestroy(_renderTexture);
             _renderTexture = null;
         }
-    
-        void _enableUIWidgetsPanel(string font_settings)
-        {
+
+        void _enableUIWidgetsPanel(string font_settings) {
             UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
                 _width, _height, _devicePixelRatio, Application.streamingAssetsPath, font_settings);
         }
-    
-        void _resizeUIWidgetsPanel()
-        {
+
+        void _resizeUIWidgetsPanel() {
             UIWidgetsPanel_onRenderTexture(_ptr,
-                        _renderTexture.GetNativeTexturePtr(),
-                        _width, _height, _devicePixelRatio);
+                _renderTexture.GetNativeTexturePtr(),
+                _width, _height, _devicePixelRatio);
         }
-    
+
         void _disableUIWidgetsPanel() {
             _renderTexture = null;
             texture = null;
         }
-    
-        
+
+
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onEnable(IntPtr ptr,
-            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath, string font_settings);
-        
+            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath,
+            string font_settings);
+
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onRenderTexture(
             IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
@@ -132,14 +132,14 @@ namespace Unity.UIWidgets.engine2 {
             IntPtr ptr, int width, int height, float dpi);
     }
 #endif
-    
+
     public partial class UIWidgetsPanel : RawImage {
         [Serializable]
         public struct Font {
             public string asset;
             public int weight;
         }
-        
+
         [Serializable]
         public struct TextFont {
             public string family;
@@ -152,6 +152,7 @@ namespace Unity.UIWidgets.engine2 {
             if (textFont == null || textFont.Length == 0) {
                 return null;
             }
+
             var result = new object[textFont.Length];
             for (int i = 0; i < textFont.Length; i++) {
                 var font = new Dictionary<string, object>();
@@ -162,17 +163,21 @@ namespace Unity.UIWidgets.engine2 {
                     if (textFont[i].fonts[j].asset.Length > 0) {
                         dic[j].Add("asset", textFont[i].fonts[j].asset);
                     }
+
                     if (textFont[i].fonts[j].weight > 0) {
                         dic[j].Add("weight", textFont[i].fonts[j].weight);
                     }
                 }
+
                 font.Add("fonts", dic);
                 result[i] = font;
             }
+
             return result;
         }
 
-        public float devicePixelRatioOverride;
+        public float devicePixelRatioOverride = 1;
+
 
         public float hardwareAntiAliasing;
         // RectTransform rectTransform {
@@ -195,7 +200,7 @@ namespace Unity.UIWidgets.engine2 {
 
         IntPtr _ptr;
         GCHandle _handle;
-        
+
         int _width;
         int _height;
         float _devicePixelRatio;
@@ -230,7 +235,7 @@ namespace Unity.UIWidgets.engine2 {
             if (fonts != null && fonts.Length > 0) {
                 settings.Add("fonts", fontsToObject(fonts));
             }
-            
+
             _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(settings));
 
             Input_OnEnable();
@@ -271,7 +276,7 @@ namespace Unity.UIWidgets.engine2 {
             _handle = default;
 
             _disableUIWidgetsPanel();
-            
+
             D.assert(!isolate.isValid);
             base.OnDisable();
         }
@@ -372,8 +377,10 @@ namespace Unity.UIWidgets.engine2 {
             Event e = Event.current;
             if (e.isKey) {
                 UIWidgetsPanel_onKey(_ptr, e.keyCode, e.type == EventType.KeyDown);
-                if (e.character != 0) {
-                    UIWidgetsPanel_onChar(_ptr, e.character);
+                if (e.character != 0 || e.keyCode == KeyCode.Backspace) {
+                    PointerEventConverter.KeyEvent.Enqueue(new Event(e));
+                    // TODO: add on char
+                    // UIWidgetsPanel_onChar(_ptr, e.character);
                 }
             }
         }
@@ -435,7 +442,7 @@ namespace Unity.UIWidgets.engine2 {
             _isEntered = false;
             UIWidgetsPanel_onMouseLeave(_ptr);
         }
-        
+
         public void OnDrag(PointerEventData eventData) {
             var pos = _getPointerPosition(Input.mousePosition);
             if (pos == null) {
