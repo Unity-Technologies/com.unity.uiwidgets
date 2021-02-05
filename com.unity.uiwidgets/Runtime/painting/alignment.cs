@@ -61,9 +61,9 @@ namespace Unity.UIWidgets.painting {
             if (a is AlignmentDirectional && b is AlignmentDirectional)
                 return AlignmentDirectional.lerp(a, b, t);
             return new _MixedAlignment(
-                Mathf.Lerp(a._x, b._x, t),
-                Mathf.Lerp(a._start, b._start, t),
-                Mathf.Lerp(a._y, b._y, t)
+                MathUtils.lerpNullableFloat(a._x, b._x, t),
+                MathUtils.lerpNullableFloat(a._start, b._start, t),
+                MathUtils.lerpNullableFloat(a._y, b._y, t)
             );
         }
 
@@ -197,14 +197,14 @@ namespace Unity.UIWidgets.painting {
             }
 
             if (a == null) {
-                return new Alignment(Mathf.Lerp(0.0f, b.x, t), Mathf.Lerp(0.0f, b.y, t));
+                return new Alignment(MathUtils.lerpNullableFloat(0.0f, b.x, t), MathUtils.lerpNullableFloat(0.0f, b.y, t));
             }
 
             if (b == null) {
-                return new Alignment(Mathf.Lerp(a.x, 0.0f, t), Mathf.Lerp(a.y, 0.0f, t));
+                return new Alignment(MathUtils.lerpNullableFloat(a.x, 0.0f, t), MathUtils.lerpNullableFloat(a.y, 0.0f, t));
             }
 
-            return new Alignment(Mathf.Lerp(a.x, b.x, t), Mathf.Lerp(a.y, b.y, t));
+            return new Alignment(MathUtils.lerpNullableFloat(a.x, b.x, t), MathUtils.lerpNullableFloat(a.y, b.y, t));
         }
 
         public bool Equals(Alignment other) {
@@ -395,12 +395,12 @@ namespace Unity.UIWidgets.painting {
             if (a == null && b == null)
                 return null;
             if (a == null)
-                return new AlignmentDirectional(Mathf.Lerp(0.0f, b.start, t),
-                    Mathf.Lerp(0.0f, b.y, t));
+                return new AlignmentDirectional(MathUtils.lerpNullableFloat(0.0f, b.start, t),
+                    MathUtils.lerpNullableFloat(0.0f, b.y, t));
             if (b == null)
-                return new AlignmentDirectional(Mathf.Lerp(a.start, 0.0f, t),
-                    Mathf.Lerp(a.y, 0.0f, t));
-            return new AlignmentDirectional(Mathf.Lerp(a.start, b.start, t), Mathf.Lerp(a.y, b.y, t));
+                return new AlignmentDirectional(MathUtils.lerpNullableFloat(a.start, 0.0f, t),
+                    MathUtils.lerpNullableFloat(a.y, 0.0f, t));
+            return new AlignmentDirectional(MathUtils.lerpNullableFloat(a.start, b.start, t), MathUtils.lerpNullableFloat(a.y, b.y, t));
         }
 
         public override Alignment resolve(TextDirection? direction) {

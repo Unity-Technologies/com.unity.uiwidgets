@@ -1,9 +1,11 @@
 using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
     public class PopupMenuThemeData : Diagnosticable, IEquatable<PopupMenuThemeData> {
@@ -47,7 +49,7 @@ namespace Unity.UIWidgets.material {
             return new PopupMenuThemeData(
                 color: Color.lerp(a?.color, b?.color, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t),
-                elevation: Mathf.Lerp(a?.elevation ?? 0, b?.elevation ?? 0, t),
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
                 textStyle: TextStyle.lerp(a?.textStyle, b?.textStyle, t)
             );
         }

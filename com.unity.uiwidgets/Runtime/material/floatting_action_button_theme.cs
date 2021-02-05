@@ -1,6 +1,7 @@
 using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
@@ -95,11 +96,11 @@ namespace Unity.UIWidgets.material {
                 focusColor: Color.lerp(a?.focusColor, b?.focusColor, t),
                 hoverColor: Color.lerp(a?.hoverColor, b?.hoverColor, t),
                 splashColor: Color.lerp(a?.splashColor, b?.splashColor, t),
-                elevation: Mathf.Lerp(a?.elevation ?? 0, b?.elevation ?? 0, t),
-                focusElevation: Mathf.Lerp(a?.focusElevation ?? 0, b?.focusElevation ?? 0, t),
-                hoverElevation: Mathf.Lerp(a?.hoverElevation ?? 0, b?.hoverElevation ?? 0, t),
-                disabledElevation: Mathf.Lerp(a?.disabledElevation ?? 0, b?.disabledElevation ?? 0, t),
-                highlightElevation: Mathf.Lerp(a?.highlightElevation ?? 0, b?.highlightElevation ?? 0, t),
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
+                focusElevation: MathUtils.lerpNullableFloat(a?.focusElevation, b?.focusElevation, t),
+                hoverElevation: MathUtils.lerpNullableFloat(a?.hoverElevation, b?.hoverElevation, t),
+                disabledElevation: MathUtils.lerpNullableFloat(a?.disabledElevation, b?.disabledElevation, t),
+                highlightElevation: MathUtils.lerpNullableFloat(a?.highlightElevation, b?.highlightElevation, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t)
             );
         }

@@ -1491,9 +1491,9 @@ namespace Unity.UIWidgets.material {
                 float t = decoration.floatingLabelProgress;
                 bool isOutlineBorder = decoration.border != null && decoration.border.isOutline;
                 float floatingY = isOutlineBorder ? -labelHeight * 0.25f : contentPadding.top;
-                float scale = Mathf.Lerp(1.0f, 0.75f, t);
+                float scale = MathUtils.lerpNullableFloat(1.0f, 0.75f, t);
                 float dx = labelOffset.dx;
-                float dy = Mathf.Lerp(0.0f, floatingY - labelOffset.dy, t);
+                float dy = MathUtils.lerpNullableFloat(0.0f, floatingY - labelOffset.dy, t);
                 _labelTransform = Matrix4.identity();
                 _labelTransform.translate(dx, labelOffset.dy + dy);
                 _labelTransform.scale(scale, scale, 1);

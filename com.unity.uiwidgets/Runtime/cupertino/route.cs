@@ -729,7 +729,7 @@ namespace Unity.UIWidgets.cupertino {
             }
             if (animateForward) {
                 int droppedPageForwardAnimationTime = Mathf.Min(
-                    Mathf.Lerp(CupertinoRouteUtils._kMaxDroppedSwipePageForwardAnimationTime, 0f,
+                    MathUtils.lerpNullableFloat(CupertinoRouteUtils._kMaxDroppedSwipePageForwardAnimationTime, 0f,
                         controller.value).floor(),
                     CupertinoRouteUtils._kMaxPageBackAnimationTime
                 );
@@ -741,7 +741,7 @@ namespace Unity.UIWidgets.cupertino {
 
                 if (controller.isAnimating) {
                     int droppedPageBackAnimationTime =
-                        Mathf.Lerp(0f, CupertinoRouteUtils._kMaxDroppedSwipePageForwardAnimationTime,
+                        MathUtils.lerpNullableFloat(0f, CupertinoRouteUtils._kMaxDroppedSwipePageForwardAnimationTime,
                             controller.value).floor();
                     controller.animateBack(0.0f, duration: TimeSpan.FromMilliseconds(droppedPageBackAnimationTime),
                         curve: animationCurve);

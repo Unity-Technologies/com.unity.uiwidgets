@@ -1,6 +1,7 @@
 using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
@@ -55,7 +56,7 @@ namespace Unity.UIWidgets.material {
         public static DialogTheme lerp(DialogTheme a, DialogTheme b, float t) {
             return new DialogTheme(
                 backgroundColor: Color.lerp(a?.backgroundColor, b?.backgroundColor, t),
-                elevation: Mathf.Lerp(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t),
                 titleTextStyle: TextStyle.lerp(a?.titleTextStyle, b?.titleTextStyle, t),
                 contentTextStyle: TextStyle.lerp(a?.contentTextStyle, b?.contentTextStyle, t)

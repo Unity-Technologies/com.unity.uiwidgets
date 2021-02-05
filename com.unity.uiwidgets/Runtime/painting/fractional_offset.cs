@@ -93,14 +93,14 @@ namespace Unity.UIWidgets.painting {
             }
 
             if (a == null) {
-                return new FractionalOffset(Mathf.Lerp(0.5f, b.dx, t), Mathf.Lerp(0.5f, b.dy, t));
+                return new FractionalOffset(MathUtils.lerpNullableFloat(0.5f, b.dx, t), MathUtils.lerpNullableFloat(0.5f, b.dy, t));
             }
 
             if (b == null) {
-                return new FractionalOffset(Mathf.Lerp(a.dx, 0.5f, t), Mathf.Lerp(a.dy, 0.5f, t));
+                return new FractionalOffset(MathUtils.lerpNullableFloat(a.dx, 0.5f, t), MathUtils.lerpNullableFloat(a.dy, 0.5f, t));
             }
 
-            return new FractionalOffset(Mathf.Lerp(a.dx, b.dx, t), Mathf.Lerp(a.dy, b.dy, t));
+            return new FractionalOffset(MathUtils.lerpNullableFloat(a.dx, b.dx, t), MathUtils.lerpNullableFloat(a.dy, b.dy, t));
         }
 
         public override string ToString() {

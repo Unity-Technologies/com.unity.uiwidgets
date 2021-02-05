@@ -494,11 +494,11 @@ namespace Unity.UIWidgets.animation {
 
             if (_reverse && _isPlayingReverse) {
                 directionSetter(_AnimationDirection.reverse);
-                return Mathf.Lerp(_max, _min, t);
+                return MathUtils.lerpNullableFloat(_max, _min, t);
             }
             else {
                 directionSetter(_AnimationDirection.forward);
-                return Mathf.Lerp(_min, _max, t);
+                return MathUtils.lerpNullableFloat(_min, _max, t);
             }
         }
 

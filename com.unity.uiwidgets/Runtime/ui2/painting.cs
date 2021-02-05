@@ -245,10 +245,10 @@ namespace Unity.UIWidgets.ui {
             }
 
             return fromARGB(
-                ((int) Mathf.Lerp(a.alpha, b.alpha, t)).clamp(0, 255),
-                ((int) Mathf.Lerp(a.red, b.red, t)).clamp(0, 255),
-                ((int) Mathf.Lerp(a.green, b.green, t)).clamp(0, 255),
-                ((int) Mathf.Lerp(a.blue, b.blue, t)).clamp(0, 255)
+                ((int) MathUtils.lerpNullableFloat(a.alpha, b.alpha, t)).clamp(0, 255),
+                ((int) MathUtils.lerpNullableFloat(a.red, b.red, t)).clamp(0, 255),
+                ((int) MathUtils.lerpNullableFloat(a.green, b.green, t)).clamp(0, 255),
+                ((int) MathUtils.lerpNullableFloat(a.blue, b.blue, t)).clamp(0, 255)
             );
         }
 
@@ -2955,7 +2955,7 @@ namespace Unity.UIWidgets.ui {
             return new Shadow(
                 color: Color.lerp(a.color, b.color, t),
                 offset: Offset.lerp(a.offset, b.offset, t),
-                blurRadius: Mathf.Lerp(a.blurRadius, b.blurRadius, t)
+                blurRadius: MathUtils.lerpNullableFloat(a.blurRadius, b.blurRadius, t)
             );
         }
 

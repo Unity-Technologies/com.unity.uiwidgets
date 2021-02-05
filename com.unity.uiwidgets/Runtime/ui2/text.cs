@@ -53,7 +53,7 @@ namespace Unity.UIWidgets.ui {
         public static FontWeight lerp(FontWeight a, FontWeight b, float t) {
             if (a == null && b == null)
                 return null;
-            return values[Mathf.Lerp(a?.index ?? normal.index, b?.index ?? normal.index, t).round().clamp(0, 8)];
+            return values[MathUtils.lerpNullableFloat(a?.index ?? normal.index, b?.index ?? normal.index, t).round().clamp(0, 8)];
         }
 
         public static readonly Dictionary<int, string> map = new Dictionary<int, string> {

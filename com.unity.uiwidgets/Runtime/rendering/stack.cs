@@ -109,10 +109,10 @@ namespace Unity.UIWidgets.rendering {
             }
 
             return fromLTRB(
-                Mathf.Lerp(a.left, b.left, t),
-                Mathf.Lerp(a.top, b.top, t),
-                Mathf.Lerp(a.right, b.right, t),
-                Mathf.Lerp(a.bottom, b.bottom, t)
+                MathUtils.lerpNullableFloat(a.left, b.left, t),
+                MathUtils.lerpNullableFloat(a.top, b.top, t),
+                MathUtils.lerpNullableFloat(a.right, b.right, t),
+                MathUtils.lerpNullableFloat(a.bottom, b.bottom, t)
             );
         }
 

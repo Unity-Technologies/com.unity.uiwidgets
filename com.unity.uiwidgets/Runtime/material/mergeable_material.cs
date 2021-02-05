@@ -470,7 +470,7 @@ namespace Unity.UIWidgets.material {
         float _getGapSize(int index) {
             MaterialGap gap = (MaterialGap) _children[index];
 
-            return Mathf.Lerp(_animationTuples[gap.key].gapStart,
+            return MathUtils.lerpNullableFloat(_animationTuples[gap.key].gapStart,
                 gap.size,
                 _animationTuples[gap.key].gapAnimation.value);
         }

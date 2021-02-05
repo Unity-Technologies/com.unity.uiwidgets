@@ -231,8 +231,8 @@ namespace Unity.UIWidgets.material {
                 labelStyle: TextStyle.lerp(a?.labelStyle, b?.labelStyle, t),
                 secondaryLabelStyle: TextStyle.lerp(a?.secondaryLabelStyle, b?.secondaryLabelStyle, t),
                 brightness: t < 0.5f ? a?.brightness ?? Brightness.light : b?.brightness ?? Brightness.light,
-                elevation: Mathf.Lerp(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
-                pressElevation: Mathf.Lerp(a?.pressElevation ?? 0.0f, b?.pressElevation ?? 0.0f, t)
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
+                pressElevation: MathUtils.lerpNullableFloat(a?.pressElevation, b?.pressElevation, t)
             );
         }
 

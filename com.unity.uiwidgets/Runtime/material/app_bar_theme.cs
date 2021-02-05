@@ -62,7 +62,7 @@ namespace Unity.UIWidgets.material {
             return new AppBarTheme(
                 brightness: t < 0.5f ? a?.brightness : b?.brightness,
                 color: Color.lerp(a?.color, b?.color, t),
-                elevation: Mathf.Lerp(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
                 iconTheme: IconThemeData.lerp(a?.iconTheme, b?.iconTheme, t),
                 actionsIconTheme: IconThemeData.lerp(a?.actionsIconTheme, b?.actionsIconTheme, t),
                 textTheme: TextTheme.lerp(a?.textTheme, b?.textTheme, t)
