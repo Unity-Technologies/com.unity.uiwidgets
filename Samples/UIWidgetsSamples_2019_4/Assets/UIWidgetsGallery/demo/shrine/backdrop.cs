@@ -177,7 +177,7 @@ namespace UIWidgetsGallery.demo.shrine
                               )
                             ),
                             new FractionalTranslation(
-                              translation: new Tween<Offset>(
+                              translation: new OffsetTween(
                               begin: Offset.zero,
                               end: new Offset(1.0f, 0.0f)).evaluate(animation),
                               child: new Container(
@@ -204,7 +204,7 @@ namespace UIWidgetsGallery.demo.shrine
                                 curve: new Interval(0.5f, 1.0f)
                             ).value,
                             child: new FractionalTranslation(
-                                translation: new Tween<Offset>(
+                                translation: new OffsetTween(
                                 begin: Offset.zero,
                                 end: new Offset(0.5f, 0.0f)).evaluate(animation),
                                 child: backTitle
@@ -215,7 +215,7 @@ namespace UIWidgetsGallery.demo.shrine
                                 parent: animation,
                                 curve: new Interval(0.5f, 1.0f)).value,
                             child: new FractionalTranslation(
-                            translation: new Tween<Offset>(
+                            translation: new OffsetTween(
                                 begin: new Offset(-0.25f, 0.0f),
                                 end: Offset.zero).evaluate(animation),
                             child: frontTitle

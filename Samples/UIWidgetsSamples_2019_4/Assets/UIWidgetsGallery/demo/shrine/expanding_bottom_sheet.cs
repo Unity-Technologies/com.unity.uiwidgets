@@ -24,10 +24,10 @@ namespace UIWidgetsGallery.demo.shrine
         public static readonly float _kCornerRadius = 24.0f;
         public static readonly float _kWidthForCartIcon = 64.0f;
         
-        public static Animation<T> _getEmphasizedEasingAnimation<T>(
-            T begin,
-            T peak,
-            T end,
+        public static Animation<float> _getFloatEmphasizedEasingAnimation(
+            float begin,
+            float peak,
+            float end,
             bool isForward,
             Animation<float> parent
         ) {
@@ -48,18 +48,18 @@ namespace UIWidgetsGallery.demo.shrine
                 secondWeight = _kPeakVelocityTime;
             }
 
-            return new TweenSequence<T>(
-                new List<TweenSequenceItem<T>>{
-                    new TweenSequenceItem<T>(
+            return new TweenSequence<float>(
+                new List<TweenSequenceItem<float>>{
+                    new TweenSequenceItem<float>(
                         weight: firstWeight,
-                        tween: new Tween<T>(
+                        tween: new FloatTween(
                           begin: begin,
                           end: peak
                         ).chain(new CurveTween(curve: firstCurve))
                     ),
-                    new TweenSequenceItem<T>(
+                    new TweenSequenceItem<float>(
                         weight: secondWeight,
-                        tween: new Tween<T>(
+                        tween: new FloatTween(
                           begin: peak,
                           end: end
                         ).chain(new CurveTween(curve: secondCurve))
@@ -67,6 +67,51 @@ namespace UIWidgetsGallery.demo.shrine
                 }
             ).animate(parent);
         }
+        
+        public static Animation<Offset> _getOffsetEmphasizedEasingAnimation(
+          Offset begin,
+          Offset peak,
+          Offset end,
+          bool isForward,
+          Animation<float> parent
+        ) {
+          Curve firstCurve;
+          Curve secondCurve;
+          float firstWeight;
+          float secondWeight;
+
+          if (isForward) {
+            firstCurve = _kAccelerateCurve;
+            secondCurve = _kDecelerateCurve;
+            firstWeight = _kPeakVelocityTime;
+            secondWeight = 1.0f - _kPeakVelocityTime;
+          } else {
+            firstCurve = _kDecelerateCurve.flipped;
+            secondCurve = _kAccelerateCurve.flipped;
+            firstWeight = 1.0f - _kPeakVelocityTime;
+            secondWeight = _kPeakVelocityTime;
+          }
+
+          return new TweenSequence<Offset>(
+            new List<TweenSequenceItem<Offset>>{
+              new TweenSequenceItem<Offset>(
+                weight: firstWeight,
+                tween: new OffsetTween(
+                  begin: begin,
+                  end: peak
+                ).chain(new CurveTween(curve: firstCurve))
+              ),
+              new TweenSequenceItem<Offset>(
+                weight: secondWeight,
+                tween: new OffsetTween(
+                  begin: peak,
+                  end: end
+                ).chain(new CurveTween(curve: secondCurve))
+              ),
+            }
+          ).animate(parent);
+        }
+        
         
         public static float _getPeakPoint(float begin, float end) {
           return begin + (end - begin) * _kPeakVelocityProgress;
@@ -128,14 +173,14 @@ public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBott
 
   Animation<float> _getWidthAnimation(float screenWidth) {
     if (_controller.status == AnimationStatus.forward) {
-      return new Tween<float>(begin: _width, end: screenWidth).animate(
+      return new FloatTween(begin: _width, end: screenWidth).animate(
         new CurvedAnimation(
           parent: _controller.view,
           curve: new Interval(0.0f, 0.3f, curve: Curves.fastOutSlowIn)
         )
       );
     } else {
-      return expanding_buttom_sheetUtils._getEmphasizedEasingAnimation(
+      return expanding_buttom_sheetUtils._getFloatEmphasizedEasingAnimation(
         begin: _width,
         peak: expanding_buttom_sheetUtils._getPeakPoint(begin: _width, end: screenWidth),
         end: screenWidth,
@@ -147,7 +192,7 @@ public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBott
 
   Animation<float> _getHeightAnimation(float screenHeight) {
     if (_controller.status == AnimationStatus.forward) {
-      return expanding_buttom_sheetUtils._getEmphasizedEasingAnimation(
+      return expanding_buttom_sheetUtils._getFloatEmphasizedEasingAnimation(
         begin: expanding_buttom_sheetUtils._kCartHeight,
         peak: expanding_buttom_sheetUtils._kCartHeight + (screenHeight - expanding_buttom_sheetUtils._kCartHeight) * expanding_buttom_sheetUtils._kPeakVelocityProgress,
         end: screenHeight,
@@ -155,7 +200,7 @@ public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBott
         parent: _controller.view
       );
     } else {
-      return new Tween<float>(
+      return new FloatTween(
         begin: expanding_buttom_sheetUtils._kCartHeight,
         end: screenHeight
       ).animate(
@@ -171,14 +216,14 @@ public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBott
   // Animation of the cut corner. It's cut when closed and not cut when open.
   Animation<float> _getShapeAnimation() {
     if (_controller.status == AnimationStatus.forward) {
-      return new Tween<float>(begin: expanding_buttom_sheetUtils._kCornerRadius, end: 0.0f).animate(
+      return new FloatTween(begin: expanding_buttom_sheetUtils._kCornerRadius, end: 0.0f).animate(
         new CurvedAnimation(
           parent: _controller.view,
           curve: new Interval(0.0f, 0.3f, curve: Curves.fastOutSlowIn)
         )
       );
     } else {
-      return expanding_buttom_sheetUtils._getEmphasizedEasingAnimation(
+      return expanding_buttom_sheetUtils._getFloatEmphasizedEasingAnimation(
         begin: expanding_buttom_sheetUtils._kCornerRadius,
         peak: expanding_buttom_sheetUtils._getPeakPoint(begin: expanding_buttom_sheetUtils._kCornerRadius, end: 0.0f),
         end: 0.0f,
@@ -189,7 +234,7 @@ public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBott
   }
 
   Animation<float> _getThumbnailOpacityAnimation() {
-    return new Tween<float>(begin: 1.0f, end: 0.0f).animate(
+    return new FloatTween(begin: 1.0f, end: 0.0f).animate(
       new CurvedAnimation(
         parent: _controller.view,
         curve: _controller.status == AnimationStatus.forward
@@ -338,7 +383,7 @@ public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBott
 
   // Builder for the hide and reveal animation when the backdrop opens and closes
   Widget _buildSlideAnimation(BuildContext context, Widget child) {
-    _slideAnimation = expanding_buttom_sheetUtils._getEmphasizedEasingAnimation(
+    _slideAnimation = expanding_buttom_sheetUtils._getOffsetEmphasizedEasingAnimation(
       begin: new Offset(1.0f, 0.0f),
       peak: new Offset(expanding_buttom_sheetUtils._kPeakVelocityProgress, 0.0f),
       end: new Offset(0.0f, 0.0f),
@@ -429,7 +474,7 @@ public class ProductThumbnailRow : StatefulWidget {
   }
 
   Widget _buildThumbnail(BuildContext context, int index, Animation<float> animation) {
-     Animation<float> thumbnailSize = new Tween<float>(begin: 0.8f, end: 1.0f).animate(
+     Animation<float> thumbnailSize = new FloatTween(begin: 0.8f, end: 1.0f).animate(
       new CurvedAnimation(
         curve: new Interval(0.33f, 1.0f, curve: Curves.easeIn),
         parent: animation

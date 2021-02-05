@@ -46,7 +46,7 @@ public class _LoginPageState : State<LoginPage> {
             new Column(
               children: new List<Widget>
               {
-                Image.asset("packages/shrine_images/diamond.png"),
+                Image.file("shrine_images/diamond.png"),
                 new SizedBox(height: 16.0f),
                 new Text(
                   "SHRINE",
