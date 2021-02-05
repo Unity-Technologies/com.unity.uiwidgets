@@ -208,7 +208,7 @@ namespace UIWidgetsGallery.gallery
         }
     }
 
-    internal class Backdrop : StatefulWidget
+    public class Backdrop : StatefulWidget
     {
         public Backdrop(
             Widget frontAction = null,

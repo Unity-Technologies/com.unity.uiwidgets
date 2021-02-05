@@ -5,6 +5,7 @@ using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace UIWidgetsGallery.demo.shrine.model
 {
@@ -71,8 +72,8 @@ namespace UIWidgetsGallery.demo.shrine.model
             Type type = typeof(_InheritedModel<T>);
 
             Widget widget = rebuildOnChange
-                ? context.inheritFromWidgetOfExactType(type)
-                : context.ancestorWidgetOfExactType(type);
+            ? context.dependOnInheritedWidgetOfExactType<_InheritedModel<T>>()
+            : context.findAncestorWidgetOfExactType<_InheritedModel<T>>();
 
             if (widget == null) {
                 throw new ScopedModelError();
@@ -136,7 +137,7 @@ namespace UIWidgetsGallery.demo.shrine.model
 
     public class ScopedModelError : UIWidgetsError
     {
-        public ScopedModelError() : base("")
+        public ScopedModelError() : base("ScopedModelError")
         {
         }
 

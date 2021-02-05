@@ -798,7 +798,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
-            byte[] bytes = File.ReadAllBytes(Path.Combine(Application.dataPath, key.file));
+            byte[] bytes = File.ReadAllBytes(Path.Combine(Application.streamingAssetsPath, key.file));
             if (bytes.Length > 0) {
                 return decode(bytes);
             }
