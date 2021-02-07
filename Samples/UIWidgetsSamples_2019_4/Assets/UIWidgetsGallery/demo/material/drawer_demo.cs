@@ -15,9 +15,9 @@ namespace UIWidgetsGallery.demo.material
 {
     public static class DrawerDemoUtils
     {
-        public static readonly string _kAsset0 = "people/square/trevor.png";
-        public static readonly string _kAsset1 = "people/square/stella.png";
-        public static readonly string _kAsset2 = "people/square/sandra.png";
+        public static readonly string _kAsset0 = "gallery/people/square/trevor.png";
+        public static readonly string _kAsset1 = "gallery/people/square/stella.png";
+        public static readonly string _kAsset2 = "gallery/people/square/sandra.png";
         public static readonly string _kGalleryAssetsPackage = "flutter_gallery_assets";
     }
 

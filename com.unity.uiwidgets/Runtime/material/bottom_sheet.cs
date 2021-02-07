@@ -17,7 +17,11 @@ namespace Unity.UIWidgets.material {
     public partial class material_ {
         public static readonly TimeSpan _bottomSheetEnterDuration = new TimeSpan(0, 0, 0, 0, 250);
         public static readonly TimeSpan _bottomSheetExitDuration = new TimeSpan(0, 0, 0, 0, 200);
-        public static readonly Curve _modalBottomSheetCurve = material_.decelerateEasing;
+
+        public static Curve _modalBottomSheetCurve {
+            get => decelerateEasing;
+        }
+
         public const float _minFlingVelocity = 700.0f;
         public const float _closeProgressThreshold = 0.5f;
 
