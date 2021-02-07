@@ -290,6 +290,15 @@ namespace UIWidgetsGallery.gallery
                     buildRoute: (BuildContext context) => new CardsDemo()
                 ),
                 new GalleryDemo(
+                    title: "Buttons: Floating Action Button",
+                    subtitle: "FAB with transitions",
+                    icon: GalleryIcons.buttons,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: TabsFabDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/FloatingActionButton-class.html",
+                    buildRoute: (BuildContext context) => new TabsFabDemo()
+                ),
+                new GalleryDemo(
                     title: "Chips",
                     subtitle: "Labeled with delete buttons and avatars",
                     icon: GalleryIcons.chips,
@@ -336,6 +345,7 @@ namespace UIWidgetsGallery.gallery
                     buildRoute: (BuildContext context) => new DrawerDemo()
                 ),
             };
+            cupertinoDemos.AddRange(galleryDemos);
 
             return cupertinoDemos;
         }
