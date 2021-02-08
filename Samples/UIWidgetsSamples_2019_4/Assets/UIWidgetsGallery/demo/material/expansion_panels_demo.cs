@@ -165,9 +165,9 @@ namespace UIWidgetsGallery.demo.material
 
     abstract class DemoItem
     {
-       public bool isExpanded { get; set; }
+       public virtual bool isExpanded { get; set; }
        
-       internal ExpansionPanelHeaderBuilder headerBuilder { get; }
+       public virtual ExpansionPanelHeaderBuilder headerBuilder { get; }
 
        internal abstract Widget build();
     }
@@ -197,13 +197,13 @@ namespace UIWidgetsGallery.demo.material
         internal T value;
         bool _isExpanded = false;
 
-        public new bool isExpanded
+        public override bool isExpanded
         {
           get { return this._isExpanded; }
           set { this._isExpanded = value; }
         }
 
-        internal new ExpansionPanelHeaderBuilder headerBuilder {
+        public override ExpansionPanelHeaderBuilder headerBuilder {
             get
             {
                 return (BuildContext context, bool isExpanded) => {

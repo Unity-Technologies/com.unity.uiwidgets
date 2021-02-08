@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -2853,7 +2851,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            bool _didChangeDependencies = true;
+            _didChangeDependencies = true;
         }
 
         public override DiagnosticsNode toDiagnosticsNode(string name = null,

@@ -367,6 +367,15 @@ namespace UIWidgetsGallery.gallery
                     documentationUrl: "https://docs.flutter.io/flutter/material/Drawer-class.html",
                     buildRoute: (BuildContext context) => new DrawerDemo()
                 ),
+                new GalleryDemo(
+                    title: "Expansion panels",
+                    subtitle: "List of expanding panels",
+                    icon: GalleryIcons.expand_all,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ExpansionPanelsDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/ExpansionPanel-class.html",
+                    buildRoute: (BuildContext context) => new ExpansionPanelsDemo()
+                )
             };
 
             return galleryDemos;
