@@ -13,11 +13,11 @@ namespace Unity.UIWidgets.material {
         public const float _kInnerRadius = 4.5f;
     }
 
-    public class Radio<T> : StatefulWidget where T : class {
+    public class Radio<T> : StatefulWidget {
         public Radio(
             Key key = null,
-            T value = null,
-            T groupValue = null,
+            T value = default,
+            T groupValue = default,
             ValueChanged<T> onChanged = null,
             bool toggleable = false,
             Color activeColor = null,
@@ -71,7 +71,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class _RadioState<T> : TickerProviderStateMixin<Radio<T>> where T : class {
+    class _RadioState<T> : TickerProviderStateMixin<Radio<T>> {
         bool enabled {
             get { return widget.onChanged != null; }
         }
@@ -118,7 +118,7 @@ namespace Unity.UIWidgets.material {
 
         void _handleChanged(bool? selected) {
             if (selected == null) {
-                widget.onChanged(null);
+                widget.onChanged(default);
                 return;
             }
             if (selected == true) {
@@ -153,7 +153,7 @@ namespace Unity.UIWidgets.material {
                 child: new Builder(
                     builder: (BuildContext subContext) => {
                     return new _RadioRenderObjectWidget(
-                    selected: widget.value == widget.groupValue,
+                    selected: widget.value.Equals(widget.groupValue),
                     activeColor: widget.activeColor ?? themeData.toggleableActiveColor,
                     inactiveColor: _getInactiveColor(themeData),
                     focusColor: widget.focusColor ?? themeData.focusColor,

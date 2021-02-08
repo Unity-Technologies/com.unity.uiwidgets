@@ -136,15 +136,15 @@ namespace Unity.UIWidgets.widgets {
 
     public delegate void FormFieldSetter<T>(T newValue);
 
-    public delegate Widget FormFieldBuilder<T>(FormFieldState<T> field) where T : class;
+    public delegate Widget FormFieldBuilder<T>(FormFieldState<T> field);
 
-    public class FormField<T> : StatefulWidget where T : class {
+    public class FormField<T> : StatefulWidget {
         public FormField(
             Key key = null,
             FormFieldBuilder<T> builder = null,
             FormFieldSetter<T> onSaved = null,
             FormFieldValidator<T> validator = null,
-            T initialValue = null,
+            T initialValue = default,
             bool autovalidate = false,
             bool enabled = true
         ) : base(key: key) {
@@ -182,7 +182,7 @@ namespace Unity.UIWidgets.widgets {
         void reset();
     }
 
-    public class FormFieldState<T> : State<FormField<T>>, FormFieldState where T : class {
+    public class FormFieldState<T> : State<FormField<T>>, FormFieldState {
         T _value;
         string _errorText;
 
