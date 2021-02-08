@@ -287,7 +287,7 @@ MonoBehaviour:
       weight: 0
   - family: GalleryIcons
     fonts:
-    - asset: GalleryIcons.ttf
+    - asset: gallery/GalleryIcons.ttf
       weight: 0
   devicePixelRatioOverride: 1
   hardwareAntiAliasing: 0
