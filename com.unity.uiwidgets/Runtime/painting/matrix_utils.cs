@@ -241,10 +241,12 @@ namespace Unity.UIWidgets.painting {
             //FIXME: there is a bug here
             //In flutter this assertion has been commented, but we cannot do it since the call of Matrix4.tryInvert will fail
             //we need to find a better way to fix this issue here
-            D.assert(transform.determinant() != 0.0);
+            // D.assert(transform.determinant() != 0.0);
             if (isIdentity(transform))
                 return rect;
-            transform = Matrix4.tryInvert(transform);
+            transform = Matrix4.copy(transform);
+            transform.invert();
+
             return transformRect(transform, rect);
         }
 

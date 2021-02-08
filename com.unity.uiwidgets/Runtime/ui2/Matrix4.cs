@@ -249,9 +249,10 @@ namespace Unity.UIWidgets.ui {
             return result;
         }
 
-        public Matrix4 copy(Matrix4 other) {
-            setFrom(other);
-            return this;
+        public static Matrix4 copy(Matrix4 other) {
+            var result = zero();
+            result.setFrom(other);
+            return result;
         }
 
 
@@ -289,7 +290,7 @@ namespace Unity.UIWidgets.ui {
             return r;
         }
 
-        public Matrix4 clone() => new Matrix4().copy(this);
+        public Matrix4 clone() => copy(this);
 
         public static Matrix4 operator *(Matrix4 a, Matrix4 b) {
             var result = a.clone();
@@ -1203,7 +1204,7 @@ namespace Unity.UIWidgets.ui {
             float invSY = 1.0f / sy;
             float invSZ = 1.0f / sz;
 
-            Matrix4 m = new Matrix4().copy(this);
+            Matrix4 m = copy(this);
             m._m4storage[0] *= invSX;
             m._m4storage[1] *= invSX;
             m._m4storage[2] *= invSX;

@@ -4,6 +4,7 @@ using System.Linq;
 using UIWidgetsGallery.demo;
 using UIWidgetsGallery.demo.material;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -143,124 +144,8 @@ namespace UIWidgetsGallery.gallery
 
         public static List<GalleryDemo> _buildGalleryDemos()
         {
-            List<GalleryDemo> galleryDemos = new List<GalleryDemo>
+            List<GalleryDemo> galleryDemos = new List<GalleryDemo>()
             {
-                new GalleryDemo(
-                    title: "Shrine",
-                    subtitle: "Basic shopping app",
-                    icon: GalleryIcons.shrine,
-                    category: GalleryDemoCategory._kDemos,
-                    routeName: ShrineDemo.routeName,
-                    buildRoute: (BuildContext context) => new ShrineDemo()
-                ),
-                new GalleryDemo(
-                    title: "Backdrop",
-                    subtitle: $"Select a front layer from back layer",
-                    icon: GalleryIcons.backdrop,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: BackdropDemo.routeName,
-                    buildRoute: (BuildContext context) => new BackdropDemo()
-                ),
-                new GalleryDemo(
-                    title: "Banner",
-                    subtitle: "Displaying a banner within a list",
-                    icon: GalleryIcons.lists_leave_behind,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: BannerDemo.routeName,
-                    documentationUrl: "https://api.flutter.dev/flutter/material/MaterialBanner-class.html",
-                    buildRoute: (BuildContext context) => new BannerDemo()
-                ),
-                new GalleryDemo(
-                    title: "Bottom app bar",
-                    subtitle: "Optional floating action button notch",
-                    icon: GalleryIcons.bottom_app_bar,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: BottomAppBarDemo.routeName,
-                    documentationUrl: "https://docs.flutter.io/flutter/material/BottomAppBar-class.html",
-                    buildRoute: (BuildContext context) => new BottomAppBarDemo()
-                ),
-                new GalleryDemo(
-                    title: "Bottom navigation",
-                    subtitle: "Bottom navigation with cross-fading views",
-                    icon: GalleryIcons.bottom_navigation,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: BottomNavigationDemo.routeName,
-                    documentationUrl: "https://docs.flutter.io/flutter/material/BottomNavigationBar-class.html",
-                    buildRoute: (BuildContext context) => new BottomNavigationDemo()
-                ),
-                new GalleryDemo(
-                    title: "Buttons",
-                    subtitle: "Flat, raised, dropdown, and more",
-                    icon: GalleryIcons.generic_buttons,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: ButtonsDemo.routeName,
-                    buildRoute: (BuildContext context) => new ButtonsDemo()
-                ),
-                new GalleryDemo(
-                    title: "Cards",
-                    subtitle: "Baseline cards with rounded corners",
-                    icon: GalleryIcons.cards,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: CardsDemo.routeName,
-                    documentationUrl: "https://docs.flutter.io/flutter/material/Card-class.html",
-                    buildRoute: (BuildContext context) => new CardsDemo()
-                ),
-                new GalleryDemo(
-                    title: "Chips",
-                    subtitle: "Labeled with delete buttons and avatars",
-                    icon: GalleryIcons.chips,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: ChipDemo.routeName,
-                    documentationUrl: "https://docs.flutter.io/flutter/material/Chip-class.html",
-                    buildRoute: (BuildContext context) => new ChipDemo()
-                ),
-                new GalleryDemo(
-                    title: "Data tables",
-                    subtitle: "Rows and columns",
-                    icon: GalleryIcons.data_table,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: DataTableDemo.routeName,
-                    documentationUrl: "https://docs.flutter.io/flutter/material/PaginatedDataTable-class.html",
-                    buildRoute: (BuildContext context) => new DataTableDemo()
-                ),
-                new GalleryDemo(
-                    title: "Dialogs",
-                    subtitle: "Simple, alert, and fullscreen",
-                    icon: GalleryIcons.dialogs,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: DialogDemo.routeName,
-                    documentationUrl: "https://docs.flutter.io/flutter/material/showDialog.html",
-                    buildRoute: (BuildContext context) => new DialogDemo()
-                ),
-                new GalleryDemo(
-                    title: "Elevations",
-                    subtitle: "Shadow values on cards",
-                    // TODO(larche): Change to custom icon for elevations when one exists.
-                    icon: GalleryIcons.cupertino_progress,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: ElevationDemo.routeName,
-                    documentationUrl: "https://docs.flutter.io/flutter/material/Material/elevation.html",
-                    buildRoute: (BuildContext context) => new ElevationDemo()
-                ),
-                new GalleryDemo(
-                    title: "Navigation drawer",
-                    subtitle: "Navigation drawer with standard header",
-                    icon: GalleryIcons.menu,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: DrawerDemo.routeName,
-                    documentationUrl: "https://docs.flutter.io/flutter/material/Drawer-class.html",
-                    buildRoute: (BuildContext context) => new DrawerDemo()
-                ),
-                new GalleryDemo(
-                    title: "Expansion panels",
-                    subtitle: "List of expanding panels",
-                    icon: GalleryIcons.expand_all,
-                    category: GalleryDemoCategory._kMaterialComponents,
-                    routeName: ExpansionPanelsDemo.routeName,
-                    documentationUrl: "https://docs.flutter.io/flutter/material/ExpansionPanel-class.html",
-                    buildRoute: (BuildContext context) => new ExpansionPanelsDemo()
-                ),
-                
                 new GalleryDemo(
                   title: "Activity Indicator",
                   icon: GalleryIcons.cupertino_progress,
@@ -339,7 +224,149 @@ namespace UIWidgetsGallery.gallery
                   category:GalleryDemoCategory._kCupertinoComponents,
                   routeName: CupertinoTextFieldDemo.routeName,
                   buildRoute: (BuildContext context) => new CupertinoTextFieldDemo()
-                )
+                ),
+                new GalleryDemo(
+                    title: "Shrine",
+                    subtitle: "Basic shopping app",
+                    icon: GalleryIcons.shrine,
+                    category: GalleryDemoCategory._kDemos,
+                    routeName: ShrineDemo.routeName,
+                    buildRoute: (BuildContext context) => new ShrineDemo()
+                ),
+                new GalleryDemo(
+                    title: "Backdrop",
+                    subtitle: $"Select a front layer from back layer",
+                    icon: GalleryIcons.backdrop,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: BackdropDemo.routeName,
+                    buildRoute: (BuildContext context) => new BackdropDemo()
+                ),
+                new GalleryDemo(
+                    title: "Banner",
+                    subtitle: "Displaying a banner within a list",
+                    icon: GalleryIcons.lists_leave_behind,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: BannerDemo.routeName,
+                    documentationUrl: "https://api.flutter.dev/flutter/material/MaterialBanner-class.html",
+                    buildRoute: (BuildContext context) => new BannerDemo()
+                ),
+                new GalleryDemo(
+                    title: "Bottom app bar",
+                    subtitle: "Optional floating action button notch",
+                    icon: GalleryIcons.bottom_app_bar,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: BottomAppBarDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/BottomAppBar-class.html",
+                    buildRoute: (BuildContext context) => new BottomAppBarDemo()
+                ),
+                new GalleryDemo(
+                    title: "Bottom navigation",
+                    subtitle: "Bottom navigation with cross-fading views",
+                    icon: GalleryIcons.bottom_navigation,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: BottomNavigationDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/BottomNavigationBar-class.html",
+                    buildRoute: (BuildContext context) => new BottomNavigationDemo()
+                ),
+                new GalleryDemo(
+                    title: "Bottom sheet: Modal",
+                    subtitle: "A dismissable bottom sheet",
+                    icon: GalleryIcons.bottom_sheets,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ModalBottomSheetDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/showModalBottomSheet.html",
+                    buildRoute: (BuildContext context) => new ModalBottomSheetDemo()
+                ),
+                new GalleryDemo(
+                    title: "Bottom sheet: Persistent",
+                    subtitle: "A bottom sheet that sticks around",
+                    icon: GalleryIcons.bottom_sheet_persistent,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: PersistentBottomSheetDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/ScaffoldState/showBottomSheet.html",
+                    buildRoute: (BuildContext context) => new PersistentBottomSheetDemo()
+                ),
+                new GalleryDemo(
+                    title: "Buttons",
+                    subtitle: "Flat, raised, dropdown, and more",
+                    icon: GalleryIcons.generic_buttons,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ButtonsDemo.routeName,
+                    buildRoute: (BuildContext context) => new ButtonsDemo()
+                ),
+                new GalleryDemo(
+                    title: "Cards",
+                    subtitle: "Baseline cards with rounded corners",
+                    icon: GalleryIcons.cards,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: CardsDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/Card-class.html",
+                    buildRoute: (BuildContext context) => new CardsDemo()
+                ),
+                new GalleryDemo(
+                    title: "Buttons: Floating Action Button",
+                    subtitle: "FAB with transitions",
+                    icon: GalleryIcons.buttons,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: TabsFabDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/FloatingActionButton-class.html",
+                    buildRoute: (BuildContext context) => new TabsFabDemo()
+                ),
+                new GalleryDemo(
+                    title: "Chips",
+                    subtitle: "Labeled with delete buttons and avatars",
+                    icon: GalleryIcons.chips,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ChipDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/Chip-class.html",
+                    buildRoute: (BuildContext context) => new ChipDemo()
+                ),
+                new GalleryDemo(
+                    title: "Data tables",
+                    subtitle: "Rows and columns",
+                    icon: GalleryIcons.data_table,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: DataTableDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/PaginatedDataTable-class.html",
+                    buildRoute: (BuildContext context) => new DataTableDemo()
+                ),
+                new GalleryDemo(
+                    title: "Search",
+                    subtitle: "Expandable search",
+                    icon: Icons.search,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: SearchDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/showSearch.html",
+                    buildRoute: (BuildContext context) => new SearchDemo()
+                ),
+                new GalleryDemo(
+                    title: "Dialogs",
+                    subtitle: "Simple, alert, and fullscreen",
+                    icon: GalleryIcons.dialogs,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: DialogDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/showDialog.html",
+                    buildRoute: (BuildContext context) => new DialogDemo()
+                ),
+                new GalleryDemo(
+                    title: "Elevations",
+                    subtitle: "Shadow values on cards",
+                    // TODO(larche): Change to custom icon for elevations when one exists.
+                    icon: GalleryIcons.cupertino_progress,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ElevationDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/Material/elevation.html",
+                    buildRoute: (BuildContext context) => new ElevationDemo()
+                ),
+                new GalleryDemo(
+                    title: "Navigation drawer",
+                    subtitle: "Navigation drawer with standard header",
+                    icon: GalleryIcons.menu,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: DrawerDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/Drawer-class.html",
+                    buildRoute: (BuildContext context) => new DrawerDemo()
+                ),
             };
 
             return galleryDemos;
