@@ -4,6 +4,7 @@ using System.Linq;
 using UIWidgetsGallery.demo;
 using UIWidgetsGallery.demo.material;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -143,7 +144,7 @@ namespace UIWidgetsGallery.gallery
 
         public static List<GalleryDemo> _buildGalleryDemos()
         {
-            List<GalleryDemo> cupertinoDemos = new List<GalleryDemo>()
+            List<GalleryDemo> galleryDemos = new List<GalleryDemo>()
             {
                 new GalleryDemo(
                   title: "Activity Indicator",
@@ -223,12 +224,7 @@ namespace UIWidgetsGallery.gallery
                   category:GalleryDemoCategory._kCupertinoComponents,
                   routeName: CupertinoTextFieldDemo.routeName,
                   buildRoute: (BuildContext context) => new CupertinoTextFieldDemo()
-                )
-            };
-
-      
-            List<GalleryDemo> galleryDemos = new List<GalleryDemo>
-            {
+                ),
                 new GalleryDemo(
                     title: "Shrine",
                     subtitle: "Basic shopping app",
@@ -273,6 +269,24 @@ namespace UIWidgetsGallery.gallery
                     buildRoute: (BuildContext context) => new BottomNavigationDemo()
                 ),
                 new GalleryDemo(
+                    title: "Bottom sheet: Modal",
+                    subtitle: "A dismissable bottom sheet",
+                    icon: GalleryIcons.bottom_sheets,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ModalBottomSheetDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/showModalBottomSheet.html",
+                    buildRoute: (BuildContext context) => new ModalBottomSheetDemo()
+                ),
+                new GalleryDemo(
+                    title: "Bottom sheet: Persistent",
+                    subtitle: "A bottom sheet that sticks around",
+                    icon: GalleryIcons.bottom_sheet_persistent,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: PersistentBottomSheetDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/ScaffoldState/showBottomSheet.html",
+                    buildRoute: (BuildContext context) => new PersistentBottomSheetDemo()
+                ),
+                new GalleryDemo(
                     title: "Buttons",
                     subtitle: "Flat, raised, dropdown, and more",
                     icon: GalleryIcons.generic_buttons,
@@ -288,6 +302,15 @@ namespace UIWidgetsGallery.gallery
                     routeName: CardsDemo.routeName,
                     documentationUrl: "https://docs.flutter.io/flutter/material/Card-class.html",
                     buildRoute: (BuildContext context) => new CardsDemo()
+                ),
+                new GalleryDemo(
+                    title: "Buttons: Floating Action Button",
+                    subtitle: "FAB with transitions",
+                    icon: GalleryIcons.buttons,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: TabsFabDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/FloatingActionButton-class.html",
+                    buildRoute: (BuildContext context) => new TabsFabDemo()
                 ),
                 new GalleryDemo(
                     title: "Chips",
@@ -306,6 +329,15 @@ namespace UIWidgetsGallery.gallery
                     routeName: DataTableDemo.routeName,
                     documentationUrl: "https://docs.flutter.io/flutter/material/PaginatedDataTable-class.html",
                     buildRoute: (BuildContext context) => new DataTableDemo()
+                ),
+                new GalleryDemo(
+                    title: "Search",
+                    subtitle: "Expandable search",
+                    icon: Icons.search,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: SearchDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/showSearch.html",
+                    buildRoute: (BuildContext context) => new SearchDemo()
                 ),
                 new GalleryDemo(
                     title: "Dialogs",
@@ -337,7 +369,7 @@ namespace UIWidgetsGallery.gallery
                 ),
             };
 
-            return cupertinoDemos;
+            return galleryDemos;
         }
         
         public static readonly List<GalleryDemo> kAllGalleryDemos = _buildGalleryDemos();
