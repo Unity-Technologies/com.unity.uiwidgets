@@ -50,6 +50,8 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void VSyncCallback(intptr_t baton);
 
+  void OnKeyDown(int keyCode, bool isKeyDown);
+
   void OnMouseMove(float x, float y);
 
   void OnMouseDown(float x, float y, int button);
