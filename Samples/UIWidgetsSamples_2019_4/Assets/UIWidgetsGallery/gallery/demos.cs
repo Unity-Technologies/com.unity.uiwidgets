@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UIWidgetsGallery.demo;
@@ -6,59 +5,43 @@ using UIWidgetsGallery.demo.material;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace UIWidgetsGallery.gallery
 {
     public class GalleryDemoCategory
     {
         public GalleryDemoCategory(
-            string name, 
+            string name,
             IconData icon)
         {
             this.name = name;
             this.icon = icon;
         }
-        
+
         public readonly string name;
         public readonly IconData icon;
-        
+
         public bool Equals(GalleryDemoCategory other)
         {
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
+            if (ReferenceEquals(this, other)) return true;
 
-            if (ReferenceEquals(other, null))
-            {
-                return false;
-            }
+            if (ReferenceEquals(other, null)) return false;
 
-            return this.icon.Equals(other.icon) && this.name == other.name;
+            return icon.Equals(other.icon) && name == other.name;
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
+            if (ReferenceEquals(this, obj)) return true;
 
-            if (ReferenceEquals(obj, null))
-            {
-                return false;
-            }
-            
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            } 
-            
-            return Equals((GalleryDemoCategory)obj);
+            if (ReferenceEquals(obj, null)) return false;
+
+            if (obj.GetType() != GetType()) return false;
+
+            return Equals((GalleryDemoCategory) obj);
         }
-        
-        public static bool operator==(GalleryDemoCategory left, GalleryDemoCategory right)
+
+        public static bool operator ==(GalleryDemoCategory left, GalleryDemoCategory right)
         {
             return Equals(left, right);
         }
@@ -67,9 +50,11 @@ namespace UIWidgetsGallery.gallery
         {
             return !Equals(left, right);
         }
-        
-        public override int GetHashCode() {
-            unchecked {
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 return ((icon?.GetHashCode() ?? 0) * 397) ^ (name?.GetHashCode() ?? 0);
             }
         }
@@ -78,34 +63,35 @@ namespace UIWidgetsGallery.gallery
         {
             return $"{GetType()}{name}";
         }
-        
+
         public static readonly GalleryDemoCategory _kDemos = new GalleryDemoCategory(
             name: "Studies",
             icon: GalleryIcons.animation
         );
 
-        public static readonly  GalleryDemoCategory _kStyle = new GalleryDemoCategory(
+        public static readonly GalleryDemoCategory _kStyle = new GalleryDemoCategory(
             name: "Style",
             icon: GalleryIcons.custom_typography
         );
 
-        public static readonly  GalleryDemoCategory _kMaterialComponents = new GalleryDemoCategory(
+        public static readonly GalleryDemoCategory _kMaterialComponents = new GalleryDemoCategory(
             name: "Material",
             icon: GalleryIcons.category_mdc
         );
 
-        public static readonly  GalleryDemoCategory _kCupertinoComponents = new GalleryDemoCategory(
+        public static readonly GalleryDemoCategory _kCupertinoComponents = new GalleryDemoCategory(
             name: "Cupertino",
             icon: GalleryIcons.phone_iphone
         );
 
-        public static readonly  GalleryDemoCategory _kMedia = new GalleryDemoCategory(
+        public static readonly GalleryDemoCategory _kMedia = new GalleryDemoCategory(
             name: "Media",
             icon: GalleryIcons.drive_video
         );
     }
-    
-    class GalleryDemo {
+
+    internal class GalleryDemo
+    {
         public GalleryDemo(
             string title = null,
             IconData icon = null,
@@ -131,14 +117,15 @@ namespace UIWidgetsGallery.gallery
         }
 
         public readonly string title;
-        public readonly  IconData icon;
-        public readonly  string subtitle;
-        public readonly  GalleryDemoCategory category;
-        public readonly  string routeName;
-        public readonly  WidgetBuilder buildRoute;
-        public readonly  string documentationUrl;
-        
-        public override string ToString() {
+        public readonly IconData icon;
+        public readonly string subtitle;
+        public readonly GalleryDemoCategory category;
+        public readonly string routeName;
+        public readonly WidgetBuilder buildRoute;
+        public readonly string documentationUrl;
+
+        public override string ToString()
+        {
             return $"{GetType()}({title} {routeName})";
         }
 
@@ -147,83 +134,84 @@ namespace UIWidgetsGallery.gallery
             List<GalleryDemo> galleryDemos = new List<GalleryDemo>()
             {
                 new GalleryDemo(
-                  title: "Activity Indicator",
-                  icon: GalleryIcons.cupertino_progress,
-                  category:GalleryDemoCategory._kCupertinoComponents,
-                  routeName: CupertinoProgressIndicatorDemo.routeName,
-                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoActivityIndicator-class.html",
-                  buildRoute: (BuildContext context) => new CupertinoProgressIndicatorDemo()
+                    title: "Activity Indicator",
+                    icon: GalleryIcons.cupertino_progress,
+                    category: GalleryDemoCategory._kCupertinoComponents,
+                    routeName: CupertinoProgressIndicatorDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoActivityIndicator-class.html",
+                    buildRoute: (BuildContext context) => new CupertinoProgressIndicatorDemo()
                 ),
                 new GalleryDemo(
-                  title: "Alerts",
-                  icon: GalleryIcons.dialogs,
-                  category:GalleryDemoCategory._kCupertinoComponents,
-                  routeName: CupertinoAlertDemo.routeName,
-                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/showCupertinoDialog.html",
-                  buildRoute: (BuildContext context) => new CupertinoAlertDemo()
+                    title: "Alerts",
+                    icon: GalleryIcons.dialogs,
+                    category: GalleryDemoCategory._kCupertinoComponents,
+                    routeName: CupertinoAlertDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/cupertino/showCupertinoDialog.html",
+                    buildRoute: (BuildContext context) => new CupertinoAlertDemo()
                 ),
                 new GalleryDemo(
-                  title: "Buttons",
-                  icon: GalleryIcons.generic_buttons,
-                  category:GalleryDemoCategory._kCupertinoComponents,
-                  routeName: CupertinoButtonsDemo.routeName,
-                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoButton-class.html",
-                  buildRoute: (BuildContext context) => new CupertinoButtonsDemo()
+                    title: "Buttons",
+                    icon: GalleryIcons.generic_buttons,
+                    category: GalleryDemoCategory._kCupertinoComponents,
+                    routeName: CupertinoButtonsDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoButton-class.html",
+                    buildRoute: (BuildContext context) => new CupertinoButtonsDemo()
                 ),
                 new GalleryDemo(
-                  title: "Navigation",
-                  icon: GalleryIcons.bottom_navigation,
-                  category:GalleryDemoCategory._kCupertinoComponents,
-                  routeName: CupertinoNavigationDemo.routeName,
-                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoTabScaffold-class.html",
-                  buildRoute: (BuildContext context) => new CupertinoNavigationDemo()
+                    title: "Navigation",
+                    icon: GalleryIcons.bottom_navigation,
+                    category: GalleryDemoCategory._kCupertinoComponents,
+                    routeName: CupertinoNavigationDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoTabScaffold-class.html",
+                    buildRoute: (BuildContext context) => new CupertinoNavigationDemo()
                 ),
                 new GalleryDemo(
-                  title: "Pickers",
-                  icon: GalleryIcons.cards,
-                  category:GalleryDemoCategory._kCupertinoComponents,
-                  routeName: CupertinoPickerDemo.routeName,
-                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoPicker-class.html",
-                  buildRoute: (BuildContext context) => new CupertinoPickerDemo()
+                    title: "Pickers",
+                    icon: GalleryIcons.cards,
+                    category: GalleryDemoCategory._kCupertinoComponents,
+                    routeName: CupertinoPickerDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoPicker-class.html",
+                    buildRoute: (BuildContext context) => new CupertinoPickerDemo()
                 ),
                 new GalleryDemo(
-                  title: "Pull to refresh",
-                  icon: GalleryIcons.cupertino_pull_to_refresh,
-                  category:GalleryDemoCategory._kCupertinoComponents,
-                  routeName: CupertinoRefreshControlDemo.routeName,
-                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSliverRefreshControl-class.html",
-                  buildRoute: (BuildContext context) => new CupertinoRefreshControlDemo()
+                    title: "Pull to refresh",
+                    icon: GalleryIcons.cupertino_pull_to_refresh,
+                    category: GalleryDemoCategory._kCupertinoComponents,
+                    routeName: CupertinoRefreshControlDemo.routeName,
+                    documentationUrl:
+                    "https://docs.flutter.io/flutter/cupertino/CupertinoSliverRefreshControl-class.html",
+                    buildRoute: (BuildContext context) => new CupertinoRefreshControlDemo()
                 ),
                 new GalleryDemo(
-                  title: "Segmented Control",
-                  icon: GalleryIcons.tabs,
-                  category:GalleryDemoCategory._kCupertinoComponents,
-                  routeName: CupertinoSegmentedControlDemo.routeName,
-                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSegmentedControl-class.html",
-                  buildRoute: (BuildContext context) => new CupertinoSegmentedControlDemo()
+                    title: "Segmented Control",
+                    icon: GalleryIcons.tabs,
+                    category: GalleryDemoCategory._kCupertinoComponents,
+                    routeName: CupertinoSegmentedControlDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSegmentedControl-class.html",
+                    buildRoute: (BuildContext context) => new CupertinoSegmentedControlDemo()
                 ),
                 new GalleryDemo(
-                  title: "Sliders",
-                  icon: GalleryIcons.sliders,
-                  category:GalleryDemoCategory._kCupertinoComponents,
-                  routeName: CupertinoSliderDemo.routeName,
-                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSlider-class.html",
-                  buildRoute: (BuildContext context) => new CupertinoSliderDemo()
+                    title: "Sliders",
+                    icon: GalleryIcons.sliders,
+                    category: GalleryDemoCategory._kCupertinoComponents,
+                    routeName: CupertinoSliderDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSlider-class.html",
+                    buildRoute: (BuildContext context) => new CupertinoSliderDemo()
                 ),
                 new GalleryDemo(
-                  title: "Switches",
-                  icon: GalleryIcons.cupertino_switch,
-                  category:GalleryDemoCategory._kCupertinoComponents,
-                  routeName: CupertinoSwitchDemo.routeName,
-                  documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSwitch-class.html",
-                  buildRoute: (BuildContext context) => new CupertinoSwitchDemo()
+                    title: "Switches",
+                    icon: GalleryIcons.cupertino_switch,
+                    category: GalleryDemoCategory._kCupertinoComponents,
+                    routeName: CupertinoSwitchDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/cupertino/CupertinoSwitch-class.html",
+                    buildRoute: (BuildContext context) => new CupertinoSwitchDemo()
                 ),
                 new GalleryDemo(
-                  title: "Text Fields",
-                  icon: GalleryIcons.text_fields_alt,
-                  category:GalleryDemoCategory._kCupertinoComponents,
-                  routeName: CupertinoTextFieldDemo.routeName,
-                  buildRoute: (BuildContext context) => new CupertinoTextFieldDemo()
+                    title: "Text Fields",
+                    icon: GalleryIcons.text_fields_alt,
+                    category: GalleryDemoCategory._kCupertinoComponents,
+                    routeName: CupertinoTextFieldDemo.routeName,
+                    buildRoute: (BuildContext context) => new CupertinoTextFieldDemo()
                 ),
                 new GalleryDemo(
                     title: "Shrine",
@@ -349,6 +337,14 @@ namespace UIWidgetsGallery.gallery
                     buildRoute: (BuildContext context) => new SearchDemo()
                 ),
                 new GalleryDemo(
+                    title: "Selection controls",
+                    subtitle: "Checkboxes, radio buttons, and switches",
+                    icon: GalleryIcons.check_box,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: SelectionControlsDemo.routeName,
+                    buildRoute: (BuildContext context) => new SelectionControlsDemo()
+                ),
+                new GalleryDemo(
                     title: "Dialogs",
                     subtitle: "Simple, alert, and fullscreen",
                     icon: GalleryIcons.dialogs,
@@ -456,30 +452,36 @@ namespace UIWidgetsGallery.gallery
                     routeName: ProgressIndicatorDemo.routeName,
                     documentationUrl: "https://docs.flutter.io/flutter/material/LinearProgressIndicator-class.html",
                     buildRoute: (BuildContext context) => new ProgressIndicatorDemo()
+                ),
+                new GalleryDemo(
+                    title: "Tabs: Scrolling",
+                    subtitle: "Tab bar that scrolls",
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    icon: GalleryIcons.tabs,
+                    routeName: ScrollableTabsDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/TabBar-class.html",
+                    buildRoute: (BuildContext context) => new ScrollableTabsDemo()
                 )
             };
 
             return galleryDemos;
         }
-        
+
         public static readonly List<GalleryDemo> kAllGalleryDemos = _buildGalleryDemos();
 
         public static readonly HashSet<GalleryDemoCategory> kAllGalleryDemoCategories =
-        new HashSet<GalleryDemoCategory>(kAllGalleryDemos.Select<GalleryDemo, GalleryDemoCategory>((GalleryDemo demo) => demo.category).ToList());
+            new HashSet<GalleryDemoCategory>(kAllGalleryDemos
+                .Select<GalleryDemo, GalleryDemoCategory>((GalleryDemo demo) => demo.category).ToList());
 
 
-        static Dictionary<GalleryDemoCategory, List<GalleryDemo>> _generateCategoryToDemos()
+        private static Dictionary<GalleryDemoCategory, List<GalleryDemo>> _generateCategoryToDemos()
         {
             Dictionary<GalleryDemoCategory, List<GalleryDemo>> result =
                 new Dictionary<GalleryDemoCategory, List<GalleryDemo>>();
 
             foreach (var category in kAllGalleryDemoCategories)
-            {
-                result.Add(category, kAllGalleryDemos.Where((GalleryDemo demo) =>
-                {
-                    return demo.category == category;
-                }).ToList());
-            }
+                result.Add(category,
+                    kAllGalleryDemos.Where((GalleryDemo demo) => { return demo.category == category; }).ToList());
 
             return result;
         }
@@ -487,23 +489,17 @@ namespace UIWidgetsGallery.gallery
         public static readonly Dictionary<GalleryDemoCategory, List<GalleryDemo>> kGalleryCategoryToDemos =
             _generateCategoryToDemos();
 
-        static Dictionary<string, string> _generateDemoDocumentationUrls()
+        private static Dictionary<string, string> _generateDemoDocumentationUrls()
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
 
             foreach (var demo in kAllGalleryDemos)
-            {
                 if (demo.documentationUrl != null)
-                {
                     result.Add(demo.routeName, demo.documentationUrl);
-                }
-            }
 
             return result;
         }
 
         public static readonly Dictionary<string, string> kDemoDocumentationUrl = _generateDemoDocumentationUrls();
     }
-    
-    
 }

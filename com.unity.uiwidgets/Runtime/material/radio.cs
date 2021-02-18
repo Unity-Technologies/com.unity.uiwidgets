@@ -30,7 +30,6 @@ namespace Unity.UIWidgets.material {
         ) : base(key: key) {
             D.assert(value != null);
             D.assert(groupValue != null);
-            D.assert(onChanged != null);
             this.value = value;
             this.groupValue = groupValue;
             this.onChanged = onChanged;

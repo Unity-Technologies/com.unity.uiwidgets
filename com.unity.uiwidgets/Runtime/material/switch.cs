@@ -84,7 +84,6 @@ namespace Unity.UIWidgets.material {
         ) : base(key: key) {
             D.assert(value != null);
             this.value = value.Value;
-            D.assert(onChanged != null);
             D.assert(activeThumbImage != null || onActiveThumbImageError == null);
             D.assert(inactiveThumbImage != null || onInactiveThumbImageError == null);
             this.onChanged = onChanged;

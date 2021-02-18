@@ -96,7 +96,7 @@ namespace UIWidgetsGallery.gallery
         public TabbedComponentDemoScaffold(
             List<ComponentDemoTabData> demos,
             string title,
-            List<Widget> actions,
+            List<Widget> actions = null,
             bool isScrollable = true,
             bool showExampleCodeAction = true
         )
@@ -154,7 +154,11 @@ namespace UIWidgetsGallery.gallery
 
         public override Widget build(BuildContext context)
         {
-            var children = new List<Widget>(this.actions);
+            var children = new List<Widget>();
+            if (actions != null)
+            {
+                children.AddRange(actions);
+            }
             children.Add(new Builder(
                     builder: (BuildContext subContext) =>
                     {
