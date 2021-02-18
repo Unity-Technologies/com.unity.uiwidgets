@@ -331,6 +331,15 @@ namespace UIWidgetsGallery.gallery
                     buildRoute: (BuildContext context) => new DataTableDemo()
                 ),
                 new GalleryDemo(
+                    title: "Pull to refresh",
+                    subtitle: "Refresh indicators",
+                    icon: GalleryIcons.refresh,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: OverscrollDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/RefreshIndicator-class.html",
+                    buildRoute: (BuildContext context) => new OverscrollDemo()
+                ),
+                new GalleryDemo(
                     title: "Search",
                     subtitle: "Expandable search",
                     icon: Icons.search,
@@ -413,6 +422,15 @@ namespace UIWidgetsGallery.gallery
                     buildRoute: (BuildContext context) => new LeaveBehindDemo()
                 ),
                 new GalleryDemo(
+                    title: "Lists: reorderable",
+                    subtitle: "Reorderable lists",
+                    icon: GalleryIcons.list_alt,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ReorderableListDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/ReorderableListView-class.html",
+                    buildRoute: (BuildContext context) => new ReorderableListDemo()
+                ),
+                new GalleryDemo(
                     title: "Menus",
                     subtitle: "Menu buttons and simple menus",
                     icon: GalleryIcons.more_vert,
@@ -420,6 +438,24 @@ namespace UIWidgetsGallery.gallery
                     routeName: MenuDemo.routeName,
                     documentationUrl: "https://docs.flutter.io/flutter/material/PopupMenuButton-class.html",
                     buildRoute: (BuildContext context) => new MenuDemo()
+                ),
+                new GalleryDemo(
+                    title: "Pagination",
+                    subtitle: "PageView with indicator",
+                    icon: GalleryIcons.page_control,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: PageSelectorDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/TabBarView-class.html",
+                    buildRoute: (BuildContext context) => new PageSelectorDemo()
+                ),
+                new GalleryDemo(
+                    title: "Progress indicators",
+                    subtitle: "Linear, circular, indeterminate",
+                    icon: GalleryIcons.progress_activity,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ProgressIndicatorDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/LinearProgressIndicator-class.html",
+                    buildRoute: (BuildContext context) => new ProgressIndicatorDemo()
                 )
             };
 

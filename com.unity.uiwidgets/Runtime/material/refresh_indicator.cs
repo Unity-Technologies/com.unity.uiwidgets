@@ -313,7 +313,7 @@ namespace Unity.UIWidgets.material {
                 });
         }
 
-        Future show(bool atTop = true) {
+        public Future show(bool atTop = true) {
             if (_mode != _RefreshIndicatorMode.refresh && _mode != _RefreshIndicatorMode.snap) {
                 if (_mode == null) {
                     _start(atTop ? AxisDirection.down : AxisDirection.up);
