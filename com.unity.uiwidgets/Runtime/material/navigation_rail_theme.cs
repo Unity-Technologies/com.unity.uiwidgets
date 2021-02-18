@@ -108,7 +108,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public static bool operator !=(NavigationRailThemeData self, NavigationRailThemeData other) {
-            return Equals(self, other);
+            return !Equals(self, other);
         }
 
         public bool Equals(NavigationRailThemeData other) {

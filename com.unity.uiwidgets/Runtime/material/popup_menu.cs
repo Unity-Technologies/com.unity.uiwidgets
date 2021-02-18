@@ -319,14 +319,15 @@ namespace Unity.UIWidgets.material {
             PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
 
             for (int i = 0; i < route.items.Count; i += 1) {
-                float start = (i + 1) * unit;
+                int index = i;
+                float start = (index + 1) * unit;
                 float end = (start + 1.5f * unit).clamp(0.0f, 1.0f);
                 CurvedAnimation opacityCurvedAnimation = new CurvedAnimation(
                     parent: route.animation,
                     curve: new Interval(start, end)
                 );
-                Widget item = route.items[i];
-                if (route.initialValue != null && route.items[i].represents((T) route.initialValue)) {
+                Widget item = route.items[index];
+                if (route.initialValue != null && route.items[index].represents((T) route.initialValue)) {
                     item = new Container(
                         color: Theme.of(context).highlightColor,
                         child: item
@@ -335,7 +336,7 @@ namespace Unity.UIWidgets.material {
 
                 children.Add(
                     new _MenuItem(
-                        onLayout: (Size size) => { route.itemSizes[i] = size; },
+                        onLayout: (Size size) => { route.itemSizes[index] = size; },
                         child: new FadeTransition(
                             opacity: opacityCurvedAnimation,
                             child: item
@@ -498,7 +499,7 @@ namespace Unity.UIWidgets.material {
             this.color = color;
             this.showMenuContext = showMenuContext;
             this.captureInheritedThemes = captureInheritedThemes;
-            itemSizes = new List<Size>(items.Count);
+            itemSizes = new List<Size>(new Size[items.Count]);
         }
 
         public readonly RelativeRect position;
@@ -646,6 +647,10 @@ namespace Unity.UIWidgets.material {
             this.child = child;
             this.icon = icon;
             this.offset = offset;
+            this.enabled = enabled;
+            this.shape = shape;
+            this.color = color;
+            this.captureInheritedThemes = captureInheritedThemes;
         }
 
 

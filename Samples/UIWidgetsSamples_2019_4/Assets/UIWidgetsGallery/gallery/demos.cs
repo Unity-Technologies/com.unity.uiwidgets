@@ -375,6 +375,51 @@ namespace UIWidgetsGallery.gallery
                     routeName: ExpansionPanelsDemo.routeName,
                     documentationUrl: "https://docs.flutter.io/flutter/material/ExpansionPanel-class.html",
                     buildRoute: (BuildContext context) => new ExpansionPanelsDemo()
+                ),
+                new GalleryDemo(
+                    title: "Grid",
+                    subtitle: "Row and column layout",
+                    icon: GalleryIcons.grid_on,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: GridListDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/widgets/GridView-class.html",
+                    buildRoute: (BuildContext context) => new GridListDemo()
+                ),
+                new GalleryDemo(
+                    title: "Icons",
+                    subtitle: "Enabled and disabled icons with opacity",
+                    icon: GalleryIcons.sentiment_very_satisfied,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: IconsDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/IconButton-class.html",
+                    buildRoute: (BuildContext context) => new IconsDemo()
+                ),
+                new GalleryDemo(
+                    title: "Lists",
+                    subtitle: "Scrolling list layouts",
+                    icon: GalleryIcons.list_alt,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: ListDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/ListTile-class.html",
+                    buildRoute: (BuildContext context) => new ListDemo()
+                ),
+                new GalleryDemo(
+                    title: "Lists: leave-behind list items",
+                    subtitle: "List items with hidden actions",
+                    icon: GalleryIcons.lists_leave_behind,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: LeaveBehindDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/widgets/Dismissible-class.html",
+                    buildRoute: (BuildContext context) => new LeaveBehindDemo()
+                ),
+                new GalleryDemo(
+                    title: "Menus",
+                    subtitle: "Menu buttons and simple menus",
+                    icon: GalleryIcons.more_vert,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: MenuDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/PopupMenuButton-class.html",
+                    buildRoute: (BuildContext context) => new MenuDemo()
                 )
             };
 
