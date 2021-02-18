@@ -345,6 +345,15 @@ namespace UIWidgetsGallery.gallery
                     buildRoute: (BuildContext context) => new SelectionControlsDemo()
                 ),
                 new GalleryDemo(
+                    title: "Sliders",
+                    subtitle: "Widgets for selecting a value by swiping",
+                    icon: GalleryIcons.sliders,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: SliderDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/Slider-class.html",
+                    buildRoute: (BuildContext context) => new SliderDemo()
+                ),
+                new GalleryDemo(
                     title: "Dialogs",
                     subtitle: "Simple, alert, and fullscreen",
                     icon: GalleryIcons.dialogs,
