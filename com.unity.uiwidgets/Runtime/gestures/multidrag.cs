@@ -232,8 +232,9 @@ namespace Unity.UIWidgets.gestures {
 
             D.assert(_pointers.ContainsKey(pointer));
             GestureBinding.instance.pointerRouter.removeRoute(pointer, _handleEvent);
-            _pointers[pointer].dispose();
+            var pointerData = _pointers[pointer];
             _pointers.Remove(pointer);
+            pointerData.dispose();
         }
 
 
