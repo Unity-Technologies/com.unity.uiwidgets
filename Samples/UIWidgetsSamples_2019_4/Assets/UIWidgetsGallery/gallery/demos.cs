@@ -354,6 +354,24 @@ namespace UIWidgetsGallery.gallery
                     buildRoute: (BuildContext context) => new SliderDemo()
                 ),
                 new GalleryDemo(
+                    title: "Snackbar",
+                    subtitle: "Temporary messaging",
+                    icon: GalleryIcons.snackbar,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: SnackBarDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/ScaffoldState/showSnackBar.html",
+                    buildRoute: (BuildContext context) => new SnackBarDemo()
+                ),
+                new GalleryDemo(
+                    title: "Tabs",
+                    subtitle: "Tabs with independently scrollable views",
+                    icon: GalleryIcons.tabs,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: TabsDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/TabBarView-class.html",
+                    buildRoute: (BuildContext context) => new TabsDemo()
+                ),
+                new GalleryDemo(
                     title: "Dialogs",
                     subtitle: "Simple, alert, and fullscreen",
                     icon: GalleryIcons.dialogs,
@@ -470,6 +488,24 @@ namespace UIWidgetsGallery.gallery
                     routeName: ScrollableTabsDemo.routeName,
                     documentationUrl: "https://docs.flutter.io/flutter/material/TabBar-class.html",
                     buildRoute: (BuildContext context) => new ScrollableTabsDemo()
+                ),
+                new GalleryDemo(
+                    title: "Text fields",
+                    subtitle: "Single line of editable text and numbers",
+                    icon: GalleryIcons.text_fields_alt,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: TextFormFieldDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/TextFormField-class.html",
+                    buildRoute: (BuildContext context) => new TextFormFieldDemo()
+                ),
+                new GalleryDemo(
+                    title: "Tooltips",
+                    subtitle: "Short message displayed on long-press",
+                    icon: GalleryIcons.tooltip,
+                    category: GalleryDemoCategory._kMaterialComponents,
+                    routeName: TooltipDemo.routeName,
+                    documentationUrl: "https://docs.flutter.io/flutter/material/Tooltip-class.html",
+                    buildRoute: (BuildContext context) => new TooltipDemo()
                 )
             };
 
