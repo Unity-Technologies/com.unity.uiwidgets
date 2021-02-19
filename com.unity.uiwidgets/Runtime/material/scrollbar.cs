@@ -159,14 +159,14 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            //TODO：uncomment here when cupertino updates are merged
-            /*if (_useCupertinoScrollbar.Value) {
+            if (_useCupertinoScrollbar.Value) {
                 return new CupertinoScrollbar(
                     child: widget.child,
                     isAlwaysShown: widget.isAlwaysShown,
                     controller: widget.controller
                 );
-            }*/
+            }
+            
             return new NotificationListener<ScrollNotification>(
                 onNotification: _handleScrollNotification,
                 child: new RepaintBoundary(
