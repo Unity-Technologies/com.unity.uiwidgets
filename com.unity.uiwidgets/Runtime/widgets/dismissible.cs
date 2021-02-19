@@ -373,50 +373,52 @@ namespace Unity.UIWidgets.widgets {
             }
 
             _dragUnderway = false;
-            _confirmStartResizeAnimation().then_((value) => {
-                if (_moveController.isCompleted && value) {
-                    _startResizeAnimation();
-                }
-                else {
-                    float flingVelocity = _directionIsXAxis
-                        ? details.velocity.pixelsPerSecond.dx
-                        : details.velocity.pixelsPerSecond.dy;
-                    switch (_describeFlingGesture(details.velocity)) {
-                        case _FlingGestureKind.forward:
-                            D.assert(_dragExtent != 0.0f);
-                            D.assert(!_moveController.isDismissed);
-                            if ((widget.dismissThresholds.getOrDefault(_dismissDirection) ??
-                                 _kDismissThreshold) >= 1.0) {
-                                _moveController.reverse();
-                                break;
-                            }
-
-                            _dragExtent = flingVelocity.sign();
-                            _moveController.fling(velocity: flingVelocity.abs() * _kFlingVelocityScale);
-                            break;
-                        case _FlingGestureKind.reverse:
-                            D.assert(_dragExtent != 0.0f);
-                            D.assert(!_moveController.isDismissed);
-                            _dragExtent = flingVelocity.sign();
-                            _moveController.fling(velocity: -flingVelocity.abs() * _kFlingVelocityScale);
-                            break;
-                        case _FlingGestureKind.none:
-                            if (!_moveController.isDismissed) {
-                                // we already know it's not completed, we check that above
-                                if (_moveController.value >
-                                    (widget.dismissThresholds.getOrDefault(_dismissDirection) ??
-                                     _kDismissThreshold)) {
-                                    _moveController.forward();
-                                }
-                                else {
-                                    _moveController.reverse();
-                                }
-                            }
-
-                            break;
+            if (_moveController.isCompleted) {
+                _confirmStartResizeAnimation().then_((value) => {
+                    if (value) {
+                        _startResizeAnimation();
+                        return;
                     }
-                }
-            });
+                });
+            }
+
+            float flingVelocity = _directionIsXAxis
+                ? details.velocity.pixelsPerSecond.dx
+                : details.velocity.pixelsPerSecond.dy;
+            switch (_describeFlingGesture(details.velocity)) {
+                case _FlingGestureKind.forward:
+                    D.assert(_dragExtent != 0.0f);
+                    D.assert(!_moveController.isDismissed);
+                    if ((widget.dismissThresholds.getOrDefault(_dismissDirection) ??
+                         _kDismissThreshold) >= 1.0) {
+                        _moveController.reverse();
+                        break;
+                    }
+
+                    _dragExtent = flingVelocity.sign();
+                    _moveController.fling(velocity: flingVelocity.abs() * _kFlingVelocityScale);
+                    break;
+                case _FlingGestureKind.reverse:
+                    D.assert(_dragExtent != 0.0f);
+                    D.assert(!_moveController.isDismissed);
+                    _dragExtent = flingVelocity.sign();
+                    _moveController.fling(velocity: -flingVelocity.abs() * _kFlingVelocityScale);
+                    break;
+                case _FlingGestureKind.none:
+                    if (!_moveController.isDismissed) {
+                        // we already know it's not completed, we check that above
+                        if (_moveController.value >
+                            (widget.dismissThresholds.getOrDefault(_dismissDirection) ??
+                             _kDismissThreshold)) {
+                            _moveController.forward();
+                        }
+                        else {
+                            _moveController.reverse();
+                        }
+                    }
+
+                    break;
+            }
         }
 
         void _handleDismissStatusChanged(AnimationStatus status) {
@@ -510,7 +512,7 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(() => {
                     if (_resizeAnimation.status != AnimationStatus.forward) {
                         D.assert(_resizeAnimation.status == AnimationStatus.completed);
-                        throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        throw new UIWidgetsError(new List<DiagnosticsNode> {
                             new ErrorSummary("A dismissed Dismissible widget is still part of the tree."),
                             new ErrorHint(
                                 "Make sure to implement the onDismissed handler and to immediately remove the Dismissible " +
@@ -555,7 +557,6 @@ namespace Unity.UIWidgets.widgets {
 
                 children.Add(content);
                 content = new Stack(children: children);
-                
             }
 
             return new GestureDetector(
