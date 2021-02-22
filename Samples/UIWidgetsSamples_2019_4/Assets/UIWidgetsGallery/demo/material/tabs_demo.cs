@@ -10,7 +10,7 @@ namespace UIWidgetsGallery.demo.material
 {
     static class TabsDemoUtils
     {
-        public static readonly string _kGalleryAssetsPackage = "flutter_gallery_assets";
+        public static readonly string _kGalleryAssetsPackage = "gallery/";
 
         public static readonly Dictionary<_TabPage, List<_CardData>> _allPages =
             new Dictionary<_TabPage, List<_CardData>>
