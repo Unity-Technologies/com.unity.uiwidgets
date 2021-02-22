@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
@@ -179,6 +180,18 @@ namespace Unity.UIWidgets.engine2 {
         public float devicePixelRatioOverride = 1;
 
 
+        public static IDictionary Configs;
+        public static bool ShowDebugLog {
+            get => _ShowDebugLog;
+            set {
+                _ShowDebugLog = value;
+                Configs[nameof(ShowDebugLog)] = ShowDebugLog;
+                UIWidgetsConfig.updateConfig(Configs);
+            }
+        }
+        
+        static bool _ShowDebugLog = false;
+        
         public float hardwareAntiAliasing;
         // RectTransform rectTransform {
         //     get { return rectTransform; }
@@ -231,6 +244,7 @@ namespace Unity.UIWidgets.engine2 {
 
             _handle = GCHandle.Alloc(this);
             _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, UIWidgetsPanel_entrypoint);
+            UIWidgetsConfig.Init();
             var settings = new Dictionary<string, object>();
             if (fonts != null && fonts.Length > 0) {
                 settings.Add("fonts", fontsToObject(fonts));

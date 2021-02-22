@@ -18,6 +18,13 @@ namespace Unity.UIWidgets.Editor {
 
             EditorGUILayout.PropertyField(pixelRatioProperty);
             EditorGUILayout.PropertyField(antiAliasingProperty);
+            
+            EditorGUI.BeginChangeCheck();
+            var updateVale = EditorGUILayout.Toggle("Show Debug Log", UIWidgetsPanel.ShowDebugLog);
+
+            if (EditorGUI.EndChangeCheck()) {
+                UIWidgetsPanel.ShowDebugLog = updateVale;
+            }
             UIWidgetsPanel panel = (UIWidgetsPanel)target;
             
             serializedObject.ApplyModifiedProperties(); 
