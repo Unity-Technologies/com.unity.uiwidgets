@@ -390,6 +390,10 @@ namespace Unity.UIWidgets.engine2 {
                     else {
                         _lastMousePosition = Input.mousePosition;
                     }
+
+                    if (Input.mouseScrollDelta.magnitude != 0) {
+                        _onScroll();
+                    }
                 }
             }
         }
@@ -426,6 +430,15 @@ namespace Unity.UIWidgets.engine2 {
             }
 
             UIWidgetsPanel_onMouseMove(_ptr, pos.Value.x, pos.Value.y);
+        }
+
+        void _onScroll() {
+            var pos = _getPointerPosition(Input.mousePosition);
+            if (pos == null) {
+                return;
+            }
+            var delta = Input.mouseScrollDelta;
+            UIWidgetsPanel_onScroll(_ptr, delta.x, delta.y, pos.Value.x, pos.Value.y);
         }
 
         public void OnPointerDown(PointerEventData eventData) {
@@ -493,5 +506,8 @@ namespace Unity.UIWidgets.engine2 {
 
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onMouseLeave(IntPtr ptr);
+        
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onScroll(IntPtr ptr, float x, float y, float px, float py);
     }
 }
