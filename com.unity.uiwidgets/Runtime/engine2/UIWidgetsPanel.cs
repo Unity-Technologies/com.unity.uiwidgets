@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using AOT;
 using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using NativeBindings = Unity.UIWidgets.ui.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
-
     public interface IUIWidgetsWindow {
         Offset windowPosToScreenPos(Offset offset);
 
@@ -24,77 +18,34 @@ namespace Unity.UIWidgets.engine2 {
 
         void mainEntry();
     }
-    
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-    public partial class UIWidgetsPanel : IUIWidgetsWindow{
+
+    public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
         UIWidgetsPanelWrapper _wrapper;
-    }
 
-#elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-    public partial class UIWidgetsPanel {
-        Texture _renderTexture;
-    
-        void _createRenderTexture(int width, int height, float devicePixelRatio) {
-            D.assert(_renderTexture == null);
-            
-            _width = width;
-            _height = height;
-            _devicePixelRatio = devicePixelRatio;
-        }
-        
-        void _destroyRenderTexture() {
-            D.assert(_renderTexture != null);
-            var releaseOK = UIWidgetsPanel_releaseNativeTexture(_ptr);
-            D.assert(releaseOK);
-            
-            _renderTexture = null;
-            texture = null;
+        public bool isActive() {
+            return IsActive();
         }
 
-        void _enableUIWidgetsPanel(string font_settings) {
-            D.assert(_renderTexture == null);
-            IntPtr native_tex_ptr = UIWidgetsPanel_onEnable(_ptr, _width, _height, _devicePixelRatio,
-                Application.streamingAssetsPath, font_settings);
-            D.assert(native_tex_ptr != IntPtr.Zero);
-
-            _renderTexture =
-                Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, true, native_tex_ptr);
-
-            texture = _renderTexture;
+        public Coroutine startCoroutine(IEnumerator routing) {
+            return StartCoroutine(routing);
         }
 
-        void _disableUIWidgetsPanel() {
-            _renderTexture = null;
-            texture = null;
-        }
-        
-        void _resizeUIWidgetsPanel()
-        {
-            D.assert(_renderTexture == null);
-            
-            IntPtr native_tex_ptr = UIWidgetsPanel_onRenderTexture(_ptr, _width, _height, _devicePixelRatio);
-            D.assert(native_tex_ptr != IntPtr.Zero);
-            
-            _renderTexture =
-                Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, true, native_tex_ptr);
+        public Offset windowPosToScreenPos(Offset offset) {
+            Camera camera = null;
+            if (canvas.renderMode != RenderMode.ScreenSpaceCamera) {
+                camera = canvas.GetComponent<GraphicRaycaster>().eventCamera;
+            }
 
-            texture = _renderTexture;
+            var pos = new Vector2(offset.dx, offset.dy);
+            pos = pos * _currentDevicePixelRatio / canvas.scaleFactor;
+            var rect = rectTransform.rect;
+            pos.x += rect.min.x;
+            pos.y = rect.max.y - pos.y;
+            var worldPos = rectTransform.TransformPoint(new Vector2(pos.x, pos.y));
+            var screenPos = RectTransformUtility.WorldToScreenPoint(camera, worldPos);
+            return new Offset(screenPos.x, Screen.height - screenPos.y);
         }
-        
-        [DllImport(NativeBindings.dllName)]
-        static extern IntPtr UIWidgetsPanel_onEnable(IntPtr ptr,
-            int width, int height, float dpi, string streamingAssetsPath, string font_settings);
-        
-        [DllImport(NativeBindings.dllName)]
-        static extern bool UIWidgetsPanel_releaseNativeTexture(IntPtr ptr);
-        
-        [DllImport(NativeBindings.dllName)]
-        static extern IntPtr UIWidgetsPanel_onRenderTexture(
-            IntPtr ptr, int width, int height, float dpi);
-    }
-#endif
 
-    public partial class UIWidgetsPanel : RawImage { 
         [Serializable]
         public struct Font {
             public string asset;
@@ -162,11 +113,13 @@ namespace Unity.UIWidgets.engine2 {
             if (fonts != null && fonts.Length > 0) {
                 settings.Add("fonts", fontsToObject(fonts));
             }
-            
+
             D.assert(_wrapper == null);
             _wrapper = new UIWidgetsPanelWrapper();
             _wrapper.Initiate(this, _currentWidth, _currentHeight, _currentDevicePixelRatio, settings);
             texture = _wrapper.renderTexture;
+
+            Input_OnEnable();
         }
 
         public void mainEntry() {
@@ -178,16 +131,18 @@ namespace Unity.UIWidgets.engine2 {
 
         protected override void OnRectTransformDimensionsChange() {
             if (_wrapper != null) {
-                _wrapper.OnRectTransformDimensionsChange(_currentWidth, _currentHeight, _currentDevicePixelRatio);
+                _wrapper.OnWindowChanged(_currentWidth, _currentHeight, _currentDevicePixelRatio);
                 texture = _wrapper.renderTexture;
             }
         }
-        
+
         protected override void OnDisable() {
             D.assert(_wrapper != null);
             _wrapper?.Destroy();
             _wrapper = null;
             texture = null;
+
+            Input_OnDisable();
             base.OnDisable();
         }
 
@@ -202,6 +157,8 @@ namespace Unity.UIWidgets.engine2 {
 
     public partial class UIWidgetsPanel : IPointerDownHandler, IPointerUpHandler,
         IPointerEnterHandler, IPointerExitHandler, IDragHandler {
+        bool _isEntered;
+        Vector2 _lastMousePosition;
 
         Vector2? _getPointerPosition(Vector2 position) {
             Camera worldCamera = canvas.worldCamera;
@@ -216,32 +173,11 @@ namespace Unity.UIWidgets.engine2 {
             return null;
         }
 
-        public bool isActive() {
-            return IsActive();
+        void Input_OnEnable() {
         }
 
-        public Coroutine startCoroutine(IEnumerator routing) {
-            return StartCoroutine(routing);
+        void Input_OnDisable() {
         }
-        
-        public Offset windowPosToScreenPos(Offset offset) {
-            Camera camera = null;
-            if (canvas.renderMode != RenderMode.ScreenSpaceCamera) {
-                camera = canvas.GetComponent<GraphicRaycaster>().eventCamera;
-            }
-
-            var pos = new Vector2(offset.dx, offset.dy);
-            pos = pos * _currentDevicePixelRatio / canvas.scaleFactor;
-            var rect = rectTransform.rect;
-            pos.x += rect.min.x;
-            pos.y = rect.max.y - pos.y;
-            var worldPos = rectTransform.TransformPoint(new Vector2(pos.x, pos.y));
-            var screenPos = RectTransformUtility.WorldToScreenPoint(camera, worldPos);
-            return new Offset(screenPos.x, Screen.height - screenPos.y);
-        }
-                
-        bool _isEntered;
-        Vector2 _lastMousePosition;
 
         public void Input_Update() {
             if (Input.touchCount == 0 && Input.mousePresent) {
@@ -281,7 +217,7 @@ namespace Unity.UIWidgets.engine2 {
             var pos = _getPointerPosition(Input.mousePosition);
             _wrapper.OnPointerUp(pos, eventData.pointerId);
         }
-        
+
         public void OnPointerEnter(PointerEventData eventData) {
             D.assert(eventData.pointerId < 0);
             _isEntered = true;
