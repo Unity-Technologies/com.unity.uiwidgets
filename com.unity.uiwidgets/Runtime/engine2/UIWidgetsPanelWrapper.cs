@@ -15,6 +15,11 @@ namespace Unity.UIWidgets.editor2 {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
     public partial class UIWidgetsPanelWrapper {
         RenderTexture _renderTexture;
+    
+    
+        public RenderTexture renderTexture {
+            get { return _renderTexture; }
+        }
 
         void _createRenderTexture(int width, int height, float devicePixelRatio) {
             D.assert(_renderTexture == null);
@@ -62,8 +67,8 @@ namespace Unity.UIWidgets.editor2 {
         [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onRenderTexture(
             IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
+    }
 #endif
-}
 
 #endregion
 
@@ -73,6 +78,10 @@ namespace Unity.UIWidgets.editor2 {
 
 public partial class UIWidgetsPanelWrapper {
     Texture _renderTexture;
+    
+    public Texture renderTexture {
+        get { return _renderTexture; }
+    }
 
     void _createRenderTexture(int width, int height, float devicePixelRatio) {
         D.assert(_renderTexture == null);
@@ -152,10 +161,6 @@ public partial class UIWidgetsPanelWrapper {
     }
 
     public Isolate isolate { get; private set; }
-
-    public RenderTexture renderTexture {
-        get { return _renderTexture; }
-    }
 
     public float devicePixelRatio {
         get { return _devicePixelRatio; }
