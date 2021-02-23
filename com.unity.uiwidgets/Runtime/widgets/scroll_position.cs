@@ -56,24 +56,16 @@ namespace Unity.UIWidgets.widgets {
         internal readonly object _coordinator;
 
         public float minScrollExtent {
-            get { return _minScrollExtent.Value; }
+            get { return _minScrollExtent; }
         }
 
-        float? _minScrollExtent;
+        float _minScrollExtent;
 
         public float maxScrollExtent {
-            get { return _maxScrollExtent.Value; }
+            get { return _maxScrollExtent; }
         }
 
-        float? _maxScrollExtent;
-
-        public bool hasMinScrollExtent {
-            get { return _minScrollExtent != null; }
-        }
-
-        public bool hasMaxScrollExtent {
-            get { return _maxScrollExtent != null; }
-        }
+        float _maxScrollExtent;
 
         public override float pixels {
             get {
@@ -89,10 +81,10 @@ namespace Unity.UIWidgets.widgets {
         internal float? _pixels;
 
         public float viewportDimension {
-            get { return _viewportDimension.Value; }
+            get { return _viewportDimension; }
         }
 
-        float? _viewportDimension;
+        float _viewportDimension;
 
         public bool haveDimensions {
             get { return _haveDimensions; }
