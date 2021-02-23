@@ -63,11 +63,6 @@ namespace Unity.UIWidgets.gestures {
         readonly HashSet<HitTestEntry> _enteredTargets = new HashSet<HitTestEntry>();
 
         void _handlePointerEvent(PointerEvent evt) {
-            if (evt is PointerScrollEvent) {
-                _handlePointerScrollEvent(evt);
-                return;
-            }
-
             HitTestResult hitTestResult = null;
             if (evt is PointerDownEvent || evt is PointerSignalEvent) {
                 D.assert(!_hitTests.ContainsKey(evt.pointer));
