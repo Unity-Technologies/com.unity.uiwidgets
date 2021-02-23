@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -643,9 +644,9 @@ namespace Unity.UIWidgets.painting {
         Future<Codec> _loadAsync(NetworkImage key, DecoderCallback decode) {
             var completer = Completer.create();
             var isolate = Isolate.current;
-            var panel = UIWidgetsPanel.current;
-            if (panel.IsActive()) {
-                panel.StartCoroutine(_loadCoroutine(key.url, completer, isolate));
+            var panel = UIWidgetsPanelWrapper.current.window;
+            if (panel.isActive()) {
+                panel.startCoroutine(_loadCoroutine(key.url, completer, isolate));
                 return completer.future.to<byte[]>().then_<byte[]>(data => {
                     if (data != null && data.Length > 0) {
                         return decode(data);

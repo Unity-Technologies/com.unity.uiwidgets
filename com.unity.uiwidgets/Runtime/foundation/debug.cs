@@ -16,16 +16,16 @@ namespace Unity.UIWidgets.foundation {
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
-            if (!result()) {
-                throw new AssertionError(message != null ? message() : "");
-            }
+            //if (!result()) {
+           //     throw new AssertionError(message != null ? message() : "");
+            //}
         }
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
-            if (!result) {
-                throw new AssertionError(message != null ? message() : "");
-            }
+           // if (!result) {
+           //     throw new AssertionError(message != null ? message() : "");
+           // }
         }
 
         public static bool debugPrintGestureArenaDiagnostics = false;
