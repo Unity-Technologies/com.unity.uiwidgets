@@ -10,9 +10,6 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.editor2 {
-
-    public delegate void UIWidgetsMainFunction();
-    
     public class UIWidgetsPanelWrapper {
         
         RenderTexture _renderTexture;
