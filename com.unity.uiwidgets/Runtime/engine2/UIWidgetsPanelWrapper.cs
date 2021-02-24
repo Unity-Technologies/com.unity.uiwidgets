@@ -191,7 +191,11 @@ public partial class UIWidgetsPanelWrapper {
         }
     }
 
-    public void OnWindowChanged(int width, int height, float dpr) {
+    public bool didDisplayMetricsChanged(int width, int height, float dpr) {
+        return width != _width || height != _height || dpr != _devicePixelRatio;
+    }
+
+    public void OnDisplayMetricsChanged(int width, int height, float dpr) {
         if (_ptr != IntPtr.Zero && _renderTexture) {
             if (_recreateRenderTexture(width, height, dpr)) {
                 _resizeUIWidgetsPanel();

@@ -1,17 +1,13 @@
-/*using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using AOT;
 using uiwidgets;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEditor;
 using UnityEngine;
 using Rect = UnityEngine.Rect;
-using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace Unity.UIWidgets.editor2 {
 #if UNITY_EDITOR
@@ -31,55 +27,24 @@ namespace Unity.UIWidgets.editor2 {
         }
     }
 
-    public class UIWidgetsEditorPanel : EditorWindow, IUIWidgetsPanel {
-        RenderTexture _renderTexture;
+    public class UIWidgetsEditorPanel : EditorWindow, IUIWidgetsWindow {
+        UIWidgetsPanelWrapper _wrapper;
         
-        void _createRenderTexture(int width, int height, float devicePixelRatio) { 
-            D.assert(_renderTexture == null);
-
-            var desc = new RenderTextureDescriptor(
-                width, height, RenderTextureFormat.ARGB32, 0) {
-                useMipMap = false,
-                autoGenerateMips = false,
-            };
-
-            _renderTexture = new RenderTexture(desc) {hideFlags = HideFlags.HideAndDontSave};
-            _renderTexture.Create();
-
-            _width = width;
-            _height = height;
-            _devicePixelRatio = devicePixelRatio;
+        public bool isActive() {
+            return true;
         }
 
-        void _destroyRenderTexture() {
-            D.assert(_renderTexture != null);
-            ObjectUtils.SafeDestroy(_renderTexture);
-            _renderTexture = null;
+        public void startCoroutine(IEnumerator routing) {
+            this.StartCoroutine(routing);
+        }
+        
+        public void onNewFrameScheduled() {
+            Repaint();
         }
 
-        void _enableUIWidgetsPanel(string font_settings) {
-            UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
-                _width, _height, _devicePixelRatio, Application.streamingAssetsPath, font_settings);
+        public Offset windowPosToScreenPos(Offset offset) {
+            return offset;
         }
-
-        void _resizeUIWidgetsPanel() {
-            UIWidgetsPanel_onRenderTexture(_ptr,
-                _renderTexture.GetNativeTexturePtr(),
-                _width, _height, _devicePixelRatio);
-        }
-
-        void _disableUIWidgetsPanel() {
-            _renderTexture = null;
-        }
-
-        public Isolate isolate { get; private set; }
-
-        IntPtr _ptr;
-        GCHandle _handle;
-
-        int _width;
-        int _height;
-        float _devicePixelRatio;
 
         int _currentWidth {
             get { return Mathf.RoundToInt(position.size.x); }
@@ -93,86 +58,91 @@ namespace Unity.UIWidgets.editor2 {
             get { return EditorGUIUtility.pixelsPerPoint; }
         }
 
-        void Awake() {
-            D.assert(_renderTexture == null);
-            _recreateRenderTexture(_currentWidth, _currentHeight, _currentDevicePixelRatio);
+        void OnDestroy() {
+            D.assert(_wrapper != null);
+            _wrapper?.Destroy();
+            _wrapper = null;
 
-            _handle = GCHandle.Alloc(this);
-            _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, UIWidgetsPanel_entrypoint);
-            var settings = new Dictionary<string, object>();
-
-            _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(settings));
-            NativeConsole.OnEnable();
+            Input_OnDisable();
+            
+            Debug.Log("destroy");
         }
-        
+
+        void OnEnable() {
+            D.assert(_wrapper == null);
+            _wrapper = new UIWidgetsPanelWrapper();
+            _wrapper.Initiate(this, _currentWidth, _currentHeight, _currentDevicePixelRatio, new Dictionary<string, object>());
+            
+            Input_OnEnable();
+            
+            Debug.Log("enabled");
+        }
+
         void OnGUI()
         {
-            GUI.DrawTexture(new Rect(0.0f, 0.0f, position.width, position.height), _renderTexture);
+            if (_wrapper != null) {
+                if (_wrapper.didDisplayMetricsChanged(_currentWidth, _currentHeight, _currentDevicePixelRatio)) {
+                    _wrapper.OnDisplayMetricsChanged(_currentWidth, _currentHeight, _currentDevicePixelRatio);
+                }
+                
+                GUI.DrawTexture(new Rect(0.0f, 0.0f, position.width, position.height), _wrapper.renderTexture);
+
+                Input_OnGUIEvent(Event.current);
+                
+                Repaint();
+            }
+        }
+
+        Vector2? _getPointerPosition(Vector2 position) {
+            return new Vector2(position.x * _currentDevicePixelRatio, position.y * _currentDevicePixelRatio);
+        }
+
+        int _buttonToPointerId(int buttonId) {
+            if (buttonId == 0) {
+                return -1;
+            }
+            else if (buttonId == 1) {
+                return -2;
+            }
+
+            return 0;
+        }
+
+        void Input_OnGUIEvent(Event evt) {
+            if (evt.type == EventType.MouseDown) {
+                var pos = _getPointerPosition(evt.mousePosition);
+                _wrapper.OnPointerDown(pos, _buttonToPointerId(evt.button));
+            }
+            else if (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp) {
+                var pos = _getPointerPosition(evt.mousePosition);
+                _wrapper.OnPointerUp(pos, _buttonToPointerId(evt.button));
+            }
+            else if (evt.type == EventType.MouseDrag) {
+                var pos = _getPointerPosition(evt.mousePosition);
+                _wrapper.OnMouseMove(pos);
+            }
+            else if (evt.type == EventType.MouseMove) {
+                var pos = _getPointerPosition(evt.mousePosition);
+                _wrapper.OnMouseMove(pos);
+            }
+            
+        }
+        
+        public void mainEntry() {
+            main();
         }
 
         protected virtual void main() {
-            ui_.runApp(new MyApp());
         }
 
-        void _entryPoint() {
-            try {
-                isolate = Isolate.current;
-                Window.instance._panel = this;
-
-                main();
-            }
-            catch (Exception ex) {
-                Debug.LogException(new Exception("exception in main", ex));
-            }
-        }
-        
-        delegate void UIWidgetsPanel_EntrypointCallback(IntPtr handle);
-
-        [MonoPInvokeCallback(typeof(UIWidgetsPanel_EntrypointCallback))]
-        static void UIWidgetsPanel_entrypoint(IntPtr handle) {
-            GCHandle gcHandle = (GCHandle) handle;
-            UIWidgetsEditorPanel panel = (UIWidgetsEditorPanel) gcHandle.Target;
-            panel._entryPoint();
-        }
-        
-        bool _recreateRenderTexture(int width, int height, float devicePixelRatio) {
-            if (_renderTexture != null && _width == width && _height == height &&
-                _devicePixelRatio == devicePixelRatio) {
-                return false;
-            }
-
-            if (_renderTexture) {
-                _destroyRenderTexture();
-            }
-
-            _createRenderTexture(width, height, devicePixelRatio);
-            return true;
-        }
-        
-        [DllImport(NativeBindings.dllName)]
-        static extern IntPtr UIWidgetsPanel_constructor(IntPtr handle,
-            UIWidgetsPanel_EntrypointCallback entrypointCallback);
-
-
-        [DllImport(NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onEnable(IntPtr ptr,
-            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath,
-            string font_settings);
-
-        [DllImport(NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onRenderTexture(
-            IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
-
-        [MenuItem("UIWidgets/NewWindow")]
-        public static void OnItem() {
-            EditorWindow.CreateWindow<UIWidgetsEditorPanel>();
+        void Input_OnDisable() {
+            
         }
 
-        public float cur_devicePixelRatioOverride => _currentDevicePixelRatio;
+        void Input_OnEnable() {
+            
+        }
     }
-    
-    
-
 #endif
 
-}*/
+}

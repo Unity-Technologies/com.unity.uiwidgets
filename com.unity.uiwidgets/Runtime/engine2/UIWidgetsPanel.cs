@@ -12,22 +12,32 @@ namespace Unity.UIWidgets.engine2 {
     public interface IUIWidgetsWindow {
         Offset windowPosToScreenPos(Offset offset);
 
-        Coroutine startCoroutine(IEnumerator routing);
+        void startCoroutine(IEnumerator routing);
 
         bool isActive();
 
         void mainEntry();
+
+        void onNewFrameScheduled();
     }
 
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
         UIWidgetsPanelWrapper _wrapper;
 
+        public float devicePixelRatioOverride;
+
+        public bool hardwareAntiAliasing;
+
         public bool isActive() {
             return IsActive();
         }
 
-        public Coroutine startCoroutine(IEnumerator routing) {
-            return StartCoroutine(routing);
+        public void startCoroutine(IEnumerator routing) {
+            StartCoroutine(routing);
+        }
+
+        public void onNewFrameScheduled() {
+            
         }
 
         public Offset windowPosToScreenPos(Offset offset) {
@@ -130,8 +140,8 @@ namespace Unity.UIWidgets.engine2 {
         }
 
         protected override void OnRectTransformDimensionsChange() {
-            if (_wrapper != null) {
-                _wrapper.OnWindowChanged(_currentWidth, _currentHeight, _currentDevicePixelRatio);
+            if (_wrapper != null && _wrapper.didDisplayMetricsChanged(_currentWidth, _currentHeight, _currentDevicePixelRatio)) {
+                _wrapper.OnDisplayMetricsChanged(_currentWidth, _currentHeight, _currentDevicePixelRatio);
                 texture = _wrapper.renderTexture;
             }
         }

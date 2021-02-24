@@ -342,6 +342,7 @@ namespace Unity.UIWidgets.ui {
 
         public void scheduleFrame() {
             Window_scheduleFrame(_ptr);
+            _panel.window.onNewFrameScheduled();
         }
 
         public void scheduleMicrotask(Action callback) {
