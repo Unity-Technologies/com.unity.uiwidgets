@@ -120,7 +120,9 @@ namespace UIWidgetsGallery.demo.shrine
     
 
     public class ExpandingBottomSheet : StatefulWidget {
-        public ExpandingBottomSheet(Key key = null, AnimationController hideController = null)
+        public ExpandingBottomSheet(
+          Key key = null, 
+          AnimationController hideController = null)
         : base(key: key)
         {
             D.assert(hideController != null);
@@ -310,31 +312,31 @@ public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBott
     }
   }
 
-  Widget _buildThumbnails(int numProducts) {
-    return new Container(
-      child: new Opacity(
-        opacity: _thumbnailOpacityAnimation.value,
-        child: new Column(
-          children: new List<Widget>{
-            new Row(
-              children: new List<Widget>{
-                new AnimatedPadding(
-                  padding: _cartPaddingFor(numProducts),
-                  child: new Icon(Icons.shopping_cart),
-                  duration: TimeSpan.FromMilliseconds(225)
-                ),
-                new Container(
-                  // Accounts for the overflow number
-                  width: numProducts > 3 ? _width - 94.0f: _width - 64.0f,
-                  height: expanding_buttom_sheetUtils._kCartHeight,
-                  padding: EdgeInsets.symmetric(vertical: 8.0f),
-                  child: new ProductThumbnailRow()
-                ),
-                new ExtraProductsNumber(),
-              }
-            ),
-          }
-        )
+  Widget _buildThumbnails(int numProducts)
+  {
+    return new Opacity(
+      opacity: _thumbnailOpacityAnimation.value,
+      child: new Column(
+        children: new List<Widget>
+        {
+          new Row(
+            children: new List<Widget>
+            {
+             /* new AnimatedPadding(
+                padding: _cartPaddingFor(numProducts),
+                child: new Icon(Icons.shopping_cart),
+                duration: TimeSpan.FromMilliseconds(225)
+              ),*/
+              new Container(
+                // Accounts for the overflow number
+                width: numProducts > 3 ? _width - 94.0f : _width - 64.0f,
+                height: expanding_buttom_sheetUtils._kCartHeight,
+                padding: EdgeInsets.symmetric(vertical: 8.0f),
+                child: new ProductThumbnailRow()
+              )//, new ExtraProductsNumber(),
+            }
+          ),
+        }
       )
     );
   }
@@ -634,8 +636,6 @@ public class _ListModel {
   }
 
   public readonly GlobalKey<AnimatedListState> listKey;
-
-  //public readonly Delegate removedItemBuilder;
   public RemovedItemBuilder removedItemBuilder;
   public readonly List<int> _items;
 

@@ -35,7 +35,6 @@ namespace Unity.UIWidgets.widgets {
             this.keepScrollOffset = keepScrollOffset;
             this.debugLabel = debugLabel;
             _coordinator = coordinator;
-
             if (oldPosition != null) {
                 absorb(oldPosition);
             }
@@ -74,7 +73,7 @@ namespace Unity.UIWidgets.widgets {
         public bool hasMaxScrollExtent {
             get { return _maxScrollExtent != null; }
         }
-
+        
         public override float pixels {
             get {
                 D.assert(_pixels != null);
@@ -106,10 +105,10 @@ namespace Unity.UIWidgets.widgets {
             D.assert(other != null);
             D.assert(other.context == context);
             D.assert(_pixels == null);
-            _minScrollExtent = other.minScrollExtent;
-            _maxScrollExtent = other.maxScrollExtent;
+            _minScrollExtent = other._minScrollExtent;
+            _maxScrollExtent = other._maxScrollExtent;
             _pixels = other._pixels;
-            _viewportDimension = other.viewportDimension;
+            _viewportDimension = other._viewportDimension;
 
             D.assert(activity == null);
             D.assert(other.activity != null);

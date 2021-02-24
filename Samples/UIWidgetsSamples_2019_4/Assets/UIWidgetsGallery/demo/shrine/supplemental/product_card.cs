@@ -5,6 +5,7 @@ using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace UIWidgetsGallery.demo.shrine.supplemental
 {
@@ -76,7 +77,7 @@ namespace UIWidgetsGallery.demo.shrine.supplemental
                                             ),
                                             new SizedBox(height: 4.0f),
                                             new Text(
-                                                $" $ { product.price:D}",
+                                                $" $ { product.price:F}",
                                                 style: theme.textTheme.caption
                                             ),
                                         }
