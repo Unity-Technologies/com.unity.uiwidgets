@@ -105,10 +105,10 @@ namespace Unity.UIWidgets.widgets {
             D.assert(other != null);
             D.assert(other.context == context);
             D.assert(_pixels == null);
-            _minScrollExtent = other.minScrollExtent;
-            _maxScrollExtent = other.maxScrollExtent;
+            _minScrollExtent = other._minScrollExtent;
+            _maxScrollExtent = other._maxScrollExtent;
             _pixels = other._pixels;
-            _viewportDimension = other.viewportDimension;
+            _viewportDimension = other._viewportDimension;
 
             D.assert(activity == null);
             D.assert(other.activity != null);
