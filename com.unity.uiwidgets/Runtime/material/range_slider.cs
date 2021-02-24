@@ -92,7 +92,7 @@ namespace Unity.UIWidgets.material {
     }
 
 
-    class _RangeSliderState : SingleTickerProviderStateMixin<RangeSlider> {
+    class _RangeSliderState : TickerProviderStateMixin<RangeSlider> {
         static readonly TimeSpan enableAnimationDuration = new TimeSpan(0, 0, 0, 0, 75);
         static readonly TimeSpan valueIndicatorAnimationDuration = new TimeSpan(0, 0, 0, 0, 100);
 
@@ -180,7 +180,7 @@ namespace Unity.UIWidgets.material {
         }
 
         float _lerp(float value) {
-            return Mathf.Lerp(widget.min, widget.max, value);
+            return MathUtils.lerpNullableFloat(widget.min, widget.max, value);
         }
 
         RangeValues _lerpRangeValues(RangeValues values) {
@@ -780,7 +780,7 @@ namespace Unity.UIWidgets.material {
         float _discretize(float value) {
             float result = value.clamp(0.0f, 1.0f);
             if (isDiscrete) {
-                result = (result * divisions.Value).round() / divisions.Value;
+                result = (result * divisions.Value).round() * 1.0f / divisions.Value;
             }
 
             return result;
@@ -957,7 +957,7 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        void paint(PaintingContext context, Offset offset) {
+        public override void paint(PaintingContext context, Offset offset) {
             float startValue = _state.startPositionController.value;
             float endValue = _state.endPositionController.value;
 

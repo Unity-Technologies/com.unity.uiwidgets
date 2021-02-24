@@ -587,7 +587,7 @@ namespace Unity.UIWidgets.animation {
                 }
             }
             float t2 = (t - startValue.dx) / (endValue.dx - startValue.dx);
-            return Mathf.Lerp(startValue.dy, endValue.dy, t2);
+            return MathUtils.lerpNullableFloat(startValue.dy, endValue.dy, t2);
         }
     }
 

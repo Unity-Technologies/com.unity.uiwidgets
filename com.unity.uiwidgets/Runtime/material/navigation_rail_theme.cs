@@ -1,6 +1,7 @@
 using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
@@ -71,12 +72,12 @@ namespace Unity.UIWidgets.material {
                 return null;
             return new NavigationRailThemeData(
                 backgroundColor: Color.lerp(a?.backgroundColor, b?.backgroundColor, t),
-                elevation: Mathf.Lerp(a?.elevation ?? 0, b?.elevation ?? 0, t),
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
                 unselectedLabelTextStyle: TextStyle.lerp(a?.unselectedLabelTextStyle, b?.unselectedLabelTextStyle, t),
                 selectedLabelTextStyle: TextStyle.lerp(a?.selectedLabelTextStyle, b?.selectedLabelTextStyle, t),
                 unselectedIconTheme: IconThemeData.lerp(a?.unselectedIconTheme, b?.unselectedIconTheme, t),
                 selectedIconTheme: IconThemeData.lerp(a?.selectedIconTheme, b?.selectedIconTheme, t),
-                groupAlignment: Mathf.Lerp(a?.groupAlignment ?? 0, b?.groupAlignment ?? 0, t),
+                groupAlignment: MathUtils.lerpNullableFloat(a?.groupAlignment, b?.groupAlignment, t),
                 labelType: t < 0.5 ? a?.labelType : b?.labelType
             );
         }
@@ -107,7 +108,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public static bool operator !=(NavigationRailThemeData self, NavigationRailThemeData other) {
-            return Equals(self, other);
+            return !Equals(self, other);
         }
 
         public bool Equals(NavigationRailThemeData other) {

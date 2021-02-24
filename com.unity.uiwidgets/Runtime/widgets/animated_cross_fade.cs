@@ -22,7 +22,7 @@ namespace Unity.UIWidgets.widgets {
             Curve firstCurve = null,
             Curve secondCurve = null,
             Curve sizeCurve = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             CrossFadeState? crossFadeState = null,
             TimeSpan? duration = null,
             TimeSpan? reverseDuration = null,
@@ -60,7 +60,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly Curve sizeCurve;
 
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
 
         public readonly AnimatedCrossFadeBuilder layoutBuilder;
 
@@ -88,7 +88,7 @@ namespace Unity.UIWidgets.widgets {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new EnumProperty<CrossFadeState>("crossFadeState", crossFadeState));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", alignment,
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment,
                 defaultValue: Alignment.topCenter));
             properties.add(new IntProperty("duration", duration?.Milliseconds, unit: "ms"));
             properties.add(new IntProperty("reverseDuration", reverseDuration?.Milliseconds, unit: "ms", defaultValue: null));
@@ -233,7 +233,7 @@ namespace Unity.UIWidgets.widgets {
             description.add(new EnumProperty<CrossFadeState>("crossFadeState", widget.crossFadeState));
             description.add(
                 new DiagnosticsProperty<AnimationController>("controller", _controller, showName: false));
-            description.add(new DiagnosticsProperty<Alignment>("alignment", widget.alignment,
+            description.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", widget.alignment,
                 defaultValue: Alignment.topCenter));
         }
     }

@@ -551,7 +551,7 @@ namespace Unity.UIWidgets.material {
             );
             string formattedNextMinute = localizations.formatMinute(nextMinute);
             TimeOfDay previousMinute = fragmentContext.selectedTime.replacing(
-                minute: (fragmentContext.selectedTime.minute - 1) % TimeOfDay.minutesPerHour
+                minute: (fragmentContext.selectedTime.minute - 1 + TimeOfDay.minutesPerHour) % TimeOfDay.minutesPerHour
             );
             string formattedPreviousMinute = localizations.formatMinute(previousMinute);
 

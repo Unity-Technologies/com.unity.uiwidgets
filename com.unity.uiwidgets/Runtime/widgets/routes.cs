@@ -473,11 +473,11 @@ namespace Unity.UIWidgets.widgets {
         public _ModalScope(
             Key key = null, 
             ModalRoute<T> route = null) 
-            : base(key) {
+            : base(key, route) {
             this.route = route;
         }
 
-        public readonly new ModalRoute<T> route;
+        public new readonly ModalRoute<T> route;
 
         public override State createState() {
             return new _ModalScopeState<T>();
@@ -732,15 +732,21 @@ namespace Unity.UIWidgets.widgets {
             _ModalScopeState scope = _scopeKey.currentState as _ModalScopeState ;
             D.assert(scope != null);
 
-            bool result = false;
-            foreach (WillPopCallback callback in _willPopCallbacks) {
-                callback.Invoke().then(v => result = !(bool)v);
-                if (result) {
-                    return  Future.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
+            Future InvokePopCallbacks(int index) {
+                if (index == _willPopCallbacks.Count) {
+                    return base.willPop();
                 }
+                var callback = _willPopCallbacks[index];
+                return callback.Invoke().then(v => {
+                    if (!(bool) v) {
+                        return Future.value(RoutePopDisposition.doNotPop);
+                    }
+
+                    return InvokePopCallbacks(index + 1);
+                });
             }
-            return base.willPop();
-            
+
+            return InvokePopCallbacks(0).to<RoutePopDisposition>();
         }
 
         public void addScopedWillPopCallback(WillPopCallback callback) {

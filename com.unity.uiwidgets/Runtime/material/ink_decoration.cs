@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.material {
             ImageErrorListener onImageError = null,
             ColorFilter colorFilter = null,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             Rect centerSlice = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             float? width = null,
@@ -170,7 +170,6 @@ namespace Unity.UIWidgets.material {
             VoidCallback onRemoved = null
         ) : base(controller: controller, referenceBox: referenceBox, onRemoved: onRemoved) {
             D.assert(configuration != null);
-            D.assert(decoration != null);
             D.assert(controller != null);
             D.assert(referenceBox != null);
             _configuration = configuration;

@@ -1187,7 +1187,7 @@ namespace Unity.UIWidgets.cupertino {
             TimeSpan? initialTimerDuration = null,
             int minuteInterval = 1,
             int secondInterval = 1,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             Color backgroundColor = null,
             ValueChanged<TimeSpan> onTimerDurationChanged = null
             ):base(key : key) {
@@ -1216,7 +1216,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly int minuteInterval;
         public readonly int secondInterval;
         public readonly ValueChanged<TimeSpan> onTimerDurationChanged;
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
         public readonly Color backgroundColor;
         
         public override State createState() {

@@ -224,6 +224,22 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
+        public bool m_ShowDebugLog = false;
+        
+        public static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
+        public static bool ShowDebugLog {
+            get => _ShowDebugLog;
+            set {
+                foreach (var panel in panels) {
+                    panel.m_ShowDebugLog = value;
+                }
+
+                _ShowDebugLog = value;
+            }
+        }
+        
+        static bool _ShowDebugLog = false;
+
         protected void OnEnable() {
             base.OnEnable();
             D.assert(_renderTexture == null);
@@ -231,6 +247,10 @@ namespace Unity.UIWidgets.engine2 {
 
             _handle = GCHandle.Alloc(this);
             _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, UIWidgetsPanel_entrypoint);
+
+            panels.Add(this);
+            _ShowDebugLog = m_ShowDebugLog;
+
             var settings = new Dictionary<string, object>();
             if (fonts != null && fonts.Length > 0) {
                 settings.Add("fonts", fontsToObject(fonts));
@@ -276,6 +296,7 @@ namespace Unity.UIWidgets.engine2 {
             _handle = default;
 
             _disableUIWidgetsPanel();
+            panels.Remove(this);
 
             D.assert(!isolate.isValid);
             base.OnDisable();

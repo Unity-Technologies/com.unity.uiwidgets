@@ -122,6 +122,10 @@ namespace Unity.UIWidgets.ui{
             b = b ?? a;
             return a + (b - a) * t;
         }
+        
+        public static float lerpNullableFloat(float a, float b, float t) {
+            return a + (b - a) * t;
+        }
 
         public static int round(this float value) {
             return Mathf.RoundToInt(value);
@@ -300,7 +304,7 @@ namespace Unity.UIWidgets.ui{
                 return a * (1.0f - t);
             }
 
-            return new Offset(Mathf.Lerp(a.dx, b.dx, t), Mathf.Lerp(a.dy, b.dy, t));
+            return new Offset(MathUtils.lerpNullableFloat(a.dx, b.dx, t), MathUtils.lerpNullableFloat(a.dy, b.dy, t));
         }
 
         public bool Equals(Offset other) {
@@ -465,7 +469,7 @@ namespace Unity.UIWidgets.ui{
                 return a * (1.0f - t);
             }
 
-            return new Size(Mathf.Lerp(a.width, b.width, t), Mathf.Lerp(a.height, b.height, t));
+            return new Size(MathUtils.lerpNullableFloat(a.width, b.width, t), MathUtils.lerpNullableFloat(a.height, b.height, t));
         }
 
         public bool Equals(Size other) {
@@ -796,10 +800,10 @@ namespace Unity.UIWidgets.ui{
             }
 
             return fromLTRB(
-                Mathf.Lerp(a.left, b.left, t),
-                Mathf.Lerp(a.top, b.top, t),
-                Mathf.Lerp(a.right, b.right, t),
-                Mathf.Lerp(a.bottom, b.bottom, t)
+                MathUtils.lerpNullableFloat(a.left, b.left, t),
+                MathUtils.lerpNullableFloat(a.top, b.top, t),
+                MathUtils.lerpNullableFloat(a.right, b.right, t),
+                MathUtils.lerpNullableFloat(a.bottom, b.bottom, t)
             );
         }
 
@@ -934,8 +938,8 @@ namespace Unity.UIWidgets.ui{
             }
 
             return elliptical(
-                Mathf.Lerp(a.x, b.x, t),
-                Mathf.Lerp(a.y, b.y, t)
+                MathUtils.lerpNullableFloat(a.x, b.x, t),
+                MathUtils.lerpNullableFloat(a.y, b.y, t)
             );
         }
 
@@ -1462,10 +1466,10 @@ namespace Unity.UIWidgets.ui{
             }
 
             return fromLTRBAndCorners(
-                Mathf.Lerp(a.left, b.left, t),
-                Mathf.Lerp(a.top, b.top, t),
-                Mathf.Lerp(a.right, b.right, t),
-                Mathf.Lerp(a.bottom, b.bottom, t),
+                MathUtils.lerpNullableFloat(a.left, b.left, t),
+                MathUtils.lerpNullableFloat(a.top, b.top, t),
+                MathUtils.lerpNullableFloat(a.right, b.right, t),
+                MathUtils.lerpNullableFloat(a.bottom, b.bottom, t),
                 Radius.lerp(a.tlRadius, b.tlRadius, t),
                 Radius.lerp(a.trRadius, b.trRadius, t),
                 Radius.lerp(a.brRadius, b.brRadius, t),

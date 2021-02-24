@@ -2,6 +2,7 @@ using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Object = UnityEngine.Object;
@@ -74,7 +75,7 @@ namespace Unity.UIWidgets.material {
                 actionTextColor: Color.lerp(a?.actionTextColor, b?.actionTextColor, t),
                 disabledActionTextColor: Color.lerp(a?.disabledActionTextColor, b?.disabledActionTextColor, t),
                 contentTextStyle: TextStyle.lerp(a?.contentTextStyle, b?.contentTextStyle, t),
-                elevation: Mathf.Lerp(a?.elevation ?? 0, b?.elevation ?? 0, t),
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t),
                 behavior: t < 0.5 ? a.behavior : b.behavior
             );

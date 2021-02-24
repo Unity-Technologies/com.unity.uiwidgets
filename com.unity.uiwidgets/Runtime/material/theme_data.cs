@@ -5,7 +5,6 @@ using uiwidgets;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -84,7 +83,12 @@ namespace Unity.UIWidgets.material {
             DialogTheme dialogTheme = null,
             FloatingActionButtonThemeData floatingActionButtonTheme = null,
             Typography typography = null,
-            SnackBarThemeData snackBarTheme = null
+            SnackBarThemeData snackBarTheme = null,
+            BottomSheetThemeData bottomSheetTheme = null,
+            PopupMenuThemeData popupMenuTheme = null,
+            MaterialBannerThemeData bannerTheme = null,
+            DividerThemeData dividerTheme = null,
+            ButtonBarThemeData buttonBarTheme = null
         ) {
             brightness = brightness ?? Brightness.light;
             bool isDark = brightness == Brightness.dark;
@@ -197,6 +201,11 @@ namespace Unity.UIWidgets.material {
             dialogTheme = dialogTheme ?? new DialogTheme();
             floatingActionButtonTheme = floatingActionButtonTheme ?? new FloatingActionButtonThemeData();
             snackBarTheme = snackBarTheme ?? new SnackBarThemeData();
+            bottomSheetTheme = bottomSheetTheme ?? new BottomSheetThemeData();
+            popupMenuTheme = popupMenuTheme ?? new PopupMenuThemeData();
+            bannerTheme = bannerTheme ?? new MaterialBannerThemeData();
+            dividerTheme = dividerTheme ?? new DividerThemeData();
+            buttonBarTheme = buttonBarTheme ?? new ButtonBarThemeData();
 
             D.assert(brightness != null);
             D.assert(visualDensity != null);
@@ -249,6 +258,11 @@ namespace Unity.UIWidgets.material {
             D.assert(dialogTheme != null);
             D.assert(floatingActionButtonTheme != null);
             D.assert(snackBarTheme != null);
+            D.assert(bottomSheetTheme != null);
+            D.assert(popupMenuTheme != null);
+            D.assert(bannerTheme != null);
+            D.assert(dividerTheme != null);
+            D.assert(buttonBarTheme != null);
 
             this.brightness = brightness ?? Brightness.light;
             this.visualDensity = visualDensity;
@@ -303,6 +317,11 @@ namespace Unity.UIWidgets.material {
             this.floatingActionButtonTheme = floatingActionButtonTheme;
             this.typography = typography;
             this.snackBarTheme = snackBarTheme;
+            this.bottomSheetTheme = bottomSheetTheme;
+            this.popupMenuTheme = popupMenuTheme;
+            this.bannerTheme = bannerTheme;
+            this.dividerTheme = dividerTheme;
+            this.buttonBarTheme = buttonBarTheme;
         }
 
         public static ThemeData raw(
@@ -358,7 +377,12 @@ namespace Unity.UIWidgets.material {
             DialogTheme dialogTheme = null,
             FloatingActionButtonThemeData floatingActionButtonTheme = null,
             Typography typography = null,
-            SnackBarThemeData snackBarTheme = null
+            SnackBarThemeData snackBarTheme = null,
+            BottomSheetThemeData bottomSheetTheme = null,
+            PopupMenuThemeData popupMenuTheme = null,
+            MaterialBannerThemeData bannerTheme = null,
+            DividerThemeData dividerTheme = null,
+            ButtonBarThemeData buttonBarTheme = null
         ) {
             D.assert(brightness != null);
             D.assert(visualDensity != null);
@@ -413,6 +437,11 @@ namespace Unity.UIWidgets.material {
             D.assert(dialogTheme != null);
             D.assert(floatingActionButtonTheme != null);
             D.assert(snackBarTheme != null);
+            D.assert(bottomSheetTheme != null);
+            D.assert(popupMenuTheme != null);
+            D.assert(bannerTheme != null);
+            D.assert(dividerTheme != null);
+            D.assert(buttonBarTheme != null);
 
             return new ThemeData(
                 brightness: brightness,
@@ -466,7 +495,13 @@ namespace Unity.UIWidgets.material {
                 dialogTheme: dialogTheme,
                 floatingActionButtonTheme: floatingActionButtonTheme,
                 typography: typography,
-                snackBarTheme: snackBarTheme);
+                snackBarTheme: snackBarTheme,
+                bottomSheetTheme: bottomSheetTheme,
+                popupMenuTheme: popupMenuTheme,
+                bannerTheme: bannerTheme,
+                dividerTheme: dividerTheme,
+                buttonBarTheme: buttonBarTheme
+                );
         }
 
         public static ThemeData from(
@@ -700,7 +735,12 @@ namespace Unity.UIWidgets.material {
             DialogTheme dialogTheme = null,
             FloatingActionButtonThemeData floatingActionButtonTheme = null,
             Typography typography = null,
-            SnackBarThemeData snackBarTheme = null
+            SnackBarThemeData snackBarTheme = null,
+            BottomSheetThemeData bottomSheetTheme = null,
+            PopupMenuThemeData popupMenuTheme = null,
+            MaterialBannerThemeData bannerTheme = null,
+            DividerThemeData dividerTheme = null,
+            ButtonBarThemeData buttonBarTheme = null
         ) {
             return raw(
                 brightness: brightness ?? this.brightness,
@@ -755,7 +795,12 @@ namespace Unity.UIWidgets.material {
                 dialogTheme: dialogTheme ?? this.dialogTheme,
                 floatingActionButtonTheme: floatingActionButtonTheme ?? this.floatingActionButtonTheme,
                 typography: typography ?? this.typography,
-                snackBarTheme: snackBarTheme ?? this.snackBarTheme
+                snackBarTheme: snackBarTheme ?? this.snackBarTheme,
+                bottomSheetTheme: bottomSheetTheme ?? this.bottomSheetTheme,
+                popupMenuTheme: popupMenuTheme ?? this.popupMenuTheme,
+                bannerTheme: bannerTheme ?? this.bannerTheme,
+                dividerTheme: dividerTheme ?? this.dividerTheme,
+                buttonBarTheme: buttonBarTheme ?? this.buttonBarTheme
             );
         }
 
@@ -847,7 +892,12 @@ namespace Unity.UIWidgets.material {
                 floatingActionButtonTheme: FloatingActionButtonThemeData.lerp(a.floatingActionButtonTheme,
                     b.floatingActionButtonTheme, t),
                 typography: Typography.lerp(a.typography, b.typography, t),
-                snackBarTheme: SnackBarThemeData.lerp(a.snackBarTheme, b.snackBarTheme, t)
+                snackBarTheme: SnackBarThemeData.lerp(a.snackBarTheme, b.snackBarTheme, t),
+                bottomSheetTheme: BottomSheetThemeData.lerp(a.bottomSheetTheme, b.bottomSheetTheme, t),
+                popupMenuTheme: PopupMenuThemeData.lerp(a.popupMenuTheme, b.popupMenuTheme, t),
+                bannerTheme: MaterialBannerThemeData.lerp(a.bannerTheme, b.bannerTheme, t),
+                dividerTheme: DividerThemeData.lerp(a.dividerTheme, b.dividerTheme, t),
+                buttonBarTheme: ButtonBarThemeData.lerp(a.buttonBarTheme, b.buttonBarTheme, t)
             );
         }
 
@@ -912,7 +962,12 @@ namespace Unity.UIWidgets.material {
                    other.dialogTheme == dialogTheme &&
                    other.floatingActionButtonTheme == floatingActionButtonTheme &&
                    other.typography == typography &&
-                   other.snackBarTheme == snackBarTheme;
+                   other.snackBarTheme == snackBarTheme &&
+                   other.bottomSheetTheme == bottomSheetTheme && 
+                   other.popupMenuTheme == popupMenuTheme &&
+                   other.bannerTheme == bannerTheme &&
+                   other.dividerTheme == dividerTheme &&
+                   other.buttonBarTheme == buttonBarTheme;
         }
 
         public override bool Equals(object obj) {
@@ -1000,6 +1055,11 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ floatingActionButtonTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ typography.GetHashCode();
                 hashCode = (hashCode * 397) ^ snackBarTheme.GetHashCode(); 
+                hashCode = (hashCode * 397) ^ bottomSheetTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ popupMenuTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ bannerTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ dividerTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ buttonBarTheme.GetHashCode();
 
                 _cachedHashCode = hashCode;
                 return hashCode;
@@ -1092,6 +1152,12 @@ namespace Unity.UIWidgets.material {
             properties.add(new DiagnosticsProperty<Typography>("typography", typography,
                 defaultValue: defaultData.typography));
             properties.add(new DiagnosticsProperty<SnackBarThemeData>("snackBarTheme", snackBarTheme, defaultValue: defaultData.snackBarTheme, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<BottomSheetThemeData>("bottomSheetTheme", bottomSheetTheme, defaultValue: defaultData.bottomSheetTheme, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<PopupMenuThemeData>("popupMenuTheme", popupMenuTheme, defaultValue: defaultData.popupMenuTheme, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<MaterialBannerThemeData>("bannerTheme", bannerTheme, defaultValue: defaultData.bannerTheme, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<DividerThemeData>("dividerTheme", dividerTheme, defaultValue: defaultData.dividerTheme, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<ButtonBarThemeData>("buttonBarTheme", buttonBarTheme, defaultValue: defaultData.buttonBarTheme, level: DiagnosticLevel.debug));
+
         }
     }
 
@@ -1246,8 +1312,8 @@ namespace Unity.UIWidgets.material {
 
         internal static VisualDensity lerp(VisualDensity a, VisualDensity b, float t) {
             return new VisualDensity(
-                horizontal: Mathf.Lerp(a.horizontal, b.horizontal, t),
-                vertical: Mathf.Lerp(a.horizontal, b.horizontal, t)
+                horizontal: MathUtils.lerpNullableFloat(a.horizontal, b.horizontal, t),
+                vertical: MathUtils.lerpNullableFloat(a.horizontal, b.horizontal, t)
             );
         }
 

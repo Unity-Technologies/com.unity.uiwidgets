@@ -63,7 +63,7 @@ namespace Unity.UIWidgets.material {
                 clipBehavior: t < 0.5f ? a?.clipBehavior : b?.clipBehavior,
                 color: Color.lerp(a?.color, b?.color, t),
                 shadowColor: Color.lerp(a?.shadowColor, b?.shadowColor, t),
-                elevation: Mathf.Lerp(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
                 margin: EdgeInsetsGeometry.lerp(a?.margin, b?.margin, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t)
             );

@@ -140,7 +140,7 @@ namespace Unity.UIWidgets.widgets {
                             : new ClampingScrollPhysics(),
                         controller: _coordinator._outerController,
                         slivers: widget._buildSlivers(
-                            context,
+                            _context,
                             _coordinator._innerController,
                             _lastHasScrolledBody
                         ),

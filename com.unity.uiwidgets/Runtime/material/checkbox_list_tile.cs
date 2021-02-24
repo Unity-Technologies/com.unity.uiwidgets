@@ -6,7 +6,7 @@ using Unity.UIWidgets.widgets;
 namespace Unity.UIWidgets.material {
     public class CheckboxListTile : StatelessWidget {
         public CheckboxListTile(
-            Key key,
+            Key key = null,
             bool? value = null,
             ValueChanged<bool?> onChanged = null,
             Color activeColor = null,
@@ -29,6 +29,9 @@ namespace Unity.UIWidgets.material {
             this.secondary = secondary;
             this.selected = selected;
             this.controlAffinity = controlAffinity;
+            this.value = value;
+            this.activeColor = activeColor;
+            this.onChanged = onChanged;
         }
 
         public readonly bool? value;

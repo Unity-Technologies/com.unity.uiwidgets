@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.physics;
-using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
-using UnityEngine;
 using Ticker = Unity.UIWidgets.scheduler2.Ticker;
 using TickerFuture = Unity.UIWidgets.scheduler2.TickerFuture;
 using TickerProvider = Unity.UIWidgets.scheduler2.TickerProvider;
@@ -13,6 +11,11 @@ namespace Unity.UIWidgets.animation {
     enum _AnimationDirection {
         forward,
         reverse,
+    }
+
+    public enum AnimationBehavior {
+        normal,
+        preserve,
     }
 
     public class AnimationController :
@@ -24,6 +27,7 @@ namespace Unity.UIWidgets.animation {
             string debugLabel = null,
             float lowerBound = 0.0f,
             float upperBound = 1.0f,
+            AnimationBehavior animationBehavior = AnimationBehavior.normal,
             TickerProvider vsync = null
         ) {
             D.assert(upperBound >= lowerBound);
@@ -35,6 +39,7 @@ namespace Unity.UIWidgets.animation {
             this.debugLabel = debugLabel;
             this.lowerBound = lowerBound;
             this.upperBound = upperBound;
+            this.animationBehavior = animationBehavior;
 
             _ticker = vsync.createTicker(_tick);
             _internalSetValue(value ?? lowerBound);
@@ -45,9 +50,11 @@ namespace Unity.UIWidgets.animation {
             TimeSpan? duration = null,
             TimeSpan? reverseDuration = null,
             string debugLabel = null,
+            AnimationBehavior? animationBehavior = null,
             TickerProvider vsync = null
         ) {
             D.assert(vsync != null);
+            D.assert(animationBehavior != null);
             lowerBound = float.NegativeInfinity;
             upperBound = float.PositiveInfinity;
             _direction = _AnimationDirection.forward;
@@ -55,6 +62,7 @@ namespace Unity.UIWidgets.animation {
             this.duration = duration;
             this.reverseDuration = reverseDuration;
             this.debugLabel = debugLabel;
+            this.animationBehavior = animationBehavior.Value;
 
             _ticker = vsync.createTicker(_tick);
             _internalSetValue(value);
@@ -65,14 +73,17 @@ namespace Unity.UIWidgets.animation {
             TimeSpan? duration = null,
             TimeSpan? reverseDuration = null,
             string debugLabel = null,
-            TickerProvider vsync = null
+            TickerProvider vsync = null,
+            AnimationBehavior animationBehavior = AnimationBehavior.preserve
         ) {
-            return new AnimationController(value, duration, reverseDuration, debugLabel, vsync);
+            return new AnimationController(value, duration, reverseDuration, debugLabel, animationBehavior, vsync);
         }
 
         public readonly float lowerBound;
 
         public readonly float upperBound;
+
+        public readonly AnimationBehavior animationBehavior;
 
         public readonly string debugLabel;
 
@@ -494,11 +505,11 @@ namespace Unity.UIWidgets.animation {
 
             if (_reverse && _isPlayingReverse) {
                 directionSetter(_AnimationDirection.reverse);
-                return Mathf.Lerp(_max, _min, t);
+                return MathUtils.lerpNullableFloat(_max, _min, t);
             }
             else {
                 directionSetter(_AnimationDirection.forward);
-                return Mathf.Lerp(_min, _max, t);
+                return MathUtils.lerpNullableFloat(_min, _max, t);
             }
         }
 

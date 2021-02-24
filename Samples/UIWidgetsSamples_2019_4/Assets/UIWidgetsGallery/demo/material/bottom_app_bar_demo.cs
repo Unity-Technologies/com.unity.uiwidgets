@@ -523,7 +523,8 @@ namespace UIWidgetsGallery.demo.material
 
         public override Path getOuterPath(Rect host, Rect guest)
         {
-            if (!host.overlaps(guest))
+            //there is a bug in flutter when guest == null, we fix it here
+            if (guest == null || !host.overlaps(guest))
             {
                 var path = new Path();
                 path.addRect(host);

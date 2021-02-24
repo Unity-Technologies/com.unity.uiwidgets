@@ -32,7 +32,7 @@ UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
   gl_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
   gl_resource_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl_context_];
 
-  FML_DCHECK(gl_context_ != nullptr && gl_resource_context_ != nullptr);
+  FML_DCHECK(gl_context_ != nullptr);
 }
 
 UnitySurfaceManager::~UnitySurfaceManager() { ReleaseNativeRenderContext(); }
@@ -47,7 +47,7 @@ void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height)
   const GLuint ConstGLType = GL_UNSIGNED_INT_8_8_8_8_REV;
 
   //render context must be available
-  FML_DCHECK(metal_device_ != nullptr && gl_context_ != nullptr && gl_resource_context_ != nullptr);
+  FML_DCHECK(metal_device_ != nullptr && gl_context_ != nullptr);
 
   //render textures must be released already
   FML_DCHECK(pixelbuffer_ref == nullptr && default_fbo_ == 0 && gl_tex_ == 0 && gl_tex_cache_ref_ == nullptr && gl_tex_ref_ == nullptr && metal_tex_ == nullptr && metal_tex_ref_ == nullptr && metal_tex_cache_ref_ == nullptr);
@@ -133,7 +133,14 @@ bool UnitySurfaceManager::MakeCurrentContext()
 
 bool UnitySurfaceManager::MakeCurrentResourceContext()
 {
-  [gl_resource_context_ makeCurrentContext];
+  if (gl_resource_context_ == nullptr)
+  {
+      [gl_context_ makeCurrentContext];
+  }
+  else
+  {
+      [gl_resource_context_ makeCurrentContext];
+  }
   return true;
 }
 
@@ -144,9 +151,11 @@ uint32_t UnitySurfaceManager::GetFbo()
 
 void UnitySurfaceManager::ReleaseNativeRenderContext()
 {
-  FML_DCHECK(gl_resource_context_);
-  CGLReleaseContext(gl_resource_context_.CGLContextObj);
-  gl_resource_context_ = nullptr;
+  if (gl_resource_context_ != nullptr)
+  {
+      CGLReleaseContext(gl_resource_context_.CGLContextObj);
+      gl_resource_context_ = nullptr;
+  }
 
   FML_DCHECK(gl_context_);
   CGLReleaseContext(gl_context_.CGLContextObj);

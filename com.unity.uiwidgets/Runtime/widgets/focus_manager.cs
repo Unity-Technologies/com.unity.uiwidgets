@@ -296,7 +296,7 @@ namespace Unity.UIWidgets.widgets {
             get { return FocusManager.instance.highlightMode; }
         }
 
-        public FocusScopeNode nearestScope {
+        public virtual FocusScopeNode nearestScope {
             get { return enclosingScope; }
         }
 
@@ -628,7 +628,7 @@ namespace Unity.UIWidgets.widgets {
             skipTraversal: skipTraversal
         ) {}
 
-        public FocusScopeNode nearestScope {
+        public override FocusScopeNode nearestScope {
             get { return this; }
         }
 

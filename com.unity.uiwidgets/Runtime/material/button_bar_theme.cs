@@ -2,9 +2,8 @@ using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Unity.UIWidgets.material {
     public class ButtonBarThemeData : Diagnosticable, IEquatable<ButtonBarThemeData> {
@@ -19,8 +18,8 @@ namespace Unity.UIWidgets.material {
             ButtonBarLayoutBehavior? layoutBehavior = null,
             VerticalDirection? overflowDirection = null
         ) {
-            D.assert(buttonMinWidth >= 0.0f);
-            D.assert(buttonHeight >= 0.0f);
+            D.assert(buttonMinWidth == null || buttonMinWidth >= 0.0f);
+            D.assert(buttonHeight == null || buttonHeight >= 0.0f);
             this.alignment = alignment;
             this.mainAxisSize = mainAxisSize;
             this.buttonTextTheme = buttonTextTheme;
@@ -81,8 +80,8 @@ namespace Unity.UIWidgets.material {
                 alignment: t < 0.5 ? a.alignment : b.alignment,
                 mainAxisSize: t < 0.5 ? a.mainAxisSize : b.mainAxisSize,
                 buttonTextTheme: t < 0.5 ? a.buttonTextTheme : b.buttonTextTheme,
-                buttonMinWidth: Mathf.Lerp(a?.buttonMinWidth ?? 0, b?.buttonMinWidth ?? 0, t),
-                buttonHeight: Mathf.Lerp(a?.buttonHeight ?? 0, b?.buttonHeight ?? 0, t),
+                buttonMinWidth: MathUtils.lerpNullableFloat(a?.buttonMinWidth, b?.buttonMinWidth, t),
+                buttonHeight: MathUtils.lerpNullableFloat(a?.buttonHeight, b?.buttonHeight, t),
                 buttonPadding: EdgeInsetsGeometry.lerp(a?.buttonPadding, b?.buttonPadding, t),
                 buttonAlignedDropdown: t < 0.5 ? a.buttonAlignedDropdown : b.buttonAlignedDropdown,
                 layoutBehavior: t < 0.5 ? a.layoutBehavior : b.layoutBehavior,
@@ -124,15 +123,15 @@ namespace Unity.UIWidgets.material {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (int) alignment;
-                hashCode = (hashCode * 397) ^ (int) mainAxisSize;
-                hashCode = (hashCode * 397) ^ (int) buttonTextTheme;
-                hashCode = (hashCode * 397) ^ buttonMinWidth.GetHashCode();
-                hashCode = (hashCode * 397) ^ buttonHeight.GetHashCode();
+                var hashCode = (int) (alignment ?? 0);
+                hashCode = (hashCode * 397) ^ (int) (mainAxisSize ?? 0);
+                hashCode = (hashCode * 397) ^ (int) (buttonTextTheme ?? 0);
+                hashCode = (hashCode * 397) ^ (buttonMinWidth?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (buttonHeight?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ (buttonPadding != null ? buttonPadding.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ buttonAlignedDropdown.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int) layoutBehavior;
-                hashCode = (hashCode * 397) ^ (int) overflowDirection;
+                hashCode = (hashCode * 397) ^ (buttonAlignedDropdown?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (int) (layoutBehavior ?? 0);
+                hashCode = (hashCode * 397) ^ (int) (overflowDirection ?? 0);
                 return hashCode;
             }
         }

@@ -1670,9 +1670,9 @@ namespace Unity.UIWidgets.rendering {
 
             if (_resetFloatingCursorAnimationValue != null) {
                 sizeAdjustmentX =
-                    Mathf.Lerp(sizeAdjustmentX, 0f, _resetFloatingCursorAnimationValue.Value);
+                    MathUtils.lerpNullableFloat(sizeAdjustmentX, 0f, _resetFloatingCursorAnimationValue.Value);
                 sizeAdjustmentY =
-                    Mathf.Lerp(sizeAdjustmentY, 0f, _resetFloatingCursorAnimationValue.Value);
+                    MathUtils.lerpNullableFloat(sizeAdjustmentY, 0f, _resetFloatingCursorAnimationValue.Value);
             }
 
             Rect floatingCaretPrototype = Rect.fromLTRB(

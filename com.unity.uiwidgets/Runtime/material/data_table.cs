@@ -303,7 +303,7 @@ namespace Unity.UIWidgets.material {
             // TODO(dkwingsmt): Only wrap Inkwell if onSort != null. Blocked by
             // https://github.com/flutter/flutter/issues/51152
             label = new InkWell(
-                onTap: () => onSort(),
+                onTap: () => onSort?.Invoke(),
                 child: label
             );
             return label;
@@ -384,28 +384,17 @@ namespace Unity.UIWidgets.material {
                               !rows.Any((DataRow row) => row.onSelectChanged != null && !row.selected);
 
             List<TableColumnWidth> tableColumns =
-                new List<TableColumnWidth>(columns.Count + (displayCheckboxColumn ? 1 : 0));
-            List<TableRow> tableRows = Enumerable.Range(1, 10).Select((index) => {
+                new List<TableColumnWidth>(new TableColumnWidth[columns.Count + (displayCheckboxColumn ? 1 : 0)]);
+            
+            List<TableRow> tableRows = Enumerable.Range(0, rows.Count + 1).Select((index) => {
                 return new TableRow(
                     key: index == 0 ? _headingRowKey : rows[index - 1].key,
                     decoration: index > 0 && rows[index - 1].selected
                         ? _kSelectedDecoration
                         : _kUnselectedDecoration,
-                    children: new List<Widget>(tableColumns.Count)
+                    children: new List<Widget>(new Widget[tableColumns.Count])
                 );
             }).ToList();
-            // List<TableRow> tableRows = List<TableRow>.gegenerate(
-            //     rows.length + 1, // the +1 is for the header row
-            //     (int index) {
-            //     return TableRow(
-            //         key: index == 0 ? _headingRowKey : rows[index - 1].key,
-            //         decoration: index > 0 && rows[index - 1].selected
-            //             ? _kSelectedDecoration
-            //             : _kUnselectedDecoration,
-            //         children: List<Widget>(tableColumns.length),
-            //     );
-            // },
-            // );
 
             int rowIndex;
 
@@ -468,6 +457,7 @@ namespace Unity.UIWidgets.material {
                     tableColumns[displayColumnIndex] = new IntrinsicColumnWidth();
                 }
 
+                var currentColumnIndex = dataColumnIndex;
                 tableRows[0].children[displayColumnIndex] = _buildHeadingCell(
                     context: context,
                     padding: padding,
@@ -475,7 +465,7 @@ namespace Unity.UIWidgets.material {
                     tooltip: column.tooltip,
                     numeric: column.numeric,
                     onSort: column.onSort != null
-                        ? () => column.onSort(dataColumnIndex, sortColumnIndex != dataColumnIndex || !sortAscending)
+                        ? () => column.onSort(currentColumnIndex, sortColumnIndex != currentColumnIndex || !sortAscending)
                         : (VoidCallback) null,
                     sorted: dataColumnIndex == sortColumnIndex,
                     ascending: sortAscending
@@ -483,6 +473,7 @@ namespace Unity.UIWidgets.material {
                 rowIndex = 1;
                 foreach (DataRow row in rows) {
                     DataCell cell = row.cells[dataColumnIndex];
+                    var curRow = row;
                     tableRows[rowIndex].children[displayColumnIndex] = _buildDataCell(
                         context: context,
                         padding: padding,
@@ -492,8 +483,8 @@ namespace Unity.UIWidgets.material {
                         showEditIcon: cell.showEditIcon,
                         onTap: cell.onTap,
                         onSelectChanged: () => {
-                            if (row.onSelectChanged != null) {
-                                row.onSelectChanged(!row.selected);
+                            if (curRow.onSelectChanged != null) {
+                                curRow.onSelectChanged(!curRow.selected);
                             }
                         });
                     rowIndex += 1;

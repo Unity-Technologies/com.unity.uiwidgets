@@ -38,79 +38,79 @@ namespace UIWidgetsGallery.demo.material
                 title: "Accessories",
                 assets: new List<string>
                 {
-                    "StreamingAssets/gallery/products/belt.png",
-                    "StreamingAssets/gallery/products/earrings.png",
-                    "StreamingAssets/gallery/products/backpack.png",
-                    "StreamingAssets/gallery/products/hat.png",
-                    "StreamingAssets/gallery/products/scarf.png",
-                    "StreamingAssets/gallery/products/sunnies.png"
+                    "gallery/products/belt.png",
+                    "gallery/products/earrings.png",
+                    "gallery/products/backpack.png",
+                    "gallery/products/hat.png",
+                    "gallery/products/scarf.png",
+                    "gallery/products/sunnies.png"
                 }
             ),
             new Category(
                 title: "Blue",
                 assets: new List<string>
                 {
-                    "StreamingAssets/gallery/products/backpack.png",
-                    "StreamingAssets/gallery/products/cup.png",
-                    "StreamingAssets/gallery/products/napkins.png",
-                    "StreamingAssets/gallery/products/top.png"
+                    "gallery/products/backpack.png",
+                    "gallery/products/cup.png",
+                    "gallery/products/napkins.png",
+                    "gallery/products/top.png"
                 }
             ),
             new Category(
                 title: "Cold Weather",
                 assets: new List<string>
                 {
-                    "StreamingAssets/gallery/products/jacket.png",
-                    "StreamingAssets/gallery/products/jumper.png",
-                    "StreamingAssets/gallery/products/scarf.png",
-                    "StreamingAssets/gallery/products/sweater.png",
-                    "StreamingAssets/gallery/products/sweats.png"
+                    "gallery/products/jacket.png",
+                    "gallery/products/jumper.png",
+                    "gallery/products/scarf.png",
+                    "gallery/products/sweater.png",
+                    "gallery/products/sweats.png"
                 }
             ),
             new Category(
                 title: "Home",
                 assets: new List<string>
                 {
-                    "StreamingAssets/gallery/products/cup.png",
-                    "StreamingAssets/gallery/products/napkins.png",
-                    "StreamingAssets/gallery/products/planters.png",
-                    "StreamingAssets/gallery/products/table.png",
-                    "StreamingAssets/gallery/products/teaset.png"
+                    "gallery/products/cup.png",
+                    "gallery/products/napkins.png",
+                    "gallery/products/planters.png",
+                    "gallery/products/table.png",
+                    "gallery/products/teaset.png"
                 }
             ),
             new Category(
                 title: "Tops",
                 assets: new List<string>
                 {
-                    "StreamingAssets/gallery/products/jumper.png",
-                    "StreamingAssets/gallery/products/shirt.png",
-                    "StreamingAssets/gallery/products/sweater.png",
-                    "StreamingAssets/gallery/products/top.png"
+                    "gallery/products/jumper.png",
+                    "gallery/products/shirt.png",
+                    "gallery/products/sweater.png",
+                    "gallery/products/top.png"
                 }
             ),
             new Category(
                 title: "Everything",
                 assets: new List<string>
                 {
-                    "StreamingAssets/gallery/products/backpack.png",
-                    "StreamingAssets/gallery/products/belt.png",
-                    "StreamingAssets/gallery/products/cup.png",
-                    "StreamingAssets/gallery/products/dress.png",
-                    "StreamingAssets/gallery/products/earrings.png",
-                    "StreamingAssets/gallery/products/flatwear.png",
-                    "StreamingAssets/gallery/products/hat.png",
-                    "StreamingAssets/gallery/products/jacket.png",
-                    "StreamingAssets/gallery/products/jumper.png",
-                    "StreamingAssets/gallery/products/napkins.png",
-                    "StreamingAssets/gallery/products/planters.png",
-                    "StreamingAssets/gallery/products/scarf.png",
-                    "StreamingAssets/gallery/products/shirt.png",
-                    "StreamingAssets/gallery/products/sunnies.png",
-                    "StreamingAssets/gallery/products/sweater.png",
-                    "StreamingAssets/gallery/products/sweats.png",
-                    "StreamingAssets/gallery/products/table.png",
-                    "StreamingAssets/gallery/products/teaset.png",
-                    "StreamingAssets/gallery/products/top.png"
+                    "gallery/products/backpack.png",
+                    "gallery/products/belt.png",
+                    "gallery/products/cup.png",
+                    "gallery/products/dress.png",
+                    "gallery/products/earrings.png",
+                    "gallery/products/flatwear.png",
+                    "gallery/products/hat.png",
+                    "gallery/products/jacket.png",
+                    "gallery/products/jumper.png",
+                    "gallery/products/napkins.png",
+                    "gallery/products/planters.png",
+                    "gallery/products/scarf.png",
+                    "gallery/products/shirt.png",
+                    "gallery/products/sunnies.png",
+                    "gallery/products/sweater.png",
+                    "gallery/products/sweats.png",
+                    "gallery/products/table.png",
+                    "gallery/products/teaset.png",
+                    "gallery/products/top.png"
                 }
             )
         };

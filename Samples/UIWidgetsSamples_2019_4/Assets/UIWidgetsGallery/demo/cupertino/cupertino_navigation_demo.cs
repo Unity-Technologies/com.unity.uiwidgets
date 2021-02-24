@@ -608,7 +608,7 @@ namespace UIWidgetsGallery.gallery {
                                                             decoration: new BoxDecoration(
                                                                 image: new DecorationImage(
                                                                     image: new FileImage(
-                                                                        file: "people/square/trevor.png"
+                                                                        file: "gallery/people/square/trevor.png"
                                                                     )
                                                                 ),
                                                                 shape: BoxShape.circle
@@ -621,7 +621,7 @@ namespace UIWidgetsGallery.gallery {
                                                             decoration: new BoxDecoration(
                                                                 image: new DecorationImage(
                                                                     image: new FileImage(
-                                                                        "people/square/sandra.png"
+                                                                        "gallery/people/square/sandra.png"
                                                                     )
                                                                 ),
                                                                 shape: BoxShape.circle

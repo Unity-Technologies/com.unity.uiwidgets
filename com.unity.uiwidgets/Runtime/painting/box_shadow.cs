@@ -63,8 +63,8 @@ namespace Unity.UIWidgets.painting {
             return new BoxShadow(
                 color: Color.lerp(a.color, b.color, t),
                 offset: Offset.lerp(a.offset, b.offset, t),
-                blurRadius: Mathf.Lerp(a.blurRadius, b.blurRadius, t),
-                spreadRadius: Mathf.Lerp(a.spreadRadius, b.spreadRadius, t)
+                blurRadius: MathUtils.lerpNullableFloat(a.blurRadius, b.blurRadius, t),
+                spreadRadius: MathUtils.lerpNullableFloat(a.spreadRadius, b.spreadRadius, t)
             );
         }
 

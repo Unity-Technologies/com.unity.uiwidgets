@@ -70,8 +70,8 @@ namespace UIWidgetsGallery.demo.material
   readonly GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>.key();
 
   TimeOfDay _selectedTime;
-  
-  void initState() {
+
+  public override void initState() {
     base.initState();
     DateTime now = DateTime.Now;
     _selectedTime = new TimeOfDay(hour: now.Hour, minute: now.Minute);

@@ -936,15 +936,16 @@ namespace Unity.UIWidgets.material {
                 ? material_._kAlignedMenuMargin
                 : material_._kUnalignedMenuMargin;
 
-            List<_MenuItem<T>> menuItems = new List<_MenuItem<T>>(widget.items.Count);
+            List<_MenuItem<T>> menuItems = new List<_MenuItem<T>>(new _MenuItem<T>[widget.items.Count]);
             for (int index = 0; index < widget.items.Count; index += 1) {
-                menuItems[index] = new _MenuItem<T>(
-                    item: widget.items[index],
+                var pindex = index;
+                menuItems[pindex] = new _MenuItem<T>(
+                    item: widget.items[pindex],
                     onLayout: (Size size) => {
                         if (_dropdownRoute == null)
                             return;
 
-                        _dropdownRoute.itemHeights[index] = size.height;
+                        _dropdownRoute.itemHeights[pindex] = size.height;
                     }
                 );
             }

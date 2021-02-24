@@ -191,12 +191,12 @@ namespace Unity.UIWidgets.painting {
                 return EdgeInsetsDirectional.lerp(a, b, t);
 
             return _MixedEdgeInsets.fromLRSETB(
-                Mathf.Lerp(a._left, b._left, t),
-                Mathf.Lerp(a._right, b._right, t),
-                Mathf.Lerp(a._start, b._start, t),
-                Mathf.Lerp(a._end, b._end, t),
-                Mathf.Lerp(a._top, b._top, t),
-                Mathf.Lerp(a._bottom, b._bottom, t)
+                MathUtils.lerpNullableFloat(a._left, b._left, t),
+                MathUtils.lerpNullableFloat(a._right, b._right, t),
+                MathUtils.lerpNullableFloat(a._start, b._start, t),
+                MathUtils.lerpNullableFloat(a._end, b._end, t),
+                MathUtils.lerpNullableFloat(a._top, b._top, t),
+                MathUtils.lerpNullableFloat(a._bottom, b._bottom, t)
             );
         }
 
@@ -421,10 +421,10 @@ namespace Unity.UIWidgets.painting {
             if (b == null)
                 return a * (1.0f - t);
             return fromSTEB(
-                Mathf.Lerp(a.start, b.start, t),
-                Mathf.Lerp(a.top, b.top, t),
-                Mathf.Lerp(a.end, b.end, t),
-                Mathf.Lerp(a.bottom, b.bottom, t)
+                MathUtils.lerpNullableFloat(a.start, b.start, t),
+                MathUtils.lerpNullableFloat(a.top, b.top, t),
+                MathUtils.lerpNullableFloat(a.end, b.end, t),
+                MathUtils.lerpNullableFloat(a.bottom, b.bottom, t)
             );
         }
 
@@ -775,10 +775,10 @@ namespace Unity.UIWidgets.painting {
             }
 
             return fromLTRB(
-                Mathf.Lerp(a.left, b.left, t),
-                Mathf.Lerp(a.top, b.top, t),
-                Mathf.Lerp(a.right, b.right, t),
-                Mathf.Lerp(a.bottom, b.bottom, t)
+                MathUtils.lerpNullableFloat(a.left, b.left, t),
+                MathUtils.lerpNullableFloat(a.top, b.top, t),
+                MathUtils.lerpNullableFloat(a.right, b.right, t),
+                MathUtils.lerpNullableFloat(a.bottom, b.bottom, t)
             );
         }
 

@@ -7,7 +7,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.material {
-    class GridTileBar : StatelessWidget {
+    public class GridTileBar : StatelessWidget {
         public GridTileBar(
             Key key = null,
             Color backgroundColor = null,

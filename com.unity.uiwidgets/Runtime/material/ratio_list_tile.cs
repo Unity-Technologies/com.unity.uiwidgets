@@ -4,7 +4,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.material {
-    public class RadioListTile<T> : StatelessWidget where T : class {
+    public class RadioListTile<T> : StatelessWidget {
         public RadioListTile(
             Key key = null,
             T value = default,
@@ -100,7 +100,7 @@ namespace Unity.UIWidgets.material {
                     onTap: onChanged != null
                         ? () => {
                             if (toggleable && isChecked) {
-                                onChanged(null);
+                                onChanged(default);
                                 return;
                             }
 

@@ -1,6 +1,7 @@
 using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
@@ -50,10 +51,10 @@ namespace Unity.UIWidgets.material {
         public static DividerThemeData lerp(DividerThemeData a, DividerThemeData b, float t) {
             return new DividerThemeData(
                 color: Color.lerp(a?.color, b?.color, t),
-                space: Mathf.Lerp(a?.space ?? 0, b?.space ?? 0, t),
-                thickness: Mathf.Lerp(a?.thickness ?? 0, b?.thickness ?? 0, t),
-                indent: Mathf.Lerp(a?.indent ?? 0, b?.indent ?? 0, t),
-                endIndent: Mathf.Lerp(a?.endIndent ?? 0, b?.endIndent ?? 0, t)
+                space: MathUtils.lerpNullableFloat(a?.space, b?.space, t),
+                thickness: MathUtils.lerpNullableFloat(a?.thickness, b?.thickness, t),
+                indent: MathUtils.lerpNullableFloat(a?.indent, b?.indent, t),
+                endIndent: MathUtils.lerpNullableFloat(a?.endIndent, b?.endIndent, t)
             );
         }
 
