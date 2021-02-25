@@ -14,8 +14,7 @@ using UnityEngine;
 namespace UIWidgetsGallery.gallery
 {
     public class GalleryApp : StatefulWidget
-    {
-        public GalleryApp(
+    { public GalleryApp(
             Key key = null,
             UpdateUrlFetcher updateUrlFetcher = null,
             bool enablePerformanceOverlay = true,
@@ -172,11 +171,11 @@ namespace UIWidgetsGallery.gallery
                                 // Specifically use a blank Cupertino theme here and do not transfer
                                 // over the Material primary color etc except the brightness to
                                 // showcase standard iOS looks.
-                                new Builder(builder: (BuildContext subsubContext) =>
+                                new Builder(builder: (BuildContext context1) =>
                                 {
                                     return new CupertinoTheme(
                                         data: new CupertinoThemeData(
-                                            brightness: Theme.of(context).brightness
+                                            brightness: Theme.of(context1).brightness
                                         ),
                                         child: child
                                     );

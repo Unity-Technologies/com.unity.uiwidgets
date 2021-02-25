@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Canvas = Unity.UIWidgets.ui.Canvas;
@@ -16,16 +17,16 @@ namespace Unity.UIWidgets.foundation {
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
-            //if (!result()) {
-           //     throw new AssertionError(message != null ? message() : "");
-            //}
+            if (UIWidgetsPanel.ShowDebugLog && !result()) {
+                throw new AssertionError(message != null ? message() : "");
+            }
         }
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
-           // if (!result) {
-           //     throw new AssertionError(message != null ? message() : "");
-           // }
+            if (UIWidgetsPanel.ShowDebugLog && !result) {
+                throw new AssertionError(message != null ? message() : "");
+            }
         }
 
         public static bool debugPrintGestureArenaDiagnostics = false;

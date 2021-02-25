@@ -293,6 +293,18 @@ void UIWidgetsPanel::VSyncCallback(intptr_t baton) {
   vsync_batons_.push_back(baton);
 }
 
+void UIWidgetsPanel::SetEventLocationFromCursorPosition(
+    UIWidgetsPointerEvent* event_data) {
+  POINT point;
+  GetCursorPos(&point);
+
+  // TODO: this is a native method, use unity position instead.
+  // ScreenToClient(GetWindowHandle(), &point);
+
+  event_data->x = point.x;
+  event_data->y = point.y;
+}
+
 void UIWidgetsPanel::SetEventPhaseFromCursorButtonState(
     UIWidgetsPointerEvent* event_data) {
   MouseState state = GetMouseState();
@@ -334,6 +346,22 @@ void UIWidgetsPanel::SendMouseUp(float x, float y) {
 void UIWidgetsPanel::SendMouseLeave() {
   UIWidgetsPointerEvent event = {};
   event.phase = UIWidgetsPointerPhase::kRemove;
+  SendPointerEventWithData(event);
+}
+
+void UIWidgetsPanel::SendScroll(float delta_x, float delta_y, float px, float py) {
+  UIWidgetsPointerEvent event = {};
+ // TODO: this is a native method, use unity position instead.
+  event.x = px;
+  event.y = py;
+  //SetEventLocationFromCursorPosition(&event);
+  SetEventPhaseFromCursorButtonState(&event);
+  event.signal_kind = UIWidgetsPointerSignalKind::kUIWidgetsPointerSignalKindScroll;
+  // TODO: See if this can be queried from the OS; this value is chosen
+  // arbitrarily to get something that feels reasonable.
+  const int kScrollOffsetMultiplier = 20;
+  event.scroll_delta_x = delta_x * kScrollOffsetMultiplier;
+  event.scroll_delta_y = delta_y * kScrollOffsetMultiplier;
   SendPointerEventWithData(event);
 }
 
@@ -399,6 +427,12 @@ void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown) {
 void UIWidgetsPanel::OnMouseMove(float x, float y) {
   if (process_events_) {
     SendMouseMove(x, y);
+  }
+}
+
+void UIWidgetsPanel::OnScroll(float x, float y, float px, float py) {
+  if (process_events_) {
+    SendScroll(x, y, px, py);
   }
 }
 
@@ -527,5 +561,9 @@ UIWidgetsPanel_onEditorUpdate(UIWidgetsPanel* panel) {
 
   //_Wait
   panel->ProcessMessages();
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onScroll(UIWidgetsPanel* panel, float x, float y, float px, float py) {
+  panel->OnScroll(x, y, px, py);
 }
 }  // namespace uiwidgets

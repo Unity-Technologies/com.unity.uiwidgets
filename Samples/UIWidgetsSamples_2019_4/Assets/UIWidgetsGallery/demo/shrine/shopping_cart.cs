@@ -7,6 +7,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
@@ -28,15 +29,16 @@ public class _ShoppingCartPageState : State<ShoppingCartPage> {
   List<Widget> _createShoppingCartRows(AppStateModel model)
   {
     List<Widget> widgets = new List<Widget>();
-    for (int id = 0; id < model.productsInCart.Count; id++)
+    foreach (var product in model.productsInCart.Keys)
     {
-      widgets.Add(new ShoppingCartRow(
-        product: model.getProductById(id),
-        quantity: model.productsInCart[id],
-        onPressed: ()=> {
-          model.removeItemFromCart(id);
-        }
-      ));
+      int id = product;
+        widgets.Add(new ShoppingCartRow(
+          product: model.getProductById(id),
+          quantity: model.productsInCart[id],
+          onPressed: ()=> {
+            model.removeItemFromCart(id);
+          }
+        ));
     }
 
     return widgets;
@@ -197,12 +199,12 @@ public class ShoppingCartSummary : StatelessWidget {
 public class ShoppingCartRow : StatelessWidget {
   public ShoppingCartRow(
     Product product = null,
-    int? quantity = null,
+    int quantity = 1,
     VoidCallback onPressed = null
   )
   {
     this.product = product;
-    this.quantity = quantity?? 0;
+    this.quantity = quantity;
     this.onPressed = onPressed;
   }
 
@@ -236,9 +238,9 @@ public class ShoppingCartRow : StatelessWidget {
                   new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget>{
-                      Image.asset(
+                      Image.file(
                         product.assetName,
-                        package: product.assetPackage,
+                        //package: product.assetPackage,
                         fit: BoxFit.cover,
                         width: 75.0f,
                         height: 75.0f
@@ -253,7 +255,7 @@ public class ShoppingCartRow : StatelessWidget {
                                 new Expanded(
                                   child: new Text($"Quantity: {quantity}")
                                 ),
-                                new Text($"x  $ {product.price : D} ")
+                                new Text($"x  $ {product.price :F} ")
                               }
                             ),
                             new Text(

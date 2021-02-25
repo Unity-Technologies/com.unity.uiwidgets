@@ -130,6 +130,22 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
+        public bool m_ShowDebugLog = false;
+        
+        public static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
+        public static bool ShowDebugLog {
+            get => _ShowDebugLog;
+            set {
+                foreach (var panel in panels) {
+                    panel.m_ShowDebugLog = value;
+                }
+
+                _ShowDebugLog = value;
+            }
+        }
+        
+        static bool _ShowDebugLog = false;
+
         protected void OnEnable() {
             base.OnEnable();
             var settings = new Dictionary<string, object>();
@@ -143,6 +159,9 @@ namespace Unity.UIWidgets.engine2 {
             texture = _wrapper.renderTexture;
 
             Input_OnEnable();
+            
+            panels.Add(this);
+            _ShowDebugLog = m_ShowDebugLog;
         }
 
         public void mainEntry() {
@@ -167,6 +186,8 @@ namespace Unity.UIWidgets.engine2 {
 
             Input_OnDisable();
             base.OnDisable();
+            
+            panels.Remove(this);
         }
 
         protected virtual void Update() {
@@ -215,6 +236,10 @@ namespace Unity.UIWidgets.engine2 {
                     else {
                         _lastMousePosition = Input.mousePosition;
                     }
+
+                    if (Input.mouseScrollDelta.magnitude != 0) {
+                        _onScroll();
+                    }
                 }
             }
         }
@@ -229,6 +254,15 @@ namespace Unity.UIWidgets.engine2 {
         void _onMouseMove() {
             var pos = _getPointerPosition(Input.mousePosition);
             _wrapper.OnMouseMove(pos);
+        }
+
+        void _onScroll() {
+            var pos = _getPointerPosition(Input.mousePosition);
+            if (pos == null) {
+                return;
+            }
+            var delta = Input.mouseScrollDelta;
+            UIWidgetsPanel_onScroll(_ptr, delta.x, delta.y, pos.Value.x, pos.Value.y);
         }
 
         public void OnPointerDown(PointerEventData eventData) {
