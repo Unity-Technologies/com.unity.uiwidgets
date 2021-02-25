@@ -56,9 +56,13 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void VSyncCallback(intptr_t baton);
 
+  void SetEventLocationFromCursorPosition(UIWidgetsPointerEvent* event_data);
+
   void OnKeyDown(int keyCode, bool isKeyDown);
 
   void OnMouseMove(float x, float y);
+
+  void OnScroll(float x, float y, float px, float py);
 
   void OnMouseDown(float x, float y, int button);
 
@@ -94,6 +98,8 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
   void SendMouseUp(float x, float y);
 
   void SendMouseLeave();
+
+  void SendScroll(float delta_x, float delta_y, float px, float py);
 
   void SetEventPhaseFromCursorButtonState(UIWidgetsPointerEvent* event_data);
 
