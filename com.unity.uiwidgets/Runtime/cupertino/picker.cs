@@ -24,6 +24,7 @@ namespace Unity.UIWidgets.cupertino {
     public class CupertinoPicker : StatefulWidget {
         public CupertinoPicker(
             List<Widget> children,
+            float itemExtent,
             Key key = null,
             float? diameterRatio = null,
             Color backgroundColor = null,
@@ -32,7 +33,6 @@ namespace Unity.UIWidgets.cupertino {
             float magnification = 1.0f,
             FixedExtentScrollController scrollController = null,
             float? squeeze = null,
-            float? itemExtent = null,
             ValueChanged<int> onSelectedItemChanged = null,
             bool looping = false
         ) : base(key: key) {
@@ -41,7 +41,6 @@ namespace Unity.UIWidgets.cupertino {
            // D.assert(children != null);
             D.assert(diameterRatio > 0.0f, ()=>RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(magnification > 0);
-            D.assert(itemExtent != null);
             D.assert(itemExtent > 0);
             D.assert(squeeze > 0);
             this.diameterRatio = diameterRatio;
@@ -59,6 +58,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public CupertinoPicker(
+            float itemExtent,
             Key key = null,
             float? diameterRatio = null,
             Color backgroundColor = null,
@@ -67,7 +67,7 @@ namespace Unity.UIWidgets.cupertino {
             float magnification = 1.0f,
             FixedExtentScrollController scrollController = null,
             float? squeeze = null,
-            float? itemExtent = null,
+            
             ValueChanged<int> onSelectedItemChanged = null,
             IndexedWidgetBuilder itemBuilder = null,
             int? childCount = null
@@ -77,7 +77,6 @@ namespace Unity.UIWidgets.cupertino {
             D.assert(itemBuilder != null);
             D.assert(diameterRatio > 0.0f,()=> RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(magnification > 0);
-            D.assert(itemExtent != null);
             D.assert(itemExtent > 0);
             D.assert(squeeze > 0);
             this.diameterRatio = diameterRatio;
@@ -99,7 +98,7 @@ namespace Unity.UIWidgets.cupertino {
         public readonly bool useMagnifier;
         public readonly float magnification;
         public readonly FixedExtentScrollController scrollController;
-        public readonly float? itemExtent;
+        public readonly float itemExtent;
         public readonly ValueChanged<int> onSelectedItemChanged;
         public ListWheelChildDelegate childDelegate;
         public readonly float? squeeze;
@@ -120,6 +119,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
+            oldWidget = (CupertinoPicker) oldWidget;
             if (widget.scrollController != null && ((CupertinoPicker) oldWidget).scrollController == null) {
                 _controller = null;
             }
@@ -192,13 +192,13 @@ namespace Unity.UIWidgets.cupertino {
                         child: new ListWheelScrollView(
                             controller: widget.scrollController ?? _controller,
                             physics: new FixedExtentScrollPhysics(), 
-                            diameterRatio: widget.diameterRatio ?? CupertinoPickerUtils._kDefaultDiameterRatio,
+                            diameterRatio: widget.diameterRatio ?? RenderListWheelViewport.defaultDiameterRatio ,
                             perspective: CupertinoPickerUtils._kDefaultPerspective,
                             offAxisFraction: widget.offAxisFraction,
                             useMagnifier: widget.useMagnifier,
                             magnification: widget.magnification,
                             overAndUnderCenterOpacity: CupertinoPickerUtils._kOverAndUnderCenterOpacity,
-                            itemExtent: widget.itemExtent ?? 1f,
+                            itemExtent: widget.itemExtent ,
                             squeeze: widget.squeeze ?? CupertinoPickerUtils._kSqueeze,
                             onSelectedItemChanged: _handleSelectedItemChanged,
                             childDelegate: widget.childDelegate

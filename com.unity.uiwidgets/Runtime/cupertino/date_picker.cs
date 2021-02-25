@@ -482,13 +482,12 @@ namespace Unity.UIWidgets.cupertino {
                     _onSelectedItemChange(index); 
                 },
                 itemBuilder: (BuildContext context, int index) => {
-                    
                     var rangeStart = new DateTime(
                         year:initialDateTime.Year, 
                         month:initialDateTime.Month, 
                         day:initialDateTime.Day
                     );
-                    rangeStart.AddDays(index);
+                    rangeStart = rangeStart.AddDays(index);
                     
                     var rangeEnd  = rangeStart.AddDays(1);
                     
@@ -496,7 +495,7 @@ namespace Unity.UIWidgets.cupertino {
                     
                     if (widget.minimumDate?.CompareTo(rangeEnd) > 0 ) 
                         return null; 
-                    if (widget.maximumDate?.CompareTo(rangeStart) > 0) 
+                    if (widget.maximumDate?.CompareTo(rangeStart) < 0) 
                         return null;
                     
                     string dateText = rangeStart == new DateTime(now.Year, now.Month, now.Day)
@@ -888,8 +887,8 @@ namespace Unity.UIWidgets.cupertino {
         DateTime _lastDayInMonth(int year, int month) {
             //new DateTime(year, month + 1, 0);
             var date = new DateTime(year,month,1);
-            date.AddMonths(1);
-            date.Subtract(new TimeSpan(1, 0, 0, 0));
+            date = date.AddMonths(1);
+            date = date.Subtract(new TimeSpan(1, 0, 0, 0));
             return date;
         }
 

@@ -262,7 +262,7 @@ namespace Unity.UIWidgets.painting {
             return (e > f) ? e : f;
         }
 
-        static Matrix4 createCylindricalProjectionTransform(
+        public static Matrix4 createCylindricalProjectionTransform(
             float radius,
             float angle,
             float perspective = 0.001f,
