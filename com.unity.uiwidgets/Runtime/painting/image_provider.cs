@@ -784,7 +784,7 @@ namespace Unity.UIWidgets.painting {
         public readonly float scale;
 
         public override Future<FileImage> obtainKey(ImageConfiguration configuration) {
-            return Future.value(FutureOr.value(this)).to<FileImage>();
+            return new SynchronousFuture<FileImage>(this);
         }
 
         public override ImageStreamCompleter load(FileImage key, DecoderCallback decode) {

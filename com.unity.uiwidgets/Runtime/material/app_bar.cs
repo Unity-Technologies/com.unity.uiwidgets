@@ -306,7 +306,7 @@ namespace Unity.UIWidgets.material {
                                 child: appBar
                             )
                         ),
-                        widget.bottomOpacity == 1.0f
+                        foundation_.FloatEqual(widget.bottomOpacity, 1.0f)
                             ? (Widget) widget.bottom
                             : new Opacity(
                                 opacity: new Interval(0.25f, 1.0f, curve: Curves.fastOutSlowIn).transform(widget
