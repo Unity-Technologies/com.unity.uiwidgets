@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using uiwidgets;
+using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -9,26 +10,13 @@ using UnityEditor;
 using UnityEngine;
 using Rect = UnityEngine.Rect;
 
-namespace Unity.UIWidgets.editor2 {
-#if UNITY_EDITOR
-    
-    class MyApp : StatelessWidget
-    {
-        public override Widget build(BuildContext context)
-        {
-            return new WidgetsApp(
-                home: new Container(color: Colors.blue),
-                pageRouteBuilder: (settings, builder) =>
-                    new PageRouteBuilder(
-                        settings: settings,
-                        pageBuilder: (Buildcontext, animation, secondaryAnimation) => builder(context)
-                    )
-            );
-        }
-    }
-
+namespace Unity.UIWidgets.Editor {
     public class UIWidgetsEditorPanel : EditorWindow, IUIWidgetsWindow {
         UIWidgetsPanelWrapper _wrapper;
+        
+        public UIWidgetsWindowType getWindowType() {
+            return UIWidgetsWindowType.EditorWindowPanel;
+        }
         
         public bool isActive() {
             return true;
@@ -64,8 +52,6 @@ namespace Unity.UIWidgets.editor2 {
             _wrapper = null;
 
             Input_OnDisable();
-            
-            Debug.Log("destroy");
         }
 
         void OnEnable() {
@@ -74,8 +60,10 @@ namespace Unity.UIWidgets.editor2 {
             _wrapper.Initiate(this, _currentWidth, _currentHeight, _currentDevicePixelRatio, new Dictionary<string, object>());
             
             Input_OnEnable();
-            
-            Debug.Log("enabled");
+        }
+
+        void Update() {
+            _wrapper.onEditorUpdate();
         }
 
         void OnGUI()
@@ -88,13 +76,11 @@ namespace Unity.UIWidgets.editor2 {
                 GUI.DrawTexture(new Rect(0.0f, 0.0f, position.width, position.height), _wrapper.renderTexture);
 
                 Input_OnGUIEvent(Event.current);
-                
-                Repaint();
             }
         }
 
         Vector2? _getPointerPosition(Vector2 position) {
-            return new Vector2(position.x * _currentDevicePixelRatio, position.y * _currentDevicePixelRatio);
+            return new Vector2(position.x, position.y);
         }
 
         int _buttonToPointerId(int buttonId) {
@@ -128,7 +114,7 @@ namespace Unity.UIWidgets.editor2 {
             
         }
         
-        public void mainEntry() {
+        public void mainEntry() { 
             main();
         }
 
@@ -143,6 +129,4 @@ namespace Unity.UIWidgets.editor2 {
             
         }
     }
-#endif
-
 }

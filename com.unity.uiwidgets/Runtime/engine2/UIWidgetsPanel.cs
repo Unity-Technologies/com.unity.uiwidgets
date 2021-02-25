@@ -9,6 +9,13 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Unity.UIWidgets.engine2 {
+
+    public enum UIWidgetsWindowType {
+        InvalidPanel = 0,
+        GameObjectPanel = 1,
+        EditorWindowPanel = 2
+    }
+    
     public interface IUIWidgetsWindow {
         Offset windowPosToScreenPos(Offset offset);
 
@@ -19,6 +26,8 @@ namespace Unity.UIWidgets.engine2 {
         void mainEntry();
 
         void onNewFrameScheduled();
+
+        UIWidgetsWindowType getWindowType();
     }
 
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
@@ -28,6 +37,10 @@ namespace Unity.UIWidgets.engine2 {
 
         public bool hardwareAntiAliasing;
 
+        public UIWidgetsWindowType getWindowType() {
+            return UIWidgetsWindowType.GameObjectPanel;
+        }
+        
         public bool isActive() {
             return IsActive();
         }

@@ -1,16 +1,14 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.cupertino;
-using Unity.UIWidgets.editor2;
-using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.Editor;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEditor;
-using UnityEngine.UI;
 using Text = Unity.UIWidgets.widgets.Text;
 using ui_ = Unity.UIWidgets.widgets.ui_;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace UIWidgetsSample
+namespace UIWidgetsEditorWindowSample
 {
     public class EditorWindowCountDemo : UIWidgetsEditorPanel
     {
@@ -44,7 +42,7 @@ namespace UIWidgetsSample
         }
     }
 
-    internal class EditorWindowCounterState : State<CounterApp>
+    internal class EditorWindowCounterState : State<EditorWindowCounterApp>
     {
         private int count = 0;
 

@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System;
 using System.Reflection;
 
-namespace Unity.UIWidgets.editor2 {
-    public class EditorCoroutines
+namespace marijnz.EditorCoroutines
+{
+	public class EditorCoroutines
 	{
 		public class EditorCoroutine
 		{
@@ -403,37 +404,4 @@ namespace Unity.UIWidgets.editor2 {
 			return field.GetValue(instance);
 		}
 	}
-
-    public static class EditorCoroutineExtensions
-{
-    public static EditorCoroutines.EditorCoroutine StartCoroutine(this EditorWindow thisRef, IEnumerator coroutine)
-    {
-        return EditorCoroutines.StartCoroutine(coroutine, thisRef);
-    }
-
-    public static EditorCoroutines.EditorCoroutine StartCoroutine(this EditorWindow thisRef, string methodName)
-    {
-        return EditorCoroutines.StartCoroutine(methodName, thisRef);
-    }
-
-    public static EditorCoroutines.EditorCoroutine StartCoroutine(this EditorWindow thisRef, string methodName, object value)
-    {
-        return EditorCoroutines.StartCoroutine(methodName, value, thisRef);
-    }
-
-    public static void StopCoroutine(this EditorWindow thisRef, IEnumerator coroutine)
-    {
-        EditorCoroutines.StopCoroutine(coroutine, thisRef);
-    }
-
-    public static void StopCoroutine(this EditorWindow thisRef, string methodName)
-    {
-        EditorCoroutines.StopCoroutine(methodName, thisRef);
-    }
-
-    public static void StopAllCoroutines(this EditorWindow thisRef)
-    {
-        EditorCoroutines.StopAllCoroutines(thisRef);
-    }
-}
 }

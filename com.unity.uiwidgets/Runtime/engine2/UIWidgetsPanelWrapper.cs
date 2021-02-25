@@ -172,7 +172,7 @@ public partial class UIWidgetsPanelWrapper {
         _recreateRenderTexture(width, height, dpr);
 
         _handle = GCHandle.Alloc(this);
-        _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, UIWidgetsPanel_entrypoint);
+        _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, (int) host.getWindowType(), UIWidgetsPanel_entrypoint);
         _host = host;
 
         _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(settings));
@@ -241,6 +241,9 @@ public partial class UIWidgetsPanelWrapper {
         UIWidgetsPanel_markNewFrameAvailable(_ptr, textureId);
     }
 
+    public void onEditorUpdate() {
+        UIWidgetsPanel_onEditorUpdate(_ptr);
+    }
 
     delegate void UIWidgetsPanel_EntrypointCallback(IntPtr handle);
 
@@ -252,7 +255,7 @@ public partial class UIWidgetsPanelWrapper {
     }
 
     [DllImport(NativeBindings.dllName)]
-    static extern IntPtr UIWidgetsPanel_constructor(IntPtr handle,
+    static extern IntPtr UIWidgetsPanel_constructor(IntPtr handle, int windowType,
         UIWidgetsPanel_EntrypointCallback entrypointCallback);
 
     [DllImport(NativeBindings.dllName)]
@@ -269,6 +272,13 @@ public partial class UIWidgetsPanelWrapper {
 
     [DllImport(NativeBindings.dllName)]
     static extern void UIWidgetsPanel_markNewFrameAvailable(IntPtr ptr, int textureId);
+
+#if UNITY_EDITOR
+    [DllImport(NativeBindings.dllName)]
+    static extern void UIWidgetsPanel_onEditorUpdate(IntPtr ptr);
+#else
+    static void UIWidgetsPanel_onEditorUpdate(IntPtr ptr) { throw new NotImplementedException(); }
+#endif
 }
 
 #endregion
