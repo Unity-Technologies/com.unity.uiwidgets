@@ -36,6 +36,9 @@ void UIWidgetsSystem::Wait(std::chrono::nanoseconds max_duration) {
 void UIWidgetsSystem::Update() {
   TimePoint next_event_time = TimePoint::max();
   for (auto* uiwidgets_panel : uiwidgets_panels_) {
+    if (!uiwidgets_panel->NeedUpdateByPlayerLoop()) {
+      continue;
+    }
     std::chrono::nanoseconds wait_duration = uiwidgets_panel->ProcessMessages();
     if (wait_duration != std::chrono::nanoseconds::max()) {
       next_event_time =
@@ -47,6 +50,9 @@ void UIWidgetsSystem::Update() {
 
 void UIWidgetsSystem::VSync() {
   for (auto* uiwidgets_panel : uiwidgets_panels_) {
+    if (!uiwidgets_panel->NeedUpdateByPlayerLoop()) {
+      continue;
+    }
     uiwidgets_panel->ProcessVSync();
   }
 }
