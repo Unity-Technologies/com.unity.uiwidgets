@@ -561,6 +561,7 @@ UIWidgetsPanel_onEditorUpdate(UIWidgetsPanel* panel) {
 
   //_Wait
   panel->ProcessMessages();
+}
 
 UIWIDGETS_API(void)
 UIWidgetsPanel_onScroll(UIWidgetsPanel* panel, float x, float y, float px, float py) {

@@ -297,6 +297,13 @@ public partial class UIWidgetsPanelWrapper {
         UIWidgetsPanel_onMouseMove(_ptr, pos.Value.x, pos.Value.y);
     }
 
+    public void OnMouseScroll(Vector2 delta, Vector2? pos) {
+        if (pos == null) {
+            return;
+        }
+        UIWidgetsPanel_onScroll(_ptr, delta.x, delta.y, pos.Value.x, pos.Value.y);
+    }
+
     public void OnPointerDown(Vector2? pos, int pointerId) {
         if (pos == null) {
             return;
@@ -360,6 +367,9 @@ public partial class UIWidgetsPanelWrapper {
 
     [DllImport(NativeBindings.dllName)]
     static extern void UIWidgetsPanel_onMouseLeave(IntPtr ptr);
+    
+    [DllImport(NativeBindings.dllName)]
+    static extern void UIWidgetsPanel_onScroll(IntPtr ptr, float x, float y, float px, float py);
 }
 
 #endregion

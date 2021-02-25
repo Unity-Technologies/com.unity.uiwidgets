@@ -258,11 +258,7 @@ namespace Unity.UIWidgets.engine2 {
 
         void _onScroll() {
             var pos = _getPointerPosition(Input.mousePosition);
-            if (pos == null) {
-                return;
-            }
-            var delta = Input.mouseScrollDelta;
-            UIWidgetsPanel_onScroll(_ptr, delta.x, delta.y, pos.Value.x, pos.Value.y);
+            _wrapper.OnMouseScroll(Input.mouseScrollDelta, pos);
         }
 
         public void OnPointerDown(PointerEventData eventData) {
