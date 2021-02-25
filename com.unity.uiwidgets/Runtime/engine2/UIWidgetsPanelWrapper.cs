@@ -10,7 +10,8 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.editor2 {
-    #region Platform: Windows Specific Functionalities
+    
+#region Platform: Windows Specific Functionalities
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
     public partial class UIWidgetsPanelWrapper {
@@ -71,6 +72,7 @@ namespace Unity.UIWidgets.editor2 {
 #endif
 
 #endregion
+
 
 #region  Platform: MacOs Specific Functionalities
 
