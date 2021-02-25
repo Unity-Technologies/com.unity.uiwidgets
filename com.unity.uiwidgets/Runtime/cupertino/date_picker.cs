@@ -1034,10 +1034,11 @@ namespace Unity.UIWidgets.cupertino {
             // The current date selection represents a range [minSelectedData, maxSelectDate].
             get {
                 DateTime minSelectedDate = new DateTime(selectedYear, selectedMonth, selectedDay);
-                DateTime maxSelectedDate = new DateTime(selectedYear, selectedMonth, selectedDay + 1);
+                DateTime maxSelectedDate = new DateTime(selectedYear, selectedMonth, selectedDay);
+                maxSelectedDate = maxSelectedDate.AddDays(1);
 
-                bool minCheck = widget.minimumDate?.CompareTo(maxSelectedDate) < 0;
-                bool maxCheck = widget.maximumDate?.CompareTo(minSelectedDate) > 0;
+                bool minCheck = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(maxSelectedDate) < 0;
+                bool maxCheck = widget.maximumDate == null ? false : widget.maximumDate?.CompareTo(minSelectedDate) > 0;
 
                 return minCheck && !maxCheck && minSelectedDate.Day == selectedDay;
             }
@@ -1053,11 +1054,11 @@ namespace Unity.UIWidgets.cupertino {
             DateTime minSelectDate = new DateTime(selectedYear, selectedMonth, selectedDay);
             DateTime maxSelectDate = new DateTime(selectedYear, selectedMonth, selectedDay + 1);
 
-            bool minCheck = widget.minimumDate?.CompareTo(maxSelectDate) < 0;
-            bool maxCheck = widget.maximumDate?.CompareTo(minSelectDate) > 0;
+            bool minCheck = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(maxSelectDate) < 0 ;
+           
+            bool maxCheck =  widget.maximumDate == null ? false :widget.maximumDate?.CompareTo(minSelectDate) > 0;
 
             if (!minCheck || maxCheck) {
-
                 DateTime targetDate = minCheck ? (DateTime) widget.maximumDate : (DateTime) widget.minimumDate;
                 _scrollToDate(targetDate);
                 return;
