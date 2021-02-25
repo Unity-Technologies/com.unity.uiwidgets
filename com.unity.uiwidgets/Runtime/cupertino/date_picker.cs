@@ -1023,7 +1023,7 @@ namespace Unity.UIWidgets.cupertino {
                             context,
                             new Text(
                                 localizations.datePickerYear(year),
-                                style: CupertinoDatePickerUtils._themeTextStyle(context, isValid: isValidYear))
+                                style: CupertinoDatePickerUtils._themeTextStyle(_context, isValid: isValidYear))
                         );
 
                     }
@@ -1131,29 +1131,39 @@ namespace Unity.UIWidgets.cupertino {
 
             List<Widget> pickers = new List<Widget>();
             for (int i = 0; i < columnWidths.Count; i++) {
-                float offAxisFraction = (i - 1) * 0.3f * textDirectionFactor;
+                int index = i;
+                float offAxisFraction = (index - 1) * 0.3f * textDirectionFactor;
                 EdgeInsets padding = EdgeInsets.only(right: CupertinoDatePickerUtils._kDatePickerPadSize);
                 if (textDirectionFactor == -1)
                     padding = EdgeInsets.only(left: CupertinoDatePickerUtils._kDatePickerPadSize);
+
+                Widget transitionBuilder(BuildContext _context, Widget child) {
+                    var columnWidth = columnWidths.Count == 0 ? 0 : columnWidths[index];
+                    var result = new Container(
+                        alignment: index == (columnWidths.Count - 1)
+                            ? alignCenterLeft
+                            : alignCenterRight,
+                        padding: index == 0 ? null : padding,
+                        child: new Container(
+                            alignment: index == 0 ? alignCenterLeft : alignCenterRight,
+                            width: columnWidth + CupertinoDatePickerUtils._kDatePickerPadSize,
+                            child: child
+                        )
+                    );
+                    return result;
+                }
+
+                TransitionBuilder builder = transitionBuilder;
+
+                Widget childWidget =  pickerBuilders[index](
+                    offAxisFraction: offAxisFraction,
+                    itemPositioningBuilder :  builder
+                ); 
                 pickers.Add(new LayoutId(
-                    id: i,
-                    child: pickerBuilders[i](
-                        offAxisFraction,
-                        (BuildContext _context, Widget child) => {
-                            return new Container(
-                                alignment: i == columnWidths.Count - 1
-                                    ? alignCenterLeft
-                                    : alignCenterRight,
-                                padding: i == 0 ? null : padding,
-                                child: new Container(
-                                    alignment: i == 0 ? alignCenterLeft : alignCenterRight,
-                                    width: columnWidths[i] + CupertinoDatePickerUtils._kDatePickerPadSize,
-                                    child: child
-                                )
-                            );
-                        }
+                    id: index,
+                    child: childWidget
                     )
-                ));
+                );
             }
 
             return new MediaQuery(

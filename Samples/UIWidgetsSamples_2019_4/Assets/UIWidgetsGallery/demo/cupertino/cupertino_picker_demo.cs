@@ -123,11 +123,13 @@ namespace UIWidgetsGallery.gallery {
           builder: (BuildContext context1) =>
           {
             return new _BottomPicker(
-              child: new CupertinoDatePicker(
+              child: new  CupertinoDatePicker(
                 backgroundColor: CupertinoColors.systemBackground.resolveFrom(context1),
                 mode: CupertinoDatePickerMode.date,
                 initialDateTime: date,
-                onDateTimeChanged: (newDateTime) => { setState(() => date = newDateTime); }
+                onDateTimeChanged: (DateTime newDateTime) =>{
+                  setState(() => date = newDateTime);
+                }
               )
             );
           }
@@ -201,7 +203,7 @@ namespace UIWidgetsGallery.gallery {
         children:new List<Widget>{
           new Text("Date and Time"),
           new Text(
-            dateTime.ToString("MMMM dd, yyyy h:mm tt"),
+            dateTime.ToString("MMMM dd, yyyy") + " " + dateTime.ToString("HH:mm tt"),
             style: new TextStyle(color: CupertinoDynamicColor.resolve(CupertinoColors.inactiveGray, context))
           ),
         }
@@ -225,10 +227,10 @@ namespace UIWidgetsGallery.gallery {
           children: new List<Widget>{
             new Padding(padding: EdgeInsets.only(top: 32.0f)),
             _buildColorPicker(context),
-            //_buildCountdownTimerPicker(context),
-            //_buildDatePicker(context),
-            //_buildTimePicker(context),
-            //_buildDateAndTimePicker(context),
+            _buildCountdownTimerPicker(context),
+            _buildDatePicker(context),
+            _buildTimePicker(context),
+            _buildDateAndTimePicker(context),
           }
         )
       )
