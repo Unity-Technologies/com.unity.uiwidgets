@@ -99,7 +99,7 @@ namespace UIWidgetsGallery.gallery {
           navigationBar:  new CupertinoNavigationBar(
             middle: new Text("Alerts"),
             previousPageTitle: "Cupertino"
-            //trailing: CupertinoDemoDocumentationButton(CupertinoAlertDemo.routeName)
+            //,trailing: CupertinoDemoDocumentationButton(CupertinoAlertDemo.routeName)
           ),
           child: new DefaultTextStyle(
             style: CupertinoTheme.of(context).textTheme.textStyle,

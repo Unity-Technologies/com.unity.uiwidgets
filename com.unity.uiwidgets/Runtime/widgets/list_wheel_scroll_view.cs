@@ -209,15 +209,6 @@ namespace Unity.UIWidgets.widgets {
     public interface IFixedExtentMetrics {
         int itemIndex { set; get; }
 
-        /*FixedExtentMetrics copyWith(
-            float? minScrollExtent = null,
-            float? maxScrollExtent = null,
-            float? pixels = null,
-            float? viewportDimension = null,
-            AxisDirection? axisDirection = null,
-            int? itemIndex = null
-        );*/
-        
         FixedExtentMetrics copyWith(
             float? minScrollExtent = null,
             float? maxScrollExtent = null,

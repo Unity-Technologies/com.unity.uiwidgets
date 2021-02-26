@@ -318,6 +318,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public readonly WidgetBuilder builder;
         public readonly string title;
+        
         ValueNotifier<string> _previousTitle;
 
         public ValueListenable<string> previousTitle {
@@ -411,8 +412,6 @@ namespace Unity.UIWidgets.cupertino {
 
 
         public override Widget buildPage(BuildContext context, Animation<float> animation, Animation<float> secondaryAnimation) {
-
-
             Widget result = builder(context);
             D.assert(() =>{
                 if (result == null) {
@@ -472,7 +471,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public new string debugLabel {
-            get { return $"{base.debugLabel}(${settings.name})"; }
+            get { return $"{base.debugLabel}({settings.name})"; }
         }
     }
 
