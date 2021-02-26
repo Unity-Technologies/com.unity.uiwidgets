@@ -26,7 +26,6 @@ namespace Unity.UIWidgets.cupertino {
             letterSpacing: -0.83f
         );
         public const float _kTimerPickerHalfColumnPadding = 2f;
- 
         public const float _kTimerPickerLabelPadSize = 4.5f;
         public const float _kTimerPickerLabelFontSize = 17.0f;
         public const float _kTimerPickerColumnIntrinsicWidth = 106f;
@@ -1201,16 +1200,17 @@ namespace Unity.UIWidgets.cupertino {
             Color backgroundColor = null,
             ValueChanged<TimeSpan> onTimerDurationChanged = null
             ):base(key : key) {
+            
             initialTimerDuration = initialTimerDuration ?? TimeSpan.Zero; 
-            alignment = alignment ?? Alignment.center ;
+            alignment = alignment ?? Alignment.center;
+            
             D.assert(onTimerDurationChanged != null);
             D.assert(initialTimerDuration >= TimeSpan.Zero);
             D.assert(initialTimerDuration < new TimeSpan(1,0,0,0));
             D.assert(minuteInterval > 0 && 60 % minuteInterval == 0);
             D.assert(secondInterval > 0 && 60 % secondInterval == 0);
-            //D.assert(((TimeSpan)initialTimerDuration)/TimeSpan. % minuteInterval == 0);
-            //D.assert(((TimeSpan)initialTimerDuration).% secondInterval == 0);
             D.assert(alignment != null);
+
             this.mode = mode;
             this.initialTimerDuration = initialTimerDuration ?? TimeSpan.Zero;
             this.minuteInterval = minuteInterval;
@@ -1218,9 +1218,9 @@ namespace Unity.UIWidgets.cupertino {
             this.alignment = alignment;
             this.backgroundColor = backgroundColor;
             this.onTimerDurationChanged = onTimerDurationChanged;
-            
-           
+
         }
+        
         public readonly CupertinoTimerPickerMode mode;
         public readonly TimeSpan initialTimerDuration;
         public readonly int minuteInterval;
@@ -1347,7 +1347,7 @@ namespace Unity.UIWidgets.cupertino {
 
             return new IgnorePointer(
                 child: new Container(
-                    //alignment: AlignmentDirectional.centerStart.resolve(textDirection),
+                    alignment: AlignmentDirectional.centerStart.resolve(textDirection),
                     padding: padding.resolve(textDirection),
                     child: new SizedBox(
                         height: numberLabelHeight,
@@ -1367,10 +1367,10 @@ namespace Unity.UIWidgets.cupertino {
             return new Container(
                 width: CupertinoDatePickerUtils._kTimerPickerColumnIntrinsicWidth + padding.horizontal,
                 padding: padding.resolve(textDirection),
-                //alignment: AlignmentDirectional.centerStart.resolve(textDirection),
+                alignment: AlignmentDirectional.centerStart.resolve(textDirection),
                 child: new Container(
                     width: numberLabelWidth,
-                   // alignment: AlignmentDirectional.centerEnd.resolve(textDirection),
+                    alignment: AlignmentDirectional.centerEnd.resolve(textDirection),
                     child: new Text(text, softWrap: false, maxLines: 1, overflow: TextOverflow.visible)
                 )
             );
