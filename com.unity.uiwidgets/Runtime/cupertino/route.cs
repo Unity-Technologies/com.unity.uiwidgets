@@ -514,10 +514,8 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public readonly Animation<Offset> _primaryPositionAnimation;
-
         public readonly Animation<Offset> _secondaryPositionAnimation;
         public readonly Animation<Decoration> _primaryShadowAnimation;
-
         public readonly Widget child;
 
         public override Widget build(BuildContext context) {
@@ -643,7 +641,7 @@ namespace Unity.UIWidgets.cupertino {
         void _handleDragEnd(DragEndDetails details) {
             D.assert(mounted);
             D.assert(_backGestureController != null);
-            _backGestureController.dragEnd(_convertToLogical(details.velocity.pixelsPerSecond.dx / context.size.width) ?? 0);
+            _backGestureController.dragEnd(_convertToLogical(details.velocity.pixelsPerSecond.dx / context.size.width) ?? 0.0f);
             _backGestureController = null;
         }
 
@@ -680,8 +678,8 @@ namespace Unity.UIWidgets.cupertino {
                 fit: StackFit.passthrough,
                 children: new List<Widget> {
                     widget.child,
-                    new Positioned(
-                        left: 0.0f,
+                    new PositionedDirectional(
+                        start: 0.0f,
                         width: dragAreaWidth,
                         top: 0.0f,
                         bottom: 0.0f,
@@ -689,7 +687,7 @@ namespace Unity.UIWidgets.cupertino {
                             onPointerDown: _handlePointerDown,
                             behavior: HitTestBehavior.translucent
                         )
-                    )
+                    ),
                 }
             );
         }

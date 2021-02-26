@@ -220,22 +220,6 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class FixedExtentMetrics : FixedScrollMetrics, IFixedExtentMetrics {
-        /*public FixedExtentMetrics(
-            float? minScrollExtent = null,
-            float? maxScrollExtent = null,
-            float? pixels = null,
-            float? viewportDimension = null,
-            AxisDirection axisDirection = AxisDirection.down,
-            int? itemIndex = null
-        ) : base(
-            minScrollExtent: minScrollExtent ?? 0.0f,
-            maxScrollExtent: maxScrollExtent ?? 0.0f,
-            pixels: pixels ?? 0.0f,
-            viewportDimension: viewportDimension ?? 0.0f,
-            axisDirection: axisDirection
-        ) {
-            this.itemIndex = itemIndex ?? 0;
-        }*/
         public FixedExtentMetrics(
             float minScrollExtent ,
             float maxScrollExtent,
