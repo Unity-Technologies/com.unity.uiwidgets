@@ -205,17 +205,6 @@ bool UnitySurfaceManager::Initialize(IUnityInterfaces* unity_interfaces) {
 void UnitySurfaceManager::CleanUp() {
   EGLBoolean result = EGL_FALSE;
 
-  if (egl_display_ != EGL_NO_DISPLAY && egl_context_ != EGL_NO_CONTEXT) {
-    result = eglDestroyContext(egl_display_, egl_context_);
-    egl_context_ = EGL_NO_CONTEXT;
-
-    if (result == EGL_FALSE) {
-      FML_LOG(ERROR) << "EGL: Failed to destroy context";
-    }
-  }
-
-  d3d11_device_ = nullptr;
-
   if (egl_display_ != EGL_NO_DISPLAY &&
       egl_resource_context_ != EGL_NO_CONTEXT) {
     result = eglDestroyContext(egl_display_, egl_resource_context_);
@@ -226,14 +215,22 @@ void UnitySurfaceManager::CleanUp() {
     }
   }
 
-  if (egl_display_ != EGL_NO_DISPLAY) {
-    result = eglTerminate(egl_display_);
-    egl_display_ = EGL_NO_DISPLAY;
+  if (egl_display_ != EGL_NO_DISPLAY && egl_context_ != EGL_NO_CONTEXT) {
+    result = eglDestroyContext(egl_display_, egl_context_);
+    egl_context_ = EGL_NO_CONTEXT;
 
     if (result == EGL_FALSE) {
-      FML_LOG(ERROR) << "EGL : Failed to terminate EGL";
+      FML_LOG(ERROR) << "EGL: Failed to destroy context";
     }
   }
+  
+  //TODO: investigate a bit more on the possible memory leak here since egl_display_ will never be released
+  //refer to the commit log for the details
+  if (egl_display_ != EGL_NO_DISPLAY) {
+    egl_display_ = EGL_NO_DISPLAY;
+  }
+  
+  d3d11_device_ = nullptr;
 }
 
 }  // namespace uiwidgets
