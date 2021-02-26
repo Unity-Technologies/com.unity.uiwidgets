@@ -106,7 +106,7 @@ namespace Unity.UIWidgets.material {
         public bool Equals(AppBarTheme other) {
             return other.brightness == brightness
                    && other.color == color
-                   && other.elevation == elevation
+                   && Equals(other.elevation, elevation)
                    && other.iconTheme == iconTheme
                    && other.actionsIconTheme == actionsIconTheme
                    && other.textTheme == textTheme;

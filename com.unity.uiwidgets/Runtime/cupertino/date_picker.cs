@@ -26,7 +26,6 @@ namespace Unity.UIWidgets.cupertino {
             letterSpacing: -0.83f
         );
         public const float _kTimerPickerHalfColumnPadding = 2f;
- 
         public const float _kTimerPickerLabelPadSize = 4.5f;
         public const float _kTimerPickerLabelFontSize = 17.0f;
         public const float _kTimerPickerColumnIntrinsicWidth = 106f;
@@ -482,13 +481,12 @@ namespace Unity.UIWidgets.cupertino {
                     _onSelectedItemChange(index); 
                 },
                 itemBuilder: (BuildContext context, int index) => {
-                    
                     var rangeStart = new DateTime(
                         year:initialDateTime.Year, 
                         month:initialDateTime.Month, 
                         day:initialDateTime.Day
                     );
-                    rangeStart.AddDays(index);
+                    rangeStart = rangeStart.AddDays(index);
                     
                     var rangeEnd  = rangeStart.AddDays(1);
                     
@@ -496,7 +494,7 @@ namespace Unity.UIWidgets.cupertino {
                     
                     if (widget.minimumDate?.CompareTo(rangeEnd) > 0 ) 
                         return null; 
-                    if (widget.maximumDate?.CompareTo(rangeStart) > 0) 
+                    if (widget.maximumDate?.CompareTo(rangeStart) < 0) 
                         return null;
                     
                     string dateText = rangeStart == new DateTime(now.Year, now.Month, now.Day)
@@ -888,8 +886,8 @@ namespace Unity.UIWidgets.cupertino {
         DateTime _lastDayInMonth(int year, int month) {
             //new DateTime(year, month + 1, 0);
             var date = new DateTime(year,month,1);
-            date.AddMonths(1);
-            date.Subtract(new TimeSpan(1, 0, 0, 0));
+            date = date.AddMonths(1);
+            date = date.Subtract(new TimeSpan(1, 0, 0, 0));
             return date;
         }
 
@@ -1024,7 +1022,7 @@ namespace Unity.UIWidgets.cupertino {
                             context,
                             new Text(
                                 localizations.datePickerYear(year),
-                                style: CupertinoDatePickerUtils._themeTextStyle(context, isValid: isValidYear))
+                                style: CupertinoDatePickerUtils._themeTextStyle(_context, isValid: isValidYear))
                         );
 
                     }
@@ -1035,10 +1033,11 @@ namespace Unity.UIWidgets.cupertino {
             // The current date selection represents a range [minSelectedData, maxSelectDate].
             get {
                 DateTime minSelectedDate = new DateTime(selectedYear, selectedMonth, selectedDay);
-                DateTime maxSelectedDate = new DateTime(selectedYear, selectedMonth, selectedDay + 1);
+                DateTime maxSelectedDate = new DateTime(selectedYear, selectedMonth, selectedDay);
+                maxSelectedDate = maxSelectedDate.AddDays(1);
 
-                bool minCheck = widget.minimumDate?.CompareTo(maxSelectedDate) < 0;
-                bool maxCheck = widget.maximumDate?.CompareTo(minSelectedDate) > 0;
+                bool minCheck = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(maxSelectedDate) < 0;
+                bool maxCheck = widget.maximumDate == null ? false : widget.maximumDate?.CompareTo(minSelectedDate) > 0;
 
                 return minCheck && !maxCheck && minSelectedDate.Day == selectedDay;
             }
@@ -1054,11 +1053,11 @@ namespace Unity.UIWidgets.cupertino {
             DateTime minSelectDate = new DateTime(selectedYear, selectedMonth, selectedDay);
             DateTime maxSelectDate = new DateTime(selectedYear, selectedMonth, selectedDay + 1);
 
-            bool minCheck = widget.minimumDate?.CompareTo(maxSelectDate) < 0;
-            bool maxCheck = widget.maximumDate?.CompareTo(minSelectDate) > 0;
+            bool minCheck = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(maxSelectDate) < 0 ;
+           
+            bool maxCheck =  widget.maximumDate == null ? false :widget.maximumDate?.CompareTo(minSelectDate) > 0;
 
             if (!minCheck || maxCheck) {
-
                 DateTime targetDate = minCheck ? (DateTime) widget.maximumDate : (DateTime) widget.minimumDate;
                 _scrollToDate(targetDate);
                 return;
@@ -1132,29 +1131,39 @@ namespace Unity.UIWidgets.cupertino {
 
             List<Widget> pickers = new List<Widget>();
             for (int i = 0; i < columnWidths.Count; i++) {
-                float offAxisFraction = (i - 1) * 0.3f * textDirectionFactor;
+                int index = i;
+                float offAxisFraction = (index - 1) * 0.3f * textDirectionFactor;
                 EdgeInsets padding = EdgeInsets.only(right: CupertinoDatePickerUtils._kDatePickerPadSize);
                 if (textDirectionFactor == -1)
                     padding = EdgeInsets.only(left: CupertinoDatePickerUtils._kDatePickerPadSize);
+
+                Widget transitionBuilder(BuildContext _context, Widget child) {
+                    var columnWidth = columnWidths.Count == 0 ? 0 : columnWidths[index];
+                    var result = new Container(
+                        alignment: index == (columnWidths.Count - 1)
+                            ? alignCenterLeft
+                            : alignCenterRight,
+                        padding: index == 0 ? null : padding,
+                        child: new Container(
+                            alignment: index == 0 ? alignCenterLeft : alignCenterRight,
+                            width: columnWidth + CupertinoDatePickerUtils._kDatePickerPadSize,
+                            child: child
+                        )
+                    );
+                    return result;
+                }
+
+                TransitionBuilder builder = transitionBuilder;
+
+                Widget childWidget =  pickerBuilders[index](
+                    offAxisFraction: offAxisFraction,
+                    itemPositioningBuilder :  builder
+                ); 
                 pickers.Add(new LayoutId(
-                    id: i,
-                    child: pickerBuilders[i](
-                        offAxisFraction,
-                        (BuildContext _context, Widget child) => {
-                            return new Container(
-                                alignment: i == columnWidths.Count - 1
-                                    ? alignCenterLeft
-                                    : alignCenterRight,
-                                padding: i == 0 ? null : padding,
-                                child: new Container(
-                                    alignment: i == 0 ? alignCenterLeft : alignCenterRight,
-                                    width: columnWidths[i] + CupertinoDatePickerUtils._kDatePickerPadSize,
-                                    child: child
-                                )
-                            );
-                        }
+                    id: index,
+                    child: childWidget
                     )
-                ));
+                );
             }
 
             return new MediaQuery(
@@ -1191,16 +1200,17 @@ namespace Unity.UIWidgets.cupertino {
             Color backgroundColor = null,
             ValueChanged<TimeSpan> onTimerDurationChanged = null
             ):base(key : key) {
+            
             initialTimerDuration = initialTimerDuration ?? TimeSpan.Zero; 
-            alignment = alignment ?? Alignment.center ;
+            alignment = alignment ?? Alignment.center;
+            
             D.assert(onTimerDurationChanged != null);
             D.assert(initialTimerDuration >= TimeSpan.Zero);
             D.assert(initialTimerDuration < new TimeSpan(1,0,0,0));
             D.assert(minuteInterval > 0 && 60 % minuteInterval == 0);
             D.assert(secondInterval > 0 && 60 % secondInterval == 0);
-            //D.assert(((TimeSpan)initialTimerDuration)/TimeSpan. % minuteInterval == 0);
-            //D.assert(((TimeSpan)initialTimerDuration).% secondInterval == 0);
             D.assert(alignment != null);
+
             this.mode = mode;
             this.initialTimerDuration = initialTimerDuration ?? TimeSpan.Zero;
             this.minuteInterval = minuteInterval;
@@ -1208,9 +1218,9 @@ namespace Unity.UIWidgets.cupertino {
             this.alignment = alignment;
             this.backgroundColor = backgroundColor;
             this.onTimerDurationChanged = onTimerDurationChanged;
-            
-           
+
         }
+        
         public readonly CupertinoTimerPickerMode mode;
         public readonly TimeSpan initialTimerDuration;
         public readonly int minuteInterval;
@@ -1337,7 +1347,7 @@ namespace Unity.UIWidgets.cupertino {
 
             return new IgnorePointer(
                 child: new Container(
-                    //alignment: AlignmentDirectional.centerStart.resolve(textDirection),
+                    alignment: AlignmentDirectional.centerStart.resolve(textDirection),
                     padding: padding.resolve(textDirection),
                     child: new SizedBox(
                         height: numberLabelHeight,
@@ -1357,10 +1367,10 @@ namespace Unity.UIWidgets.cupertino {
             return new Container(
                 width: CupertinoDatePickerUtils._kTimerPickerColumnIntrinsicWidth + padding.horizontal,
                 padding: padding.resolve(textDirection),
-                //alignment: AlignmentDirectional.centerStart.resolve(textDirection),
+                alignment: AlignmentDirectional.centerStart.resolve(textDirection),
                 child: new Container(
                     width: numberLabelWidth,
-                   // alignment: AlignmentDirectional.centerEnd.resolve(textDirection),
+                    alignment: AlignmentDirectional.centerEnd.resolve(textDirection),
                     child: new Text(text, softWrap: false, maxLines: 1, overflow: TextOverflow.visible)
                 )
             );

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -317,6 +318,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public readonly WidgetBuilder builder;
         public readonly string title;
+        
         ValueNotifier<string> _previousTitle;
 
         public ValueListenable<string> previousTitle {
@@ -410,8 +412,6 @@ namespace Unity.UIWidgets.cupertino {
 
 
         public override Widget buildPage(BuildContext context, Animation<float> animation, Animation<float> secondaryAnimation) {
-
-
             Widget result = builder(context);
             D.assert(() =>{
                 if (result == null) {
@@ -471,7 +471,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public new string debugLabel {
-            get { return $"{base.debugLabel}(${settings.name})"; }
+            get { return $"{base.debugLabel}({settings.name})"; }
         }
     }
 
@@ -773,14 +773,12 @@ namespace Unity.UIWidgets.cupertino {
             this.barrierColor = barrierColor;
             this.builder = builder;
             this.barrierLabel = barrierLabel;
-            
         }
 
         public readonly WidgetBuilder builder;
 
-        public readonly string barrierLabel;
-
-        public readonly Color barrierColor;
+        public override Color barrierColor { get; }
+        public override string barrierLabel { get; }
 
         public override bool barrierDismissible {
             get { return true; }

@@ -153,7 +153,6 @@ namespace Unity.UIWidgets.widgets {
             if (widget.physics != null) {
                 _physics = widget.physics.applyTo(_physics);
             }
-
             ScrollController controller = widget.controller;
             ScrollPosition oldPosition = position;
             if (oldPosition != null) {
@@ -167,12 +166,15 @@ namespace Unity.UIWidgets.widgets {
                 });
             }
 
-            _position = controller == null
-                ? null
-                : controller.createScrollPosition(_physics, this, oldPosition);
-            _position = _position
-                             ?? new ScrollPositionWithSingleContext(physics: _physics, context: this,
-                                 oldPosition: oldPosition);
+            if (controller == null) {
+                _position = new ScrollPositionWithSingleContext(physics: _physics, context: this, oldPosition: oldPosition);
+                
+            }
+            else {
+                _position = controller?.createScrollPosition(_physics, this, oldPosition)
+                            ?? new ScrollPositionWithSingleContext(physics: _physics, context: this, oldPosition: oldPosition);
+            }
+
             D.assert(position != null);
             if (controller != null) {
                 controller.attach(position);

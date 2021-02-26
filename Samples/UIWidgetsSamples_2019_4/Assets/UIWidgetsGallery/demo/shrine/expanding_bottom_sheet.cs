@@ -322,18 +322,19 @@ public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBott
           new Row(
             children: new List<Widget>
             {
-             /* new AnimatedPadding(
+              new AnimatedPadding(
                 padding: _cartPaddingFor(numProducts),
                 child: new Icon(Icons.shopping_cart),
                 duration: TimeSpan.FromMilliseconds(225)
-              ),*/
+              ),
               new Container(
                 // Accounts for the overflow number
                 width: numProducts > 3 ? _width - 94.0f : _width - 64.0f,
                 height: expanding_buttom_sheetUtils._kCartHeight,
                 padding: EdgeInsets.symmetric(vertical: 8.0f),
                 child: new ProductThumbnailRow()
-              )//, new ExtraProductsNumber(),
+              ), 
+              new ExtraProductsNumber(),
             }
           ),
         }
