@@ -223,9 +223,9 @@ void UnitySurfaceManager::CleanUp() {
       FML_LOG(ERROR) << "EGL: Failed to destroy context";
     }
   }
-  
+
   //TODO: investigate a bit more on the possible memory leak here since egl_display_ will never be released
-  //refer to the commit log for the details
+  //refer to the commit log (9b39afd879d06626f5049cfae2a9cb852044c518) for the details
   if (egl_display_ != EGL_NO_DISPLAY) {
     egl_display_ = EGL_NO_DISPLAY;
   }
