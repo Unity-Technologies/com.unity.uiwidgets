@@ -28,7 +28,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(image, other.image) && scale.Equals(other.scale);
+            return image.Equals(other.image) && scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
