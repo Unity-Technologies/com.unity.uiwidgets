@@ -339,10 +339,10 @@ namespace UIWidgetsGallery.gallery
                             if (this._category != null)
                             {
                                 this.setState(() => this._category = null);
-                                return Future.value(false).to<bool>();
+                                return new SynchronousFuture<bool>(false);
                             }
 
-                            return Future.value(true).to<bool>();
+                            return new SynchronousFuture<bool>(true);
                         },
                         child: new Backdrop(
                             backTitle: new Text("Options"),

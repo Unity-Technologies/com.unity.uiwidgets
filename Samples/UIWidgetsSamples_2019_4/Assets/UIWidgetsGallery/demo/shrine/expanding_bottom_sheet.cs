@@ -405,11 +405,11 @@ public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBott
   Future<bool> _onWillPop()  {
     if (!_isOpen) { 
       //SystemNavigator.pop();
-      return Future.value(true).to<bool>();
+      return new SynchronousFuture<bool>(true);
     }
 
     close();
-    return Future.value(true).to<bool>();
+    return new SynchronousFuture<bool>(true);
   }
 
  

@@ -891,11 +891,11 @@ namespace Unity.UIWidgets.material {
         }
 
         public Future<bool> didPopRoute() {
-            return Future.value(false).to<bool>();
+            return new SynchronousFuture<bool>(false);
         }
 
         public Future<bool> didPushRoute(string route) {
-            return Future.value(false).to<bool>();
+            return new SynchronousFuture<bool>(false);
         }
 
         public void didChangeAccessibilityFeatures() {

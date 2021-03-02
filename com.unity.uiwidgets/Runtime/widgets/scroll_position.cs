@@ -280,13 +280,13 @@ namespace Unity.UIWidgets.widgets {
                     break;
             }
             if (target == pixels) {
-                return Future.value();
+                return new SynchronousFuture(null);
             }
 
             duration = duration ?? TimeSpan.Zero;
             if (duration == TimeSpan.Zero) {
                 jumpTo(target);
-                return Future.value();
+                return new SynchronousFuture(null);
             }
 
             curve = curve ?? Curves.ease;

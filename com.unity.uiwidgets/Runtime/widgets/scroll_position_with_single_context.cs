@@ -146,7 +146,7 @@ namespace Unity.UIWidgets.widgets {
         ) {
             if (PhysicsUtils.nearEqual(to, pixels, physics.tolerance.distance)) {
                 jumpTo(to);
-                return Future.value();
+                return new SynchronousFuture(null);
             }
 
             DrivenScrollActivity activity = new DrivenScrollActivity(

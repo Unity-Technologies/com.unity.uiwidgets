@@ -172,7 +172,7 @@ namespace UIWidgetsGallery.demo.material
         {
             FormState form = _formKey.currentState;
             if (form == null || !_formWasEdited || form.validate())
-                return Future.value(true).to<bool>();
+                return new SynchronousFuture<bool>(true);
 
             return material_.showDialog<bool>(
                 context: context,

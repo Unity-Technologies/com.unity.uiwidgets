@@ -296,7 +296,7 @@ namespace UIWidgetsGallery.demo.material
                         break;
                 }
 
-                return Future.value(false).to<bool>();
+                return new SynchronousFuture<bool>(false);
             }
 
             return new Dismissible(

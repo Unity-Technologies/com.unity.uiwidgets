@@ -498,7 +498,9 @@ namespace Unity.UIWidgets.widgets {
                 name: name,
                 callback: 
                 ((IDictionary<string, string> parameters) => {
-                     var result = Future.value(FutureOr.value(new Dictionary<string, object>(){{"result", callback}})).to<IDictionary<string, object>>();
+                    var result = new SynchronousFuture<IDictionary<string, object>>(new Dictionary<string, object>()
+                        {{"result", callback}}); 
+                         //Future.value(FutureOr.value(new Dictionary<string, object>(){{"result", callback}})).to<IDictionary<string, object>>();
                      return result;
                 })
             );
@@ -510,8 +512,10 @@ namespace Unity.UIWidgets.widgets {
                 ) {
             registerServiceExtension(
               name: name,
-              callback: (IDictionary<string, string> parameters) =>{
-                  var result = Future.value(FutureOr.value((new Dictionary<string, object>{{"result", callback(parameters["objectGroup"])}}))).to<IDictionary<string, object>>();
+              callback: (IDictionary<string, string> parameters) => {
+                  var result = new SynchronousFuture<IDictionary<string, object>>(new Dictionary<string, object>
+                      {{"result", callback(parameters["objectGroup"])}}); 
+                      //Future.value(FutureOr.value((new Dictionary<string, object>{{"result", callback(parameters["objectGroup"])}}))).to<IDictionary<string, object>>();
                   return result;
               }
             );
@@ -593,7 +597,7 @@ namespace Unity.UIWidgets.widgets {
                 binding.buildOwner.reassemble(binding.renderViewElement);
                 return binding.endOfFrame;
             }
-            return Future.value();
+            return new SynchronousFuture(null);
         }*/
 
         static string _consoleObjectGroup = "console-group";
@@ -640,7 +644,7 @@ namespace Unity.UIWidgets.widgets {
                 getter: ()  => FlutterError.onError == structuredExceptionHandler,
                 setter: (bool value)=> {
                     FlutterError.onError = value ? structuredExceptionHandler : defaultExceptionHandler;
-                    return Future.value();
+                    return new SynchronousFuture(null);
                 }
             );
 
@@ -2000,11 +2004,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public Future<bool> didPopRoute() {
-            return Future.value(false).to<bool>();
+            return new SynchronousFuture<bool>(false);
         }
 
         public Future<bool> didPushRoute(string route) {
-            return Future.value(false).to<bool>();
+            return new SynchronousFuture<bool>(false);
         }
 
 

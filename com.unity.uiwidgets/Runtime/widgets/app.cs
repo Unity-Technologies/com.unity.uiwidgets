@@ -417,7 +417,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(mounted);
             var navigator = _navigator?.currentState;
             if (navigator == null) {
-                return Future.value(false).to<bool>();
+                return new SynchronousFuture<bool>(false);
             }
 
             return navigator.maybePop<bool>();
@@ -427,11 +427,11 @@ namespace Unity.UIWidgets.widgets {
             D.assert(mounted);
             var navigator = _navigator?.currentState;
             if (navigator == null) {
-                return Future.value(false).to<bool>();
+                return new SynchronousFuture<bool>(false);
             }
 
             navigator.pushNamed<bool>(route);
-            return Future.value(true).to<bool>();
+            return new SynchronousFuture<bool>(true);
         }
 
         public void didChangeAccessibilityFeatures() {}

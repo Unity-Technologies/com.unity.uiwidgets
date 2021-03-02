@@ -308,7 +308,7 @@ namespace Unity.UIWidgets.material {
             // }
             //TODO: implement
             setState(() => { _loaded = true; });
-            return Future.value();
+            return new SynchronousFuture(null);
             // D.assert(() {
             //   Timeline.timeSync("Build scheduled", () { }, flow: Flow.end(debugFlowId));
             //   return true;

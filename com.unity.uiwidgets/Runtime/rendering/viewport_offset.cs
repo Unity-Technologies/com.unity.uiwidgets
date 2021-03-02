@@ -51,7 +51,7 @@ namespace Unity.UIWidgets.rendering {
         public virtual Future moveTo(float to, TimeSpan? duration, Curve curve = null, bool clamp = true) {
             if (duration == null || duration.Value == TimeSpan.Zero) {
                 jumpTo(to);
-                return Future.value();
+                return new SynchronousFuture(null);
             } else {
                 return animateTo(to, duration: duration??TimeSpan.Zero , curve: curve ?? Curves.ease);
             }
@@ -103,7 +103,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override Future animateTo(float to, TimeSpan duration, Curve curve) {
-            return Future.value();
+            return new SynchronousFuture(null);
         }
 
         public override ScrollDirection userScrollDirection {
