@@ -110,7 +110,7 @@ namespace UIWidgetsGallery.demo.material
                                 new Checkbox(
                                     value: checkboxValueC,
                                     tristate: true,
-                                    onChanged: (bool? value) => { setState(() => { checkboxValueC = value.Value; }); }
+                                    onChanged: (bool? value) => { setState(() => { checkboxValueC = value == null? false: value.Value; }); }
                                 )
                             }
                         ),
