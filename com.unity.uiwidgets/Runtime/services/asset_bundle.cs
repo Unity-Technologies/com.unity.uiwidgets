@@ -77,7 +77,9 @@ namespace Unity.UIWidgets.services {
             var completer = Completer.create();
             var isolate = Isolate.current;
             var panel =UIWidgetsPanelWrapper.current.window;
-            panel.startCoroutine(_loadCoroutine(key, completer, isolate));
+            if (panel.isActive()) {
+                panel.startCoroutine(_loadCoroutine(key, completer, isolate));
+            }
             return completer.future.to<byte[]>();
         }
 
