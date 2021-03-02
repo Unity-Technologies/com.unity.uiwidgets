@@ -695,7 +695,7 @@ namespace Unity.UIWidgets.widgets {
         }
         public virtual bool maintainState { get; }
 
-        public bool offstage {
+        public virtual bool offstage {
             get { return _offstage; }
             set {
                 if (_offstage == value) {

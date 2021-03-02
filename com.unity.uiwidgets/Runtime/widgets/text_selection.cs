@@ -752,15 +752,7 @@ namespace Unity.UIWidgets.widgets {
             );
         }
     }
-    /*public abstract class TextSelectionGestureDetectorBuilderDelegate {
 
-        public GlobalKey<EditableTextState> editableTextKey { get; }
-        public bool forcePressEnabled {
-            get;
-        }
-        public bool selectionEnabled { get; }
-    }*/
-    
     public interface TextSelectionGestureDetectorBuilderDelegate {
 
         GlobalKey<EditableTextState> editableTextKey { get; }

@@ -110,7 +110,6 @@ namespace Unity.UIWidgets.widgets {
         
 
         public virtual Future<RoutePopDisposition> willPop() {
-            /// async
             return Future.value(isFirst
                 ? RoutePopDisposition.bubble
                 : RoutePopDisposition.pop).to<RoutePopDisposition>();
@@ -200,7 +199,6 @@ namespace Unity.UIWidgets.widgets {
                 _RouteEntry routeEntry = null;
                 foreach (var historyEntry in _navigator._history) {
                      if (_RouteEntry.isRoutePredicate(this)(historyEntry)) {
-                         //Route
                          routeEntry = historyEntry;
                          break;
                      }
@@ -1114,16 +1112,11 @@ namespace Unity.UIWidgets.widgets {
             get { return _overlayKey.currentState; }
         }
 
-        public List<OverlayEntry> _allRouteOverlayEntries { ///sync 
+        public List<OverlayEntry> _allRouteOverlayEntries { 
             get {
                 List<OverlayEntry> overlayEntries = new  List<OverlayEntry>();
                 foreach (var historyEntry in _history) {
-                    //yield* entry.route.overlayEntries;
-                    /*foreach (var historyOverlayEntry in historyEntry.route.overlayEntries) {
-                        yield return historyOverlayEntry;
-                    }*/
                     overlayEntries.AddRange(historyEntry.route.overlayEntries);
-                    
                 }
                 return overlayEntries;
             }
@@ -1796,7 +1789,6 @@ namespace Unity.UIWidgets.widgets {
 
                     routeJsonable["settings"] = settingsJsonable;
                 }
-                // todo
                 developer.developer_.postEvent("Flutter.Navigation", new Hashtable{
                     {"route", routeJsonable}
                 });
@@ -1824,7 +1816,6 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
             D.assert(anyEntry,()=> "Navigator has no active routes to replace.");
-            //_history.lastWhere(_RouteEntry.isPresentPredicate).complete(result, isReplaced: true);
             _RouteEntry lastEntry = null;
             foreach (var historyEntry in _history) {
                 if (_RouteEntry.isPresentPredicate(historyEntry)) {
@@ -1938,7 +1929,7 @@ namespace Unity.UIWidgets.widgets {
 
             D.assert(index >= 0, () => "There are no routes below the specified anchorRoute.");
             _history.Insert(index + 1, new _RouteEntry(newRoute, initialState: _RouteLifecycle.replace));
-            //_history[index].remove(isReplaced: true);
+           
             _history.RemoveAt(index);
             _flushHistoryUpdates();
             D.assert(() => {
@@ -1948,7 +1939,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public bool canPop() {
-            IEnumerable<_RouteEntry> iterator = new List<_RouteEntry>();//_history.where(_RouteEntry.isPresentPredicate).iterator;
+            IEnumerable<_RouteEntry> iterator = new List<_RouteEntry>();
+            
             foreach (var historyEntry in _history) {
                 if (_RouteEntry.isPresentPredicate(historyEntry)) {
                     iterator.Append(historyEntry);
@@ -2014,7 +2006,7 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             });
 
-            _RouteEntry entry = null; //_history.lastWhere(_RouteEntry.isPresentPredicate);
+            _RouteEntry entry = null; 
             foreach (_RouteEntry route in _history) {
                 if (_RouteEntry.isPresentPredicate(route)) {
                     entry = route;
@@ -2065,7 +2057,7 @@ namespace Unity.UIWidgets.widgets {
             });
             D.assert(route._navigator == this);
             bool wasCurrent = route.isCurrent;
-            _RouteEntry entry = null; //_history.firstWhere(_RouteEntry.isRoutePredicate(route), orElse: () => null);
+            _RouteEntry entry = null; 
             foreach (_RouteEntry routeEntry in _history) {
                 if (_RouteEntry.isRoutePredicate(route)(routeEntry)) {
                     entry = routeEntry;
@@ -2237,7 +2229,10 @@ namespace Unity.UIWidgets.widgets {
 
                 RenderAbsorbPointer absorber =
                     _overlayKey.currentContext?.findAncestorRenderObjectOfType<RenderAbsorbPointer>();
-                setState(() => { absorber.absorbing = true; });//absorber?.
+                setState(() => {
+                    if(absorber != null)
+                        absorber.absorbing = true;
+                });
             }
 
             _activePointers.ToList().ForEach(WidgetsBinding.instance.cancelPointer);
@@ -2245,7 +2240,7 @@ namespace Unity.UIWidgets.widgets {
 
 
         public override Widget build(BuildContext context) {
-            D.assert(!_debugLocked);//_debuglocked = false;
+            D.assert(!_debugLocked);
             D.assert(_history.isNotEmpty());
             return new Listener(
                 onPointerDown: _handlePointerDown,

@@ -91,7 +91,6 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public abstract class LocalizationsDelegate<T> : LocalizationsDelegate {
-        //public abstract Future<T> load(Locale locale);
         public override Type type {
             get { return typeof(T); }
         }

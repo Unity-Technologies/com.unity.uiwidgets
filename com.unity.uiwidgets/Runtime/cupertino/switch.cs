@@ -141,7 +141,6 @@ namespace Unity.UIWidgets.cupertino {
         void _handleTap() {
             if (isInteractive) {
                 widget.onChanged(!widget.value);
-                //_emitVibration();
             }
         }
 
@@ -161,7 +160,6 @@ namespace Unity.UIWidgets.cupertino {
             if (isInteractive) {
                 needsPositionAnimation = false;
                 _reactionController.forward();
-                //_emitVibration();
             }
         }
 

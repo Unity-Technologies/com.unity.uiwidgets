@@ -625,8 +625,6 @@ namespace Unity.UIWidgets.widgets {
     
 
     public interface DirectionalFocusTraversalPolicyMixin {
-
-        //Dictionary<FocusScopeNode, _DirectionalPolicyData> _policyData = new Dictionary<FocusScopeNode, _DirectionalPolicyData>();
         void invalidateScopeData(FocusScopeNode node);
         void changedScope(FocusNode node = null, FocusScopeNode oldScope = null);
         FocusNode findFirstFocusInDirection(FocusNode currentNode, TraversalDirection direction);
