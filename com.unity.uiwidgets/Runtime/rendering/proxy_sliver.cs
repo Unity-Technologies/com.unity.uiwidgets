@@ -307,19 +307,5 @@ namespace Unity.UIWidgets.rendering
             };
         }
     }
-    /*public class RenderSliverAnimatedOpacity : RenderProxySliver ,RenderAnimatedOpacityMixin<RenderSliver>{
-        public RenderSliverAnimatedOpacity(
-        Animation<double> opacity = null,
-        bool alwaysIncludeSemantics = false,
-            RenderSliver sliver = null
-        ):base(sliver) {
-            D.assert(opacity != null);
-            D.assert(alwaysIncludeSemantics != null);
-            this.opacity = opacity;
-            this.alwaysIncludeSemantics = alwaysIncludeSemantics;
-            child = sliver;
-        }
-    }*/
-
-
+    
 }

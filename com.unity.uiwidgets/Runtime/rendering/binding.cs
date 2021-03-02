@@ -105,15 +105,6 @@ namespace Unity.UIWidgets.rendering {
         }
         
         readonly protected bool inEditorWindow;
-        
-
-       /* MouseTracker _createMouseTracker() {
-            return new MouseTracker(pointerRouter, (Offset offset) => {
-                return renderView.layer.find<MouseTrackerAnnotation>(
-                    offset
-                );
-            }, inEditorWindow);
-        }*/
 
         protected virtual void drawFrame() {
             D.assert(renderView != null);

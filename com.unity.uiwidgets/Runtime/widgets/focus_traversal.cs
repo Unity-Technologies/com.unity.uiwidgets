@@ -65,7 +65,7 @@ namespace Unity.UIWidgets.widgets {
         public static void insertionSort<T>(List<T> list,
             Comparator<T> compare = null, int start = 0, int end =0) {
             
-            //compare ??= defaultCompare<T>();
+            //compare = compare == null ?  defaultCompare<T>();
             end = end == 0 ?list.Count : end;
 
             for (int pos = start + 1; pos < end; pos++) {
