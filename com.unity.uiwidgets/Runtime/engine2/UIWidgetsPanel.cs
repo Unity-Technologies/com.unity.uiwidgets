@@ -223,7 +223,7 @@ namespace Unity.UIWidgets.engine2 {
         void Input_OnDisable() {
         }
 
-        public void Input_Update() {
+        void Input_Update() {
             if (Input.touchCount == 0 && Input.mousePresent) {
                 if (_isEntered) {
                     if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1) && !Input.GetMouseButton(2)) {
@@ -244,7 +244,7 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
-        public void Input_OnGUI() {
+        void Input_OnGUI() {
             Event e = Event.current;
             if (e.isKey) {
                 _wrapper.OnKeyDown(e);

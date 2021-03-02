@@ -1,11 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using uiwidgets;
 using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
 using UnityEditor;
 using UnityEngine;
 using Rect = UnityEngine.Rect;
@@ -74,7 +72,6 @@ namespace Unity.UIWidgets.Editor {
                 }
                 
                 GUI.DrawTexture(new Rect(0.0f, 0.0f, position.width, position.height), _wrapper.renderTexture);
-
                 Input_OnGUIEvent(Event.current);
             }
         }

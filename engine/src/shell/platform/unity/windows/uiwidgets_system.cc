@@ -63,15 +63,20 @@ void UIWidgetsSystem::WakeUp() {}
 
 void UIWidgetsSystem::GfxWorkerCallback(int eventId, void* data) {
   const fml::closure task(std::move(gfx_worker_tasks_[eventId]));
-  gfx_worker_tasks_.erase(eventId);
-
+  {
+    std::scoped_lock(task_mutex_);
+    gfx_worker_tasks_.erase(eventId);
+  }
   task();
 }
 
 void UIWidgetsSystem::PostTaskToGfxWorker(const fml::closure& task) {
-  last_task_id_++;
 
-  gfx_worker_tasks_[last_task_id_] = task;
+  {
+    std::scoped_lock(task_mutex_);
+    last_task_id_++;
+    gfx_worker_tasks_[last_task_id_] = task;
+  }
   unity_uiwidgets_->IssuePluginEventAndData(&_GfxWorkerCallback, last_task_id_,
                                             nullptr);
 }
