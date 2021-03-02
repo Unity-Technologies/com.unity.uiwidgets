@@ -236,8 +236,9 @@ void UIWidgetsPanel::OnDisable() {
 
 void UIWidgetsPanel::OnRenderTexture(void* native_texture_ptr, size_t width,
                                      size_t height, float device_pixel_ratio) {
+  fml::AutoResetWaitableEvent latch;
   reinterpret_cast<EmbedderEngine*>(engine_)->PostRenderThreadTask(
-      [this, native_texture_ptr]() -> void {
+      [&latch, this, native_texture_ptr]() -> void {
         surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
 
         if (fbo_) {
@@ -247,7 +248,9 @@ void UIWidgetsPanel::OnRenderTexture(void* native_texture_ptr, size_t width,
         fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr);
 
         surface_manager_->ClearCurrent();
+        latch.Signal();
       });
+  latch.Wait();
 
   ViewportMetrics metrics;
   metrics.physical_width = static_cast<float>(width);
