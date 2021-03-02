@@ -18,8 +18,6 @@ namespace Unity.UIWidgets.widgets {
 
     public delegate List<Route> RouteListFactory(NavigatorState navigator, string initialRoute);
 
-    //public delegate bool RoutePredicate(Route route);
-
     public delegate bool RoutePredicate(Route route);
 
     public delegate bool PopPageCallback(Route route, object result);

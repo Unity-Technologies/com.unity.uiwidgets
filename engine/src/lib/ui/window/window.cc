@@ -71,7 +71,7 @@ UIWIDGETS_API(char*) Window_defaultRouteName(Window* ptr) {
   const std::string routeName = ptr->client()->DefaultRouteName();
   size_t size = routeName.length() + 1;
   char* result = static_cast<char*>(malloc(size));
-  routeName.copy(result, size);
+  strcpy(result, routeName.c_str());
   return result;
 }
 
