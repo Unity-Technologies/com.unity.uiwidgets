@@ -67,7 +67,7 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        static NavigationRailThemeData lerp(NavigationRailThemeData a, NavigationRailThemeData b, float t) {
+        public static NavigationRailThemeData lerp(NavigationRailThemeData a, NavigationRailThemeData b, float t) {
             if (a == null && b == null)
                 return null;
             return new NavigationRailThemeData(

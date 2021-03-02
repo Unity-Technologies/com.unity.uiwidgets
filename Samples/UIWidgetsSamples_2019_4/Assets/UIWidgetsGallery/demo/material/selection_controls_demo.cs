@@ -78,7 +78,7 @@ namespace UIWidgetsGallery.demo.material
 
         private bool checkboxValueA = true;
         private bool checkboxValueB = false;
-        private bool checkboxValueC;
+        private bool? checkboxValueC;
         private int radioValue = 0;
         private bool switchValue = false;
 
@@ -110,7 +110,7 @@ namespace UIWidgetsGallery.demo.material
                                 new Checkbox(
                                     value: checkboxValueC,
                                     tristate: true,
-                                    onChanged: (bool? value) => { setState(() => { checkboxValueC = value == null? false: value.Value; }); }
+                                    onChanged: (bool? value) => { setState(() => { checkboxValueC = value; }); }
                                 )
                             }
                         ),
