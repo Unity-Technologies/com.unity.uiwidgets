@@ -17,15 +17,24 @@
 namespace uiwidgets {
 
 fml::RefPtr<UIWidgetsPanel> UIWidgetsPanel::Create(
-    Mono_Handle handle, EntrypointCallback entrypoint_callback) {
-  return fml::MakeRefCounted<UIWidgetsPanel>(handle, entrypoint_callback);
+    Mono_Handle handle, UIWidgetsWindowType window_type, EntrypointCallback entrypoint_callback) {
+  return fml::MakeRefCounted<UIWidgetsPanel>(handle, window_type, entrypoint_callback);
 }
 
 UIWidgetsPanel::UIWidgetsPanel(Mono_Handle handle,
+                               UIWidgetsWindowType window_type, 
                                EntrypointCallback entrypoint_callback)
-    : handle_(handle), entrypoint_callback_(entrypoint_callback) {}
+    : handle_(handle), window_type_(window_type), entrypoint_callback_(entrypoint_callback) {}
 
 UIWidgetsPanel::~UIWidgetsPanel() = default;
+
+bool UIWidgetsPanel::NeedUpdateByPlayerLoop() {
+  return window_type_ == GameObjectPanel;
+}
+
+bool UIWidgetsPanel::NeedUpdateByEditorLoop() {
+  return window_type_ == EditorWindowPanel;
+}
 
 void UIWidgetsPanel::OnEnable(void* native_texture_ptr, size_t width,
                               size_t height, float device_pixel_ratio,
@@ -227,8 +236,9 @@ void UIWidgetsPanel::OnDisable() {
 
 void UIWidgetsPanel::OnRenderTexture(void* native_texture_ptr, size_t width,
                                      size_t height, float device_pixel_ratio) {
+  fml::AutoResetWaitableEvent latch;
   reinterpret_cast<EmbedderEngine*>(engine_)->PostRenderThreadTask(
-      [this, native_texture_ptr]() -> void {
+      [&latch, this, native_texture_ptr]() -> void {
         surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
 
         if (fbo_) {
@@ -238,7 +248,9 @@ void UIWidgetsPanel::OnRenderTexture(void* native_texture_ptr, size_t width,
         fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr);
 
         surface_manager_->ClearCurrent();
+        latch.Signal();
       });
+  latch.Wait();
 
   ViewportMetrics metrics;
   metrics.physical_width = static_cast<float>(width);
@@ -470,9 +482,10 @@ void UIWidgetsPanel::OnMouseLeave() {
 
 UIWIDGETS_API(UIWidgetsPanel*)
 UIWidgetsPanel_constructor(
-    Mono_Handle handle,
+    Mono_Handle handle, int windowType,
     UIWidgetsPanel::EntrypointCallback entrypoint_callback) {
-  const auto panel = UIWidgetsPanel::Create(handle, entrypoint_callback);
+  UIWidgetsWindowType window_type = static_cast<UIWidgetsWindowType>(windowType);
+  const auto panel = UIWidgetsPanel::Create(handle, window_type, entrypoint_callback);
   panel->AddRef();
   return panel.get();
 }
@@ -535,6 +548,23 @@ UIWidgetsPanel_onMouseMove(UIWidgetsPanel* panel, float x, float y) {
 
 UIWIDGETS_API(void)
 UIWidgetsPanel_onMouseLeave(UIWidgetsPanel* panel) { panel->OnMouseLeave(); }
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onEditorUpdate(UIWidgetsPanel* panel) {
+  if (!panel->NeedUpdateByEditorLoop()) {
+    std::cerr << "only EditorWindowPanel can be updated using onEditorUpdate" << std::endl;
+    return;
+  }
+
+  //_Update
+  panel->ProcessMessages();
+
+  //_ProcessVSync
+  panel->ProcessVSync();
+
+  //_Wait
+  panel->ProcessMessages();
+}
 
 UIWIDGETS_API(void)
 UIWidgetsPanel_onScroll(UIWidgetsPanel* panel, float x, float y, float px, float py) {

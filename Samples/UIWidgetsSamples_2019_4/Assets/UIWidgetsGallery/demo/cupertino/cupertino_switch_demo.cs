@@ -4,7 +4,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace UIWidgetsGallery.gallery {
-    class CupertinoSwitchDemo : StatefulWidget {
+    public class CupertinoSwitchDemo : StatefulWidget {
         public static string routeName = "/cupertino/switch";
 
         public override State createState() => new _CupertinoSwitchDemoState();

@@ -1,7 +1,8 @@
 {
-    "name": "UIWidgetsSample",
+    "name": "UIWidgetsEditorWindowSample",
     "references": [
         "Unity.UIWidgets",
+        "Unity.UIWidgets.Editor",
         "UIWidgetsGallery"
     ],
     "optionalUnityReferences": [],

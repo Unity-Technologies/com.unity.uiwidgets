@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -187,7 +188,7 @@ namespace Unity.UIWidgets.ui {
     public class Window {
         internal IntPtr _ptr;
         internal object _binding;
-        internal UIWidgetsPanel _panel;
+        internal UIWidgetsPanelWrapper _panel;
         internal _AsyncCallbackState _asyncCallbackState;
 
         internal Window() {
@@ -312,30 +313,11 @@ namespace Unity.UIWidgets.ui {
         }
 
         protected float queryDevicePixelRatio() {
-            return _panel.devicePixelRatioOverride;
+            return _panel.devicePixelRatio;
         }
         
         public Offset windowPosToScreenPos(Offset offset) {
-            Camera camera = null;
-            var canvas = _panel.canvas;
-            if (canvas.renderMode != RenderMode.ScreenSpaceCamera) {
-                camera = canvas.GetComponent<GraphicRaycaster>().eventCamera;
-            }
-
-            var pos = new Vector2(offset.dx, offset.dy);
-            pos = pos * queryDevicePixelRatio() / _panel.canvas.scaleFactor;
-            var rectTransform = _panel.rectTransform;
-            var rect = rectTransform.rect;
-            pos.x += rect.min.x;
-            pos.y = rect.max.y - pos.y;
-            var worldPos = rectTransform.TransformPoint(new Vector2(pos.x, pos.y));
-            var screenPos = RectTransformUtility.WorldToScreenPoint(camera, worldPos);
-            return new Offset(screenPos.x, Screen.height - screenPos.y);
-        }
-
-        public void run(Action callback) {
-            //Fixme: do nothing now
-            D.assert(false, () => "window.run is not implemented yet!");
+            return _panel.window.windowPosToScreenPos(offset);
         }
 
         public PointerDataPacketCallback onPointerDataPacket {
@@ -360,6 +342,7 @@ namespace Unity.UIWidgets.ui {
 
         public void scheduleFrame() {
             Window_scheduleFrame(_ptr);
+            _panel.window.onNewFrameScheduled();
         }
 
         public void scheduleMicrotask(Action callback) {

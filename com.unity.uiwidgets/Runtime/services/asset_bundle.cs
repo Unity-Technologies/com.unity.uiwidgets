@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -75,8 +76,10 @@ namespace Unity.UIWidgets.services {
         public override Future<byte[]> load(string key) {
             var completer = Completer.create();
             var isolate = Isolate.current;
-            var panel = UIWidgetsPanel.current;
-            panel.StartCoroutine(_loadCoroutine(key, completer, isolate));
+            var panel =UIWidgetsPanelWrapper.current.window;
+            if (panel.isActive()) {
+                panel.startCoroutine(_loadCoroutine(key, completer, isolate));
+            }
             return completer.future.to<byte[]>();
         }
 

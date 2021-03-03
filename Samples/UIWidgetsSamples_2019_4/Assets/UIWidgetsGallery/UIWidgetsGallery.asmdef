@@ -1,8 +1,7 @@
 {
-    "name": "UIWidgetsSample",
+    "name": "UIWidgetsGallery",
     "references": [
-        "Unity.UIWidgets",
-        "UIWidgetsGallery"
+        "Unity.UIWidgets"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],
