@@ -1443,7 +1443,8 @@ namespace Unity.UIWidgets.cupertino {
                 offAxisFraction = -0.5f * textDirectionFactor;
                   break;
                 
-            } return new CupertinoPicker(
+            } 
+            return new CupertinoPicker(
               scrollController: new FixedExtentScrollController(
                 initialItem: (int)selectedMinute / widget.minuteInterval
               ),
