@@ -1309,7 +1309,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        void reassemble(Element root) {
+        public void reassemble(Element root) {
             try {
                 D.assert(root._parent == null);
                 D.assert(root.owner == this);

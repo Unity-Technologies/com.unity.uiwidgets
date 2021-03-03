@@ -277,10 +277,6 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        /*internal override S find<S>(Offset regionOffset) {
-            return null;
-        }*/
-
         public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
             builder.addPicture(layerOffset, picture,
@@ -501,19 +497,6 @@ namespace Unity.UIWidgets.rendering {
         }
         
 
-        /*internal override S find<S>(Offset regionOffset) {
-            Layer current = lastChild;
-            while (current != null) {
-                S value = current.find<S>(regionOffset);
-                if (value != null) {
-                    return value;
-                }
-
-                current = current.previousSibling;
-            }
-
-            return null;
-        }*/
         public override bool findAnnotations<S>(
             AnnotationResult<S> result,
             Offset localPosition, 
@@ -810,30 +793,6 @@ namespace Unity.UIWidgets.rendering {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Offset>("offset", offset));
         }
-
-        /*public Scene buildScene(SceneBuilder builder) {
-            List<PictureLayer> temporaryLayers = null;
-            D.assert(() => {
-                if (RenderingDebugUtils.debugCheckElevationsEnabled) {
-                    temporaryLayers = _debugCheckElevations();
-                }
-
-                return true;
-            });
-            updateSubtreeNeedsAddToScene();
-            addToScene(builder);
-            Scene scene = builder.build();
-            D.assert(() => {
-                if (temporaryLayers != null) {
-                    foreach (PictureLayer temporaryLayer in temporaryLayers) {
-                        temporaryLayer.remove();
-                    }
-                }
-
-                return true;
-            });
-            return scene;
-        }*/
 
         public Future<ui.Image> toImage(Rect bounds, float pixelRatio = 1.0f)// async
         {

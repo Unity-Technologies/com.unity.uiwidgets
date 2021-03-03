@@ -97,6 +97,8 @@ namespace Unity.UIWidgets.widgets {
             supportedLocales = supportedLocales ?? new List<Locale> {new Locale("en", "US")};
             window = Window.instance;
             D.assert(routes != null);
+            D.assert(color != null);
+            D.assert(supportedLocales != null && supportedLocales.isNotEmpty());
             this.home = home;
             this.navigatorKey = navigatorKey;
             this.onGenerateRoute = onGenerateRoute;
@@ -281,40 +283,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    public class WindowProvider : InheritedWidget {
-        public readonly Window window;
-
-        public WindowProvider(Key key = null, Window window = null, Widget child = null) :
-            base(key, child) {
-            D.assert(window != null);
-            this.window = window;
-        }
-
-        public static Window of(BuildContext context) {
-            var provider = (WindowProvider) context.inheritFromWidgetOfExactType(typeof(WindowProvider));
-            if (provider == null) {
-                throw new UIWidgetsError("WindowProvider is missing");
-            }
-
-            return provider.window;
-        }
-
-        public static Window of(GameObject gameObject) {
-            D.assert(false, () => "window.Of is not implemented yet!");
-            return null;
-            
-            /*
-            var panel = gameObject.GetComponent<UIWidgetsPanel>();
-            return panel == null ? null : panel.window;
-            */
-        }
-
-        public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            D.assert(window == ((WindowProvider) oldWidget).window);
-            return false;
-        }
-    }
-
+    
     class _WidgetsAppState : State<WidgetsApp>, WidgetsBindingObserver {
         public void didChangeMetrics() {
             setState();
@@ -350,16 +319,8 @@ namespace Unity.UIWidgets.widgets {
         public override void initState() {
             base.initState();
             _updateNavigator();
-
-            //todo: xingwei.zhu: change the default locale to ui.Window.locale
             _locale =
                 _resolveLocales(new List<Locale> {new Locale("en", "US")}, widget.supportedLocales);
-
-            /*D.assert(() => {
-                WidgetInspectorService.instance.inspectorShowCallback += inspectorShowChanged;
-                return true;
-            });*/
-
             WidgetsBinding.instance.addObserver(this);
         }
 
@@ -373,10 +334,6 @@ namespace Unity.UIWidgets.widgets {
         public override void dispose() {
             WidgetsBinding.instance.removeObserver(this);
 
-            /*D.assert(() => {
-                WidgetInspectorService.instance.inspectorShowCallback -= inspectorShowChanged;
-                return true;
-            });*/
             base.dispose();
         }
 
@@ -578,13 +535,13 @@ namespace Unity.UIWidgets.widgets {
         }
         
 
-        /*bool _debugCheckLocalizations(Locale appLocale) {
+        bool _debugCheckLocalizations(Locale appLocale) {
             D.assert(() => {
                 HashSet<Type> unsupportedTypes = new HashSet<Type>();
                 foreach (var _delegate in _localizationsDelegates) {
                     unsupportedTypes.Add(_delegate.type);
                 }
-                foreach ( LocalizationsDelegate<dynamic> _delegate in _localizationsDelegates) {
+                foreach ( LocalizationsDelegate _delegate in _localizationsDelegates) {
                     if (!unsupportedTypes.Contains(_delegate.type))
                         continue;
                     if (_delegate.isSupported(appLocale))
@@ -600,33 +557,31 @@ namespace Unity.UIWidgets.widgets {
                 if (unsupportedTypesList.SequenceEqual(list))
                     return true;
 
-                StringBuffer message = new StringBuffer();
-                message.writeln('\u2550' * 8);
-                message.writeln(
+                StringBuilder message = new StringBuilder();
+                message.Append('\u2550' * 8);
+                message.Append(
                     "Warning: This application's locale, $appLocale, is not supported by all of its\n" +
                 "localization delegates."
                     );
                 foreach ( Type unsupportedType in unsupportedTypes) {
-                    // Currently the Cupertino library only provides english localizations.
-                    // Remove this when https://github.com/flutter/flutter/issues/23847
-                    // is fixed.
+                   
                     if (unsupportedType.ToString() == "CupertinoLocalizations")
                         continue;
-                    message.writeln(
+                    message.Append(
                         "> A "+ unsupportedType + " delegate that supports the " + appLocale + "locale was not found."
                     );
                 }
-                message.writeln(
+                message.Append(
                     "See https://flutter.dev/tutorials/internationalization/ for more\n" +
                 "information about configuring an app's locale, supportedLocales,\n" +
                 "and localizationsDelegates parameters."
                     );
-                message.writeln('\u2550' * 8);
-                //Debug.Log(message.toString());
+                message.Append('\u2550' * 8);
+            
                 return true;
             });
             return true;
-        }*/
+        }
 
         public override Widget build(BuildContext context) {
             Widget navigator = null;
@@ -634,10 +589,10 @@ namespace Unity.UIWidgets.widgets {
                 RouteListFactory routeListFactory = (state, route) => {return widget.onGenerateInitialRoutes(route); };
                 navigator = new Navigator(
                     key: _navigator,
-                    initialRoute: widget.initialRoute ?? Navigator.defaultRouteName,
-                    /*WidgetsBinding.instance.window.defaultRouteName != Navigator.defaultRouteName
+                    initialRoute: 
+                    WidgetsBinding.instance.window.defaultRouteName != Navigator.defaultRouteName
                         ? WidgetsBinding.instance.window.defaultRouteName
-                        : widget.initialRoute ?? WidgetsBinding.instance.window.defaultRouteName,*/
+                        : widget.initialRoute ?? WidgetsBinding.instance.window.defaultRouteName,
                     onGenerateRoute: _onGenerateRoute,
                     onGenerateInitialRoutes: widget.onGenerateInitialRoutes == null
                         ? Navigator.defaultGenerateInitialRoutes
@@ -667,10 +622,8 @@ namespace Unity.UIWidgets.widgets {
             }
 
             PerformanceOverlay performanceOverlay = null;
-            if (widget.showPerformanceOverlay) {
-                performanceOverlay = PerformanceOverlay.allEnabled();
-            }
-            /*if (widget.showPerformanceOverlay || WidgetsApp.showPerformanceOverlayOverride) {
+           
+            if (widget.showPerformanceOverlay || WidgetsApp.showPerformanceOverlayOverride) {
                 performanceOverlay = PerformanceOverlay.allEnabled(
                     checkerboardRasterCacheImages: widget.checkerboardRasterCacheImages,
                     checkerboardOffscreenLayers: widget.checkerboardOffscreenLayers
@@ -680,7 +633,7 @@ namespace Unity.UIWidgets.widgets {
                     checkerboardRasterCacheImages: widget.checkerboardRasterCacheImages,
                     checkerboardOffscreenLayers: widget.checkerboardOffscreenLayers
                 );
-            }*/
+            }
 
             if (performanceOverlay != null) {
                 result = new Stack(
@@ -693,11 +646,6 @@ namespace Unity.UIWidgets.widgets {
                     });
             }
 
-            /*if (widget.showSemanticsDebugger) {
-                result = SemanticsDebugger(
-                    child: result,
-                );
-            }*/
             D.assert(() => {
                 if (widget.debugShowWidgetInspector || WidgetsApp.debugShowWidgetInspectorOverride) {
                     result = new WidgetInspector(
@@ -711,27 +659,9 @@ namespace Unity.UIWidgets.widgets {
                     );
                 }
                 return true;
-
-                /*if (widget.debugShowWidgetInspector || WidgetsApp.debugShowWidgetInspectorOverride) {
-                    result = new WidgetInspector(
-                        child: result,
-                        selectButtonBuilder: widget.inspectorSelectButtonBuilder
-                    );
-                }
-                if (widget.debugShowCheckedModeBanner && WidgetsApp.debugAllowBannerOverride) {
-                    result = new CheckedModeBanner(
-                        child: result
-                    );
-                }*/
-                return true;
             });
 
-            result = new Directionality(child: result, TextDirection.ltr);
-            result = new WindowProvider(
-                window: widget.window,
-                child: result
-            );
-            /*Widget title = null;
+            Widget title = null;
             if (widget.onGenerateTitle != null) {
                 title = new Builder(
                     builder: (BuildContext context1)=> {
@@ -750,38 +680,30 @@ namespace Unity.UIWidgets.widgets {
                     color: widget.color,
                     child: result
                 );
-            }*/
+            }
 
             Locale appLocale = widget.locale != null
                 ? _resolveLocales(new List<Locale> {widget.locale}, widget.supportedLocales)
                 : _locale;
-            //D.assert(_debugCheckLocalizations(appLocale));
-            result = new MediaQuery(
-                data: MediaQueryData.fromWindow(widget.window),
-                child: new Localizations(
-                    locale: appLocale,
-                    delegates: _localizationsDelegates,
-                    child: result)
-            );
-            /////todo
-            /// 
-            /*result = new Shortcuts(
+            D.assert(_debugCheckLocalizations(appLocale));
+            
+            result = new Shortcuts(
                 shortcuts: widget.shortcuts ?? WidgetsApp.defaultShortcuts,
                 debugLabel: "<Default WidgetsApp Shortcuts>",
                 child: new Actions(
                     actions: widget.actions ?? WidgetsApp.defaultActions,
-                    child: FocusTraversalGroup(
-                        policy: ReadingOrderTraversalPolicy(),
-                        child: _MediaQueryFromWindow(
+                    child: new FocusTraversalGroup(
+                        policy: new ReadingOrderTraversalPolicy(),
+                        child: new _MediaQueryFromWindow(
                             child: new Localizations(
                                 locale: appLocale,
-                                delegates: _localizationsDelegates,
+                                delegates: _localizationsDelegates.ToList(),
                                 child: title
                             )
                         )
                     )
                 )
-            );*/
+            );
 
             return result;
         }

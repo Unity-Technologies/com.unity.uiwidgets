@@ -65,7 +65,7 @@ namespace Unity.UIWidgets.widgets {
         public static void insertionSort<T>(List<T> list,
             Comparator<T> compare = null, int start = 0, int end =0) {
             
-            //compare ??= defaultCompare<T>();
+            //compare = compare == null ?  defaultCompare<T>();
             end = end == 0 ?list.Count : end;
 
             for (int pos = start + 1; pos < end; pos++) {
@@ -625,8 +625,6 @@ namespace Unity.UIWidgets.widgets {
     
 
     public interface DirectionalFocusTraversalPolicyMixin {
-
-        //Dictionary<FocusScopeNode, _DirectionalPolicyData> _policyData = new Dictionary<FocusScopeNode, _DirectionalPolicyData>();
         void invalidateScopeData(FocusScopeNode node);
         void changedScope(FocusNode node = null, FocusScopeNode oldScope = null);
         FocusNode findFirstFocusInDirection(FocusNode currentNode, TraversalDirection direction);

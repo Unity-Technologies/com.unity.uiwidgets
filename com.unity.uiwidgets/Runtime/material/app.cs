@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
@@ -44,6 +45,7 @@ namespace Unity.UIWidgets.material {
             List<NavigatorObserver> navigatorObservers = null,
             TransitionBuilder builder = null,
             string title = "",
+            GenerateAppTitle onGenerateTitle = null,
             Color color = null,
             ThemeData theme = null,
             ThemeData darkTheme = null,
@@ -71,6 +73,7 @@ namespace Unity.UIWidgets.material {
             this.navigatorObservers = navigatorObservers ?? new List<NavigatorObserver>();
             this.builder = builder;
             this.title = title;
+            this.onGenerateTitle = onGenerateTitle;
             this.color = color;
             this.theme = theme;
             this.darkTheme = darkTheme;
@@ -108,6 +111,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly string title;
 
+        public readonly GenerateAppTitle onGenerateTitle;
+        
         public readonly ThemeData theme;
 
         public readonly ThemeData darkTheme;
@@ -230,6 +235,9 @@ namespace Unity.UIWidgets.material {
                     );
                 },
                 textStyle: material_._errorTextStyle,
+                title: widget.title,
+                onGenerateTitle: widget.onGenerateTitle,
+                color: widget.color ?? widget.theme?.primaryColor ?? Colors.blue,
                 locale: widget.locale,
                 localizationsDelegates: _localizationsDelegates,
                 localeResolutionCallback: widget.localeResolutionCallback,

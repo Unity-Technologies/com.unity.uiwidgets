@@ -218,9 +218,7 @@ namespace UIWidgetsGallery.demo.material
                             onTap: () => { this.onTap?.Invoke(); },
                             child: new Container(
                                 height: 48.0f,
-                                //TODO: uncomment this when fixes on EdgeInsetsDirectional lands
-                                //padding: EdgeInsetsDirectional.only(start: 16.0f),
-                                padding: EdgeInsets.only(left: 16.0f),
+                                padding: EdgeInsetsDirectional.only(start: 16.0f),
                                 alignment: AlignmentDirectional.centerStart,
                                 child: new DefaultTextStyle(
                                     style: theme.textTheme.subtitle1,
