@@ -42,7 +42,7 @@ UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
     }
   }
 
-  FML_DCHECK(gl_context_ != nullptr);
+  FML_DCHECK(gl_context_ != nullptr && gl_resource_context_ != nullptr);
 }
 
 UnitySurfaceManager::~UnitySurfaceManager() { ReleaseNativeRenderContext(); }
@@ -143,14 +143,7 @@ bool UnitySurfaceManager::MakeCurrentContext()
 
 bool UnitySurfaceManager::MakeCurrentResourceContext()
 {
-  if (gl_resource_context_ == nullptr)
-  {
-      [gl_context_ makeCurrentContext];
-  }
-  else
-  {
-      [gl_resource_context_ makeCurrentContext];
-  }
+  [gl_resource_context_ makeCurrentContext];
   return true;
 }
 
@@ -161,11 +154,9 @@ uint32_t UnitySurfaceManager::GetFbo()
 
 void UnitySurfaceManager::ReleaseNativeRenderContext()
 {
-  if (gl_resource_context_ != nullptr)
-  {
-      CGLReleaseContext(gl_resource_context_.CGLContextObj);
-      gl_resource_context_ = nullptr;
-  }
+  FML_DCHECK(gl_resource_context_);
+  CGLReleaseContext(gl_resource_context_.CGLContextObj);
+  gl_resource_context_ = nullptr;
 
   FML_DCHECK(gl_context_);
   CGLReleaseContext(gl_context_.CGLContextObj);
