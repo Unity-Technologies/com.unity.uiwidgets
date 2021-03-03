@@ -110,7 +110,6 @@ namespace Unity.UIWidgets.Editor {
             }
             else if (evt.type == EventType.ScrollWheel && evt.delta.magnitude != 0) {
                 var delta = evt.delta;
-                delta.x  = 0f;
                 delta.y /= 3f;
                 var pos = _getPointerPosition(evt.mousePosition);
                 _wrapper.OnMouseScroll(delta, pos);
