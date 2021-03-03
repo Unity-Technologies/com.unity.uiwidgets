@@ -88,16 +88,15 @@ namespace Unity.UIWidgets.widgets {
         public static DefaultTextStyle of(BuildContext context) {
             return context.dependOnInheritedWidgetOfExactType<DefaultTextStyle>() ?? new DefaultTextStyle();
         }
-        public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            
-            oldWidget = (DefaultTextStyle) oldWidget;
-            return style !=  ((DefaultTextStyle)oldWidget).style ||
-                   textAlign !=  ((DefaultTextStyle)oldWidget).textAlign ||
-                   softWrap !=  ((DefaultTextStyle)oldWidget).softWrap ||
-                   overflow !=  ((DefaultTextStyle)oldWidget).overflow ||
-                   maxLines !=  ((DefaultTextStyle)oldWidget).maxLines ||
-                   textWidthBasis !=  ((DefaultTextStyle)oldWidget).textWidthBasis ||
-                   textHeightBehavior !=  ((DefaultTextStyle)oldWidget).textHeightBehavior;
+        public override bool updateShouldNotify(InheritedWidget oldWidget) { 
+            DefaultTextStyle _oldWidget = (DefaultTextStyle) oldWidget;
+            return style !=  _oldWidget.style ||
+                   textAlign != _oldWidget.textAlign ||
+                   softWrap != _oldWidget.softWrap ||
+                   overflow != _oldWidget.overflow ||
+                   maxLines != _oldWidget.maxLines ||
+                   textWidthBasis != _oldWidget.textWidthBasis ||
+                   textHeightBehavior != _oldWidget.textHeightBehavior;
         }
         public override Widget wrap(BuildContext context, Widget child) {
     
