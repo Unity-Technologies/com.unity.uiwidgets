@@ -498,9 +498,7 @@ namespace Unity.UIWidgets.widgets {
                 name: name,
                 callback: 
                 ((IDictionary<string, string> parameters) => {
-                    var result = new SynchronousFuture<IDictionary<string, object>>(new Dictionary<string, object>()
-                        {{"result", callback}}); 
-                         //Future.value(FutureOr.value(new Dictionary<string, object>(){{"result", callback}})).to<IDictionary<string, object>>();
+                    var result = Future.value(FutureOr.value(new Dictionary<string, object>(){{"result", callback}})).to<IDictionary<string, object>>();
                      return result;
                 })
             );
@@ -513,9 +511,7 @@ namespace Unity.UIWidgets.widgets {
             registerServiceExtension(
               name: name,
               callback: (IDictionary<string, string> parameters) => {
-                  var result = new SynchronousFuture<IDictionary<string, object>>(new Dictionary<string, object>
-                      {{"result", callback(parameters["objectGroup"])}}); 
-                      //Future.value(FutureOr.value((new Dictionary<string, object>{{"result", callback(parameters["objectGroup"])}}))).to<IDictionary<string, object>>();
+                  var result = Future.value(FutureOr.value((new Dictionary<string, object>{{"result", callback(parameters["objectGroup"])}}))).to<IDictionary<string, object>>();
                   return result;
               }
             );
@@ -597,7 +593,7 @@ namespace Unity.UIWidgets.widgets {
                 binding.buildOwner.reassemble(binding.renderViewElement);
                 return binding.endOfFrame;
             }
-            return new SynchronousFuture(null);
+            return Future.value();
         }*/
 
         static string _consoleObjectGroup = "console-group";
@@ -644,7 +640,7 @@ namespace Unity.UIWidgets.widgets {
                 getter: ()  => FlutterError.onError == structuredExceptionHandler,
                 setter: (bool value)=> {
                     FlutterError.onError = value ? structuredExceptionHandler : defaultExceptionHandler;
-                    return new SynchronousFuture(null);
+                    return Future.value();
                 }
             );
 

@@ -37,13 +37,12 @@ namespace Unity.UIWidgets.service {
             GUIUtility.systemCopyBuffer = data.text;
 #endif
             
-            return new SynchronousFuture(null);
+            return Future.value();
         }
 
         protected override Future<ClipboardData> getClipboardData(string format) {
             var data = new ClipboardData(text: GUIUtility.systemCopyBuffer);
-            return new SynchronousFuture<ClipboardData>(data);
-            //Future.value(FutureOr.value(data)).to<ClipboardData>();
+            return Future.value(FutureOr.value(data)).to<ClipboardData>();
         }
         
 #if UNITY_WEBGL

@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.services {
         }
 
         protected virtual Future handleSystemMessage(Object systemMessage) {
-            return new SynchronousFuture(null);
+            return Future.value();
         }
 
         protected virtual void evict(string asset) {
@@ -68,7 +68,7 @@ namespace Unity.UIWidgets.services {
             MessageHandler handler = _handlers[channel];
             if (handler == null) {
                 ui_.channelBuffers.push(channel, data, callback);
-                return new SynchronousFuture(null);
+                return Future.value();
             }
 
             return handler(data).then(bytes => {

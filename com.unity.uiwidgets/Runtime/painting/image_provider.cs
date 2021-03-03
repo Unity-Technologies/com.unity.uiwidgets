@@ -299,7 +299,7 @@ namespace Unity.UIWidgets.painting {
                         completer.complete();
                     }
 
-                    return new SynchronousFuture(null);
+                    return Future.value();
                 }
             );
             return completer.future.to<ImageCacheStatus>();

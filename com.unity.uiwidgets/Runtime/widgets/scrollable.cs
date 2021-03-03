@@ -99,7 +99,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (futures.isEmpty() || duration == TimeSpan.Zero) {
-                return new SynchronousFuture(null);
+                return Future.value();
             }
 
             if (futures.Count == 1) {

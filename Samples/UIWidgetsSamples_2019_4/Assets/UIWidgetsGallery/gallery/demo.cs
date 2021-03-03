@@ -147,7 +147,7 @@ namespace UIWidgetsGallery.gallery
                             }
                         );
                     }
-                );
+                ); 
 
             return new SynchronousFuture(null);
         }

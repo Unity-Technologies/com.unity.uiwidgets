@@ -1123,7 +1123,7 @@ namespace Unity.UIWidgets.material {
             _pageController.animateToPage(_currentIndex.Value, duration: material_.kTabScrollDuration,
                 curve: Curves.ease).then((value) => {
                 if (!mounted) {
-                    return new SynchronousFuture(null);
+                    return Future.value();
                 }
 
                 setState(() => {

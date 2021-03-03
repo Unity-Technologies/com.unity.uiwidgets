@@ -194,7 +194,7 @@ namespace UIWidgetsGallery.demo.material
                         }
                     );
                 }
-            );
+            )?? new SynchronousFuture<bool>(false);
         }
 
 

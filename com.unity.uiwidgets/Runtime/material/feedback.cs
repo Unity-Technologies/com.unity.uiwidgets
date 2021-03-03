@@ -12,8 +12,7 @@ namespace Unity.UIWidgets.material {
         public static Future forTap(BuildContext context) {
             switch (_platform(context)) {
                 case RuntimePlatform.Android:
-                    return
-                        new SynchronousFuture(null); // SystemSound.play(SystemSoundType.click); TODO: replace with unity equivalent
+                    return Future.value(); // SystemSound.play(SystemSoundType.click); TODO: replace with unity equivalent
                 case RuntimePlatform.IPhonePlayer:
                 case RuntimePlatform.LinuxEditor:
                 case RuntimePlatform.LinuxPlayer:
@@ -21,11 +20,11 @@ namespace Unity.UIWidgets.material {
                 case RuntimePlatform.OSXPlayer:
                 case RuntimePlatform.WindowsEditor:
                 case RuntimePlatform.WindowsPlayer:
-                    return new SynchronousFuture(null);
+                    return Future.value();
             }
 
             D.assert(false, () => $"Unhandled TargetPlatform {_platform(context)}");
-            return new SynchronousFuture(null);
+            return Future.value();
         }
 
         public static GestureTapCallback wrapForTap(GestureTapCallback callback, BuildContext context) {
@@ -42,7 +41,7 @@ namespace Unity.UIWidgets.material {
         public static Future forLongPress(BuildContext context) {
             switch (_platform(context)) {
                 case RuntimePlatform.Android:
-                    return new SynchronousFuture(null); // HapticFeedback.vibrate(); TODO
+                    return Future.value(); // HapticFeedback.vibrate(); TODO
                 case RuntimePlatform.IPhonePlayer:
                 case RuntimePlatform.LinuxEditor:
                 case RuntimePlatform.LinuxPlayer:
@@ -50,10 +49,10 @@ namespace Unity.UIWidgets.material {
                 case RuntimePlatform.OSXPlayer:
                 case RuntimePlatform.WindowsEditor:
                 case RuntimePlatform.WindowsPlayer:
-                    return new SynchronousFuture(null);
+                    return Future.value();
             }
             D.assert(false, ()=>$"Unhandled TargetPlatform {_platform(context)}");
-            return new SynchronousFuture(null);
+            return Future.value();
         }
 
         public static GestureLongPressCallback

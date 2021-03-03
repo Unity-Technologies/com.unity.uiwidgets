@@ -403,13 +403,14 @@ public class _ExpandingBottomSheetState : TickerProviderStateMixin<ExpandingBott
   // Closes the cart if the cart is open, otherwise exits the app (this should
   // only be relevant for Android).
   Future<bool> _onWillPop()  {
-    if (!_isOpen) { 
+    if (!_isOpen)
+    {
       //SystemNavigator.pop();
-      return new SynchronousFuture<bool>(true);
+      return Future.value(true).to<bool>();
     }
 
     close();
-    return new SynchronousFuture<bool>(true);
+    return Future.value(true).to<bool>();
   }
 
  
