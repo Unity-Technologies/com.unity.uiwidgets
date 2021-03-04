@@ -8,6 +8,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 using Brightness = Unity.UIWidgets.ui.Brightness;
 
@@ -81,16 +82,18 @@ namespace UIWidgetsGallery.gallery {
       }
       Widget _buildCountdownTimerPicker(BuildContext context) {
         return new GestureDetector(
-          onTap: () =>{
+          onTap: () =>
+          {
             CupertinoRouteUtils.showCupertinoModalPopup(
               context: context,
               semanticsDismissible: true,
-              builder: (BuildContext context1) =>{
+              builder: (BuildContext context1) =>
+              {
                 return new _BottomPicker(
                   child: new CupertinoTimerPicker(
                     backgroundColor: CupertinoColors.systemBackground.resolveFrom(context1),
                     initialTimerDuration: timer,
-                    onTimerDurationChanged: (newTimer) =>{
+                    onTimerDurationChanged: (TimeSpan newTimer) =>{
                       setState(() => timer = newTimer);
                     }
                   )
@@ -123,7 +126,7 @@ namespace UIWidgetsGallery.gallery {
               builder: (BuildContext context1) =>
               {
                 return new _BottomPicker(
-                  child: new  CupertinoDatePicker(
+                  child:  new  CupertinoDatePicker(
                     backgroundColor: CupertinoColors.systemBackground.resolveFrom(context1),
                     mode: CupertinoDatePickerMode.date,
                     initialDateTime: date,
@@ -237,44 +240,38 @@ namespace UIWidgetsGallery.gallery {
         );
       }
     }
-  }
-
-
-
+  
 public class _BottomPicker : StatelessWidget {
   public _BottomPicker(
     Key key = null,
     Widget child = null
   )  : base(key: key){
-  D.assert(child != null);
-  this.child = child;
+    D.assert(child != null);
+    this.child = child;
   }
   public readonly Widget child;
-
-  public override Widget build(BuildContext context) {
+  public override Widget build(BuildContext context)
+  {
     return new Container(
-      height: 216,
-      padding: EdgeInsets.only(top: 6),
-      margin: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom
-      ),
-      color: CupertinoColors.systemBackground.resolveFrom(context),
+      height: CupertinoPickerDemoUtils._kPickerSheetHeight,
+      padding: EdgeInsets.only(top: 6.0f),
+      color: CupertinoColors.label.resolveFrom(context).darkColor,
       child: new DefaultTextStyle(
         style: new TextStyle(
           color: CupertinoColors.label.resolveFrom(context),
-          fontSize: 22
+          fontSize: 22.0f
         ),
         child: new GestureDetector(
-          // Blocks taps from propagating to the modal sheet and popping.
-          onTap: ()=> {},
-          child:  new SafeArea(
-            top: false,
-            child: child
-          )
+          onTap: () =>{ },
+          child: new SafeArea(
+              top: false,
+              child: child
+            )
         )
       )
     );
   }
+
 }
 
 public class _Menu : StatelessWidget {
@@ -306,4 +303,5 @@ public class _Menu : StatelessWidget {
       )
     );
   }
+}
 }

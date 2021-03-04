@@ -35,10 +35,6 @@ namespace Unity.UIWidgets.painting {
             Axis axis,
             bool reverse) {
             switch (axis) {
-                /*case Axis.horizontal:
-                    return reverse ? AxisDirection.left : AxisDirection.right;
-                case Axis.vertical:
-                    return reverse ? AxisDirection.up : AxisDirection.down;*/
                 case Axis.horizontal:
                     D.assert(WidgetsD.debugCheckHasDirectionality(context));
                     TextDirection textDirection = Directionality.of(context);

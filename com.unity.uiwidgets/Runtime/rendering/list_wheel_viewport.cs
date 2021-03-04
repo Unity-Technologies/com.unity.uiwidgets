@@ -581,8 +581,7 @@ namespace Unity.UIWidgets.rendering {
                 untransformedPaintingCoordinates.dx,
                 -_topScrollMarginExtent
             );
-
-
+            
             bool shouldApplyOffCenterDim = overAndUnderCenterOpacity < 1;
             if (useMagnifier || shouldApplyOffCenterDim) {
                 _paintChildWithMagnifier(context, offset, child, transform, offsetToCenter, untransformedPaintingCoordinates);
@@ -631,8 +630,7 @@ namespace Unity.UIWidgets.rendering {
                         context1.pushTransform(
                             needsCompositing,
                             offset1,
-                            cylindricalTransform,
-                            // this._centerOriginTransform(cylindricalTransform),
+                            _magnifyTransform(),
                             (PaintingContext context2, Offset offset2) => {
                                 context2.paintChild(child, offset2 + untransformedPaintingCoordinates);
                             });

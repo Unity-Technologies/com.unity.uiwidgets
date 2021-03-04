@@ -4,15 +4,6 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     public class Texture : LeafRenderObjectWidget {
-        // TODO: check whether following is needed 
-        // public static void textureFrameAvailable(Window instance = null) {
-        //     if (instance == null) {
-        //         WindowAdapter.windowAdapters.ForEach(w => w.scheduleFrame(false));
-        //     } else {
-        //         instance.scheduleFrame(false);
-        //     }
-        // }
-
         public Texture( 
             Key key = null, 
             int? textureId = null) : base(key: key) {

@@ -858,16 +858,6 @@ namespace Unity.UIWidgets.cupertino {
         }
     }
 
-    /*class _DialogActionButtonParentData : MultiChildLayoutParentData {
-        public _DialogActionButtonParentData(
-            bool isPressed = false
-        ) {
-            this.isPressed = isPressed;
-        }
-
-        public bool isPressed;
-    }*/
-
     public class CupertinoDialogAction : StatelessWidget {
         public CupertinoDialogAction(
             Key key = null,

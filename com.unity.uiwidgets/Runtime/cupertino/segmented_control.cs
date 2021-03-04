@@ -260,12 +260,7 @@ namespace Unity.UIWidgets.cupertino {
               data: iconTheme,
               child: new DefaultTextStyle(
                 style: textStyle,
-                child: child /*Semantics(
-                  button: true,
-                  inMutuallyExclusiveGroup: true,
-                  selected: widget.groupValue.Equals(currentKey),
-                  child: child
-                )*/
+                child: child 
               )
             )
           );

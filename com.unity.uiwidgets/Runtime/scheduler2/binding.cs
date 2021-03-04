@@ -350,7 +350,7 @@ namespace Unity.UIWidgets.scheduler2 {
 
         Completer _nextFrameCompleter;
 
-        Future endOfFrame {
+        public Future endOfFrame {
             get {
                 if (_nextFrameCompleter == null) {
                     if (schedulerPhase == SchedulerPhase.idle)

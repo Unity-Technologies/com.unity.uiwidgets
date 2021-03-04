@@ -176,7 +176,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(!_transitionCompleter.isCompleted, () => $"Cannot reuse a {GetType()} after disposing it.");
             _didPushOrReplace();
             base.didAdd();
-            _controller.setValue(_controller.upperBound); //_controller.upperBound;
+            _controller.setValue(_controller.upperBound); 
         }
         protected internal override void didReplace(Route oldRoute) {
             D.assert(_controller != null,
@@ -376,7 +376,6 @@ namespace Unity.UIWidgets.widgets {
             entry._owner = null;
             entry._notifyRemoved();
             if (_localHistory.isEmpty()) {
-                //changedInternalState();
                 if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
                     SchedulerBinding.instance.addPostFrameCallback((TimeSpan timestamp) =>{
                         changedInternalState();
@@ -573,7 +572,7 @@ namespace Unity.UIWidgets.widgets {
                                                 animation: widget.route.navigator?.userGestureInProgressNotifier ?? new ValueNotifier<bool>(false),
                                                 builder: (BuildContext context1, Widget child1) =>{
                                                     bool ignoreEvents = _shouldIgnoreFocusRequest;
-                                                    focusScopeNode.canRequestFocus = !ignoreEvents; // todo
+                                                    focusScopeNode.canRequestFocus = !ignoreEvents; 
                                                     return new IgnorePointer(
                                                         ignoring: ignoreEvents,
                                                         child: child1
@@ -695,7 +694,7 @@ namespace Unity.UIWidgets.widgets {
         }
         public virtual bool maintainState { get; }
 
-        public bool offstage {
+        public virtual bool offstage {
             get { return _offstage; }
             set {
                 if (_offstage == value) {
@@ -802,19 +801,17 @@ namespace Unity.UIWidgets.widgets {
                     animation.drive(new ColorTween(
                         begin: _kTransparent,
                         end: barrierColor // changedInternalState is called if this updates
-                    ).chain(new CurveTween(curve: barrierCurve)));//.animate(animation);
+                    ).chain(new CurveTween(curve: barrierCurve)));
                 barrier = new AnimatedModalBarrier(
                     color: color,
                     dismissible: barrierDismissible
-                    //,semanticsLabel: barrierLabel, // changedInternalState is called if barrierLabel updates
-                    //barrierSemanticsDismissible: semanticsDismissible
+                   
                 );
             }
             else {
                 barrier = new ModalBarrier(
                     dismissible: barrierDismissible
-                //semanticsLabel: barrierLabel, // changedInternalState is called if barrierLabel updates
-                //barrierSemanticsDismissible: semanticsDismissible,
+               
                 );
             }
             if (_filter != null) {
@@ -1030,7 +1027,7 @@ namespace Unity.UIWidgets.widgets {
             BuildContext context,
             Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            //TODO SEMANTICS
+            
             return _pageBuilder(context, animation, secondaryAnimation);
         }
 

@@ -480,29 +480,6 @@ namespace Unity.UIWidgets.rendering {
         bool _hasHoverRecognizer;
         MouseTrackerAnnotation _hoverAnnotation;
 
-        /*void _resetHoverHandler() {
-            _hasHoverRecognizer = (_textPainter.text as TextSpan)?.hasHoverRecognizer ?? false;
-            _previousHoverSpan = null;
-            _pointerHoverInside = false;
-
-            if (_hoverAnnotation != null && attached) {
-                RendererBinding.instance.mouseTracker.detachAnnotation(_hoverAnnotation);
-            }
-
-            if (_hasHoverRecognizer) {
-                _hoverAnnotation = new MouseTrackerAnnotation(
-                    onEnter: _onPointerEnter,
-                    onHover: _onPointerHover,
-                    onExit: _onPointerExit);
-
-                if (attached) {
-                    RendererBinding.instance.mouseTracker.attachAnnotation(_hoverAnnotation);
-                }
-            }
-            else {
-                _hoverAnnotation = null;
-            }
-        }*/
 
         void _handleKeyEvent(RawKeyEvent keyEvent) {
             //only allow KCommand.copy
@@ -547,9 +524,7 @@ namespace Unity.UIWidgets.rendering {
             }
 
             base.detach();
-            /*if (_hoverAnnotation != null) {
-                RendererBinding.instance.mouseTracker.dispose();//detachAnnotation(_hoverAnnotation);
-            }*/
+          
         }
 
         TextSelection _selection;
@@ -593,24 +568,7 @@ namespace Unity.UIWidgets.rendering {
             _pointerHoverInside = true;
         }
 
-        /*void _onPointerExit(PointerEvent evt) {
-            _pointerHoverInside = false;
-            (_previousHoverSpan as TextSpan)?.hoverRecognizer?.OnPointerLeave?.Invoke();
-            _previousHoverSpan = null;
-        }*/
-
-        /*void _onPointerHover(PointerEvent evt) {
-            _layoutTextWithConstraints(constraints);
-            Offset offset = globalToLocal(evt.position);
-            TextPosition position = _textPainter.getPositionForOffset(offset);
-            InlineSpan span = _textPainter.text.getSpanForPosition(position);
-
-            if (_previousHoverSpan != span) {
-                (_previousHoverSpan as TextSpan)?.hoverRecognizer?.OnPointerLeave?.Invoke();
-                (span as TextSpan)?.hoverRecognizer?.OnPointerEnter?.Invoke((PointerHoverEvent) evt);
-                _previousHoverSpan = span;
-            }
-        }*/
+      
 
         public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
             D.assert(debugHandleEvent(evt, entry));

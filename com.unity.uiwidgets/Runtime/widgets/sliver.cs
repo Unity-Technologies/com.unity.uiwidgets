@@ -510,7 +510,6 @@ namespace Unity.UIWidgets.widgets {
         RenderBox _currentBeforeChild;
 
         protected override void performRebuild() {
-            //_didUnderflow = false;
             _childWidgets.Clear();
             base.performRebuild();
             _currentBeforeChild = null;
@@ -525,7 +524,6 @@ namespace Unity.UIWidgets.widgets {
                     _currentlyUpdatingChildIndex = index;
                     if(_childElements.getOrDefault(index) != null && 
                        _childElements.getOrDefault(index) != newChildren.getOrDefault(index))
-                   // if (_childElements[index] != null && _childElements[index] != newChildren[index])
                     {
                         _childElements[index] = updateChild(_childElements[index], null, index);
                     }
@@ -628,23 +626,6 @@ namespace Unity.UIWidgets.widgets {
             }
             return newChild;
             
-            /*SliverMultiBoxAdaptorParentData oldParentData = null;
-            if (child != null && child.renderObject != null) {
-                oldParentData = (SliverMultiBoxAdaptorParentData) child.renderObject.parentData;
-            }
-
-            Element newChild = base.updateChild(child, newWidget, newSlot);
-
-            SliverMultiBoxAdaptorParentData newParentData = null;
-            if (newChild != null && newChild.renderObject != null) {
-                newParentData = (SliverMultiBoxAdaptorParentData) newChild.renderObject.parentData;
-            }
-
-            if (oldParentData != newParentData && oldParentData != null && newParentData != null) {
-                newParentData.layoutOffset = oldParentData.layoutOffset;
-            }
-
-            return newChild;*/
         }
 
         internal override void forgetChild(Element child) {
@@ -806,18 +787,6 @@ namespace Unity.UIWidgets.widgets {
             }).ToList().ForEach(e => visitor(e));
         }
     }
-
-    /*public class SliverFillRemaining : SingleChildRenderObjectWidget {
-        public SliverFillRemaining(
-            Key key = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
-        }
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderSliverFillRemaining();
-        }
-    }*/
 
     public class KeepAlive : ParentDataWidget<IKeepAliveParentDataMixin> {
         public KeepAlive(
