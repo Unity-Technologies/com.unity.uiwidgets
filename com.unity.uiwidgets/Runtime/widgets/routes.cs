@@ -870,7 +870,7 @@ namespace Unity.UIWidgets.widgets {
             foreach (WillPopCallback callback in _willPopCallbacks) {
                 callback.Invoke().then(v => result = !(bool)v);
                 if (result) {
-                    return  Future.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
+                    return Future.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
                 }
             }
             return base.willPop();

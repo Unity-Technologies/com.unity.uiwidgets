@@ -897,7 +897,8 @@ namespace Unity.UIWidgets.painting {
         public readonly float scale;
 
         public override Future<MemoryImage> obtainKey(ImageConfiguration configuration) {
-            return Future.value(FutureOr.value(this)).to<MemoryImage>();
+            return new SynchronousFuture<MemoryImage>(this);
+            //Future.value(FutureOr.value(this)).to<MemoryImage>();
         }
 
         public override ImageStreamCompleter load(MemoryImage key, DecoderCallback decode) {
@@ -979,11 +980,11 @@ namespace Unity.UIWidgets.painting {
         public readonly AssetBundle bundle;
 
         public override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
-            return Future.value(FutureOr.value(new AssetBundleImageKey(
+            return new SynchronousFuture<AssetBundleImageKey>(new AssetBundleImageKey(
                 bundle: bundle ? bundle : configuration.bundle,
                 name: assetName,
                 scale: scale
-            ))).to<AssetBundleImageKey>();
+            ));
         }
 
         public bool Equals(ExactAssetImage other) {

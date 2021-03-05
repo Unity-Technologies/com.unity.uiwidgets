@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.painting {
@@ -146,7 +147,7 @@ namespace Unity.UIWidgets.painting {
             }
 
             canvas.translate(0.0f, drawCallSpacing);
-            return Future.value();
+            return null;
         }
     }
 }

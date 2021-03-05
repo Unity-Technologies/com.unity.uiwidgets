@@ -498,7 +498,7 @@ namespace Unity.UIWidgets.widgets {
                 name: name,
                 callback: 
                 ((IDictionary<string, string> parameters) => {
-                     var result = Future.value(FutureOr.value(new Dictionary<string, object>(){{"result", callback}})).to<IDictionary<string, object>>();
+                    var result = Future.value(FutureOr.value(new Dictionary<string, object>(){{"result", callback}})).to<IDictionary<string, object>>();
                      return result;
                 })
             );
@@ -510,7 +510,7 @@ namespace Unity.UIWidgets.widgets {
                 ) {
             registerServiceExtension(
               name: name,
-              callback: (IDictionary<string, string> parameters) =>{
+              callback: (IDictionary<string, string> parameters) => {
                   var result = Future.value(FutureOr.value((new Dictionary<string, object>{{"result", callback(parameters["objectGroup"])}}))).to<IDictionary<string, object>>();
                   return result;
               }

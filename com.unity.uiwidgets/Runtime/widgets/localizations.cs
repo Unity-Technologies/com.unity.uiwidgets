@@ -54,7 +54,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (pendingList == null) {
-                return Future.value(output).to<Dictionary<Type, object>>();
+                return new SynchronousFuture<Dictionary<Type, object>>(output);
             }
 
             return Future.wait<object>(pendingList.Select(p => p.futureValue))

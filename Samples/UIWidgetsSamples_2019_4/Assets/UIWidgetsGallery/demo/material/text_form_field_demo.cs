@@ -194,7 +194,7 @@ namespace UIWidgetsGallery.demo.material
                         }
                     );
                 }
-            );
+            )?? Future.value(false).to<bool>();
         }
 
 

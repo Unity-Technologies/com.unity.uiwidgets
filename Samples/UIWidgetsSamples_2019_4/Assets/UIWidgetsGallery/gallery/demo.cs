@@ -147,9 +147,9 @@ namespace UIWidgetsGallery.gallery
                             }
                         );
                     }
-                );
+                ); 
 
-            return Future.value();
+            return null;
         }
 
         public override Widget build(BuildContext context)
