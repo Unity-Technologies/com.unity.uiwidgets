@@ -6,13 +6,11 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEditor;
 using UnityEngine;
+using Font = Unity.UIWidgets.engine2.Font;
 using Rect = UnityEngine.Rect;
 
 namespace Unity.UIWidgets.Editor {
     public class UIWidgetsEditorPanel : EditorWindow, IUIWidgetsWindow {
-        readonly Dictionary<string, UIWidgetsPanel.TextFont> _internalTextFonts =
-            new Dictionary<string, UIWidgetsPanel.TextFont>();
-
         UIWidgetsPanelWrapper _wrapper;
 
         int _currentWidth {
@@ -26,6 +24,9 @@ namespace Unity.UIWidgets.Editor {
         float _currentDevicePixelRatio {
             get { return EditorGUIUtility.pixelsPerPoint; }
         }
+        
+        readonly Dictionary<string, TextFont> _internalTextFonts =
+            new Dictionary<string, TextFont>();
 
         void Update() {
             _wrapper.onEditorUpdate();
@@ -35,6 +36,7 @@ namespace Unity.UIWidgets.Editor {
             D.assert(_wrapper == null);
             _wrapper = new UIWidgetsPanelWrapper();
             onEnable();
+            
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
                 settings: _internalTextFonts);
             _internalTextFonts.Clear();
@@ -94,34 +96,14 @@ namespace Unity.UIWidgets.Editor {
                 Debug.LogError($"The size of {family}‘s assets should be equal to the weights'.");
                 return;
             }
-
-            if (_internalTextFonts.ContainsKey(key: family)) {
-                var textFont = _internalTextFonts[key: family];
-                var fonts = new UIWidgetsPanel.Font[assets.Count];
-                for (var j = 0; j < assets.Count; j++) {
-                    var font = new UIWidgetsPanel.Font();
-                    font.asset = assets[index: j];
-                    font.weight = weights[index: j];
-                    fonts[j] = font;
-                }
-
-                textFont.fonts = fonts;
-                _internalTextFonts[key: family] = textFont;
+            var textFont = new TextFont {family = family};
+            var fonts = new Font[assets.Count];
+            for (var j = 0; j < assets.Count; j++) {
+                var font = new Font {asset = assets[index: j], weight = weights[index: j]};
+                fonts[j] = font;
             }
-            else {
-                var textFont = new UIWidgetsPanel.TextFont();
-                textFont.family = family;
-                var fonts = new UIWidgetsPanel.Font[assets.Count];
-                for (var j = 0; j < assets.Count; j++) {
-                    var font = new UIWidgetsPanel.Font();
-                    font.asset = assets[index: j];
-                    font.weight = weights[index: j];
-                    fonts[j] = font;
-                }
-
-                textFont.fonts = fonts;
-                _internalTextFonts.Add(key: family, value: textFont);
-            }
+            textFont.fonts = fonts;
+            _internalTextFonts[key: family] = textFont;
         }
 
         Vector2? _getPointerPosition(Vector2 position) {

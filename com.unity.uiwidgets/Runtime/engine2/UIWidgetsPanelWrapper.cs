@@ -156,7 +156,7 @@ public partial class UIWidgetsPanelWrapper {
         public float devicePixelRatio { get; private set; }
 
         public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr,
-            Dictionary<string, UIWidgetsPanel.TextFont> settings) {
+            Dictionary<string, TextFont> settings) {
             D.assert(renderTexture == null);
             _recreateRenderTexture(width: width, height: height, devicePixelRatio: dpr);
 
@@ -195,7 +195,7 @@ public partial class UIWidgetsPanelWrapper {
             }
         }
 
-        public object fontsToObject(Dictionary<string, UIWidgetsPanel.TextFont> settings) {
+        public object fontsToObject(Dictionary<string, TextFont> settings) {
             if (settings == null || settings.Count == 0) {
                 return null;
             }

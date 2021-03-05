@@ -14,6 +14,18 @@ namespace Unity.UIWidgets.engine2 {
         GameObjectPanel = 1,
         EditorWindowPanel = 2
     }
+    
+    [Serializable]
+    public struct Font {
+        public string asset;
+        public int weight;
+    }
+
+    [Serializable]
+    public struct TextFont {
+        public string family;
+        [SerializeField] public Font[] fonts;
+    }
 
     public interface IUIWidgetsWindow {
         Offset windowPosToScreenPos(Offset offset);
@@ -84,14 +96,17 @@ namespace Unity.UIWidgets.engine2 {
             D.assert(_wrapper == null);
             _wrapper = new UIWidgetsPanelWrapper();
             onEnable();
+            
             if (fonts != null && fonts.Length > 0) {
-                addFontFromInspector(fonts: fonts);
+                foreach (var font in fonts) {
+                    AddFont(font.family, font);
+                }
             }
 
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
                 settings: _internalTextFonts);
-            texture = _wrapper.renderTexture;
             _internalTextFonts.Clear();
+            texture = _wrapper.renderTexture;
             Input_OnEnable();
             panels.Add(this);
             _ShowDebugLog = m_ShowDebugLog;
@@ -159,65 +174,26 @@ namespace Unity.UIWidgets.engine2 {
         protected virtual void onEnable() {
         }
 
+        protected void AddFont(string family, TextFont font) {
+            _internalTextFonts[key: family] = font;
+        }
+
         protected void AddFont(string family, List<string> assets, List<int> weights) {
             if (assets.Count != weights.Count) {
                 Debug.LogError($"The size of {family}‘s assets should be equal to the weights'.");
                 return;
             }
-
-            if (_internalTextFonts.ContainsKey(key: family)) {
-                var textFont = _internalTextFonts[key: family];
-                var fonts = new Font[assets.Count];
-                for (var j = 0; j < assets.Count; j++) {
-                    var font = new Font();
-                    font.asset = assets[index: j];
-                    font.weight = weights[index: j];
-                    fonts[j] = font;
-                }
-
-                textFont.fonts = fonts;
-                _internalTextFonts[key: family] = textFont;
+            var textFont = new TextFont {family = family};
+            var fonts = new Font[assets.Count];
+            for (var j = 0; j < assets.Count; j++) {
+                var font = new Font {asset = assets[index: j], weight = weights[index: j]};
+                fonts[j] = font;
             }
-            else {
-                var textFont = new TextFont();
-                textFont.family = family;
-                var fonts = new Font[assets.Count];
-                for (var j = 0; j < assets.Count; j++) {
-                    var font = new Font();
-                    font.asset = assets[index: j];
-                    font.weight = weights[index: j];
-                    fonts[j] = font;
-                }
-
-                textFont.fonts = fonts;
-                _internalTextFonts.Add(key: family, value: textFont);
-            }
-        }
-
-        void addFontFromInspector(TextFont[] fonts) {
-            foreach (var font in fonts) {
-                if (_internalTextFonts.ContainsKey(key: font.family)) {
-                    _internalTextFonts[key: font.family] = font;
-                }
-                else {
-                    _internalTextFonts.Add(key: font.family, value: font);
-                }
-            }
+            textFont.fonts = fonts;
+            AddFont(family, textFont);
         }
 
         protected virtual void main() {
-        }
-
-        [Serializable]
-        public struct Font {
-            public string asset;
-            public int weight;
-        }
-
-        [Serializable]
-        public struct TextFont {
-            public string family;
-            [SerializeField] public Font[] fonts;
         }
     }
 
