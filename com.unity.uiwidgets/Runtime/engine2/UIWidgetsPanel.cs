@@ -1,25 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using TextFont = Unity.UIWidgets.engine2.UIWidgetsPanel.TextFont;
-using Font = Unity.UIWidgets.engine2.UIWidgetsPanel.Font;
 
 namespace Unity.UIWidgets.engine2 {
-
     public enum UIWidgetsWindowType {
         InvalidPanel = 0,
         GameObjectPanel = 1,
         EditorWindowPanel = 2
     }
-    
+
     public interface IUIWidgetsWindow {
         Offset windowPosToScreenPos(Offset offset);
 
@@ -35,57 +30,20 @@ namespace Unity.UIWidgets.engine2 {
     }
 
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
-        UIWidgetsPanelWrapper _wrapper;
+        public static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
+
+        static bool _ShowDebugLog;
 
         public float devicePixelRatioOverride;
 
         public bool hardwareAntiAliasing;
 
-        public UIWidgetsWindowType getWindowType() {
-            return UIWidgetsWindowType.GameObjectPanel;
-        }
-        
-        public bool isActive() {
-            return IsActive();
-        }
-
-        public void startCoroutine(IEnumerator routing) {
-            StartCoroutine(routing);
-        }
-
-        public void onNewFrameScheduled() {
-            
-        }
-
-        public Offset windowPosToScreenPos(Offset offset) {
-            Camera camera = null;
-            if (canvas.renderMode != RenderMode.ScreenSpaceCamera) {
-                camera = canvas.GetComponent<GraphicRaycaster>().eventCamera;
-            }
-
-            var pos = new Vector2(offset.dx, offset.dy);
-            pos = pos * _currentDevicePixelRatio / canvas.scaleFactor;
-            var rect = rectTransform.rect;
-            pos.x += rect.min.x;
-            pos.y = rect.max.y - pos.y;
-            var worldPos = rectTransform.TransformPoint(new Vector2(pos.x, pos.y));
-            var screenPos = RectTransformUtility.WorldToScreenPoint(camera, worldPos);
-            return new Offset(screenPos.x, Screen.height - screenPos.y);
-        }
-
-        [Serializable]
-        public struct Font {
-            public string asset;
-            public int weight;
-        }
-
-        [Serializable]
-        public struct TextFont {
-            public string family;
-            [SerializeField] public Font[] fonts;
-        }
-
         public TextFont[] fonts;
+
+        public bool m_ShowDebugLog;
+
+        readonly Dictionary<string, TextFont> _internalTextFonts = new Dictionary<string, TextFont>();
+        UIWidgetsPanelWrapper _wrapper;
 
         int _currentWidth {
             get { return Mathf.RoundToInt(rectTransform.rect.width * canvas.scaleFactor); }
@@ -97,7 +55,7 @@ namespace Unity.UIWidgets.engine2 {
 
         float _currentDevicePixelRatio {
             get {
-                float currentDpi = Screen.dpi;
+                var currentDpi = Screen.dpi;
                 if (currentDpi == 0) {
                     currentDpi = canvas.GetComponent<CanvasScaler>().fallbackScreenDPI;
                 }
@@ -106,11 +64,8 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
-        public bool m_ShowDebugLog = false;
-        
-        public static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
         public static bool ShowDebugLog {
-            get => _ShowDebugLog;
+            get { return _ShowDebugLog; }
             set {
                 foreach (var panel in panels) {
                     panel.m_ShowDebugLog = value;
@@ -119,75 +74,27 @@ namespace Unity.UIWidgets.engine2 {
                 _ShowDebugLog = value;
             }
         }
-        
-        static bool _ShowDebugLog = false;
-        
-        protected virtual void onEnable() {}
 
-        Dictionary<string,TextFont> _internalTextFonts = new Dictionary<string, TextFont>();
-        protected void AddFont(string family, List<string> assets, List<int> weights) {
-            if (assets.Count != weights.Count) {
-                UnityEngine.Debug.LogError($"The size of {family}‘s assets should be equal to the weights'.");
-                return;
-            }
-            if (!_internalTextFonts.ContainsKey(family)) {
-                TextFont textFont = new TextFont();
-                textFont.family = family;
-                Font[] fonts = new Font[assets.Count];
-                for (int j = 0; j < assets.Count; j++) {
-                    Font font = new Font();
-                    font.asset = assets[j];
-                    font.weight = weights[j];
-                    fonts[j] = font;
-                }
-                textFont.fonts = fonts;
-                _internalTextFonts.Add(family,textFont);
-            }
+        protected virtual void Update() {
+            Input_Update();
         }
 
         protected void OnEnable() {
             base.OnEnable();
             D.assert(_wrapper == null);
             _wrapper = new UIWidgetsPanelWrapper();
-            
+            onEnable();
             if (fonts != null && fonts.Length > 0) {
-                foreach (var font in fonts) {
-                    if(!_internalTextFonts.ContainsKey(font.family))
-                        _internalTextFonts.Add(font.family,font);
-                }
-                onEnable();
+                addFontFromInspector(fonts: fonts);
             }
-            else {
-                onEnable();
-            }
-            _wrapper.Initiate(this, _currentWidth, _currentHeight, _currentDevicePixelRatio, _internalTextFonts);
+
+            _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
+                settings: _internalTextFonts);
             texture = _wrapper.renderTexture;
             _internalTextFonts.Clear();
             Input_OnEnable();
             panels.Add(this);
             _ShowDebugLog = m_ShowDebugLog;
-        }
-        TextFont[] loadTextFont() {
-            TextFont[] textFonts = new TextFont[_internalTextFonts.Count];
-            List<TextFont> fontValues = _internalTextFonts.Values.ToList();
-            for (int i = 0; i < fontValues.Count; i++) {
-                textFonts[i] = fontValues[i];
-            }
-            return textFonts;
-        }
-        
-        public void mainEntry() {
-            main();
-        }
-
-        protected virtual void main() {
-        }
-
-        protected override void OnRectTransformDimensionsChange() {
-            if (_wrapper != null && _wrapper.didDisplayMetricsChanged(_currentWidth, _currentHeight, _currentDevicePixelRatio)) {
-                _wrapper.OnDisplayMetricsChanged(_currentWidth, _currentHeight, _currentDevicePixelRatio);
-                texture = _wrapper.renderTexture;
-            }
         }
 
         protected override void OnDisable() {
@@ -201,12 +108,116 @@ namespace Unity.UIWidgets.engine2 {
             panels.Remove(this);
         }
 
-        protected virtual void Update() {
-            Input_Update();
-        }
-
         protected virtual void OnGUI() {
             Input_OnGUI();
+        }
+
+        protected override void OnRectTransformDimensionsChange() {
+            if (_wrapper != null && _wrapper.didDisplayMetricsChanged(width: _currentWidth, height: _currentHeight,
+                dpr: _currentDevicePixelRatio)) {
+                _wrapper.OnDisplayMetricsChanged(width: _currentWidth, height: _currentHeight,
+                    dpr: _currentDevicePixelRatio);
+                texture = _wrapper.renderTexture;
+            }
+        }
+
+        public UIWidgetsWindowType getWindowType() {
+            return UIWidgetsWindowType.GameObjectPanel;
+        }
+
+        public bool isActive() {
+            return IsActive();
+        }
+
+        public void startCoroutine(IEnumerator routing) {
+            StartCoroutine(routine: routing);
+        }
+
+        public void onNewFrameScheduled() {
+        }
+
+        public Offset windowPosToScreenPos(Offset offset) {
+            Camera camera = null;
+            if (canvas.renderMode != RenderMode.ScreenSpaceCamera) {
+                camera = canvas.GetComponent<GraphicRaycaster>().eventCamera;
+            }
+
+            var pos = new Vector2(x: offset.dx, y: offset.dy);
+            pos = pos * _currentDevicePixelRatio / canvas.scaleFactor;
+            var rect = rectTransform.rect;
+            pos.x += rect.min.x;
+            pos.y = rect.max.y - pos.y;
+            var worldPos = rectTransform.TransformPoint(new Vector2(x: pos.x, y: pos.y));
+            var screenPos = RectTransformUtility.WorldToScreenPoint(cam: camera, worldPoint: worldPos);
+            return new Offset(dx: screenPos.x, Screen.height - screenPos.y);
+        }
+
+        public void mainEntry() {
+            main();
+        }
+
+        protected virtual void onEnable() {
+        }
+
+        protected void AddFont(string family, List<string> assets, List<int> weights) {
+            if (assets.Count != weights.Count) {
+                Debug.LogError($"The size of {family}‘s assets should be equal to the weights'.");
+                return;
+            }
+
+            if (_internalTextFonts.ContainsKey(key: family)) {
+                var textFont = _internalTextFonts[key: family];
+                var fonts = new Font[assets.Count];
+                for (var j = 0; j < assets.Count; j++) {
+                    var font = new Font();
+                    font.asset = assets[index: j];
+                    font.weight = weights[index: j];
+                    fonts[j] = font;
+                }
+
+                textFont.fonts = fonts;
+                _internalTextFonts[key: family] = textFont;
+            }
+            else {
+                var textFont = new TextFont();
+                textFont.family = family;
+                var fonts = new Font[assets.Count];
+                for (var j = 0; j < assets.Count; j++) {
+                    var font = new Font();
+                    font.asset = assets[index: j];
+                    font.weight = weights[index: j];
+                    fonts[j] = font;
+                }
+
+                textFont.fonts = fonts;
+                _internalTextFonts.Add(key: family, value: textFont);
+            }
+        }
+
+        void addFontFromInspector(TextFont[] fonts) {
+            foreach (var font in fonts) {
+                if (_internalTextFonts.ContainsKey(key: font.family)) {
+                    _internalTextFonts[key: font.family] = font;
+                }
+                else {
+                    _internalTextFonts.Add(key: font.family, value: font);
+                }
+            }
+        }
+
+        protected virtual void main() {
+        }
+
+        [Serializable]
+        public struct Font {
+            public string asset;
+            public int weight;
+        }
+
+        [Serializable]
+        public struct TextFont {
+            public string family;
+            [SerializeField] public Font[] fonts;
         }
     }
 
@@ -215,10 +226,37 @@ namespace Unity.UIWidgets.engine2 {
         bool _isEntered;
         Vector2 _lastMousePosition;
 
+        public void OnDrag(PointerEventData eventData) {
+            var pos = _getPointerPosition(position: Input.mousePosition);
+            _wrapper.OnDrag(pos: pos, pointerId: eventData.pointerId);
+        }
+
+        public void OnPointerDown(PointerEventData eventData) {
+            var pos = _getPointerPosition(position: Input.mousePosition);
+            _wrapper.OnPointerDown(pos: pos, pointerId: eventData.pointerId);
+        }
+
+        public void OnPointerEnter(PointerEventData eventData) {
+            D.assert(eventData.pointerId < 0);
+            _isEntered = true;
+            _lastMousePosition = Input.mousePosition;
+        }
+
+        public void OnPointerExit(PointerEventData eventData) {
+            D.assert(eventData.pointerId < 0);
+            _isEntered = false;
+            _wrapper.OnPointerLeave();
+        }
+
+        public void OnPointerUp(PointerEventData eventData) {
+            var pos = _getPointerPosition(position: Input.mousePosition);
+            _wrapper.OnPointerUp(pos: pos, pointerId: eventData.pointerId);
+        }
+
         Vector2? _getPointerPosition(Vector2 position) {
-            Camera worldCamera = canvas.worldCamera;
+            var worldCamera = canvas.worldCamera;
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                rectTransform, position, worldCamera, out var localPoint)) {
+                rect: rectTransform, screenPoint: position, cam: worldCamera, out var localPoint)) {
                 var scaleFactor = canvas.scaleFactor;
                 localPoint.x = (localPoint.x - rectTransform.rect.min.x) * scaleFactor;
                 localPoint.y = (rectTransform.rect.max.y - localPoint.y) * scaleFactor;
@@ -256,47 +294,20 @@ namespace Unity.UIWidgets.engine2 {
         }
 
         void Input_OnGUI() {
-            Event e = Event.current;
+            var e = Event.current;
             if (e.isKey) {
-                _wrapper.OnKeyDown(e);
+                _wrapper.OnKeyDown(e: e);
             }
         }
 
         void _onMouseMove() {
-            var pos = _getPointerPosition(Input.mousePosition);
-            _wrapper.OnMouseMove(pos);
+            var pos = _getPointerPosition(position: Input.mousePosition);
+            _wrapper.OnMouseMove(pos: pos);
         }
 
         void _onScroll() {
-            var pos = _getPointerPosition(Input.mousePosition);
-            _wrapper.OnMouseScroll(Input.mouseScrollDelta, pos);
-        }
-
-        public void OnPointerDown(PointerEventData eventData) {
-            var pos = _getPointerPosition(Input.mousePosition);
-            _wrapper.OnPointerDown(pos, eventData.pointerId);
-        }
-
-        public void OnPointerUp(PointerEventData eventData) {
-            var pos = _getPointerPosition(Input.mousePosition);
-            _wrapper.OnPointerUp(pos, eventData.pointerId);
-        }
-
-        public void OnPointerEnter(PointerEventData eventData) {
-            D.assert(eventData.pointerId < 0);
-            _isEntered = true;
-            _lastMousePosition = Input.mousePosition;
-        }
-
-        public void OnPointerExit(PointerEventData eventData) {
-            D.assert(eventData.pointerId < 0);
-            _isEntered = false;
-            _wrapper.OnPointerLeave();
-        }
-
-        public void OnDrag(PointerEventData eventData) {
-            var pos = _getPointerPosition(Input.mousePosition);
-            _wrapper.OnDrag(pos, eventData.pointerId);
+            var pos = _getPointerPosition(position: Input.mousePosition);
+            _wrapper.OnMouseScroll(delta: Input.mouseScrollDelta, pos: pos);
         }
     }
 }
