@@ -1136,7 +1136,7 @@ namespace Unity.UIWidgets.material {
                     }
                 });
 
-                return new SynchronousFuture(null);
+                return Future.value();
             });
         }
 

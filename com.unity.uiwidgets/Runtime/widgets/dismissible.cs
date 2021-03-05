@@ -443,7 +443,7 @@ namespace Unity.UIWidgets.widgets {
                 return widget.confirmDismiss(direction);
             }
 
-            return new SynchronousFuture<bool>(true);
+            return Future.value(true).to<bool>();
         }
 
         void _startResizeAnimation() {

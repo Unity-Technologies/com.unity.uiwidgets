@@ -984,11 +984,6 @@ namespace Unity.UIWidgets.painting {
                 name: assetName,
                 scale: scale
             ));
-            //     Future.value(FutureOr.value(new AssetBundleImageKey(
-            //     bundle: bundle ? bundle : configuration.bundle,
-            //     name: assetName,
-            //     scale: scale
-            // ))).to<AssetBundleImageKey>();
         }
 
         public bool Equals(ExactAssetImage other) {

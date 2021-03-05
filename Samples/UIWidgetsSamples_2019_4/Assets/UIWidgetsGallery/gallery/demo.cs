@@ -149,7 +149,7 @@ namespace UIWidgetsGallery.gallery
                     }
                 ); 
 
-            return new SynchronousFuture(null);
+            return null;
         }
 
         public override Widget build(BuildContext context)

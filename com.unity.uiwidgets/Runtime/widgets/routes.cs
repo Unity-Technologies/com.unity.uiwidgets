@@ -390,8 +390,7 @@ namespace Unity.UIWidgets.widgets {
         public override Future<RoutePopDisposition> willPop() {
             //async
             if (willHandlePopInternally) {
-                return new SynchronousFuture<RoutePopDisposition>(RoutePopDisposition.pop);
-                //Future.value(RoutePopDisposition.pop).to<RoutePopDisposition>();
+                return Future.value(RoutePopDisposition.pop).to<RoutePopDisposition>();
             }
             return base.willPop();
         }
@@ -740,8 +739,7 @@ namespace Unity.UIWidgets.widgets {
                 var callback = _willPopCallbacks[index];
                 return callback.Invoke().then(v => {
                     if (!(bool) v) {
-                        return new SynchronousFuture(RoutePopDisposition.doNotPop);
-                        //Future.value(RoutePopDisposition.doNotPop);
+                        return Future.value(RoutePopDisposition.doNotPop);
                     }
 
                     return InvokePopCallbacks(index + 1);
@@ -875,8 +873,7 @@ namespace Unity.UIWidgets.widgets {
             foreach (WillPopCallback callback in _willPopCallbacks) {
                 callback.Invoke().then(v => result = !(bool)v);
                 if (result) {
-                    return new SynchronousFuture<RoutePopDisposition>(RoutePopDisposition.doNotPop);
-                    //Future.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
+                    return Future.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
                 }
             }
             return base.willPop();

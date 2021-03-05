@@ -35,7 +35,6 @@ namespace Unity.UIWidgets.painting {
             var cache = AssetBundleCache.instance.get(configuration.bundle);
             if (cache.TryGetValue(assetConfig, out key)) {
                 return new SynchronousFuture<AssetBundleImageKey>(key);
-                //Future.value(FutureOr.value(key)).to<AssetBundleImageKey>();
             }
 
             AssetBundle chosenBundle = bundle ? bundle : configuration.bundle;
@@ -44,7 +43,6 @@ namespace Unity.UIWidgets.painting {
             cache[assetConfig] = key;
 
             return new SynchronousFuture<AssetBundleImageKey>(key);
-            //Future.value(FutureOr.value(key)).to<AssetBundleImageKey>();
         }
 
         internal string _chooseVariant(string main, ImageConfiguration config, List<string> candidates) {

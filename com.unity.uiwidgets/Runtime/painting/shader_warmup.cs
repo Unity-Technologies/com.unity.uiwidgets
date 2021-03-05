@@ -147,7 +147,7 @@ namespace Unity.UIWidgets.painting {
             }
 
             canvas.translate(0.0f, drawCallSpacing);
-            return new SynchronousFuture(null); // new SynchronousFuture(null);
+            return null;
         }
     }
 }

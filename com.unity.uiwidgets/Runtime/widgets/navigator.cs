@@ -110,12 +110,9 @@ namespace Unity.UIWidgets.widgets {
         
 
         public virtual Future<RoutePopDisposition> willPop() {
-            return new SynchronousFuture<RoutePopDisposition>(isFirst
-                ? RoutePopDisposition.bubble
-                : RoutePopDisposition.pop);
-            // Future.value(isFirst
-            // ? RoutePopDisposition.bubble
-            // : RoutePopDisposition.pop).to<RoutePopDisposition>();
+            return Future.value(isFirst
+            ? RoutePopDisposition.bubble
+            : RoutePopDisposition.pop).to<RoutePopDisposition>();
         }
 
         public virtual bool willHandlePopInternally {
