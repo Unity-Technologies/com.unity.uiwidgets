@@ -23,11 +23,9 @@ namespace Unity.UIWidgets.widgets {
             
         ) : base(key: key, child: child) {
             D.assert(style != null);
-            D.assert(softWrap != null);
-            D.assert(overflow != null);
             D.assert(maxLines == null || maxLines > 0);
             D.assert(child != null);
-            D.assert(textWidthBasis != null);
+            
             this.style = style;
             this.textAlign = textAlign;
             this.softWrap = softWrap;
@@ -90,18 +88,15 @@ namespace Unity.UIWidgets.widgets {
         public static DefaultTextStyle of(BuildContext context) {
             return context.dependOnInheritedWidgetOfExactType<DefaultTextStyle>() ?? new DefaultTextStyle();
         }
-        public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            //InheritedWidget
-            //DefaultTextStyle
-            oldWidget = (DefaultTextStyle) oldWidget;
-           
-            return style !=  ((DefaultTextStyle)oldWidget).style ||
-                textAlign !=  ((DefaultTextStyle)oldWidget).textAlign ||
-                softWrap !=  ((DefaultTextStyle)oldWidget).softWrap ||
-                overflow !=  ((DefaultTextStyle)oldWidget).overflow ||
-                maxLines !=  ((DefaultTextStyle)oldWidget).maxLines ||
-                textWidthBasis !=  ((DefaultTextStyle)oldWidget).textWidthBasis ||
-                textHeightBehavior !=  ((DefaultTextStyle)oldWidget).textHeightBehavior;
+        public override bool updateShouldNotify(InheritedWidget oldWidget) { 
+            DefaultTextStyle _oldWidget = (DefaultTextStyle) oldWidget;
+            return style !=  _oldWidget.style ||
+                   textAlign != _oldWidget.textAlign ||
+                   softWrap != _oldWidget.softWrap ||
+                   overflow != _oldWidget.overflow ||
+                   maxLines != _oldWidget.maxLines ||
+                   textWidthBasis != _oldWidget.textWidthBasis ||
+                   textHeightBehavior != _oldWidget.textHeightBehavior;
         }
         public override Widget wrap(BuildContext context, Widget child) {
     
@@ -131,102 +126,6 @@ namespace Unity.UIWidgets.widgets {
 
         
     }
-
-    /*public class DefaultTextStyle : InheritedWidget {
-        public DefaultTextStyle(
-            Key key = null,
-            TextStyle style = null,
-            TextAlign? textAlign = null,
-            bool softWrap = true,
-            TextOverflow overflow = TextOverflow.clip,
-            int? maxLines = null,
-            Widget child = null
-        ) : base(key, child) {
-            D.assert(style != null);
-            D.assert(maxLines == null || maxLines > 0);
-            D.assert(child != null);
-
-            this.style = style;
-            this.textAlign = textAlign;
-            this.softWrap = softWrap;
-            this.overflow = overflow;
-            this.maxLines = maxLines;
-        }
-
-        DefaultTextStyle() {
-            style = new TextStyle();
-            textAlign = null;
-            softWrap = true;
-            overflow = TextOverflow.clip;
-            maxLines = null;
-        }
-
-        public static DefaultTextStyle fallback() {
-            return _fallback;
-        }
-
-        static readonly DefaultTextStyle _fallback = new DefaultTextStyle();
-
-        public static Widget merge(
-            Key key = null,
-            TextStyle style = null,
-            TextAlign? textAlign = null,
-            bool? softWrap = null,
-            TextOverflow? overflow = null,
-            int? maxLines = null,
-            Widget child = null
-        ) {
-            D.assert(child != null);
-            return new Builder(builder: (context => {
-                var parent = of(context);
-                return new DefaultTextStyle(
-                    key: key,
-                    style: parent.style.merge(style),
-                    textAlign: textAlign ?? parent.textAlign,
-                    softWrap: softWrap ?? parent.softWrap,
-                    overflow: overflow ?? parent.overflow,
-                    maxLines: maxLines ?? parent.maxLines,
-                    child: child
-                );
-            }));
-        }
-
-        public readonly TextStyle style;
-        public readonly TextAlign? textAlign;
-        public readonly bool softWrap;
-        public readonly TextOverflow overflow;
-        public readonly int? maxLines;
-
-        public static DefaultTextStyle of(BuildContext context) {
-            var inherit = (DefaultTextStyle) context.inheritFromWidgetOfExactType(typeof(DefaultTextStyle));
-            return inherit ?? fallback();
-        }
-
-        public override bool updateShouldNotify(InheritedWidget w) {
-            var oldWidget = (DefaultTextStyle) w;
-            return style != oldWidget.style ||
-                   textAlign != oldWidget.textAlign ||
-                   softWrap != oldWidget.softWrap ||
-                   overflow != oldWidget.overflow ||
-                   maxLines != oldWidget.maxLines;
-        }
-
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            if (style != null) {
-                style.debugFillProperties(properties);
-            }
-
-            properties.add(new EnumProperty<TextAlign?>("textAlign", textAlign,
-                defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new FlagProperty("softWrap", value: softWrap, ifTrue: "wrapping at box width",
-                ifFalse: "no wrapping except at line break characters", showName: true));
-            properties.add(new EnumProperty<TextOverflow>("overflow", overflow,
-                defaultValue: foundation_.kNullDefaultValue));
-            properties.add(new IntProperty("maxLines", maxLines,
-                defaultValue: foundation_.kNullDefaultValue));
-        }
-    }*/
 
     public class Text : StatelessWidget {
         public Text(string data,

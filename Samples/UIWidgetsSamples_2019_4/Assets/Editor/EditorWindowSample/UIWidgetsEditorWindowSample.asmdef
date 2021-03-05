@@ -1,0 +1,16 @@
+{
+    "name": "UIWidgetsEditorWindowSample",
+    "references": [
+        "Unity.UIWidgets",
+        "Unity.UIWidgets.Editor",
+        "UIWidgetsGallery"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

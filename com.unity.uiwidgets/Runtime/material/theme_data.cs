@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using uiwidgets;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -43,6 +45,8 @@ namespace Unity.UIWidgets.material {
             Color bottomAppBarColor = null,
             Color cardColor = null,
             Color dividerColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             InteractiveInkFeatureFactory splashFactory = null,
@@ -51,6 +55,7 @@ namespace Unity.UIWidgets.material {
             Color disabledColor = null,
             Color buttonColor = null,
             ButtonThemeData buttonTheme = null,
+            ToggleButtonsThemeData toggleButtonsTheme = null,
             Color secondaryHeaderColor = null,
             Color textSelectionColor = null,
             Color cursorColor = null,
@@ -71,6 +76,7 @@ namespace Unity.UIWidgets.material {
             IconThemeData accentIconTheme = null,
             SliderThemeData sliderTheme = null,
             TabBarTheme tabBarTheme = null,
+            TooltipThemeData tooltipTheme = null,
             CardTheme cardTheme = null,
             ChipThemeData chipTheme = null,
             RuntimePlatform? platform = null,
@@ -82,6 +88,7 @@ namespace Unity.UIWidgets.material {
             ColorScheme colorScheme = null,
             DialogTheme dialogTheme = null,
             FloatingActionButtonThemeData floatingActionButtonTheme = null,
+            NavigationRailThemeData navigationRailTheme = null,
             Typography typography = null,
             SnackBarThemeData snackBarTheme = null,
             BottomSheetThemeData bottomSheetTheme = null,
@@ -168,14 +175,19 @@ namespace Unity.UIWidgets.material {
             }
 
             buttonColor = buttonColor ?? (isDark ? primarySwatch[600] : Colors.grey[300]);
+            focusColor = focusColor ??(isDark ? Colors.white.withOpacity(0.12f) : Colors.black.withOpacity(0.12f));
+            hoverColor = hoverColor ??(isDark ? Colors.white.withOpacity(0.04f) : Colors.black.withOpacity(0.04f));
             buttonTheme = buttonTheme ?? new ButtonThemeData(
                 colorScheme: colorScheme,
                 buttonColor: buttonColor,
                 disabledColor: disabledColor,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
                 highlightColor: highlightColor,
                 splashColor: splashColor,
                 materialTapTargetSize: materialTapTargetSize);
-            disabledColor = disabledColor ?? (isDark ? Colors.white30 : Colors.black38);
+            toggleButtonsTheme = toggleButtonsTheme?? new ToggleButtonsThemeData();
+            disabledColor = disabledColor ?? (isDark ? Colors.white38 : Colors.black38);
             highlightColor = highlightColor ??
                              (isDark
                                  ? material_._kDarkThemeHighlightColor
@@ -192,14 +204,16 @@ namespace Unity.UIWidgets.material {
                 valueIndicatorTextStyle: accentTextTheme.body2);
 
             tabBarTheme = tabBarTheme ?? new TabBarTheme();
+            tooltipTheme = tooltipTheme ?? new TooltipThemeData();
             cardTheme = cardTheme ?? new CardTheme();
             chipTheme = chipTheme ?? ChipThemeData.fromDefaults(
                 secondaryColor: primaryColor,
                 brightness: brightness,
-                labelStyle: textTheme.body2
+                labelStyle: textTheme.bodyText1
             );
             dialogTheme = dialogTheme ?? new DialogTheme();
             floatingActionButtonTheme = floatingActionButtonTheme ?? new FloatingActionButtonThemeData();
+            navigationRailTheme = navigationRailTheme ?? new NavigationRailThemeData();
             snackBarTheme = snackBarTheme ?? new SnackBarThemeData();
             bottomSheetTheme = bottomSheetTheme ?? new BottomSheetThemeData();
             popupMenuTheme = popupMenuTheme ?? new PopupMenuThemeData();
@@ -277,6 +291,8 @@ namespace Unity.UIWidgets.material {
             this.bottomAppBarColor = bottomAppBarColor;
             this.cardColor = cardColor;
             this.dividerColor = dividerColor;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
             this.highlightColor = highlightColor;
             this.splashColor = splashColor;
             this.splashFactory = splashFactory;
@@ -284,6 +300,7 @@ namespace Unity.UIWidgets.material {
             this.unselectedWidgetColor = unselectedWidgetColor;
             this.disabledColor = disabledColor;
             this.buttonTheme = buttonTheme;
+            this.toggleButtonsTheme = toggleButtonsTheme;
             this.buttonColor = buttonColor;
             this.secondaryHeaderColor = secondaryHeaderColor;
             this.textSelectionColor = textSelectionColor;
@@ -304,6 +321,7 @@ namespace Unity.UIWidgets.material {
             this.accentIconTheme = accentIconTheme;
             this.sliderTheme = sliderTheme;
             this.tabBarTheme = tabBarTheme;
+            this.tooltipTheme = tooltipTheme;
             this.cardTheme = cardTheme;
             this.chipTheme = chipTheme;
             this.platform = platform.Value;
@@ -315,6 +333,7 @@ namespace Unity.UIWidgets.material {
             this.colorScheme = colorScheme;
             this.dialogTheme = dialogTheme;
             this.floatingActionButtonTheme = floatingActionButtonTheme;
+            this.navigationRailTheme = navigationRailTheme;
             this.typography = typography;
             this.snackBarTheme = snackBarTheme;
             this.bottomSheetTheme = bottomSheetTheme;
@@ -338,6 +357,8 @@ namespace Unity.UIWidgets.material {
             Color bottomAppBarColor = null,
             Color cardColor = null,
             Color dividerColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             InteractiveInkFeatureFactory splashFactory = null,
@@ -346,6 +367,7 @@ namespace Unity.UIWidgets.material {
             Color disabledColor = null,
             ButtonThemeData buttonTheme = null,
             Color buttonColor = null,
+            ToggleButtonsThemeData toggleButtonsTheme = null,
             Color secondaryHeaderColor = null,
             Color textSelectionColor = null,
             Color cursorColor = null,
@@ -365,6 +387,7 @@ namespace Unity.UIWidgets.material {
             IconThemeData primaryIconTheme = null,
             IconThemeData accentIconTheme = null,
             TabBarTheme tabBarTheme = null,
+            TooltipThemeData tooltipTheme = null,
             CardTheme cardTheme = null,
             ChipThemeData chipTheme = null,
             RuntimePlatform? platform = null,
@@ -376,6 +399,7 @@ namespace Unity.UIWidgets.material {
             ColorScheme colorScheme = null,
             DialogTheme dialogTheme = null,
             FloatingActionButtonThemeData floatingActionButtonTheme = null,
+            NavigationRailThemeData navigationRailTheme = null,
             Typography typography = null,
             SnackBarThemeData snackBarTheme = null,
             BottomSheetThemeData bottomSheetTheme = null,
@@ -397,6 +421,8 @@ namespace Unity.UIWidgets.material {
             D.assert(bottomAppBarColor != null);
             D.assert(cardColor != null);
             D.assert(dividerColor != null);
+            D.assert(focusColor != null);
+            D.assert(hoverColor != null);
             D.assert(highlightColor != null);
             D.assert(splashColor != null);
             D.assert(splashFactory != null);
@@ -405,6 +431,7 @@ namespace Unity.UIWidgets.material {
             D.assert(disabledColor != null);
             D.assert(toggleableActiveColor != null);
             D.assert(buttonTheme != null);
+            D.assert(toggleButtonsTheme != null);
             D.assert(secondaryHeaderColor != null);
             D.assert(textSelectionColor != null);
             D.assert(cursorColor != null);
@@ -432,10 +459,12 @@ namespace Unity.UIWidgets.material {
             D.assert(typography != null);
             D.assert(buttonColor != null);
             D.assert(tabBarTheme != null);
+            D.assert(tooltipTheme != null);
             D.assert(cardTheme != null);
             D.assert(chipTheme != null);
             D.assert(dialogTheme != null);
             D.assert(floatingActionButtonTheme != null);
+            D.assert(navigationRailTheme != null);
             D.assert(snackBarTheme != null);
             D.assert(bottomSheetTheme != null);
             D.assert(popupMenuTheme != null);
@@ -445,6 +474,7 @@ namespace Unity.UIWidgets.material {
 
             return new ThemeData(
                 brightness: brightness,
+                visualDensity: visualDensity,
                 primaryColor: primaryColor,
                 primaryColorBrightness: primaryColorBrightness,
                 primaryColorLight: primaryColorLight,
@@ -456,6 +486,8 @@ namespace Unity.UIWidgets.material {
                 bottomAppBarColor: bottomAppBarColor,
                 cardColor: cardColor,
                 dividerColor: dividerColor,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
                 highlightColor: highlightColor,
                 splashColor: splashColor,
                 splashFactory: splashFactory,
@@ -464,6 +496,7 @@ namespace Unity.UIWidgets.material {
                 disabledColor: disabledColor,
                 buttonTheme: buttonTheme,
                 buttonColor: buttonColor,
+                toggleButtonsTheme: toggleButtonsTheme,
                 toggleableActiveColor: toggleableActiveColor,
                 secondaryHeaderColor: secondaryHeaderColor,
                 textSelectionColor: textSelectionColor,
@@ -483,6 +516,7 @@ namespace Unity.UIWidgets.material {
                 accentIconTheme: accentIconTheme,
                 sliderTheme: sliderTheme,
                 tabBarTheme: tabBarTheme,
+                tooltipTheme:tooltipTheme,
                 cardTheme: cardTheme,
                 chipTheme: chipTheme,
                 platform: platform,
@@ -494,6 +528,7 @@ namespace Unity.UIWidgets.material {
                 colorScheme: colorScheme,
                 dialogTheme: dialogTheme,
                 floatingActionButtonTheme: floatingActionButtonTheme,
+                navigationRailTheme: navigationRailTheme,
                 typography: typography,
                 snackBarTheme: snackBarTheme,
                 bottomSheetTheme: bottomSheetTheme,
@@ -696,6 +731,8 @@ namespace Unity.UIWidgets.material {
             Color bottomAppBarColor = null,
             Color cardColor = null,
             Color dividerColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             InteractiveInkFeatureFactory splashFactory = null,
@@ -703,6 +740,7 @@ namespace Unity.UIWidgets.material {
             Color unselectedWidgetColor = null,
             Color disabledColor = null,
             ButtonThemeData buttonTheme = null,
+            ToggleButtonsThemeData toggleButtonsTheme = null,
             Color buttonColor = null,
             Color secondaryHeaderColor = null,
             Color textSelectionColor = null,
@@ -723,6 +761,7 @@ namespace Unity.UIWidgets.material {
             IconThemeData primaryIconTheme = null,
             IconThemeData accentIconTheme = null,
             TabBarTheme tabBarTheme = null,
+            TooltipThemeData tooltipTheme = null,
             CardTheme cardTheme = null,
             ChipThemeData chipTheme = null,
             RuntimePlatform? platform = null,
@@ -734,6 +773,7 @@ namespace Unity.UIWidgets.material {
             ColorScheme colorScheme = null,
             DialogTheme dialogTheme = null,
             FloatingActionButtonThemeData floatingActionButtonTheme = null,
+            NavigationRailThemeData navigationRailTheme = null,
             Typography typography = null,
             SnackBarThemeData snackBarTheme = null,
             BottomSheetThemeData bottomSheetTheme = null,
@@ -756,6 +796,8 @@ namespace Unity.UIWidgets.material {
                 bottomAppBarColor: bottomAppBarColor ?? this.bottomAppBarColor,
                 cardColor: cardColor ?? this.cardColor,
                 dividerColor: dividerColor ?? this.dividerColor,
+                focusColor: focusColor ?? this.focusColor,
+                hoverColor: hoverColor ?? this.hoverColor,
                 highlightColor: highlightColor ?? this.highlightColor,
                 splashColor: splashColor ?? this.splashColor,
                 splashFactory: splashFactory ?? this.splashFactory,
@@ -763,6 +805,7 @@ namespace Unity.UIWidgets.material {
                 unselectedWidgetColor: unselectedWidgetColor ?? this.unselectedWidgetColor,
                 disabledColor: disabledColor ?? this.disabledColor,
                 buttonTheme: buttonTheme ?? this.buttonTheme,
+                toggleButtonsTheme: toggleButtonsTheme ?? this.toggleButtonsTheme,
                 buttonColor: buttonColor ?? this.buttonColor,
                 secondaryHeaderColor: secondaryHeaderColor ?? this.secondaryHeaderColor,
                 textSelectionColor: textSelectionColor ?? this.textSelectionColor,
@@ -783,6 +826,7 @@ namespace Unity.UIWidgets.material {
                 primaryIconTheme: primaryIconTheme ?? this.primaryIconTheme,
                 accentIconTheme: accentIconTheme ?? this.accentIconTheme,
                 tabBarTheme: tabBarTheme ?? this.tabBarTheme,
+                tooltipTheme: tooltipTheme ?? this.tooltipTheme,
                 cardTheme: cardTheme ?? this.cardTheme,
                 chipTheme: chipTheme ?? this.chipTheme,
                 platform: platform ?? this.platform,
@@ -794,6 +838,7 @@ namespace Unity.UIWidgets.material {
                 colorScheme: colorScheme ?? this.colorScheme,
                 dialogTheme: dialogTheme ?? this.dialogTheme,
                 floatingActionButtonTheme: floatingActionButtonTheme ?? this.floatingActionButtonTheme,
+                navigationRailTheme: navigationRailTheme ?? this.navigationRailTheme,
                 typography: typography ?? this.typography,
                 snackBarTheme: snackBarTheme ?? this.snackBarTheme,
                 bottomSheetTheme: bottomSheetTheme ?? this.bottomSheetTheme,
@@ -852,6 +897,8 @@ namespace Unity.UIWidgets.material {
                 bottomAppBarColor: Color.lerp(a.bottomAppBarColor, b.bottomAppBarColor, t),
                 cardColor: Color.lerp(a.cardColor, b.cardColor, t),
                 dividerColor: Color.lerp(a.dividerColor, b.dividerColor, t),
+                focusColor: Color.lerp(a.focusColor, b.focusColor, t),
+                hoverColor: Color.lerp(a.hoverColor, b.hoverColor, t),
                 highlightColor: Color.lerp(a.highlightColor, b.highlightColor, t),
                 splashColor: Color.lerp(a.splashColor, b.splashColor, t),
                 splashFactory: t < 0.5 ? a.splashFactory : b.splashFactory,
@@ -859,6 +906,7 @@ namespace Unity.UIWidgets.material {
                 unselectedWidgetColor: Color.lerp(a.unselectedWidgetColor, b.unselectedWidgetColor, t),
                 disabledColor: Color.lerp(a.disabledColor, b.disabledColor, t),
                 buttonTheme: t < 0.5 ? a.buttonTheme : b.buttonTheme,
+                toggleButtonsTheme: ToggleButtonsThemeData.lerp(a.toggleButtonsTheme, b.toggleButtonsTheme, t),
                 buttonColor: Color.lerp(a.buttonColor, b.buttonColor, t),
                 secondaryHeaderColor: Color.lerp(a.secondaryHeaderColor, b.secondaryHeaderColor, t),
                 textSelectionColor: Color.lerp(a.textSelectionColor, b.textSelectionColor, t),
@@ -879,6 +927,7 @@ namespace Unity.UIWidgets.material {
                 accentIconTheme: IconThemeData.lerp(a.accentIconTheme, b.accentIconTheme, t),
                 sliderTheme: SliderThemeData.lerp(a.sliderTheme, b.sliderTheme, t),
                 tabBarTheme: TabBarTheme.lerp(a.tabBarTheme, b.tabBarTheme, t),
+                tooltipTheme: TooltipThemeData.lerp(a.tooltipTheme, b.tooltipTheme, t),
                 cardTheme: CardTheme.lerp(a.cardTheme, b.cardTheme, t),
                 chipTheme: ChipThemeData.lerp(a.chipTheme, b.chipTheme, t),
                 platform: t < 0.5 ? a.platform : b.platform,
@@ -891,6 +940,7 @@ namespace Unity.UIWidgets.material {
                 dialogTheme: DialogTheme.lerp(a.dialogTheme, b.dialogTheme, t),
                 floatingActionButtonTheme: FloatingActionButtonThemeData.lerp(a.floatingActionButtonTheme,
                     b.floatingActionButtonTheme, t),
+                navigationRailTheme: NavigationRailThemeData.lerp(a.navigationRailTheme, b.navigationRailTheme, t),
                 typography: Typography.lerp(a.typography, b.typography, t),
                 snackBarTheme: SnackBarThemeData.lerp(a.snackBarTheme, b.snackBarTheme, t),
                 bottomSheetTheme: BottomSheetThemeData.lerp(a.bottomSheetTheme, b.bottomSheetTheme, t),
@@ -923,6 +973,8 @@ namespace Unity.UIWidgets.material {
                    other.bottomAppBarColor == bottomAppBarColor &&
                    other.cardColor == cardColor &&
                    other.dividerColor == dividerColor &&
+                   other.focusColor == focusColor &&
+                   other.hoverColor == hoverColor &&
                    other.highlightColor == highlightColor &&
                    other.splashColor == splashColor &&
                    other.splashFactory == splashFactory &&
@@ -930,6 +982,7 @@ namespace Unity.UIWidgets.material {
                    other.unselectedWidgetColor == unselectedWidgetColor &&
                    other.disabledColor == disabledColor &&
                    other.buttonTheme == buttonTheme &&
+                   other.toggleButtonsTheme == toggleButtonsTheme &&
                    other.buttonColor == buttonColor &&
                    other.secondaryHeaderColor == secondaryHeaderColor &&
                    other.textSelectionColor == textSelectionColor &&
@@ -950,6 +1003,7 @@ namespace Unity.UIWidgets.material {
                    other.primaryIconTheme == primaryIconTheme &&
                    other.accentIconTheme == accentIconTheme &&
                    other.tabBarTheme == tabBarTheme &&
+                   other.tooltipTheme == tooltipTheme &&
                    other.cardTheme == cardTheme &&
                    other.chipTheme == chipTheme &&
                    other.platform == platform &&
@@ -961,6 +1015,7 @@ namespace Unity.UIWidgets.material {
                    other.colorScheme == colorScheme &&
                    other.dialogTheme == dialogTheme &&
                    other.floatingActionButtonTheme == floatingActionButtonTheme &&
+                   other.navigationRailTheme == navigationRailTheme &&
                    other.typography == typography &&
                    other.snackBarTheme == snackBarTheme &&
                    other.bottomSheetTheme == bottomSheetTheme && 
@@ -1015,6 +1070,8 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ bottomAppBarColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ cardColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ dividerColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ focusColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ hoverColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ highlightColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ splashColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ splashFactory.GetHashCode();
@@ -1022,6 +1079,7 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ unselectedWidgetColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ disabledColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ buttonTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ toggleButtonsTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ buttonColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ secondaryHeaderColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ textSelectionColor.GetHashCode();
@@ -1042,6 +1100,7 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ accentIconTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ sliderTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ tabBarTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ tooltipTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ cardTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ chipTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ platform.GetHashCode();
@@ -1053,6 +1112,7 @@ namespace Unity.UIWidgets.material {
                 hashCode = (hashCode * 397) ^ colorScheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ dialogTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ floatingActionButtonTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ navigationRailTheme.GetHashCode();
                 hashCode = (hashCode * 397) ^ typography.GetHashCode();
                 hashCode = (hashCode * 397) ^ snackBarTheme.GetHashCode(); 
                 hashCode = (hashCode * 397) ^ bottomSheetTheme.GetHashCode();
@@ -1091,6 +1151,8 @@ namespace Unity.UIWidgets.material {
                 defaultValue: defaultData.cardColor));
             properties.add(new DiagnosticsProperty<Color>("dividerColor", dividerColor,
                 defaultValue: defaultData.dividerColor));
+            properties.add(new ColorProperty("focusColor", focusColor, defaultValue: defaultData.focusColor, level: DiagnosticLevel.debug));
+            properties.add(new ColorProperty("hoverColor", hoverColor, defaultValue: defaultData.hoverColor, level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<Color>("highlightColor", highlightColor,
                 defaultValue: defaultData.highlightColor));
             properties.add(new DiagnosticsProperty<Color>("splashColor", splashColor,
@@ -1102,6 +1164,7 @@ namespace Unity.UIWidgets.material {
             properties.add(new DiagnosticsProperty<Color>("disabledColor", disabledColor,
                 defaultValue: defaultData.disabledColor));
             properties.add(new DiagnosticsProperty<ButtonThemeData>("buttonTheme", buttonTheme));
+            properties.add(new DiagnosticsProperty<ToggleButtonsThemeData>("toggleButtonsTheme", toggleButtonsTheme, level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<Color>("buttonColor", buttonColor,
                 defaultValue: defaultData.buttonColor));
             properties.add(new DiagnosticsProperty<Color>("secondaryHeaderColor", secondaryHeaderColor,
@@ -1134,6 +1197,7 @@ namespace Unity.UIWidgets.material {
             properties.add(new DiagnosticsProperty<IconThemeData>("accentIconTheme", accentIconTheme));
             properties.add(new DiagnosticsProperty<SliderThemeData>("sliderTheme", sliderTheme));
             properties.add(new DiagnosticsProperty<TabBarTheme>("tabBarTheme", tabBarTheme));
+            properties.add(new DiagnosticsProperty<TooltipThemeData>("tooltipTheme", tooltipTheme, level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<CardTheme>("cardTheme", cardTheme));
             properties.add(new DiagnosticsProperty<ChipThemeData>("chipTheme", chipTheme));
             properties.add(
@@ -1149,6 +1213,7 @@ namespace Unity.UIWidgets.material {
                 defaultValue: defaultData.dialogTheme));
             properties.add(new DiagnosticsProperty<FloatingActionButtonThemeData>("floatingActionButtonTheme",
                 floatingActionButtonTheme, defaultValue: defaultData.floatingActionButtonTheme));
+            properties.add(new DiagnosticsProperty<NavigationRailThemeData>("navigationRailThemeData", navigationRailTheme, defaultValue: defaultData.navigationRailTheme, level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<Typography>("typography", typography,
                 defaultValue: defaultData.typography));
             properties.add(new DiagnosticsProperty<SnackBarThemeData>("snackBarTheme", snackBarTheme, defaultValue: defaultData.snackBarTheme, level: DiagnosticLevel.debug));

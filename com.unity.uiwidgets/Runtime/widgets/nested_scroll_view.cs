@@ -834,6 +834,25 @@ namespace Unity.UIWidgets.widgets {
             return 0.0f;
         }
 
+        public float applyClampedPointerSignalUpdate(float delta) {
+            D.assert(delta != 0.0f);
+
+            float min = delta > 0.0f
+                ? float.NegativeInfinity
+                : Mathf.Min(minScrollExtent, pixels);
+            // The logic for max is equivalent but on the other side.
+            float max = delta < 0.0f
+                ? float.PositiveInfinity
+                : Mathf.Max(maxScrollExtent, pixels);
+            float newPixels = (pixels + delta).clamp(min, max);
+            float clampedDelta = newPixels - pixels;
+            if (clampedDelta == 0.0f)
+                return delta;
+            forcePixels(newPixels);
+            didUpdateScrollPositionBy(clampedDelta);
+            return delta - clampedDelta;
+        }
+        
         public override ScrollDirection userScrollDirection {
             get { return coordinator.userScrollDirection; }
         }

@@ -570,18 +570,18 @@ namespace Unity.UIWidgets.rendering {
             var radius = size.height * _diameterRatio / 2.0f;
             var deltaY = radius * Mathf.Sin(angle);
 
-            Matrix4 transform = Matrix4.identity();
-            // Matrix4x4 transform2 = MatrixUtils.createCylindricalProjectionTransform(
-            //     radius: this.size.height * this._diameterRatio / 2.0f,
-            //     angle: angle,
-            //     perspective: this._perspective
-            // );
+            Matrix4 transform = MatrixUtils.createCylindricalProjectionTransform(
+                radius: size.height * _diameterRatio / 2.0f,
+                angle: angle,
+                perspective: _perspective
+            );
 
-            // Offset offsetToCenter = new Offset(untransformedPaintingCoordinates.dx, -this._topScrollMarginExtent);
-
-            Offset offsetToCenter =
-                new Offset(untransformedPaintingCoordinates.dx, -deltaY - _topScrollMarginExtent);
-
+            // Offset that helps painting everything in the center (e.g. angle = 0).
+            Offset offsetToCenter = new Offset(
+                untransformedPaintingCoordinates.dx,
+                -_topScrollMarginExtent
+            );
+            
             bool shouldApplyOffCenterDim = overAndUnderCenterOpacity < 1;
             if (useMagnifier || shouldApplyOffCenterDim) {
                 _paintChildWithMagnifier(context, offset, child, transform, offsetToCenter, untransformedPaintingCoordinates);
@@ -630,8 +630,7 @@ namespace Unity.UIWidgets.rendering {
                         context1.pushTransform(
                             needsCompositing,
                             offset1,
-                            cylindricalTransform,
-                            // this._centerOriginTransform(cylindricalTransform),
+                            _magnifyTransform(),
                             (PaintingContext context2, Offset offset2) => {
                                 context2.paintChild(child, offset2 + untransformedPaintingCoordinates);
                             });

@@ -91,7 +91,7 @@ namespace Unity.UIWidgets.cupertino {
     public class _CupertinoContextMenuState :  TickerProviderStateMixin<CupertinoContextMenu> { 
 
         public readonly GlobalKey _childGlobalKey = GlobalKey<State<StatefulWidget>>.key();
-        static readonly TimeSpan  kLongPressTimeout = TimeSpan.FromMilliseconds(500);//new TimeSpan(0, 0, 0, 0, 500);
+        static readonly TimeSpan  kLongPressTimeout = TimeSpan.FromMilliseconds(500);
         public bool _childHidden = false;
         public AnimationController _openController;
         public Rect _decoyChildEndRect;
@@ -395,7 +395,7 @@ namespace Unity.UIWidgets.cupertino {
         public Orientation _lastOrientation;
         public readonly Rect _previousChildRect;
         public float _scale = 1.0f;
-        public readonly GlobalKey _sheetGlobalKey = new LabeledGlobalKey<State<StatefulWidget>>();//GlobalKey();
+        public readonly GlobalKey _sheetGlobalKey = new LabeledGlobalKey<State<StatefulWidget>>();
         public readonly static CurveTween _curve = new CurveTween(
             curve: Curves.easeOutBack
         ); 
@@ -416,25 +416,26 @@ namespace Unity.UIWidgets.cupertino {
         public readonly Tween< float> _opacityTween = new FloatTween(begin: 0.0f, end: 1.0f);
         public Animation< float> _sheetOpacity;
       
-        public readonly string barrierLabel;
-      //public override string barrierLabel;
-        public Color barrierColor {
+        //public readonly string barrierLabel;
+        public override string barrierLabel { get; }
+
+        public override Color barrierColor {
             get { return _kModalBarrierColor; }
         }
-        public bool barrierDismissible{ 
+        public override bool barrierDismissible{ 
             get { return false; }
         }
 
-        public bool semanticsDismissible { 
+        public override bool semanticsDismissible { 
             get { return true; }
         }
 
-        public TimeSpan transitionDuration {
+        public override TimeSpan transitionDuration {
             get {
                 return _kModalPopupTransitionDuration;
             }
         }
-        /*public static AlignmentDirectional getSheetAlignment(_ContextMenuLocation contextMenuLocation) {
+        public static AlignmentDirectional getSheetAlignment(_ContextMenuLocation contextMenuLocation) {
             switch (contextMenuLocation) {
                 case _ContextMenuLocation.center:
                     return AlignmentDirectional.topCenter;
@@ -443,7 +444,7 @@ namespace Unity.UIWidgets.cupertino {
                 default:
                     return AlignmentDirectional.topStart;
             }
-        }*/
+        }
         public static Rect _getScaledRect(GlobalKey globalKey,  float scale) {
             Rect childRect = CupertinoContextMenuUtils._getRect(globalKey);
             Size sizeScaled = childRect.size * scale;
@@ -512,19 +513,20 @@ namespace Unity.UIWidgets.cupertino {
             base.offstage = _externalOffstage || _internalOffstage;
             changedInternalState();
         }
-        public bool didPop(object result) {
+
+        protected internal override bool didPop(object result) {
             _updateTweenRects();
             return base.didPop(result);
         }
 
-        public bool offstage{
+        public override bool offstage{
            set{
                _externalOffstage = value;
                _setOffstageInternally();
            }
         }
 
-        public TickerFuture didPush() {
+        protected internal override TickerFuture didPush() {
             _internalOffstage = true;
             _setOffstageInternally();
             SchedulerBinding.instance.addPostFrameCallback((TimeSpan timeSpan)=>{
@@ -534,7 +536,7 @@ namespace Unity.UIWidgets.cupertino {
             });
             return base.didPush();
         }
-        public Animation<float> createAnimation() { 
+        public override Animation<float> createAnimation() { 
             Animation< float> animation = base.createAnimation();
             _sheetOpacity = _opacityTween.animate(new CurvedAnimation(
                 parent: animation,
@@ -567,7 +569,7 @@ namespace Unity.UIWidgets.cupertino {
                                 child: new Opacity(
                                     opacity: _sheetOpacity.value, 
                                     child: Transform.scale( 
-                                        //alignment: getSheetAlignment(_contextMenuLocation),
+                                        alignment: getSheetAlignment(_contextMenuLocation),
                                         scale: sheetScale, 
                                         child: new _ContextMenuSheet(
                                             key: _sheetGlobalKey, 
@@ -811,7 +813,7 @@ namespace Unity.UIWidgets.cupertino {
     // Build the animation for the _ContextMenuSheet.
     Widget _buildSheetAnimation(BuildContext context, Widget child) {
       return Transform.scale(
-        //alignment: _ContextMenuRoute.getSheetAlignment(widget.contextMenuLocation),
+        alignment: _ContextMenuRoute.getSheetAlignment(widget.contextMenuLocation),
         scale: _sheetScaleAnimation.value,
         child: new Opacity(
           opacity: _sheetOpacityAnimation.value,
@@ -852,7 +854,7 @@ namespace Unity.UIWidgets.cupertino {
       );
       _sheetController = new AnimationController(
         duration: TimeSpan.FromMilliseconds(100),
-        reverseDuration: TimeSpan.FromMilliseconds(300),/// TBC ???
+        reverseDuration: TimeSpan.FromMilliseconds(300),
         vsync: this
       );
       _sheetScaleAnimation = new FloatTween(

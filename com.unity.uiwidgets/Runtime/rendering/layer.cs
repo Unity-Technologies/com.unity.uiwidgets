@@ -277,10 +277,6 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        /*internal override S find<S>(Offset regionOffset) {
-            return null;
-        }*/
-
         public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
             builder.addPicture(layerOffset, picture,
@@ -501,19 +497,6 @@ namespace Unity.UIWidgets.rendering {
         }
         
 
-        /*internal override S find<S>(Offset regionOffset) {
-            Layer current = lastChild;
-            while (current != null) {
-                S value = current.find<S>(regionOffset);
-                if (value != null) {
-                    return value;
-                }
-
-                current = current.previousSibling;
-            }
-
-            return null;
-        }*/
         public override bool findAnnotations<S>(
             AnnotationResult<S> result,
             Offset localPosition, 
@@ -810,30 +793,6 @@ namespace Unity.UIWidgets.rendering {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<Offset>("offset", offset));
         }
-
-        /*public Scene buildScene(SceneBuilder builder) {
-            List<PictureLayer> temporaryLayers = null;
-            D.assert(() => {
-                if (RenderingDebugUtils.debugCheckElevationsEnabled) {
-                    temporaryLayers = _debugCheckElevations();
-                }
-
-                return true;
-            });
-            updateSubtreeNeedsAddToScene();
-            addToScene(builder);
-            Scene scene = builder.build();
-            D.assert(() => {
-                if (temporaryLayers != null) {
-                    foreach (PictureLayer temporaryLayer in temporaryLayers) {
-                        temporaryLayer.remove();
-                    }
-                }
-
-                return true;
-            });
-            return scene;
-        }*/
 
         public Future<ui.Image> toImage(Rect bounds, float pixelRatio = 1.0f)// async
         {
@@ -1209,7 +1168,7 @@ namespace Unity.UIWidgets.rendering {
 
             var totalOffset = offset + layerOffset;
             if (totalOffset != Offset.zero) {
-                _lastEffectiveTransform = Matrix4.translationValues(totalOffset.dx, totalOffset.dy, 0);
+                _lastEffectiveTransform = Matrix4.translationValues(totalOffset.dx, totalOffset.dy, 0.0f);
                 _lastEffectiveTransform.multiply(transform);
             }
 
@@ -1414,8 +1373,7 @@ namespace Unity.UIWidgets.rendering {
             _lastOffset = offset + layerOffset;
             if (_lastOffset != Offset.zero) {
                 engineLayer = builder.pushTransform(
-                     Matrix4.translationValues(_lastOffset.dx, _lastOffset.dy,0)
-                    ._m4storage,
+                     Matrix4.translationValues(_lastOffset.dx, _lastOffset.dy,0.0f).storage,
                     oldLayer: engineLayer as TransformEngineLayer);
             }
 
@@ -1502,7 +1460,7 @@ namespace Unity.UIWidgets.rendering {
                 return null;
             }
 
-            Matrix4 result = Matrix4.translationValues(-_lastOffset.dx, -_lastOffset.dy,0 );
+            Matrix4 result = Matrix4.translationValues(-_lastOffset.dx, -_lastOffset.dy,0.0f );
             result.multiply(_lastTransform);
             return result;
         }
@@ -1584,7 +1542,7 @@ namespace Unity.UIWidgets.rendering {
             _establishTransform();
             if (_lastTransform != null) {
                 engineLayer = builder.pushTransform(
-                    _lastTransform._m4storage,
+                    _lastTransform.storage,
                     oldLayer: engineLayer as TransformEngineLayer);
                 addChildrenToScene(builder);
                 builder.pop();
@@ -1592,9 +1550,9 @@ namespace Unity.UIWidgets.rendering {
             }
             else {
                 _lastOffset = null;
-                var matrix = Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0);
+                var matrix = Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0.0f);
                 engineLayer = builder.pushTransform(
-                    matrix._m4storage,
+                    matrix.storage,
                     oldLayer: engineLayer as TransformEngineLayer);
                 addChildrenToScene(builder);
                 builder.pop();
@@ -1610,7 +1568,7 @@ namespace Unity.UIWidgets.rendering {
                 transform.multiply(_lastTransform);
             }
             else {
-                transform.multiply(Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0));
+                transform.multiply(Matrix4.translationValues(unlinkedOffset.dx, unlinkedOffset.dy, 0.0f));
             }
         }
 

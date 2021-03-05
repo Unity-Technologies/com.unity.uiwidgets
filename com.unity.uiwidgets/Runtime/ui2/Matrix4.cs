@@ -9,7 +9,7 @@ namespace Unity.UIWidgets.ui {
         static float TOLERANCE = 0.000001f;
 
         public float[] storage {
-            get => _m4storage;
+            get { return _m4storage; }
         }
 
         public static void solve2(Matrix4 A, Vector2 x, Vector2 b) {

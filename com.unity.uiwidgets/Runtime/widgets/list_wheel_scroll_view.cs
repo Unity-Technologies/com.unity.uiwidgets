@@ -76,7 +76,7 @@ namespace Unity.UIWidgets.widgets {
             if (children.isEmpty()) {
                 return null;
             }
-            return new Container(child: children[Mathf.Abs(index % children.Count)]);
+            return new IndexedSemantics(child: children[Mathf.Abs(index % children.Count)]);
         }
 
         public bool shouldRebuild(ListWheelChildDelegate oldDelegate) {
@@ -105,14 +105,14 @@ namespace Unity.UIWidgets.widgets {
         public Widget build(BuildContext context, int index) {
             if (childCount == null) {
                 Widget child = builder(context, index);
-                return child == null ? null : new Container(child: child);
+                return child == null ? null : new IndexedSemantics(child: child);
             }
 
             if (index < 0 || index >= childCount) {
                 return null;
             }
 
-            return new Container(child: builder(context, index));
+            return new IndexedSemantics(child: builder(context, index));
         }
 
         public int trueIndexOf(int index) {
@@ -127,13 +127,12 @@ namespace Unity.UIWidgets.widgets {
 
     class ListWheelScrollViewUtils {
         public static int _getItemFromOffset(
-            float? offset = null,
-            float? itemExtent = null,
-            float? minScrollExtent = null,
-            float? maxScrollExtent = null
+            float offset ,
+            float itemExtent ,
+            float minScrollExtent ,
+            float maxScrollExtent 
         ) {
-            var _itemExtent = itemExtent ?? 1.0f;
-            return (_clipOffsetToScrollableRange(offset ?? 0.0f , minScrollExtent ?? 0.0f, maxScrollExtent ?? 0.0f) / _itemExtent).round();
+            return (_clipOffsetToScrollableRange(offset, minScrollExtent, maxScrollExtent) / itemExtent).round();
         }
         public static float _clipOffsetToScrollableRange(
             float offset,
@@ -163,28 +162,28 @@ namespace Unity.UIWidgets.widgets {
                     () =>
                         "The selectedItem property cannot be read when multiple scroll views are attached to the same FixedExtentScrollController."
                 );
-                _FixedExtentScrollPosition position = (_FixedExtentScrollPosition) this.position;
+                _FixedExtentScrollPosition position = (_FixedExtentScrollPosition) this.position; 
                 return position.itemIndex;
             }
         }
 
         public Future animateToItem(
             int itemIndex,
-            TimeSpan? duration = null,
-            Curve curve = null
+            TimeSpan duration,
+            Curve curve
         ) {
             if (!hasClients) {
                 return null;
             }
             List<Future> futures = new List<Future>();
+            
             foreach (_FixedExtentScrollPosition position in positions.Cast<_FixedExtentScrollPosition>()) {
                 futures.Add(position.animateTo(
                     itemIndex * position.itemExtent,
-                    duration: duration ?? new TimeSpan(0,0,0,0,0),
+                    duration: duration,
                     curve: curve
                 ));
             }
-
             return Future.wait<object>(futures);
         }
 
@@ -222,20 +221,20 @@ namespace Unity.UIWidgets.widgets {
 
     public class FixedExtentMetrics : FixedScrollMetrics, IFixedExtentMetrics {
         public FixedExtentMetrics(
-            float? minScrollExtent = null,
-            float? maxScrollExtent = null,
-            float? pixels = null,
-            float? viewportDimension = null,
-            AxisDirection axisDirection = AxisDirection.down,
-            int? itemIndex = null
+            float minScrollExtent ,
+            float maxScrollExtent,
+            float pixels ,
+            float viewportDimension ,
+            AxisDirection axisDirection ,
+            int itemIndex 
         ) : base(
-            minScrollExtent: minScrollExtent ?? 0.0f,
-            maxScrollExtent: maxScrollExtent ?? 0.0f,
-            pixels: pixels ?? 0.0f,
-            viewportDimension: viewportDimension ?? 0.0f,
+            minScrollExtent: minScrollExtent ,
+            maxScrollExtent: maxScrollExtent ,
+            pixels: pixels ,
+            viewportDimension: viewportDimension ,
             axisDirection: axisDirection
         ) {
-            this.itemIndex = itemIndex ?? 0;
+            this.itemIndex = itemIndex;
         }
 
         public int itemIndex { get; set; }
@@ -272,7 +271,7 @@ namespace Unity.UIWidgets.widgets {
         ) : base(
             physics: physics,
             context: context,
-            initialPixels: _getItemExtentFromScrollContext(context) * initialItem,
+            initialPixels: _getItemExtentFromScrollContext(context) * (initialItem ?? 0.0f),
             keepScrollOffset: keepScrollOffset,
             oldPosition: oldPosition,
             debugLabel: debugLabel
@@ -285,7 +284,7 @@ namespace Unity.UIWidgets.widgets {
 
         static float _getItemExtentFromScrollContext(ScrollContext context) {
             _FixedExtentScrollableState scrollable = (_FixedExtentScrollableState) context;
-            return scrollable.itemExtent ?? 0.0f;
+            return scrollable.itemExtent;
         }
 
         public float itemExtent {
@@ -326,12 +325,13 @@ namespace Unity.UIWidgets.widgets {
 
     class _FixedExtentScrollable : Scrollable {
         public _FixedExtentScrollable(
+            float itemExtent,
             Key key = null,
             AxisDirection axisDirection = AxisDirection.down,
             ScrollController controller = null,
-            ScrollPhysics physics = null,
-            float? itemExtent = null,
+            ScrollPhysics physics = null, 
             ViewportBuilder viewportBuilder = null
+            
         ) : base(
             key: key,
             axisDirection: axisDirection,
@@ -342,7 +342,7 @@ namespace Unity.UIWidgets.widgets {
             this.itemExtent = itemExtent;
         }
 
-        public readonly float? itemExtent;
+        public readonly float itemExtent;
 
         public override State createState() {
             return new _FixedExtentScrollableState();
@@ -350,7 +350,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class _FixedExtentScrollableState : ScrollableState {
-        public float? itemExtent {
+        public float itemExtent {
             get {
                 _FixedExtentScrollable actualWidget = (_FixedExtentScrollable) widget;
                 return actualWidget.itemExtent;
@@ -427,6 +427,7 @@ namespace Unity.UIWidgets.widgets {
     public class ListWheelScrollView : StatefulWidget {
         public ListWheelScrollView(
             List<Widget> children,
+            float itemExtent,
             Key key = null,
             ScrollController controller = null,
             ScrollPhysics physics = null,
@@ -436,7 +437,6 @@ namespace Unity.UIWidgets.widgets {
             bool useMagnifier = false,
             float magnification = 1.0f,
             float overAndUnderCenterOpacity = 1.0f,
-            float? itemExtent = null,
             float squeeze = 1.0f,
             ValueChanged<int> onSelectedItemChanged = null,
             bool clipToSize = true,
@@ -472,6 +472,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public ListWheelScrollView (
+            float itemExtent,
             Key key = null,
             ScrollController controller = null,
             ScrollPhysics physics = null,
@@ -480,7 +481,6 @@ namespace Unity.UIWidgets.widgets {
             float offAxisFraction = 0.0f,
             bool useMagnifier = false,
             float magnification = 1.0f,
-            float? itemExtent = null,
             float squeeze = 1.0f,
             ValueChanged<int> onSelectedItemChanged = null,
             float overAndUnderCenterOpacity = 1.0f,
@@ -524,7 +524,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly float offAxisFraction;
         public readonly bool useMagnifier;
         public readonly float magnification;
-        public readonly float? itemExtent;
+        public readonly float itemExtent;
         public readonly float overAndUnderCenterOpacity;
         public readonly float squeeze;
         public readonly ValueChanged<int> onSelectedItemChanged;

@@ -4,7 +4,7 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-//using Unity.UIWidgets.material;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
@@ -980,24 +980,7 @@ namespace Unity.UIWidgets.widgets {
             if (textChanged && widget.onChanged != null)
                 widget.onChanged(value.text);
             _lastFormattedUnmodifiedTextEditingValue = _receivedRemoteTextEditingValue;
-            /*
-            var textChanged = _value?.text != value?.text || isIMEInput;
-            if (textChanged && widget.inputFormatters != null && widget.inputFormatters.isNotEmpty()) {
-                foreach (var formatter in widget.inputFormatters) {
-                    value = formatter.formatEditUpdate(_value, value);
-                }
-
-                _value = value;
-                _updateRemoteEditingValueIfNeeded();
-                //_updateImePosIfNeed();
-            }
-            else {
-                _value = value;
-            }
-
-            if (textChanged && widget.onChanged != null) {
-                widget.onChanged(value.text);
-            }*/
+            
         }
 
         void _onCursorColorTick() {
@@ -1351,7 +1334,6 @@ namespace Unity.UIWidgets.widgets {
         public readonly TextSelectionDelegate textSelectionDelegate;
         public readonly bool? paintCursorAboveText;
         public readonly float? devicePixelRatio;
-        //public readonly GlobalKeyEventHandlerDelegate globalKeyEventHandler;
         public readonly Locale locale;
         public _Editable(
             Key key = null,
@@ -1393,8 +1375,7 @@ namespace Unity.UIWidgets.widgets {
             bool enableInteractiveSelection = true,
             TextSelectionDelegate textSelectionDelegate = null,
             float? devicePixelRatio = null
-            //GlobalKeyEventHandlerDelegate globalKeyEventHandler = null
-            ) : base(key) {
+        ) : base(key) {
             this.textSpan = textSpan;
             this.value = value;
             this.startHandleLayerLink = startHandleLayerLink;
@@ -1433,7 +1414,6 @@ namespace Unity.UIWidgets.widgets {
             this.selectionWidthStyle = selectionWidthStyle;
             this.enableInteractiveSelection = enableInteractiveSelection;
             this.devicePixelRatio = devicePixelRatio;
-            //this.globalKeyEventHandler = globalKeyEventHandler;
         }
 
         public override RenderObject createRenderObject(BuildContext context) {

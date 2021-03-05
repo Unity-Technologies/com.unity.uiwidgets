@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using AOT;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
@@ -761,7 +762,7 @@ namespace Unity.UIWidgets.ui {
         public int rowBytes;
     }
 
-    public class Image : NativeWrapperDisposable {
+    public class Image : NativeWrapperDisposable, IEquatable<Image> {
         internal Image(IntPtr ptr) : base(ptr) {
         }
 
@@ -815,7 +816,7 @@ namespace Unity.UIWidgets.ui {
                 Debug.LogException(ex);
             }
         }
-
+        
         public override string ToString() => $"[{width}\u00D7{height}]";
 
         [DllImport(NativeBindings.dllName)]
@@ -832,6 +833,44 @@ namespace Unity.UIWidgets.ui {
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr Image_toByteData(IntPtr ptr, int format, Image_toByteDataCallback callback,
             IntPtr callbackHandle);
+
+        public bool Equals(Image other) {
+            return other != null && width == other.width && height == other.height && _ptr.Equals(other._ptr);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((Image) obj);
+        }
+
+        public static bool operator ==(Image left, Image right) {
+            return Equals(left, right);
+        }
+        
+        public static bool operator !=(Image left, Image right) {
+            return !Equals(left, right);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = (width != null ? width.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^(height != null ? height.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_ptr != null ? _ptr.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
     }
 
     /*

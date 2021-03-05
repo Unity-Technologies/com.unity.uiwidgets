@@ -29,10 +29,20 @@ UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
     };
 
   NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
-  gl_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
-  gl_resource_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl_context_];
+    
+  //gl_context_ may be created unproperly, we can check this using the relevant gl_resource_context_
+  //loop until the created gl_context_ is ok, otherwise the program will crash anyway
+  while(gl_resource_context_ == nil) {
+    gl_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+    gl_resource_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl_context_];  
+    
+    if (gl_resource_context_ == nil) {
+        CGLReleaseContext(gl_context_.CGLContextObj);
+        gl_context_ = nullptr;
+    }
+  }
 
-  FML_DCHECK(gl_context_ != nullptr);
+  FML_DCHECK(gl_context_ != nullptr && gl_resource_context_ != nullptr);
 }
 
 UnitySurfaceManager::~UnitySurfaceManager() { ReleaseNativeRenderContext(); }
@@ -133,14 +143,7 @@ bool UnitySurfaceManager::MakeCurrentContext()
 
 bool UnitySurfaceManager::MakeCurrentResourceContext()
 {
-  if (gl_resource_context_ == nullptr)
-  {
-      [gl_context_ makeCurrentContext];
-  }
-  else
-  {
-      [gl_resource_context_ makeCurrentContext];
-  }
+  [gl_resource_context_ makeCurrentContext];
   return true;
 }
 
@@ -151,11 +154,9 @@ uint32_t UnitySurfaceManager::GetFbo()
 
 void UnitySurfaceManager::ReleaseNativeRenderContext()
 {
-  if (gl_resource_context_ != nullptr)
-  {
-      CGLReleaseContext(gl_resource_context_.CGLContextObj);
-      gl_resource_context_ = nullptr;
-  }
+  FML_DCHECK(gl_resource_context_);
+  CGLReleaseContext(gl_resource_context_.CGLContextObj);
+  gl_resource_context_ = nullptr;
 
   FML_DCHECK(gl_context_);
   CGLReleaseContext(gl_context_.CGLContextObj);

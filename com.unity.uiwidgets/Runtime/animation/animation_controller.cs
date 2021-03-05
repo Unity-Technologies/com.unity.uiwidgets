@@ -136,10 +136,10 @@ namespace Unity.UIWidgets.animation {
 
         void _internalSetValue(float newValue) {
             _value = newValue.clamp(lowerBound, upperBound);
-            if (_value == lowerBound) {
+            if (foundation_.FloatEqual(_value, lowerBound)) {
                 _status = AnimationStatus.dismissed;
             }
-            else if (_value == upperBound) {
+            else if (foundation_.FloatEqual(_value, upperBound)) {
                 _status = AnimationStatus.completed;
             }
             else {

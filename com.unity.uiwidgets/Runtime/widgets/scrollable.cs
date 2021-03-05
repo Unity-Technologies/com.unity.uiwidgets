@@ -153,7 +153,6 @@ namespace Unity.UIWidgets.widgets {
             if (widget.physics != null) {
                 _physics = widget.physics.applyTo(_physics);
             }
-
             ScrollController controller = widget.controller;
             ScrollPosition oldPosition = position;
             if (oldPosition != null) {
@@ -167,12 +166,15 @@ namespace Unity.UIWidgets.widgets {
                 });
             }
 
-            _position = controller == null
-                ? null
-                : controller.createScrollPosition(_physics, this, oldPosition);
-            _position = _position
-                             ?? new ScrollPositionWithSingleContext(physics: _physics, context: this,
-                                 oldPosition: oldPosition);
+            if (controller == null) {
+                _position = new ScrollPositionWithSingleContext(physics: _physics, context: this, oldPosition: oldPosition);
+                
+            }
+            else {
+                _position = controller?.createScrollPosition(_physics, this, oldPosition)
+                            ?? new ScrollPositionWithSingleContext(physics: _physics, context: this, oldPosition: oldPosition);
+            }
+
             D.assert(position != null);
             if (controller != null) {
                 controller.attach(position);
@@ -382,14 +384,27 @@ namespace Unity.UIWidgets.widgets {
         }
         
         float _targetScrollOffsetForPointerScroll(PointerScrollEvent e) {
-            float delta = widget.axis == Axis.horizontal ? e.delta.dx : e.delta.dy;
+            float delta = widget.axis == Axis.horizontal
+                ? e.scrollDelta.dx
+                : e.scrollDelta.dy;
 
             if (AxisUtils.axisDirectionIsReversed(widget.axisDirection)) {
-                delta += -1;
+                delta *= -1;
             }
-            
+
             return Mathf.Min(Mathf.Max(position.pixels + delta, position.minScrollExtent),
                 position.maxScrollExtent);
+        }
+        
+        float _pointerSignalEventDelta(PointerScrollEvent evt) {
+            float delta = widget.axis == Axis.horizontal
+                ? evt.scrollDelta.dx
+                : evt.scrollDelta.dy;
+
+            if (AxisUtils.axisDirectionIsReversed(widget.axisDirection)) {
+                delta *= -1;
+            }
+            return delta;
         }
         
         void _receivedPointerSignal(PointerSignalEvent e) {
