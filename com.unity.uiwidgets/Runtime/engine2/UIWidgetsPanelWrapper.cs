@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.engine2;
@@ -8,6 +9,8 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using TextFont = Unity.UIWidgets.engine2.UIWidgetsPanel.TextFont;
+using Font = Unity.UIWidgets.engine2.UIWidgetsPanel.Font;
 
 namespace Unity.UIWidgets.editor2 {
     
@@ -169,7 +172,8 @@ public partial class UIWidgetsPanelWrapper {
     }
 
     public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr,
-        Dictionary<string, object> settings) {
+        Dictionary<string, TextFont> settings) {
+        
         D.assert(_renderTexture == null);
         _recreateRenderTexture(width, height, dpr);
 
@@ -177,9 +181,20 @@ public partial class UIWidgetsPanelWrapper {
         _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, (int) host.getWindowType(), UIWidgetsPanel_entrypoint);
         _host = host;
 
-       
-        _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(settings));
+        TextFont[] textFonts = loadTextFont(settings);
+        var fontsetting = new Dictionary<string, object>();
+        fontsetting.Add("fonts", fontsToObject(textFonts));
+        _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(fontsetting));
         NativeConsole.OnEnable();
+    }
+    public TextFont[] loadTextFont(Dictionary<string,TextFont> TextFontsList) {
+        
+        TextFont[] textFonts = new TextFont[TextFontsList.Count];
+        List<TextFont> fontValues = TextFontsList.Values.ToList();
+        for (int i = 0; i < fontValues.Count; i++) {
+            textFonts[i] = fontValues[i];
+        }
+        return textFonts;
     }
 
     public void _entryPoint() {

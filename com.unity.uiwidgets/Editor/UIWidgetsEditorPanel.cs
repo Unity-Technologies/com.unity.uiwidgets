@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
@@ -9,7 +10,8 @@ using Unity.UIWidgets.ui;
 using UnityEditor;
 using UnityEngine;
 using Rect = UnityEngine.Rect;
-
+using TextFont = Unity.UIWidgets.engine2.UIWidgetsPanel.TextFont;
+using Font = Unity.UIWidgets.engine2.UIWidgetsPanel.Font;
 namespace Unity.UIWidgets.Editor {
     public class UIWidgetsEditorPanel : EditorWindow, IUIWidgetsWindow {
         UIWidgetsPanelWrapper _wrapper;
@@ -50,23 +52,22 @@ namespace Unity.UIWidgets.Editor {
             D.assert(_wrapper != null);
             _wrapper?.Destroy();
             _wrapper = null;
-            _internalTextFonts.Clear();
             Input_OnDisable();
         }
         
-        protected virtual void loadConfiguration() {}
+        protected virtual void onEnable() {}
 
-        Dictionary<string,UIWidgetsPanel.TextFont> _internalTextFonts = new Dictionary<string, UIWidgetsPanel.TextFont>();
+        Dictionary<string,TextFont> _internalTextFonts = new Dictionary<string, TextFont>();
         protected void AddFont(string family, List<string> assets, List<int> weights) {
             if (assets.Count != weights.Count) {
-                UnityEngine.Debug.Log($"The size of {family}‘s assets should be equal to the weights'.");
+                UnityEngine.Debug.LogError($"The size of {family}‘s assets should be equal to the weights'.");
                 return;
             }
-            UIWidgetsPanel.TextFont textFont = new UIWidgetsPanel.TextFont();
+            TextFont textFont = new TextFont();
             textFont.family = family;
-            UIWidgetsPanel.Font[] fonts = new UIWidgetsPanel.Font[assets.Count];
+            Font[] fonts = new Font[assets.Count];
             for (int j = 0; j < assets.Count; j++) {
-                UIWidgetsPanel.Font font = new UIWidgetsPanel.Font();
+                Font font = new Font();
                 font.asset = assets[j];
                 font.weight = weights[j];
                 fonts[j] = font;
@@ -78,11 +79,9 @@ namespace Unity.UIWidgets.Editor {
         void OnEnable() {
             D.assert(_wrapper == null);
             _wrapper = new UIWidgetsPanelWrapper();
-            loadConfiguration();
-            var settings = new Dictionary<string, object>();
-            UIWidgetsPanel.TextFont[] textFonts = loadTextFont();
-            settings.Add("fonts", _wrapper.fontsToObject(textFonts));
-            _wrapper.Initiate(this, _currentWidth, _currentHeight, _currentDevicePixelRatio, settings);
+            onEnable();
+            _wrapper.Initiate(this, _currentWidth, _currentHeight, _currentDevicePixelRatio, _internalTextFonts);
+            _internalTextFonts.Clear();
             Input_OnEnable();
         }
 
@@ -103,17 +102,7 @@ namespace Unity.UIWidgets.Editor {
         }
         Vector2? _getPointerPosition(Vector2 position) {
             return new Vector2(position.x, position.y);
-        } 
-        UIWidgetsPanel.TextFont[] loadTextFont() {
-            UIWidgetsPanel.TextFont[] textFonts = new UIWidgetsPanel.TextFont[_internalTextFonts.Count];
-            List<UIWidgetsPanel.TextFont> fontValues = _internalTextFonts.Values.ToList();
-            for (int i = 0; i < fontValues.Count; i++) {
-                textFonts[i] = fontValues[i];
-            }
-            return textFonts;
         }
-
-
         int _buttonToPointerId(int buttonId) {
             if (buttonId == 0) {
                 return -1;

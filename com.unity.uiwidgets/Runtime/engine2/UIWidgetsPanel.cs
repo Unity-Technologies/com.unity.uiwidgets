@@ -9,6 +9,8 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TextFont = Unity.UIWidgets.engine2.UIWidgetsPanel.TextFont;
+using Font = Unity.UIWidgets.engine2.UIWidgetsPanel.Font;
 
 namespace Unity.UIWidgets.engine2 {
 
@@ -85,31 +87,6 @@ namespace Unity.UIWidgets.engine2 {
 
         public TextFont[] fonts;
 
-        /*static object fontsToObject(TextFont[] textFont) {
-            if (textFont == null || textFont.Length == 0) {
-                return null;
-            }
-            var result = new object[textFont.Length];
-            for (int i = 0; i < textFont.Length; i++) {
-                var font = new Dictionary<string, object>();
-                font.Add("family", textFont[i].family);
-                var dic = new Dictionary<string, object>[textFont[i].fonts.Length];
-                for (int j = 0; j < textFont[i].fonts.Length; j++) {
-                    dic[j] = new Dictionary<string, object>();
-                    if (textFont[i].fonts[j].asset.Length > 0) {
-                        dic[j].Add("asset", textFont[i].fonts[j].asset);
-                    }
-
-                    if (textFont[i].fonts[j].weight > 0) {
-                        dic[j].Add("weight", textFont[i].fonts[j].weight);
-                    }
-                }
-                font.Add("fonts", dic);
-                result[i] = font;
-            }
-            return result;
-        }*/
-
         int _currentWidth {
             get { return Mathf.RoundToInt(rectTransform.rect.width * canvas.scaleFactor); }
         }
@@ -145,20 +122,20 @@ namespace Unity.UIWidgets.engine2 {
         
         static bool _ShowDebugLog = false;
         
-        protected virtual void loadConfiguration() {}
+        protected virtual void onEnable() {}
 
-        Dictionary<string,UIWidgetsPanel.TextFont> _internalTextFonts = new Dictionary<string, UIWidgetsPanel.TextFont>();
+        Dictionary<string,TextFont> _internalTextFonts = new Dictionary<string, TextFont>();
         protected void AddFont(string family, List<string> assets, List<int> weights) {
             if (assets.Count != weights.Count) {
-                UnityEngine.Debug.Log($"The size of {family}‘s assets should be equal to the weights'.");
+                UnityEngine.Debug.LogError($"The size of {family}‘s assets should be equal to the weights'.");
                 return;
             }
             if (!_internalTextFonts.ContainsKey(family)) {
-                UIWidgetsPanel.TextFont textFont = new UIWidgetsPanel.TextFont();
+                TextFont textFont = new TextFont();
                 textFont.family = family;
-                UIWidgetsPanel.Font[] fonts = new UIWidgetsPanel.Font[assets.Count];
+                Font[] fonts = new Font[assets.Count];
                 for (int j = 0; j < assets.Count; j++) {
-                    UIWidgetsPanel.Font font = new UIWidgetsPanel.Font();
+                    Font font = new Font();
                     font.asset = assets[j];
                     font.weight = weights[j];
                     fonts[j] = font;
@@ -172,33 +149,27 @@ namespace Unity.UIWidgets.engine2 {
             base.OnEnable();
             D.assert(_wrapper == null);
             _wrapper = new UIWidgetsPanelWrapper();
-            var settings = new Dictionary<string, object>();
+            
             if (fonts != null && fonts.Length > 0) {
-                for (int i = 0; i < fonts.Length; i++) {
-                    if(!_internalTextFonts.ContainsKey(fonts[i].family))
-                        _internalTextFonts.Add(fonts[i].family,fonts[i]);
+                foreach (var font in fonts) {
+                    if(!_internalTextFonts.ContainsKey(font.family))
+                        _internalTextFonts.Add(font.family,font);
                 }
-                loadConfiguration();
-                UIWidgetsPanel.TextFont[] textFonts = new UIWidgetsPanel.TextFont[_internalTextFonts.Keys.Count];
-                for (int i = 0; i < _internalTextFonts.Keys.Count; i++) {
-                    textFonts[i] = _internalTextFonts.Values.ToList()[i];
-                }
-                settings.Add("fonts", _wrapper.fontsToObject(textFonts));
+                onEnable();
             }
             else {
-                loadConfiguration();
-                UIWidgetsPanel.TextFont[] textFonts = loadTextFont();
-                settings.Add("fonts", _wrapper.fontsToObject(textFonts));
+                onEnable();
             }
-            _wrapper.Initiate(this, _currentWidth, _currentHeight, _currentDevicePixelRatio, settings);
+            _wrapper.Initiate(this, _currentWidth, _currentHeight, _currentDevicePixelRatio, _internalTextFonts);
             texture = _wrapper.renderTexture;
+            _internalTextFonts.Clear();
             Input_OnEnable();
             panels.Add(this);
             _ShowDebugLog = m_ShowDebugLog;
         }
-        UIWidgetsPanel.TextFont[] loadTextFont() {
-            UIWidgetsPanel.TextFont[] textFonts = new UIWidgetsPanel.TextFont[_internalTextFonts.Count];
-            List<UIWidgetsPanel.TextFont> fontValues = _internalTextFonts.Values.ToList();
+        TextFont[] loadTextFont() {
+            TextFont[] textFonts = new TextFont[_internalTextFonts.Count];
+            List<TextFont> fontValues = _internalTextFonts.Values.ToList();
             for (int i = 0; i < fontValues.Count; i++) {
                 textFonts[i] = fontValues[i];
             }

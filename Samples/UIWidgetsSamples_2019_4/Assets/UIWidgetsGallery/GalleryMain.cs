@@ -9,11 +9,11 @@ namespace UIWidgetsGallery {
             ui_.runApp(new GalleryApp());
         }
 
-        protected override void loadConfiguration()
+        protected override void onEnable()
         {
-            AddFont("Material Icons", new List<string>{"MaterialIcons-Regular.ttf"}, new List<int>{0});
+            //AddFont("Material Icons", new List<string>{"MaterialIcons-Regular.ttf"}, new List<int>{0});
             AddFont("CupertinoIcons", new List<string>{"CupertinoIcons.ttf"}, new List<int>{0});
-            AddFont("GalleryIcons", new List<string>{"gallery/GalleryIcons.ttf"}, new List<int>{0,1});
+            AddFont("GalleryIcons", new List<string>{"gallery/GalleryIcons.ttf"}, new List<int>{0});
             AddFont("1", new List<string>{"gallery/GalleryIcons.ttf"}, new List<int>{0});
         }
         
