@@ -177,6 +177,7 @@ public partial class UIWidgetsPanelWrapper {
         _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, (int) host.getWindowType(), UIWidgetsPanel_entrypoint);
         _host = host;
 
+       
         _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(settings));
         NativeConsole.OnEnable();
     }
@@ -204,6 +205,30 @@ public partial class UIWidgetsPanelWrapper {
             }
         }
     }
+    public object fontsToObject(UIWidgetsPanel.TextFont[] textFont) {
+            if (textFont == null || textFont.Length == 0) {
+                return null;
+            }
+            var result = new object[textFont.Length];
+            for (int i = 0; i < textFont.Length; i++) {
+                var font = new Dictionary<string, object>();
+                font.Add("family", textFont[i].family);
+                var dic = new Dictionary<string, object>[textFont[i].fonts.Length];
+                for (int j = 0; j < textFont[i].fonts.Length; j++) {
+                    dic[j] = new Dictionary<string, object>();
+                    if (textFont[i].fonts[j].asset.Length > 0) {
+                        dic[j].Add("asset", textFont[i].fonts[j].asset);
+                    }
+
+                    if (textFont[i].fonts[j].weight > 0) {
+                        dic[j].Add("weight", textFont[i].fonts[j].weight);
+                    }
+                }
+                font.Add("fonts", dic);
+                result[i] = font;
+            }
+            return result;
+        }
 
     public void Destroy() {
         UIWidgetsPanel_onDisable(_ptr);

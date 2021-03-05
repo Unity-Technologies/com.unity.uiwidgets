@@ -14,12 +14,11 @@ namespace UIWidgetsEditorWindowSample
             CreateWindow<EditorWindowGallery>();
         }
 
-        protected override void onFill()
+        protected override void loadConfiguration()
         {
             AddFont("Material Icons", new List<string>{"MaterialIcons-Regular.ttf"}, new List<int>{0});
             AddFont("CupertinoIcons", new List<string>{"CupertinoIcons.ttf"}, new List<int>{0});
-            AddFont("GalleryIcons", new List<string>{"gallery/GalleryIcons.ttf"}, new List<int>{0});
-            base.onFill();
+            AddFont("GalleryIcons", new List<string>{"gallery/GalleryIcons.ttf"}, new List<int>{0,1});
         }
 
         protected override void main()
