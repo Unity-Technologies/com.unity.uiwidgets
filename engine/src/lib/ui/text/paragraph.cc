@@ -53,7 +53,7 @@ static Float32List EncodeTextBoxes(
   // text direction index.
   int size = boxes.size() * 5;
   Float32List result = {(float*)malloc(sizeof(float) * size),
-                        boxes.size() * size};
+                        (int)boxes.size() * size};
   unsigned long position = 0;
   for (unsigned long i = 0; i < boxes.size(); i++) {
     const txt::Paragraph::TextBox& box = boxes[i];
@@ -66,23 +66,23 @@ static Float32List EncodeTextBoxes(
   return result;
 }
 
-static void EncodeTextBoxes(const std::vector<txt::Paragraph::TextBox>& boxes,
-                            float* result) {
-  // Layout:
-  // First value is the number of values.
-  // Then there are boxes.size() groups of 5 which are LTRBD, where D is the
-  // text direction index.
+// static void EncodeTextBoxes(const std::vector<txt::Paragraph::TextBox>& boxes,
+//                             float* result) {
+//   // Layout:
+//   // First value is the number of values.
+//   // Then there are boxes.size() groups of 5 which are LTRBD, where D is the
+//   // text direction index.
 
-  unsigned long position = 0;
-  for (unsigned long i = 0; i < boxes.size(); i++) {
-    const txt::Paragraph::TextBox& box = boxes[i];
-    result[position++] = box.rect.fLeft;
-    result[position++] = box.rect.fTop;
-    result[position++] = box.rect.fRight;
-    result[position++] = box.rect.fBottom;
-    result[position++] = static_cast<float>(box.direction);
-  }
-}
+//   unsigned long position = 0;
+//   for (unsigned long i = 0; i < boxes.size(); i++) {
+//     const txt::Paragraph::TextBox& box = boxes[i];
+//     result[position++] = box.rect.fLeft;
+//     result[position++] = box.rect.fTop;
+//     result[position++] = box.rect.fRight;
+//     result[position++] = box.rect.fBottom;
+//     result[position++] = static_cast<float>(box.direction);
+//   }
+// }
 
 Float32List Paragraph::getRectsForRange(unsigned start, unsigned end,
                                          unsigned boxHeightStyle,

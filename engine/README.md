@@ -209,3 +209,44 @@ mono bee.exe
 ```
 
 
+## build android sdk on mac
+### Build flutter fml + skia + txt
+
+1. Setting up the Engine development environment
+
+Follow https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment
+
+2. Compiling for Windows
+
+Follow https://github.com/flutter/flutter/wiki/Compiling-the-engine#compiling-for-windows
+
+3. Checkout flutter-1.18-candidate.5
+
+```
+cd engine/src/flutter
+git checkout flutter-1.18-candidate.5
+gclient sync -D
+```
+
+Apply following to end of `flutter/third_party/txt/BUILD.gn`
+```
+static_library("txt_lib") {
+  complete_static_lib = true
+  deps = [
+    ":txt",
+  ]
+}
+```
+cmd
+```
+cd $FLUTTER_ROOT
+python ./flutter/tools/gn --unoptimized --android
+ninja -C out/android_debug_unopt/ flutter/third_party/txt:txt_lib
+ninja -C out/android_debug_unopt/ third_party/libcxx
+ninja -C out/android_debug_unopt/ third_party/libcxxabi
+```
+If the compilation fails because "no available Mac SDK is found" (in flutter-1.17 the build tool will only try to find Mac 10.XX SDKs), please modify the file "/src/build/Mac/find_sdk.py" under flutter root by setting "sdks" as your current sdk, e.g., ['11.0']. 
+### build icu
+```
+python $FLUTTER_ROOT/flutter/sky/tools/objcopy.py --objcopy $FLUTTER_ROOT/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input $FLUTTER_ROOT/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm
+```

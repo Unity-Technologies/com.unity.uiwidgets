@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.engine2 {
             IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
     }
 
-#elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+#elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_ANDROID
     public partial class UIWidgetsPanel {
         Texture _renderTexture;
     

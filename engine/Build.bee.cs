@@ -42,6 +42,10 @@ class Build
             flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
         }
 
+        var buildAndroidEnv = Environment.GetEnvironmentVariable("BUILD_ANDROID");
+        buildAndroid = true;// buildAndroidEnv == "true";
+
+
         var libUIWidgets = SetupLibUIWidgets();
 
         //create ide projects
@@ -60,15 +64,20 @@ class Build
         }
         else if (BuildUtils.IsHostMac())
         {
-            //create xcode project
-            var nativePrograms = new List<NativeProgram>();
-            nativePrograms.Add(libUIWidgets);
-            var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgets.xcodeproj/project.pbxproj"));
+            if(buildAndroid){
+                var androidProject = AndroidNativeProgramExtensions.DynamicLinkerSettingsForAndroid(libUIWidgets);
+            }else {
+                //create xcode project
+                var nativePrograms = new List<NativeProgram>();
+                nativePrograms.Add(libUIWidgets);
+                var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgets.xcodeproj/project.pbxproj"));
+            }
         }
     }
 
     private static string skiaRoot;
     private static string flutterRoot;
+    private static bool buildAndroid;
 
     static NativeProgram SetupLibUIWidgets()
     {
@@ -76,6 +85,8 @@ class Build
         {
             Sources =
             {
+                //"src/assets/test.cc",
+                //"src/assets/test.h",
                 "src/assets/asset_manager.cc",
                 "src/assets/asset_manager.h",
                 "src/assets/asset_resolver.h",
@@ -376,8 +387,12 @@ class Build
                 "src/shell/platform/unity/darwin/macos/unity_surface_manager.h",
         };
 
+
         np.Sources.Add(c => IsWindows(c), winSources);
-        np.Sources.Add(c => IsMac(c), macSources);
+        np.Sources.Add(c => {
+            var a = IsMac(c);
+            return a;
+        }, macSources);
 
         np.Libraries.Add(c => IsWindows(c), new BagOfObjectFilesLibrary(
             new NPath[]{
@@ -386,11 +401,17 @@ class Build
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
         np.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new []{"-Wno-c++11-narrowing"}));
 
+        np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-stdlib=libc++" }));
+        np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-nostdlib" }));
+        np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-Wno-c++11-narrowing" }));
+
         np.IncludeDirectories.Add("third_party");
         np.IncludeDirectories.Add("src");
 
         np.Defines.Add("UIWIDGETS_ENGINE_VERSION=\\\"0.0\\\"", "SKIA_VERSION=\\\"0.0\\\"");
         np.Defines.Add(c => IsMac(c), "UIWIDGETS_FORCE_ALIGNAS_8=\\\"1\\\"");
+
+        np.Defines.Add(c => IsAndroid(c), "UIWIDGETS_FORCE_ALIGNAS_8=\\\"1\\\"");
 
         np.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });
@@ -399,6 +420,25 @@ class Build
             new[] { "UIWidgets_RELEASE=1" });
 
         np.LinkerSettings().Add(c => IsWindows(c), l => l.WithCustomFlags_workaround(new[] { "/DEBUG:FULL" }));
+
+        np.LinkerSettings().Add(c => IsAndroid(c), l => l.WithCustomFlags_workaround(new[] {
+            "-Wl,--fatal-warnings",
+            "-fPIC",
+            "-Wl,-z,noexecstack",
+            "-Wl,-z,now",
+            "-Wl,-z,relro",
+            "-Wl,-z,defs",
+            "--gcc-toolchain=/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk/toolchains/x86_64-4.9/prebuilt/darwin-x86_64",
+            "-Wl,--no-undefined",
+            "-Wl,--exclude-libs,ALL",
+            "-fuse-ld=lld",
+            "-Wl,--icf=all",
+            "--target=arm-linux-androideabi",
+            "-nostdlib++",
+            "-Wl,--warn-shared-textrel",
+            "-nostdlib",
+            "--sysroot=/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk/platforms/android-16/arch-arm"
+        }));
 
         SetupFml(np);
         SetupRadidJson(np);
@@ -423,19 +463,41 @@ class Build
         }
         else if (BuildUtils.IsHostMac())
         {
-            var toolchain = ToolChain.Store.Host();
-            var validConfigurations = new List<NativeProgramConfiguration>();
-            foreach (var codegen in codegens)
+            if (buildAndroid)
             {
-                var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
-                validConfigurations.Add(config);
+                //var codegens = new[] { CodeGen.Debug };
 
-                var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat).DeployTo("build");
+                var androidToolchain = ToolChain.Store.Android().r19().Armv7();
 
-                builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/osx");
+                var validConfigurations = new List<NativeProgramConfiguration>();
+
+                foreach (var codegen in codegens)
+                {
+                    var config = new NativeProgramConfiguration(codegen, androidToolchain, lump: true);
+                    validConfigurations.Add(config);
+
+                    var builtNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build");
+
+                    builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/Android");
+                }
+                np.ValidConfigurations = validConfigurations;
             }
+            else
+            {
+                var toolchain = ToolChain.Store.Host();
+                var validConfigurations = new List<NativeProgramConfiguration>();
+                foreach (var codegen in codegens)
+                {
+                    var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
+                    validConfigurations.Add(config);
 
-            np.ValidConfigurations = validConfigurations;
+                    var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat).DeployTo("build");
+
+                    builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/osx");
+                }
+
+                np.ValidConfigurations = validConfigurations;
+            }
         }
 
         return np;
@@ -495,6 +557,34 @@ class Build
             "FLUTTER_JIT_RUNTIME=1"
         });
 
+        np.Defines.Add(c => IsAndroid(c), new[]
+        {
+            // bin/gn desc out/arm //:skia defines
+            "SK_ENABLE_SPIRV_VALIDATION",
+            "SK_GAMMA_APPLY_TO_A8",
+            "SK_GAMMA_EXPONENT=1.4",
+            "SK_GAMMA_CONTRAST=0.0",
+            "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+            "GR_TEST_UTILS=1",
+            "SKIA_IMPLEMENTATION=1",
+            "SK_GL",
+            "SK_ENABLE_DUMP_GPU",
+            "SK_SUPPORT_PDF",
+            "SK_CODEC_DECODES_JPEG",
+            "SK_ENCODE_JPEG",
+            "SK_ENABLE_ANDROID_UTILS",
+            "SK_USE_LIBGIFCODEC",
+            "SK_HAS_HEIF_LIBRARY",
+            "SK_CODEC_DECODES_PNG",
+            "SK_ENCODE_PNG",
+            "SK_CODEC_DECODES_RAW",
+            "SK_ENABLE_SKSL_INTERPRETER",
+            "SK_CODEC_DECODES_WEBP",
+            "SK_ENCODE_WEBP",
+            "SK_XML",
+            "XML_STATIC"
+        });
+
         np.IncludeDirectories.Add(flutterRoot);
 
         var fmlLibPath = flutterRoot + "/out/host_debug_unopt";
@@ -513,6 +603,19 @@ class Build
                 new SystemFramework("Foundation"),
             };
         });
+
+
+        np.Libraries.Add(c => IsAndroid(c), c =>
+        {
+            var basePath = flutterRoot + "/out/android_debug_unopt";
+
+            return new PrecompiledLibrary[]
+            {
+                new StaticLibrary(basePath + "/obj/flutter/fml/libfml_lib.a"),
+            };
+        });
+        //np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-fvisibility-inlines-hidden -std=c++17 -fno-rtti -fno-exceptions" }));
+        np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-std=c++14 -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables" }));
     }
 
     static void SetupSkia(NativeProgram np)
@@ -593,9 +696,40 @@ class Build
             "SK_XML"
         });
 
+        np.Defines.Add(c => IsAndroid(c), new[]
+        {
+            // bin/gn desc out/arm //:skia defines
+            "SK_ENABLE_SPIRV_VALIDATION",
+            "SK_GAMMA_APPLY_TO_A8",
+            "SK_GAMMA_EXPONENT=1.4",
+            "SK_GAMMA_CONTRAST=0.0",
+            "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+            "GR_TEST_UTILS=1",
+            "SKIA_IMPLEMENTATION=1",
+            "SK_GL",
+            "SK_ENABLE_DUMP_GPU",
+            "SK_SUPPORT_PDF",
+            "SK_CODEC_DECODES_JPEG",
+            "SK_ENCODE_JPEG",
+            "SK_ENABLE_ANDROID_UTILS",
+            "SK_USE_LIBGIFCODEC",
+            "SK_HAS_HEIF_LIBRARY",
+            "SK_CODEC_DECODES_PNG",
+            "SK_ENCODE_PNG",
+            "SK_CODEC_DECODES_RAW",
+            "SK_ENABLE_SKSL_INTERPRETER",
+            "SK_CODEC_DECODES_WEBP",
+            "SK_ENCODE_WEBP",
+            "SK_XML",
+            "XML_STATIC"
+        });
+
         np.IncludeDirectories.Add(skiaRoot);
         np.IncludeDirectories.Add(c => IsWindows(c), skiaRoot + "/third_party/externals/angle2/include");
         // np.IncludeDirectories.Add(skiaRoot + "/include/third_party/vulkan");
+
+        np.IncludeDirectories.Add(c => IsAndroid(c), skiaRoot + "/include/third_party/vulkan");
+        np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-std=c++14" }));
 
         np.Libraries.Add(IsWindows, c =>
         {
@@ -636,6 +770,33 @@ class Build
             };
         });
 
+        np.Libraries.Add(IsAndroid, c => {
+            var basePath = skiaRoot + "/out/arm";
+            return new PrecompiledLibrary[]
+            {
+                new StaticLibrary(basePath + "/libskia.a"),
+                new StaticLibrary(basePath + "/libskottie.a"),
+                new StaticLibrary(basePath + "/libsksg.a"),
+                new StaticLibrary(basePath + "/libskshaper.a"),
+                //new SystemLibrary("/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a"),
+                //new StaticLibrary("/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libunwind.a"),
+                //new StaticLibrary("/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk/toolchains/llvm/prebuilt/darwin-x86_64/lib/gcc/arm-linux-androideabi/4.9.x/libgcc.a"),
+                //new StaticLibrary("/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libandroid_support.a"),
+
+                new SystemLibrary("android"),
+                new SystemLibrary("EGL"),
+                new SystemLibrary("GLESv2"),
+                new SystemLibrary("android_support"),
+                new SystemLibrary("gcc"),
+                new SystemLibrary("stdc++"),
+                new SystemLibrary("unwind"),
+                new SystemLibrary("c"),
+                new SystemLibrary("dl"),
+                new SystemLibrary("m"),
+                new SystemLibrary("log")
+            };
+        });
+
         var basePath = skiaRoot + "/out/Debug";
         np.SupportFiles.Add(c => IsWindows(c), new [] {
                 new DeployableFile(basePath + "/libEGL.dll"),
@@ -644,13 +805,63 @@ class Build
                 new DeployableFile(basePath + "/libGLESv2.dll.pdb"),
             }
         );
+
     }
 
     static void SetupTxtDependency(NativeProgram np)
     {
-        np.Defines.Add(new[] { "SK_USING_THIRD_PARTY_ICU", "U_USING_ICU_NAMESPACE=0", "U_DISABLE_RENAMING",
+        np.Defines.Add(IsWindows, new[] { "SK_USING_THIRD_PARTY_ICU", "U_USING_ICU_NAMESPACE=0", "U_DISABLE_RENAMING",
             "U_ENABLE_DYLOAD=0", "USE_CHROMIUM_ICU=1", "U_STATIC_IMPLEMENTATION",
             "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_STATIC"
+        });
+        np.Defines.Add(IsAndroid, new string[] {
+            // gn desc out/android_debug_unopt //flutter/third_party/txt:txt defines
+             "USE_OPENSSL=1",
+              "USE_OPENSSL_CERTS=1",
+              "ANDROID",
+              "HAVE_SYS_UIO_H",
+              "__STDC_CONSTANT_MACROS",
+              "__STDC_FORMAT_MACROS",
+              "_FORTIFY_SOURCE=2",
+              "__compiler_offsetof=__builtin_offsetof",
+              "nan=__builtin_nan",
+              "_LIBCPP_DISABLE_AVAILABILITY=1",
+              "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+              "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+              "_DEBUG",
+              "SK_GL",
+              "SK_ENABLE_DUMP_GPU",
+              "SK_CODEC_DECODES_JPEG",
+              "SK_ENCODE_JPEG",
+              "SK_CODEC_DECODES_PNG",
+              "SK_ENCODE_PNG",
+              "SK_CODEC_DECODES_WEBP",
+              "SK_ENCODE_WEBP",
+              "SK_HAS_WUFFS_LIBRARY",
+              "SK_XML",
+              "FLUTTER_RUNTIME_MODE_DEBUG=1",
+              "FLUTTER_RUNTIME_MODE_PROFILE=2",
+              "FLUTTER_RUNTIME_MODE_RELEASE=3",
+              "FLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
+              "FLUTTER_RUNTIME_MODE=1",
+              "FLUTTER_JIT_RUNTIME=1",
+              "U_USING_ICU_NAMESPACE=0",
+              "U_ENABLE_DYLOAD=0",
+              "USE_CHROMIUM_ICU=1",
+              "U_STATIC_IMPLEMENTATION",
+              "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE",
+              "UCHAR_TYPE=uint16_t",
+              "SK_DISABLE_REDUCE_OPLIST_SPLITTING",
+              "SK_ENABLE_DUMP_GPU",
+              "SK_DISABLE_AAA",
+              "SK_DISABLE_READBUFFER",
+              "SK_DISABLE_EFFECT_DESERIALIZATION",
+              "SK_SUPPORT_LEGACY_DIDCONCAT44",
+              "SK_DISABLE_LEGACY_SHADERCONTEXT",
+              "SK_DISABLE_LOWP_RASTER_PIPELINE",
+              "SK_FORCE_RASTER_PIPELINE_BLITTER",
+              "SK_GL",
+              "SK_ASSUME_GL_ES=1"
         });
         np.IncludeDirectories.Add(flutterRoot + "/flutter/third_party/txt/src");
         np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/harfbuzz/src");
@@ -753,6 +964,7 @@ class Build
         {
             IncludeDirectories = {
                 "third_party",
+
                 flutterRoot,
                 skiaRoot,
             },
@@ -765,12 +977,16 @@ class Build
         txtLib.CompilerSettings().Add(c => IsMac(c), c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
         txtLib.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new []{"-Wno-c++11-narrowing"}));
 
+        txtLib.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
+        txtLib.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-stdlib=libc++" }));
+        txtLib.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-Wno-c++11-narrowing" }));
+
         txtLib.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });
         txtLib.Defines.Add(c => IsWindows(c),
             new[] { "UCHAR_TYPE=wchar_t" });
         txtLib.Defines.Add(c => !IsWindows(c),
-                    new[] { "UCHAR_TYPE=uint16_t" });
+                    new[] { "UCHAR_TYPE=uint16_t    " });
         txtLib.Defines.Add(c => c.CodeGen == CodeGen.Release,
             new[] { "UIWidgets_RELEASE=1" });
 
