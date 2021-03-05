@@ -17,6 +17,11 @@ const uint64_t GetCurrentThreadId() {
 }
 #endif
 
+#ifdef __ANDROID__
+uint64_t GetCurrentThreadId() { 
+  return gettid();
+}
+#endif
 namespace uiwidgets {
 
 FML_THREAD_LOCAL fml::ThreadLocalUniquePtr<Mono_Isolate> tls_isolate;

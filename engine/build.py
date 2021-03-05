@@ -10,8 +10,8 @@ def runCmd(cmds, log = False):
     )
     stdout, stderr = process.communicate()
     if log:
-        print("out:", stdout)
-        print("err:", stderr)
+        print("out:"+stdout)
+        print("err:"+stderr)
     return stdout, stderr
 
 linkOnly = len(sys.argv) > 1
@@ -22,6 +22,7 @@ SKIA_ROOT = FLUTTER_ROOT+"/third_party/skia"
 clang = FLUTTER_ROOT+"/buildtools/mac-x64/clang/bin/clang++"
 
 codeFiles = [
+    # "src/shell/platform/unity/darwin/android/uiwidgets_system.cc",
     "src/assets/asset_manager.cc",
     "src/assets/asset_manager.h",
     "src/assets/asset_resolver.h",
@@ -493,11 +494,8 @@ for codeFile in codeFiles:
         continue
     if buildEngine and name != 'engine':
         continue
+    print(codeFile)
     _, stderr = runCmd(buildScript, False)
-    # process = subprocess.Popen(
-    #     buildScript, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # stdout, stderr = process.communicate()
-    # print(codeFile)
     if len(stderr) > 0:
         print(stdout)
         print(stderr)

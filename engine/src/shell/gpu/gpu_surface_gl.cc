@@ -267,7 +267,7 @@ bool GPUSurfaceGL::PresentSurface(SkCanvas* canvas) {
   {
     TRACE_EVENT0("uiwidgets", "SkCanvas::Flush");
     onscreen_surface_->getCanvas()->flush();
-    onscreen_surface_->getContext()->submit(true);
+    // onscreen_surface_->getContext()->submit(true);
   }
 
   if (!delegate_->GLContextPresent()) {
