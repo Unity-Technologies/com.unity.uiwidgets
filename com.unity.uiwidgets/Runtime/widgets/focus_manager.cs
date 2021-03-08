@@ -563,14 +563,14 @@ namespace Unity.UIWidgets.widgets {
 
         public void _setAsFocusedChildForScope() {
             FocusNode scopeFocus = this;
-            foreach (FocusScopeNode ancestor in ancestors) {
+            foreach ( var ancestor in ancestors) {
                 if (ancestor is FocusScopeNode) {
                     D.assert(scopeFocus != ancestor, () => "Somehow made a loop by setting focusedChild to its scope.");
                     D.assert(FocusManagerUtils._focusDebug($"Setting {scopeFocus} as focused child for scope:",
                         new List<string> {ancestor.ToString()}));
-                    ancestor._focusedChildren.Remove(scopeFocus);
+                    ((FocusScopeNode)ancestor)._focusedChildren.Remove(scopeFocus);
 
-                    ancestor._focusedChildren.Add(scopeFocus);
+                    ((FocusScopeNode)ancestor)._focusedChildren.Add(scopeFocus);
                     scopeFocus = ancestor;
                 }
             }

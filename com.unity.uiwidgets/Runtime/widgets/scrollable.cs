@@ -384,14 +384,27 @@ namespace Unity.UIWidgets.widgets {
         }
         
         float _targetScrollOffsetForPointerScroll(PointerScrollEvent e) {
-            float delta = widget.axis == Axis.horizontal ? e.delta.dx : e.delta.dy;
+            float delta = widget.axis == Axis.horizontal
+                ? e.scrollDelta.dx
+                : e.scrollDelta.dy;
 
             if (AxisUtils.axisDirectionIsReversed(widget.axisDirection)) {
-                delta += -1;
+                delta *= -1;
             }
-            
+
             return Mathf.Min(Mathf.Max(position.pixels + delta, position.minScrollExtent),
                 position.maxScrollExtent);
+        }
+        
+        float _pointerSignalEventDelta(PointerScrollEvent evt) {
+            float delta = widget.axis == Axis.horizontal
+                ? evt.scrollDelta.dx
+                : evt.scrollDelta.dy;
+
+            if (AxisUtils.axisDirectionIsReversed(widget.axisDirection)) {
+                delta *= -1;
+            }
+            return delta;
         }
         
         void _receivedPointerSignal(PointerSignalEvent e) {

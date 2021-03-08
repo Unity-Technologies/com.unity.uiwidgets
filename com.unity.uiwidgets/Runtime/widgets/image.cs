@@ -409,12 +409,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _resolveImage() {
-            /*ScrollAwareImageProvider<object> provider = new ScrollAwareImageProvider<object>(
+            ScrollAwareImageProvider<object> provider = new ScrollAwareImageProvider<object>(
                 context: _scrollAwareContext,
                 imageProvider: (ImageProvider<object>)widget.image
-            );*/
+            );
             ImageStream newStream =
-                widget.image.resolve(ImageUtils.createLocalImageConfiguration(
+                provider.resolve(ImageUtils.createLocalImageConfiguration(
                     context,
                     size: widget.width != null && widget.height != null
                         ? new Size(widget.width.Value, widget.height.Value)
@@ -552,7 +552,7 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(description);
             description.add(new DiagnosticsProperty<ImageStream>("stream", _imageStream));
             description.add(new DiagnosticsProperty<ImageInfo>("pixels", _imageInfo));
-            //description.add(new DiagnosticsProperty<ImageChunkEvent>("loadingProgress", _loadingProgress));
+            description.add(new DiagnosticsProperty<ImageChunkEvent>("loadingProgress", _loadingProgress));
             description.add(new DiagnosticsProperty<int>("frameNumber", _frameNumber));
             description.add(new DiagnosticsProperty<bool>("wasSynchronouslyLoaded", _wasSynchronouslyLoaded));
         }

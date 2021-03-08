@@ -9,6 +9,12 @@
 
 namespace uiwidgets {
 
+enum UIWidgetsWindowType {
+  InvalidPanel = 0,
+  GameObjectPanel = 1,
+  EditorWindowPanel = 2
+};
+
 struct MouseState {
   bool state_is_down = false;
   bool state_is_added = false;
@@ -22,7 +28,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
   typedef void (*EntrypointCallback)(Mono_Handle handle);
 
   static fml::RefPtr<UIWidgetsPanel> Create(
-      Mono_Handle handle, EntrypointCallback entrypoint_callback);
+      Mono_Handle handle, UIWidgetsWindowType window_type, EntrypointCallback entrypoint_callback);
 
   ~UIWidgetsPanel();
 
@@ -47,9 +53,13 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void VSyncCallback(intptr_t baton);
   
+  void SetEventLocationFromCursorPosition(UIWidgetsPointerEvent* event_data);
+  
   void OnKeyDown(int keyCode, bool isKeyDown);
 
   void OnMouseMove(float x, float y);
+
+  void OnScroll(float x, float y, float px, float py);
 
   void OnMouseDown(float x, float y, int button);
 
@@ -57,8 +67,12 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void OnMouseLeave();
 
+  bool NeedUpdateByPlayerLoop();
+
+  bool NeedUpdateByEditorLoop();
+
  private:
-  UIWidgetsPanel(Mono_Handle handle, EntrypointCallback entrypoint_callback);
+  UIWidgetsPanel(Mono_Handle handle, UIWidgetsWindowType window_type, EntrypointCallback entrypoint_callback);
 
   MouseState GetMouseState() { return mouse_state_; }
 
@@ -80,12 +94,15 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void SendMouseLeave();
 
+  void SendScroll(float delta_x, float delta_y, float px, float py);
+
   void SetEventPhaseFromCursorButtonState(UIWidgetsPointerEvent* event_data);
 
   void SendPointerEventWithData(const UIWidgetsPointerEvent& event_data);
 
   Mono_Handle handle_;
   EntrypointCallback entrypoint_callback_;
+  UIWidgetsWindowType window_type_;
 
   std::unique_ptr<UnitySurfaceManager> surface_manager_;
   GLuint fbo_ = 0;

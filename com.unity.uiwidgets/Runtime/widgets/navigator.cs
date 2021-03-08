@@ -8,6 +8,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.services;
 using SchedulerBinding = Unity.UIWidgets.scheduler2.SchedulerBinding;
 using SchedulerPhase = Unity.UIWidgets.scheduler2.SchedulerPhase;
 
@@ -17,8 +18,6 @@ namespace Unity.UIWidgets.widgets {
     public delegate Route<T> RouteBuilder<T>(BuildContext context, RouteSettings settings);
 
     public delegate List<Route> RouteListFactory(NavigatorState navigator, string initialRoute);
-
-    //public delegate bool RoutePredicate(Route route);
 
     public delegate bool RoutePredicate(Route route);
 
@@ -1767,7 +1766,6 @@ namespace Unity.UIWidgets.widgets {
 
                     string description;
                     if (route is TransitionRoute ){
-                        //TransitionRoute transitionRoute = route;
                         description = ((TransitionRoute)route).debugLabel;
                     }
                     else {
@@ -1780,12 +1778,10 @@ namespace Unity.UIWidgets.widgets {
                     Dictionary<string, object> settingsJsonable = new Dictionary<string, object> {
                         {"name", settings.name}
                     };
-                    /*if (settings.arguments != null) {
-                        settingsJsonable["arguments"] = jsonEncode(
-                            settings.arguments,
-                            toEncodable: (object _object) => $"{_object}"
-                        );
-                    }*/
+                    if (settings.arguments != null) {
+                        settingsJsonable["arguments"] = JSONMessageCodec.instance.toJson(
+                            settings.arguments);
+                    }
 
                     routeJsonable["settings"] = settingsJsonable;
                 }

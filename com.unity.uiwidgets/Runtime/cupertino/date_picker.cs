@@ -1443,8 +1443,7 @@ namespace Unity.UIWidgets.cupertino {
                 offAxisFraction = -0.5f * textDirectionFactor;
                   break;
                 
-            }
-
+            } 
             return new CupertinoPicker(
               scrollController: new FixedExtentScrollController(
                 initialItem: (int)selectedMinute / widget.minuteInterval
@@ -1466,13 +1465,10 @@ namespace Unity.UIWidgets.cupertino {
               },
               children: CupertinoDatePickerUtils.listGenerate((int)(60 / widget.minuteInterval), (int index) => {
                  int minute = index * widget.minuteInterval;
-
                  string semanticsLabel = textDirectionFactor == 1
                   ? localizations.timerPickerMinute(minute) + localizations.timerPickerMinuteLabel(minute)
                   : localizations.timerPickerMinuteLabel(minute) + localizations.timerPickerMinute(minute);
-
-                return _buildPickerNumberLabel(localizations.timerPickerMinute(minute), additionalPadding);
-                
+                 return _buildPickerNumberLabel(localizations.timerPickerMinute(minute), additionalPadding);
               })
             );
           }
@@ -1523,9 +1519,7 @@ namespace Unity.UIWidgets.cupertino {
                  string semanticsLabel = textDirectionFactor == 1
                   ? localizations.timerPickerSecond(second) + localizations.timerPickerSecondLabel(second)
                   : localizations.timerPickerSecondLabel(second) + localizations.timerPickerSecond(second);
-
-                return _buildPickerNumberLabel(localizations.timerPickerSecond(second), additionalPadding);
-                
+                 return _buildPickerNumberLabel(localizations.timerPickerSecond(second), additionalPadding); 
               })
             );
           }

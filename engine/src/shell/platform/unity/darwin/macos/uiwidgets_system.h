@@ -6,6 +6,7 @@
 #include <cstdarg>
 #include <set>
 #include <unordered_map>
+#include <mutex>
 
 #include "Unity/IUnityInterface.h"
 #include "Unity/IUnityUIWidgets.h"
@@ -71,6 +72,8 @@ class UIWidgetsSystem {
 
   TimePoint next_uiwidgets_event_time_ = TimePoint::clock::now();
   std::set<UIWidgetsPanel*> uiwidgets_panels_;
+
+  std::mutex task_mutex_;
 };
 
 }  // namespace uiwidgets

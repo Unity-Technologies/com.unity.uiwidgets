@@ -94,11 +94,10 @@ namespace Unity.UIWidgets.material {
                             new Container(
                                 height: DatePickerHeaderUtils._datePickerHeaderPortraitHeight,
                                 color: primarySurfaceColor,
-                                //FixMe: uncomment this after EdgeInsetsGeometry is ready for use
-                                /*padding: EdgeInsetsDirectional.only(
+                                padding: EdgeInsetsDirectional.only(
                                     start: 24f,
                                     end: 12f
-                                ),*/
+                                ),
                                 child: new Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
