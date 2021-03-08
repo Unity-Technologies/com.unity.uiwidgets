@@ -7,6 +7,8 @@
 #include "unity_surface_manager.h"
 #include "cocoa_task_runner.h"
 
+#include "src/shell/platform/unity/unity_console.h"
+
 namespace uiwidgets {
 
 struct MouseState {

@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef __ANDROID__
-#include "shell/platform/unity/darwin/android/uiwidgets_system.h"
+#include "shell/platform/unity/android/uiwidgets_system.h"
 #elif __APPLE__
 #include "shell/platform/unity/darwin/macos/uiwidgets_system.h"
 #elif _WIN64

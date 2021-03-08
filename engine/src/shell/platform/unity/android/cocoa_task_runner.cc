@@ -72,7 +72,7 @@ std::chrono::nanoseconds CocoaTaskRunner::ProcessTasks() {
 CocoaTaskRunner::TaskTimePoint CocoaTaskRunner::TimePointFromUIWidgetsTime(
     uint64_t uiwidgets_target_time_nanos) {
   const auto fml_now = fml::TimePoint::Now().ToEpochDelta().ToNanoseconds();
-  if (uiwidgets_target_time_nanos <= fml_now) {
+  if (uiwidgets_target_time_nanos <= (uint64_t)fml_now) {
     return {};
   }
   const auto uiwidgets_duration = uiwidgets_target_time_nanos - fml_now;

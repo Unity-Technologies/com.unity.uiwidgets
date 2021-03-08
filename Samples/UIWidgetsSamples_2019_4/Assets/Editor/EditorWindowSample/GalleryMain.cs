@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UIWidgetsGallery.gallery;
 using Unity.UIWidgets.Editor;
 using UnityEditor;
@@ -19,3 +20,4 @@ namespace UIWidgetsEditorWindowSample
         }
     }
 }
+#endif

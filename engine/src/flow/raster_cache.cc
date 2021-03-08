@@ -22,9 +22,17 @@ void RasterCacheResult::draw(SkCanvas& canvas, const SkPaint* paint) const {
   SkAutoCanvasRestore auto_restore(&canvas, true);
   SkIRect bounds =
       RasterCache::GetDeviceBounds(logical_rect_, canvas.getTotalMatrix());
+      auto a = bounds.size().width() - image_->dimensions().width();
+      if(a < 0){
+        a = -a;
+      }
+      auto b = bounds.size().height() - image_->dimensions().height();
+      if(b < 0){
+        b = -b;
+      }
   FML_DCHECK(
-      std::abs(bounds.size().width() - image_->dimensions().width()) <= 1 &&
-      std::abs(bounds.size().height() - image_->dimensions().height()) <= 1);
+      a <= 1 &&
+      b <= 1);
   canvas.resetMatrix();
   canvas.drawImage(image_, bounds.fLeft, bounds.fTop, paint);
 }

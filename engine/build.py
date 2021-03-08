@@ -20,9 +20,13 @@ FLUTTER_ROOT = os.environ['FLUTTER_ROOT']
 SKIA_ROOT = FLUTTER_ROOT+"/third_party/skia"
 
 clang = FLUTTER_ROOT+"/buildtools/mac-x64/clang/bin/clang++"
-
+clang = "artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++"
 codeFiles = [
-    # "src/shell/platform/unity/darwin/android/uiwidgets_system.cc",
+    "src/shell/platform/unity/android/unity_surface_manager.cc",
+    "src/shell/platform/unity/android/uiwidgets_system.cc",
+    "src/shell/platform/unity/android/cocoa_task_runner.cc",
+    "src/shell/platform/unity/android/uiwidgets_panel.cc",
+    
     "src/assets/asset_manager.cc",
     "src/assets/asset_manager.h",
     "src/assets/asset_resolver.h",
@@ -356,7 +360,6 @@ for codeFile in codeFiles:
         continue
 
     FLUTTER_ROOT = FLUTTER_ROOT+""
-    clang = FLUTTER_ROOT + "/buildtools/mac-x64/clang/bin/clang++"
     mkdirScript = ["mkdir", "-p", "obj/"+dir]
     process = subprocess.Popen(
         mkdirScript, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -487,7 +490,7 @@ for codeFile in codeFiles:
         "-c",
         dir+"/" + name + extention,
         "-o",
-        "obj/"+dir+"/"+name+".o"
+        "obj/"+dir+"/"+name+".o",
     ]
     objs.append("obj/"+dir+"/"+name+".o")
     if linkOnly and (buildEngine == False):
