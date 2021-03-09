@@ -536,6 +536,7 @@ linkCmd = [
     "-o",
     soFile,
     "-Wl,--build-id=sha1",
+    "-g",
     "-Wl,-soname=libUIWidgets_d.so",
     "-Wl,--whole-archive",
 ]

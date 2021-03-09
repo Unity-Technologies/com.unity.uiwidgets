@@ -173,14 +173,20 @@ namespace uiwidgets
 
   bool UnitySurfaceManager::MakeCurrent(const EGLSurface surface)
   {
-    int width_ = 100;
-    int height_ = 100;
+    
     UnityConsole::WriteLine("test c++: clear current");
 
-    EGLBoolean a =  eglMakeCurrent(egl_display_, surface, surface, egl_context_) ==
+    EGLBoolean result =  eglMakeCurrent(egl_display_, surface, surface, egl_context_) ==
            EGL_TRUE;
+    draw();
+    
+    return result;
+  }
 
-int i = 0;
+  void UnitySurfaceManager::draw() {
+    int width_ = 100;
+    int height_ = 100;
+    int i = 0;
       sk_sp<GrContext> gr_context_ = GrContext::MakeGL();
     UnityConsole::WriteLine(("test c++" +  std::to_string(i++)).c_str());
 
@@ -209,7 +215,6 @@ int i = 0;
       m_SkSurface = SkSurface::MakeFromBackendTexture(
           gr_context_.get(), m_backendTex, kBottomLeft_GrSurfaceOrigin, 1,
           kRGBA_8888_SkColorType, nullptr, nullptr);
-    return a;
   }
 
   bool UnitySurfaceManager::MakeResourceCurrent()

@@ -55,6 +55,7 @@ class UnitySurfaceManager {
   FML_DISALLOW_COPY_AND_ASSIGN(UnitySurfaceManager);
 
  private:
+ void draw();
   bool Initialize(IUnityInterfaces* unity_interfaces);
   void CleanUp();
 

@@ -577,6 +577,7 @@ class Build
             "--sysroot="+flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
             "-L"+flutterRoot +            "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-Wl,--build-id=sha1",
+            "-g",
             "-Wl,-soname=libUIWidgets_d.so",
             "-Wl,--whole-archive",
         }));
