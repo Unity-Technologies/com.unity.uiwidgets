@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.engine2 {
         GameObjectPanel = 1,
         EditorWindowPanel = 2
     }
-    
+
     [Serializable]
     public struct Font {
         public string asset;
@@ -41,10 +41,18 @@ namespace Unity.UIWidgets.engine2 {
         UIWidgetsWindowType getWindowType();
     }
 
+    public class ConfigurationSettings {
+        public static Dictionary<IntPtr, bool> _internalShowDebugLog = new Dictionary<IntPtr, bool>();
+    }
+
+    public class Configurations {
+        
+        public Dictionary<string, TextFont> _internalTextFonts = new Dictionary<string, TextFont>();
+        public bool _showDebugLog;
+    }
+
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
         public static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
-
-        static bool _ShowDebugLog;
 
         public float devicePixelRatioOverride;
 
@@ -53,8 +61,9 @@ namespace Unity.UIWidgets.engine2 {
         public TextFont[] fonts;
 
         public bool m_ShowDebugLog;
+        
+        Configurations _configurations;
 
-        readonly Dictionary<string, TextFont> _internalTextFonts = new Dictionary<string, TextFont>();
         UIWidgetsPanelWrapper _wrapper;
 
         int _currentWidth {
@@ -76,16 +85,7 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 
-        public static bool ShowDebugLog {
-            get { return _ShowDebugLog; }
-            set {
-                foreach (var panel in panels) {
-                    panel.m_ShowDebugLog = value;
-                }
-
-                _ShowDebugLog = value;
-            }
-        }
+        public static bool ShowDebugLog { get; set; }
 
         protected virtual void Update() {
             Input_Update();
@@ -94,22 +94,22 @@ namespace Unity.UIWidgets.engine2 {
         protected void OnEnable() {
             base.OnEnable();
             D.assert(_wrapper == null);
+            _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
             onEnable();
-            
+
             if (fonts != null && fonts.Length > 0) {
                 foreach (var font in fonts) {
-                    AddFont(font.family, font);
+                    AddFont(family: font.family, font: font);
                 }
             }
 
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
-                settings: _internalTextFonts);
-            _internalTextFonts.Clear();
+                _configurations: _configurations);
+            _configurations._internalTextFonts.Clear();
             texture = _wrapper.renderTexture;
             Input_OnEnable();
             panels.Add(this);
-            _ShowDebugLog = m_ShowDebugLog;
         }
 
         protected override void OnDisable() {
@@ -117,7 +117,7 @@ namespace Unity.UIWidgets.engine2 {
             _wrapper?.Destroy();
             _wrapper = null;
             texture = null;
-            _internalTextFonts.Clear();
+            //ConfigurationSettings._internalTextFonts.Clear();
             Input_OnDisable();
             base.OnDisable();
             panels.Remove(this);
@@ -175,7 +175,7 @@ namespace Unity.UIWidgets.engine2 {
         }
 
         protected void AddFont(string family, TextFont font) {
-            _internalTextFonts[key: family] = font;
+            _configurations._internalTextFonts[key: family] = font;
         }
 
         protected void AddFont(string family, List<string> assets, List<int> weights) {
@@ -183,14 +183,20 @@ namespace Unity.UIWidgets.engine2 {
                 Debug.LogError($"The size of {family}‘s assets should be equal to the weights'.");
                 return;
             }
+
             var textFont = new TextFont {family = family};
             var fonts = new Font[assets.Count];
             for (var j = 0; j < assets.Count; j++) {
                 var font = new Font {asset = assets[index: j], weight = weights[index: j]};
                 fonts[j] = font;
             }
+
             textFont.fonts = fonts;
-            AddFont(family, textFont);
+            AddFont(family: family, font: textFont);
+        }
+
+        protected void SetShowDebugLog(bool showDebugLog) {
+            _configurations._showDebugLog = showDebugLog || m_ShowDebugLog;
         }
 
         protected virtual void main() {

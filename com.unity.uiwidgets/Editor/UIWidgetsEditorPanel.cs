@@ -11,6 +11,9 @@ using Rect = UnityEngine.Rect;
 
 namespace Unity.UIWidgets.Editor {
     public class UIWidgetsEditorPanel : EditorWindow, IUIWidgetsWindow {
+        
+        Configurations _configurations;
+        bool _ShowDebugLog;
         UIWidgetsPanelWrapper _wrapper;
 
         int _currentWidth {
@@ -24,9 +27,6 @@ namespace Unity.UIWidgets.Editor {
         float _currentDevicePixelRatio {
             get { return EditorGUIUtility.pixelsPerPoint; }
         }
-        
-        readonly Dictionary<string, TextFont> _internalTextFonts =
-            new Dictionary<string, TextFont>();
 
         void Update() {
             _wrapper.onEditorUpdate();
@@ -34,12 +34,12 @@ namespace Unity.UIWidgets.Editor {
 
         void OnEnable() {
             D.assert(_wrapper == null);
+            _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
             onEnable();
-            
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
-                settings: _internalTextFonts);
-            _internalTextFonts.Clear();
+                _configurations: _configurations);
+            _configurations._internalTextFonts.Clear();
             Input_OnEnable();
         }
 
@@ -91,20 +91,27 @@ namespace Unity.UIWidgets.Editor {
         protected virtual void onEnable() {
         }
 
+        protected void SetShowDebugLog(bool showDebugLog) {
+            _configurations._showDebugLog = showDebugLog;
+        }
+
         protected void AddFont(string family, List<string> assets, List<int> weights) {
             if (assets.Count != weights.Count) {
                 Debug.LogError($"The size of {family}‘s assets should be equal to the weights'.");
                 return;
             }
+
             var textFont = new TextFont {family = family};
             var fonts = new Font[assets.Count];
             for (var j = 0; j < assets.Count; j++) {
                 var font = new Font {asset = assets[index: j], weight = weights[index: j]};
                 fonts[j] = font;
             }
+
             textFont.fonts = fonts;
-            _internalTextFonts[key: family] = textFont;
+            _configurations._internalTextFonts[key: family] = textFont;
         }
+
 
         Vector2? _getPointerPosition(Vector2 position) {
             return new Vector2(x: position.x, y: position.y);

@@ -3,27 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using AOT;
-using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.ui;
-using UnityEngine;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.services;
-using Rect = Unity.UIWidgets.ui.Rect;
+using UnityEngine;
 
 namespace Unity.UIWidgets.ui {
     public enum FontStyle {
         normal,
 
-        italic,
+        italic
     }
 
     public class FontWeight {
-        public FontWeight(int index) {
-            this.index = index;
-        }
-
-        public readonly int index;
-
         public static readonly FontWeight w100 = new FontWeight(0);
 
         public static readonly FontWeight w200 = new FontWeight(1);
@@ -50,12 +42,6 @@ namespace Unity.UIWidgets.ui {
             w100, w200, w300, w400, w500, w600, w700, w800, w900
         };
 
-        public static FontWeight lerp(FontWeight a, FontWeight b, float t) {
-            if (a == null && b == null)
-                return null;
-            return values[MathUtils.lerpNullableFloat(a?.index ?? normal.index, b?.index ?? normal.index, t).round().clamp(0, 8)];
-        }
-
         public static readonly Dictionary<int, string> map = new Dictionary<int, string> {
             {0, "FontWeight.w100"},
             {1, "FontWeight.w200"},
@@ -65,15 +51,37 @@ namespace Unity.UIWidgets.ui {
             {5, "FontWeight.w600"},
             {6, "FontWeight.w700"},
             {7, "FontWeight.w800"},
-            {8, "FontWeight.w900"},
+            {8, "FontWeight.w900"}
         };
 
+        public readonly int index;
+
+        public FontWeight(int index) {
+            this.index = index;
+        }
+
+        public static FontWeight lerp(FontWeight a, FontWeight b, float t) {
+            if (a == null && b == null) {
+                return null;
+            }
+
+            return values[
+                MathUtils.lerpNullableFloat(a?.index ?? normal.index, b?.index ?? normal.index, t: t).round()
+                    .clamp(0, 8)];
+        }
+
         public override string ToString() {
-            return map[index];
+            return map[key: index];
         }
     }
 
     public class FontFeature : IEquatable<FontFeature> {
+        internal static readonly int _kEncodedSize = 8;
+
+        public readonly string feature;
+
+        public readonly int value;
+
         public FontFeature(string feature, int value = 1) {
             D.assert(feature != null);
             D.assert(feature.Length == 4);
@@ -82,16 +90,28 @@ namespace Unity.UIWidgets.ui {
             this.value = value;
         }
 
+        public bool Equals(FontFeature other) {
+            if (ReferenceEquals(null, objB: other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, objB: other)) {
+                return true;
+            }
+
+            return feature == other.feature && value == other.value;
+        }
+
         public FontFeature enable(string feature) {
-            return new FontFeature(feature, 1);
+            return new FontFeature(feature: feature);
         }
 
         public FontFeature disable(string feature) {
-            return new FontFeature(feature, 0);
+            return new FontFeature(feature: feature, 0);
         }
 
         public FontFeature randomize() {
-            return new FontFeature("rand", 1);
+            return new FontFeature("rand");
         }
 
         public static FontFeature stylisticSet(int value) {
@@ -101,26 +121,20 @@ namespace Unity.UIWidgets.ui {
         }
 
         public FontFeature slashedZero() {
-            return new FontFeature("zero", 1);
+            return new FontFeature("zero");
         }
 
         public FontFeature oldstyleFigures() {
-            return new FontFeature("onum", 1);
+            return new FontFeature("onum");
         }
 
         public FontFeature proportionalFigures() {
-            return new FontFeature("pnum", 1);
+            return new FontFeature("pnum");
         }
 
         public FontFeature tabularFigures() {
-            return new FontFeature("tnum", 1);
+            return new FontFeature("tnum");
         }
-
-        public readonly string feature;
-
-        public readonly int value;
-
-        internal static readonly int _kEncodedSize = 8;
 
         internal void _encode(byte[] byteData) {
             D.assert(() => {
@@ -132,8 +146,8 @@ namespace Unity.UIWidgets.ui {
 
                 return true;
             });
-            for (int i = 0; i < 4; i++) {
-                byteData[i] = (byte) feature[i];
+            for (var i = 0; i < 4; i++) {
+                byteData[i] = (byte) feature[index: i];
             }
 
             byteData[4] = (byte) (value >> 0);
@@ -146,24 +160,12 @@ namespace Unity.UIWidgets.ui {
             return $"FontFeature({feature}, {value})";
         }
 
-        public bool Equals(FontFeature other) {
-            if (ReferenceEquals(null, other)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other)) {
-                return true;
-            }
-
-            return feature == other.feature && value == other.value;
-        }
-
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -192,35 +194,16 @@ namespace Unity.UIWidgets.ui {
 
         start,
 
-        end,
+        end
     }
 
     public enum TextBaseline {
         alphabetic,
 
-        ideographic,
+        ideographic
     }
 
     public class TextDecoration : IEquatable<TextDecoration> {
-        public TextDecoration(int _mask) {
-            this._mask = _mask;
-        }
-
-        public TextDecoration combine(List<TextDecoration> decorations) {
-            int mask = 0;
-            foreach (TextDecoration decoration in decorations) {
-                mask |= decoration._mask;
-            }
-
-            return new TextDecoration(mask);
-        }
-
-        internal readonly int _mask;
-
-        public bool contains(TextDecoration other) {
-            return (_mask | other._mask) == _mask;
-        }
-
         public static readonly TextDecoration none = new TextDecoration(0x0);
 
         public static readonly TextDecoration underline = new TextDecoration(0x1);
@@ -229,41 +212,68 @@ namespace Unity.UIWidgets.ui {
 
         public static readonly TextDecoration lineThrough = new TextDecoration(0x4);
 
-        public override string ToString() {
-            if (_mask == 0) {
-                return "TextDecoration.none";
-            }
+        internal readonly int _mask;
 
-            List<string> values = new List<string>();
-            if ((_mask & underline._mask) != 0)
-                values.Add("underline");
-            if ((_mask & overline._mask) != 0)
-                values.Add("overline");
-            if ((_mask & lineThrough._mask) != 0)
-                values.Add("lineThrough");
-            if (values.Count == 1)
-                return $"TextDecoration.{values[0]}";
-            return $"TextDecoration.combine([{String.Join(", ", values)}])";
+        public TextDecoration(int _mask) {
+            this._mask = _mask;
         }
 
         public bool Equals(TextDecoration other) {
-            if (ReferenceEquals(null, other)) {
+            if (ReferenceEquals(null, objB: other)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, other)) {
+            if (ReferenceEquals(this, objB: other)) {
                 return true;
             }
 
             return _mask == other._mask;
         }
 
+        public TextDecoration combine(List<TextDecoration> decorations) {
+            var mask = 0;
+            foreach (var decoration in decorations) {
+                mask |= decoration._mask;
+            }
+
+            return new TextDecoration(_mask: mask);
+        }
+
+        public bool contains(TextDecoration other) {
+            return (_mask | other._mask) == _mask;
+        }
+
+        public override string ToString() {
+            if (_mask == 0) {
+                return "TextDecoration.none";
+            }
+
+            var values = new List<string>();
+            if ((_mask & underline._mask) != 0) {
+                values.Add("underline");
+            }
+
+            if ((_mask & overline._mask) != 0) {
+                values.Add("overline");
+            }
+
+            if ((_mask & lineThrough._mask) != 0) {
+                values.Add("lineThrough");
+            }
+
+            if (values.Count == 1) {
+                return $"TextDecoration.{values[0]}";
+            }
+
+            return $"TextDecoration.combine([{string.Join(", ", values: values)}])";
+        }
+
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -293,6 +303,10 @@ namespace Unity.UIWidgets.ui {
     }
 
     public class TextHeightBehavior : IEquatable<TextHeightBehavior> {
+        public readonly bool applyHeightToFirstAscent;
+
+        public readonly bool applyHeightToLastDescent;
+
         public TextHeightBehavior(
             bool applyHeightToFirstAscent = true,
             bool applyHeightToLastDescent = true
@@ -301,14 +315,22 @@ namespace Unity.UIWidgets.ui {
             this.applyHeightToLastDescent = applyHeightToLastDescent;
         }
 
+        public bool Equals(TextHeightBehavior other) {
+            if (ReferenceEquals(null, objB: other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, objB: other)) {
+                return true;
+            }
+
+            return applyHeightToFirstAscent == other.applyHeightToFirstAscent &&
+                   applyHeightToLastDescent == other.applyHeightToLastDescent;
+        }
+
         public static TextHeightBehavior fromEncoded(int encoded) {
             return new TextHeightBehavior((encoded & 0x1) == 0, (encoded & 0x2) == 0);
         }
-
-
-        public readonly bool applyHeightToFirstAscent;
-
-        public readonly bool applyHeightToLastDescent;
 
         public int encode() {
             return (applyHeightToFirstAscent ? 0 : 1 << 0) | (applyHeightToLastDescent ? 0 : 1 << 1);
@@ -321,25 +343,12 @@ namespace Unity.UIWidgets.ui {
                    ")";
         }
 
-        public bool Equals(TextHeightBehavior other) {
-            if (ReferenceEquals(null, other)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other)) {
-                return true;
-            }
-
-            return applyHeightToFirstAscent == other.applyHeightToFirstAscent &&
-                   applyHeightToLastDescent == other.applyHeightToLastDescent;
-        }
-
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -365,6 +374,11 @@ namespace Unity.UIWidgets.ui {
     public static partial class ui_ {
         static readonly object VoidObject = new object();
 
+        static readonly byte[] _fontChangeMessage = JSONMessageCodec.instance.encodeMessage(
+            new Dictionary<string, string> {
+                {"type", "fontsChange"}
+            });
+
         internal static int[] _encodeTextStyle(
             Color color,
             TextDecoration decoration,
@@ -386,7 +400,7 @@ namespace Unity.UIWidgets.ui {
             List<Shadow> shadows,
             List<FontFeature> fontFeatures
         ) {
-            int[] result = new int[8];
+            var result = new int[8];
             if (color != null) {
                 result[0] |= 1 << 1;
                 result[1] = (int) color.value;
@@ -426,7 +440,7 @@ namespace Unity.UIWidgets.ui {
                 result[0] |= 1 << 8;
             }
 
-            if (fontFamily != null || (fontFamilyFallback != null && fontFamilyFallback.isNotEmpty())) {
+            if (fontFamily != null || fontFamilyFallback != null && fontFamilyFallback.isNotEmpty()) {
                 result[0] |= 1 << 9;
                 // Passed separately to native.
             }
@@ -493,7 +507,7 @@ namespace Unity.UIWidgets.ui {
             string ellipsis,
             Locale locale
         ) {
-            List<int> result = new List<int>(new int[7]);
+            var result = new List<int>(new int[7]);
             if (textAlign != null) {
                 result[0] |= 1 << 1;
                 result[1] = (int) textAlign;
@@ -583,9 +597,9 @@ namespace Unity.UIWidgets.ui {
                 return new byte[0];
             }
 
-            byte[] data = new byte[15]; // Max size is 15 bytes
-            int bitmask = 0; // 8 bit mask
-            int byteCount = 1;
+            var data = new byte[15]; // Max size is 15 bytes
+            var bitmask = 0; // 8 bit mask
+            var byteCount = 1;
             if (fontWeight != null) {
                 bitmask |= 1 << 0;
                 data[byteCount] = (byte) fontWeight.index;
@@ -598,26 +612,26 @@ namespace Unity.UIWidgets.ui {
                 byteCount += 1;
             }
 
-            if (fontFamily != null || (fontFamilyFallback != null && fontFamilyFallback.isNotEmpty())) {
+            if (fontFamily != null || fontFamilyFallback != null && fontFamilyFallback.isNotEmpty()) {
                 bitmask |= 1 << 2;
                 // passed separately to native
             }
 
             if (fontSize != null) {
                 bitmask |= 1 << 3;
-                data.setFloat(byteCount, (float) fontSize);
+                data.setFloat(byteOffset: byteCount, (float) fontSize);
                 byteCount += 4;
             }
 
             if (height != null) {
                 bitmask |= 1 << 4;
-                data.setFloat(byteCount, (float) height);
+                data.setFloat(byteOffset: byteCount, (float) height);
                 byteCount += 4;
             }
 
             if (leading != null) {
                 bitmask |= 1 << 5;
-                data.setFloat(byteCount, (float) leading);
+                data.setFloat(byteOffset: byteCount, (float) leading);
                 byteCount += 4;
             }
 
@@ -629,16 +643,17 @@ namespace Unity.UIWidgets.ui {
             }
 
             data[0] = (byte) bitmask;
-            return data.range(0, byteCount);
+            return data.range(0, length: byteCount);
         }
 
         public static unsafe Future loadFontFromList(byte[] list, string fontFamily = null) {
             return _futurize((_Callback<object> callback) => {
                 // var completer = new Promise(true);
-                GCHandle completerHandle = GCHandle.Alloc(callback);
+                var completerHandle = GCHandle.Alloc(value: callback);
                 fixed (byte* listPtr = list) {
-                    Font_LoadFontFromList(listPtr, list.Length, _loadFontCallback, (IntPtr) completerHandle,
-                        fontFamily);
+                    Font_LoadFontFromList(list: listPtr, size: list.Length, callback: _loadFontCallback,
+                        (IntPtr) completerHandle,
+                        fontFamily: fontFamily);
                 }
 
                 return null;
@@ -647,48 +662,58 @@ namespace Unity.UIWidgets.ui {
 
         [MonoPInvokeCallback(typeof(_loadFontFromListCallback))]
         static void _loadFontCallback(IntPtr callbackHandle) {
-            GCHandle completerHandle = (GCHandle) callbackHandle;
+            var completerHandle = (GCHandle) callbackHandle;
             var callback = (_Callback<object>) completerHandle.Target;
             completerHandle.Free();
             _sendFontChangeMessage();
             try {
-                callback(VoidObject);
+                callback(result: VoidObject);
             }
             catch (Exception ex) {
-                Debug.LogException(ex);
+                Debug.LogException(exception: ex);
             }
         }
 
-        static byte[] _fontChangeMessage = JSONMessageCodec.instance.encodeMessage(
-            new Dictionary<string, string>() {
-                {"type", "fontsChange"}
-            });
-
         static void _sendFontChangeMessage() {
-            Window.instance.onPlatformMessage?.Invoke("uiwidgets/system", _fontChangeMessage,
-                (_) => { });
+            Window.instance.onPlatformMessage?.Invoke("uiwidgets/system", data: _fontChangeMessage,
+                _ => { });
         }
 
-        delegate void _loadFontFromListCallback(IntPtr callbackHandle);
-
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern unsafe void Font_LoadFontFromList(byte* list, int size, _loadFontFromListCallback callback,
             IntPtr callbackHandle,
             string fontFamily);
 
 
         public static float[] toFloatArrayAndFree(this Float32List data) {
-            float[] result = new float[data.length];
-            Marshal.Copy(data.data, result, 0, data.length);
-            Lists_Free(data.data);
+            var result = new float[data.length];
+            Marshal.Copy(source: data.data, destination: result, 0, length: data.length);
+            Lists_Free(data: data.data);
             return result;
         }
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         public static extern void Lists_Free(IntPtr data);
+
+        delegate void _loadFontFromListCallback(IntPtr callbackHandle);
     }
 
     public class TextStyle : IEquatable<TextStyle> {
+        internal readonly Paint _background;
+        internal readonly float? _decorationThickness;
+
+        internal readonly int[] _encoded;
+        internal readonly string _fontFamily;
+        internal readonly List<string> _fontFamilyFallback;
+        internal readonly List<FontFeature> _fontFeatures;
+        internal readonly float? _fontSize;
+        internal readonly Paint _foreground;
+        internal readonly float? _height;
+        internal readonly float? _letterSpacing;
+        internal readonly Locale _locale;
+        internal readonly List<Shadow> _shadows;
+        internal readonly float? _wordSpacing;
+
         public TextStyle(
             Color color = null,
             TextDecoration decoration = null,
@@ -715,25 +740,25 @@ namespace Unity.UIWidgets.ui {
                 "The color argument is just a shorthand for \"foreground: Paint()..color = color\"."
             );
             _encoded = ui_._encodeTextStyle(
-                color,
-                decoration,
-                decorationColor,
-                decorationStyle,
-                decorationThickness,
-                fontWeight,
-                fontStyle,
-                textBaseline,
-                fontFamily,
-                fontFamilyFallback,
-                fontSize,
-                letterSpacing,
-                wordSpacing,
-                height,
-                locale,
-                background,
-                foreground,
-                shadows,
-                fontFeatures
+                color: color,
+                decoration: decoration,
+                decorationColor: decorationColor,
+                decorationStyle: decorationStyle,
+                decorationThickness: decorationThickness,
+                fontWeight: fontWeight,
+                fontStyle: fontStyle,
+                textBaseline: textBaseline,
+                fontFamily: fontFamily,
+                fontFamilyFallback: fontFamilyFallback,
+                fontSize: fontSize,
+                letterSpacing: letterSpacing,
+                wordSpacing: wordSpacing,
+                height: height,
+                locale: locale,
+                background: background,
+                foreground: foreground,
+                shadows: shadows,
+                fontFeatures: fontFeatures
             );
 
             _fontFamily = fontFamily ?? "";
@@ -750,65 +775,72 @@ namespace Unity.UIWidgets.ui {
             _fontFeatures = fontFeatures;
         }
 
-        internal readonly int[] _encoded;
-        internal readonly string _fontFamily;
-        internal readonly List<string> _fontFamilyFallback;
-        internal readonly float? _fontSize;
-        internal readonly float? _letterSpacing;
-        internal readonly float? _wordSpacing;
-        internal readonly float? _height;
-        internal readonly float? _decorationThickness;
-        internal readonly Locale _locale;
-        internal readonly Paint _background;
-        internal readonly Paint _foreground;
-        internal readonly List<Shadow> _shadows;
-        internal readonly List<FontFeature> _fontFeatures;
+        public bool Equals(TextStyle other) {
+            if (ReferenceEquals(null, objB: other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, objB: other)) {
+                return true;
+            }
+
+            return _encoded.equalsList(list: other._encoded) && Equals(objA: _fontFamily, objB: other._fontFamily) &&
+                   _fontFamilyFallback.equalsList(list: other._fontFamilyFallback) &&
+                   Nullable.Equals(n1: _fontSize, n2: other._fontSize) &&
+                   Nullable.Equals(n1: _letterSpacing, n2: other._letterSpacing) &&
+                   Nullable.Equals(n1: _wordSpacing, n2: other._wordSpacing) &&
+                   Nullable.Equals(n1: _height, n2: other._height) &&
+                   Nullable.Equals(n1: _decorationThickness, n2: other._decorationThickness) &&
+                   Equals(objA: _locale, objB: other._locale) && Equals(objA: _background, objB: other._background) &&
+                   Equals(objA: _foreground, objB: other._foreground) && _shadows.equalsList(list: other._shadows) &&
+                   _fontFeatures.equalsList(list: other._fontFeatures);
+        }
 
         public override string ToString() {
-            string color = (_encoded[0] & 0x00002) == 0x00002
-                ? (new Color((uint) _encoded[1])).ToString()
+            var color = (_encoded[0] & 0x00002) == 0x00002
+                ? new Color((uint) _encoded[1]).ToString()
                 : "unspecified";
-            string decoration = (_encoded[0] & 0x00004) == 0x00004
-                ? (new TextDecoration(_encoded[2])).ToString()
+            var decoration = (_encoded[0] & 0x00004) == 0x00004
+                ? new TextDecoration(_encoded[2]).ToString()
                 : "unspecified";
-            string decorationColor = (_encoded[0] & 0x00008) == 0x00008
-                ? (new Color((uint) _encoded[3])).ToString()
+            var decorationColor = (_encoded[0] & 0x00008) == 0x00008
+                ? new Color((uint) _encoded[3]).ToString()
                 : "unspecified";
-            string decorationStyle = (_encoded[0] & 0x00010) == 0x00010
+            var decorationStyle = (_encoded[0] & 0x00010) == 0x00010
                 ? ((TextDecorationStyle) _encoded[4]).ToString()
                 : "unspecified";
             // The decorationThickness is not in encoded order in order to keep it near the other decoration properties.
-            string decorationThickness = (_encoded[0] & 0x00100) == 0x00100
+            var decorationThickness = (_encoded[0] & 0x00100) == 0x00100
                 ? _decorationThickness.ToString()
                 : "unspecified";
-            string fontWeight = (_encoded[0] & 0x00020) == 0x00020
+            var fontWeight = (_encoded[0] & 0x00020) == 0x00020
                 ? FontWeight.values[_encoded[5]].ToString()
                 : "unspecified";
-            string fontStyle = (_encoded[0] & 0x00040) == 0x00040
+            var fontStyle = (_encoded[0] & 0x00040) == 0x00040
                 ? ((FontStyle) _encoded[6]).ToString()
                 : "unspecified";
-            string textBaseline = (_encoded[0] & 0x00080) == 0x00080
+            var textBaseline = (_encoded[0] & 0x00080) == 0x00080
                 ? ((TextBaseline) _encoded[7]).ToString()
                 : "unspecified";
-            string fontFamily = (_encoded[0] & 0x00200) == 0x00200
-                                && _fontFamily != null
+            var fontFamily = (_encoded[0] & 0x00200) == 0x00200
+                             && _fontFamily != null
                 ? _fontFamily
                 : "unspecified";
-            string fontFamilyFallback = (_encoded[0] & 0x00200) == 0x00200
-                                        && _fontFamilyFallback != null
-                                        && _fontFamilyFallback.isNotEmpty()
+            var fontFamilyFallback = (_encoded[0] & 0x00200) == 0x00200
+                                     && _fontFamilyFallback != null
+                                     && _fontFamilyFallback.isNotEmpty()
                 ? _fontFamilyFallback.ToString()
                 : "unspecified";
-            string fontSize = (_encoded[0] & 0x00400) == 0x00400 ? _fontSize.ToString() : "unspecified";
-            string letterSpacing = (_encoded[0] & 0x00800) == 0x00800 ? "_letterSpacing}x" : "unspecified";
-            string wordSpacing = (_encoded[0] & 0x01000) == 0x01000 ? "_wordSpacing}x" : "unspecified";
-            string height = (_encoded[0] & 0x02000) == 0x02000 ? "_height}x" : "unspecified";
-            string locale = (_encoded[0] & 0x04000) == 0x04000 ? _locale.ToString() : "unspecified";
-            string background = (_encoded[0] & 0x08000) == 0x08000 ? _locale.ToString() : "unspecified";
-            string foreground = (_encoded[0] & 0x10000) == 0x10000 ? _locale.ToString() : "unspecified";
-            string shadows = (_encoded[0] & 0x20000) == 0x20000 ? _locale.ToString() : "unspecified";
+            var fontSize = (_encoded[0] & 0x00400) == 0x00400 ? _fontSize.ToString() : "unspecified";
+            var letterSpacing = (_encoded[0] & 0x00800) == 0x00800 ? "_letterSpacing}x" : "unspecified";
+            var wordSpacing = (_encoded[0] & 0x01000) == 0x01000 ? "_wordSpacing}x" : "unspecified";
+            var height = (_encoded[0] & 0x02000) == 0x02000 ? "_height}x" : "unspecified";
+            var locale = (_encoded[0] & 0x04000) == 0x04000 ? _locale.ToString() : "unspecified";
+            var background = (_encoded[0] & 0x08000) == 0x08000 ? _locale.ToString() : "unspecified";
+            var foreground = (_encoded[0] & 0x10000) == 0x10000 ? _locale.ToString() : "unspecified";
+            var shadows = (_encoded[0] & 0x20000) == 0x20000 ? _locale.ToString() : "unspecified";
 
-            string fontFeatures =
+            var fontFeatures =
                 (_encoded[0] & 0x40000) == 0x40000 ? _fontFeatures.ToString() : "unspecified";
 
             return "TextStyle(\n" +
@@ -835,32 +867,12 @@ namespace Unity.UIWidgets.ui {
                    ")";
         }
 
-        public bool Equals(TextStyle other) {
-            if (ReferenceEquals(null, other)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other)) {
-                return true;
-            }
-
-            return _encoded.equalsList(other._encoded) && Equals(_fontFamily, other._fontFamily) &&
-                   _fontFamilyFallback.equalsList(other._fontFamilyFallback) &&
-                   Nullable.Equals(_fontSize, other._fontSize) &&
-                   Nullable.Equals(_letterSpacing, other._letterSpacing) &&
-                   Nullable.Equals(_wordSpacing, other._wordSpacing) && Nullable.Equals(_height, other._height) &&
-                   Nullable.Equals(_decorationThickness, other._decorationThickness) &&
-                   Equals(_locale, other._locale) && Equals(_background, other._background) &&
-                   Equals(_foreground, other._foreground) && _shadows.equalsList(other._shadows) &&
-                   _fontFeatures.equalsList(other._fontFeatures);
-        }
-
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -873,7 +885,7 @@ namespace Unity.UIWidgets.ui {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (_encoded != null ? _encoded.GetHashCode() : 0);
+                var hashCode = _encoded != null ? _encoded.GetHashCode() : 0;
                 hashCode = (hashCode * 397) ^ (_fontFamily != null ? _fontFamily.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (_fontFamilyFallback != null ? _fontFamilyFallback.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ _fontSize.GetHashCode();
@@ -892,6 +904,15 @@ namespace Unity.UIWidgets.ui {
     }
 
     public class ParagraphStyle : IEquatable<ParagraphStyle> {
+        internal readonly string _ellipsis;
+
+        internal readonly List<int> _encoded;
+        internal readonly string _fontFamily;
+        internal readonly float? _fontSize;
+        internal readonly float? _height;
+        internal readonly Locale _locale;
+        internal readonly StrutStyle _strutStyle;
+
         public ParagraphStyle(
             TextAlign? textAlign = null,
             TextDirection? textDirection = null,
@@ -907,18 +928,18 @@ namespace Unity.UIWidgets.ui {
             Locale locale = null
         ) {
             _encoded = ui_._encodeParagraphStyle(
-                textAlign,
-                textDirection,
-                maxLines,
-                fontFamily,
-                fontSize,
-                height,
-                textHeightBehavior,
-                fontWeight,
-                fontStyle,
-                strutStyle,
-                ellipsis,
-                locale
+                textAlign: textAlign,
+                textDirection: textDirection,
+                maxLines: maxLines,
+                fontFamily: fontFamily,
+                fontSize: fontSize,
+                height: height,
+                textHeightBehavior: textHeightBehavior,
+                fontWeight: fontWeight,
+                fontStyle: fontStyle,
+                strutStyle: strutStyle,
+                ellipsis: ellipsis,
+                locale: locale
             );
             _fontFamily = fontFamily;
             _fontSize = fontSize;
@@ -928,36 +949,44 @@ namespace Unity.UIWidgets.ui {
             _locale = locale;
         }
 
-        internal readonly List<int> _encoded;
-        internal readonly string _fontFamily;
-        internal readonly float? _fontSize;
-        internal readonly float? _height;
-        internal readonly StrutStyle _strutStyle;
-        internal readonly string _ellipsis;
-        internal readonly Locale _locale;
+        public bool Equals(ParagraphStyle other) {
+            if (ReferenceEquals(null, objB: other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, objB: other)) {
+                return true;
+            }
+
+            return _encoded.equalsList(list: other._encoded) && _fontFamily == other._fontFamily &&
+                   Nullable.Equals(n1: _fontSize, n2: other._fontSize) &&
+                   Nullable.Equals(n1: _height, n2: other._height) &&
+                   Equals(objA: _strutStyle, objB: other._strutStyle) && _ellipsis == other._ellipsis &&
+                   Equals(objA: _locale, objB: other._locale);
+        }
 
         public override string ToString() {
-            string textAlign = (_encoded[0] & 0x002) == 0x002
+            var textAlign = (_encoded[0] & 0x002) == 0x002
                 ? ((TextAlign) _encoded[1]).ToString()
                 : "unspecified";
-            string textDirection = (_encoded[0] & 0x004) == 0x004
+            var textDirection = (_encoded[0] & 0x004) == 0x004
                 ? ((TextDirection) _encoded[2]).ToString()
                 : "unspecified";
-            string fontWeight = (_encoded[0] & 0x008) == 0x008
+            var fontWeight = (_encoded[0] & 0x008) == 0x008
                 ? FontWeight.values[_encoded[3]].ToString()
                 : "unspecified";
-            string fontStyle = (_encoded[0] & 0x010) == 0x010
+            var fontStyle = (_encoded[0] & 0x010) == 0x010
                 ? ((FontStyle) _encoded[4]).ToString()
                 : "unspecified";
-            string maxLines = (_encoded[0] & 0x020) == 0x020 ? _encoded[5].ToString() : "unspecified";
-            string textHeightBehavior = (_encoded[0] & 0x040) == 0x040
+            var maxLines = (_encoded[0] & 0x020) == 0x020 ? _encoded[5].ToString() : "unspecified";
+            var textHeightBehavior = (_encoded[0] & 0x040) == 0x040
                 ? TextHeightBehavior.fromEncoded(_encoded[6]).ToString()
                 : "unspecified";
-            string fontFamily = (_encoded[0] & 0x080) == 0x080 ? _fontFamily : "unspecified";
-            string fontSize = (_encoded[0] & 0x100) == 0x100 ? _fontSize.ToString() : "unspecified";
-            string height = (_encoded[0] & 0x200) == 0x200 ? $"{_height}x" : "unspecified";
-            string ellipsis = (_encoded[0] & 0x400) == 0x400 ? _ellipsis : "unspecified";
-            string locale = (_encoded[0] & 0x800) == 0x800 ? _locale.ToString() : "unspecified";
+            var fontFamily = (_encoded[0] & 0x080) == 0x080 ? _fontFamily : "unspecified";
+            var fontSize = (_encoded[0] & 0x100) == 0x100 ? _fontSize.ToString() : "unspecified";
+            var height = (_encoded[0] & 0x200) == 0x200 ? $"{_height}x" : "unspecified";
+            var ellipsis = (_encoded[0] & 0x400) == 0x400 ? _ellipsis : "unspecified";
+            var locale = (_encoded[0] & 0x800) == 0x800 ? _locale.ToString() : "unspecified";
             return "ParagraphStyle(\n" +
                    $"textAlign: {textAlign}\n" +
                    $"textDirection: {textDirection}\n" +
@@ -973,27 +1002,12 @@ namespace Unity.UIWidgets.ui {
                    ")";
         }
 
-        public bool Equals(ParagraphStyle other) {
-            if (ReferenceEquals(null, other)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other)) {
-                return true;
-            }
-
-            return _encoded.equalsList(other._encoded) && _fontFamily == other._fontFamily &&
-                   Nullable.Equals(_fontSize, other._fontSize) && Nullable.Equals(_height, other._height) &&
-                   Equals(_strutStyle, other._strutStyle) && _ellipsis == other._ellipsis &&
-                   Equals(_locale, other._locale);
-        }
-
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -1006,7 +1020,7 @@ namespace Unity.UIWidgets.ui {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (_encoded != null ? _encoded.GetHashCode() : 0);
+                var hashCode = _encoded != null ? _encoded.GetHashCode() : 0;
                 hashCode = (hashCode * 397) ^ (_fontFamily != null ? _fontFamily.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ _fontSize.GetHashCode();
                 hashCode = (hashCode * 397) ^ _height.GetHashCode();
@@ -1019,6 +1033,10 @@ namespace Unity.UIWidgets.ui {
     }
 
     public class StrutStyle : IEquatable<StrutStyle> {
+        internal readonly byte[] _encoded; // Most of the data for strut is encoded.
+        internal readonly string _fontFamily;
+        internal readonly List<string> _fontFamilyFallback;
+
         public StrutStyle(
             string fontFamily = null,
             List<string> fontFamilyFallback = null,
@@ -1030,42 +1048,38 @@ namespace Unity.UIWidgets.ui {
             bool? forceStrutHeight = null
         ) {
             _encoded = ui_._encodeStrut(
-                fontFamily,
-                fontFamilyFallback,
-                fontSize,
-                height,
-                leading,
-                fontWeight,
-                fontStyle,
-                forceStrutHeight
+                fontFamily: fontFamily,
+                fontFamilyFallback: fontFamilyFallback,
+                fontSize: fontSize,
+                height: height,
+                leading: leading,
+                fontWeight: fontWeight,
+                fontStyle: fontStyle,
+                forceStrutHeight: forceStrutHeight
             );
             _fontFamily = fontFamily;
             _fontFamilyFallback = fontFamilyFallback;
         }
 
-        internal readonly byte[] _encoded; // Most of the data for strut is encoded.
-        internal readonly string _fontFamily;
-        internal readonly List<string> _fontFamilyFallback;
-
         public bool Equals(StrutStyle other) {
-            if (ReferenceEquals(null, other)) {
+            if (ReferenceEquals(null, objB: other)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, other)) {
+            if (ReferenceEquals(this, objB: other)) {
                 return true;
             }
 
-            return _encoded.equalsList(other._encoded) && _fontFamily == other._fontFamily &&
-                   _fontFamilyFallback.equalsList(other._fontFamilyFallback);
+            return _encoded.equalsList(list: other._encoded) && _fontFamily == other._fontFamily &&
+                   _fontFamilyFallback.equalsList(list: other._fontFamilyFallback);
         }
 
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -1078,7 +1092,7 @@ namespace Unity.UIWidgets.ui {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (_encoded != null ? _encoded.GetHashCode() : 0);
+                var hashCode = _encoded != null ? _encoded.GetHashCode() : 0;
                 hashCode = (hashCode * 397) ^ (_fontFamily != null ? _fontFamily.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (_fontFamilyFallback != null ? _fontFamilyFallback.GetHashCode() : 0);
                 return hashCode;
@@ -1087,12 +1101,21 @@ namespace Unity.UIWidgets.ui {
     }
 
     public enum TextDirection {
-        rtl,
-
         ltr,
+        rtl
     }
 
     public class TextBox : IEquatable<TextBox> {
+        public readonly float bottom;
+
+        public readonly TextDirection direction;
+
+        public readonly float left;
+
+        public readonly float right;
+
+        public readonly float top;
+
         TextBox(
             float left,
             float top,
@@ -1106,33 +1129,38 @@ namespace Unity.UIWidgets.ui {
             this.direction = direction;
         }
 
+        public float start {
+            get { return direction == TextDirection.ltr ? left : right; }
+        }
+
+        public float end {
+            get { return direction == TextDirection.ltr ? right : left; }
+        }
+
+        public bool Equals(TextBox other) {
+            if (ReferenceEquals(null, objB: other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, objB: other)) {
+                return true;
+            }
+
+            return left.Equals(obj: other.left) && top.Equals(obj: other.top) && right.Equals(obj: other.right) &&
+                   bottom.Equals(obj: other.bottom) && direction == other.direction;
+        }
+
         public static TextBox fromLTRBD(
             float left,
             float top,
             float right,
             float bottom,
             TextDirection direction) {
-            return new TextBox(left, top, right, bottom, direction);
+            return new TextBox(left: left, top: top, right: right, bottom: bottom, direction: direction);
         }
 
-        public readonly float left;
-
-        public readonly float top;
-
-        public readonly float right;
-
-        public readonly float bottom;
-
-        public readonly TextDirection direction;
-
-        public Rect toRect() => Rect.fromLTRB((float) left, (float) top, (float) right, (float) bottom);
-
-        public float start {
-            get { return (direction == TextDirection.ltr) ? left : right; }
-        }
-
-        public float end {
-            get { return (direction == TextDirection.ltr) ? right : left; }
+        public Rect toRect() {
+            return Rect.fromLTRB(left: left, top: top, right: right, bottom);
         }
 
         public override string ToString() {
@@ -1140,25 +1168,12 @@ namespace Unity.UIWidgets.ui {
                 $"TextBox.fromLTRBD({left.ToString("N1")}, {top.ToString("N1")}, {right.ToString("N1")}, {bottom.ToString("N1")}, {direction})";
         }
 
-        public bool Equals(TextBox other) {
-            if (ReferenceEquals(null, other)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other)) {
-                return true;
-            }
-
-            return left.Equals(other.left) && top.Equals(other.top) && right.Equals(other.right) &&
-                   bottom.Equals(other.bottom) && direction == other.direction;
-        }
-
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -1184,10 +1199,14 @@ namespace Unity.UIWidgets.ui {
     public enum TextAffinity {
         upstream,
 
-        downstream,
+        downstream
     }
 
     public class TextPosition : IEquatable<TextPosition> {
+        public readonly TextAffinity affinity;
+
+        public readonly int offset;
+
         public TextPosition(
             int offset,
             TextAffinity affinity = TextAffinity.downstream) {
@@ -1195,32 +1214,28 @@ namespace Unity.UIWidgets.ui {
             this.affinity = affinity;
         }
 
-        public readonly int offset;
-
-        public readonly TextAffinity affinity;
-
-        public override string ToString() {
-            return $"TextPosition(offset: {offset}, affinity: {affinity})";
-        }
-
         public bool Equals(TextPosition other) {
-            if (ReferenceEquals(null, other)) {
+            if (ReferenceEquals(null, objB: other)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, other)) {
+            if (ReferenceEquals(this, objB: other)) {
                 return true;
             }
 
             return offset == other.offset && affinity == other.affinity;
         }
 
+        public override string ToString() {
+            return $"TextPosition(offset: {offset}, affinity: {affinity})";
+        }
+
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -1239,6 +1254,12 @@ namespace Unity.UIWidgets.ui {
     }
 
     public class TextRange : IEquatable<TextRange> {
+        public static readonly TextRange empty = new TextRange(-1, -1);
+
+        public readonly int end;
+
+        public readonly int start;
+
         public TextRange(
             int start, int end) {
             D.assert(start >= -1);
@@ -1246,17 +1267,6 @@ namespace Unity.UIWidgets.ui {
             this.start = start;
             this.end = end;
         }
-
-        public static TextRange collapsed(int offset) {
-            D.assert(offset >= -1);
-            return new TextRange(offset, offset);
-        }
-
-        public static readonly TextRange empty = new TextRange(start: -1, end: -1);
-
-        public readonly int start;
-
-        public readonly int end;
 
         public bool isValid {
             get { return start >= 0 && end >= 0; }
@@ -1270,43 +1280,48 @@ namespace Unity.UIWidgets.ui {
             get { return end >= start; }
         }
 
-        public string textBefore(string text) {
-            D.assert(isNormalized);
-            return text.Substring(0, start);
-        }
-
-        public string textAfter(string text) {
-            D.assert(isNormalized);
-            return text.Substring(end);
-        }
-
-        public string textInside(string text) {
-            D.assert(isNormalized);
-            return text.Substring(start, end - start);
-        }
-
-        public override string ToString() {
-            return $"TextRange(start: {start}, end: {end})";
-        }
-
         public bool Equals(TextRange other) {
-            if (ReferenceEquals(null, other)) {
+            if (ReferenceEquals(null, objB: other)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, other)) {
+            if (ReferenceEquals(this, objB: other)) {
                 return true;
             }
 
             return start == other.start && end == other.end;
         }
 
+        public static TextRange collapsed(int offset) {
+            D.assert(offset >= -1);
+            return new TextRange(start: offset, end: offset);
+        }
+
+        public string textBefore(string text) {
+            D.assert(result: isNormalized);
+            return text.Substring(0, length: start);
+        }
+
+        public string textAfter(string text) {
+            D.assert(result: isNormalized);
+            return text.Substring(startIndex: end);
+        }
+
+        public string textInside(string text) {
+            D.assert(result: isNormalized);
+            return text.Substring(startIndex: start, end - start);
+        }
+
+        public override string ToString() {
+            return $"TextRange(start: {start}, end: {end})";
+        }
+
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -1325,34 +1340,34 @@ namespace Unity.UIWidgets.ui {
     }
 
     public class ParagraphConstraints : IEquatable<ParagraphConstraints> {
+        public readonly float width;
+
         public ParagraphConstraints(float width) {
             this.width = width;
         }
 
-        public readonly float width;
+        public bool Equals(ParagraphConstraints other) {
+            if (ReferenceEquals(null, objB: other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, objB: other)) {
+                return true;
+            }
+
+            return width.Equals(obj: other.width);
+        }
 
         public override string ToString() {
             return $"ParagraphConstraints(width: {width})";
         }
 
-        public bool Equals(ParagraphConstraints other) {
-            if (ReferenceEquals(null, other)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other)) {
-                return true;
-            }
-
-            return width.Equals(other.width);
-        }
-
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -1379,13 +1394,13 @@ namespace Unity.UIWidgets.ui {
 
         includeLineSpacingBottom,
 
-        strut,
+        strut
     }
 
     public enum BoxWidthStyle {
         tight,
 
-        max,
+        max
     }
 
     public enum PlaceholderAlignment {
@@ -1399,10 +1414,28 @@ namespace Unity.UIWidgets.ui {
 
         bottom,
 
-        middle,
+        middle
     }
 
     public class LineMetrics : IEquatable<LineMetrics> {
+        public readonly float ascent;
+
+        public readonly float baseline;
+
+        public readonly float descent;
+
+        public readonly bool hardBreak;
+
+        public readonly float height;
+
+        public readonly float left;
+
+        public readonly int lineNumber;
+
+        public readonly float unscaledAscent;
+
+        public readonly float width;
+
         public LineMetrics(
             bool hardBreak,
             float ascent,
@@ -1424,23 +1457,22 @@ namespace Unity.UIWidgets.ui {
             this.lineNumber = lineNumber;
         }
 
-        public readonly bool hardBreak;
+        public bool Equals(LineMetrics other) {
+            if (ReferenceEquals(null, objB: other)) {
+                return false;
+            }
 
-        public readonly float ascent;
+            if (ReferenceEquals(this, objB: other)) {
+                return true;
+            }
 
-        public readonly float descent;
-
-        public readonly float unscaledAscent;
-
-        public readonly float height;
-
-        public readonly float width;
-
-        public readonly float left;
-
-        public readonly float baseline;
-
-        public readonly int lineNumber;
+            return hardBreak == other.hardBreak && ascent.Equals(obj: other.ascent) &&
+                   descent.Equals(obj: other.descent) &&
+                   unscaledAscent.Equals(obj: other.unscaledAscent) && height.Equals(obj: other.height) &&
+                   width.Equals(obj: other.width) && left.Equals(obj: other.left) &&
+                   baseline.Equals(obj: other.baseline) &&
+                   lineNumber == other.lineNumber;
+        }
 
         public override string ToString() {
             return $"LineMetrics(hardBreak: {hardBreak}, \n" +
@@ -1454,27 +1486,12 @@ namespace Unity.UIWidgets.ui {
                    $"lineNumber: {lineNumber})";
         }
 
-        public bool Equals(LineMetrics other) {
-            if (ReferenceEquals(null, other)) {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other)) {
-                return true;
-            }
-
-            return hardBreak == other.hardBreak && ascent.Equals(other.ascent) && descent.Equals(other.descent) &&
-                   unscaledAscent.Equals(other.unscaledAscent) && height.Equals(other.height) &&
-                   width.Equals(other.width) && left.Equals(other.left) && baseline.Equals(other.baseline) &&
-                   lineNumber == other.lineNumber;
-        }
-
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+            if (ReferenceEquals(null, objB: obj)) {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, objB: obj)) {
                 return true;
             }
 
@@ -1503,209 +1520,251 @@ namespace Unity.UIWidgets.ui {
 
     public class Paragraph : NativeWrapper {
         internal Paragraph(IntPtr ptr) {
-            _setPtr(ptr);
+            _setPtr(ptr: ptr);
         }
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern float Paragraph_width(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern float Paragraph_height(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern float Paragraph_longestLine(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern float Paragraph_minIntrinsicWidth(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern float Paragraph_maxIntrinsicWidth(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern float Paragraph_alphabeticBaseline(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern float Paragraph_ideographicBaseline(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern bool Paragraph_didExceedMaxLines(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern void Paragraph_layout(IntPtr ptr, float width);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern Float32List Paragraph_getRectsForRange(IntPtr ptr, int start, int end,
             int boxHeightStyle,
             int boxWidthStyle);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern Float32List Paragraph_getRectsForPlaceholders(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern unsafe void Paragraph_getPositionForOffset(IntPtr ptr, float dx, float dy, int* encodedPtr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern unsafe void Paragraph_getWordBoundary(IntPtr ptr, int offset, int* boundaryPtr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern unsafe void Paragraph_getLineBoundary(IntPtr ptr, int offset, int* boundaryPtr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern void Paragraph_paint(IntPtr ptr, IntPtr canvas, float x, float y);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern Float32List Paragraph_computeLineMetrics(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern void Paragraph_dispose(IntPtr ptr);
 
-        public void layout(ParagraphConstraints constraints) => _layout(constraints.width);
-        void _layout(float width) => Paragraph_layout(_ptr, width);
+        public void layout(ParagraphConstraints constraints) {
+            _layout(width: constraints.width);
+        }
+
+        void _layout(float width) {
+            Paragraph_layout(ptr: _ptr, width: width);
+        }
 
         List<TextBox> _decodeTextBoxes(float[] encoded, int size) {
-            int count = size / 5;
-            List<TextBox> boxes = new List<TextBox>();
-            int position = 0;
-            for (int index = 0; index < count; index += 1) {
-                unsafe {
-                    boxes.Add(TextBox.fromLTRBD(
-                        encoded[position++],
-                        encoded[position++],
-                        encoded[position++],
-                        encoded[position++],
-                        (TextDirection) encoded[position++]
-                    ));
-                }
+            var count = size / 5;
+            var boxes = new List<TextBox>();
+            var position = 0;
+            for (var index = 0; index < count; index += 1) {
+                boxes.Add(TextBox.fromLTRBD(
+                    encoded[position++],
+                    encoded[position++],
+                    encoded[position++],
+                    encoded[position++],
+                    (TextDirection) encoded[position++]
+                ));
             }
 
             return boxes;
         }
 
         public override void DisposePtr(IntPtr ptr) {
-            Paragraph_dispose(ptr);
+            Paragraph_dispose(ptr: ptr);
         }
 
         public float width() {
-            return Paragraph_width(_ptr);
+            return Paragraph_width(ptr: _ptr);
         }
 
         public float height() {
-            return Paragraph_height(_ptr);
+            return Paragraph_height(ptr: _ptr);
         }
 
         public float longestLine() {
-            return Paragraph_longestLine(_ptr);
+            return Paragraph_longestLine(ptr: _ptr);
         }
 
         public float minIntrinsicWidth() {
-            return Paragraph_minIntrinsicWidth(_ptr);
+            return Paragraph_minIntrinsicWidth(ptr: _ptr);
         }
 
         public float maxIntrinsicWidth() {
-            return Paragraph_maxIntrinsicWidth(_ptr);
+            return Paragraph_maxIntrinsicWidth(ptr: _ptr);
         }
 
         public float alphabeticBaseline() {
-            return Paragraph_alphabeticBaseline(_ptr);
+            return Paragraph_alphabeticBaseline(ptr: _ptr);
         }
 
         public float ideographicBaseline() {
-            return Paragraph_ideographicBaseline(_ptr);
+            return Paragraph_ideographicBaseline(ptr: _ptr);
         }
 
         public bool didExceedMaxLines() {
-            return Paragraph_didExceedMaxLines(_ptr);
+            return Paragraph_didExceedMaxLines(ptr: _ptr);
         }
 
         public List<TextBox> getBoxesForRange(int start, int end,
             BoxHeightStyle boxHeightStyle = BoxHeightStyle.tight,
             BoxWidthStyle boxWidthStyle = BoxWidthStyle.tight) {
-            var data = _getBoxesForRange(start, end, (int) boxHeightStyle, (int) boxWidthStyle).toFloatArrayAndFree();
-            return _decodeTextBoxes(data, data.Length);
+            var data = _getBoxesForRange(start: start, end: end, (int) boxHeightStyle, (int) boxWidthStyle)
+                .toFloatArrayAndFree();
+            return _decodeTextBoxes(encoded: data, size: data.Length);
         }
 
         // See paragraph.cc for the layout of this return value.
-        Float32List _getBoxesForRange(int start, int end, int boxHeightStyle, int boxWidthStyle) =>
-            Paragraph_getRectsForRange(_ptr, start, end, boxHeightStyle, boxWidthStyle);
+        Float32List _getBoxesForRange(int start, int end, int boxHeightStyle, int boxWidthStyle) {
+            return Paragraph_getRectsForRange(ptr: _ptr, start: start, end: end, boxHeightStyle: boxHeightStyle,
+                boxWidthStyle: boxWidthStyle);
+        }
 
 
         public List<TextBox> getBoxesForPlaceholders() {
-            float[] data = _getBoxesForPlaceholders().toFloatArrayAndFree();
-            return _decodeTextBoxes(data, data.Length);
+            var data = _getBoxesForPlaceholders().toFloatArrayAndFree();
+            return _decodeTextBoxes(encoded: data, size: data.Length);
         }
 
-        Float32List _getBoxesForPlaceholders() => Paragraph_getRectsForPlaceholders(_ptr);
+        Float32List _getBoxesForPlaceholders() {
+            return Paragraph_getRectsForPlaceholders(ptr: _ptr);
+        }
 
         public unsafe TextPosition getPositionForOffset(Offset offset) {
-            int[] encoded = new int[2];
+            var encoded = new int[2];
             fixed (int* encodedPtr = encoded) {
-                _getPositionForOffset(offset.dx, offset.dy, encodedPtr);
+                _getPositionForOffset(dx: offset.dx, dy: offset.dy, encodedPtr: encodedPtr);
             }
 
-            return new TextPosition(offset: encoded[0], affinity: (TextAffinity) encoded[1]);
+            return new TextPosition(encoded[0], (TextAffinity) encoded[1]);
         }
 
-        unsafe void _getPositionForOffset(float dx, float dy, int* encodedPtr) =>
-            Paragraph_getPositionForOffset(_ptr, dx, dy, encodedPtr);
+        unsafe void _getPositionForOffset(float dx, float dy, int* encodedPtr) {
+            Paragraph_getPositionForOffset(ptr: _ptr, dx: dx, dy: dy, encodedPtr: encodedPtr);
+        }
 
         public unsafe TextRange getWordBoundary(TextPosition position) {
-            int[] boundary = new int[2];
+            var boundary = new int[2];
             fixed (int* boundaryPtr = boundary) {
-                _getWordBoundary(position.offset, boundaryPtr);
+                _getWordBoundary(offset: position.offset, boundaryPtr: boundaryPtr);
             }
 
-            return new TextRange(start: boundary[0], end: boundary[1]);
+            return new TextRange(boundary[0], boundary[1]);
         }
 
-        unsafe void _getWordBoundary(int offset, int* boundaryPtr) =>
-            Paragraph_getWordBoundary(_ptr, offset, boundaryPtr);
+        unsafe void _getWordBoundary(int offset, int* boundaryPtr) {
+            Paragraph_getWordBoundary(ptr: _ptr, offset: offset, boundaryPtr: boundaryPtr);
+        }
 
         public unsafe TextRange getLineBoundary(TextPosition position) {
-            int[] boundary = new int[2];
+            var boundary = new int[2];
             fixed (int* boundaryPtr = boundary) {
-                _getLineBoundary(position.offset, boundaryPtr);
+                _getLineBoundary(offset: position.offset, boundaryPtr: boundaryPtr);
             }
 
-            return new TextRange(start: boundary[0], end: boundary[1]);
+            return new TextRange(boundary[0], boundary[1]);
         }
 
-        unsafe void _getLineBoundary(int offset, int* boundaryPtr) =>
-            Paragraph_getLineBoundary(_ptr, offset, boundaryPtr);
+        unsafe void _getLineBoundary(int offset, int* boundaryPtr) {
+            Paragraph_getLineBoundary(ptr: _ptr, offset: offset, boundaryPtr: boundaryPtr);
+        }
 
         internal void _paint(Canvas canvas, float x, float y) {
-            Paragraph_paint(_ptr, canvas._ptr, x, y);
+            Paragraph_paint(ptr: _ptr, canvas: canvas._ptr, x: x, y: y);
         }
 
         public List<LineMetrics> computeLineMetrics() {
             var data = _computeLineMetrics().toFloatArrayAndFree();
-            int count = data.Length / 9;
-            int position = 0;
-            List<LineMetrics> metrics = new List<LineMetrics>();
+            var count = data.Length / 9;
+            var position = 0;
+            var metrics = new List<LineMetrics>();
 
-            for (int index = 0; index < count; index += 1) {
-                unsafe {
-                    metrics.Add(new LineMetrics(
-                        hardBreak: data[position++] != 0,
-                        ascent: data[position++],
-                        descent: data[position++],
-                        unscaledAscent: data[position++],
-                        height: data[position++],
-                        width: data[position++],
-                        left: data[position++],
-                        baseline: data[position++],
-                        lineNumber: (int) data[position++]
-                    ));
-                }
+            for (var index = 0; index < count; index += 1) {
+                metrics.Add(new LineMetrics(
+                    data[position++] != 0,
+                    data[position++],
+                    data[position++],
+                    data[position++],
+                    data[position++],
+                    data[position++],
+                    data[position++],
+                    data[position++],
+                    (int) data[position++]
+                ));
             }
 
             return metrics;
         }
 
-        Float32List _computeLineMetrics() => Paragraph_computeLineMetrics(_ptr);
+        Float32List _computeLineMetrics() {
+            return Paragraph_computeLineMetrics(ptr: _ptr);
+        }
     }
 
     public class ParagraphBuilder : NativeWrapper {
-        [DllImport(NativeBindings.dllName)]
+        public ParagraphBuilder(ParagraphStyle style) {
+            List<string> strutFontFamilies = null;
+            var strutStyle = style._strutStyle;
+            if (strutStyle != null) {
+                strutFontFamilies = new List<string>();
+                var fontFamily = strutStyle._fontFamily;
+                if (fontFamily != null) {
+                    strutFontFamilies.Add(item: fontFamily);
+                }
+
+                if (strutStyle._fontFamilyFallback != null) {
+                    strutFontFamilies.AddRange(collection: strutStyle._fontFamilyFallback);
+                }
+            }
+
+            _setPtr(_constructor(
+                style._encoded.ToArray(),
+                strutStyle?._encoded.ToArray(),
+                fontFamily: style._fontFamily,
+                strutFontFamilies?.ToArray(),
+                style._fontSize ?? 0,
+                style._height ?? 0,
+                ellipsis: style._ellipsis,
+                _encodeLocale(locale: style._locale)
+            ));
+        }
+
+        public int placeholderCount { get; private set; }
+
+        public List<float> placeholderScales { get; } = new List<float>();
+
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern IntPtr ParagraphBuilder_constructor(
             int[] encoded,
             int encodeSize,
@@ -1716,11 +1775,12 @@ namespace Unity.UIWidgets.ui {
             int structFontFamilySize,
             float fontSize,
             float height,
-            [MarshalAs(UnmanagedType.LPWStr)] string ellipsis,
+            [MarshalAs(unmanagedType: UnmanagedType.LPWStr)]
+            string ellipsis,
             string locale);
 
-        [DllImport(NativeBindings.dllName)]
-        static unsafe extern void ParagraphBuilder_pushStyle(
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern unsafe void ParagraphBuilder_pushStyle(
             IntPtr ptr,
             int[] encoded,
             int encodedSize,
@@ -1742,45 +1802,22 @@ namespace Unity.UIWidgets.ui {
             int fontFeatureDataSize
         );
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern void ParagraphBuilder_pop(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
-        static extern IntPtr ParagraphBuilder_addText(IntPtr ptr, [MarshalAs(UnmanagedType.LPWStr)] string text);
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern IntPtr ParagraphBuilder_addText(IntPtr ptr, [MarshalAs(unmanagedType: UnmanagedType.LPWStr)]
+            string text);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern IntPtr ParagraphBuilder_addPlaceholder(IntPtr ptr, float width, float height, int alignment,
             float baselineOffset, int baseline);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern IntPtr ParagraphBuilder_build(IntPtr ptr);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern void ParagraphBuilder_dispose(IntPtr ptr);
-
-        public ParagraphBuilder(ParagraphStyle style) {
-            List<string> strutFontFamilies = null;
-            StrutStyle strutStyle = style._strutStyle;
-            if (strutStyle != null) {
-                strutFontFamilies = new List<string>();
-                string fontFamily = strutStyle._fontFamily;
-                if (fontFamily != null)
-                    strutFontFamilies.Add(fontFamily);
-                if (strutStyle._fontFamilyFallback != null)
-                    strutFontFamilies.AddRange(strutStyle._fontFamilyFallback);
-            }
-
-            _setPtr(_constructor(
-                style._encoded.ToArray(),
-                strutStyle?._encoded.ToArray(),
-                style._fontFamily,
-                strutFontFamilies?.ToArray(),
-                style._fontSize ?? 0,
-                style._height ?? 0,
-                style._ellipsis,
-                _encodeLocale(style._locale)
-            ));
-        }
 
         IntPtr _constructor(
             int[] encoded,
@@ -1791,52 +1828,44 @@ namespace Unity.UIWidgets.ui {
             float height,
             string ellipsis,
             string locale
-        ) => ParagraphBuilder_constructor(
-            encoded,
-            encoded == null ? 0 : encoded.Length,
-            structData,
-            structData == null ? 0 : structData.Length,
-            fontFamily,
-            structFontFamily,
-            structFontFamily == null ? 0 : structFontFamily.Length,
-            fontSize,
-            height,
-            ellipsis,
-            locale
-        );
+        ) {
+            return ParagraphBuilder_constructor(
+                encoded: encoded,
+                encoded == null ? 0 : encoded.Length,
+                strutData: structData,
+                structData == null ? 0 : structData.Length,
+                fontFamily: fontFamily,
+                structFontFamily: structFontFamily,
+                structFontFamily == null ? 0 : structFontFamily.Length,
+                fontSize: fontSize,
+                height: height,
+                ellipsis: ellipsis,
+                locale: locale
+            );
+        }
 
         public override void DisposePtr(IntPtr ptr) {
-            ParagraphBuilder_dispose(ptr);
+            ParagraphBuilder_dispose(ptr: ptr);
         }
-
-        public int placeholderCount {
-            get { return _placeholderCount; }
-        }
-
-        int _placeholderCount = 0;
-
-        public List<float> placeholderScales {
-            get { return _placeholderScales; }
-        }
-
-        List<float> _placeholderScales = new List<float>();
 
         public void pushStyle(TextStyle style) {
-            List<string> fullFontFamilies = new List<string>();
+            var fullFontFamilies = new List<string>();
 
-            fullFontFamilies.Add(style._fontFamily);
-            if (style._fontFamilyFallback != null)
-                fullFontFamilies.AddRange(style._fontFamilyFallback);
+            fullFontFamilies.Add(item: style._fontFamily);
+            if (style._fontFamilyFallback != null) {
+                fullFontFamilies.AddRange(collection: style._fontFamilyFallback);
+            }
 
             byte[] encodedFontFeatures = null;
-            List<FontFeature> fontFeatures = style._fontFeatures;
+            var fontFeatures = style._fontFeatures;
             if (fontFeatures != null) {
                 encodedFontFeatures = new byte[fontFeatures.Count * FontFeature._kEncodedSize];
-                int byteOffset = 0;
-                foreach (FontFeature feature in fontFeatures) {
+                var byteOffset = 0;
+                foreach (var feature in fontFeatures) {
                     var byteFeature = new byte[FontFeature._kEncodedSize - byteOffset];
-                    Array.Copy(encodedFontFeatures, 0, byteFeature, 0, FontFeature._kEncodedSize);
-                    feature._encode(byteFeature);
+                    Array.Copy(sourceArray: encodedFontFeatures, 0, destinationArray: byteFeature, 0,
+                        length: FontFeature._kEncodedSize);
+                    feature._encode(byteData: byteFeature);
                     byteOffset += FontFeature._kEncodedSize;
                 }
             }
@@ -1844,18 +1873,18 @@ namespace Unity.UIWidgets.ui {
             _pushStyle(
                 style._encoded.ToArray(),
                 fullFontFamilies.ToArray(),
-                style._fontSize,
-                style._letterSpacing,
-                style._wordSpacing,
-                style._height,
-                style._decorationThickness,
-                _encodeLocale(style._locale),
-                style._background?._objectPtrs,
-                style._background?._data,
-                style._foreground?._objectPtrs,
-                style._foreground?._data,
-                Shadow._encodeShadows(style._shadows),
-                encodedFontFeatures
+                fontSize: style._fontSize,
+                letterSpacing: style._letterSpacing,
+                wordSpacing: style._wordSpacing,
+                height: style._height,
+                decorationThickness: style._decorationThickness,
+                _encodeLocale(locale: style._locale),
+                backgroundObjects: style._background?._objectPtrs,
+                backgroundData: style._background?._data,
+                foregroundObjects: style._foreground?._objectPtrs,
+                foregroundData: style._foreground?._data,
+                Shadow._encodeShadows(shadows: style._shadows),
+                fontFeaturesData: encodedFontFeatures
             );
         }
 
@@ -1876,41 +1905,48 @@ namespace Unity.UIWidgets.ui {
             byte[] fontFeaturesData
         ) {
             fixed (IntPtr* backgroundObjectsPtr = backgroundObjects)
-            fixed (IntPtr* foregroundObjectsPtr = foregroundObjects)
-                ParagraphBuilder_pushStyle(_ptr,
-                    encoded,
-                    encoded.Length,
-                    fontFamilies,
-                    fontFamilies.Length,
+            fixed (IntPtr* foregroundObjectsPtr = foregroundObjects) {
+                ParagraphBuilder_pushStyle(ptr: _ptr,
+                    encoded: encoded,
+                    encodedSize: encoded.Length,
+                    fontFamilies: fontFamilies,
+                    fontFamiliesSize: fontFamilies.Length,
                     fontSize.GetValueOrDefault(0),
                     letterSpacing.GetValueOrDefault(0),
                     wordSpacing.GetValueOrDefault(0),
                     height.GetValueOrDefault(0),
                     decorationThickness.GetValueOrDefault(0),
-                    locale,
-                    backgroundObjectsPtr,
-                    backgroundData,
-                    foregroundObjectsPtr,
-                    foregroundData,
-                    shadowsData,
+                    locale: locale,
+                    backgroundObjects: backgroundObjectsPtr,
+                    backgroundData: backgroundData,
+                    foregroundObjects: foregroundObjectsPtr,
+                    foregroundData: foregroundData,
+                    shadowsData: shadowsData,
                     shadowsData?.Length ?? 0,
-                    fontFeaturesData,
+                    fontFeaturesData: fontFeaturesData,
                     fontFeaturesData?.Length ?? 0
                 );
-        }
-
-        static string _encodeLocale(Locale locale) => locale?.ToString() ?? "";
-
-        public void pop() => ParagraphBuilder_pop(_ptr);
-
-        public void addText(string text) {
-            IntPtr error = _addText(text);
-            if (error != IntPtr.Zero) {
-                throw new Exception(Marshal.PtrToStringAnsi(error));
             }
         }
 
-        IntPtr _addText(string text) => ParagraphBuilder_addText(_ptr, text);
+        static string _encodeLocale(Locale locale) {
+            return locale?.ToString() ?? "";
+        }
+
+        public void pop() {
+            ParagraphBuilder_pop(ptr: _ptr);
+        }
+
+        public void addText(string text) {
+            var error = _addText(text: text);
+            if (error != IntPtr.Zero) {
+                throw new Exception(Marshal.PtrToStringAnsi(ptr: error));
+            }
+        }
+
+        IntPtr _addText(string text) {
+            return ParagraphBuilder_addText(ptr: _ptr, text: text);
+        }
 
         public void addPlaceholder(float width, float height, PlaceholderAlignment alignment,
             TextBaseline baseline,
@@ -1923,21 +1959,26 @@ namespace Unity.UIWidgets.ui {
                      alignment == PlaceholderAlignment.baseline);
             // Default the baselineOffset to height if null. This will place the placeholder
             // fully above the baseline, similar to [PlaceholderAlignment.aboveBaseline].
-            float baselineOffsetFloat = baselineOffset ?? height;
+            var baselineOffsetFloat = baselineOffset ?? height;
             _addPlaceholder(width * scale, height * scale, (int) alignment, baselineOffsetFloat * scale,
                 (int) baseline);
-            _placeholderCount++;
-            _placeholderScales.Add(scale);
+            placeholderCount++;
+            placeholderScales.Add(item: scale);
         }
 
         IntPtr _addPlaceholder(float width, float height, int alignment, float baselineOffset,
-            int baseline) => ParagraphBuilder_addPlaceholder(_ptr, width, height, alignment, baselineOffset, baseline);
+            int baseline) {
+            return ParagraphBuilder_addPlaceholder(ptr: _ptr, width: width, height: height, alignment: alignment,
+                baselineOffset: baselineOffset, baseline: baseline);
+        }
 
         public Paragraph build() {
-            Paragraph paragraph = new Paragraph(_build());
+            var paragraph = new Paragraph(_build());
             return paragraph;
         }
 
-        IntPtr _build() => ParagraphBuilder_build(_ptr);
+        IntPtr _build() {
+            return ParagraphBuilder_build(ptr: _ptr);
+        }
     }
 }
