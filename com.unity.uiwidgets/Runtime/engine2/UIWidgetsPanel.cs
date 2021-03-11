@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.UIWidgets.editor2;
+using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -40,15 +40,60 @@ namespace Unity.UIWidgets.engine2 {
 
         UIWidgetsWindowType getWindowType();
     }
-
-    public class ConfigurationSettings {
-        public static Dictionary<IntPtr, bool> _internalShowDebugLog = new Dictionary<IntPtr, bool>();
-    }
-
     public class Configurations {
         
-        public Dictionary<string, TextFont> _internalTextFonts = new Dictionary<string, TextFont>();
-        public bool _showDebugLog;
+        private Dictionary<string, TextFont> _textFonts = new Dictionary<string, TextFont>();
+
+        bool _debugMode = true;
+
+        public bool debugMode {
+            get { return _debugMode; }
+        }
+
+        public void Clear() {
+            _textFonts.Clear();
+            _debugMode = true;
+        }
+        public void AddFont(string family, TextFont font) {
+           _textFonts[key: family] = font;
+        }
+        public object fontsToObject() {
+            Dictionary<string, TextFont> settings = _textFonts;
+            if (settings == null || settings.Count == 0) {
+                return null;
+            }
+
+            var result = new object[settings.Count];
+            var i = 0;
+            foreach (var setting in settings) {
+                var font = new Dictionary<string, object>();
+                font.Add("family", value: setting.Key);
+                var dic = new Dictionary<string, object>[setting.Value.fonts.Length];
+                for (var j = 0; j < setting.Value.fonts.Length; j++) {
+                    dic[j] = new Dictionary<string, object>();
+                    if (setting.Value.fonts[j].asset.Length > 0) {
+                        dic[j].Add("asset", value: setting.Value.fonts[j].asset);
+                    }
+
+                    if (setting.Value.fonts[j].weight > 0) {
+                        dic[j].Add("weight", value: setting.Value.fonts[j].weight);
+                    }
+                }
+
+                font.Add("fonts", value: dic);
+                result[i] = font;
+                i++;
+            }
+
+            return result;
+        }
+
+        public void DisableDebugLog() {
+            _debugMode = false;
+        }
+        public void EnableDebugLog() {
+            _debugMode = true;
+        }
     }
 
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
@@ -84,9 +129,6 @@ namespace Unity.UIWidgets.engine2 {
                 return currentDpi / 96;
             }
         }
-
-        public static bool ShowDebugLog { get; set; }
-
         protected virtual void Update() {
             Input_Update();
         }
@@ -97,16 +139,17 @@ namespace Unity.UIWidgets.engine2 {
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
             onEnable();
-
             if (fonts != null && fonts.Length > 0) {
                 foreach (var font in fonts) {
                     AddFont(family: font.family, font: font);
                 }
             }
-
+            if (m_ShowDebugLog) {
+                EnableDebugLog();
+            }
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
                 _configurations: _configurations);
-            _configurations._internalTextFonts.Clear();
+            _configurations.Clear();
             texture = _wrapper.renderTexture;
             Input_OnEnable();
             panels.Add(this);
@@ -117,7 +160,6 @@ namespace Unity.UIWidgets.engine2 {
             _wrapper?.Destroy();
             _wrapper = null;
             texture = null;
-            //ConfigurationSettings._internalTextFonts.Clear();
             Input_OnDisable();
             base.OnDisable();
             panels.Remove(this);
@@ -173,9 +215,15 @@ namespace Unity.UIWidgets.engine2 {
 
         protected virtual void onEnable() {
         }
+        public void EnableDebugLog() {
+            _configurations.EnableDebugLog();
+        }
+        public void DisableDebugLog() {
+            _configurations.DisableDebugLog();
+        }
 
         protected void AddFont(string family, TextFont font) {
-            _configurations._internalTextFonts[key: family] = font;
+            _configurations.AddFont(family,font);
         }
 
         protected void AddFont(string family, List<string> assets, List<int> weights) {
@@ -194,11 +242,7 @@ namespace Unity.UIWidgets.engine2 {
             textFont.fonts = fonts;
             AddFont(family: family, font: textFont);
         }
-
-        protected void SetShowDebugLog(bool showDebugLog) {
-            _configurations._showDebugLog = showDebugLog || m_ShowDebugLog;
-        }
-
+        
         protected virtual void main() {
         }
     }

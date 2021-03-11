@@ -21,9 +21,9 @@ namespace Unity.UIWidgets.Editor {
             EditorGUILayout.PropertyField(antiAliasingProperty);
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(ShowDebugLog);
-            if (EditorGUI.EndChangeCheck()) {
+            /*if (EditorGUI.EndChangeCheck()) {
                 UIWidgetsPanel.ShowDebugLog = ShowDebugLog.boolValue;
-            }
+            }*/
             UIWidgetsPanel panel = (UIWidgetsPanel)target;
             
             serializedObject.ApplyModifiedProperties(); 

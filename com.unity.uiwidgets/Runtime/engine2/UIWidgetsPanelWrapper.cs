@@ -9,7 +9,7 @@ using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
-namespace Unity.UIWidgets.editor2 {
+namespace Unity.UIWidgets.engine2 {
     #region Platform: Windows Specific Functionalities
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
@@ -143,7 +143,7 @@ public partial class UIWidgetsPanelWrapper {
             get { return Window.instance._panel; }
         }
 
-        public IntPtr _ptr;
+        IntPtr _ptr;
         GCHandle _handle;
 
         int _width;
@@ -167,9 +167,9 @@ public partial class UIWidgetsPanelWrapper {
             window = host;
 
             var fontsetting = new Dictionary<string, object>();
-            fontsetting.Add("fonts", fontsToObject(settings: _configurations._internalTextFonts));
+            fontsetting.Add("fonts", _configurations.fontsToObject());
             _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(message: fontsetting));
-            ShowDebugLog = _configurations._showDebugLog;
+            ShowDebugLog = _configurations.debugMode;
             NativeConsole.OnEnable();
         }
 
@@ -195,43 +195,11 @@ public partial class UIWidgetsPanelWrapper {
                 }
             }
         }
-
-        public object fontsToObject(Dictionary<string, TextFont> settings) {
-            if (settings == null || settings.Count == 0) {
-                return null;
-            }
-
-            var result = new object[settings.Count];
-            var i = 0;
-            foreach (var setting in settings) {
-                var font = new Dictionary<string, object>();
-                font.Add("family", value: setting.Key);
-                var dic = new Dictionary<string, object>[setting.Value.fonts.Length];
-                for (var j = 0; j < setting.Value.fonts.Length; j++) {
-                    dic[j] = new Dictionary<string, object>();
-                    if (setting.Value.fonts[j].asset.Length > 0) {
-                        dic[j].Add("asset", value: setting.Value.fonts[j].asset);
-                    }
-
-                    if (setting.Value.fonts[j].weight > 0) {
-                        dic[j].Add("weight", value: setting.Value.fonts[j].weight);
-                    }
-                }
-
-                font.Add("fonts", value: dic);
-                result[i] = font;
-                i++;
-            }
-
-            return result;
-        }
-
-
         public void Destroy() {
             UIWidgetsPanel_onDisable(ptr: _ptr);
             UIWidgetsPanel_dispose(ptr: _ptr);
             _ptr = IntPtr.Zero;
-
+            ShowDebugLog = true;
             _handle.Free();
             _handle = default;
 

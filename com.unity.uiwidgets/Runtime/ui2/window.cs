@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.async2;
-using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;

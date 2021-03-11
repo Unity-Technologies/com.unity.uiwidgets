@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -39,7 +38,7 @@ namespace Unity.UIWidgets.Editor {
             onEnable();
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
                 _configurations: _configurations);
-            _configurations._internalTextFonts.Clear();
+            _configurations.Clear();
             Input_OnEnable();
         }
 
@@ -90,11 +89,6 @@ namespace Unity.UIWidgets.Editor {
 
         protected virtual void onEnable() {
         }
-
-        protected void SetShowDebugLog(bool showDebugLog) {
-            _configurations._showDebugLog = showDebugLog;
-        }
-
         protected void AddFont(string family, List<string> assets, List<int> weights) {
             if (assets.Count != weights.Count) {
                 Debug.LogError($"The size of {family}‘s assets should be equal to the weights'.");
@@ -109,9 +103,12 @@ namespace Unity.UIWidgets.Editor {
             }
 
             textFont.fonts = fonts;
-            _configurations._internalTextFonts[key: family] = textFont;
+            _configurations.AddFont(family,textFont);
         }
 
+        public void DisableDebugLog() {
+            _configurations.DisableDebugLog();
+        }
 
         Vector2? _getPointerPosition(Vector2 position) {
             return new Vector2(x: position.x, y: position.y);

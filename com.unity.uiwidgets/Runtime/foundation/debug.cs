@@ -44,8 +44,8 @@ namespace Unity.UIWidgets.foundation {
 
         public static bool debugPrintMouseHoverEvents = false;
 
-        public static bool debugLog = true;
-
+        private static bool _disableDebugLog = false;
+        
         public static HSVColor debugCurrentRepaintColor =
             HSVColor.fromAHSV(0.4f, 60.0f, 1.0f, 1.0f);
 
@@ -57,20 +57,23 @@ namespace Unity.UIWidgets.foundation {
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
-            if (debugLog && !result()) {
+            if ( !result() && !_disableDebugLog) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
-            if (debugLog && !result) {
+            if ( !result && !_disableDebugLog ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
+        public static void disableDebugLog() {
+            _disableDebugLog = true;
+        }
 
-        public static void setDebugLog(bool _debugLog) {
-            debugLog = _debugLog;
+        public static void resetDebugLog() {
+            _disableDebugLog = false;
         }
 
         public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) {
