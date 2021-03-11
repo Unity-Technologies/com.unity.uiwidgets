@@ -5,7 +5,7 @@ namespace Unity.UIWidgets.DevTools
 {
     public class EnumUtils<T> {
         
-        EnumUtils(List<T> enumValues) {
+        public EnumUtils(List<T> enumValues) {
             foreach (var val in enumValues) {
                 var enumDescription = DiagnosticUtils.describeEnum(val);
                 _lookupTable[enumDescription] = val;

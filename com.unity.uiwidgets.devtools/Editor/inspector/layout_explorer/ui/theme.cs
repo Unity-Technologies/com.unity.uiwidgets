@@ -86,14 +86,13 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         public static readonly Color backgroundColorSelectedDark = new Color(
             0x4d474747); // TODO(jacobr): we would like Color(0x4dedeeef) but that makes the background show through.
         public static readonly Color backgroundColorSelectedLight = new Color(0x4dedeeef);
-
-        public static bool isLight = false;
+        
         
         public static Color mainAxisColor
         {
           get
           {
-              return  isLight? mainAxisLightColor : mainAxisDarkColor;
+              return  CommonThemeUtils.isLight? mainAxisLightColor : mainAxisDarkColor;
           }
         }
 
@@ -101,7 +100,7 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         {
           get
           {
-              return isLight ? Colors.white : Colors.black;
+              return CommonThemeUtils.isLight? Colors.white : Colors.black;
           }
         }
 
@@ -109,7 +108,7 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         {
           get
           {
-              return isLight ? crossAxisLightColor : crossAxisDarkColor;
+              return CommonThemeUtils.isLight? crossAxisLightColor : crossAxisDarkColor;
           }
         }
 
@@ -117,7 +116,7 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         {
           get
           {
-              return isLight ? mainAxisTextColorLight : mainAxisTextColorDark;
+              return CommonThemeUtils.isLight? mainAxisTextColorLight : mainAxisTextColorDark;
           }
         }
 
@@ -125,7 +124,7 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         {
           get
           {
-              return isLight ? crossAxisTextColorLight : crossAxisTextColorsDark;
+              return CommonThemeUtils.isLight? crossAxisTextColorLight : crossAxisTextColorsDark;
           }
         }
 
@@ -133,7 +132,7 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         {
           get
           {
-              return isLight ? overflowBackgroundColorLight : overflowBackgroundColorDark;
+              return CommonThemeUtils.isLight? overflowBackgroundColorLight : overflowBackgroundColorDark;
           }
         }
 
@@ -141,7 +140,7 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         {
           get
           {
-              return isLight ? overflowTextColorLight : overflowTextColorDark;
+              return CommonThemeUtils.isLight? overflowTextColorLight : overflowTextColorDark;
           }
         }
 
@@ -149,7 +148,7 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         {
           get
           {
-              return isLight ? backgroundColorSelectedLight : backgroundColorSelectedDark;
+              return CommonThemeUtils.isLight? backgroundColorSelectedLight : backgroundColorSelectedDark;
           }
         }
 
@@ -157,7 +156,7 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         {
           get
           {
-              return isLight ? backgroundColorLight : backgroundColorDark;
+              return CommonThemeUtils.isLight? backgroundColorLight : backgroundColorDark;
           }
         }
 
@@ -165,7 +164,7 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         {
           get
           {
-              return isLight ? unconstrainedLightColor : unconstrainedDarkColor;
+              return CommonThemeUtils.isLight? unconstrainedLightColor : unconstrainedDarkColor;
           }
         }
         
@@ -192,16 +191,15 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
 
         public static TextStyle overflowingDimensionIndicatorTextStyle(ColorScheme colorScheme)
         {
-
-            return new TextStyle(
-                height: 1.0f,
-                letterSpacing: 1.1f,
-                color: overflowTextColor,
-                fontWeight: FontWeight.bold
+            return dimensionIndicatorTextStyle.merge(
+                new TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: overflowTextColor
+                )
             );
         }
 
-        public Widget buildUnderline() {
+        public static Widget buildUnderline() {
           return new Container(
             height: 1.0f,
             decoration: new BoxDecoration(
