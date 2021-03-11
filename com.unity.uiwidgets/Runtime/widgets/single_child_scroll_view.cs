@@ -12,7 +12,7 @@ namespace Unity.UIWidgets.widgets {
     public class SingleChildScrollView : StatelessWidget {
         public SingleChildScrollView(
             Key key = null,
-            Axis scrollDirection = Axis.vertical,
+            Axis? scrollDirection = null,
             bool reverse = false,
             EdgeInsetsGeometry padding = null,
             bool? primary = null,
@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.widgets {
                 () =>
                     "Primary ScrollViews obtain their ScrollController via inheritance from a PrimaryScrollController widget. " +
                     "You cannot both set primary to true and pass an explicit controller.");
-            this.scrollDirection = scrollDirection;
+            this.scrollDirection = scrollDirection?? Axis.vertical;
             this.reverse = reverse;
             this.padding = padding;
             this.primary = primary ?? controller == null && scrollDirection == Axis.vertical;

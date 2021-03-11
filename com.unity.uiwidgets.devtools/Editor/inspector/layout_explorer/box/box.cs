@@ -30,17 +30,20 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.box{
   }
   
     public class BoxLayoutExplorerWidget : LayoutExplorerWidget {
-        public BoxLayoutExplorerWidget(
-    InspectorController inspectorController,
-    Key key
-  ) : base(inspectorController, key: key){ }
+      public BoxLayoutExplorerWidget(
+        InspectorController inspectorController = null,
+        Key key = null
+      ) : base(inspectorController, key: key)
+      {
+        
+      }
 
-  public static bool shouldDisplay(RemoteDiagnosticsNode node) {
-    // TODO(jacobr) pass a RemoteDiagnosticsNode to this method that contains
-    // the layout explorer related supplemental properties so that we can
-    // accurately determine whether the widget uses box layout.
-    return node != null;
-  }
+      public static bool shouldDisplay(RemoteDiagnosticsNode node) {
+        // TODO(jacobr) pass a RemoteDiagnosticsNode to this method that contains
+        // the layout explorer related supplemental properties so that we can
+        // accurately determine whether the widget uses box layout.
+        return node != null;
+      }
 
 
   public override State createState()

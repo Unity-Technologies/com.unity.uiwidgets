@@ -107,10 +107,9 @@ namespace Unity.UIWidgets.animation {
 
         public override float value {
             get { return _value; }
-            
         }
 
-        float _value;
+        public float _value;
 
         public void setValue(float newValue) {
             stop();
