@@ -119,10 +119,6 @@ namespace Unity.UIWidgets.engine2 {
         public static bool ShowDebugLog {
             get { return _ShowDebugLog; }
             set {
-               /* foreach (var panel in panels) {
-                    panel._ShowDebugLog = value;
-                }
-*/
                 _ShowDebugLog = value;
             }
         }
