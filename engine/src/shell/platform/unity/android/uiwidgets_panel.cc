@@ -508,7 +508,7 @@ UIWidgetsPanel_onMouseLeave(UIWidgetsPanel* panel) { panel->OnMouseLeave(); }
 
 
 UIWIDGETS_API(void)
-SetTextureFromUnity(void* tex, int w, int h) { UnitySurfaceManager::SetTextureFromUnity(tex, w, h); }
+SetTextureFromUnity2(void* tex, int w, int h) { UnitySurfaceManager::SetTextureFromUnity(tex, w, h); }
 
 
 UIWIDGETS_API(void)

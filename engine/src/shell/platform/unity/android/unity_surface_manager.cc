@@ -507,166 +507,44 @@ namespace uiwidgets
     g_TextureHandle = tex;
     wi = w;
     he = h;
-
-    // egl_display_s = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    // FML_CHECK(egl_display_s != EGL_NO_DISPLAY)
-    //     << "Renderer type is invalid";
-    // state = glGetError();
-
-    // // Initialize the display connection.
-    // FML_CHECK(eglInitialize(egl_display_s, nullptr, nullptr) == EGL_TRUE)
-    //     << "Renderer type is invalid";
-
-    // state = glGetError();
-
-    // bool success = false;
-
-    // std::tie(success, egl_config_s) = ChooseEGLConfiguration(egl_display_s);
-    // FML_CHECK(success) << "Could not choose an EGL configuration.";
-    // // state = glGetError();
-
-    // EGLint attributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-    // egl_context_s = eglCreateContext(egl_display_s, egl_config_s, EGL_NO_CONTEXT, attributes);
-    // // state = glGetError();
-
-    // int k = 0;
   }
 
   void UnitySurfaceManager::drawxxx()
-  {
-     GLuint gltex = (GLuint)(size_t)(g_TextureHandle);
-      glBindTexture(GL_TEXTURE_2D, gltex);
-      state = glGetError();
-      auto check = state == GL_INVALID_FRAMEBUFFER_OPERATION;
+  {  
+    int width = wi;
+    int height = he;
 
-      int rowPitch = wi * 4;
-      unsigned char *data = new unsigned char[rowPitch * he];
+    int rowPitch = width * 4;
+    void *data = new unsigned char[rowPitch * height];
 
-      // // glGetTexImage(gltex, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    unsigned char *dst = (unsigned char *)data;
 
-      unsigned char *dst = (unsigned char *)data;
-      for (int y = 0; y < he; ++y)
+    for (int y = 0; y < height; ++y)
+    {
+      unsigned char *ptr = dst;
+      for (int x = 0; x < width; ++x)
       {
-        unsigned char *ptr = dst;
-        for (int x = 0; x < wi; ++x)
-        {
-          // Simple "plasma effect": several combined sine waves
-          int vv = 244;
+        // Simple "plasma effect": several combined sine waves
+        int vv = 244;
 
-          // Write the texture pixel
-          ptr[0] = vv;
-          ptr[1] = vv;
-          ptr[2] = vv;
-          ptr[3] = vv;
+        // Write the texture pixel
+        ptr[0] = vv;
+        ptr[1] = (x+y)%244;
+        ptr[2] = (x*y)%244;
+        ptr[3] = vv;
 
-          // To next pixel (our pixels are 4 bpp)
-          ptr += 4;
-        }
-
-        // To next image row
-        dst += rowPitch;
+        // To next pixel (our pixels are 4 bpp)
+        ptr += 4;
       }
 
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, wi, he, GL_RGBA, GL_UNSIGNED_BYTE, data);
-          state = eglGetError();
-      delete[](unsigned char *) data;
+      // To next image row
+      dst += rowPitch;
+    }
+    GLuint gltex = (GLuint)(size_t)(g_TextureHandle);
+    glBindTexture(GL_TEXTURE_2D, gltex);
 
-    // auto ss = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE,
-    //                          egl_context_s) == GL_TRUE;
-    // state = glGetError();
-    // if (!inited)
-    // {
-    //   unsigned int fbo = 0;
-    //   glGenFramebuffers(1, &fbo);
-    //   state = glGetError();
-    //   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    //   state = glGetError();
-    //   GLuint gltex = (GLuint)(size_t)(g_TextureHandle);
-    //   // glBindTexture(GL_TEXTURE_2D, gltex);
-    //   // state = glGetError();
-
-
-    //   unsigned int texture;
-    //   glGenTextures(1, &texture);
-    //   glBindTexture(GL_TEXTURE_2D, texture);
-    //   int rowPitch = 20 * 4;
-    //   unsigned char *data = new unsigned char[rowPitch * 20];
-
-    //   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 20, 20, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    //   state = glGetError();
-
-    //   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-    //         state = glGetError();
-    //   // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //   // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
-    //   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
-    //   {
-    //     int i = 0;
-    //   }
-    //   else
-    //   {
-    //     int j = 0;
-    //   }
-    //   inited = true;
-    // }
-    // else
-    // {
-    //   state = glGetError();
-    //   auto xxxxx = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    //   if (xxxxx == GL_FRAMEBUFFER_COMPLETE)
-    //   {
-    //     int i = 0;
-    //   }
-    //   else
-    //   {
-    //     int j = 0;
-    //   }
-    //   GLuint gltex = (GLuint)(size_t)(g_TextureHandle);
-    //   glBindTexture(GL_TEXTURE_2D, gltex);
-    //   state = glGetError();
-    //   auto check = state == GL_INVALID_FRAMEBUFFER_OPERATION;
-
-    //   int rowPitch = wi * 4;
-    //   unsigned char *data = new unsigned char[rowPitch * he];
-
-    //   // // glGetTexImage(gltex, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-    //   unsigned char *dst = (unsigned char *)data;
-    //   for (int y = 0; y < he; ++y)
-    //   {
-    //     unsigned char *ptr = dst;
-    //     for (int x = 0; x < wi; ++x)
-    //     {
-    //       // Simple "plasma effect": several combined sine waves
-    //       int vv = 255;
-
-    //       // Write the texture pixel
-    //       ptr[0] = vv;
-    //       // ptr[1] = vv;
-    //       // ptr[2] = vv;
-    //       ptr[3] = vv;
-
-    //       // To next pixel (our pixels are 4 bpp)
-    //       ptr += 4;
-    //     }
-
-    //     // To next image row
-    //     dst += rowPitch;
-    //   }
-
-    //   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, wi, he, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    //       state = eglGetError();
-    //   delete[](unsigned char *) data;
-
-    //   //  glClearColor(1, 0, 0, 1.0);
-    //   //  glClear(GL_COLOR_BUFFER_BIT);
-    //   state = eglGetError();
-    // }
-    // ss = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE,
-    //                     EGL_NO_CONTEXT) == GL_TRUE;
-
-    // state = glGetError();
-    // int kk = 0;
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    delete[](unsigned char *) data;
   }
 
 } // namespace uiwidgets
