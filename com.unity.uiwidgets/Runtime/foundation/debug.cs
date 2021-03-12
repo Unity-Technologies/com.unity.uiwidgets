@@ -1,11 +1,9 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using UnityEditor;
-using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Debug = UnityEngine.Debug;
@@ -60,34 +58,42 @@ namespace Unity.UIWidgets.foundation {
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
-            if ( (_enableDebug ?? enableDebug) && !result() ) {
+            if ( enableDebug && !result() ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
-            if ( (_enableDebug ?? enableDebug) && !result  ) {
+            if ( enableDebug && !result  ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
 
-        static bool? _enableDebug;
-        public static bool enableDebug {
+        static bool? _enableDebug = null;
+        static bool enableDebug {
             get {
-                return EditorPrefs.GetBool("EnableDebugLog");
+                if (_enableDebug == null) {
+                    _enableDebug = EditorPrefs.GetBool("EnableDebugLog");
+                }
+                return _enableDebug.Value;
             }
             set {
+                if (_enableDebug == value) {
+                    return;
+                }
+                _enableDebug = value;
                 EditorPrefs.SetBool("EnableDebugLog",value);
-                _enableDebug = enableDebug;
             }
         }
+        
         [MenuItem("UIWidgets/EnableDebug")]
-        public static void ShowDebugLog(){
+        public static void ToggleDebugMode(){
             enableDebug = !enableDebug;
         }
+        
         [MenuItem("UIWidgets/EnableDebug",true)]
-        public static bool ShowDebugLogValidate(){
+        public static bool CurrentDebugModeState() {
             Menu.SetChecked("UIWidgets/EnableDebug", enableDebug );
             return true;
         }
