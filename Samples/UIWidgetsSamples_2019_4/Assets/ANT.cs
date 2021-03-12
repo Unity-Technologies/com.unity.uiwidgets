@@ -56,7 +56,7 @@ public class ANT : MonoBehaviour
           var texEx =  Texture2D.CreateExternalTexture(width, height, TextureFormat.BGRA32, false, true, ptr);
           GetComponent<Renderer>().material.mainTexture = texEx;
        }
-       GL.IssuePluginEvent(GetRenderEventFunc(), 1);  
+       // GL.IssuePluginEvent(GetRenderEventFunc(), 1);  
 // #endif
     }
 
@@ -67,8 +67,8 @@ public class ANT : MonoBehaviour
             // Wait until all frame rendering is done
             yield return new WaitForEndOfFrame();
 #if !UNITY_EDITOR
-            // GL.IssuePluginEvent(GetRenderEventFunc(), 1);    
-            draw_xxx();
+            GL.IssuePluginEvent(GetRenderEventFunc(), 1);    
+            // draw_xxx();
 #endif
         }
     }

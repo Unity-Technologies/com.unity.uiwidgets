@@ -554,21 +554,21 @@ namespace uiwidgets
     egl_context_s_old = eglGetCurrentContext(); //????? for get context
 
     egl_context_s = eglCreateContext(egl_display_s, egl_config_s, egl_context_s_old, attributes);
-    auto read = eglGetCurrentSurface(EGL_READ);
-    auto draw = eglGetCurrentSurface(EGL_DRAW);
-    auto state = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_s) == GL_TRUE;
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    int rowPitch = wi * 4;
-    unsigned char *data = new unsigned char[rowPitch * he];
+    // auto read = eglGetCurrentSurface(EGL_READ);
+    // auto draw = eglGetCurrentSurface(EGL_DRAW);
+    // auto state = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_s) == GL_TRUE;
+    // unsigned int texture;
+    // glGenTextures(1, &texture);
+    // glBindTexture(GL_TEXTURE_2D, texture);
+    // int rowPitch = wi * 4;
+    // unsigned char *data = new unsigned char[rowPitch * he];
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wi, he, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    state = glGetError();
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wi, he, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    // state = glGetError();
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-    state = glGetError();
-    state = eglMakeCurrent(egl_display_s, draw, read, egl_context_s_old) == GL_TRUE;
+    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+    // state = glGetError();
+    // state = eglMakeCurrent(egl_display_s, draw, read, egl_context_s_old) == GL_TRUE;
   }
   void UnitySurfaceManager::drawxxx()
   {
@@ -603,15 +603,15 @@ namespace uiwidgets
       dst += rowPitch;
     }
     GLuint gltex = (GLuint)(size_t)(g_TextureHandle);
-    // auto read = eglGetCurrentSurface(EGL_READ);
-    // auto draw = eglGetCurrentSurface(EGL_DRAW);
+    auto read = eglGetCurrentSurface(EGL_READ);
+    auto draw = eglGetCurrentSurface(EGL_DRAW);
     auto state = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_s) == GL_TRUE;
     glBindTexture(GL_TEXTURE_2D, gltex);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glClearColor(1, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
-    state = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_s_old) == GL_TRUE;
+    state = eglMakeCurrent(egl_display_s, draw, read, egl_context_s_old) == GL_TRUE;
 
     delete[](unsigned char *) data;
   }
