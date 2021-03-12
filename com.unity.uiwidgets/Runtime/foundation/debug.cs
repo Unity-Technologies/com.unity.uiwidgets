@@ -60,44 +60,38 @@ namespace Unity.UIWidgets.foundation {
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
-            if (enableDebug != _enableDebug) {
-                enableDebug = _enableDebug;
-            }
-            if ( enableDebug && !result() ) {
+            if ( (_enableDebug ?? enableDebug) && !result() ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
-            if (enableDebug != _enableDebug) {
-                enableDebug = _enableDebug;
-            }
-            if ( enableDebug && !result  ) {
+            if ( (_enableDebug ?? enableDebug) && !result  ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
 
-        static bool enableDebug;
-        public static bool _enableDebug {
+        static bool? _enableDebug;
+        public static bool enableDebug {
             get {
                 return EditorPrefs.GetBool("EnableDebugLog");
             }
             set {
                 EditorPrefs.SetBool("EnableDebugLog",value);
+                _enableDebug = enableDebug;
             }
         }
         [MenuItem("UIWidgets/EnableDebug")]
         public static void ShowDebugLog(){
-            _enableDebug = !_enableDebug;
-            enableDebug = _enableDebug;
+            enableDebug = !enableDebug;
         }
         [MenuItem("UIWidgets/EnableDebug",true)]
         public static bool ShowDebugLogValidate(){
-            Menu.SetChecked("UIWidgets/EnableDebug", _enableDebug );
+            Menu.SetChecked("UIWidgets/EnableDebug", enableDebug );
             return true;
         }
-
+       
         public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) { 
             var path = new Path();
             path.fillType = PathFillType.evenOdd;
