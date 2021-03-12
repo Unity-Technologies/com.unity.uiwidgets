@@ -60,18 +60,25 @@ namespace Unity.UIWidgets.foundation {
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
-            if ( _enableDebug && !result() ) {
+            if (enableDebug != _enableDebug) {
+                enableDebug = _enableDebug;
+            }
+            if ( enableDebug && !result() ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
-            if ( _enableDebug && !result  ) {
+            if (enableDebug != _enableDebug) {
+                enableDebug = _enableDebug;
+            }
+            if ( enableDebug && !result  ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
 
+        static bool enableDebug;
         public static bool _enableDebug {
             get {
                 return EditorPrefs.GetBool("EnableDebugLog");
@@ -80,18 +87,18 @@ namespace Unity.UIWidgets.foundation {
                 EditorPrefs.SetBool("EnableDebugLog",value);
             }
         }
-
-        [MenuItem("UIWidgets/ShowDebugLog")]
+        [MenuItem("UIWidgets/EnableDebug")]
         public static void ShowDebugLog(){
             _enableDebug = !_enableDebug;
+            enableDebug = _enableDebug;
         }
-        [MenuItem("UIWidgets/ShowDebugLog",true)]
+        [MenuItem("UIWidgets/EnableDebug",true)]
         public static bool ShowDebugLogValidate(){
-            Menu.SetChecked("UIWidgets/ShowDebugLog", _enableDebug );
+            Menu.SetChecked("UIWidgets/EnableDebug", _enableDebug );
             return true;
         }
-      
-        public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) {
+
+        public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) { 
             var path = new Path();
             path.fillType = PathFillType.evenOdd;
             path.addRect(rect: outerRect);
