@@ -4,12 +4,16 @@ using System.Linq;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
+using UnityEditor;
+using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Debug = UnityEngine.Debug;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.foundation {
+    
+    
     public static class D {
         public static bool debugPrintGestureArenaDiagnostics = false;
 
@@ -56,17 +60,37 @@ namespace Unity.UIWidgets.foundation {
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
-            if ( UIWidgetsPanel.ShowDebugLog && !result() ) {
+            if ( _enableDebug && !result() ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
-            if (UIWidgetsPanel.ShowDebugLog && !result  ) {
+            if ( _enableDebug && !result  ) {
                 throw new AssertionError(message != null ? message() : "");
             }
-        } 
+        }
+
+        public static bool _enableDebug {
+            get {
+                return EditorPrefs.GetBool("EnableDebugLog");
+            }
+            set {
+                EditorPrefs.SetBool("EnableDebugLog",value);
+            }
+        }
+
+        [MenuItem("UIWidgets/ShowDebugLog")]
+        public static void ShowDebugLog(){
+            _enableDebug = !_enableDebug;
+        }
+        [MenuItem("UIWidgets/ShowDebugLog",true)]
+        public static bool ShowDebugLogValidate(){
+            Menu.SetChecked("UIWidgets/ShowDebugLog", _enableDebug );
+            return true;
+        }
+      
         public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) {
             var path = new Path();
             path.fillType = PathFillType.evenOdd;

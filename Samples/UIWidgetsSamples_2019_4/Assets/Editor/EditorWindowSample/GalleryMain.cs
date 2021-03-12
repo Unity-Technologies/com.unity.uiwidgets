@@ -10,19 +10,6 @@ namespace UIWidgetsEditorWindowSample
 {
     public class EditorWindowGallery : UIWidgetsEditorPanel
     {
-        [MenuItem("UIWidgets/SetDebugLog")]
-        public static void SetDebugMode()
-        {
-            if (PlayerPrefs.GetInt("DisableDebugMode") == 1)
-            {
-                PlayerPrefs.SetInt("DisableDebugMode",0);
-            }
-            else
-            {
-                PlayerPrefs.SetInt("DisableDebugMode",1);
-            }
-            UIWidgetsPanel.ShowDebugLog = PlayerPrefs.GetInt("DisableDebugMode") == 1 ? false : true;
-        }
 
         [MenuItem("UIWidgets/EditorSample")]
         public static void CountDemo()
