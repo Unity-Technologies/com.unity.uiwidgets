@@ -553,9 +553,6 @@ namespace Unity.UIWidgets.scheduler2 {
 
         public void handleBeginFrame(TimeSpan? rawTimeStamp) {
             Timeline.startSync("Frame");
-            if (!UIWidgetsPanelWrapper.current.ShowDebugLog) {
-                D.disableDebugLog();
-            }
             _firstRawTimeStampInEpoch = _firstRawTimeStampInEpoch ?? rawTimeStamp;
             _currentFrameTimeStamp = _adjustForEpoch(rawTimeStamp ?? currentSystemFrameTimeStamp);
 
@@ -605,16 +602,12 @@ namespace Unity.UIWidgets.scheduler2 {
                 _removedIds.Clear();
             }
             finally {
-                D.resetDebugLog();
                 schedulerPhase = SchedulerPhase.midFrameMicrotasks;
             }
         }
 
         public void handleDrawFrame() {
-            if (!UIWidgetsPanelWrapper.current.ShowDebugLog) { 
-                D.disableDebugLog();
-            }
-
+            
             D.assert(schedulerPhase == SchedulerPhase.midFrameMicrotasks);
             Timeline.finishSync();
             try {
@@ -631,7 +624,6 @@ namespace Unity.UIWidgets.scheduler2 {
                 }
             }
             finally {
-                D.resetDebugLog();
                 schedulerPhase = SchedulerPhase.idle;
                 D.assert(() => {
                     if (scheduler_.debugPrintEndFrameBanner) {

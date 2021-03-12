@@ -44,15 +44,8 @@ namespace Unity.UIWidgets.engine2 {
         
         private Dictionary<string, TextFont> _textFonts = new Dictionary<string, TextFont>();
 
-        bool _debugMode = true;
-
-        public bool debugMode {
-            get { return _debugMode; }
-        }
-
         public void Clear() {
             _textFonts.Clear();
-            _debugMode = true;
         }
         public void AddFont(string family, TextFont font) {
            _textFonts[key: family] = font;
@@ -87,17 +80,12 @@ namespace Unity.UIWidgets.engine2 {
 
             return result;
         }
-
-        public void DisableDebugLog() {
-            _debugMode = false;
-        }
-        public void EnableDebugLog() {
-            _debugMode = true;
-        }
     }
 
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
         public static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
+
+        static bool _ShowDebugLog;
 
         public float devicePixelRatioOverride;
 
@@ -105,8 +93,6 @@ namespace Unity.UIWidgets.engine2 {
 
         public TextFont[] fonts;
 
-        public bool m_ShowDebugLog;
-        
         Configurations _configurations;
 
         UIWidgetsPanelWrapper _wrapper;
@@ -129,6 +115,17 @@ namespace Unity.UIWidgets.engine2 {
                 return currentDpi / 96;
             }
         }
+        
+        public static bool ShowDebugLog {
+            get { return _ShowDebugLog; }
+            set {
+               /* foreach (var panel in panels) {
+                    panel._ShowDebugLog = value;
+                }
+*/
+                _ShowDebugLog = value;
+            }
+        }
         protected virtual void Update() {
             Input_Update();
         }
@@ -143,9 +140,6 @@ namespace Unity.UIWidgets.engine2 {
                 foreach (var font in fonts) {
                     AddFont(family: font.family, font: font);
                 }
-            }
-            if (m_ShowDebugLog) {
-                EnableDebugLog();
             }
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
                 _configurations: _configurations);
@@ -215,13 +209,7 @@ namespace Unity.UIWidgets.engine2 {
 
         protected virtual void onEnable() {
         }
-        public void EnableDebugLog() {
-            _configurations.EnableDebugLog();
-        }
-        public void DisableDebugLog() {
-            _configurations.DisableDebugLog();
-        }
-
+        
         protected void AddFont(string family, TextFont font) {
             _configurations.AddFont(family,font);
         }

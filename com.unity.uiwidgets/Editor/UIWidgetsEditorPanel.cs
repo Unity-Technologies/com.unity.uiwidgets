@@ -106,10 +106,6 @@ namespace Unity.UIWidgets.Editor {
             _configurations.AddFont(family,textFont);
         }
 
-        public void DisableDebugLog() {
-            _configurations.DisableDebugLog();
-        }
-
         Vector2? _getPointerPosition(Vector2 position) {
             return new Vector2(x: position.x, y: position.y);
         }

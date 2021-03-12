@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Canvas = Unity.UIWidgets.ui.Canvas;
@@ -44,8 +45,6 @@ namespace Unity.UIWidgets.foundation {
 
         public static bool debugPrintMouseHoverEvents = false;
 
-        private static bool _disableDebugLog = false;
-        
         public static HSVColor debugCurrentRepaintColor =
             HSVColor.fromAHSV(0.4f, 60.0f, 1.0f, 1.0f);
 
@@ -57,25 +56,17 @@ namespace Unity.UIWidgets.foundation {
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
-            if ( !result() && !_disableDebugLog) {
+            if ( UIWidgetsPanel.ShowDebugLog && !result() ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
 
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
-            if ( !result && !_disableDebugLog ) {
+            if (UIWidgetsPanel.ShowDebugLog && !result  ) {
                 throw new AssertionError(message != null ? message() : "");
             }
-        }
-        public static void disableDebugLog() {
-            _disableDebugLog = true;
-        }
-
-        public static void resetDebugLog() {
-            _disableDebugLog = false;
-        }
-
+        } 
         public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) {
             var path = new Path();
             path.fillType = PathFillType.evenOdd;

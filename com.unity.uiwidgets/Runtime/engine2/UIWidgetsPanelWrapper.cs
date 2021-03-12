@@ -155,8 +155,6 @@ public partial class UIWidgetsPanelWrapper {
 
         public float devicePixelRatio { get; private set; }
 
-        public bool ShowDebugLog { get; set; }
-
         public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr, Configurations _configurations) {
             D.assert(renderTexture == null);
             _recreateRenderTexture(width: width, height: height, devicePixelRatio: dpr);
@@ -169,7 +167,6 @@ public partial class UIWidgetsPanelWrapper {
             var fontsetting = new Dictionary<string, object>();
             fontsetting.Add("fonts", _configurations.fontsToObject());
             _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(message: fontsetting));
-            ShowDebugLog = _configurations.debugMode;
             NativeConsole.OnEnable();
         }
 
@@ -199,7 +196,6 @@ public partial class UIWidgetsPanelWrapper {
             UIWidgetsPanel_onDisable(ptr: _ptr);
             UIWidgetsPanel_dispose(ptr: _ptr);
             _ptr = IntPtr.Zero;
-            ShowDebugLog = true;
             _handle.Free();
             _handle = default;
 

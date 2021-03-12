@@ -1,13 +1,29 @@
 using System.Collections.Generic;
 using UIWidgetsGallery.gallery;
 using Unity.UIWidgets.Editor;
+using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.widgets;
 using UnityEditor;
+using UnityEngine;
 
 namespace UIWidgetsEditorWindowSample
 {
     public class EditorWindowGallery : UIWidgetsEditorPanel
     {
+        [MenuItem("UIWidgets/SetDebugLog")]
+        public static void SetDebugMode()
+        {
+            if (PlayerPrefs.GetInt("DisableDebugMode") == 1)
+            {
+                PlayerPrefs.SetInt("DisableDebugMode",0);
+            }
+            else
+            {
+                PlayerPrefs.SetInt("DisableDebugMode",1);
+            }
+            UIWidgetsPanel.ShowDebugLog = PlayerPrefs.GetInt("DisableDebugMode") == 1 ? false : true;
+        }
+
         [MenuItem("UIWidgets/EditorSample")]
         public static void CountDemo()
         {
@@ -16,7 +32,6 @@ namespace UIWidgetsEditorWindowSample
 
         protected override void onEnable()
         {
-            DisableDebugLog();
             AddFont("Material Icons", new List<string> {"MaterialIcons-Regular.ttf"}, new List<int> {0});
             AddFont("CupertinoIcons", new List<string> {"CupertinoIcons.ttf"}, new List<int> {0});
             AddFont("GalleryIcons", new List<string> {"gallery/GalleryIcons.ttf"}, new List<int> {0});

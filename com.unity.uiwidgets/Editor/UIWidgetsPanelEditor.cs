@@ -13,14 +13,12 @@ namespace Unity.UIWidgets.Editor {
             base.OnInspectorGUI(); 
             var pixelRatioProperty = serializedObject.FindProperty("devicePixelRatioOverride");
             var antiAliasingProperty = serializedObject.FindProperty("hardwareAntiAliasing");
-            var ShowDebugLog = serializedObject.FindProperty("m_ShowDebugLog");
-            
+            //var ShowDebugLog = serializedObject.FindProperty("m_ShowDebugLog");
             EditorGUILayout.PropertyField(serializedObject.FindProperty("fonts"), true);
-
             EditorGUILayout.PropertyField(pixelRatioProperty);
             EditorGUILayout.PropertyField(antiAliasingProperty);
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(ShowDebugLog);
+            //EditorGUILayout.PropertyField(ShowDebugLog);
             /*if (EditorGUI.EndChangeCheck()) {
                 UIWidgetsPanel.ShowDebugLog = ShowDebugLog.boolValue;
             }*/
