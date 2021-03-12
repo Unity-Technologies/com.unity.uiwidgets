@@ -44,10 +44,14 @@ namespace uiwidgets
   class UnitySurfaceManager
   {
   public:
+    static UnitySurfaceManager instance;
+    static void SetTextureFromUnity(void* tex, int w, int h);
+    static void drawxxx();
+
     UnitySurfaceManager(IUnityInterfaces *unity_interfaces);
     ~UnitySurfaceManager();
 
-    GLuint CreateRenderSurface(void *native_texture_ptr);
+    GLuint CreateRenderSurface(void *native_texture_ptr, size_t width, size_t height);
     void DestroyRenderSurface();
 
     bool ClearCurrent();
@@ -72,34 +76,24 @@ namespace uiwidgets
     UnityVulkanInstance m_Instance;
 
 #endif
-    GrBackendTexture m_backendTex;
-    GrGLTextureInfo textureInfo;
-    sk_sp<SkSurface> m_SkSurface;
+    // GrBackendTexture m_backendTex;
+    // GrGLTextureInfo textureInfo;
+    // sk_sp<SkSurface> m_SkSurface;
 
-    sk_sp<GrContext> gr_context_;
+    // sk_sp<GrContext> gr_context_;
 
     EGLDisplay egl_display_;
     EGLContext egl_context_;
 #ifndef VulkanX
     EGLContext egl_resource_context_;
     EGLConfig egl_config_;
-
+    EGLSurface surface;
 #endif
+
     // EGLConfig egl_config_;
     bool initialize_succeeded_;
-    // ID3D11Device* d3d11_device_;
 
-    // EGLImage fbo_egl_image_ = nullptr;
-    // GLuint fbo_texture_ = 0;
     GLuint fbo_ = 0;
-
-    // GLuint m_VertexShader;
-  // GLuint m_FragmentShader;
-  // GLuint m_Program;
-  // GLuint m_VertexArray;
-  // GLuint m_VertexBuffer;
-  // int m_UniformWorldMatrix;
-  // int m_UniformProjMatrix;
   };
 
 } // namespace uiwidgets

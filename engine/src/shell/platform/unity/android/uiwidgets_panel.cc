@@ -38,7 +38,7 @@ void UIWidgetsPanel::OnEnable(void* native_texture_ptr, size_t width,
 
   FML_DCHECK(fbo_ == 0);
   surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
-  fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr);
+  fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr, width, height);
   surface_manager_->ClearCurrent();
 
   // fml::AutoResetWaitableEvent latch;
@@ -505,4 +505,12 @@ UIWidgetsPanel_onMouseMove(UIWidgetsPanel* panel, float x, float y) {
 
 UIWIDGETS_API(void)
 UIWidgetsPanel_onMouseLeave(UIWidgetsPanel* panel) { panel->OnMouseLeave(); }
+
+
+UIWIDGETS_API(void)
+SetTextureFromUnity(void* tex, int w, int h) { UnitySurfaceManager::SetTextureFromUnity(tex, w, h); }
+
+
+UIWIDGETS_API(void)
+draw_xxx() { UnitySurfaceManager::drawxxx(); }
 }  // namespace uiwidgets

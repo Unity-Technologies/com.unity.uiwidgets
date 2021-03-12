@@ -7,6 +7,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Color = UnityEngine.Color;
 
 namespace Unity.UIWidgets.engine2 {
 
@@ -145,6 +146,7 @@ namespace Unity.UIWidgets.engine2 {
         }
         
         static bool _ShowDebugLog = false;
+        Texture2D targetTexture = null;
 
         protected void OnEnable() {
             base.OnEnable();
@@ -156,7 +158,21 @@ namespace Unity.UIWidgets.engine2 {
             D.assert(_wrapper == null);
             _wrapper = new UIWidgetsPanelWrapper();
             _wrapper.Initiate(this, _currentWidth, _currentHeight, _currentDevicePixelRatio, settings);
-            texture = _wrapper.renderTexture;
+            if (targetTexture == null) {
+                targetTexture = new Texture2D(_currentWidth, _currentHeight, TextureFormat.BGRA32, 1, true);
+                // GetComponent<Renderer>().material.mainTexture = targetTexture;
+                Debug.Log($"{_currentWidth}, {_currentHeight}");
+                for (int y = 0; y < _currentHeight; y++) {
+                    for (int x = 0; x < _currentWidth; x++) {
+
+                        targetTexture.SetPixel(x, y, Color.green);
+
+                    }
+                }
+
+                targetTexture.Apply();
+            }
+            texture = targetTexture;
 
             Input_OnEnable();
             
@@ -191,6 +207,7 @@ namespace Unity.UIWidgets.engine2 {
         }
 
         protected virtual void Update() {
+            Graphics.CopyTexture(_wrapper.renderTexture,0,0, 100, 100, 400, 400, targetTexture, 0, 0, 100, 100);
             Input_Update();
         }
 

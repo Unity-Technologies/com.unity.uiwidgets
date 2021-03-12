@@ -64,41 +64,6 @@ namespace uiwidgets
 #undef LOAD_VULKAN_FUNC
   }
 #else
-// #define VERTEX_SHADER_SRC(ver, attr, varying)                           \
-//   ver                                                                   \
-//       attr " highp vec3 pos;\n" attr " lowp vec4 color;\n"              \
-//            "\n" varying " lowp vec4 ocolor;\n"                          \
-//            "\n"                                                         \
-//            "uniform highp mat4 worldMatrix;\n"                          \
-//            "uniform highp mat4 projMatrix;\n"                           \
-//            "\n"                                                         \
-//            "void main()\n"                                              \
-//            "{\n"                                                        \
-//            "	gl_Position = (projMatrix * worldMatrix) * vec4(pos,1);\n" \
-//            "	ocolor = color;\n"                                         \
-//            "}\n"
-
-//   static const char *kGlesVProgTextGLES2 = VERTEX_SHADER_SRC("\n", "attribute", "varying");
-//   static const char *kGlesVProgTextGLES3 = VERTEX_SHADER_SRC("#version 300 es\n", "in", "out");
-
-// #define FRAGMENT_SHADER_SRC(ver, varying, outDecl, outVar) \
-//   ver                                                      \
-//       outDecl                                              \
-//           varying " lowp vec4 ocolor;\n"                   \
-//                   "\n"                                     \
-//                   "void main()\n"                          \
-//                   "{\n"                                    \
-//                   "	" outVar " = ocolor;\n"                \
-//                   "}\n"
-
-//   static const char *kGlesFShaderTextGLES2 = FRAGMENT_SHADER_SRC("\n", "varying", "\n", "gl_FragColor");
-//   static const char *kGlesFShaderTextGLES3 = FRAGMENT_SHADER_SRC("#version 300 es\n", "in", "out lowp vec4 fragColor;\n", "fragColor");
-
-  // enum VertexInputs
-  // {
-  //   kVertexInputPosition = 0,
-  //   kVertexInputColor = 1
-  // };
 
   template <class T>
   using EGLResult = std::pair<bool, T>;
@@ -111,7 +76,8 @@ namespace uiwidgets
 #else
         egl_display_(EGL_NO_DISPLAY),
         egl_context_(EGL_NO_CONTEXT),
-        egl_resource_context_(EGL_NO_CONTEXT)
+        egl_resource_context_(EGL_NO_CONTEXT),
+        surface(EGL_NO_SURFACE)
   // egl_config_(nullptr)
 #endif
   {
@@ -120,10 +86,8 @@ namespace uiwidgets
 
   UnitySurfaceManager::~UnitySurfaceManager() { CleanUp(); }
 
-  GLuint UnitySurfaceManager::CreateRenderSurface(void *native_texture_ptr)
+  GLuint UnitySurfaceManager::CreateRenderSurface(void *native_texture_ptr, size_t width, size_t height)
   {
-    int width = 100;
-    int height = 100;
 #ifdef VulkanX
     UnityVulkanImage image;
 
@@ -157,30 +121,68 @@ namespace uiwidgets
     // canvas->drawTextBlob(text.get(), 50, 25, paint2);
     canvas->flush();
 #else
-    gr_context_ = ShellIOManager::CreateCompatibleResourceLoadingContext(
-        GrBackend::kOpenGL_GrBackend,
-        GPUSurfaceGLDelegate::GetDefaultPlatformGLInterface());
-    // gr_context_ = GrContext::MakeGL();
+    // unsigned int texture;
+    // glGenTextures(1, &texture);
+    int rowPitch = width * 4;
+    unsigned char *data = new unsigned char[rowPitch * height];
 
-    GrGLTextureInfo textureInfo;
-    textureInfo.fTarget = GR_GL_TEXTURE_2D;
-    textureInfo.fID = GrGLuint((long)native_texture_ptr);
-    textureInfo.fFormat = GR_GL_RGBA8;
+    unsigned char *dst = (unsigned char *)data;
+    for (size_t y = 0; y < height; ++y)
+    {
+      unsigned char *ptr = dst;
+      for (size_t x = 0; x < width; ++x)
+      {
+        // Simple "plasma effect": several combined sine waves
+        int vv = 255;
 
-    GrBackendTexture m_backendTex =
-        GrBackendTexture(width, height, GrMipMapped::kNo, textureInfo);
+        // Write the texture pixel
+        ptr[0] = vv;
+        // ptr[1] = vv;
+        // ptr[2] = vv;
+        ptr[3] = vv;
 
-    m_SkSurface = SkSurface::MakeFromBackendTexture(
-        gr_context_.get(), m_backendTex, kBottomLeft_GrSurfaceOrigin, 1,
-        kRGBA_8888_SkColorType, nullptr, nullptr);
-        
-    SkCanvas *canvas = m_SkSurface->getCanvas();
+        // To next pixel (our pixels are 4 bpp)
+        ptr += 4;
+      }
 
-    canvas->drawColor(SK_ColorBLUE);
-    SkPaint paint;
+      // To next image row
+      dst += rowPitch;
+    }
+    GLuint gltex = (GLuint)(size_t)(native_texture_ptr);
+    glBindTexture(GL_TEXTURE_2D, gltex);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-    SkRect rect = SkRect::MakeXYWH(50, 50, 40, 60);
-    canvas->drawRect(rect, paint);
+    // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, native_texture_ptr);
+    // glGenerateMipmap(GL_TEXTURE_2D);
+    delete[](unsigned char *) data;
+    // glClearColor(1,0,0,1.0);
+    // glClear(GL_COLOR_BUFFER_BIT);
+
+    // gr_context_ = ShellIOManager::CreateCompatibleResourceLoadingContext(
+    //     GrBackend::kOpenGL_GrBackend,
+    //     GPUSurfaceGLDelegate::GetDefaultPlatformGLInterface());
+
+    // GrGLTextureInfo textureInfo;
+    // textureInfo.fTarget = GR_GL_TEXTURE_2D;
+    // textureInfo.fID = GrGLuint((long)native_texture_ptr);
+    // textureInfo.fFormat = GR_GL_RGBA8;
+
+    // // egl_context_
+
+    // GrBackendTexture m_backendTex =
+    //     GrBackendTexture(width, height, GrMipMapped::kNo, textureInfo);
+
+    // m_SkSurface = SkSurface::MakeFromBackendTexture(
+    //     gr_context_.get(), m_backendTex, kBottomLeft_GrSurfaceOrigin, 1,
+    //     kRGBA_8888_SkColorType, nullptr, nullptr);
+
+    // SkCanvas *canvas = m_SkSurface->getCanvas();
+
+    // canvas->drawColor(SK_ColorBLUE);
+    // SkPaint paint;
+
+    // SkRect rect = SkRect::MakeXYWH(50, 50, 40, 60);
+    // canvas->drawRect(rect, paint);
 #endif
 
     return fbo_;
@@ -278,6 +280,37 @@ namespace uiwidgets
   //   return ret;
   // }
 
+  // static void updatePixel(void *textureDataPtr, int width, int height, int textureRowPitch)
+  // {
+
+  //   if (!textureDataPtr)
+  //     return;
+
+  //   unsigned char *dst = (unsigned char *)textureDataPtr;
+  //   for (int y = 0; y < height; ++y)
+  //   {
+  //     unsigned char *ptr = dst;
+  //     for (int x = 0; x < width; ++x)
+  //     {
+  //       // Simple "plasma effect": several combined sine waves
+  //       int vv = 255;
+
+  //       // Write the texture pixel
+  //       ptr[0] = vv;
+  //       // ptr[1] = vv;
+  //       // ptr[2] = vv;
+  //       ptr[3] = vv;
+
+  //       // To next pixel (our pixels are 4 bpp)
+  //       ptr += 4;
+  //     }
+
+  //     // To next image row
+  //     dst += textureRowPitch;
+  //   }
+  //   return;
+  // }
+
   static EGLResult<EGLConfig> ChooseEGLConfiguration(EGLDisplay display)
   {
     EGLint attributes[] = {
@@ -357,165 +390,27 @@ namespace uiwidgets
 
 #endif
     egl_display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    if (egl_display_ == EGL_NO_DISPLAY)
-    {
-      FML_CHECK(false)
-          << "Renderer type is invalid";
-    }
+    FML_CHECK(egl_display_ != EGL_NO_DISPLAY)
+        << "Renderer type is invalid";
 
     // Initialize the display connection.
-    if (eglInitialize(egl_display_, nullptr, nullptr) != EGL_TRUE)
-    {
-      FML_CHECK(false)
-          << "Renderer type is invalid";
-    }
+    FML_CHECK(eglInitialize(egl_display_, nullptr, nullptr) == EGL_TRUE)
+        << "Renderer type is invalid";
 
     auto valid_ = true;
 
     bool success = false;
 
     std::tie(success, egl_config_) = ChooseEGLConfiguration(egl_display_);
-    if (!success)
-    {
-      FML_CHECK(false) << "Could not choose an EGL configuration.";
-      // LogLastEGLError();
-      // return;
-    }
-
-    EGLDisplay display = egl_display_;
+    FML_CHECK(success) << "Could not choose an EGL configuration.";
 
     const EGLint attribs[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
 
-    EGLSurface surface_ = eglCreatePbufferSurface(display, egl_config_, attribs);
-    success = surface_ != EGL_NO_SURFACE;
+    surface = eglCreatePbufferSurface(egl_display_, egl_config_, attribs);
+    success = surface != EGL_NO_SURFACE;
 
     EGLint attributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-    egl_context_ = eglCreateContext(display, egl_config_, EGL_NO_CONTEXT, attributes);
-
-    EGLDisplay display2 = egl_display_;
-
-    const EGLint attribs2[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
-
-    surface_ = eglCreatePbufferSurface(display2, egl_config_, attribs2);
-    auto xxx = surface_ != EGL_NO_SURFACE;
-
-    //  auto egl_display_ = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE,
-    //                                         EGL_DEFAULT_DISPLAY, displayAttribs);
-    // IUnityGraphics *graphics = unity_interfaces->Get<IUnityGraphics>();
-    // UnityGfxRenderer renderer = graphics->GetRenderer();
-    // if (renderer == kUnityGfxRendererOpenGLES20)
-    // {
-    //   m_VertexShader = CreateShader(GL_VERTEX_SHADER, kGlesVProgTextGLES2);
-    //   m_FragmentShader = CreateShader(GL_FRAGMENT_SHADER, kGlesFShaderTextGLES2);
-    // }
-    // else if (renderer == kUnityGfxRendererOpenGLES30)
-    // {
-    //   m_VertexShader = CreateShader(GL_VERTEX_SHADER, kGlesVProgTextGLES3);
-    //   m_FragmentShader = CreateShader(GL_FRAGMENT_SHADER, kGlesFShaderTextGLES3);
-    // }
-    // else
-    // {
-    //   FML_CHECK(false)
-    //       << "Renderer type is invalid";
-    // }
-
-    // m_Program = glCreateProgram();
-    // glBindAttribLocation(m_Program, kVertexInputPosition, "pos");
-    // glBindAttribLocation(m_Program, kVertexInputColor, "color");
-    // glAttachShader(m_Program, m_VertexShader);
-    // glAttachShader(m_Program, m_FragmentShader);
-    // glLinkProgram(m_Program);
-    // GLint status = 0;
-    // glGetProgramiv(m_Program, GL_LINK_STATUS, &status);
-    // assert(status == GL_TRUE);
-
-    // m_UniformWorldMatrix = glGetUniformLocation(m_Program, "worldMatrix");
-    // m_UniformProjMatrix = glGetUniformLocation(m_Program, "projMatrix");
-
-    // // Create vertex buffer
-    // glGenBuffers(1, &m_VertexBuffer);
-    // glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
-    // glBufferData(GL_ARRAY_BUFFER, 1024, NULL, GL_STREAM_DRAW);
-
-    // FML_CHECK(glGetError() == GL_NO_ERROR);
-    // UnityVulkanInstance instance = vulkan->Instance();
-    // VkDevice device = instance.device;
-
-    // ID3D11Device* d3d11_device = d3d11->GetDevice();
-
-    // IDXGIDevice* dxgi_device;
-    // HRESULT hr = d3d11_device->QueryInterface(
-    //     __uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgi_device));
-
-    // FML_CHECK(SUCCEEDED(hr)) << "d3d11_device->QueryInterface(...) failed";
-
-    // IDXGIAdapter* dxgi_adapter;
-    // hr = dxgi_device->GetAdapter(&dxgi_adapter);
-    // FML_CHECK(SUCCEEDED(hr)) << "dxgi_adapter->GetAdapter(...) failed";
-
-    // dxgi_device->Release();
-
-    // DXGI_ADAPTER_DESC adapter_desc;
-    // hr = dxgi_adapter->GetDesc(&adapter_desc);
-    // FML_CHECK(SUCCEEDED(hr)) << "dxgi_adapter->GetDesc(...) failed";
-
-    // dxgi_adapter->Release();
-
-    // EGLint displayAttribs[] = {EGL_PLATFORM_ANGLE_TYPE_ANGLE,
-    //                            EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
-    //                            EGL_PLATFORM_ANGLE_D3D_LUID_HIGH_ANGLE,
-    //                            adapter_desc.AdapterLuid.HighPart,
-    //                            EGL_PLATFORM_ANGLE_D3D_LUID_LOW_ANGLE,
-    //                            adapter_desc.AdapterLuid.LowPart,
-    //                            EGL_PLATFORM_ANGLE_ENABLE_AUTOMATIC_TRIM_ANGLE,
-    //                            EGL_TRUE,
-    //                            EGL_NONE};
-
-    // egl_display_ = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE,
-    //                                         EGL_DEFAULT_DISPLAY, displayAttribs);
-
-    // FML_CHECK(egl_display_ != EGL_NO_DISPLAY)
-    //     << "EGL: Failed to get a compatible EGLdisplay";
-
-    // if (eglInitialize(egl_display_, nullptr, nullptr) == EGL_FALSE) {
-    //   FML_CHECK(false) << "EGL: Failed to initialize EGL";
-    // }
-
-    // EGLAttrib egl_device = 0;
-    // eglQueryDisplayAttribEXT(egl_display_, EGL_DEVICE_EXT, &egl_device);
-    // EGLAttrib angle_device = 0;
-    // eglQueryDeviceAttribEXT(reinterpret_cast<EGLDeviceEXT>(egl_device),
-    //                         EGL_D3D11_DEVICE_ANGLE, &angle_device);
-    // d3d11_device_ = reinterpret_cast<ID3D11Device*>(angle_device);
-
-    // const EGLint configAttributes[] = {EGL_RED_SIZE,   8, EGL_GREEN_SIZE,   8,
-    //                                    EGL_BLUE_SIZE,  8, EGL_ALPHA_SIZE,   8,
-    //                                    EGL_DEPTH_SIZE, 8, EGL_STENCIL_SIZE, 8,
-    //                                    EGL_NONE};
-
-    // EGLint numConfigs = 0;
-    // if (eglChooseConfig(egl_display_, configAttributes, &egl_config_, 1,
-    //                     &numConfigs) == EGL_FALSE ||
-    //     numConfigs == 0) {
-    //   FML_CHECK(false) << "EGL: Failed to choose first context";
-    // }
-
-    // const EGLint display_context_attributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2,
-    //                                              EGL_NONE};
-
-    // egl_context_ = eglCreateContext(egl_display_, egl_config_, EGL_NO_CONTEXT,
-    //                                 display_context_attributes);
-    // if (egl_context_ == EGL_NO_CONTEXT) {
-    //   FML_CHECK(false) << "EGL: Failed to create EGL context";
-    // }
-
-    // egl_resource_context_ = eglCreateContext(
-    //     egl_display_, egl_config_, egl_context_, display_context_attributes);
-
-    // if (egl_resource_context_ == EGL_NO_CONTEXT) {
-    //   FML_CHECK(false) << "EGL: Failed to create EGL resource context";
-    // }
-
+    egl_context_ = eglCreateContext(egl_display_, egl_config_, EGL_NO_CONTEXT, attributes);
     return true;
   }
 
@@ -597,4 +492,181 @@ namespace uiwidgets
     //       gr_context_.get(), m_backendTex, kBottomLeft_GrSurfaceOrigin, 1,
     //       kRGBA_8888_SkColorType, nullptr, nullptr);
   }
+  static void *g_TextureHandle = NULL;
+  static int wi = 0;
+  static int he = 0;
+  static EGLDisplay egl_display_s;
+  static EGLConfig egl_config_s;
+  static EGLSurface surfaces;
+  static EGLContext egl_context_s;
+  static GLenum state;
+  static bool inited = false;
+
+  void UnitySurfaceManager::SetTextureFromUnity(void *tex, int w, int h)
+  {
+    g_TextureHandle = tex;
+    wi = w;
+    he = h;
+
+    // egl_display_s = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    // FML_CHECK(egl_display_s != EGL_NO_DISPLAY)
+    //     << "Renderer type is invalid";
+    // state = glGetError();
+
+    // // Initialize the display connection.
+    // FML_CHECK(eglInitialize(egl_display_s, nullptr, nullptr) == EGL_TRUE)
+    //     << "Renderer type is invalid";
+
+    // state = glGetError();
+
+    // bool success = false;
+
+    // std::tie(success, egl_config_s) = ChooseEGLConfiguration(egl_display_s);
+    // FML_CHECK(success) << "Could not choose an EGL configuration.";
+    // // state = glGetError();
+
+    // EGLint attributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+    // egl_context_s = eglCreateContext(egl_display_s, egl_config_s, EGL_NO_CONTEXT, attributes);
+    // // state = glGetError();
+
+    // int k = 0;
+  }
+
+  void UnitySurfaceManager::drawxxx()
+  {
+     GLuint gltex = (GLuint)(size_t)(g_TextureHandle);
+      glBindTexture(GL_TEXTURE_2D, gltex);
+      state = glGetError();
+      auto check = state == GL_INVALID_FRAMEBUFFER_OPERATION;
+
+      int rowPitch = wi * 4;
+      unsigned char *data = new unsigned char[rowPitch * he];
+
+      // // glGetTexImage(gltex, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+      unsigned char *dst = (unsigned char *)data;
+      for (int y = 0; y < he; ++y)
+      {
+        unsigned char *ptr = dst;
+        for (int x = 0; x < wi; ++x)
+        {
+          // Simple "plasma effect": several combined sine waves
+          int vv = 244;
+
+          // Write the texture pixel
+          ptr[0] = vv;
+          ptr[1] = vv;
+          ptr[2] = vv;
+          ptr[3] = vv;
+
+          // To next pixel (our pixels are 4 bpp)
+          ptr += 4;
+        }
+
+        // To next image row
+        dst += rowPitch;
+      }
+
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, wi, he, GL_RGBA, GL_UNSIGNED_BYTE, data);
+          state = eglGetError();
+      delete[](unsigned char *) data;
+
+    // auto ss = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE,
+    //                          egl_context_s) == GL_TRUE;
+    // state = glGetError();
+    // if (!inited)
+    // {
+    //   unsigned int fbo = 0;
+    //   glGenFramebuffers(1, &fbo);
+    //   state = glGetError();
+    //   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    //   state = glGetError();
+    //   GLuint gltex = (GLuint)(size_t)(g_TextureHandle);
+    //   // glBindTexture(GL_TEXTURE_2D, gltex);
+    //   // state = glGetError();
+
+
+    //   unsigned int texture;
+    //   glGenTextures(1, &texture);
+    //   glBindTexture(GL_TEXTURE_2D, texture);
+    //   int rowPitch = 20 * 4;
+    //   unsigned char *data = new unsigned char[rowPitch * 20];
+
+    //   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 20, 20, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    //   state = glGetError();
+
+    //   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+    //         state = glGetError();
+    //   // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //   // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+    //   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
+    //   {
+    //     int i = 0;
+    //   }
+    //   else
+    //   {
+    //     int j = 0;
+    //   }
+    //   inited = true;
+    // }
+    // else
+    // {
+    //   state = glGetError();
+    //   auto xxxxx = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    //   if (xxxxx == GL_FRAMEBUFFER_COMPLETE)
+    //   {
+    //     int i = 0;
+    //   }
+    //   else
+    //   {
+    //     int j = 0;
+    //   }
+    //   GLuint gltex = (GLuint)(size_t)(g_TextureHandle);
+    //   glBindTexture(GL_TEXTURE_2D, gltex);
+    //   state = glGetError();
+    //   auto check = state == GL_INVALID_FRAMEBUFFER_OPERATION;
+
+    //   int rowPitch = wi * 4;
+    //   unsigned char *data = new unsigned char[rowPitch * he];
+
+    //   // // glGetTexImage(gltex, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    //   unsigned char *dst = (unsigned char *)data;
+    //   for (int y = 0; y < he; ++y)
+    //   {
+    //     unsigned char *ptr = dst;
+    //     for (int x = 0; x < wi; ++x)
+    //     {
+    //       // Simple "plasma effect": several combined sine waves
+    //       int vv = 255;
+
+    //       // Write the texture pixel
+    //       ptr[0] = vv;
+    //       // ptr[1] = vv;
+    //       // ptr[2] = vv;
+    //       ptr[3] = vv;
+
+    //       // To next pixel (our pixels are 4 bpp)
+    //       ptr += 4;
+    //     }
+
+    //     // To next image row
+    //     dst += rowPitch;
+    //   }
+
+    //   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, wi, he, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    //       state = eglGetError();
+    //   delete[](unsigned char *) data;
+
+    //   //  glClearColor(1, 0, 0, 1.0);
+    //   //  glClear(GL_COLOR_BUFFER_BIT);
+    //   state = eglGetError();
+    // }
+    // ss = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE,
+    //                     EGL_NO_CONTEXT) == GL_TRUE;
+
+    // state = glGetError();
+    // int kk = 0;
+  }
+
 } // namespace uiwidgets

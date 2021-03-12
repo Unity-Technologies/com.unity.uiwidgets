@@ -6,7 +6,7 @@ namespace Unity.UIWidgets.ui {
 #if (UNITY_IOS || UNITY_TVOS || UNITY_WEBGL) && !UNITY_EDITOR
         internal const string dllName = "__Internal";
 #else
-        internal const string dllName = "libUIWidgets_d";
+        public const string dllName = "libUIWidgets_d";
 #endif
     }
 
