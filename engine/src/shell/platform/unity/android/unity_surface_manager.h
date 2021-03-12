@@ -45,7 +45,7 @@ namespace uiwidgets
   {
   public:
     static UnitySurfaceManager instance;
-    static void SetTextureFromUnity(void* tex, int w, int h);
+    static void* SetTextureFromUnity(void* tex, int w, int h);
     static void drawxxx();
 
     UnitySurfaceManager(IUnityInterfaces *unity_interfaces);

@@ -12,7 +12,7 @@ public class ANT : MonoBehaviour
 #else
     [DllImport ("libUIWidgets_d")]
 #endif
-    private static extern void SetTextureFromUnity2(System.IntPtr texture, int w, int h);
+    private static extern System.IntPtr SetTextureFromUnity2(System.IntPtr texture, int w, int h);
 
 #if (UNITY_IOS || UNITY_TVOS || UNITY_WEBGL) && !UNITY_EDITOR
 	[DllImport ("__Internal")]
@@ -20,6 +20,13 @@ public class ANT : MonoBehaviour
     [DllImport ("libUIWidgets_d")]
 #endif
     private static extern void draw_xxx();
+    
+#if (UNITY_IOS || UNITY_TVOS || UNITY_WEBGL) && !UNITY_EDITOR
+	[DllImport ("__Internal")]
+#else
+    [DllImport ("libUIWidgets_d")]
+#endif
+    private static extern System.IntPtr GetRenderEventFunc();
 
     // Start is called before the first frame update
     IEnumerator Start()
@@ -30,7 +37,9 @@ public class ANT : MonoBehaviour
 
     private void CreateTextureAndPassToPlugin()
     {
-        Texture2D tex = new Texture2D(256,256,TextureFormat.ARGB32,false);
+        var width = 256;
+        var height = 256;
+        Texture2D tex = new Texture2D(width,height,TextureFormat.ARGB32,false);
         // Set point filtering just so we can see the pixels clearly
         tex.filterMode = FilterMode.Point;
         // Call Apply() so it's actually uploaded to the GPU
@@ -39,10 +48,16 @@ public class ANT : MonoBehaviour
         // Set texture onto our material
         GetComponent<Renderer>().material.mainTexture = tex;
 
-#if !UNITY_EDITOR
-        // Pass texture pointer to the plugin
-        SetTextureFromUnity2 (tex.GetNativeTexturePtr(), tex.width, tex.height);
-#endif
+// #if !UNITY_EDITOR
+//         // Pass texture pointer to the plugin
+       System.IntPtr ptr = SetTextureFromUnity2 (tex.GetNativeTexturePtr(), tex.width, tex.height);
+       if (ptr != System.IntPtr.Zero)
+       {
+          var texEx =  Texture2D.CreateExternalTexture(width, height, TextureFormat.BGRA32, false, true, ptr);
+          GetComponent<Renderer>().material.mainTexture = texEx;
+       }
+       GL.IssuePluginEvent(GetRenderEventFunc(), 1);  
+// #endif
     }
 
     private IEnumerator CallPluginAtEndOfFrames()
@@ -52,6 +67,7 @@ public class ANT : MonoBehaviour
             // Wait until all frame rendering is done
             yield return new WaitForEndOfFrame();
 #if !UNITY_EDITOR
+            // GL.IssuePluginEvent(GetRenderEventFunc(), 1);    
             draw_xxx();
 #endif
         }

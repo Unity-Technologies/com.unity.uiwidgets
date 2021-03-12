@@ -13,6 +13,7 @@
 #include "shell/platform/embedder/embedder_engine.h"
 #include "uiwidgets_system.h"
 // #include "unity_external_texture_gl.h"
+#include "third_party/Unity/IUnityGraphics.h"
 
 namespace uiwidgets {
 
@@ -507,9 +508,21 @@ UIWIDGETS_API(void)
 UIWidgetsPanel_onMouseLeave(UIWidgetsPanel* panel) { panel->OnMouseLeave(); }
 
 
-UIWIDGETS_API(void)
-SetTextureFromUnity2(void* tex, int w, int h) { UnitySurfaceManager::SetTextureFromUnity(tex, w, h); }
+UIWIDGETS_API(void*)
+SetTextureFromUnity2(void* tex, int w, int h) { return UnitySurfaceManager::SetTextureFromUnity(tex, w, h); }
 
+static void UNITY_INTERFACE_API OnRenderEvent(int eventID)
+{
+	UnitySurfaceManager::drawxxx();
+}
+
+// --------------------------------------------------------------------------
+// GetRenderEventFunc, an example function we export which is used to get a rendering event callback function.
+
+UIWIDGETS_API(UnityRenderingEvent) GetRenderEventFunc()
+{
+	return OnRenderEvent;
+}
 
 UIWIDGETS_API(void)
 draw_xxx() { UnitySurfaceManager::drawxxx(); }
