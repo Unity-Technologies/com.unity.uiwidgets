@@ -502,12 +502,32 @@ namespace uiwidgets
   static EGLContext egl_context_s_old;
   static GLenum state;
   static bool inited = false;
+  static GLuint fbo_s = 0;
+  static EGLSurface read_s;
+  static EGLSurface draw_s;
 
   void *UnitySurfaceManager::SetTextureFromUnity(void *tex, int w, int h)
   {
     g_TextureHandle = tex;
     wi = w;
     he = h;
+    return nullptr;
+  }
+  static void StoreOldCurrent(){
+        read_s = eglGetCurrentSurface(EGL_READ);
+      draw_s = eglGetCurrentSurface(EGL_DRAW);
+      egl_display_s = eglGetCurrentDisplay();
+          egl_context_s_old = eglGetCurrentContext(); //????? for get context
+
+  }
+  static bool RestoreOldCurrent() {
+  return eglMakeCurrent(egl_display_s, draw_s, read_s, egl_context_s_old) == GL_TRUE;
+  }
+  void UnitySurfaceManager::SetUp()
+  {
+  StoreOldCurrent();
+    GLuint gltex = (GLuint)(size_t)(g_TextureHandle);
+
     // egl_display_s = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     // FML_CHECK(egl_display_s != EGL_NO_DISPLAY)
     //     << "Renderer type is invalid";
@@ -516,47 +536,20 @@ namespace uiwidgets
     // FML_CHECK(eglInitialize(egl_display_s, nullptr, nullptr) == EGL_TRUE)
     //     << "Renderer type is invalid";
 
-    // bool success = false;
+    bool success = false;
 
-    // std::tie(success, egl_config_s) = ChooseEGLConfiguration(egl_display_s);
+    std::tie(success, egl_config_s) = ChooseEGLConfiguration(egl_display_s);
     // FML_CHECK(success) << "Could not choose an EGL configuration.";
 
-    // EGLint attributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-    // egl_context_s = eglCreateContext(egl_display_s, egl_config_s, EGL_NO_CONTEXT, attributes);
+    EGLint attributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+    egl_context_s = eglCreateContext(egl_display_s, egl_config_s, egl_context_s_old, attributes);
     // auto state = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_config_s) == GL_TRUE;
     // int texture;
     // glGenTextures()
 
     // state = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT) == GL_TRUE;
-    return nullptr;
-  }
 
-  static void createContext()
-  {
-    if (egl_display_s != nullptr)
-    {
-      return;
-    }
-    egl_display_s = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    FML_CHECK(egl_display_s != EGL_NO_DISPLAY)
-        << "Renderer type is invalid";
-
-    // Initialize the display connection.
-    FML_CHECK(eglInitialize(egl_display_s, nullptr, nullptr) == EGL_TRUE)
-        << "Renderer type is invalid";
-
-    bool success = false;
-
-    std::tie(success, egl_config_s) = ChooseEGLConfiguration(egl_display_s);
-    FML_CHECK(success) << "Could not choose an EGL configuration.";
-
-    EGLint attributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-    egl_context_s_old = eglGetCurrentContext(); //????? for get context
-
-    egl_context_s = eglCreateContext(egl_display_s, egl_config_s, egl_context_s_old, attributes);
-    // auto read = eglGetCurrentSurface(EGL_READ);
-    // auto draw = eglGetCurrentSurface(EGL_DRAW);
-    // auto state = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_s) == GL_TRUE;
+    auto state = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_s) == GL_TRUE;
     // unsigned int texture;
     // glGenTextures(1, &texture);
     // glBindTexture(GL_TEXTURE_2D, texture);
@@ -565,14 +558,50 @@ namespace uiwidgets
 
     // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wi, he, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     // state = glGetError();
+    GLint old_framebuffer_binding;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
 
-    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-    // state = glGetError();
-    // state = eglMakeCurrent(egl_display_s, draw, read, egl_context_s_old) == GL_TRUE;
+    glGenFramebuffers(1, &fbo_s);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo_s);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                           gltex, 0);
+    FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
+              GL_FRAMEBUFFER_COMPLETE);
+    glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
+    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gltex, 0);
+    state = glGetError();
+    RestoreOldCurrent();
+    // return nullptr;
   }
+
+  // static void createContext()
+  // {
+  //   if (egl_display_s != nullptr)
+  //   {
+  //     return;
+  //   }
+  //   egl_display_s = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  //   FML_CHECK(egl_display_s != EGL_NO_DISPLAY)
+  //       << "Renderer type is invalid";
+
+  //   // Initialize the display connection.
+  //   FML_CHECK(eglInitialize(egl_display_s, nullptr, nullptr) == EGL_TRUE)
+  //       << "Renderer type is invalid";
+
+  //   bool success = false;
+
+  //   std::tie(success, egl_config_s) = ChooseEGLConfiguration(egl_display_s);
+  //   FML_CHECK(success) << "Could not choose an EGL configuration.";
+
+  //   EGLint attributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+  //   egl_context_s_old = eglGetCurrentContext(); //????? for get context
+
+  //   egl_context_s = eglCreateContext(egl_display_s, egl_config_s, egl_context_s_old, attributes);
+  // }
+  static int siyao= 0;
   void UnitySurfaceManager::drawxxx()
   {
-    createContext();
+    // createContext();
     int width = wi;
     int height = he;
 
@@ -580,6 +609,7 @@ namespace uiwidgets
     void *data = new unsigned char[rowPitch * height];
 
     unsigned char *dst = (unsigned char *)data;
+    siyao++;
 
     for (int y = 0; y < height; ++y)
     {
@@ -587,12 +617,12 @@ namespace uiwidgets
       for (int x = 0; x < width; ++x)
       {
         // Simple "plasma effect": several combined sine waves
-        int vv = 244;
+        int vv = (244 + siyao )%244;
 
         // Write the texture pixel
         ptr[0] = vv;
-        ptr[1] = (x + y) % 244;
-        ptr[2] = (x * y) % 244;
+        ptr[1] = (x + y + siyao) % 244;
+        ptr[2] = (x * y * siyao) % 244;
         ptr[3] = vv;
 
         // To next pixel (our pixels are 4 bpp)
@@ -605,13 +635,24 @@ namespace uiwidgets
     GLuint gltex = (GLuint)(size_t)(g_TextureHandle);
     auto read = eglGetCurrentSurface(EGL_READ);
     auto draw = eglGetCurrentSurface(EGL_DRAW);
+    auto dis = eglGetCurrentDisplay();
+    auto ctx = eglGetCurrentContext();
     auto state = eglMakeCurrent(egl_display_s, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_s) == GL_TRUE;
     glBindTexture(GL_TEXTURE_2D, gltex);
+    // glBegin(GL_LINES);
+    //     glVertex2f(.25,0.25);
+    //     glVertex2f(.75,.75);
+    // glEnd();
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glClearColor(1, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-    state = eglMakeCurrent(egl_display_s, draw, read, egl_context_s_old) == GL_TRUE;
+    // glClearColor(1.0, 0, 0, 1.0);
+    // glClear(GL_COLOR_BUFFER_BIT);
+    state = eglMakeCurrent(dis,  draw, read, ctx) == GL_TRUE;
+    // state = eglMakeCurrent(EGL_NO_DISPLAY,  EGL_NO_DISPLAY, EGL_NO_DISPLAY, EGL_NO_CONTEXT) == GL_TRUE;
+    // state = eglMakeCurrent(egl_display_s, draw_s, read_s, egl_context_s_old) == GL_TRUE;
+
+    // state = eglMakeCurrent(egl_display_s, EGL_NO_DISPLAY, EGL_NO_DISPLAY, egl_context_s_old) == GL_TRUE;
+    // state = eglMakeCurrent(egl_display_s, draw, read, egl_context_s_old) == GL_TRUE;
 
     delete[](unsigned char *) data;
   }

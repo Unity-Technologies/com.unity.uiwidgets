@@ -51,6 +51,7 @@ public class ANT : MonoBehaviour
 // #if !UNITY_EDITOR
 //         // Pass texture pointer to the plugin
        System.IntPtr ptr = SetTextureFromUnity2 (tex.GetNativeTexturePtr(), tex.width, tex.height);
+       GL.IssuePluginEvent(GetRenderEventFunc(), 1);
        if (ptr != System.IntPtr.Zero)
        {
           var texEx =  Texture2D.CreateExternalTexture(width, height, TextureFormat.BGRA32, false, true, ptr);
@@ -67,8 +68,8 @@ public class ANT : MonoBehaviour
             // Wait until all frame rendering is done
             yield return new WaitForEndOfFrame();
 #if !UNITY_EDITOR
-            GL.IssuePluginEvent(GetRenderEventFunc(), 1);    
-            // draw_xxx();
+            // GL.IssuePluginEvent(GetRenderEventFunc(), 1);    
+            draw_xxx();
 #endif
         }
     }

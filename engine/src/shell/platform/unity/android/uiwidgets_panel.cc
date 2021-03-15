@@ -513,7 +513,7 @@ SetTextureFromUnity2(void* tex, int w, int h) { return UnitySurfaceManager::SetT
 
 static void UNITY_INTERFACE_API OnRenderEvent(int eventID)
 {
-	UnitySurfaceManager::drawxxx();
+	UnitySurfaceManager::SetUp();
 }
 
 // --------------------------------------------------------------------------
