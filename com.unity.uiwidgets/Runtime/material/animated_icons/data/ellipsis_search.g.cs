@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Unity.UIWidgets.material
 {
+  /*
     partial class AnimatedIconsData
     {
 
@@ -5265,5 +5266,5 @@ namespace Unity.UIWidgets.material
                         )
           }
         );
-    }
+    }*/
 }

@@ -3,6 +3,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.material {
+  /*
     partial class AnimatedIconsData {
         public static readonly _AnimatedIconData _arrow_menu = new _AnimatedIconData(
           new Size(48.0f, 48.0f),
@@ -1024,6 +1025,6 @@ namespace Unity.UIWidgets.material {
           },
           matchTextDirection: true
         );
-      }
+      }*/
 
 }
