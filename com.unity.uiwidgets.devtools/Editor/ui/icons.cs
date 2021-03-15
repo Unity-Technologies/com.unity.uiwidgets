@@ -86,7 +86,7 @@ public class CustomIconMaker {
     });
   }
 
-  CustomIcon fromWidgetName(string name) {
+  public CustomIcon fromWidgetName(string name) {
     if (name == null) {
       return null;
     }
@@ -106,7 +106,7 @@ public class CustomIconMaker {
     );
   }
 
-  CustomIcon fromInfo(String name) {
+  public CustomIcon fromInfo(String name) {
     if (name == null) {
       return null;
     }
@@ -186,7 +186,7 @@ public class ColorIcon : StatelessWidget {
 public class ColorIconMaker {
   public readonly Dictionary<Color, ColorIcon> iconCache = new Dictionary<Color, ColorIcon>();
 
-  ColorIcon getCustomIcon(Color color) {
+  public ColorIcon getCustomIcon(Color color) {
     return iconCache.putIfAbsent(color, () => new ColorIcon(color));
   }
 }
@@ -291,7 +291,7 @@ public class _ColorIconPainter : CustomPainter {
 public class FlutterMaterialIcons {
   public FlutterMaterialIcons(){}
 
-  static Icon getIconForCodePoint(int charCode, ColorScheme colorScheme) {
+  public static Icon getIconForCodePoint(int charCode, ColorScheme colorScheme) {
     return new Icon(new IconData(charCode), color: CommonThemeUtils.defaultForeground);
   }
 }

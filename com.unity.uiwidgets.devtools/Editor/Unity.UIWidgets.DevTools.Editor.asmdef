@@ -1,6 +1,9 @@
 {
     "name": "Unity.UIWidgets.DevTools.Editor",
-    "references": [],
+    "references": [
+        "Unity.UIWidgets",
+        "Unity.UIWidgets.Editor"
+    ],
     "includePlatforms": [
         "Editor"
     ],
