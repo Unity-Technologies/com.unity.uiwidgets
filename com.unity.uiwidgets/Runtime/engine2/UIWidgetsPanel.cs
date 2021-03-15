@@ -15,7 +15,7 @@ namespace Unity.UIWidgets.engine2 {
         GameObjectPanel = 1,
         EditorWindowPanel = 2
     }
-    
+
     public interface IUIWidgetsWindow {
         Offset windowPosToScreenPos(Offset offset);
 
@@ -40,7 +40,7 @@ namespace Unity.UIWidgets.engine2 {
         public UIWidgetsWindowType getWindowType() {
             return UIWidgetsWindowType.GameObjectPanel;
         }
-        
+
         public bool isActive() {
             return IsActive();
         }
