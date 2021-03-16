@@ -30,7 +30,7 @@ class UIWidgetsSystem {
   void printf_console(const char* log, ...) {
     va_list vl;
     va_start(vl, log);
-    unity_uiwidgets_->printf_consolev(log, vl);
+    // unity_uiwidgets_->printf_consolev(log, vl);
     va_end(vl);
   }
 
@@ -43,7 +43,9 @@ class UIWidgetsSystem {
   FML_DISALLOW_COPY_AND_ASSIGN(UIWidgetsSystem);
 
  private:
-  UIWIDGETS_CALLBACK(void) _Update() { GetInstancePtr()->Update(); }
+  UIWIDGETS_CALLBACK(void) _Update() {
+  GetInstancePtr()->Update();
+  }
 
   UIWIDGETS_CALLBACK(void) _Wait(long max_duration) {
     GetInstancePtr()->Wait(std::chrono::nanoseconds(max_duration));

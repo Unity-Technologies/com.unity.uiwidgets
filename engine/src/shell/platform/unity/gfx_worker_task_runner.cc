@@ -34,10 +34,10 @@ void GfxWorkerTaskRunner::PostTask(UIWidgetsTask uiwidgets_task,
   FML_DCHECK(uiwidgets_target_time_nanos <=
              (uint64_t)fml::TimePoint::Now().ToEpochDelta().ToNanoseconds());
 
-  // UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
-  //     [&on_task_expired = on_task_expired_, uiwidgets_task]() -> void {
-  //       on_task_expired(&uiwidgets_task);
-  //     });
+  UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
+      [&on_task_expired = on_task_expired_, uiwidgets_task]() -> void {
+        on_task_expired(&uiwidgets_task);
+      });
 }
 
 }  // namespace uiwidgets
