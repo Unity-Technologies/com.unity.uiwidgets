@@ -494,29 +494,28 @@ class Build
                 "src/shell/platform/unity/windows/win32_task_runner.h",
         };
 
+        var darwinSources = new NPath[] {
+                "src/shell/platform/unity/darwin/common/uiwidgets_panel.mm",
+                "src/shell/platform/unity/darwin/common/uiwidgets_panel.h",
+                "src/shell/platform/unity/darwin/common/uiwidgets_system.mm",
+                "src/shell/platform/unity/darwin/common/uiwidgets_system.h",
+                "src/shell/platform/unity/darwin/common/cocoa_task_runner.cc",
+                "src/shell/platform/unity/darwin/common/cocoa_task_runner.h",
+        };
+
         var macSources = new NPath[] {
-                "src/shell/platform/unity/darwin/macos/uiwidgets_panel.mm",
-                "src/shell/platform/unity/darwin/macos/uiwidgets_panel.h",
-                "src/shell/platform/unity/darwin/macos/uiwidgets_system.mm",
-                "src/shell/platform/unity/darwin/macos/uiwidgets_system.h",
-                "src/shell/platform/unity/darwin/macos/cocoa_task_runner.cc",
-                "src/shell/platform/unity/darwin/macos/cocoa_task_runner.h",
+                
                 "src/shell/platform/unity/darwin/macos/unity_surface_manager.mm",
                 "src/shell/platform/unity/darwin/macos/unity_surface_manager.h",
         };
 
         var iosSources = new NPath[] {
-                "src/shell/platform/unity/darwin/ios/uiwidgets_panel.mm",
-                "src/shell/platform/unity/darwin/ios/uiwidgets_panel.h",
-                "src/shell/platform/unity/darwin/ios/uiwidgets_system.mm",
-                "src/shell/platform/unity/darwin/ios/uiwidgets_system.h",
-                "src/shell/platform/unity/darwin/ios/cocoa_task_runner.cc",
-                "src/shell/platform/unity/darwin/ios/cocoa_task_runner.h",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.mm",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.h",
         };
 
         np.Sources.Add(c => IsWindows(c), winSources);
+        np.Sources.Add(c => IsMac(c) || IsIosOrTvos(c), darwinSources);
         np.Sources.Add(c => IsMac(c), macSources);
         np.Sources.Add(c => IsIosOrTvos(c), iosSources);
 
@@ -536,6 +535,10 @@ class Build
 
         np.Defines.Add("UIWIDGETS_ENGINE_VERSION=\\\"0.0\\\"", "SKIA_VERSION=\\\"0.0\\\"");
         np.Defines.Add(c => IsMac(c) || IsIosOrTvos(c), "UIWIDGETS_FORCE_ALIGNAS_8=\\\"1\\\"");
+
+        np.Defines.Add(c => IsWindows(c), "__UIWIDGETS_WIN__=1");
+        np.Defines.Add(c => IsMac(c), "__UIWIDGETS_MAC__=1");
+        np.Defines.Add(c => IsIosOrTvos(c), "__UIWIDGETS_IOS__=1");
 
         np.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });

@@ -8,7 +8,12 @@
 #include "shell/platform/unity/gfx_worker_task_runner.h"
 #include "runtime/mono_api.h"
 #include "cocoa_task_runner.h"
-#include "unity_surface_manager.h"
+
+#ifdef __UIWIDGETS_MAC__
+#include "shell/platform/unity/darwin/macos/unity_surface_manager.h"
+#elif __UIWIDGETS_IOS__
+#include "shell/platform/unity/darwin/ios/unity_surface_manager.h"
+#endif
 
 namespace uiwidgets {
 
