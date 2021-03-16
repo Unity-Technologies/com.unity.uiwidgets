@@ -2,76 +2,70 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
-using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
-namespace Unity.UIWidgets.editor2 {
-    
-#region Platform: Windows Specific Functionalities
+namespace Unity.UIWidgets.engine2 {
+    #region Platform: Windows Specific Functionalities
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
     public partial class UIWidgetsPanelWrapper {
-        RenderTexture _renderTexture;
-    
-    
-        public RenderTexture renderTexture {
-            get { return _renderTexture; }
-        }
+        public RenderTexture renderTexture { get; private set; }
 
         void _createRenderTexture(int width, int height, float devicePixelRatio) {
-            D.assert(_renderTexture == null);
+            D.assert(renderTexture == null);
 
             var desc = new RenderTextureDescriptor(
-                width, height, RenderTextureFormat.ARGB32, 0) {
+                width: width, height: height, colorFormat: RenderTextureFormat.ARGB32, 0) {
                 useMipMap = false,
-                autoGenerateMips = false,
+                autoGenerateMips = false
             };
 
-            _renderTexture = new RenderTexture(desc) {hideFlags = HideFlags.HideAndDontSave};
-            _renderTexture.Create();
+            renderTexture = new RenderTexture(desc: desc) {hideFlags = HideFlags.HideAndDontSave};
+            renderTexture.Create();
 
             _width = width;
             _height = height;
-            _devicePixelRatio = devicePixelRatio;
+            this.devicePixelRatio = devicePixelRatio;
         }
 
         void _destroyRenderTexture() {
-            D.assert(_renderTexture != null);
-            ObjectUtils.SafeDestroy(_renderTexture);
-            _renderTexture = null;
+            D.assert(renderTexture != null);
+            ObjectUtils.SafeDestroy(obj: renderTexture);
+            renderTexture = null;
         }
 
         void _enableUIWidgetsPanel(string font_settings) {
-            UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
-                _width, _height, _devicePixelRatio, Application.streamingAssetsPath, font_settings);
+            UIWidgetsPanel_onEnable(ptr: _ptr, renderTexture.GetNativeTexturePtr(),
+                width: _width, height: _height, dpi: devicePixelRatio,
+                streamingAssetsPath: Application.streamingAssetsPath, font_settings: font_settings);
         }
 
         void _resizeUIWidgetsPanel() {
-            UIWidgetsPanel_onRenderTexture(_ptr,
-                _renderTexture.GetNativeTexturePtr(),
-                _width, _height, _devicePixelRatio);
+            UIWidgetsPanel_onRenderTexture(ptr: _ptr,
+                renderTexture.GetNativeTexturePtr(),
+                width: _width, height: _height, dpi: devicePixelRatio);
         }
 
         void _disableUIWidgetsPanel() {
-            _renderTexture = null;
+            renderTexture = null;
         }
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onEnable(IntPtr ptr,
             IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath,
             string font_settings);
 
-        [DllImport(NativeBindings.dllName)]
+        [DllImport(dllName: NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onRenderTexture(
             IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
     }
 #endif
 
-#endregion
+    #endregion
 
 
 #region  Platform: MacOs/iOS Specific Functionalities
@@ -90,7 +84,7 @@ public partial class UIWidgetsPanelWrapper {
 
         _width = width;
         _height = height;
-        _devicePixelRatio = devicePixelRatio;
+        this.devicePixelRatio = devicePixelRatio;
     }
 
     void _destroyRenderTexture() {
@@ -103,7 +97,7 @@ public partial class UIWidgetsPanelWrapper {
 
     void _enableUIWidgetsPanel(string font_settings) {
         D.assert(_renderTexture == null);
-        IntPtr native_tex_ptr = UIWidgetsPanel_onEnable(_ptr, _width, _height, _devicePixelRatio,
+        IntPtr native_tex_ptr = UIWidgetsPanel_onEnable(_ptr, _width, _height, devicePixelRatio,
             Application.streamingAssetsPath, font_settings);
         D.assert(native_tex_ptr != IntPtr.Zero);
 
@@ -118,7 +112,7 @@ public partial class UIWidgetsPanelWrapper {
     void _resizeUIWidgetsPanel() {
         D.assert(_renderTexture == null);
 
-        IntPtr native_tex_ptr = UIWidgetsPanel_onRenderTexture(_ptr, _width, _height, _devicePixelRatio);
+        IntPtr native_tex_ptr = UIWidgetsPanel_onRenderTexture(_ptr, _width, _height, devicePixelRatio);
         D.assert(native_tex_ptr != IntPtr.Zero);
 
         _renderTexture =
@@ -139,239 +133,231 @@ public partial class UIWidgetsPanelWrapper {
 
 #endif
 
-#endregion
+    #endregion
 
 
-#region Window Common Properties and Functions
+    #region Window Common Properties and Functions
 
-public partial class UIWidgetsPanelWrapper {
-    public static UIWidgetsPanelWrapper current {
-        get { return Window.instance._panel; }
-    }
-
-    IntPtr _ptr;
-    GCHandle _handle;
-
-    int _width;
-    int _height;
-    float _devicePixelRatio;
-
-    IUIWidgetsWindow _host;
-
-    public IUIWidgetsWindow window {
-        get { return _host; }
-    }
-
-    public Isolate isolate { get; private set; }
-
-    public float devicePixelRatio {
-        get { return _devicePixelRatio; }
-    }
-
-    public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr,
-        Dictionary<string, object> settings) {
-        D.assert(_renderTexture == null);
-        _recreateRenderTexture(width, height, dpr);
-
-        _handle = GCHandle.Alloc(this);
-        _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, (int) host.getWindowType(), UIWidgetsPanel_entrypoint);
-        _host = host;
-
-        _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(settings));
-        NativeConsole.OnEnable();
-    }
-
-    public void _entryPoint() {
-        try {
-            isolate = Isolate.current;
-            Window.instance._panel = this;
-
-            _host.mainEntry();
+    public partial class UIWidgetsPanelWrapper {
+        public static UIWidgetsPanelWrapper current {
+            get { return Window.instance._panel; }
         }
-        catch (Exception ex) {
-            Debug.LogException(new Exception("exception in main", ex));
+
+        IntPtr _ptr;
+        GCHandle _handle;
+
+        int _width;
+        int _height;
+
+        public IUIWidgetsWindow window { get; private set; }
+
+        public Isolate isolate { get; private set; }
+
+        public float devicePixelRatio { get; private set; }
+
+        public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr, Configurations _configurations) {
+            D.assert(renderTexture == null);
+            _recreateRenderTexture(width: width, height: height, devicePixelRatio: dpr);
+
+            _handle = GCHandle.Alloc(this);
+            _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, (int) host.getWindowType(),
+                entrypointCallback: UIWidgetsPanel_entrypoint);
+            window = host;
+
+            var fontsetting = new Dictionary<string, object>();
+            fontsetting.Add("fonts", _configurations.fontsToObject());
+            _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(message: fontsetting));
+            NativeConsole.OnEnable();
         }
-    }
 
-    public bool didDisplayMetricsChanged(int width, int height, float dpr) {
-        return width != _width || height != _height || dpr != _devicePixelRatio;
-    }
-
-    public void OnDisplayMetricsChanged(int width, int height, float dpr) {
-        if (_ptr != IntPtr.Zero && _renderTexture) {
-            if (_recreateRenderTexture(width, height, dpr)) {
-                _resizeUIWidgetsPanel();
+        public void _entryPoint() {
+            try {
+                isolate = Isolate.current;
+                Window.instance._panel = this;
+                window.mainEntry();
+            }
+            catch (Exception ex) {
+                Debug.LogException(new Exception("exception in main", innerException: ex));
             }
         }
-    }
 
-    public void Destroy() {
-        UIWidgetsPanel_onDisable(_ptr);
-        UIWidgetsPanel_dispose(_ptr);
-        _ptr = IntPtr.Zero;
-
-        _handle.Free();
-        _handle = default;
-
-        _disableUIWidgetsPanel();
-        D.assert(!isolate.isValid);
-    }
-
-    bool _recreateRenderTexture(int width, int height, float devicePixelRatio) {
-        if (_renderTexture != null && _width == width && _height == height &&
-            _devicePixelRatio == devicePixelRatio) {
-            return false;
+        public bool didDisplayMetricsChanged(int width, int height, float dpr) {
+            return width != _width || height != _height || dpr != devicePixelRatio;
         }
 
-        if (_renderTexture) {
-            _destroyRenderTexture();
+        public void OnDisplayMetricsChanged(int width, int height, float dpr) {
+            if (_ptr != IntPtr.Zero && renderTexture) {
+                if (_recreateRenderTexture(width: width, height: height, devicePixelRatio: dpr)) {
+                    _resizeUIWidgetsPanel();
+                }
+            }
+        }
+        public void Destroy() {
+            UIWidgetsPanel_onDisable(ptr: _ptr);
+            UIWidgetsPanel_dispose(ptr: _ptr);
+            _ptr = IntPtr.Zero;
+            _handle.Free();
+            _handle = default;
+
+            _disableUIWidgetsPanel();
+            D.assert(result: !isolate.isValid);
         }
 
-        _createRenderTexture(width, height, devicePixelRatio);
-        return true;
-    }
+        bool _recreateRenderTexture(int width, int height, float devicePixelRatio) {
+            if (renderTexture != null && _width == width && _height == height &&
+                this.devicePixelRatio == devicePixelRatio) {
+                return false;
+            }
 
-    public int registerTexture(Texture texture) {
-        return UIWidgetsPanel_registerTexture(_ptr, texture.GetNativeTexturePtr());
-    }
+            if (renderTexture) {
+                _destroyRenderTexture();
+            }
 
-    public void unregisterTexture(int textureId) {
-        UIWidgetsPanel_unregisterTexture(_ptr, textureId);
-    }
+            _createRenderTexture(width: width, height: height, devicePixelRatio: devicePixelRatio);
+            return true;
+        }
 
-    public void markNewFrameAvailable(int textureId) {
-        UIWidgetsPanel_markNewFrameAvailable(_ptr, textureId);
-    }
+        public int registerTexture(Texture texture) {
+            return UIWidgetsPanel_registerTexture(ptr: _ptr, texture.GetNativeTexturePtr());
+        }
 
-    public void onEditorUpdate() {
-        UIWidgetsPanel_onEditorUpdate(_ptr);
-    }
+        public void unregisterTexture(int textureId) {
+            UIWidgetsPanel_unregisterTexture(ptr: _ptr, textureId: textureId);
+        }
 
-    delegate void UIWidgetsPanel_EntrypointCallback(IntPtr handle);
+        public void markNewFrameAvailable(int textureId) {
+            UIWidgetsPanel_markNewFrameAvailable(ptr: _ptr, textureId: textureId);
+        }
 
-    [MonoPInvokeCallback(typeof(UIWidgetsPanel_EntrypointCallback))]
-    static void UIWidgetsPanel_entrypoint(IntPtr handle) {
-        GCHandle gcHandle = (GCHandle) handle;
-        UIWidgetsPanelWrapper panel = (UIWidgetsPanelWrapper) gcHandle.Target;
-        panel._entryPoint();
-    }
+        public void onEditorUpdate() {
+            UIWidgetsPanel_onEditorUpdate(ptr: _ptr);
+        }
 
-    [DllImport(NativeBindings.dllName)]
-    static extern IntPtr UIWidgetsPanel_constructor(IntPtr handle, int windowType,
-        UIWidgetsPanel_EntrypointCallback entrypointCallback);
+        delegate void UIWidgetsPanel_EntrypointCallback(IntPtr handle);
 
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_dispose(IntPtr ptr);
+        [MonoPInvokeCallback(typeof(UIWidgetsPanel_EntrypointCallback))]
+        static void UIWidgetsPanel_entrypoint(IntPtr handle) {
+            var gcHandle = (GCHandle) handle;
+            var panel = (UIWidgetsPanelWrapper) gcHandle.Target;
+            panel._entryPoint();
+        }
 
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_onDisable(IntPtr ptr);
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern IntPtr UIWidgetsPanel_constructor(IntPtr handle, int windowType,
+            UIWidgetsPanel_EntrypointCallback entrypointCallback);
 
-    [DllImport(NativeBindings.dllName)]
-    static extern int UIWidgetsPanel_registerTexture(IntPtr ptr, IntPtr nativeTexturePtr);
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_dispose(IntPtr ptr);
 
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_unregisterTexture(IntPtr ptr, int textureId);
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onDisable(IntPtr ptr);
 
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_markNewFrameAvailable(IntPtr ptr, int textureId);
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern int UIWidgetsPanel_registerTexture(IntPtr ptr, IntPtr nativeTexturePtr);
+
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_unregisterTexture(IntPtr ptr, int textureId);
+
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_markNewFrameAvailable(IntPtr ptr, int textureId);
 
 #if UNITY_EDITOR
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_onEditorUpdate(IntPtr ptr);
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onEditorUpdate(IntPtr ptr);
 #else
     static void UIWidgetsPanel_onEditorUpdate(IntPtr ptr) { throw new NotImplementedException(); }
 #endif
-}
-
-#endregion
-
-
-#region Input Events Handles
-
-public partial class UIWidgetsPanelWrapper {
-    public void OnMouseMove(Vector2? pos) {
-        if (pos == null) {
-            return;
-        }
-
-        UIWidgetsPanel_onMouseMove(_ptr, pos.Value.x, pos.Value.y);
     }
 
-    public void OnMouseScroll(Vector2 delta, Vector2? pos) {
-        if (pos == null) {
-            return;
+    #endregion
+
+
+    #region Input Events Handles
+
+    public partial class UIWidgetsPanelWrapper {
+        public void OnMouseMove(Vector2? pos) {
+            if (pos == null) {
+                return;
+            }
+
+            UIWidgetsPanel_onMouseMove(ptr: _ptr, x: pos.Value.x, y: pos.Value.y);
         }
-        UIWidgetsPanel_onScroll(_ptr, delta.x, delta.y, pos.Value.x, pos.Value.y);
+
+        public void OnMouseScroll(Vector2 delta, Vector2? pos) {
+            if (pos == null) {
+                return;
+            }
+
+            UIWidgetsPanel_onScroll(ptr: _ptr, x: delta.x, y: delta.y, px: pos.Value.x, py: pos.Value.y);
+        }
+
+        public void OnPointerDown(Vector2? pos, int pointerId) {
+            if (pos == null) {
+                return;
+            }
+
+            // mouse event
+            if (pointerId < 0) {
+                UIWidgetsPanel_onMouseDown(ptr: _ptr, x: pos.Value.x, y: pos.Value.y, button: pointerId);
+            }
+        }
+
+        public void OnPointerUp(Vector2? pos, int pointerId) {
+            if (pos == null) {
+                return;
+            }
+
+            // mouse event
+            if (pointerId < 0) {
+                UIWidgetsPanel_onMouseUp(ptr: _ptr, x: pos.Value.x, y: pos.Value.y, button: pointerId);
+            }
+        }
+
+        public void OnDrag(Vector2? pos, int pointerId) {
+            if (pos == null) {
+                return;
+            }
+
+            // mouse event
+            if (pointerId < 0) {
+                UIWidgetsPanel_onMouseMove(ptr: _ptr, x: pos.Value.x, y: pos.Value.y);
+            }
+        }
+
+        public void OnPointerLeave() {
+            UIWidgetsPanel_onMouseLeave(ptr: _ptr);
+        }
+
+        public void OnKeyDown(Event e) {
+            UIWidgetsPanel_onKey(ptr: _ptr, keyCode: e.keyCode, e.type == EventType.KeyDown);
+            if (e.character != 0 || e.keyCode == KeyCode.Backspace) {
+                PointerEventConverter.KeyEvent.Enqueue(new Event(other: e));
+                // TODO: add on char
+                // UIWidgetsPanel_onChar(_ptr, e.character);
+            }
+        }
+
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onChar(IntPtr ptr, char c);
+
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onKey(IntPtr ptr, KeyCode keyCode, bool isKeyDown);
+
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onMouseDown(IntPtr ptr, float x, float y, int button);
+
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onMouseUp(IntPtr ptr, float x, float y, int button);
+
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onMouseMove(IntPtr ptr, float x, float y);
+
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onMouseLeave(IntPtr ptr);
+
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onScroll(IntPtr ptr, float x, float y, float px, float py);
     }
 
-    public void OnPointerDown(Vector2? pos, int pointerId) {
-        if (pos == null) {
-            return;
-        }
-
-        // mouse event
-        if (pointerId < 0) {
-            UIWidgetsPanel_onMouseDown(_ptr, pos.Value.x, pos.Value.y, pointerId);
-        }
-    }
-
-    public void OnPointerUp(Vector2? pos, int pointerId) {
-        if (pos == null) {
-            return;
-        }
-
-        // mouse event
-        if (pointerId < 0) {
-            UIWidgetsPanel_onMouseUp(_ptr, pos.Value.x, pos.Value.y, pointerId);
-        }
-    }
-
-    public void OnDrag(Vector2? pos, int pointerId) {
-        if (pos == null) {
-            return;
-        }
-
-        // mouse event
-        if (pointerId < 0) {
-            UIWidgetsPanel_onMouseMove(_ptr, pos.Value.x, pos.Value.y);
-        }
-    }
-
-    public void OnPointerLeave() {
-        UIWidgetsPanel_onMouseLeave(_ptr);
-    }
-
-    public void OnKeyDown(Event e) {
-        UIWidgetsPanel_onKey(_ptr, e.keyCode, e.type == EventType.KeyDown);
-        if (e.character != 0 || e.keyCode == KeyCode.Backspace) {
-            PointerEventConverter.KeyEvent.Enqueue(new Event(e));
-            // TODO: add on char
-            // UIWidgetsPanel_onChar(_ptr, e.character);
-        }
-    }
-
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_onChar(IntPtr ptr, char c);
-
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_onKey(IntPtr ptr, KeyCode keyCode, bool isKeyDown);
-
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_onMouseDown(IntPtr ptr, float x, float y, int button);
-
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_onMouseUp(IntPtr ptr, float x, float y, int button);
-
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_onMouseMove(IntPtr ptr, float x, float y);
-
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_onMouseLeave(IntPtr ptr);
-    
-    [DllImport(NativeBindings.dllName)]
-    static extern void UIWidgetsPanel_onScroll(IntPtr ptr, float x, float y, float px, float py);
-}
-
-#endregion
-
+    #endregion
 }
