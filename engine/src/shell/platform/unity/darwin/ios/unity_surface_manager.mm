@@ -152,22 +152,20 @@ uint32_t UnitySurfaceManager::GetFbo()
 
 void UnitySurfaceManager::ReleaseNativeRenderContext()
 {
-  /*
   FML_DCHECK(gl_resource_context_);
-  CGLReleaseContext(gl_resource_context_.CGLContextObj);
+  [gl_resource_context_ release];
   gl_resource_context_ = nullptr;
 
   FML_DCHECK(gl_context_);
-  CGLReleaseContext(gl_context_.CGLContextObj);
+  [gl_context_ release];
   gl_context_ = nullptr;
 
   FML_DCHECK(metal_device_ != nullptr);
-  metal_device_ = nullptr;*/
+  metal_device_ = nullptr;
 }
 
 bool UnitySurfaceManager::ReleaseNativeRenderTexture()
 {
-  /*
   //release gl resources
   FML_DCHECK(default_fbo_ != 0);
   glDeleteFramebuffers(1, &default_fbo_);
@@ -195,7 +193,7 @@ bool UnitySurfaceManager::ReleaseNativeRenderTexture()
 
   //release cv pixelbuffer
   CVPixelBufferRelease(pixelbuffer_ref);
-  pixelbuffer_ref = nullptr;*/
+  pixelbuffer_ref = nullptr;
 
   return true;
 }
