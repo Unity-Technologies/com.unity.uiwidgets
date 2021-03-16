@@ -6,6 +6,8 @@ This is the engine code of UIWidgets.
 
 ## How to Build (Windows)
 
+The UIWidgets engine for Windows can only be built on Windows.
+
 ### Build Skia
 
 1. Install depot_tools
@@ -119,6 +121,8 @@ bee.exe win
 
 ## How to Build (Mac)
 
+The UIWidgets engine for Mac can only be built on Mac.
+
 ### Install Depot_tools
 ```
 git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
@@ -211,6 +215,8 @@ mono bee.exe mac
 
 ## How to Build (IOS)
 
+The UIWidgets engine for iOS can only be built on Mac.
+
 There is a special settings, namely "Enable bitcode" we need set properly when building an ios native plugin.
 Generally, the program is possible to run faster when "Enable bitcode" is true while the size of the plugin
 will also become bigger.
@@ -261,6 +267,10 @@ ninja -C out/ios64 -k 0
 ```
 
 ### Build Flutter Engine
+
+Setting up the Engine development environment
+
+Please follow https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment.
 
 Because the dependencies of "flutter-1.17-candidate.5" for iOS is problematic, we need first sync up our 
 local build dependencies to that of "flutter-1.18-candidate.6". 
