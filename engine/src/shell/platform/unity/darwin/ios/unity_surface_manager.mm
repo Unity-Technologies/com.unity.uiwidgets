@@ -153,12 +153,12 @@ uint32_t UnitySurfaceManager::GetFbo()
 void UnitySurfaceManager::ReleaseNativeRenderContext()
 {
   FML_DCHECK(gl_resource_context_);
-  [gl_resource_context_ release];
   gl_resource_context_ = nullptr;
 
   FML_DCHECK(gl_context_);
-  [gl_context_ release];
   gl_context_ = nullptr;
+
+  [EAGLContext setCurrentContext:nil];
 
   FML_DCHECK(metal_device_ != nullptr);
   metal_device_ = nullptr;
