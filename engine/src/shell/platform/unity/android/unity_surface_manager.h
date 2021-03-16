@@ -45,14 +45,16 @@ namespace uiwidgets
   {
   public:
     static UnitySurfaceManager instance;
-    static void* SetTextureFromUnity(void* tex, int w, int h);
+    static void GetUnityContext();
+
+    static void *SetTextureFromUnity(void *tex, int w, int h);
     static void SetUp();
     static void drawxxx();
 
     UnitySurfaceManager(IUnityInterfaces *unity_interfaces);
     ~UnitySurfaceManager();
 
-    GLuint CreateRenderSurface(void *native_texture_ptr, size_t width, size_t height);
+    GLuint CreateRenderSurface(void *native_texture_ptr);
     void DestroyRenderSurface();
 
     bool ClearCurrent();
@@ -72,24 +74,15 @@ namespace uiwidgets
     bool Initialize(IUnityInterfaces *unity_interfaces);
     void CleanUp();
 
-#ifdef VulkanX
-    IUnityGraphicsVulkan *m_UnityVulkan;
-    UnityVulkanInstance m_Instance;
-
-#endif
     // GrBackendTexture m_backendTex;
     // GrGLTextureInfo textureInfo;
     // sk_sp<SkSurface> m_SkSurface;
 
     // sk_sp<GrContext> gr_context_;
 
-    EGLDisplay egl_display_;
     EGLContext egl_context_;
-#ifndef VulkanX
     EGLContext egl_resource_context_;
     EGLConfig egl_config_;
-    EGLSurface surface;
-#endif
 
     // EGLConfig egl_config_;
     bool initialize_succeeded_;

@@ -7,8 +7,10 @@
 
 namespace uiwidgets {
 
-CocoaTaskRunner::CocoaTaskRunner(const TaskExpiredCallback& on_task_expired)
-    : on_task_expired_(std::move(on_task_expired)) {}
+CocoaTaskRunner::CocoaTaskRunner(pid_t threadId, const TaskExpiredCallback& on_task_expired)
+    : on_task_expired_(std::move(on_task_expired)),
+    threadId(threadId)
+     {}
 
 CocoaTaskRunner::~CocoaTaskRunner() = default;
 
@@ -93,6 +95,11 @@ void CocoaTaskRunner::PostTask(UIWidgetsTask uiwidgets_task,
     std::lock_guard<std::mutex> lock(task_queue_mutex_);
     task_queue_.push(task);
   }
+}
+
+bool CocoaTaskRunner::RunsTasksOnCurrentThread(){
+  pid_t id = gettid();
+  return threadId == id;
 }
 
 void CocoaTaskRunner::AddTaskObserver(intptr_t key,

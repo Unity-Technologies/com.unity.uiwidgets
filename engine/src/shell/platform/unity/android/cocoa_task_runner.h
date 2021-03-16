@@ -18,7 +18,7 @@ class CocoaTaskRunner {
  public:
   using TaskExpiredCallback = std::function<void(const UIWidgetsTask*)>;
 
-  CocoaTaskRunner(const TaskExpiredCallback& on_task_expired);
+  CocoaTaskRunner(pid_t threadId, const TaskExpiredCallback& on_task_expired);
 
   ~CocoaTaskRunner();
 
@@ -31,6 +31,8 @@ class CocoaTaskRunner {
   void AddTaskObserver(intptr_t key, const fml::closure& callback);
 
   void RemoveTaskObserver(intptr_t key);
+
+  bool RunsTasksOnCurrentThread();
 
   FML_DISALLOW_COPY_AND_ASSIGN(CocoaTaskRunner);
 
@@ -55,6 +57,7 @@ class CocoaTaskRunner {
   TaskExpiredCallback on_task_expired_;
   std::mutex task_queue_mutex_;
   std::priority_queue<Task, std::deque<Task>, Task::Comparer> task_queue_;
+  pid_t threadId;
 
   using TaskObservers = std::map<intptr_t, fml::closure>;
   TaskObservers task_observers_;

@@ -14,63 +14,49 @@
 namespace uiwidgets
 {
 
+  static EGLDisplay egl_display_;
+  static EGLContext egl_unity_context_;
+
   template <class T>
   using EGLResult = std::pair<bool, T>;
 
   UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces *unity_interfaces)
-      :
-        egl_display_(EGL_NO_DISPLAY),
+      : // egl_display_(EGL_NO_DISPLAY),
         egl_context_(EGL_NO_CONTEXT),
-        egl_resource_context_(EGL_NO_CONTEXT),
-        surface(EGL_NO_SURFACE)
+  egl_resource_context_(EGL_NO_CONTEXT)
   {
     initialize_succeeded_ = Initialize(unity_interfaces);
   }
 
   UnitySurfaceManager::~UnitySurfaceManager() { CleanUp(); }
 
-  GLuint UnitySurfaceManager::CreateRenderSurface(void *native_texture_ptr, size_t width, size_t height)
+  GLuint UnitySurfaceManager::CreateRenderSurface(void *native_texture_ptr)
   {
-    // unsigned int texture;
-    // glGenTextures(1, &texture);
-    int rowPitch = width * 4;
-    unsigned char *data = new unsigned char[rowPitch * height];
+    auto read = eglGetCurrentSurface(EGL_READ);
+    auto draw = eglGetCurrentSurface(EGL_DRAW);
+    // auto state = eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_) == GL_TRUE;
 
-    unsigned char *dst = (unsigned char *)data;
-    for (size_t y = 0; y < height; ++y)
-    {
-      unsigned char *ptr = dst;
-      for (size_t x = 0; x < width; ++x)
-      {
-        // Simple "plasma effect": several combined sine waves
-        int vv = 255;
+    GLint old_framebuffer_binding;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
 
-        // Write the texture pixel
-        ptr[0] = vv;
-        // ptr[1] = vv;
-        // ptr[2] = vv;
-        ptr[3] = vv;
+    glGenFramebuffers(1, &fbo_);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
 
-        // To next pixel (our pixels are 4 bpp)
-        ptr += 4;
-      }
-
-      // To next image row
-      dst += rowPitch;
-    }
     GLuint gltex = (GLuint)(size_t)(native_texture_ptr);
-    glBindTexture(GL_TEXTURE_2D, gltex);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    delete[](unsigned char *) data;
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gltex, 0);
+    FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
+    // eglMakeCurrent(egl_display_, draw, read, egl_unity_context_);
 
     return fbo_;
   }
 
   void UnitySurfaceManager::DestroyRenderSurface()
   {
-    // FML_DCHECK(fbo_ != 0);
-    // glDeleteFramebuffers(1, &fbo_);
-    // fbo_ = 0;
+    FML_DCHECK(fbo_ != 0);
+    glDeleteFramebuffers(1, &fbo_);
+    fbo_ = 0;
 
     // FML_DCHECK(fbo_texture_ != 0);
     // glDeleteTextures(1, &fbo_texture_);
@@ -131,9 +117,28 @@ namespace uiwidgets
     return {success, success ? egl_config : nullptr};
   }
 
+  static EGLResult<EGLSurface> CreateContext(EGLDisplay display,
+                                             EGLConfig config,
+                                             EGLContext share = EGL_NO_CONTEXT)
+  {
+    EGLint attributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+
+    EGLContext context = eglCreateContext(display, config, share, attributes);
+
+    return {context != EGL_NO_CONTEXT, context};
+  }
+
+   void UnitySurfaceManager::GetUnityContext(){
+    egl_display_ = eglGetCurrentDisplay();
+    egl_unity_context_ = eglGetCurrentContext();
+    FML_CHECK(egl_display_ != EGL_NO_DISPLAY)
+        << "Renderer type is invalid";
+  }
+
   bool UnitySurfaceManager::Initialize(IUnityInterfaces *unity_interfaces)
   {
-    egl_display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    // egl_display_ = eglGetCurrentDisplay();
+    // egl_resource_context_ = eglGetCurrentContext();
     FML_CHECK(egl_display_ != EGL_NO_DISPLAY)
         << "Renderer type is invalid";
 
@@ -148,14 +153,12 @@ namespace uiwidgets
     std::tie(success, egl_config_) = ChooseEGLConfiguration(egl_display_);
     FML_CHECK(success) << "Could not choose an EGL configuration.";
 
-    const EGLint attribs[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
+    std::tie(success, egl_context_) = CreateContext(egl_display_, egl_config_, egl_unity_context_);
 
-    surface = eglCreatePbufferSurface(egl_display_, egl_config_, attribs);
-    success = surface != EGL_NO_SURFACE;
+     std::tie(success, egl_resource_context_) = CreateContext(egl_display_, egl_config_, egl_context_);
 
-    EGLint attributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-    egl_context_ = eglCreateContext(egl_display_, egl_config_, EGL_NO_CONTEXT, attributes);
-    return true;
+
+    return success;
   }
 
   void UnitySurfaceManager::CleanUp()
