@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -82,12 +83,14 @@ namespace Unity.UIWidgets.material {
                     mainAxisAlignment: alignment ?? barTheme?.alignment ?? MainAxisAlignment.end,
                     mainAxisSize: mainAxisSize ?? barTheme?.mainAxisSize ?? MainAxisSize.max,
                     overflowDirection: overflowDirection ?? barTheme?.overflowDirection ?? VerticalDirection.down,
-                    children: children.Select((Widget childWidget) => {
+                    children: 
+                   
+                    ExternalUtils<Widget>.SelectList(children,((Widget childWidget) => {
                         return (Widget) new Padding(
                             padding: EdgeInsets.symmetric(horizontal: paddingUnit),
                             child: childWidget
                         );
-                    }).ToList(),
+                    })),
                     overflowButtonSpacing: overflowButtonSpacing
                 )
             );

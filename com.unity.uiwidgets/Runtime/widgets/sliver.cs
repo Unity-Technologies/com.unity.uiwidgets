@@ -767,7 +767,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            _childElements.Values.Where(child => {
+            ExternalUtils<Element>.WhereList(_childElements.Values,(child => {
                 SliverMultiBoxAdaptorParentData parentData =
                     (SliverMultiBoxAdaptorParentData) child.renderObject.parentData;
                 float itemExtent = 0;
@@ -784,7 +784,7 @@ namespace Unity.UIWidgets.widgets {
                        parentData.layoutOffset < renderObject.constraints.scrollOffset + renderObject.constraints.remainingPaintExtent &&
                        parentData.layoutOffset + itemExtent > renderObject.constraints.scrollOffset;
 
-            }).ToList().ForEach(e => visitor(e));
+            })).ForEach(e => visitor(e));
         }
     }
 

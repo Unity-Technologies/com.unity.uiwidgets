@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -386,15 +387,17 @@ namespace Unity.UIWidgets.material {
             List<TableColumnWidth> tableColumns =
                 new List<TableColumnWidth>(new TableColumnWidth[columns.Count + (displayCheckboxColumn ? 1 : 0)]);
             
-            List<TableRow> tableRows = Enumerable.Range(0, rows.Count + 1).Select((index) => {
-                return new TableRow(
-                    key: index == 0 ? _headingRowKey : rows[index - 1].key,
-                    decoration: index > 0 && rows[index - 1].selected
-                        ? _kSelectedDecoration
-                        : _kUnselectedDecoration,
-                    children: new List<Widget>(new Widget[tableColumns.Count])
-                );
-            }).ToList();
+            List<TableRow> tableRows =
+                ExternalUtils<TableRow,int>.SelectList(Enumerable.Range(0, rows.Count + 1),
+                    (index) => {
+                    return new TableRow(
+                        key: index == 0 ? _headingRowKey : rows[index - 1].key,
+                        decoration: index > 0 && rows[index - 1].selected
+                            ? _kSelectedDecoration
+                            : _kUnselectedDecoration,
+                        children: new List<Widget>(new Widget[tableColumns.Count])
+                    );
+                });
 
             int rowIndex;
 
@@ -492,10 +495,9 @@ namespace Unity.UIWidgets.material {
 
                 displayColumnIndex += 1;
             }
-
+            var columnWidth = ExternalUtils<int, TableColumnWidth>.SelectDictionary(tableColumns, ((TableColumnWidth x) => tableColumns.IndexOf(x)));
             return new Table(
-                columnWidths: tableColumns.Select((x, i) => new {x, i})
-                    .ToDictionary(a => a.i, a => a.x),
+                columnWidths: columnWidth,
                 children: tableRows
             );
         }

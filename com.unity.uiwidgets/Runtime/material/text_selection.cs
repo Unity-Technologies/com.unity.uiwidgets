@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
@@ -272,7 +273,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            foreach (var child in children.Where(_shouldPaint)) {
+            foreach (var child in ExternalUtils<Element>.WhereList(children,(_shouldPaint))) {
                 visitor(child);
             }
         }

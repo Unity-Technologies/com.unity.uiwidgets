@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace Unity.UIWidgets.external
-{    class SplayTree<TKey, TValue> : IDictionary<TKey, TValue> where TKey : IComparable<TKey> {
+namespace Unity.UIWidgets.external {    
+    class SplayTree<TKey, TValue> : IDictionary<TKey, TValue> where TKey : IComparable<TKey> {
         SplayTreeNode root;
         int count;
         int version = 0;
@@ -516,6 +517,94 @@ namespace Unity.UIWidgets.external
             IEnumerator IEnumerable.GetEnumerator() {
                 return GetEnumerator();
             }
+        }
+    }
+
+    public class ExternalUtils<T,S>
+    {
+        public delegate T CreateItem(S item);
+        public delegate bool FilterDict(S value);
+        public static List<T> SelectList(IEnumerable<S> items,CreateItem createItem)
+        {
+            if (items == null)
+                return null;
+            List<T> results = new List<T>();
+            foreach (var item in items)
+            {
+                results.Add(createItem(item));
+            }
+
+            return results;
+        }
+
+        public static T[] SelectArray(List<S> items,CreateItem createItem)
+        {
+            if (items == null)
+                return null;
+            
+            T[] results = new T[items.Count()];
+            foreach (var item in items)
+            { 
+                int i = items.IndexOf(item);
+                results[i] = createItem(item);
+            }
+            return results;
+        }
+
+        public static Dictionary<T,S> SelectDictionary(IEnumerable<S> items,CreateItem createItem)
+        {
+            if (items == null)
+                return null;
+            Dictionary<T,S> results = new Dictionary<T,S>();
+            foreach (var item in items)
+            {
+                results.Add(createItem(item),item);
+            }
+            return results;
+        }
+        public static Dictionary<T,S> WhereDictionary(Dictionary<T,S> items,FilterDict filterDict)
+        {
+            if (items == null)
+                return null;
+            Dictionary<T,S> results = new Dictionary<T,S>();
+            foreach (var item in items)
+            {
+                if(filterDict(item.Value))
+                    results.Add(item.Key,item.Value);
+            }
+            return results;
+        }
+
+    }
+    public class ExternalUtils<T>
+    {
+        public delegate T CreateItem(T item);
+        
+        public delegate bool FilterItem(T item);
+        public static List<T> SelectList(IEnumerable<T> items,CreateItem createItem)
+        {
+            if (items == null)
+                return null;
+            List<T> results = new List<T>();
+            foreach (var item in items)
+            {
+                results.Add(createItem(item));
+            }
+
+            return results;
+        }
+        public static List<T> WhereList(IEnumerable<T> items,FilterItem filterItem)
+        {
+            if (items == null)
+                return null;
+            List<T> results = new List<T>();
+            foreach (var item in items)
+            {
+                if(filterItem(item))
+                    results.Add(item);
+            }
+
+            return results;
         }
     }
 }

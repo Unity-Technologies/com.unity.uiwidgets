@@ -1473,12 +1473,13 @@ namespace Unity.UIWidgets.widgets {
             );
         }
 
-        void updateRenderObject(BuildContext context, RenderMouseRegion renderObject) {
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            RenderMouseRegion _renderObject = (RenderMouseRegion) renderObject;
             MouseRegion widget = owner.widget;
-            renderObject.onEnter = widget.onEnter;
-            renderObject.onHover = widget.onHover;
-            renderObject.onExit = owner.getHandleExit();
-            renderObject.opaque = widget.opaque;
+            _renderObject.onEnter = widget.onEnter;
+            _renderObject.onHover = widget.onHover;
+            _renderObject.onExit = owner.getHandleExit();
+            _renderObject.opaque = widget.opaque;
         }
     }
 

@@ -951,7 +951,7 @@ namespace Unity.UIWidgets.external.simplejson
         {
             try
             {
-                var item = m_Dict.Where(k => k.Value == aNode).First();
+                var item = ExternalUtils<string, JSONNode>.WhereDictionary(m_Dict,(k => k.Value == aNode)).First();
                 m_Dict.Remove(item.Key);
                 return aNode;
             }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -1024,17 +1025,14 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (initialRoute != null) {
-                _history.AddRange(
+                var routes = 
                     widget.onGenerateInitialRoutes(
                         this,
                         widget.initialRoute ?? Navigator.defaultRouteName
-                    ).Select((Route route) =>
-                            new _RouteEntry(
-                                route,
-                                initialState: _RouteLifecycle.add
-                            )
-                    )
-                );
+                    );
+                _history.AddRange(ExternalUtils<_RouteEntry,Route>.SelectList(routes, ((Route route) =>
+                         new _RouteEntry(route, initialState: _RouteLifecycle.add))));
+
             }
             D.assert(!_debugLocked);
             D.assert(() => {
@@ -1953,7 +1951,7 @@ namespace Unity.UIWidgets.widgets {
 
         public Future<bool> maybePop<T>(T result = default(T)) {
             ///asyn
-            _RouteEntry lastEntry = null; //_history.Where(_RouteEntry.isPresentPredicate);
+            _RouteEntry lastEntry = null; 
             foreach (_RouteEntry routeEntry in _history) {
                 if (_RouteEntry.isPresentPredicate(routeEntry)) {
                     lastEntry = routeEntry;

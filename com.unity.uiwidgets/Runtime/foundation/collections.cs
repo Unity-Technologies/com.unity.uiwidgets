@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.InternalBridge;
 
 namespace Unity.UIWidgets.foundation {
@@ -123,8 +124,7 @@ namespace Unity.UIWidgets.foundation {
             if (it == null) {
                 return null;
             }
-
-            return "{ " + string.Join(", ", it.Select(item => item.ToString())) + " }";
+            return "{ " + string.Join(", ", ExternalUtils<string,T>.SelectList(it,(item => item.ToString()))) + " }";
         }
 
         public static void reset<T>(this List<T> list, int size) {

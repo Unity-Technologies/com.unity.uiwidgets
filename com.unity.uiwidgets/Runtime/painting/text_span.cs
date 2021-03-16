@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.ui;
@@ -262,15 +263,15 @@ namespace Unity.UIWidgets.painting {
             if (children == null) {
                 return new List<DiagnosticsNode>();
             }
-
-            return children.Select((child) => {
-                if (child != null) {
-                    return child.toDiagnosticsNode();
-                }
-                else {
-                    return DiagnosticsNode.message("<null child>");
-                }
-            }).ToList();
+            return ExternalUtils<DiagnosticsNode, InlineSpan>.SelectList(children,(
+                (child) => {
+                    if (child != null) {
+                        return child.toDiagnosticsNode();
+                    }
+                    else {
+                        return DiagnosticsNode.message("<null child>");
+                    }
+                }));
         }
 
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -1214,7 +1215,7 @@ namespace Unity.UIWidgets.widgets {
 
                             if (keys.isNotEmpty()) {
                                 var keyStringCount = new Dictionary<string, int>();
-                                foreach (string key in keys.Select(key => key.ToString())) {
+                                foreach (string key in ExternalUtils<string,GlobalKey>.SelectList(keys,(key => key.ToString()))) {
                                     if (keyStringCount.ContainsKey(key)) {
                                         keyStringCount[key] += 1;
                                     }
@@ -1238,7 +1239,7 @@ namespace Unity.UIWidgets.widgets {
 
                                 var elements = _debugElementsThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans.Keys;
                                 var elementStringCount = new Dictionary<string, int>();
-                                foreach (string element in elements.Select(element => element.ToString())) {
+                                foreach (string element in ExternalUtils<string,Element>.SelectList(elements,(element => element.ToString()))) {
                                     if (elementStringCount.ContainsKey(element)) {
                                         elementStringCount[element] += 1;
                                     }
@@ -1462,8 +1463,7 @@ namespace Unity.UIWidgets.widgets {
         public static DiagnosticsNode describeElements(string name, IEnumerable<Element> elements) {
             return new DiagnosticsBlock(
                 name: name,
-                children: elements.Select((Element element) => new DiagnosticsProperty<Element>("", element))
-                    .ToList<DiagnosticsNode>(),
+                children: ExternalUtils<DiagnosticsNode,Element>.SelectList(elements,((Element element) => new DiagnosticsProperty<Element>("", element))),
                 allowTruncate: true
             );
         }
@@ -2321,10 +2321,9 @@ namespace Unity.UIWidgets.widgets {
 
             properties.add(new FlagProperty("dirty", value: dirty, ifTrue: "dirty"));
             if (_dependencies != null && _dependencies.isNotEmpty()) {
-                List<DiagnosticsNode> diagnosticsDependencies = _dependencies
-                    .Select((InheritedElement element) =>
-                        element.widget.toDiagnosticsNode(style: DiagnosticsTreeStyle.sparse))
-                    .ToList();
+                List<DiagnosticsNode> diagnosticsDependencies = ExternalUtils<DiagnosticsNode,InheritedElement>.SelectList(_dependencies,
+                    ((InheritedElement element) =>
+                        element.widget.toDiagnosticsNode(style: DiagnosticsTreeStyle.sparse)));
                 properties.add(new DiagnosticsProperty<List<DiagnosticsNode>>("dependencies", diagnosticsDependencies));
             }
         }
@@ -3517,7 +3516,9 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected IEnumerable<Element> children {
-            get { return _children.Where((child) => !_forgottenChildren.Contains(child)); }
+            get {
+                return ExternalUtils<Element>.WhereList(_children,((child) => !_forgottenChildren.Contains(child)));
+            }
         }
 
         List<Element> _children;

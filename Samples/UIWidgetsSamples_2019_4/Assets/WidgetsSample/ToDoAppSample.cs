@@ -8,6 +8,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Unity.UIWidgets.external;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -166,7 +167,7 @@ namespace UIWidgetsSample
 
             Widget contents()
             {
-                var children = this.items.Select((item) =>
+                ExternalUtils<Widget,ToDoItem>.CreateItem createItem = (ToDoItem item) =>
                 {
                     return (Widget) new Text(
                         item.content, style: new TextStyle(
@@ -174,7 +175,8 @@ namespace UIWidgetsSample
                             height: 1.5f
                         )
                     );
-                });
+                };
+                var children = ExternalUtils<Widget,ToDoItem>.SelectList(this.items, createItem);
                 return new Flexible(
                     child: new ListView(
                         physics: new AlwaysScrollableScrollPhysics(),

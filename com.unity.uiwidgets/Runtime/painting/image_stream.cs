@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler2;
 using Unity.UIWidgets.ui;
@@ -309,7 +310,7 @@ namespace Unity.UIWidgets.painting {
                 return;
             }
 
-            var localListeners = _listeners.Select(l => l).ToList();
+            var localListeners = ExternalUtils<ImageStreamListener>.SelectList(_listeners,(l => l));
             foreach (var listener in localListeners) {
                 try {
                     listener.onImage(image, false);
@@ -336,11 +337,9 @@ namespace Unity.UIWidgets.painting {
                 silent: silent
             );
 
-            var localErrorListeners = _listeners
-                .Select(l => l.onError)
-                .Where(l => l != null)
-                .ToList();
-
+            var localErrorListeners = ExternalUtils<ImageErrorListener,ImageStreamListener>.SelectList(_listeners, (l => l.onError));
+            localErrorListeners = ExternalUtils<ImageErrorListener>.WhereList(localErrorListeners,(l => l != null));
+            
             if (localErrorListeners.isEmpty()) {
                 UIWidgetsError.reportError(_currentError);
             }

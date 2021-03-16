@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -56,8 +57,7 @@ namespace Unity.UIWidgets.widgets {
             if (pendingList == null) {
                 return Future.value(output).to<Dictionary<Type, object>>();
             }
-
-            return Future.wait<object>(pendingList.Select(p => p.futureValue))
+            return Future.wait<object>(ExternalUtils<Future<object>,_Pending>.SelectList( pendingList,(p => p.futureValue)))
                 .then(values => {
                     
                     var list = (List<object>)values;

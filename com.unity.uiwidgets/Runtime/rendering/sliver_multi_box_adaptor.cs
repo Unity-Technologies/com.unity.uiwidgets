@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -325,15 +326,15 @@ namespace Unity.UIWidgets.rendering {
                     trailingGarbage -= 1;
                 }
 
-                _keepAliveBucket.Values.Where(child => {
+                ExternalUtils<RenderBox>.WhereList(_keepAliveBucket.Values,(child => {
                     SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
                     return !childParentData.keepAlive;
-                }).ToList().ForEach(_childManager.removeChild);
+                })).ForEach(_childManager.removeChild);
 
-                D.assert(_keepAliveBucket.Values.Where(child => {
+                D.assert(ExternalUtils<RenderBox>.WhereList(_keepAliveBucket.Values,(child => {
                     SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
                     return !childParentData.keepAlive;
-                }).ToList().isEmpty());
+                })).isEmpty());
             });
         }
 

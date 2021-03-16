@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -20,7 +21,7 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key: key, children: slivers) {
             D.assert(offset != null);
             D.assert(slivers != null);
-            D.assert(center == null || slivers.Where((Widget child) => child.key == center).Count() == 1);
+            D.assert(center == null || ExternalUtils<Widget>.WhereList(slivers,((Widget child) => child.key == center)).Count() == 1);
             D.assert(cacheExtentStyle != null);
             D.assert(cacheExtentStyle != CacheExtentStyle.viewport || cacheExtent != null);
             this.axisDirection = axisDirection;
@@ -142,10 +143,10 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            children.Where(e => {
+            ExternalUtils<Element>.WhereList(children,(e => {
                 RenderSliver renderSliver = (RenderSliver) e.renderObject;
                 return renderSliver.geometry.visible;
-            }).ToList().ForEach(e => visitor(e));
+            })).ForEach(e => visitor(e));
         }
     }
 

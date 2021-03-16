@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.cupertino;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -598,9 +599,9 @@ namespace Unity.UIWidgets.widgets {
         
         public override List<DiagnosticsNode> debugDescribeChildren() {
             int count = 1;
-            return _children.Select((FocusNode child)=> {
-              return child.toDiagnosticsNode(name: $"Child {count++}");
-            }).ToList();
+            return ExternalUtils<DiagnosticsNode, FocusNode>.SelectList(_children, (FocusNode child) => {
+                return child.toDiagnosticsNode(name: $"Child {count++}");
+            });
         }
         
         public override string toStringShort() {//override
@@ -712,9 +713,9 @@ namespace Unity.UIWidgets.widgets {
             } 
             List<string> childList = new List<string>();
             _focusedChildren.Reverse();
-            childList = _focusedChildren.Select((FocusNode child)=> {
-              return child.toStringShort();
-            }).ToList();
+            childList = ExternalUtils<string,FocusNode>.SelectList(_focusedChildren, (FocusNode child) => {
+                return child.toStringShort();
+            });
             properties.add(new EnumerableProperty<string>("focusedChildren", childList, defaultValue: new List<string>()));
         }
     }
@@ -934,10 +935,12 @@ namespace Unity.UIWidgets.widgets {
                     _dirtyNodes.Add(_primaryFocus);
                 }
             }
-            D.assert(FocusManagerUtils._focusDebug($"Notifying {_dirtyNodes.Count} dirty nodes:", 
-                _dirtyNodes.ToList().Select((FocusNode node) => {
+           
+            D.assert(FocusManagerUtils._focusDebug($"Notifying {_dirtyNodes.Count} dirty nodes:",
+                ExternalUtils<string,FocusNode>.SelectList(_dirtyNodes,((FocusNode node) => {
                     return node.toString();
-                }).ToList()));
+                }))
+            ));
             foreach ( FocusNode node in _dirtyNodes) {
                 node._notify();
             }
