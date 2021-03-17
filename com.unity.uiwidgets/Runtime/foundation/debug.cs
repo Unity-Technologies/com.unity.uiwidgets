@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using UnityEditor;
+using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Debug = UnityEngine.Debug;
@@ -74,7 +75,7 @@ namespace Unity.UIWidgets.foundation {
         static bool enableDebug {
             get {
                 if (_enableDebug == null) {
-                    _enableDebug = EditorPrefs.GetBool("EnableDebugLog");
+                    _enableDebug = PlayerPrefs.GetInt("UIWidgetsDebug") == 1;
                 }
                 return _enableDebug.Value;
             }
@@ -83,7 +84,7 @@ namespace Unity.UIWidgets.foundation {
                     return;
                 }
                 _enableDebug = value;
-                EditorPrefs.SetBool("EnableDebugLog",value);
+                PlayerPrefs.SetInt("UIWidgetsDebug",value ? 1 : 0);
             }
         }
         
@@ -97,7 +98,6 @@ namespace Unity.UIWidgets.foundation {
             Menu.SetChecked("UIWidgets/EnableDebug", enableDebug );
             return true;
         }
-       
         public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) { 
             var path = new Path();
             path.fillType = PathFillType.evenOdd;

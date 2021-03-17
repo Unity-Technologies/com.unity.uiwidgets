@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.services;
@@ -184,7 +185,7 @@ namespace Unity.UIWidgets.widgets {
                     return a.debugName.CompareTo(strB: b.debugName);
                 }
             );
-            var results = sortedKeys.Select(key => key.debugName);
+            var results = LinqUtils<string, LogicalKeyboardKey>.SelectList(sortedKeys, (key => key.debugName));
             return string.Join(" + ", values: results);
         }
 

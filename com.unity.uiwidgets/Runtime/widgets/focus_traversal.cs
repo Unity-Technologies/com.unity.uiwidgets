@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -510,8 +511,8 @@ namespace Unity.UIWidgets.widgets {
         public static TextDirection _findDirectionality(BuildContext context) {
             return (context.getElementForInheritedWidgetOfExactType<Directionality>().widget as Directionality).textDirection;
         }
-        public static TextDirection commonDirectionalityOf(List<_ReadingOrderSortData> list) { 
-            IEnumerable<HashSet<Directionality>> allAncestors = list.Select((_ReadingOrderSortData member) => new HashSet<Directionality>(member.directionalAncestors)); 
+        public static TextDirection commonDirectionalityOf(List<_ReadingOrderSortData> list) {
+            IEnumerable<HashSet<Directionality>> allAncestors = LinqUtils<HashSet<Directionality>, _ReadingOrderSortData>.SelectList(list, ((_ReadingOrderSortData member) => new HashSet<Directionality>(member.directionalAncestors)));
             HashSet<Directionality> common = null; 
             foreach ( HashSet<Directionality> ancestorSet in allAncestors) { 
                 common = common ?? ancestorSet; 
@@ -581,7 +582,7 @@ namespace Unity.UIWidgets.widgets {
         Rect _rect; 
         Rect  rect {
             get {if (_rect == null) {
-                    foreach(Rect rect in members.Select(
+                    foreach(Rect rect in LinqUtils<Rect,_ReadingOrderSortData>.SelectList(members,
                         (_ReadingOrderSortData data) => data.rect)){
                         _rect = _rect ?? rect;
                         _rect = _rect.expandToInclude(rect);
@@ -682,9 +683,9 @@ namespace Unity.UIWidgets.widgets {
 
             List<_ReadingOrderSortData> inBand(_ReadingOrderSortData current, IEnumerable<_ReadingOrderSortData> _candidates) { 
                 Rect band = Rect.fromLTRB(float.NegativeInfinity, current.rect.top, float.PositiveInfinity, current.rect.bottom);
-                return _candidates.Where((_ReadingOrderSortData item)=> {
+                return LinqUtils<_ReadingOrderSortData>.WhereList(_candidates,((_ReadingOrderSortData item)=> {
                     return !item.rect.intersect(band).isEmpty;
-                }).ToList();
+                }));
             }
             List<_ReadingOrderSortData> inBandOfTop = inBand(topmost, candidates);
             D.assert(topmost.rect.isEmpty || inBandOfTop.isNotEmpty());
@@ -822,7 +823,7 @@ namespace Unity.UIWidgets.widgets {
               ); 
                 return a.order.CompareTo(b.order); 
             }); 
-            return ordered.Select((_OrderedFocusInfo info) => info.node).Concat(unordered);
+           return LinqUtils<FocusNode,_OrderedFocusInfo>.SelectList(ordered,((_OrderedFocusInfo info) => info.node)).Concat(unordered);
         }
     }
 

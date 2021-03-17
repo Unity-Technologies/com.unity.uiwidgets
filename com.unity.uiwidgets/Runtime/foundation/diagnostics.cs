@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
@@ -812,9 +813,9 @@ namespace Unity.UIWidgets.foundation {
                 builder.writeStretched(config.suffixLineOne, builder.wrapWidth.Value);
             }
 
-            IEnumerable<DiagnosticsNode> propertiesIterable = node.getProperties().Where(
+            IEnumerable<DiagnosticsNode> propertiesIterable = LinqUtils<DiagnosticsNode>.WhereList(node.getProperties(), (
                 (DiagnosticsNode n) => !n.isFiltered(_minLevel)
-            );
+            ));
             List<DiagnosticsNode> properties;
             if (_maxDescendentsTruncatableNode >= 0 && node.allowTruncate) {
                 if (propertiesIterable.Count() < _maxDescendentsTruncatableNode) {
@@ -1659,11 +1660,10 @@ namespace Unity.UIWidgets.foundation {
             }
 
             if (parentConfiguration != null && !parentConfiguration.lineBreakProperties) {
-                return string.Join(", ", value.Select(v => v.ToString()).ToArray());
+               return string.Join(", ", LinqUtils<string, T>.SelectList(value, (v => v.ToString())));
             }
-
-            return string.Join(style == DiagnosticsTreeStyle.singleLine ? ", " : "\n",
-                value.Select(v => v.ToString()).ToArray());
+            return string.Join(style == DiagnosticsTreeStyle.singleLine ? ", " : "\n", 
+                LinqUtils<string, T>.SelectList(value,  (v => v.ToString())));
         }
 
         public override DiagnosticLevel level {
@@ -1681,7 +1681,7 @@ namespace Unity.UIWidgets.foundation {
         public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
             var json = base.toJsonMap(Delegate);
             if (value != null) {
-                json["values"] = value.Select(v => v.ToString()).ToList();
+                json["values"] = LinqUtils<string, T>.SelectList(value, (v => v.ToString()));
             }
 
             return json;
@@ -2432,8 +2432,9 @@ namespace Unity.UIWidgets.foundation {
                 result.Append(joiner);
                 DiagnosticPropertiesBuilder builder = new DiagnosticPropertiesBuilder();
                 debugFillProperties(builder);
-                result.Append(string.Join(joiner,
-                    builder.properties.Where(n => !n.isFiltered(minLevel)).Select(n => n.ToString()).ToArray())
+                result.Append(string.Join(joiner,LinqUtils<string,DiagnosticsNode>.SelectList(
+                    LinqUtils<DiagnosticsNode>.WhereList(builder.properties, (n => !n.isFiltered(minLevel)))
+                    ,(n => n.ToString())))
                 );
                 shallowString = result.ToString();
                 return true;

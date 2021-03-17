@@ -461,7 +461,7 @@ namespace Unity.UIWidgets.service {
         }
 
         public override void setEditingState(TextEditingValue value) {
-            UIWidgetsTextInputSetTextInputEditingState(value.toJson().ToString());
+            UIWidgetsTextInputSetTextInputEditingState(value.toJSON().ToString());
         }
 
         public override void setIMEPos(Offset imeGlobalPos) {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
@@ -495,8 +496,7 @@ namespace Unity.UIWidgets.widgets {
                 properties.add(DiagnosticsNode.message("DISPOSED"));
             }
             else {
-                List<string> gestures = _recognizers.Values.Select(recognizer => recognizer.debugDescription)
-                    .ToList();
+                List<string> gestures = LinqUtils<string, GestureRecognizer>.SelectList(_recognizers.Values,  (recognizer => recognizer.debugDescription));
                 properties.add(new EnumerableProperty<string>("gestures", gestures, ifEmpty: "<none>"));
                 properties.add(new EnumerableProperty<GestureRecognizer>("recognizers", _recognizers.Values,
                     level: DiagnosticLevel.fine));
