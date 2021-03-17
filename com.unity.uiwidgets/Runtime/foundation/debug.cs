@@ -75,7 +75,7 @@ namespace Unity.UIWidgets.foundation {
         static bool enableDebug {
             get {
                 if (_enableDebug == null) {
-                    _enableDebug = PlayerPrefs.GetInt("EnableDebugLog") == 1;
+                    _enableDebug = PlayerPrefs.GetInt("UIWidgetsDebug") == 1;
                 }
                 return _enableDebug.Value;
             }
@@ -84,7 +84,7 @@ namespace Unity.UIWidgets.foundation {
                     return;
                 }
                 _enableDebug = value;
-                PlayerPrefs.SetInt("EnableDebugLog",value ? 1 : 0);
+                PlayerPrefs.SetInt("UIWidgetsDebug",value ? 1 : 0);
             }
         }
         
