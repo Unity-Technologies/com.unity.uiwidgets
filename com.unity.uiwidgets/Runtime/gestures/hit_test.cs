@@ -93,7 +93,7 @@ namespace Unity.UIWidgets.gestures {
 
         public override string ToString() {
             return
-                $"HitTestResult({(_path.isEmpty() ? "<empty path>" : string.Join(", ", ExternalUtils<string,HitTestEntry>.SelectList(_path,(x => x.ToString())) ))})";
+                $"HitTestResult({(_path.isEmpty() ? "<empty path>" : string.Join(", ", LinqUtils<string,HitTestEntry>.SelectList(_path, (x => x.ToString())) ))})";
            }
     }
 }

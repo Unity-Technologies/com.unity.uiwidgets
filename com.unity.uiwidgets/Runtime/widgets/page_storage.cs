@@ -26,7 +26,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string ToString() {
-            return $"StorageEntryIdentifier({string.Join(":", ExternalUtils<string,PageStorageKey>.SelectList(keys,(x => x.ToString())))})";
+            return $"StorageEntryIdentifier({string.Join(":", LinqUtils<string, PageStorageKey>.SelectList(keys, (x => x.ToString())))})";
         }
 
         public bool Equals(_StorageEntryIdentifier other) {

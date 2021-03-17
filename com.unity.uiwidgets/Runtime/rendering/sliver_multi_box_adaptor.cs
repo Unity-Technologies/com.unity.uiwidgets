@@ -326,12 +326,12 @@ namespace Unity.UIWidgets.rendering {
                     trailingGarbage -= 1;
                 }
 
-                ExternalUtils<RenderBox>.WhereList(_keepAliveBucket.Values,(child => {
+                LinqUtils<RenderBox>.WhereList(_keepAliveBucket.Values, (child => {
                     SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
                     return !childParentData.keepAlive;
                 })).ForEach(_childManager.removeChild);
 
-                D.assert(ExternalUtils<RenderBox>.WhereList(_keepAliveBucket.Values,(child => {
+                D.assert(LinqUtils<RenderBox>.WhereList(_keepAliveBucket.Values, (child => {
                     SliverMultiBoxAdaptorParentData childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
                     return !childParentData.keepAlive;
                 })).isEmpty());

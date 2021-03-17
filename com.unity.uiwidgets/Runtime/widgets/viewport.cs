@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key: key, children: slivers) {
             D.assert(offset != null);
             D.assert(slivers != null);
-            D.assert(center == null || ExternalUtils<Widget>.WhereList(slivers,((Widget child) => child.key == center)).Count() == 1);
+            D.assert(center == null || LinqUtils<Widget>.WhereList(slivers,((Widget child) => child.key == center)).Count() == 1);
             D.assert(cacheExtentStyle != null);
             D.assert(cacheExtentStyle != CacheExtentStyle.viewport || cacheExtent != null);
             this.axisDirection = axisDirection;
@@ -143,7 +143,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            ExternalUtils<Element>.WhereList(children,(e => {
+            LinqUtils<Element>.WhereList(children, (e => {
                 RenderSliver renderSliver = (RenderSliver) e.renderObject;
                 return renderSliver.geometry.visible;
             })).ForEach(e => visitor(e));

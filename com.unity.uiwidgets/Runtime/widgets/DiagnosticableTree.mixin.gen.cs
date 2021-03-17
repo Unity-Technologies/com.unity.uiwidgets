@@ -25,10 +25,8 @@ namespace Unity.UIWidgets.foundation {
                 result.Append(joiner);
                 DiagnosticPropertiesBuilder builder = new DiagnosticPropertiesBuilder();
                 debugFillProperties(builder);
-                var property = ExternalUtils<DiagnosticsNode>.WhereList(builder.properties, (n => !n.isFiltered(minLevel)));
                 result.Append(string.Join(joiner,
-                    ExternalUtils<string,DiagnosticsNode>.SelectList(property,(n => n.ToString()))
-                    )
+                    LinqUtils<string,DiagnosticsNode>.SelectList(LinqUtils<DiagnosticsNode>.WhereList(builder.properties, (n => !n.isFiltered(minLevel))),(n => n.ToString())))
                 );
                 shallowString = result.ToString();
                 return true;

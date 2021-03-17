@@ -120,7 +120,7 @@ namespace Unity.UIWidgets.painting {
 
             D.assert(colors.Count >= 2, () => "colors list must have at least two colors");
             float separation = 1.0f / (colors.Count - 1);
-            return ExternalUtils<float, int>.SelectList(Enumerable.Range(0, colors.Count), (i => i * separation));
+            return LinqUtils<float, int>.SelectList(Enumerable.Range(0, colors.Count), (i => i * separation));
         }
 
         public abstract Shader createShader(Rect rect, TextDirection? textDirection = null);
@@ -205,7 +205,7 @@ namespace Unity.UIWidgets.painting {
             return new LinearGradient(
                 begin: begin,
                 end: end,
-                colors: ExternalUtils<Color>.SelectList(colors,(color => Color.lerp(null, color, factor))),
+                colors: LinqUtils<Color>.SelectList(colors,(color => Color.lerp(null, color, factor))),
                 stops: stops,
                 tileMode: tileMode
             );
@@ -357,7 +357,7 @@ namespace Unity.UIWidgets.painting {
             return new RadialGradient(
                 center: center,
                 radius: radius,
-                colors: ExternalUtils<Color>.SelectList(colors,(color => Color.lerp(null, color, factor))),
+                colors: LinqUtils<Color>.SelectList(colors,(color => Color.lerp(null, color, factor))),
                 stops: stops,
                 tileMode: tileMode
             );
@@ -506,7 +506,7 @@ namespace Unity.UIWidgets.painting {
                 center: center,
                 startAngle: startAngle,
                 endAngle: endAngle,
-                colors: ExternalUtils<Color>.SelectList(colors,(color => Color.lerp(null, color, factor))),
+                colors: LinqUtils<Color>.SelectList(colors,(color => Color.lerp(null, color, factor))),
                 stops: stops,
                 tileMode: tileMode
             );

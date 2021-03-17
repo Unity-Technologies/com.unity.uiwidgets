@@ -159,18 +159,18 @@ namespace Unity.UIWidgets.material {
         DataRow _getBlankRowFor(int index) {
             return DataRow.byIndex(
                 index: index,
-                cells:  ExternalUtils<DataCell,DataColumn>.SelectList(widget.columns,((DataColumn column) => DataCell.empty))
+                cells:  LinqUtils<DataCell,DataColumn>.SelectList(widget.columns,((DataColumn column) => DataCell.empty))
                 );
         }
 
         DataRow _getProgressIndicatorRowFor(int index) {
             bool haveProgressIndicator = false;
-            List<DataCell> cells = ExternalUtils<DataCell, DataColumn>.SelectList(
-                widget.columns,((DataColumn column) => {
+            List<DataCell> cells = LinqUtils<DataCell, DataColumn>.SelectList(widget.columns,((DataColumn column) => {
                     if (!column.numeric) {
                         haveProgressIndicator = true;
                         return new DataCell(new CircularProgressIndicator());
                     }
+                    
                     return DataCell.empty;
                 }));
             if (!haveProgressIndicator) {
@@ -239,22 +239,22 @@ namespace Unity.UIWidgets.material {
             }
 
             if (widget.actions != null) {
-                var headerWidget = ExternalUtils<Widget>.SelectList(widget.actions, ((Widget action) => {
+                headerWidgets.AddRange(
+                    LinqUtils<Widget>.SelectList(widget.actions, ((Widget action) => {
                     return new Padding(
                         padding: EdgeInsetsDirectional.only(
                             start: 24.0f - 8.0f * 2.0f),
                         child: action
                     );
-                }));
-                headerWidgets.AddRange(headerWidget);
+                }))
+                );
             }
 
             TextStyle footerTextStyle = themeData.textTheme.caption;
             List<Widget> footerWidgets = new List<Widget>();
             if (widget.onRowsPerPageChanged != null) {
-                List<int> availableRowsPerPageInts = ExternalUtils<int>.WhereList(widget.availableRowsPerPage,
-                    ((int value) => value <= _rowCount || value == widget.rowsPerPage));
-                List<Widget> availableRowsPerPage = ExternalUtils<Widget,int>.SelectList(availableRowsPerPageInts,
+                List<Widget> availableRowsPerPage = LinqUtils<Widget,int>.SelectList(
+                    LinqUtils<int>.WhereList(widget.availableRowsPerPage, ((int value) => value <= _rowCount || value == widget.rowsPerPage)), 
                     (int value) => {
                         return (Widget) new DropdownMenuItem<int>(
                             value: value,

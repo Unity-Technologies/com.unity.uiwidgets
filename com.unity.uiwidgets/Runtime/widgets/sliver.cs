@@ -767,7 +767,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            ExternalUtils<Element>.WhereList(_childElements.Values,(child => {
+            LinqUtils<Element>.WhereList(_childElements.Values, (child => {
                 SliverMultiBoxAdaptorParentData parentData =
                     (SliverMultiBoxAdaptorParentData) child.renderObject.parentData;
                 float itemExtent = 0;

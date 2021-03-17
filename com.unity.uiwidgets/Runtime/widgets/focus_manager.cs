@@ -599,7 +599,7 @@ namespace Unity.UIWidgets.widgets {
         
         public override List<DiagnosticsNode> debugDescribeChildren() {
             int count = 1;
-            return ExternalUtils<DiagnosticsNode, FocusNode>.SelectList(_children, (FocusNode child) => {
+            return LinqUtils<DiagnosticsNode, FocusNode>.SelectList(_children, (FocusNode child) => { 
                 return child.toDiagnosticsNode(name: $"Child {count++}");
             });
         }
@@ -713,7 +713,7 @@ namespace Unity.UIWidgets.widgets {
             } 
             List<string> childList = new List<string>();
             _focusedChildren.Reverse();
-            childList = ExternalUtils<string,FocusNode>.SelectList(_focusedChildren, (FocusNode child) => {
+            childList = LinqUtils<string,FocusNode>.SelectList(_focusedChildren, (FocusNode child) => { 
                 return child.toStringShort();
             });
             properties.add(new EnumerableProperty<string>("focusedChildren", childList, defaultValue: new List<string>()));
@@ -935,9 +935,8 @@ namespace Unity.UIWidgets.widgets {
                     _dirtyNodes.Add(_primaryFocus);
                 }
             }
-           
             D.assert(FocusManagerUtils._focusDebug($"Notifying {_dirtyNodes.Count} dirty nodes:",
-                ExternalUtils<string,FocusNode>.SelectList(_dirtyNodes,((FocusNode node) => {
+                LinqUtils<string,FocusNode>.SelectList(_dirtyNodes, ((FocusNode node) => {
                     return node.toString();
                 }))
             ));

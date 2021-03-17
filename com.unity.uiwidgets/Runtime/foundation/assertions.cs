@@ -305,14 +305,14 @@ namespace Unity.UIWidgets.foundation {
             
             D.assert(() => {
                 IEnumerable<DiagnosticsNode> summaries =
-                    ExternalUtils<DiagnosticsNode>.WhereList(diagnostics,((DiagnosticsNode node) => node.level == DiagnosticLevel.summary));
+                    LinqUtils<DiagnosticsNode>.WhereList(diagnostics,((DiagnosticsNode node) => node.level == DiagnosticLevel.summary));
                 if (summaries.Count() > 1) {
                     return false;
                 }
                 return true;
             }, () => {
                 IEnumerable<DiagnosticsNode> summaries =
-                    ExternalUtils<DiagnosticsNode>.WhereList(diagnostics,((DiagnosticsNode node) => node.level == DiagnosticLevel.summary));
+                    LinqUtils<DiagnosticsNode>.WhereList(diagnostics,((DiagnosticsNode node) => node.level == DiagnosticLevel.summary));
                 List<DiagnosticsNode> message = new List<DiagnosticsNode>() {
                     new ErrorSummary("UIWidgetsError contained multiple error summaries."),
                     new ErrorDescription(
@@ -397,8 +397,7 @@ namespace Unity.UIWidgets.foundation {
 
         public override string ToString() {
             TextTreeRenderer renderer = new TextTreeRenderer(wrapWidth: 400000000);
-            var values = ExternalUtils<string,DiagnosticsNode>.SelectList(diagnostics,((DiagnosticsNode node) => renderer.render(node).TrimEnd()));
-            return string.Join("\n",values );
+            return string.Join("\n", LinqUtils<string,DiagnosticsNode>.SelectList(diagnostics,((DiagnosticsNode node) => renderer.render(node).TrimEnd())));
         }
 
         public static void reportError(UIWidgetsErrorDetails details) {

@@ -726,10 +726,10 @@ namespace Unity.UIWidgets.material {
         public float horizontalLeadingOffset {
             get {
                 float weightSum(IEnumerable<Animation<float>> animations) {
-                    return ExternalUtils<float,Animation<float>>.SelectList(animations, state._evaluateFlex).Sum();
+                    return LinqUtils<float,Animation<float>>.SelectList(animations, state._evaluateFlex).Sum();
                 }
 
-                float allWeights = weightSum(state._animations);
+                float allWeights = weightSum(state._animations); 
                 float leadingWeights = weightSum(state._animations.GetRange(0, index ?? 0));
 
                 return (leadingWeights + state._evaluateFlex(state._animations[index ?? 0]) / 2.0f) /

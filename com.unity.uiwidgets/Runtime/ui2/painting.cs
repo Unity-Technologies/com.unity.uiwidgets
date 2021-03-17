@@ -2242,7 +2242,7 @@ namespace Unity.UIWidgets.ui {
                 ? PaintingUtils._encodeColorList(colors)
                 : null;
             ushort[] encodedIndices = indices != null
-                ? ExternalUtils<ushort,int>.SelectArray(indices,(i => (ushort) i))
+                ? LinqUtils<ushort, int>.SelectArray(indices, (i => (ushort) i))
                 : null;
 
             fixed (float* encodedPositionsPtr = encodedPositions, encodedTextureCoordinatesPtr =

@@ -813,7 +813,7 @@ namespace Unity.UIWidgets.foundation {
                 builder.writeStretched(config.suffixLineOne, builder.wrapWidth.Value);
             }
 
-            IEnumerable<DiagnosticsNode> propertiesIterable = ExternalUtils<DiagnosticsNode>.WhereList(node.getProperties(),(
+            IEnumerable<DiagnosticsNode> propertiesIterable = LinqUtils<DiagnosticsNode>.WhereList(node.getProperties(), (
                 (DiagnosticsNode n) => !n.isFiltered(_minLevel)
             ));
             List<DiagnosticsNode> properties;
@@ -1660,9 +1660,10 @@ namespace Unity.UIWidgets.foundation {
             }
 
             if (parentConfiguration != null && !parentConfiguration.lineBreakProperties) {
-               return string.Join(", ", ExternalUtils<string,T>.SelectList(value,(v => v.ToString())));
+               return string.Join(", ", LinqUtils<string, T>.SelectList(value, (v => v.ToString())));
             }
-            return string.Join(style == DiagnosticsTreeStyle.singleLine ? ", " : "\n", ExternalUtils<string,T>.SelectList(value,(v => v.ToString())));
+            return string.Join(style == DiagnosticsTreeStyle.singleLine ? ", " : "\n", 
+                LinqUtils<string, T>.SelectList(value,  (v => v.ToString())));
         }
 
         public override DiagnosticLevel level {
@@ -1680,8 +1681,7 @@ namespace Unity.UIWidgets.foundation {
         public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
             var json = base.toJsonMap(Delegate);
             if (value != null) {
-                json["values"] = ExternalUtils<string, T>.SelectList(value,(v => v.ToString()));
-               
+                json["values"] = LinqUtils<string, T>.SelectList(value, (v => v.ToString()));
             }
 
             return json;
@@ -2432,9 +2432,9 @@ namespace Unity.UIWidgets.foundation {
                 result.Append(joiner);
                 DiagnosticPropertiesBuilder builder = new DiagnosticPropertiesBuilder();
                 debugFillProperties(builder);
-                var property =
-                    ExternalUtils<DiagnosticsNode>.WhereList(builder.properties, (n => !n.isFiltered(minLevel)));
-                result.Append(string.Join(joiner,ExternalUtils<string,DiagnosticsNode>.SelectList(property,(n => n.ToString())))
+                result.Append(string.Join(joiner,LinqUtils<string,DiagnosticsNode>.SelectList(
+                    LinqUtils<DiagnosticsNode>.WhereList(builder.properties, (n => !n.isFiltered(minLevel)))
+                    ,(n => n.ToString())))
                 );
                 shallowString = result.ToString();
                 return true;

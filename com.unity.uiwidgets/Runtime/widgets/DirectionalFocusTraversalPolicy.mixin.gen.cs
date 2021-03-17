@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.external;
 
 namespace Unity.UIWidgets.widgets {
     public class DirectionalFocusTraversalPolicyMixinFocusTraversalPolicy : FocusTraversalPolicy, DirectionalFocusTraversalPolicyMixin {
@@ -17,7 +17,7 @@ namespace Unity.UIWidgets.widgets {
         public override void changedScope(FocusNode node = null, FocusScopeNode oldScope = null) { 
             base.changedScope(node: node, oldScope: oldScope); 
             if (oldScope != null) { 
-                var delEntries = ExternalUtils<_DirectionalPolicyDataEntry>.WhereList( _policyData[oldScope]?.history , ((_DirectionalPolicyDataEntry entry)=> { 
+                var delEntries = LinqUtils<_DirectionalPolicyDataEntry>.WhereList( _policyData[oldScope]?.history , ((_DirectionalPolicyDataEntry entry)=> { 
                     return entry.node == node;
                 })); 
                 foreach (var delEntry in delEntries) {
@@ -77,10 +77,10 @@ namespace Unity.UIWidgets.widgets {
             IEnumerable<FocusNode> result = new List<FocusNode>();
             switch (direction) { 
                 case TraversalDirection.left: 
-                    result = ExternalUtils<FocusNode>.WhereList(sorted,((FocusNode node) => node.rect != target && node.rect.center.dx <= target.left)); 
+                    result = LinqUtils<FocusNode>.WhereList(sorted,((FocusNode node) => node.rect != target && node.rect.center.dx <= target.left));
                     break;
                 case TraversalDirection.right:
-                    result =  ExternalUtils<FocusNode>.WhereList(sorted,((FocusNode node) => node.rect != target && node.rect.center.dx >= target.right));
+                    result = LinqUtils<FocusNode>.WhereList(sorted,((FocusNode node) => node.rect != target && node.rect.center.dx >= target.right));
                     break;
                 case TraversalDirection.up:
                 case TraversalDirection.down:
@@ -97,9 +97,9 @@ namespace Unity.UIWidgets.widgets {
             FocusTravesalUtils.mergeSort<FocusNode>(sorted, compare: (FocusNode a, FocusNode b) => a.rect.center.dy.CompareTo(b.rect.center.dy));
             switch (direction) { 
                 case TraversalDirection.up:
-                    return  ExternalUtils<FocusNode>.WhereList(sorted,((FocusNode node) => node.rect != target && node.rect.center.dy <= target.top));
+                    return LinqUtils<FocusNode>.WhereList(sorted,((FocusNode node) => node.rect != target && node.rect.center.dy <= target.top));
                 case TraversalDirection.down: 
-                    return  ExternalUtils<FocusNode>.WhereList(sorted,((FocusNode node) => node.rect != target && node.rect.center.dy >= target.bottom));
+                    return LinqUtils<FocusNode>.WhereList(sorted,((FocusNode node) => node.rect != target && node.rect.center.dy >= target.bottom));
                 case TraversalDirection.left:
                 case TraversalDirection.right:
                     break;
@@ -226,7 +226,7 @@ namespace Unity.UIWidgets.widgets {
                         nearestScope.traversalDescendants
                     ); 
                     if (focusedScrollable != null && !focusedScrollable.position.atEdge()) { 
-                        IEnumerable<FocusNode> filteredEligibleNodes =  ExternalUtils<FocusNode>.WhereList(eligibleNodes,((FocusNode node) => Scrollable.of(node.context) == focusedScrollable)); 
+                        IEnumerable<FocusNode> filteredEligibleNodes = LinqUtils<FocusNode>.WhereList(eligibleNodes,((FocusNode node) => Scrollable.of(node.context) == focusedScrollable)); 
                         if (filteredEligibleNodes.Count() !=0) { 
                             eligibleNodes = filteredEligibleNodes; 
                         }
@@ -241,7 +241,7 @@ namespace Unity.UIWidgets.widgets {
                         sorted = sorted.ToList();
                     }
                     Rect band = Rect.fromLTRB(focusedChild.rect.left, float.NegativeInfinity, focusedChild.rect.right, float.PositiveInfinity);
-                    IEnumerable<FocusNode> inBand =  ExternalUtils<FocusNode>.WhereList(sorted,((FocusNode node) => !node.rect.intersect(band).isEmpty));
+                    IEnumerable<FocusNode> inBand = LinqUtils<FocusNode>.WhereList(sorted,((FocusNode node) => !node.rect.intersect(band).isEmpty));
                     if (inBand.Count() !=0) {
                         found = inBand.First();
                         break;
@@ -255,7 +255,7 @@ namespace Unity.UIWidgets.widgets {
                 case TraversalDirection.left: 
                     eligibleNodes  = _sortAndFilterHorizontally(direction, focusedChild.rect, nearestScope); 
                     if (focusedScrollable != null && !focusedScrollable.position.atEdge()) { 
-                        IEnumerable<FocusNode> filteredEligibleNodes = ExternalUtils<FocusNode>.WhereList(eligibleNodes,((FocusNode node) => Scrollable.of(node.context) == focusedScrollable)); 
+                        IEnumerable<FocusNode> filteredEligibleNodes = LinqUtils<FocusNode>.WhereList(eligibleNodes,((FocusNode node) => Scrollable.of(node.context) == focusedScrollable));
                         if (filteredEligibleNodes.Count()!=0) { 
                             eligibleNodes = filteredEligibleNodes; 
                         } 
@@ -270,7 +270,7 @@ namespace Unity.UIWidgets.widgets {
                         //sorted = sorted.reversed.toList(); 
                     }
                     band = Rect.fromLTRB(float.NegativeInfinity, focusedChild.rect.top, float.PositiveInfinity, focusedChild.rect.bottom); 
-                    inBand = ExternalUtils<FocusNode>.WhereList(sorted,((FocusNode node) => !node.rect.intersect(band).isEmpty)); 
+                    inBand = LinqUtils<FocusNode>.WhereList(sorted,((FocusNode node) => !node.rect.intersect(band).isEmpty));
                     if (inBand.Count()!=0) {
                         found = inBand.First(); 
                         break; 

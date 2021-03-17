@@ -518,7 +518,7 @@ namespace Unity.UIWidgets.widgets {
                        && flight._proxyAnimation.isDismissed;
             }
 
-            List<_HeroFlight> invalidFlights = ExternalUtils<_HeroFlight>.WhereList(_flights.Values,isInvalidFlight);
+            List<_HeroFlight> invalidFlights = LinqUtils<_HeroFlight>.WhereList(_flights.Values, isInvalidFlight);
              foreach ( _HeroFlight flight in invalidFlights) {
                 flight._handleAnimationUpdate(AnimationStatus.dismissed);
             }

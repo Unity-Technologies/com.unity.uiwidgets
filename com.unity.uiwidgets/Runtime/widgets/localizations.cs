@@ -57,7 +57,7 @@ namespace Unity.UIWidgets.widgets {
             if (pendingList == null) {
                 return Future.value(output).to<Dictionary<Type, object>>();
             }
-            return Future.wait<object>(ExternalUtils<Future<object>,_Pending>.SelectList( pendingList,(p => p.futureValue)))
+            return Future.wait<object>(LinqUtils<Future<object>, _Pending>.SelectList(pendingList, (p => p.futureValue)))
                 .then(values => {
                     
                     var list = (List<object>)values;

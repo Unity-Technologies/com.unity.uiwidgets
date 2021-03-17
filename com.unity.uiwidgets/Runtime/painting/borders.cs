@@ -320,7 +320,7 @@ namespace Unity.UIWidgets.painting {
 
         public override ShapeBorder scale(float t) {
             return new _CompoundBorder(
-                ExternalUtils<ShapeBorder>.SelectList(borders,(border => border.scale(t)))
+                LinqUtils<ShapeBorder>.SelectList(borders,(border => border.scale(t)))
             );
         }
 
@@ -422,8 +422,7 @@ namespace Unity.UIWidgets.painting {
 
         public override string ToString() {
             return string.Join(" + ",
-                (
-                ExternalUtils<string,ShapeBorder>.SelectList(((IList<ShapeBorder>)borders).Reverse(),((border) => border.ToString())))
+                (LinqUtils<string,ShapeBorder>.SelectList(((IList<ShapeBorder>)borders).Reverse(),((border) => border.ToString())))
             );
         }
     }

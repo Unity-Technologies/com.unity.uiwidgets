@@ -124,7 +124,7 @@ namespace Unity.UIWidgets.foundation {
             if (it == null) {
                 return null;
             }
-            return "{ " + string.Join(", ", ExternalUtils<string,T>.SelectList(it,(item => item.ToString()))) + " }";
+            return "{ " + string.Join(", ", LinqUtils<string,T>.SelectList(it,(item => item.ToString()))) + " }";
         }
 
         public static void reset<T>(this List<T> list, int size) {

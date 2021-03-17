@@ -455,13 +455,13 @@ namespace Unity.UIWidgets.material {
 
         float _maxSliderPartWidth {
             get {
-                return Mathf.Max(ExternalUtils<float,Size>.SelectList(_sliderPartSizes,((Size size) => size.width)).ToArray());
+                return Mathf.Max(LinqUtils<float, Size>.SelectArray(_sliderPartSizes,((Size size) => size.width)));
             }
         }
 
         float _maxSliderPartHeight {
             get {
-                return Mathf.Max(ExternalUtils<float,Size>.SelectList(_sliderPartSizes,((Size size) => size.height)).ToArray());
+                return Mathf.Max(LinqUtils<float,Size>.SelectArray(_sliderPartSizes,((Size size) => size.height)));
             }
         }
 

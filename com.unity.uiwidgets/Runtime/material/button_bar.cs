@@ -83,9 +83,7 @@ namespace Unity.UIWidgets.material {
                     mainAxisAlignment: alignment ?? barTheme?.alignment ?? MainAxisAlignment.end,
                     mainAxisSize: mainAxisSize ?? barTheme?.mainAxisSize ?? MainAxisSize.max,
                     overflowDirection: overflowDirection ?? barTheme?.overflowDirection ?? VerticalDirection.down,
-                    children: 
-                   
-                    ExternalUtils<Widget>.SelectList(children,((Widget childWidget) => {
+                    children: LinqUtils<Widget>.SelectList(children,((Widget childWidget) => {
                         return (Widget) new Padding(
                             padding: EdgeInsets.symmetric(horizontal: paddingUnit),
                             child: childWidget

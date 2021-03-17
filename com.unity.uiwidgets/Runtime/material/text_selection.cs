@@ -273,7 +273,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
-            foreach (var child in ExternalUtils<Element>.WhereList(children,(_shouldPaint))) {
+            foreach (var child in LinqUtils<Element>.WhereList(children,(_shouldPaint))) {
                 visitor(child);
             }
         }

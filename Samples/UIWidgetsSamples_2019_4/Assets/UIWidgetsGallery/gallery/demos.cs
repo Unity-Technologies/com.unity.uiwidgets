@@ -527,7 +527,7 @@ namespace UIWidgetsGallery.gallery
 
             foreach (var category in kAllGalleryDemoCategories)
                 result.Add(category,
-                    ExternalUtils<GalleryDemo>.WhereList(kAllGalleryDemos,((GalleryDemo demo) => { return demo.category == category; })));
+                    LinqUtils<GalleryDemo>.WhereList(kAllGalleryDemos,((GalleryDemo demo) => { return demo.category == category; })));
 
             return result;
         }

@@ -1025,14 +1025,18 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (initialRoute != null) {
-                var routes = 
-                    widget.onGenerateInitialRoutes(
+                _history.AddRange(
+                    LinqUtils<_RouteEntry,Route>.SelectList(
+                        widget.onGenerateInitialRoutes(
                         this,
-                        widget.initialRoute ?? Navigator.defaultRouteName
+                                widget.initialRoute ?? Navigator.defaultRouteName
+                ), (Route route) =>
+                         new _RouteEntry(
+                             route, 
+                             initialState: _RouteLifecycle.add
+                             )
+                        )
                     );
-                _history.AddRange(ExternalUtils<_RouteEntry,Route>.SelectList(routes, ((Route route) =>
-                         new _RouteEntry(route, initialState: _RouteLifecycle.add))));
-
             }
             D.assert(!_debugLocked);
             D.assert(() => {

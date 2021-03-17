@@ -263,8 +263,7 @@ namespace Unity.UIWidgets.painting {
             if (children == null) {
                 return new List<DiagnosticsNode>();
             }
-            return ExternalUtils<DiagnosticsNode, InlineSpan>.SelectList(children,(
-                (child) => {
+            return LinqUtils<DiagnosticsNode, InlineSpan>.SelectList(children,((child) => {
                     if (child != null) {
                         return child.toDiagnosticsNode();
                     }

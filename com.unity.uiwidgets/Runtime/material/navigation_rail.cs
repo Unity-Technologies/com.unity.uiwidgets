@@ -248,8 +248,7 @@ namespace Unity.UIWidgets.material {
         }
 
         void _initControllers() {
-            _destinationControllers = ExternalUtils<AnimationController, NavigationRailDestination>.SelectList(widget.destinations,
-                ((destination) => {
+            _destinationControllers = LinqUtils<AnimationController, NavigationRailDestination>.SelectList(widget.destinations, ((destination) => {
                     var result = new AnimationController(
                         duration: ThemeUtils.kThemeAnimationDuration,
                         vsync: this
@@ -257,7 +256,7 @@ namespace Unity.UIWidgets.material {
                     result.addListener(_rebuild);
                     return result;
                 }));
-            _destinationAnimations = ExternalUtils<Animation<float>, AnimationController>.SelectList(_destinationControllers,((AnimationController controller) => controller.view));
+            _destinationAnimations = LinqUtils<Animation<float>, AnimationController>.SelectList(_destinationControllers,((AnimationController controller) => controller.view));
             _destinationControllers[widget.selectedIndex ?? 0].setValue(1.0f);
             _extendedController = new AnimationController(
                 duration: ThemeUtils.kThemeAnimationDuration,

@@ -185,7 +185,7 @@ namespace Unity.UIWidgets.widgets {
                     return a.debugName.CompareTo(strB: b.debugName);
                 }
             );
-            var results = ExternalUtils<string, LogicalKeyboardKey>.SelectList(sortedKeys, (key => key.debugName));
+            var results = LinqUtils<string, LogicalKeyboardKey>.SelectList(sortedKeys, (key => key.debugName));
             return string.Join(" + ", values: results);
         }
 

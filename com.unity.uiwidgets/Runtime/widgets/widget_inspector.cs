@@ -998,7 +998,7 @@ namespace Unity.UIWidgets.widgets {
                 path = _getElementParentChain((Element)value, groupName);
             else
                 throw new UIWidgetsError(new List<DiagnosticsNode>{new ErrorSummary($"Cannot get parent chain for node of type {value.GetType()}")});
-            return ExternalUtils<Dictionary<string, object>, _DiagnosticsPathNode>.SelectList(
+            return LinqUtils<Dictionary<string, object>, _DiagnosticsPathNode>.SelectList(
                 path,((_DiagnosticsPathNode node) => 
                     _pathNodeToJson(node, new InspectorSerializationDelegate(groupName: groupName, service: this))
                 ));
@@ -1107,7 +1107,7 @@ namespace Unity.UIWidgets.widgets {
                 } 
             }
             if (isElement && isWidgetCreationTracked()) {
-                List<DiagnosticsNode> localNodes = ExternalUtils<DiagnosticsNode>.WhereList(nodes,(DiagnosticsNode node) =>
+                List<DiagnosticsNode> localNodes = LinqUtils<DiagnosticsNode>.WhereList(nodes,(DiagnosticsNode node) =>
                     _isValueCreatedByLocalProject(node.value));
                 if (localNodes.isNotEmpty()) {
                     return localNodes;
@@ -1718,7 +1718,7 @@ namespace Unity.UIWidgets.widgets {
         }
         public override List<DiagnosticsNode> filterProperties(List<DiagnosticsNode> properties, DiagnosticsNode owner) { 
             bool createdByLocalProject = _nodesCreatedByLocalProject.Contains(owner);
-            return ExternalUtils<DiagnosticsNode>.WhereList(properties,(DiagnosticsNode node)=>{
+            return LinqUtils<DiagnosticsNode>.WhereList(properties,(DiagnosticsNode node)=>{
                 return !node.isFiltered(createdByLocalProject ? DiagnosticLevel.fine : DiagnosticLevel.info);
             });
         }
@@ -1776,7 +1776,7 @@ namespace Unity.UIWidgets.widgets {
 
             if (parameterLocations != null) {
                 json["parameterLocations"] =
-                    ExternalUtils<object, _Location>.SelectList(
+                    LinqUtils<object, _Location>.SelectList(
                         parameterLocations,((_Location location) => location.toJsonMap()));
             }
 

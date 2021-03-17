@@ -725,7 +725,7 @@ namespace Unity.UIWidgets.material {
         ) :
             base(key: key) {
             D.assert(items == null || items.isEmpty() || value == null ||
-                     ExternalUtils<DropdownMenuItem<T>>.WhereList(items,((DropdownMenuItem<T> item) => { return item.value.Equals(value); })).Count() == 1,
+                     LinqUtils<DropdownMenuItem<T>>.WhereList(items,((DropdownMenuItem<T> item) => { return item.value.Equals(value); })).Count() == 1,
                 () => "There should be exactly one item with [DropdownButton]'s value: " +
                       $"{value}. \n" +
                       "Either zero or 2 or more [DropdownMenuItem]s were detected " +
@@ -914,7 +914,7 @@ namespace Unity.UIWidgets.material {
             }
 
             D.assert(widget.value == null ||
-                     ExternalUtils<DropdownMenuItem<T>>.WhereList(widget.items,((DropdownMenuItem<T> item) => item.value.Equals(widget.value))
+                     LinqUtils<DropdownMenuItem<T>>.WhereList(widget.items,((DropdownMenuItem<T> item) => item.value.Equals(widget.value))
                          ).Count == 1);
             _selectedIndex = null;
             for (int itemIndex = 0; itemIndex < widget.items.Count; itemIndex++) {
@@ -1110,13 +1110,12 @@ namespace Unity.UIWidgets.material {
                     alignment: AlignmentDirectional.centerStart,
                     children: widget.isDense
                         ? items
-                        : ExternalUtils<Widget>.SelectList(items,(Widget item) => {
+                        : LinqUtils<Widget>.SelectList(items,(Widget item) => {
                             return widget.itemHeight != null
                                 ? new SizedBox(height: widget.itemHeight, child: item)
                                 : (Widget) new Column(mainAxisSize: MainAxisSize.min,
                                     children: new List<Widget>() {item});
                         }));
-              
             }
 
             Icon defaultIcon = new Icon(Icons.arrow_drop_down);

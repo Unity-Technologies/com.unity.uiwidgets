@@ -310,7 +310,7 @@ namespace Unity.UIWidgets.painting {
                 return;
             }
 
-            var localListeners = ExternalUtils<ImageStreamListener>.SelectList(_listeners,(l => l));
+            var localListeners = LinqUtils<ImageStreamListener>.SelectList(_listeners,(l => l));
             foreach (var listener in localListeners) {
                 try {
                     listener.onImage(image, false);
@@ -336,9 +336,10 @@ namespace Unity.UIWidgets.painting {
                 informationCollector: informationCollector,
                 silent: silent
             );
-
-            var localErrorListeners = ExternalUtils<ImageErrorListener,ImageStreamListener>.SelectList(_listeners, (l => l.onError));
-            localErrorListeners = ExternalUtils<ImageErrorListener>.WhereList(localErrorListeners,(l => l != null));
+            
+            var localErrorListeners = LinqUtils<ImageErrorListener>.WhereList(
+                LinqUtils<ImageErrorListener,ImageStreamListener>.SelectList(_listeners, (l => l.onError)),
+                (l => l != null));
             
             if (localErrorListeners.isEmpty()) {
                 UIWidgetsError.reportError(_currentError);

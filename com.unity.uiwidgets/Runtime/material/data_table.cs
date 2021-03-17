@@ -387,9 +387,7 @@ namespace Unity.UIWidgets.material {
             List<TableColumnWidth> tableColumns =
                 new List<TableColumnWidth>(new TableColumnWidth[columns.Count + (displayCheckboxColumn ? 1 : 0)]);
             
-            List<TableRow> tableRows =
-                ExternalUtils<TableRow,int>.SelectList(Enumerable.Range(0, rows.Count + 1),
-                    (index) => {
+            List<TableRow> tableRows = LinqUtils<TableRow,int>.SelectList(Enumerable.Range(0, rows.Count + 1), (index) => {
                     return new TableRow(
                         key: index == 0 ? _headingRowKey : rows[index - 1].key,
                         decoration: index > 0 && rows[index - 1].selected
@@ -495,9 +493,8 @@ namespace Unity.UIWidgets.material {
 
                 displayColumnIndex += 1;
             }
-            var columnWidth = ExternalUtils<int, TableColumnWidth>.SelectDictionary(tableColumns, ((TableColumnWidth x) => tableColumns.IndexOf(x)));
             return new Table(
-                columnWidths: columnWidth,
+                columnWidths: LinqUtils<int, TableColumnWidth>.SelectDictionary(tableColumns, ((TableColumnWidth x) => tableColumns.IndexOf(x))),
                 children: tableRows
             );
         }

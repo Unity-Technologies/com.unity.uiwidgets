@@ -167,7 +167,7 @@ namespace UIWidgetsSample
 
             Widget contents()
             {
-                ExternalUtils<Widget,ToDoItem>.CreateItem createItem = (ToDoItem item) =>
+                var children = LinqUtils<Widget,ToDoItem>.SelectList(this.items, (ToDoItem item) =>
                 {
                     return (Widget) new Text(
                         item.content, style: new TextStyle(
@@ -175,8 +175,7 @@ namespace UIWidgetsSample
                             height: 1.5f
                         )
                     );
-                };
-                var children = ExternalUtils<Widget,ToDoItem>.SelectList(this.items, createItem);
+                });
                 return new Flexible(
                     child: new ListView(
                         physics: new AlwaysScrollableScrollPhysics(),
