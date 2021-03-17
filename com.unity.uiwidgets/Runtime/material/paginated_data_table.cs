@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
@@ -158,20 +159,20 @@ namespace Unity.UIWidgets.material {
         DataRow _getBlankRowFor(int index) {
             return DataRow.byIndex(
                 index: index,
-                cells: widget.columns.Select((DataColumn column) => DataCell.empty).ToList()
-            );
+                cells:  LinqUtils<DataCell,DataColumn>.SelectList(widget.columns,((DataColumn column) => DataCell.empty))
+                );
         }
 
         DataRow _getProgressIndicatorRowFor(int index) {
             bool haveProgressIndicator = false;
-            List<DataCell> cells = widget.columns.Select((DataColumn column) => {
-                if (!column.numeric) {
-                    haveProgressIndicator = true;
-                    return new DataCell(new CircularProgressIndicator());
-                }
-
-                return DataCell.empty;
-            }).ToList();
+            List<DataCell> cells = LinqUtils<DataCell, DataColumn>.SelectList(widget.columns,((DataColumn column) => {
+                    if (!column.numeric) {
+                        haveProgressIndicator = true;
+                        return new DataCell(new CircularProgressIndicator());
+                    }
+                    
+                    return DataCell.empty;
+                }));
             if (!haveProgressIndicator) {
                 haveProgressIndicator = true;
                 cells[0] = new DataCell(new CircularProgressIndicator());
@@ -239,27 +240,27 @@ namespace Unity.UIWidgets.material {
 
             if (widget.actions != null) {
                 headerWidgets.AddRange(
-                    widget.actions.Select((Widget action) => {
-                        return new Padding(
-                            padding: EdgeInsetsDirectional.only(
-                                start: 24.0f - 8.0f * 2.0f),
-                            child: action
-                        );
-                    }).ToList()
+                    LinqUtils<Widget>.SelectList(widget.actions, ((Widget action) => {
+                    return new Padding(
+                        padding: EdgeInsetsDirectional.only(
+                            start: 24.0f - 8.0f * 2.0f),
+                        child: action
+                    );
+                }))
                 );
             }
 
             TextStyle footerTextStyle = themeData.textTheme.caption;
             List<Widget> footerWidgets = new List<Widget>();
             if (widget.onRowsPerPageChanged != null) {
-                List<Widget> availableRowsPerPage = widget.availableRowsPerPage
-                    .Where((int value) => value <= _rowCount || value == widget.rowsPerPage)
-                    .Select((int value) => {
+                List<Widget> availableRowsPerPage = LinqUtils<Widget,int>.SelectList(
+                    LinqUtils<int>.WhereList(widget.availableRowsPerPage, ((int value) => value <= _rowCount || value == widget.rowsPerPage)), 
+                    (int value) => {
                         return (Widget) new DropdownMenuItem<int>(
                             value: value,
                             child: new Text($"{value}")
                         );
-                    }).ToList();
+                    });
                 footerWidgets.AddRange(new List<Widget>() {
                     new Container(width: 14.0f), // to match trailing padding in case we overflow and end up scrolling
                     new Text(localizations.rowsPerPageTitle),

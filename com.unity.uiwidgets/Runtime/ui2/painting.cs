@@ -7,6 +7,7 @@ using System.Text;
 using AOT;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 using Unity.UIWidgets.ui;
@@ -2241,7 +2242,7 @@ namespace Unity.UIWidgets.ui {
                 ? PaintingUtils._encodeColorList(colors)
                 : null;
             ushort[] encodedIndices = indices != null
-                ? indices.Select(i => (ushort) i).ToArray()
+                ? LinqUtils<ushort, int>.SelectArray(indices, (i => (ushort) i))
                 : null;
 
             fixed (float* encodedPositionsPtr = encodedPositions, encodedTextureCoordinatesPtr =

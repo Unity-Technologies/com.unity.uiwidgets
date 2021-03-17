@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.UIWidgets.external;
 
 namespace Unity.UIWidgets.foundation {
     public class DiagnosticableTreeMixinChangeNotifier : ChangeNotifier, DiagnosticableTreeMixin {
@@ -25,7 +26,7 @@ namespace Unity.UIWidgets.foundation {
                 DiagnosticPropertiesBuilder builder = new DiagnosticPropertiesBuilder();
                 debugFillProperties(builder);
                 result.Append(string.Join(joiner,
-                    builder.properties.Where(n => !n.isFiltered(minLevel)).Select(n => n.ToString()).ToArray())
+                    LinqUtils<string,DiagnosticsNode>.SelectList(LinqUtils<DiagnosticsNode>.WhereList(builder.properties, (n => !n.isFiltered(minLevel))),(n => n.ToString())))
                 );
                 shallowString = result.ToString();
                 return true;

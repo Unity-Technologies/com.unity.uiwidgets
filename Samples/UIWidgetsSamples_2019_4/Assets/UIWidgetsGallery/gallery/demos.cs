@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UIWidgetsGallery.demo;
 using UIWidgetsGallery.demo.material;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.widgets;
@@ -526,7 +527,7 @@ namespace UIWidgetsGallery.gallery
 
             foreach (var category in kAllGalleryDemoCategories)
                 result.Add(category,
-                    kAllGalleryDemos.Where((GalleryDemo demo) => { return demo.category == category; }).ToList());
+                    LinqUtils<GalleryDemo>.WhereList(kAllGalleryDemos,((GalleryDemo demo) => { return demo.category == category; })));
 
             return result;
         }

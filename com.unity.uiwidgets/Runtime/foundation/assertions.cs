@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.UIWidgets.external;
 using UnityEngine;
 
 namespace Unity.UIWidgets.foundation {
@@ -304,14 +305,14 @@ namespace Unity.UIWidgets.foundation {
             
             D.assert(() => {
                 IEnumerable<DiagnosticsNode> summaries =
-                    diagnostics.Where((DiagnosticsNode node) => node.level == DiagnosticLevel.summary);
+                    LinqUtils<DiagnosticsNode>.WhereList(diagnostics,((DiagnosticsNode node) => node.level == DiagnosticLevel.summary));
                 if (summaries.Count() > 1) {
                     return false;
                 }
                 return true;
             }, () => {
                 IEnumerable<DiagnosticsNode> summaries =
-                    diagnostics.Where((DiagnosticsNode node) => node.level == DiagnosticLevel.summary);
+                    LinqUtils<DiagnosticsNode>.WhereList(diagnostics,((DiagnosticsNode node) => node.level == DiagnosticLevel.summary));
                 List<DiagnosticsNode> message = new List<DiagnosticsNode>() {
                     new ErrorSummary("UIWidgetsError contained multiple error summaries."),
                     new ErrorDescription(
@@ -396,7 +397,7 @@ namespace Unity.UIWidgets.foundation {
 
         public override string ToString() {
             TextTreeRenderer renderer = new TextTreeRenderer(wrapWidth: 400000000);
-            return string.Join("\n", diagnostics.Select((DiagnosticsNode node) => renderer.render(node).TrimEnd()));
+            return string.Join("\n", LinqUtils<string,DiagnosticsNode>.SelectList(diagnostics,((DiagnosticsNode node) => renderer.render(node).TrimEnd())));
         }
 
         public static void reportError(UIWidgetsErrorDetails details) {
