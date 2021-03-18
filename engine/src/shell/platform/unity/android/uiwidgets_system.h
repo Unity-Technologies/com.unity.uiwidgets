@@ -11,6 +11,8 @@
 #include "Unity/IUnityUIWidgets.h"
 #include "flutter/fml/macros.h"
 #include "runtime/mono_api.h"
+#include <GLES2/gl2.h>
+#include <EGL/egl.h>
 
 namespace uiwidgets {
 
@@ -56,7 +58,12 @@ class UIWidgetsSystem {
   UIWIDGETS_CALLBACK(void) _WakeUp() { GetInstancePtr()->WakeUp(); }
 
   UIWIDGETS_CALLBACK(void) _GfxWorkerCallback(int eventId, void* data) {
+    auto context = eglGetCurrentContext();
+    auto display = eglGetCurrentDisplay();
+    auto draw = eglGetCurrentSurface(EGL_DRAW);
+    auto read = eglGetCurrentSurface(EGL_READ);
     GetInstancePtr()->GfxWorkerCallback(eventId, data);
+    eglMakeCurrent(display, draw, read, context);
   }
 
   void Update();
