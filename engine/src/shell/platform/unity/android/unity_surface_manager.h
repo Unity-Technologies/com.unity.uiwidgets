@@ -6,8 +6,6 @@
 #include <EGL/eglplatform.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-// #include <d3d11.h>
-// #include <windows.h>
 
 #include <cstdint>
 
@@ -23,20 +21,9 @@
 #include "include/core/SkTextBlob.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GrBackendSurface.h"
-// #include "include/gpu/GrContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
-// #include "modules/skottie/include/Skottie.h"
-// #include "platform_base.h"
-// #include "render_api.h"
-// #include "src/gpu/gl/GrGLDefines.h"
-// #include "windows.h"
-// #include <wingdi.h>
 
 #include "Unity/IUnityGraphics.h"
-#include "Unity/IUnityGraphicsVulkan.h"
-#include "src/shell/platform/unity/unity_console.h"
-
-// #define VulkanX
 
 namespace uiwidgets
 {
@@ -46,10 +33,6 @@ namespace uiwidgets
   public:
     static UnitySurfaceManager instance;
     static void GetUnityContext();
-
-    static void *SetTextureFromUnity(void *tex, int w, int h);
-    static void SetUp();
-    static void drawxxx();
 
     UnitySurfaceManager(IUnityInterfaces *unity_interfaces);
     ~UnitySurfaceManager();
@@ -70,7 +53,6 @@ namespace uiwidgets
     FML_DISALLOW_COPY_AND_ASSIGN(UnitySurfaceManager);
 
   private:
-    void draw();
     bool Initialize(IUnityInterfaces *unity_interfaces);
     void CleanUp();
 

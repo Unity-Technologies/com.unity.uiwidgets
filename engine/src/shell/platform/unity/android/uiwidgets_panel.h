@@ -7,10 +7,13 @@
 #include "unity_surface_manager.h"
 #include "cocoa_task_runner.h"
 
-#include "src/shell/platform/unity/unity_console.h"
-
 namespace uiwidgets {
 
+enum UIWidgetsWindowType {
+  InvalidPanel = 0,
+  GameObjectPanel = 1,
+  EditorWindowPanel = 2
+};
 struct MouseState {
   bool state_is_down = false;
   bool state_is_added = false;
@@ -24,7 +27,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
   typedef void (*EntrypointCallback)(Mono_Handle handle);
 
   static fml::RefPtr<UIWidgetsPanel> Create(
-      Mono_Handle handle, EntrypointCallback entrypoint_callback);
+      Mono_Handle handle, UIWidgetsWindowType window_type, EntrypointCallback entrypoint_callback);
 
   ~UIWidgetsPanel();
 
@@ -59,8 +62,12 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void OnMouseLeave();
 
+  bool NeedUpdateByPlayerLoop();
+
+  bool NeedUpdateByEditorLoop();
+
  private:
-  UIWidgetsPanel(Mono_Handle handle, EntrypointCallback entrypoint_callback);
+  UIWidgetsPanel(Mono_Handle handle, UIWidgetsWindowType window_type, EntrypointCallback entrypoint_callback);
 
   MouseState GetMouseState() { return mouse_state_; }
 
@@ -87,6 +94,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
   void SendPointerEventWithData(const UIWidgetsPointerEvent& event_data);
 
   Mono_Handle handle_;
+  UIWidgetsWindowType window_type_;
   EntrypointCallback entrypoint_callback_;
 
   std::unique_ptr<UnitySurfaceManager> surface_manager_;
