@@ -43,8 +43,7 @@ class Build
         }
         skiaRoot = flutterRoot + "/third_party/skia";
         var buildAndroidEnv = Environment.GetEnvironmentVariable("BUILD_ANDROID");
-        buildAndroid = true;// buildAndroidEnv == "true";
-
+        buildAndroid = true;
 
         var libUIWidgets = SetupLibUIWidgets();
 
@@ -213,8 +212,8 @@ class Build
                 "src/lib/ui/painting/shader.h",
                 "src/lib/ui/painting/single_frame_codec.cc",
                 "src/lib/ui/painting/single_frame_codec.h",
-                //"src/lib/ui/painting/skottie.cc",
-                //"src/lib/ui/painting/skottie.h",
+                "src/lib/ui/painting/skottie.cc",
+                "src/lib/ui/painting/skottie.h",
                 "src/lib/ui/painting/vertices.cc",
                 "src/lib/ui/painting/vertices.h",
 
@@ -398,13 +397,8 @@ class Build
         };
 
         np.Sources.Add(c => IsWindows(c), winSources);
-        np.Sources.Add(c =>
-        {
-            var a = IsMac(c);
-            return a;
-        }, macSources);
+        np.Sources.Add(c => IsMac(c), macSources);
         np.Sources.Add(c => IsAndroid(c), androidSource);
-
 
         np.Libraries.Add(c => IsWindows(c), new BagOfObjectFilesLibrary(
             new NPath[]{
@@ -412,89 +406,88 @@ class Build
         }));
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
         np.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new[] { "-Wno-c++11-narrowing" }));
-        var FLUTTER_ROOT = flutterRoot;
-        var SKIA_ROOT = skiaRoot;
-        np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] {
-
-            "-MD",
-            "-MF",
-            "-DUSE_OPENSSL=1",
-            "-DUSE_OPENSSL_CERTS=1",
-            "-DANDROID",
-            "-DHAVE_SYS_UIO_H",
-            "-D__STDC_CONSTANT_MACROS",
-            "-D__STDC_FORMAT_MACROS",
-            //"-D_FORTIFY_SOURCE=2",
-            "-D__compiler_offsetof=__builtin_offsetof",
-            "-Dnan=__builtin_nan",
-            "-D__GNU_SOURCE=1",
-            "-D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
-            "-D_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
-            "-D_DEBUG",
-            "-DU_USING_ICU_NAMESPACE=0",
-            "-DU_ENABLE_DYLOAD=0",
-            "-DUSE_CHROMIUM_ICU=1",
-            "-DU_STATIC_IMPLEMENTATION",
-            "-DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE",
-            "-DUCHAR_TYPE=uint16_t",
-            "-DFLUTTER_RUNTIME_MODE_DEBUG=1",
-            "-DFLUTTER_RUNTIME_MODE_PROFILE=2",
-            "-DFLUTTER_RUNTIME_MODE_RELEASE=3",
-            "-DFLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
-            "-DFLUTTER_RUNTIME_MODE=1",
-            "-DFLUTTER_JIT_RUNTIME=1",
+        np.Defines.Add(c => IsAndroid(c), new [] {
+            "USE_OPENSSL=1",
+            "USE_OPENSSL_CERTS=1",
+            "ANDROID",
+            "HAVE_SYS_UIO_H",
+            "__STDC_CONSTANT_MACROS",
+            "__STDC_FORMAT_MACROS",
+            // "_FORTIFY_SOURCE=2",
+            "__compiler_offsetof=__builtin_offsetof",
+            "nan=__builtin_nan",
+            "__GNU_SOURCE=1",
+            "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+            "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+            "_DEBUG",
+            "U_USING_ICU_NAMESPACE=0",
+            "U_ENABLE_DYLOAD=0",
+            "USE_CHROMIUM_ICU=1",
+            "U_STATIC_IMPLEMENTATION",
+            "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE",
+            "UCHAR_TYPE=uint16_t",
+            "FLUTTER_RUNTIME_MODE_DEBUG=1",
+            "FLUTTER_RUNTIME_MODE_PROFILE=2",
+            "FLUTTER_RUNTIME_MODE_RELEASE=3",
+            "FLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
+            "FLUTTER_RUNTIME_MODE=1",
+            "FLUTTER_JIT_RUNTIME=1",
 
             // confige for rapidjson
-            //"-DUIWIDGETS_FORCE_ALIGNAS_8=\"1\"",
-            "-DRAPIDJSON_HAS_STDSTRING",
-            "-DRAPIDJSON_HAS_CXX11_RANGE_FOR",
-            "-DRAPIDJSON_HAS_CXX11_RVALUE_REFS",
-            "-DRAPIDJSON_HAS_CXX11_TYPETRAITS",
-            "-DRAPIDJSON_HAS_CXX11_NOEXCEPT",
-            "-DSK_ENABLE_SPIRV_VALIDATION",
-            "-DSK_GAMMA_APPLY_TO_A8",
-            "-DSK_GAMMA_EXPONENT=1.4",
-            "-DSK_GAMMA_CONTRAST=0.0",
-            "-DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
-            "-DGR_TEST_UTILS=1",
-            "-DSKIA_IMPLEMENTATION=1",
-            "-DSK_GL",
-            "-DSK_ENABLE_DUMP_GPU",
-            "-DSK_SUPPORT_PDF",
-            "-DSK_CODEC_DECODES_JPEG",
-            "-DSK_ENCODE_JPEG",
-            "-DSK_ENABLE_ANDROID_UTILS",
-            "-DSK_USE_LIBGIFCODEC",
-            "-DSK_HAS_HEIF_LIBRARY",
-            "-DSK_CODEC_DECODES_PNG",
-            "-DSK_ENCODE_PNG",
-            "-DSK_CODEC_DECODES_RAW",
-            "-DSK_ENABLE_SKSL_INTERPRETER",
-            "-DSK_CODEC_DECODES_WEBP",
-            "-DSK_ENCODE_WEBP",
-            "-DSK_XML",
+            "UIWIDGETS_FORCE_ALIGNAS_8=\"1\"",
+            "RAPIDJSON_HAS_STDSTRING",
+            "RAPIDJSON_HAS_CXX11_RANGE_FOR",
+            "RAPIDJSON_HAS_CXX11_RVALUE_REFS",
+            "RAPIDJSON_HAS_CXX11_TYPETRAITS",
+            "RAPIDJSON_HAS_CXX11_NOEXCEPT",
+            "SK_ENABLE_SPIRV_VALIDATION",
+            "SK_GAMMA_APPLY_TO_A8",
+            "SK_GAMMA_EXPONENT=1.4",
+            "SK_GAMMA_CONTRAST=0.0",
+            "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+            "GR_TEST_UTILS=1",
+            "SKIA_IMPLEMENTATION=1",
+            "SK_GL",
+            "SK_ENABLE_DUMP_GPU",
+            "SK_SUPPORT_PDF",
+            "SK_CODEC_DECODES_JPEG",
+            "SK_ENCODE_JPEG",
+            "SK_ENABLE_ANDROID_UTILS",
+            "SK_USE_LIBGIFCODEC",
+            "SK_HAS_HEIF_LIBRARY",
+            "SK_CODEC_DECODES_PNG",
+            "SK_ENCODE_PNG",
+            "SK_CODEC_DECODES_RAW",
+            "SK_ENABLE_SKSL_INTERPRETER",
+            "SK_CODEC_DECODES_WEBP",
+            "SK_ENCODE_WEBP",
+            "SK_XML",
 
 
-            //"-DUIWIDGETS_ENGINE_VERSION=\"0.0\"",
-            //"-DSKIA_VERSION=\"0.0\"",
-            "-DXML_STATIC",
+            //"UIWIDGETS_ENGINE_VERSION=\"0.0\"",
+            //"SKIA_VERSION=\"0.0\"",
+            "XML_STATIC",
+        });
+        np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] {
+            "-MD",
+            "-MF",
 
             "-I.",
             "-Ithird_party",
             "-Isrc",
-            "-I"+FLUTTER_ROOT,
-            "-I"+FLUTTER_ROOT+"/third_party/rapidjson/include",
-            "-I"+SKIA_ROOT,
-            "-I"+SKIA_ROOT + "/include/third_party/vulkan",
-            "-I"+FLUTTER_ROOT+"/flutter/third_party/txt/src",
-            "-I" + FLUTTER_ROOT + "/third_party/harfbuzz/src",
-            "-I" + SKIA_ROOT + "/third_party/externals/icu/source/common",
+            "-I"+ flutterRoot,
+            "-I"+ flutterRoot+"/third_party/rapidjson/include",
+            "-I"+ skiaRoot,
+            "-I"+ skiaRoot + "/include/third_party/vulkan",
+            "-I"+ flutterRoot+"/flutter/third_party/txt/src",
+            "-I" + flutterRoot + "/third_party/harfbuzz/src",
+            "-I" + skiaRoot + "/third_party/externals/icu/source/common",
 
             // "-Igen",
-            "-I"+FLUTTER_ROOT+"/third_party/libcxx/include",
-            "-I"+FLUTTER_ROOT+"/third_party/libcxxabi/include",
-            "-I"+FLUTTER_ROOT+"/third_party/icu/source/common",
-            "-I"+FLUTTER_ROOT+"/third_party/icu/source/i18n",
+            "-I"+ flutterRoot+"/third_party/libcxx/include",
+            "-I"+ flutterRoot+"/third_party/libcxxabi/include",
+            "-I"+ flutterRoot+"/third_party/icu/source/common",
+            "-I"+ flutterRoot+"/third_party/icu/source/i18n",
 
             // ignore deprecated code
             "-Wno-deprecated-declarations",
@@ -521,13 +514,14 @@ class Build
             "-Wno-unused-parameter",
             "-Wno-unused-variable",
             "-Wno-unused-command-line-argument",
+            "-Wno-unused-function",
             // "-Wno-non-c-typedef-for-linkage",
-            "-isystem"+FLUTTER_ROOT+"/third_party/android_tools/ndk/sources/android/support/include",
-            "-isystem"+FLUTTER_ROOT +
+            "-isystem"+ flutterRoot+"/third_party/android_tools/ndk/sources/android/support/include",
+            "-isystem"+ flutterRoot +
             "/third_party/android_tools/ndk/sysroot/usr/include/arm-linux-androideabi",
             //"-D__ANDROID_API__=16",
             // "-fvisibility=hidden",
-            "--sysroot="+FLUTTER_ROOT+"/third_party/android_tools/ndk/sysroot",
+            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/sysroot",
             "-Wstring-conversion",
             // supress new line error
             // "-Wnewline-eof",
@@ -539,15 +533,12 @@ class Build
             "-fno-exceptions",
             "-nostdlib"
         }));
-        //np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-Wno-c++11-narrowing" }));
 
         np.IncludeDirectories.Add("third_party");
         np.IncludeDirectories.Add("src");
 
         np.Defines.Add("UIWIDGETS_ENGINE_VERSION=\\\"0.0\\\"", "SKIA_VERSION=\\\"0.0\\\"");
         np.Defines.Add(c => IsMac(c), "UIWIDGETS_FORCE_ALIGNAS_8=\\\"1\\\"");
-
-        np.Defines.Add(c => IsAndroid(c), "UIWIDGETS_FORCE_ALIGNAS_8=\\\"1\\\"");
 
         np.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });
@@ -564,7 +555,7 @@ class Build
             "-Wl,-z,now",
             "-Wl,-z,relro",
             "-Wl,-z,defs",
-            "--gcc-toolchain="+flutterRoot + 
+            "--gcc-toolchain="+ Build.flutterRoot +
             "/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64",
             "-Wl,--no-undefined",
             "-Wl,--exclude-libs,ALL",
@@ -574,18 +565,24 @@ class Build
             "-nostdlib++",
             "-Wl,--warn-shared-textrel",
             "-nostdlib",
-            "--sysroot="+flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
-            "-L"+flutterRoot +            "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
+            "--sysroot="+ Build.flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
+            "-L"+ Build.flutterRoot +            "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-Wl,--build-id=sha1",
             "-g",
             "-Wl,-soname=libUIWidgets_d.so",
             "-Wl,--whole-archive",
         }));
-
-        //SetupFml(np);
-        //SetupRadidJson(np);
-        SetupSkia(np);
-        //SetupTxt(np);
+        if (buildAndroid)
+        {
+            SetupSkia(np);
+        }
+        else
+        {
+            SetupFml(np);
+            SetupRadidJson(np);
+            SetupSkia(np);
+            SetupTxt(np);
+        }
 
         var codegens = new[] { CodeGen.Debug };
 
@@ -646,7 +643,7 @@ class Build
         return np;
     }
 
-static void SetupFml(NativeProgram np)
+    static void SetupFml(NativeProgram np)
     {
 
         np.Defines.Add(c => IsWindows(c), new[]
@@ -700,34 +697,6 @@ static void SetupFml(NativeProgram np)
             "FLUTTER_JIT_RUNTIME=1"
         });
 
-        np.Defines.Add(c => IsAndroid(c), new[]
-        {
-            // bin/gn desc out/arm //:skia defines
-            "SK_ENABLE_SPIRV_VALIDATION",
-            "SK_GAMMA_APPLY_TO_A8",
-            "SK_GAMMA_EXPONENT=1.4",
-            "SK_GAMMA_CONTRAST=0.0",
-            "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
-            "GR_TEST_UTILS=1",
-            "SKIA_IMPLEMENTATION=1",
-            "SK_GL",
-            "SK_ENABLE_DUMP_GPU",
-            "SK_SUPPORT_PDF",
-            "SK_CODEC_DECODES_JPEG",
-            "SK_ENCODE_JPEG",
-            "SK_ENABLE_ANDROID_UTILS",
-            "SK_USE_LIBGIFCODEC",
-            "SK_HAS_HEIF_LIBRARY",
-            "SK_CODEC_DECODES_PNG",
-            "SK_ENCODE_PNG",
-            "SK_CODEC_DECODES_RAW",
-            "SK_ENABLE_SKSL_INTERPRETER",
-            "SK_CODEC_DECODES_WEBP",
-            "SK_ENCODE_WEBP",
-            "SK_XML",
-            "XML_STATIC"
-        });
-
         np.IncludeDirectories.Add(flutterRoot);
 
         var fmlLibPath = flutterRoot + "/out/host_debug_unopt";
@@ -748,19 +717,6 @@ static void SetupFml(NativeProgram np)
                 new SystemFramework("Foundation"),
             };
         });
-
-
-        //np.Libraries.Add(c => IsAndroid(c), c =>
-        //{
-        //    var basePath = flutterRoot + "/out/android_debug_unopt";
-
-        //    return new PrecompiledLibrary[]
-        //    {
-        //        new StaticLibrary(basePath + "/obj/flutter/fml/libfml_lib.a"),
-        //    };
-        //});
-        //np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-fvisibility-inlines-hidden -std=c++17 -fno-rtti -fno-exceptions" }));
-        //np.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-std=c++14 -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables" }));
     }
 
     static void SetupSkia(NativeProgram np)
@@ -841,39 +797,9 @@ static void SetupFml(NativeProgram np)
             "SK_XML"
         });
 
-        //np.Defines.Add(c => IsAndroid(c), new[]
-        //{
-        //    // bin/gn desc out/arm //:skia defines
-        //    "SK_ENABLE_SPIRV_VALIDATION",
-        //    "SK_GAMMA_APPLY_TO_A8",
-        //    "SK_GAMMA_EXPONENT=1.4",
-        //    "SK_GAMMA_CONTRAST=0.0",
-        //    "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
-        //    "GR_TEST_UTILS=1",
-        //    "SKIA_IMPLEMENTATION=1",
-        //    "SK_GL",
-        //    "SK_ENABLE_DUMP_GPU",
-        //    "SK_SUPPORT_PDF",
-        //    "SK_CODEC_DECODES_JPEG",
-        //    "SK_ENCODE_JPEG",
-        //    "SK_ENABLE_ANDROID_UTILS",
-        //    "SK_USE_LIBGIFCODEC",
-        //    "SK_HAS_HEIF_LIBRARY",
-        //    "SK_CODEC_DECODES_PNG",
-        //    "SK_ENCODE_PNG",
-        //    "SK_CODEC_DECODES_RAW",
-        //    "SK_ENABLE_SKSL_INTERPRETER",
-        //    "SK_CODEC_DECODES_WEBP",
-        //    "SK_ENCODE_WEBP",
-        //    "SK_XML",
-        //    "XML_STATIC"
-        //});
-
         np.IncludeDirectories.Add(skiaRoot);
         np.IncludeDirectories.Add(c => IsWindows(c), skiaRoot + "/third_party/externals/angle2/include");
         // np.IncludeDirectories.Add(skiaRoot + "/include/third_party/vulkan");
-
-        np.IncludeDirectories.Add(c => IsAndroid(c), skiaRoot + "/include/third_party/vulkan");
 
         np.Libraries.Add(IsWindows, c =>
         {
@@ -921,87 +847,75 @@ static void SetupFml(NativeProgram np)
             return new PrecompiledLibrary[]
             {
                 // icudtl
-            new StaticLibrary("icudtl.o"),
+                new StaticLibrary("icudtl.o"),
 
-            // libcxx
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.algorithm.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.any.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.bind.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.charconv.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.chrono.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.condition_variable.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.condition_variable_destructor.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.debug.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.exception.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.functional.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.future.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.hash.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.ios.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.iostream.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.locale.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.memory.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.mutex.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.mutex_destructor.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.new.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.optional.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.random.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.regex.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.shared_mutex.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.stdexcept.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.string.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.strstream.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.system_error.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.thread.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.typeinfo.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.utility.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.valarray.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.variant.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.vector.o"),
-            // libcxxabi
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.abort_message.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_aux_runtime.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_default_handlers.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_demangle.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_exception_storage.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_guard.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_handlers.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_noexception.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_unexpected.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_vector.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_virtual.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.fallback_malloc.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.private_typeinfo.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.stdlib_exception.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.stdlib_stdexcept.o"),
-            new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.stdlib_typeinfo.o"),
+                // libcxx
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.algorithm.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.any.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.bind.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.charconv.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.chrono.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.condition_variable.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.condition_variable_destructor.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.debug.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.exception.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.functional.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.future.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.hash.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.ios.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.iostream.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.locale.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.memory.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.mutex.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.mutex_destructor.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.new.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.optional.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.random.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.regex.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.shared_mutex.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.stdexcept.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.string.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.strstream.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.system_error.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.thread.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.typeinfo.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.utility.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.valarray.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.variant.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxx/src/libcxx.vector.o"),
+                // libcxxabi
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.abort_message.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_aux_runtime.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_default_handlers.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_demangle.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_exception_storage.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_guard.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_handlers.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_noexception.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_unexpected.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_vector.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.cxa_virtual.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.fallback_malloc.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.private_typeinfo.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.stdlib_exception.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.stdlib_stdexcept.o"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/third_party/libcxxabi/src/libcxxabi.stdlib_typeinfo.o"),
 
                 new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtbegin_so.o"),
                 new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtend_so.o"),
 
-                 new StaticLibrary( flutterRoot+"/out/android_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
 
-                //new StaticLibrary(basePath + "/libskia.a"),
-                //new StaticLibrary(basePath + "/libskottie.a"),
-                //new StaticLibrary(basePath + "/libsksg.a"),
-                //new StaticLibrary(basePath + "/libskshaper.a"),
-                //new SystemLibrary("/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a"),
-                //new StaticLibrary("/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libunwind.a"),
-                //new StaticLibrary("/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk/toolchains/llvm/prebuilt/darwin-x86_64/lib/gcc/arm-linux-androideabi/4.9.x/libgcc.a"),
-                //new StaticLibrary("/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libandroid_support.a"),
-
-            
-
-                new SystemLibrary("android"),
-                new SystemLibrary("EGL"),
-                new SystemLibrary("GLESv2"),
                 new SystemLibrary("android_support"),
-                new SystemLibrary("gcc"),
-                new SystemLibrary("stdc++"),
                 new SystemLibrary("unwind"),
+                new SystemLibrary("gcc"),
                 new SystemLibrary("c"),
                 new SystemLibrary("dl"),
                 new SystemLibrary("m"),
-                new SystemLibrary("log")
+                new SystemLibrary("android"),
+                new SystemLibrary("EGL"),
+                new SystemLibrary("GLESv2"),
+                new SystemLibrary("log"),
             };
         });
 
@@ -1018,65 +932,13 @@ static void SetupFml(NativeProgram np)
 
     static void SetupTxtDependency(NativeProgram np)
     {
-        np.Defines.Add(IsWindows, new[] { "SK_USING_THIRD_PARTY_ICU", "U_USING_ICU_NAMESPACE=0", "U_DISABLE_RENAMING",
+        np.Defines.Add(new[] { "SK_USING_THIRD_PARTY_ICU", "U_USING_ICU_NAMESPACE=0", "U_DISABLE_RENAMING",
             "U_ENABLE_DYLOAD=0", "USE_CHROMIUM_ICU=1", "U_STATIC_IMPLEMENTATION",
             "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_STATIC"
         });
-        np.Defines.Add(IsAndroid, new string[] {
-            // gn desc out/android_debug_unopt //flutter/third_party/txt:txt defines
-             "USE_OPENSSL=1",
-              "USE_OPENSSL_CERTS=1",
-              "ANDROID",
-              "HAVE_SYS_UIO_H",
-              "__STDC_CONSTANT_MACROS",
-              "__STDC_FORMAT_MACROS",
-              "_FORTIFY_SOURCE=2",
-              "__compiler_offsetof=__builtin_offsetof",
-              "nan=__builtin_nan",
-              "_LIBCPP_DISABLE_AVAILABILITY=1",
-              "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
-              "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
-              "_DEBUG",
-              "SK_GL",
-              "SK_ENABLE_DUMP_GPU",
-              "SK_CODEC_DECODES_JPEG",
-              "SK_ENCODE_JPEG",
-              "SK_CODEC_DECODES_PNG",
-              "SK_ENCODE_PNG",
-              "SK_CODEC_DECODES_WEBP",
-              "SK_ENCODE_WEBP",
-              "SK_HAS_WUFFS_LIBRARY",
-              "SK_XML",
-              "FLUTTER_RUNTIME_MODE_DEBUG=1",
-              "FLUTTER_RUNTIME_MODE_PROFILE=2",
-              "FLUTTER_RUNTIME_MODE_RELEASE=3",
-              "FLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
-              "FLUTTER_RUNTIME_MODE=1",
-              "FLUTTER_JIT_RUNTIME=1",
-              "U_USING_ICU_NAMESPACE=0",
-              "U_ENABLE_DYLOAD=0",
-              "USE_CHROMIUM_ICU=1",
-              "U_STATIC_IMPLEMENTATION",
-              "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE",
-              "UCHAR_TYPE=uint16_t",
-              "SK_DISABLE_REDUCE_OPLIST_SPLITTING",
-              "SK_ENABLE_DUMP_GPU",
-              "SK_DISABLE_AAA",
-              "SK_DISABLE_READBUFFER",
-              "SK_DISABLE_EFFECT_DESERIALIZATION",
-              "SK_SUPPORT_LEGACY_DIDCONCAT44",
-              "SK_DISABLE_LEGACY_SHADERCONTEXT",
-              "SK_DISABLE_LOWP_RASTER_PIPELINE",
-              "SK_FORCE_RASTER_PIPELINE_BLITTER",
-              "SK_GL",
-              "SK_ASSUME_GL_ES=1"
-        });
         np.IncludeDirectories.Add(flutterRoot + "/flutter/third_party/txt/src");
-        np.IncludeDirectories.Add(flutterRoot + "/third_party/harfbuzz/src");
+        np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/harfbuzz/src");
         np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/icu/source/common");
-
-        np.IncludeDirectories.Add(flutterRoot + "/third_party/icu/source/common");
-        np.IncludeDirectories.Add(flutterRoot + "/third_party/icu/source/i18n");
     }
 
     static void SetupTxt(NativeProgram np)
@@ -1175,7 +1037,6 @@ static void SetupFml(NativeProgram np)
         {
             IncludeDirectories = {
                 "third_party",
-
                 flutterRoot,
                 skiaRoot,
             },
@@ -1186,17 +1047,14 @@ static void SetupFml(NativeProgram np)
         var ignoreWarnigs = new string[] { "4091", "4722", "4312", "4838", "4172", "4005", "4311", "4477" }; // todo comparing the list with engine
         txtLib.CompilerSettings().Add(s => s.WithWarningPolicies(ignoreWarnigs.Select((code) => new WarningAndPolicy(code, WarningPolicy.Silent)).ToArray()));
         txtLib.CompilerSettings().Add(c => IsMac(c), c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
-        txtLib.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new[] { "-Wno-c++11-narrowing" }));
-
-        txtLib.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
-        txtLib.CompilerSettings().Add(c => IsAndroid(c), c => c.WithCustomFlags(new[] { "-Wno-c++11-narrowing" }));
+        txtLib.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new []{"-Wno-c++11-narrowing"}));
 
         txtLib.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });
         txtLib.Defines.Add(c => IsWindows(c),
             new[] { "UCHAR_TYPE=wchar_t" });
         txtLib.Defines.Add(c => !IsWindows(c),
-                    new[] { "UCHAR_TYPE=uint16_t    " });
+                    new[] { "UCHAR_TYPE=uint16_t" });
         txtLib.Defines.Add(c => c.CodeGen == CodeGen.Release,
             new[] { "UIWidgets_RELEASE=1" });
 

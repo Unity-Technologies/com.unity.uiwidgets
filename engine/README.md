@@ -226,12 +226,29 @@ gclient sync -D
 
 Apply following to end of `flutter/third_party/txt/BUILD.gn`
 ```
-static_library("txt_lib") {
-  complete_static_lib = true
-  deps = [
-    ":txt",
-  ]
-}
+diff --git a/third_party/txt/BUILD.gn b/third_party/txt/BUILD.gn
+index 56b73a020..d42e88045 100644
+--- a/third_party/txt/BUILD.gn
++++ b/third_party/txt/BUILD.gn
+@@ -141,6 +141,7 @@ source_set("txt") {
+     "//third_party/harfbuzz",
+     "//third_party/icu",
+     "//third_party/skia",
++    "//third_party/skia/modules/skottie",
+   ]
+ 
+   deps = [
+@@ -339,3 +340,10 @@ executable("txt_benchmarks") {
+     deps += [ "//third_party/skia/modules/skparagraph" ]
+   }
+ }
++
++static_library("txt_lib") {
++  complete_static_lib = true
++  deps = [
++    ":txt",
++  ]
++}
 ```
 cmd
 ```
