@@ -279,7 +279,7 @@ namespace Unity.UIWidgets.widgets {
                     }
                     break;
             }
-            if (target == pixels) {
+            if (foundation_.FloatEqual(target,pixels)) {
                 return Future.value();
             }
 

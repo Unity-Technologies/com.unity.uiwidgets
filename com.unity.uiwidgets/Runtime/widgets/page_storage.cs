@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.widgets {
@@ -25,7 +26,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string ToString() {
-            return $"StorageEntryIdentifier({string.Join(":", keys.Select(x => x.ToString()).ToArray())})";
+            return $"StorageEntryIdentifier({string.Join(":", LinqUtils<string, PageStorageKey>.SelectList(keys, (x => x.ToString())))})";
         }
 
         public bool Equals(_StorageEntryIdentifier other) {

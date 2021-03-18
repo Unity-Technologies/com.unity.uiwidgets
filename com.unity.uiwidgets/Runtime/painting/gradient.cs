@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.external;
 using Unity.UIWidgets.ui;
@@ -119,8 +120,7 @@ namespace Unity.UIWidgets.painting {
 
             D.assert(colors.Count >= 2, () => "colors list must have at least two colors");
             float separation = 1.0f / (colors.Count - 1);
-
-            return Enumerable.Range(0, colors.Count).Select(i => i * separation).ToList();
+            return LinqUtils<float, int>.SelectList(Enumerable.Range(0, colors.Count), (i => i * separation));
         }
 
         public abstract Shader createShader(Rect rect, TextDirection? textDirection = null);
@@ -205,7 +205,7 @@ namespace Unity.UIWidgets.painting {
             return new LinearGradient(
                 begin: begin,
                 end: end,
-                colors: colors.Select(color => Color.lerp(null, color, factor)).ToList(),
+                colors: LinqUtils<Color>.SelectList(colors,(color => Color.lerp(null, color, factor))),
                 stops: stops,
                 tileMode: tileMode
             );
@@ -357,7 +357,7 @@ namespace Unity.UIWidgets.painting {
             return new RadialGradient(
                 center: center,
                 radius: radius,
-                colors: colors.Select(color => Color.lerp(null, color, factor)).ToList(),
+                colors: LinqUtils<Color>.SelectList(colors,(color => Color.lerp(null, color, factor))),
                 stops: stops,
                 tileMode: tileMode
             );
@@ -506,7 +506,7 @@ namespace Unity.UIWidgets.painting {
                 center: center,
                 startAngle: startAngle,
                 endAngle: endAngle,
-                colors: colors.Select(color => Color.lerp(null, color, factor)).ToList(),
+                colors: LinqUtils<Color>.SelectList(colors,(color => Color.lerp(null, color, factor))),
                 stops: stops,
                 tileMode: tileMode
             );

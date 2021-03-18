@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -319,7 +320,7 @@ namespace Unity.UIWidgets.painting {
 
         public override ShapeBorder scale(float t) {
             return new _CompoundBorder(
-                borders.Select(border => border.scale(t)).ToList()
+                LinqUtils<ShapeBorder>.SelectList(borders,(border => border.scale(t)))
             );
         }
 
@@ -421,7 +422,8 @@ namespace Unity.UIWidgets.painting {
 
         public override string ToString() {
             return string.Join(" + ",
-                ((IList<ShapeBorder>) borders).Reverse().Select((border) => border.ToString()));
+                (LinqUtils<string,ShapeBorder>.SelectList(((IList<ShapeBorder>)borders).Reverse(),((border) => border.ToString())))
+            );
         }
     }
 
