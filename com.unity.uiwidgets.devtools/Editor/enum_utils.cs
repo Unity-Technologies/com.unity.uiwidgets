@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.DevTools
@@ -20,4 +20,4 @@ namespace Unity.UIWidgets.DevTools
         string name(T enumEntry) => _reverseLookupTable[enumEntry];
     }
 
-}
+}*/

@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -864,32 +864,31 @@ public class RemoteDiagnosticsNode : DiagnosticableTree {
 
   Future<string> _createPropertyDocFuture() {
     // TODO(jacobr): We need access to the analyzer to support this feature.
-    /*
-    if (parent != null) {
-      DartVmServiceValue vmValue = inspectorService.toDartVmServiceValueForSourceLocation(parent.getValueRef());
-      if (vmValue == null) {
-       return null;
-      }
-      return inspectorService.getPropertyLocation(vmValue.getInstanceRef(), getName())
-          .thenApplyAsync((XSourcePosition sourcePosition) -> {
-      if (sourcePosition != null) {
-      final VirtualFile file = sourcePosition.getFile();
-      final int offset = sourcePosition.getOffset();
+    ////
+    ////if (parent != null) {
+    ////DartVmServiceValue vmValue = inspectorService.toDartVmServiceValueForSourceLocation(parent.getValueRef());
+    ////if (vmValue == null) {
+    ////return null;
+    ////}
+    ////return inspectorService.getPropertyLocation(vmValue.getInstanceRef(), getName())
+    ////  .thenApplyAsync((XSourcePosition sourcePosition) -> {
+    ////if (sourcePosition != null) {
+    ////final VirtualFile file = sourcePosition.getFile();
+    ////final int offset = sourcePosition.getOffset();
 
-      final Project project = getProject(file);
-      if (project != null) {
-      final List<HoverInformation> hovers =
-      DartAnalysisServerService.getInstance(project).analysis_getHover(file, offset);
-      if (!hovers.isEmpty()) {
-      return hovers.get(0).getDartdoc();
-      }
-      }
-      }
-      return 'Unable to find property source';
-      });
-      });
-    }
-*/
+    ////final Project project = getProject(file);
+    ////if (project != null) {
+    ////final List<HoverInformation> hovers =
+    ////DartAnalysisServerService.getInstance(project).analysis_getHover(file, offset);
+    ////if (!hovers.isEmpty()) {
+    ////return hovers.get(0).getDartdoc();
+    ////}
+    ////}
+    ////}
+    ////return 'Unable to find property source';
+    ////});
+    ////});
+    ////}
     return Future.value("Unable to find property source").to<string>();
   }
 
@@ -1043,4 +1042,4 @@ class InspectorSourceLocation {
         public readonly int line;
         public readonly int column;
     }
-}
+}*/

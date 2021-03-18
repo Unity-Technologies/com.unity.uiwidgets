@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -68,4 +68,4 @@ namespace Unity.UIWidgets.DevTools.inspector.layout_explorer.ui
         }
     }
 
-}
+}*/

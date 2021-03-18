@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.async2;
@@ -378,169 +378,169 @@ public class _AlternateCheckedModeBanner : StatelessWidget {
   }
 }
 
-/*public class OpenAboutAction : StatelessWidget {
+////public class OpenAboutAction : StatelessWidget {
   
-  public override Widget build(BuildContext context) {
-    return DevToolsTooltip(
-      tooltip: "About DevTools",
-      child: new InkWell(
-        onTap: () => {
-          unawaited(showDialog(
-            context: context,
-            builder: (context2) => new DevToolsAboutDialog()
-          ));
-        },
-        child: new Container(
-          width: DevToolsScaffold.actionWidgetSize,
-          height: DevToolsScaffold.actionWidgetSize,
-          alignment: Alignment.center,
-          child: new Icon(
-            Icons.help_outline,
-            size: actionsIconSize
-          )
-        )
-      )
-    );
-  }
-}
+////  public override Widget build(BuildContext context) {
+    ////return DevToolsTooltip(
+      ////tooltip: "About DevTools",
+      ////child: new InkWell(
+        ////onTap: () => {
+          ////unawaited(showDialog(
+            ////context: context,
+            ////builder: (context2) => new DevToolsAboutDialog()
+          ////));
+        ////},
+        ////child: new Container(
+          ////width: DevToolsScaffold.actionWidgetSize,
+          ////height: DevToolsScaffold.actionWidgetSize,
+          ////alignment: Alignment.center,
+          ////child: new Icon(
+          ////Icons.help_outline,
+////size: actionsIconSize
+////)
+////   )
+////  )
+  //// );
+  //// }
+////}
 
-public class  OpenSettingsAction : StatelessWidget {
+////public class  OpenSettingsAction : StatelessWidget {
+  ////
+////public override Widget build(BuildContext context) {
+  ////return DevToolsTooltip(
+  ////tooltip: "Settings",
+  ////child: new InkWell(
+  ////  onTap: () => {
+  ////    unawaited(showDialog(
+  ////      context: context,
+////      builder: (context2) => new SettingsDialog()
+  ////      ));
+  ////  },
+  ////  child: new Container(
+  ////    width: DevToolsScaffold.actionWidgetSize,
+  ////    height: DevToolsScaffold.actionWidgetSize,
+  ////    alignment: Alignment.center,
+  ////    child: new Icon(
+  ////      Icons.settings,
+////      size: actionsIconSize
+////      )
+////    )
+////  )
+  ////);
+  //// }
+////}
+
+////public class DevToolsAboutDialog : StatelessWidget {
   
-  public override Widget build(BuildContext context) {
-    return DevToolsTooltip(
-      tooltip: "Settings",
-      child: new InkWell(
-        onTap: () => {
-          unawaited(showDialog(
-            context: context,
-            builder: (context2) => new SettingsDialog()
-          ));
-        },
-        child: new Container(
-          width: DevToolsScaffold.actionWidgetSize,
-          height: DevToolsScaffold.actionWidgetSize,
-          alignment: Alignment.center,
-          child: new Icon(
-            Icons.settings,
-            size: actionsIconSize
-          )
-        )
-      )
-    );
-  }
-}
+  ////public override Widget build(BuildContext context) {
+  ////var theme = Theme.of(context);
 
-public class DevToolsAboutDialog : StatelessWidget {
-  
-  public override Widget build(BuildContext context) {
-    var theme = Theme.of(context);
-
-    List<Widget> widgets = new List<Widget>();
-    widgets.Add(new SizedBox(height: defaultSpacing));
-    List<Widget> temp = dialogSubHeader(theme, "Feedback");
-    foreach (var widget in temp)
-    {
-      widgets.Add(widget);
-    }
-    widgets.Add(new Wrap(
-      children: new List<Widget>{
-        new Text("Encountered an issue? Let us know at "),
-        _createFeedbackLink(context),
-        new Text(".")
-      }
-    ));
+  ////List<Widget> widgets = new List<Widget>();
+  ////widgets.Add(new SizedBox(height: defaultSpacing));
+////List<Widget> temp = dialogSubHeader(theme, "Feedback");
+  ////foreach (var widget in temp)
+  ////{
+  ////widgets.Add(widget);
+  ////}
+  ////widgets.Add(new Wrap(
+  ////children: new List<Widget>{
+  ////  new Text("Encountered an issue? Let us know at "),
+  ////  _createFeedbackLink(context),
+  ////  new Text(".")
+////}
+////));
     
     
-    return DevToolsDialog(
-      title: dialogTitleText(theme, "About DevTools"),
-      content: new Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: widgets
-      ),
-      actions: [
-        DialogCloseButton(),
-      ],
-    );
-  }
+  ////return DevToolsDialog(
+  ////title: dialogTitleText(theme, "About DevTools"),
+  ////content: new Column(
+  ////  mainAxisSize: MainAxisSize.min,
+  ////  crossAxisAlignment: CrossAxisAlignment.start,
+////  children: widgets
+  ////  ),
+  ////actions: [
+////  DialogCloseButton(),
+////  ],
+  ////);
+  ////}
 
-  Widget _aboutDevTools(BuildContext context) {
-    return const SelectableText('DevTools version ${devtools.version}');
-  }
+////Widget _aboutDevTools(BuildContext context) {
+  ////return const SelectableText('DevTools version ${devtools.version}');
+  ////}
 
-  Widget _createFeedbackLink(BuildContext context) {
-    const urlPath = 'github.com/flutter/devtools/issues';
-    final colorScheme = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: () async {
-        ga.select(devToolsMain, feedback);
+  ////Widget _createFeedbackLink(BuildContext context) {
+  ////const urlPath = 'github.com/flutter/devtools/issues';
+////final colorScheme = Theme.of(context).colorScheme;
+  ////return InkWell(
+  ////onTap: () async {
+  ////  ga.select(devToolsMain, feedback);
+////
+  ////    const reportIssuesUrl = 'https://$urlPath';
+  ////  await launchUrl(reportIssuesUrl, context);
+  ////},
+////child: Text(urlPath, style: linkTextStyle(colorScheme)),
+  ////);
+  ////}
+////}
 
-        const reportIssuesUrl = 'https://$urlPath';
-        await launchUrl(reportIssuesUrl, context);
-      },
-      child: Text(urlPath, style: linkTextStyle(colorScheme)),
-    );
-  }
-}
+////TODO(kenz): merge the checkbox functionality here with [NotifierCheckbox]
+////class SettingsDialog extends StatelessWidget {
+  ////@override
+////Widget build(BuildContext context) {
+  ////return DevToolsDialog(
+  ////title: dialogTitleText(Theme.of(context), 'Settings'),
+  ////content: Column(
+  ////  mainAxisSize: MainAxisSize.min,
+  ////  crossAxisAlignment: CrossAxisAlignment.start,
+  ////  children: [
+  ////    _buildOption(
+  ////      label: const Text('Use a dark theme'),
+  ////      listenable: preferences.darkModeTheme,
+////      toggle: preferences.toggleDarkModeTheme,
+////      ),
+  ////      if (isExternalBuild && isDevToolsServerAvailable)
+  ////      _buildOption(
+  ////        label: const Text('Enable analytics'),
+  ////        listenable: ga.gaEnabledNotifier,
+////        toggle: ga.setAnalyticsEnabled,
+  ////        ),
+  ////    _buildOption(
+  ////      label: const Text('Enable VM developer mode'),
+  ////      listenable: preferences.vmDeveloperModeEnabled,
+////      toggle: preferences.toggleVmDeveloperMode,
+////      ),
+////    ],
+  ////  ),
+  ////actions: [
+////  DialogCloseButton(),
+////  ],
+  ////);
+  ////}
 
-TODO(kenz): merge the checkbox functionality here with [NotifierCheckbox]
-class SettingsDialog extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return DevToolsDialog(
-      title: dialogTitleText(Theme.of(context), 'Settings'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildOption(
-            label: const Text('Use a dark theme'),
-            listenable: preferences.darkModeTheme,
-            toggle: preferences.toggleDarkModeTheme,
-          ),
-          if (isExternalBuild && isDevToolsServerAvailable)
-            _buildOption(
-              label: const Text('Enable analytics'),
-              listenable: ga.gaEnabledNotifier,
-              toggle: ga.setAnalyticsEnabled,
-            ),
-          _buildOption(
-            label: const Text('Enable VM developer mode'),
-            listenable: preferences.vmDeveloperModeEnabled,
-            toggle: preferences.toggleVmDeveloperMode,
-          ),
-        ],
-      ),
-      actions: [
-        DialogCloseButton(),
-      ],
-    );
-  }
-
-  Widget _buildOption({
-    Text label,
-    ValueListenable<bool> listenable,
-    Function(bool) toggle,
-  }) {
-    return InkWell(
-      onTap: () => toggle(!listenable.value),
-      child: Row(
-        children: [
-          ValueListenableBuilder<bool>(
-            valueListenable: listenable,
-            builder: (context, value, _) {
-              return Checkbox(
-                value: value,
-                onChanged: toggle,
-              );
-            },
-          ),
-          label,
-        ],
-      ),
-    );
- }*/
-}
+  ////Widget _buildOption({
+  ////Text label,
+  ////ValueListenable<bool> listenable,
+  ////Function(bool) toggle,
+////}) {
+  ////return InkWell(
+  ////onTap: () => toggle(!listenable.value),
+  ////child: Row(
+  ////  children: [
+  ////    ValueListenableBuilder<bool>(
+  ////      valueListenable: listenable,
+////      builder: (context, value, _) {
+  ////          return Checkbox(
+  ////          value: value,
+////          onChanged: toggle,
+  ////          );
+////      },
+  ////      ),
+////    label,
+////    ],
+////  ),
+  ////);
+  ////}
+}*/
 
 
 

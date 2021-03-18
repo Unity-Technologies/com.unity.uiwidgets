@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.DevTools.inspector;
@@ -987,41 +987,41 @@ public class ObjectGroup {
     return invokeServiceMethodReturningNode('getRootRenderObject');
   }
 
-  /* TODO(jacobr): this probably isn't needed.
-  Future<List<DiagnosticsPathNode>> getParentChain(DiagnosticsNode target) async {
-    if (disposed) return null;
-    if (useDaemonApi) {
-      return parseDiagnosticsPathDaemon(invokeServiceMethodDaemon('getParentChain', target.getValueRef()));
-    }
-    else {
-    return parseDiagnosticsPathObservatory(invokeServiceMethodObservatory('getParentChain', target.getValueRef()));
-    }
-    });
-  }
+  //// TODO(jacobr): this probably isn't needed.
+  ////Future<List<DiagnosticsPathNode>> getParentChain(DiagnosticsNode target) async {
+  ////if (disposed) return null;
+  ////if (useDaemonApi) {
+  ////return parseDiagnosticsPathDaemon(invokeServiceMethodDaemon('getParentChain', target.getValueRef()));
+  ////}
+  ////else {
+  ////return parseDiagnosticsPathObservatory(invokeServiceMethodObservatory('getParentChain', target.getValueRef()));
+  ////}
+  ////});
+  ////}
 
-  Future<List<DiagnosticsPathNode>> parseDiagnosticsPathObservatory(Future<InstanceRef> instanceRefFuture) {
-    return nullIfDisposed(() -> instanceRefFuture.thenComposeAsync(this::parseDiagnosticsPathObservatory));
-  }
+  ////Future<List<DiagnosticsPathNode>> parseDiagnosticsPathObservatory(Future<InstanceRef> instanceRefFuture) {
+  ////return nullIfDisposed(() -> instanceRefFuture.thenComposeAsync(this::parseDiagnosticsPathObservatory));
+  ////}
 
-  Future<List<DiagnosticsPathNode>> parseDiagnosticsPathObservatory(InstanceRef pathRef) {
-    return nullIfDisposed(() -> instanceRefToJson(pathRef).thenApplyAsync(this::parseDiagnosticsPathHelper));
-  }
+  ////Future<List<DiagnosticsPathNode>> parseDiagnosticsPathObservatory(InstanceRef pathRef) {
+  ////return nullIfDisposed(() -> instanceRefToJson(pathRef).thenApplyAsync(this::parseDiagnosticsPathHelper));
+  ////}
 
-  Future<List<DiagnosticsPathNode>> parseDiagnosticsPathDaemon(Future<JsonElement> jsonFuture) {
-    return nullIfDisposed(() -> jsonFuture.thenApplyAsync(this::parseDiagnosticsPathHelper));
-  }
+  ////Future<List<DiagnosticsPathNode>> parseDiagnosticsPathDaemon(Future<JsonElement> jsonFuture) {
+  ////return nullIfDisposed(() -> jsonFuture.thenApplyAsync(this::parseDiagnosticsPathHelper));
+  ////}
 
-  List<DiagnosticsPathNode> parseDiagnosticsPathHelper(JsonElement jsonElement) {
-    return nullValueIfDisposed(() -> {
-    final JsonArray jsonArray = jsonElement.getAsJsonArray();
-    final List<DiagnosticsPathNode> pathNodes = new List<>();
-    for (JsonElement element : jsonArray) {
-    pathNodes.add(new DiagnosticsPathNode(element.getAsJsonObject(), this));
-    }
-    return pathNodes;
-    });
-  }
-*/
+  ////List<DiagnosticsPathNode> parseDiagnosticsPathHelper(JsonElement jsonElement) {
+  ////return nullValueIfDisposed(() -> {
+  ////final JsonArray jsonArray = jsonElement.getAsJsonArray();
+  ////final List<DiagnosticsPathNode> pathNodes = new List<>();
+  ////for (JsonElement element : jsonArray) {
+  ////pathNodes.add(new DiagnosticsPathNode(element.getAsJsonObject(), this));
+  ////}
+  ////return pathNodes;
+  ////});
+  ////}
+
 
   Future<RemoteDiagnosticsNode> getSelection(
     RemoteDiagnosticsNode previousSelection,
@@ -1365,4 +1365,4 @@ public class InspectorObjectGroupManager {
 //   }
 // }
 
-}
+}*/

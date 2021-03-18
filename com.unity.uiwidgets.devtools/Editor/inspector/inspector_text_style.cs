@@ -1,4 +1,4 @@
-using uiwidgets;
+/*using uiwidgets;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.ui;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -40,4 +40,4 @@ namespace Unity.UIWidgets.DevTools.inspector
         fontStyle: FontStyle.italic
         )); 
     }
-}
+}*/

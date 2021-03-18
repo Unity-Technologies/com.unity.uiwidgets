@@ -1,4 +1,4 @@
-namespace Unity.UIWidgets.DevTools.analytics
+/*namespace Unity.UIWidgets.DevTools.analytics
 {
     public abstract class AnalyticsProvider {
         private bool isGtagsEnabled
@@ -20,4 +20,4 @@ namespace Unity.UIWidgets.DevTools.analytics
         public abstract void setAllowAnalytics();
         public abstract void setDontAllowAnalytics();
     }
-}
+}*/
