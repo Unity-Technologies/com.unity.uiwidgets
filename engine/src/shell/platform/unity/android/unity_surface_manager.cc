@@ -1,7 +1,7 @@
 #include "unity_surface_manager.h"
 
-
 #include <flutter/fml/logging.h>
+#include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
 #include "src/shell/common/shell_io_manager.h"
@@ -17,9 +17,8 @@ namespace uiwidgets
   using EGLResult = std::pair<bool, T>;
 
   UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces *unity_interfaces)
-      : // egl_display_(EGL_NO_DISPLAY),
-        egl_context_(EGL_NO_CONTEXT),
-  egl_resource_context_(EGL_NO_CONTEXT)
+      : egl_context_(EGL_NO_CONTEXT),
+        egl_resource_context_(EGL_NO_CONTEXT)
   {
     initialize_succeeded_ = Initialize(unity_interfaces);
   }
@@ -28,10 +27,6 @@ namespace uiwidgets
 
   GLuint UnitySurfaceManager::CreateRenderSurface(void *native_texture_ptr)
   {
-    auto read = eglGetCurrentSurface(EGL_READ);
-    auto draw = eglGetCurrentSurface(EGL_DRAW);
-    // auto state = eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_) == GL_TRUE;
-
     GLint old_framebuffer_binding;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
 
@@ -43,7 +38,6 @@ namespace uiwidgets
     FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
     glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
-    // eglMakeCurrent(egl_display_, draw, read, egl_unity_context_);
 
     return fbo_;
   }
@@ -122,7 +116,8 @@ namespace uiwidgets
     return {context != EGL_NO_CONTEXT, context};
   }
 
-   void UnitySurfaceManager::GetUnityContext(){
+  void UnitySurfaceManager::GetUnityContext()
+  {
     egl_display_ = eglGetCurrentDisplay();
     egl_unity_context_ = eglGetCurrentContext();
     FML_CHECK(egl_display_ != EGL_NO_DISPLAY)
@@ -131,8 +126,6 @@ namespace uiwidgets
 
   bool UnitySurfaceManager::Initialize(IUnityInterfaces *unity_interfaces)
   {
-    // egl_display_ = eglGetCurrentDisplay();
-    // egl_resource_context_ = eglGetCurrentContext();
     FML_CHECK(egl_display_ != EGL_NO_DISPLAY)
         << "Renderer type is invalid";
 
@@ -149,14 +142,24 @@ namespace uiwidgets
 
     std::tie(success, egl_context_) = CreateContext(egl_display_, egl_config_, egl_unity_context_);
 
-     std::tie(success, egl_resource_context_) = CreateContext(egl_display_, egl_config_, egl_context_);
-
+    std::tie(success, egl_resource_context_) = CreateContext(egl_display_, egl_config_, egl_context_);
 
     return success;
   }
 
   void UnitySurfaceManager::CleanUp()
   {
+    if (egl_display_ != EGL_NO_DISPLAY &&
+        egl_resource_context_ != EGL_NO_CONTEXT)
+    {
+      eglDestroyContext(egl_display_, egl_resource_context_);
+      egl_resource_context_ = EGL_NO_CONTEXT;
+    }
+    if (egl_display_ != EGL_NO_DISPLAY && egl_context_ != EGL_NO_CONTEXT)
+    {
+      eglDestroyContext(egl_display_, egl_context_);
+      egl_context_ = EGL_NO_CONTEXT;
+    }
   }
 
 } // namespace uiwidgets

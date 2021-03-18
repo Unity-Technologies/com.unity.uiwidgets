@@ -8,7 +8,7 @@ namespace Unity.UIWidgets.ui
     
     public class AndroidWorkAround : MonoBehaviour
     {
-        public UIWidgetsPanel panel;
+        UIWidgetsPanel panel;
 
         // Start is called before the first frame update
         void Start()

@@ -31,7 +31,6 @@ namespace uiwidgets
   class UnitySurfaceManager
   {
   public:
-    static UnitySurfaceManager instance;
     static void GetUnityContext();
 
     UnitySurfaceManager(IUnityInterfaces *unity_interfaces);
@@ -46,27 +45,16 @@ namespace uiwidgets
 
     bool MakeResourceCurrent();
 
-    // EGLDisplay GetEGLDisplay() const { return egl_display_; }
-
-    // ID3D11Device* GetD3D11Device() const { return d3d11_device_; }
-
     FML_DISALLOW_COPY_AND_ASSIGN(UnitySurfaceManager);
 
   private:
     bool Initialize(IUnityInterfaces *unity_interfaces);
     void CleanUp();
 
-    // GrBackendTexture m_backendTex;
-    // GrGLTextureInfo textureInfo;
-    // sk_sp<SkSurface> m_SkSurface;
-
-    // sk_sp<GrContext> gr_context_;
-
     EGLContext egl_context_;
     EGLContext egl_resource_context_;
     EGLConfig egl_config_;
 
-    // EGLConfig egl_config_;
     bool initialize_succeeded_;
 
     GLuint fbo_ = 0;
