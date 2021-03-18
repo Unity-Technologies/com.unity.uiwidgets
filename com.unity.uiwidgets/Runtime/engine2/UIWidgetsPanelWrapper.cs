@@ -84,7 +84,7 @@ public partial class UIWidgetsPanelWrapper {
 
         _width = width;
         _height = height;
-        devicePixelRatio = devicePixelRatio;
+        this.devicePixelRatio = devicePixelRatio;
     }
 
     void _destroyRenderTexture() {
