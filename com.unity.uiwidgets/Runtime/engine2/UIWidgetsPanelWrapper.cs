@@ -160,7 +160,7 @@ public partial class UIWidgetsPanelWrapper {
 
             _width = width;
             _height = height;
-            _devicePixelRatio = devicePixelRatio;
+            devicePixelRatio = devicePixelRatio;
         }
 
         void _destroyRenderTexture() {
@@ -171,13 +171,13 @@ public partial class UIWidgetsPanelWrapper {
 
         void _enableUIWidgetsPanel(string font_settings) {
             UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
-                _width, _height, _devicePixelRatio, Application.streamingAssetsPath, font_settings);
+                _width, _height, devicePixelRatio, Application.streamingAssetsPath, font_settings);
         }
 
         void _resizeUIWidgetsPanel() {
             UIWidgetsPanel_onRenderTexture(_ptr,
                 _renderTexture.GetNativeTexturePtr(),
-                _width, _height, _devicePixelRatio);
+                _width, _height, devicePixelRatio);
         }
 
         void _disableUIWidgetsPanel() {

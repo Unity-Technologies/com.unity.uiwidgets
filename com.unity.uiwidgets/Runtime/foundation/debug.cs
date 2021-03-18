@@ -3,7 +3,9 @@ using System.Diagnostics;
 using System.Linq;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
@@ -57,14 +59,17 @@ namespace Unity.UIWidgets.foundation {
             Debug.LogException(new AssertionError(message: message, innerException: ex));
         }
 
+        #if UNITY_EDITOR
         [Conditional("UNITY_ASSERTIONS")]
+        #endif
         public static void assert(Func<bool> result, Func<string> message = null) {
             if ( enableDebug && !result() ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
-
+#if UNITY_EDITOR
         [Conditional("UNITY_ASSERTIONS")]
+        #endif
         public static void assert(bool result, Func<string> message = null) {
             if ( enableDebug && !result  ) {
                 throw new AssertionError(message != null ? message() : "");
@@ -87,17 +92,21 @@ namespace Unity.UIWidgets.foundation {
                 PlayerPrefs.SetInt("UIWidgetsDebug",value ? 1 : 0);
             }
         }
-        
+#if UNITY_EDITOR
         [MenuItem("UIWidgets/EnableDebug")]
         public static void ToggleDebugMode(){
             enableDebug = !enableDebug;
         }
-        
+#endif
+
+#if UNITY_EDITOR
         [MenuItem("UIWidgets/EnableDebug",true)]
         public static bool CurrentDebugModeState() {
             Menu.SetChecked("UIWidgets/EnableDebug", enableDebug );
             return true;
-        }
+        }     
+#endif
+
         public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) { 
             var path = new Path();
             path.fillType = PathFillType.evenOdd;
