@@ -84,7 +84,7 @@ public partial class UIWidgetsPanelWrapper {
 
         _width = width;
         _height = height;
-        _devicePixelRatio = devicePixelRatio;
+        this.devicePixelRatio = devicePixelRatio;
     }
 
     void _destroyRenderTexture() {
@@ -97,7 +97,7 @@ public partial class UIWidgetsPanelWrapper {
 
     void _enableUIWidgetsPanel(string font_settings) {
         D.assert(_renderTexture == null);
-        IntPtr native_tex_ptr = UIWidgetsPanel_onEnable(_ptr, _width, _height, _devicePixelRatio,
+        IntPtr native_tex_ptr = UIWidgetsPanel_onEnable(_ptr, _width, _height, devicePixelRatio,
             Application.streamingAssetsPath, font_settings);
         D.assert(native_tex_ptr != IntPtr.Zero);
 
@@ -112,7 +112,7 @@ public partial class UIWidgetsPanelWrapper {
     void _resizeUIWidgetsPanel() {
         D.assert(_renderTexture == null);
 
-        IntPtr native_tex_ptr = UIWidgetsPanel_onRenderTexture(_ptr, _width, _height, _devicePixelRatio);
+        IntPtr native_tex_ptr = UIWidgetsPanel_onRenderTexture(_ptr, _width, _height, devicePixelRatio);
         D.assert(native_tex_ptr != IntPtr.Zero);
 
         _renderTexture =
