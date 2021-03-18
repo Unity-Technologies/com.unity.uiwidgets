@@ -47,14 +47,6 @@ namespace uiwidgets
     FML_DCHECK(fbo_ != 0);
     glDeleteFramebuffers(1, &fbo_);
     fbo_ = 0;
-
-    // FML_DCHECK(fbo_texture_ != 0);
-    // glDeleteTextures(1, &fbo_texture_);
-    // fbo_texture_ = 0;
-
-    // FML_DCHECK(fbo_egl_image_ != nullptr);
-    // eglDestroyImageKHR(egl_display_, fbo_egl_image_);
-    // fbo_egl_image_ = nullptr;
   }
 
   bool UnitySurfaceManager::ClearCurrent()

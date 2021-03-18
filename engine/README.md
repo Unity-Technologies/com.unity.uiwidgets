@@ -216,11 +216,7 @@ mono bee.exe
 
 Follow https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment
 
-2. Compiling for Windows
-
-Follow https://github.com/flutter/flutter/wiki/Compiling-the-engine#compiling-for-windows
-
-3. Checkout flutter-1.18-candidate.5
+2. Checkout flutter-1.18-candidate.5
 
 ```
 cd engine/src/flutter
@@ -248,5 +244,12 @@ ninja -C out/android_debug_unopt/ third_party/libcxxabi
 If the compilation fails because "no available Mac SDK is found" (in flutter-1.17 the build tool will only try to find Mac 10.XX SDKs), please modify the file "/src/build/Mac/find_sdk.py" under flutter root by setting "sdks" as your current sdk, e.g., ['11.0']. 
 ### build icu
 ```
+cd <uiwidigets_dir>\engine
 python $FLUTTER_ROOT/flutter/sky/tools/objcopy.py --objcopy $FLUTTER_ROOT/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input $FLUTTER_ROOT/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm
+```
+
+### build uiwidgets
+```
+cd <uiwidigets_dir>\engine
+mono bee.exe
 ```

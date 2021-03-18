@@ -1,11 +1,8 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using UnityEngine.UI;
-using Color = Unity.UIWidgets.ui.Color;
 using Text = Unity.UIWidgets.widgets.Text;
 using ui_ = Unity.UIWidgets.widgets.ui_;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -18,17 +15,9 @@ namespace UIWidgetsSample
         {
             base.OnEnable();
         }
-        
-        #if !UNITY_EDITOR
-        internal const string dllName = "libUIWidgets_d";
-        [DllImport(dllName)]
-        static extern float TestFloat();
-        #endif
-
 
         protected override void main()
         {
-            Debug.Log("???? main");
             ui_.runApp(new MyApp());
         }
 
