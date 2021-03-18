@@ -16,11 +16,6 @@ namespace UIWidgetsSample
     {
         protected void OnEnable()
         {
-            Debug.Log("???? on enable");
-            #if !UNITY_EDITOR
-            var vv = TestFloat();
-            Debug.Log($"?? {vv}");
-            #endif
             base.OnEnable();
         }
         
