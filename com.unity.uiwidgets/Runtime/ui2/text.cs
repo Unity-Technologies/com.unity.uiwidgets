@@ -1101,8 +1101,8 @@ namespace Unity.UIWidgets.ui {
     }
 
     public enum TextDirection {
+        rtl,
         ltr,
-        rtl
     }
 
     public class TextBox : IEquatable<TextBox> {

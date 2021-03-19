@@ -261,7 +261,14 @@ namespace Unity.UIWidgets.widgets {
             }
 
             D.assert(context != null);
-            /*LogicalKeySet keySet = keysPressed ?? new LogicalKeySet(RawKeyboard.instance.keysPressed);
+            //FIX ME !
+            //Since we process key event produced by Unity instead of raw input info (physical key)  from os directly,
+            //we cannot handle the shortcut key press as in original flutter code
+            //TODO: however, we need find out a way to make this work in another way
+            return false;
+
+            /*
+            LogicalKeySet keySet = keysPressed ?? new LogicalKeySet(RawKeyboard.instance.keysPressed);
             Intent matchedIntent = _shortcuts[keySet];
             if (matchedIntent == null) {
              
@@ -283,8 +290,10 @@ namespace Unity.UIWidgets.widgets {
                 return false;
               }
               return Actions.invoke(primaryContext, matchedIntent, nullOk: true);
-            }*/
+            }
+            
             return false;
+            */
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
