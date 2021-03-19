@@ -676,7 +676,7 @@ namespace Unity.UIWidgets.widgets {
             Widget result;
             if (widget.builder != null) {
                 result = new Builder(
-                    builder: context1 => { return widget.builder(context: context, child: navigator); });
+                    builder: context1 => { return widget.builder(context: context1, child: navigator); });
             }
             else {
                 D.assert(navigator != null);
@@ -732,6 +732,12 @@ namespace Unity.UIWidgets.widgets {
 
                 return true;
             });
+            
+            //Fix Me !!
+            //TODO: the following line is a work-around for some potential TextDirection bug
+            //In the home page of the Shrine sample, the positions of the buttons are not correct, which is 
+            //determined by the TextDirection of some widget. we should fix it!
+            result = new Directionality(child: result, TextDirection.ltr);
 
             Widget title = null;
             if (widget.onGenerateTitle != null) {
