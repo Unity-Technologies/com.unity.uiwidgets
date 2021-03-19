@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using engine2;
 using Unity.UIWidgets.editor2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -146,7 +147,27 @@ namespace Unity.UIWidgets.engine2 {
         
         static bool _ShowDebugLog = false;
 
+#if !UNITY_EDITOR && UNITY_ANDROID
+        static bool InitAnroidGLFlag = true;
+
+        IEnumerator InitAnroidGL() {
+            yield return new WaitForEndOfFrame();
+            AndroidGLInit.Init();
+            yield return new WaitForEndOfFrame();
+            enabled = true;
+        }
+#endif
+
         protected void OnEnable() {
+#if !UNITY_EDITOR && UNITY_ANDROID
+            if (InitAnroidGLFlag) {
+                InitAnroidGLFlag = false;
+                startCoroutine(InitAnroidGL());
+                enabled = false;
+                return;
+            }
+#endif
+            
             base.OnEnable();
             var settings = new Dictionary<string, object>();
             if (fonts != null && fonts.Length > 0) {
