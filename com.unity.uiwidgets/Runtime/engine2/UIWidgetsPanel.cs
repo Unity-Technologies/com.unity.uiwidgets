@@ -148,7 +148,7 @@ namespace Unity.UIWidgets.engine2 {
         static bool _ShowDebugLog = false;
 
 #if !UNITY_EDITOR && UNITY_ANDROID
-        static bool InitAnroidGLFlag = true;
+        bool InitAnroidGLFlag = true;
 
         IEnumerator InitAnroidGL() {
             yield return new WaitForEndOfFrame();
@@ -161,9 +161,9 @@ namespace Unity.UIWidgets.engine2 {
         protected void OnEnable() {
 #if !UNITY_EDITOR && UNITY_ANDROID
             if (InitAnroidGLFlag) {
+                enabled = false;
                 InitAnroidGLFlag = false;
                 startCoroutine(InitAnroidGL());
-                enabled = false;
                 return;
             }
 #endif
