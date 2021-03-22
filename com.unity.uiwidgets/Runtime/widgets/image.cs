@@ -435,6 +435,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _resolveImage() {
+            //TODO: why refactoring this code? we need a PR to fix it!
             /*ScrollAwareImageProvider<object> provider = new ScrollAwareImageProvider<object>(
                 context: _scrollAwareContext,
                 imageProvider: widget.image);*/
