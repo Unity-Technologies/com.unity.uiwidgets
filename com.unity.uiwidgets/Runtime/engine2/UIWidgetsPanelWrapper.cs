@@ -160,7 +160,7 @@ public partial class UIWidgetsPanelWrapper {
 
             _width = width;
             _height = height;
-            devicePixelRatio = devicePixelRatio;
+            this.devicePixelRatio = devicePixelRatio;
         }
 
         void _destroyRenderTexture() {
@@ -218,6 +218,7 @@ public partial class UIWidgetsPanelWrapper {
 
         public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr, Configurations _configurations) {
             D.assert(renderTexture == null);
+            NativeConsole.OnEnable();
             _recreateRenderTexture(width: width, height: height, devicePixelRatio: dpr);
 
             _handle = GCHandle.Alloc(this);
@@ -228,7 +229,6 @@ public partial class UIWidgetsPanelWrapper {
             var fontsetting = new Dictionary<string, object>();
             fontsetting.Add("fonts", _configurations.fontsToObject());
             _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(message: fontsetting));
-            NativeConsole.OnEnable();
         }
 
         public void _entryPoint() {

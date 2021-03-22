@@ -235,6 +235,8 @@ index 56b73a020..d42e88045 100644
      "//third_party/icu",
      "//third_party/skia",
 +    "//third_party/skia/modules/skottie",
++    "//third_party/libcxx",
++    "//third_party/libcxxabi",
    ]
  
    deps = [
@@ -250,6 +252,8 @@ index 56b73a020..d42e88045 100644
 +  ]
 +}
 ```
+remove `visibility = [ "../libcxx:*" ]` from `/build/secondary/third_party/libcxxabi/BUILD.gn`
+
 cmd
 ```
 cd $FLUTTER_ROOT

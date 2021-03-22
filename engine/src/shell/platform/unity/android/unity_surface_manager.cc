@@ -110,6 +110,9 @@ namespace uiwidgets
 
   void UnitySurfaceManager::GetUnityContext()
   {
+    if(egl_unity_context_ != nullptr){
+      return;
+    }
     egl_display_ = eglGetCurrentDisplay();
     egl_unity_context_ = eglGetCurrentContext();
     FML_CHECK(egl_display_ != EGL_NO_DISPLAY)

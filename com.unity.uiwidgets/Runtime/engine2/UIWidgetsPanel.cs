@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.UIWidgets.engine2;
+using engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -126,7 +127,27 @@ namespace Unity.UIWidgets.engine2 {
             Input_Update();
         }
 
+#if !UNITY_EDITOR && UNITY_ANDROID
+        bool InitAnroidGLFlag = true;
+
+        IEnumerator InitAnroidGL() {
+            yield return new WaitForEndOfFrame();
+            AndroidGLInit.Init();
+            yield return new WaitForEndOfFrame();
+            enabled = true;
+        }
+#endif
+
         protected void OnEnable() {
+#if !UNITY_EDITOR && UNITY_ANDROID
+            if (InitAnroidGLFlag) {
+                enabled = false;
+                InitAnroidGLFlag = false;
+                startCoroutine(InitAnroidGL());
+                return;
+            }
+#endif
+            
             base.OnEnable();
             D.assert(_wrapper == null);
             _configurations = new Configurations();
