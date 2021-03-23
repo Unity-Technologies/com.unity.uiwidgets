@@ -173,7 +173,7 @@ public partial class UIWidgetsPanelWrapper {
 
         void _enableUIWidgetsPanel(string font_settings) {
             UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
-                _width, _height, devicePixelRatio, Application.streamingAssetsPath, font_settings);
+                _width, _height, devicePixelRatio, Application.temporaryCachePath, font_settings);
         }
 
         void _resizeUIWidgetsPanel() {

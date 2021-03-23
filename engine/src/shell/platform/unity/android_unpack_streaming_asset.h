@@ -3,14 +3,14 @@
 
 namespace uiwidgets {
 
-typedef bool (*UnpackFileCallback)(const char* file);
+typedef const char* (*UnpackFileCallback)(const char* file);
 
 
 class AndroidUnpackStreamingAsset{
  public:
   static UnpackFileCallback _unpack;
 
-  static bool Unpack(const char* file);
+  static const char* Unpack(const char* file);
 };
 
 } // namespace uiwidgets

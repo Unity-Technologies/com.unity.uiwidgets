@@ -33,7 +33,7 @@ std::unique_ptr<fml::Mapping> DirectoryAssetBundle::GetAsMapping(
   }
 
 #if __ANDROID__
-    bool success = AndroidUnpackStreamingAsset::Unpack(asset_name.c_str());
+    const char* file = AndroidUnpackStreamingAsset::Unpack(asset_name.c_str());
 #endif
 
   auto mapping = std::make_unique<fml::FileMapping>(fml::OpenFile(

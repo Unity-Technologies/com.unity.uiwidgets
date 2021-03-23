@@ -10,10 +10,10 @@ public static class AndroidUnpackStreamingAssets {
     [DllImport(NativeBindings.dllName)]
     internal static extern void InitUnpackFile(UnpackFileCallback unpack);
     
-    internal delegate bool UnpackFileCallback(string file);
+    internal delegate string UnpackFileCallback(string file);
     
     [MonoPInvokeCallback(typeof(UnpackFileCallback))]
-    internal static bool unpackFile(string file) {
+    internal static string unpackFile(string file) {
         if (Application.platform == RuntimePlatform.Android) {
             var dir = Application.temporaryCachePath + "/";
             if (!File.Exists(dir + file)) {
@@ -25,14 +25,14 @@ public static class AndroidUnpackStreamingAssets {
                     Debug.Log("Error unpacking 'jar:file://" + Application.dataPath + "!/assets/" + file +
                               "'");
                     dir = "";
-                    return false;
+                    return dir + file;
                 }
                 File.WriteAllBytes(dir + file, unpackerWWW.bytes); // 64MB limit on File.WriteAllBytes.
             }
-            return true;
+            return dir + file;
         }
 
-        return false;
+        return "";
     }
     
     public static void OnEnable()

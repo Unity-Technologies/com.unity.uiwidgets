@@ -3,7 +3,7 @@
 
 namespace uiwidgets {
 
- bool AndroidUnpackStreamingAsset::Unpack(const char* file) {
+const char* AndroidUnpackStreamingAsset::Unpack(const char* file) {
   return _unpack(file);
 }
 
