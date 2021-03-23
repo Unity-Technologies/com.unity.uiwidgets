@@ -340,6 +340,8 @@ class Build
                 "src/shell/platform/unity/gfx_worker_task_runner.h",
                 "src/shell/platform/unity/uiwidgets_system.h",
 
+                "src/shell/platform/unity/android_unpack_streaming_asset.cc",
+                "src/shell/platform/unity/android_unpack_streaming_asset.h",
                 "src/shell/platform/unity/unity_console.cc",
                 "src/shell/platform/unity/unity_console.h",
 

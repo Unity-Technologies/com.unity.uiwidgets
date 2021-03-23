@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.engine2;
@@ -8,6 +9,7 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using Path = Unity.UIWidgets.ui.Path;
 
 namespace Unity.UIWidgets.editor2 {
     
@@ -76,11 +78,11 @@ namespace Unity.UIWidgets.editor2 {
 
 #region  Platform: MacOs Specific Functionalities
 
-#if (UNITY_EDITOR && UNITY_EDITOR_OSX) || UNITY_STANDALONE_OSX 
+#if (UNITY_EDITOR && UNITY_EDITOR_OSX) || UNITY_STANDALONE_OSX
 
 public partial class UIWidgetsPanelWrapper {
     Texture _renderTexture;
-    
+
     public Texture renderTexture {
         get { return _renderTexture; }
     }
@@ -177,7 +179,7 @@ public partial class UIWidgetsPanelWrapper {
 
         void _enableUIWidgetsPanel(string font_settings) {
             UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
-                _width, _height, _devicePixelRatio, Application.streamingAssetsPath, font_settings);
+                _width, _height, _devicePixelRatio, Application.temporaryCachePath, font_settings);
         }
 
         void _resizeUIWidgetsPanel() {
@@ -233,12 +235,15 @@ public partial class UIWidgetsPanelWrapper {
         Dictionary<string, object> settings) {
         D.assert(_renderTexture == null);
         NativeConsole.OnEnable();
+#if !UNITY_EDITOR && UNITY_ANDROID
+        AndroidUnpackStreamingAssets.OnEnable();
+#endif
         _recreateRenderTexture(width, height, dpr);
 
         _handle = GCHandle.Alloc(this);
         _ptr = UIWidgetsPanel_constructor((IntPtr) _handle, (int) host.getWindowType(), UIWidgetsPanel_entrypoint);
         _host = host;
-
+        
         _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(settings));
     }
 
