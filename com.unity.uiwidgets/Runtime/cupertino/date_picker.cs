@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -1582,7 +1583,7 @@ namespace Unity.UIWidgets.cupertino {
                 };
                 break;
             }
-             CupertinoThemeData themeData = CupertinoTheme.of(context);
+            CupertinoThemeData themeData = CupertinoTheme.of(context);
             return new MediaQuery(
               // The native iOS picker's text scaling is fixed, so we will also fix it
               // as well in our picker.
@@ -1602,11 +1603,10 @@ namespace Unity.UIWidgets.cupertino {
                     child: new DefaultTextStyle(
                       style: _textStyleFrom(context),
                       child: new Row(
-                          children:
-                              columns.Select((Widget child) => {
-                                      var result = new Expanded(child: child);
-                                      return (Widget) result;
-                              }).ToList()
+                          children: LinqUtils<Widget>.SelectList(columns, (Widget child) => {
+                              var result = new Expanded(child: child);
+                              return (Widget) result;
+                          })
                           )
                     )
                   )

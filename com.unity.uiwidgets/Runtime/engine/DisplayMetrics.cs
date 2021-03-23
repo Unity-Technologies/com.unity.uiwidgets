@@ -62,7 +62,7 @@ namespace Unity.UIWidgets.engine {
                 }
 
 #if UNITY_ANDROID
-                this._devicePixelRatio = AndroidDevicePixelRatio();
+                _devicePixelRatio = AndroidDevicePixelRatio();
 #endif
 
 #if UNITY_WEBGL
@@ -121,7 +121,7 @@ namespace Unity.UIWidgets.engine {
                     float padding_left = metrics.Get<float>("padding_left");
                     float padding_right = metrics.Get<float>("padding_right");
 
-                    this._viewMetrics = new viewMetrics {
+                    _viewMetrics = new viewMetrics {
                         insets_bottom = insets_bottom,
                         insets_left = insets_left,
                         insets_right = insets_right,

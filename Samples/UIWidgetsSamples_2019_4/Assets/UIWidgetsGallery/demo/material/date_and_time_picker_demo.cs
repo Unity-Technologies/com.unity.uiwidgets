@@ -103,7 +103,7 @@ namespace UIWidgetsGallery.demo.material
                 if (picked != null && picked != this.selectedDate) this.selectDate(picked);
             });
 
-            return Future.value();
+            return null;
         }
 
         private Future _selectTime(BuildContext context)
@@ -117,7 +117,7 @@ namespace UIWidgetsGallery.demo.material
                 if (picked != null && picked != this.selectedTime) this.selectTime(picked);
             });
 
-            return Future.value();
+            return null;
         }
 
         public override Widget build(BuildContext context)

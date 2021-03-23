@@ -1,51 +1,35 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Debug = UnityEngine.Debug;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.foundation {
+    
+    
     public static class D {
-        public static void logError(string message, Exception ex = null) {
-            Debug.LogException(new AssertionError(message, ex));
-        }
-
-        [Conditional("UNITY_ASSERTIONS")]
-        public static void assert(Func<bool> result, Func<string> message = null) {
-            if (UIWidgetsPanel.ShowDebugLog && !result()) {
-                throw new AssertionError(message != null ? message() : "");
-            }
-        }
-
-        [Conditional("UNITY_ASSERTIONS")]
-        public static void assert(bool result, Func<string> message = null) {
-            if (UIWidgetsPanel.ShowDebugLog && !result) {
-                throw new AssertionError(message != null ? message() : "");
-            }
-        }
-
         public static bool debugPrintGestureArenaDiagnostics = false;
 
         public static bool debugPrintHitTestResults = false;
 
-        public static bool debugPaintPointersEnabled = false;
+        public static bool debugPaintPointersEnabled;
 
-        public static bool debugPaintBaselinesEnabled = false;
+        public static bool debugPaintBaselinesEnabled;
 
         public static bool debugPrintRecognizerCallbacksTrace = false;
 
-        public static bool debugPaintSizeEnabled = false;
+        public static bool debugPaintSizeEnabled;
 
-        public static bool debugRepaintRainbowEnabled = false;
+        public static bool debugRepaintRainbowEnabled;
 
         public static bool debugRepaintTextRainbowEnabled = false;
 
-        public static bool debugPaintLayerBordersEnabled = false;
+        public static bool debugPaintLayerBordersEnabled;
 
         public static bool debugPrintMarkNeedsLayoutStacks = false;
 
@@ -66,28 +50,70 @@ namespace Unity.UIWidgets.foundation {
         public static HSVColor debugCurrentRepaintColor =
             HSVColor.fromAHSV(0.4f, 60.0f, 1.0f, 1.0f);
 
-        public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) {
-            Path path = new Path();
+        public static int? debugFloatPrecision;
+
+        public static void logError(string message, Exception ex = null) {
+            Debug.LogException(new AssertionError(message: message, innerException: ex));
+        }
+
+        #if UNITY_EDITOR
+        [Conditional("UNITY_ASSERTIONS")]
+        #endif
+        public static void assert(Func<bool> result, Func<string> message = null) {
+            if ( enableDebug && !result() ) {
+                throw new AssertionError(message != null ? message() : "");
+            }
+        }
+#if UNITY_EDITOR
+        [Conditional("UNITY_ASSERTIONS")]
+        #endif
+        public static void assert(bool result, Func<string> message = null) {
+            if ( enableDebug && !result  ) {
+                throw new AssertionError(message != null ? message() : "");
+            }
+        }
+
+        static bool? _enableDebug = null;
+        public static bool enableDebug {
+            get {
+                if (_enableDebug == null) {
+                    _enableDebug = PlayerPrefs.GetInt("UIWidgetsDebug") == 1;
+                }
+                return _enableDebug.Value;
+            }
+            set {
+                if (_enableDebug == value) {
+                    return;
+                }
+                _enableDebug = value;
+                PlayerPrefs.SetInt("UIWidgetsDebug",value ? 1 : 0);
+            }
+        }
+        
+        public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) { 
+            var path = new Path();
             path.fillType = PathFillType.evenOdd;
-            path.addRect(outerRect);
-            path.addRect(innerRect);
+            path.addRect(rect: outerRect);
+            path.addRect(rect: innerRect);
             var paint = new Paint {
                 color = color
             };
-            canvas.drawPath(path, paint);
+            canvas.drawPath(path: path, paint: paint);
         }
 
         public static void debugPaintPadding(Canvas canvas, Rect outerRect, Rect innerRect, float outlineWidth = 2.0f) {
             assert(() => {
                 if (innerRect != null && !innerRect.isEmpty) {
-                    _debugDrawDoubleRect(canvas, outerRect, innerRect, new Color(0x900090FF));
-                    _debugDrawDoubleRect(canvas, innerRect.inflate(outlineWidth).intersect(outerRect), innerRect,
+                    _debugDrawDoubleRect(canvas: canvas, outerRect: outerRect, innerRect: innerRect,
+                        new Color(0x900090FF));
+                    _debugDrawDoubleRect(canvas: canvas,
+                        innerRect.inflate(delta: outlineWidth).intersect(other: outerRect), innerRect: innerRect,
                         new Color(0xFF0090FF));
                 }
                 else {
-                    Paint paint = new Paint();
+                    var paint = new Paint();
                     paint.color = new Color(0x90909090);
-                    canvas.drawRect(outerRect, paint);
+                    canvas.drawRect(rect: outerRect, paint: paint);
                 }
 
                 return true;
@@ -99,7 +125,7 @@ namespace Unity.UIWidgets.foundation {
             bool? debugPaintPointersEnabled = null,
             bool? debugPaintLayerBordersEnabled = null,
             bool? debugRepaintRainbowEnabled = null) {
-            bool needRepaint = false;
+            var needRepaint = false;
             if (debugPaintSizeEnabled != null && debugPaintSizeEnabled != D.debugPaintSizeEnabled) {
                 D.debugPaintSizeEnabled = debugPaintSizeEnabled.Value;
                 needRepaint = true;
@@ -132,8 +158,6 @@ namespace Unity.UIWidgets.foundation {
                 }*/
             }
         }
-        
-        public static int? debugFloatPrecision;
 
         public static string debugFormatFloat(float? value) {
             if (value == null) {
@@ -144,7 +168,7 @@ namespace Unity.UIWidgets.foundation {
                 return value.Value.ToString($"N{debugFloatPrecision}");
             }
 
-            return value.Value.ToString($"N1");
+            return value.Value.ToString("N1");
         }
     }
 
@@ -152,10 +176,10 @@ namespace Unity.UIWidgets.foundation {
     public class AssertionError : Exception {
         readonly Exception innerException;
 
-        public AssertionError(string message) : base(message) {
+        public AssertionError(string message) : base(message: message) {
         }
 
-        public AssertionError(string message, Exception innerException = null) : base(message) {
+        public AssertionError(string message, Exception innerException = null) : base(message: message) {
             this.innerException = innerException;
         }
 
@@ -169,7 +193,7 @@ namespace Unity.UIWidgets.foundation {
                 var lines = stackTrace.Split('\n');
                 var strippedLines = lines.Skip(1);
 
-                return string.Join("\n", strippedLines);
+                return string.Join("\n", values: strippedLines);
             }
         }
     }

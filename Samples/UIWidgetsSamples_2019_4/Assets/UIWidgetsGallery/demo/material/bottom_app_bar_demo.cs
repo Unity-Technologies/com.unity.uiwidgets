@@ -28,7 +28,7 @@ namespace UIWidgetsGallery.demo.material
 
     internal class _BottomAppBarDemoState : State<BottomAppBarDemo>
     {
-        private static GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>.key();
+        private static readonly GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>.key();
 
         // FAB shape
 
@@ -100,9 +100,26 @@ namespace UIWidgetsGallery.demo.material
                 value: FloatingActionButtonLocation.centerFloat
             );
 
+        // App bar color
+        private static readonly List<_NamedColor> kBabColors = new List<_NamedColor>
+        {
+            new _NamedColor(null, "Clear"),
+            new _NamedColor(new Color(0xFFFFC100), "Orange"),
+            new _NamedColor(new Color(0xFF91FAFF), "Light Blue"),
+            new _NamedColor(new Color(0xFF00D1FF), "Cyan"),
+            new _NamedColor(new Color(0xFF00BCFF), "Cerulean"),
+            new _NamedColor(new Color(0xFF009BEE), "Blue")
+        };
+
+        private Color _babColor = kBabColors.First().color;
+        private _ChoiceValue<FloatingActionButtonLocation> _fabLocation = kFabEndDocked;
+
+        private _ChoiceValue<Widget> _fabShape = kCircularFab;
+        private _ChoiceValue<bool> _showNotch = kShowNotchTrue;
+
         private static void _showSnackbar()
         {
-            string text =
+            var text =
                 "When the Scaffold\"s floating action button location changes, " +
                 "the floating action button animates to its new position. " +
                 "The BottomAppBar adapts its shape appropriately.";
@@ -112,47 +129,31 @@ namespace UIWidgetsGallery.demo.material
             );
         }
 
-        // App bar color
-        private static List<_NamedColor> kBabColors = new List<_NamedColor>
-        {
-            new _NamedColor(null, "Clear"),
-            new _NamedColor(new Color(0xFFFFC100), "Orange"),
-            new _NamedColor(new Color(0xFF91FAFF), "Light Blue"),
-            new _NamedColor(new Color(0xFF00D1FF), "Cyan"),
-            new _NamedColor(new Color(0xFF00BCFF), "Cerulean"),
-            new _NamedColor(new Color(0xFF009BEE), "Blue"),
-        };
-
-        private _ChoiceValue<Widget> _fabShape = kCircularFab;
-        private _ChoiceValue<bool> _showNotch = kShowNotchTrue;
-        private _ChoiceValue<FloatingActionButtonLocation> _fabLocation = kFabEndDocked;
-        private Color _babColor = kBabColors.First().color;
-
         private void _onShowNotchChanged(_ChoiceValue<bool> value)
         {
-            this.setState(() => { this._showNotch = value; });
+            setState(() => { _showNotch = value; });
         }
 
         private void _onFabShapeChanged(_ChoiceValue<Widget> value)
         {
-            this.setState(() => { this._fabShape = value; });
+            setState(() => { _fabShape = value; });
         }
 
         private void _onFabLocationChanged(_ChoiceValue<FloatingActionButtonLocation> value)
         {
-            this.setState(() => { this._fabLocation = value; });
+            setState(() => { _fabLocation = value; });
         }
 
         private void _onBabColorChanged(Color value)
         {
-            this.setState(() => { this._babColor = value; });
+            setState(() => { _babColor = value; });
         }
 
         public override Widget build(BuildContext context)
         {
             return new Scaffold(
-                key: _scaffoldKey,
-                appBar: new AppBar(
+                _scaffoldKey,
+                new AppBar(
                     title: new Text("Bottom app bar"),
                     elevation: 0.0f,
                     actions: new List<Widget>
@@ -162,67 +163,64 @@ namespace UIWidgetsGallery.demo.material
                             icon: new Icon(Icons.sentiment_very_satisfied),
                             onPressed: () =>
                             {
-                                this.setState(() =>
-                                {
-                                    this._fabShape = this._fabShape == kCircularFab ? kDiamondFab : kCircularFab;
-                                });
+                                setState(() => { _fabShape = _fabShape == kCircularFab ? kDiamondFab : kCircularFab; });
                             }
                         )
                     }
                 ),
-                body: new Scrollbar(
+                new Scrollbar(
                     child: new ListView(
                         padding: EdgeInsets.only(bottom: 88.0f),
                         children: new List<Widget>
                         {
                             new _Heading("FAB Shape"),
 
-                            new _RadioItem<Widget>(kCircularFab, this._fabShape, this._onFabShapeChanged),
-                            new _RadioItem<Widget>(kDiamondFab, this._fabShape, this._onFabShapeChanged),
-                            new _RadioItem<Widget>(kNoFab, this._fabShape, this._onFabShapeChanged),
+                            new _RadioItem<Widget>(kCircularFab, _fabShape, _onFabShapeChanged),
+                            new _RadioItem<Widget>(kDiamondFab, _fabShape, _onFabShapeChanged),
+                            new _RadioItem<Widget>(kNoFab, _fabShape, _onFabShapeChanged),
 
                             new Divider(),
                             new _Heading("Notch"),
 
-                            new _RadioItem<bool>(kShowNotchTrue, this._showNotch, this._onShowNotchChanged),
-                            new _RadioItem<bool>(kShowNotchFalse, this._showNotch, this._onShowNotchChanged),
+                            new _RadioItem<bool>(kShowNotchTrue, _showNotch, _onShowNotchChanged),
+                            new _RadioItem<bool>(kShowNotchFalse, _showNotch, _onShowNotchChanged),
 
                             new Divider(),
                             new _Heading("FAB Position"),
 
-                            new _RadioItem<FloatingActionButtonLocation>(kFabEndDocked, this._fabLocation,
-                                this._onFabLocationChanged),
-                            new _RadioItem<FloatingActionButtonLocation>(kFabCenterDocked, this._fabLocation,
-                                this._onFabLocationChanged),
-                            new _RadioItem<FloatingActionButtonLocation>(kFabEndFloat, this._fabLocation,
-                                this._onFabLocationChanged),
-                            new _RadioItem<FloatingActionButtonLocation>(kFabCenterFloat, this._fabLocation,
-                                this._onFabLocationChanged),
+                            new _RadioItem<FloatingActionButtonLocation>(kFabEndDocked, _fabLocation,
+                                _onFabLocationChanged),
+                            new _RadioItem<FloatingActionButtonLocation>(kFabCenterDocked, _fabLocation,
+                                _onFabLocationChanged),
+                            new _RadioItem<FloatingActionButtonLocation>(kFabEndFloat, _fabLocation,
+                                _onFabLocationChanged),
+                            new _RadioItem<FloatingActionButtonLocation>(kFabCenterFloat, _fabLocation,
+                                _onFabLocationChanged),
 
                             new Divider(),
                             new _Heading("App bar color"),
 
-                            new _ColorsItem(kBabColors, this._babColor, this._onBabColorChanged)
+                            new _ColorsItem(kBabColors, _babColor, _onBabColorChanged)
                         }
                     )
                 ),
-                floatingActionButton: this._fabShape.value,
-                floatingActionButtonLocation: this._fabLocation.value,
+                _fabShape.value,
+                _fabLocation.value,
                 bottomNavigationBar: new _DemoBottomAppBar(
-                    color: this._babColor,
-                    fabLocation: this._fabLocation.value,
-                    shape: this._selectNotch()
+                    _babColor,
+                    _fabLocation.value,
+                    _selectNotch()
                 )
             );
         }
 
         private NotchedShape _selectNotch()
         {
-            if (!this._showNotch.value)
+            if (!_showNotch.value)
                 return null;
-            if (this._fabShape == kCircularFab)
+            if (_fabShape == kCircularFab)
                 return new CircularNotchedRectangle();
-            if (this._fabShape == kDiamondFab)
+            if (_fabShape == kDiamondFab)
                 return new _DiamondNotchedRectangle();
             return null;
         }
@@ -230,6 +228,11 @@ namespace UIWidgetsGallery.demo.material
 
     internal class _ChoiceValue<T>
     {
+        public readonly string label; // For the Semantics widget that contains title
+        public readonly string title;
+
+        public readonly T value;
+
         public _ChoiceValue(T value, string title, string label)
         {
             this.value = value;
@@ -237,18 +240,19 @@ namespace UIWidgetsGallery.demo.material
             this.label = label;
         }
 
-        public readonly T value;
-        public readonly string title;
-        public readonly string label; // For the Semantics widget that contains title
-
         public override string ToString()
         {
-            return $"{this.GetType()}(\"{this.title}\")";
+            return $"{GetType()}(\"{title}\")";
         }
     }
 
     internal class _RadioItem<T> : StatelessWidget
     {
+        public readonly _ChoiceValue<T> groupValue;
+        public readonly ValueChanged<_ChoiceValue<T>> onChanged;
+
+        public readonly _ChoiceValue<T> value;
+
         public _RadioItem(_ChoiceValue<T> value, _ChoiceValue<T> groupValue, ValueChanged<_ChoiceValue<T>> onChanged)
         {
             this.value = value;
@@ -256,35 +260,26 @@ namespace UIWidgetsGallery.demo.material
             this.onChanged = onChanged;
         }
 
-        public readonly _ChoiceValue<T> value;
-        public readonly _ChoiceValue<T> groupValue;
-        public readonly ValueChanged<_ChoiceValue<T>> onChanged;
-
         public override Widget build(BuildContext context)
         {
-            ThemeData theme = Theme.of(context);
+            var theme = Theme.of(context);
             return new Container(
                 height: 56.0f,
-                //TODO: uncomment this when fixes on EdgeInsetsDirectional lands
-                //padding: const EdgeInsetsDirectional.only(start: 16.0),
-                padding: EdgeInsets.only(left: 16.0f),
+                padding: EdgeInsetsDirectional.only(16.0f),
                 alignment: AlignmentDirectional.centerStart,
                 child: new Row(
                     children: new List<Widget>
                     {
                         new Radio<_ChoiceValue<T>>(
-                            value: this.value,
-                            groupValue: this.groupValue,
-                            onChanged: this.onChanged
+                            value: value,
+                            groupValue: groupValue,
+                            onChanged: onChanged
                         ),
                         new Expanded(
                             child: new GestureDetector(
                                 behavior: HitTestBehavior.opaque,
-                                onTap: () =>
-                                {
-                                    this.onChanged(this.value);
-                                },
-                                child: new Text(this.value.title,
+                                onTap: () => { onChanged(value); },
+                                child: new Text(value.title,
                                     style: theme.textTheme.subtitle1
                                 )
                             )
@@ -297,18 +292,22 @@ namespace UIWidgetsGallery.demo.material
 
     internal class _NamedColor
     {
+        public readonly Color color;
+        public readonly string name;
+
         public _NamedColor(Color color, string name)
         {
             this.color = color;
             this.name = name;
         }
-
-        public readonly Color color;
-        public readonly string name;
     }
 
     internal class _ColorsItem : StatelessWidget
     {
+        public readonly List<_NamedColor> colors;
+        public readonly ValueChanged<Color> onChanged;
+        public readonly Color selectedColor;
+
         public _ColorsItem(List<_NamedColor> colors, Color selectedColor, ValueChanged<Color> onChanged)
         {
             this.colors = colors;
@@ -316,27 +315,23 @@ namespace UIWidgetsGallery.demo.material
             this.onChanged = onChanged;
         }
 
-        public readonly List<_NamedColor> colors;
-        public readonly Color selectedColor;
-        public readonly ValueChanged<Color> onChanged;
-
         public override Widget build(BuildContext context)
         {
             return new Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: this.colors.Select<_NamedColor, Widget>((_NamedColor namedColor) =>
+                children: colors.Select<_NamedColor, Widget>(namedColor =>
                 {
                     return new RawMaterialButton(
-                        onPressed: () => { this.onChanged(namedColor.color); },
+                        onPressed: () => { onChanged(namedColor.color); },
                         constraints: BoxConstraints.tightFor(
-                            width: 32.0f,
-                            height: 32.0f
+                            32.0f,
+                            32.0f
                         ),
                         fillColor: namedColor.color,
                         shape: new CircleBorder(
-                            side: new BorderSide(
-                                color: namedColor.color == this.selectedColor ? Colors.black : new Color(0xFFD5D7DA),
-                                width: 2.0f
+                            new BorderSide(
+                                namedColor.color == selectedColor ? Colors.black : new Color(0xFFD5D7DA),
+                                2.0f
                             )
                         ),
                         child: new Container(
@@ -349,23 +344,21 @@ namespace UIWidgetsGallery.demo.material
 
     internal class _Heading : StatelessWidget
     {
+        public readonly string text;
+
         public _Heading(string text)
         {
             this.text = text;
         }
 
-        public readonly string text;
-
         public override Widget build(BuildContext context)
         {
-            ThemeData theme = Theme.of(context);
+            var theme = Theme.of(context);
             return new Container(
                 height: 48.0f,
-                //TODO: uncomment this when fixes on EdgeInsetsDirectional lands
-                //padding:  EdgeInsetsDirectional.only(start: 56.0),
-                padding: EdgeInsets.only(left: 56.0f),
+                padding: EdgeInsetsDirectional.only(56.0f),
                 alignment: AlignmentDirectional.centerStart,
-                child: new Text(this.text,
+                child: new Text(text,
                     style: theme.textTheme.bodyText2.copyWith(
                         color: theme.primaryColor
                     )
@@ -376,6 +369,17 @@ namespace UIWidgetsGallery.demo.material
 
     internal class _DemoBottomAppBar : StatelessWidget
     {
+        private static readonly List<FloatingActionButtonLocation> kCenterLocations =
+            new List<FloatingActionButtonLocation>
+            {
+                FloatingActionButtonLocation.centerDocked,
+                FloatingActionButtonLocation.centerFloat
+            };
+
+        public readonly Color color;
+        public readonly FloatingActionButtonLocation fabLocation;
+        public readonly NotchedShape shape;
+
         public _DemoBottomAppBar(
             Color color = null,
             FloatingActionButtonLocation fabLocation = null,
@@ -387,17 +391,6 @@ namespace UIWidgetsGallery.demo.material
             this.shape = shape;
         }
 
-        public readonly Color color;
-        public readonly FloatingActionButtonLocation fabLocation;
-        public readonly NotchedShape shape;
-
-        private static readonly List<FloatingActionButtonLocation> kCenterLocations =
-            new List<FloatingActionButtonLocation>
-            {
-                FloatingActionButtonLocation.centerDocked,
-                FloatingActionButtonLocation.centerFloat
-            };
-
 
         public override Widget build(BuildContext context)
         {
@@ -408,14 +401,14 @@ namespace UIWidgetsGallery.demo.material
                     onPressed: () =>
                     {
                         material_.showModalBottomSheet<object>(
-                            context: context,
-                            builder: (BuildContext subContext) => new _DemoDrawer()
+                            context,
+                            subContext => new _DemoDrawer()
                         );
                     }
                 )
             };
 
-            if (kCenterLocations.Contains(this.fabLocation)) children.Add(new Expanded(child: new SizedBox()));
+            if (kCenterLocations.Contains(fabLocation)) children.Add(new Expanded(child: new SizedBox()));
 
             children.Add(
                 new IconButton(
@@ -447,8 +440,8 @@ namespace UIWidgetsGallery.demo.material
 
 
             return new BottomAppBar(
-                color: this.color,
-                shape: this.shape,
+                color: color,
+                shape: shape,
                 child: new Row(children: children)
             );
         }
@@ -456,10 +449,6 @@ namespace UIWidgetsGallery.demo.material
 
     internal class _DemoDrawer : StatelessWidget
     {
-        public _DemoDrawer()
-        {
-        }
-
         public override Widget build(BuildContext context)
         {
             return new Drawer(
@@ -482,6 +471,9 @@ namespace UIWidgetsGallery.demo.material
 
     internal class _DiamondFab : StatelessWidget
     {
+        public readonly Widget child;
+        public readonly VoidCallback onPressed;
+
         public _DiamondFab(
             Widget child = null,
             VoidCallback onPressed = null
@@ -491,22 +483,19 @@ namespace UIWidgetsGallery.demo.material
             this.onPressed = onPressed;
         }
 
-        public readonly Widget child;
-        public readonly VoidCallback onPressed;
-
         public override Widget build(BuildContext context)
         {
             return new Material(
                 shape: new _DiamondBorder(),
                 color: Colors.orange,
                 child: new InkWell(
-                    onTap: () => this.onPressed?.Invoke(),
+                    onTap: () => onPressed?.Invoke(),
                     child: new Container(
                         width: 56.0f,
                         height: 56.0f,
                         child: IconTheme.merge(
-                            data: new IconThemeData(color: Theme.of(context).accentIconTheme.color),
-                            child: this.child
+                            data: new IconThemeData(Theme.of(context).accentIconTheme.color),
+                            child: child
                         )
                     )
                 ),
@@ -517,10 +506,6 @@ namespace UIWidgetsGallery.demo.material
 
     internal class _DiamondNotchedRectangle : NotchedShape
     {
-        public _DiamondNotchedRectangle()
-        {
-        }
-
         public override Path getOuterPath(Rect host, Rect guest)
         {
             //there is a bug in flutter when guest == null, we fix it here
@@ -533,7 +518,7 @@ namespace UIWidgetsGallery.demo.material
 
             D.assert(guest.width > 0.0f);
 
-            Rect intersection = guest.intersect(host);
+            var intersection = guest.intersect(host);
             // We are computing a "V" shaped notch, as in this diagram:
             //    -----\****   /-----
             //          \     /
@@ -546,7 +531,7 @@ namespace UIWidgetsGallery.demo.material
             //  notchToCenter is the horizontal distance between the guest's center and
             //  the host's top edge where the notch starts (marked with "*").
             //  We compute notchToCenter by similar triangles:
-            float notchToCenter =
+            var notchToCenter =
                 intersection.height * (guest.height / 2.0f)
                 / (guest.width / 2.0f);
 
@@ -566,16 +551,12 @@ namespace UIWidgetsGallery.demo.material
 
     internal class _DiamondBorder : ShapeBorder
     {
-        public _DiamondBorder()
-        {
-        }
-
         public override EdgeInsetsGeometry dimensions => EdgeInsets.only();
 
 
         public override Path getInnerPath(Rect rect, TextDirection? textDirection = null)
         {
-            return this.getOuterPath(rect, textDirection: textDirection);
+            return getOuterPath(rect, textDirection);
         }
 
 

@@ -12,8 +12,7 @@ namespace Unity.UIWidgets.material {
         public static Future forTap(BuildContext context) {
             switch (_platform(context)) {
                 case RuntimePlatform.Android:
-                    return
-                        Future.value(); // SystemSound.play(SystemSoundType.click); TODO: replace with unity equivalent
+                    return Future.value(); // SystemSound.play(SystemSoundType.click); TODO: replace with unity equivalent
                 case RuntimePlatform.IPhonePlayer:
                 case RuntimePlatform.LinuxEditor:
                 case RuntimePlatform.LinuxPlayer:
