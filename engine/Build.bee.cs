@@ -9,25 +9,91 @@ using Bee.NativeProgramSupport;
 using Bee.Tools;
 using NiceIO;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using RuntimeInformation = System.Runtime.InteropServices.RuntimeInformation;
+using OSPlatform = System.Runtime.InteropServices.OSPlatform;
 using Bee.ProjectGeneration.XCode;
 using Bee.Toolchain.Xcode;
+using Bee.Toolchain.GNU;
+using Bee.Toolchain.IOS;
+using System.Diagnostics;
 
-class BuildUtils
+enum UIWidgetsBuildTargetPlatform
 {
-    public static bool IsHostWindows()
-    {
+    windows,
+    mac,
+    ios,
+    android
+}
+
+static class BuildUtils {
+    public static bool IsHostWindows() {
         return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     }
 
-    public static bool IsHostMac()
-    {
+    public static bool IsHostMac() {
         return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     }
 }
 
+/**
+*   How to add new target platform (taking iOS as the example)
+*   (1) add a new static void DeployIOS() {} in which we need call SetupLibUIWidgets() with UIWidgetsBuildTargetPlatform.ios as its
+*       first parameter. We should also generate the corresponding project file (i.e., XcodeProjectFile). Finally, we should call 
+*       Backend.Current.AddAliasDependency("ios", dep) to add the alias "ios" to all the final output files for ios platform. By 
+*       doing so, we can call "mono bee.exe ios" in command line to tell bee to process the specific subgraph for ios build only.
+*       (refer to the following session for the details on this: https://unity.slack.com/archives/C1RM0NBLY/p1615797377297800)
+*
+*   (2) add the DeployIOS() function inside the available target platforms of MacOS in Main() since the dependencies on ios-platform 
+*       , i.e., skia, flutter, etc. can only be built on Mac.
+*
+*   (3) pick the corresponding toolchains for UIWidgetsBuildTargetPlatform.ios at the end of the function SetupLibUIWidgets() and setup 
+*       the build targets.
+*
+*   (4) change all the build settings (e.g., Defines, Includes, Source files) accordingly with platform-filters like IsMac, IsWindows,
+*       IsIosOrTvos inside bee for plaform-dependent settings.
+*
+*   (5) finally, try call "mono bee.exe" with our predefined platform-dependent alias name "ios" in step (1), i.e., "mono bee.exe ios" 
+*       to start the build
+**/
 class Build
 {
+    //bee.exe win
+    static void DeployWindows() 
+    {
+        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.windows, out var dependencies);
+
+        var builder = new VisualStudioNativeProjectFileBuilder(libUIWidgets);
+        builder = libUIWidgets.SetupConfigurations.Aggregate(
+            builder,
+            (current, c) => current.AddProjectConfiguration(c));
+
+        var sln = new VisualStudioSolution();
+        sln.Path = "libUIWidgets.gen.sln";
+        var deployed = builder.DeployTo("libUIWidgets.gen.vcxproj");
+        sln.Projects.Add(deployed);
+        Backend.Current.AddAliasDependency("ProjectFiles", sln.Setup());
+
+        Backend.Current.AddAliasDependency("win", deployed.Path);
+        foreach(var dep in dependencies) {
+            Backend.Current.AddAliasDependency("win", dep);
+        }
+    }
+
+    //bee.exe mac
+    static void DeployMac()
+    {
+        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.mac, out var dependencies);
+
+        var nativePrograms = new List<NativeProgram>();
+        nativePrograms.Add(libUIWidgets);
+        var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
+
+        Backend.Current.AddAliasDependency("mac", new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
+        foreach(var dep in dependencies) {
+            Backend.Current.AddAliasDependency("mac", dep);
+        }
+    }
+
     static void Main()
     {
         flutterRoot = Environment.GetEnvironmentVariable("FLUTTER_ROOT");
@@ -35,37 +101,25 @@ class Build
         {
             flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
         }
+
         skiaRoot = flutterRoot + "/third_party/skia";
 
-        var libUIWidgets = SetupLibUIWidgets();
-
-        //create ide projects
+        //available target platforms of Windows
         if (BuildUtils.IsHostWindows())
         {
-            //create vs project
-            var builder = new VisualStudioNativeProjectFileBuilder(libUIWidgets);
-            builder = libUIWidgets.SetupConfigurations.Aggregate(
-                builder,
-                (current, c) => current.AddProjectConfiguration(c));
-
-            var sln = new VisualStudioSolution();
-            sln.Path = "libUIWidgets.gen.sln";
-            sln.Projects.Add(builder.DeployTo("libUIWidgets.gen.vcxproj"));
-            Backend.Current.AddAliasDependency("ProjectFiles", sln.Setup());
+            DeployWindows();
         }
+        //available target platforms of MacOS
         else if (BuildUtils.IsHostMac())
         {
-            //create xcode project
-            var nativePrograms = new List<NativeProgram>();
-            nativePrograms.Add(libUIWidgets);
-            var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgets.xcodeproj/project.pbxproj"));
+            DeployMac();
         }
     }
 
     private static string skiaRoot;
     private static string flutterRoot;
 
-    static NativeProgram SetupLibUIWidgets()
+    static NativeProgram SetupLibUIWidgets(UIWidgetsBuildTargetPlatform platform, out List<NPath> dependencies)
     {
         var np = new NativeProgram("libUIWidgets")
         {
@@ -401,8 +455,9 @@ class Build
         //SetupTxt(np);
 
         var codegens = new[] { CodeGen.Debug };
+        dependencies = new List<NPath>();
 
-        if (BuildUtils.IsHostWindows())
+        if (platform == UIWidgetsBuildTargetPlatform.windows)
         {
             var toolchain = ToolChain.Store.Windows().VS2019().Sdk_17134().x64();
 
@@ -412,11 +467,12 @@ class Build
 
                 var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat)
                     .DeployTo("build");
-
+                
+                dependencies.Add(builtNP.Path);
                 builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64");
             }
         }
-        else if (BuildUtils.IsHostMac())
+        else if (platform == UIWidgetsBuildTargetPlatform.mac)
         {
             var toolchain = ToolChain.Store.Host();
             var validConfigurations = new List<NativeProgramConfiguration>();
@@ -425,9 +481,11 @@ class Build
                 var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
                 validConfigurations.Add(config);
 
-                var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat).DeployTo("build");
-
-                builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/osx");
+                var buildProgram = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat);
+                var buildNp = buildProgram.DeployTo("build");
+                var deployNp = buildProgram.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/osx");
+                dependencies.Add(buildNp.Path);
+                dependencies.Add(deployNp.Path);
             }
 
             np.ValidConfigurations = validConfigurations;
