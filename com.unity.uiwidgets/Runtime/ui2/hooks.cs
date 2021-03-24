@@ -9,12 +9,17 @@ using UnityEngine;
 
 namespace Unity.UIWidgets.ui {
     public static class Hooks {
+        
+        static bool hooked = false;
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
 #else
         [RuntimeInitializeOnLoadMethod]
 #endif
         static unsafe void hook() {
+            D.assert(!hooked);
+
+            hooked = true;
             Mono_hook(
                 Mono_throwException,
                 Mono_shutdown);
@@ -27,6 +32,13 @@ namespace Unity.UIWidgets.ui {
                 Window_drawFrame,
                 ui_._dispatchPlatformMessage,
                 ui_._dispatchPointerDataPacket);
+        }
+        
+        public static void tryHook() {
+            if (hooked) {
+                return;
+            }
+            hook();
         }
 
         delegate void Mono_ThrowExceptionCallback(IntPtr exception);

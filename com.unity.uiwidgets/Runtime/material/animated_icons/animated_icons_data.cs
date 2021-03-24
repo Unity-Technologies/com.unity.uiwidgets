@@ -3,11 +3,11 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.material {
     public abstract class AnimatedIcons {
-        public static readonly AnimatedIconData add_event = AnimatedIconsData._add_event;
+        //public static readonly AnimatedIconData add_event = AnimatedIconsData._add_event;
 
-        public static readonly AnimatedIconData arrow_menu = AnimatedIconsData._arrow_menu;
+        //public static readonly AnimatedIconData arrow_menu = AnimatedIconsData._arrow_menu;
 
-        public static readonly AnimatedIconData close_menu = AnimatedIconsData._close_menu;
+        //public static readonly AnimatedIconData close_menu = AnimatedIconsData._close_menu;
 
         // public readonly AnimatedIconData ellipsis_search = AnimatedIconsData._ellipsis_search;
 

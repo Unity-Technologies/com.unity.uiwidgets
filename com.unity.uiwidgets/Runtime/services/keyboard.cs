@@ -450,7 +450,7 @@ namespace Unity.UIWidgets.service {
 #endif
 
 #if UNITY_IOS || UNITY_ANDROID
-    class UIWidgetsTouchScreenKeyboardDelegate : AbstractUIWidgetsKeyboardDelegate {
+    /*class UIWidgetsTouchScreenKeyboardDelegate : AbstractUIWidgetsKeyboardDelegate {
 
         public override void show() {
             UIWidgetsTextInputShow();
@@ -473,9 +473,10 @@ namespace Unity.UIWidgets.service {
 
         public override void clearClient() {
             UIWidgetsTextInputClearTextInputClient();
-        }
+        }*/
         
 #if UNITY_IOS
+    /*
         [DllImport ("__Internal")]
         internal static extern void UIWidgetsTextInputShow();
         
@@ -489,7 +490,7 @@ namespace Unity.UIWidgets.service {
         internal static extern void UIWidgetsTextInputSetTextInputEditingState(string jsonText);
         
         [DllImport ("__Internal")]
-        internal static extern void UIWidgetsTextInputClearTextInputClient();
+        internal static extern void UIWidgetsTextInputClearTextInputClient();*/
 #elif UNITY_ANDROID
         internal static void UIWidgetsTextInputShow() {
             using (
@@ -537,6 +538,6 @@ namespace Unity.UIWidgets.service {
             }
         }
 #endif
-    }
+    //}
 #endif
 }

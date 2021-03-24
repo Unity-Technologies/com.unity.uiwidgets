@@ -128,6 +128,10 @@ namespace Unity.UIWidgets.engine2 {
 
         protected void OnEnable() {
             base.OnEnable();
+#if UNITY_IOS
+            //the hook API cannot be automatically called on IOS, so we need try hook it here
+            Hooks.tryHook();
+#endif
             D.assert(_wrapper == null);
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();

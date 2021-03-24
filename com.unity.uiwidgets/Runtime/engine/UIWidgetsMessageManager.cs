@@ -49,14 +49,14 @@ namespace Unity.UIWidgets.engine {
 
         void UpdateNameIfNeed() {
 #if UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL
-            var name = gameObject.name;
+            /*var name = gameObject.name;
             if (name != _lastObjectName) {
 
                 if (!Application.isEditor) {
                     UIWidgetsMessageSetObjectName(name);
                 }
                 _lastObjectName = name;
-            }
+            }*/
 #endif
         }
 
@@ -90,8 +90,8 @@ namespace Unity.UIWidgets.engine {
         }
 
 #if UNITY_IOS || UNITY_WEBGL        
-        [DllImport("__Internal")]
-        static extern void UIWidgetsMessageSetObjectName(string objectName);
+        //[DllImport("__Internal")]
+        //static extern void UIWidgetsMessageSetObjectName(string objectName);
 #elif UNITY_ANDROID
         
         static void UIWidgetsMessageSetObjectName(string objectName) {
