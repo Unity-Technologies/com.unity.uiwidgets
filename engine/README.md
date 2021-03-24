@@ -50,12 +50,12 @@ ninja -C out/Debug -k 0
 ```
 Ignore this error: "lld-link: error: could not open 'EGL': no such file or directory"
 
-convert icudtl.dat to object file in skia
+convert icudtl.dat to object file in flutter
 ```
-cd SkiaRoot/third_party/externals/icu/flutter/
+cd flutterRoot/third_party/icu/flutter/
 ld -r -b binary -o icudtl.o icudtl.dat
 ```
-### Build flutter fml
+### Build flutter txt
 
 1. Setting up the Engine development environment
 
@@ -75,40 +75,59 @@ gclient sync -D
 
 Apply the following diff:
 ```
-diff --git a/fml/BUILD.gn b/fml/BUILD.gn
-index 9b5626e78..da1322ce5 100644
---- a/fml/BUILD.gn
-+++ b/fml/BUILD.gn
-@@ -295,3 +295,10 @@ executable("fml_benchmarks") {
-     "//flutter/runtime:libdart",
+--- a/third_party/txt/BUILD.gn
++++ b/third_party/txt/BUILD.gn
+@@ -141,6 +141,7 @@ source_set("txt") {
+     "//third_party/harfbuzz",
+     "//third_party/icu",
+     "//third_party/skia",
++    "//third_party/skia/modules/skottie",
    ]
+ 
+   deps = [
+@@ -339,3 +340,10 @@ executable("txt_benchmarks") {
+     deps += [ "//third_party/skia/modules/skparagraph" ]
+   }
  }
 +
-+static_library("fml_lib") {
++static_library("txt_lib") {
 +  complete_static_lib = true
 +  deps = [
-+    "//flutter/fml",
++    ":txt",
 +  ]
 +}
 ```
+
+
+#### `optional`
+
+update `out\host_debug_unopt\args.gn`
+```
+skia_use_angle = true
+skia_use_egl = true
+```
+
+update skia
+
+```
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -524,6 +524,7 @@ optional("gpu") {
+
+  if (skia_use_gl) {
+    public_defines += [ "SK_GL" ]
++    include_dirs = [ "//third_party/angle/include" ]
+    if (is_android) {
+      sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
+```
+
 cmd
 ```
 set GYP_MSVS_OVERRIDE_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community
 cd engine/src
 python ./flutter/tools/gn --unoptimized
-ninja -C .\out\host_debug_unopt\ flutter/fml:fml_lib
+ninja -C out\host_debug_unopt flutter/third_party/txt:txt_lib
 ```
-
-### Create symbolic
-
-cmd
-```
-cd <uiwidigets_dir>\engine
-cd third_party   \\ create the directory if not exists
-mklink /D skia <SKIA_ROOT>
-```
-Flutter engine txt include skia header in this pattern 'third_party/skia/*', so without symbolic, the txt lib will include skia
-header file in flutter engine, instead of headers in skia repo.
 
 ### Build Engine
 

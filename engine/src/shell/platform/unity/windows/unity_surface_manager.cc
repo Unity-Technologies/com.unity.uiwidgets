@@ -146,9 +146,9 @@ bool UnitySurfaceManager::Initialize(IUnityInterfaces* unity_interfaces) {
 
   EGLint displayAttribs[] = {EGL_PLATFORM_ANGLE_TYPE_ANGLE,
                              EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
-                             EGL_PLATFORM_ANGLE_D3D_LUID_HIGH_ANGLE,
+                            //  EGL_PLATFORM_ANGLE_D3D_LUID_HIGH_ANGLE,
                              adapter_desc.AdapterLuid.HighPart,
-                             EGL_PLATFORM_ANGLE_D3D_LUID_LOW_ANGLE,
+                            //  EGL_PLATFORM_ANGLE_D3D_LUID_LOW_ANGLE,
                              adapter_desc.AdapterLuid.LowPart,
                              EGL_PLATFORM_ANGLE_ENABLE_AUTOMATIC_TRIM_ANGLE,
                              EGL_TRUE,
