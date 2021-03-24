@@ -395,9 +395,8 @@ class Build
 
         np.LinkerSettings().Add(c => IsWindows(c), l => l.WithCustomFlags_workaround(new[] { "/DEBUG:FULL" }));
 
-        SetupTxtAlone(np);
+        SetupDependency(np);
         //SetupFml(np);
-        SetupRadidJson(np);
         //SetupSkia(np);
         //SetupTxt(np);
 
@@ -511,16 +510,13 @@ class Build
         });
     }
 
-    static void SetupTxtAlone(NativeProgram np)
+    static void SetupDependency(NativeProgram np)
     {
-        //np.IncludeDirectories.Add(skiaRoot);
-        //np.IncludeDirectories.Add(flutterRoot);
-        //np.IncludeDirectories.Add(flutterRoot + "/flutter/third_party/txt/src");
-        //np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/harfbuzz/src");
-        //np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/icu/source/common");
+        SetupRadidJson(np);
 
         np.Defines.Add(c => IsMac(c), new []
         {
+            //lib flutter
             "USE_OPENSSL=1",
             "__STDC_CONSTANT_MACROS",
             "__STDC_FORMAT_MACROS",
@@ -536,6 +532,7 @@ class Build
             "FLUTTER_RUNTIME_MODE=1",
             "FLUTTER_JIT_RUNTIME=1",
 
+            //lib skia
             "SK_ENABLE_SPIRV_VALIDATION",
             "SK_ASSUME_GL=1",
             "SK_ENABLE_API_AVAILABLE",
@@ -560,24 +557,11 @@ class Build
             "SK_CODEC_DECODES_WEBP",
             "SK_ENCODE_WEBP",
             "SK_XML",
-
-            "RAPIDJSON_HAS_STDSTRING",
-            "RAPIDJSON_HAS_CXX11_RANGE_FOR",
-            "RAPIDJSON_HAS_CXX11_RVALUE_REFS",
-            "RAPIDJSON_HAS_CXX11_TYPETRAITS",
-            "RAPIDJSON_HAS_CXX11_NOEXCEPT",
-
-            "USE_OPENSSL=1",
-            "__STDC_CONSTANT_MACROS",
-            "__STDC_FORMAT_MACROS",
-            "_FORTIFY_SOURCE=2",
-            "_LIBCPP_DISABLE_AVAILABILITY=1",
-            "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
-            "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
-            "_DEBUG"
         });
 
-        np.Defines.Add(new[] { "SK_USING_THIRD_PARTY_ICU", "U_USING_ICU_NAMESPACE=0",
+        //lib txt
+        np.Defines.Add(c => IsMac(c), new[] { 
+            "SK_USING_THIRD_PARTY_ICU", "U_USING_ICU_NAMESPACE=0",
             "U_ENABLE_DYLOAD=0", "USE_CHROMIUM_ICU=1", "U_STATIC_IMPLEMENTATION",
             "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_STATIC"
         });
@@ -601,20 +585,12 @@ class Build
             "-I"+ flutterRoot+"/third_party/icu/source/i18n",
 
             "-fvisibility-inlines-hidden",
-
         }));
 
         np.Libraries.Add(IsMac, c => {
             return new PrecompiledLibrary[]
             {
-                // icudtl
-                //new StaticLibrary("icudtl.o"),
-
-                //new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtbegin_so.o"),
-                //new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtend_so.o"),
-
                 new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
-
                 new SystemFramework("Foundation"),
                 new SystemFramework("ApplicationServices"),
                 new SystemFramework("OpenGL"),
