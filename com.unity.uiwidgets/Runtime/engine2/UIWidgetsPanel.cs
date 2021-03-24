@@ -199,10 +199,25 @@ namespace Unity.UIWidgets.engine2 {
         }
     }
 
+    enum UIWidgetsInputMode 
+    {
+        Mouse,
+        Touch
+    }
+
     public partial class UIWidgetsPanel : IPointerDownHandler, IPointerUpHandler,
         IPointerEnterHandler, IPointerExitHandler, IDragHandler {
         bool _isEntered;
         Vector2 _lastMousePosition;
+
+        UIWidgetsInputMode _inputMode;
+
+        void _convertPointerData(PointerEventData evt, out Vector2? position, out int pointerId) {
+            position = _inputMode == UIWidgetsInputMode.Mouse
+                ? _getPointerPosition(Input.mousePosition)
+                : _getPointerPosition(evt);
+            pointerId = _inputMode == UIWidgetsInputMode.Mouse ? evt.pointerId : (-1 - evt.pointerId);
+        }
 
         Vector2? _getPointerPosition(Vector2 position) {
             Camera worldCamera = canvas.worldCamera;
@@ -217,14 +232,32 @@ namespace Unity.UIWidgets.engine2 {
             return null;
         }
 
+        Vector2? _getPointerPosition(PointerEventData eventData) {
+            //refer to: https://zhuanlan.zhihu.com/p/37127981
+            Camera eventCamera = null;
+            if (canvas.renderMode != RenderMode.ScreenSpaceOverlay) {
+                eventCamera = canvas.GetComponent<GraphicRaycaster>().eventCamera;
+            }
+
+            Vector2 localPoint;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, eventData.position,
+                eventCamera, out localPoint);
+            var scaleFactor = canvas.scaleFactor;
+            localPoint.x = (localPoint.x - rectTransform.rect.min.x) * scaleFactor;
+            localPoint.y = (rectTransform.rect.max.y - localPoint.y) * scaleFactor;
+            return localPoint;
+        }
+
         void Input_OnEnable() {
+            _inputMode = Input.mousePresent ? UIWidgetsInputMode.Mouse : UIWidgetsInputMode.Touch;
         }
 
         void Input_OnDisable() {
         }
 
         void Input_Update() {
-            if (Input.touchCount == 0 && Input.mousePresent) {
+            //we only process hover events for desktop applications
+            if (_inputMode == UIWidgetsInputMode.Mouse) {
                 if (_isEntered) {
                     if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1) && !Input.GetMouseButton(2)) {
                         if (_lastMousePosition.x != Input.mousePosition.x ||
@@ -252,40 +285,52 @@ namespace Unity.UIWidgets.engine2 {
         }
 
         void _onMouseMove() {
+            if (_inputMode != UIWidgetsInputMode.Mouse) {
+                return;
+            }
             var pos = _getPointerPosition(Input.mousePosition);
             _wrapper.OnMouseMove(pos);
         }
 
         void _onScroll() {
+            if (_inputMode != UIWidgetsInputMode.Mouse) {
+                return;
+            }
             var pos = _getPointerPosition(Input.mousePosition);
             _wrapper.OnMouseScroll(Input.mouseScrollDelta, pos);
         }
 
-        public void OnPointerDown(PointerEventData eventData) {
-            var pos = _getPointerPosition(Input.mousePosition);
-            _wrapper.OnPointerDown(pos, eventData.pointerId);
-        }
-
-        public void OnPointerUp(PointerEventData eventData) {
-            var pos = _getPointerPosition(Input.mousePosition);
-            _wrapper.OnPointerUp(pos, eventData.pointerId);
-        }
-
         public void OnPointerEnter(PointerEventData eventData) {
+            if (_inputMode != UIWidgetsInputMode.Mouse) {
+                return;
+            }
             D.assert(eventData.pointerId < 0);
             _isEntered = true;
             _lastMousePosition = Input.mousePosition;
         }
 
         public void OnPointerExit(PointerEventData eventData) {
+            if (_inputMode != UIWidgetsInputMode.Mouse) {
+                return;
+            }
             D.assert(eventData.pointerId < 0);
             _isEntered = false;
             _wrapper.OnPointerLeave();
         }
 
+        public void OnPointerDown(PointerEventData eventData) {
+            _convertPointerData(eventData, out var pos, out var pointerId);
+            _wrapper.OnPointerDown(pos, pointerId);
+        }
+
+        public void OnPointerUp(PointerEventData eventData) {
+            _convertPointerData(eventData, out var pos, out var pointerId);
+            _wrapper.OnPointerUp(pos, pointerId);
+        }
+
         public void OnDrag(PointerEventData eventData) {
-            var pos = _getPointerPosition(Input.mousePosition);
-            _wrapper.OnDrag(pos, eventData.pointerId);
+            _convertPointerData(eventData, out var pos, out var pointerId);
+            _wrapper.OnDrag(pos, pointerId);
         }
     }
 }
