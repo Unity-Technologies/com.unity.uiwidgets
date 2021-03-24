@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace Unity.UIWidgets.external
-{    class SplayTree<TKey, TValue> : IDictionary<TKey, TValue> where TKey : IComparable<TKey> {
+namespace Unity.UIWidgets.external {    
+    class SplayTree<TKey, TValue> : IDictionary<TKey, TValue> where TKey : IComparable<TKey> {
         SplayTreeNode root;
         int count;
         int version = 0;
