@@ -267,7 +267,10 @@ bool GPUSurfaceGL::PresentSurface(SkCanvas* canvas) {
   {
     TRACE_EVENT0("uiwidgets", "SkCanvas::Flush");
     onscreen_surface_->getCanvas()->flush();
-    onscreen_surface_->getContext()->submit(true);
+    auto flushInfo = GrFlushInfo();
+    flushInfo.fFlags = GrFlushFlags::kSyncCpu_GrFlushFlag;
+    onscreen_surface_->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+    //onscreen_surface_->GetContext()->submit(true);
   }
 
   if (!delegate_->GLContextPresent()) {

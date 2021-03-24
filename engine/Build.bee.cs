@@ -30,17 +30,12 @@ class Build
 {
     static void Main()
     {
-        skiaRoot = Environment.GetEnvironmentVariable("SKIA_ROOT");
-        if (string.IsNullOrEmpty(skiaRoot))
-        {
-            skiaRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/skia_repo/skia";
-        }
-
         flutterRoot = Environment.GetEnvironmentVariable("FLUTTER_ROOT");
         if (string.IsNullOrEmpty(flutterRoot))
         {
             flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
         }
+        skiaRoot = flutterRoot + "/third_party/skia";
 
         var libUIWidgets = SetupLibUIWidgets();
 
@@ -400,10 +395,11 @@ class Build
 
         np.LinkerSettings().Add(c => IsWindows(c), l => l.WithCustomFlags_workaround(new[] { "/DEBUG:FULL" }));
 
-        SetupFml(np);
+        SetupTxtAlone(np);
+        //SetupFml(np);
         SetupRadidJson(np);
-        SetupSkia(np);
-        SetupTxt(np);
+        //SetupSkia(np);
+        //SetupTxt(np);
 
         var codegens = new[] { CodeGen.Debug };
 
@@ -511,6 +507,119 @@ class Build
             {
                 new StaticLibrary(fmlLibPath + "/obj/flutter/fml/libfml_lib.a"),
                 new SystemFramework("Foundation"),
+            };
+        });
+    }
+
+    static void SetupTxtAlone(NativeProgram np)
+    {
+        //np.IncludeDirectories.Add(skiaRoot);
+        //np.IncludeDirectories.Add(flutterRoot);
+        //np.IncludeDirectories.Add(flutterRoot + "/flutter/third_party/txt/src");
+        //np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/harfbuzz/src");
+        //np.IncludeDirectories.Add(skiaRoot + "/third_party/externals/icu/source/common");
+
+        np.Defines.Add(c => IsMac(c), new []
+        {
+            "USE_OPENSSL=1",
+            "__STDC_CONSTANT_MACROS",
+            "__STDC_FORMAT_MACROS",
+            "_FORTIFY_SOURCE=2",
+            "_LIBCPP_DISABLE_AVAILABILITY=1",
+            "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+            "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+            "_DEBUG",
+            "FLUTTER_RUNTIME_MODE_DEBUG=1",
+            "FLUTTER_RUNTIME_MODE_PROFILE=2",
+            "FLUTTER_RUNTIME_MODE_RELEASE=3",
+            "FLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
+            "FLUTTER_RUNTIME_MODE=1",
+            "FLUTTER_JIT_RUNTIME=1",
+
+            "SK_ENABLE_SPIRV_VALIDATION",
+            "SK_ASSUME_GL=1",
+            "SK_ENABLE_API_AVAILABLE",
+            "SK_GAMMA_APPLY_TO_A8",
+            "GR_OP_ALLOCATE_USE_NEW",
+            "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+            "GR_TEST_UTILS=1",
+            "SKIA_IMPLEMENTATION=1",
+            "SK_GL",
+            "SK_ENABLE_DUMP_GPU",
+            "SK_SUPPORT_PDF",
+            "SK_CODEC_DECODES_JPEG",
+            "SK_ENCODE_JPEG",
+            "SK_ENABLE_ANDROID_UTILS",
+            "SK_USE_LIBGIFCODEC",
+            "SK_HAS_HEIF_LIBRARY",
+            "SK_CODEC_DECODES_PNG",
+            "SK_ENCODE_PNG",
+            "SK_CODEC_DECODES_RAW",
+            "SK_ENABLE_SKSL_INTERPRETER",
+            "SKVM_JIT_WHEN_POSSIBLE",
+            "SK_CODEC_DECODES_WEBP",
+            "SK_ENCODE_WEBP",
+            "SK_XML",
+
+            "RAPIDJSON_HAS_STDSTRING",
+            "RAPIDJSON_HAS_CXX11_RANGE_FOR",
+            "RAPIDJSON_HAS_CXX11_RVALUE_REFS",
+            "RAPIDJSON_HAS_CXX11_TYPETRAITS",
+            "RAPIDJSON_HAS_CXX11_NOEXCEPT",
+
+            "USE_OPENSSL=1",
+            "__STDC_CONSTANT_MACROS",
+            "__STDC_FORMAT_MACROS",
+            "_FORTIFY_SOURCE=2",
+            "_LIBCPP_DISABLE_AVAILABILITY=1",
+            "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+            "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+            "_DEBUG"
+        });
+
+        np.Defines.Add(new[] { "SK_USING_THIRD_PARTY_ICU", "U_USING_ICU_NAMESPACE=0",
+            "U_ENABLE_DYLOAD=0", "USE_CHROMIUM_ICU=1", "U_STATIC_IMPLEMENTATION",
+            "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_STATIC"
+        });
+
+        np.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new[] {
+            "-MD",
+            "-MF",
+
+            "-I.",
+            "-Ithird_party",
+            "-Isrc",
+            "-I"+ flutterRoot,
+            "-I"+ flutterRoot+"/third_party/rapidjson/include",
+            "-I"+ skiaRoot,
+            "-I"+ flutterRoot+"/flutter/third_party/txt/src",
+            "-I" + flutterRoot + "/third_party/harfbuzz/src",
+            "-I" + skiaRoot + "/third_party/externals/icu/source/common",
+
+            // "-Igen",
+            "-I"+ flutterRoot+"/third_party/icu/source/common",
+            "-I"+ flutterRoot+"/third_party/icu/source/i18n",
+
+            "-fvisibility-inlines-hidden",
+
+        }));
+
+        np.Libraries.Add(IsMac, c => {
+            return new PrecompiledLibrary[]
+            {
+                // icudtl
+                //new StaticLibrary("icudtl.o"),
+
+                //new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtbegin_so.o"),
+                //new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtend_so.o"),
+
+                new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
+
+                new SystemFramework("Foundation"),
+                new SystemFramework("ApplicationServices"),
+                new SystemFramework("OpenGL"),
+                new SystemFramework("AppKit"),
+                new SystemFramework("CoreVideo"),
             };
         });
     }

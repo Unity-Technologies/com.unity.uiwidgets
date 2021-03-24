@@ -48,7 +48,7 @@ class DidDrawCanvas final : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 
   // |SkCanvasVirtualEnforcer<SkNoDrawCanvas>|
   void didConcat(const SkMatrix&) override;
-  void didConcat44(const SkM44&) override;
+  void didConcat44(const SkScalar[]) override;
   void didScale(SkScalar, SkScalar) override;
   void didTranslate(SkScalar, SkScalar) override;
 

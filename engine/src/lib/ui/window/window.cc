@@ -25,7 +25,7 @@ typedef void (*Window_updateWindowMetricsCallback)(
 
 Window_updateWindowMetricsCallback Window_updateWindowMetrics_;
 
-typedef void (*Window_beginFrameCallback)(long microseconds);
+typedef void (*Window_beginFrameCallback)(int64_t microseconds);
 Window_beginFrameCallback Window_beginFrame_;
 
 typedef void (*Window_drawFrameCallback)();

@@ -136,7 +136,10 @@ void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, 
   args.assets_path = streaming_assets_path;
   args.font_asset = settings;
   //TODO: not support icu yet
-  //args.icu_mapper = GetICUStaticMapping;
+  
+  std::string icu_path = std::string(streaming_assets_path) + "/icudtl.dat";
+  args.icu_data_path = icu_path.c_str();
+  
   args.command_line_argc = 0;
   args.command_line_argv = nullptr;
   args.platform_message_callback =
