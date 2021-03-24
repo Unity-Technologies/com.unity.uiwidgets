@@ -6,8 +6,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Gradient = Unity.UIWidgets.ui.Gradient;

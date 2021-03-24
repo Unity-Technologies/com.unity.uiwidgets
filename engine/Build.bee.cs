@@ -35,6 +35,86 @@ static class BuildUtils {
     }
 }
 
+//ios build helpers
+class UserIOSSdkLocator : IOSSdkLocator
+{
+    public UserIOSSdkLocator() : base(Architecture.Arm64) {}
+
+    public IOSSdk UserIOSSdk(NPath path)
+    {
+        return DefaultSdkFromXcodeApp(path);
+    }
+}
+
+class IOSAppToolchain : IOSToolchain
+{
+    //there is a bug in XCodeProjectFile.cs and the class IosPlatform, where the acceptale Platform Name is not matched
+    //we workaround this bug by overriding LegacyPlatformIdentifier to the correct one
+    public override string LegacyPlatformIdentifier => $"iphone_{Architecture.Name}";
+
+    //copied from com.unity.platforms.ios/Editor/Unity.Platform.Editor/bee~/IOSAppToolchain.cs
+    private static NPath _XcodePath = null;
+
+        private static NPath XcodePath
+        {
+            get
+            {
+                if (_XcodePath == null)
+                {
+                    string error = "";
+
+                    try
+                    {
+                        if (HostPlatform.IsOSX)
+                        {
+                            var start = new ProcessStartInfo("xcode-select", "-p")
+                            {
+                                RedirectStandardOutput = true,
+                                RedirectStandardError = true,
+                                RedirectStandardInput = true,
+                                UseShellExecute = false,
+                            };
+                            string output = "";
+                            using (var process = Process.Start(start))
+                            {
+                                process.OutputDataReceived += (sender, e) => { output += e.Data; };
+                                process.ErrorDataReceived += (sender, e) => { error += e.Data; };
+                                process.BeginOutputReadLine();
+                                process.BeginErrorReadLine();
+                                process.WaitForExit(); //? doesn't work correctly if time interval is set
+                            }
+
+                            _XcodePath = error == "" ? output : "";
+                            if (_XcodePath != "" && _XcodePath.DirectoryExists())
+                            {
+                                _XcodePath = XcodePath.Parent.Parent;
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException("Failed to find Xcode, xcode-select did not return a valid path");
+                            }
+                        }
+                    }
+                    catch (InvalidOperationException e)
+                    {
+                        Console.WriteLine(
+                            $"xcode-select did not return a valid path. Error message, if any, was: {error}. " +
+                            $"Often this can be fixed by making sure you have Xcode command line tools" +
+                            $" installed correctly, and then running `sudo xcode-select -r`");
+                        throw e;
+                    }
+                }
+
+                return _XcodePath;
+            }
+        }
+
+    //private static string XcodePath = "/Applications/Xcode.app/";
+    public IOSAppToolchain() : base((new UserIOSSdkLocator()).UserIOSSdk(XcodePath))
+    {
+    }
+}
+
 /**
 *   How to add new target platform (taking iOS as the example)
 *   (1) add a new static void DeployIOS() {} in which we need call SetupLibUIWidgets() with UIWidgetsBuildTargetPlatform.ios as its
@@ -94,6 +174,20 @@ class Build
         }
     }
 
+    //bee.exe ios
+    static void DeployIOS()
+    {
+        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.ios, out var dependencies);
+        var nativePrograms = new List<NativeProgram>();
+        nativePrograms.Add(libUIWidgets);
+        var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgetsIOS.xcodeproj/project.pbxproj"));
+
+        Backend.Current.AddAliasDependency("ios",  new NPath("libUIWidgetsIOS.xcodeproj/project.pbxproj"));
+        foreach(var dep in dependencies) {
+            Backend.Current.AddAliasDependency("ios", dep);
+        }
+    }
+
     static void Main()
     {
         flutterRoot = Environment.GetEnvironmentVariable("FLUTTER_ROOT");
@@ -113,11 +207,17 @@ class Build
         else if (BuildUtils.IsHostMac())
         {
             DeployMac();
+            DeployIOS();
         }
     }
 
     private static string skiaRoot;
     private static string flutterRoot;
+
+    //this setting is disabled by default, don't change it unless you know what you are doing
+    //it must be set the same as the settings we choose to build skia and flutter engine
+    //refer to the readme file for the details
+    private static bool ios_bitcode_enabled = false;
 
     static NativeProgram SetupLibUIWidgets(UIWidgetsBuildTargetPlatform platform, out List<NPath> dependencies)
     {
@@ -425,21 +525,37 @@ class Build
                 "src/shell/platform/unity/darwin/macos/unity_surface_manager.h",
         };
 
+        var iosSources = new NPath[] {
+                "src/shell/platform/unity/darwin/ios/uiwidgets_panel.mm",
+                "src/shell/platform/unity/darwin/ios/uiwidgets_panel.h",
+                "src/shell/platform/unity/darwin/ios/uiwidgets_system.mm",
+                "src/shell/platform/unity/darwin/ios/uiwidgets_system.h",
+                "src/shell/platform/unity/darwin/ios/cocoa_task_runner.cc",
+                "src/shell/platform/unity/darwin/ios/cocoa_task_runner.h",
+                "src/shell/platform/unity/darwin/ios/unity_surface_manager.mm",
+                "src/shell/platform/unity/darwin/ios/unity_surface_manager.h",
+        };
+
         np.Sources.Add(c => IsWindows(c), winSources);
         np.Sources.Add(c => IsMac(c), macSources);
+        np.Sources.Add(c => IsIosOrTvos(c), iosSources);
 
         np.Libraries.Add(c => IsWindows(c), new BagOfObjectFilesLibrary(
             new NPath[]{
                 skiaRoot + "/third_party/externals/icu/flutter/icudtl.o"
         }));
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
-        np.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new []{"-Wno-c++11-narrowing"}));
+        np.CompilerSettings().Add(c => IsMac(c) || IsIosOrTvos(c), c => c.WithCustomFlags(new []{"-Wno-c++11-narrowing"}));
+
+        if (ios_bitcode_enabled) {
+            np.CompilerSettingsForIosOrTvos().Add(c => c.WithEmbedBitcode(true));
+        }
 
         np.IncludeDirectories.Add("third_party");
         np.IncludeDirectories.Add("src");
 
         np.Defines.Add("UIWIDGETS_ENGINE_VERSION=\\\"0.0\\\"", "SKIA_VERSION=\\\"0.0\\\"");
-        np.Defines.Add(c => IsMac(c), "UIWIDGETS_FORCE_ALIGNAS_8=\\\"1\\\"");
+        np.Defines.Add(c => IsMac(c) || IsIosOrTvos(c), "UIWIDGETS_FORCE_ALIGNAS_8=\\\"1\\\"");
 
         np.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });
@@ -487,6 +603,25 @@ class Build
                 dependencies.Add(buildNp.Path);
                 dependencies.Add(deployNp.Path);
             }
+
+            np.ValidConfigurations = validConfigurations;
+        }
+        else if (platform == UIWidgetsBuildTargetPlatform.ios)
+        {
+            var toolchain = new IOSAppToolchain(); 
+            var validConfigurations = new List<NativeProgramConfiguration>();
+            foreach (var codegen in codegens)
+            {
+                var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
+                validConfigurations.Add(config);
+                var buildProgram = np.SetupSpecificConfiguration(config, toolchain.StaticLibraryFormat);
+                var builtNP = buildProgram.DeployTo("build");
+                var deployNP = buildProgram.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/iOS/");
+                dependencies.Add(builtNP.Path);
+                dependencies.Add(deployNP.Path);
+            }
+
+            Backend.Current.AddAliasDependency("ios", CopyTool.Instance().Setup("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/iOS/CustomAppController.m", "src/external/ios/CustomAppController.m"));
 
             np.ValidConfigurations = validConfigurations;
         }
@@ -571,6 +706,123 @@ class Build
     static void SetupDependency(NativeProgram np)
     {
         SetupRadidJson(np);
+
+        np.Defines.Add(c => IsIosOrTvos(c), new []
+        {
+            //lib flutter
+            "__STDC_CONSTANT_MACROS",
+            "__STDC_FORMAT_MACROS",
+            "_FORTIFY_SOURCE=2",
+            "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+            "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+            "_DEBUG",
+            "FLUTTER_RUNTIME_MODE_DEBUG=1",
+            "FLUTTER_RUNTIME_MODE_PROFILE=2",
+            "FLUTTER_RUNTIME_MODE_RELEASE=3",
+            "FLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
+            "FLUTTER_RUNTIME_MODE=1",
+            "FLUTTER_JIT_RUNTIME=1",
+
+            //lib skia
+            "SK_ENABLE_SPIRV_VALIDATION",
+            "SK_ASSUME_GL_ES=1","SK_ENABLE_API_AVAILABLE",
+            "SK_GAMMA_APPLY_TO_A8",
+            "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+            "GR_TEST_UTILS=1",
+            "SKIA_IMPLEMENTATION=1",
+            "SK_GL",
+            "SK_ENABLE_DUMP_GPU",
+            "SK_SUPPORT_PDF",
+            "SK_CODEC_DECODES_JPEG",
+            "SK_ENCODE_JPEG",
+            "SK_ENABLE_ANDROID_UTILS",
+            "SK_USE_LIBGIFCODEC",
+            "SK_HAS_HEIF_LIBRARY",
+            "SK_CODEC_DECODES_PNG",
+            "SK_ENCODE_PNG",
+            "SK_CODEC_DECODES_RAW",
+            "SK_ENABLE_SKSL_INTERPRETER",
+            "SK_CODEC_DECODES_WEBP",
+            "SK_ENCODE_WEBP",
+            "SK_XML",
+        });
+
+        np.Defines.Add(c => IsIosOrTvos(c), new[] { 
+        "__STDC_CONSTANT_MACROS",
+        "__STDC_FORMAT_MACROS",
+        "_FORTIFY_SOURCE=2",
+        "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+        "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+        "_DEBUG",
+        "SK_GL",
+        "SK_METAL",
+        "SK_ENABLE_DUMP_GPU",
+        "SK_CODEC_DECODES_JPEG",
+        "SK_ENCODE_JPEG",
+        "SK_CODEC_DECODES_PNG",
+        "SK_ENCODE_PNG",
+        "SK_CODEC_DECODES_WEBP",
+        "SK_ENCODE_WEBP",
+        "SK_HAS_WUFFS_LIBRARY",
+        "FLUTTER_RUNTIME_MODE_DEBUG=1",
+        "FLUTTER_RUNTIME_MODE_PROFILE=2",
+        "FLUTTER_RUNTIME_MODE_RELEASE=3",
+        "FLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
+        "FLUTTER_RUNTIME_MODE=1",
+        "FLUTTER_JIT_RUNTIME=1",
+        "U_USING_ICU_NAMESPACE=0",
+        "U_ENABLE_DYLOAD=0",
+        "USE_CHROMIUM_ICU=1",
+        "U_STATIC_IMPLEMENTATION",
+        "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE",
+        "UCHAR_TYPE=uint16_t",
+        "SK_DISABLE_REDUCE_OPLIST_SPLITTING",
+        "SK_ENABLE_DUMP_GPU",
+        "SK_DISABLE_AAA",
+        "SK_DISABLE_READBUFFER",
+        "SK_DISABLE_EFFECT_DESERIALIZATION",
+        "SK_DISABLE_LEGACY_SHADERCONTEXT",
+        "SK_DISABLE_LOWP_RASTER_PIPELINE",
+        "SK_FORCE_RASTER_PIPELINE_BLITTER",
+        "SK_GL",
+        "SK_ASSUME_GL_ES=1",
+        "SK_ENABLE_API_AVAILABLE"
+        });
+
+
+        np.CompilerSettings().Add(c => IsIosOrTvos(c), c => c.WithCustomFlags(new[] {
+            "-MD",
+            "-MF",
+
+            "-I.",
+            "-Ithird_party",
+            "-Isrc",
+            "-I"+ flutterRoot,
+            "-I"+ flutterRoot+"/third_party/rapidjson/include",
+            "-I"+ skiaRoot,
+            "-I"+ flutterRoot+"/flutter/third_party/txt/src",
+            "-I" + flutterRoot + "/third_party/harfbuzz/src",
+            "-I" + skiaRoot + "/third_party/externals/icu/source/common",
+
+            // "-Igen",
+            "-I"+ flutterRoot+"/third_party/icu/source/common",
+            "-I"+ flutterRoot+"/third_party/icu/source/i18n",
+
+            "-fvisibility-inlines-hidden",
+        }));
+
+        np.Libraries.Add(IsIosOrTvos, c => {
+            return new PrecompiledLibrary[]
+            {
+                new StaticLibrary(flutterRoot+"/out/ios_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
+                new SystemFramework("CoreFoundation"),
+                new SystemFramework("ImageIO"),
+                new SystemFramework("MobileCoreServices"),
+                new SystemFramework("CoreGraphics"),
+                new SystemFramework("CoreText"),
+                new SystemFramework("UIKit"),
+            };
+        });
 
         np.Defines.Add(c => IsMac(c), new []
         {
