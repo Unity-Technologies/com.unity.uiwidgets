@@ -135,8 +135,7 @@ void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, 
   args.struct_size = sizeof(UIWidgetsProjectArgs);
   args.assets_path = streaming_assets_path;
   args.font_asset = settings;
-  //TODO: not support icu yet
-  //args.icu_mapper = GetICUStaticMapping;
+  
   args.command_line_argc = 0;
   args.command_line_argv = nullptr;
   args.platform_message_callback =
