@@ -621,6 +621,8 @@ class Build
                     var builtNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build");
 
                     builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/Android");
+                    builtNP.DeployTo("/Users/siyao/Documents/GitHub/untitled folder/unityLibrary/src/main/jniLibs/armeabi-v7a");
+                    
                 }
                 np.ValidConfigurations = validConfigurations;
             }

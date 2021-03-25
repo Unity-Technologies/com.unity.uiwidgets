@@ -5,6 +5,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using FontStyle = Unity.UIWidgets.ui.FontStyle;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -68,7 +70,8 @@ namespace UIWidgetsSample
                                 decoration: new BoxDecoration(
                                     borderRadius: BorderRadius.all(Radius.circular(8))
                                 ),
-                                child: Image.file("test.gif", gaplessPlayback: true)
+                                // child: Image.file("test.gif", gaplessPlayback: true)
+                                child:Image.network( System.IO.Path.Combine(Application.streamingAssetsPath, "test.gif"), gaplessPlayback: true)
                             ),
                             new Container(
                                 width: 200,
