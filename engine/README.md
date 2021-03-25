@@ -6,55 +6,12 @@ This is the engine code of UIWidgets.
 
 ## How to Build (Windows)
 
-### Build Skia
-
-1. Install depot_tools
+### Install depot_tools
 ```
 git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
 ```
 Add ${PWD}/depot_tools to PATH
 
-2. Clone the skia Repo
-```
-git clone https://skia.googlesource.com/skia.git
-cd skia
-git checkout chrome/m85
-python2 tools/git-sync-deps
-```
-
-3. Install LLVM
-
-https://clang.llvm.org/get_started.html
-
-4. Build skia
-```
-bin/gn gen out/Debug
-```
-
-Update out/Debug/args.gn with the following content:
-```
-clang_win = "C:\Program Files\LLVM"
-win_vc = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC"
-cc = "clang"
-cxx = "clang++"
-is_debug = true
-skia_use_angle = true
-skia_use_egl = true
-extra_cflags = [
-  "/MTd",
-  "-I../../third_party/externals/angle2/include",
-]
-```
-```
-ninja -C out/Debug -k 0
-```
-Ignore this error: "lld-link: error: could not open 'EGL': no such file or directory"
-
-convert icudtl.dat to object file in flutter
-```
-cd flutterRoot/third_party/icu/flutter/
-ld -r -b binary -o icudtl.o icudtl.dat
-```
 ### Build flutter txt
 
 1. Setting up the Engine development environment
@@ -99,8 +56,6 @@ Apply the following diff:
 ```
 
 
-#### `optional`
-
 update `out\host_debug_unopt\args.gn`
 ```
 skia_use_angle = true
@@ -127,6 +82,43 @@ set GYP_MSVS_OVERRIDE_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\C
 cd engine/src
 python ./flutter/tools/gn --unoptimized
 ninja -C out\host_debug_unopt flutter/third_party/txt:txt_lib
+```
+
+### Build Skia
+1. Install LLVM
+
+https://clang.llvm.org/get_started.html
+
+2. Build skia
+```
+cd $FLUTTER_ROOT/third_party/skia
+python2 tools/git-sync-deps
+bin/gn gen out/Debug
+```
+
+Update out/Debug/args.gn with the following content:
+```
+clang_win = "C:\Program Files\LLVM/third_party/skia"
+win_vc = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC"
+cc = "clang"
+cxx = "clang++"
+is_debug = true
+skia_use_angle = true
+skia_use_egl = true
+extra_cflags = [
+  "/MTd",
+  "-I../../third_party/externals/angle2/include",
+]
+```
+```
+ninja -C out/Debug -k 0
+```
+Ignore this error: "lld-link: error: could not open 'EGL': no such file or directory"
+
+convert icudtl.dat to object file in flutter
+```
+cd flutterRoot/third_party/icu/flutter/
+ld -r -b binary -o icudtl.o icudtl.dat
 ```
 
 ### Build Engine

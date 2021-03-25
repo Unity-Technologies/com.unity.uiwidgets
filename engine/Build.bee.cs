@@ -498,7 +498,8 @@ class Build
     {
         SetupRadidJson(np);
 
-        var ignoreWarnigs = new string[] { "4244", "4267", "5030", "4101", "4996", "4359", "4018", "4091",  "4722", "4312", "4838", "4172", "4005", "4311", "4477" }; // todo comparing the list with engine
+        // TODO: fix warning, there are some type mismatches
+        var ignoreWarnigs = new string[] { "4244", "4267", "5030", "4101", "4996", "4359", "4018", "4091",  "4722", "4312", "4838", "4172", "4005", "4311", "4477" };
         np.CompilerSettings().Add(c => IsWindows(c), s => s.WithWarningPolicies(ignoreWarnigs.Select((code) => new WarningAndPolicy(code, WarningPolicy.Silent)).ToArray()));
 
         np.Defines.Add(c => IsMac(c), new []
@@ -558,15 +559,15 @@ class Build
             "third_party",
             "src",
             flutterRoot,
-            flutterRoot+"/third_party/rapidjson/include",
+            flutterRoot + "/third_party/rapidjson/include",
             flutterRoot +"/third_party/angle/include",
             skiaRoot,
-            flutterRoot+"/flutter/third_party/txt/src",
+            flutterRoot + "/flutter/third_party/txt/src",
             flutterRoot + "/third_party/harfbuzz/src",
             flutterRoot + "/third_party/icu/source/common",
 
-            flutterRoot+"/third_party/icu/source/common",
-            flutterRoot+"/third_party/icu/source/i18n",
+            flutterRoot + "/third_party/icu/source/common",
+            flutterRoot + "/third_party/icu/source/i18n",
         });
         np.CompilerSettings().Add(c => IsWindows(c), c => c.WithCustomFlags(new [] {
             "-D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING",
@@ -611,7 +612,7 @@ class Build
             "-DNOMINMAX",
             "-DSK_GAMMA_APPLY_TO_A8",
             "-DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
-            "-DGR_TEST_UTILS=1",
+            // "-DGR_TEST_UTILS=1",
             "-DSKIA_IMPLEMENTATION=1",
             "-DSK_GL",
             "-DSK_ENABLE_DUMP_GPU",
@@ -628,7 +629,6 @@ class Build
             "-DSK_CODEC_DECODES_WEBP",
             "-DSK_ENCODE_WEBP",
             "-DSK_XML",
-            // "-DSKSL_STANDALONE",
 
              "-DLIBEGL_IMPLEMENTATION",
             "-D_CRT_SECURE_NO_WARNINGS",
@@ -646,23 +646,7 @@ class Build
             "-DGL_APICALL=",
             "-DGL_API=",
             "-DEGLAPI=",
-            //"-I../..",
-            //"-Igen",
-            //"-I../../third_party/icu/source/common",
-            //"-I../../third_party/icu/source/i18n",
-            //"-I../..",
-            //"-I../../third_party/dart/runtime",
-            //"-I../../third_party/dart/runtime/include",
-            "/GS",
             "/FS",
-            //"/wd4091",
-            //"/wd4722",
-            //"/wd4312",
-            //"/wd4838",
-            //"/wd4172",
-            //"/wd4005",
-            //"/wd4311",
-            //"/wd4477",
             "/MTd",
             "/Od",
             "/Ob0",
@@ -695,40 +679,23 @@ class Build
             "-fvisibility-inlines-hidden",
         }));
 
+        var basePath = skiaRoot + "/out/Debug";
+
         np.Libraries.Add(IsWindows, c =>
         {
-            var basePath = skiaRoot + "/out/Debug";
             return new PrecompiledLibrary[]
             {
                 new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/txt_lib.lib"),
 
                 new StaticLibrary(basePath+"/libEGL.dll.lib"),
                 new StaticLibrary(basePath+"/libGLESv2.dll.lib"),
-                //new StaticLibrary(basePath + "/skia.lib"),
-                //new StaticLibrary(basePath + "/skottie.lib"),
-                //new StaticLibrary(basePath + "/sksg.lib"),
-                //new StaticLibrary(basePath + "/skshaper.lib"),
-                //new StaticLibrary(basePath + "/harfbuzz.lib"),
-                //new StaticLibrary(basePath + "/libEGL.dll.lib"),
-                //new StaticLibrary(basePath + "/libGLESv2.dll.lib"),
 
                 new SystemLibrary("Opengl32.lib"),
                 new SystemLibrary("User32.lib"),
-                // new SystemLibrary("rpcrt4.lib"),
                 new SystemLibrary("Rpcrt4.lib"),
-                
-
-                //new SystemLibrary("D3D12.lib"), 
-                //new SystemLibrary("DXGI.lib"), 
-                //new SystemLibrary("d3dcompiler.lib"),
-                // new SystemLibrary(basePath + "/obj/tools/trace/trace.ChromeTracingTracer.obj"),
-                // new SystemLibrary(basePath + "/obj/tools/trace/trace.EventTracingPriv.obj"),
-                // new SystemLibrary(basePath + "/obj/tools/trace/trace.SkDebugfTracer.obj"),
-                // new SystemLibrary(basePath + "/obj/tools/flags/flags.CommandLineFlags.obj"),
             };
         });
 
-        var basePath = skiaRoot + "/out/Debug";
         np.SupportFiles.Add(c => IsWindows(c), new [] {
                 new DeployableFile(basePath + "/libEGL.dll"),
                 new DeployableFile(basePath + "/libEGL.dll.pdb"),
