@@ -686,6 +686,7 @@ class Build
             "-DNOMINMAX",
             "-DSK_GAMMA_APPLY_TO_A8",
             "-DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+            // TODO: fix this by update txt_lib build setting, reference: https://github.com/microsoft/vcpkg/issues/12123
             // "-DGR_TEST_UTILS=1",
             "-DSKIA_IMPLEMENTATION=1",
             "-DSK_GL",
@@ -753,7 +754,7 @@ class Build
             "-fvisibility-inlines-hidden",
         }));
 
-        var basePath = skiaRoot + "/out/Debug";
+        var windowsSkiaBuild = skiaRoot + "/out/Debug";
 
         np.Libraries.Add(IsWindows, c =>
         {
@@ -761,8 +762,8 @@ class Build
             {
                 new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/txt_lib.lib"),
 
-                new StaticLibrary(basePath+"/libEGL.dll.lib"),
-                new StaticLibrary(basePath+"/libGLESv2.dll.lib"),
+                new StaticLibrary(windowsSkiaBuild+"/libEGL.dll.lib"),
+                new StaticLibrary(windowsSkiaBuild+"/libGLESv2.dll.lib"),
 
                 new SystemLibrary("Opengl32.lib"),
                 new SystemLibrary("User32.lib"),
@@ -771,10 +772,10 @@ class Build
         });
 
         np.SupportFiles.Add(c => IsWindows(c), new [] {
-                new DeployableFile(basePath + "/libEGL.dll"),
-                new DeployableFile(basePath + "/libEGL.dll.pdb"),
-                new DeployableFile(basePath + "/libGLESv2.dll"),
-                new DeployableFile(basePath + "/libGLESv2.dll.pdb"),
+                new DeployableFile(windowsSkiaBuild + "/libEGL.dll"),
+                new DeployableFile(windowsSkiaBuild + "/libEGL.dll.pdb"),
+                new DeployableFile(windowsSkiaBuild + "/libGLESv2.dll"),
+                new DeployableFile(windowsSkiaBuild + "/libGLESv2.dll.pdb"),
             }
         );
         np.Libraries.Add(IsMac, c => {
