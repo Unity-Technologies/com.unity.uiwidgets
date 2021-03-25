@@ -453,8 +453,9 @@ namespace UIWidgetsGallery.demo.material
                     {
                         new IconButton(
                             onPressed: this._toggleBackdropPanelVisibility,
-                            icon: new Icon(
-                                icon: Icons.close
+                            icon: new AnimatedIcon(
+                                icon: AnimatedIcons.close_menu,
+                                progress: this._controller.view
                             )
                         )
                     }

@@ -3,11 +3,11 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.material {
     public abstract class AnimatedIcons {
-        //public static readonly AnimatedIconData add_event = AnimatedIconsData._add_event;
+        public static readonly AnimatedIconData add_event = AnimatedIconsData._add_event;
 
-        //public static readonly AnimatedIconData arrow_menu = AnimatedIconsData._arrow_menu;
+        public static readonly AnimatedIconData arrow_menu = AnimatedIconsData._arrow_menu;
 
-        //public static readonly AnimatedIconData close_menu = AnimatedIconsData._close_menu;
+        public static readonly AnimatedIconData close_menu = AnimatedIconsData._close_menu;
 
         // public readonly AnimatedIconData ellipsis_search = AnimatedIconsData._ellipsis_search;
 
@@ -40,14 +40,14 @@ namespace Unity.UIWidgets.material {
     }
 
     class _AnimatedIconData : AnimatedIconData {
-        public _AnimatedIconData(Size size, List<_PathFrames> paths, bool matchTextDirection = false) {
+        public _AnimatedIconData(Size size, _PathFrames[] paths, bool matchTextDirection = false) {
             this.size = size;
             this.paths = paths;
             this.matchTextDirection = matchTextDirection;
         }
 
         public readonly Size size;
-        public readonly List<_PathFrames> paths;
+        public readonly _PathFrames[] paths;
 
         public override bool matchTextDirection { get; }
     }
