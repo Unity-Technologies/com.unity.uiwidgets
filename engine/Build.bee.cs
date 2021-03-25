@@ -563,7 +563,7 @@ class Build
             skiaRoot,
             flutterRoot+"/flutter/third_party/txt/src",
             flutterRoot + "/third_party/harfbuzz/src",
-            skiaRoot + "/third_party/externals/icu/source/common",
+            flutterRoot + "/third_party/icu/source/common",
 
             flutterRoot+"/third_party/icu/source/common",
             flutterRoot+"/third_party/icu/source/i18n",
@@ -628,6 +628,7 @@ class Build
             "-DSK_CODEC_DECODES_WEBP",
             "-DSK_ENCODE_WEBP",
             "-DSK_XML",
+            // "-DSKSL_STANDALONE",
 
              "-DLIBEGL_IMPLEMENTATION",
             "-D_CRT_SECURE_NO_WARNINGS",
@@ -701,22 +702,20 @@ class Build
             {
                 new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/txt_lib.lib"),
 
-                //new StaticLibrary("e:/flutter_engine/src/third_party/swiftshader/third_party/PowerVR_SDK/Builds/Windows/x86_64/Lib/libEGL.lib"),
-                //new StaticLibrary("e:/flutter_engine/src/third_party/swiftshader/third_party/PowerVR_SDK/Builds/Windows/x86_64/Lib/libGLESv2.lib"),
-            new StaticLibrary("e:/code/skia_repo/skia/out/Debug/libEGL.dll.lib"),
-            new StaticLibrary("e:/code/skia_repo/skia/out/Debug/libGLESv2.dll.lib"),
+                new StaticLibrary(basePath+"/libEGL.dll.lib"),
+                new StaticLibrary(basePath+"/libGLESv2.dll.lib"),
+                //new StaticLibrary(basePath + "/skia.lib"),
+                //new StaticLibrary(basePath + "/skottie.lib"),
+                //new StaticLibrary(basePath + "/sksg.lib"),
+                //new StaticLibrary(basePath + "/skshaper.lib"),
+                //new StaticLibrary(basePath + "/harfbuzz.lib"),
+                //new StaticLibrary(basePath + "/libEGL.dll.lib"),
+                //new StaticLibrary(basePath + "/libGLESv2.dll.lib"),
 
-            //new StaticLibrary(basePath + "/skia.lib"),
-            //new StaticLibrary(basePath + "/skottie.lib"),
-            //new StaticLibrary(basePath + "/sksg.lib"),
-            //new StaticLibrary(basePath + "/skshaper.lib"),
-            //new StaticLibrary(basePath + "/harfbuzz.lib"),
-            //new StaticLibrary(basePath + "/libEGL.dll.lib"),
-            //new StaticLibrary(basePath + "/libGLESv2.dll.lib"),
-
-            new SystemLibrary("Opengl32.lib"),
+                new SystemLibrary("Opengl32.lib"),
                 new SystemLibrary("User32.lib"),
-                new SystemLibrary("rpcrt4.lib"),
+                // new SystemLibrary("rpcrt4.lib"),
+                new SystemLibrary("Rpcrt4.lib"),
                 
 
                 //new SystemLibrary("D3D12.lib"), 
@@ -729,6 +728,14 @@ class Build
             };
         });
 
+        var basePath = skiaRoot + "/out/Debug";
+        np.SupportFiles.Add(c => IsWindows(c), new [] {
+                new DeployableFile(basePath + "/libEGL.dll"),
+                new DeployableFile(basePath + "/libEGL.dll.pdb"),
+                new DeployableFile(basePath + "/libGLESv2.dll"),
+                new DeployableFile(basePath + "/libGLESv2.dll.pdb"),
+            }
+        );
         np.Libraries.Add(IsMac, c => {
             return new PrecompiledLibrary[]
             {
