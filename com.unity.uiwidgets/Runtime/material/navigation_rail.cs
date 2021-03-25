@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -247,16 +248,15 @@ namespace Unity.UIWidgets.material {
         }
 
         void _initControllers() {
-            _destinationControllers = widget.destinations.Select((destination, i) => {
-                var result = new AnimationController(
-                    duration: ThemeUtils.kThemeAnimationDuration,
-                    vsync: this
-                );
-                result.addListener(_rebuild);
-                return result;
-            }).ToList();
-            _destinationAnimations = _destinationControllers.Select((AnimationController controller) => controller.view)
-                .ToList();
+            _destinationControllers = LinqUtils<AnimationController, NavigationRailDestination>.SelectList(widget.destinations, ((destination) => {
+                    var result = new AnimationController(
+                        duration: ThemeUtils.kThemeAnimationDuration,
+                        vsync: this
+                    );
+                    result.addListener(_rebuild);
+                    return result;
+                }));
+            _destinationAnimations = LinqUtils<Animation<float>, AnimationController>.SelectList(_destinationControllers,((AnimationController controller) => controller.view));
             _destinationControllers[widget.selectedIndex ?? 0].setValue(1.0f);
             _extendedController = new AnimationController(
                 duration: ThemeUtils.kThemeAnimationDuration,
