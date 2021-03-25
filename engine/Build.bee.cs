@@ -430,7 +430,7 @@ class Build
 
         np.Libraries.Add(c => IsWindows(c), new BagOfObjectFilesLibrary(
             new NPath[]{
-                skiaRoot + "/third_party/externals/icu/flutter/icudtl.o"
+                flutterRoot + "/third_party/icu/flutter/icudtl.o"
         }));
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
         np.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new []{"-Wno-c++11-narrowing"}));
@@ -572,6 +572,10 @@ class Build
     {
         SetupRadidJson(np);
 
+        // TODO: fix warning, there are some type mismatches
+        var ignoreWarnigs = new string[] { "4244", "4267", "5030", "4101", "4996", "4359", "4018", "4091",  "4722", "4312", "4838", "4172", "4005", "4311", "4477" };
+        np.CompilerSettings().Add(c => IsWindows(c), s => s.WithWarningPolicies(ignoreWarnigs.Select((code) => new WarningAndPolicy(code, WarningPolicy.Silent)).ToArray()));
+
         np.Defines.Add(c => IsMac(c), new []
         {
             //lib flutter
@@ -624,6 +628,111 @@ class Build
             "ICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_STATIC"
         });
 
+        np.IncludeDirectories.Add(c => IsWindows(c), new NPath[] {
+             ".",
+            "third_party",
+            "src",
+            flutterRoot,
+            flutterRoot + "/third_party/rapidjson/include",
+            flutterRoot +"/third_party/angle/include",
+            skiaRoot,
+            flutterRoot + "/flutter/third_party/txt/src",
+            flutterRoot + "/third_party/harfbuzz/src",
+            flutterRoot + "/third_party/icu/source/common",
+
+            flutterRoot + "/third_party/icu/source/common",
+            flutterRoot + "/third_party/icu/source/i18n",
+        });
+        np.CompilerSettings().Add(c => IsWindows(c), c => c.WithCustomFlags(new [] {
+            "-D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING",
+            "-DUSE_OPENSSL=1",
+            "-D__STD_C",
+            "-D_CRT_RAND_S",
+            "-D_CRT_SECURE_NO_DEPRECATE",
+            "-D_HAS_EXCEPTIONS=0",
+            "-D_SCL_SECURE_NO_DEPRECATE",
+            "-DWIN32_LEAN_AND_MEAN",
+            "-DNOMINMAX",
+            "-D_ATL_NO_OPENGL",
+            "-D_WINDOWS",
+            "-DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS",
+            "-DNTDDI_VERSION=0x06030000",
+            "-DPSAPI_VERSION=1",
+            "-DWIN32",
+            "-D_SECURE_ATL",
+            "-D_USING_V110_SDK71_",
+            "-D_UNICODE",
+            "-DUNICODE",
+            "-D_WIN32_WINNT=0x0603",
+            "-DWINVER=0x0603",
+            "-D_DEBUG",
+            "-DU_USING_ICU_NAMESPACE=0",
+            "-DU_ENABLE_DYLOAD=0",
+            "-DUSE_CHROMIUM_ICU=1",
+            "-DU_STATIC_IMPLEMENTATION",
+            "-DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE",
+            "-DUCHAR_TYPE=wchar_t",
+            "-DFLUTTER_RUNTIME_MODE_DEBUG=1",
+            "-DFLUTTER_RUNTIME_MODE_PROFILE=2",
+            "-DFLUTTER_RUNTIME_MODE_RELEASE=3",
+            "-DFLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
+            "-DFLUTTER_RUNTIME_MODE=1",
+            "-DFLUTTER_JIT_RUNTIME=1",
+
+            "-DSK_ENABLE_SPIRV_VALIDATION",
+            "-D_CRT_SECURE_NO_WARNINGS",
+            "-D_HAS_EXCEPTIONS=0",
+            "-DWIN32_LEAN_AND_MEAN",
+            "-DNOMINMAX",
+            "-DSK_GAMMA_APPLY_TO_A8",
+            "-DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
+            // TODO: fix this by update txt_lib build setting, reference: https://github.com/microsoft/vcpkg/issues/12123
+            // "-DGR_TEST_UTILS=1",
+            "-DSKIA_IMPLEMENTATION=1",
+            "-DSK_GL",
+            "-DSK_ENABLE_DUMP_GPU",
+            "-DSK_SUPPORT_PDF",
+            "-DSK_CODEC_DECODES_JPEG",
+            "-DSK_ENCODE_JPEG",
+            "-DSK_SUPPORT_XPS",
+            "-DSK_ENABLE_ANDROID_UTILS",
+            "-DSK_USE_LIBGIFCODEC",
+            "-DSK_HAS_HEIF_LIBRARY",
+            "-DSK_CODEC_DECODES_PNG",
+            "-DSK_ENCODE_PNG",
+            "-DSK_ENABLE_SKSL_INTERPRETER",
+            "-DSK_CODEC_DECODES_WEBP",
+            "-DSK_ENCODE_WEBP",
+            "-DSK_XML",
+
+             "-DLIBEGL_IMPLEMENTATION",
+            "-D_CRT_SECURE_NO_WARNINGS",
+            "-D_HAS_EXCEPTIONS=0",
+            "-DWIN32_LEAN_AND_MEAN",
+            "-DNOMINMAX",
+            "-DANGLE_ENABLE_ESSL",
+            "-DANGLE_ENABLE_GLSL",
+            "-DANGLE_ENABLE_HLSL",
+            "-DANGLE_ENABLE_OPENGL",
+            "-DEGL_EGLEXT_PROTOTYPES",
+            "-DGL_GLEXT_PROTOTYPES",
+            "-DANGLE_ENABLE_D3D11",
+            "-DANGLE_ENABLE_D3D9",
+            "-DGL_APICALL=",
+            "-DGL_API=",
+            "-DEGLAPI=",
+            "/FS",
+            "/MTd",
+            "/Od",
+            "/Ob0",
+            "/RTC1",
+            "/Zi",
+            "/WX",
+            "/std:c++17",
+            "/GR-",
+
+        }));
+
         np.CompilerSettings().Add(c => IsMac(c), c => c.WithCustomFlags(new[] {
             "-MD",
             "-MF",
@@ -645,6 +754,30 @@ class Build
             "-fvisibility-inlines-hidden",
         }));
 
+        var windowsSkiaBuild = skiaRoot + "/out/Debug";
+
+        np.Libraries.Add(IsWindows, c =>
+        {
+            return new PrecompiledLibrary[]
+            {
+                new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/txt_lib.lib"),
+
+                new StaticLibrary(windowsSkiaBuild+"/libEGL.dll.lib"),
+                new StaticLibrary(windowsSkiaBuild+"/libGLESv2.dll.lib"),
+
+                new SystemLibrary("Opengl32.lib"),
+                new SystemLibrary("User32.lib"),
+                new SystemLibrary("Rpcrt4.lib"),
+            };
+        });
+
+        np.SupportFiles.Add(c => IsWindows(c), new [] {
+                new DeployableFile(windowsSkiaBuild + "/libEGL.dll"),
+                new DeployableFile(windowsSkiaBuild + "/libEGL.dll.pdb"),
+                new DeployableFile(windowsSkiaBuild + "/libGLESv2.dll"),
+                new DeployableFile(windowsSkiaBuild + "/libGLESv2.dll.pdb"),
+            }
+        );
         np.Libraries.Add(IsMac, c => {
             return new PrecompiledLibrary[]
             {

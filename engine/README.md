@@ -6,56 +6,13 @@ This is the engine code of UIWidgets.
 
 ## How to Build (Windows)
 
-### Build Skia
-
-1. Install depot_tools
+### Install depot_tools
 ```
 git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
 ```
 Add ${PWD}/depot_tools to PATH
 
-2. Clone the skia Repo
-```
-git clone https://skia.googlesource.com/skia.git
-cd skia
-git checkout chrome/m85
-python2 tools/git-sync-deps
-```
-
-3. Install LLVM
-
-https://clang.llvm.org/get_started.html
-
-4. Build skia
-```
-bin/gn gen out/Debug
-```
-
-Update out/Debug/args.gn with the following content:
-```
-clang_win = "C:\Program Files\LLVM"
-win_vc = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC"
-cc = "clang"
-cxx = "clang++"
-is_debug = true
-skia_use_angle = true
-skia_use_egl = true
-extra_cflags = [
-  "/MTd",
-  "-I../../third_party/externals/angle2/include",
-]
-```
-```
-ninja -C out/Debug -k 0
-```
-Ignore this error: "lld-link: error: could not open 'EGL': no such file or directory"
-
-convert icudtl.dat to object file in skia
-```
-cd SkiaRoot/third_party/externals/icu/flutter/
-ld -r -b binary -o icudtl.o icudtl.dat
-```
-### Build flutter fml
+### Build flutter txt
 
 1. Setting up the Engine development environment
 
@@ -75,40 +32,94 @@ gclient sync -D
 
 Apply the following diff:
 ```
-diff --git a/fml/BUILD.gn b/fml/BUILD.gn
-index 9b5626e78..da1322ce5 100644
---- a/fml/BUILD.gn
-+++ b/fml/BUILD.gn
-@@ -295,3 +295,10 @@ executable("fml_benchmarks") {
-     "//flutter/runtime:libdart",
+--- a/third_party/txt/BUILD.gn
++++ b/third_party/txt/BUILD.gn
+@@ -141,6 +141,7 @@ source_set("txt") {
+     "//third_party/harfbuzz",
+     "//third_party/icu",
+     "//third_party/skia",
++    "//third_party/skia/modules/skottie",
    ]
+ 
+   deps = [
+@@ -339,3 +340,10 @@ executable("txt_benchmarks") {
+     deps += [ "//third_party/skia/modules/skparagraph" ]
+   }
  }
 +
-+static_library("fml_lib") {
++static_library("txt_lib") {
 +  complete_static_lib = true
 +  deps = [
-+    "//flutter/fml",
++    ":txt",
 +  ]
 +}
 ```
+
+
+update `out\host_debug_unopt\args.gn`
+```
+skia_use_angle = true
+skia_use_egl = true
+```
+
+update skia
+
+```
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -524,6 +524,7 @@ optional("gpu") {
+
+  if (skia_use_gl) {
+    public_defines += [ "SK_GL" ]
++    include_dirs = [ "//third_party/angle/include" ]
+    if (is_android) {
+      sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
+```
+
 cmd
 ```
 set GYP_MSVS_OVERRIDE_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community
 cd engine/src
 python ./flutter/tools/gn --unoptimized
-ninja -C .\out\host_debug_unopt\ flutter/fml:fml_lib
+ninja -C out\host_debug_unopt flutter/third_party/txt:txt_lib
 ```
 
-### Create symbolic
+### Build Skia
+1. Install LLVM
 
-cmd
+https://clang.llvm.org/get_started.html
+
+2. Build skia
 ```
-cd <uiwidigets_dir>\engine
-cd third_party   \\ create the directory if not exists
-mklink /D skia <SKIA_ROOT>
+cd $FLUTTER_ROOT/third_party/skia
+python2 tools/git-sync-deps
+bin/gn gen out/Debug
 ```
-Flutter engine txt include skia header in this pattern 'third_party/skia/*', so without symbolic, the txt lib will include skia
-header file in flutter engine, instead of headers in skia repo.
+
+Update out/Debug/args.gn with the following content:
+```
+clang_win = "C:\Program Files\LLVM/third_party/skia"
+win_vc = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC"
+cc = "clang"
+cxx = "clang++"
+is_debug = true
+skia_use_angle = true
+skia_use_egl = true
+extra_cflags = [
+  "/MTd",
+  "-I../../third_party/externals/angle2/include",
+]
+```
+```
+ninja -C out/Debug -k 0
+```
+Ignore this error: "lld-link: error: could not open 'EGL': no such file or directory"
+
+convert icudtl.dat to object file in flutter
+```
+cd flutterRoot/third_party/icu/flutter/
+ld -r -b binary -o icudtl.o icudtl.dat
+```
 
 ### Build Engine
 
