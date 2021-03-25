@@ -494,6 +494,80 @@ class Build
         return np;
     }
 
+    static void SetupFml(NativeProgram np)
+    {
+
+        np.Defines.Add(c => IsWindows(c), new[]
+        {
+            // gn desc out\host_debug_unopt\ //flutter/fml:fml_lib defines
+            "USE_OPENSSL=1",
+            "__STD_C",
+            "_CRT_RAND_S",
+            "_CRT_SECURE_NO_DEPRECATE",
+            "_HAS_EXCEPTIONS=0",
+            "_SCL_SECURE_NO_DEPRECATE",
+            "WIN32_LEAN_AND_MEAN",
+            "NOMINMAX",
+            "_ATL_NO_OPENGL",
+            "_WINDOWS",
+            "CERT_CHAIN_PARA_HAS_EXTRA_FIELDS",
+            "NTDDI_VERSION=0x06030000",
+            "PSAPI_VERSION=1",
+            "WIN32",
+            "_SECURE_ATL",
+            "_USING_V110_SDK71_",
+            "_UNICODE",
+            "UNICODE",
+            "_WIN32_WINNT=0x0603",
+            "WINVER=0x0603",
+            "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+            "_DEBUG",
+            "FLUTTER_RUNTIME_MODE_DEBUG=1",
+            "FLUTTER_RUNTIME_MODE_PROFILE=2",
+            "FLUTTER_RUNTIME_MODE_RELEASE=3",
+            "FLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
+            "FLUTTER_RUNTIME_MODE=1",
+            "FLUTTER_JIT_RUNTIME=1",
+        });
+
+        np.Defines.Add(c => IsMac(c), new []
+        {
+            "USE_OPENSSL=1",
+            "__STDC_CONSTANT_MACROS",
+            "__STDC_FORMAT_MACROS",
+            "_FORTIFY_SOURCE=2",
+            "_LIBCPP_DISABLE_AVAILABILITY=1",
+            "_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS",
+            "_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+            "_DEBUG",
+            "FLUTTER_RUNTIME_MODE_DEBUG=1",
+            "FLUTTER_RUNTIME_MODE_PROFILE=2",
+            "FLUTTER_RUNTIME_MODE_RELEASE=3",
+            "FLUTTER_RUNTIME_MODE_JIT_RELEASE=4",
+            "FLUTTER_RUNTIME_MODE=1",
+            "FLUTTER_JIT_RUNTIME=1"
+        });
+
+        np.IncludeDirectories.Add(flutterRoot);
+
+        var fmlLibPath = flutterRoot + "/out/host_debug_unopt";
+        np.Libraries.Add(c => IsWindows(c), c => {
+            return new PrecompiledLibrary[]
+            {
+                new StaticLibrary(fmlLibPath + "/obj/flutter/fml/fml_lib.lib"),
+                new SystemLibrary("Rpcrt4.lib"),
+            };
+        });
+
+        np.Libraries.Add(c => IsMac(c), c => {
+            return new PrecompiledLibrary[]
+            {
+                new StaticLibrary(fmlLibPath + "/obj/flutter/fml/libfml_lib.a"),
+                new SystemFramework("Foundation"),
+            };
+        });
+    }
+
     static void SetupDependency(NativeProgram np)
     {
         SetupRadidJson(np);
