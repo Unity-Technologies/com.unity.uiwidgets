@@ -267,6 +267,11 @@ If the compilation fails because "no available Mac SDK is found" (in flutter-1.1
 
 If the compilation fails because "'Foundation/NSURLHandle.h' file not found" (flutter-1.17 assumes that you are using some low iphone SDK (e.g., older than 12.2), in which some platform-dependent Macros are defined differently from new SDKs like 12.2), please modify the file "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/TargetConditionals.h" in your system by making "TARGET_OS_EMBEDDED = 1" and "TARGET_OS_MACCATALYST = 0" for arm64-iphone architecture. You can also work-around this issue by checking out a new version of flutter (e.g., "flutter-1.18-candidate.6") and run "gclient sync -D" to get dependencies on newer iphone SDKs. Then switch back and build.
 
+### Prepare icu data (TODO: try to build it into the library directly!)
+
+move the built icu data file from $FLUTTER_ROOT/out/ios_debug_unopt/icudtl.dat to the StreamingAssets path
+
+
 ### Creat symbolic
 
 Create symbolic as follows. Flutter engine txt include skia header in this pattern 'third_party/skia/*', so without symbolic, the txt lib will include skia
