@@ -266,16 +266,21 @@ Comiple engine:
 cd $FLUTTER_ROOT
 ./flutter/tools/gn --unoptimized --ios            //disable bitcode
 ./flutter/tools/gn --unoptimized --ios --bitcode  //enable bitcode
+```
+
+add this line to the end of out/ios_debug_unopt/args.gn:
+```
+icu_use_data_file=false
+```
+
+finally run ninja:
+```
 ninja -C out/ios_debug_unopt/ flutter/third_party/txt:txt_lib
 ```
 
 If the compilation fails because "no available Mac SDK is found" (in flutter-1.17 the build tool will only try to find Mac 10.XX SDKs), please modify the file "/src/build/Mac/find_sdk.py" under flutter root by setting "sdks" as your current sdk, e.g., ['11.0']. 
 
 If the compilation fails because "'Foundation/NSURLHandle.h' file not found" (flutter-1.17 assumes that you are using some low iphone SDK (e.g., older than 12.2), in which some platform-dependent Macros are defined differently from new SDKs like 12.2), please modify the file "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/TargetConditionals.h" in your system by making "TARGET_OS_EMBEDDED = 1" and "TARGET_OS_MACCATALYST = 0" for arm64-iphone architecture. You can also work-around this issue by checking out a new version of flutter (e.g., "flutter-1.18-candidate.6") and run "gclient sync -D" to get dependencies on newer iphone SDKs. Then switch back and build.
-
-### Prepare icu data (TODO: try to build it into the library directly!)
-
-move the built icu data file from $FLUTTER_ROOT/out/ios_debug_unopt/icudtl.dat to the StreamingAssets path
 
 
 ### Creat symbolic
