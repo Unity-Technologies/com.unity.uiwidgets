@@ -119,30 +119,7 @@ bee
 
 ## How to Build (Mac)
 
-### Install Depot_tools
-```
-git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
-
-export PATH="${PWD}/depot_tools:${PATH}"
-```
-
-### Build Skia
-```
-git clone https://skia.googlesource.com/skia.git
-
-git checkout chrome/m85
-
-bin/gn gen out/Debug
-
-python tools/git-sync-deps
-
-ninja -C out/Debug -k 0
-```
-
-Please ensure that you are using python2 when executing "python tools/git-sync-deps".
-
-
-### Build Flutter Engine
+### Build Dependencies
 
 Setting up the Engine development environment
 
@@ -151,61 +128,62 @@ Please follow https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-deve
 Check out repo and update dependencies:
 
 ```
+cd $FLUTTER_ROOT/flutter
 git checkout flutter-1.17-candidate.5
 gclient sync -D
 ```
 
-Apply changes to BUILD.gn (src/flutter/fml/BUILD.gn)
-
+Apply following to end of `flutter/third_party/txt/BUILD.gn`
 ```
-diff --git a/fml/BUILD.gn b/fml/BUILD.gn
-index 9b5626e78..da1322ce5 100644
---- a/fml/BUILD.gn
-+++ b/fml/BUILD.gn
-@@ -295,3 +295,10 @@ executable("fml_benchmarks") {
-     "//flutter/runtime:libdart",
+diff --git a/third_party/txt/BUILD.gn b/third_party/txt/BUILD.gn
+index 56b73a020..d42e88045 100644
+--- a/third_party/txt/BUILD.gn
++++ b/third_party/txt/BUILD.gn
+@@ -141,6 +141,7 @@ source_set("txt") {
+     "//third_party/harfbuzz",
+     "//third_party/icu",
+     "//third_party/skia",
++    "//third_party/skia/modules/skottie",
    ]
+ 
+   deps = [
+@@ -339,3 +340,10 @@ executable("txt_benchmarks") {
+     deps += [ "//third_party/skia/modules/skparagraph" ]
+   }
  }
 +
-+static_library("fml_lib") {
++static_library("txt_lib") {
 +  complete_static_lib = true
 +  deps = [
-+    "//flutter/fml",
++    ":txt",
 +  ]
 +}
 ```
 
-Comiple engine:
+Compile engine:
 ```
-cd engine/src
-
+cd $FLUTTER_ROOT
 ./flutter/tools/gn --unoptimized
-
-ninja -C ./out/host_debug_unopt/ flutter/fml:fml_lib
 ```
 
-If the compilation fails because "no available Mac SDK is found" (in flutter-1.17 the build tool will only try to find Mac 10.XX SDKs), please modify the file "/src/build/Mac/find_sdk.py" under flutter root by setting "sdks" as your current sdk, e.g., ['11.0']. 
-
-### Build Lib
-
-set SKIA_ROOT and FLUTTER_ROOT to your $PATH. SKIA_ROOT is the root folder of your skia repository. FLUTTER_ROOT is the root folder of your flutter engine repository. 
-
-
-Create symbolic as follows. Flutter engine txt include skia header in this pattern 'third_party/skia/*', so without symbolic, the txt lib will include skia
-header file in flutter engine, instead of headers in skia repo.
-
-cmd
+add this line to the end of out/host_debug_unopt/args.gn:
 ```
-cd <uiwidigets_dir>\engine
-cd third_party   \\ create the directory if not exists
-ln -s <SKIA_ROOT> skia
+icu_use_data_file=false
 ```
+
+finally run ninja:
+```
+ninja -C out/host_debug_unopt/ flutter/third_party/txt:txt_lib
+```
+
+If the compilation fails because "no available Mac SDK is found" (in flutter-1.17 the build tool will only try to find Mac 10.XX SDKs), please modify the file "/src/build/Mac/find_sdk.py" under flutter root by setting "sdks" as your current sdk, e.g., ['11.0'].
+
 
 ### Build Engine
 
 ```
 cd <uiwidigets_dir>\engine
-mono bee.exe
+mono bee.exe mac
 ```
 
 
