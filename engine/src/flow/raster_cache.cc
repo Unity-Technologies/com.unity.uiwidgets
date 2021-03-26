@@ -16,6 +16,18 @@ namespace uiwidgets {
 RasterCacheResult::RasterCacheResult(sk_sp<SkImage> image,
                                      const SkRect& logical_rect)
     : image_(std::move(image)), logical_rect_(logical_rect) {}
+#if __ANDROID__
+#define Math_abs(x) abs(x)
+template<typename T>
+T abs(T x) {
+  if (x < 0) {
+    return -x;
+  }
+  return x;
+}
+#else 
+#define Math_abs(x) std::abs(x)
+#endif
 
 void RasterCacheResult::draw(SkCanvas& canvas, const SkPaint* paint) const {
   TRACE_EVENT0("uiwidgets", "RasterCacheResult::draw");
@@ -23,8 +35,8 @@ void RasterCacheResult::draw(SkCanvas& canvas, const SkPaint* paint) const {
   SkIRect bounds =
       RasterCache::GetDeviceBounds(logical_rect_, canvas.getTotalMatrix());
   FML_DCHECK(
-      std::abs(bounds.size().width() - image_->dimensions().width()) <= 1 &&
-      std::abs(bounds.size().height() - image_->dimensions().height()) <= 1);
+      Math_abs(bounds.size().width() - image_->dimensions().width()) <= 1 &&
+      Math_abs(bounds.size().height() - image_->dimensions().height()) <= 1);
   canvas.resetMatrix();
   canvas.drawImage(image_, bounds.fLeft, bounds.fTop, paint);
 }

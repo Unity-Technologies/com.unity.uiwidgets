@@ -1,5 +1,3 @@
-#pragma once
-
 #include "lists.h"
 
 namespace uiwidgets {

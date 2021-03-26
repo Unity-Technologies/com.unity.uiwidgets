@@ -62,7 +62,6 @@ namespace Unity.UIWidgets.foundation {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
-
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
             if ( enableDebug && !result  ) {

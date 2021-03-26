@@ -1,5 +1,3 @@
-#pragma once
-
 #include "gpu_surface_gl_delegate.h"
 
 #include "include/gpu/gl/GrGLAssembleInterface.h"

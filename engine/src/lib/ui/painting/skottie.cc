@@ -1,9 +1,18 @@
 #include "skottie.h"
 
 #include "lib/ui/ui_mono_state.h"
-
+#if __ANDROID__
+#include "shell/platform/unity/android_unpack_streaming_asset.h"
+#endif
 namespace uiwidgets {
 fml::RefPtr<Skottie> Skottie::Create(char* path) {
+#if __ANDROID__
+  std::string pthstr = std::string(path);
+  int id = pthstr.find("assets/") + 7;
+  std::string file = pthstr.substr(id);
+  const char* fileOut = AndroidUnpackStreamingAsset::Unpack(file.c_str());
+  path = (char*)fileOut;
+#endif
   sk_sp<skottie::Animation> animation_ = skottie::Animation::MakeFromFile(path);
   return fml::MakeRefCounted<Skottie>(animation_);
 }

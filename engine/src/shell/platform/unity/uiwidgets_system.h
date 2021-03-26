@@ -1,6 +1,8 @@
 #pragma once
 
-#ifdef __APPLE__
+#ifdef __ANDROID__
+#include "shell/platform/unity/android/uiwidgets_system.h"
+#elif __APPLE__
     #ifdef TARGET_OS_IOS
         #include "shell/platform/unity/darwin/ios/uiwidgets_system.h"
     #else
