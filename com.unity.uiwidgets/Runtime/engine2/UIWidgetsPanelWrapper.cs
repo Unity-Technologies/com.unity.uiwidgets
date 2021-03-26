@@ -220,7 +220,6 @@ public partial class UIWidgetsPanelWrapper {
 
         public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr, Configurations _configurations) {
             D.assert(renderTexture == null);
-            NativeConsole.OnEnable();
 #if !UNITY_EDITOR && UNITY_ANDROID
             AndroidUnpackStreamingAssets.OnEnable();
 #endif
@@ -234,6 +233,8 @@ public partial class UIWidgetsPanelWrapper {
             var fontsetting = new Dictionary<string, object>();
             fontsetting.Add("fonts", _configurations.fontsToObject());
             _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(message: fontsetting));
+            NativeConsole.OnEnable();
+
         }
 
         public void _entryPoint() {

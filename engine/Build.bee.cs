@@ -631,17 +631,11 @@ class Build
             "-Wl,-soname=libUIWidgets_d.so",
             "-Wl,--whole-archive",
         }));
-        if (platform == UIWidgetsBuildTargetPlatform.android)
-        {
-            SetupSkia(np);
-        }
-        else
-        {
-            SetupDependency(np);
-            //SetupFml(np);
-            //SetupSkia(np);
-            //SetupTxt(np);
-        }
+        
+        SetupDependency(np);
+        //SetupFml(np);
+        //SetupSkia(np);
+        //SetupTxt(np);
         var codegens = new[] { CodeGen.Debug };
         dependencies = new List<NPath>();
 
@@ -1001,6 +995,32 @@ class Build
                 new SystemFramework("CoreVideo"),
             };
         });
+
+        np.Libraries.Add(IsAndroid, c =>
+        {
+            var basePath = skiaRoot + "/out/arm";
+            return new PrecompiledLibrary[]
+            {
+                // icudtl
+                new StaticLibrary("icudtl.o"),
+
+                new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtbegin_so.o"),
+                new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtend_so.o"),
+
+                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
+
+                new SystemLibrary("android_support"),
+                new SystemLibrary("unwind"),
+                new SystemLibrary("gcc"),
+                new SystemLibrary("c"),
+                new SystemLibrary("dl"),
+                new SystemLibrary("m"),
+                new SystemLibrary("android"),
+                new SystemLibrary("EGL"),
+                new SystemLibrary("GLESv2"),
+                new SystemLibrary("log"),
+            };
+        });
     }
 
     static void SetupSkia(NativeProgram np)
@@ -1125,31 +1145,7 @@ class Build
             };
         });
 
-        np.Libraries.Add(IsAndroid, c =>
-        {
-            var basePath = skiaRoot + "/out/arm";
-            return new PrecompiledLibrary[]
-            {
-                // icudtl
-                new StaticLibrary("icudtl.o"),
-
-                new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtbegin_so.o"),
-                new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtend_so.o"),
-
-                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
-
-                new SystemLibrary("android_support"),
-                new SystemLibrary("unwind"),
-                new SystemLibrary("gcc"),
-                new SystemLibrary("c"),
-                new SystemLibrary("dl"),
-                new SystemLibrary("m"),
-                new SystemLibrary("android"),
-                new SystemLibrary("EGL"),
-                new SystemLibrary("GLESv2"),
-                new SystemLibrary("log"),
-            };
-        });
+        
 
         var basePath = skiaRoot + "/out/Debug";
         np.SupportFiles.Add(c => IsWindows(c), new[] {

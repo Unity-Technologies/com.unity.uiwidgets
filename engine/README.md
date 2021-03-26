@@ -248,8 +248,6 @@ cmd
 cd $FLUTTER_ROOT
 python ./flutter/tools/gn --unoptimized --android
 ninja -C out/android_debug_unopt/ flutter/third_party/txt:txt_lib
-ninja -C out/android_debug_unopt/ third_party/libcxx
-ninja -C out/android_debug_unopt/ third_party/libcxxabi
 ```
 If the compilation fails because "no available Mac SDK is found" (in flutter-1.17 the build tool will only try to find Mac 10.XX SDKs), please modify the file "/src/build/Mac/find_sdk.py" under flutter root by setting "sdks" as your current sdk, e.g., ['11.0']. 
 ### build icu

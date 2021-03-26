@@ -123,7 +123,6 @@ namespace uiwidgets
     ui_task_runner.identifier = 2;
     ui_task_runner.user_data = task_runner_.get();
 
-    // TODO: waht is this
     ui_task_runner.runs_task_on_current_thread_callback =
         [](void *user_data) -> bool {
       return static_cast<CocoaTaskRunner *>(user_data)->RunsTasksOnCurrentThread();
@@ -145,9 +144,6 @@ namespace uiwidgets
 
     args.assets_path = streaming_assets_path;
     args.font_asset = settings;
-
-    // // std::string icu_path = std::string(streaming_assets_path) + "/icudtl.dat";
-    // // args.icu_data_path = icu_path.c_str();
 
     args.icu_mapper = GetICUStaticMapping;
 
@@ -271,6 +267,7 @@ namespace uiwidgets
 
   int UIWidgetsPanel::RegisterTexture(void *native_texture_ptr)
   {
+    std::cerr << "registering external texture is not implemented for android" << std::endl;
     int texture_identifier = 0;
     // texture_identifier++;
 
@@ -284,6 +281,8 @@ namespace uiwidgets
 
   void UIWidgetsPanel::UnregisterTexture(int texture_id)
   {
+    std::cerr << "registering external texture is not implemented for android" << std::endl;
+
     auto *engine = reinterpret_cast<EmbedderEngine *>(engine_);
     engine->GetShell().GetPlatformView()->UnregisterTexture(texture_id);
   }
