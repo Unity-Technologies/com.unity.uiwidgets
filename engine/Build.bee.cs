@@ -84,28 +84,33 @@ class Build
     }
 
     //bee.exe mac
+    static void DeployAndroid()
+    {
+
+        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.android, out var dependencies);
+        var androidProject = AndroidNativeProgramExtensions.DynamicLinkerSettingsForAndroid(libUIWidgets);
+        Backend.Current.AddAliasDependency("android", new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
+        foreach (var dep in dependencies)
+        {
+            Backend.Current.AddAliasDependency("android", dep);
+        }
+    }
+
     static void DeployMac()
     {
-        if (buildAndroid)
+
+        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.mac, out var dependencies);
+
+        var nativePrograms = new List<NativeProgram>();
+        nativePrograms.Add(libUIWidgets);
+        var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
+
+        Backend.Current.AddAliasDependency("mac", new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
+        foreach (var dep in dependencies)
         {
-            var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.mac, out var dependencies);
-            var androidProject = AndroidNativeProgramExtensions.DynamicLinkerSettingsForAndroid(libUIWidgets);
-
+            Backend.Current.AddAliasDependency("mac", dep);
         }
-        else
-        {
-            var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.mac, out var dependencies);
 
-            var nativePrograms = new List<NativeProgram>();
-            nativePrograms.Add(libUIWidgets);
-            var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
-
-            Backend.Current.AddAliasDependency("mac", new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
-            foreach (var dep in dependencies)
-            {
-                Backend.Current.AddAliasDependency("mac", dep);
-            }
-        }
     }
 
     static void Main()
@@ -115,10 +120,6 @@ class Build
         {
             flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
         }
-        skiaRoot = flutterRoot + "/third_party/skia";
-        var buildAndroidEnv = Environment.GetEnvironmentVariable("BUILD_ANDROID");
-        buildAndroid = true;
-
         skiaRoot = flutterRoot + "/third_party/skia";
 
         //available target platforms of Windows
@@ -130,12 +131,12 @@ class Build
         else if (BuildUtils.IsHostMac())
         {
             DeployMac();
+            DeployAndroid();
         }
     }
 
     private static string skiaRoot;
     private static string flutterRoot;
-    private static bool buildAndroid;
 
     static NativeProgram SetupLibUIWidgets(UIWidgetsBuildTargetPlatform platform, out List<NPath> dependencies)
     {
@@ -630,7 +631,7 @@ class Build
             "-Wl,-soname=libUIWidgets_d.so",
             "-Wl,--whole-archive",
         }));
-        if (buildAndroid)
+        if (platform == UIWidgetsBuildTargetPlatform.android)
         {
             SetupSkia(np);
         }
@@ -659,50 +660,43 @@ class Build
                 builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64");
             }
         }
+        else if (platform == UIWidgetsBuildTargetPlatform.android)
+        {
+            var androidToolchain = ToolChain.Store.Android().r19().Armv7();
+
+            var validConfigurations = new List<NativeProgramConfiguration>();
+
+            foreach (var codegen in codegens)
+            {
+                var config = new NativeProgramConfiguration(codegen, androidToolchain, lump: true);
+                validConfigurations.Add(config);
+
+                var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build");
+
+                var deoployNp = buildNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/Android");
+                buildNP.DeployTo("/Users/siyao/Documents/GitHub/untitled folder/unityLibrary/src/main/jniLibs/armeabi-v7a");
+                dependencies.Add(buildNP.Path);
+                dependencies.Add(deoployNp.Path);
+            }
+            np.ValidConfigurations = validConfigurations;
+        }
         else if (platform == UIWidgetsBuildTargetPlatform.mac)
         {
-            if (buildAndroid)
+
+            var toolchain = ToolChain.Store.Host();
+            var validConfigurations = new List<NativeProgramConfiguration>();
+            foreach (var codegen in codegens)
             {
-                //var codegens = new[] { CodeGen.Debug };
+                var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
+                validConfigurations.Add(config);
 
-                var androidToolchain = ToolChain.Store.Android().r19().Armv7();
-                //var androidToolchain = ToolChain.Store.Android().r16b().Armv7();
-
-                var validConfigurations = new List<NativeProgramConfiguration>();
-
-                foreach (var codegen in codegens)
-                {
-                    var config = new NativeProgramConfiguration(codegen, androidToolchain, lump: true);
-                    validConfigurations.Add(config);
-
-                    var builtNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build");
-
-                    builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/Android");
-                    builtNP.DeployTo("/Users/siyao/Documents/GitHub/untitled folder/unityLibrary/src/main/jniLibs/armeabi-v7a");
-
-                }
-                np.ValidConfigurations = validConfigurations;
-
+                var buildProgram = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat);
+                var buildNp = buildProgram.DeployTo("build");
+                var deployNp = buildProgram.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/osx");
+                dependencies.Add(buildNp.Path);
+                dependencies.Add(deployNp.Path);
             }
-            else
-            {
-                var toolchain = ToolChain.Store.Host();
-                var validConfigurations = new List<NativeProgramConfiguration>();
-                foreach (var codegen in codegens)
-                {
-                    var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
-                    validConfigurations.Add(config);
-
-                    var buildProgram = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat);
-                    var buildNp = buildProgram.DeployTo("build");
-                    var deployNp = buildProgram.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/osx");
-                    dependencies.Add(buildNp.Path);
-                    dependencies.Add(deployNp.Path);
-                }
-                np.ValidConfigurations = validConfigurations;
-
-
-            }
+            np.ValidConfigurations = validConfigurations;
 
         }
 

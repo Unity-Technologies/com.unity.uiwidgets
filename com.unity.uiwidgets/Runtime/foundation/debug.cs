@@ -56,17 +56,13 @@ namespace Unity.UIWidgets.foundation {
             Debug.LogException(new AssertionError(message: message, innerException: ex));
         }
 
-        #if UNITY_EDITOR
         [Conditional("UNITY_ASSERTIONS")]
-        #endif
         public static void assert(Func<bool> result, Func<string> message = null) {
             if ( enableDebug && !result() ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
-#if UNITY_EDITOR
         [Conditional("UNITY_ASSERTIONS")]
-        #endif
         public static void assert(bool result, Func<string> message = null) {
             if ( enableDebug && !result  ) {
                 throw new AssertionError(message != null ? message() : "");
