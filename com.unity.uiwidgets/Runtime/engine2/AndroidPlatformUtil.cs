@@ -31,18 +31,14 @@ namespace Unity.UIWidgets.engine2 {
             }
 
             return dir + file;
-
-            return "";
         }
         
         [DllImport(NativeBindings.dllName)]
         static extern System.IntPtr GetUnityContextEventFunc();
 
         public static void Init() {
-            if (Application.platform == RuntimePlatform.Android) {
-                InitUnpackFile(unpackFile);
-                GL.IssuePluginEvent(GetUnityContextEventFunc(), 1);
-            }
+            InitUnpackFile(unpackFile);
+            GL.IssuePluginEvent(GetUnityContextEventFunc(), 1);
         }
     }
 }

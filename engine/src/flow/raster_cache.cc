@@ -35,8 +35,8 @@ void RasterCacheResult::draw(SkCanvas& canvas, const SkPaint* paint) const {
   SkIRect bounds =
       RasterCache::GetDeviceBounds(logical_rect_, canvas.getTotalMatrix());
   FML_DCHECK(
-        Math_abs(bounds.size().width() - image_->dimensions().width()) <= 1 &&
-        Math_abs(bounds.size().height() - image_->dimensions().height()) <= 1);
+      Math_abs(bounds.size().width() - image_->dimensions().width()) <= 1 &&
+      Math_abs(bounds.size().height() - image_->dimensions().height()) <= 1);
   canvas.resetMatrix();
   canvas.drawImage(image_, bounds.fLeft, bounds.fTop, paint);
 }

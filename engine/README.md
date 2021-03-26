@@ -198,7 +198,7 @@ mono bee.exe mac
 ```
 
 
-## build android sdk on mac
+## How to Build (Android)
 ### Build flutter fml + skia + txt
 
 1. Setting up the Engine development environment
