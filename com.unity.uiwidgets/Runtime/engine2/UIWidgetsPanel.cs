@@ -126,7 +126,31 @@ namespace Unity.UIWidgets.engine2 {
             Input_Update();
         }
 
+#if !UNITY_EDITOR && UNITY_ANDROID
+        bool AndroidInitialized = true;
+
+        IEnumerator DoInitAndroid() {
+            yield return new WaitForEndOfFrame();
+            AndroidPlatformUtil.Init();
+            yield return new WaitForEndOfFrame();
+            enabled = true;
+        }
+        bool IsAndroidInitialized() {
+            if (AndroidInitialized) {
+                enabled = false;
+                AndroidInitialized = false;
+                startCoroutine(DoInitAndroid());
+                return false;
+            }
+            return true;
+        }
+#endif
+
         protected void OnEnable() {
+#if !UNITY_EDITOR && UNITY_ANDROID
+            if (!IsAndroidInitialized()) {return ;}
+#endif
+            
             base.OnEnable();
             D.assert(_wrapper == null);
             _configurations = new Configurations();

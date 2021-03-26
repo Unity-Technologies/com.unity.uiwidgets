@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.engine2;
@@ -8,6 +9,7 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using Path = Unity.UIWidgets.ui.Path;
 
 namespace Unity.UIWidgets.engine2 {
     #region Platform: Windows Specific Functionalities
@@ -74,7 +76,7 @@ namespace Unity.UIWidgets.engine2 {
 #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
 public partial class UIWidgetsPanelWrapper {
     Texture _renderTexture;
-    
+
     public Texture renderTexture {
         get { return _renderTexture; }
     }
@@ -135,6 +137,67 @@ public partial class UIWidgetsPanelWrapper {
 
     #endregion
 
+#region Platform: Android Runtime Specific Functionalities
+
+#if (!UNITY_EDITOR && UNITY_ANDROID )
+    public partial class UIWidgetsPanelWrapper {
+        RenderTexture _renderTexture;
+    
+    
+        public RenderTexture renderTexture {
+            get { return _renderTexture; }
+        }
+
+        void _createRenderTexture(int width, int height, float devicePixelRatio) {
+            D.assert(_renderTexture == null);
+
+            var desc = new RenderTextureDescriptor(
+                width, height, RenderTextureFormat.ARGB32, 0) {
+                useMipMap = false,
+                autoGenerateMips = false,
+            };
+
+            _renderTexture = new RenderTexture(desc) {hideFlags = HideFlags.HideAndDontSave};
+            _renderTexture.Create();
+
+            _width = width;
+            _height = height;
+            this.devicePixelRatio = devicePixelRatio;
+        }
+
+        void _destroyRenderTexture() {
+            D.assert(_renderTexture != null);
+            ObjectUtils.SafeDestroy(_renderTexture);
+            _renderTexture = null;
+        }
+
+        void _enableUIWidgetsPanel(string font_settings) {
+            UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
+                _width, _height, devicePixelRatio, Application.temporaryCachePath, font_settings);
+        }
+
+        void _resizeUIWidgetsPanel() {
+            UIWidgetsPanel_onRenderTexture(_ptr,
+                _renderTexture.GetNativeTexturePtr(),
+                _width, _height, devicePixelRatio);
+        }
+
+        void _disableUIWidgetsPanel() {
+            _renderTexture = null;
+        }
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onEnable(IntPtr ptr,
+            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath,
+            string font_settings);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onRenderTexture(
+            IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
+    }
+#endif
+
+#endregion
 
     #region Window Common Properties and Functions
 
@@ -168,6 +231,7 @@ public partial class UIWidgetsPanelWrapper {
             fontsetting.Add("fonts", _configurations.fontsToObject());
             _enableUIWidgetsPanel(JSONMessageCodec.instance.toJson(message: fontsetting));
             NativeConsole.OnEnable();
+
         }
 
         public void _entryPoint() {

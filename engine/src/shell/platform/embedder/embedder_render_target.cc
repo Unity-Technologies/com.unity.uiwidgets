@@ -1,5 +1,3 @@
-#pragma once
-
 #include "embedder_render_target.h"
 
 #include "flutter/fml/logging.h"

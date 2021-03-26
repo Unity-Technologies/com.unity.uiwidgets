@@ -198,3 +198,66 @@ mono bee.exe mac
 ```
 
 
+## How to Build (Android)
+### Build flutter fml + skia + txt
+
+1. Setting up the Engine development environment
+
+Follow https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment
+
+2. Checkout flutter-1.17-candidate.5
+
+```
+cd engine/src/flutter
+git checkout flutter-1.17-candidate.5
+gclient sync -D
+```
+
+Apply following to end of `flutter/third_party/txt/BUILD.gn`
+```
+diff --git a/third_party/txt/BUILD.gn b/third_party/txt/BUILD.gn
+index 56b73a020..d42e88045 100644
+--- a/third_party/txt/BUILD.gn
++++ b/third_party/txt/BUILD.gn
+@@ -141,6 +141,7 @@ source_set("txt") {
+     "//third_party/harfbuzz",
+     "//third_party/icu",
+     "//third_party/skia",
++    "//third_party/skia/modules/skottie",
++    "//third_party/libcxx",
++    "//third_party/libcxxabi",
+   ]
+ 
+   deps = [
+@@ -339,3 +340,10 @@ executable("txt_benchmarks") {
+     deps += [ "//third_party/skia/modules/skparagraph" ]
+   }
+ }
++
++static_library("txt_lib") {
++  complete_static_lib = true
++  deps = [
++    ":txt",
++  ]
++}
+```
+remove `visibility = [ "../libcxx:*" ]` from `/build/secondary/third_party/libcxxabi/BUILD.gn`
+
+cmd
+```
+cd $FLUTTER_ROOT
+python ./flutter/tools/gn --unoptimized --android
+ninja -C out/android_debug_unopt/ flutter/third_party/txt:txt_lib
+```
+If the compilation fails because "no available Mac SDK is found" (in flutter-1.17 the build tool will only try to find Mac 10.XX SDKs), please modify the file "/src/build/Mac/find_sdk.py" under flutter root by setting "sdks" as your current sdk, e.g., ['11.0']. 
+### build icu
+```
+cd <uiwidigets_dir>\engine
+python $FLUTTER_ROOT/flutter/sky/tools/objcopy.py --objcopy $FLUTTER_ROOT/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input $FLUTTER_ROOT/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm
+```
+
+### build uiwidgets
+```
+cd <uiwidigets_dir>\engine
+mono bee.exe
+```
