@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.UIWidgets.engine2;
-using engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -128,24 +127,28 @@ namespace Unity.UIWidgets.engine2 {
         }
 
 #if !UNITY_EDITOR && UNITY_ANDROID
-        bool InitAnroidGLFlag = true;
+        bool AndroidInitialized = true;
 
-        IEnumerator InitAnroidGL() {
+        IEnumerator DoInitAndroid() {
             yield return new WaitForEndOfFrame();
-            AndroidGLInit.Init();
+            AndroidPlatformUtil.Init();
             yield return new WaitForEndOfFrame();
             enabled = true;
+        }
+        bool IsAndroidInitialized() {
+            if (AndroidInitialized) {
+                enabled = false;
+                AndroidInitialized = false;
+                startCoroutine(DoInitAndroid());
+                return false;
+            }
+            return true;
         }
 #endif
 
         protected void OnEnable() {
 #if !UNITY_EDITOR && UNITY_ANDROID
-            if (InitAnroidGLFlag) {
-                enabled = false;
-                InitAnroidGLFlag = false;
-                startCoroutine(InitAnroidGL());
-                return;
-            }
+            if (!IsAndroidInitialized()) {return ;}
 #endif
             
             base.OnEnable();

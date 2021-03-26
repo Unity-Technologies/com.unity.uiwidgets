@@ -15,9 +15,7 @@ const uint64_t GetCurrentThreadId() {
   pthread_threadid_np(NULL, &tid);
   return tid;
 }
-#endif
-
-#ifdef __ANDROID__
+#elif __ANDROID__
 uint64_t GetCurrentThreadId() { 
   return gettid();
 }

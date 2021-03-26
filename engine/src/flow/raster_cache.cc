@@ -17,7 +17,7 @@ RasterCacheResult::RasterCacheResult(sk_sp<SkImage> image,
                                      const SkRect& logical_rect)
     : image_(std::move(image)), logical_rect_(logical_rect) {}
 #if __ANDROID__
-#define ABS(x) abs(x)
+#define Math_abs(x) abs(x)
 template<typename T>
 T abs(T x) {
   if (x < 0) {
@@ -26,7 +26,7 @@ T abs(T x) {
   return x;
 }
 #else 
-#define ABS(x) std::abs(x)
+#define Math_abs(x) std::abs(x)
 #endif
 
 void RasterCacheResult::draw(SkCanvas& canvas, const SkPaint* paint) const {
@@ -34,10 +34,9 @@ void RasterCacheResult::draw(SkCanvas& canvas, const SkPaint* paint) const {
   SkAutoCanvasRestore auto_restore(&canvas, true);
   SkIRect bounds =
       RasterCache::GetDeviceBounds(logical_rect_, canvas.getTotalMatrix());
-      auto a = bounds.size().width() - image_->dimensions().width();
   FML_DCHECK(
-        ABS(bounds.size().width() - image_->dimensions().width()) <= 1 &&
-        ABS(bounds.size().height() - image_->dimensions().height()) <= 1);
+        Math_abs(bounds.size().width() - image_->dimensions().width()) <= 1 &&
+        Math_abs(bounds.size().height() - image_->dimensions().height()) <= 1);
   canvas.resetMatrix();
   canvas.drawImage(image_, bounds.fLeft, bounds.fTop, paint);
 }

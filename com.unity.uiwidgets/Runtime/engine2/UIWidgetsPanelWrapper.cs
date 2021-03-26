@@ -220,9 +220,6 @@ public partial class UIWidgetsPanelWrapper {
 
         public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr, Configurations _configurations) {
             D.assert(renderTexture == null);
-#if !UNITY_EDITOR && UNITY_ANDROID
-            AndroidUnpackStreamingAssets.OnEnable();
-#endif
             _recreateRenderTexture(width: width, height: height, devicePixelRatio: dpr);
 
             _handle = GCHandle.Alloc(this);

@@ -86,10 +86,8 @@ class Build
     //bee.exe mac
     static void DeployAndroid()
     {
-
         var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.android, out var dependencies);
         var androidProject = AndroidNativeProgramExtensions.DynamicLinkerSettingsForAndroid(libUIWidgets);
-        Backend.Current.AddAliasDependency("android", new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
         foreach (var dep in dependencies)
         {
             Backend.Current.AddAliasDependency("android", dep);
@@ -98,7 +96,6 @@ class Build
 
     static void DeployMac()
     {
-
         var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.mac, out var dependencies);
 
         var nativePrograms = new List<NativeProgram>();
@@ -110,7 +107,6 @@ class Build
         {
             Backend.Current.AddAliasDependency("mac", dep);
         }
-
     }
 
     static void Main()
@@ -397,8 +393,7 @@ class Build
                 "src/shell/platform/unity/gfx_worker_task_runner.h",
                 "src/shell/platform/unity/uiwidgets_system.h",
 
-                "src/shell/platform/unity/android_unpack_streaming_asset.cc",
-                "src/shell/platform/unity/android_unpack_streaming_asset.h",
+              
                 "src/shell/platform/unity/unity_console.cc",
                 "src/shell/platform/unity/unity_console.h",
 
@@ -448,10 +443,11 @@ class Build
 
         var androidSource = new NPath[]
         {
-
+            "src/shell/platform/unity/android_unpack_streaming_asset.cc",
+            "src/shell/platform/unity/android_unpack_streaming_asset.h",
             "src/shell/platform/unity/android/unity_surface_manager.cc",
             "src/shell/platform/unity/android/uiwidgets_system.cc",
-            "src/shell/platform/unity/android/cocoa_task_runner.cc",
+            "src/shell/platform/unity/android/android_task_runner.cc",
             "src/shell/platform/unity/android/uiwidgets_panel.cc",
         };
 
@@ -614,7 +610,7 @@ class Build
             "-Wl,-z,now",
             "-Wl,-z,relro",
             "-Wl,-z,defs",
-            "--gcc-toolchain="+ Build.flutterRoot +
+            "--gcc-toolchain="+ flutterRoot +
             "/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64",
             "-Wl,--no-undefined",
             "-Wl,--exclude-libs,ALL",
@@ -624,8 +620,8 @@ class Build
             "-nostdlib++",
             "-Wl,--warn-shared-textrel",
             "-nostdlib",
-            "--sysroot="+ Build.flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
-            "-L"+ Build.flutterRoot +            "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
+            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
+            "-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-Wl,--build-id=sha1",
             "-g",
             "-Wl,-soname=libUIWidgets_d.so",
@@ -668,7 +664,6 @@ class Build
                 var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build");
 
                 var deoployNp = buildNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/Android");
-                buildNP.DeployTo("/Users/siyao/Documents/GitHub/untitled folder/unityLibrary/src/main/jniLibs/armeabi-v7a");
                 dependencies.Add(buildNP.Path);
                 dependencies.Add(deoployNp.Path);
             }
@@ -676,7 +671,6 @@ class Build
         }
         else if (platform == UIWidgetsBuildTargetPlatform.mac)
         {
-
             var toolchain = ToolChain.Store.Host();
             var validConfigurations = new List<NativeProgramConfiguration>();
             foreach (var codegen in codegens)

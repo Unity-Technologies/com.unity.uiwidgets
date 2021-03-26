@@ -4,9 +4,9 @@
 
 #include "flutter/fml/file.h"
 #include "flutter/fml/mapping.h"
-
+#if __ANDROID__
 #include "shell/platform/unity/android_unpack_streaming_asset.h"
-
+#endif
 namespace uiwidgets {
 
 DirectoryAssetBundle::DirectoryAssetBundle(fml::UniqueFD descriptor)
@@ -33,7 +33,7 @@ std::unique_ptr<fml::Mapping> DirectoryAssetBundle::GetAsMapping(
   }
 
 #if __ANDROID__
-    const char* file = AndroidUnpackStreamingAsset::Unpack(asset_name.c_str());
+  AndroidUnpackStreamingAsset::Unpack(asset_name.c_str());
 #endif
 
   auto mapping = std::make_unique<fml::FileMapping>(fml::OpenFile(

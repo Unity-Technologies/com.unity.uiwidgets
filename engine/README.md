@@ -205,11 +205,11 @@ mono bee.exe mac
 
 Follow https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment
 
-2. Checkout flutter-1.18-candidate.5
+2. Checkout flutter-1.17-candidate.5
 
 ```
 cd engine/src/flutter
-git checkout flutter-1.18-candidate.5
+git checkout flutter-1.17-candidate.5
 gclient sync -D
 ```
 

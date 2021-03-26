@@ -1,8 +1,9 @@
 #include "skottie.h"
 
 #include "lib/ui/ui_mono_state.h"
+#if __ANDROID__
 #include "shell/platform/unity/android_unpack_streaming_asset.h"
-
+#endif
 namespace uiwidgets {
 fml::RefPtr<Skottie> Skottie::Create(char* path) {
 #if __ANDROID__
