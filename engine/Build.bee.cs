@@ -230,7 +230,7 @@ class Build
     private static string flutterRoot;
 
     //this setting is disabled by default, don't change it unless you know what you are doing
-    //it must be set the same as the settings we choose to build skia and flutter engine
+    //it must be set the same as the settings we choose to build the flutter txt library
     //refer to the readme file for the details
     private static bool ios_bitcode_enabled = false;
 
