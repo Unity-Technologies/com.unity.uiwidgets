@@ -150,6 +150,10 @@ namespace Unity.UIWidgets.engine2 {
 #if !UNITY_EDITOR && UNITY_ANDROID
             if (!IsAndroidInitialized()) {return ;}
 #endif
+#if !UNITY_EDITOR && UNITY_IOS
+            //the hook API cannot be automatically called on IOS, so we need try hook it here
+            Hooks.tryHook();
+#endif
             
             base.OnEnable();
             D.assert(_wrapper == null);

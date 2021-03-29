@@ -720,12 +720,12 @@ namespace Unity.UIWidgets.service {
             }
             else {
 #if UNITY_IOS || UNITY_ANDROID
-                if (configuration.unityTouchKeyboard) {
+                /*if (configuration.unityTouchKeyboard) {
                     keyboardDelegate = new UnityTouchScreenKeyboardDelegate();
                 }
                 else {
                     keyboardDelegate = new UIWidgetsTouchScreenKeyboardDelegate();
-                }
+                }*/
 #elif UNITY_WEBGL
                 keyboardDelegate = new UIWidgetsWebGLKeyboardDelegate();
 #else

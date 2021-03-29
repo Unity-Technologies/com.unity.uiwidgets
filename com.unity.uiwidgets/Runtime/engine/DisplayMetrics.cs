@@ -70,7 +70,7 @@ namespace Unity.UIWidgets.engine {
 #endif
 
 #if UNITY_IOS
-                this._devicePixelRatio = IOSDeviceScaleFactor();
+                //this._devicePixelRatio = IOSDeviceScaleFactor();
 #endif
 
                 if (_devicePixelRatio <= 0) {
@@ -144,8 +144,8 @@ namespace Unity.UIWidgets.engine {
                     padding_bottom = 0
                 };
 #elif UNITY_IOS
-                viewMetrics metrics = IOSGetViewportPadding();
-                this._viewMetrics = metrics;
+                //viewMetrics metrics = IOSGetViewportPadding();
+                //this._viewMetrics = metrics;
 #else
                 _viewMetrics = new viewMetrics {
                     insets_bottom = 0,
@@ -186,11 +186,11 @@ namespace Unity.UIWidgets.engine {
 #endif
 
 #if UNITY_IOS
-        [DllImport("__Internal")]
-        static extern float IOSDeviceScaleFactor();
+        //[DllImport("__Internal")]
+        //static extern float IOSDeviceScaleFactor();
 
-		[DllImport("__Internal")]
-		static extern viewMetrics IOSGetViewportPadding();
+		//[DllImport("__Internal")]
+		//static extern viewMetrics IOSGetViewportPadding();
 #endif
     }
 }

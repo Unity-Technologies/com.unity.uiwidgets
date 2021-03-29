@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using UIWidgetsGallery.gallery;
 using Unity.UIWidgets.Editor;
@@ -31,4 +30,3 @@ namespace UIWidgetsEditorWindowSample
         }
     }
 }
-#endif

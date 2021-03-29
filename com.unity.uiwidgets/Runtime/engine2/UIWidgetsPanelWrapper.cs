@@ -71,9 +71,9 @@ namespace Unity.UIWidgets.engine2 {
     #endregion
 
 
-    #region Platform: MacOs Specific Functionalities
+    #region Platform: MacOs/iOS Specific Functionalities
 
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS
 public partial class UIWidgetsPanelWrapper {
     Texture _renderTexture;
 

@@ -1,4 +1,5 @@
 #include "color_filter.h"
+#include "runtime/mono_api.h"
 
 namespace uiwidgets {
 
@@ -35,5 +36,37 @@ void ColorFilter::initSrgbToLinearGamma() {
 }
 
 ColorFilter::~ColorFilter() = default;
+
+UIWIDGETS_API(ColorFilter*)
+ColorFilter_constructor() {
+  const auto colorFilter = ColorFilter::Create();
+  colorFilter->AddRef();
+  return colorFilter.get();
+}
+
+UIWIDGETS_API(void)
+ColorFilter_dispose(ColorFilter* ptr) {
+  ptr->Release();
+}
+
+UIWIDGETS_API(void)
+ColorFilter_initMode(ColorFilter* ptr, int color, int blend_mode) {
+  ptr->initMode(color, blend_mode);
+}
+
+UIWIDGETS_API(void)
+ColorFilter_initMatrix(ColorFilter* ptr, const float* color_matrix) {
+  ptr->initMatrix(color_matrix);
+}
+
+UIWIDGETS_API(void)
+ColorFilter_initLinearToSrgbGamma(ColorFilter* ptr) {
+  ptr->initLinearToSrgbGamma();
+}
+
+UIWIDGETS_API(void)
+ColorFilter_initSrgbToLinearGamma(ColorFilter* ptr) {
+  ptr->initSrgbToLinearGamma();
+}
 
 }  // namespace uiwidgets

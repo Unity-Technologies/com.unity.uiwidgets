@@ -5,9 +5,9 @@ namespace Unity.UIWidgets.material {
     partial class AnimatedIconsData {
         public static readonly _AnimatedIconData _event_add =new  _AnimatedIconData(
   new Size(48.0f, 48.0f),
-  new List<_PathFrames>{
+  new _PathFrames[]{
     new _PathFrames(
-      opacities: new List<float>{
+      opacities: new float[]{
         1.0f,
         1.0f,
         1.0f,
@@ -31,9 +31,9 @@ namespace Unity.UIWidgets.material {
         0.0f,
         0.0f,
       },
-      commands: new List<_PathCommand>{
+      commands: new _PathCommand[]{
         new _PathMoveTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(32.01015625f, 23.52890625f),
             new Offset(32.01015329719101f, 23.53062658538017f),
             new Offset(31.908309754160946f, 24.86045986263573f),
@@ -59,7 +59,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(32.01015625f, 23.52890625f),
             new Offset(32.01015329719101f, 23.53062658538017f),
             new Offset(31.908309754160946f, 24.86045986263573f),
@@ -83,7 +83,7 @@ namespace Unity.UIWidgets.material {
             new Offset(18.192643234510292f, 24.891585410299637f),
             new Offset(18.192636718750002f, 24.891542968750002f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(24.01015625f, 23.52890625f),
             new Offset(24.010258478063488f, 23.528888402424656f),
             new Offset(24.091555200930664f, 23.52418084688126f),
@@ -107,7 +107,7 @@ namespace Unity.UIWidgets.material {
             new Offset(23.9926432343554f, 24.891543022538777f),
             new Offset(23.99263671875f, 24.89154296875f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(24.01015625f, 23.52890625f),
             new Offset(24.010258478063488f, 23.528888402424656f),
             new Offset(24.091555200930664f, 23.52418084688126f),
@@ -133,7 +133,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(24.01015625f, 23.52890625f),
             new Offset(24.010258478063488f, 23.528888402424656f),
             new Offset(24.091555200930664f, 23.52418084688126f),
@@ -157,7 +157,7 @@ namespace Unity.UIWidgets.material {
             new Offset(23.9926432343554f, 24.891543022538777f),
             new Offset(23.99263671875f, 24.89154296875f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(24.01015625f, 31.52890625f),
             new Offset(24.008520295107978f, 31.528783221552175f),
             new Offset(22.755276185176193f, 31.340935400111544f),
@@ -181,7 +181,7 @@ namespace Unity.UIWidgets.material {
             new Offset(23.99260084659454f, 19.09154302269367f),
             new Offset(23.99263671875f, 19.09154296875f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(24.01015625f, 31.52890625f),
             new Offset(24.008520295107978f, 31.528783221552175f),
             new Offset(22.755276185176193f, 31.340935400111544f),
@@ -207,7 +207,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(24.01015625f, 31.52890625f),
             new Offset(24.008520295107978f, 31.528783221552175f),
             new Offset(22.755276185176193f, 31.340935400111544f),
@@ -231,7 +231,7 @@ namespace Unity.UIWidgets.material {
             new Offset(23.99260084659454f, 19.09154302269367f),
             new Offset(23.99263671875f, 19.09154296875f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(32.01015625f, 31.52890625f),
             new Offset(32.0084151142355f, 31.530521404507688f),
             new Offset(30.572030738406475f, 32.67721441586602f),
@@ -255,7 +255,7 @@ namespace Unity.UIWidgets.material {
             new Offset(18.192600846749432f, 19.091585410454528f),
             new Offset(18.19263671875f, 19.09154296875f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(32.01015625f, 31.52890625f),
             new Offset(32.0084151142355f, 31.530521404507688f),
             new Offset(30.572030738406475f, 32.67721441586602f),
@@ -281,7 +281,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(32.01015625f, 31.52890625f),
             new Offset(32.0084151142355f, 31.530521404507688f),
             new Offset(30.572030738406475f, 32.67721441586602f),
@@ -305,7 +305,7 @@ namespace Unity.UIWidgets.material {
             new Offset(18.192600846749432f, 19.091585410454528f),
             new Offset(18.19263671875f, 19.09154296875f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(32.01015625f, 23.52890625f),
             new Offset(32.01015329719101f, 23.53062658538017f),
             new Offset(31.908309754160946f, 24.86045986263573f),
@@ -329,7 +329,7 @@ namespace Unity.UIWidgets.material {
             new Offset(18.192643234510292f, 24.891585410299637f),
             new Offset(18.192636718750002f, 24.891542968750002f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(32.01015625f, 23.52890625f),
             new Offset(32.01015329719101f, 23.53062658538017f),
             new Offset(31.908309754160946f, 24.86045986263573f),
@@ -357,7 +357,7 @@ namespace Unity.UIWidgets.material {
         new _PathClose(
         ),
         new _PathMoveTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(30.4f, 6.0f),
             new Offset(30.403826772654973f, 6.001600955318109f),
             new Offset(33.26297392821128f, 7.464112893661335f),
@@ -383,7 +383,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(30.4f, 6.0f),
             new Offset(30.403826772654973f, 6.001600955318109f),
             new Offset(33.26297392821128f, 7.464112893661335f),
@@ -407,7 +407,7 @@ namespace Unity.UIWidgets.material {
             new Offset(19.360099392114897f, 37.60003390984549f),
             new Offset(19.360000000000003f, 37.6f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(30.4f, 9.2f),
             new Offset(30.40313149947277f, 9.201558882969117f),
             new Offset(32.7284623219095f, 10.590814714953448f),
@@ -431,7 +431,7 @@ namespace Unity.UIWidgets.material {
             new Offset(19.360082437010554f, 35.28003390990745f),
             new Offset(19.36f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(30.4f, 9.2f),
             new Offset(30.40313149947277f, 9.201558882969117f),
             new Offset(32.7284623219095f, 10.590814714953448f),
@@ -457,7 +457,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(30.4f, 9.2f),
             new Offset(30.40313149947277f, 9.201558882969117f),
             new Offset(32.7284623219095f, 10.590814714953448f),
@@ -481,7 +481,7 @@ namespace Unity.UIWidgets.material {
             new Offset(19.360082437010554f, 35.28003390990745f),
             new Offset(19.36f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(17.6f, 9.2f),
             new Offset(17.60329978886874f, 9.1987777902403f),
             new Offset(20.22165503674104f, 8.452768289746293f),
@@ -505,7 +505,7 @@ namespace Unity.UIWidgets.material {
             new Offset(28.640082436762725f, 35.279966089490074f),
             new Offset(28.64f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(17.6f, 9.2f),
             new Offset(17.60329978886874f, 9.1987777902403f),
             new Offset(20.22165503674104f, 8.452768289746293f),
@@ -531,7 +531,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(17.6f, 9.2f),
             new Offset(17.60329978886874f, 9.1987777902403f),
             new Offset(20.22165503674104f, 8.452768289746293f),
@@ -555,7 +555,7 @@ namespace Unity.UIWidgets.material {
             new Offset(28.640082436762725f, 35.279966089490074f),
             new Offset(28.64f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(17.6f, 6.0f),
             new Offset(17.60399506205094f, 5.99881986258929f),
             new Offset(20.75616664304283f, 5.326066468454183f),
@@ -579,7 +579,7 @@ namespace Unity.UIWidgets.material {
             new Offset(28.64009939186707f, 37.59996608942812f),
             new Offset(28.64f, 37.6f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(17.6f, 6.0f),
             new Offset(17.60399506205094f, 5.99881986258929f),
             new Offset(20.75616664304283f, 5.326066468454183f),
@@ -605,7 +605,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(17.6f, 6.0f),
             new Offset(17.60399506205094f, 5.99881986258929f),
             new Offset(20.75616664304283f, 5.326066468454183f),
@@ -629,7 +629,7 @@ namespace Unity.UIWidgets.material {
             new Offset(28.64009939186707f, 37.59996608942812f),
             new Offset(28.64f, 37.6f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(14.399999999999999f, 6.0f),
             new Offset(14.404037134399934f, 5.998124589407087f),
             new Offset(17.629464821750716f, 4.791554862152392f),
@@ -653,7 +653,7 @@ namespace Unity.UIWidgets.material {
             new Offset(30.960099391805116f, 37.59994913432378f),
             new Offset(30.96f, 37.6f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(14.399999999999999f, 6.0f),
             new Offset(14.404037134399934f, 5.998124589407087f),
             new Offset(17.629464821750716f, 4.791554862152392f),
@@ -679,7 +679,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(14.399999999999999f, 6.0f),
             new Offset(14.404037134399934f, 5.998124589407087f),
             new Offset(17.629464821750716f, 4.791554862152392f),
@@ -703,7 +703,7 @@ namespace Unity.UIWidgets.material {
             new Offset(30.960099391805116f, 37.59994913432378f),
             new Offset(30.96f, 37.6f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(14.399999999999999f, 9.2f),
             new Offset(14.40334186121773f, 9.198082517058094f),
             new Offset(17.09495321544893f, 7.918256683444506f),
@@ -727,7 +727,7 @@ namespace Unity.UIWidgets.material {
             new Offset(30.96008243670077f, 35.27994913438573f),
             new Offset(30.96f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(14.399999999999999f, 9.2f),
             new Offset(14.40334186121773f, 9.198082517058094f),
             new Offset(17.09495321544893f, 7.918256683444506f),
@@ -753,7 +753,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(14.399999999999999f, 9.2f),
             new Offset(14.40334186121773f, 9.198082517058094f),
             new Offset(17.09495321544893f, 7.918256683444506f),
@@ -777,7 +777,7 @@ namespace Unity.UIWidgets.material {
             new Offset(30.96008243670077f, 35.27994913438573f),
             new Offset(30.96f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(12.799999999999999f, 9.2f),
             new Offset(12.803362897392224f, 9.197734880466992f),
             new Offset(15.531602304802872f, 7.651000880293612f),
@@ -801,7 +801,7 @@ namespace Unity.UIWidgets.material {
             new Offset(32.12008243666979f, 35.27994065683356f),
             new Offset(32.120000000000005f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(12.799999999999999f, 9.2f),
             new Offset(12.803362897392224f, 9.197734880466992f),
             new Offset(15.531602304802872f, 7.651000880293612f),
@@ -827,7 +827,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(11.031994628903998f, 9.2f),
             new Offset(11.035380771339659f, 9.197350740866831f),
             new Offset(13.80409430047159f, 7.355682320651514f),
@@ -851,7 +851,7 @@ namespace Unity.UIWidgets.material {
             new Offset(33.40188633068016f, 35.27993128910995f),
             new Offset(33.401803894044605f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(9.616003417967999f, 10.631994628904f),
             new Offset(9.61909704372049f, 10.629018885991774f),
             new Offset(12.181344285634644f, 8.518356219904028f),
@@ -875,7 +875,7 @@ namespace Unity.UIWidgets.material {
             new Offset(34.42847237120061f, 34.241727680595176f),
             new Offset(34.4283975219732f, 34.241803894044594f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(9.616003417967999f, 12.399999999999999f),
             new Offset(9.61871290412033f, 12.397001012044338f),
             new Offset(11.886025725992546f, 10.245864224235309f),
@@ -901,7 +901,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(9.616003417967999f, 12.399999999999999f),
             new Offset(9.61871290412033f, 12.397001012044338f),
             new Offset(11.886025725992546f, 10.245864224235309f),
@@ -925,7 +925,7 @@ namespace Unity.UIWidgets.material {
             new Offset(34.428463003477f, 32.9599237865848f),
             new Offset(34.428397521973196f, 32.96f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(9.59999999999928f, 34.8f),
             new Offset(9.59784278428286f, 34.79670302849285f),
             new Offset(8.12880763309575f, 32.13010384432861f),
@@ -949,7 +949,7 @@ namespace Unity.UIWidgets.material {
             new Offset(34.43994679577361f, 16.719923702224868f),
             new Offset(34.440000000000516f, 16.72f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(9.59999999999928f, 34.8f),
             new Offset(9.59784278428286f, 34.79670302849285f),
             new Offset(8.12880763309575f, 32.13010384432861f),
@@ -975,7 +975,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(9.59999999999928f, 36.568005371096f),
             new Offset(9.5974586446827f, 36.564685154545415f),
             new Offset(7.833489073453652f, 33.857611848659886f),
@@ -999,7 +999,7 @@ namespace Unity.UIWidgets.material {
             new Offset(34.43993742805f, 15.438119808214498f),
             new Offset(34.440000000000516f, 15.438196105955399f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(11.031994628903279f, 38.0f),
             new Offset(11.029123312699099f, 37.9969720897259f),
             new Offset(8.99348984375479f, 35.49599871228041f),
@@ -1023,7 +1023,7 @@ namespace Unity.UIWidgets.material {
             new Offset(33.40173373474159f, 14.399931289667558f),
             new Offset(33.401803894045116f, 14.399999999999999f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(12.79999999999928f, 38.0f),
             new Offset(12.797105438751665f, 37.997356229326066f),
             new Offset(10.720997848086075f, 35.79131727192251f),
@@ -1049,7 +1049,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(12.79999999999928f, 38.0f),
             new Offset(12.797105438751665f, 37.997356229326066f),
             new Offset(10.720997848086075f, 35.79131727192251f),
@@ -1073,7 +1073,7 @@ namespace Unity.UIWidgets.material {
             new Offset(32.119929840731224f, 14.399940657391166f),
             new Offset(32.120000000000516f, 14.399999999999999f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.19999999999928f, 38.0f),
             new Offset(35.19681093230872f, 38.0022231416015f),
             new Offset(32.60791059713087f, 39.532898516035026f),
@@ -1097,7 +1097,7 @@ namespace Unity.UIWidgets.material {
             new Offset(15.879929841164916f, 14.400059343121573f),
             new Offset(15.88000000000052f, 14.400000000000002f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.19999999999928f, 38.0f),
             new Offset(35.19681093230872f, 38.0022231416015f),
             new Offset(32.60791059713087f, 39.532898516035026f),
@@ -1123,7 +1123,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(36.96800537109528f, 38.0f),
             new Offset(36.96479305836129f, 38.00260728120166f),
             new Offset(34.33541860146215f, 39.828217075677124f),
@@ -1147,7 +1147,7 @@ namespace Unity.UIWidgets.material {
             new Offset(14.598125947154546f, 14.400068710845181f),
             new Offset(14.59819610595592f, 14.400000000000002f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.39999999999928f, 36.568005371096f),
             new Offset(38.39707999354177f, 36.57094261318526f),
             new Offset(35.97380546508267f, 38.668216305375985f),
@@ -1171,7 +1171,7 @@ namespace Unity.UIWidgets.material {
             new Offset(13.559937428607608f, 15.43827240415359f),
             new Offset(13.560000000000521f, 15.438196105955402f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.39999999999928f, 34.8f),
             new Offset(38.39746413314193f, 34.802960487132694f),
             new Offset(36.26912402472477f, 36.9407083010447f),
@@ -1197,7 +1197,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.39999999999928f, 34.8f),
             new Offset(38.39746413314193f, 34.802960487132694f),
             new Offset(36.26912402472477f, 36.9407083010447f),
@@ -1221,7 +1221,7 @@ namespace Unity.UIWidgets.material {
             new Offset(13.559946796331216f, 16.72007629816396f),
             new Offset(13.560000000000521f, 16.720000000000002f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.39999999999928f, 12.399999999999999f),
             new Offset(38.40233104541737f, 12.403254993575636f),
             new Offset(40.010705268837285f, 15.05379555199991f),
@@ -1245,7 +1245,7 @@ namespace Unity.UIWidgets.material {
             new Offset(13.56006548206162f, 32.96007629773027f),
             new Offset(13.560000000000523f, 32.96f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.39999999999928f, 12.399999999999999f),
             new Offset(38.40233104541737f, 12.403254993575636f),
             new Offset(40.010705268837285f, 15.05379555199991f),
@@ -1271,7 +1271,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.39999999999928f, 10.631994628904f),
             new Offset(38.40271518501753f, 10.635272867523073f),
             new Offset(40.30602382847938f, 13.32628754766863f),
@@ -1295,7 +1295,7 @@ namespace Unity.UIWidgets.material {
             new Offset(13.560074849785229f, 34.241880191740634f),
             new Offset(13.560000000000525f, 34.2418038940446f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(36.96800537109528f, 9.2f),
             new Offset(36.97105051700113f, 9.202985932342585f),
             new Offset(39.146023058178244f, 11.687900684048108f),
@@ -1319,7 +1319,7 @@ namespace Unity.UIWidgets.material {
             new Offset(14.598278543093638f, 35.28006871028757f),
             new Offset(14.598196105955923f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.19999999999928f, 9.2f),
             new Offset(35.20306839094856f, 9.202601792742424f),
             new Offset(37.41851505384696f, 11.39258212440601f),
@@ -1345,7 +1345,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.19999999999928f, 9.2f),
             new Offset(35.20306839094856f, 9.202601792742424f),
             new Offset(37.41851505384696f, 11.39258212440601f),
@@ -1369,7 +1369,7 @@ namespace Unity.UIWidgets.material {
             new Offset(15.880082437104008f, 35.280059342563966f),
             new Offset(15.880000000000523f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(33.599999999999284f, 9.2f),
             new Offset(33.60308942712306f, 9.202254156151323f),
             new Offset(35.85516414320091f, 11.125326321255116f),
@@ -1393,7 +1393,7 @@ namespace Unity.UIWidgets.material {
             new Offset(17.040082437073032f, 35.280050865011795f),
             new Offset(17.04000000000052f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(33.599999999999284f, 9.2f),
             new Offset(33.60308942712306f, 9.202254156151323f),
             new Offset(35.85516414320091f, 11.125326321255116f),
@@ -1419,7 +1419,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(33.599999999999284f, 9.2f),
             new Offset(33.60308942712306f, 9.202254156151323f),
             new Offset(35.85516414320091f, 11.125326321255116f),
@@ -1443,7 +1443,7 @@ namespace Unity.UIWidgets.material {
             new Offset(17.040082437073032f, 35.280050865011795f),
             new Offset(17.04000000000052f, 35.28f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(33.599999999999284f, 6.0f),
             new Offset(33.60378470030526f, 6.002296228500315f),
             new Offset(36.38967574950269f, 7.998624499963004f),
@@ -1467,7 +1467,7 @@ namespace Unity.UIWidgets.material {
             new Offset(17.040099392177375f, 37.600050864949836f),
             new Offset(17.040000000000525f, 37.6f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(33.599999999999284f, 6.0f),
             new Offset(33.60378470030526f, 6.002296228500315f),
             new Offset(36.38967574950269f, 7.998624499963004f),
@@ -1493,7 +1493,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(33.599999999999284f, 6.0f),
             new Offset(33.60378470030526f, 6.002296228500315f),
             new Offset(36.38967574950269f, 7.998624499963004f),
@@ -1517,7 +1517,7 @@ namespace Unity.UIWidgets.material {
             new Offset(17.040099392177375f, 37.600050864949836f),
             new Offset(17.040000000000525f, 37.6f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(30.39999999999928f, 6.0f),
             new Offset(30.403826772654256f, 6.001600955318109f),
             new Offset(33.262973928210585f, 7.464112893661214f),
@@ -1541,7 +1541,7 @@ namespace Unity.UIWidgets.material {
             new Offset(19.360099392115416f, 37.60003390984549f),
             new Offset(19.360000000000525f, 37.6f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(30.39999999999928f, 6.0f),
             new Offset(30.403826772654256f, 6.001600955318109f),
             new Offset(33.262973928210585f, 7.464112893661214f),
@@ -1569,7 +1569,7 @@ namespace Unity.UIWidgets.material {
         new _PathClose(
         ),
         new _PathMoveTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.2f, 34.8f),
             new Offset(35.19750620549164f, 34.80226521395049f),
             new Offset(33.142422203433355f, 36.40619669474303f),
@@ -1595,7 +1595,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.2f, 34.8f),
             new Offset(35.19750620549164f, 34.80226521395049f),
             new Offset(33.142422203433355f, 36.40619669474303f),
@@ -1619,7 +1619,7 @@ namespace Unity.UIWidgets.material {
             new Offset(15.879946796268738f, 16.720059343059617f),
             new Offset(15.879999999999999f, 16.720000000000002f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(12.799999999999999f, 34.8f),
             new Offset(12.797800711934586f, 34.79739830167506f),
             new Offset(11.255509454388564f, 32.66461545063052f),
@@ -1643,7 +1643,7 @@ namespace Unity.UIWidgets.material {
             new Offset(32.11994679583504f, 16.71994065732921f),
             new Offset(32.12f, 16.72f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(12.799999999999999f, 34.8f),
             new Offset(12.797800711934586f, 34.79739830167506f),
             new Offset(11.255509454388564f, 32.66461545063052f),
@@ -1669,7 +1669,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(12.799999999999999f, 34.8f),
             new Offset(12.797800711934586f, 34.79739830167506f),
             new Offset(11.255509454388564f, 32.66461545063052f),
@@ -1693,7 +1693,7 @@ namespace Unity.UIWidgets.material {
             new Offset(32.11994679583504f, 16.71994065732921f),
             new Offset(32.12f, 16.72f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(12.799999999999999f, 17.2f),
             new Offset(12.801624714436713f, 17.19762969959451f),
             new Offset(14.195323289048401f, 15.467755433523894f),
@@ -1717,7 +1717,7 @@ namespace Unity.UIWidgets.material {
             new Offset(32.12004004890893f, 29.47994065698845f),
             new Offset(32.12f, 29.479999999999997f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(12.799999999999999f, 17.2f),
             new Offset(12.801624714436713f, 17.19762969959451f),
             new Offset(14.195323289048401f, 15.467755433523894f),
@@ -1743,7 +1743,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(12.799999999999999f, 17.2f),
             new Offset(12.801624714436713f, 17.19762969959451f),
             new Offset(14.195323289048401f, 15.467755433523894f),
@@ -1767,7 +1767,7 @@ namespace Unity.UIWidgets.material {
             new Offset(32.12004004890893f, 29.47994065698845f),
             new Offset(32.12f, 29.479999999999997f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.2f, 17.2f),
             new Offset(35.20133020799377f, 17.202496611869943f),
             new Offset(36.08223603809319f, 19.20933667763641f),
@@ -1791,7 +1791,7 @@ namespace Unity.UIWidgets.material {
             new Offset(15.880040049342629f, 29.480059342718857f),
             new Offset(15.88f, 29.48f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.2f, 17.2f),
             new Offset(35.20133020799377f, 17.202496611869943f),
             new Offset(36.08223603809319f, 19.20933667763641f),
@@ -1817,7 +1817,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.2f, 17.2f),
             new Offset(35.20133020799377f, 17.202496611869943f),
             new Offset(36.08223603809319f, 19.20933667763641f),
@@ -1841,7 +1841,7 @@ namespace Unity.UIWidgets.material {
             new Offset(15.880040049342629f, 29.480059342718857f),
             new Offset(15.88f, 29.48f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.2f, 34.8f),
             new Offset(35.19750620549164f, 34.80226521395049f),
             new Offset(33.142422203433355f, 36.40619669474303f),
@@ -1865,7 +1865,7 @@ namespace Unity.UIWidgets.material {
             new Offset(15.879946796268738f, 16.720059343059617f),
             new Offset(15.879999999999999f, 16.720000000000002f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(35.2f, 34.8f),
             new Offset(35.19750620549164f, 34.80226521395049f),
             new Offset(33.142422203433355f, 36.40619669474303f),
@@ -1895,7 +1895,7 @@ namespace Unity.UIWidgets.material {
       }
     ),
     new _PathFrames(
-      opacities: new List<float>{
+      opacities: new float[]{
         0.0f,
         0.0f,
         0.0f,
@@ -1919,9 +1919,9 @@ namespace Unity.UIWidgets.material {
         1.0f,
         1.0f,
       },
-      commands: new List<_PathCommand>{
+      commands: new _PathCommand[]{
         new _PathMoveTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 26.0f),
             new Offset(9.999565779019244f, 25.996958092697728f),
             new Offset(9.863179258510144f, 23.612315433654864f),
@@ -1947,7 +1947,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 26.0f),
             new Offset(9.999565779019244f, 25.996958092697728f),
             new Offset(9.863179258510144f, 23.612315433654864f),
@@ -1971,7 +1971,7 @@ namespace Unity.UIWidgets.material {
             new Offset(37.99998538315687f, 21.999897684768573f),
             new Offset(38.0f, 21.999999999999993f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 22.0f),
             new Offset(10.000434881903109f, 21.996958187115208f),
             new Offset(10.537203766746376f, 19.66951300869151f),
@@ -1995,7 +1995,7 @@ namespace Unity.UIWidgets.material {
             new Offset(38.000014616095385f, 25.999897684661754f),
             new Offset(38.0f, 25.999999999999993f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 22.0f),
             new Offset(10.000434881903109f, 21.996958187115208f),
             new Offset(10.537203766746376f, 19.66951300869151f),
@@ -2021,7 +2021,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 22.0f),
             new Offset(10.000434881903109f, 21.996958187115208f),
             new Offset(10.537203766746376f, 19.66951300869151f),
@@ -2045,7 +2045,7 @@ namespace Unity.UIWidgets.material {
             new Offset(38.000014616095385f, 25.999897684661754f),
             new Offset(38.0f, 25.999999999999993f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 22.0f),
             new Offset(38.00043422098076f, 22.003041907302272f),
             new Offset(38.136820741489856f, 24.387684566345136f),
@@ -2069,7 +2069,7 @@ namespace Unity.UIWidgets.material {
             new Offset(10.000014616843135f, 26.00010231523142f),
             new Offset(10.0f, 26.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 22.0f),
             new Offset(38.00043422098076f, 22.003041907302272f),
             new Offset(38.136820741489856f, 24.387684566345136f),
@@ -2095,7 +2095,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 22.0f),
             new Offset(38.00043422098076f, 22.003041907302272f),
             new Offset(38.136820741489856f, 24.387684566345136f),
@@ -2119,7 +2119,7 @@ namespace Unity.UIWidgets.material {
             new Offset(10.000014616843135f, 26.00010231523142f),
             new Offset(10.0f, 26.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 26.0f),
             new Offset(37.99956511809689f, 26.003041812884792f),
             new Offset(37.46279623325363f, 28.33048699130849f),
@@ -2143,7 +2143,7 @@ namespace Unity.UIWidgets.material {
             new Offset(9.999985383904612f, 22.00010231533824f),
             new Offset(10.0f, 22.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 26.0f),
             new Offset(37.99956511809689f, 26.003041812884792f),
             new Offset(37.46279623325363f, 28.33048699130849f),
@@ -2169,7 +2169,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 26.0f),
             new Offset(37.99956511809689f, 26.003041812884792f),
             new Offset(37.46279623325363f, 28.33048699130849f),
@@ -2193,7 +2193,7 @@ namespace Unity.UIWidgets.material {
             new Offset(9.999985383904612f, 22.00010231533824f),
             new Offset(10.0f, 22.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 26.0f),
             new Offset(9.999565779019244f, 25.996958092697728f),
             new Offset(9.863179258510144f, 23.612315433654864f),
@@ -2217,7 +2217,7 @@ namespace Unity.UIWidgets.material {
             new Offset(37.99998538315687f, 21.999897684768573f),
             new Offset(38.0f, 21.999999999999993f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 26.0f),
             new Offset(9.999565779019244f, 25.996958092697728f),
             new Offset(9.863179258510144f, 23.612315433654864f),
@@ -2247,7 +2247,7 @@ namespace Unity.UIWidgets.material {
       }
     ),
     new _PathFrames(
-      opacities: new List<float>{
+      opacities: new float[]{
         0.0f,
         0.0f,
         0.0f,
@@ -2271,9 +2271,9 @@ namespace Unity.UIWidgets.material {
         1.0f,
         1.0f,
       },
-      commands: new List<_PathCommand>{
+      commands: new _PathCommand[]{
         new _PathMoveTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 10.0f),
             new Offset(22.003041907302272f, 9.999565779019244f),
             new Offset(24.387684566345136f, 9.863179258510144f),
@@ -2299,7 +2299,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 10.0f),
             new Offset(22.003041907302272f, 9.999565779019244f),
             new Offset(24.387684566345136f, 9.863179258510144f),
@@ -2323,7 +2323,7 @@ namespace Unity.UIWidgets.material {
             new Offset(26.000102315231423f, 37.99998538315686f),
             new Offset(26.000000000000004f, 38.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 10.0f),
             new Offset(26.003041812884792f, 10.000434881903109f),
             new Offset(28.33048699130849f, 10.537203766746376f),
@@ -2347,7 +2347,7 @@ namespace Unity.UIWidgets.material {
             new Offset(22.000102315338243f, 38.000014616095385f),
             new Offset(22.000000000000004f, 38.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 10.0f),
             new Offset(26.003041812884792f, 10.000434881903109f),
             new Offset(28.33048699130849f, 10.537203766746376f),
@@ -2373,7 +2373,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 10.0f),
             new Offset(26.003041812884792f, 10.000434881903109f),
             new Offset(28.33048699130849f, 10.537203766746376f),
@@ -2397,7 +2397,7 @@ namespace Unity.UIWidgets.material {
             new Offset(22.000102315338243f, 38.000014616095385f),
             new Offset(22.000000000000004f, 38.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 38.0f),
             new Offset(25.996958092697728f, 38.00043422098076f),
             new Offset(23.612315433654864f, 38.136820741489856f),
@@ -2421,7 +2421,7 @@ namespace Unity.UIWidgets.material {
             new Offset(21.999897684768577f, 10.000014616843131f),
             new Offset(21.999999999999996f, 9.999999999999996f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 38.0f),
             new Offset(25.996958092697728f, 38.00043422098076f),
             new Offset(23.612315433654864f, 38.136820741489856f),
@@ -2447,7 +2447,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 38.0f),
             new Offset(25.996958092697728f, 38.00043422098076f),
             new Offset(23.612315433654864f, 38.136820741489856f),
@@ -2471,7 +2471,7 @@ namespace Unity.UIWidgets.material {
             new Offset(21.999897684768577f, 10.000014616843131f),
             new Offset(21.999999999999996f, 9.999999999999996f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 38.0f),
             new Offset(21.996958187115208f, 37.99956511809689f),
             new Offset(19.66951300869151f, 37.46279623325363f),
@@ -2495,7 +2495,7 @@ namespace Unity.UIWidgets.material {
             new Offset(25.999897684661757f, 9.999985383904608f),
             new Offset(25.999999999999996f, 9.999999999999996f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 38.0f),
             new Offset(21.996958187115208f, 37.99956511809689f),
             new Offset(19.66951300869151f, 37.46279623325363f),
@@ -2521,7 +2521,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 38.0f),
             new Offset(21.996958187115208f, 37.99956511809689f),
             new Offset(19.66951300869151f, 37.46279623325363f),
@@ -2545,7 +2545,7 @@ namespace Unity.UIWidgets.material {
             new Offset(25.999897684661757f, 9.999985383904608f),
             new Offset(25.999999999999996f, 9.999999999999996f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 10.0f),
             new Offset(22.003041907302272f, 9.999565779019244f),
             new Offset(24.387684566345136f, 9.863179258510144f),
@@ -2569,7 +2569,7 @@ namespace Unity.UIWidgets.material {
             new Offset(26.000102315231423f, 37.99998538315686f),
             new Offset(26.000000000000004f, 38.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 10.0f),
             new Offset(22.003041907302272f, 9.999565779019244f),
             new Offset(24.387684566345136f, 9.863179258510144f),
@@ -2599,7 +2599,7 @@ namespace Unity.UIWidgets.material {
       }
     ),
     new _PathFrames(
-      opacities: new List<float>{
+      opacities: new float[]{
         0.0f,
         0.0f,
         0.0f,
@@ -2623,9 +2623,9 @@ namespace Unity.UIWidgets.material {
         0.0f,
         0.0f,
       },
-      commands: new List<_PathCommand>{
+      commands: new _PathCommand[]{
         new _PathMoveTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 26.0f),
             new Offset(9.999565779019244f, 25.996958092697728f),
             new Offset(9.863179258510144f, 23.612315433654864f),
@@ -2651,7 +2651,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 26.0f),
             new Offset(9.999565779019244f, 25.996958092697728f),
             new Offset(9.863179258510144f, 23.612315433654864f),
@@ -2675,7 +2675,7 @@ namespace Unity.UIWidgets.material {
             new Offset(37.99998538315687f, 21.999897684768573f),
             new Offset(38.0f, 21.999999999999993f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 22.0f),
             new Offset(10.000434881903109f, 21.996958187115208f),
             new Offset(10.537203766746376f, 19.66951300869151f),
@@ -2699,7 +2699,7 @@ namespace Unity.UIWidgets.material {
             new Offset(38.000014616095385f, 25.999897684661754f),
             new Offset(38.0f, 25.999999999999993f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 22.0f),
             new Offset(10.000434881903109f, 21.996958187115208f),
             new Offset(10.537203766746376f, 19.66951300869151f),
@@ -2725,7 +2725,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 22.0f),
             new Offset(10.000434881903109f, 21.996958187115208f),
             new Offset(10.537203766746376f, 19.66951300869151f),
@@ -2749,7 +2749,7 @@ namespace Unity.UIWidgets.material {
             new Offset(38.000014616095385f, 25.999897684661754f),
             new Offset(38.0f, 25.999999999999993f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 22.0f),
             new Offset(38.00043422098076f, 22.003041907302272f),
             new Offset(38.136820741489856f, 24.387684566345136f),
@@ -2773,7 +2773,7 @@ namespace Unity.UIWidgets.material {
             new Offset(10.000014616843135f, 26.00010231523142f),
             new Offset(10.0f, 26.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 22.0f),
             new Offset(38.00043422098076f, 22.003041907302272f),
             new Offset(38.136820741489856f, 24.387684566345136f),
@@ -2799,7 +2799,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 22.0f),
             new Offset(38.00043422098076f, 22.003041907302272f),
             new Offset(38.136820741489856f, 24.387684566345136f),
@@ -2823,7 +2823,7 @@ namespace Unity.UIWidgets.material {
             new Offset(10.000014616843135f, 26.00010231523142f),
             new Offset(10.0f, 26.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 26.0f),
             new Offset(37.99956511809689f, 26.003041812884792f),
             new Offset(37.46279623325363f, 28.33048699130849f),
@@ -2847,7 +2847,7 @@ namespace Unity.UIWidgets.material {
             new Offset(9.999985383904612f, 22.00010231533824f),
             new Offset(10.0f, 22.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 26.0f),
             new Offset(37.99956511809689f, 26.003041812884792f),
             new Offset(37.46279623325363f, 28.33048699130849f),
@@ -2873,7 +2873,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(38.0f, 26.0f),
             new Offset(37.99956511809689f, 26.003041812884792f),
             new Offset(37.46279623325363f, 28.33048699130849f),
@@ -2897,7 +2897,7 @@ namespace Unity.UIWidgets.material {
             new Offset(9.999985383904612f, 22.00010231533824f),
             new Offset(10.0f, 22.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 26.0f),
             new Offset(9.999565779019244f, 25.996958092697728f),
             new Offset(9.863179258510144f, 23.612315433654864f),
@@ -2921,7 +2921,7 @@ namespace Unity.UIWidgets.material {
             new Offset(37.99998538315687f, 21.999897684768573f),
             new Offset(38.0f, 21.999999999999993f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(10.0f, 26.0f),
             new Offset(9.999565779019244f, 25.996958092697728f),
             new Offset(9.863179258510144f, 23.612315433654864f),
@@ -2951,7 +2951,7 @@ namespace Unity.UIWidgets.material {
       }
     ),
     new _PathFrames(
-      opacities: new List<float>{
+      opacities: new float[]{
         0.0f,
         0.0f,
         0.0f,
@@ -2975,9 +2975,9 @@ namespace Unity.UIWidgets.material {
         0.0f,
         0.0f,
       },
-      commands: new List<_PathCommand>{
+      commands: new _PathCommand[]{
         new _PathMoveTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 10.0f),
             new Offset(22.003041907302272f, 9.999565779019244f),
             new Offset(24.387684566345136f, 9.863179258510144f),
@@ -3003,7 +3003,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 10.0f),
             new Offset(22.003041907302272f, 9.999565779019244f),
             new Offset(24.387684566345136f, 9.863179258510144f),
@@ -3027,7 +3027,7 @@ namespace Unity.UIWidgets.material {
             new Offset(26.000102315231423f, 37.99998538315686f),
             new Offset(26.000000000000004f, 38.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 10.0f),
             new Offset(26.003041812884792f, 10.000434881903109f),
             new Offset(28.33048699130849f, 10.537203766746376f),
@@ -3051,7 +3051,7 @@ namespace Unity.UIWidgets.material {
             new Offset(22.000102315338243f, 38.000014616095385f),
             new Offset(22.000000000000004f, 38.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 10.0f),
             new Offset(26.003041812884792f, 10.000434881903109f),
             new Offset(28.33048699130849f, 10.537203766746376f),
@@ -3077,7 +3077,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 10.0f),
             new Offset(26.003041812884792f, 10.000434881903109f),
             new Offset(28.33048699130849f, 10.537203766746376f),
@@ -3101,7 +3101,7 @@ namespace Unity.UIWidgets.material {
             new Offset(22.000102315338243f, 38.000014616095385f),
             new Offset(22.000000000000004f, 38.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 38.0f),
             new Offset(25.996958092697728f, 38.00043422098076f),
             new Offset(23.612315433654864f, 38.136820741489856f),
@@ -3125,7 +3125,7 @@ namespace Unity.UIWidgets.material {
             new Offset(21.999897684768577f, 10.000014616843131f),
             new Offset(21.999999999999996f, 9.999999999999996f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 38.0f),
             new Offset(25.996958092697728f, 38.00043422098076f),
             new Offset(23.612315433654864f, 38.136820741489856f),
@@ -3151,7 +3151,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(26.0f, 38.0f),
             new Offset(25.996958092697728f, 38.00043422098076f),
             new Offset(23.612315433654864f, 38.136820741489856f),
@@ -3175,7 +3175,7 @@ namespace Unity.UIWidgets.material {
             new Offset(21.999897684768577f, 10.000014616843131f),
             new Offset(21.999999999999996f, 9.999999999999996f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 38.0f),
             new Offset(21.996958187115208f, 37.99956511809689f),
             new Offset(19.66951300869151f, 37.46279623325363f),
@@ -3199,7 +3199,7 @@ namespace Unity.UIWidgets.material {
             new Offset(25.999897684661757f, 9.999985383904608f),
             new Offset(25.999999999999996f, 9.999999999999996f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 38.0f),
             new Offset(21.996958187115208f, 37.99956511809689f),
             new Offset(19.66951300869151f, 37.46279623325363f),
@@ -3225,7 +3225,7 @@ namespace Unity.UIWidgets.material {
           }
         ),
         new _PathCubicTo(
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 38.0f),
             new Offset(21.996958187115208f, 37.99956511809689f),
             new Offset(19.66951300869151f, 37.46279623325363f),
@@ -3249,7 +3249,7 @@ namespace Unity.UIWidgets.material {
             new Offset(25.999897684661757f, 9.999985383904608f),
             new Offset(25.999999999999996f, 9.999999999999996f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 10.0f),
             new Offset(22.003041907302272f, 9.999565779019244f),
             new Offset(24.387684566345136f, 9.863179258510144f),
@@ -3273,7 +3273,7 @@ namespace Unity.UIWidgets.material {
             new Offset(26.000102315231423f, 37.99998538315686f),
             new Offset(26.000000000000004f, 38.0f),
           },
-          new List<Offset>{
+          new Offset[]{
             new Offset(22.0f, 10.0f),
             new Offset(22.003041907302272f, 9.999565779019244f),
             new Offset(24.387684566345136f, 9.863179258510144f),
