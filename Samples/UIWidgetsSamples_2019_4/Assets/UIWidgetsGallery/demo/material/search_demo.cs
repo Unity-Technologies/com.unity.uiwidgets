@@ -29,9 +29,10 @@ namespace UIWidgetsGallery.gallery {
                 appBar: new AppBar(
                     leading: new IconButton(
                         tooltip: "Navigation menu",
-                        icon: new Icon(
-                            icon: Icons.menu,
-                            color: Colors.white
+                        icon: new AnimatedIcon(
+                            icon: AnimatedIcons.arrow_menu,
+                            color: Colors.white,
+                            progress: this._delegate.transitionAnimation
                         ),
                         onPressed: () => { this._scaffoldKey.currentState.openDrawer(); }
                     ),
@@ -152,8 +153,9 @@ namespace UIWidgetsGallery.gallery {
         public override Widget buildLeading(BuildContext context) {
             return new IconButton(
                 tooltip: "Back",
-                icon: new Icon(
-                    icon: Icons.menu
+                icon: new AnimatedIcon(
+                    icon: AnimatedIcons.arrow_menu,
+                    progress: this.transitionAnimation
                 ),
                 onPressed: () => { this.close(context, null); }
             );

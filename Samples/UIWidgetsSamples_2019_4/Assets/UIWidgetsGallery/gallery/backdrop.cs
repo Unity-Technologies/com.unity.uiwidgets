@@ -331,8 +331,9 @@ namespace UIWidgetsGallery.gallery
                             trailing: new IconButton(
                                 onPressed: this._toggleFrontLayer,
                                 tooltip: "Toggle options page",
-                                icon: new Icon(
-                                    icon: Icons.close
+                                icon: new AnimatedIcon(
+                                    icon: AnimatedIcons.close_menu,
+                                    progress: this._controller
                                 )
                             )
                         ),
