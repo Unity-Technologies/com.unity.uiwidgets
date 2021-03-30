@@ -26,8 +26,9 @@ namespace Unity.UIWidgets.engine2 {
                     dir = "";
                     return dir + file;
                 }
-
-                File.WriteAllBytes(dir + file, unpackerWWW.bytes); // 64MB limit on File.WriteAllBytes.
+                System.IO.FileInfo fileInfo = new System.IO.FileInfo(dir + file);
+                fileInfo.Directory.Create();
+                System.IO.File.WriteAllBytes(fileInfo.FullName,  unpackerWWW.bytes);
             }
 
             return dir + file;
