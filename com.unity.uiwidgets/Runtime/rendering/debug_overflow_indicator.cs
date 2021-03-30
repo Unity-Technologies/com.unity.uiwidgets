@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -48,29 +47,6 @@ namespace UIWidgets.Runtime.rendering {
         const float _indicatorFraction = 0.1f;
         const float _indicatorFontSizePixels = 7.5f;
         const float _indicatorLabelPaddingPixels = 1.0f;
-
-        static readonly TextStyle _indicatorTextStyle = new TextStyle(
-            color: new Color(0xFF900000),
-            fontSize: _indicatorFontSizePixels,
-            fontWeight: FontWeight.w800
-        );
-
-        static readonly Paint _indicatorPaint = new Paint{ shader = Gradient.linear(
-            new Offset(0.0f, 0.0f),
-            new Offset(10.0f, 10.0f),
-            new List<Color> {_black, _yellow, _yellow, _black},
-            new List<float> {0.25f, 0.25f, 0.75f, 0.75f},
-            TileMode.repeated
-        )};
-
-        static readonly Paint _labelBackgroundPaint = new Paint{color = new Color(0xFFFFFFFF)};
-
-        static readonly List<TextPainter> _indicatorLabel = new List<TextPainter> {
-            new TextPainter(textDirection: TextDirection.ltr),
-            new TextPainter(textDirection: TextDirection.ltr),
-            new TextPainter(textDirection: TextDirection.ltr),
-            new TextPainter(textDirection: TextDirection.ltr)
-        };
 
         static readonly Dictionary<RenderObject, bool> _overflowReportNeeded = new Dictionary<RenderObject, Boolean>();
 
@@ -241,14 +217,6 @@ namespace UIWidgets.Runtime.rendering {
             Rect childRect,
             List<DiagnosticsNode> overflowHints = null
         ) {
-#if UNITY_EDITOR
-            //FIXME:
-            //we skip the following check in UIWidgetsEditorPanel since it will cause crash
-            //the reason is not clear yet, we should digest into it later
-            if (UIWidgetsPanelWrapper.current.window.getWindowType() != UIWidgetsWindowType.GameObjectPanel) {
-                return;
-            }
-#endif
             RelativeRect overflow = RelativeRect.fromRect(containerRect, childRect);
 
             if (overflow.left <= 0.0f &&
@@ -258,28 +226,41 @@ namespace UIWidgets.Runtime.rendering {
                 return;
             }
 
+            TextStyle _indicatorTextStyle = new TextStyle(
+                color: new Color(0xFF900000),
+                fontSize: _indicatorFontSizePixels,
+                fontWeight: FontWeight.w800
+            );
+            
+            Paint _indicatorPaint = new Paint{ shader = Gradient.linear(
+                new Offset(0.0f, 0.0f),
+                new Offset(10.0f, 10.0f),
+                new List<Color> {_black, _yellow, _yellow, _black},
+                new List<float> {0.25f, 0.25f, 0.75f, 0.75f},
+                TileMode.repeated
+            )};
+            
+            Paint _labelBackgroundPaint = new Paint{color = new Color(0xFFFFFFFF)};
+
             List<_OverflowRegionData> overflowRegions = _calculateOverflowRegions(overflow, containerRect);
             foreach (_OverflowRegionData region in overflowRegions) {
                 context.canvas.drawRect(region.rect.shift(offset), _indicatorPaint);
-                
-                TextSpan textSpan = _indicatorLabel[(int) region.side].text as TextSpan;
 
-                if (textSpan?.text != region.label) {
-                    _indicatorLabel[(int) region.side].text = new TextSpan(
+                var textPainter = new TextPainter(textDirection: TextDirection.ltr) {
+                    text = new TextSpan(
                         text: region.label,
-                        style: _indicatorTextStyle
-                    );
-                    _indicatorLabel[(int) region.side].layout();
-                }
+                        style: _indicatorTextStyle)
+                };
+                textPainter.layout();
 
                 Offset labelOffset = region.labelOffset + offset;
-                Offset centerOffset = new Offset(-_indicatorLabel[(int) region.side].width / 2.0f, 0.0f);
-                Rect textBackgroundRect = centerOffset & _indicatorLabel[(int) region.side].size;
+                Offset centerOffset = new Offset(-textPainter.width / 2.0f, 0.0f);
+                Rect textBackgroundRect = centerOffset & textPainter.size;
                 context.canvas.save();
                 context.canvas.translate(labelOffset.dx, labelOffset.dy);
                 context.canvas.rotate(region.rotation);
                 context.canvas.drawRect(textBackgroundRect, _labelBackgroundPaint);
-                _indicatorLabel[(int) region.side].paint(context.canvas, centerOffset);
+                textPainter.paint(context.canvas, centerOffset);
                 context.canvas.restore();
             }
 
