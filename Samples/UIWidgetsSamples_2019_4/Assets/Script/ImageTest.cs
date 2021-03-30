@@ -29,6 +29,7 @@ namespace UIWidgetsSample
             public override Widget build(BuildContext context)
             {
                 return new WidgetsApp(
+                    color: Color.white,
                     home: new ExampleApp(),
                     pageRouteBuilder: (settings, builder) =>
                         new PageRouteBuilder(

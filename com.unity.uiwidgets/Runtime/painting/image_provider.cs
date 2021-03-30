@@ -800,16 +800,15 @@ namespace Unity.UIWidgets.painting {
         Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
 #if UNITY_ANDROID && !UNITY_EDITOR
             var path = Path.Combine(Application.streamingAssetsPath, key.file);
-            WWW unpackerWWW = new WWW(Path.Combine(Application.streamingAssetsPath, key.file));
+#else
+            var path = "file://" + Path.Combine(Application.streamingAssetsPath, key.file);
+#endif
+            WWW unpackerWWW = new WWW(path);
             while (!unpackerWWW.isDone) {
             } // This will block in the webplayer.
-            byte[] bytes = unpackerWWW.bytes;
-#else
-            byte[] bytes = File.ReadAllBytes(Path.Combine(Application.streamingAssetsPath, key.file));
-#endif
            
-            if (bytes.Length > 0) {
-                return decode(bytes);
+            if (unpackerWWW.bytes.Length > 0) {
+                return decode(unpackerWWW.bytes);
             }
 
             throw new Exception("not loaded");
