@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Gradient = Unity.UIWidgets.ui.Gradient;
@@ -56,27 +55,22 @@ namespace UIWidgets.Runtime.rendering {
             fontWeight: FontWeight.w800
         );
 
-        static readonly Paint _indicatorPaint = new Paint();
+        static readonly Paint _indicatorPaint = new Paint{ shader = Gradient.linear(
+            new Offset(0.0f, 0.0f),
+            new Offset(10.0f, 10.0f),
+            new List<Color> {_black, _yellow, _yellow, _black},
+            new List<float> {0.25f, 0.25f, 0.75f, 0.75f},
+            TileMode.repeated
+        )};
 
-        static readonly Paint _labelBackgroundPaint = new Paint();
+        static readonly Paint _labelBackgroundPaint = new Paint{color = new Color(0xFFFFFFFF)};
 
-        static readonly List<TextPainter> _indicatorLabel = new List<TextPainter>(4);
-
-        static DebugOverflowIndicatorMixin() {
-            _indicatorPaint.shader = Gradient.linear(
-                new Offset(0.0f, 0.0f),
-                new Offset(10.0f, 10.0f),
-                new List<Color> {_black, _yellow, _yellow, _black},
-                new List<float> {0.25f, 0.25f, 0.75f, 0.75f},
-                TileMode.repeated
-            );
-            _labelBackgroundPaint.color = new Color(0xFFFFFFFF);
-            _OverflowSide e = new _OverflowSide();
-            var len = Enum.GetNames(e.GetType()).Length;
-            for (int i = 0; i < len; i++) {
-                _indicatorLabel.Add(new TextPainter(textDirection: TextDirection.ltr));
-            }
-        }
+        static readonly List<TextPainter> _indicatorLabel = new List<TextPainter> {
+            new TextPainter(textDirection: TextDirection.ltr),
+            new TextPainter(textDirection: TextDirection.ltr),
+            new TextPainter(textDirection: TextDirection.ltr),
+            new TextPainter(textDirection: TextDirection.ltr)
+        };
 
         static readonly Dictionary<RenderObject, bool> _overflowReportNeeded = new Dictionary<RenderObject, Boolean>();
 
@@ -247,6 +241,14 @@ namespace UIWidgets.Runtime.rendering {
             Rect childRect,
             List<DiagnosticsNode> overflowHints = null
         ) {
+#if UNITY_EDITOR
+            //FIXME:
+            //we skip the following check in UIWidgetsEditorPanel since it will cause crash
+            //the reason is not clear yet, we should digest into it later
+            if (UIWidgetsPanelWrapper.current.window.getWindowType() != UIWidgetsWindowType.GameObjectPanel) {
+                return;
+            }
+#endif
             RelativeRect overflow = RelativeRect.fromRect(containerRect, childRect);
 
             if (overflow.left <= 0.0f &&
