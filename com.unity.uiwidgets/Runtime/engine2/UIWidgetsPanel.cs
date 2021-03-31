@@ -87,7 +87,39 @@ namespace Unity.UIWidgets.engine2 {
 
         static bool _ShowDebugLog;
 
-        public float devicePixelRatioOverride;
+        public float devicePixelRatioOverride {
+            get {
+                if (_devicePixelRatioOverride > 0) {
+                    return _devicePixelRatioOverride;
+                }
+                
+#if UNITY_ANDROID
+                _devicePixelRatioOverride = AndroidDevicePixelRatio();
+#endif
+
+                return _devicePixelRatioOverride;
+            }
+        }
+        
+#if UNITY_ANDROID
+        static float AndroidDevicePixelRatio() {
+            using (
+                AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")
+            ) {
+                using (
+                    AndroidJavaObject metricsInstance = new AndroidJavaObject("android.util.DisplayMetrics"),
+                    activityInstance = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity"),
+                    windowManagerInstance = activityInstance.Call<AndroidJavaObject>("getWindowManager"),
+                    displayInstance = windowManagerInstance.Call<AndroidJavaObject>("getDefaultDisplay")
+                ) {
+                    displayInstance.Call("getMetrics", metricsInstance);
+                    return metricsInstance.Get<float>("density");
+                }
+            }
+        }
+#endif
+
+        float _devicePixelRatioOverride;
 
         public bool hardwareAntiAliasing;
 
@@ -107,6 +139,9 @@ namespace Unity.UIWidgets.engine2 {
 
         float _currentDevicePixelRatio {
             get {
+#if !UNITY_EDITOR && UNITY_ANDROID_API
+                return devicePixelRatioOverride;
+#endif
                 var currentDpi = Screen.dpi;
                 if (currentDpi == 0) {
                     currentDpi = canvas.GetComponent<CanvasScaler>().fallbackScreenDPI;
