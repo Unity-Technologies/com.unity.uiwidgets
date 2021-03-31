@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using Unity.UIWidgets.async2;
 using Unity.UIWidgets.engine2;
@@ -803,15 +802,21 @@ namespace Unity.UIWidgets.painting {
 #else
             var path = "file://" + Path.Combine(Application.streamingAssetsPath, key.file);
 #endif
-            WWW unpackerWWW = new WWW(path);
-            while (!unpackerWWW.isDone) {
-            } // This will block in the webplayer.
-           
-            if (unpackerWWW.bytes.Length > 0) {
-                return decode(unpackerWWW.bytes);
-            }
+            using(var unpackerWWW = UnityWebRequest.Get(path)) {
+                unpackerWWW.SendWebRequest();
+                while (!unpackerWWW.isDone) {
+                } // This will block in the webplayer.
+                if (unpackerWWW.isNetworkError || unpackerWWW.isHttpError) {
+                    throw new Exception($"Failed to get file \"{path}\": {unpackerWWW.error}");
+                }
 
-            throw new Exception("not loaded");
+                var data = unpackerWWW.downloadHandler.data;
+                if (data.Length > 0) {
+                    return decode(data);
+                }
+
+                throw new Exception("not loaded");
+            }
         }
 
         IEnumerator _loadBytes(FileImage key) {
