@@ -2415,6 +2415,10 @@ namespace Unity.UIWidgets.widgets {
                         badAncestors.Add(ancestor.widget);
                     }
                     else if (ancestor is RenderObjectElement) {
+                        //temporary work around the version miss match issue between 1.5.4(original) and 1.17.5(changes for local position)
+                        if (this.widget is Positioned) {
+                            break;
+                        }
                         if (this.widget.debugIsValidAncestor(((RenderObjectElement) ancestor).widget)) {
                             break;
                         }
