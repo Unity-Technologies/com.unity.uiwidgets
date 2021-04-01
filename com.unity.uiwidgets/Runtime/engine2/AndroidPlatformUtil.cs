@@ -30,8 +30,6 @@ namespace Unity.UIWidgets.engine2 {
                     FileInfo fileInfo = new System.IO.FileInfo(dir + file);
                     fileInfo.Directory.Create();
                     File.WriteAllBytes(fileInfo.FullName,  data);
-
-                    throw new Exception("not loaded");
                 }
             }
 
