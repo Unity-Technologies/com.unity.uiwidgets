@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace Unity.UIWidgets.engine2 {
-    public class DisplayMatrix {
+    public class DisplayMetrics {
         float _devicePixelRatioByDefault;
 
         public float DevicePixelRatioByDefault {

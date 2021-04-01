@@ -87,7 +87,7 @@ namespace Unity.UIWidgets.engine2 {
 
         static bool _ShowDebugLog;
 
-        DisplayMatrix _displayMatrix = new DisplayMatrix();
+        DisplayMetrics _displayMetrics = new DisplayMetrics();
 
         float _devicePixelRatioOverride;
 
@@ -110,7 +110,7 @@ namespace Unity.UIWidgets.engine2 {
         float _currentDevicePixelRatio {
             get {
 #if !UNITY_EDITOR
-                return _displayMatrix.DevicePixelRatioByDefault;
+                return _displayMetrics.DevicePixelRatioByDefault;
 #endif
                 var currentDpi = Screen.dpi;
                 if (currentDpi == 0) {
