@@ -87,7 +87,9 @@ namespace Unity.UIWidgets.engine2 {
 
         static bool _ShowDebugLog;
 
-        public float devicePixelRatioOverride;
+        DisplayMetrics _displayMetrics = new DisplayMetrics();
+
+        float _devicePixelRatioOverride;
 
         public bool hardwareAntiAliasing;
 
@@ -107,6 +109,9 @@ namespace Unity.UIWidgets.engine2 {
 
         float _currentDevicePixelRatio {
             get {
+#if !UNITY_EDITOR
+                return _displayMetrics.DevicePixelRatioByDefault;
+#endif
                 var currentDpi = Screen.dpi;
                 if (currentDpi == 0) {
                     currentDpi = canvas.GetComponent<CanvasScaler>().fallbackScreenDPI;

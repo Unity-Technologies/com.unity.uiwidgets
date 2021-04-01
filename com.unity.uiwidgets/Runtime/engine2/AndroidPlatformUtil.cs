@@ -4,6 +4,7 @@ using AOT;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using UnityEngine.Networking;
 using NativeBindings = Unity.UIWidgets.ui.NativeBindings;
 namespace Unity.UIWidgets.engine2 {
     public static class AndroidPlatformUtil {
@@ -16,19 +17,20 @@ namespace Unity.UIWidgets.engine2 {
         internal static string unpackFile(string file) {
             var dir = Application.temporaryCachePath + "/";
             if (!File.Exists(dir + file)) {
-                WWW unpackerWWW = new WWW("jar:file://" + Application.dataPath + "!/assets/" + file);
-                while (!unpackerWWW.isDone) {
-                } // This will block in the webplayer.
-
-                if (!string.IsNullOrEmpty(unpackerWWW.error)) {
-                    Debug.Log("Error unpacking 'jar:file://" + Application.dataPath + "!/assets/" + file +
-                              "'");
-                    dir = "";
-                    return dir + file;
+                var path = "jar:file://" + Application.dataPath + "!/assets/" + file;
+                using(var unpackerWWW = UnityWebRequest.Get(path)) {
+                    unpackerWWW.SendWebRequest();
+                    while (!unpackerWWW.isDone) {
+                    } // This will block in the webplayer.
+                    if (unpackerWWW.isNetworkError || unpackerWWW.isHttpError) {
+                        Debug.Log($"Failed to get file \"{path}\": {unpackerWWW.error}");
+                        return "";
+                    }
+                    var data = unpackerWWW.downloadHandler.data;
+                    FileInfo fileInfo = new System.IO.FileInfo(dir + file);
+                    fileInfo.Directory.Create();
+                    File.WriteAllBytes(fileInfo.FullName,  data);
                 }
-                System.IO.FileInfo fileInfo = new System.IO.FileInfo(dir + file);
-                fileInfo.Directory.Create();
-                System.IO.File.WriteAllBytes(fileInfo.FullName,  unpackerWWW.bytes);
             }
 
             return dir + file;
