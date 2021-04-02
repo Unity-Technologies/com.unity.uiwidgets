@@ -76,6 +76,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         void _handlePersistentFrameCallback(TimeSpan timeStamp) {
+            window.updateSafeArea();
             drawFrame();
             _mouseTracker.schedulePostFrameCheck();
         }

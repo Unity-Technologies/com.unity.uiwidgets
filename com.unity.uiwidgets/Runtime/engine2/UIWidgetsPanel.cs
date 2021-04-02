@@ -86,9 +86,7 @@ namespace Unity.UIWidgets.engine2 {
         public static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
 
         static bool _ShowDebugLog;
-
-        DisplayMetrics _displayMetrics = new DisplayMetrics();
-
+        
         float _devicePixelRatioOverride;
 
         public bool hardwareAntiAliasing;
@@ -110,7 +108,7 @@ namespace Unity.UIWidgets.engine2 {
         float _currentDevicePixelRatio {
             get {
 #if !UNITY_EDITOR
-                return _displayMetrics.DevicePixelRatioByDefault;
+                return _wrapper.displayMetrics.DevicePixelRatioByDefault;
 #endif
                 var currentDpi = Screen.dpi;
                 if (currentDpi == 0) {
