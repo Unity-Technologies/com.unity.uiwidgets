@@ -30,6 +30,7 @@ namespace UIWidgetsSample
             {
                 return new WidgetsApp(
                     home: new ExampleApp(),
+                    color: Color.white,
                     pageRouteBuilder: (settings, builder) =>
                         new PageRouteBuilder(
                             settings: settings,

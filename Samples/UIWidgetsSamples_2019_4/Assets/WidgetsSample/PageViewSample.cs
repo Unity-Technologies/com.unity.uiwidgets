@@ -17,6 +17,7 @@ namespace UIWidgetsSample {
             public override Widget build(BuildContext context)
             {
                 return new WidgetsApp(
+                    color: Color.white,
                     home: new Container(
                         width: 200,
                         height: 400,

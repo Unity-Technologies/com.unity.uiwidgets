@@ -23,6 +23,7 @@ namespace UIWidgetsSample
         {
             ui_.runApp(
                 new WidgetsApp(
+                    color: Color.white,
                     home: new ToDoListApp(),
                     pageRouteBuilder: this.pageRouteBuilder)
             );

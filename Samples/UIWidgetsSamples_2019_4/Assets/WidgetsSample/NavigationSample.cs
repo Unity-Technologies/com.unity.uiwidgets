@@ -27,6 +27,7 @@ namespace UIWidgetsSample {
             public override Widget build(BuildContext context)
             {
                 return new WidgetsApp(
+                    color: Color.white,
                     initialRoute: "/",
                     textStyle: new TextStyle(fontSize: 24),
                     pageRouteBuilder: (settings, builder) =>
