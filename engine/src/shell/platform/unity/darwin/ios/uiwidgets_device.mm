@@ -1,10 +1,4 @@
-//
-//  UIWidgetsDevice.m
-//  Unity-iPhone
-//
-//  Created by Xingwei Zhu on 2019/6/24.
-//
-#include "UIWidgetsDevice.h"
+#include "uiwidgets_device.h"
 #import <sys/utsname.h>
 #import <UIKit/UIKit.h>
 
