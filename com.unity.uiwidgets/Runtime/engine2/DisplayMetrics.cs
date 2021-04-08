@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.engine2 {
 #endif
 
 #if UNITY_IOS
-                _devicePixelRatioByDefault = DisplayMetrics.IOSDeviceScaleFactor();
+                _devicePixelRatioByDefault = IOSDeviceScaleFactor();
 #endif
 
                 if (_devicePixelRatioByDefault <= 0) {
