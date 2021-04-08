@@ -357,11 +357,11 @@ namespace Unity.UIWidgets.service {
         public abstract void setEditingState(TextEditingValue value);
 
         public void setEditableSizeAndTransform(Dictionary<string, object> args) {
-            throw new NotImplementedException();
+            Debug.LogError("not implemented yet");
         }
 
         public void setStyle(Dictionary<string, object> args) {
-            throw new NotImplementedException();
+            Debug.LogError("not implemented yet");
         }
 
         public abstract void setIMEPos(Offset imeGlobalPos);
@@ -374,9 +374,7 @@ namespace Unity.UIWidgets.service {
         }
 
         void _handleMethodCall(string method, List<JSONNode> args) {
-            D.assert(false, () => "keyboard.handleMethodCall is not implemented yet!");
-
-            /*if (TextInput._currentConnection == null) {
+            if (TextInput._currentConnection == null) {
                 return;
             }
             int client = args[0].AsInt;
@@ -384,10 +382,11 @@ namespace Unity.UIWidgets.service {
                 return;
             }
 
-            using (TextInput._currentConnection._window.getScope()) {
+            var isolate = Isolate.current;
+            using (Isolate.getScope(isolate)) {
                 switch (method) {
                     case "TextInputClient.updateEditingState":
-                        TextInput._updateEditingState(client, TextEditingValue.fromJson(args[1].AsObject));
+                        TextInput._updateEditingState(client, TextEditingValue.fromJSON(args[1].AsObject));
                         break;
                     case "TextInputClient.performAction":
                         TextInput._performAction(client, TextInputUtils._toTextInputAction(args[1].Value));
@@ -395,7 +394,7 @@ namespace Unity.UIWidgets.service {
                     default:
                         throw new UIWidgetsError($"unknown method ${method}");
                 }
-            }*/
+            }
         }
     }
 

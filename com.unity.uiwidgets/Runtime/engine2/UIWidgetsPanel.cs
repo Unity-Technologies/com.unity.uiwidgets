@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -126,6 +127,8 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
         protected virtual void Update() {
+            UIWidgetsMessageManager.ensureUIWidgetsMessageManagerIfNeeded();
+
             Input_Update();
         }
 

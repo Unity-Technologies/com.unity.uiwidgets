@@ -39,7 +39,7 @@ public class UIWidgetsViewController {
     
     private void setup() {
         //Log.i("tag", "On Setup 2");
-        
+
         keyboardOpen = false;
         viewMetrics = new UIWidgetsViewMetrics();
         setupHeights();
@@ -135,7 +135,7 @@ public class UIWidgetsViewController {
         //Log.i("UIWidgetsDebug", "calculation: " + unityView.getRootView().getHeight() + " " + rect.bottom + " " + rect.top);
         
         rect.bottom = unityView.getRootView().getHeight() - (rect.bottom - rect.top) - rect.top;
-        rect.right = unityView.getRootView().getWidth() - (rect.right - rect.left) - rect.left;
+        // rect.right = unityView.getRootView().getWidth() - (rect.right - rect.left) - rect.left;
         
         boolean statusBarHidden = (View.SYSTEM_UI_FLAG_FULLSCREEN & unityView.getWindowSystemUiVisibility()) != 0;
         boolean navigationBarHidden = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION & unityView.getWindowSystemUiVisibility()) != 0;
@@ -145,10 +145,10 @@ public class UIWidgetsViewController {
             zeroSides = calculateShouldZeroSides(unityView);
         }
         
-        viewMetrics.padding_top = rect.top;
-        viewMetrics.padding_right = zeroSides == ZeroSides.RIGHT || zeroSides == ZeroSides.BOTH ? 0 : rect.right;
-        viewMetrics.padding_bottom = 0;
-        viewMetrics.padding_left = zeroSides == ZeroSides.LEFT || zeroSides == ZeroSides.BOTH ? 0 : rect.left;
+        // viewMetrics.padding_top = rect.top;
+        // viewMetrics.padding_right = zeroSides == ZeroSides.RIGHT || zeroSides == ZeroSides.BOTH ? 0 : rect.right;
+        // viewMetrics.padding_bottom = 0;
+        // viewMetrics.padding_left = zeroSides == ZeroSides.LEFT || zeroSides == ZeroSides.BOTH ? 0 : rect.left;
         
         viewMetrics.insets_top = 0;
         viewMetrics.insets_right = 0;
@@ -157,7 +157,7 @@ public class UIWidgetsViewController {
         
         //adjust
         viewMetrics.insets_bottom -= navigationBarHeight;
-        viewMetrics.padding_top -= statusHeight;
+        // viewMetrics.padding_top -= statusHeight;
         
         //Log.i("UIWidgetsDebug", "checks: " + navigationBarHidden + " " + rect.bottom);
         //Log.i("UIWidgetsDebug", " padding: " + viewMetrics.padding_top + " " + viewMetrics.padding_right + " " + viewMetrics.padding_bottom + " " + viewMetrics.padding_left);
