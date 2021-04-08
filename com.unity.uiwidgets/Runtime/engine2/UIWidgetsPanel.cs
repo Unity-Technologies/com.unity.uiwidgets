@@ -3,11 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using RawImage = UnityEngine.UI.RawImage;
 
 namespace Unity.UIWidgets.engine2 {
     public enum UIWidgetsWindowType {
@@ -126,8 +129,23 @@ namespace Unity.UIWidgets.engine2 {
                 _ShowDebugLog = value;
             }
         }
+        
+
+        bool _viewMetricsCallbackRegistered;
+
+        void _handleViewMetricsChanged(string method, List<JSONNode> args) {
+            _wrapper.displayMetrics.onViewMetricsChanged();
+            Window.instance.onMetricsChanged?.Invoke();
+        }
+        
         protected virtual void Update() {
             UIWidgetsMessageManager.ensureUIWidgetsMessageManagerIfNeeded();
+
+            if (!_viewMetricsCallbackRegistered) {
+                _viewMetricsCallbackRegistered = true;
+                UIWidgetsMessageManager.instance?.AddChannelMessageDelegate("ViewportMetricsChanged",
+                    _handleViewMetricsChanged);
+            }
 
             Input_Update();
         }

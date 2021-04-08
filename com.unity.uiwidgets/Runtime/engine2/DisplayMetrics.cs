@@ -90,7 +90,7 @@ namespace Unity.UIWidgets.engine2 {
                     };
                 }
 #else
-                this._viewMetrics = new viewMetrics {
+                _viewMetrics = new viewMetrics {
                     insets_bottom = 0,
                     insets_left = 0,
                     insets_right = 0,
@@ -103,6 +103,11 @@ namespace Unity.UIWidgets.engine2 {
 #endif
                 return _viewMetrics.Value;
             }
+        }
+        
+        public void onViewMetricsChanged() {
+            //view metrics marks dirty
+            _viewMetrics = null;
         }
 
 #if UNITY_ANDROID

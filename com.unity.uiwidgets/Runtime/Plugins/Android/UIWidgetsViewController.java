@@ -210,7 +210,7 @@ public class UIWidgetsViewController {
     
     public void onViewMetricsChanged() {
         updateViewMetrics();
-        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("ViewportMatricsChanged", "UIWidgetViewController.keyboardChanged",
+        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("ViewportMetricsChanged", "UIWidgetViewController.keyboardChanged",
                         Arrays.asList(""));
     }
 }
