@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -7,7 +6,16 @@ using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 
+/**
+ * In the animated icon data files, we have made some changes to optimize the compilation speed for il2cpp
+ * Specifically, we change all instance of Offsets to 2 separate floats throughout the file
+ *
+ * In this file, we change the codes a bit to support these changes. Please think twice and test on the Gallery sample
+ * if you want to make further changes here
+ */
+
 namespace Unity.UIWidgets.material {
+    
     static class AnimatedIconUtils {
         public static float _interpolate(float[] values, float progress) {
             D.assert(progress <= 1.0f);

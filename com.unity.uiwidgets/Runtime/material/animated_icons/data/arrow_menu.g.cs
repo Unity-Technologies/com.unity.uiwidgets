@@ -2,6 +2,15 @@ using System.Collections.Generic;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
+/**
+ * In the animated icon file, we have made some changes to optimize the compilation speed for il2cpp
+ * Specifically, we change all instance of Offsets to 2 separate floats throughout the file
+ *
+ * To make such changes, you can use the following two replace cmds in VSCode
+ * (1) replace Offset\((.*?)\)  with $1
+ * (2) replace <Offset>    with new float[]
+ */
+
 namespace Unity.UIWidgets.material {
     partial class AnimatedIconsData {
         public static readonly _AnimatedIconData _arrow_menu = new _AnimatedIconData(
