@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -83,9 +82,22 @@ namespace Unity.UIWidgets.engine2 {
     }
 
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
-        public static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
+        static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
 
-        static bool _ShowDebugLog;
+        static bool showDebugLog = false;
+
+        static void registerPanel(UIWidgetsPanel panel) {
+            panels.Add(panel);
+            showDebugLog = showDebugLog || panel.enableDebugAtRuntime;
+        }
+
+        static void unregisterPanel(UIWidgetsPanel panel) {
+            panels.Remove(panel);
+        }
+
+        public static bool enableDebug => showDebugLog;
+
+        public bool enableDebugAtRuntime = false;
 
         DisplayMetrics _displayMetrics = new DisplayMetrics();
 
@@ -121,12 +133,6 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
         
-        public static bool ShowDebugLog {
-            get { return _ShowDebugLog; }
-            set {
-                _ShowDebugLog = value;
-            }
-        }
         protected virtual void Update() {
             Input_Update();
         }
@@ -161,6 +167,8 @@ namespace Unity.UIWidgets.engine2 {
 #endif
             
             base.OnEnable();
+            registerPanel(this);
+            
             D.assert(_wrapper == null);
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
@@ -175,7 +183,6 @@ namespace Unity.UIWidgets.engine2 {
             _configurations.Clear();
             texture = _wrapper.renderTexture;
             Input_OnEnable();
-            panels.Add(this);
         }
 
         protected override void OnDisable() {
@@ -185,7 +192,7 @@ namespace Unity.UIWidgets.engine2 {
             texture = null;
             Input_OnDisable();
             base.OnDisable();
-            panels.Remove(this);
+            unregisterPanel(this);
         }
 
         protected virtual void OnGUI() {

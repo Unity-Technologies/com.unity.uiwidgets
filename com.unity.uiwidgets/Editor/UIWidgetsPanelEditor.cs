@@ -11,18 +11,19 @@ namespace Unity.UIWidgets.Editor {
     public class UIWidgetsPanelEditor : RawImageEditor {
         
         public override void OnInspectorGUI() {
-            base.OnInspectorGUI(); 
-            var pixelRatioProperty = serializedObject.FindProperty("devicePixelRatioOverride");
-            var antiAliasingProperty = serializedObject.FindProperty("hardwareAntiAliasing");
+            base.OnInspectorGUI();
             EditorGUILayout.PropertyField(serializedObject.FindProperty("fonts"), true);
-            EditorGUILayout.PropertyField(pixelRatioProperty);
-            EditorGUILayout.PropertyField(antiAliasingProperty);
             EditorGUI.BeginChangeCheck();
-            UIWidgetsPanel panel = (UIWidgetsPanel)target; 
+            UIWidgetsPanel panel = (UIWidgetsPanel)target;
+            panel.enableDebugAtRuntime = EditorGUILayout.Toggle(new GUIContent("Enable Debug At Runtime", 
+                    "This configuration only works in standalone players. \n\n" +
+                    "If your scene contains multiple UIWidgets panels," +
+                    " the DEBUG MODE is enabled for all panels if this is checked on any one panel.\n\n" +
+                    "In editor the DEBUG MODE can be set using UIWidgets/EnableDebug."),
+                panel.enableDebugAtRuntime);
             serializedObject.ApplyModifiedProperties(); 
         }
-        
-            
+
         [MenuItem("UIWidgets/EnableDebug")]
         public static void ToggleDebugMode(){
             D.enableDebug = !D.enableDebug;
