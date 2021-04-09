@@ -62,8 +62,17 @@ namespace Unity.UIWidgets.foundation {
             Debug.LogException(new AssertionError(message: message, innerException: ex));
         }
 
+        static int checkRound = 0;
+
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
+            if (enableDebug) {
+                checkRound += 1;
+                if (checkRound % 100000 == 0) {
+                    Debug.Log("Assertion called !!!!!!!!!!!!!!!");
+                }
+            }
+            
             if ( enableDebug && !result() ) {
                 throw new AssertionError(message != null ? message() : "");
             }
