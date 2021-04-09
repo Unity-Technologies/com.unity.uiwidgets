@@ -1,4 +1,4 @@
-﻿#if UNITY_ANDROID
+﻿#if !UNITY_EDITOR && UNITY_ANDROID
 using UnityEngine;
 using AOT;
 using System.IO;
@@ -46,7 +46,7 @@ namespace Unity.UIWidgets.engine2 {
             GL.IssuePluginEvent(GetUnityContextEventFunc(), 1);
         }
 
-        public static void SetStatusBarValue(bool value) {
+        public static void ShowStatusBar(bool value) {
 #if !UNITY_EDITOR
             using (var util = new AndroidJavaClass("com.unity.uiwidgets.plugin.Utils")) {
                 util.CallStatic("SetStatusBarState", value);

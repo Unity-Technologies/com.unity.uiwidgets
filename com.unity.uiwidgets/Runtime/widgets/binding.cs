@@ -242,7 +242,6 @@ namespace Unity.UIWidgets.widgets {
 
         public void attachRootWidget(Widget rootWidget) {
             _readyToProduceFrames = true;
-            window.updateSafeArea();
 
             _renderViewElement = new RenderObjectToWidgetAdapter<RenderBox>(
                 container: renderView,
