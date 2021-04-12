@@ -49,14 +49,14 @@ namespace Unity.UIWidgets.engine {
 
         void UpdateNameIfNeed() {
 #if UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL
-            /*var name = gameObject.name;
+            var name = gameObject.name;
             if (name != _lastObjectName) {
 
                 if (!Application.isEditor) {
                     UIWidgetsMessageSetObjectName(name);
                 }
                 _lastObjectName = name;
-            }*/
+            }
 #endif
         }
 
@@ -74,18 +74,28 @@ namespace Unity.UIWidgets.engine {
             }  
         }
 
+        Queue<string> messages = new Queue<string>();
+
         void OnUIWidgetsMethodMessage(string message) {
-            JSONObject jsonObject = (JSONObject)JSON.Parse(message);
-            string channel = jsonObject["channel"].Value;
-            string method = jsonObject["method"].Value;
-            var args = new List<JSONNode>(jsonObject["args"].AsArray.Children);
-            if (string.IsNullOrEmpty(channel) || string.IsNullOrEmpty(method)) {
-                Debug.LogError("invalid uiwidgets method message");
-            }
-            else {
-                MethodChannelMessageDelegate exists;
-                _methodChannelMessageDelegates.TryGetValue(channel, out exists);
-                exists?.Invoke(method, args);
+            messages.Enqueue(message);
+        }
+
+        public void handlePlatformMessage(){
+            while (!messages.isEmpty()) {
+
+                var message = messages.Dequeue();
+                JSONObject jsonObject = (JSONObject) JSON.Parse(message);
+                string channel = jsonObject["channel"].Value;
+                string method = jsonObject["method"].Value;
+                var args = new List<JSONNode>(jsonObject["args"].AsArray.Children);
+                if (string.IsNullOrEmpty(channel) || string.IsNullOrEmpty(method)) {
+                    Debug.LogError("invalid uiwidgets method message");
+                }
+                else {
+                    MethodChannelMessageDelegate exists;
+                    _methodChannelMessageDelegates.TryGetValue(channel, out exists);
+                    exists?.Invoke(method, args);
+                }
             }
         }
 

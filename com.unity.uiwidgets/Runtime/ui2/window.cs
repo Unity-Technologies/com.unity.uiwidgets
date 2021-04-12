@@ -339,6 +339,11 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
+        public void updateSafeArea() {
+            padding = _panel.displayMetrics.viewPadding;
+            viewInsets = _panel.displayMetrics.viewInsets;
+        }
+        
         public void scheduleFrame() {
             Window_scheduleFrame(_ptr);
             _panel.window.onNewFrameScheduled();

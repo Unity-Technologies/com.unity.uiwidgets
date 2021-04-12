@@ -217,6 +217,8 @@ public partial class UIWidgetsPanelWrapper {
         public Isolate isolate { get; private set; }
 
         public float devicePixelRatio { get; private set; }
+        
+        public DisplayMetrics displayMetrics = new DisplayMetrics();
 
         public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr, Configurations _configurations) {
             D.assert(renderTexture == null);

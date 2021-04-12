@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.UIWidgets.async2;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -175,6 +176,9 @@ namespace Unity.UIWidgets.ui {
         [MonoPInvokeCallback(typeof(Window_drawFrameCallback))]
         static void Window_drawFrame() {
             try {
+                #if !UNITY_EDITOR && UNITY_ANDROID
+                UIWidgetsMessageManager.instance.handlePlatformMessage();
+                #endif
                 Window.instance.onDrawFrame?.Invoke();
             }
             catch (Exception ex) {
