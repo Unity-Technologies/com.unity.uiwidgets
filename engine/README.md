@@ -354,7 +354,7 @@ mono bee.exe ios
 
 ### Prelink Library (TODO: make it simpler)
 
-Different from other platforms, the engine is built as a static library on iOS. One drawback of this is that, there are potential library conflicts between our library and the Unity build-in library (libiPhone-lib.a). To address this issue, an additional prelink step is required. Since prelink is not supported by Bee yet (https://unity.slack.com/archives/C1RM0NBLY/p1617696912101700), we are doing it manually as follows:
+Different from other platforms, the engine is built as a static library on iOS. One drawback of this is that, there are potential library conflicts between our library and the Unity build-in library (libiPhone-lib.a). To address this issue, an additional prelink step is required. Since prelink is not supported by Bee yet (https://unity.slack.com/archives/C1RM0NBLY/p1617696912101700), currently we have to do it manually as follows:
 
 Generate the symbols that need to be hidden from libtxt_lib.a:
 ```
