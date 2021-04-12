@@ -560,6 +560,9 @@ class Build
                 "src/shell/platform/unity/darwin/ios/cocoa_task_runner.h",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.mm",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.h",
+                "src/shell/platform/unity/darwin/ios/device_screen.mm",
+                "src/shell/platform/unity/darwin/ios/uiwidgets_device.mm",
+                "src/shell/platform/unity/darwin/ios/uiwidgets_device.h",
         };
 
         np.Sources.Add(c => IsWindows(c), winSources);

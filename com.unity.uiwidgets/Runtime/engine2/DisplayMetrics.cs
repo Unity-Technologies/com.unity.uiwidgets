@@ -29,6 +29,10 @@ namespace Unity.UIWidgets.engine2 {
                 _devicePixelRatioByDefault = AndroidDevicePixelRatio();
 #endif
 
+#if UNITY_IOS
+                _devicePixelRatioByDefault = IOSDeviceScaleFactor();
+#endif
+
                 if (_devicePixelRatioByDefault <= 0) {
                     _devicePixelRatioByDefault = 1;
                 }
@@ -127,5 +131,14 @@ namespace Unity.UIWidgets.engine2 {
             }
         }
 #endif
+
+#if UNITY_IOS
+        [DllImport("__Internal")]
+        static extern float IOSDeviceScaleFactor();
+
+//         [DllImport(“__Internal”)]
+//         static extern viewMetrics IOSGetViewportPadding();
+#endif
+
     }
 }
