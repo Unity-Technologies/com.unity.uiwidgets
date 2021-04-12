@@ -3,6 +3,8 @@
 #include <cstdint>
 
 namespace uiwidgets {
+
+#if OS_ANDROID || OS_WIN
 extern "C" uint8_t _binary_icudtl_dat_start[];
 extern "C" uint8_t _binary_icudtl_dat_end[];
 
@@ -11,6 +13,7 @@ std::unique_ptr<fml::Mapping> GetICUStaticMapping() {
       _binary_icudtl_dat_start,
       _binary_icudtl_dat_end - _binary_icudtl_dat_start);
 }
+#endif
 
 std::unique_ptr<fml::Mapping> GetSymbolMapping(std::string symbol_prefix,
                                                std::string native_lib_path) {
