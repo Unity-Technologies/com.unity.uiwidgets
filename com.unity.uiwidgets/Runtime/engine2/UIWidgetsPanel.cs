@@ -135,6 +135,7 @@ namespace Unity.UIWidgets.engine2 {
 
         void _handleViewMetricsChanged(string method, List<JSONNode> args) {
             _wrapper.displayMetrics.onViewMetricsChanged();
+            Window.instance.updateSafeArea();
             Window.instance.onMetricsChanged?.Invoke();
         }
         

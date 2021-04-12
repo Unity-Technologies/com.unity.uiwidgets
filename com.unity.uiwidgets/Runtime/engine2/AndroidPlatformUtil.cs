@@ -8,6 +8,10 @@ using NativeBindings = Unity.UIWidgets.ui.NativeBindings;
 
 namespace Unity.UIWidgets.engine2 {
     public static class AndroidPlatformUtil {
+        public static class UIWidgetsAndroidConfiguration{
+            public const bool showStatusBar = true;
+        }
+
         [DllImport(NativeBindings.dllName)]
         internal static extern void InitUnpackFile(UnpackFileCallback unpack);
 
@@ -44,14 +48,15 @@ namespace Unity.UIWidgets.engine2 {
         public static void Init() {
             InitUnpackFile(unpackFile);
             GL.IssuePluginEvent(GetUnityContextEventFunc(), 1);
+            if( UIWidgetsAndroidConfiguration.showStatusBar){
+                ShowStatusBar(true);
+            }
         }
 
         public static void ShowStatusBar(bool value) {
-#if !UNITY_EDITOR
             using (var util = new AndroidJavaClass("com.unity.uiwidgets.plugin.Utils")) {
                 util.CallStatic("SetStatusBarState", value);
             }
-#endif
         }
     }
 }

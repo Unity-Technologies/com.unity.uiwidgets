@@ -24,6 +24,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(renderView != null);
             addPersistentFrameCallback(_handlePersistentFrameCallback);
             initMouseTracker();
+            window.updateSafeArea();
         }
         
         public void initRenderView() {
@@ -76,7 +77,6 @@ namespace Unity.UIWidgets.rendering {
         }
 
         void _handlePersistentFrameCallback(TimeSpan timeStamp) {
-            window.updateSafeArea();
             drawFrame();
             _mouseTracker.schedulePostFrameCheck();
         }
