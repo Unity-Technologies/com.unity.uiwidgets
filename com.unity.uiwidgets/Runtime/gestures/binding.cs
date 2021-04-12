@@ -71,8 +71,6 @@ namespace Unity.UIWidgets.gestures {
                 if (evt is PointerDownEvent) {
                     _hitTests[evt.pointer] = hitTestResult;
                 }
-
-                _hitTests[evt.pointer] = hitTestResult;
                 D.assert(() => {
                     if (D.debugPrintHitTestResults) {
                         Debug.LogFormat("{0}: {1}", evt, hitTestResult);
