@@ -167,7 +167,7 @@ namespace Unity.UIWidgets.service {
             this.obscureText = obscureText;
             this.autocorrect = autocorrect;
             this.enableSuggestions = enableSuggestions;
-            this.actionLabel = actionLabel;
+            this.actionLabel = actionLabel ?? "";
             this.inputAction = inputAction;
             this.textCapitalization = textCapitalization;
             this.keyboardAppearance = keyboardAppearance;
@@ -726,6 +726,7 @@ namespace Unity.UIWidgets.service {
                 else {
                     keyboardDelegate = new UIWidgetsTouchScreenKeyboardDelegate();
                 }*/
+                keyboardDelegate = new UIWidgetsTouchScreenKeyboardDelegate();
 #elif UNITY_WEBGL
                 keyboardDelegate = new UIWidgetsWebGLKeyboardDelegate();
 #else

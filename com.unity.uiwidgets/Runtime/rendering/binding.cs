@@ -24,6 +24,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(renderView != null);
             addPersistentFrameCallback(_handlePersistentFrameCallback);
             initMouseTracker();
+            window.updateSafeArea();
         }
         
         public void initRenderView() {
