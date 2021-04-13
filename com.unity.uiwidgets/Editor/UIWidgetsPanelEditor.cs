@@ -15,12 +15,6 @@ namespace Unity.UIWidgets.Editor {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("fonts"), true);
             EditorGUI.BeginChangeCheck();
             UIWidgetsPanel panel = (UIWidgetsPanel)target;
-            panel.enableDebugAtRuntime = EditorGUILayout.Toggle(new GUIContent("Enable Debug At Runtime", 
-                    "This configuration only works in standalone players. \n\n" +
-                    "If your scene contains multiple UIWidgets panels," +
-                    " the DEBUG MODE is enabled for all panels if this is checked on any one panel.\n\n" +
-                    "In editor the DEBUG MODE can be set using UIWidgets/EnableDebug."),
-                panel.enableDebugAtRuntime);
             serializedObject.ApplyModifiedProperties(); 
         }
 

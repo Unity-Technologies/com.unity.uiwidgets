@@ -89,18 +89,13 @@ namespace Unity.UIWidgets.engine2 {
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
         static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
 
-        static bool showDebugLog = false;
-
         static void registerPanel(UIWidgetsPanel panel) {
             panels.Add(panel);
-            showDebugLog = showDebugLog || panel.enableDebugAtRuntime;
         }
 
         static void unregisterPanel(UIWidgetsPanel panel) {
             panels.Remove(panel);
         }
-
-        public static bool enableDebug => showDebugLog;
 
         public bool enableDebugAtRuntime = false;
 

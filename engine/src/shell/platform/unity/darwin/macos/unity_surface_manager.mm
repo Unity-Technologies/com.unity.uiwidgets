@@ -177,10 +177,10 @@ bool UnitySurfaceManager::ReleaseNativeRenderTexture()
   glDeleteTextures(1, &gl_tex_);
   gl_tex_ = 0;
 
-  CFRelease(gl_tex_cache_ref_);
+  CVOpenGLTextureCacheRelease(gl_tex_cache_ref_);
   gl_tex_cache_ref_ = nullptr;
 
-  CFRelease(gl_tex_ref_);
+  CVOpenGLTextureRelease(gl_tex_ref_);
   gl_tex_ref_ = nullptr;
 
   //release metal resources
