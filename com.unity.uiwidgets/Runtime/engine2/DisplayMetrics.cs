@@ -93,6 +93,9 @@ namespace Unity.UIWidgets.engine2 {
                         padding_bottom = padding_bottom
                     };
                 }
+#elif !UNITY_EDITOR && UNITY_IOS
+                viewMetrics metrics = IOSGetViewportPadding();
+                this._viewMetrics = metrics;
 #else
                 _viewMetrics = new viewMetrics {
                     insets_bottom = 0,
@@ -136,8 +139,8 @@ namespace Unity.UIWidgets.engine2 {
         [DllImport("__Internal")]
         static extern float IOSDeviceScaleFactor();
 
-//         [DllImport(“__Internal”)]
-//         static extern viewMetrics IOSGetViewportPadding();
+        [DllImport("__Internal")]
+        static extern viewMetrics IOSGetViewportPadding();
 #endif
 
     }
