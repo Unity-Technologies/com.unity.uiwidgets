@@ -100,8 +100,8 @@ namespace Unity.UIWidgets.engine {
         }
 
 #if UNITY_IOS || UNITY_WEBGL        
-        //[DllImport("__Internal")]
-        //static extern void UIWidgetsMessageSetObjectName(string objectName);
+        [DllImport("__Internal")]
+        static extern void UIWidgetsMessageSetObjectName(string objectName);
 #elif UNITY_ANDROID
         
         static void UIWidgetsMessageSetObjectName(string objectName) {
