@@ -4,16 +4,16 @@ using System.Linq;
 using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Debug = UnityEngine.Debug;
 using Rect = Unity.UIWidgets.ui.Rect;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 
 namespace Unity.UIWidgets.foundation {
     
@@ -94,7 +94,6 @@ namespace Unity.UIWidgets.foundation {
         }
 #else
         private const bool internalEnableDebugAtRuntime = false;
-
         public static bool enableDebug => internalEnableDebugAtRuntime;
 #endif
 
