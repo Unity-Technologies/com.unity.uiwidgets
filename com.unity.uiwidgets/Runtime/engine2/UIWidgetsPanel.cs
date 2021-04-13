@@ -97,8 +97,6 @@ namespace Unity.UIWidgets.engine2 {
             panels.Remove(panel);
         }
 
-        public bool enableDebugAtRuntime = false;
-
         float _devicePixelRatioOverride;
 
         public bool hardwareAntiAliasing;
