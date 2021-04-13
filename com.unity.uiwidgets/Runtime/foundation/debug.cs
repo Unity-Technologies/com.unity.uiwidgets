@@ -52,6 +52,8 @@ namespace Unity.UIWidgets.foundation {
         public static bool debugCheckIntrinsicSizes = false;
 
         public static bool debugPrintMouseHoverEvents = false;
+        
+        static bool debugEnableAtRuntimeInternal = false;
 
         public static HSVColor debugCurrentRepaintColor =
             HSVColor.fromAHSV(0.4f, 60.0f, 1.0f, 1.0f);
@@ -93,8 +95,7 @@ namespace Unity.UIWidgets.foundation {
             }
         }
 #else
-        private const bool internalEnableDebugAtRuntime = false;
-        public static bool enableDebug => internalEnableDebugAtRuntime;
+        public static bool enableDebug => debugEnableAtRuntimeInternal;
 #endif
 
         public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) { 

@@ -174,7 +174,8 @@ bool UnitySurfaceManager::ReleaseNativeRenderTexture()
   default_fbo_ = 0;
 
   FML_DCHECK(gl_tex_ != 0);
-  glDeleteTextures(1, &gl_tex_);
+  //gl_tex_ will be released in CVOpenGLTextureRelease
+  //glDeleteTextures(1, &gl_tex_);
   gl_tex_ = 0;
 
   CVOpenGLTextureCacheRelease(gl_tex_cache_ref_);
