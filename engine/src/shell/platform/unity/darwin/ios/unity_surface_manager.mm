@@ -167,34 +167,31 @@ void UnitySurfaceManager::ReleaseNativeRenderContext()
 bool UnitySurfaceManager::ReleaseNativeRenderTexture()
 {
   //release gl resources
+  CFRelease(gl_tex_ref_);
+  CFRelease(gl_tex_cache_ref_);
+
+  //release metal resources
+  CFRelease(metal_tex_ref_);
+  CFRelease(metal_tex_cache_ref_);
+
+  //release cv pixelbuffer
+  CVPixelBufferRelease(pixelbuffer_ref);
+
   FML_DCHECK(default_fbo_ != 0);
   glDeleteFramebuffers(1, &default_fbo_);
   default_fbo_ = 0;
 
-  FML_DCHECK(gl_tex_ != 0);
-  glDeleteTextures(1, &gl_tex_);
+  //gl_tex_ is released in CVOpenGLTextureRelease
   gl_tex_ = 0;
-
-  CFRelease(gl_tex_cache_ref_);
   gl_tex_cache_ref_ = nullptr;
-
-  CFRelease(gl_tex_ref_);
   gl_tex_ref_ = nullptr;
 
-  //release metal resources
+  metal_tex_ref_ = nullptr;
+  metal_tex_cache_ref_ = nullptr;
   //since ARC is enabled by default, no need to release the texture
   metal_tex_ = nullptr;
-
-  CFRelease(metal_tex_ref_);
-  metal_tex_ref_ = nullptr;
-
-  CFRelease(metal_tex_cache_ref_);
-  metal_tex_cache_ref_ = nullptr;
-
-  //release cv pixelbuffer
-  CVPixelBufferRelease(pixelbuffer_ref);
+  
   pixelbuffer_ref = nullptr;
-
   return true;
 }
 }  // namespace uiwidgets
