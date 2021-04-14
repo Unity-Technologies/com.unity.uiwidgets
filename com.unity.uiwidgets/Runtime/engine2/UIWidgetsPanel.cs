@@ -177,9 +177,7 @@ namespace Unity.UIWidgets.engine2 {
             //the hook API cannot be automatically called on IOS, so we need try hook it here
             Hooks.tryHook();
 #endif
-            
             base.OnEnable();
-            registerPanel(this);
             
             D.assert(_wrapper == null);
             _configurations = new Configurations();
@@ -195,16 +193,17 @@ namespace Unity.UIWidgets.engine2 {
             _configurations.Clear();
             texture = _wrapper.renderTexture;
             Input_OnEnable();
+            registerPanel(this);
         }
 
         protected override void OnDisable() {
+            unregisterPanel(this);
             D.assert(_wrapper != null);
             _wrapper?.Destroy();
             _wrapper = null;
             texture = null;
             Input_OnDisable();
             base.OnDisable();
-            unregisterPanel(this);
         }
 
         protected virtual void OnGUI() {
