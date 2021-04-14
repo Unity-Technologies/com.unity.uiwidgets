@@ -87,10 +87,16 @@ namespace Unity.UIWidgets.engine2 {
     }
 
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
-        public static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
+        static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
 
-        static bool _ShowDebugLog;
-        
+        static void registerPanel(UIWidgetsPanel panel) {
+            panels.Add(panel);
+        }
+
+        static void unregisterPanel(UIWidgetsPanel panel) {
+            panels.Remove(panel);
+        }
+
         float _devicePixelRatioOverride;
 
         public bool hardwareAntiAliasing;
@@ -122,14 +128,6 @@ namespace Unity.UIWidgets.engine2 {
                 return currentDpi / 96;
             }
         }
-        
-        public static bool ShowDebugLog {
-            get { return _ShowDebugLog; }
-            set {
-                _ShowDebugLog = value;
-            }
-        }
-        
 
         bool _viewMetricsCallbackRegistered;
 
@@ -179,8 +177,8 @@ namespace Unity.UIWidgets.engine2 {
             //the hook API cannot be automatically called on IOS, so we need try hook it here
             Hooks.tryHook();
 #endif
-            
             base.OnEnable();
+            
             D.assert(_wrapper == null);
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
@@ -195,17 +193,17 @@ namespace Unity.UIWidgets.engine2 {
             _configurations.Clear();
             texture = _wrapper.renderTexture;
             Input_OnEnable();
-            panels.Add(this);
+            registerPanel(this);
         }
 
         protected override void OnDisable() {
+            unregisterPanel(this);
             D.assert(_wrapper != null);
             _wrapper?.Destroy();
             _wrapper = null;
             texture = null;
             Input_OnDisable();
             base.OnDisable();
-            panels.Remove(this);
         }
 
         protected virtual void OnGUI() {

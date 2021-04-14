@@ -48,7 +48,7 @@ namespace Unity.UIWidgets.engine {
         }
 
         void UpdateNameIfNeed() {
-#if UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL
+#if UNITY_ANDROID || UNITY_WEBGL
             var name = gameObject.name;
             if (name != _lastObjectName) {
 

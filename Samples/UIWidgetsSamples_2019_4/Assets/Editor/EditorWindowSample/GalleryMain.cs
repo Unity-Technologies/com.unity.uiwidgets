@@ -11,7 +11,7 @@ namespace UIWidgetsEditorWindowSample
     public class EditorWindowGallery : UIWidgetsEditorPanel
     {
 
-        [MenuItem("UIWidgets/EditorSample")]
+        [MenuItem("UIWidgets/EditorSample/GalleryMain")]
         public static void CountDemo()
         {
             CreateWindow<EditorWindowGallery>();
