@@ -301,7 +301,7 @@ namespace Unity.UIWidgets.ui {
             for (int i = 0; i < length; ++i) {
                 int offset = i * _kPointerDataFieldCount;
                 data.Add(new PointerData(
-                    timeStamp: TimeSpan.FromMilliseconds(*(long*) (packet + kStride * offset++)),
+                    timeStamp: TimeSpan.FromMilliseconds((*(long*) (packet + kStride * offset++)) / 1000),
                     change: (PointerChange) (*(long*) (packet + kStride * offset++)),
                     kind: (PointerDeviceKind) (*(long*) (packet + kStride * offset++)),
                     signalKind: (PointerSignalKind) (*(long*) (packet + kStride * offset++)),
