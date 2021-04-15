@@ -176,9 +176,6 @@ namespace Unity.UIWidgets.ui {
         [MonoPInvokeCallback(typeof(Window_drawFrameCallback))]
         static void Window_drawFrame() {
             try {
-#if !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IOS)
-                UIWidgetsMessageManager.instance.handlePlatformMessage();
-#endif
                 Window.instance.onDrawFrame?.Invoke();
             }
             catch (Exception ex) {

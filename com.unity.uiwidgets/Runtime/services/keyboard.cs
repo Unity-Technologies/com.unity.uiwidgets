@@ -382,7 +382,7 @@ namespace Unity.UIWidgets.service {
                 return;
             }
 
-            var isolate = Isolate.current;
+            var isolate = TextInput._currentConnection.isolate;
             using (Isolate.getScope(isolate)) {
                 switch (method) {
                     case "TextInputClient.updateEditingState":
