@@ -382,8 +382,7 @@ namespace Unity.UIWidgets.service {
                 return;
             }
 
-            var isolate = TextInput._currentConnection.isolate;
-            using (Isolate.getScope(isolate)) {
+            using (Isolate.getScope(TextInput._currentConnection.isolate)) {
                 switch (method) {
                     case "TextInputClient.updateEditingState":
                         TextInput._updateEditingState(client, TextEditingValue.fromJSON(args[1].AsObject));
