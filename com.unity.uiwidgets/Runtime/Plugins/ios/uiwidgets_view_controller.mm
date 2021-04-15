@@ -1,7 +1,6 @@
 #include "uiwidgets_view_controller.h"
 #include "uiwidgets_message_manager.h"
 #include "uiwidgets_device.h"
-#include "runtime/mono_api.h"
 #include <Foundation/Foundation.h>
 #include <UIKit/UIKit.h>
 
@@ -59,7 +58,7 @@
         padding.top = cur_padding;
     }
 
-    UIWidgetsMethodMessage(@"ViewportMatricsChanged", @"UIWidgetViewController.keyboardChanged", @[]);
+    UIWidgetsMethodMessage(@"ViewportMetricsChanged", @"UIWidgetViewController.keyboardChanged", @[]);
 }
 
 -(void)keyboardWillChangeFrame:(NSNotification*)notification {
@@ -70,7 +69,7 @@
     viewInsets.bottom = bottom * scale;
     padding.bottom = 0;
 
-    UIWidgetsMethodMessage(@"ViewportMatricsChanged", @"UIWidgetViewController.keyboardChanged", @[]);
+    UIWidgetsMethodMessage(@"ViewportMetricsChanged", @"UIWidgetViewController.keyboardChanged", @[]);
 }
 
 -(void)tryLaunch {
@@ -89,24 +88,27 @@
 
 @end
 
-
-UIWIDGETS_API(viewMetrics) IOSGetViewportPadding()
+extern "C"
 {
-    viewMetrics metrics;
-    viewPadding insets = [[UIWidgetsViewController sharedInstance] viewInsets];
-    viewPadding padding = [[UIWidgetsViewController sharedInstance] padding];
+    viewMetrics IOSGetViewportPadding()
+    {
+        viewMetrics metrics;
+        viewPadding insets = [[UIWidgetsViewController sharedInstance] viewInsets];
+        viewPadding padding = [[UIWidgetsViewController sharedInstance] padding];
 
-    BOOL needDownsample = [UIWidgetsDevice NeedScreenDownSample];
+        BOOL needDownsample = [UIWidgetsDevice NeedScreenDownSample];
 
-    metrics.insets_bottom = needDownsample ? insets.bottom * 0.8696 : insets.bottom;
-    metrics.insets_top = needDownsample ? insets.top * 0.8696 : insets.top;
-    metrics.insets_left = needDownsample ? insets.left * 0.8696 : insets.left;
-    metrics.insets_right = needDownsample ? insets.right * 0.8696 : insets.right;
-    metrics.padding_bottom = needDownsample ? padding.bottom * 0.8696 : padding.bottom;
-    metrics.padding_top = needDownsample ? padding.top * 0.8696 : padding.top;
-    metrics.padding_left = needDownsample ? padding.left * 0.8696 : padding.left;
-    metrics.padding_right = needDownsample ? padding.right * 0.8696 : padding.right;
+        metrics.insets_bottom = needDownsample ? insets.bottom * 0.8696 : insets.bottom;
+        metrics.insets_top = needDownsample ? insets.top * 0.8696 : insets.top;
+        metrics.insets_left = needDownsample ? insets.left * 0.8696 : insets.left;
+        metrics.insets_right = needDownsample ? insets.right * 0.8696 : insets.right;
+        metrics.padding_bottom = needDownsample ? padding.bottom * 0.8696 : padding.bottom;
+        metrics.padding_top = needDownsample ? padding.top * 0.8696 : padding.top;
+        metrics.padding_left = needDownsample ? padding.left * 0.8696 : padding.left;
+        metrics.padding_right = needDownsample ? padding.right * 0.8696 : padding.right;
 
-    return metrics;
+        return metrics;
+    }
 }
+
 
