@@ -561,13 +561,6 @@ class Build
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.mm",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.h",
                 "src/shell/platform/unity/darwin/ios/device_screen.mm",
-                "src/shell/platform/unity/darwin/ios/uiwidgets_device.mm",
-                "src/shell/platform/unity/darwin/ios/uiwidgets_device.h",
-                "src/shell/platform/unity/darwin/ios/uiwidgets_message_manager.h",
-                "src/shell/platform/unity/darwin/ios/uiwidgets_message_manager.mm",
-                "src/shell/platform/unity/darwin/ios/uiwidgets_text_input_delegate.h",
-                "src/shell/platform/unity/darwin/ios/uiwidgets_view_controller.h",
-                "src/shell/platform/unity/darwin/ios/uiwidgets_view_controller.mm",
         };
 
         np.Sources.Add(c => IsWindows(c), winSources);

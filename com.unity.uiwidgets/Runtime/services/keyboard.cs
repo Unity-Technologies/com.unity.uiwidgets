@@ -475,7 +475,6 @@ namespace Unity.UIWidgets.service {
         }
         
 #if UNITY_IOS
-    /*
         [DllImport ("__Internal")]
         internal static extern void UIWidgetsTextInputShow();
         
@@ -489,13 +488,7 @@ namespace Unity.UIWidgets.service {
         internal static extern void UIWidgetsTextInputSetTextInputEditingState(string jsonText);
         
         [DllImport ("__Internal")]
-        internal static extern void UIWidgetsTextInputClearTextInputClient();*/
-
-        internal static void UIWidgetsTextInputShow() {}
-        internal static void UIWidgetsTextInputHide() {}
-        internal static void UIWidgetsTextInputSetClient(int client, string configuration) {}
-        internal static void UIWidgetsTextInputSetTextInputEditingState(string jsonText) {}
-        internal static void UIWidgetsTextInputClearTextInputClient() {}
+        internal static extern void UIWidgetsTextInputClearTextInputClient();
         
 #elif UNITY_ANDROID
         internal static void UIWidgetsTextInputShow() {
