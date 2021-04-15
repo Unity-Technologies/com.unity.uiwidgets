@@ -1,7 +1,9 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.service;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.engine {
@@ -74,16 +76,8 @@ namespace Unity.UIWidgets.engine {
             }  
         }
 
-        Queue<string> messages = new Queue<string>();
-
         void OnUIWidgetsMethodMessage(string message) {
-            messages.Enqueue(message);
-        }
-
-        public void handlePlatformMessage(){
-            while (!messages.isEmpty()) {
-
-                var message = messages.Dequeue();
+            using (Isolate.getScope(TextInput._currentConnection.isolate)) {
                 JSONObject jsonObject = (JSONObject) JSON.Parse(message);
                 string channel = jsonObject["channel"].Value;
                 string method = jsonObject["method"].Value;

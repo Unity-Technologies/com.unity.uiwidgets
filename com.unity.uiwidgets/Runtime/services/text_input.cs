@@ -603,6 +603,10 @@ namespace Unity.UIWidgets.service {
             _client = client;
             _id = _nextId++;
         }
+
+        public Isolate isolate {
+            get { return _window._panel.isolate; }
+        }
         
         internal Size _cachedSize;
         internal Matrix4 _cachedTransform;
