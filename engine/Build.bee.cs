@@ -765,7 +765,7 @@ class Build
                     .DeployTo("build");
 
                 dependencies.Add(builtNP.Path);
-                builtNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/x86_64");
+                builtNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/x86_64");
             }
         }
         else if (platform == UIWidgetsBuildTargetPlatform.android)
@@ -781,7 +781,7 @@ class Build
 
                 var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build");
 
-                var deoployNp = buildNP.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/Android");
+                var deoployNp = buildNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/Android");
                 dependencies.Add(buildNP.Path);
                 dependencies.Add(deoployNp.Path);
             }
@@ -798,7 +798,7 @@ class Build
 
                 var buildProgram = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat);
                 var buildNp = buildProgram.DeployTo("build");
-                var deployNp = buildProgram.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/osx");
+                var deployNp = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/osx");
                 dependencies.Add(buildNp.Path);
                 dependencies.Add(deployNp.Path);
             }
@@ -815,12 +815,12 @@ class Build
                 validConfigurations.Add(config);
                 var buildProgram = np.SetupSpecificConfiguration(config, toolchain.StaticLibraryFormat);
                 var builtNP = buildProgram.DeployTo("build");
-                var deployNP = buildProgram.DeployTo("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/iOS/");
+                var deployNP = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/iOS/");
                 dependencies.Add(builtNP.Path);
                 dependencies.Add(deployNP.Path);
             }
 
-            Backend.Current.AddAliasDependency("ios", CopyTool.Instance().Setup("../Samples/UIWidgetsSamples_2019_4/Assets/Plugins/iOS/CustomAppController.m", "src/external/ios/CustomAppController.m"));
+            Backend.Current.AddAliasDependency("ios", CopyTool.Instance().Setup("../com.unity.uiwidgets/Runtime/Plugins/iOS/CustomAppController.m", "src/external/ios/CustomAppController.m"));
 
             np.ValidConfigurations = validConfigurations;
         }
