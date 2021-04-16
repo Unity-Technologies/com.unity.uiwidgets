@@ -3,6 +3,7 @@ using Unity.UIWidgets.engine2;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
+using System.Runtime.InteropServices;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
@@ -50,7 +51,7 @@ namespace Unity.UIWidgets.engine {
         }
 
         void UpdateNameIfNeed() {
-#if UNITY_ANDROID || UNITY_WEBGL
+#if UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL
             var name = gameObject.name;
             if (name != _lastObjectName) {
 
@@ -77,19 +78,17 @@ namespace Unity.UIWidgets.engine {
         }
 
         void OnUIWidgetsMethodMessage(string message) {
-            using (Isolate.getScope(TextInput._currentConnection.isolate)) {
-                JSONObject jsonObject = (JSONObject) JSON.Parse(message);
-                string channel = jsonObject["channel"].Value;
-                string method = jsonObject["method"].Value;
-                var args = new List<JSONNode>(jsonObject["args"].AsArray.Children);
-                if (string.IsNullOrEmpty(channel) || string.IsNullOrEmpty(method)) {
-                    Debug.LogError("invalid uiwidgets method message");
-                }
-                else {
-                    MethodChannelMessageDelegate exists;
-                    _methodChannelMessageDelegates.TryGetValue(channel, out exists);
-                    exists?.Invoke(method, args);
-                }
+            JSONObject jsonObject = (JSONObject) JSON.Parse(message);
+            string channel = jsonObject["channel"].Value;
+            string method = jsonObject["method"].Value;
+            var args = new List<JSONNode>(jsonObject["args"].AsArray.Children);
+            if (string.IsNullOrEmpty(channel) || string.IsNullOrEmpty(method)) {
+                Debug.LogError("invalid uiwidgets method message");
+            }
+            else {
+                MethodChannelMessageDelegate exists;
+                _methodChannelMessageDelegates.TryGetValue(channel, out exists);
+                exists?.Invoke(method, args);
             }
         }
 
