@@ -93,7 +93,7 @@ namespace Unity.UIWidgets.gestures {
             this._pendingDelta = null;
             this._lastPendingEventTimestamp = null;
             this._client.update(details);
-        }
+        } 
 
         public void _up() {
             D.assert(this._arenaEntry != null);
@@ -237,7 +237,8 @@ namespace Unity.UIWidgets.gestures {
 
 
         public override void dispose() {
-            foreach (var key in this._pointers.Keys) {
+            var keySet = new List<int>(this._pointers.Keys);
+            foreach (var key in keySet) {
                 this._removeState(key);
             }
             D.assert(this._pointers.isEmpty);
