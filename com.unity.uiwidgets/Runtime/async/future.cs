@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.widgets;
 
-namespace Unity.UIWidgets.async2 {
+namespace Unity.UIWidgets.async {
     public struct FutureOr {
         public object v;
         public Future f;

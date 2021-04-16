@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using AOT;
-using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
@@ -11,7 +11,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using Path = Unity.UIWidgets.ui.Path;
 
-namespace Unity.UIWidgets.engine2 {
+namespace Unity.UIWidgets.engine {
     #region Platform: Windows Specific Functionalities
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN

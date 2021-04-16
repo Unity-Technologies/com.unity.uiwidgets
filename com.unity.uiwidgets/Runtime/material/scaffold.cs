@@ -4,7 +4,7 @@ using System.Linq;
 using uiwidgets;
 using Unity.UIWidget.material;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;

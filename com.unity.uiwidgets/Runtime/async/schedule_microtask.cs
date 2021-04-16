@@ -4,7 +4,7 @@ using AOT;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
-namespace Unity.UIWidgets.async2 {
+namespace Unity.UIWidgets.async {
     class _AsyncCallbackEntry {
         public readonly ZoneCallback callback;
         public _AsyncCallbackEntry next;

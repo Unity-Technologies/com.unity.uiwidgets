@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using uiwidgets;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;

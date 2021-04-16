@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace Unity.UIWidgets.async2 {
+namespace Unity.UIWidgets.async {
     public delegate object ZoneCallback();
 
     public delegate object ZoneUnaryCallback(object arg);

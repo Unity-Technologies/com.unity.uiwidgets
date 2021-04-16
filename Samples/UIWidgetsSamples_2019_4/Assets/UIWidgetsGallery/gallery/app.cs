@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using uiwidgets;
 using UIWidgetsGallery.demo.shrine.model;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;

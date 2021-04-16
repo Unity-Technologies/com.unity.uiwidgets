@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UIWidgetsGallery.gallery;
 using Unity.UIWidgets.Editor;
-using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.widgets;
 using UnityEditor;
 using UnityEngine;

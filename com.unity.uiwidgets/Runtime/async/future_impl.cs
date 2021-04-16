@@ -1,7 +1,7 @@
 ﻿using System;
 using Unity.UIWidgets.foundation;
 
-namespace Unity.UIWidgets.async2 {
+namespace Unity.UIWidgets.async {
     using _FutureOnValue = Func<object, FutureOr>;
     using _FutureErrorTest = Func<Exception, bool>;
     using _FutureAction = Func<FutureOr>;

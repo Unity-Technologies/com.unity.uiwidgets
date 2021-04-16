@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using uiwidgets;
 using UIWidgets.Runtime.material;
 using UIWidgetsGallery.gallery;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using UnityEngine.Networking;
 using NativeBindings = Unity.UIWidgets.ui.NativeBindings;
 
-namespace Unity.UIWidgets.engine2 {
+namespace Unity.UIWidgets.engine {
     public static class AndroidPlatformUtil {
         public static class UIWidgetsAndroidConfiguration{
             public const bool showStatusBar = true;
