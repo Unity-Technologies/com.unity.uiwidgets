@@ -89,6 +89,16 @@ namespace Unity.UIWidgets.engine2 {
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
         static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
 
+        static public Isolate anyIsolate {
+            get {
+                if (panels.Count == 0) {
+                    return null;
+                }
+
+                return panels[0]._wrapper.isolate;
+            }
+        }
+
         static void registerPanel(UIWidgetsPanel panel) {
             panels.Add(panel);
         }
