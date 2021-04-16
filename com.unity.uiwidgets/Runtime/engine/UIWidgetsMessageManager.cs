@@ -78,19 +78,17 @@ namespace Unity.UIWidgets.engine {
         }
 
         void OnUIWidgetsMethodMessage(string message) {
-            using (Isolate.getScope(UIWidgetsPanel.anyIsolate)) {
-                JSONObject jsonObject = (JSONObject) JSON.Parse(message);
-                string channel = jsonObject["channel"].Value;
-                string method = jsonObject["method"].Value;
-                var args = new List<JSONNode>(jsonObject["args"].AsArray.Children);
-                if (string.IsNullOrEmpty(channel) || string.IsNullOrEmpty(method)) {
-                    Debug.LogError("invalid uiwidgets method message");
-                }
-                else {
-                    MethodChannelMessageDelegate exists;
-                    _methodChannelMessageDelegates.TryGetValue(channel, out exists);
-                    exists?.Invoke(method, args);
-                }
+            JSONObject jsonObject = (JSONObject) JSON.Parse(message);
+            string channel = jsonObject["channel"].Value;
+            string method = jsonObject["method"].Value;
+            var args = new List<JSONNode>(jsonObject["args"].AsArray.Children);
+            if (string.IsNullOrEmpty(channel) || string.IsNullOrEmpty(method)) {
+                Debug.LogError("invalid uiwidgets method message");
+            }
+            else {
+                MethodChannelMessageDelegate exists;
+                _methodChannelMessageDelegates.TryGetValue(channel, out exists);
+                exists?.Invoke(method, args);
             }
         }
 

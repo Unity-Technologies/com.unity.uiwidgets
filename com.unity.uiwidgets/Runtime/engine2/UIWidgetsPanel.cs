@@ -142,9 +142,11 @@ namespace Unity.UIWidgets.engine2 {
         bool _viewMetricsCallbackRegistered;
 
         void _handleViewMetricsChanged(string method, List<JSONNode> args) {
-            _wrapper.displayMetrics.onViewMetricsChanged();
-            Window.instance.updateSafeArea();
-            Window.instance.onMetricsChanged?.Invoke();
+            using (Isolate.getScope(anyIsolate)) {
+                _wrapper.displayMetrics.onViewMetricsChanged();
+                Window.instance.updateSafeArea();
+                Window.instance.onMetricsChanged?.Invoke();
+            }
         }
         
         protected virtual void Update() {
