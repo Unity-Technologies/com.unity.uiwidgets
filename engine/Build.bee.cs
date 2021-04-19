@@ -1183,9 +1183,20 @@ class Build
         );
         np.Libraries.Add(IsMac, c =>
         {
+            if(c.CodeGen == CodeGen.Debug){
+                return new PrecompiledLibrary[]{
+                    new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
+                };
+            } else {
+                return new PrecompiledLibrary[]{
+                    new StaticLibrary(flutterRoot+"/out/host_release/obj/flutter/third_party/txt/libtxt_lib.a"),
+                };
+            }
+        });
+        np.Libraries.Add(IsMac, c =>
+        {
             return new PrecompiledLibrary[]
             {
-                new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
                 new SystemFramework("Foundation"),
                 new SystemFramework("ApplicationServices"),
                 new SystemFramework("OpenGL"),
