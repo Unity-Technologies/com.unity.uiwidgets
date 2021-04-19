@@ -5,7 +5,7 @@ using UIWidgetsGallery.gallery;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 

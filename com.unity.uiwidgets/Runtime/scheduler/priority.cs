@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Unity.UIWidgets.scheduler2 {
+namespace Unity.UIWidgets.scheduler {
     public class Priority {
         Priority(int value) {
             _value = value;

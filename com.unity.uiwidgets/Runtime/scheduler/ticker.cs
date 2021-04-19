@@ -6,7 +6,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
-namespace Unity.UIWidgets.scheduler2 {
+namespace Unity.UIWidgets.scheduler {
     public delegate void TickerCallback(TimeSpan elapsed);
 
     public interface TickerProvider {

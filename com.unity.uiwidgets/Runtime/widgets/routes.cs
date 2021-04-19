@@ -4,7 +4,7 @@ using System.Linq;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {

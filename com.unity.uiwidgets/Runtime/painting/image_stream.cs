@@ -4,9 +4,9 @@ using System.Linq;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
-using SchedulerBinding = Unity.UIWidgets.scheduler2.SchedulerBinding;
+using SchedulerBinding = Unity.UIWidgets.scheduler.SchedulerBinding;
 
 namespace Unity.UIWidgets.painting {
     public class ImageInfo : IEquatable<ImageInfo> {

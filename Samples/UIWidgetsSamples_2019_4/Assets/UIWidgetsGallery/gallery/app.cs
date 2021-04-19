@@ -6,7 +6,7 @@ using Unity.UIWidgets.async;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;

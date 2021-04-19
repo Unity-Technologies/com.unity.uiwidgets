@@ -7,7 +7,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
-using TickerFuture = Unity.UIWidgets.scheduler2.TickerFuture;
+using TickerFuture = Unity.UIWidgets.scheduler.TickerFuture;
 
 namespace Unity.UIWidgets.cupertino {
     public class CupertinoButtonUtils {

@@ -12,7 +12,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using FrameTiming = Unity.UIWidgets.ui.FrameTiming;
 
-namespace Unity.UIWidgets.scheduler2 {
+namespace Unity.UIWidgets.scheduler {
     public static partial class scheduler_ {
         static float _timeDilation = 1.0f;
 
