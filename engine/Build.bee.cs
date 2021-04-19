@@ -560,7 +560,6 @@ class Build
                 "src/shell/platform/unity/darwin/ios/cocoa_task_runner.h",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.mm",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.h",
-                "src/shell/platform/unity/darwin/ios/device_screen.mm",
         };
 
         np.Sources.Add(c => IsWindows(c), winSources);
@@ -941,7 +940,6 @@ class Build
         np.Libraries.Add(IsIosOrTvos, c => {
             return new PrecompiledLibrary[]
             {
-                new StaticLibrary(flutterRoot+"/out/ios_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
                 new SystemFramework("CoreFoundation"),
                 new SystemFramework("ImageIO"),
                 new SystemFramework("MobileCoreServices"),
