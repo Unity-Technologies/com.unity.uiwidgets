@@ -503,7 +503,7 @@ class Build
                 "src/engine.cc",
                 "src/platform_base.h",
             },
-            OutputName = { c => $"libUIWidgets{(c.CodeGen == CodeGen.Debug ? "_d" : "")}" },
+            OutputName = { c => $"libUIWidgets" },
         };
 
         // include these files for test only
@@ -743,7 +743,7 @@ class Build
             "-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-Wl,--build-id=sha1",
             "-g",
-            "-Wl,-soname=libUIWidgets_d.so",
+            "-Wl,-soname=libUIWidgets.so",
             "-Wl,--whole-archive",
         }));
         
@@ -1205,6 +1205,19 @@ class Build
 
         np.Libraries.Add(IsAndroid, c =>
         {
+            if(c.CodeGen == CodeGen.Debug){
+                return new PrecompiledLibrary[]{
+                    new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
+                };
+            } else {
+                return new PrecompiledLibrary[]{
+                    new StaticLibrary(flutterRoot+"/out/android_release/obj/flutter/third_party/txt/libtxt_lib.a"),
+                };
+            }
+        });
+
+        np.Libraries.Add(IsAndroid, c =>
+        {
             var basePath = skiaRoot + "/out/arm";
             return new PrecompiledLibrary[]
             {
@@ -1213,8 +1226,6 @@ class Build
 
                 new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtbegin_so.o"),
                 new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtend_so.o"),
-
-                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
 
                 new SystemLibrary("android_support"),
                 new SystemLibrary("unwind"),
