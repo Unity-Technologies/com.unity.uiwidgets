@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 
 namespace Unity.UIWidgets.widgets {
     public class TickerMode : StatelessWidget {

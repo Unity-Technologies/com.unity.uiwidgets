@@ -2,16 +2,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.external;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.services;
-using SchedulerBinding = Unity.UIWidgets.scheduler2.SchedulerBinding;
-using SchedulerPhase = Unity.UIWidgets.scheduler2.SchedulerPhase;
+using SchedulerBinding = Unity.UIWidgets.scheduler.SchedulerBinding;
+using SchedulerPhase = Unity.UIWidgets.scheduler.SchedulerPhase;
 
 namespace Unity.UIWidgets.widgets {
     public delegate Route RouteFactory(RouteSettings settings);

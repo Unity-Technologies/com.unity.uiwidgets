@@ -1,4 +1,4 @@
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.painting {
