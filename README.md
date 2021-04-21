@@ -70,10 +70,13 @@ Move the downloaded package folder into the **Package** folder of your Unity pro
 Generally, you can make it using a console (or terminal) application by just a few commands as below:
 
    ```none
-    cd <YourProjectPath>/Packages
+    cd <YourPackagePath>
     git clone https://github.com/Unity-Technologies/com.unity.uiwidgets.git com.unity.uiwidgets
    ```
-for windows, please replace ```libEGL.dll, libEGL.dll.meta, libGLESv2.dll and libGLESv2.dll``` in Editor from ones in ```com.unity.uiwidgets/Runtime/Plugins/x86_64``
+
+In PackageManger of unity, select add local file. select ```package.json``` under ```/com.unity.uiwidgets```
+
+for windows, please replace ```libEGL.dll, libGLESv2.dll``` in Editor from ones in ```com.unity.uiwidgets/Runtime/Plugins/x86_64``
 
 ## Getting Start
 
@@ -192,7 +195,7 @@ all relevant resources and generate the final App package.
 2. Use Image.file("image1.png") to load the image.
 
 UIWidgets supports Gif as well!
-1. Suppose you have loading1.gif. and copy it to StreamingAssets folder.
+1. Put your gif files in StreamingAssets folder. e.g. loading1.gif.
 2. Use Image.asset("loading1.gif") to load the gif images.
 
 #### Show Status Bar on Android
@@ -201,14 +204,12 @@ If you
 want to show the status bar in your App, you can disable```Start in fullscreen``` and ```record outside safe area```, make sure ```showStatusBar``` is ```true``` under ```UIWidgetsAndroidConfiguration```
 
 #### Image Import Setting
-Please put images under StreamingAssets folder, and loading it by ```Image.file```.
+Please put images under StreamingAssets folder, a and loading it using ```Image.file```.
 
 
 ## Debug UIWidgets Application
 
-How to switch debug/release mode in editor/runtime?
 In Unity editor, you can switch debug/release mode by “UIWidgets->EnableDebug”.
-
 
 If you want to change different mode in runtime, please modify the file “com.unity.uiwidgets/com.unity.uiwidgets/Runtime/foundation/debug.cs” by making “static bool debugEnableAtRuntimeInternal” to true or false. Note that the value is set to false by default.
 

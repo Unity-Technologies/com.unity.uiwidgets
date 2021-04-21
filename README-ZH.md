@@ -61,11 +61,12 @@ https://github.com/UnityTech/DocCN 查看。
 通常，你可以在控制台（或终端）应用程序中输入下面的代码来完成这个操作：
 
    ```none
-    cd <YourProjectPath>/Packages
+    cd <YourPackagePath>
     git clone https://github.com/Unity-Technologies/com.unity.uiwidgets.git com.unity.uiwidgets
    ```
+在unity的PackageManager中，选择添加添加local file。选中```/com.unity.uiwidgets```下的```package.json```。
 
-对于windows,请用在```com.unity.uiwidgets/Runtime/Plugins/x86_64```下的 ```libEGL.dll, libEGL.dll.meta, libGLESv2.dll and libGLESv2.dll```替换eidtor中相应文件
+对于windows,请用在```com.unity.uiwidgets/Runtime/Plugins/x86_64```下的 ```libEGL.dll, libGLESv2.dll```替换编辑器中中相应文件
 
 ## 入门指南
 
@@ -185,7 +186,7 @@ UIWidgets应用是用**C＃脚本**来编写的。 请按照以下步骤创建�
 
 
 UIWidgets也支持Gif！
-1. 假设你有一个loading1.gif文件，将其重命名为loading1.gif并复制到StreamingAssets文件夹。
+1. 假设你有一个loading1.gif文件，复制到StreamingAssets文件夹。
 2. 使用Image.file（“loading1.gif”）加载gif图像。
 
 #### 六、在安卓上显示状态栏
@@ -198,8 +199,7 @@ UIWidgets也支持Gif！
 
 ## 调试UIWidgets应用程序
 
-#### 如何在editor中切换debug/release模式?
-在Editor顶部选择```UIWidgets->EnableDebug```
+在编辑器菜单栏选择```UIWidgets->EnableDebug```
 
 如果想在runtime选择是否debug，请修改文件```com.unity.uiwidgets/com.unity.uiwidgets/Runtime/foundation/debug.cs```中的```static bool debugEnableAtRuntimeInternal```
 
