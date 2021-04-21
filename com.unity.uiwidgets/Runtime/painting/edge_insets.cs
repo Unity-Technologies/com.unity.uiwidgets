@@ -77,7 +77,7 @@ namespace Unity.UIWidgets.painting {
             return new Size(size.width - horizontal, size.height - vertical);
         }
 
-        protected EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+        public virtual EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
             return _MixedEdgeInsets.fromLRSETB(
                 _left - other._left,
                 _right - other._right,
@@ -88,7 +88,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+        public virtual EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
             return _MixedEdgeInsets.fromLRSETB(
                 _left + other._left,
                 _right + other._right,
@@ -345,15 +345,15 @@ namespace Unity.UIWidgets.painting {
             get { return fromSTEB(end, bottom, start, top); }
         }
 
-        public EdgeInsetsGeometry subtract(EdgeInsetsDirectional other) {
+        public override EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
             if (other is EdgeInsetsDirectional)
-                return this - other;
+                return this - (EdgeInsetsDirectional)other;
             return base.subtract(other);
         }
 
-        public EdgeInsetsGeometry add(EdgeInsetsDirectional other) {
+        public override EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
             if (other is EdgeInsetsDirectional)
-                return this + other;
+                return this + (EdgeInsetsDirectional)other;
             return base.add(other);
         }
 
@@ -680,22 +680,16 @@ namespace Unity.UIWidgets.painting {
                 rect.right - right, rect.bottom - bottom);
         }
 
-        public EdgeInsets subtract(EdgeInsets other) {
-            return fromLTRB(
-                left - other.left,
-                top - other.top,
-                right - other.right,
-                bottom - other.bottom
-            );
+        public override EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+            if(other is EdgeInsets)
+                return this - (EdgeInsets)other;
+            return base.subtract(other);
         }
 
-        public EdgeInsets add(EdgeInsetsGeometry other) {
-            return fromLTRB(
-                left + other._left,
-                top + other._top,
-                right + other._right,
-                bottom + other._bottom
-            );
+        public override EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+            if(other is EdgeInsets)
+                return this + (EdgeInsets)other;  
+            return base.add(other);
         }
 
         public override EdgeInsetsGeometry clamp(EdgeInsetsGeometry min, EdgeInsetsGeometry max) {
