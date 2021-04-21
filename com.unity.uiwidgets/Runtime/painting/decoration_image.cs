@@ -317,11 +317,17 @@ namespace Unity.UIWidgets.painting {
             float strideY = fundamentalRect.height;
 
             if (repeat == ImageRepeat.repeat || repeat == ImageRepeat.repeatX) {
+                if (strideX == 0) {
+                    yield break;
+                }
                 startX = ((outputRect.left - fundamentalRect.left) / strideX).floor();
                 stopX = ((outputRect.right - fundamentalRect.right) / strideX).ceil();
             }
 
             if (repeat == ImageRepeat.repeat || repeat == ImageRepeat.repeatY) {
+                if (strideY == 0) {
+                    yield break;
+                }
                 startY = ((outputRect.top - fundamentalRect.top) / strideY).floor();
                 stopY = ((outputRect.bottom - fundamentalRect.bottom) / strideY).ceil();
             }
