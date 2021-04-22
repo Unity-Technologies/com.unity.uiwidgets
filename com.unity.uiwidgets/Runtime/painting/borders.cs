@@ -284,7 +284,7 @@ namespace Unity.UIWidgets.painting {
             get {
                 return borders.Aggregate(
                     EdgeInsets.zero,
-                    (EdgeInsetsGeometry previousValue, ShapeBorder border) => previousValue.add(border.dimensions));
+                    (previousValue, border) => previousValue.add(border.dimensions));
             }
         }
 
