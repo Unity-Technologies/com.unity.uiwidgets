@@ -82,7 +82,7 @@ for windows, please replace ```libEGL.dll, libGLESv2.dll``` in Editor from ones 
 
 #### Runtime Environment
 
-Currently UIWidgets only support MacOS(Metal), iOS(Metal), Android(Armv7, OpenGLes) and Windows(Direct3D11). More devices will be supported in the future.
+Currently UIWidgets only supports MacOS(Metal), iOS(Metal), Android(Armv7, OpenGLes) and Windows(Direct3D11). More devices will be supported in the future.
 
 ## Getting Start
 
@@ -91,9 +91,6 @@ In this tutorial, we will create a very simple UIWidgets App as the kick-starter
 only a text label and a button. The text label will count the times of clicks upon the button.
 
 First of all, please open or create a Unity Project and open it with Unity Editor.
-
-And then open Project Settings, go to Player section and **add "UIWidgets_DEBUG" to the Scripting Define Symbols field.**
-This enables the debug mode of UIWidgets for your development. Remove this for your release build afterwards.
 
 #### ii. Scene Build
 A UIWidgets App is usually built upon a Unity UI Canvas. Please follow the steps to create a

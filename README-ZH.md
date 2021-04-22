@@ -81,10 +81,6 @@ UIWidgets目前暂时只支持MacOS（Metal），iOS（Metal），Android（Armv
 
 首先，请打开或创建Unity项目并使用Unity编辑器打开它。
 
-然后打开Project Settings，转到Player部分并**将“UIWidgets_DEBUG”添加到Scripting Define Symbols字段中。**
-
-这样就启动了UIWidgets的调试模式。 在之后发布版本的时候清空这个字段。
-
 #### 二、 场景构建
 
 UIWidgets应用通常构建在Unity UI Canvas上。 请按照以下步骤在Unity中创建一个
