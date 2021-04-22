@@ -77,7 +77,7 @@ namespace Unity.UIWidgets.painting {
             return new Size(size.width - horizontal, size.height - vertical);
         }
 
-        protected EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+        public virtual EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
             return _MixedEdgeInsets.fromLRSETB(
                 _left - other._left,
                 _right - other._right,
@@ -88,7 +88,7 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+        public virtual EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
             return _MixedEdgeInsets.fromLRSETB(
                 _left + other._left,
                 _right + other._right,
@@ -110,70 +110,61 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public static EdgeInsetsGeometry operator -(EdgeInsetsGeometry a, EdgeInsetsGeometry b) {
+        public virtual EdgeInsetsGeometry mutilpy(float b) {
             return _MixedEdgeInsets.fromLRSETB(
-                a._left - b._left,
-                a._right - b._right,
-                a._start - b._start,
-                a._end - b._end,
-                a._top - b._top,
-                a._bottom - b._bottom
+                _left * b,
+                _right * b,
+                _start * b,
+                _end * b,
+                _top * b,
+                _bottom * b
             );
+        }
+
+        public virtual EdgeInsetsGeometry divide(float b) {
+            return _MixedEdgeInsets.fromLRSETB(
+                _left / b,
+                _right / b,
+                _start / b,
+                _end / b,
+                _top / b,
+                _bottom / b
+            );
+        }
+
+        public virtual EdgeInsetsGeometry remainder(float b) {
+            return _MixedEdgeInsets.fromLRSETB(
+                _left % b,
+                _right % b,
+                _start % b,
+                _end % b,
+                _top % b,
+                _bottom % b
+            );
+        }
+
+        public static EdgeInsetsGeometry operator -(EdgeInsetsGeometry a, EdgeInsetsGeometry b) {
+            return a.subtract(b);
         }
 
         public static EdgeInsetsGeometry operator +(EdgeInsetsGeometry a, EdgeInsetsGeometry b) {
-            return _MixedEdgeInsets.fromLRSETB(
-                a._left + b._left,
-                a._right + b._right,
-                a._start + b._start,
-                a._end + b._end,
-                a._top + b._top,
-                a._bottom + b._bottom
-            );
+            return a.add(b);
         }
 
         public static EdgeInsetsGeometry operator -(EdgeInsetsGeometry a) {
-            return _MixedEdgeInsets.fromLRSETB(
-                -a._left,
-                -a._right,
-                -a._start,
-                -a._end,
-                -a._top,
-                -a._bottom
-            );
+            return a.mutilpy(-1.0f);
         }
 
         public static EdgeInsetsGeometry operator *(EdgeInsetsGeometry a, float other) {
-            return _MixedEdgeInsets.fromLRSETB(
-                a._left * other,
-                a._right * other,
-                a._start * other,
-                a._end * other,
-                a._top * other,
-                a._bottom * other
-            );
+            return a.mutilpy(other);
         }
 
         public static EdgeInsetsGeometry operator /(EdgeInsetsGeometry a, float other) {
-            return _MixedEdgeInsets.fromLRSETB(
-                a._left / other,
-                a._right / other,
-                a._start / other,
-                a._end / other,
-                a._top / other,
-                a._bottom / other
-            );
+            return a.divide(other);
         }
 
         public static EdgeInsetsGeometry operator %(EdgeInsetsGeometry a, float other) {
-            return _MixedEdgeInsets.fromLRSETB(
-                a._left % other,
-                a._right % other,
-                a._start % other,
-                a._end % other,
-                a._top % other,
-                a._bottom % other
-            );
+            return a.remainder(other);
         }
 
 
@@ -345,72 +336,74 @@ namespace Unity.UIWidgets.painting {
             get { return fromSTEB(end, bottom, start, top); }
         }
 
-        public EdgeInsetsGeometry subtract(EdgeInsetsDirectional other) {
-            if (other is EdgeInsetsDirectional)
-                return this - other;
-            return base.subtract(other);
+        public override EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+            return fromSTEB(
+                start - other._start,
+                end - other._end,
+                top - other._top,
+                bottom - other._bottom
+            );
         }
 
-        public EdgeInsetsGeometry add(EdgeInsetsDirectional other) {
-            if (other is EdgeInsetsDirectional)
-                return this + other;
-            return base.add(other);
+        public override EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+            return fromSTEB(
+                start + other._start,
+                end + other._end,
+                top + other._top,
+                bottom + other._bottom
+            );
+        }
+
+        public override EdgeInsetsGeometry mutilpy(float b){
+            return fromSTEB(
+                start * b,
+                end * b,
+                top * b,
+                bottom * b
+            );
+        }
+
+        public override EdgeInsetsGeometry divide(float b){
+            return fromSTEB(
+                start / b,
+                end / b,
+                top / b,
+                bottom / b
+            );
+        }
+
+        public override EdgeInsetsGeometry remainder(float b){
+            return fromSTEB(
+                start % b,
+                end % b,
+                top % b,
+                bottom % b
+            );
         }
 
         public static EdgeInsetsDirectional operator -(EdgeInsetsDirectional a, EdgeInsetsDirectional b) {
-            return fromSTEB(
-                a.start - b.start,
-                a.top - b.top,
-                a.end - b.end,
-                a.bottom - b.bottom
-            );
+            return a.subtract(b) as EdgeInsetsDirectional;
         }
 
         public static EdgeInsetsDirectional operator +(EdgeInsetsDirectional a, EdgeInsetsDirectional b) {
-            return fromSTEB(
-                a.start + b.start,
-                a.top + b.top,
-                a.end + b.end,
-                a.bottom + b.bottom
-            );
+            return a.add(b) as EdgeInsetsDirectional;
         }
 
         public static EdgeInsetsDirectional operator -(EdgeInsetsDirectional a) {
-            return fromSTEB(
-                -a.start,
-                -a.top,
-                -a.end,
-                -a.bottom
-            );
+            return a.mutilpy(-1.0f) as EdgeInsetsDirectional;
         }
 
         public static EdgeInsetsDirectional operator *(EdgeInsetsDirectional a, float b) {
-            return fromSTEB(
-                a.start * b,
-                a.top * b,
-                a.end * b,
-                a.bottom * b
-            );
+            return a.mutilpy(b) as EdgeInsetsDirectional;
         }
 
         public static EdgeInsetsDirectional operator /(EdgeInsetsDirectional a, float b) {
-            return fromSTEB(
-                a.start / b,
-                a.top / b,
-                a.end / b,
-                a.bottom / b
-            );
+            return a.divide(b) as EdgeInsetsDirectional;
         }
 
         public static EdgeInsetsDirectional operator %(EdgeInsetsDirectional a, float b) {
-            return fromSTEB(
-                a.start % b,
-                a.top % b,
-                a.end % b,
-                a.bottom % b
-            );
+            return a.remainder(b) as EdgeInsetsDirectional;
         }
-
 
         public static EdgeInsetsDirectional lerp(EdgeInsetsDirectional a, EdgeInsetsDirectional b, float t) {
             D.assert(t != null);
@@ -480,71 +473,83 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
+        public override EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+            return fromLRSETB(
+                _left - other._left,
+                _right - other._right,
+                _start - other._start,
+                _end - other._end,
+                _top - other._top,
+                _bottom - other._bottom
+            );
+        }
+
+        public override EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+            return fromLRSETB(
+                _left + other._left,
+                _right + other._right,
+                _start + other._start,
+                _end + other._end,
+                _top + other._top,
+                _bottom + other._bottom
+            );
+        }
+
+        public override EdgeInsetsGeometry mutilpy(float b){
+            return fromLRSETB(
+                _left * b,
+                _right * b,
+                _start * b,
+                _end * b,
+                _top * b,
+                _bottom * b
+            );
+        }
+
+        public override EdgeInsetsGeometry divide(float b){
+            return fromLRSETB(
+                _left / b,
+                _right / b,
+                _start / b,
+                _end / b,
+                _top / b,
+                _bottom / b
+            );
+        }
+
+        public override EdgeInsetsGeometry remainder(float b){
+            return fromLRSETB(
+                _left % b,
+                _right % b,
+                _start % b,
+                _end % b,
+                _top % b,
+                _bottom % b
+            );
+        }
 
         public static _MixedEdgeInsets operator -(_MixedEdgeInsets a, _MixedEdgeInsets b) {
-            return _MixedEdgeInsets.fromLRSETB(
-                a._left - b._left,
-                a._right - b._right,
-                a._start - b._start,
-                a._end - b._end,
-                a._top - b._top,
-                a._bottom - b._bottom
-            );
+            return a.subtract(b) as _MixedEdgeInsets;
         }
 
         public static _MixedEdgeInsets operator +(_MixedEdgeInsets a, _MixedEdgeInsets b) {
-            return _MixedEdgeInsets.fromLRSETB(
-                a._left + b._left,
-                a._right + b._right,
-                a._start + b._start,
-                a._end + b._end,
-                a._top + b._top,
-                a._bottom + b._bottom
-            );
+            return a.add(b) as _MixedEdgeInsets;
         }
 
         public static _MixedEdgeInsets operator -(_MixedEdgeInsets a) {
-            return _MixedEdgeInsets.fromLRSETB(
-                -a._left,
-                -a._right,
-                -a._start,
-                -a._end,
-                -a._top,
-                -a._bottom
-            );
+            return a.mutilpy(-1.0f) as _MixedEdgeInsets;
         }
 
-        public static _MixedEdgeInsets operator *(_MixedEdgeInsets a, float other) {
-            return _MixedEdgeInsets.fromLRSETB(
-                a._left * other,
-                a._right * other,
-                a._start * other,
-                a._end * other,
-                a._top * other,
-                a._bottom * other
-            );
+        public static _MixedEdgeInsets operator *(_MixedEdgeInsets a, float b) {
+            return a.mutilpy(b) as _MixedEdgeInsets;
         }
 
-        public static _MixedEdgeInsets operator /(_MixedEdgeInsets a, float other) {
-            return _MixedEdgeInsets.fromLRSETB(
-                a._left / other,
-                a._right / other,
-                a._start / other,
-                a._end / other,
-                a._top / other,
-                a._bottom / other
-            );
+        public static _MixedEdgeInsets operator /(_MixedEdgeInsets a, float b) {
+            return a.divide(b) as _MixedEdgeInsets;
         }
 
-        public static _MixedEdgeInsets operator %(_MixedEdgeInsets a, float other) {
-            return _MixedEdgeInsets.fromLRSETB(
-                a._left % other,
-                a._right % other,
-                a._start % other,
-                a._end % other,
-                a._top % other,
-                a._bottom % other
-            );
+        public static _MixedEdgeInsets operator %(_MixedEdgeInsets a, float b) {
+            return a.remainder(b) as _MixedEdgeInsets;
         }
 
         public override EdgeInsets resolve(TextDirection? direction) {
@@ -680,16 +685,16 @@ namespace Unity.UIWidgets.painting {
                 rect.right - right, rect.bottom - bottom);
         }
 
-        public EdgeInsets subtract(EdgeInsets other) {
+        public override EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
             return fromLTRB(
-                left - other.left,
-                top - other.top,
-                right - other.right,
-                bottom - other.bottom
+                left - other._left,
+                top - other._top,
+                right - other._right,
+                bottom - other._bottom
             );
         }
 
-        public EdgeInsets add(EdgeInsetsGeometry other) {
+        public override EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
             return fromLTRB(
                 left + other._left,
                 top + other._top,
@@ -707,58 +712,55 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
-        public static EdgeInsets operator -(EdgeInsets a, EdgeInsets b) {
+        public override EdgeInsetsGeometry mutilpy(float b){
             return fromLTRB(
-                a.left - b.left,
-                a.top - b.top,
-                a.right - b.right,
-                a.bottom - b.bottom
+                left * b,
+                top * b,
+                right * b,
+                bottom * b
             );
+        }
+
+        public override EdgeInsetsGeometry divide(float b){
+            return fromLTRB(
+                left / b,
+                top / b,
+                right / b,
+                bottom / b
+            );
+        }
+
+        public override EdgeInsetsGeometry remainder(float b){
+            return fromLTRB(
+                left % b,
+                top % b,
+                right % b,
+                bottom % b
+            );
+        }
+
+        public static EdgeInsets operator -(EdgeInsets a, EdgeInsets b) {
+            return a.subtract(b) as EdgeInsets;
         }
 
         public static EdgeInsets operator +(EdgeInsets a, EdgeInsets b) {
-            return fromLTRB(
-                a.left + b.left,
-                a.top + b.top,
-                a.right + b.right,
-                a.bottom + b.bottom
-            );
+            return a.add(b) as EdgeInsets;
         }
 
         public static EdgeInsets operator -(EdgeInsets a) {
-            return fromLTRB(
-                -a.left,
-                -a.top,
-                -a.right,
-                -a.bottom
-            );
+            return a.mutilpy(-1.0f) as EdgeInsets;
         }
 
         public static EdgeInsets operator *(EdgeInsets a, float b) {
-            return fromLTRB(
-                a.left * b,
-                a.top * b,
-                a.right * b,
-                a.bottom * b
-            );
+            return a.mutilpy(b) as EdgeInsets;
         }
 
         public static EdgeInsets operator /(EdgeInsets a, float b) {
-            return fromLTRB(
-                a.left / b,
-                a.top / b,
-                a.right / b,
-                a.bottom / b
-            );
+            return a.divide(b) as EdgeInsets;
         }
 
         public static EdgeInsets operator %(EdgeInsets a, float b) {
-            return fromLTRB(
-                a.left % b,
-                a.top % b,
-                a.right % b,
-                a.bottom % b
-            );
+            return a.remainder(b) as EdgeInsets;
         }
 
         public static EdgeInsets lerp(EdgeInsets a, EdgeInsets b, float t) {
