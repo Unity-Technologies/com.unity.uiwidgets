@@ -184,12 +184,12 @@ UIWidgets应用是用**C＃脚本**来编写的。 请按照以下步骤创建�
 
 #### 五、如何加载图像？
 1. 将你的图像文件，如image1.png，放在StreamingAssets文件夹中。
-2. 使用Image.File（“image1.png”）加载图像。
+2. 使用Image.file("image1.png")加载图像。
 
 
 UIWidgets也支持Gif！
 1. 假设你有一个loading1.gif文件，复制到StreamingAssets文件夹。
-2. 使用Image.file（“loading1.gif”）加载gif图像。
+2. 使用Image.file("loading1.gif")加载gif图像。
 
 #### 六、在安卓上显示状态栏
 当一个Unity项目运行在Android设备上时，状态栏是默认隐藏且无法在编辑内进行调整的。

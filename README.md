@@ -199,7 +199,7 @@ all relevant resources and generate the final App package.
 
 UIWidgets supports Gif as well!
 1. Put your gif files in StreamingAssets folder. e.g. loading1.gif.
-2. Use Image.asset("loading1.gif") to load the gif images.
+2. Use Image.file("loading1.gif") to load the gif images.
 
 #### Show Status Bar on Android
 Status bar is always hidden by default when an Unity project is running on an Android device.
