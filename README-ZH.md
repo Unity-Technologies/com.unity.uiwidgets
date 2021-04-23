@@ -203,6 +203,18 @@ UIWidgets也支持Gif！
 
 如果想在runtime选择是否debug，请修改文件```com.unity.uiwidgets/com.unity.uiwidgets/Runtime/foundation/debug.cs```中的```static bool debugEnableAtRuntimeInternal```
 
+## 使用Window Scope保护外部调用
+如果您在调试时遇到 `AssertionError: Window.instance is null` 或者在调用 `Window.instance` 时得到空指针, 那么您需要
+使用以下方式来保护您的调用，使之可以在正确的Isolate上执行回调逻辑：
+```csharp
+using(Isolate.getScope(the isolate of your App)) {
+    // code dealing with UIWidgets,
+    // e.g. setState(() => {....})
+}
+```
+
+通常，在您使用外部事件，例如来自UIWidgets之外的输入事件、网络传输回调事件时需要做这样的处理。具体的您可以参考我们的 HttpRequestSample 这个样例中的写法。需要注意的是，一般情况下您在UIWidgets框架的内部调用 (如 `Widget.build, State.initState...`)中不需要额外采取上述保护措施。
+
 ## 学习
 
 #### 教程
