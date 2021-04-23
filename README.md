@@ -213,6 +213,24 @@ In Unity editor, you can switch debug/release mode by “UIWidgets->EnableDebug�
 
 If you want to change different mode in runtime, please modify the file “com.unity.uiwidgets/com.unity.uiwidgets/Runtime/foundation/debug.cs” by making “static bool debugEnableAtRuntimeInternal” to true or false. Note that the value is set to false by default.
 
+## Using Window Scope
+If you see the error `AssertionError: Window.instance is null` or null pointer error of `Window.instance`,
+it means the code is not running in the window scope. In this case, you can enclose your code
+with window scope as below:
+```csharp
+using(Isolate.getScope(the isolate of your App)) {
+    // code dealing with UIWidgets,
+    // e.g. setState(() => {....})
+}
+```
+
+This is needed if the code is in methods
+not invoked by UIWidgets. For example, if the code is in `completed` callback of `UnityWebRequest`,
+you need to enclose them with window scope.
+Please see our HttpRequestSample for detail.
+For callback/event handler methods from UIWidgets (e.g `Widget.build, State.initState...`), you don't need do
+it yourself, since the framework ensure it's in window scope.
+
 ## Learn
 
 #### Samples
