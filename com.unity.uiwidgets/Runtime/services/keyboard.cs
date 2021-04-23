@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
@@ -382,8 +382,7 @@ namespace Unity.UIWidgets.service {
                 return;
             }
 
-            var isolate = Isolate.current;
-            using (Isolate.getScope(isolate)) {
+            using (Isolate.getScope(TextInput._currentConnection.isolate)) {
                 switch (method) {
                     case "TextInputClient.updateEditingState":
                         TextInput._updateEditingState(client, TextEditingValue.fromJSON(args[1].AsObject));
@@ -475,7 +474,6 @@ namespace Unity.UIWidgets.service {
         }
         
 #if UNITY_IOS
-    /*
         [DllImport ("__Internal")]
         internal static extern void UIWidgetsTextInputShow();
         
@@ -489,13 +487,7 @@ namespace Unity.UIWidgets.service {
         internal static extern void UIWidgetsTextInputSetTextInputEditingState(string jsonText);
         
         [DllImport ("__Internal")]
-        internal static extern void UIWidgetsTextInputClearTextInputClient();*/
-
-        internal static void UIWidgetsTextInputShow() {}
-        internal static void UIWidgetsTextInputHide() {}
-        internal static void UIWidgetsTextInputSetClient(int client, string configuration) {}
-        internal static void UIWidgetsTextInputSetTextInputEditingState(string jsonText) {}
-        internal static void UIWidgetsTextInputClearTextInputClient() {}
+        internal static extern void UIWidgetsTextInputClearTextInputClient();
         
 #elif UNITY_ANDROID
         internal static void UIWidgetsTextInputShow() {

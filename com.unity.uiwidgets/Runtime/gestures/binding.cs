@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
@@ -71,8 +71,6 @@ namespace Unity.UIWidgets.gestures {
                 if (evt is PointerDownEvent) {
                     _hitTests[evt.pointer] = hitTestResult;
                 }
-
-                _hitTests[evt.pointer] = hitTestResult;
                 D.assert(() => {
                     if (D.debugPrintHitTestResults) {
                         Debug.LogFormat("{0}: {1}", evt, hitTestResult);

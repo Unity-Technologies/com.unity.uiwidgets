@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using uiwidgets;
 using UIWidgetsGallery.gallery;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;

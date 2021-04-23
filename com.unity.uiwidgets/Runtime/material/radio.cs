@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 

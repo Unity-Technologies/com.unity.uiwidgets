@@ -1,5 +1,5 @@
 ﻿using System;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 
 namespace Unity.UIWidgets.foundation {
     public class SynchronousFuture : Future {

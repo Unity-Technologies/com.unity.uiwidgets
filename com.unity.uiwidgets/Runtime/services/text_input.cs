@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.services;
@@ -602,6 +602,10 @@ namespace Unity.UIWidgets.service {
             _window = Window.instance;
             _client = client;
             _id = _nextId++;
+        }
+
+        public Isolate isolate {
+            get { return _window._panel.isolate; }
         }
         
         internal Size _cachedSize;

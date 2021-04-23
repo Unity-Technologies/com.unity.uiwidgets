@@ -330,7 +330,8 @@ cd $FLUTTER_ROOT
 ./flutter/tools/gn --unoptimized --ios --bitcode  //enable bitcode
 ```
 
-add this line to the end of out/ios_debug_unopt/args.gn:
+add this line to the end of out/ios_debug_unopt/args.gn, also 
+ensure that "bitcode_marker=false" if bitcode is enabled
 ```
 icu_use_data_file=false
 ```
@@ -350,3 +351,35 @@ If the compilation fails because "'Foundation/NSURLHandle.h' file not found" (fl
 cd <uiwidigets_dir>\engine
 mono bee.exe ios
 ```
+
+### Prelink Library (TODO: make it simpler)
+
+Different from other platforms, the engine is built as a static library on iOS. One drawback of this is that, there are potential library conflicts between our library and the Unity build-in library (libiPhone-lib.a). To address this issue, an additional prelink step is required. Since prelink is not supported by Bee yet (https://unity.slack.com/archives/C1RM0NBLY/p1617696912101700), currently we have to do it manually as follows:
+
+Generate the symbols that need to be stripped from libtxt_lib.a:
+```
+nm -j $FLUTTER_ROOT/out/ios_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a > third.symbol
+```
+
+Prelink our library with libtxt_lib.a and produce one single target file, namely libUIWidgets_d.o, inside engine folder: 
+```
+"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -r -arch arm64 -syslibroot $IOS_SDK_PATH -unexported_symbols_list third.symbol $TARGET_FILES $FLUTTER_ROOT/out/ios_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a -o "libUIWidgets_d.o"                 //disable bitcode
+"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -r -arch arm64 -bitcode_bundle -bitcode_verify -syslibroot $IOS_SDK_PATH -unexported_symbols_list third.symbol $TARGET_FILES $FLUTTER_ROOT/out/ios_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a -o "libUIWidgets_d.o"        //enable bitcode
+```
+
+where **$IOS_SDK_PATH** is the ios sdk path on your computer, which is usually inside "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/" and named like iPhoneOS*XX*.*YY*.sdk. **$TARGET_FILES** is a list of target files (i.e., .o files) in our library. You can find all the target files in the file "artifacts/tundra.dag.json" by collecting all the file names with suffix ".o" from the **Inputs** section under this **Annotation** "Lib_iOS_arm64 artifacts/libUIWidgets/debug_iOS_arm64/libUIWidgets_d.a".
+
+
+Archive the generated target file into a static library:
+```
+"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool" -arch_only arm64 -static "libUIWidgets_d.o" -o "libUIWidgets_d.a"
+```
+
+Strip all the internal symbols from libtxt_lib.a:
+```
+"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip" -x "libUIWidgets_d.a"
+```
+
+Copy the generated libUIWidgets_d.a from the engine folder to the plugin folder of your target project (e.g., Samples/UIWidgetsSamples_2019_4/Assets/Plugins/iOS/) to replace the original libraries there (i.e., libtxt_lib.a and libUIWidgets_d.a)
+
+

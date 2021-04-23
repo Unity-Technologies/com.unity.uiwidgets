@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.gestures {
