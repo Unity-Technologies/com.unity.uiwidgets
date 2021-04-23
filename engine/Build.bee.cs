@@ -821,8 +821,6 @@ class Build
                 dependencies.Add(deployNP.Path);
             }
 
-            Backend.Current.AddAliasDependency("ios", CopyTool.Instance().Setup("../com.unity.uiwidgets/Runtime/Plugins/iOS/CustomAppController.m", "src/external/ios/CustomAppController.m"));
-
             np.ValidConfigurations = validConfigurations;
         }
 
