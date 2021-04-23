@@ -16,6 +16,8 @@ class UIMonoState : public MonoState {
  public:
   static UIMonoState* Current();
 
+  static bool EnsureCurrentIsolate();
+
   Window* window() const { return window_.get(); }
 
   const TaskRunners& GetTaskRunners() const;

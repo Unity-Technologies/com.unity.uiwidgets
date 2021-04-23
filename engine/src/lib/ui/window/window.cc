@@ -60,6 +60,9 @@ Window_hook(
 }
 
 UIWIDGETS_API(Mono_Handle) Window_instance() {
+  if (!UIMonoState::EnsureCurrentIsolate()) {
+    return nullptr;
+  }
   return UIMonoState::Current()->window()->mono_window();
 }
 

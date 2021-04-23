@@ -196,7 +196,13 @@ namespace Unity.UIWidgets.ui {
 
         public static Window instance {
             get {
-                GCHandle gcHandle = (GCHandle) Window_instance();
+                IntPtr ptr = Window_instance();
+                if (ptr == IntPtr.Zero) {
+                    D.assert(false, () => "AssertionError: Window.instance is null. Please enclose your code with window scope (detailed examples can be found in the README file)");
+                    return null;
+                }
+                
+                GCHandle gcHandle = (GCHandle) ptr;
                 return (Window) gcHandle.Target;
             }
         }
