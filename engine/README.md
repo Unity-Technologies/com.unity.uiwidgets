@@ -31,6 +31,7 @@ gclient sync -D
 ```
 
 Apply the following diff:
+modify flutter/third_party/txt/BUILD.gn
 ```
 --- a/third_party/txt/BUILD.gn
 +++ b/third_party/txt/BUILD.gn
@@ -51,6 +52,33 @@ Apply the following diff:
 +  complete_static_lib = true
 +  deps = [
 +    ":txt",
++  ]
++}
+```
+
+modify third_party/angnle/BUILD.gn
+```
+diff --git a/BUILD.gn b/BUILD.gn
+index 06bf3bbbe..1b51a32de 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -1252,3 +1252,18 @@ if (!is_component_build && is_android &&
+     ]
+   }
+ }
++
++angle_static_library("angle_lib"){
++  complete_static_lib = true
++
++  deps = [
++    ":libANGLE",
++    ":libANGLE_base", 
++    ":angle_system_utils",
++    ":angle_version",
++  ]
++
++  public_deps = [
++    ":includes",
 +  ]
 +}
 ```
@@ -82,38 +110,9 @@ set GYP_MSVS_OVERRIDE_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\C
 cd engine/src
 python ./flutter/tools/gn --unoptimized
 ninja -C out\host_debug_unopt flutter/third_party/txt:txt_lib
+ninja -C out\host_debug_unopt third_party/angle:angle_lib
+ninja -C out\host_debug_unopt  third_party/angle:libEGL_static
 ```
-
-### Build Skia
-1. Install LLVM
-
-https://clang.llvm.org/get_started.html
-
-2. Build skia
-```
-cd $FLUTTER_ROOT/third_party/skia
-python2 tools/git-sync-deps
-bin/gn gen out/Debug
-```
-
-Update out/Debug/args.gn with the following content:
-```
-clang_win = "C:\Program Files\LLVM/third_party/skia"
-win_vc = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC"
-cc = "clang"
-cxx = "clang++"
-is_debug = true
-skia_use_angle = true
-skia_use_egl = true
-extra_cflags = [
-  "/MTd",
-  "-I../../third_party/externals/angle2/include",
-]
-```
-```
-ninja -C out/Debug -k 0
-```
-Ignore this error: "lld-link: error: could not open 'EGL': no such file or directory"
 
 convert icudtl.dat to object file in flutter
 ```
