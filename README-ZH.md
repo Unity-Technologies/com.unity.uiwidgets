@@ -1,4 +1,4 @@
-# UIWidgets
+# UIWidgets 2.0 （preview）
 
 
 ## 介绍
@@ -6,6 +6,8 @@
 UIWidgets是Unity编辑器的一个插件包，可帮助开发人员通过Unity引擎来创建、调试和部署高效的跨平台应用。
 
 UIWidgets主要来自[Flutter](https://github.com/flutter/flutter)。但UIWidgets通过使用强大的Unity引擎为开发人员提供了许多新功能，显著地改进他们开发的应用性能和工作流程。
+
+UIWidgets 2.0是UIWidgets的最新版本，它主要着力于UI绘制相关的整体性能优化。经测试，UIWidgets 2.0在iPhone 6等部分机型上的帧率相对1.0版本可以取得10%左右的提升。如果因为各种原因您还需要使用UIWidgets 1.0，请在Releases中下载对应的包或者使用uiwidgets_1.0分支。
 
 #### 效率
 通过使用最新的Unity渲染SDK，UIWidgets应用可以非常快速地运行并且大多数时间保持大于60fps的速度。
@@ -66,7 +68,11 @@ https://github.com/UnityTech/DocCN 查看。
    ```
 在unity的PackageManager中，选择添加添加local file。选中```/com.unity.uiwidgets```下的```package.json```。
 
-对于windows,请用在```com.unity.uiwidgets/Runtime/Plugins/x86_64```下的 ```libEGL.dll, libGLESv2.dll```替换编辑器中中相应文件
+对于windows,请用在```com.unity.uiwidgets/Runtime/Plugins/x86_64```下的 ```libEGL.dll, libGLESv2.dll```替换编辑器中相应文件
+
+#### 运行环境
+
+UIWidgets目前暂时只支持MacOS（Metal），iOS（Metal），Android（Armv7，OpenGLes）以及 Windows（Direct3D11）。我们后续会针对更广泛的运行环境进行适配，敬请期待。
 
 ## 入门指南
 
@@ -74,10 +80,6 @@ https://github.com/UnityTech/DocCN 查看。
 在本教程中，我们将创建一个非常简单的UIWidgets应用。 该应用只包含文本标签和按钮。 文本标签将计算按钮上的点击次数。
 
 首先，请打开或创建Unity项目并使用Unity编辑器打开它。
-
-然后打开Project Settings，转到Player部分并**将“UIWidgets_DEBUG”添加到Scripting Define Symbols字段中。**
-
-这样就启动了UIWidgets的调试模式。 在之后发布版本的时候清空这个字段。
 
 #### 二、 场景构建
 
@@ -182,12 +184,12 @@ UIWidgets应用是用**C＃脚本**来编写的。 请按照以下步骤创建�
 
 #### 五、如何加载图像？
 1. 将你的图像文件，如image1.png，放在StreamingAssets文件夹中。
-2. 使用Image.File（“image1.png”）加载图像。
+2. 使用Image.file("image1.png")加载图像。
 
 
 UIWidgets也支持Gif！
 1. 假设你有一个loading1.gif文件，复制到StreamingAssets文件夹。
-2. 使用Image.file（“loading1.gif”）加载gif图像。
+2. 使用Image.file("loading1.gif")加载gif图像。
 
 #### 六、在安卓上显示状态栏
 当一个Unity项目运行在Android设备上时，状态栏是默认隐藏且无法在编辑内进行调整的。

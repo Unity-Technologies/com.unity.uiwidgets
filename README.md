@@ -1,4 +1,4 @@
-# UIWidgets
+# UIWidgets 2.0 (preview)
 [中文](README-ZH.md)
 
 
@@ -10,6 +10,8 @@ cross-platform Apps using the Unity Engine.
 UIWidgets is mainly derived from [Flutter](https://github.com/flutter/flutter). However, taking advantage of
 the powerful Unity Engine, it offers developers many new features to improve their Apps
 as well as the develop workflow significantly.
+
+As the latest version, UIWidgets 2.0 aims to optmize the overall performance of the package. Specifically, a performance gain around 10% is observed on  mobile devices like iPhone 6 after upgrading to UIWidgets 2.0. However, if you still want to use the original UIWidgets 1.0, please download the archived packages from Releases or switch your working branch to uiwidgets_1.0.
 
 #### Efficiency
 Using the latest Unity rendering SDKs, a UIWidgets App can run very fast and keep >60fps in most times.
@@ -78,6 +80,10 @@ In PackageManger of unity, select add local file. select ```package.json``` unde
 
 for windows, please replace ```libEGL.dll, libGLESv2.dll``` in Editor from ones in ```com.unity.uiwidgets/Runtime/Plugins/x86_64``
 
+#### Runtime Environment
+
+Currently UIWidgets only supports MacOS(Metal), iOS(Metal), Android(Armv7, OpenGLes) and Windows(Direct3D11). More devices will be supported in the future.
+
 ## Getting Start
 
 #### i. Overview
@@ -85,9 +91,6 @@ In this tutorial, we will create a very simple UIWidgets App as the kick-starter
 only a text label and a button. The text label will count the times of clicks upon the button.
 
 First of all, please open or create a Unity Project and open it with Unity Editor.
-
-And then open Project Settings, go to Player section and **add "UIWidgets_DEBUG" to the Scripting Define Symbols field.**
-This enables the debug mode of UIWidgets for your development. Remove this for your release build afterwards.
 
 #### ii. Scene Build
 A UIWidgets App is usually built upon a Unity UI Canvas. Please follow the steps to create a
@@ -196,7 +199,7 @@ all relevant resources and generate the final App package.
 
 UIWidgets supports Gif as well!
 1. Put your gif files in StreamingAssets folder. e.g. loading1.gif.
-2. Use Image.asset("loading1.gif") to load the gif images.
+2. Use Image.file("loading1.gif") to load the gif images.
 
 #### Show Status Bar on Android
 Status bar is always hidden by default when an Unity project is running on an Android device.
