@@ -78,8 +78,6 @@ Generally, you can make it using a console (or terminal) application by just a f
 
 In PackageManger of unity, select add local file. select ```package.json``` under ```/com.unity.uiwidgets```
 
-for windows, please replace ```libEGL.dll, libGLESv2.dll``` in Editor from ones in ```com.unity.uiwidgets/Runtime/Plugins/x86_64``
-
 #### Runtime Environment
 
 Currently UIWidgets only supports MacOS(Metal), iOS(Metal), Android(Armv7, OpenGLes) and Windows(Direct3D11). More devices will be supported in the future.

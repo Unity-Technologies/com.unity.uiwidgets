@@ -68,8 +68,6 @@ https://github.com/UnityTech/DocCN 查看。
    ```
 在unity的PackageManager中，选择添加添加local file。选中```/com.unity.uiwidgets```下的```package.json```。
 
-对于windows,请用在```com.unity.uiwidgets/Runtime/Plugins/x86_64```下的 ```libEGL.dll, libGLESv2.dll```替换编辑器中相应文件
-
 #### 运行环境
 
 UIWidgets目前暂时只支持MacOS（Metal），iOS（Metal），Android（Armv7，OpenGLes）以及 Windows（Direct3D11）。我们后续会针对更广泛的运行环境进行适配，敬请期待。
