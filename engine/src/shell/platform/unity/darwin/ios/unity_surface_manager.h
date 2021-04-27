@@ -18,6 +18,10 @@ class UnitySurfaceManager {
   UnitySurfaceManager(IUnityInterfaces* unity_interfaces);
   ~UnitySurfaceManager();
 
+  //openGLES contexts
+  static EAGLContext *gl_context_;
+  static EAGLContext *gl_resource_context_;
+
   void* CreateRenderTexture(size_t width, size_t height);
 
   void ReleaseNativeRenderContext();
@@ -37,8 +41,6 @@ class UnitySurfaceManager {
   CVPixelBufferRef pixelbuffer_ref = nullptr;
 
   //gl handlers
-  EAGLContext *gl_context_ = NULL;
-  EAGLContext *gl_resource_context_ = NULL;
   GLuint default_fbo_ = 0;
   GLuint gl_tex_ = 0;
   CVOpenGLESTextureCacheRef gl_tex_cache_ref_ = nullptr;

@@ -14,6 +14,10 @@ class UnitySurfaceManager {
   UnitySurfaceManager(IUnityInterfaces* unity_interfaces);
   ~UnitySurfaceManager();
 
+  //openGL contexts
+  static NSOpenGLContext *gl_context_;
+  static NSOpenGLContext *gl_resource_context_;
+
   void* CreateRenderTexture(size_t width, size_t height);
 
   void ReleaseNativeRenderContext();
@@ -32,8 +36,6 @@ class UnitySurfaceManager {
   //pixel buffer handles
   CVPixelBufferRef pixelbuffer_ref = nullptr;
   //openGL handlers
-  NSOpenGLContext *gl_context_ = NULL;
-  NSOpenGLContext *gl_resource_context_ = NULL;
   GLuint default_fbo_ = 0;
   GLuint gl_tex_ = 0;
   CVOpenGLTextureCacheRef gl_tex_cache_ref_ = nullptr;
