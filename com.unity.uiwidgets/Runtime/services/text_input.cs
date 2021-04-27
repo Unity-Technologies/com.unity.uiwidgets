@@ -196,7 +196,7 @@ namespace Unity.UIWidgets.service {
             json["smartQuotesType"] = smartQuotesType.ToString();
             json["enableSuggestions"] = enableSuggestions;
             json["actionLabel"] = actionLabel;
-            json["inputAction"] = inputAction.ToString();
+            json["inputAction"] = $"TextInputAction.{inputAction.ToString()}";
             json["unityTouchKeyboard"] = unityTouchKeyboard;
             json["textCapitalization"] = textCapitalization.ToString();
             json["keyboardAppearance"] = keyboardAppearance.ToString();
