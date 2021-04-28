@@ -47,6 +47,15 @@ namespace Unity.UIWidgets.gestures {
             var lastMouseEvent = new List<PointerEvent>();
             foreach (int deviceId in this._lastMouseEvent.Keys) {
                 var _deviceId = deviceId;
+                var deviceEvent = this._lastMouseEvent[_deviceId];
+                
+                //only process PointerEditorDragEvents
+                if (!(deviceEvent is PointerDragFromEditorEnterEvent ||
+                      deviceEvent is PointerDragFromEditorHoverEvent ||
+                      deviceEvent is PointerDragFromEditorExitEvent)) {
+                    continue;
+                }
+
                 lastMouseEvent.Add(this._lastMouseEvent[_deviceId]);
                 SchedulerBinding.instance.addPostFrameCallback(_ => {
                     foreach (var lastEvent in lastMouseEvent) {

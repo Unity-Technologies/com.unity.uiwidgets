@@ -214,6 +214,13 @@ namespace Unity.UIWidgets.gestures {
 
             foreach (int deviceId in this._lastMouseEvent.Keys) {
                 PointerEvent lastEvent = this._lastMouseEvent[deviceId];
+                
+                //only process PointerEvents
+                if (!(lastEvent is PointerMoveEvent ||
+                      lastEvent is PointerHoverEvent ||
+                      lastEvent is PointerDownEvent)) {
+                    continue;
+                }
                 MouseTrackerAnnotation hit = this.annotationFinder(lastEvent.position);
 
                 if (hit == null) {

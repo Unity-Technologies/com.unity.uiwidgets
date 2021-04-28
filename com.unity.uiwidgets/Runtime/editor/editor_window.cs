@@ -402,7 +402,7 @@ namespace Unity.UIWidgets.editor {
                     );
                 }
                 else if (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp ||
-                        evt.type == EventType.DragExited) {
+                        evt.type == EventType.DragExited || evt.type == EventType.MouseLeaveWindow) {
                     pointerData = new PointerData(
                         timeStamp: Timer.timespanSinceStartup,
                         change: PointerChange.up,
