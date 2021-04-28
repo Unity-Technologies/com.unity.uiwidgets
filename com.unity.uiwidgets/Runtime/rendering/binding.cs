@@ -83,8 +83,10 @@ namespace Unity.UIWidgets.rendering {
             }, this.inEditorWindow);
         }
 
-        protected virtual void drawFrame() {
+        protected virtual void drawFrame(bool layoutOnly = false) {
             this.pipelineOwner.flushLayout();
+            if (layoutOnly) return;
+            
             this.pipelineOwner.flushCompositingBits();
             this.pipelineOwner.flushPaint();
             this.renderView.compositeFrame();

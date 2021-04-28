@@ -90,6 +90,15 @@ namespace Unity.UIWidgets.editor {
         public Window window {
             get { return this._windowAdapter; }
         }
+
+        public void forceUpdate() {
+            Widget root;
+            using (this._windowAdapter.getScope()) {
+                root = this.createWidget();
+            }
+
+            this._windowAdapter.attachRootWidget(root);
+        }
     }
 
     public class EditorWindowAdapter : WindowAdapter {
@@ -392,7 +401,8 @@ namespace Unity.UIWidgets.editor {
                         physicalY: evt.mousePosition.y * this._devicePixelRatio
                     );
                 }
-                else if (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp) {
+                else if (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp ||
+                        evt.type == EventType.DragExited || evt.type == EventType.MouseLeaveWindow) {
                     pointerData = new PointerData(
                         timeStamp: Timer.timespanSinceStartup,
                         change: PointerChange.up,
