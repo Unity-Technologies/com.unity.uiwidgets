@@ -39,7 +39,7 @@ void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height)
 {
   //Constants
   const int ConstCVPixelFormat = kCVPixelFormatType_32BGRA;             
-  const MTLPixelFormat ConstMetalViewPixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
+  const MTLPixelFormat ConstMetalViewPixelFormat = MTLPixelFormatBGRA8Unorm;
   const GLuint ConstGLInternalFormat = GL_RGBA;        
   const GLuint ConstGLFormat = GL_BGRA_EXT;
   const GLuint ConstGLType = GL_UNSIGNED_INT_8_8_8_8_REV;
