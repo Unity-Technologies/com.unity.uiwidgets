@@ -50,7 +50,7 @@ CPU/GPU Profiling, FPS Profiling.
 ### Projects using UIWidgets
 
 #### Unity Connect App
-The Unity Connect App is created using UIWidgets and available for both Android (https://connect.unity.com/connectApp/download)
+The Unity Connect App is created using UIWidgets and available for both Android (https://unity.cn/connectApp/download)
 and iOS (Searching for "Unity Connect" in App Store). This project is open-sourced @https://github.com/UnityTech/ConnectAppCN.
 
 #### Unity Chinese Doc
